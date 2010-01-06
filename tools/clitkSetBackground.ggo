@@ -1,0 +1,14 @@
+#File clitkSetBackground.ggo
+Package "clitkSetBackground"
+version "1.0"
+purpose ""
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+option "mask"    	m   	"Mask image filename"		  string 	yes
+option "outsideValue"   p   	"Outside value"		  	  double 	no	default="0.0"
+option "maskValue"    	l   	"Mask value"		  	  double 	no	default="0.0"
+option "fg"    		-   	"Foreground mode"	  	  flag 	off

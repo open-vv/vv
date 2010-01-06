@@ -1,0 +1,16 @@
+#File clitkImageWarp.ggo
+#Author: Jef Vandemeulebroucke <jefvdmb@gmail.com>
+#Date : Tue 13 August 19.35 
+
+Package "clitk"
+Version "Read an Image (short, char or float; 2D or 3D) and a vector field (float, 2D or 3D) and deform the input through backward or forward mapping."
+
+option "config"	  	 	-	"Config file"				  					string  	no
+option "verbose"   	 	v   	"Verbose"				  					flag		off
+option "input"			i	"Input image filename"		  						string 		yes
+option "output"    	 	o   	"Output image filename"		  						string		yes
+option "vf"			-	"Vector field filename"								string 		yes
+option "forward"		f	"Use forward warping (only linear interp)"	flag 		off
+option "spacing"		s	"The output spacing: 0=like the VF, 1= like the input image (linear interpolation of the VF prior to warp)"	int             no 	default="0"
+option "interp"			-	"Type of interpolation used for the warping: 0=nearest neighbor, 1= linear, 2= cubic Bspline" int  no	default="1"
+option "pad"			-	"Edge padding value" float  no	default="0.0"

@@ -1,0 +1,21 @@
+#File  clitkImageCreate.ggo
+Package "clitkImageCreate"
+version "1.0"
+purpose "Create a new singled value filled image (pixeltype is float, use clitkImageConvert to change)."
+
+option "config"       	- "Config file"  	  string no
+option "output"	        o "Output image filename" string yes
+
+option "like"	        l "Size/spacing like this other image" string no
+
+option "size"	 	- "Number of pixels of each coordinate"	int	no multiple
+option "spacing"	- "Spacing in mm between pixels" 	float	no multiple
+option "origin"		- "Origin in mm" 			double	no multiple
+
+option "value"		- "Value for all voxels"  float	 default="0.0"  no
+option "verbose"	v "Verbose"		  flag	 off
+
+#option "random"	r "Random fill"		  flag	 off
+#option "max"		- "Max random fill"	  double default="100.0" no
+#option "min"		- "Min random fill"	  double default="0.0"   no
+

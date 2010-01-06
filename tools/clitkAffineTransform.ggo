@@ -1,0 +1,31 @@
+#File clitkAffineTransform.ggo
+Package "clitkAffineTransform"
+version "1.0"
+purpose "Resample with or without affine transform of 2D, 3D, 4D images or vector fields"
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+section "I/O"
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+option "like"    	l   	"Resample output this image (size, spacing,origin)"	string 	no
+
+section "Options"
+option "size"		-	"New output size if different from input"  	int 	no 	multiple
+option "spacing"	-	"New output spacing if different from input" 	double 	no 	multiple
+option "origin"		-	"New output origin if different from input" 	double 	no 	multiple
+option "matrix"		m	"Affine matrix (homogene) filename"		string  no
+option "pad"		-	"Edge padding value" 				double 	no 	default="0.0"
+
+section "Interpolation"
+option "interp"		-	"Interpolation: 0=NN, 1=Linear, 2=BSpline, 3=BLUT"	int  	no  default="1"
+option "interpOrder"	-	"Order if BLUT or BSpline (0-5)"		        int  	no  default="3"
+option "interpSF"	-	"Sampling factor if BLUT"			        int  	no  default="20"
+option "interpVF"	-	"Interpolation: 0=NN, 1=Linear, 2=BSpline, 3=BLUT"	int  	no  default="1"
+option "interpVFOrder"	-	"Order if BLUT or BSpline (0-5)"		        int  	no  default="3"
+option "interpVFSF"	-	"Sampling factor if BLUT"			        int  	no  default="20"
+
+
+
+

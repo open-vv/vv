@@ -1,0 +1,12 @@
+#File  clitkSplitImage.ggo
+Package "clitkSplitImage"
+version "1.0"
+purpose "Split an image into n images along a dimension"
+
+
+option "config"    -	"Config file"  		  string   no
+option "input"	   i 	"Input image filename"	  string   yes
+option "output"    o 	"Output image base filename"	  string   yes
+option "verbose"   v 	"Verbose"		  flag	   off
+
+option "dimension"     d 	"Dimension to split on"  int yes

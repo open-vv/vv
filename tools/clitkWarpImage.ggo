@@ -1,0 +1,30 @@
+#File clitkWarpImage.ggo
+Package "clitkWarpImage"
+version "1.0"
+purpose "Warp an image. Output will have the extent (origin+ spacing*size) of the input."
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+section "I/O"
+
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+option "vf"		-	"Vector field filename"		  string 		yes
+
+
+section "Options"
+
+option "forward"		f	"Use forward warping (only linear interp)"	flag 		off
+option "spacing"		s	"The output spacing: 0=like the VF, 1= like the input image (interpolation of the VF prior to warp)"	int             no 	default="0"
+option "pad"			-	"Edge padding value" float  no	default="0.0"
+
+
+section "Interpolation: for image intensity and prior resampling of DVF"
+
+option "interp"		-	"Interpolation: 0=NN, 1=Linear, 2=BSpline, 3=BLUT"	int  	no  default="1"
+option "interpOrder"	-	"Order if BLUT or BSpline (0-5)"		        int  	no  default="3"
+option "interpSF"	-	"Sampling factor if BLUT"			        int  	no  default="20"
+option "interpVF"	-	"Interpolation: 0=NN, 1=Linear, 2=BSpline, 3=BLUT"	int  	no  default="1"
+option "interpVFOrder"	-	"Order if BLUT or BSpline (0-5)"		        int  	no  default="3"
+option "interpVFSF"	-	"Sampling factor if BLUT"			        int  	no  default="20"

@@ -1,0 +1,5 @@
+# file DicomInfos.ggo
+Package "clitk"
+version "read and print Dicom header"
+
+option "config"	  	 -	"Config file"		 string  	no

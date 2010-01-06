@@ -1,0 +1,27 @@
+#File clitkSignalFilter.ggo
+Package "clitk"
+Version "Pass an filter on an signal"
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+option "input"		i	"Input grid filename"		  string  	yes
+option "input2"		j	"Second Input grid filename"	  string  	no
+option "p1"		-	"p1"				  double  	no
+option "p2"		-	"p2"				  double  	no
+option "output"    	o  	"Output grid filename"		  string 	no
+option "multiply"	-	"Mulitply values of input 1 with input 2 (same size)"      flag		off    
+option "divide"		-	"Divide values of input 1 with input 2 (same size, zeros are skipped)"   flag		off     
+option "norm"    	n  	"Normalize signal between p1=min and p2=max"		  flag 		off
+option "rescale"    	-  	"Rescale signal to p1=mean and p2=StdDev"	  	  flag 		off
+option "highPass"   	-  	"High Pass Filter: p1=sampPeriod, p2= cutOffFrequecy"	  flag 		off
+option "lowPass"   	-  	"Low Pass Filter: p1=sampPeriod, p2= cutOffFrequecy"	  flag 		off
+option "detect"   	-  	"Detect Local extrema: local window= 2*p1+1, p1>=1"	  	  flag 		off
+option "limPhase"   	-  	"Convert extrema signal into limited phase [0, 1["	  	  flag 		off
+option "monPhase"   	-  	"Convert extrema signal into monotone phase [0, inf["	  	  flag 		off
+option "monPhaseDE"   	-  	"Convert extrema signal into scattered monotone phase, taking into account both extrema (p1=eEPhaseValue,p2=eIPhaseValue)"	  	  flag 		off
+option "average"   	-  	"Moving Average filter: window= 2*p1+1 [0, inf["	  	  flag 		off
+option "ssd"	   	-  	"Calculate the sqrt of the mean SSD between i and j"	  	  flag 		off
+option "gauss"	   	-  	"Pass a small gauss-like kernel (121-mask)"		  	  flag 		off
+option "interp"	   	-  	"Linearly interpolate scattered values (unknow values=-1)"		  	  flag 		off
+option "approx"	   	-  	"Bspline approximate scattered values(unknow values=-1, p1=Order, p2=number of control points"	 flag 		off
+option "limit"	   	-  	"Limit the range to [0, 1[ (signal-floor (signal))"	 flag 		off

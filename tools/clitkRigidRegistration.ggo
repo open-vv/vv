@@ -1,0 +1,55 @@
+# file clitkRigidRegistration.ggo
+Package "clitkRigidRegistration"
+version "1.0"
+purpose "Compute a rigid registration between two images." 
+
+option "config"	  	-	"Config file"		  		string  no
+option "verbose"   	v  	"Verbose"		  		flag	off
+option "gradient"   	-  	"If verbose, show gradient at each iteration" 	flag	off
+
+section "Input (Both images have to be of the same dimension (2 or 3D). For 2D-3D registrations, give the 2D image a third dimension of 1 and set it to the reference image.)"
+option "reference"	i	"Reference or fixed image filename"		string  yes
+option "object"     	j 	"Object or moving image filename"		string  yes
+option "mask"     	m 	"Mask to placed over the reference image"	string	 no	
+
+section "Output"
+option "output"     	o 	"Transformed object image filename"							string  no
+option "checker_after"  - 	"Checherboard representation of the transformed object image and reference image"	string  no
+option "checker_before"  - 	"Checherboard representation of the object image and reference image"			string  no
+option "after"     	- 	"Difference between the reference image and the transformed object"			string  no
+option "before"     	- 	"Difference between the reference image and the original object image"			string  no
+option "matrix"     	- 	"Affine matrix (reference to object space) filename "					string  no
+
+section "Interpolator"
+option "interp" 	-       "Interpolator used during registration: 0=nearestneighbor, 1=linear, 2=bspline" 	int 	no 	default="1"
+
+section "Transform (Input and Output transformation parameters map the physical space of the fixed or reference image into the physical space of the moving or object image. Positive rotations result in a counter-clockwise rotation for the moving image. Positive translations result in shift along the negative axis for the moving image.)"
+option "transX" 	x       "Initial translation in mm along the X axis" 	float	no 	default="0.0"
+option "transY" 	y       "Initial translation in mm along the Y axis" 	float	no	default="0.0"
+option "transZ" 	z       "Initial translation in mm along the Z axis" 	float	no	default="0.0"
+option "rotX" 		X       "Initial rotation in rad along the X axis" 	float	no	default="0.0"
+option "rotY" 		Y       "Initial rotation in rad along the Y axis" 	float	no	default="0.0"
+option "rotZ" 		Z       "Initial rotation in rad along the Z axis" 	float	no	default="0.0"
+
+section "Optimizer"
+option "levels"     	l 	"Number of multiresolution levels"								int	 no	default="1"
+option "Istep" 		-       "Initial stepsize in mm in the first level(to be multiplied with the gradient)" 		float	no	default="2.0"
+option "Fstep" 		-       "Final  stepsize in mm in the first level (to be multiplied with the gradient)" 		float	no	default="0.1"
+option "relax" 		-       "Relaxation of the stepsize (multiplied each time the gradient changes sign)" 			float	no	default="0.7"
+option "inc" 		-       "Increment factor x  previous stepsize = new stepsize when going to next level" 	float	no	default="1.2"
+option "dec" 		-       "Decrement factor(:) previous stepsize = new final stepsize when going to next level" float	no	default="4.0"
+option "iter" 		-       "Maximum number of iterations at each level" 						int	no	default="200"
+option "Rweight" 	-       "Weight of 1° of rotation during optimisation (high weight, less change)" 			float	no	default="50.0"
+option "Tweight"	-       "Weight of 1mm of translation  during optimisation (high weight, less change)" 			float	no	default="1.0"
+
+section "Metric (Use a high fraction of samples for detailed images (eg. 0.2, 0.5). For smooth images 0.01 might be enough. Use enough bins to cover the dynamique range. Randomizing the samples will make each execution different.)"
+option "metric" 	-       "Metric used during registration: 0=MS, 1=MI, 2=Mattes' MI, 3=CR" 					int 	no 	default="0"
+option "samples" 	-       "If using MI or Mattes' MI, specify fraction [0, 1] of samples of the reference image" 				float 	no 	default="0.2"
+option "bins"	 	-       "If using Mattes' MI, specify the number of histogram bins for the PDF estimation of the reference image" 	int 	no 	default="50"
+option "random" 	-       "If using Mattes' MI and MI, specify if the set of samples should be taken randomly"				flag 	off 	
+option "stdDev"		-       "If using MI, specify the standard deviation in mm of the gaussian kernels for both PDF estimations" 			float 	no 	default="0.4" 	
+
+section "Preprocessing"
+option "normalize"	-       "Normalize images before registration (not necessary for Mattes' MI)" 			flag 	off 	
+option "blur"		-       "Blur images before registration, use Gaussian with std dev (none by default) " 	float 	no  default="0.0" 	
+option "zero_origin"	-	"Reset the input images' origins to zero, to avoid additional shifts according to jef"	flag	off

@@ -1,0 +1,17 @@
+#File clitkImageExtractLine.ggo
+Package "clitkImageExtractLine"
+version "1.0"
+purpose "Extract 1D values along a line (in voxels). 3D only."
+
+option "config"	  	-	"Config file"			  string  	no
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output txt filename"		  string 	yes
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "firstIndex"	f	"First index value (in voxels)"	  int yes multiple
+option "lastIndex"	l	"Last index value (in voxels"	  int yes multiple
+
+option "mm"		m	"Last/first index are in mm"	  flag off
+
+option "isocenter"	c	"Set isocenter (in mm)" 	  int no multiple
+option "depth"		d	"Write depth in output" 	  flag off

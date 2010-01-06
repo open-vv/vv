@@ -1,0 +1,14 @@
+#File clitkWriteDicomSeries.ggo
+Package "clitkWriteDicomSeries"
+version "1.0"
+purpose ""
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"		i	"Input image filename"		  string  	yes
+option "inputDir"	d	"Input dicom directory"		  string  	yes
+option "outputDir"    	o   	"Output dicom directory"	  string  	yes 
+option "key"    	k   	"Keys of tags to modify"	  string  	no multiple default="0008|103e"
+option "tag"		t   	"Tags values"	 		 string  	no multiple default="MIDPOSITION"
+option "midP"		m	"Modify tags using defaults, for  MidPosition"	flag 	off

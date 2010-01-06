@@ -1,0 +1,29 @@
+<RCC>
+  <qresource prefix="/new/prefix1" >
+    <file>icons/crop.png</file>
+    <file>icons/splashscreen2.png</file>
+    <file>icons/splashscreen.PNG</file>
+    <file>icons/cut.png</file>
+    <file>icons/GPSup.png</file>
+    <file>icons/invertcolor.png</file>
+    <file>icons/cursor-uparrow.png</file>
+    <file>icons/cross.png</file>
+    <file>icons/undo.png</file>
+    <file>icons/filesave.png</file>
+    <file>icons/fileopen.png</file>
+    <file>icons/fusion.png</file>
+    <file>icons/open.png</file>
+    <file>icons/NOgrid.png</file>
+    <file>icons/NEgrid.png</file>
+    <file>icons/SOgrid.png</file>
+    <file>icons/SEgrid.png</file>
+    <file>icons/player_play.png</file>
+    <file>icons/player_pause.png</file>
+    <file>icons/ducky.png</file>
+    <file>icons/exit.png</file>
+    <file>icons/rotateright.png</file>
+    <file>icons/adjustsize.png</file>
+    <file>icons/standardbutton-apply-16.png</file>
+    <file>icons/standardbutton-cancel-16.png</file>
+  </qresource>
+</RCC>

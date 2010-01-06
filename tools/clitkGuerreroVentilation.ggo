@@ -1,0 +1,13 @@
+#File  clitkGuerreroVentilation.ggo
+Package "clitkGuerreroVentilation"
+version "1.0"
+purpose "Compute the ventilation image from a motion compensated image and the reference (end-expiration) image"
+
+
+option "config"    -	"Config file"  		  string   no
+option "input"	   i 	"Input image filename"	  string   yes
+option "ref"	   r 	"Reference image filename"	  string   yes
+option "output"    o 	"Output image base filename"	  string   yes
+option "factor"    f    "Blood mass correction factor"	  double   yes
+option "verbose"   v 	"Verbose"		  flag	   off
+option "correct"   c	"Use the correct formula instead of the original one"	flag	off
