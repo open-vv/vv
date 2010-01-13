@@ -128,5 +128,25 @@ std::string GetTypeAsString() {
 }
 //--------------------------------------------------------------------
 
+//--------------------------------------------------------------------
+template<class ImageType>
+void CloneImage(const typename ImageType::Pointer & input, typename ImageType::Pointer & output) {
+  output->SetRegions(input->GetLargestPossibleRegion());
+  output->SetSpacing(input->GetSpacing());
+  output->Allocate();
+  typedef itk::ImageRegionConstIterator<ImageType> ConstIteratorType; 
+  ConstIteratorType pi(input,input->GetLargestPossibleRegion());
+  pi.GoToBegin();  
+  typedef itk::ImageRegionIterator<ImageType> IteratorType; 
+  IteratorType po(output,input->GetLargestPossibleRegion());
+  po.GoToBegin(); 
+  while (!pi.IsAtEnd()) {
+    po.Set(pi.Get());
+    ++pi;
+    ++po;
+  }
+}
+//--------------------------------------------------------------------
+
 #endif /* end #define CLITKCOMMON_TXX */
 

@@ -24,6 +24,8 @@
 
 #include "itkMacro.h"
 #include <itkContinuousIndex.h>
+#include <itkImageRegionConstIterator.h>
+#include <itkImageRegionIterator.h>
 
 //--------------------------------------------------------------------
 namespace clitk {
@@ -41,6 +43,11 @@ namespace clitk {
 #define DD(a) std::cout << #a " = [ " << a << " ]" << std::endl;
 #define DDV(a,n) { std::cout << #a " = [ "; for(unsigned int _i_=0; _i_<n; _i_++) { std::cout << a[_i_] << " "; }; std::cout << " ]" << std::endl;}
 
+  //--------------------------------------------------------------------
+  // when everything goes wrong
+#define WHEREAMI "[ " << __FILE__  << " ] line " << __LINE__
+#define FATAL(a) std::cerr << "ERROR in " << WHEREAMI << ": " << a; exit(0);
+  
   //--------------------------------------------------------------------
   // GGO with modified struct name
 #define GGO(ggo_filename, args_info)                                             \
@@ -194,7 +201,11 @@ namespace clitk {
   //--------------------------------------------------------------------
   void disableStdCerr();
   void enableStdCerr();
-  
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  void CloneImage(const typename ImageType::Pointer & input, typename ImageType::Pointer & output);
+
 #include "clitkCommon.txx"
 
 } // end namespace
