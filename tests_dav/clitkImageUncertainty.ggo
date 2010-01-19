@@ -1,0 +1,10 @@
+# file clitkImageRescaleIntensity.ggo
+Package "clitk"
+version "Rescale intensity in the image"
+
+option "config"	  	 	-	"Config file"		  			string  no
+option "input"		 	i	"Input image filename"			string  yes
+option "inputSquared"	s	"Input squared image filename"	string  yes
+option "output"		 	o	"Output image filename"			string  yes
+option "NumberOfEvents" n   "Number of events"				int 	yes
+option "verbose"   	 	v   "Verbose"			  			flag	off
