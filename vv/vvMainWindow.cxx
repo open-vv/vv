@@ -3,8 +3,8 @@
 Program:   vv
 Module:    $RCSfile: vvMainWindow.cxx,v $
 Language:  C++
-Date:      $Date: 2010/01/06 13:31:57 $
-Version:   $Revision: 1.1 $
+Date:      $Date: 2010/01/26 15:04:33 $
+Version:   $Revision: 1.2 $
 Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
 Copyright (C) 200COLUMN_IMAGE_NAME
@@ -1053,8 +1053,6 @@ void vvMainWindow::ImageInfoChanged() {
         }
         windowSpinBox->setValue(mSlicerManagers[index]->GetColorWindow());
         levelSpinBox->setValue(mSlicerManagers[index]->GetColorLevel());
-        DD(mSlicerManagers[index]->GetColorMap());
-        DD(mSlicerManagers[index]->GetPreset());
         presetComboBox->setCurrentIndex(mSlicerManagers[index]->GetPreset());
         colorMapComboBox->setCurrentIndex(mSlicerManagers[index]->GetColorMap());
 
@@ -1462,8 +1460,13 @@ void vvMainWindow::CloseImage(QTreeWidgetItem* item, int column) {
 void vvMainWindow::ReloadImage(QTreeWidgetItem* item, int column) {
     int index = GetSlicerIndexFromItem(item);
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    if (item->data(1,Qt::UserRole).toString() == "vector")
+    QString role=item->data(1,Qt::UserRole).toString();
+    if ( role == "vector")
         mSlicerManagers[index]->ReloadVF();
+    else if (role == "overlay")
+        mSlicerManagers[index]->ReloadOverlay();
+    else if (role == "fusion")
+        mSlicerManagers[index]->ReloadFusion();
     else
         mSlicerManagers[index]->Reload();
     QApplication::restoreOverrideCursor();

@@ -3,8 +3,8 @@
 Program:   vv
 Module:    $RCSfile: vvSlicerManager.cxx,v $
 Language:  C++
-Date:      $Date: 2010/01/06 13:31:57 $
-Version:   $Revision: 1.1 $
+Date:      $Date: 2010/01/26 15:04:33 $
+Version:   $Revision: 1.2 $
 Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
 Copyright (C) 2008
@@ -607,6 +607,26 @@ void vvSlicerManager::Reload()
     for ( unsigned int i = 0; i < mSlicers.size(); i++)
     {
         mSlicers[i]->SetImage(mImage);
+    }
+}
+
+void vvSlicerManager::ReloadFusion()
+{
+    mFusionReader->Update();
+    for ( unsigned int i = 0; i < mSlicers.size(); i++)
+    {
+        mSlicers[i]->SetFusion(mFusionReader->GetOutput());
+        mSlicers[i]->Render();
+    }
+}
+
+void vvSlicerManager::ReloadOverlay()
+{
+    mOverlayReader->Update();
+    for ( unsigned int i = 0; i < mSlicers.size(); i++)
+    {
+        mSlicers[i]->SetOverlay(mOverlayReader->GetOutput());
+        mSlicers[i]->Render();
     }
 }
 

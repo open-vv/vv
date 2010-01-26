@@ -3,8 +3,8 @@
 Program:   vv
 Module:    $RCSfile: vvSlicer.cxx,v $
 Language:  C++
-Date:      $Date: 2010/01/06 13:31:58 $
-Version:   $Revision: 1.1 $
+Date:      $Date: 2010/01/26 15:04:33 $
+Version:   $Revision: 1.2 $
 Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
 Copyright (C) 2008
@@ -75,7 +75,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vtkPlane.h>
 #include <vtkAssignAttribute.h>
 
-vtkCxxRevisionMacro(vvSlicer, "$Revision: 1.1 $");
+vtkCxxRevisionMacro(vvSlicer, "$Revision: 1.2 $");
 vtkStandardNewMacro(vvSlicer);
 
 vvSlicer::vvSlicer()
@@ -480,60 +480,18 @@ void vvSlicer::SetTSlice(int t)
     this->SetInput(mImage->GetVTKImages()[t]);
     if (mVF && mVFActor->GetVisibility())
     {
-        if (mVF->GetVTKImages().size() == 1)
-        {
-            mVOIFilter->SetInput(mVF->GetVTKImages()[0]);
-        }
-        else if (mVF->GetVTKImages().size() <= (unsigned int)mCurrentTSlice)
-        {
-            Renderer->RemoveActor(mVFActor);
-        }
-        else
-        {
-            if (!Renderer->HasViewProp(mVFActor))
-            {
-                Renderer->AddActor(mVFActor);
-            }
+        if (mVF->GetVTKImages().size() > (unsigned int)mCurrentTSlice)
             mVOIFilter->SetInput(mVF->GetVTKImages()[mCurrentTSlice]);
-        }
     }
     if (mOverlay && mOverlayActor->GetVisibility())
     {
-        if (mOverlay->GetVTKImages().size() == 1)
-        {
-            mOverlayMapper->SetInput(mOverlay->GetVTKImages()[0]);
-        }
-        else if (mOverlay->GetVTKImages().size() <= (unsigned int)mCurrentTSlice)
-        {
-            Renderer->RemoveActor(mOverlayActor);
-        }
-        else
-        {
-            if (!Renderer->HasViewProp(mOverlayActor))
-            {
-                Renderer->AddActor(mOverlayActor);
-            }
+        if (mOverlay->GetVTKImages().size() > (unsigned int)mCurrentTSlice)
             mOverlayMapper->SetInput(mOverlay->GetVTKImages()[mCurrentTSlice]);
-        }
     }
     if (mFusion && mFusionActor->GetVisibility())
     {
-        if (mFusion->GetVTKImages().size() == 1)
-        {
-            mFusionMapper->SetInput(mFusion->GetVTKImages()[0]);
-        }
-        else if (mFusion->GetVTKImages().size() <= (unsigned int)mCurrentTSlice)
-        {
-            Renderer->RemoveActor(mFusionActor);
-        }
-        else
-        {
-            if (!Renderer->HasViewProp(mFusionActor))
-            {
-                Renderer->AddActor(mFusionActor);
-            }
+        if (mFusion->GetVTKImages().size() > (unsigned int)mCurrentTSlice)
             mFusionMapper->SetInput(mFusion->GetVTKImages()[mCurrentTSlice]);
-        }
     }
     if (mSurfaceCutActors.size() > 0)
         for (std::vector<vvMeshActor*>::iterator i=mSurfaceCutActors.begin();

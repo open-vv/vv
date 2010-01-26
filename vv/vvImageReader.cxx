@@ -3,8 +3,8 @@
  Program:   vv
  Module:    $RCSfile: vvImageReader.cxx,v $
  Language:  C++
- Date:      $Date: 2010/01/06 13:31:57 $
- Version:   $Revision: 1.1 $
+ Date:      $Date: 2010/01/26 15:04:33 $
+ Version:   $Revision: 1.2 $
  Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
 Copyright (C) 2008
@@ -43,6 +43,11 @@ vvImageReader::vvImageReader()
 }
 
 vvImageReader::~vvImageReader() { }
+
+void vvImageReader::Update()
+{
+    Update(mType);
+}
 
 void vvImageReader::Update(LoadedImageType type)
 {

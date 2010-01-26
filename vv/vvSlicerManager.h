@@ -3,8 +3,8 @@
  Program:   vv
  Module:    $RCSfile: vvSlicerManager.h,v $
  Language:  C++
- Date:      $Date: 2010/01/06 13:31:58 $
- Version:   $Revision: 1.1 $
+ Date:      $Date: 2010/01/26 15:04:33 $
+ Version:   $Revision: 1.2 $
  Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
 Copyright (C) 2008
@@ -196,6 +196,8 @@ public:
     void RemoveActor(const std::string& actor_type, int overlay_index);
     void RemoveActors();
     void Reload();
+    void ReloadOverlay();
+    void ReloadFusion();
     void ReloadVF();
 
     void Activated();

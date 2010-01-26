@@ -3,8 +3,8 @@
  Program:   vv
  Module:    $RCSfile: vvImageReader.h,v $
  Language:  C++
- Date:      $Date: 2010/01/06 13:31:57 $
- Version:   $Revision: 1.1 $
+ Date:      $Date: 2010/01/26 15:04:33 $
+ Version:   $Revision: 1.2 $
  Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
 Copyright (C) 2008
@@ -54,6 +54,7 @@ public:
 
     //====================================================================
     // Main function
+    void Update();
     void Update(LoadedImageType type);
     void Update(int dim, std::string InputPixelType, LoadedImageType type);
     //void Extract(int dim, std::string InputPixelType, int slice);
