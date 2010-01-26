@@ -1,7 +1,6 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile: vvLandmarksGlyph.cxx,v $
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -24,7 +23,7 @@
 #include "vtkUnsignedCharArray.h"
 #include <cassert>
 
-vtkCxxRevisionMacro(vvLandmarksGlyph, "$Revision: 1.1 $");
+vtkCxxRevisionMacro(vvLandmarksGlyph, "$Revision: 1.2 $");
 vtkStandardNewMacro(vvLandmarksGlyph);
 
 #define vtkfont_width 9

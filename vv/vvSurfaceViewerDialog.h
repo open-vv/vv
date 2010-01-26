@@ -4,10 +4,7 @@
 /*=========================================================================
 
 Program:   vv
-Module:    $RCSfile: vvSurfaceViewerDialog.h,v $
 Language:  C++
-Date:      $Date: 2010/01/06 13:31:57 $
-Version:   $Revision: 1.1 $
 Author :   David Sarrut (david.sarrut@gmail.com)
 
 Copyright (C) 2008

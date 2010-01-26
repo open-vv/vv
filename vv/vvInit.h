@@ -1,10 +1,7 @@
 /*=========================================================================
 
  Program:   vv
- Module:    $RCSfile: vvInit.h,v $
  Language:  C++
- Date:      $Date: 2010/01/06 13:31:57 $
- Version:   $Revision: 1.1 $
  Author :   Joël Schaerer (joel.schaerer@insa-lyon.fr)
 
 Copyright (C) 2008

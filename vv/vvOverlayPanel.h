@@ -4,10 +4,7 @@
 /*=========================================================================
 
  Program:   vv
- Module:    $RCSfile: vvOverlayPanel.h,v $
  Language:  C++
- Date:      $Date: 2010/01/06 13:31:58 $
- Version:   $Revision: 1.1 $
  Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
 Copyright (C) 200COLUMN_IMAGE_NAME

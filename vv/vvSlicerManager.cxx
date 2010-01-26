@@ -1,10 +1,7 @@
 /*=========================================================================
 
 Program:   vv
-Module:    $RCSfile: vvSlicerManager.cxx,v $
 Language:  C++
-Date:      $Date: 2010/01/26 15:04:33 $
-Version:   $Revision: 1.2 $
 Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
 Copyright (C) 2008

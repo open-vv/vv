@@ -1,10 +1,7 @@
 /*=========================================================================
 
  Program:   vv
- Module:    $RCSfile: vvGlyphSource.cxx,v $
  Language:  C++
- Date:      $Date: 2010/01/06 13:31:57 $
- Version:   $Revision: 1.1 $
  Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
 Copyright (C) 2008
@@ -35,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vvGlyphSource, "$Revision: 1.1 $");
+vtkCxxRevisionMacro(vvGlyphSource, "$Revision: 1.2 $");
 vtkStandardNewMacro(vvGlyphSource);
 
 

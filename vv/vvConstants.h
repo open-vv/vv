@@ -1,10 +1,7 @@
 /*=========================================================================
 
  Program:   vv
- Module:    $RCSfile: vvConstants.h,v $
  Language:  C++
- Date:      $Date: 2010/01/06 13:31:58 $
- Version:   $Revision: 1.1 $
  Author :   Joel Schaerer (joel.schaerer@insa-lyon.fr)
 
 Copyright (C) 2008

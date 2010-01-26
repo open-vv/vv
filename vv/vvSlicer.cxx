@@ -1,10 +1,7 @@
 /*=========================================================================
 
 Program:   vv
-Module:    $RCSfile: vvSlicer.cxx,v $
 Language:  C++
-Date:      $Date: 2010/01/26 15:04:33 $
-Version:   $Revision: 1.2 $
 Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
 Copyright (C) 2008
@@ -75,7 +72,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vtkPlane.h>
 #include <vtkAssignAttribute.h>
 
-vtkCxxRevisionMacro(vvSlicer, "$Revision: 1.2 $");
+vtkCxxRevisionMacro(vvSlicer, "$Revision: 1.3 $");
 vtkStandardNewMacro(vvSlicer);
 
 vvSlicer::vvSlicer()
