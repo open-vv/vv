@@ -72,7 +72,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vtkPlane.h>
 #include <vtkAssignAttribute.h>
 
-vtkCxxRevisionMacro(vvSlicer, "$Revision: 1.3 $");
+vtkCxxRevisionMacro(vvSlicer, "DummyRevision");
 vtkStandardNewMacro(vvSlicer);
 
 vvSlicer::vvSlicer()

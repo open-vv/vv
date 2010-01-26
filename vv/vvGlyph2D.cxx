@@ -38,7 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vvGlyph2D, "$Revision: 1.2 $");
+vtkCxxRevisionMacro(vvGlyph2D, "DummyRevision");
 vtkStandardNewMacro(vvGlyph2D);
 
 vvGlyph2D::vvGlyph2D()

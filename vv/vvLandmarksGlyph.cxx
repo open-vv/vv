@@ -23,7 +23,7 @@
 #include "vtkUnsignedCharArray.h"
 #include <cassert>
 
-vtkCxxRevisionMacro(vvLandmarksGlyph, "$Revision: 1.2 $");
+vtkCxxRevisionMacro(vvLandmarksGlyph, "DummyRevision");
 vtkStandardNewMacro(vvLandmarksGlyph);
 
 #define vtkfont_width 9

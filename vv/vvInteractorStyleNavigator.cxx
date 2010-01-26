@@ -36,7 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "clitkCommon.h"
 
 
-vtkCxxRevisionMacro(vvInteractorStyleNavigator, "$Revision: 1.2 $");
+vtkCxxRevisionMacro(vvInteractorStyleNavigator, "DummyRevision");
 vtkStandardNewMacro(vvInteractorStyleNavigator);
 
 //----------------------------------------------------------------------------

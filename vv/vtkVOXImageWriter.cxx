@@ -18,7 +18,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkVOXImageWriter, "$Revision: 1.1 $");
+vtkCxxRevisionMacro(vtkVOXImageWriter, "DummyRevision");
 vtkStandardNewMacro(vtkVOXImageWriter);
 
 //----------------------------------------------------------------------------

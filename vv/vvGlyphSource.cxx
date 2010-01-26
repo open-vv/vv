@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vvGlyphSource, "$Revision: 1.2 $");
+vtkCxxRevisionMacro(vvGlyphSource, "DummyRevision");
 vtkStandardNewMacro(vvGlyphSource);
 
 
