@@ -1,10 +1,7 @@
 /*=========================================================================
 
 Program:   Insight Segmentation & Registration Toolkit
-Module:    $RCSfile: itkRayCastInterpolateImageFunctionWithOrigin.txx,v $
 Language:  C++
-Date:      $Date: 2010/01/06 13:32:01 $
-Version:   $Revision: 1.1 $
 
 Copyright (c) Insight Software Consortium. All rights reserved.
 See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.

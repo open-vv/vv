@@ -1,10 +1,7 @@
 /*=========================================================================
 
  Program:   vv
- Module:    $RCSfile: vvFromITK.h,v $
  Language:  C++
- Date:      $Date: 2010/01/06 13:32:01 $
- Version:   $Revision: 1.1 $
  Author :   Joel Schaerer (joel.schaerer@insa-lyon.fr)
 
 Copyright (C) 2008

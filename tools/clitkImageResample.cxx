@@ -1,10 +1,7 @@
 /*-------------------------------------------------------------------------
                                                                                 
 Program:   clitk
-Module:    $RCSfile: clitkImageResample.cxx,v $
 Language:  C++
-Date:      $Date: 2010/01/06 13:31:57 $
-Version:   $Revision: 1.1 $
                                                                                 
 Copyright (c) CREATIS (Centre de Recherche et d'Applications en Traitement de
 l'Image). All rights reserved. See Doc/License.txt or
