@@ -238,14 +238,16 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
         mOverlayMapper->SetInput(overlay->GetVTKImages()[0]);
 
         if (!mOverlayActor)
+        {
             mOverlayActor = vtkImageActor::New();
-        mOverlayActor->SetInput(mOverlayMapper->GetOutput());
-        mOverlayActor->SetPickable(0);
-        mOverlayActor->SetVisibility(false);
-        mOverlayActor->SetOpacity(0.5);
-        this->UpdateDisplayExtent();
+            mOverlayActor->SetInput(mOverlayMapper->GetOutput());
+            mOverlayActor->SetPickable(0);
+            mOverlayActor->SetVisibility(false);
+            mOverlayActor->SetOpacity(0.5);
+            this->UpdateDisplayExtent();
+        }
 
-        //stupid but necessary : the Overlay need to be render before fusion
+        //stupid but necessary : the Overlay need to be rendered before fusion
         if (mFusionActor)
         {
             this->GetRenderer()->RemoveActor(mFusionActor);
@@ -271,13 +273,15 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion)
         mFusionMapper->SetInput(fusion->GetVTKImages()[0]);
 
         if (!mFusionActor)
+        {
             mFusionActor = vtkImageActor::New();
-        mFusionActor->SetInput(mFusionMapper->GetOutput());
-        mFusionActor->SetPickable(0);
-        mFusionActor->SetVisibility(false);
-        mFusionActor->SetOpacity(0.7);
-        this->UpdateDisplayExtent();
-        this->GetRenderer()->AddActor(mFusionActor);
+            mFusionActor->SetInput(mFusionMapper->GetOutput());
+            mFusionActor->SetPickable(0);
+            mFusionActor->SetVisibility(false);
+            mFusionActor->SetOpacity(0.7);
+            this->UpdateDisplayExtent();
+            this->GetRenderer()->AddActor(mFusionActor);
+        }
 
         //Synchronize slice
         SetTSlice(mCurrentTSlice);
