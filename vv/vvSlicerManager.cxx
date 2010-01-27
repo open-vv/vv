@@ -868,6 +868,10 @@ void vvSlicerManager::SetPreset(int preset)
     //    SetColorMap(-1);
     //}
 }
+void vvSlicerManager::SetColorMap()
+{
+    SetColorMap(mColorMap);
+}
 
 void vvSlicerManager::SetColorMap(int colormap)
 {
@@ -966,9 +970,9 @@ void vvSlicerManager::SetColorMap(int colormap)
         }
         else if (mSlicers[i]->GetOverlay())
         {
-            dynamic_cast<vvImageMapToWLColors*>(mSlicers[i]->GetWindowLevel())
-                ->SetWindowLevelMode(false);
-            mSlicers[i]->GetWindowLevel()->SetLookupTable(NULL);
+            //dynamic_cast<vvImageMapToWLColors*>(mSlicers[i]->GetWindowLevel())
+                //->SetWindowLevelMode(false);
+            mSlicers[i]->GetWindowLevel()->SetLookupTable(LUT);
         }
         else
         {

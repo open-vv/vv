@@ -1285,7 +1285,7 @@ void vvMainWindow::DisplayChanged(QTreeWidgetItem *clicked_item, int column) {
                 current_slicer->SetActorVisibility(overlay_type,overlay_counts[overlay_type]-1,false);
             }
         }
-        //mSlicerManagers[i]->SetColorMap(-1);
+        mSlicerManagers[i]->SetColorMap();
     }
     mSlicerManagers[index]->GetSlicer(column-1)->Render();
 }

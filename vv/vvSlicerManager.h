@@ -134,6 +134,7 @@ public:
     void SetColorWindow(double s);
     void SetColorLevel(double s);
     void SetOpacity(int i, double factor);
+    void SetColorMap();
     void SetColorMap(int colormap);
     void SetPreset(int preset);
     void SetOverlayColor(int color) {
