@@ -1,5 +1,6 @@
 <RCC>
-  <qresource prefix="/new/prefix1" >
+  <qresource prefix="/new/prefix1">
+    <file>icons/binarize.png</file>
     <file>icons/crop.png</file>
     <file>icons/splashscreen2.png</file>
     <file>icons/splashscreen.PNG</file>

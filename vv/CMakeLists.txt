@@ -33,9 +33,14 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
   ../common
+  ../tools
   )
 
 #=========================================================
+# To avoid warning with some version
+if(COMMAND cmake_policy)
+  cmake_policy(SET CMP0003 NEW)
+endif(COMMAND cmake_policy)
 
 #SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/bin)
 #SET(LIBRARY_OUTPUT_PATH ${EXECUTABLE_OUTPUT_PATH}/../lib)
@@ -44,6 +49,7 @@ INCLUDE_DIRECTORIES(
 LINK_LIBRARIES (
   #ITKIO
   clitkCommon
+  clitkGGO
   clitkFilters
   ${QT_QTCORE_LIBRARY}
   ${QT_QTGUI_LIBRARY}
@@ -103,6 +109,12 @@ SET(vv_SRCS
   vvCropDialog.cxx
   vvMidPosition.cxx
   vvImageMapToWLColors.cxx
+  vvIntensityValueSlider.cxx
+  vvToolManager.cxx
+  vvToolCreatorBase.cxx
+  vvToolBinarize.cxx
+  ../tools/clitkBinarizeImage_ggo.c
+  vvToolInputSelectorWidget.cxx
   )
 
 QT4_WRAP_CPP(vv_SRCS 
@@ -124,6 +136,10 @@ QT4_WRAP_CPP(vv_SRCS
   vvSlicerManager.h
   vvStructSelector.h
   vvCropDialog.h
+  vvIntensityValueSlider.h
+  vvToolCreatorBase.h
+  vvToolBinarize.h
+  vvToolInputSelectorWidget.h
   )
 
 QT4_WRAP_UI(vv_UI_CXX 
@@ -143,6 +159,9 @@ QT4_WRAP_UI(vv_UI_CXX
   qt_ui/vvStructSelector.ui
   qt_ui/vvCropDialog.ui
   qt_ui/vvDummyWindow.ui #For testing
+  qt_ui/vvIntensityValueSlider.ui
+  qt_ui/vvToolBinarize.ui
+  qt_ui/vvToolInputSelectorWidget.ui
   )
 
 SET(vvUI_RCCS vvIcons.qrc)

@@ -32,9 +32,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "clitkCommon.h"
 #include "vvMainWindow.h"
 #include "vvInit.h"
-
 #include "vvConstants.h"
 
+//------------------------------------------------------------------------------
+// (*NEEDED HERE*) Static instances initialization for ToolManager
+TOOL_MANAGER_INITIALIZATION;
+
+//------------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
     initialize_IO();
@@ -44,7 +48,7 @@ int main( int argc, char** argv )
     //QPixmap pixmap(":/splashscreen.PNG");
     QSplashScreen *splash = new QSplashScreen(QPixmap(QString::fromUtf8(":/new/prefix1/splashscreen.PNG")));
     /*splash->showMessage("VV 1.0 developped by Léon Bérard cancer center http://oncora1.lyon.fnclcc.fr and CREATIS-LRMN http://www.creatis.insa-lyon.fr",(Qt::AlignRight | Qt::AlignBottom));*/
-//  splash->show();
+    //  splash->show();
     QTimer::singleShot(2000, splash, SLOT(close()));
     while (!splash->isHidden())
         app.processEvents();
