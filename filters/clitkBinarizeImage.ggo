@@ -1,0 +1,14 @@
+#File clitkBinarizeImage.ggo
+Package "clitkBinarizeImage"
+version "1.0"
+purpose ""
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+option "lower"    	l   	"Lower intensity (default=min)"	  double 	no
+option "upper"    	u   	"Upper intensity (default=max)"	  double 	no
+option "inside"    	-   	"Inside value"	 	 	  double 	no	default="1"
+option "outside"    	-   	"Outside value"	 	 	  double 	no	default="0"
