@@ -19,6 +19,7 @@ namespace clitk
     ImageToImageGenericFilter<Self>("Binarize") {
     InitializeImageType<2>();
     InitializeImageType<3>();
+    InitializeImageType<4>();
   }
   //--------------------------------------------------------------------
 
@@ -29,6 +30,8 @@ namespace clitk
   void BinarizeImageGenericFilter<args_info_type>::InitializeImageType() {      
     ADD_IMAGE_TYPE(Dim, char);
     ADD_IMAGE_TYPE(Dim, short);
+    ADD_IMAGE_TYPE(Dim, int);
+    ADD_IMAGE_TYPE(Dim, float);
   }
   //--------------------------------------------------------------------
   
