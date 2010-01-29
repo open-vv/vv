@@ -5,7 +5,7 @@ INCLUDE(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
 
 SET(clitkGGO_SRC
   clitkImageResample_ggo.c
-  clitkBinarizeImage_ggo.c
+  #clitkBinarizeImage_ggo.c
   )  
 
 ADD_LIBRARY(clitkGGO STATIC ${clitkGGO_SRC})
