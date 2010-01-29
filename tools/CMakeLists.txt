@@ -84,5 +84,5 @@ ADD_EXECUTABLE(clitkGuerreroVentilation clitkGuerreroVentilation.cxx
 TARGET_LINK_LIBRARIES(clitkGuerreroVentilation clitkCommon ITKIO ITKBasicFilters
 clitkFilters)
 
-ADD_EXECUTABLE(clitkBinarizeImage clitkBinarizeImage.cxx clitkBinarizeImage_ggo.c)
-TARGET_LINK_LIBRARIES(clitkBinarizeImage ITKIO clitkCommon) 
+#ADD_EXECUTABLE(clitkBinarizeImage clitkBinarizeImage.cxx clitkBinarizeImage_ggo.c)
+#TARGET_LINK_LIBRARIES(clitkBinarizeImage ITKIO clitkCommon) 
