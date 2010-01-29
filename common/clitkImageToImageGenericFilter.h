@@ -3,8 +3,8 @@
   Program:   clitk
   Module:    $RCSfile: clitkImageToImageGenericFilter.h,v $
   Language:  C++
-  Date:      $Date: 2010/01/29 07:27:31 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2010/01/29 13:53:15 $
+  Version:   $Revision: 1.3 $
   Author :   Joel Schaerer <joel.schaerer@creatis.insa-lyon.fr>
              David Sarrut <david.sarrut@creatis.insa-lyon.fr>
 
@@ -84,6 +84,7 @@ namespace clitk {
 
     // Information on available image types
     void PrintAvailableImageTypes();
+    std::string GetAvailableImageTypes();
     bool CheckDimension(unsigned int d);
     bool CheckPixelType(std::string pt);
 

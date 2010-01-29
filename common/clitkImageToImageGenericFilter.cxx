@@ -203,17 +203,27 @@ bool clitk::ImageToImageGenericFilterBase::CheckPixelType() {
 
 //--------------------------------------------------------------------
 void clitk::ImageToImageGenericFilterBase::PrintAvailableImageTypes() {
-  std::cout << "The filter <" << mFilterName << "> manages ";
-  for(unsigned int i=0; i<mListOfAllowedDimension.size(); i++) {
-    std::cout << mListOfAllowedDimension[i] << "D ";
-  }
-  std::cout << "images, with pixel types: ";
-  for(unsigned int i=0; i<mListOfAllowedPixelType.size(); i++) {
-    std::cout << mListOfAllowedPixelType[i] << " ";
-  }
-  std::cout << std::endl;
+  std::cout << GetAvailableImageTypes();
 }
 //--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+std::string clitk::ImageToImageGenericFilterBase::GetAvailableImageTypes() {
+  std::ostringstream oss;
+  oss << "The filter <" << mFilterName << "> manages ";
+  for(unsigned int i=0; i<mListOfAllowedDimension.size(); i++) {
+    oss << mListOfAllowedDimension[i] << "D ";
+  }
+  oss << "images, with pixel types: ";
+  for(unsigned int i=0; i<mListOfAllowedPixelType.size(); i++) {
+    oss << mListOfAllowedPixelType[i] << " ";
+  }
+  oss << std::endl;
+  return oss.str();
+}
+//--------------------------------------------------------------------
+
 
 
 //--------------------------------------------------------------------
