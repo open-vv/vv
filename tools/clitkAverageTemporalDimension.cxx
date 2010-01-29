@@ -34,7 +34,7 @@ int main(int argc, char * argv[]) {
   CLITK_INIT;
 
   // Filter
-  typedef clitk::AverageTemporalDimensionGenericFilter<gengetopt_args_info_clitkAverageTemporalDimension> FilterType;
+  typedef clitk::AverageTemporalDimensionGenericFilter<args_info_clitkAverageTemporalDimension> FilterType;
   FilterType::Pointer genericFilter = FilterType::New();
   
   genericFilter->SetArgsInfo(args_info);

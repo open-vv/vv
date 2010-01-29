@@ -38,7 +38,8 @@ namespace clitk {
   //--------------------------------------------------------------------
   // Main class for an Image Resample Generic Filter 
   // (multiple dimensions, multiple pixel types)
-  class ImageArithmGenericFilter : public clitk::ImageToImageGenericFilter {
+  class ImageArithmGenericFilter:
+  public clitk::ImageToImageGenericFilter<ImageArithmGenericFilter> {
   
   public:
 	
@@ -47,7 +48,7 @@ namespace clitk {
 
     // Types
     typedef ImageArithmGenericFilter      Self;
-    typedef ImageToImageGenericFilter     Superclass;
+    typedef ImageToImageGenericFilterBase     Superclass;
     typedef itk::SmartPointer<Self>       Pointer;
     typedef itk::SmartPointer<const Self> ConstPointer;
 
@@ -64,18 +65,17 @@ namespace clitk {
     int GetTypeOfOperation () { return  mTypeOfOperation ;} 
     double GetScalar () { return  mScalar ;} 
 
-    // Update
-    void Update ();
+    //--------------------------------------------------------------------
+    // Main function called each time the filter is updated
+    template<class InputImageType>  
+    void UpdateWithInputImageType();
 
   protected:  
+    template<unsigned int Dim> void InitializeImageType();
     bool mIsOperationUseASecondImage;
     double mScalar;
     double mDefaultPixelValue;
     int mTypeOfOperation;  
-
-    //--------------------------------------------------------------------
-    template<unsigned int Dim> void Update_WithDim();
-    template<unsigned int Dim, class PixelType> void Update_WithDimAndPixelType();
 
     template<class ImageType>
     typename ImageType::Pointer ComputeImage(typename ImageType::Pointer inputImage);
@@ -89,7 +89,7 @@ namespace clitk {
   }; // end class ImageArithmGenericFilter
 //--------------------------------------------------------------------
 
-#include "clitkImageArithmGenericFilter.txx"
+//#include "clitkImageArithmGenericFilter.txx"
 
 } // end namespace
 //--------------------------------------------------------------------

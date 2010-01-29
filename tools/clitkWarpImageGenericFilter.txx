@@ -78,7 +78,7 @@ namespace clitk
     typename DeformationFieldType::Pointer deformationField =deformationFieldReader->GetOutput();
 
     // Intensity interpolator
-    typedef clitk::GenericVectorInterpolator<gengetopt_args_info_clitkWarpImage, DeformationFieldType, double> GenericInterpolatorType;
+    typedef clitk::GenericVectorInterpolator<args_info_clitkWarpImage, DeformationFieldType, double> GenericInterpolatorType;
     typename GenericInterpolatorType::Pointer genericInterpolator=GenericInterpolatorType::New();
     genericInterpolator->SetArgsInfo(m_ArgsInfo);
     
@@ -94,7 +94,7 @@ namespace clitk
 	  newSize[i]=(unsigned int) (input->GetLargestPossibleRegion().GetSize()[i]*input->GetSpacing()[i]/deformationField->GetSpacing()[i]);
 	
 	// Get the interpolator
-	typedef clitk::GenericVectorInterpolator<gengetopt_args_info_clitkWarpImage, DeformationFieldType, double> GenericInterpolatorType;
+	typedef clitk::GenericVectorInterpolator<args_info_clitkWarpImage, DeformationFieldType, double> GenericInterpolatorType;
 	typename GenericInterpolatorType::Pointer genericInterpolator=GenericInterpolatorType::New();
 	genericInterpolator->SetArgsInfo(m_ArgsInfo);
 	
@@ -174,7 +174,7 @@ namespace clitk
     else
       {
 	// Get the interpolator
-	typedef clitk::GenericInterpolator<gengetopt_args_info_clitkWarpImage, InputImageType, double> GenericInterpolatorType;
+	typedef clitk::GenericInterpolator<args_info_clitkWarpImage, InputImageType, double> GenericInterpolatorType;
 	typename GenericInterpolatorType::Pointer genericInterpolator=GenericInterpolatorType::New();
 	genericInterpolator->SetArgsInfo(m_ArgsInfo);
 

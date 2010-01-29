@@ -16,7 +16,7 @@
 #include "clitkSignalMeanPositionFilter.h"
 
 //---------------------------------------------------------------------
-void clitk::SignalMeanPositionFilter::SetParameters(gengetopt_args_info_clitkSignalMeanPositionTracking & args) {
+void clitk::SignalMeanPositionFilter::SetParameters(args_info_clitkSignalMeanPositionTracking & args) {
   args_info = args;
   mEtaIsSet = false;
   mOutputFilenameIsSet = false;

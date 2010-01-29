@@ -19,7 +19,8 @@
 
 namespace clitk {
   
-  class ImageConvertGenericFilter: public clitk::ImageToImageGenericFilter {
+  class ImageConvertGenericFilter: 
+    public clitk::ImageToImageGenericFilter<ImageConvertGenericFilter> {
     
   public: 
     // constructor - destructor
@@ -27,7 +28,6 @@ namespace clitk {
 
     // Types
     typedef ImageConvertGenericFilter     Self;
-    typedef ImageToImageGenericFilter     Superclass;
     typedef itk::SmartPointer<Self>       Pointer;
     typedef itk::SmartPointer<const Self> ConstPointer;
 
@@ -36,18 +36,21 @@ namespace clitk {
     
     // Members functions
     void SetOutputPixelType(std::string p) { mOutputPixelTypeName = p; }
-    void Update();
+
+    //--------------------------------------------------------------------
+    // Main function called each time the filter is updated
+    template<class InputImageType>  
+    void UpdateWithInputImageType();
 
   protected:
+    template<unsigned int Dim> void InitializeImageType();
     std::string mOutputPixelTypeName;
 
-    template<unsigned int Dim> void Update_WithDim();
-    template<unsigned int Dim, class PixelType> void Update_WithDimAndPixelType();
-    template<unsigned int Dim, class PixelType, class OutputPixelType> void Update_WithDimAndPixelTypeAndOutputType();
+    template<class InputImageType, class OutputPixelType> void UpdateWithOutputType();
 
   }; // end class ImageConvertGenericFilter
 
-#include "clitkImageConvertGenericFilter.txx"
+  //#include "clitkImageConvertGenericFilter.txx"
 
 } // end namespace
 

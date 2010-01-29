@@ -50,7 +50,7 @@ namespace clitk
     //----------------------------------------
     // Set & Get
     //----------------------------------------    
-    void SetArgsInfo(const gengetopt_args_info_clitkSetBackground & a)
+    void SetArgsInfo(const args_info_clitkSetBackground & a)
     {
       m_ArgsInfo=a;
       m_Verbose=m_ArgsInfo.verbose_flag;
@@ -82,7 +82,7 @@ namespace clitk
     //----------------------------------------  
     // Data members
     //----------------------------------------
-    gengetopt_args_info_clitkSetBackground m_ArgsInfo;
+    args_info_clitkSetBackground m_ArgsInfo;
     bool m_Verbose;
     std::string m_InputFileName;
 

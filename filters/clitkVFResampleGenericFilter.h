@@ -34,15 +34,15 @@
 namespace clitk {
   
   //--------------------------------------------------------------------
-  class VFResampleGenericFilter: public clitk::ImageToImageGenericFilter {
+  class VFResampleGenericFilter: 
+    public clitk::ImageToImageGenericFilter<VFResampleGenericFilter> {
     
   public: 
     // constructor
     VFResampleGenericFilter();
 
     // Types
-    typedef VFResampleGenericFilter    Self;
-    typedef ImageToImageGenericFilter     Superclass;
+    typedef VFResampleGenericFilter       Self;
     typedef itk::SmartPointer<Self>       Pointer;
     typedef itk::SmartPointer<const Self> ConstPointer;
 
@@ -57,9 +57,13 @@ namespace clitk {
     void SetBSplineOrder(int o) { mBSplineOrder = o; }
     void SetBLUTSampling(int b) { mSamplingFactors.resize(1); mSamplingFactors[0] = b; }
 
-    void Update();    
+   //--------------------------------------------------------------------
+    // Main function called each time the filter is updated
+    template<class InputImageType>  
+    void UpdateWithInputImageType();
 
   protected:
+    template<unsigned int Dim> void InitializeImageType();
     //--------------------------------------------------------------------
     std::string mInterpolatorName;
     std::vector<int> mOutputSize;
@@ -72,12 +76,8 @@ namespace clitk {
     std::vector<int> mSamplingFactors;
 
     //--------------------------------------------------------------------
-    template<unsigned int Dim> void Update_WithDim();
-    template<unsigned int Dim, class PixelType> void Update_WithDimAndPixelType();
     template<unsigned int Dim, class PixelType, unsigned int DimCompo> 
     void Update_WithDimAndPixelTypeAndComponent();
-
-    //--------------------------------------------------------------------
     template<class ImageType>
     typename ImageType::Pointer ComputeImage(typename ImageType::Pointer inputImage);
     

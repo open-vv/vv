@@ -50,25 +50,13 @@ namespace clitk {
   
   //--------------------------------------------------------------------
   // GGO with modified struct name
-#define GGO(ggo_filename, args_info)                                             \
-  gengetopt_args_info_##ggo_filename args_info;					\
-    cmdline_parser2(argc, argv, &args_info, 1, 1, 0);			\
-    if (args_info.config_given)						\
-      cmdline_parser_configfile (args_info.config_arg, &args_info, 0, 0, 1); \
-    else cmdline_parser(argc, argv, &args_info);
-  
-
-  /*   //--------------------------------------------------------------------
-  // GGO default
 #define GGO(ggo_filename, args_info)                                    \
-  gengetopt_args_info_##ggo_filename args_info;                         \
+  args_info_##ggo_filename args_info;					\
   cmdline_parser2(argc, argv, &args_info, 1, 1, 0);			\
   if (args_info.config_given)						\
     cmdline_parser_configfile (args_info.config_arg, &args_info, 0, 0, 1); \
-  else cmdline_parser(argc, argv, &args_info);
-  
- //--------------------------------------------------------------------
- */
+  else cmdline_parser(argc, argv, &args_info);  
+
   //--------------------------------------------------------------------
   // skip line with #
   void skipComment(std::istream & is);

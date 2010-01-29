@@ -35,7 +35,8 @@
 namespace clitk {
   
   //--------------------------------------------------------------------
-  class ImageFillRegionGenericFilter : public clitk::ImageToImageGenericFilter {
+  class ImageFillRegionGenericFilter: 
+    public clitk::ImageToImageGenericFilter<ImageFillRegionGenericFilter> {
   
   public:
 	
@@ -45,7 +46,6 @@ namespace clitk {
 
     // Types
     typedef ImageFillRegionGenericFilter  Self;
-    typedef ImageToImageGenericFilter     Superclass;
     typedef itk::SmartPointer<Self>       Pointer;
     typedef itk::SmartPointer<const Self> ConstPointer;
 
@@ -58,10 +58,13 @@ namespace clitk {
     void SetSphericRegion(std::vector<double> & radius, std::vector<double> & center);
     void SetSphericRegion(std::vector<double> & radius);
 
-    // Update
-    void Update ();
+    //--------------------------------------------------------------------
+    // Main function called each time the filter is updated
+    template<class InputImageType>  
+    void UpdateWithInputImageType();
 
   protected:  
+    template<unsigned int Dim> void InitializeImageType();
     double mPixelValue;
     int * mSize;
     int * mStart;
@@ -70,12 +73,7 @@ namespace clitk {
     bool mSphericRegion;
     bool m_IsCentered;
 
-
-    //--------------------------------------------------------------------
-    template<unsigned int Dim> void Update_WithDim();
-    template<unsigned int Dim, class PixelType> void Update_WithDimAndPixelType();
     template<unsigned int Dim, class PixelType> void Update_WithDimAndPixelType_SphericRegion();
-    //--------------------------------------------------------------------
 
   }; // end class ImageFillRegionGenericFilter
 //--------------------------------------------------------------------

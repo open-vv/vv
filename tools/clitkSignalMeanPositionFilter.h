@@ -28,11 +28,11 @@ namespace clitk {
   public:
     typedef itk::Vector<double,2> Vector2d;
 
-    void SetParameters(gengetopt_args_info_clitkSignalMeanPositionTracking & args_info);
+    void SetParameters(args_info_clitkSignalMeanPositionTracking & args_info);
     void Update();
     
   protected:    
-    gengetopt_args_info_clitkSignalMeanPositionTracking args_info;
+    args_info_clitkSignalMeanPositionTracking args_info;
     clitk::Signal mInput;
     clitk::Signal mAugmentedInputX;
     clitk::Signal mAugmentedInputY;

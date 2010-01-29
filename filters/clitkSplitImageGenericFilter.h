@@ -34,7 +34,8 @@
 namespace clitk {
   
   //--------------------------------------------------------------------
-  class SplitImageGenericFilter : public clitk::ImageToImageGenericFilter {
+  class SplitImageGenericFilter: 
+    public clitk::ImageToImageGenericFilter<SplitImageGenericFilter> {
   
   public:
 	
@@ -42,8 +43,7 @@ namespace clitk {
     SplitImageGenericFilter ();
 
     // Types
-    typedef SplitImageGenericFilter  Self;
-    typedef ImageToImageGenericFilter     Superclass;
+    typedef SplitImageGenericFilter       Self;
     typedef itk::SmartPointer<Self>       Pointer;
     typedef itk::SmartPointer<const Self> ConstPointer;
 
@@ -54,16 +54,15 @@ namespace clitk {
     void SetSplitDimension (int dim) { mSplitDimension = dim; }
     void SetVerbose (const bool v) { m_Verbose = v; }
 
-    // Update
-    void Update ();
+   //--------------------------------------------------------------------
+    // Main function called each time the filter is updated
+    template<class InputImageType>  
+    void UpdateWithInputImageType();
 
   protected:  
+    template<unsigned int Dim> void InitializeImageType();
     int  mSplitDimension;
     bool m_Verbose;
-    //--------------------------------------------------------------------
-    template<unsigned int Dim> void UpdateWithDim(std::string PixelType, int Components);
-    template<unsigned int Dim, class PixelType> void UpdateWithDimAndPixelType();
-    //--------------------------------------------------------------------
 
   }; // end class SplitImageGenericFilter
 //--------------------------------------------------------------------

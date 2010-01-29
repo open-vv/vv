@@ -34,7 +34,7 @@ int main(int argc, char * argv[]) {
   CLITK_INIT;
 
   // Filter
-  typedef clitk::InvertVFGenericFilter<gengetopt_args_info_clitkInvertVF> FilterType;
+  typedef clitk::InvertVFGenericFilter<args_info_clitkInvertVF> FilterType;
   FilterType::Pointer genericFilter = FilterType::New();
   
   genericFilter->SetArgsInfo(args_info);

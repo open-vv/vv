@@ -33,7 +33,7 @@ int main(int argc, char * argv[]) {
   CLITK_INIT;
 
   // Filter
-  typedef clitk::AffineTransformGenericFilter<gengetopt_args_info_clitkAffineTransform> FilterType;
+  typedef clitk::AffineTransformGenericFilter<args_info_clitkAffineTransform> FilterType;
   FilterType::Pointer genericFilter = FilterType::New();
   
   genericFilter->SetArgsInfo(args_info);

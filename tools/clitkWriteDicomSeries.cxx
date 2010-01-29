@@ -34,7 +34,7 @@ int main(int argc, char * argv[]) {
   CLITK_INIT;
 
   // Filter
-  typedef clitk::WriteDicomSeriesGenericFilter<gengetopt_args_info_clitkWriteDicomSeries> FilterType;
+  typedef clitk::WriteDicomSeriesGenericFilter<args_info_clitkWriteDicomSeries> FilterType;
   FilterType::Pointer genericFilter = FilterType::New();
   
   genericFilter->SetArgsInfo(args_info);

@@ -34,16 +34,17 @@
 namespace clitk {
   
   //--------------------------------------------------------------------
-  class GuerreroVentilationGenericFilter : public ImageToImageGenericFilter {
-  
+  class GuerreroVentilationGenericFilter : 
+  public ImageToImageGenericFilter<GuerreroVentilationGenericFilter> {
   public:
 	
     // Constructor 
-    GuerreroVentilationGenericFilter ();
+    GuerreroVentilationGenericFilter();
+    virtual ~GuerreroVentilationGenericFilter() {}
 
     // Types
     typedef GuerreroVentilationGenericFilter  Self;
-    typedef ImageToImageGenericFilter     Superclass;
+    typedef ImageToImageGenericFilterBase     Superclass;
     typedef itk::SmartPointer<Self>       Pointer;
     typedef itk::SmartPointer<const Self> ConstPointer;
 
@@ -54,18 +55,16 @@ namespace clitk {
     void SetBloodCorrectionFactor(double f) {blood_mass_factor=f;}
     void SetUseCorrectFormula(bool u) {use_correct_formula=u;}
 
-    // Update
-    void Update ();
+    //--------------------------------------------------------------------
+    // Main function called each time the filter is updated
+    template<class InputImageType>  
+    void UpdateWithInputImageType();
 
   protected:  
+    template<unsigned int Dim> void InitializeImageType();
     //Parameters
     double blood_mass_factor;
     bool use_correct_formula;
-
-    //--------------------------------------------------------------------
-    template<unsigned int Dim> void Update_WithDim();
-    template<unsigned int Dim, class PixelType> void Update_WithDimAndPixelType();
-    //--------------------------------------------------------------------
 
   }; // end class GuerreroVentilationGenericFilter
 //--------------------------------------------------------------------
