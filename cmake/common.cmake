@@ -19,7 +19,7 @@ FOREACH(GGO_FILE ${ALL_GGO_FILES})
   SET(GGO_OUTPUT  ${GGO_H} ${GGO_C})
   ADD_CUSTOM_COMMAND(OUTPUT ${GGO_OUTPUT} 
  	COMMAND gengetopt 
- 	ARGS < ${GGO_FILE} --arg-struct-name=gengetopt_args_info_${GGO_NAME}  --file-name=${GGO_BASEFILENAME}_ggo -u --conf-parser
+ 	ARGS < ${GGO_FILE} --arg-struct-name=args_info_${GGO_NAME}  --file-name=${GGO_BASEFILENAME}_ggo -u --conf-parser
  	DEPENDS ${GGO_FILE}
  	)  
  ENDFOREACH(GGO_FILE)
@@ -47,5 +47,5 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/ilr/deformableregistration)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/ilr/optim)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/common)
 #INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/tests)
-#INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/tools)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/tools)
 #=========================================================
