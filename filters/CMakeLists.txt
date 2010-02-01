@@ -1,4 +1,5 @@
 #=========================================================
+INCLUDE(../cmake/common.cmake)
 
 #=========================================================
 # make clitk libraries
@@ -12,6 +13,7 @@ SET(clitkFilters_SRC
   clitkSplitImageGenericFilter.cxx
   clitkVFResampleGenericFilter.cxx
   clitkBinarizeImageGenericFilter.cxx
+  clitkBinarizeImage_ggo.c
   )  
 
 ADD_LIBRARY(clitkFilters STATIC ${clitkFilters_SRC})
