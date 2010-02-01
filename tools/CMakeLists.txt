@@ -5,7 +5,7 @@ INCLUDE(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
 
 SET(clitkGGO_SRC
   clitkImageResample_ggo.c
-  #clitkBinarizeImage_ggo.c
+  clitkBinarizeImage_ggo.c
   )  
 
 ADD_LIBRARY(clitkGGO STATIC ${clitkGGO_SRC})
@@ -84,5 +84,5 @@ ADD_EXECUTABLE(clitkGuerreroVentilation clitkGuerreroVentilation.cxx
 TARGET_LINK_LIBRARIES(clitkGuerreroVentilation clitkCommon ITKIO ITKBasicFilters
 clitkFilters)
 
-#ADD_EXECUTABLE(clitkBinarizeImage clitkBinarizeImage.cxx clitkBinarizeImage_ggo.c)
-#TARGET_LINK_LIBRARIES(clitkBinarizeImage ITKIO clitkCommon) 
+ADD_EXECUTABLE(clitkBinarizeImage clitkBinarizeImage.cxx clitkBinarizeImage_ggo.c)
+TARGET_LINK_LIBRARIES(clitkBinarizeImage ITKIO clitkCommon) 
