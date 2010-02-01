@@ -113,7 +113,6 @@ SET(vv_SRCS
   vvToolManager.cxx
   vvToolCreatorBase.cxx
   vvToolBinarize.cxx
-  ../tools/clitkBinarizeImage_ggo.c
   vvToolInputSelectorWidget.cxx
   )
 
