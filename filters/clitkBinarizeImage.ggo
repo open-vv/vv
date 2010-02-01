@@ -6,9 +6,14 @@ purpose ""
 option "config"	  	-	"Config file"			  string  	no
 option "verbose"   	v   	"Verbose"			  flag		off
 
+option "imagetypes" 	-   	"Display allowed image types"	  flag		off
+
 option "input"		i	"Input image filename"		  string  	yes
 option "output"    	o   	"Output image filename"		  string 	yes
 option "lower"    	l   	"Lower intensity (default=min)"	  double 	no
 option "upper"    	u   	"Upper intensity (default=max)"	  double 	no
-option "inside"    	-   	"Inside value"	 	 	  double 	no	default="1"
-option "outside"    	-   	"Outside value"	 	 	  double 	no	default="0"
+option "fg"    		-   	"Foreground (FG) value"	 	  double 	no	default="1"
+option "bg"    		-   	"Background (BG) value"	 	  double 	no	default="0"
+option "setBG" 		-   	"No FG, keep values from input"	  flag		off
+option "setFG" 		-   	"No BG, keep values from input"	  flag		off
+
