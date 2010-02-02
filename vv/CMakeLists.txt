@@ -49,7 +49,7 @@ endif(COMMAND cmake_policy)
 LINK_LIBRARIES (
   #ITKIO
   clitkCommon
-  clitkGGO
+  #clitkGGO
   clitkFilters
   ${QT_QTCORE_LIBRARY}
   ${QT_QTGUI_LIBRARY}
