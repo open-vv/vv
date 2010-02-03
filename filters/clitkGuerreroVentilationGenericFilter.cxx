@@ -20,6 +20,7 @@
  -------------------------------------------------------------------*/
 
 #include <sstream>
+#include <vector>
 #include "clitkGuerreroVentilationGenericFilter.h"
 #include <itkBinaryGuerreroFilter.h>
 #include <itkImageDuplicator.h>

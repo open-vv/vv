@@ -10,7 +10,10 @@
  * 
  ===================================================*/
 
+// itk include
+#include "itkBinaryThresholdImageFilter.h"
 #include "itkMaskImageFilter.h"
+#include "itkMaskNegatedImageFilter.h"
 
 namespace clitk
 {
@@ -66,7 +69,15 @@ namespace clitk
 
     // Reading input
     typename InputImageType::Pointer input = this->template GetInput<InputImageType>(0);
-    
+
+    // Check option
+    if (!mArgsInfo.useFG_flag && !mArgsInfo.useBG_flag) {
+      // Do nothing !!
+      std::cerr << "Warning : FG and BG are not used ! Do nothing." << std::endl;
+      this->template SetNextOutput<InputImageType>(input);
+      return;
+    }
+
     // Main filter
     typedef typename InputImageType::PixelType PixelType;
     typedef itk::Image<int, InputImageType::ImageDimension> OutputImageType;
@@ -76,14 +87,18 @@ namespace clitk
     typename BinaryThresholdImageFilterType::Pointer thresholdFilter=BinaryThresholdImageFilterType::New();
     thresholdFilter->SetInput(input);
 
-    if (mArgsInfo.setFG_flag) {
-      double fg = mArgsInfo.fg_arg;
-      mArgsInfo.fg_arg = mArgsInfo.bg_arg;
-      mArgsInfo.bg_arg = fg;
-    }
+    /*    if (mArgsInfo.useFG_flag && !mArgsInfo.useBG_flag) {
+      DD("inverse");
+      // double fg = mArgsInfo.fg_arg;
+      //mArgsInfo.fg_arg = mArgsInfo.bg_arg;
+      // mArgsInfo.bg_arg = fg;
+       //   bool lo = mArgsInfo.lower_given;
+       //mArgsInfo.lower_given = mArgsInfo.upper_given;
+       //mArgsInfo.upper_given = lo;
+       }*/
 
-    if(mArgsInfo.lower_given) thresholdFilter->SetLowerThreshold(static_cast<PixelType>(mArgsInfo.lower_arg));
-    if(mArgsInfo.upper_given) thresholdFilter->SetUpperThreshold(static_cast<PixelType>(mArgsInfo.upper_arg));
+    if (mArgsInfo.lower_given) thresholdFilter->SetLowerThreshold(static_cast<PixelType>(mArgsInfo.lower_arg));
+    if (mArgsInfo.upper_given) thresholdFilter->SetUpperThreshold(static_cast<PixelType>(mArgsInfo.upper_arg));
 
     DD(mArgsInfo.lower_given);
     DD(mArgsInfo.upper_given);
@@ -95,6 +110,9 @@ namespace clitk
     DD(mArgsInfo.fg_given);
     DD(mArgsInfo.bg_given);
 
+    DD(mArgsInfo.useFG_flag);
+    DD(mArgsInfo.useBG_flag);
+
     thresholdFilter->SetInsideValue(mArgsInfo.fg_arg);
     thresholdFilter->SetOutsideValue(mArgsInfo.bg_arg);
 
@@ -102,24 +120,35 @@ namespace clitk
 
     // If no BG or no FG : new image, copy input with MaskImageFilter
     // If setFG -> FG BG have been changed
-    if (0) {
-      if (mArgsInfo.setBG_flag || mArgsInfo.setFG_flag) {
-        DD("set BG!!!!");
-        //if ()
-        typedef itk::MaskImageFilter<InputImageType,OutputImageType> maskFilterType;
-        typename maskFilterType::Pointer maskFilter = maskFilterType::New();
-        maskFilter->SetInput1(input);
-        maskFilter->SetInput2(thresholdFilter->GetOutput());
-        maskFilter->Update();
-        typename InputImageType::Pointer outputImage = maskFilter->GetOutput();
-        // Write/Save results
-        this->template SetNextOutput<InputImageType>(outputImage);
-      }
-    }
-    else {
+    if (mArgsInfo.useBG_flag && mArgsInfo.useFG_flag) {
       typename OutputImageType::Pointer outputImage = thresholdFilter->GetOutput();
       // Write/Save results
       this->template SetNextOutput<OutputImageType>(outputImage);
+    }
+    else {
+      typename InputImageType::Pointer outputImage;
+      if (mArgsInfo.useBG_flag) {
+	DD("use BG");
+	typedef itk::MaskImageFilter<InputImageType,OutputImageType> maskFilterType;
+	typename maskFilterType::Pointer maskFilter = maskFilterType::New();
+	maskFilter->SetInput1(input);
+	maskFilter->SetInput2(thresholdFilter->GetOutput());
+	maskFilter->Update();
+	maskFilter->SetOutsideValue(mArgsInfo.bg_arg);
+	outputImage = maskFilter->GetOutput();
+      }
+      else {
+	DD("use FG");
+	typedef itk::MaskNegatedImageFilter<InputImageType,OutputImageType> maskFilterType;
+	typename maskFilterType::Pointer maskFilter = maskFilterType::New();
+	maskFilter->SetInput1(input);
+	maskFilter->SetInput2(thresholdFilter->GetOutput());
+	maskFilter->SetOutsideValue(mArgsInfo.fg_arg);
+	maskFilter->Update();
+	outputImage = maskFilter->GetOutput();
+      }
+      // Write/Save results
+      this->template SetNextOutput<InputImageType>(outputImage);
     }
   }
   //--------------------------------------------------------------------

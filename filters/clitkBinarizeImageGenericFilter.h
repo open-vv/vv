@@ -3,8 +3,8 @@
   Program:   clitk
   Module:    $RCSfile: clitkBinarizeImageGenericFilter.h,v $
   Language:  C++
-  Date:      $Date: 2010/01/29 07:28:33 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/02/03 10:54:58 $
+  Version:   $Revision: 1.2 $
   Author :   Jef Vandemeulebroucke <jef@creatis.insa-lyon.fr>
              David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
@@ -33,12 +33,6 @@
 #include "clitkIO.h"
 #include "clitkCommon.h"
 #include "clitkImageToImageGenericFilter.h"
-
-// itk include
-#include "itkBinaryThresholdImageFilter.h"
-
-// std include
-#include <map>
 
 //--------------------------------------------------------------------
 namespace clitk 
