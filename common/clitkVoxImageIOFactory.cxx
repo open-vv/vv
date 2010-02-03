@@ -30,6 +30,8 @@
 
 #include "clitkVoxImageIOFactory.h"
 
+#include <fstream>
+
 //====================================================================
 clitk::VoxImageIOFactory::VoxImageIOFactory() 
 {

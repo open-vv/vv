@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolManager.h,v $
   Language:  C++
-  Date:      $Date: 2010/01/29 13:54:37 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/02/03 10:54:08 $
+  Version:   $Revision: 1.2 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -47,18 +47,10 @@ public:
   static void Initialize(vvMainWindow * m);
   static void UpdateEnabledTool();
   // Variables
-  static std::vector<vvToolCreatorBase *> mListOfTools;
+   std::vector<vvToolCreatorBase *> mListOfTools;
   static vvToolManager * mSingleton;
 };
 //------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-// Static instances initialization (to put in main)
-#define TOOL_MANAGER_INITIALIZATION                                     \
-  vvToolManager* vvToolManager::mSingleton=0;                           \
-  std::vector<vvToolCreatorBase *> vvToolManager::mListOfTools;
-//------------------------------------------------------------------------------
-
 
 #endif
 

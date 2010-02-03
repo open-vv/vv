@@ -12,18 +12,22 @@
    -------------------------------------------------------------------*/
 
 // std include
-#include <config.h>
-#include <cstdlib>
-#include <algorithm>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <vector>
-#include <math.h>
-#include <typeinfo>
+//#include <config.h>
+//#include <cstdlib>
+//#include <algorithm>
+//#include <iostream>
+//#include <string>
+//#include <fstream>
+//#include <sstream>
+//#include <vector>
+//#include <math.h>
+//#include <typeinfo>
+//#include <utility>
+//#include <algorithm>
 
-#include "itkMacro.h"
+// itk include (include std)
 #include <itkContinuousIndex.h>
+#include <itkMacro.h>
 #include <itkImageRegionConstIterator.h>
 #include <itkImageRegionIterator.h>
 

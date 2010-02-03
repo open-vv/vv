@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>388</width>
-    <height>318</height>
+    <width>320</width>
+    <height>298</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -116,12 +116,36 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_4">
            <item>
-            <widget class="vvIntensityValueSlider" name="mFGSlider" native="true"/>
+            <widget class="QCheckBox" name="mCheckBoxUseFG">
+             <property name="text">
+              <string>Use FG</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="vvIntensityValueSlider" name="mFGSlider" native="true">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <item>
+            <widget class="QCheckBox" name="mCheckBoxUseBG">
+             <property name="text">
+              <string>Use BG</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
            <item>
             <widget class="vvIntensityValueSlider" name="mBGSlider" native="true"/>
            </item>
@@ -138,6 +162,9 @@
        </item>
        <item>
         <widget class="QCheckBox" name="checkBox_2">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>Interactive (unchek to disable on the fly contours drawing)</string>
          </property>
@@ -180,11 +207,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>85</x>
-     <y>191</y>
+     <y>129</y>
     </hint>
     <hint type="destinationlabel">
-     <x>601</x>
-     <y>203</y>
+     <x>305</x>
+     <y>129</y>
     </hint>
    </hints>
   </connection>
@@ -196,11 +223,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>82</x>
-     <y>121</y>
+     <y>70</y>
     </hint>
     <hint type="destinationlabel">
      <x>88</x>
-     <y>191</y>
+     <y>129</y>
     </hint>
    </hints>
   </connection>
@@ -212,11 +239,43 @@
    <hints>
     <hint type="sourcelabel">
      <x>73</x>
-     <y>141</y>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>137</x>
-     <y>191</y>
+     <y>129</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mCheckBoxUseBG</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>mBGSlider</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>79</x>
+     <y>203</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>202</x>
+     <y>204</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mCheckBoxUseFG</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>mFGSlider</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>63</x>
+     <y>177</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>242</x>
+     <y>177</y>
     </hint>
    </hints>
   </connection>

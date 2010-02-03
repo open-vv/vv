@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolManager.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/01/29 13:54:37 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/02/03 10:54:08 $
+  Version:   $Revision: 1.2 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -28,6 +28,8 @@
 #include "vvToolManager.h"
 #include "vvMainWindow.h"
 
+vvToolManager* vvToolManager::mSingleton=0; 
+
 //------------------------------------------------------------------------------
 vvToolManager * vvToolManager::GetInstance() {
   if (mSingleton == 0) {
@@ -41,15 +43,15 @@ vvToolManager * vvToolManager::GetInstance() {
 //------------------------------------------------------------------------------
 void vvToolManager::AddTool(vvToolCreatorBase * v)  {
   std::cout << "Adding the tool <" << v->mToolName.toStdString() << ">." << std::endl;
-  mListOfTools.push_back(v);
+  GetInstance()->mListOfTools.push_back(v);
 }  
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
 void vvToolManager::Initialize(vvMainWindow * m) {
-  for(unsigned int i=0; i<mListOfTools.size(); i++) {
-    mListOfTools[i]->Initialize(m);
+  for(unsigned int i=0; i<GetInstance()->mListOfTools.size(); i++) {
+    GetInstance()->mListOfTools[i]->Initialize(m);
   }
 }
 //------------------------------------------------------------------------------
@@ -57,8 +59,8 @@ void vvToolManager::Initialize(vvMainWindow * m) {
 
 //------------------------------------------------------------------------------
 void vvToolManager::UpdateEnabledTool() {
-  for(unsigned int i=0; i<mListOfTools.size(); i++) {
-    mListOfTools[i]->UpdateEnabledTool();
+  for(unsigned int i=0; i<GetInstance()->mListOfTools.size(); i++) {
+    GetInstance()->mListOfTools[i]->UpdateEnabledTool();
   }
 }
 //------------------------------------------------------------------------------

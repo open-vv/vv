@@ -25,7 +25,7 @@
    -------------------------------------------------*/
 
 #include "clitkCommon.h"
-#include "itkMacro.h"
+#include <fstream>
 
 //------------------------------------------------------------------
 // skip line which begin with a sharp '#'

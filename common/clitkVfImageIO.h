@@ -18,6 +18,9 @@
 // itk include
 #include "itkImageIOBase.h"
 
+// std include 
+#include <fstream>
+
 namespace clitk {
   
   //====================================================================

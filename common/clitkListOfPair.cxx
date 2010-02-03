@@ -7,11 +7,11 @@
   l'Image). All rights reserved. See Doc/License.txt or
   http://www.creatis.insa-lyon.fr/Public/Gdcm/License.html for details.
                                                                                 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notices for more information.
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notices for more information.
                                                                              
-------------------------------------------------------------------------=*/
+  ------------------------------------------------------------------------=*/
 
 
 #ifndef CLITKLISTOFPAIR_CXX
@@ -32,13 +32,13 @@
 
 //--------------------------------------------------------------------
 double clitk::convertValue(double v, 
-					const std::multimap<double, double> & conversionTable, 
-					bool linear) {
+                           const std::multimap<double, double> & conversionTable, 
+                           bool linear) {
   std::map<double, double>::const_iterator i;
   i = conversionTable.lower_bound(v);  
   if (i == conversionTable.end()) {
-	std::cerr << "The value " << v << " is out of the table" << std::endl;
-	exit(0);
+    std::cerr << "The value " << v << " is out of the table" << std::endl;
+    exit(0);
   }
   
   double v2 = i->first;
@@ -49,12 +49,12 @@ double clitk::convertValue(double v,
 
   // interpol
   if (!linear) {
-	if ((v-v1) > (v2-v)) return p2;
-	else return p1;
+    if ((v-v1) > (v2-v)) return p2;
+    else return p1;
   }
   else {
-	double w = (v-v1)/(v2-v1);
-	return p1*(1.0-w)+w*p2;
+    double w = (v-v1)/(v2-v1);
+    return p1*(1.0-w)+w*p2;
   }
 }
 //--------------------------------------------------------------------

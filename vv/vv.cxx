@@ -35,10 +35,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "vvConstants.h"
 
 //------------------------------------------------------------------------------
-// (*NEEDED HERE*) Static instances initialization for ToolManager
-TOOL_MANAGER_INITIALIZATION;
-
-//------------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
     initialize_IO();

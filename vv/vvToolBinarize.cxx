@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolBinarize.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/01 15:54:25 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2010/02/03 10:54:08 $
+  Version:   $Revision: 1.3 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -269,14 +269,20 @@ void vvToolBinarize::GetArgsInfoFromGUI() {
 
   mArgsInfo.fg_arg = mFGSlider->GetValue();
   mArgsInfo.bg_arg = mBGSlider->GetValue();
+
+  DD(inverseBGandFG);
   if (inverseBGandFG) {
-    mArgsInfo.fg_arg = mBGSlider->GetValue();
-    mArgsInfo.bg_arg = mFGSlider->GetValue();
+    mArgsInfo.fg_arg = mFGSlider->GetValue();
+    mArgsInfo.bg_arg = mBGSlider->GetValue();
   }
   mArgsInfo.fg_given = 1;
   mArgsInfo.bg_given = 1;
 
-  mArgsInfo.setBG_flag = true;
+  mArgsInfo.useBG_flag = mCheckBoxUseBG->isChecked();
+  mArgsInfo.useFG_flag = mCheckBoxUseFG->isChecked();
+
+  DD(mArgsInfo.useBG_flag);
+  DD(mArgsInfo.useFG_flag);
 
   mArgsInfo.verbose_flag = true;
 
