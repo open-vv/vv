@@ -36,6 +36,7 @@ clitk::SplitImageGenericFilter::SplitImageGenericFilter():
 template<unsigned int Dim>
 void clitk::SplitImageGenericFilter::InitializeImageType() {      
   ADD_IMAGE_TYPE(Dim, char);
+  ADD_IMAGE_TYPE(Dim, unsigned char);
   ADD_IMAGE_TYPE(Dim, short);
   ADD_IMAGE_TYPE(Dim, int);
   ADD_IMAGE_TYPE(Dim, float);

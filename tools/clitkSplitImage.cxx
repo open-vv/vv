@@ -31,6 +31,11 @@ int main(int argc, char * argv[]) {
 
   // Read image dimension
   itk::ImageIOBase::Pointer header = clitk::readImageHeader(args_info.input_arg);
+  if (header.IsNull())
+  {
+      std::cerr << "Unable to read image file " << args_info.input_arg << std::endl;
+      std::exit(1);
+  }
   unsigned int dim = header->GetNumberOfDimensions();
   
   // Check parameters
