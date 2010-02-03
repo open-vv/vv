@@ -5,8 +5,8 @@
 clitk::ImageToImageGenericFilterBase::ImageToImageGenericFilterBase(std::string n)
   :mIOVerbose(false) {
   mFilterName = n;
-  mListOfAllowedDimension.clear();
-  mListOfAllowedPixelType.clear();
+  mListOfAllowedDimensions.clear();
+  mListOfAllowedPixelTypes.clear();
   mFailOnImageTypeError = true;
 }
 //--------------------------------------------------------------------
@@ -14,24 +14,16 @@ clitk::ImageToImageGenericFilterBase::ImageToImageGenericFilterBase(std::string 
 
 //--------------------------------------------------------------------
 void clitk::ImageToImageGenericFilterBase::AddImageType(unsigned int d, std::string p) {
-  // Search for dimension (to not duplicate)
-  std::vector<unsigned int>::const_iterator it = 
-    std::find (mListOfAllowedDimension.begin(), 
-               mListOfAllowedDimension.end(), d);
-  if (it == mListOfAllowedDimension.end()) mListOfAllowedDimension.push_back(d);
-  // Search for PixelType (to not duplicate)
-  std::vector<std::string>::const_iterator itt = 
-    std::find (mListOfAllowedPixelType.begin(), 
-               mListOfAllowedPixelType.end(), p);
-  if (itt == mListOfAllowedPixelType.end()) mListOfAllowedPixelType.push_back(p);
+
+    mListOfAllowedDimensions.insert(d);
+    mListOfAllowedPixelTypes.insert(p);
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
 void clitk::ImageToImageGenericFilterBase::SetInputFilenames(const std::vector<std::string> & filenames) {
-  mInputFilenames.resize(filenames.size());
-  std::copy(filenames.begin(), filenames.end(), mInputFilenames.begin());
+    mInputFilenames=filenames;
 }
 //--------------------------------------------------------------------
 
@@ -71,7 +63,8 @@ void clitk::ImageToImageGenericFilterBase::AddOutputFilename(const std::string &
 //--------------------------------------------------------------------
 void clitk::ImageToImageGenericFilterBase::SetOutputFilenames(const std::vector<std::string> & filenames)
 {
-    std::copy(filenames.begin(), filenames.end(), mOutputFilenames.begin());
+    mOutputFilenames.clear();
+    std::copy(filenames.begin(),filenames.end(),mOutputFilenames.begin());
 }
 //--------------------------------------------------------------------
 
@@ -163,26 +156,14 @@ bool clitk::ImageToImageGenericFilterBase::CheckImageType() {
 
 //--------------------------------------------------------------------
 bool clitk::ImageToImageGenericFilterBase::CheckDimension(unsigned int d) {
-  bool b = false;
-  unsigned int i=0;
-  while ((!b) && (i<mListOfAllowedDimension.size())) {
-    b = (mListOfAllowedDimension[i] == d);
-    i++;
-  }
-  return b;
+    return (mListOfAllowedDimensions.find(d) != mListOfAllowedDimensions.end());
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
 bool clitk::ImageToImageGenericFilterBase::CheckPixelType(std::string pt) {
-  bool b = false;
-  unsigned int i=0;
-  while ((!b) && (i<mListOfAllowedPixelType.size())) {
-    b = (mListOfAllowedPixelType[i] == pt);
-    i++;
-  }
-  return b;
+    return (mListOfAllowedPixelTypes.find(pt) != mListOfAllowedPixelTypes.end());
 }
 //--------------------------------------------------------------------
 
@@ -212,12 +193,14 @@ void clitk::ImageToImageGenericFilterBase::PrintAvailableImageTypes() {
 std::string clitk::ImageToImageGenericFilterBase::GetAvailableImageTypes() {
   std::ostringstream oss;
   oss << "The filter <" << mFilterName << "> manages ";
-  for(unsigned int i=0; i<mListOfAllowedDimension.size(); i++) {
-    oss << mListOfAllowedDimension[i] << "D ";
+  for(std::set<unsigned int>::const_iterator i=mListOfAllowedDimensions.begin();
+          i!=mListOfAllowedDimensions.end(); i++) {
+    oss << *i << "D ";
   }
   oss << "images, with pixel types: ";
-  for(unsigned int i=0; i<mListOfAllowedPixelType.size(); i++) {
-    oss << mListOfAllowedPixelType[i] << " ";
+  for(std::set<std::string>::const_iterator i=mListOfAllowedPixelTypes.begin();
+          i!=mListOfAllowedPixelTypes.end(); i++) {
+    oss << *i << " ";
   }
   oss << std::endl;
   return oss.str();
@@ -232,12 +215,14 @@ void clitk::ImageToImageGenericFilterBase::ImageTypeError() {
             << mDim << "D images with pixel=" 
             << mPixelTypeName << "." << std::endl;
   std::cerr << "**Error** Allowed image dim: \t";
-  for(unsigned int i=0; i<mListOfAllowedDimension.size(); i++) {
-    std::cerr << mListOfAllowedDimension[i] << " ";
+  for(std::set<unsigned int>::const_iterator i=mListOfAllowedDimensions.begin();
+          i!=mListOfAllowedDimensions.end(); i++) {
+      std::cerr << *i << "D ";
   }
   std::cerr << std::endl << "**Error** Allowed pixel types: \t";
-  for(unsigned int i=0; i<mListOfAllowedPixelType.size(); i++) {
-    std::cerr << mListOfAllowedPixelType[i] << " ";
+  for(std::set<std::string>::const_iterator i=mListOfAllowedPixelTypes.begin();
+          i!=mListOfAllowedPixelTypes.end(); i++) {
+      std::cerr << *i << " ";
   }
   std::cerr << std::endl;
   exit(0);

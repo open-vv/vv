@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolBinarize.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/03 10:54:08 $
-  Version:   $Revision: 1.3 $
+  Date:      $Date: 2010/02/03 13:08:55 $
+  Version:   $Revision: 1.4 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -161,7 +161,7 @@ void vvToolBinarize::UpdateSlice(int slicer,int slices) {
 
 
    int slice = mCurrentSliceManager->GetSlicer(0)->GetSlice();
-    int tslice = mCurrentSliceManager->GetSlicer(0)->GetTSlice();
+    //int tslice = mCurrentSliceManager->GetSlicer(0)->GetTSlice();
     mClipper->SetInput(mCurrentSliceManager->GetSlicer(0)->GetInput());
     int* extent = mCurrentSliceManager->GetSlicer(0)->GetImageActor()->GetDisplayExtent();
     mClipper->SetOutputWholeExtent(extent[0],extent[1],extent[2],extent[3],extent[4],extent[5]);

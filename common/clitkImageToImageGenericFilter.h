@@ -3,8 +3,8 @@
   Program:   clitk
   Module:    $RCSfile: clitkImageToImageGenericFilter.h,v $
   Language:  C++
-  Date:      $Date: 2010/01/29 13:53:15 $
-  Version:   $Revision: 1.3 $
+  Date:      $Date: 2010/02/03 13:08:52 $
+  Version:   $Revision: 1.4 $
   Author :   Joel Schaerer <joel.schaerer@creatis.insa-lyon.fr>
              David Sarrut <david.sarrut@creatis.insa-lyon.fr>
 
@@ -40,6 +40,7 @@
 #include <vvFromITK.h>
 #include <vvToITK.h>
 #include <list>
+#include <set>
 
 namespace clitk {
   
@@ -115,8 +116,8 @@ namespace clitk {
     std::vector<vvImage::Pointer> mInputVVImages;
     std::vector<vvImage::Pointer> mOutputVVImages;
 
-    std::vector<std::string> mListOfAllowedPixelType;
-    std::vector<unsigned int> mListOfAllowedDimension;    
+    std::set<std::string> mListOfAllowedPixelTypes;
+    std::set<unsigned int> mListOfAllowedDimensions;
     bool CheckImageType();
     bool CheckDimension();
     bool CheckPixelType();
