@@ -39,11 +39,11 @@ template<unsigned int Dim>
 void clitk::ImageArithmGenericFilter::InitializeImageType() {      
   ADD_IMAGE_TYPE(Dim, char);
   ADD_IMAGE_TYPE(Dim, short);
+  ADD_IMAGE_TYPE(Dim, float);
   /*  ADD_IMAGE_TYPE(Dim, short);
   ADD_IMAGE_TYPE(Dim, ushort;
   ADD_IMAGE_TYPE(Dim, int);
   ADD_IMAGE_TYPE(Dim, unsigned int);
-  ADD_IMAGE_TYPE(Dim, float);
   ADD_IMAGE_TYPE(Dim, double);
   */
 }

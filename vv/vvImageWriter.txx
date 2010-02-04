@@ -35,6 +35,10 @@ void vvImageWriter::UpdateWithDim(std::string OutputPixelType)
     {
         UpdateWithDimAndOutputPixelType<short,VImageDimension>();
     }
+    else if (OutputPixelType == "unsigned short")
+    {
+        UpdateWithDimAndOutputPixelType<unsigned short,VImageDimension>();
+    }
     else if (OutputPixelType == "unsigned_short")
     {
         UpdateWithDimAndOutputPixelType<unsigned short,VImageDimension>();
