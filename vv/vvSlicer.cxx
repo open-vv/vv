@@ -406,10 +406,12 @@ void vvSlicer::SetLandmarks(vvLandmarks* landmarks)
     }
 }
 
+//FIXME: this function leaks memory, we should fix it someday :)
 void vvSlicer::RemoveActor(const std::string& actor_type, int overlay_index)
 {
     if (actor_type == "vector")
     {
+        Renderer->RemoveActor(mVFActor);
         mGlyphFilter=NULL;
         mVF = NULL;
         mArrow = NULL;
