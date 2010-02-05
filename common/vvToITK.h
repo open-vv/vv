@@ -80,7 +80,7 @@ template<class ImageType> typename ImageType::ConstPointer vvImageToITK(vvImage:
     }
     else //Dim == 1,2,3
     {
-        assert(not vv_image->IsTimeSequence()); //This case isn't implemented
+        assert(!vv_image->IsTimeSequence()); //This case isn't implemented
         typedef ImageType  ConnectorImageType;
         typedef itk::VTKImageToImageFilter <ConnectorImageType> ConnectorType;
         typename ConnectorType::Pointer connector = ConnectorType::New();

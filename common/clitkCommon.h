@@ -35,9 +35,14 @@
 namespace clitk {
   
 #if defined(WIN32)
-#define lrint(x) (floor(x+(x>0) ? 0.5 : -0.5))
+#  define lrint(x) (floor(x+(x>0) ? 0.5 : -0.5))
 #endif
-  
+
+#ifndef M_PI
+#  define M_PI 3.141592653589793238462643
+#endif
+
+
   typedef unsigned char uchar;
   typedef unsigned short ushort;
   typedef unsigned int uint;

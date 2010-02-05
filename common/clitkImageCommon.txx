@@ -126,7 +126,7 @@ typename ImageType::Pointer readImage(const std::vector<std::string> & filenames
 
 //--------------------------------------------------------------------
 template<class ImageType>
-void writeImage(const typename ImageType::Pointer image, const std::string & filename, const bool verbose=false) {
+void writeImage(const typename ImageType::Pointer image, const std::string & filename, const bool verbose) {
   typedef itk::ImageFileWriter<ImageType> WriterType;
   typename WriterType::Pointer writer = WriterType::New();
   writer->SetFileName(filename.c_str());
@@ -147,7 +147,7 @@ void writeImage(const typename ImageType::Pointer image, const std::string & fil
 
 //--------------------------------------------------------------------
 template<class ImageType>
-void writeImage(const ImageType* image, const std::string & filename, const bool verbose=false) {
+void writeImage(const ImageType* image, const std::string & filename, const bool verbose) {
   typedef itk::ImageFileWriter<ImageType> WriterType;
   typename WriterType::Pointer writer = WriterType::New();
   writer->SetFileName(filename.c_str());

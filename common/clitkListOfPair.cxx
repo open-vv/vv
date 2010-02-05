@@ -34,7 +34,7 @@
 double clitk::convertValue(double v, 
                            const std::multimap<double, double> & conversionTable, 
                            bool linear) {
-  std::map<double, double>::const_iterator i;
+  std::multimap<double, double>::const_iterator i;
   i = conversionTable.lower_bound(v);  
   if (i == conversionTable.end()) {
     std::cerr << "The value " << v << " is out of the table" << std::endl;

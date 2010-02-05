@@ -84,7 +84,7 @@ int stage = current;
   sprintf(fmt,"%%%i.%if%%%%",prec<4?prec:prec+1,prec>3?prec-3:0);
   char ch[128];
   
-  snprintf(ch,2,fmt,s); 
+  _snprintf(ch,2,fmt,s); 
   //sxsVSCU_MESSAGE(2,ch);
   std::cout << ch << std::flush;
   for (int i=0;i<(prec>3?prec+2:prec+1);++i) 
@@ -117,7 +117,7 @@ void clitk::VerboseInProgressInPercentage(const int nb, const int current, const
   sprintf(fmt,"%%%i.%if%%%%",prec<4?prec:prec+1,prec>3?prec-3:0);
   char ch[128];
   
-  snprintf(ch,2,fmt,s); 
+  _snprintf(ch,2,fmt,s); 
   //sxsVSCU_MESSAGE(2,ch);
   std::cout << ch << std::flush;
   for (int i=0;i<(prec>3?prec+2:prec+1);++i) 
