@@ -79,7 +79,7 @@ void clitk::VerboseInProgress(const int nb, const int current, const int percent
   previous = rounded;
 
   std::ostringstream oss;
-  oss << rounded << '%';
+  oss << std::setw(4) << rounded << '%';
 
   std::cout << oss.str() << std::flush;
   for (int i=0; i<oss.str().length(); ++i) 
