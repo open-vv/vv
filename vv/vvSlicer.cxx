@@ -973,6 +973,28 @@ void vvSlicer::FlipVerticalView()
     }
 }
 
+void vvSlicer::SetColorWindow(double window)
+{
+    vtkLookupTable* LUT = static_cast<vtkLookupTable*>(this->GetWindowLevel()->GetLookupTable());
+    if ( LUT )
+    {
+        double level = this->GetWindowLevel()->GetLevel();
+        LUT->SetTableRange(level-fabs(window)/4,level+fabs(window)/4);
+        LUT->Build();
+    }
+    this->vtkImageViewer2::SetColorWindow(window);
+}
+void vvSlicer::SetColorLevel(double level)
+{
+    vtkLookupTable* LUT = static_cast<vtkLookupTable*>(this->GetWindowLevel()->GetLookupTable());
+    if ( LUT )
+    {
+        double window = this->GetWindowLevel()->GetWindow();
+        LUT->SetTableRange(level-fabs(window)/4,level+fabs(window)/4);
+        LUT->Build();
+    }
+    this->vtkImageViewer2::SetColorLevel(level);
+}
 void vvSlicer::Render()
 {
     if (this->GetWindowLevel()->GetLookupTable() && !this->mOverlay && !this->mFusion)

@@ -159,6 +159,9 @@ public:
     ///Toggle temporal superposition of contours
     void ToggleContourSuperposition();
 
+    virtual void SetColorWindow(double s);
+    virtual void SetColorLevel(double s);
+
 protected:
     vvSlicer();
     ~vvSlicer();

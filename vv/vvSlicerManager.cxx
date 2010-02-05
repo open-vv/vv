@@ -856,7 +856,7 @@ void vvSlicerManager::SetPreset(int preset)
         break;
     case 7:
         window=1.;
-        level=1;
+        level=0.;
         break;
     }
     mPreset = preset;
@@ -886,8 +886,6 @@ void vvSlicerManager::SetColorMap(int colormap)
     switch (colormap)
     {
     case -1:
-        if (LUT)
-            LUT->SetTableRange(level-fabs(window)/4,level+fabs(window)/4);
         break;
     case 0:
         LUT = NULL;
@@ -895,7 +893,6 @@ void vvSlicerManager::SetColorMap(int colormap)
     case 1:
         if (LUT == NULL)
             LUT = vtkLookupTable::New();
-        LUT->SetTableRange(level-fabs(window)/4,level+fabs(window)/4);
         LUT->SetValueRange(0,1);
         LUT->SetSaturationRange(1,1);
         LUT->SetHueRange(0,0.18);
@@ -903,7 +900,6 @@ void vvSlicerManager::SetColorMap(int colormap)
     case 2:
         if (LUT == NULL)
             LUT = vtkLookupTable::New();
-        LUT->SetTableRange(level-fabs(window)/4,level+fabs(window)/4);
         LUT->SetValueRange(0,1);
         LUT->SetSaturationRange(1,1);
         LUT->SetHueRange(0.4,0.80);
@@ -911,7 +907,6 @@ void vvSlicerManager::SetColorMap(int colormap)
     case 3:
         if (LUT == NULL)
             LUT = vtkLookupTable::New();
-        LUT->SetTableRange(level-fabs(window)/4,level+fabs(window)/4);
         LUT->SetValueRange(0,1);
         LUT->SetSaturationRange(1,1);
         LUT->SetHueRange(0,1);
@@ -926,7 +921,10 @@ void vvSlicerManager::SetColorMap(int colormap)
         break;
     }
     if (LUT)
+    {
+        LUT->SetTableRange(level-fabs(window)/4,level+fabs(window)/4);
         LUT->Build();
+    }
     vtkLookupTable* fusLUT = NULL;
     if (mSlicers[0]->GetFusion())
     {
