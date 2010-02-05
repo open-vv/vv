@@ -26,6 +26,8 @@
 
 #include "clitkCommon.h"
 #include <fstream>
+#include <iomanip>
+#include <sstream>
 
 //------------------------------------------------------------------
 // skip line which begin with a sharp '#'
@@ -71,32 +73,17 @@ std::string clitk::GetExtension(const std::string& filename)
 // Display progression
 void clitk::VerboseInProgress(const int nb, const int current, const int percentage)
 {
-int stage = current;
-  int number_of_stages = nb;
+  static int previous = -1;
+  const int rounded = (100*current)/nb;
+  if (previous==rounded) return; 
+  previous = rounded;
 
-  static int exp = -1;
-  int prec = 4;
-  int p = (int)(stage*pow(10.0,prec)*1./number_of_stages);
-  if (p==exp) return; 
-  exp = p;
-  float s = p * 100. / pow(10.0,prec);
-  char fmt[128];
-  sprintf(fmt,"%%%i.%if%%%%",prec<4?prec:prec+1,prec>3?prec-3:0);
-  char ch[128];
-  
-  _snprintf(ch,2,fmt,s); 
-  //sxsVSCU_MESSAGE(2,ch);
-  std::cout << ch << std::flush;
-  for (int i=0;i<(prec>3?prec+2:prec+1);++i) 
-	std::cout << "\b" << std::flush;//sxsVSCU_MESSAGE(2,"\b");
+  std::ostringstream oss;
+  oss << rounded << '%';
 
-  /*
-
-  if ((current % (nb/percentage)) == 0) {
-	std::cout.width(15); 
-	std::cout << "\r" << current << "/" << nb << std::flush;
-  }
-  */
+  std::cout << oss.str() << std::flush;
+  for (int i=0; i<oss.str().length(); ++i) 
+	std::cout << "\b" << std::flush;
 }
 //------------------------------------------------------------------
 
@@ -104,33 +91,7 @@ int stage = current;
 // Display progression
 void clitk::VerboseInProgressInPercentage(const int nb, const int current, const int percentage)
 {
-  int stage = current;
-  int number_of_stages = nb;
-
-  static int exp = -1;
-  int prec = 4;
-  int p = (int)(stage*pow(10.0,prec)*1./number_of_stages);
-  if (p==exp) return; 
-  exp = p;
-  float s = p * 100. / pow(10.0,prec);
-  char fmt[128];
-  sprintf(fmt,"%%%i.%if%%%%",prec<4?prec:prec+1,prec>3?prec-3:0);
-  char ch[128];
-  
-  _snprintf(ch,2,fmt,s); 
-  //sxsVSCU_MESSAGE(2,ch);
-  std::cout << ch << std::flush;
-  for (int i=0;i<(prec>3?prec+2:prec+1);++i) 
-	std::cout << "\b" << std::flush;//sxsVSCU_MESSAGE(2,"\b");
-
-  /*
-  if (nb/percentage != 0) {
-	if ((current % (nb/percentage)) == 0) {
-	  std::cout.width(2); 
-	  std::cout << "\r" << (nb/current)*100 << "/100%  " << std::flush;
-	}
-  }
-  */
+  VerboseInProgress(nb, current, percentage);
 }
 //------------------------------------------------------------------
 
