@@ -87,12 +87,12 @@ void vvDeformationDialog::resetSlider(int slicer_index)
 void vvDeformationDialog::computeDeformationField() {
     vvImage::Pointer sequence=mSlicerManagers[inputSequenceBox->currentIndex()]->GetSlicer(0)->GetImage();
     vtkImageData * first_image = sequence->GetVTKImages()[0];
-    if (not sequence->IsTimeSequence())
+    if (!sequence->IsTimeSequence())
     {
         this->setResult(QDialog::Rejected);
         QMessageBox::warning(this,tr("Image type error"), tr("Deformable image registration only makes sense on time sequences."));
     }
-    else if ((first_image->GetSpacing()[0] != first_image->GetSpacing()[1]) or (first_image->GetSpacing()[0] != first_image->GetSpacing()[2]))
+    else if ((first_image->GetSpacing()[0] != first_image->GetSpacing()[1]) || (first_image->GetSpacing()[0] != first_image->GetSpacing()[2]))
     {
         this->setResult(QDialog::Rejected);
         QMessageBox::warning(this,tr("Image type error"), tr("Deformable registration only works well with isotropic voxels. Please resample the image."));
@@ -123,7 +123,7 @@ void vvDeformationDialog::computeDeformationField() {
         registrator.start();
         while (!registrator.isFinished())
         {
-            if (progress.wasCanceled() and not aborted)
+            if (progress.wasCanceled() && !aborted)
             {
                 this->setResult(QDialog::Rejected);
                 registrator.abort();
@@ -136,7 +136,7 @@ void vvDeformationDialog::computeDeformationField() {
             qApp->processEvents();
             registrator.wait(50);
         }
-        if (not aborted)
+        if (!aborted)
         {
             mOutput=registrator.getOutput();
         }

@@ -35,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTreeWidget>
 
 //====================================================================
-class QDESIGNER_WIDGET_EXPORT vvResamplerDialog : public QDialog, private Ui::vvResamplerDialog {
+class vvResamplerDialog :  public QDialog, private Ui::vvResamplerDialog {
 
     Q_OBJECT
 

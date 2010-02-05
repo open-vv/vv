@@ -119,7 +119,7 @@ void vvMeshActor::ToggleSuperposition()
 {
     DD("Warning: superposition not implemented");
   // std::cout << "vvMeshActor::ToggleSuperposition size = " << mMeshes.size() << std::endl;
-    if (not mSuperpostionMode and mMesh->GetNumberOfMeshes() > 1)
+    if (! mSuperpostionMode && mMesh->GetNumberOfMeshes() > 1)
     {
         mSuperpostionMode=true;
     }

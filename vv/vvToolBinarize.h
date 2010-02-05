@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolBinarize.h,v $
   Language:  C++
-  Date:      $Date: 2010/01/29 13:54:37 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/02/05 09:06:46 $
+  Version:   $Revision: 1.2 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -45,7 +45,7 @@
 #include "vtkRenderer.h"
 
 //------------------------------------------------------------------------------
-class QDESIGNER_WIDGET_EXPORT vvToolBinarize: 
+class vvToolBinarize:
   public QDialog, public vvToolBase<vvToolBinarize>, private Ui::vvToolBinarize 
 {
   Q_OBJECT

@@ -94,33 +94,33 @@ void vvLandmarksPanel::AddPoint(int landmarksIndex)
     tableWidget->setRowCount(rowIndex+1);
     tableWidget->setRowHeight(rowIndex,20);
     QTableWidgetItem* iItem = new QTableWidgetItem(QString::number(landmarksIndex));
-    iItem->setFlags(!Qt::ItemIsEditable);
+    iItem->setFlags(Qt::NoItemFlags);
     tableWidget->setItem(rowIndex,0,iItem);
 
     QTableWidgetItem* xItem = new QTableWidgetItem(
         QString::number(mCurrentLandmarks->GetCoordinates(landmarksIndex)[0],'f',1));
-    xItem->setFlags(!Qt::ItemIsEditable);
+    xItem->setFlags(Qt::NoItemFlags);
     tableWidget->setItem(rowIndex,1,xItem);
 
     QTableWidgetItem* yItem = new QTableWidgetItem(
         QString::number(mCurrentLandmarks->GetCoordinates(landmarksIndex)[1],'f',1));
-    yItem->setFlags(!Qt::ItemIsEditable);
+    yItem->setFlags(Qt::NoItemFlags);
     tableWidget->setItem(rowIndex,2,yItem);
 
     QTableWidgetItem* zItem = new QTableWidgetItem(
         QString::number(mCurrentLandmarks->GetCoordinates(landmarksIndex)[2],'f',1));
-    zItem->setFlags(!Qt::ItemIsEditable);
+    zItem->setFlags(Qt::NoItemFlags);
     tableWidget->setItem(rowIndex,3,zItem);
 
     QTableWidgetItem* tItem = new QTableWidgetItem(
         QString::number(mCurrentLandmarks->GetCoordinates(landmarksIndex)[3],'f',1));
-    tItem->setFlags(!Qt::ItemIsEditable);
+    tItem->setFlags(Qt::NoItemFlags);
     tableWidget->setItem(rowIndex,4,tItem);
 
 
     QTableWidgetItem* vItem = new QTableWidgetItem(
         QString::number(mCurrentLandmarks->GetPixelValue(landmarksIndex),'f',1));
-    vItem->setFlags(!Qt::ItemIsEditable);
+    vItem->setFlags(Qt::NoItemFlags);
     tableWidget->setItem(rowIndex,5,vItem);
 
     tableWidget->setItem(rowIndex,6, new QTableWidgetItem(mCurrentLandmarks->GetComments(landmarksIndex).c_str()));

@@ -401,7 +401,7 @@ void vvSlicerManager::SetPreviousTSlice(int originating_slicer)
 
 void vvSlicerManager::ToggleInterpolation()
 {
-    bool interpolate=not (mSlicers[0]->GetImageActor()->GetInterpolate());
+    bool interpolate=!(mSlicers[0]->GetImageActor()->GetInterpolate());
     for ( unsigned int i = 0; i < mSlicers.size(); i++)
     {
         mSlicers[i]->GetImageActor()->SetInterpolate(interpolate);

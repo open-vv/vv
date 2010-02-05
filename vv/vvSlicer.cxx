@@ -828,7 +828,7 @@ void vvSlicer::ClipDisplayedExtent(int extent[6], int refExtent[6])
     for (int i = 0; i < maxBound; i = i+2)
     {
         //if we are totally outside the image
-        if ( extent[i] > refExtent[i+1] or extent[i+1] < refExtent[i] )
+        if ( extent[i] > refExtent[i+1] || extent[i+1] < refExtent[i] )
         {
             out = true;
             break;
@@ -975,8 +975,7 @@ void vvSlicer::FlipVerticalView()
 
 void vvSlicer::Render()
 {
-    if (this->GetWindowLevel()->GetLookupTable() and not this->mOverlay and not
-            this->mFusion)
+    if (this->GetWindowLevel()->GetLookupTable() && !this->mOverlay && !this->mFusion)
     {
         legend->SetLookupTable(this->GetWindowLevel()->GetLookupTable());
         legend->SetVisibility(1);

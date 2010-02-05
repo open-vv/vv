@@ -49,7 +49,7 @@ vvMeshReader::vvMeshReader() :
 void vvMeshReader::Update()
 {
     //Show a progress bar only when opening a DC-struct (ie. multiple contours)
-    vvProgressDialog progress("Opening " + filename,(not vtk_mode) and (selected_contours.size()>1));
+    vvProgressDialog progress("Opening " + filename,(!vtk_mode) && (selected_contours.size()>1));
     this->start();
     while (this->isRunning())
     {

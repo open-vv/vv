@@ -46,18 +46,19 @@ class vtkUnsignedCharArray;
 #endif
 
 #if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)
-#if defined(QVTK_EXPORTS) || defined(QVTKWidgetPlugin_EXPORTS)
-#define QVTK_EXPORT __declspec( dllexport )
-#else
-#define QVTK_EXPORT __declspec( dllimport )
+#  if defined(QVTK_EXPORTS) || defined(QVTKWidgetPlugin_EXPORTS)
+#    define QVTK_EXPORT __declspec( dllexport )
+#  else
+#    define QVTK_EXPORT __declspec( dllimport )
+#  endif
 #endif
-#define QVTK_EXPORT
-#else
-#define QVTK_EXPORT
+
+#ifndef QVTK_EXPORT
+#  define QVTK_EXPORT
 #endif
 
 //! QVTKWidget displays a VTK window in a Qt window.
-class QVTK_EXPORT QVTKWidget : public QWidget
+class QVTKWidget : public QWidget
 {
     Q_OBJECT
 
@@ -261,7 +262,7 @@ class QVTKInteractorInternal;
 // .SECTION Description
 // QVTKInteractor is an interactor for a QVTKWiget.
 
-class QVTK_EXPORT QVTKInteractor : public QObject, public vtkRenderWindowInteractor
+class QVTKInteractor : public QObject, public vtkRenderWindowInteractor
 {
     Q_OBJECT
 public:

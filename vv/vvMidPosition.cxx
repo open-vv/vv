@@ -69,7 +69,7 @@ void vvMidPosition::run()
     error=true;
     if(slicer_manager->GetImage()->GetNumberOfDimensions() != 4)
         error_message="Computation of midposition is only supported for 4D image sequences.";
-    else if (not slicer_manager->GetVF())
+    else if (!slicer_manager->GetVF())
         error_message="A VF is required for midposition computation";
     else if (slicer_manager->GetVF()->GetScalarTypeAsString() != "float")
         error_message="Please use a vector field of type float.";

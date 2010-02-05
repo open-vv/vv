@@ -209,9 +209,9 @@ void vvMesh::propagateContour(vvImage::Pointer vf)
             int iy=(old[1]-Oy)/Sy;
             int iz=(old[2]-Oz)/Sz;
             float* vector=vector_data+(ix+iy*vf->GetSize()[0]+iz*vf->GetSize()[0]*vf->GetSize()[1])*3;
-            if (ix>=0 and ix < dims[0]
-                    and iy>=0 and iy < dims[1]
-                    and iz>=0 and iz < dims[2])
+            if (ix>=0 && ix < dims[0]
+                    && iy>=0 && iy < dims[1]
+                    && iz>=0 && iz < dims[2])
                 new_mesh->GetPoints()->SetPoint(j,old[0]+vector[0],old[1]+vector[1],old[2]+vector[2]);
         }
         this->AddMesh(new_mesh);

@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvMainWindow.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/01/29 13:53:49 $
-  Version:   $Revision: 1.5 $
+  Date:      $Date: 2010/02/05 09:06:46 $
+  Version:   $Revision: 1.6 $
   Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
   Copyright (C) 200COLUMN_IMAGE_NAME
@@ -302,7 +302,7 @@ vvMainWindow::vvMainWindow() {
 
   //Recently opened files
   std::list<std::string> recent_files = GetRecentlyOpenedImages();
-  if ( not recent_files.empty() )
+  if ( !recent_files.empty() )
     {
       QMenu * rmenu = new QMenu("Recently opened files...");
       rmenu->setIcon(QIcon(QString::fromUtf8(":/new/prefix1/icons/open.png")));
@@ -1262,7 +1262,7 @@ int vvMainWindow::GetSlicerIndexFromItem(QTreeWidgetItem* item) {
 //------------------------------------------------------------------------------
 void vvMainWindow::DisplayChanged(QTreeWidgetItem *clicked_item, int column) {
   int index = GetSlicerIndexFromItem(clicked_item);
-  if ( column >= COLUMN_CLOSE_IMAGE or column <= 0)
+  if ( column >= COLUMN_CLOSE_IMAGE || column <= 0)
     return;
   for (unsigned int i = 0; i < mSlicerManagers.size(); i++)
     {
@@ -2603,7 +2603,7 @@ void vvMainWindow::PlayNext() {
       ///Only play one slicer per SM, and only if the SM is being displayed
       for (int i=0;i<image_number;i++)
         for (int j=0;j<4;j++)
-          if (mSlicerManagers[i]->GetImage()->GetVTKImages().size() > 1 and
+          if (mSlicerManagers[i]->GetImage()->GetVTKImages().size() > 1 &&
               DataTree->topLevelItem(i)->data(j+1,Qt::CheckStateRole).toInt() > 0)
             {
               mSlicerManagers[i]->SetNextTSlice(j);

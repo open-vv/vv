@@ -201,7 +201,7 @@ void vvSlicerManagerCallback::Execute(vtkObject *caller,
                     this->SM->Render();
                     return;
                 }
-                if (KeyPress == "r" or KeyPress=="R")
+                if (KeyPress == "r" || KeyPress=="R")
                 {
                     this->SM->GetSlicer(VisibleInWindow)->ResetCamera();
                     this->SM->GetSlicer(VisibleInWindow)->Render();

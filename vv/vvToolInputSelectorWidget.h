@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolInputSelectorWidget.h,v $
   Language:  C++
-  Date:      $Date: 2010/01/29 13:54:37 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/02/05 09:06:46 $
+  Version:   $Revision: 1.2 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -36,8 +36,7 @@
 class vvSlicerManager;
 
 //------------------------------------------------------------------------------
-class QDESIGNER_WIDGET_EXPORT vvToolInputSelectorWidget:
-  public QWidget, private Ui::vvToolInputSelectorWidget 
+class vvToolInputSelectorWidget: public QWidget, private Ui::vvToolInputSelectorWidget 
 {
   Q_OBJECT
     public:
