@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvMainWindow.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/05 09:06:46 $
-  Version:   $Revision: 1.6 $
+  Date:      $Date: 2010/02/06 15:38:13 $
+  Version:   $Revision: 1.7 $
   Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
   Copyright (C) 200COLUMN_IMAGE_NAME
@@ -118,7 +118,7 @@ vvMainWindow::vvMainWindow() {
                                                         tr("Open new Image"));
   connect(actionOpen_new_image,SIGNAL(triggered()),this,SLOT(OpenImages()));
   contextActions.push_back(actionOpen_new_image);
-
+  actionOpen_new_image->setShortcut("Ctrl+O");//Qt::CTRL & Qt::Key_O);
   contextMenu.addSeparator();
 
   QAction* actionClose_Image = contextMenu.addAction(QIcon(QString::fromUtf8(":/new/prefix1/icons/exit.png")),

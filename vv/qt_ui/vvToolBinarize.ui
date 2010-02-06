@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>320</width>
-    <height>298</height>
+    <width>405</width>
+    <height>285</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,70 +28,33 @@
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout">
-           <item>
-            <layout class="QVBoxLayout" name="verticalLayout">
-             <item>
-              <widget class="QFrame" name="frame">
-               <property name="frameShape">
-                <enum>QFrame::StyledPanel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <layout class="QVBoxLayout" name="verticalLayout_5">
-                <item>
-                 <widget class="QRadioButton" name="mRadioButtonGreaterThan">
-                  <property name="text">
-                   <string>Greater than</string>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QRadioButton" name="mRadioButtonEqualThan">
-                  <property name="text">
-                   <string>Equal</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QRadioButton" name="radioButton_3">
-                  <property name="text">
-                   <string>Not equal</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <widget class="vvIntensityValueSlider" name="mThresholdSlider1" native="true"/>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <item row="2" column="1">
             <widget class="QRadioButton" name="mRadioButtonLowerThan">
              <property name="text">
-              <string>Lower than</string>
+              <string>and lower than</string>
              </property>
              <property name="autoExclusive">
               <bool>false</bool>
              </property>
             </widget>
            </item>
-           <item>
+           <item row="2" column="2">
             <widget class="vvIntensityValueSlider" name="mThresholdSlider2" native="true">
              <property name="enabled">
               <bool>false</bool>
              </property>
             </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Foreground (FG) is greater than : </string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="vvIntensityValueSlider" name="mThresholdSlider1" native="true"/>
            </item>
           </layout>
          </item>
@@ -216,38 +179,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>mRadioButtonEqualThan</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>mRadioButtonLowerThan</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>82</x>
-     <y>70</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>88</x>
-     <y>129</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton_3</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>mRadioButtonLowerThan</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>73</x>
-     <y>90</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>137</x>
-     <y>129</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>mCheckBoxUseBG</sender>
    <signal>toggled(bool)</signal>
    <receiver>mBGSlider</receiver>
@@ -258,8 +189,8 @@
      <y>203</y>
     </hint>
     <hint type="destinationlabel">
-     <x>202</x>
-     <y>204</y>
+     <x>395</x>
+     <y>225</y>
     </hint>
    </hints>
   </connection>

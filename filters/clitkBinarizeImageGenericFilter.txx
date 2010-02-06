@@ -70,33 +70,16 @@ namespace clitk
     // Reading input
     typename InputImageType::Pointer input = this->template GetInput<InputImageType>(0);
 
-    // Check option
-    if (!mArgsInfo.useFG_flag && !mArgsInfo.useBG_flag) {
-      // Do nothing !!
-      std::cerr << "Warning : FG and BG are not used ! Do nothing." << std::endl;
-      this->template SetNextOutput<InputImageType>(input);
-      return;
-    }
-
     // Main filter
     typedef typename InputImageType::PixelType PixelType;
-    typedef itk::Image<int, InputImageType::ImageDimension> OutputImageType;
+    typedef itk::Image<char, InputImageType::ImageDimension> OutputImageType;
 
     // Filter
     typedef itk::BinaryThresholdImageFilter<InputImageType, OutputImageType> BinaryThresholdImageFilterType;
     typename BinaryThresholdImageFilterType::Pointer thresholdFilter=BinaryThresholdImageFilterType::New();
     thresholdFilter->SetInput(input);
-
-    /*    if (mArgsInfo.useFG_flag && !mArgsInfo.useBG_flag) {
-      DD("inverse");
-      // double fg = mArgsInfo.fg_arg;
-      //mArgsInfo.fg_arg = mArgsInfo.bg_arg;
-      // mArgsInfo.bg_arg = fg;
-       //   bool lo = mArgsInfo.lower_given;
-       //mArgsInfo.lower_given = mArgsInfo.upper_given;
-       //mArgsInfo.upper_given = lo;
-       }*/
-
+    thresholdFilter->SetInsideValue(mArgsInfo.fg_arg);
+ 
     if (mArgsInfo.lower_given) thresholdFilter->SetLowerThreshold(static_cast<PixelType>(mArgsInfo.lower_arg));
     if (mArgsInfo.upper_given) thresholdFilter->SetUpperThreshold(static_cast<PixelType>(mArgsInfo.upper_arg));
 
@@ -104,41 +87,36 @@ namespace clitk
     DD(mArgsInfo.upper_given);
     DD(mArgsInfo.lower_arg);
     DD(mArgsInfo.upper_arg);
-
     DD(mArgsInfo.fg_arg);
     DD(mArgsInfo.bg_arg);
     DD(mArgsInfo.fg_given);
     DD(mArgsInfo.bg_given);
+    DD(mArgsInfo.mode_arg);
 
-    DD(mArgsInfo.useFG_flag);
-    DD(mArgsInfo.useBG_flag);
-
-    thresholdFilter->SetInsideValue(mArgsInfo.fg_arg);
-    thresholdFilter->SetOutsideValue(mArgsInfo.bg_arg);
-
-    thresholdFilter->Update();
-
-    // If no BG or no FG : new image, copy input with MaskImageFilter
-    // If setFG -> FG BG have been changed
-    if (mArgsInfo.useBG_flag && mArgsInfo.useFG_flag) {
+    /* Three modes : 
+       - FG -> only use FG value for pixel in the Foreground (or Inside), keep input values for outside
+       - BG -> only use BG value for pixel in the Background (or Outside), keep input values for inside
+       - both -> use FG and BG (real binary image)
+    */
+      if (mArgsInfo.mode_arg == std::string("both")) {
+      thresholdFilter->SetOutsideValue(mArgsInfo.bg_arg);
+      thresholdFilter->Update();
       typename OutputImageType::Pointer outputImage = thresholdFilter->GetOutput();
-      // Write/Save results
       this->template SetNextOutput<OutputImageType>(outputImage);
     }
     else {
       typename InputImageType::Pointer outputImage;
-      if (mArgsInfo.useBG_flag) {
-	DD("use BG");
+      thresholdFilter->SetOutsideValue(0);
+      if (mArgsInfo.mode_arg == std::string("BG")) {
 	typedef itk::MaskImageFilter<InputImageType,OutputImageType> maskFilterType;
 	typename maskFilterType::Pointer maskFilter = maskFilterType::New();
 	maskFilter->SetInput1(input);
 	maskFilter->SetInput2(thresholdFilter->GetOutput());
-	maskFilter->Update();
 	maskFilter->SetOutsideValue(mArgsInfo.bg_arg);
+	maskFilter->Update();
 	outputImage = maskFilter->GetOutput();
       }
       else {
-	DD("use FG");
 	typedef itk::MaskNegatedImageFilter<InputImageType,OutputImageType> maskFilterType;
 	typename maskFilterType::Pointer maskFilter = maskFilterType::New();
 	maskFilter->SetInput1(input);

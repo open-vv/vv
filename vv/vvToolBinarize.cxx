@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolBinarize.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/03 13:08:55 $
-  Version:   $Revision: 1.4 $
+  Date:      $Date: 2010/02/06 15:38:14 $
+  Version:   $Revision: 1.5 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -61,8 +61,9 @@ vvToolBinarize::vvToolBinarize(QWidget * parent, Qt::WindowFlags f)
   connect(buttonBox, SIGNAL(rejected()), this, SLOT(close()));
   connect(mThresholdSlider1, SIGNAL(valueChanged(double)), this, SLOT(valueChangedT1(double)));
   connect(mThresholdSlider2, SIGNAL(valueChanged(double)), this, SLOT(valueChangedT2(double)));
-
   connect(mRadioButtonLowerThan, SIGNAL(toggled(bool)), this, SLOT(enableLowerThan(bool)));
+  connect(mCheckBoxUseFG, SIGNAL(toggled(bool)), this, SLOT(useFGBGtoggled(bool)));
+  connect(mCheckBoxUseBG, SIGNAL(toggled(bool)), this, SLOT(useFGBGtoggled(bool)));
 
   // VTK objects
   mClipper = vtkImageClip::New();
@@ -75,6 +76,7 @@ vvToolBinarize::vvToolBinarize(QWidget * parent, Qt::WindowFlags f)
   mThresholdSlider2->SetText("");
   mFGSlider->SetText("Foreground value");
   mBGSlider->SetText("Background value");
+
 
   // Disable main widget while input image is not selected
   toolMainWidget->setEnabled(false);
@@ -107,6 +109,15 @@ void vvToolBinarize::enableLowerThan(bool b) {
 
 
 //------------------------------------------------------------------------------
+void vvToolBinarize::useFGBGtoggled(bool) {
+  DD("ici");
+  if (!mCheckBoxUseBG->isChecked() && !mCheckBoxUseFG->isChecked()) 
+    mCheckBoxUseBG->toggle();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 void vvToolBinarize::InputIsSelected() {
 
   // Common
@@ -120,9 +131,13 @@ void vvToolBinarize::InputIsSelected() {
   mThresholdSlider2->SetImage(mCurrentImage);
   mFGSlider->SetImage(mCurrentImage);
   mBGSlider->SetImage(mCurrentImage);
+  DD(mCurrentSliceManager->GetFileName().c_str());
+  mFGSlider->SetMaximum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMax());
+  mFGSlider->SetMinimum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMin());
+  mBGSlider->SetMaximum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMax());
+  mBGSlider->SetMinimum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMin());
   mFGSlider->SetValue(1);
   mBGSlider->SetValue(0);
-  DD(mCurrentSliceManager->GetFileName().c_str());
   
   DD("VTK");
   DD(mCurrentSliceManager->NumberOfSlicers());
@@ -238,7 +253,7 @@ void vvToolBinarize::GetArgsInfoFromGUI() {
   mArgsInfo.lower_given = 0;
   bool inverseBGandFG = false;
 
-  if (mRadioButtonGreaterThan->isChecked()) { // Greater Than (and Lower Than)
+  // if (mRadioButtonGreaterThan->isChecked()) { // Greater Than (and Lower Than)
     mArgsInfo.lower_given = 1;
     mArgsInfo.lower_arg = mThresholdSlider1->GetValue();
     DD(mArgsInfo.lower_arg);
@@ -250,22 +265,22 @@ void vvToolBinarize::GetArgsInfoFromGUI() {
         DD("TODO : lower thres greater than greater thres ! Ignoring ");
       }
     }
-  }
-  else {
-    if (mRadioButtonEqualThan->isChecked()) {
-      mArgsInfo.lower_given = 1;
-      mArgsInfo.upper_given = 1;
-      mArgsInfo.lower_arg = mThresholdSlider1->GetValue();
-      mArgsInfo.upper_arg = mThresholdSlider1->GetValue();
-    }
-    else {
-      mArgsInfo.lower_given = 1;
-      mArgsInfo.upper_given = 1;
-      mArgsInfo.lower_arg = mThresholdSlider1->GetValue();
-      mArgsInfo.upper_arg = mThresholdSlider1->GetValue();
-      inverseBGandFG = true;
-    }
-  }
+  // }
+  // else {
+  //   if (mRadioButtonEqualThan->isChecked()) {
+  //     mArgsInfo.lower_given = 1;
+  //     mArgsInfo.upper_given = 1;
+  //     mArgsInfo.lower_arg = mThresholdSlider1->GetValue();
+  //     mArgsInfo.upper_arg = mThresholdSlider1->GetValue();
+  //   }
+  //   else {
+  //     mArgsInfo.lower_given = 1;
+  //     mArgsInfo.upper_given = 1;
+  //     mArgsInfo.lower_arg = mThresholdSlider1->GetValue();
+  //     mArgsInfo.upper_arg = mThresholdSlider1->GetValue();
+  //     inverseBGandFG = true;
+  //   }
+  // }
 
   mArgsInfo.fg_arg = mFGSlider->GetValue();
   mArgsInfo.bg_arg = mBGSlider->GetValue();
@@ -278,11 +293,14 @@ void vvToolBinarize::GetArgsInfoFromGUI() {
   mArgsInfo.fg_given = 1;
   mArgsInfo.bg_given = 1;
 
-  mArgsInfo.useBG_flag = mCheckBoxUseBG->isChecked();
-  mArgsInfo.useFG_flag = mCheckBoxUseFG->isChecked();
+  if (mCheckBoxUseBG->isChecked()) {
+    if (mCheckBoxUseFG->isChecked()) mArgsInfo.mode_arg = (char*)"both";
+    else mArgsInfo.mode_arg = (char*)"BG";
+  }
+  else mArgsInfo.mode_arg = (char*)"FG";
 
-  DD(mArgsInfo.useBG_flag);
-  DD(mArgsInfo.useFG_flag);
+  // DD(mArgsInfo.useBG_flag);
+  // DD(mArgsInfo.useFG_flag);
 
   mArgsInfo.verbose_flag = true;
 

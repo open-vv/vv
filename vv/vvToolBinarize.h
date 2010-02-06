@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolBinarize.h,v $
   Language:  C++
-  Date:      $Date: 2010/02/05 09:06:46 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2010/02/06 15:38:14 $
+  Version:   $Revision: 1.3 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -79,6 +79,7 @@ class vvToolBinarize:
   void UpdateSlice(int slicer,int slices);
   void InputIsSelected();
   void enableLowerThan(bool b);
+  void useFGBGtoggled(bool);
 
  protected:
   Ui::vvToolBinarize ui;
