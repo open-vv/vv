@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolBinarize.h,v $
   Language:  C++
-  Date:      $Date: 2010/02/06 15:38:14 $
-  Version:   $Revision: 1.3 $
+  Date:      $Date: 2010/02/07 08:49:42 $
+  Version:   $Revision: 1.4 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -32,6 +32,7 @@
 #include <QDialog>
 
 #include "vvToolBase.h"
+#include "vvImageContour.h"
 #include "ui_vvToolBinarize.h"
 #include "clitkBinarizeImage_ggo.h"
 
@@ -93,6 +94,13 @@ class vvToolBinarize:
   vtkMarchingSquares* mSquares1;
   vtkPolyDataMapper* mSquaresMapper1;
   vtkActor* mSquaresActor1;
+
+  vvImageContour * mImageContour;
+
+  /* vtkImageClip* mClipper; */
+  /* vtkMarchingSquares* mSquares1; */
+  /* vtkPolyDataMapper* mSquaresMapper1; */
+  /* vtkActor* mSquaresActor1; */
 
 }; // end class vvToolBinarize
 //------------------------------------------------------------------------------

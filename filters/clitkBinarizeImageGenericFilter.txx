@@ -93,6 +93,27 @@ namespace clitk
     DD(mArgsInfo.bg_given);
     DD(mArgsInfo.mode_arg);
 
+// <<<<<<< clitkBinarizeImageGenericFilter.txx
+//     DD(mArgsInfo.useFG_flag);
+//     DD(mArgsInfo.useBG_flag);
+
+//     thresholdFilter->SetInsideValue(mArgsInfo.fg_arg);
+
+//     // Keep BG value to 0 if maskFilterType is used after
+//     if (mArgsInfo.useBG_flag && mArgsInfo.useFG_flag) {
+//       thresholdFilter->SetOutsideValue(mArgsInfo.bg_arg);
+//     }
+//     else {
+//       DD("0");
+//       thresholdFilter->SetOutsideValue(0);
+//     }
+
+//     // thresholdFilter->Update();
+
+//     // If no BG or no FG : new image, copy input with MaskImageFilter
+//     // If setFG -> FG BG have been changed
+//     if (mArgsInfo.useBG_flag && mArgsInfo.useFG_flag) {
+// =======
     /* Three modes : 
        - FG -> only use FG value for pixel in the Foreground (or Inside), keep input values for outside
        - BG -> only use BG value for pixel in the Background (or Outside), keep input values for inside
@@ -101,6 +122,7 @@ namespace clitk
       if (mArgsInfo.mode_arg == std::string("both")) {
       thresholdFilter->SetOutsideValue(mArgsInfo.bg_arg);
       thresholdFilter->Update();
+      //>>>>>>> 1.5
       typename OutputImageType::Pointer outputImage = thresholdFilter->GetOutput();
       this->template SetNextOutput<OutputImageType>(outputImage);
     }

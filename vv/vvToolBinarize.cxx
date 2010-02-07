@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolBinarize.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/06 15:38:14 $
-  Version:   $Revision: 1.5 $
+  Date:      $Date: 2010/02/07 08:49:42 $
+  Version:   $Revision: 1.6 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -66,17 +66,21 @@ vvToolBinarize::vvToolBinarize(QWidget * parent, Qt::WindowFlags f)
   connect(mCheckBoxUseBG, SIGNAL(toggled(bool)), this, SLOT(useFGBGtoggled(bool)));
 
   // VTK objects
+  /*
   mClipper = vtkImageClip::New();
   mSquares1 = vtkMarchingSquares::New();
   mSquaresMapper1 = vtkPolyDataMapper::New();
   mSquaresActor1 = vtkActor::New();
+  */
+  mImageContour = new vvImageContour;
+
+  //new vector of contours
 
   // Initialize some widget
   mThresholdSlider1->SetText("");
   mThresholdSlider2->SetText("");
   mFGSlider->SetText("Foreground value");
   mBGSlider->SetText("Background value");
-
 
   // Disable main widget while input image is not selected
   toolMainWidget->setEnabled(false);
@@ -143,18 +147,21 @@ void vvToolBinarize::InputIsSelected() {
   DD(mCurrentSliceManager->NumberOfSlicers());
   //    mClipper->SetInput(mCurrentSliceManager->GetSlicer(0)->GetInput());
   DD(mCurrentImage->GetFirstVTKImageData());
-  DD(mClipper);
+  //  DD(mClipper);
   DD(mCurrentSliceManager->GetSlicer(0));
+  mImageContour->setSlicer(mCurrentSliceManager->GetSlicer(0));
+
+  /*
   mClipper->SetInput(mCurrentImage->GetFirstVTKImageData());
-  
   mSquares1->SetInput(mClipper->GetOutput());
   mSquaresMapper1->SetInput(mSquares1->GetOutput());
+  mSquaresMapper1->ScalarVisibilityOff();
   mSquaresActor1->SetMapper(mSquaresMapper1);
   mSquaresActor1->GetProperty()->SetColor(1.0,0,0);
   mSquaresActor1->SetPickable(0);
   mCurrentSliceManager->GetSlicer(0)->GetRenderer()->AddActor(mSquaresActor1);
   mSquares1->Update();
-  
+  */
   
   DD("VTK end");
   
@@ -174,62 +181,63 @@ void vvToolBinarize::UpdateSlice(int slicer,int slices) {
 
   // !! signal update slice pas tjs quand move slicer ???
 
+  mImageContour->update();
 
-   int slice = mCurrentSliceManager->GetSlicer(0)->GetSlice();
-    //int tslice = mCurrentSliceManager->GetSlicer(0)->GetTSlice();
-    mClipper->SetInput(mCurrentSliceManager->GetSlicer(0)->GetInput());
-    int* extent = mCurrentSliceManager->GetSlicer(0)->GetImageActor()->GetDisplayExtent();
-    mClipper->SetOutputWholeExtent(extent[0],extent[1],extent[2],extent[3],extent[4],extent[5]);
-    int i;
-    for (i = 0; i < 6;i = i+2)
-    {
-        if (extent[i] == extent[i+1])
-        {
-            break;
-        }
-    }
-
-    switch (i)
-    {
-    case 0:
-        if (mCurrentSliceManager->GetSlicer(0)->GetRenderer()->GetActiveCamera()->GetPosition()[0] > slice)
-        {
-            mSquaresActor1->SetPosition(1,0,0);
-            // mSquaresActor2->SetPosition(1,0,0);
-        }
-        else
-        {
-            mSquaresActor1->SetPosition(-1,0,0);
-            // mSquaresActor2->SetPosition(-1,0,0);
-        }
-        break;
-    case 2:
-        if (mCurrentSliceManager->GetSlicer(0)->GetRenderer()->GetActiveCamera()->GetPosition()[1] > slice)
-        {
-            mSquaresActor1->SetPosition(0,1,0);
-          //   mSquaresActor2->SetPosition(0,1,0);
-        }
-        else
-        {
-            mSquaresActor1->SetPosition(0,-1,0);
-            // mSquaresActor2->SetPosition(0,-1,0);
-        }
-        break;
-    case 4:
-        if (mCurrentSliceManager->GetSlicer(0)->GetRenderer()->GetActiveCamera()->GetPosition()[2] > slice)
-        {
-            mSquaresActor1->SetPosition(0,0,1);
-            // mSquaresActor2->SetPosition(0,0,1);
-        }
-        else
-        {
-            mSquaresActor1->SetPosition(0,0,-1);
-            // mSquaresActor2->SetPosition(0,0,-1);
-        }
-        break;
-    }
-    mSquares1->Update();
-   //  mSquares2->Update();
+  // int slice = mCurrentSliceManager->GetSlicer(0)->GetSlice();
+  // //int tslice = mCurrentSliceManager->GetSlicer(0)->GetTSlice();
+  // mClipper->SetInput(mCurrentSliceManager->GetSlicer(0)->GetInput());
+  // int* extent = mCurrentSliceManager->GetSlicer(0)->GetImageActor()->GetDisplayExtent();
+  // mClipper->SetOutputWholeExtent(extent[0],extent[1],extent[2],extent[3],extent[4],extent[5]);
+  // int i;
+  // for (i = 0; i < 6;i = i+2)
+  //   {
+  //       if (extent[i] == extent[i+1])
+  // 	  {
+  //           break;
+  // 	  }
+  //   }
+  
+  // switch (i)
+  //   {
+  //   case 0:
+  //     if (mCurrentSliceManager->GetSlicer(0)->GetRenderer()->GetActiveCamera()->GetPosition()[0] > slice)
+  //       {
+  // 	  mSquaresActor1->SetPosition(1,0,0);
+  // 	  // mSquaresActor2->SetPosition(1,0,0);
+  //       }
+  //       else
+  //       {
+  //           mSquaresActor1->SetPosition(-1,0,0);
+  //           // mSquaresActor2->SetPosition(-1,0,0);
+  //       }
+  //       break;
+  //   case 2:
+  //       if (mCurrentSliceManager->GetSlicer(0)->GetRenderer()->GetActiveCamera()->GetPosition()[1] > slice)
+  //       {
+  //           mSquaresActor1->SetPosition(0,1,0);
+  //         //   mSquaresActor2->SetPosition(0,1,0);
+  //       }
+  //       else
+  //       {
+  //           mSquaresActor1->SetPosition(0,-1,0);
+  //           // mSquaresActor2->SetPosition(0,-1,0);
+  //       }
+  //       break;
+  //   case 4:
+  //       if (mCurrentSliceManager->GetSlicer(0)->GetRenderer()->GetActiveCamera()->GetPosition()[2] > slice)
+  //       {
+  //           mSquaresActor1->SetPosition(0,0,1);
+  //           // mSquaresActor2->SetPosition(0,0,1);
+  //       }
+  //       else
+  //       {
+  //           mSquaresActor1->SetPosition(0,0,-1);
+  //           // mSquaresActor2->SetPosition(0,0,-1);
+  //       }
+  //       break;
+  //   }
+  //   mSquares1->Update();
+  //  //  mSquares2->Update();
 
     mCurrentSliceManager->Render(); 
 }
