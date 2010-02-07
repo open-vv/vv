@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvMainWindow.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/07 08:49:41 $
-  Version:   $Revision: 1.8 $
+  Date:      $Date: 2010/02/07 12:00:59 $
+  Version:   $Revision: 1.9 $
   Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
   Copyright (C) 200COLUMN_IMAGE_NAME
@@ -2328,6 +2328,7 @@ void vvMainWindow::NOVerticalSliderChanged() {
       if (DataTree->topLevelItem(i)->data(COLUMN_UL_VIEW,Qt::CheckStateRole).toInt() > 1)
         {
           mSlicerManagers[i]->GetSlicer(0)->SetSlice(value);
+          // mSlicerManagers[i]->UpdateSlice(0); // <-- too much update...
           break;
         }
     }

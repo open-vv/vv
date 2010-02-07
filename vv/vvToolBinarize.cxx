@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolBinarize.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/07 08:49:42 $
-  Version:   $Revision: 1.6 $
+  Date:      $Date: 2010/02/07 12:00:59 $
+  Version:   $Revision: 1.7 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -32,8 +32,9 @@
 
 #include "clitkBinarizeImageGenericFilter.h"
 
-#include "vtkImageActor.h"
-#include "vtkCamera.h"
+#include <vtkImageActor.h>
+#include <vtkCamera.h>
+#include <vtkImageClip.h>
 
 //------------------------------------------------------------------------------
 // Create the tool and automagically (I like this word) insert it in
@@ -66,13 +67,7 @@ vvToolBinarize::vvToolBinarize(QWidget * parent, Qt::WindowFlags f)
   connect(mCheckBoxUseBG, SIGNAL(toggled(bool)), this, SLOT(useFGBGtoggled(bool)));
 
   // VTK objects
-  /*
-  mClipper = vtkImageClip::New();
-  mSquares1 = vtkMarchingSquares::New();
-  mSquaresMapper1 = vtkPolyDataMapper::New();
-  mSquaresActor1 = vtkActor::New();
-  */
-  mImageContour = new vvImageContour;
+  //mImageContour = new vvImageContour;
 
   //new vector of contours
 
@@ -96,6 +91,7 @@ vvToolBinarize::vvToolBinarize(QWidget * parent, Qt::WindowFlags f)
 
 //------------------------------------------------------------------------------
 vvToolBinarize::~vvToolBinarize() {
+  //delete mImageContour;
 }
 //------------------------------------------------------------------------------
 
@@ -114,7 +110,6 @@ void vvToolBinarize::enableLowerThan(bool b) {
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::useFGBGtoggled(bool) {
-  DD("ici");
   if (!mCheckBoxUseBG->isChecked() && !mCheckBoxUseFG->isChecked()) 
     mCheckBoxUseBG->toggle();
 }
@@ -131,6 +126,8 @@ void vvToolBinarize::InputIsSelected() {
   toolMainWidget->setEnabled(true);
 
   // Specific for this gui
+  mThresholdSlider1->SetValue(0);
+  mThresholdSlider2->SetValue(0);
   mThresholdSlider1->SetImage(mCurrentImage);
   mThresholdSlider2->SetImage(mCurrentImage);
   mFGSlider->SetImage(mCurrentImage);
@@ -143,103 +140,26 @@ void vvToolBinarize::InputIsSelected() {
   mFGSlider->SetValue(1);
   mBGSlider->SetValue(0);
   
-  DD("VTK");
-  DD(mCurrentSliceManager->NumberOfSlicers());
-  //    mClipper->SetInput(mCurrentSliceManager->GetSlicer(0)->GetInput());
-  DD(mCurrentImage->GetFirstVTKImageData());
-  //  DD(mClipper);
-  DD(mCurrentSliceManager->GetSlicer(0));
-  mImageContour->setSlicer(mCurrentSliceManager->GetSlicer(0));
-
-  /*
-  mClipper->SetInput(mCurrentImage->GetFirstVTKImageData());
-  mSquares1->SetInput(mClipper->GetOutput());
-  mSquaresMapper1->SetInput(mSquares1->GetOutput());
-  mSquaresMapper1->ScalarVisibilityOff();
-  mSquaresActor1->SetMapper(mSquaresMapper1);
-  mSquaresActor1->GetProperty()->SetColor(1.0,0,0);
-  mSquaresActor1->SetPickable(0);
-  mCurrentSliceManager->GetSlicer(0)->GetRenderer()->AddActor(mSquaresActor1);
-  mSquares1->Update();
-  */
-  
-  DD("VTK end");
-  
-  //    connect(mCurrentSliceManager,SIGNAL(UpdateTSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
+  // VTK objects for interactive display
+  for(int i=0;i<mCurrentSliceManager->NumberOfSlicers(); i++) {
+    mImageContour.push_back(new vvImageContour);
+    mImageContour[i]->setSlicer(mCurrentSliceManager->GetSlicer(i));
+  }
+  valueChangedT1(mThresholdSlider1->GetValue());
   connect(mCurrentSliceManager,SIGNAL(UpdateSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
-  //connect(mCurrentSliceManager,SIGNAL(UpdateSliceRange(int,int,int,int,int)),this,SLOT(UpdateSlice(int, int)));
-  //    connect(mCurrentSliceManager,SIGNAL(LandmarkAdded()),this,SLOT(InsertSeed()));
-  
+  connect(mCurrentSliceManager,SIGNAL(UpdateTSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
+
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::UpdateSlice(int slicer,int slices) {
- 
-  // A METTRE SUR TOUT LES SLICES ! PAS QUE 0
-
-  // !! signal update slice pas tjs quand move slicer ???
-
-  mImageContour->update();
-
-  // int slice = mCurrentSliceManager->GetSlicer(0)->GetSlice();
-  // //int tslice = mCurrentSliceManager->GetSlicer(0)->GetTSlice();
-  // mClipper->SetInput(mCurrentSliceManager->GetSlicer(0)->GetInput());
-  // int* extent = mCurrentSliceManager->GetSlicer(0)->GetImageActor()->GetDisplayExtent();
-  // mClipper->SetOutputWholeExtent(extent[0],extent[1],extent[2],extent[3],extent[4],extent[5]);
-  // int i;
-  // for (i = 0; i < 6;i = i+2)
-  //   {
-  //       if (extent[i] == extent[i+1])
-  // 	  {
-  //           break;
-  // 	  }
-  //   }
-  
-  // switch (i)
-  //   {
-  //   case 0:
-  //     if (mCurrentSliceManager->GetSlicer(0)->GetRenderer()->GetActiveCamera()->GetPosition()[0] > slice)
-  //       {
-  // 	  mSquaresActor1->SetPosition(1,0,0);
-  // 	  // mSquaresActor2->SetPosition(1,0,0);
-  //       }
-  //       else
-  //       {
-  //           mSquaresActor1->SetPosition(-1,0,0);
-  //           // mSquaresActor2->SetPosition(-1,0,0);
-  //       }
-  //       break;
-  //   case 2:
-  //       if (mCurrentSliceManager->GetSlicer(0)->GetRenderer()->GetActiveCamera()->GetPosition()[1] > slice)
-  //       {
-  //           mSquaresActor1->SetPosition(0,1,0);
-  //         //   mSquaresActor2->SetPosition(0,1,0);
-  //       }
-  //       else
-  //       {
-  //           mSquaresActor1->SetPosition(0,-1,0);
-  //           // mSquaresActor2->SetPosition(0,-1,0);
-  //       }
-  //       break;
-  //   case 4:
-  //       if (mCurrentSliceManager->GetSlicer(0)->GetRenderer()->GetActiveCamera()->GetPosition()[2] > slice)
-  //       {
-  //           mSquaresActor1->SetPosition(0,0,1);
-  //           // mSquaresActor2->SetPosition(0,0,1);
-  //       }
-  //       else
-  //       {
-  //           mSquaresActor1->SetPosition(0,0,-1);
-  //           // mSquaresActor2->SetPosition(0,0,-1);
-  //       }
-  //       break;
-  //   }
-  //   mSquares1->Update();
-  //  //  mSquares2->Update();
-
-    mCurrentSliceManager->Render(); 
+  DD(slicer);
+  for(int i=0;i<mCurrentSliceManager->NumberOfSlicers(); i++) {
+    mImageContour[i]->update(mThresholdSlider1->GetValue());
+  }
+  mCurrentSliceManager->Render(); 
 }
 //------------------------------------------------------------------------------
 
@@ -261,34 +181,17 @@ void vvToolBinarize::GetArgsInfoFromGUI() {
   mArgsInfo.lower_given = 0;
   bool inverseBGandFG = false;
 
-  // if (mRadioButtonGreaterThan->isChecked()) { // Greater Than (and Lower Than)
-    mArgsInfo.lower_given = 1;
-    mArgsInfo.lower_arg = mThresholdSlider1->GetValue();
-    DD(mArgsInfo.lower_arg);
-    if (mRadioButtonLowerThan->isChecked()) {
-      mArgsInfo.upper_given = 1;
-      mArgsInfo.upper_arg = mThresholdSlider2->GetValue();
-      if (mArgsInfo.upper_arg<mArgsInfo.lower_arg) {
-        mArgsInfo.upper_given = 0;
-        DD("TODO : lower thres greater than greater thres ! Ignoring ");
-      }
+  mArgsInfo.lower_given = 1;
+  mArgsInfo.lower_arg = mThresholdSlider1->GetValue();
+  DD(mArgsInfo.lower_arg);
+  if (mRadioButtonLowerThan->isChecked()) {
+    mArgsInfo.upper_given = 1;
+    mArgsInfo.upper_arg = mThresholdSlider2->GetValue();
+    if (mArgsInfo.upper_arg<mArgsInfo.lower_arg) {
+      mArgsInfo.upper_given = 0;
+      DD("TODO : lower thres greater than greater thres ! Ignoring ");
     }
-  // }
-  // else {
-  //   if (mRadioButtonEqualThan->isChecked()) {
-  //     mArgsInfo.lower_given = 1;
-  //     mArgsInfo.upper_given = 1;
-  //     mArgsInfo.lower_arg = mThresholdSlider1->GetValue();
-  //     mArgsInfo.upper_arg = mThresholdSlider1->GetValue();
-  //   }
-  //   else {
-  //     mArgsInfo.lower_given = 1;
-  //     mArgsInfo.upper_given = 1;
-  //     mArgsInfo.lower_arg = mThresholdSlider1->GetValue();
-  //     mArgsInfo.upper_arg = mThresholdSlider1->GetValue();
-  //     inverseBGandFG = true;
-  //   }
-  // }
+  }
 
   mArgsInfo.fg_arg = mFGSlider->GetValue();
   mArgsInfo.bg_arg = mBGSlider->GetValue();
@@ -307,9 +210,6 @@ void vvToolBinarize::GetArgsInfoFromGUI() {
   }
   else mArgsInfo.mode_arg = (char*)"FG";
 
-  // DD(mArgsInfo.useBG_flag);
-  // DD(mArgsInfo.useFG_flag);
-
   mArgsInfo.verbose_flag = true;
 
   // Required (even if not used)
@@ -324,15 +224,7 @@ void vvToolBinarize::GetArgsInfoFromGUI() {
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::apply() {
-  DD("Apply");
-
   GetArgsInfoFromGUI();
-
-  DD(mArgsInfo.lower_arg);
-  // cmdline_parser2(argc, argv, &args_info, 1, 1, 0);			
-  //   if (args_info.config_given)	
-  // cmdline_parser_configfile ("toto.config", &args_info, 0, 0, 1);
-  //   else cmdline_parser(argc, argv, &args_info);
 
   // Main filter
   clitk::BinarizeImageGenericFilter<args_info_clitkBinarizeImage>::Pointer filter = 
@@ -343,8 +235,9 @@ void vvToolBinarize::apply() {
 
   // Output ???
   vvImage::Pointer output = filter->GetOutputVVImage();
-  DD(output->GetScalarTypeAsString());
-  CREATOR(vvToolBinarize)->mMainWindow->AddImage(output,"toto.mhd"); 
+  std::ostringstream osstream;
+  osstream << "Binarized_" << mCurrentSliceManager->GetSlicer(0)->GetFileName();
+  CREATOR(vvToolBinarize)->mMainWindow->AddImage(output,osstream.str()); 
   close();
 }
 //------------------------------------------------------------------------------
@@ -360,69 +253,11 @@ void vvToolBinarize::valueChangedT2(double v) {
 //------------------------------------------------------------------------------
 void vvToolBinarize::valueChangedT1(double v) {
   mThresholdSlider2->SetMinimum(v);
-  DD(v);
   int m1 = (int)lrint(v);
-  DD(m1);  
-  int* extent = mCurrentSliceManager->GetSlicer(0)->GetImageActor()->GetDisplayExtent();
-  mClipper->SetOutputWholeExtent(extent[0],extent[1],extent[2],extent[3],extent[4],extent[5]);
 
-
-int slice = mCurrentSliceManager->GetSlicer(0)->GetSlice();
-
- int i;
-for (i = 0; i < 6;i = i+2)
-    {
-        if (extent[i] == extent[i+1])
-        {
-            break;
-        }
-    }
-
-    switch (i)
-    {
-    case 0:
-        if (mCurrentSliceManager->GetSlicer(0)->GetRenderer()->GetActiveCamera()->GetPosition()[0] > slice)
-        {
-            mSquaresActor1->SetPosition(1,0,0);
-            // mSquaresActor2->SetPosition(1,0,0);
-        }
-        else
-        {
-            mSquaresActor1->SetPosition(-1,0,0);
-            // mSquaresActor2->SetPosition(-1,0,0);
-        }
-        break;
-    case 2:
-        if (mCurrentSliceManager->GetSlicer(0)->GetRenderer()->GetActiveCamera()->GetPosition()[1] > slice)
-        {
-            mSquaresActor1->SetPosition(0,1,0);
-           //  mSquaresActor2->SetPosition(0,1,0);
-        }
-        else
-        {
-            mSquaresActor1->SetPosition(0,-1,0);
-            // mSquaresActor2->SetPosition(0,-1,0);
-        }
-        break;
-    case 4:
-        if (mCurrentSliceManager->GetSlicer(0)->GetRenderer()->GetActiveCamera()->GetPosition()[2] > slice)
-        {
-            mSquaresActor1->SetPosition(0,0,1);
-            // mSquaresActor2->SetPosition(0,0,1);
-        }
-        else
-        {
-            mSquaresActor1->SetPosition(0,0,-1);
-            // mSquaresActor2->SetPosition(0,0,-1);
-        }
-        break;
-    }
-
-
-
-
-  mSquares1->SetValue(0,m1);
-  mSquares1->Update();
+  for(int i=0;i<mCurrentSliceManager->NumberOfSlicers(); i++) {
+    mImageContour[i]->update(m1);
+  }
   mCurrentSliceManager->Render();
 }
 //------------------------------------------------------------------------------

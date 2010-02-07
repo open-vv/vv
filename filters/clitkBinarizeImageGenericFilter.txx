@@ -24,7 +24,7 @@ namespace clitk
     ImageToImageGenericFilter<Self>("Binarize") {
     //    InitializeImageType<2>();
     InitializeImageType<3>();
-    //InitializeImageType<4>();
+    InitializeImageType<4>();
   }
   //--------------------------------------------------------------------
 

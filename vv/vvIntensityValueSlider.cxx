@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvIntensityValueSlider.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/01/29 13:54:37 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/02/07 12:00:59 $
+  Version:   $Revision: 1.2 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -33,7 +33,10 @@ vvIntensityValueSlider::vvIntensityValueSlider(QWidget * parent, Qt::WindowFlags
   :QWidget(parent,f),  Ui::vvIntensityValueSlider() 
 {
   // GUI Initialization
-  setupUi(this);
+  setupUi(this);  
+  mValue = 0;
+  SetMaximum(1000);
+  SetMinimum(-1000);
   
   // Connect signals & slots
   connect(mSpinBox, SIGNAL(valueChanged(double)), this, SLOT(valueChangedFromSpinBox(double)));

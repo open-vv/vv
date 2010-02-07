@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvImageContour.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/07 09:24:46 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/02/07 12:00:59 $
+  Version:   $Revision: 1.2 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -26,48 +26,81 @@
   =========================================================================*/
 
 #include "vvImageContour.h"
+#include <vtkImageActor.h>
+#include <vtkCamera.h>
+#include <vtkMarchingSquares.h>
+#include <vtkImageClip.h>
+#include <vtkImageData.h>
 
 //------------------------------------------------------------------------------
 vvImageContour::vvImageContour() {
-  mClipper = vtkImageClip::New();
-  mSquares = vtkMarchingSquares::New();
-  mSquaresMapper = vtkPolyDataMapper::New();
-  mSquaresActor = vtkActor::New();
+  mTSlice = -1;
+  mSlice = 0;
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
 vvImageContour::~vvImageContour() {
-
+  for (unsigned int i = 0; i < mSlicer->GetImage()->GetVTKImages().size(); i++) {
+    mSlicer->GetRenderer()->RemoveActor(mSquaresActorList[i]);
+  }
+  mSquaresActorList.clear();
+  mSquaresList.clear();
+  mClipperList.clear();
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
 void vvImageContour::setSlicer(vvSlicer * slicer) {
-  mSlicer = slicer;
-  mClipper->SetInput(slicer->GetImage()->GetFirstVTKImageData());
-  mSquares->SetInput(mClipper->GetOutput());
-  mSquaresMapper->SetInput(mSquares->GetOutput());
-  mSquaresMapper->ScalarVisibilityOff();
-  mSquaresActor->SetMapper(mSquaresMapper);
-  mSquaresActor->GetProperty()->SetColor(1.0,0,0);
-  mSquaresActor->SetPickable(0);
-  mSlicer->GetRenderer()->AddActor(mSquaresActor1);
-  mSquares->Update();
+  mSlicer = slicer;  
+
+  for (unsigned int numImage = 0; numImage < mSlicer->GetImage()->GetVTKImages().size(); numImage++) {
+    // DD(numImage);
+    vtkImageClip * mClipper = vtkImageClip::New();
+    vtkMarchingSquares * mSquares = vtkMarchingSquares::New();
+    vtkPolyDataMapper * mSquaresMapper = vtkPolyDataMapper::New();
+    vtkActor * mSquaresActor = vtkActor::New();
+
+    mClipper->SetInput(mSlicer->GetImage()->GetVTKImages()[numImage]);
+    mSquares->SetInput(mClipper->GetOutput());
+    mSquaresMapper->SetInput(mSquares->GetOutput());
+    mSquaresMapper->ScalarVisibilityOff();
+    mSquaresActor->SetMapper(mSquaresMapper);
+    mSquaresActor->GetProperty()->SetColor(1.0,0,0);
+    mSquaresActor->SetPickable(0);
+    mSquaresActor->VisibilityOff();
+    mSlicer->GetRenderer()->AddActor(mSquaresActor);
+    
+    mSquaresActorList.push_back(mSquaresActor);
+    mSquaresList.push_back(mSquares);
+    mClipperList.push_back(mClipper);
+
+  }
+  //mSquares->Update();
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::update() {
-  int slice = mSlicer->GetSlice();
-  int tslice = mCurrentSliceManager->GetSlicer(0)->GetTSlice();
-  DD(tslice);
-  DD(slice);
+void vvImageContour::update(int value) {
+  mSlice = mSlicer->GetSlice();
 
-  //  mClipper->SetInput(mCurrentSliceManager->GetSlicer(0)->GetInput());
+  // Only change actor visibility if tslice change
+  if (mTSlice != mSlicer->GetTSlice()) {
+    if (mTSlice != -1) 
+      mSquaresActorList[mTSlice]->VisibilityOff();
+    mTSlice = mSlicer->GetTSlice();
+    mSquaresActorList[mTSlice]->VisibilityOn();
+  }
+  
+  vtkMarchingSquares * mSquares = mSquaresList[mTSlice];
+  vtkImageClip * mClipper = mClipperList[mTSlice];
+  vtkActor * mSquaresActor = mSquaresActorList[mTSlice];
+
+  // Do it
+  mSquares->SetValue(0,value);
 
   int* extent = mSlicer->GetImageActor()->GetDisplayExtent();
   mClipper->SetOutputWholeExtent(extent[0],extent[1],extent[2],
@@ -82,7 +115,7 @@ void vvImageContour::update() {
   switch (i)
     {
     case 0:
-      if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[0] > slice)
+      if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[0] > mSlice)
         {
 	  mSquaresActor->SetPosition(1,0,0);
 	  // mSquaresActor2->SetPosition(1,0,0);
@@ -94,7 +127,7 @@ void vvImageContour::update() {
         }
       break;
     case 2:
-      if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[1] > slice)
+      if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[1] > mSlice)
         {
 	  mSquaresActor->SetPosition(0,1,0);
           //   mSquaresActor2->SetPosition(0,1,0);
@@ -106,7 +139,7 @@ void vvImageContour::update() {
         }
       break;
     case 4:
-      if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[2] > slice)
+      if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[2] > mSlice)
         {
 	  mSquaresActor->SetPosition(0,0,1);
 	  // mSquaresActor2->SetPosition(0,0,1);
@@ -119,7 +152,6 @@ void vvImageContour::update() {
       break;
     }
   mSquares->Update();
-  //  mSquares2->Update();
 }
 //------------------------------------------------------------------------------
 

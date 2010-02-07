@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvImageContour.h,v $
   Language:  C++
-  Date:      $Date: 2010/02/07 09:24:46 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/02/07 12:00:59 $
+  Version:   $Revision: 1.2 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -28,15 +28,15 @@
 #ifndef VVIMAGECONTOUR_H
 #define VVIMAGECONTOUR_H
 
-#include "vtkMarchingSquares.h"
-#include "vtkImageClip.h"
-#include "vtkMarchingCubes.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
-#include "vtkProperty.h"
-#include "vtkRenderer.h"
+#include <vtkMarchingCubes.h>
+#include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkActor.h>
+#include <vtkProperty.h>
+#include <vtkRenderer.h>
+#include <vtkImageClip.h>
 
+#include "clitkCommon.h"
 #include "vvSlicer.h"
 
 //------------------------------------------------------------------------------
@@ -48,16 +48,17 @@ class vvImageContour
   ~vvImageContour();
 
   void setSlicer(vvSlicer * slicer);
-  vtkActor * getActor() { return mSquaresActor;}
-  void update();
+  // vtkActor * getActor() { return mSquaresActor;}
+  void update(int value);
 
  protected:
   vvSlicer * mSlicer;
+  int mSlice;
+  int mTSlice;
 
-  vtkImageClip* mClipper;
-  vtkMarchingSquares* mSquares;
-  vtkPolyDataMapper* mSquaresMapper;
-  vtkActor* mSquaresActor;
+  std::vector<vtkImageClip*> mClipperList;
+  std::vector<vtkMarchingSquares*> mSquaresList;
+  std::vector<vtkActor*> mSquaresActorList;
 
 }; // end class vvImageContour
 //------------------------------------------------------------------------------

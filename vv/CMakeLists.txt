@@ -114,6 +114,7 @@ SET(vv_SRCS
   vvToolCreatorBase.cxx
   vvToolBinarize.cxx
   vvToolInputSelectorWidget.cxx
+  vvImageContour.cxx
   )
 
 QT4_WRAP_CPP(vv_SRCS 

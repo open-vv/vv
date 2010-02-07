@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolBinarize.h,v $
   Language:  C++
-  Date:      $Date: 2010/02/07 08:49:42 $
-  Version:   $Revision: 1.4 $
+  Date:      $Date: 2010/02/07 12:00:59 $
+  Version:   $Revision: 1.5 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -69,12 +69,8 @@ class vvToolBinarize:
   void GetArgsInfoFromGUI();
 
   //-----------------------------------------------------
- // public slots:
-//   void InputUpdate();
-
   public slots:
   void apply();
-  // void InputChange(int index);
   void valueChangedT1(double v);
   void valueChangedT2(double v);
   void UpdateSlice(int slicer,int slices);
@@ -84,23 +80,8 @@ class vvToolBinarize:
 
  protected:
   Ui::vvToolBinarize ui;
-  // std::vector<vvSlicerManager*> mSlicerManagers;
-//   std::vector<vvSlicerManager*> mSlicerManagersCompatible;
-//   vvImage::Pointer mCurrentImage;
-//   vvSlicerManager * mCurrentSliceManager;
   args_info_clitkBinarizeImage mArgsInfo;
-
-  vtkImageClip* mClipper;
-  vtkMarchingSquares* mSquares1;
-  vtkPolyDataMapper* mSquaresMapper1;
-  vtkActor* mSquaresActor1;
-
-  vvImageContour * mImageContour;
-
-  /* vtkImageClip* mClipper; */
-  /* vtkMarchingSquares* mSquares1; */
-  /* vtkPolyDataMapper* mSquaresMapper1; */
-  /* vtkActor* mSquaresActor1; */
+  std::vector<vvImageContour*> mImageContour;
 
 }; // end class vvToolBinarize
 //------------------------------------------------------------------------------
