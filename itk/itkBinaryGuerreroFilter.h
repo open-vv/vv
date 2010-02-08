@@ -59,7 +59,7 @@ class GuerreroFunctor
             else //Use the original formula as described in Guerrero's paper
                 vol_change=static_cast<TOutput>( 1000. * (Bstar-A) / (A*(1000.+Bstar)) );
 
-            if (std::isnormal(vol_change))
+            if (IsNormal(vol_change))
                 return vol_change;
             else
                 return 0.;
