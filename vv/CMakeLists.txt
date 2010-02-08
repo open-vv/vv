@@ -300,8 +300,8 @@ SET(CPACK_PACKAGE_INSTALL_DIRECTORY "vv ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_P
 IF(WIN32 AND NOT UNIX)
   # There is a bug in NSI that does not handle full unix paths properly. Make
   # sure there is at least one set of four (4) backlasshes.
-  SET(CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}\\\\ducky.png")
-  SET(CPACK_NSIS_INSTALLED_ICON_NAME "bin/${CMAKE_BUILD_TYPE}\\\\vv.exe")
+#  SET(CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}\\\\ducky.png")
+#  SET(CPACK_NSIS_INSTALLED_ICON_NAME "bin/${CMAKE_BUILD_TYPE}\\\\vv.exe")
   SET(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} The 4D slicer")
   SET(CPACK_NSIS_HELP_LINK "http://www.creatis.insa-lyon.fr/rio")
   SET(CPACK_NSIS_URL_INFO_ABOUT "http://www.creatis.insa-lyon.fr/rio")
