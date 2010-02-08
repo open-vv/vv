@@ -7,7 +7,9 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 PROJECT(clitk)
 #=========================================================
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+IF(CMAKE_COMPILER_IS_GNUCXX)
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 #=========================================================
 # Find ITK (required)
 FIND_PACKAGE(ITK)

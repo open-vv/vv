@@ -18,8 +18,8 @@ FOREACH(GGO_FILE ${ALL_GGO_FILES})
   #MESSAGE(${GGO_C}) 
   SET(GGO_OUTPUT  ${GGO_H} ${GGO_C})
   ADD_CUSTOM_COMMAND(OUTPUT ${GGO_OUTPUT} 
- 	COMMAND gengetopt 
- 	ARGS < ${GGO_FILE} --arg-struct-name=args_info_${GGO_NAME}  --file-name=${GGO_BASEFILENAME}_ggo -u --conf-parser
+ 	COMMAND ${CLITK_GENGETOPT}/gengetopt
+ 	ARGS < ${GGO_FILE} --arg-struct-name=args_info_${GGO_NAME}  --file-name=${GGO_BASEFILENAME}_ggo -u --conf-parser --include-getopt
  	DEPENDS ${GGO_FILE}
  	)  
  ENDFOREACH(GGO_FILE)

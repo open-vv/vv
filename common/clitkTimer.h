@@ -11,12 +11,14 @@
 
    ===================================================================*/
 
-// #ifdef UNIX
-
 #include "clitkCommon.h"
 #include <ctime> 
-#include <sys/time.h>
-#include <sys/resource.h>
+#if defined(UNIX)
+#  include <sys/time.h>
+#  include <sys/resource.h>
+#elif defined(WIN32)
+#  include <windows.h>
+#endif
 #include <iostream>
 #include <utility>
 
@@ -41,8 +43,14 @@ namespace clitk {
     //====================================================================
     
   protected:
+#if defined(UNIX)
     rusage mBegin; 
     rusage mEnd;
+#elif defined(WIN32)
+    unsigned __int64 mBegin;
+    unsigned __int64 mEnd;
+    unsigned __int64 mFrequency;
+#endif
     long double mElapsed;
     long int mNumberOfCall;
   };

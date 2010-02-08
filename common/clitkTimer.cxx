@@ -20,23 +20,37 @@
 /// Constructs the class 
 clitk::Timer::Timer() { 
   Reset(); 
+#if defined(WIN32)
+  QueryPerformanceFrequency((LARGE_INTEGER*)&mFrequency);
+#endif
 }
 //====================================================================
 
 //====================================================================
 void clitk::Timer::Start() {
+#if defined(UNIX)
   getrusage(RUSAGE_SELF, &mBegin);
+#elif defined(WIN32)
+  QueryPerformanceCounter((LARGE_INTEGER*)&mBegin);
+#endif
   mNumberOfCall++;
 }
 //====================================================================
 
 //====================================================================
 void clitk::Timer::Stop(bool accumulate) {
+#if defined(UNIX)
   getrusage(RUSAGE_SELF, &mEnd);
   if (accumulate) {
     mElapsed += (mEnd.ru_utime.tv_usec - mBegin.ru_utime.tv_usec)+
       (mEnd.ru_utime.tv_sec - mBegin.ru_utime.tv_sec)*1000000;
   }
+#elif defined(WIN32)
+  QueryPerformanceCounter((LARGE_INTEGER*)&mEnd);
+  if (accumulate) {
+    mElapsed += ((mEnd-mBegin)*1000000)/(long double)mFrequency;
+  }
+#endif
   else {
     mNumberOfCall--;
   }
