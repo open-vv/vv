@@ -53,6 +53,7 @@ LINK_LIBRARIES (
   vtkGraphics
   vtkWidgets
   vtkImaging
+  QVTK
   )
 
 LINK_DIRECTORIES(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR} )
@@ -68,7 +69,6 @@ SET(vv_SRCS
   vvLandmarksPanel.cxx
   vvQProgressDialogITKCommand.cxx
   vvQDicomSeriesSelector.cxx
-  QVTKWidget.cxx
   QTreePushButton.cxx
   vvResamplerDialog.cxx
   vvSegmentationDialog.cxx
@@ -112,7 +112,6 @@ SET(vv_SRCS
 
 QT4_WRAP_CPP(vv_SRCS 
   vvMainWindow.h 
-  QVTKWidget.h 
   QTreePushButton.h 
   vvInfoPanel.h 
   vvLinkPanel.h 
@@ -240,6 +239,12 @@ IF(WIN32)
   INSTALL (FILES ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}/vv.exe DESTINATION bin)
   INSTALL (FILES ${QT_PLUGINS_DIR}/../bin/QtCore4.dll DESTINATION bin)
   INSTALL (FILES ${QT_PLUGINS_DIR}/../bin/QtGui4.dll DESTINATION bin)
+  INSTALL (FILES ${QT_PLUGINS_DIR}/../bin/QtWebKit4.dll DESTINATION bin)
+  INSTALL (FILES ${QT_PLUGINS_DIR}/../bin/QtOpenGL4.dll DESTINATION bin)
+  INSTALL (FILES ${QT_PLUGINS_DIR}/../bin/phonon4.dll DESTINATION bin)
+  INSTALL (FILES ${QT_PLUGINS_DIR}/../bin/QtXmlPatterns4.dll DESTINATION bin)
+  INSTALL (FILES ${QT_PLUGINS_DIR}/../bin/QtNetwork4.dll DESTINATION bin)
+  INSTALL (FILES ${QT_PLUGINS_DIR}/../bin/QtSql4.dll DESTINATION bin)
   INSTALL (FILES ${ITK_DIR}/bin/${CMAKE_BUILD_TYPE}/itkCommon.dll DESTINATION bin)
   INSTALL (FILES ${VTK_DIR}/bin/${CMAKE_BUILD_TYPE}/vtkCommon.dll DESTINATION bin)
   INSTALL (FILES ${VTK_DIR}/bin/${CMAKE_BUILD_TYPE}/vtksys.dll DESTINATION bin)
@@ -270,6 +275,8 @@ IF(WIN32)
   INSTALL (FILES ${VTK_DIR}/bin/${CMAKE_BUILD_TYPE}/vtkVolumeRendering.dll DESTINATION bin)
   INSTALL (FILES ${VTK_DIR}/bin/${CMAKE_BUILD_TYPE}/vtkWidgets.dll DESTINATION bin)
   INSTALL (FILES ${VTK_DIR}/bin/${CMAKE_BUILD_TYPE}/vtkzlib.dll DESTINATION bin)
+  INSTALL (FILES ${VTK_DIR}/bin/${CMAKE_BUILD_TYPE}/vtkQtChart.dll DESTINATION bin)
+  INSTALL (FILES ${VTK_DIR}/bin/${CMAKE_BUILD_TYPE}/vtkalglib.dll DESTINATION bin)
 ENDIF(WIN32)
 
 IF(UNIX)
