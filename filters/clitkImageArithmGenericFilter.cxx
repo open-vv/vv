@@ -89,7 +89,6 @@ void clitk::ImageArithmGenericFilter::UpdateWithInputImageType() {
 
   // Write results
   this->SetNextOutput<ImageType>(outputImage);
-  //clitk::writeImage<ImageType>(outputImage, mOutputFilename, mIOVerbose);
 }
 //--------------------------------------------------------------------
 

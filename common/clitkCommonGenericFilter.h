@@ -3,8 +3,8 @@
   Program:   clitk
   Module:    $RCSfile: clitkCommonGenericFilter.h,v $
   Language:  C++
-  Date:      $Date: 2010/01/29 08:48:42 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/02/08 15:45:17 $
+  Version:   $Revision: 1.2 $
   Author :   Joel Schaerer <joel.schaerer@creatis.insa-lyon.fr>
              David Sarrut <david.sarrut@creatis.insa-lyon.fr>
 
@@ -45,18 +45,16 @@ namespace clitk {
   class GenericFilterFunctorBase {
   public:
     GenericFilterFunctorBase(FilterType * f) { mFilter = f; }
-    virtual void DoIt()= 0;
+    virtual void Execute()= 0;
     FilterType * mFilter;
   };
  
   //--------------------------------------------------------------------
-  template<class FilterType, unsigned int Dim, class PixelType>
+  template<class FilterType, class InputImageType>
   class GenericFilterFunctorWithDimAndPixelType: public GenericFilterFunctorBase<FilterType> {
   public:
     GenericFilterFunctorWithDimAndPixelType(FilterType * f): GenericFilterFunctorBase<FilterType>(f) {}
-    virtual void DoIt() {       
-      //GenericFilterFunctorBase<FilterType>::mFilter->template UpdateWithDimAndPixelType<Dim,PixelType>();
-      typedef itk::Image<PixelType,Dim> InputImageType;
+    virtual void Execute() {       
       GenericFilterFunctorBase<FilterType>::mFilter->template UpdateWithInputImageType<InputImageType>();
     }
   };
@@ -66,20 +64,29 @@ namespace clitk {
   class ImageTypesManager  {
   public:
     typedef std::map<std::string, GenericFilterFunctorBase<FilterType>*> MapOfPixelTypeToFunctionType;
-    std::map<int, MapOfPixelTypeToFunctionType> mMapOfImageTypeToFunction;
+    typedef std::map<unsigned int, MapOfPixelTypeToFunctionType> MapOfImageComponentsToFunctionType;
+    std::map<unsigned int, MapOfImageComponentsToFunctionType> mMapOfImageTypeToFunction;
 
     ImageTypesManager(FilterType * f) { mFilter = f;  }
-    virtual void DoIt(int dim, std::string pixelname) {
+    virtual void DoIt(int dim, int ncomp, std::string pixelname) {
       // std::cout << "ImageTypesManager DoIt " << dim << " " << pixelname << std::endl;
-      if (mMapOfImageTypeToFunction[dim][pixelname])
-        mMapOfImageTypeToFunction[dim][pixelname]->DoIt();
+      if (mMapOfImageTypeToFunction[dim][ncomp][pixelname])
+        mMapOfImageTypeToFunction[dim][ncomp][pixelname]->Execute();
     }
-    template<unsigned int Dim, class Pixeltype>
+    template<unsigned int Dim, unsigned int NComp, class PixelType>
     void AddNewDimensionAndPixelType() {
-      // std::cout << "Adding Dim=" << Dim << " and PT = " << GetTypeAsString<Pixeltype>() << std::endl;
-      mFilter->AddImageType(Dim, GetTypeAsString<Pixeltype>());
-      mMapOfImageTypeToFunction[Dim][ GetTypeAsString<Pixeltype>() ] = 
-        new GenericFilterFunctorWithDimAndPixelType<FilterType, Dim, Pixeltype>(mFilter);
+        mFilter->AddImageType(Dim, GetTypeAsString<PixelType>());
+        typedef itk::Image<itk::Vector<PixelType,NComp>,Dim> InputImageType;
+        mMapOfImageTypeToFunction[Dim][NComp][ GetTypeAsString<PixelType>() ] = 
+            new GenericFilterFunctorWithDimAndPixelType<FilterType, InputImageType>(mFilter);
+    }
+    /// Specialization for NComp == 1
+    template<unsigned int Dim, class PixelType>
+    void AddNewDimensionAndPixelType() {
+        mFilter->AddImageType(Dim, GetTypeAsString<PixelType>());
+        typedef itk::Image<PixelType,Dim> InputImageType;
+        mMapOfImageTypeToFunction[Dim][1][ GetTypeAsString<PixelType>() ] = 
+            new GenericFilterFunctorWithDimAndPixelType<FilterType, InputImageType>(mFilter);
     }
     FilterType * mFilter;
   };

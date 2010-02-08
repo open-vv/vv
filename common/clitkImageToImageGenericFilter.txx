@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: clitkImageToImageGenericFilter.txx,v $
   Language:  C++
-  Date:      $Date: 2010/01/29 08:48:42 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/02/08 15:45:17 $
+  Version:   $Revision: 1.2 $
   Author :   Joel Schaerer <joel.schaerer@creatis.insa-lyon.fr>
              David Sarrut <david.sarrut@creatis.insa-lyon.fr>
 
@@ -78,7 +78,7 @@ bool clitk::ImageToImageGenericFilter<FilterType>::Update() {
   }
 
   // Go ! Call the right templatized function
-  mImageTypesManager->DoIt(mDim, mPixelTypeName);
+  mImageTypesManager->DoIt(mDim, mNbOfComponents, mPixelTypeName);
   return true;
 }
 //--------------------------------------------------------------------

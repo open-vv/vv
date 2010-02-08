@@ -39,9 +39,8 @@ void clitk::SplitImageGenericFilter::InitializeImageType() {
   ADD_IMAGE_TYPE(Dim, unsigned char);
   ADD_IMAGE_TYPE(Dim, short);
   ADD_IMAGE_TYPE(Dim, int);
-  ADD_IMAGE_TYPE(Dim, float);
-  typedef itk::Vector<float, Dim> DVF;
-  ADD_IMAGE_TYPE(Dim, DVF);
+  //ADD_IMAGE_TYPE(Dim, float);
+  ADD_VEC_IMAGE_TYPE(Dim, 3,float);
 }
 //--------------------------------------------------------------------
 

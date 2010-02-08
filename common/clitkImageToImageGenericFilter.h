@@ -3,8 +3,8 @@
   Program:   clitk
   Module:    $RCSfile: clitkImageToImageGenericFilter.h,v $
   Language:  C++
-  Date:      $Date: 2010/02/03 13:08:52 $
-  Version:   $Revision: 1.4 $
+  Date:      $Date: 2010/02/08 15:45:17 $
+  Version:   $Revision: 1.5 $
   Author :   Joel Schaerer <joel.schaerer@creatis.insa-lyon.fr>
              David Sarrut <david.sarrut@creatis.insa-lyon.fr>
 
@@ -152,6 +152,7 @@ namespace clitk {
 
   // #define ADD_IMAGE_DIMENSION(DIM) Initialize<DIM>();
 
+#define ADD_VEC_IMAGE_TYPE(DIM, COMP, PT) this->mImageTypesManager->template AddNewDimensionAndPixelType<DIM,COMP, PT>();
 #define ADD_IMAGE_TYPE(DIM, PT) this->mImageTypesManager->template AddNewDimensionAndPixelType<DIM, PT>();
 
 
