@@ -28,7 +28,7 @@ clitk::Timer::Timer() {
 
 //====================================================================
 void clitk::Timer::Start() {
-#if defined(UNIX)
+#if defined(unix)
   getrusage(RUSAGE_SELF, &mBegin);
 #elif defined(WIN32)
   QueryPerformanceCounter((LARGE_INTEGER*)&mBegin);
@@ -39,7 +39,7 @@ void clitk::Timer::Start() {
 
 //====================================================================
 void clitk::Timer::Stop(bool accumulate) {
-#if defined(UNIX)
+#if defined(unix)
   getrusage(RUSAGE_SELF, &mEnd);
   if (accumulate) {
     mElapsed += (mEnd.ru_utime.tv_usec - mBegin.ru_utime.tv_usec)+

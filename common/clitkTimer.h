@@ -13,7 +13,7 @@
 
 #include "clitkCommon.h"
 #include <ctime> 
-#if defined(UNIX)
+#if defined(unix)
 #  include <sys/time.h>
 #  include <sys/resource.h>
 #elif defined(WIN32)
@@ -43,7 +43,7 @@ namespace clitk {
     //====================================================================
     
   protected:
-#if defined(UNIX)
+#if defined(unix)
     rusage mBegin; 
     rusage mEnd;
 #elif defined(WIN32)
