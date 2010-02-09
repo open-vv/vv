@@ -3,8 +3,8 @@
   Program:   clitk
   Module:    $RCSfile: clitkImageToImageGenericFilter.h,v $
   Language:  C++
-  Date:      $Date: 2010/02/09 14:19:28 $
-  Version:   $Revision: 1.6 $
+  Date:      $Date: 2010/02/09 14:40:55 $
+  Version:   $Revision: 1.7 $
   Author :   Joel Schaerer <joel.schaerer@creatis.insa-lyon.fr>
              David Sarrut <david.sarrut@creatis.insa-lyon.fr>
 
@@ -131,7 +131,6 @@ namespace clitk {
 
     // constructor - destructor
     ImageToImageGenericFilter(std::string filterName);
-    virtual ~ImageToImageGenericFilter() { delete mImageTypesManager; }
 
     // Main function to call for using the filter. 
     virtual bool Update();
@@ -142,14 +141,14 @@ namespace clitk {
   protected:
     // Object that will manage the list of templatized function for
     // each image type.
-    ImageTypesManager<FilterType> * mImageTypesManager;
+    ImageTypesManager<FilterType> mImageTypesManager;
     
   }; // end class clitk::ImageToImageGenericFilter
 
   // #define ADD_IMAGE_DIMENSION(DIM) Initialize<DIM>();
 
-#define ADD_VEC_IMAGE_TYPE(DIM, COMP, PT) this->mImageTypesManager->template AddNewDimensionAndPixelType<DIM,COMP, PT>();
-#define ADD_IMAGE_TYPE(DIM, PT) this->mImageTypesManager->template AddNewDimensionAndPixelType<DIM, PT>();
+#define ADD_VEC_IMAGE_TYPE(DIM, COMP, PT) this->mImageTypesManager.template AddNewDimensionAndPixelType<DIM,COMP, PT>();
+#define ADD_IMAGE_TYPE(DIM, PT) this->mImageTypesManager.template AddNewDimensionAndPixelType<DIM, PT>();
 
 
 #include "clitkImageToImageGenericFilter.txx"
