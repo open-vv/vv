@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolBase.h,v $
   Language:  C++
-  Date:      $Date: 2010/01/29 13:54:37 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/02/09 14:19:32 $
+  Version:   $Revision: 1.2 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -117,8 +117,9 @@ void vvToolBase<ToolType>::InitializeListOfInputImages() {
     
     vvImage * image = mSlicerManagers[i]->GetImage();
     
-    if ((mFilter->CheckDimension(image->GetNumberOfDimensions()) && 
-         mFilter->CheckPixelType(image->GetScalarTypeAsString()))) {
+    if (mFilter->CheckImageType(image->GetNumberOfDimensions(),
+                image->GetNumberOfScalarComponents(),
+                image->GetScalarTypeAsString())) {
       mSlicerManagersCompatible.push_back(mSlicerManagers[i]);
       if (mCurrentIndex == i) {
         mCurrentIndex = mSlicerManagersCompatible.size()-1;

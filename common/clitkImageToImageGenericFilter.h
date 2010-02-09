@@ -3,8 +3,8 @@
   Program:   clitk
   Module:    $RCSfile: clitkImageToImageGenericFilter.h,v $
   Language:  C++
-  Date:      $Date: 2010/02/08 15:45:17 $
-  Version:   $Revision: 1.5 $
+  Date:      $Date: 2010/02/09 14:19:28 $
+  Version:   $Revision: 1.6 $
   Author :   Joel Schaerer <joel.schaerer@creatis.insa-lyon.fr>
              David Sarrut <david.sarrut@creatis.insa-lyon.fr>
 
@@ -85,15 +85,13 @@ namespace clitk {
 
     // Information on available image types
     void PrintAvailableImageTypes();
-    std::string GetAvailableImageTypes();
-    bool CheckDimension(unsigned int d);
-    bool CheckPixelType(std::string pt);
+    virtual std::string GetAvailableImageTypes() = 0;
+
+    virtual bool CheckImageType(unsigned int dim,unsigned int ncomp, std::string pixeltype) = 0;
+    virtual bool CheckImageType() = 0;
 
     // Main function to call for using the filter. 
     virtual bool Update() = 0;
-
-    // Use internally only (TO PUT PROTECTED !!!)
-    void AddImageType(unsigned int d, std::string p);
 
   protected:  
     /// Call this function to dispatch an output towards the correct sink
@@ -116,11 +114,6 @@ namespace clitk {
     std::vector<vvImage::Pointer> mInputVVImages;
     std::vector<vvImage::Pointer> mOutputVVImages;
 
-    std::set<std::string> mListOfAllowedPixelTypes;
-    std::set<unsigned int> mListOfAllowedDimensions;
-    bool CheckImageType();
-    bool CheckDimension();
-    bool CheckPixelType();
     void ImageTypeError();
     void SetImageTypeError();
     bool mFailOnImageTypeError;
@@ -142,6 +135,9 @@ namespace clitk {
 
     // Main function to call for using the filter. 
     virtual bool Update();
+    virtual bool CheckImageType(unsigned int dim,unsigned int ncomp, std::string pixeltype);
+    virtual bool CheckImageType();
+    virtual std::string GetAvailableImageTypes();
 
   protected:
     // Object that will manage the list of templatized function for

@@ -3,8 +3,8 @@
   Program:   clitk
   Module:    $RCSfile: clitkCommonGenericFilter.h,v $
   Language:  C++
-  Date:      $Date: 2010/02/08 15:45:17 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2010/02/09 14:19:28 $
+  Version:   $Revision: 1.3 $
   Author :   Joel Schaerer <joel.schaerer@creatis.insa-lyon.fr>
              David Sarrut <david.sarrut@creatis.insa-lyon.fr>
 
@@ -65,7 +65,8 @@ namespace clitk {
   public:
     typedef std::map<std::string, GenericFilterFunctorBase<FilterType>*> MapOfPixelTypeToFunctionType;
     typedef std::map<unsigned int, MapOfPixelTypeToFunctionType> MapOfImageComponentsToFunctionType;
-    std::map<unsigned int, MapOfImageComponentsToFunctionType> mMapOfImageTypeToFunction;
+    typedef std::map<unsigned int, MapOfImageComponentsToFunctionType> MapOfImageDimensionToFunctionType;
+    MapOfImageDimensionToFunctionType mMapOfImageTypeToFunction;
 
     ImageTypesManager(FilterType * f) { mFilter = f;  }
     virtual void DoIt(int dim, int ncomp, std::string pixelname) {
@@ -75,7 +76,6 @@ namespace clitk {
     }
     template<unsigned int Dim, unsigned int NComp, class PixelType>
     void AddNewDimensionAndPixelType() {
-        mFilter->AddImageType(Dim, GetTypeAsString<PixelType>());
         typedef itk::Image<itk::Vector<PixelType,NComp>,Dim> InputImageType;
         mMapOfImageTypeToFunction[Dim][NComp][ GetTypeAsString<PixelType>() ] = 
             new GenericFilterFunctorWithDimAndPixelType<FilterType, InputImageType>(mFilter);
@@ -83,7 +83,6 @@ namespace clitk {
     /// Specialization for NComp == 1
     template<unsigned int Dim, class PixelType>
     void AddNewDimensionAndPixelType() {
-        mFilter->AddImageType(Dim, GetTypeAsString<PixelType>());
         typedef itk::Image<PixelType,Dim> InputImageType;
         mMapOfImageTypeToFunction[Dim][1][ GetTypeAsString<PixelType>() ] = 
             new GenericFilterFunctorWithDimAndPixelType<FilterType, InputImageType>(mFilter);

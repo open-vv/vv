@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: clitkImageToImageGenericFilter.txx,v $
   Language:  C++
-  Date:      $Date: 2010/02/08 15:45:17 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2010/02/09 14:19:28 $
+  Version:   $Revision: 1.3 $
   Author :   Joel Schaerer <joel.schaerer@creatis.insa-lyon.fr>
              David Sarrut <david.sarrut@creatis.insa-lyon.fr>
 
@@ -80,6 +80,40 @@ bool clitk::ImageToImageGenericFilter<FilterType>::Update() {
   // Go ! Call the right templatized function
   mImageTypesManager->DoIt(mDim, mNbOfComponents, mPixelTypeName);
   return true;
+}
+//--------------------------------------------------------------------
+template<class FilterType>
+bool clitk::ImageToImageGenericFilter<FilterType>::CheckImageType(unsigned int dim,unsigned int ncomp, std::string pixeltype)
+{
+    return static_cast<bool>(mImageTypesManager->mMapOfImageTypeToFunction[dim][ncomp][pixeltype]);
+}
+
+template<class FilterType>
+bool clitk::ImageToImageGenericFilter<FilterType>::CheckImageType()
+{
+    return static_cast<bool>(mImageTypesManager->mMapOfImageTypeToFunction[mDim][mNbOfComponents][mPixelTypeName]);
+}
+
+template<class FilterType>
+std::string clitk::ImageToImageGenericFilter<FilterType>::GetAvailableImageTypes() {
+    std::ostringstream oss;
+    oss << "The filter <" << mFilterName << "> manages:" << std::endl;
+    
+    typedef typename ImageTypesManager<FilterType>::MapOfImageComponentsToFunctionType::const_iterator MCompItType;
+    typedef typename ImageTypesManager<FilterType>::MapOfImageDimensionToFunctionType::const_iterator MDimItType;
+    typedef typename ImageTypesManager<FilterType>::MapOfPixelTypeToFunctionType::const_iterator MPixelItType;
+    for (MDimItType i=mImageTypesManager->mMapOfImageTypeToFunction.begin();
+            i!=mImageTypesManager->mMapOfImageTypeToFunction.end();
+            i++) {
+        for (MCompItType j=(*i).second.begin(); j!= (*i).second.end(); j++) {
+            for (MPixelItType k=(*j).second.begin(); k!= (*j).second.end(); k++) {
+                oss << "Dim: " << (*i).first 
+                    << ", Components: " << (*j).first 
+                    << ", Type: " << (*k).first << std::endl;
+            }
+        }
+    }
+    return oss.str();
 }
 //--------------------------------------------------------------------
 

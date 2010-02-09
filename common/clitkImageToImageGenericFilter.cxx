@@ -5,18 +5,7 @@
 clitk::ImageToImageGenericFilterBase::ImageToImageGenericFilterBase(std::string n)
   :mIOVerbose(false) {
   mFilterName = n;
-  mListOfAllowedDimensions.clear();
-  mListOfAllowedPixelTypes.clear();
   mFailOnImageTypeError = true;
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-void clitk::ImageToImageGenericFilterBase::AddImageType(unsigned int d, std::string p) {
-
-    mListOfAllowedDimensions.insert(d);
-    mListOfAllowedPixelTypes.insert(p);
 }
 //--------------------------------------------------------------------
 
@@ -146,64 +135,9 @@ void clitk::ImageToImageGenericFilterBase::SetInputVVImages (std::vector<vvImage
 //--------------------------------------------------------------------
 
 
-
-//--------------------------------------------------------------------
-bool clitk::ImageToImageGenericFilterBase::CheckImageType() {
-  return (CheckDimension() && CheckPixelType());
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-bool clitk::ImageToImageGenericFilterBase::CheckDimension(unsigned int d) {
-    return (mListOfAllowedDimensions.find(d) != mListOfAllowedDimensions.end());
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-bool clitk::ImageToImageGenericFilterBase::CheckPixelType(std::string pt) {
-    return (mListOfAllowedPixelTypes.find(pt) != mListOfAllowedPixelTypes.end());
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-bool clitk::ImageToImageGenericFilterBase::CheckDimension() {
-  return CheckDimension(mDim);
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-bool clitk::ImageToImageGenericFilterBase::CheckPixelType() {
-  return CheckPixelType(mPixelTypeName);
-}
-//--------------------------------------------------------------------
-
-
 //--------------------------------------------------------------------
 void clitk::ImageToImageGenericFilterBase::PrintAvailableImageTypes() {
   std::cout << GetAvailableImageTypes();
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-std::string clitk::ImageToImageGenericFilterBase::GetAvailableImageTypes() {
-  std::ostringstream oss;
-  oss << "The filter <" << mFilterName << "> manages ";
-  for(std::set<unsigned int>::const_iterator i=mListOfAllowedDimensions.begin();
-          i!=mListOfAllowedDimensions.end(); i++) {
-    oss << *i << "D ";
-  }
-  oss << "images, with pixel types: ";
-  for(std::set<std::string>::const_iterator i=mListOfAllowedPixelTypes.begin();
-          i!=mListOfAllowedPixelTypes.end(); i++) {
-    oss << *i << " ";
-  }
-  oss << std::endl;
-  return oss.str();
 }
 //--------------------------------------------------------------------
 
@@ -213,18 +147,9 @@ std::string clitk::ImageToImageGenericFilterBase::GetAvailableImageTypes() {
 void clitk::ImageToImageGenericFilterBase::ImageTypeError() {
   std::cerr << "**Error** The filter <" << mFilterName << "> is not available for " 
             << mDim << "D images with pixel=" 
-            << mPixelTypeName << "." << std::endl;
-  std::cerr << "**Error** Allowed image dim: \t";
-  for(std::set<unsigned int>::const_iterator i=mListOfAllowedDimensions.begin();
-          i!=mListOfAllowedDimensions.end(); i++) {
-      std::cerr << *i << "D ";
-  }
-  std::cerr << std::endl << "**Error** Allowed pixel types: \t";
-  for(std::set<std::string>::const_iterator i=mListOfAllowedPixelTypes.begin();
-          i!=mListOfAllowedPixelTypes.end(); i++) {
-      std::cerr << *i << " ";
-  }
-  std::cerr << std::endl;
+            << mPixelTypeName << " and "
+            << mNbOfComponents << " component." << std::endl;
+  std::cerr << GetAvailableImageTypes();
   exit(0);
 }
 //--------------------------------------------------------------------
