@@ -28,7 +28,7 @@
 #include "clitkSignalMeanPositionTracking_ggo.h"
 #include "clitkSignalMeanPositionFilter.h"
 #include "clitkIO.h"
-#include "clitkIOCommon.h"
+#include "clitkImageCommon.h"
 
 int main(int argc, char * argv[]) {
 

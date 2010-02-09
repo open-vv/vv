@@ -78,10 +78,18 @@ gdcm::File * clitk::readDicomHeader(const std::string & filename,
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
-itk::ImageIOBase::Pointer clitk::readImageHeader(const std::string & filename) {
+itk::ImageIOBase::Pointer clitk::readImageHeader(const std::string & filename, bool exit_on_error) {
   itk::ImageIOBase::Pointer reader =
     itk::ImageIOFactory::CreateImageIO(filename.c_str(), itk::ImageIOFactory::ReadMode);
-  if (!reader) return NULL;
+  if (!reader) {
+      if (exit_on_error) //default behavior for tools who don't handle the problem
+      {
+          std::cerr << "Error reading file " << filename << ", exiting immediately" << std::endl;
+          std::exit(-1);
+      }
+      else
+          return NULL;
+  }
   reader->SetFileName(filename);
   reader->ReadImageInformation();
   return reader;

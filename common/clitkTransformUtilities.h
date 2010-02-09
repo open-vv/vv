@@ -4,7 +4,7 @@
 #include "itkMatrix.h"
 #include "itkArray.h"
 #include "itkPoint.h"
-#include "clitkIOCommon.h"
+#include "clitkImageCommon.h"
 #include "clitkCommon.h"
  
  

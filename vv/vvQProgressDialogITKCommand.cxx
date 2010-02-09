@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VVQPROGRESSDIALOGITKCOMMAND_CXX
 #define VVQPROGRESSDIALOGITKCOMMAND_CXX
 
-#include "clitkIOCommon.h"
+#include "clitkImageCommon.h"
 #include "vvQProgressDialogITKCommand.h"
 
 //====================================================================

@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvMainWindow.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/07 12:00:59 $
-  Version:   $Revision: 1.9 $
+  Date:      $Date: 2010/02/09 10:28:07 $
+  Version:   $Revision: 1.10 $
   Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
   Copyright (C) 200COLUMN_IMAGE_NAME
@@ -39,7 +39,7 @@
 #include "vvProgressDialog.h"
 #include "vvQDicomSeriesSelector.h"
 #include "vvSlicerManager.h"
-#include "clitkIOCommon.h"
+#include "clitkImageCommon.h"
 #include "vvSlicer.h"
 #include "vvInteractorStyleNavigator.h"
 #include "vvImageWriter.h"

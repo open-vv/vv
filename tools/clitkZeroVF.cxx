@@ -14,7 +14,7 @@
 // clitk include
 #include "clitkZeroVF_ggo.h"
 #include "clitkIO.h"
-#include "clitkIOCommon.h"
+#include "clitkImageCommon.h"
 #include "clitkZeroVFGenericFilter.h"
 
 int main( int argc, char *argv[] )

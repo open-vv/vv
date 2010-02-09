@@ -2,7 +2,7 @@
 #define __clitkZeroVFGenericFilter_h
 
 //clitk include
-#include "clitkIOCommon.h"
+#include "clitkImageCommon.h"
 #include "clitkImageCommon.h"
 
 //itk include

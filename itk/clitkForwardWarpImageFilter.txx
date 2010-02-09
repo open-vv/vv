@@ -2,7 +2,7 @@
 #define __clitkForwardWarpImageFilter_txx
 
 #include "clitkForwardWarpImageFilter.h"
-#include "clitkIOCommon.h"
+#include "clitkImageCommon.h"
 
 // Put the helper classes in an anonymous namespace so that it is not
 // exposed to the user

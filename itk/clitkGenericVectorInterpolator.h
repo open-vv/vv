@@ -2,7 +2,7 @@
 #define __clitkGenericVectorInterpolator_h
 
 //clitk include
-#include "clitkIOCommon.h"
+#include "clitkImageCommon.h"
 
 //itk include
 #include "itkVectorNearestNeighborInterpolateImageFunction.h"

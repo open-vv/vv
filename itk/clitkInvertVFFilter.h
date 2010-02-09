@@ -2,7 +2,7 @@
 #define __clitkInvertVFFilter_h
 
 //clitk include
-#include "clitkIOCommon.h"
+#include "clitkImageCommon.h"
 
 #include "itkImageToImageFilter.h"
 #include "itkImage.h"

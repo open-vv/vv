@@ -14,7 +14,7 @@
 // clitk include
 #include "clitkVFMerge_ggo.h"
 #include "clitkIO.h"
-#include "clitkIOCommon.h"
+#include "clitkImageCommon.h"
 
 // itk include
 //#include "itkReadTransform.h"

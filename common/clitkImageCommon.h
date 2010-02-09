@@ -56,7 +56,7 @@ namespace clitk {
 
   //--------------------------------------------------------------------
   // Read/print image header
-  itk::ImageIOBase::Pointer readImageHeader(const std::string & filename);
+  itk::ImageIOBase::Pointer readImageHeader(const std::string & filename,bool exit_on_error=true);
   void printImageHeader(itk::ImageIOBase::Pointer header, std::ostream & os, const int level=0);
 
   //--------------------------------------------------------------------

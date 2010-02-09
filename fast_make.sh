@@ -29,8 +29,9 @@ else #use all the available computing power by default
     cpus=$(( $(cat /proc/cpuinfo | grep -c ^processor) + 0 ))
 fi
 
-make -j ${cpus} $@ &
-make_pid=$(jobs -p %make)
+nice -n12 ionice -c3 make -j ${cpus} $@ &
+make_pid=$(jobs -p %nice)
+
 #watch memory use to avoid crashes
 while ps $make_pid >>/dev/null 
 do
