@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: clitkImageToImageGenericFilter.txx,v $
   Language:  C++
-  Date:      $Date: 2010/02/09 14:40:55 $
-  Version:   $Revision: 1.4 $
+  Date:      $Date: 2010/02/10 14:59:49 $
+  Version:   $Revision: 1.5 $
   Author :   Joel Schaerer <joel.schaerer@creatis.insa-lyon.fr>
              David Sarrut <david.sarrut@creatis.insa-lyon.fr>
 
@@ -41,6 +41,9 @@ void clitk::ImageToImageGenericFilterBase::SetNextOutput(typename ImageType::Poi
 
 
 //--------------------------------------------------------------------
+#ifdef _MSC_VER
+#  pragma warning(disable: 4715) //Disable "The specified function can potentially not return a value"
+#endif
 template<class ImageType> 
 typename ImageType::Pointer clitk::ImageToImageGenericFilterBase::GetInput(unsigned int n) {
   if (mInputFilenames.size() > n) {
