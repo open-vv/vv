@@ -1,5 +1,5 @@
 #File  clitkImageCreate.ggo
-Package "clitkImageCreate"
+package "clitkImageCreate"
 version "1.0"
 purpose "Create a new singled value filled image (pixeltype is float, use clitkImageConvert to change)."
 

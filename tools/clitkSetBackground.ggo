@@ -1,5 +1,5 @@
 #File clitkSetBackground.ggo
-Package "clitkSetBackground"
+package "clitkSetBackground"
 version "1.0"
 purpose ""
 

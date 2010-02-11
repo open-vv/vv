@@ -1,5 +1,5 @@
 #File clitkAffineTransform.ggo
-Package "clitkAffineTransform"
+package "clitkAffineTransform"
 version "1.0"
 purpose "Resample with or without affine transform of 2D, 3D, 4D images or vector fields"
 

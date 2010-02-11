@@ -1,5 +1,5 @@
 #File clitkAverageTemporalDimension.ggo
-Package "clitkAverageTemporalDimension"
+package "clitkAverageTemporalDimension"
 version "1.0"
 purpose "Average the last dimension to an (n-1)D image. Input is either nD or multiple (n-1)D image or DVF"
 

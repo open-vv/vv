@@ -1,6 +1,6 @@
 #File clitkSignalFilter.ggo
-Package "clitk"
-Version "Pass an filter on an signal"
+package "clitk"
+version "Pass an filter on an signal"
 
 option "config"	  	-	"Config file"			  string  	no
 option "verbose"   	v   	"Verbose"			  flag		off

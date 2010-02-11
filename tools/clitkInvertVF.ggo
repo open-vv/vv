@@ -2,8 +2,8 @@
 #Author: Jef Vandemeulebroucke <jefvdmb@gmail.com>
 #Date : Tue 15 June 16.35 
 
-Package "clitk"
-Version "Read a DVF and invert it using a linear splat to the target, or by subsumpling the input grid and matching it to the output grid"
+package "clitk"
+version "Read a DVF and invert it using a linear splat to the target, or by subsumpling the input grid and matching it to the output grid"
 
 option "config"	  	 	-	"Config file"				  			string  	no
 option "verbose"   	 	v   	"Verbose"				  			flag		off

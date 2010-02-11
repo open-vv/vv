@@ -2,8 +2,8 @@
 #Author: Joel Schaerer
 ##Date : Tue 15 March 16.35 
 
-Package "clitk"
-Version "Read a vector fields (.mhd, .vf, ..) and zero it"
+package "clitk"
+version "Read a vector fields (.mhd, .vf, ..) and zero it"
 
 option "config"	  	 	-	"Config file"				  			string  	no
 option "input"    	 	i   	"Input VF filename"		  				string 		yes

@@ -1,5 +1,5 @@
 #File clitkImageExtractLine.ggo
-Package "clitkImageExtractLine"
+package "clitkImageExtractLine"
 version "1.0"
 purpose "Extract 1D values along a line (in voxels). 3D only."
 

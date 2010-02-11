@@ -1,5 +1,5 @@
 #File  clitkImageArithm.ggo
-Package "clitkImageArithm"
+package "clitkImageArithm"
 version "1.0"
 purpose "Perform an arithmetic operation (+-*/ ...) using two images or using an image and a scalar value."
 

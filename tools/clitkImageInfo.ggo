@@ -1,5 +1,5 @@
 # file clitkImageInfo.ggo
-Package "clitkImageInfo"
+package "clitkImageInfo"
 version "1.0"
 purpose "Display information on images."
 

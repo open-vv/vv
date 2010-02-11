@@ -1,5 +1,5 @@
 #File clitkImageResample.ggo
-Package "clitkImageResample"
+package "clitkImageResample"
 version "1.0"
 purpose "Resample an image. You can specify the interpolation, you can apply a Gaussian filter before."
 
@@ -12,6 +12,6 @@ option "order"       	b   	"BSpline ordre (range 0-5)"	  	int 	no 	default="3"
 option "sampling"	s      	"BLUT sampling value"	  		int 	no 	default="30"
 option "size"	 	-  	"Number of pixels of each coordonate"	int	no	multiple  default="0"
 option "spacing"	-  	"Spacing in mm between pixels" 		float	no	multiple  default="0.0"
-option "gauss"		g	"Apply Gaussian before (sigma in mm)"		float	no	multiple  default="1.0"
+option "gauss"		g	"Apply Gaussian before (sigma in mm) ; no Gaussian if not given"		float	no	multiple  default="1.0"
 option "default"	d	"Default pixel value"			float	no 	default = "0.0"
 

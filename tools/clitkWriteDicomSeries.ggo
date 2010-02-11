@@ -1,5 +1,5 @@
 #File clitkWriteDicomSeries.ggo
-Package "clitkWriteDicomSeries"
+package "clitkWriteDicomSeries"
 version "1.0"
 purpose ""
 

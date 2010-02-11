@@ -1,5 +1,5 @@
 #File  clitkSplitImage.ggo
-Package "clitkSplitImage"
+package "clitkSplitImage"
 version "1.0"
 purpose "Split an image into n images along a dimension"
 

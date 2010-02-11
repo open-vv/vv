@@ -1,5 +1,5 @@
 #File  clitkGuerreroVentilation.ggo
-Package "clitkGuerreroVentilation"
+package "clitkGuerreroVentilation"
 version "1.0"
 purpose "Compute the ventilation image from a motion compensated image and the reference (end-expiration) image"
 

@@ -1,5 +1,5 @@
 #File clitkWarpImage.ggo
-Package "clitkWarpImage"
+package "clitkWarpImage"
 version "1.0"
 purpose "Warp an image. Output will have the extent (origin+ spacing*size) of the input."
 

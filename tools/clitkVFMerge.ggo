@@ -2,8 +2,8 @@
 #Author: Jef Vandemeulebroucke <jefvdmb@gmail.com>
 #Date : Tue 15 June 16.35 
 
-Package "clitk"
-Version "Read a bunch of vector fields (.mhd, .vf, ..) and turn them into a higher dimension vector field (.mhd, ...)"
+package "clitk"
+version "Read a bunch of vector fields (.mhd, .vf, ..) and turn them into a higher dimension vector field (.mhd, ...)"
 
 option "config"	  	 	-	"Config file"				  			string  	no
 option "output"    	 	o   	"Output VF filename"		  				string 		yes

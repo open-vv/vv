@@ -1,5 +1,5 @@
 #File  clitkImageFillRegion.ggo
-Package "clitkImageFillRegion"
+package "clitkImageFillRegion"
 version "1.0"
 purpose "Fill a region (rectangular or ellipsoide) with a value inside an image."
 
