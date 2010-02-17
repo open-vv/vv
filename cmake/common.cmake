@@ -27,7 +27,7 @@ FOREACH(GGO_FILE ${ALL_GGO_FILES})
 #=========================================================
 #Set a reasonable build mode default if the user hasn't set any
 if (NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE RelWithDebInfo)
+  set(CMAKE_BUILD_TYPE Release)
 endif (NOT CMAKE_BUILD_TYPE)
 
 #=========================================================

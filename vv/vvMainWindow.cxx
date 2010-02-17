@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvMainWindow.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/09 10:28:07 $
-  Version:   $Revision: 1.10 $
+  Date:      $Date: 2010/02/17 20:52:39 $
+  Version:   $Revision: 1.11 $
   Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
   Copyright (C) 200COLUMN_IMAGE_NAME
@@ -93,6 +93,8 @@
 #define COLUMN_CLOSE_IMAGE 5
 #define COLUMN_RELOAD_IMAGE 6
 #define COLUMN_IMAGE_NAME 7
+
+#define EXTENSIONS "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.hdr *.vox *.his *.xdr)"
 
 /*Data Tree values
   0,Qt::UserRole full filename
@@ -532,7 +534,7 @@ vvMainWindow::~vvMainWindow() {
 
 //------------------------------------------------------------------------------
 void vvMainWindow::MergeImages() {
-  QString Extensions = "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.hdr *.vox)";
+  QString Extensions = EXTENSIONS;
   Extensions += ";;All Files (*)";
   QStringList files = QFileDialog::getOpenFileNames(this,tr("Merge Images"),mInputPathName,Extensions);
   if (files.isEmpty())
@@ -596,7 +598,7 @@ void vvMainWindow::MergeImages() {
 
 //------------------------------------------------------------------------------
 void vvMainWindow::MergeImagesWithTime() {
-  QString Extensions = "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.hdr *.vox)";
+  QString Extensions = EXTENSIONS;
   Extensions += ";;All Files (*)";
   QStringList files = QFileDialog::getOpenFileNames(this,tr("Merge Images With Time"),mInputPathName,Extensions);
   if (files.isEmpty())
@@ -702,7 +704,7 @@ void vvMainWindow::OpenDicom() {
 
 //------------------------------------------------------------------------------
 void vvMainWindow::OpenImages() {
-  QString Extensions = "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.hdr *.vox)";
+  QString Extensions = EXTENSIONS;
   Extensions += ";;All Files (*)";
 
   QStringList files = QFileDialog::getOpenFileNames(this,tr("Load Images"),mInputPathName,Extensions);
@@ -726,7 +728,7 @@ void vvMainWindow::OpenRecentImage()
 
 //------------------------------------------------------------------------------
 void vvMainWindow::OpenImageWithTime() {
-  QString Extensions = "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.hdr *.vox)";
+  QString Extensions = EXTENSIONS;
   Extensions += ";;All Files (*)";
 
   QStringList files = QFileDialog::getOpenFileNames(this,tr("Load Images With Time"),mInputPathName,Extensions);
@@ -1819,7 +1821,7 @@ void vvMainWindow::SelectOverlayImage() {
         return;
       }
 
-  QString Extensions = "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.hdr *.vox)";
+  QString Extensions = EXTENSIONS;
   Extensions += ";;All Files (*)";
   QString file = QFileDialog::getOpenFileName(this,tr("Load Overlay image"),mInputPathName,Extensions);
   if (!file.isEmpty())
@@ -1912,7 +1914,7 @@ void vvMainWindow::AddFusionImage()
         return;
       }
 
-  QString Extensions = "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.hdr *.vox)";
+  QString Extensions = EXTENSIONS;
   Extensions += ";;All Files (*)";
   QString file = QFileDialog::getOpenFileName(this,tr("Load Fusion image"),mInputPathName,Extensions);
   if (!file.isEmpty())

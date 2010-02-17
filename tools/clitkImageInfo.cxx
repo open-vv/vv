@@ -20,9 +20,13 @@ PURPOSE.  See the above copyright notices for more information.
    * @date   02 Jul 2006
    =================================================*/
 
+// itk include
+#include "itkImageIOBase.h"
+
 // clitk include
 #include "clitkImageInfo_ggo.h"
 #include "clitkIO.h"
+#include "clitkImageCommon.h"
 
 //====================================================================
 int main(int argc, char * argv[]) {

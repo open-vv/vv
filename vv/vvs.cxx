@@ -26,7 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "vvImageReader.h"
 #include "vvMeshReader.h"
-#include "vvInit.h"
 #include "vvs.h"
 
 

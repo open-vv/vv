@@ -75,10 +75,7 @@ SET(vv_SRCS
   vvSurfaceViewerDialog.cxx
   vvMainWindow.cxx
   vvDeformationDialog.cxx
-  vvInit.cxx
   vvImageWarp.cxx
-  nkitkXDRImageIOFactory.cxx  
-  nkitkXDRImageIOReader.cxx  
   vvDeformableRegistration.cxx
   vtkVOXImageWriter.cxx
   vvInteractorStyleNavigator.cxx

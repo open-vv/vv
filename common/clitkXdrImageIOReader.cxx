@@ -1,8 +1,5 @@
-#ifndef NKITKXDRIMAGEIO_CXX
-#define NKITKXDRIMAGEIO_CXX
-
 /**
- * @file   nkitkXDRImageIO.cxx
+ * @file   clitkXdrImageIO.cxx
  * @author Simon Rit <simon.rit@gmail.com>
  * @date   Sun Jun  1 22:12:20 2008
  *
@@ -11,7 +8,7 @@
  *
  */
 
-#include "nkitkXDRImageIO.h"
+#include "clitkXdrImageIO.h"
 
 // std include
 #include <iostream>
@@ -20,7 +17,6 @@
 
 //defines
 #define MAXDIM 5
-#define AVSerror(v) std::cerr << "Error in nkitk::XDRImageIO. Message:" << v << std::endl;
 #ifdef _WIN32
 #ifdef memicmp
 #undef memicmp
@@ -87,55 +83,11 @@ When       Who   What
 20080414 lsp+mgw __sun__ doesn't know <io.h>
 */
 
-/************************************************************************/
-/*                         MODULE DOCUMENTATION                         */
-/************************************************************************/
-/*
-   READ_XDR                     Read XDR file (may be compressed) into field
-	name                    output field handle
-	file_expression         name of file
-	numerical_expression    start XDR data in file offset (default 0)
-        NOTE: compressed XDR data may not be part of a larger file
-
-   READ_XDR_HEADER              Get entry from xdr header
-        %name                   Output = string block
-        file_expression         file name default extension ''
-        %string_expression      name of element to load
-
-   READ_XDR_PREVIEW             Read and downsize XDR file (for bitmap)
-	name                    output field handle
-	file_expression         name of file
-	numerical_expression    start XDR data in file offset (default 0)
-        NOTE: this command is not supported for compressed XDR files
-
-   ENUM_XDR_HEADER
-        %name                   Output = string block
-        file_expression         file name default extension ''
-	numerical_expression    number of element to find name of
-*/
-/************************************************************************/
-/*                             INCLUDE FILES                            */
-/************************************************************************/
-
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 #include <stdlib.h>
 #include <ctype.h>
-#if 0
-#ifndef __sun__
-#include <io.h>
-#endif
-#include "mbavs2q.h"
-
-#ifndef QUIRT
-#include <memory.h>
-#include <avs/avs.h>
-#include <avs/field.h>
-#else
-#include "mbfield.h"
-#endif
-#endif
 
 /************************************************************************/
 /*                    DEFINES, ENUMERATED TYPES AND CONSTANTS           */
@@ -186,7 +138,7 @@ const char* gl_ErrorMsg[] = {
     "XDR file reading error",
     "Out of memory",
     "Decompression failed",
-    "Format not handled by nkitkXDRImageIO (RECTILINEAR or IRREGULAR field)"
+    "Format not handled by clitkXdrImageIO (RECTILINEAR or IRREGULAR field)"
 };
 
 
@@ -238,109 +190,6 @@ static const unsigned long CRC32_table[256] = {
 
 
 /************************************************************************/
-/*                              PROTOTYPES                              */
-/************************************************************************/
-#if 0
-int Rxdr_compute(AVSfield** ppOut, char* pszFileName, int iOffset);
-
-int RxdrPreview_compute(AVSfield** ppOut, char* pszFileName, int iOffset);
-
-int RxdrHeader_compute(char *pszOut, char *pszFileName, char *pszEntry);
-
-int RxdrEnum_compute(char *pszOut, char *pszFileName, int iEntry);
-
-/******************************************************************************/
-/*                          AVS/QUIRT INTERFACE                               */
-/******************************************************************************/
-
-void Rxdr_desc(void)
-{
-    int  param;
-
-    /* Set the module name and type */
-    AVSset_module_name("XDR reader", MODULE_DATA);
-
-    /* Create output ports for the resulting fields */
-    AVScreate_output_port("Output", "field");
-
-    /* declare widgets */
-    QUIRT_NEXT_PARAMETER_FILE("");
-    param = AVSadd_parameter("FileName", "string", "/data/AVS/", NULL, "");
-    AVSconnect_widget(param, "browser");
-    AVSadd_parameter_prop(param, "height", "integer", 8);
-
-    param = AVSadd_parameter("Offset", "integer", 0, 0, INT_UNBOUND);
-    AVSconnect_widget(param, "typein_integer");
-
-    AVSset_compute_proc(CF Rxdr_compute);
-}
-AVS_TO_QUIRT(READ_XDR, Rxdr_desc);
-
-void RxdrPreview_desc(void)
-{
-    int  param;
-
-    /* Set the module name and type */
-    AVSset_module_name("XDR preview reader", MODULE_DATA);
-
-    /* Create output ports for the resulting fields */
-    AVScreate_output_port("Output", "field");
-
-    /* declare widgets */
-    QUIRT_NEXT_PARAMETER_FILE("");
-    param = AVSadd_parameter("FileName", "string", "/data/AVS/", NULL, "");
-    AVSconnect_widget(param, "browser");
-    AVSadd_parameter_prop(param, "height", "integer", 8);
-
-    param = AVSadd_parameter("Offset", "integer", 0, 0, INT_UNBOUND);
-    AVSconnect_widget(param, "typein_integer");
-
-    AVSset_compute_proc(CF RxdrPreview_compute);
-}
-AVS_TO_QUIRT(READ_XDR_PREVIEW, RxdrPreview_desc);
-
-void RxdrHeader_desc(void)
-{ /* Set the module name and type */
-    AVSset_module_name("Read XDR header", MODULE_DATA);
-
-    /* Create output ports for the resulting fields */
-    AVSadd_parameter("Output", "string_block", "", NULL, "");
-
-    QUIRT_NEXT_PARAMETER_FILE("");
-    AVSadd_parameter("FileName", "string", "", NULL, "");
-
-    AVSadd_parameter("Entry", "string", "", NULL, "");
-
-    AVSset_compute_proc(CF RxdrHeader_compute);
-}
-AVS_TO_QUIRT(READ_XDR_HEADER, RxdrHeader_desc);
-
-void RxdrEnum_desc(void)
-{ /* Set the module name and type */
-    AVSset_module_name("Enumerate XDR header", MODULE_DATA);
-
-    /* Create output ports for the resulting fields */
-    AVSadd_parameter("Output", "string_block", "", NULL, "");
-
-    QUIRT_NEXT_PARAMETER_FILE("");
-    AVSadd_parameter("FileName", "string", "", NULL, "");
-
-    AVSadd_parameter("Entry", "integer", 0, INT_UNBOUND, INT_UNBOUND);
-
-    AVSset_compute_proc(CF RxdrEnum_compute);
-}
-AVS_TO_QUIRT(ENUM_XDR_HEADER, RxdrEnum_desc);
-
-#ifndef QUIRT
-AVSinit_modules(void)
-{
-    AVSmodule_from_desc( (int_desc_func)Rxdr_desc );
-    AVSmodule_from_desc( (int_desc_func)RxdrHeader_desc );
-    AVSmodule_from_desc( (int_desc_func)RxdrEnum_desc );
-}
-#endif
-#endif
-/************************************************************************/
 /*                             MODULE FUNCTIONS                         */
 /************************************************************************/
 
@@ -391,42 +240,6 @@ static char *scan_header(const char *file, const char *name, int offset, int rem
     fclose(f);
     return NULL;
 }
-
-/* help routine, enumerates XDR file for names of keyword entrys, returns NULL
-   if not found, else returns pointer to start of line upto '='
-*/
-// //Commented out because it does not seem to be needed for vv
-//static char *enum_header(char *file, int iEntry, int offset)
-//{
-//    int i, count;
-//    static char temp[512];
-//    FILE *f;
-//    char *p;
-//
-//    if ((f = fopen(file, "rt")) == NULL) return NULL;
-//    if (offset) fseek(f, offset, SEEK_SET);
-//
-//    count = 0;
-//
-//    for (i=0; i<200; )
-//    {
-//        if (fgets(temp, 500, f) == NULL      ) break;       /* end of file */
-//
-//        if (temp[0] == 12                    ) break;       /* ^L end of header */
-//        if (temp[0] != '#') i++;                            /* The first 200 non comment lines must be read before data is opened. */
-//        if ((p = strchr(temp+1, '=')) == NULL) continue;    /* no '=' */
-//        if (count++ != iEntry)                 continue;    /* no match */
-//
-//        *p=0;                                               /* match, end at  = */
-//
-//        fclose (f);
-//        return temp;
-//    }
-//
-//    fclose(f);
-//    return NULL;
-//}
-
 
 static int get_nki_compressed_size(FILE *f)
 {
@@ -864,23 +677,17 @@ static int nki_private_decompress(short int *dest, signed char *src, int size)
 
 //====================================================================
 // Read image information (copied from XDRreader)
-int nkitk::XDRImageIO::ReadImageInformationWithError()
+int clitk::XdrImageIO::ReadImageInformationWithError()
 {
     int      offset=0;
     itk::Vector<int,MAXDIM> dim;
-    int      veclen=1; //, data=AVS_TYPE_BYTE, field=UNIFORM;
-#if 0
-    int      iNkiCompression = 0;
-#endif
-    int      total=1/*, datasize=0, iNumRead, HeaderSize*/;
+    int      veclen=1;
+    int      total=1;
     unsigned int coords=0,i,j,ndim,nspace;
     char     temp[512];
     FILE     *fstream;
     char     *c;
-#if 0
-    char     *buff;
-    AVSfield FieldTemplate;
-#endif
+
     long     swap_test = 0x1000000;      /* first byte is 1 when low-endian */
     forcenoswap=0;
     char     *file = const_cast<char *>(m_FileName.c_str());
@@ -1028,15 +835,15 @@ int nkitk::XDRImageIO::ReadImageInformationWithError()
 
 //====================================================================
 // Read image information (copied from XDRreader)
-void nkitk::XDRImageIO::ReadImageInformation() {
+void clitk::XdrImageIO::ReadImageInformation() {
     int result = ReadImageInformationWithError();
-    if (result) ITKError("nkitk::XDRImageIO::ReadImageInformation",result);
+    if (result) ITKError("clitk::XdrImageIO::ReadImageInformation",result);
 }
 
 
 //====================================================================
-// Read Image Content (copied from XDRreader)
-int nkitk::XDRImageIO::ReadWithError(void * buffer)
+// Read Image Content (copied from Xdr reader)
+int clitk::XdrImageIO::ReadWithError(void * buffer)
 { //AVSINT   dim[5];
     int      /*ndim,*/ nspace/*, veclen=1, data=AVS_TYPE_BYTE, field=UNIFORM*/;
     int      iNkiCompression = 0;
@@ -1075,16 +882,6 @@ int nkitk::XDRImageIO::ReadWithError(void * buffer)
     c = scan_header(file, "coord1[0]", offset, 1);
     if (c) HeaderSize = 32768;
     else HeaderSize = 2048;
-
-#if 0
-    FIELDdefault(&FieldTemplate);
-    FieldTemplate.ndim    = ndim;
-    FieldTemplate.nspace  = nspace;
-    FieldTemplate.veclen  = veclen;
-    FieldTemplate.type    = data;
-    FieldTemplate.uniform = field;
-    FieldTemplate.size    = datasize;
-#endif
 
     fstream = fopen(file, "rb");
     if (fstream == NULL)
@@ -1130,18 +927,6 @@ int nkitk::XDRImageIO::ReadWithError(void * buffer)
 
     if (i==iNumRead) return ER_XDR_NOCTRLL;
 
-#if 0
-    if (*output) AVSfield_free(*output);
-    *output = (AVSfield *) AVSfield_alloc(&FieldTemplate, dim);
-    if (*output == NULL)
-    {
-        fclose(fstream);
-        return ER_OUTOFMEMORY;
-    }
-
-    total  *= datasize * veclen;
-    coords *= sizeof(float);
-#endif
     total = GetImageSizeInBytes();
 
     //We add casts because the resulting quantity can be negative.
@@ -1175,10 +960,6 @@ int nkitk::XDRImageIO::ReadWithError(void * buffer)
         if (!pCompressed)
         {
             fclose(fstream);
-#if 0
-            if (*output) AVSfield_free(*output);
-            *output = NULL;
-#endif
             return ER_OUTOFMEMORY;
         }
 
@@ -1186,20 +967,12 @@ int nkitk::XDRImageIO::ReadWithError(void * buffer)
         if (fread( (void *)pCompressed, 1, iSize, fstream ) != iSize)
         {
             fclose(fstream);
-#if 0
-            if (*output) AVSfield_free(*output);
-            *output = NULL;
-#endif
             return ER_XDR_READ;
         }
 
         if (!nki_private_decompress((short*)buffer, pCompressed, iSize))
         {
             fclose(fstream);
-#if 0
-            if (*output) AVSfield_free(*output);
-            *output = NULL;
-#endif
             return ER_DECOMPRESSION;
         }
 
@@ -1216,10 +989,6 @@ int nkitk::XDRImageIO::ReadWithError(void * buffer)
         if (fread( (void *)buffer, 1, total, fstream ) != total)
         {
             fclose(fstream);
-#if 0
-            if (*output) AVSfield_free(*output);
-            *output = NULL;
-#endif
             return ER_XDR_READ;
         }
     }
@@ -1274,391 +1043,30 @@ int nkitk::XDRImageIO::ReadWithError(void * buffer)
     }
 
 READ_COORDS:
-#if 0
-    if (coords)                        /* expect AVS coordinates ? */
-    {
-        if (fread( (*output)->points, 1, coords, fstream ) == coords)
-        { /* swap data if read-ok and required (xdr is low-endian) */
-
-            if (!(*(char *)(&swap_test)) && !forcenoswap)
-            {
-                c = (char *)(*output)->points;
-                for (i=0; i<coords; i+=4)
-                {
-                    j = c[i];
-                    c[i]   = c[i+3];
-                    c[i+3] = j;
-                    j = c[i+1];
-                    c[i+1] = c[i+2];
-                    c[i+2] = j;
-                }
-            }
-        }
-    }
-#endif
     fclose(fstream);
     return OK;
 }
 
 //====================================================================
-// Read image information (copied from XDRreader)
-void nkitk::XDRImageIO::Read(void * buffer) {
+// Read image information (copied from Xdr reader)
+void clitk::XdrImageIO::Read(void * buffer) {
     int result = ReadWithError(buffer);
-    if (result) ITKError("nkitk::XDRImageIO::Read",result);
+    if (result) ITKError("clitk::XdrImageIO::Read",result);
 }
-
-#if 0
-static int XDRreader_preview(AVSfield **output, char *file, int offset)
-{
-    AVSINT   dim[MAXDIM], dim2[MAXDIM], ds[MAXDIM];
-    int      ndim, nspace, veclen=1, data=AVS_TYPE_BYTE, field=UNIFORM;
-    int      iNkiCompression = 0;
-    int      total=1, i, j, k, l, m, coords=0,  datasize=0, iNumRead, len, start, sliceax;
-    char     temp[512];
-    FILE     *fstream;
-    char     *c;
-    char     *buff;
-    AVSfield FieldTemplate;
-    long     swap_test = 0x1000000;      /* first byte is 1 when low-endian */
-    int      forcenoswap=0;
-
-    fstream = fopen(file, "rt");
-    if (fstream == NULL) return ER_XDR_OPEN;
-    fgets(temp, 500, fstream);
-    fclose(fstream);
-
-    if (memcmp(temp, "# AVS field file (produced by avs_nfwrite.c)", 44)==0) forcenoswap=1;
-
-    c      = scan_header(file, "ndim", offset, 1);
-    if (!c) return ER_XDR_NDIM;
-    ndim   = atoi(c);
-    if (ndim<1 || ndim>MAXDIM) return ER_XDR_NDIM;
-    nspace = ndim;
-
-    /* defaults for dimensions and downsize */
-
-    for (i=0; i<MAXDIM; i++)
-        dim[i] = dim2[i] = ds[i] = 1;
-
-    for (i=0; i<ndim; i++)
-    {
-        sprintf(temp, "dim%d", i+1);
-        c = scan_header(file, temp, offset, 1);
-        if (!c) return ER_XDR_DIM;
-        dim[i]=atoi(c);
-        if (dim[i]<1 || dim[i]>200000L) return ER_XDR_DIM;
-
-        total  *= dim[i];
-        coords += dim[i];
-    }
-
-    c = scan_header(file, "nspace", offset, 1);
-    if (c) nspace = atoi(c);
-    if (nspace<1 || ndim > MAXDIM) return ER_XDR_NSPACE;
-
-    c = scan_header(file, "veclen", offset, 1);
-    if (c) veclen = atoi(c);
-    if (veclen<0 || veclen>100) return ER_XDR_VECLEN;
-
-    c = scan_header(file, "data", offset, 1);
-
-    if (c)
-    {
-        if (memicmp(c, "byte",  4) == 0)     data=AVS_TYPE_BYTE,   datasize=1;
-        else if (memicmp(c, "short", 5) == 0)     data=AVS_TYPE_SHORT,  datasize=2;
-        else if (memicmp(c, "int" ,  3) == 0)     data=AVS_TYPE_INTEGER,datasize=4;
-        else if (memicmp(c, "real",  4) == 0)     data=AVS_TYPE_REAL,   datasize=4;
-        else if (memicmp(c, "float", 5) == 0)     data=AVS_TYPE_REAL,   datasize=4;
-        else if (memicmp(c, "double",6) == 0)     data=AVS_TYPE_DOUBLE, datasize=8;
-
-        else if (memicmp(c, "xdr_byte",  8) == 0) data=AVS_TYPE_BYTE,   datasize=1, forcenoswap=0;
-        else if (memicmp(c, "xdr_short", 9) == 0) data=AVS_TYPE_SHORT,  datasize=2, forcenoswap=0;
-        else if (memicmp(c, "xdr_int" ,  7) == 0) data=AVS_TYPE_INTEGER,datasize=4, forcenoswap=0;
-        else if (memicmp(c, "xdr_real",  8) == 0) data=AVS_TYPE_REAL,   datasize=4, forcenoswap=0;
-        else if (memicmp(c, "xdr_float", 9) == 0) data=AVS_TYPE_REAL,   datasize=4, forcenoswap=0;
-        else if (memicmp(c, "xdr_double",10)== 0) data=AVS_TYPE_DOUBLE, datasize=8, forcenoswap=0;
-        else                                      return ER_XDR_DATA;
-    }
-
-    c = scan_header(file, "field", offset, 1);
-    if (c)
-    {
-        if (memicmp(c, "unifo", 5) == 0) field=UNIFORM, coords=nspace*2;
-        else if (memicmp(c, "recti", 5) == 0) field=RECTILINEAR;
-        else if (memicmp(c, "irreg", 5) == 0) field=IRREGULAR, coords=total*nspace;
-        else return ER_XDR_FIELD;
-    }
-    else
-        coords=0;
-
-    c = scan_header(file, "nki_compression", offset, 1);
-    if (c) iNkiCompression = atoi(c);
-    if (iNkiCompression)
-    {
-        fclose(fstream);
-        return ER_ILLCOMMFUNCT;
-    }
-
-    FIELDdefault(&FieldTemplate);
-    FieldTemplate.ndim    = ndim;
-    FieldTemplate.nspace  = nspace;
-    FieldTemplate.veclen  = veclen;
-    FieldTemplate.type    = data;
-    FieldTemplate.uniform = field;
-    FieldTemplate.size    = datasize;
-
-    fstream = fopen(file, "rb");
-
-    if (fstream == NULL)
-        return ER_XDR_OPEN;
-
-    buff = (char *)malloc(8192);
-    if (buff == NULL)
-    {
-        return ER_OUTOFMEMORY;
-    }
-    memset(buff, 0, 8192);
-    fseek(fstream, offset, SEEK_SET);
-
-    while (1)
-    {
-        if (fgets(temp, 500, fstream) == NULL )
-            return ER_XDR_NOCTRLL; /* end of file */
-
-        if (temp[0] == 10) continue;
-
-        if (temp[0] == 12)
-        {
-            fseek(fstream, -2, SEEK_CUR);
-            break;
-        } /* ^L end of header */
-
-        if (temp[0] != '#') break;
-    }
-    start = ftell(fstream);
-
-    iNumRead = fread(buff, 1, 8192, fstream);
-    if (iNumRead < 1)
-    {
-        free(buff);
-        fclose(fstream);
-        return ER_XDR_READ;
-    }
-
-    for (i=0; i<iNumRead; i++) {
-        if (buff[i] == 12) break;
-    }
-
-    free(buff);
-
-    if (i==iNumRead) return ER_XDR_NOCTRLL;
-
-    start += i+2;
-
-    /* determine slice axis and downsize slice axis to 3, others to 32 */
-
-    sliceax = 2;
-
-    if (ndim>=3)
-    {
-        if (dim[0]==dim[1]) sliceax = 2;
-        else                sliceax = 1;
-    }
-
-    total = 1;
-
-    for (i=0; i<ndim; i++)
-    {
-        if (i==sliceax) ds[i] = dim[i] / 3;
-        else            ds[i] = dim[i] / 32;
-        if (ds[i]==0) ds[i]=1;
-
-        dim2[i] = dim[i]/ds[i];
-        if (dim2[i]==0) dim2[i] = 1;
-
-        total *= dim2[i];
-    }
-
-    if (*output) AVSfield_free(*output);
-    *output = (AVSfield *) AVSfield_alloc(&FieldTemplate, dim2);
-    if (*output == NULL)
-    {
-        fclose(fstream);
-        return ER_OUTOFMEMORY;
-    }
-
-    total  *= datasize * veclen;
-    coords *= sizeof(float);
-
-    /* Read and downsize the data */
-
-    if (total)
-    {
-        c = (char *)((*output)->field_data);
-
-        buff = (char *)malloc(dim[0] * datasize * veclen);
-
-        for (i=0; i<dim2[4]; i++)
-            for (j=0; j<dim2[3]; j++)
-                for (k=0; k<dim2[2]; k++)
-                    for (l=0; l<dim2[1]; l++)
-                    {
-                        len = i*ds[4];
-                        len = len * dim[3] + j*ds[3];
-                        len = len * dim[2] + k*ds[2];
-                        len = len * dim[1] + l*ds[1];
-                        len = len * dim[0] * datasize * veclen;
-
-                        // This is the time-critical statement
-                        fseek(fstream, start + len, SEEK_SET);
-
-                        fread(buff, 1, dim[0]*datasize*veclen, fstream);
-                        for (m=0; m<dim2[0]; m++)
-                        {
-                            memcpy(c, buff+m*datasize*veclen*ds[0], datasize*veclen);
-                            c += datasize*veclen;
-                        };
-                    };
-
-        free (buff);
-    }
-
-    /* swap data if required (xdr is low-endian) */
-
-    if (!(*(char *)(&swap_test))  && !forcenoswap)
-    {
-        if (datasize==2)
-        {
-            c = (char *)(*output)->field_data;
-            for (i=0; i<total; i+=2)
-            {
-                j = c[i];
-                c[i]   = c[i+1];
-                c[i+1] = j;
-            }
-        }
-        else if (datasize==4)
-        {
-            c = (char *)(*output)->field_data;
-            for (i=0; i<total; i+=4)
-            {
-                j = c[i];
-                c[i]   = c[i+3];
-                c[i+3] = j;
-                j = c[i+1];
-                c[i+1] = c[i+2];
-                c[i+2] = j;
-            }
-        }
-        else if (datasize==8)
-        {
-            c = (char *)(*output)->field_data;
-            for (i=0; i<total; i+=8)
-            {
-                j = c[i];
-                c[i]   = c[i+7];
-                c[i+7] = j;
-                j = c[i+1];
-                c[i+1] = c[i+6];
-                c[i+6] = j;
-                j = c[i+2];
-                c[i+2] = c[i+5];
-                c[i+5] = j;
-                j = c[i+3];
-                c[i+3] = c[i+4];
-                c[i+4] = j;
-            }
-        }
-    }
-
-
-    /*
-      if (coords)
-      { if (read( fHandle,(*output)->points, coords ) == coords)
-        { if (!(*(char *)(&swap_test))  && !forcenoswap)
-          { c = (char *)(*output)->points;
-    	for (i=0; i<coords; i+=4)
-    	{ j = c[i];   c[i]   = c[i+3]; c[i+3] = j;
-    	  j = c[i+1]; c[i+1] = c[i+2]; c[i+2] = j;
-    	}
-          }
-        }
-      }
-    */
-
-    fclose(fstream);
-    return OK;
-}
-
-int Rxdr_compute(AVSfield** ppOut, char* pszFileName, int iOffset)
-{
-    int   rc;
-    char  szMsg[64];
-
-    rc = XDRreader(ppOut, pszFileName, iOffset);
-    if (rc == OK)
-        rc = AVS_OK;
-    else
-    {
-        strcpy(szMsg, "Avs_rxdr: ");
-        strcat(szMsg, gl_ErrorMsg[rc]);
-        AVSerror(szMsg);
-        rc = AVS_ERROR;
-    }
-    return rc;
-}
-
-int RxdrPreview_compute(AVSfield** ppOut, char* pszFileName, int iOffset)
-{
-    int   rc;
-    char  szMsg[64];
-
-    rc = XDRreader_preview(ppOut, pszFileName, iOffset);
-    if (rc == OK)
-        rc = AVS_OK;
-    else
-    {
-        strcpy(szMsg, "Avs_rxdr: ");
-        strcat(szMsg, gl_ErrorMsg[rc]);
-        AVSerror(szMsg);
-        rc = AVS_ERROR;
-    }
-    return rc;
-}
-
-int RxdrHeader_compute(char *pszOut, char *pszFileName, char *pszEntry)
-{
-    char *cc;
-
-    cc = scan_header(pszFileName, pszEntry, 0, 0);
-    if (cc) strcpy(pszOut, cc);
-    else    *pszOut = 0;
-
-    return AVS_OK;
-}
-
-int RxdrEnum_compute(char *pszOut, char *pszFileName, int iEntry)
-{
-    char *cc;
-
-    cc = enum_header(pszFileName, iEntry, 0);
-    if (cc) strcpy(pszOut, cc);
-    else    *pszOut = 0;
-
-    return AVS_OK;
-}
-#endif
 
 //====================================================================
 // Read Image Information
-bool nkitk::XDRImageIO::CanReadFile(const char* FileNameToRead)
+bool clitk::XdrImageIO::CanReadFile(const char* FileNameToRead)
 {
     char     temp[512];
     FILE     *fstream;
 
     fstream = fopen(FileNameToRead, "rt");
     if (fstream == NULL)
+    {
+        AVSerror("Couldn't open file " << FileNameToRead);
         return false;
+    }
     fgets(temp, 500, fstream);
     fclose(fstream);
 
@@ -1668,9 +1076,7 @@ bool nkitk::XDRImageIO::CanReadFile(const char* FileNameToRead)
         return false;
 } ////
 
-void nkitk::XDRImageIO::ITKError(std::string funcName, int msgID) {
+void clitk::XdrImageIO::ITKError(std::string funcName, int msgID) {
     itkExceptionMacro(<< "Error in " << funcName << ". Message: " << gl_ErrorMsg[msgID]);
 }
-
-#endif /* end #define NKITKXDRIMAGEIO_CXX */
 

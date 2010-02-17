@@ -1,8 +1,8 @@
-#ifndef NKITKXDRIMAGEIOFACTORY_H
-#define NKITKXDRIMAGEIOFACTORY_H
+#ifndef CLITKXDRIMAGEIOFACTORY_H
+#define CLITKXDRIMAGEIOFACTORY_H
 
 /**
- * @file   nkitkXDRImageIOFactory.h
+ * @file   clitkXdrImageIOFactory.h
  * @author Simon Rit <simon.rit@gmail.com>
  * @date   Sun Jun  1 22:09:56 2008
  *
@@ -11,23 +11,23 @@
  *
  */
 
-// nkitk include
-#include "nkitkXDRImageIO.h"
+// clitk include
+#include "clitkXdrImageIO.h"
 
 // itk include
 #include "itkImageIOBase.h"
 #include "itkObjectFactoryBase.h"
 #include "itkVersion.h"
 
-namespace nkitk {
+namespace clitk {
 
 //====================================================================
 // Factory for reading XDR Image file format
-class XDRImageIOFactory: public itk::ObjectFactoryBase
+class XdrImageIOFactory: public itk::ObjectFactoryBase
 {
 public:
     /** Standard class typedefs. */
-    typedef XDRImageIOFactory              Self;
+    typedef XdrImageIOFactory              Self;
     typedef itk::ObjectFactoryBase         Superclass;
     typedef itk::SmartPointer<Self>        Pointer;
     typedef itk::SmartPointer<const Self>  ConstPointer;
@@ -38,14 +38,14 @@ public:
     }
 
     const char* GetDescription(void) const {
-        return "XDR ImageIO Factory, allows the loading of XDR images into insight";
+        return "Xdr ImageIO Factory, allows the loading of Xdr images into insight";
     }
 
     /** Method for class instantiation. */
     itkFactorylessNewMacro(Self);
 
     /** Run-time type information (and related methods). */
-    itkTypeMacro(XDRImageIOFactory, ObjectFactoryBase);
+    itkTypeMacro(XdrImageIOFactory, ObjectFactoryBase);
 
     /** Register one factory of this type  */
     static void RegisterOneFactory(void) {
@@ -53,17 +53,17 @@ public:
     }
 
 protected:
-    XDRImageIOFactory();
-    ~XDRImageIOFactory() {};
-    typedef XDRImageIOFactory myProductType;
+    XdrImageIOFactory();
+    ~XdrImageIOFactory() {};
+    typedef XdrImageIOFactory myProductType;
     const myProductType* m_MyProduct;
 
 private:
-    XDRImageIOFactory(const Self&); //purposely not implemented
+    XdrImageIOFactory(const Self&); //purposely not implemented
     void operator=(const Self&); //purposely not implemented
 };
 
 } // end namespace
 
-#endif /* end #define NKITKXDRIMAGEIOFACTORY_H */
+#endif /* end #define CLITKXDRIMAGEIOFACTORY_H */
 

@@ -81,7 +81,6 @@ void clitk::HisImageIO::ReadImageInformation() {
   SetDimensions(1, brx-ulx+1);
   if (nrframes>1)
     SetDimensions(2, nrframes);
-  file.close();
 } ////
 
 //--------------------------------------------------------------------
@@ -97,7 +96,6 @@ bool clitk::HisImageIO::CanReadFile(const char* FileNameToRead)
 //--------------------------------------------------------------------
 // Read Image Content
 void clitk::HisImageIO::Read(void * buffer) {
-
   // open file
   std::ifstream file(m_FileName.c_str(), std::ios::in | std::ios::binary);
   if ( file.fail() )
@@ -117,10 +115,18 @@ void clitk::HisImageIO::Read(void * buffer) {
                       << file.gcount() << " bytes. The current state is: "
                       << file.rdstate());
 }
+  
+//--------------------------------------------------------------------
+bool clitk::HisImageIO::CanWriteFile(const char* FileNameToWrite)
+{ std::string filename(FileNameToWrite);
+  std::string filenameext = GetExtension(filename);
+  if (filenameext != std::string("his")) return false;
+  return true;
+}
 
 //--------------------------------------------------------------------
-// Write Image Information
-void clitk::HisImageIO::WriteImageInformation(bool keepOfStream)
+// Write Image
+void clitk::HisImageIO::Write(const void* buffer)
 {
   std::ofstream file(m_FileName.c_str(), std::ios::out | std::ios::binary);
   if ( file.fail() )
@@ -168,28 +174,8 @@ void clitk::HisImageIO::WriteImageInformation(bool keepOfStream)
       itkExceptionMacro(<< "Unsupported field type");
       break;
   }
+
   file.write(szHeader, m_HeaderSize);
-  file.close();
-}
-  
-//--------------------------------------------------------------------
-// Write Image Information
-bool clitk::HisImageIO::CanWriteFile(const char* FileNameToWrite)
-{
-  std::string filename(FileNameToWrite);
-  std::string filenameext = GetExtension(filename);
-  if (filenameext != std::string("his")) return false;
-  return true;
-}
-
-//--------------------------------------------------------------------
-// Write Image
-void clitk::HisImageIO::Write(const void * buffer) 
-{
-  std::ofstream file(m_FileName.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-  if ( file.fail() )
-    itkGenericExceptionMacro(<< "Could not open file (for writing): " << m_FileName);
-
   file.write((const char *)buffer, GetImageSizeInBytes());
   file.close();
 } ////

@@ -13,12 +13,16 @@ SET(clitkCommon_SRC
   clitkListOfPair.cxx
   clitkTimer.cxx
   clitkImageCommon.cxx
+  clitkIO.cxx
   clitkVoxImageIO.cxx  
   clitkVoxImageIOFactory.cxx
   clitkVfImageIO.cxx  
   clitkVfImageIOFactory.cxx
   clitkHisImageIO.cxx  
   clitkHisImageIOFactory.cxx
+  clitkXdrImageIOReader.cxx  
+  clitkXdrImageIOWriter.cxx  
+  clitkXdrImageIOFactory.cxx
   clitkOrientation.cxx
   vvImage.cxx
   clitkImageToImageGenericFilter.cxx

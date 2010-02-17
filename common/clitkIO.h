@@ -11,27 +11,13 @@
 
    -------------------------------------------------------------------*/
 
-// std include
-#include <iostream>
-#include <fstream>
-
-// clitk include
-#include "clitkCommon.h"
-#include "clitkImageCommon.h"
-#include "clitkVoxImageIO.h"
-#include "clitkVoxImageIOFactory.h"
-#include "clitkHisImageIO.h"
-#include "clitkHisImageIOFactory.h"
-#include "clitkVfImageIO.h"
-#include "clitkVfImageIOFactory.h"
-
 //--------------------------------------------------------------------
 // CLITK_INIT
-#define CLITK_INIT					\
-  itk::ImageIOFactory::RegisterBuiltInFactories();	\
-    clitk::VoxImageIOFactory::RegisterOneFactory();	\
-    clitk::VfImageIOFactory::RegisterOneFactory();	\
-    clitk::HisImageIOFactory::RegisterOneFactory();
+#define CLITK_INIT clitk::RegisterClitkFactories();
+
+namespace clitk {
+  void RegisterClitkFactories();
+}
 
 #endif /* end #define CLITKIO_H */
 

@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 =========================================================================*/
+
 #include <utility>
 #include <cassert>
 #include <QApplication>
@@ -29,15 +30,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 #include <QDesktopWidget>
 
-#include "clitkCommon.h"
+#include "clitkIO.h"
 #include "vvMainWindow.h"
-#include "vvInit.h"
 #include "vvConstants.h"
 
 //------------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
-    initialize_IO();
+#ifdef _WIN32
+    HWND hWnd = GetConsoleWindow();
+    ShowWindow( hWnd, SW_HIDE );
+#endif
+
+    CLITK_INIT;
 
     QApplication app( argc, argv );
     Q_INIT_RESOURCE(vvIcons);
