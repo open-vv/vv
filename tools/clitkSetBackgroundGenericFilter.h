@@ -13,7 +13,7 @@
 
 // clitk include
 #include "clitkIO.h"
-#include "clitkCommon.h"
+#include "clitkImageCommon.h"
 #include "clitkSetBackgroundImageFilter.h"
 #include "clitkSetBackground_ggo.h"
 

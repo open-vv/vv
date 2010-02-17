@@ -23,6 +23,7 @@
 // clitk include
 #include "clitkImageExtractLine_ggo.h"
 #include "clitkIO.h"
+#include "clitkImageCommon.h"
 #include <itkLineConstIterator.h>
 
 //--------------------------------------------------------------------

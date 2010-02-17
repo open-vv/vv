@@ -13,7 +13,7 @@
 
 // clitk include
 #include "clitkIO.h"
-#include "clitkCommon.h"
+#include "clitkImageCommon.h"
 #include "clitkAverageTemporalDimension_ggo.h"
 
 //itk include
