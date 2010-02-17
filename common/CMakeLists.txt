@@ -17,6 +17,8 @@ SET(clitkCommon_SRC
   clitkVoxImageIOFactory.cxx
   clitkVfImageIO.cxx  
   clitkVfImageIOFactory.cxx
+  clitkHisImageIO.cxx  
+  clitkHisImageIOFactory.cxx
   clitkOrientation.cxx
   vvImage.cxx
   clitkImageToImageGenericFilter.cxx

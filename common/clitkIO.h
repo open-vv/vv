@@ -20,6 +20,8 @@
 #include "clitkImageCommon.h"
 #include "clitkVoxImageIO.h"
 #include "clitkVoxImageIOFactory.h"
+#include "clitkHisImageIO.h"
+#include "clitkHisImageIOFactory.h"
 #include "clitkVfImageIO.h"
 #include "clitkVfImageIOFactory.h"
 
@@ -28,7 +30,8 @@
 #define CLITK_INIT					\
   itk::ImageIOFactory::RegisterBuiltInFactories();	\
     clitk::VoxImageIOFactory::RegisterOneFactory();	\
-    clitk::VfImageIOFactory::RegisterOneFactory();
+    clitk::VfImageIOFactory::RegisterOneFactory();	\
+    clitk::HisImageIOFactory::RegisterOneFactory();
 
 #endif /* end #define CLITKIO_H */
 
