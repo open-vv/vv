@@ -340,21 +340,6 @@ Release 1.0  19980212  Lambert Zijp             XDR writer  &  RAW writer
 /*                    DEFINES, ENUMERATED TYPES AND CONSTANTS           */
 /************************************************************************/
 
-//#undef fileno
-//#define fileno _fileno
-//
-//#undef close
-//#define close _close
-//
-//#undef open
-//#define open _open
-//
-//#undef lseek
-//#define lseek _lseek
-//
-//#undef creat
-//#define creat _creat
-//
 #pragma pack (1)
 
 // Fields with data size>8GB (having UINT_MAX short pixels) cannot be compressed using
