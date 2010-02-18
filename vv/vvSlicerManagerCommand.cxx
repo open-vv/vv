@@ -51,15 +51,17 @@ vvSlicerManagerCallback::vvSlicerManagerCallback()
 //return the num of the current slicer if visible (-1 else)
 int vvSlicerManagerCallback::FindSlicerNumber(vtkRenderWindow* renwin)
 {
+    int result=-1;
     for (int i = 0; i < SM->NumberOfSlicers(); i++)
     {
         if (SM->GetSlicer(i)->GetRenderWindow() == renwin
                 && SM->GetSlicer(i)->GetRenderer()->GetDraw())
         {
-            return i;
+            DD(i);
+            result=i;
         }
     }
-    return -1;
+    return result;
 }
 
 void vvSlicerManagerCallback::Execute(vtkObject *caller,

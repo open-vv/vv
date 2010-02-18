@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: clitkImageToImageGenericFilter.txx,v $
   Language:  C++
-  Date:      $Date: 2010/02/10 14:59:49 $
-  Version:   $Revision: 1.5 $
+  Date:      $Date: 2010/02/18 14:47:20 $
+  Version:   $Revision: 1.6 $
   Author :   Joel Schaerer <joel.schaerer@creatis.insa-lyon.fr>
              David Sarrut <david.sarrut@creatis.insa-lyon.fr>
 
@@ -41,9 +41,6 @@ void clitk::ImageToImageGenericFilterBase::SetNextOutput(typename ImageType::Poi
 
 
 //--------------------------------------------------------------------
-#ifdef _MSC_VER
-#  pragma warning(disable: 4715) //Disable "The specified function can potentially not return a value"
-#endif
 template<class ImageType> 
 typename ImageType::Pointer clitk::ImageToImageGenericFilterBase::GetInput(unsigned int n) {
   if (mInputFilenames.size() > n) {
@@ -52,7 +49,10 @@ typename ImageType::Pointer clitk::ImageToImageGenericFilterBase::GetInput(unsig
   else if (mInputVVImages.size() > n)
     return typename ImageType::Pointer(const_cast<ImageType*>(vvImageToITK<ImageType>(mInputVVImages[n]).GetPointer()));
   else
+  {
     assert(false); //No input, this shouldn't happen
+    return typename ImageType::Pointer(NULL);
+  }
 }
 //--------------------------------------------------------------------
 

@@ -22,6 +22,11 @@
 #define AVS_OK
 
 //From portdefs.h
+#ifdef unix
+#define O_BINARY 0
+#define setmode(a,b) 0
+#endif
+
 #ifndef __LARGE__
 #  if defined(__GNUC__) || defined(unix)
      typedef long long Q_INT64;
@@ -57,7 +62,7 @@ bool clitk::XdrImageIO::CanWriteFile(const char* FileNameToWrite)
 }
 
 void clitk::XdrImageIO::Write(const void* buffer)
-{ char *s = "";
+{ char *s = const_cast<char*>("");
   WriteImage( m_FileName.c_str(), s, s, 0, -1, 0, 2, 0, 0, 0, 0, buffer);
 }
 
@@ -335,21 +340,21 @@ Release 1.0  19980212  Lambert Zijp             XDR writer  &  RAW writer
 /*                    DEFINES, ENUMERATED TYPES AND CONSTANTS           */
 /************************************************************************/
 
-#undef fileno
-#define fileno _fileno
-
-#undef close
-#define close _close
-
-#undef open
-#define open _open
-
-#undef lseek
-#define lseek _lseek
-
-#undef creat
-#define creat _creat
-
+//#undef fileno
+//#define fileno _fileno
+//
+//#undef close
+//#define close _close
+//
+//#undef open
+//#define open _open
+//
+//#undef lseek
+//#define lseek _lseek
+//
+//#undef creat
+//#define creat _creat
+//
 #pragma pack (1)
 
 // Fields with data size>8GB (having UINT_MAX short pixels) cannot be compressed using
@@ -453,13 +458,13 @@ static const unsigned long CRC32_table[256] = {
 _WCRTLINK
 #endif
 int writefix(int file, const void *buf, unsigned int count)
-{ int i, j, k, total=0;
+{ int j, k, total=0;
 
-  for (i=0; i<count; i+=16384)
+  for (unsigned i=0; i<count; i+=16384)
   { j = count - i;
     if (j>16384) j=16384;
 
-    k=_write(file, (char *)buf+i, j);
+    k=write(file, (char *)buf+i, j);
     if (k < 0) return k;
 
     total += k;
@@ -514,16 +519,16 @@ static int wxdr_write(int handle, const void * buf, unsigned len)
       // int(UINT_MAX) == -1 this will pose an actual problem in the
       // (far?) future.
 #else // !WIN32
-    const int oldmode = setmode(handle, O_BINARY);
+    //const int oldmode = setmode(handle, O_BINARY);//commented out by joel
     const int iBytesWritten = write(handle, buf, len);
     const int saveerrno = errno; // setmode() may change errno.
-    if (oldmode != -1) setmode(handle, oldmode);
+    //if (oldmode != -1) setmode(handle, oldmode); //commented out by joel
     errno = saveerrno;
     return iBytesWritten;
 #endif // !WIN32
   }
   else
-    return _write(handle, buf, len);
+    return write(handle, buf, len);
 }
 
 /*
@@ -560,15 +565,15 @@ static int wxdr_write(int handle, const void * buf, unsigned len)
   an unsigned int of 4 bytes. On a 64 bits OS a size_t will be an 8 byte integer, 
   enabling more than UINT_MAX bytes to write at once.
 */
-static BOOL checked_write(int handle, const void * buf, size_t len, char **buffer)
+static bool checked_write(int handle, const void * buf, size_t len, char **buffer)
 { if (buffer && !handle)
   { memcpy(*buffer, buf, len);
     (*buffer) += len;
-    return TRUE;
+    return true;
   }
   if (buffer && handle)
   { (*buffer) += len;
-    return TRUE;
+    return true;
   }
   else
   { for(int i=0; i<2; i++)
@@ -595,7 +600,7 @@ static BOOL checked_write(int handle, const void * buf, size_t len, char **buffe
             break; // try writefix in the next round
         }
         if (remaining == 0)
-          return TRUE;
+          return true;
       }
       else
       { remaining = len;   
@@ -610,7 +615,7 @@ static BOOL checked_write(int handle, const void * buf, size_t len, char **buffe
             break; // even writefix failed: return error        
         }
         if (remaining == 0)
-          return TRUE;
+          return true;
       }
     }
     // Note: file is open in binary mode, no need to compensate
@@ -618,7 +623,7 @@ static BOOL checked_write(int handle, const void * buf, size_t len, char **buffe
     // (write() on a text stream is implementation dependent.)
     if (handle != fileno(stdout)) close(handle);
     AVSerror("Avs_wxdr: write failed, disk full?");
-    return FALSE;
+    return false;
   }
 }
 
@@ -1076,7 +1081,7 @@ void clitk::XdrImageIO::WriteImage(const char* file, char* headerinfo, char* hea
                                    int offset, char bLittleEndian, int iNkiCompression,
                                    int wcoords, int append, int getsize, char *tobuffer, const void* data)
 { AVSINT   total=1;
-  int      i;
+  unsigned int      i;
   AVSINT   coords=0;
   int      f=0;
   char     temp[256];
@@ -1319,7 +1324,7 @@ ONCE_AGAIN:
     total /= 2;
     free(pCompressed);
     pCompressed = NULL;
-    _lseeki64(f, (unsigned int)FilePos, SEEK_SET); // use _lseeki64 just in case header size > UINT_MAX bytes
+    lseek(f, (unsigned int)FilePos, SEEK_SET); // use _lseeki64 just in case header size > UINT_MAX bytes
     goto ONCE_AGAIN;
   }
 
