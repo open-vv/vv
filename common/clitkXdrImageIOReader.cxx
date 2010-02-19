@@ -26,63 +26,8 @@
 #define memicmp strncasecmp
 #endif
 
-/************************************************************************/
-/*                                                                      */
-/*      file       : AVS_RXDR.CPP                                       */
-/*                                                                      */
-/*      purpose    : AVS module for reading XDRs                        */
-/*                                                                      */
-/*      authors    : Lambert Zijp (Conquest)                            */
-/*                   Based on a true story by Marcel van Herk           */
-/*                                                                      */
-/*      date       : 19980528                                           */
-/*                                                                      */
-/*      portability: AVS requires sizeof(void *)==sizeof(int)           */
-/*                   This module assumes sizeof(int)>=4                 */
-/*                                                                      */
-/*      notes      :                                                    */
-/*                                                                      */
-/*                                                                      */
-/************************************************************************/
-/* Updates:
-When       Who   What
-19980528   ljz   Copied from mbfield1
-19981209   mvh   Taken into action by removing _; added READ_XDR_HEADER
-19981210 mvh+lsp Now proper freeing of buff in case of error
-19990130   mvh   Added ENUM_XDR_HEADER
-19990206   mvh   Added READ_XDR_PREVIEW
-19990208   mvh   Fixed this, the while(1) fgets loop is rquired to skip long headers
-19990406   ljz   Removed sizelimit of dimensions
-19991003   mvh   Loosened sizelimit for veclen to 1000
-19991005   mvh   Remove spaces from AVS own header lines (ndim etc) in scan_header
-20000808   lsp   No longer mix file streams and handles
-20000821   ljz   Reader can now handle NkiCompression
-20000822 lsp+nd  Initialize data and datasize for dots, added "const" to avoid
-                 writing into a literal string
-20000823   mvh   Optimized nki_private_decompression mode 2 (from 6.4 to 4.9 s)
-                 reading mode 1: compression makes read faster
-                 reading mode 2: read compressed at same speed as uncompressed
-20000824   mvh   Speed up mode 2 to 4.2 s: only check compressedCRC if other failed
-                 Added some safeties to avoid mode 1 or 2 crash for corrupted data
-20000825   mvh   Pass buffer size to nki_private_decompress as extra safety
-                 Fix mode 1, added full safety against input buffer overflow
-                 Added some comments and notes
-20010507   mvh   Support larger headers when coordinate information has been written
-20010726   mvh   Fix for decompression when information is offset in file
-20011207   ljz   Removed check on veclen>1000
-20020124   mvh   Added test for fields by kg: non-portable types as "integer" then not swapped
-20020903   ljz   Made scan_header much faster
-20030122   mvh   Fix read of coords in compression mode 2
-20030430   mvh   Fix of read coords in compression mode 2 when offset is 0
-20030717   ljz   Added support for NkiCompressionModes 3 and 4
-20040426   mvh   ELEKTA NKI-XVI0.1 RELEASE
-20050302   mvh   Estimate size of compressed data to accelerate speed of reading embedded fields
-20050308 ljz+mvh ELEKTA NKI-XVI0.1j RELEASE
-20071024	mvh	Adapted for 64 bits
-20080110        mvh     ELEKTA NKI-XVI3.09 RELEASE
-20080414 lsp+mgw __sun__ doesn't know <io.h>
-*/
 
+// Based on a true story by the Nederlands Kanker Instituut (AVS_RXDR.CPP from the 20080414)
 #include <stdio.h>
 #include <string.h>
 #include <math.h>

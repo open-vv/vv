@@ -31,6 +31,8 @@
    * 
    -------------------------------------------------*/
 
+// Based on a true story by the Nederlands Kanker Instituut (AVS_HEIMANN.CPP from the 20090608)
+
 // std include
 #include <fstream>
 
