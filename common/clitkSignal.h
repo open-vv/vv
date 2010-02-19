@@ -8,7 +8,7 @@
 
 //include external library
 //#include <fftw3.h>
-//#include <complex>
+#include <complex>
 
 //itk include
 #include "itkImage.h"

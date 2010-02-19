@@ -1,10 +1,7 @@
 /*=========================================================================
                                                                                 
   Program:   clitk
-  Module:    $RCSfile: clitkSignalMeanPositionFilter.h,v $
   Language:  C++
-  Date:      $Date: 2010/02/10 14:55:00 $
-  Version:   $Revision: 1.4 $
                                                                                 
   Copyright (c) CREATIS (Centre de Recherche et d'Applications en Traitement de
   l'Image). All rights reserved. See Doc/License.txt or
@@ -23,7 +20,6 @@
 #include "clitkSignal.h"
 #include "clitkEllipse.h"
 #include "itkVector.h"
-#include <math.h>
 
 namespace clitk {
 
@@ -55,28 +51,15 @@ namespace clitk {
     bool mIsAdaptiveMethod;
     std::vector<double> mCurrentResidual;
     int mWindowLength;
-    std::vector<clitk::Ellipse*> mListOfEllipses;
-    
-    bool mValidationWithRealPhase;
-    std::string mInputPhaseFilename;
-    clitk::Signal mInputPhase;
-    std::vector<int> mCycles;
-
-    std::vector<int> mIsoPhaseIndex;
-    std::vector<double> mIsoPhaseDelta;
-    std::vector<int> mIsoPhaseDeltaNb;
-    std::vector<double> mIsoPhaseRefAngle;
-
-    bool mUseLearnedDeltaPhase;
-    clitk::Signal mLearnIsoPhaseDelta;
-    int mNumberOfIsoPhase;
+    std::vector<Vector2d> mCenters;
 
     void FitEllipse(clitk::Ellipse & An);
     void AdaptiveFitEllipse(clitk::Ellipse & An);
 
-    void ComputeIsoPhase(std::vector<clitk::Ellipse*> & l, 
-                         std::vector<double> & phase,
-                         std::vector<int> & cycles);
+    void ComputeAugmentedSpace(const clitk::Signal & input, 
+                               clitk::Signal & outputX, 
+                               clitk::Signal & outputY, 
+                               unsigned int delay);
   };
   //---------------------------------------------------------------------
   

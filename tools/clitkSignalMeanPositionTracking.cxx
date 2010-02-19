@@ -1,10 +1,7 @@
 /*=========================================================================
                                                                                 
   Program:   clitk
-  Module:    $RCSfile: clitkSignalMeanPositionTracking.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/10 14:55:00 $
-  Version:   $Revision: 1.4 $
                                                                                 
   Copyright (c) CREATIS (Centre de Recherche et d'Applications en Traitement de
   l'Image). All rights reserved. See Doc/License.txt or
