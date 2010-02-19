@@ -7,8 +7,8 @@
 #include "clitkIO.h"
 
 //include external library
-#include <fftw3.h>
-#include <complex>
+//#include <fftw3.h>
+//#include <complex>
 
 //itk include
 #include "itkImage.h"
@@ -29,7 +29,7 @@ class Signal{
   typedef vector< SignalValueType > SignalType;
   typedef SignalType::iterator iterator;
   typedef SignalType::const_iterator const_iterator;
-  typedef vector< complex<double> > SIGNAL_FFT_TYPE;
+  //typedef vector< complex<double> > SIGNAL_FFT_TYPE;
   
   typedef itk::Image<double,1> ImageType;
   typedef itk::Vector<double,1> VectorType;
@@ -84,11 +84,11 @@ class Signal{
   Signal MovingAverageFilter ( unsigned int length);
   Signal GaussLikeFilter ();
   Signal NormalizeMeanStdDev(double newMean=0.5,double newStdDev=0.5);
-  Signal HighPassFilter (double sampPeriod, double cutOffFrequency );
-  Signal LowPassFilter (double sampPeriod, double cutOffFrequency );
-  double MaxFreq(const Signal &sig,SIGNAL_FFT_TYPE & fft);
-  void OneDForwardFourier(const Signal& input,SIGNAL_FFT_TYPE & fft);
-  void OneDBackwardFourier(SIGNAL_FFT_TYPE & fft, Signal &output);
+  //Signal HighPassFilter (double sampPeriod, double cutOffFrequency );
+  //Signal LowPassFilter (double sampPeriod, double cutOffFrequency );
+  //double MaxFreq(const Signal &sig,SIGNAL_FFT_TYPE & fft);
+  //void OneDForwardFourier(const Signal& input,SIGNAL_FFT_TYPE & fft);
+  //void OneDBackwardFourier(SIGNAL_FFT_TYPE & fft, Signal &output);
   Signal DetectLocalExtrema(unsigned int width);
   Signal LimPhase();
   Signal MonPhase();

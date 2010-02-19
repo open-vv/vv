@@ -315,117 +315,117 @@ namespace clitk {
 
 
   //---------------------------------------------------------------------
-  Signal Signal::HighPassFilter (double sampPeriod, double cutOffFrequency )
-  {
-    //output
-    Signal temp(m_SamplingPeriod);
-    temp.resize(size());
-
-    //the fft
-    SIGNAL_FFT_TYPE fft;
-  
-    //calculate the cut off frequency  
-    unsigned int samp=lrint(cutOffFrequency*static_cast<double>(size())*sampPeriod);
-   
-    //forward fft with empty fft
-    if(fft.size()==0)  OneDForwardFourier(*this, fft);
-    
-    //remove the frequencies
-    for(unsigned int i=0;i<samp && i<fft.size();i++)
-      fft[i]=complex<double>(0.,0.);
-    
-    //backward with remaining frequencies
-    OneDBackwardFourier(fft,temp);
-    return temp;
-  }
+//   Signal Signal::HighPassFilter (double sampPeriod, double cutOffFrequency )
+//   {
+//     //output
+//     Signal temp(m_SamplingPeriod);
+//     temp.resize(size());
+// 
+//     //the fft
+//     SIGNAL_FFT_TYPE fft;
+//   
+//     //calculate the cut off frequency  
+//     unsigned int samp=lrint(cutOffFrequency*static_cast<double>(size())*sampPeriod);
+//    
+//     //forward fft with empty fft
+//     if(fft.size()==0)  OneDForwardFourier(*this, fft);
+//     
+//     //remove the frequencies
+//     for(unsigned int i=0;i<samp && i<fft.size();i++)
+//       fft[i]=complex<double>(0.,0.);
+//     
+//     //backward with remaining frequencies
+//     OneDBackwardFourier(fft,temp);
+//     return temp;
+//   }
   //---------------------------------------------------------------------
 
   
  //---------------------------------------------------------------------
-  Signal Signal::LowPassFilter (double sampPeriod, double cutOffFrequency )
-  {
-    //output
-    Signal temp(m_SamplingPeriod);
-    temp.resize(size());
-
-    //the fft
-    SIGNAL_FFT_TYPE fft;
-  
-    //calculate the cut off frequency  
-    unsigned int samp=lrint(cutOffFrequency*static_cast<double>(size())*sampPeriod);
-    
-    //forward fft with empty fft
-    if(fft.size()==0)  OneDForwardFourier(*this, fft);
-    unsigned int fsize=fft.size();
-
-    //remove the frequencies 
-    unsigned int limit=min (samp, fsize);
-    for(unsigned int i=limit;i<fft.size();i++)
-    	fft[i]=complex<double>(0.,0.);
-	
-    //backward with remaining frequencies
-    OneDBackwardFourier(fft,temp);
-    return temp;
-  }
+//   Signal Signal::LowPassFilter (double sampPeriod, double cutOffFrequency )
+//   {
+//     //output
+//     Signal temp(m_SamplingPeriod);
+//     temp.resize(size());
+// 
+//     //the fft
+//     SIGNAL_FFT_TYPE fft;
+//   
+//     //calculate the cut off frequency  
+//     unsigned int samp=lrint(cutOffFrequency*static_cast<double>(size())*sampPeriod);
+//     
+//     //forward fft with empty fft
+//     if(fft.size()==0)  OneDForwardFourier(*this, fft);
+//     unsigned int fsize=fft.size();
+// 
+//     //remove the frequencies 
+//     unsigned int limit=min (samp, fsize);
+//     for(unsigned int i=limit;i<fft.size();i++)
+//     	fft[i]=complex<double>(0.,0.);
+// 	
+//     //backward with remaining frequencies
+//     OneDBackwardFourier(fft,temp);
+//     return temp;
+//   }
   //---------------------------------------------------------------------
 
 
   //---------------------------------------------------------------------
-  void  Signal::OneDForwardFourier(const Signal& input, SIGNAL_FFT_TYPE & fft)
-  {
-    //Create output array
-    fft.resize(input.size()/2+1);
-    //Temp copy
-    double *tempCopy=new double[size()];
-    copy(begin(), end(), tempCopy);
+//   void  Signal::OneDForwardFourier(const Signal& input, SIGNAL_FFT_TYPE & fft)
+//   {
+//     //Create output array
+//     fft.resize(input.size()/2+1);
+//     //Temp copy
+//     double *tempCopy=new double[size()];
+//     copy(begin(), end(), tempCopy);
+// 
+//     //Forward Fourier Transform   
+//     fftw_plan p;
+//     p=fftw_plan_dft_r2c_1d(size(),tempCopy,reinterpret_cast<fftw_complex*>(&(fft[0])),FFTW_ESTIMATE);
+//     fftw_execute(p);
+//     fftw_destroy_plan(p);
+//     //delete tempCopy;
+//     return;
+//   }
+  //---------------------------------------------------------------------
+  
+  
+  //---------------------------------------------------------------------
+//   void Signal::OneDBackwardFourier(SIGNAL_FFT_TYPE & fft, Signal &output)
+//   {
+//       
+//     //Backward
+//     fftw_plan p;
+//     p=fftw_plan_dft_c2r_1d(output.size(),reinterpret_cast<fftw_complex*>(&(fft[0])),&(output[0]),FFTW_ESTIMATE);
+//     fftw_execute(p); 
+//     fftw_destroy_plan(p);
+//   
+//     vector<double>::iterator it=output.begin();
+//     while(it!=output.end()){    
+//       *it /= (double)output.size();
+//       it++;
+//     } 
+//     return;
+//   }
+  //---------------------------------------------------------------------
 
-    //Forward Fourier Transform   
-    fftw_plan p;
-    p=fftw_plan_dft_r2c_1d(size(),tempCopy,reinterpret_cast<fftw_complex*>(&(fft[0])),FFTW_ESTIMATE);
-    fftw_execute(p);
-    fftw_destroy_plan(p);
-    //delete tempCopy;
-    return;
-  }
-  //---------------------------------------------------------------------
-  
   
   //---------------------------------------------------------------------
-  void Signal::OneDBackwardFourier(SIGNAL_FFT_TYPE & fft, Signal &output)
-  {
-      
-    //Backward
-    fftw_plan p;
-    p=fftw_plan_dft_c2r_1d(output.size(),reinterpret_cast<fftw_complex*>(&(fft[0])),&(output[0]),FFTW_ESTIMATE);
-    fftw_execute(p); 
-    fftw_destroy_plan(p);
-  
-    vector<double>::iterator it=output.begin();
-    while(it!=output.end()){    
-      *it /= (double)output.size();
-      it++;
-    } 
-    return;
-  }
-  //---------------------------------------------------------------------
-
-  
-  //---------------------------------------------------------------------
-  double Signal::MaxFreq(const Signal &sig,SIGNAL_FFT_TYPE & fft)
-  {
-  
-    if(fft.size()==0) OneDForwardFourier(sig,fft);
-    int posMax=1;
-    double amplitude, amplitudeMax=abs(fft[1]);
-    for(unsigned int i=1;i<fft.size();i++){      
-      amplitude=abs(fft[i]);
-      if(amplitude>amplitudeMax){
-	posMax=i;
-	amplitudeMax=amplitude;
-      }
-    }
-    return ((double)(posMax)/((double)sig.size()*sig.GetSamplingPeriod()));
-  }
+//   double Signal::MaxFreq(const Signal &sig,SIGNAL_FFT_TYPE & fft)
+//   {
+//   
+//     if(fft.size()==0) OneDForwardFourier(sig,fft);
+//     int posMax=1;
+//     double amplitude, amplitudeMax=abs(fft[1]);
+//     for(unsigned int i=1;i<fft.size();i++){      
+//       amplitude=abs(fft[i]);
+//       if(amplitude>amplitudeMax){
+// 	posMax=i;
+// 	amplitudeMax=amplitude;
+//       }
+//     }
+//     return ((double)(posMax)/((double)sig.size()*sig.GetSamplingPeriod()));
+//   }
   //---------------------------------------------------------------------
 
 
