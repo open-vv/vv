@@ -67,11 +67,11 @@ TARGET_LINK_LIBRARIES(clitkInvertVF clitkCommon ITKIO clitkFilters)
 ADD_EXECUTABLE(clitkAffineTransform clitkAffineTransform.cxx  clitkAffineTransform_ggo.c)
 TARGET_LINK_LIBRARIES(clitkAffineTransform clitkCommon ITKIO  clitkFilters)
 
-#ADD_EXECUTABLE(clitkSignalMeanPositionTracking clitkSignalMeanPositionTracking.cxx clitkSignalMeanPositionFilter.cxx clitkEllipse.cxx clitkSignalMeanPositionTracking_ggo.c)
-#TARGET_LINK_LIBRARIES(clitkSignalMeanPositionTracking clitkCommon ITKIO fftw3)
-#
-#ADD_EXECUTABLE(clitkSignalFilter clitkSignalFilter.cxx clitkSignalFilter_ggo.c)
-#TARGET_LINK_LIBRARIES(clitkSignalFilter clitkCommon ITKIO fftw3) 
+ADD_EXECUTABLE(clitkSignalMeanPositionTracking clitkSignalMeanPositionTracking.cxx clitkSignalMeanPositionFilter.cxx clitkEllipse.cxx clitkSignalMeanPositionTracking_ggo.c)
+TARGET_LINK_LIBRARIES(clitkSignalMeanPositionTracking clitkCommon ITKIO )
+
+ADD_EXECUTABLE(clitkSignalFilter clitkSignalFilter.cxx clitkSignalFilter_ggo.c)
+TARGET_LINK_LIBRARIES(clitkSignalFilter clitkCommon ITKIO ) 
 
 ADD_EXECUTABLE(clitkSetBackground clitkSetBackground.cxx
 clitkSetBackgroundGenericFilter.cxx clitkSetBackground_ggo.c)

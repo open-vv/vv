@@ -13,8 +13,8 @@ option "multiply"	-	"Mulitply values of input 1 with input 2 (same size)"      f
 option "divide"		-	"Divide values of input 1 with input 2 (same size, zeros are skipped)"   flag		off     
 option "norm"    	n  	"Normalize signal between p1=min and p2=max"		  flag 		off
 option "rescale"    	-  	"Rescale signal to p1=mean and p2=StdDev"	  	  flag 		off
-option "highPass"   	-  	"High Pass Filter: p1=sampPeriod, p2= cutOffFrequecy"	  flag 		off
-option "lowPass"   	-  	"Low Pass Filter: p1=sampPeriod, p2= cutOffFrequecy"	  flag 		off
+#option "highPass"   	-  	"High Pass Filter: p1=sampPeriod, p2= cutOffFrequecy"	  flag 		off
+#option "lowPass"   	-  	"Low Pass Filter: p1=sampPeriod, p2= cutOffFrequecy"	  flag 		off
 option "detect"   	-  	"Detect Local extrema: local window= 2*p1+1, p1>=1"	  	  flag 		off
 option "limPhase"   	-  	"Convert extrema signal into limited phase [0, 1["	  	  flag 		off
 option "monPhase"   	-  	"Convert extrema signal into monotone phase [0, inf["	  	  flag 		off

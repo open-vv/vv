@@ -50,8 +50,8 @@ int main(int argc, char * argv[]) {
   if( args_info.multiply_flag) input*=input2;
   if( args_info.divide_flag) input/=input2;
   if( args_info.norm_flag) input=input.Normalize (p1, p2);
-  if( args_info.highPass_flag) input=input.HighPassFilter(p1,p2);
-  if( args_info.lowPass_flag) input=input.LowPassFilter(p1,p2);
+  //if( args_info.highPass_flag) input=input.HighPassFilter(p1,p2);
+  //if( args_info.lowPass_flag) input=input.LowPassFilter(p1,p2);
   if( args_info.detect_flag) input=input.DetectLocalExtrema(static_cast<unsigned int >(p1));
   if( args_info.limPhase_flag) input=input.LimPhase();
   if( args_info.monPhase_flag) input=input.MonPhase();
