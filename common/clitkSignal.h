@@ -3,13 +3,13 @@
 
 //Adapted from Signal.hh in ilr (Simon)
 
-#include "clitkCommon.h"
+#include "clitkImageCommon.h"
 #include "clitkIO.h"
 
 //include external library
 //#include <fftw3.h>
 #include <complex>
-
+#include <iostream>
 //itk include
 #include "itkImage.h"
 #include "itkImageRegionConstIterator.h"
