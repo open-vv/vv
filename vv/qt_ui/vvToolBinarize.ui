@@ -6,142 +6,120 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>405</width>
-    <height>285</height>
+    <width>426</width>
+    <height>213</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Binarize image</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QSplitter" name="splitter">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <widget class="vvToolInputSelectorWidget" name="mToolInputSelectionWidget" native="true"/>
-     <widget class="QWidget" name="toolMainWidget" native="true">
-      <layout class="QVBoxLayout" name="verticalLayout_4">
-       <property name="margin">
-        <number>3</number>
-       </property>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_3">
-         <item>
-          <layout class="QGridLayout" name="gridLayout_2">
-           <item row="2" column="1">
-            <widget class="QRadioButton" name="mRadioButtonLowerThan">
-             <property name="text">
-              <string>and lower than</string>
-             </property>
-             <property name="autoExclusive">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="vvIntensityValueSlider" name="mThresholdSlider2" native="true">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLabel" name="label_2">
-             <property name="text">
-              <string>Foreground (FG) is greater than : </string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <widget class="vvIntensityValueSlider" name="mThresholdSlider1" native="true"/>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <item>
-          <widget class="Line" name="line_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Resulting binary image:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_4">
-           <item>
-            <widget class="QCheckBox" name="mCheckBoxUseFG">
-             <property name="text">
-              <string>Use FG</string>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="vvIntensityValueSlider" name="mFGSlider" native="true">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_5">
-           <item>
-            <widget class="QCheckBox" name="mCheckBoxUseBG">
-             <property name="text">
-              <string>Use BG</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="vvIntensityValueSlider" name="mBGSlider" native="true"/>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="Line" name="line_3">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="checkBox_2">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <item>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="2" column="2">
+        <widget class="vvIntensityValueSlider" name="mThresholdSlider2" native="true">
          <property name="enabled">
           <bool>false</bool>
          </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>Interactive (unchek to disable on the fly contours drawing)</string>
+          <string>Foreground (FG) is greater than : </string>
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QDialogButtonBox" name="buttonBox">
-         <property name="standardButtons">
-          <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       <item row="1" column="2">
+        <widget class="vvIntensityValueSlider" name="mThresholdSlider1" native="true"/>
+       </item>
+       <item row="2" column="1">
+        <widget class="QRadioButton" name="mRadioButtonLowerThan">
+         <property name="text">
+          <string>and lower than</string>
+         </property>
+         <property name="autoExclusive">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
       </layout>
-     </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="Line" name="line_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Resulting binary image:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QCheckBox" name="mCheckBoxUseFG">
+         <property name="text">
+          <string>Use FG</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="vvIntensityValueSlider" name="mFGSlider" native="true">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QCheckBox" name="mCheckBoxUseBG">
+         <property name="text">
+          <string>Use BG</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="vvIntensityValueSlider" name="mBGSlider" native="true"/>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="Line" name="line_3">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBox_2">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>Interactive (unchek to disable on the fly contours drawing)</string>
+     </property>
     </widget>
    </item>
   </layout>
@@ -151,12 +129,6 @@
    <class>vvIntensityValueSlider</class>
    <extends>QWidget</extends>
    <header>vvIntensityValueSlider.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>vvToolInputSelectorWidget</class>
-   <extends>QWidget</extends>
-   <header location="global">vvToolInputSelectorWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
