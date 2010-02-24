@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvMainWindow.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/17 20:52:39 $
-  Version:   $Revision: 1.11 $
+  Date:      $Date: 2010/02/24 11:42:42 $
+  Version:   $Revision: 1.12 $
   Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
   Copyright (C) 200COLUMN_IMAGE_NAME
@@ -56,6 +56,7 @@
 #include "vvMeshReader.h"
 #include "vvCropDialog.h"
 #include "vvConstants.h"
+
 #ifdef CLITK_VV_USE_BDCM
 #include <bdcmDicomFilesSelectorDialog.h>
 #endif
@@ -107,11 +108,12 @@
   5,Qt::UserRole mSlicerManager id*/
 
 //------------------------------------------------------------------------------
-vvMainWindow::vvMainWindow() {
+vvMainWindow::vvMainWindow():vvMainWindowBase() {
   setupUi(this); // this sets up the GUI
 
   mInputPathName = "";
-  mCurrentToolInfo = 0;
+  mMenuTools = menuTools;
+  mMainWidget = this;
 
   //Init the contextMenu
   this->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -165,7 +167,6 @@ vvMainWindow::vvMainWindow() {
   contextMenu.addAction(actionAdd_fusion_image);
   connect(actionAdd_fusion_image,SIGNAL(triggered()),this,SLOT(AddFusionImage()));
   contextActions.push_back(actionAdd_fusion_image);
-
 
   //init the DataTree
   mSlicerManagers.resize(0);
@@ -319,7 +320,7 @@ vvMainWindow::vvMainWindow() {
     }
 
   // Adding all new tools (insertion in the menu)
-  vvToolManager::GetInstance()->Initialize(this);
+  vvToolManager::GetInstance()->InsertToolsInMenu(this);
 }
 //------------------------------------------------------------------------------
 
@@ -360,7 +361,10 @@ void vvMainWindow::ComputeMidPosition()
       QApplication::restoreOverrideCursor();
     }
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvMainWindow::AddContour(int image_index, vvMesh::Pointer contour, bool propagation)
 {
   QTreeWidgetItem *item = new QTreeWidgetItem();
@@ -404,6 +408,8 @@ void vvMainWindow::AddContour(int image_index, vvMesh::Pointer contour, bool pro
   mSlicerManagers[image_index]->AddContour(contour,propagation);
   mSlicerManagers[image_index]->Render();
 }
+//------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::OpenVTKContour()
@@ -425,6 +431,9 @@ void vvMainWindow::OpenVTKContour()
       QApplication::restoreOverrideCursor();
     }
 }
+//------------------------------------------------------------------------------
+
+
 //------------------------------------------------------------------------------
 void vvMainWindow::OpenDCStructContour()
 {
@@ -458,6 +467,8 @@ void vvMainWindow::OpenDCStructContour()
         }
     }
 }
+//------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::ComputeDeformableRegistration()
@@ -477,6 +488,8 @@ void vvMainWindow::ComputeDeformableRegistration()
     }
   else QMessageBox::information(this, "Need to open image","You must open an image first.");
 }
+//------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::WarpImage()
@@ -495,6 +508,8 @@ void vvMainWindow::WarpImage()
   else
     QMessageBox::warning(this,tr("No vector field"),tr("Sorry, can't warp without a vector field"));
 }
+//------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::WarpImage(vvSlicerManager* selected_slicer,int reference_phase)
@@ -521,6 +536,8 @@ void vvMainWindow::WarpImage(vvSlicerManager* selected_slicer,int reference_phas
   else
     QMessageBox::warning(this,tr("No vector field"),tr("Sorry, can't warp without a vector field."));
 }
+//------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 vvMainWindow::~vvMainWindow() {
@@ -531,6 +548,7 @@ vvMainWindow::~vvMainWindow() {
     }
 }
 //------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::MergeImages() {
@@ -595,6 +613,7 @@ void vvMainWindow::MergeImages() {
     LoadImages(vector, MERGED);
 }
 //------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::MergeImagesWithTime() {
@@ -667,6 +686,7 @@ void vvMainWindow::MergeImagesWithTime() {
     QMessageBox::warning(this,tr("Reading problem"),"You need to select at least two images to merge images with time.\nIf you only want to open one image, please use the \"Open Image\" function.");
 }
 //------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::OpenDicom() {
@@ -873,9 +893,6 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType fi
     }
   QApplication::restoreOverrideCursor();
 
-
-  // vvToolManager::GetInstance()->UpdateEnabledTool();
-  // emit SlicerManagersHasChanged();
 }
 //------------------------------------------------------------------------------
 
@@ -1076,69 +1093,69 @@ void vvMainWindow::ImageInfoChanged() {
     presetComboBox->setCurrentIndex(mSlicerManagers[index]->GetPreset());
     colorMapComboBox->setCurrentIndex(mSlicerManagers[index]->GetColorMap());
 
-        infoPanel->setFileName(image);
-        infoPanel->setDimension(dim);
-        infoPanel->setSizePixel(GetVectorIntAsString(inputSize));
-        infoPanel->setSizeMM(GetVectorDoubleAsString(sizeMM));
-        infoPanel->setOrigin(GetVectorDoubleAsString(origin));
-        infoPanel->setSpacing(GetVectorDoubleAsString(inputSpacing));
-        infoPanel->setNPixel(QString::number(NPixel)+" ("+inputSizeInBytes+")");
+    infoPanel->setFileName(image);
+    infoPanel->setDimension(dim);
+    infoPanel->setSizePixel(GetVectorIntAsString(inputSize));
+    infoPanel->setSizeMM(GetVectorDoubleAsString(sizeMM));
+    infoPanel->setOrigin(GetVectorDoubleAsString(origin));
+    infoPanel->setSpacing(GetVectorDoubleAsString(inputSpacing));
+    infoPanel->setNPixel(QString::number(NPixel)+" ("+inputSizeInBytes+")");
 
-        landmarksPanel->SetCurrentLandmarks(mSlicerManagers[index]->GetLandmarks(),
-                                            mSlicerManagers[index]->GetSlicer(0)->GetImage()->GetVTKImages().size());
-        landmarksPanel->SetCurrentPath(mInputPathName.toStdString());
-        landmarksPanel->SetCurrentImage(mSlicerManagers[index]->GetFileName().c_str());
+    landmarksPanel->SetCurrentLandmarks(mSlicerManagers[index]->GetLandmarks(),
+                                        mSlicerManagers[index]->GetSlicer(0)->GetImage()->GetVTKImages().size());
+    landmarksPanel->SetCurrentPath(mInputPathName.toStdString());
+    landmarksPanel->SetCurrentImage(mSlicerManagers[index]->GetFileName().c_str());
 
-        overlayPanel->getCurrentImageName(mSlicerManagers[index]->GetFileName().c_str());
-        for (int i = 0; i < 4;i++)
-        {
-            if (DataTree->selectedItems()[0]->data(i+1,Qt::CheckStateRole).toInt() > 0 || i == 3)
-            {
-                mSlicerManagers[index]->UpdateInfoOnCursorPosition(i);
-                break;
-            }
-        }
-        windowSpinBox->setValue(mSlicerManagers[index]->GetColorWindow());
-        levelSpinBox->setValue(mSlicerManagers[index]->GetColorLevel());
-        presetComboBox->setCurrentIndex(mSlicerManagers[index]->GetPreset());
-        colorMapComboBox->setCurrentIndex(mSlicerManagers[index]->GetColorMap());
+    overlayPanel->getCurrentImageName(mSlicerManagers[index]->GetFileName().c_str());
+    for (int i = 0; i < 4;i++)
+      {
+        if (DataTree->selectedItems()[0]->data(i+1,Qt::CheckStateRole).toInt() > 0 || i == 3)
+          {
+            mSlicerManagers[index]->UpdateInfoOnCursorPosition(i);
+            break;
+          }
+      }
+    windowSpinBox->setValue(mSlicerManagers[index]->GetColorWindow());
+    levelSpinBox->setValue(mSlicerManagers[index]->GetColorLevel());
+    presetComboBox->setCurrentIndex(mSlicerManagers[index]->GetPreset());
+    colorMapComboBox->setCurrentIndex(mSlicerManagers[index]->GetColorMap());
 
-        if (mSlicerManagers[index]->GetSlicer(0)->GetVF())
-        {
-            overlayPanel->getVFName(mSlicerManagers[index]->GetVFName().c_str());
-            overlayPanel->getVFProperty(mSlicerManagers[index]->GetSlicer(0)->GetVFSubSampling(),
-                                        mSlicerManagers[index]->GetSlicer(0)->GetVFScale(),
-                                        mSlicerManagers[index]->GetSlicer(0)->GetVFLog());
-        }
-        else
-        {
-            overlayPanel->getVFName(mSlicerManagers[index]->GetVFName().c_str());
-            overlayPanel->getVFProperty(-1,-1,-1);
-        }
-        if (mSlicerManagers[index]->GetSlicer(0)->GetOverlay())
-        {
-            overlayPanel->getOverlayName(mSlicerManagers[index]->GetOverlayName().c_str());
-            overlayPanel->getOverlayProperty(mSlicerManagers[index]->GetOverlayColor());
-        }
-        else
-        {
-            overlayPanel->getOverlayName(mSlicerManagers[index]->GetOverlayName().c_str());
-            overlayPanel->getOverlayProperty(-1);
-        }
-        if (mSlicerManagers[index]->GetSlicer(0)->GetFusion())
-        {
-            overlayPanel->getFusionName(mSlicerManagers[index]->GetFusionName().c_str());
-            overlayPanel->getFusionProperty(mSlicerManagers[index]->GetFusionOpacity(),
-                                            mSlicerManagers[index]->GetFusionColorMap(),
-                                            mSlicerManagers[index]->GetFusionWindow(),
-                                            mSlicerManagers[index]->GetFusionLevel());
-        }
-        else
-        {
-            overlayPanel->getFusionName(mSlicerManagers[index]->GetFusionName().c_str());
-            overlayPanel->getFusionProperty(-1, -1,-1,-1);
-        }
-    }
+    if (mSlicerManagers[index]->GetSlicer(0)->GetVF())
+      {
+        overlayPanel->getVFName(mSlicerManagers[index]->GetVFName().c_str());
+        overlayPanel->getVFProperty(mSlicerManagers[index]->GetSlicer(0)->GetVFSubSampling(),
+                                    mSlicerManagers[index]->GetSlicer(0)->GetVFScale(),
+                                    mSlicerManagers[index]->GetSlicer(0)->GetVFLog());
+      }
+    else
+      {
+        overlayPanel->getVFName(mSlicerManagers[index]->GetVFName().c_str());
+        overlayPanel->getVFProperty(-1,-1,-1);
+      }
+    if (mSlicerManagers[index]->GetSlicer(0)->GetOverlay())
+      {
+        overlayPanel->getOverlayName(mSlicerManagers[index]->GetOverlayName().c_str());
+        overlayPanel->getOverlayProperty(mSlicerManagers[index]->GetOverlayColor());
+      }
+    else
+      {
+        overlayPanel->getOverlayName(mSlicerManagers[index]->GetOverlayName().c_str());
+        overlayPanel->getOverlayProperty(-1);
+      }
+    if (mSlicerManagers[index]->GetSlicer(0)->GetFusion())
+      {
+        overlayPanel->getFusionName(mSlicerManagers[index]->GetFusionName().c_str());
+        overlayPanel->getFusionProperty(mSlicerManagers[index]->GetFusionOpacity(),
+                                        mSlicerManagers[index]->GetFusionColorMap(),
+                                        mSlicerManagers[index]->GetFusionWindow(),
+                                        mSlicerManagers[index]->GetFusionLevel());
+      }
+    else
+      {
+        overlayPanel->getFusionName(mSlicerManagers[index]->GetFusionName().c_str());
+        overlayPanel->getFusionProperty(-1, -1,-1,-1);
+      }
+  }
 }
 //------------------------------------------------------------------------------
 
@@ -1488,6 +1505,10 @@ void vvMainWindow::CloseImage(QTreeWidgetItem* item, int column) {
       msgBox.addButton(tr("Cancel"), QMessageBox::RejectRole);
       if (msgBox.exec() == QMessageBox::AcceptRole)
         {
+
+          // Tell tools that we close an image
+          emit AnImageIsBeingClosed(mSlicerManagers[index]);
+
           std::vector<vvSlicerManager*>::iterator Manageriter = mSlicerManagers.begin();
           DataTree->takeTopLevelItem(index);
           for (int i = 0; i < index; i++)
@@ -1498,25 +1519,24 @@ void vvMainWindow::CloseImage(QTreeWidgetItem* item, int column) {
           mSlicerManagers[index]->RemoveActors();
           delete mSlicerManagers[index];
           mSlicerManagers.erase(Manageriter);
+          
+          //
           InitDisplay();
         }
     }
-
-  // vvToolManager::GetInstance()->UpdateEnabledTool();
-  // emit SlicerManagersHasChanged();
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvMainWindow::ReloadImage(QTreeWidgetItem* item, int column) {
   // int index = GetSlicerIndexFromItem(item);
-//   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-//   if (item->data(1,Qt::UserRole).toString() == "vector")
-//     mSlicerManagers[index]->ReloadVF();
-//   else
-//     mSlicerManagers[index]->Reload();
+  //   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  //   if (item->data(1,Qt::UserRole).toString() == "vector")
+  //     mSlicerManagers[index]->ReloadVF();
+  //   else
+  //     mSlicerManagers[index]->Reload();
 
-//   QApplication::restoreOverrideCursor();
+  //   QApplication::restoreOverrideCursor();
   int index = GetSlicerIndexFromItem(item);
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   QString role=item->data(1,Qt::UserRole).toString();
@@ -2330,7 +2350,7 @@ void vvMainWindow::NOVerticalSliderChanged() {
       if (DataTree->topLevelItem(i)->data(COLUMN_UL_VIEW,Qt::CheckStateRole).toInt() > 1)
         {
           mSlicerManagers[i]->GetSlicer(0)->SetSlice(value);
-          // mSlicerManagers[i]->UpdateSlice(0); // <-- too much update...
+          //mSlicerManagers[i]->UpdateSlice(0); // <-- NO ! too much update...
           break;
         }
     }
@@ -2381,8 +2401,10 @@ void vvMainWindow::SEVerticalSliderChanged() {
 
 //------------------------------------------------------------------------------
 void vvMainWindow::UpdateSlice(int slicer, int slice) {
-  if (slicer == 0)
-    NOVerticalSlider->setValue(slice);
+  if (slicer == 0) {
+    if (slice != NOVerticalSlider->value())
+      NOVerticalSlider->setValue(slice);
+  }
   else if (slicer == 1)
     NEVerticalSlider->setValue(slice);
   else if (slicer == 2)
@@ -2744,20 +2766,13 @@ void vvMainWindow::AddImage(vvSlicerManager * slicer_manager) {
   ShowLastImage();
   InitDisplay();
   qApp->processEvents();
-
-  // vvToolManager::GetInstance()->UpdateEnabledTool();
-  // emit SlicerManagersHasChanged();
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-vvMainWindowToolInfo * vvMainWindow::GetInfoForTool() {
-  DD("GetInfoForTool");
-  if (mCurrentToolInfo ==0) mCurrentToolInfo = new vvMainWindowToolInfo;
-
-  mCurrentToolInfo->mMenuTools = menuTools;
-  mCurrentToolInfo->mSlicerManagers = &mSlicerManagers;
+void vvMainWindow::UpdateCurrentSlicer() {
+  DD("UpdateCurrentSlicer");
   int index = -1;
   DD(DataTree->selectedItems().size());
   if (DataTree->selectedItems().size() > 0) {
@@ -2765,10 +2780,7 @@ vvMainWindowToolInfo * vvMainWindow::GetInfoForTool() {
     DD(DataTree->selectedItems()[0]);
     DD(index);
   }
-  mCurrentToolInfo->mSlicerManagerCurrentIndex = index;    
-
-  return mCurrentToolInfo;
+  mSlicerManagerCurrentIndex = index;    
 }
 //------------------------------------------------------------------------------
-
 

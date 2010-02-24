@@ -1,26 +1,26 @@
 /*=========================================================================
 
-Program:   vv
-Language:  C++
-Author :   Pierre Seroul (pierre.seroul@gmail.com)
+  Program:   vv
+  Language:  C++
+  Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
-Copyright (C) 2008
-Léon Bérard cancer center http://oncora1.lyon.fnclcc.fr
-CREATIS-LRMN http://www.creatis.insa-lyon.fr
+  Copyright (C) 2008
+  Léon Bérard cancer center http://oncora1.lyon.fnclcc.fr
+  CREATIS-LRMN http://www.creatis.insa-lyon.fr
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, version 3 of the License.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, version 3 of the License.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-=========================================================================*/
+  =========================================================================*/
 #include "vvSlicerManagerCommand.h"
 #include "vvSlicerManager.h"
 
@@ -43,523 +43,533 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cmath>
 
+//------------------------------------------------------------------------------
 vvSlicerManagerCallback::vvSlicerManagerCallback()
 {
-    mStartSlicer = -1;
+  mStartSlicer = -1;
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 //return the num of the current slicer if visible (-1 else)
 int vvSlicerManagerCallback::FindSlicerNumber(vtkRenderWindow* renwin)
 {
-    int result=-1;
-    for (int i = 0; i < SM->NumberOfSlicers(); i++)
+  int result=-1;
+  for (int i = 0; i < SM->NumberOfSlicers(); i++)
     {
-        if (SM->GetSlicer(i)->GetRenderWindow() == renwin
-                && SM->GetSlicer(i)->GetRenderer()->GetDraw())
+      if (SM->GetSlicer(i)->GetRenderWindow() == renwin
+	  && SM->GetSlicer(i)->GetRenderer()->GetDraw())
         {
-            DD(i);
-            result=i;
+	  //            DD(i);
+	  result=i;
         }
     }
-    return result;
+  return result;
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSlicerManagerCallback::Execute(vtkObject *caller,
-                                       unsigned long event,
-                                       void *vtkNotUsed(callData))
+				      unsigned long event,
+				      void *vtkNotUsed(callData))
 {
-    //KeyPress event
-    vvInteractorStyleNavigator *isi =
-        dynamic_cast<vvInteractorStyleNavigator *>(caller);
-    if (isi)
+  //KeyPress event
+  vvInteractorStyleNavigator *isi =
+    dynamic_cast<vvInteractorStyleNavigator *>(caller);
+  if (isi)
     {
-        double x = isi->GetInteractor()->GetEventPosition()[0];
-        double y = isi->GetInteractor()->GetEventPosition()[1];
-        double z;
+      double x = isi->GetInteractor()->GetEventPosition()[0];
+      double y = isi->GetInteractor()->GetEventPosition()[1];
+      double z;
 
-        int VisibleInWindow = this->FindSlicerNumber(isi->GetInteractor()->GetRenderWindow());
-        vtkRenderer* renderer=NULL;
-        if (VisibleInWindow>-1) 
-            renderer=this->SM->GetSlicer(VisibleInWindow)->GetRenderer();
-        newLandmark = false;
+      int VisibleInWindow = this->FindSlicerNumber(isi->GetInteractor()->GetRenderWindow());
+      vtkRenderer* renderer=NULL;
+      if (VisibleInWindow>-1) 
+	renderer=this->SM->GetSlicer(VisibleInWindow)->GetRenderer();
+      newLandmark = false;
 
-        if (event == vtkCommand::StartPickEvent && VisibleInWindow == -1)
+      if (event == vtkCommand::StartPickEvent && VisibleInWindow == -1)
         {
-            for (int i = 0; i < this->SM->NumberOfSlicers(); i++)
+	  for (int i = 0; i < this->SM->NumberOfSlicers(); i++)
             {
-                if (this->SM->GetSlicer(i)->GetCursorVisibility())
+	      if (this->SM->GetSlicer(i)->GetCursorVisibility())
                 {
-                    this->SM->GetSlicer(i)->SetCursorVisibility(0);
-                    this->SM->GetSlicer(i)->Render();
+		  this->SM->GetSlicer(i)->SetCursorVisibility(0);
+		  this->SM->GetSlicer(i)->Render();
                 }
             }
         }
-        if ( VisibleInWindow > -1 )
+      if ( VisibleInWindow > -1 )
         {
-            if (event == vtkCommand::KeyPressEvent)
+	  if (event == vtkCommand::KeyPressEvent)
             {
-                std::string KeyPress = isi->GetInteractor()->GetKeySym();
-                if (KeyPress == "f" || KeyPress == "F")
+	      std::string KeyPress = isi->GetInteractor()->GetKeySym();
+	      if (KeyPress == "f" || KeyPress == "F")
                 {
-                    FlyToPosition(isi->GetInteractor(),this->SM->GetSlicer(VisibleInWindow));
+		  FlyToPosition(isi->GetInteractor(),this->SM->GetSlicer(VisibleInWindow));
                 }
-                if (KeyPress == "0")
+	      if (KeyPress == "0")
                 {
-                    this->SM->SetPreset(0);
-                    this->SM->UpdateWindowLevel();
-                    return;
+		  this->SM->SetPreset(0);
+		  this->SM->UpdateWindowLevel();
+		  return;
                 }
-                if (KeyPress == "1")
+	      if (KeyPress == "1")
                 {
-                    this->SM->SetPreset(1);
-                    this->SM->UpdateWindowLevel();
-                    return;
+		  this->SM->SetPreset(1);
+		  this->SM->UpdateWindowLevel();
+		  return;
                 }
-                if (KeyPress == "2")
+	      if (KeyPress == "2")
                 {
-                    this->SM->SetPreset(2);
-                    this->SM->UpdateWindowLevel();
+		  this->SM->SetPreset(2);
+		  this->SM->UpdateWindowLevel();
 
-                    return;
+		  return;
                 }
-                if (KeyPress == "3")
+	      if (KeyPress == "3")
                 {
-                    this->SM->SetPreset(3);
-                    this->SM->UpdateWindowLevel();
-                    return;
+		  this->SM->SetPreset(3);
+		  this->SM->UpdateWindowLevel();
+		  return;
                 }
-                if (KeyPress == "4")
+	      if (KeyPress == "4")
                 {
-                    this->SM->SetPreset(4);
-                    this->SM->UpdateWindowLevel();
-                    return;
+		  this->SM->SetPreset(4);
+		  this->SM->UpdateWindowLevel();
+		  return;
                 }
-                if (KeyPress == "5")
+	      if (KeyPress == "5")
                 {
-                    this->SM->SetPreset(5);
-                    this->SM->UpdateWindowLevel();
-                    return;
+		  this->SM->SetPreset(5);
+		  this->SM->UpdateWindowLevel();
+		  return;
                 }
-                if (KeyPress == "6")
+	      if (KeyPress == "6")
                 {
-                    this->SM->SetColorMap(0);
-                    this->SM->UpdateWindowLevel();
-                    return;
+		  this->SM->SetColorMap(0);
+		  this->SM->UpdateWindowLevel();
+		  return;
                 }
-                if (KeyPress == "7")
+	      if (KeyPress == "7")
                 {
-                    this->SM->SetColorMap(1);
-                    this->SM->UpdateWindowLevel();
-                    return;
+		  this->SM->SetColorMap(1);
+		  this->SM->UpdateWindowLevel();
+		  return;
                 }
-                if (KeyPress == "8")
+	      if (KeyPress == "8")
                 {
-                    this->SM->SetColorMap(2);
-                    this->SM->UpdateWindowLevel();
-                    return;
+		  this->SM->SetColorMap(2);
+		  this->SM->UpdateWindowLevel();
+		  return;
                 }
-                if (KeyPress == "9")
+	      if (KeyPress == "9")
                 {
-                    this->SM->SetColorMap(3);
-                    this->SM->UpdateWindowLevel();
-                    return;
+		  this->SM->SetColorMap(3);
+		  this->SM->UpdateWindowLevel();
+		  return;
                 }
-                if (KeyPress == "equal") //keycodes are in vtkWin32RenderWindowInteractor
+	      if (KeyPress == "equal") //keycodes are in vtkWin32RenderWindowInteractor
                 {
-                    this->SM->SetPreset(7);
-                    //this->SM->SetColorMap(1);
-                    this->SM->UpdateWindowLevel();
-                    return;
+		  this->SM->SetPreset(7);
+		  //this->SM->SetColorMap(1);
+		  this->SM->UpdateWindowLevel();
+		  return;
                 }
-                if (KeyPress == "minus")
+	      if (KeyPress == "minus")
                 {
-                    std::cout << "KeyPress : - " << std::endl;
-                    this->SM->SetColorWindow(-this->SM->GetColorWindow());
-                    this->SM->SetColorMap(-1);
-                    this->SM->UpdateWindowLevel();
-                    return;
+		  std::cout << "KeyPress : - " << std::endl;
+		  this->SM->SetColorWindow(-this->SM->GetColorWindow());
+		  this->SM->SetColorMap(-1);
+		  this->SM->UpdateWindowLevel();
+		  return;
                 }
-                if (KeyPress == "u")
+	      if (KeyPress == "u")
                 {
-                    this->SM->ToggleContourSuperposition();
-                    this->SM->Render();
-                    return;
+		  this->SM->ToggleContourSuperposition();
+		  this->SM->Render();
+		  return;
                 }
-                if (KeyPress == "i")
+	      if (KeyPress == "i")
                 {
-                    this->SM->ToggleInterpolation();
-                    this->SM->Render();
-                    return;
+		  this->SM->ToggleInterpolation();
+		  this->SM->Render();
+		  return;
                 }
-                if (KeyPress == "h")
+	      if (KeyPress == "h")
                 {
-                    this->SM->SetCursorVisibility(0);
-                    this->SM->Render();
-                    return;
+		  this->SM->SetCursorVisibility(0);
+		  this->SM->Render();
+		  return;
                 }
-                if (KeyPress == "l")
+	      if (KeyPress == "l")
                 {
-                    this->SM->Reload();
-                    this->SM->Render();
-                    return;
+		  this->SM->Reload();
+		  this->SM->Render();
+		  return;
                 }
-                if (KeyPress == "r" || KeyPress=="R")
+	      if (KeyPress == "r" || KeyPress=="R")
                 {
-                    this->SM->GetSlicer(VisibleInWindow)->ResetCamera();
-                    this->SM->GetSlicer(VisibleInWindow)->Render();
-                    return;
+		  this->SM->GetSlicer(VisibleInWindow)->ResetCamera();
+		  this->SM->GetSlicer(VisibleInWindow)->Render();
+		  return;
                 }
-                if (KeyPress == "g")
+	      if (KeyPress == "g")
                 {
-                    double* cursorPos = this->SM->GetSlicer(VisibleInWindow)->GetCursorPosition();
-                    this->SM->GetSlicer(VisibleInWindow)->SetCurrentPosition(
-                            cursorPos[0],cursorPos[1],cursorPos[2],cursorPos[3]);
-                    this->SM->UpdateViews(1,VisibleInWindow);
-                    this->SM->UpdateLinked(VisibleInWindow);
-                    return;
+		  double* cursorPos = this->SM->GetSlicer(VisibleInWindow)->GetCursorPosition();
+		  this->SM->GetSlicer(VisibleInWindow)->SetCurrentPosition(
+									   cursorPos[0],cursorPos[1],cursorPos[2],cursorPos[3]);
+		  this->SM->UpdateViews(1,VisibleInWindow);
+		  this->SM->UpdateLinked(VisibleInWindow);
+		  return;
                 }
-                if (KeyPress == "F5")
+	      if (KeyPress == "F5")
                 {
-                    this->SM->GetSlicer(VisibleInWindow)->FlipHorizontalView();
-                    this->SM->GetSlicer(VisibleInWindow)->Render();
-                    return;
+		  this->SM->GetSlicer(VisibleInWindow)->FlipHorizontalView();
+		  this->SM->GetSlicer(VisibleInWindow)->Render();
+		  return;
                 }
-                if (KeyPress == "F6")
+	      if (KeyPress == "F6")
                 {
-                    this->SM->GetSlicer(VisibleInWindow)->FlipVerticalView();
-                    this->SM->GetSlicer(VisibleInWindow)->Render();
-                    return;
+		  this->SM->GetSlicer(VisibleInWindow)->FlipVerticalView();
+		  this->SM->GetSlicer(VisibleInWindow)->Render();
+		  return;
                 }
-                if (KeyPress == "Up")
+	      if (KeyPress == "Up")
                 {
-                    this->SM->GetSlicer(VisibleInWindow)->SetSlice(this->SM->GetSlicer(VisibleInWindow)->GetSlice()+1);
-                    this->SM->UpdateSlice(VisibleInWindow);
-                    this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
+		  this->SM->GetSlicer(VisibleInWindow)->SetSlice(this->SM->GetSlicer(VisibleInWindow)->GetSlice()+1);
+		  this->SM->UpdateSlice(VisibleInWindow);
+		  this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
                 }
-                if (KeyPress == "Down")
+	      if (KeyPress == "Down")
                 {
-                    this->SM->GetSlicer(VisibleInWindow)->SetSlice(this->SM->GetSlicer(VisibleInWindow)->GetSlice()-1);
-                    this->SM->UpdateSlice(VisibleInWindow);
-                    this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
+		  this->SM->GetSlicer(VisibleInWindow)->SetSlice(this->SM->GetSlicer(VisibleInWindow)->GetSlice()-1);
+		  this->SM->UpdateSlice(VisibleInWindow);
+		  this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
                 }
-                if (KeyPress == "space")
+	      if (KeyPress == "space")
                 {
-                    newLandmark = true;
+		  newLandmark = true;
                 }
-                if (KeyPress == "Left")
-                    this->SM->SetPreviousTSlice(VisibleInWindow);
-                if (KeyPress == "Right")
-                    this->SM->SetNextTSlice(VisibleInWindow);
+	      if (KeyPress == "Left")
+		this->SM->SetPreviousTSlice(VisibleInWindow);
+	      if (KeyPress == "Right")
+		this->SM->SetNextTSlice(VisibleInWindow);
 
-                if (KeyPress == "F1")
+	      if (KeyPress == "F1")
                 {
-                    this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetText(2,"Sagital\n<slice>");
-                    this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(0);
-                    this->SM->UpdateSliceRange(VisibleInWindow);
-                    this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
+		  this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetText(2,"Sagital\n<slice>");
+		  this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(0);
+		  this->SM->UpdateSliceRange(VisibleInWindow);
+		  this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
                 }
-                if (KeyPress == "F2")
+	      if (KeyPress == "F2")
                 {
-                    this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetText(2,"Coronal\n<slice>");
-                    this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(1);
-                    this->SM->UpdateSliceRange(VisibleInWindow);
-                    this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
+		  this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetText(2,"Coronal\n<slice>");
+		  this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(1);
+		  this->SM->UpdateSliceRange(VisibleInWindow);
+		  this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
                 }
-                if (KeyPress == "F3")
+	      if (KeyPress == "F3")
                 {
-                    this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetText(2,"Axial\n<slice>");
-                    this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(2);
-                    this->SM->UpdateSliceRange(VisibleInWindow);
-                    this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
+		  this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetText(2,"Axial\n<slice>");
+		  this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(2);
+		  this->SM->UpdateSliceRange(VisibleInWindow);
+		  this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
                 }
             }
 
-            //All type of mouse events
-            if (event == vtkCommand::LeaveEvent)
+	  //All type of mouse events
+	  if (event == vtkCommand::LeaveEvent)
             {
-                this->SM->GetSlicer(VisibleInWindow)->SetCurrentPosition(-VTK_DOUBLE_MAX,-VTK_DOUBLE_MAX,
-                        -VTK_DOUBLE_MAX,this->SM->GetSlicer(VisibleInWindow)->GetTSlice());
-                this->SM->GetSlicer(VisibleInWindow)->Render();
-                return;
+	      this->SM->GetSlicer(VisibleInWindow)->SetCurrentPosition(-VTK_DOUBLE_MAX,-VTK_DOUBLE_MAX,
+								       -VTK_DOUBLE_MAX,this->SM->GetSlicer(VisibleInWindow)->GetTSlice());
+	      this->SM->GetSlicer(VisibleInWindow)->Render();
+	      return;
             }
 
-            if (event == vtkCommand::StartWindowLevelEvent)
+	  if (event == vtkCommand::StartWindowLevelEvent)
             {
-                mStartSlicer = -1;
-                this->InitialWindow = this->SM->GetColorWindow();
-                this->InitialLevel = this->SM->GetColorLevel();
+	      mStartSlicer = -1;
+	      this->InitialWindow = this->SM->GetColorWindow();
+	      this->InitialLevel = this->SM->GetColorLevel();
 
-                if (VisibleInWindow > -1)
+	      if (VisibleInWindow > -1)
                 {
-                    mStartSlicer = VisibleInWindow;
+		  mStartSlicer = VisibleInWindow;
                 }
-                return;
+	      return;
             }
 
-            if (event == vtkCommand::EndWindowLevelEvent)
+	  if (event == vtkCommand::EndWindowLevelEvent)
             {
-                mStartSlicer = -1;
+	      mStartSlicer = -1;
             }
 
         }
-        if (VisibleInWindow > -1)
+      if (VisibleInWindow > -1)
         {
-            this->SM->Activated();
-            //if(!this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->GetVisibility())
-            this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetVisibility(1);
+	  this->SM->Activated();
+	  //if(!this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->GetVisibility())
+	  this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetVisibility(1);
 
-            if (event == vtkCommand::MouseWheelForwardEvent && !isi->GetInteractor()->GetControlKey())
+	  if (event == vtkCommand::MouseWheelForwardEvent && !isi->GetInteractor()->GetControlKey())
             {
-                this->SM->GetSlicer(VisibleInWindow)->SetSlice(this->SM->GetSlicer(VisibleInWindow)->GetSlice()+1);
-                this->SM->UpdateSlice(VisibleInWindow);
-                this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
+	      this->SM->GetSlicer(VisibleInWindow)->SetSlice(this->SM->GetSlicer(VisibleInWindow)->GetSlice()+1);
+	      this->SM->UpdateSlice(VisibleInWindow);
+	      this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
             }
-            else if (event == vtkCommand::MouseWheelForwardEvent && isi->GetInteractor()->GetControlKey())
+	  else if (event == vtkCommand::MouseWheelForwardEvent && isi->GetInteractor()->GetControlKey())
             {
-                double factor = 2;
-                this->Dolly(pow((double)1.1, factor),isi->GetInteractor());
+	      double factor = 2;
+	      this->Dolly(pow((double)1.1, factor),isi->GetInteractor());
             }
-            else if (event == vtkCommand::MouseWheelBackwardEvent && !isi->GetInteractor()->GetControlKey())
+	  else if (event == vtkCommand::MouseWheelBackwardEvent && !isi->GetInteractor()->GetControlKey())
             {
-                this->SM->GetSlicer(VisibleInWindow)->SetSlice(this->SM->GetSlicer(VisibleInWindow)->GetSlice()-1);
-                this->SM->UpdateSlice(VisibleInWindow);
-                this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
+	      this->SM->GetSlicer(VisibleInWindow)->SetSlice(this->SM->GetSlicer(VisibleInWindow)->GetSlice()-1);
+	      this->SM->UpdateSlice(VisibleInWindow);
+	      this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
             }
-            else if (event == vtkCommand::MouseWheelBackwardEvent && isi->GetInteractor()->GetControlKey())
+	  else if (event == vtkCommand::MouseWheelBackwardEvent && isi->GetInteractor()->GetControlKey())
             {
-                double factor = -2;
-                this->Dolly(pow((double)1.1, factor),isi->GetInteractor());
+	      double factor = -2;
+	      this->Dolly(pow((double)1.1, factor),isi->GetInteractor());
             }
-            double xWorld=0; double yWorld=0; double zWorld=0;
+	  double xWorld=0; double yWorld=0; double zWorld=0;
 
-            //Move into World Coordinate
-            renderer->DisplayToNormalizedDisplay(x,y);
-            renderer->NormalizedDisplayToViewport(x,y);
-            renderer->ViewportToNormalizedViewport(x,y);
-            renderer->NormalizedViewportToView(x,y,z);
-            renderer->ViewToWorld(x,y,z);
-            switch (this->SM->GetSlicer(VisibleInWindow)->GetSliceOrientation())
+	  //Move into World Coordinate
+	  renderer->DisplayToNormalizedDisplay(x,y);
+	  renderer->NormalizedDisplayToViewport(x,y);
+	  renderer->ViewportToNormalizedViewport(x,y);
+	  renderer->NormalizedViewportToView(x,y,z);
+	  renderer->ViewToWorld(x,y,z);
+	  switch (this->SM->GetSlicer(VisibleInWindow)->GetSliceOrientation())
             {
             case vtkImageViewer2::SLICE_ORIENTATION_XY:
-                xWorld = x;
-                yWorld = y;
-                zWorld = this->SM->GetSlicer(VisibleInWindow)->GetSlice()*
-                         this->SM->GetSlicer(VisibleInWindow)->GetInput()->GetSpacing()[2] +
-                         this->SM->GetSlicer(VisibleInWindow)->GetInput()->GetOrigin()[2];
-                break;
+	      xWorld = x;
+	      yWorld = y;
+	      zWorld = this->SM->GetSlicer(VisibleInWindow)->GetSlice()*
+		this->SM->GetSlicer(VisibleInWindow)->GetInput()->GetSpacing()[2] +
+		this->SM->GetSlicer(VisibleInWindow)->GetInput()->GetOrigin()[2];
+	      break;
 
             case vtkImageViewer2::SLICE_ORIENTATION_XZ:
-                xWorld = x;
-                yWorld = this->SM->GetSlicer(VisibleInWindow)->GetSlice()*
-                         this->SM->GetSlicer(VisibleInWindow)->GetInput()->GetSpacing()[1] +
-                         this->SM->GetSlicer(VisibleInWindow)->GetInput()->GetOrigin()[1];
-                zWorld = z;
-                break;
+	      xWorld = x;
+	      yWorld = this->SM->GetSlicer(VisibleInWindow)->GetSlice()*
+		this->SM->GetSlicer(VisibleInWindow)->GetInput()->GetSpacing()[1] +
+		this->SM->GetSlicer(VisibleInWindow)->GetInput()->GetOrigin()[1];
+	      zWorld = z;
+	      break;
 
             case vtkImageViewer2::SLICE_ORIENTATION_YZ:
-                xWorld = this->SM->GetSlicer(VisibleInWindow)->GetSlice()*
-                         this->SM->GetSlicer(VisibleInWindow)->GetInput()->GetSpacing()[0] +
-                         this->SM->GetSlicer(VisibleInWindow)->GetInput()->GetOrigin()[0];
-                yWorld = y;
-                zWorld = z;
-                break;
+	      xWorld = this->SM->GetSlicer(VisibleInWindow)->GetSlice()*
+		this->SM->GetSlicer(VisibleInWindow)->GetInput()->GetSpacing()[0] +
+		this->SM->GetSlicer(VisibleInWindow)->GetInput()->GetOrigin()[0];
+	      yWorld = y;
+	      zWorld = z;
+	      break;
             }
-            this->SM->GetSlicer(VisibleInWindow)->SetCurrentPosition(xWorld,yWorld,zWorld,
-                    this->SM->GetSlicer(VisibleInWindow)->GetTSlice());
-            if (newLandmark)
+	  this->SM->GetSlicer(VisibleInWindow)->SetCurrentPosition(xWorld,yWorld,zWorld,
+								   this->SM->GetSlicer(VisibleInWindow)->GetTSlice());
+	  if (newLandmark)
             {
-                this->SM->AddLandmark(xWorld,yWorld,zWorld,
-                                      this->SM->GetSlicer(VisibleInWindow)->GetTSlice());
-                this->SM->GetSlicer(VisibleInWindow)->UpdateLandmarks();
-                this->SM->Render();
+	      this->SM->AddLandmark(xWorld,yWorld,zWorld,
+				    this->SM->GetSlicer(VisibleInWindow)->GetTSlice());
+	      this->SM->GetSlicer(VisibleInWindow)->UpdateLandmarks();
+	      this->SM->Render();
             }
-            if (event == vtkCommand::PickEvent || event == vtkCommand::StartPickEvent)
+	  if (event == vtkCommand::PickEvent || event == vtkCommand::StartPickEvent)
             {
-                this->SM->UpdateViews(1,VisibleInWindow);
-                this->SM->UpdateLinked(VisibleInWindow);
-                this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
+	      this->SM->UpdateViews(1,VisibleInWindow);
+	      this->SM->UpdateLinked(VisibleInWindow);
+	      this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
             }
-            else
+	  else
             {
-                this->SM->GetSlicer(VisibleInWindow)->Render();
+	      this->SM->GetSlicer(VisibleInWindow)->Render();
             }
-            //this->SM->GetSlicer(VisibleInWindow)->SetCurrentPosition(-VTK_DOUBLE_MAX,-VTK_DOUBLE_MAX,
-                    //-VTK_DOUBLE_MAX,this->SM->GetSlicer(VisibleInWindow)->GetTSlice());
-            //this->SM->GetSlicer(VisibleInWindow)->Render();
+	  //this->SM->GetSlicer(VisibleInWindow)->SetCurrentPosition(-VTK_DOUBLE_MAX,-VTK_DOUBLE_MAX,
+	  //-VTK_DOUBLE_MAX,this->SM->GetSlicer(VisibleInWindow)->GetTSlice());
+	  //this->SM->GetSlicer(VisibleInWindow)->Render();
         }
 
-        if (event == vtkCommand::WindowLevelEvent && mStartSlicer > -1)
+      if (event == vtkCommand::WindowLevelEvent && mStartSlicer > -1)
         {
-            this->SM->GetSlicer(mStartSlicer)->GetAnnotation()->SetVisibility(1);
-            // Adjust the window level here
-            int *size = isi->GetInteractor()->GetRenderWindow()->GetSize();
-            double window = this->InitialWindow;
-            double level = this->InitialLevel;
-            double range[2];
-            this->SM->GetImage()->GetScalarRange(range);
+	  this->SM->GetSlicer(mStartSlicer)->GetAnnotation()->SetVisibility(1);
+	  // Adjust the window level here
+	  int *size = isi->GetInteractor()->GetRenderWindow()->GetSize();
+	  double window = this->InitialWindow;
+	  double level = this->InitialLevel;
+	  double range[2];
+	  this->SM->GetImage()->GetScalarRange(range);
 
-            // Compute normalized delta
-            double dx = static_cast<double>(isi->GetWindowLevelCurrentPosition()[0] -
-                         isi->GetWindowLevelStartPosition()[0]) / size[0];
-            double dy = static_cast<double>(isi->GetWindowLevelStartPosition()[1] -
-                         isi->GetWindowLevelCurrentPosition()[1]) / size[1];
-            //Window is exponential in nature, use exponential to avoid falling into negative numbers
-            dx = std::exp(1.0 * (dx*fabs(dx) + dx)) ; //Quadratic behavior for more reactive interface
-            dy = 0.15 * (dy*fabs(dy) + dy) * (range[1]-range[0]);//Quadratic behavior for more reactive interface
+	  // Compute normalized delta
+	  double dx = static_cast<double>(isi->GetWindowLevelCurrentPosition()[0] -
+					  isi->GetWindowLevelStartPosition()[0]) / size[0];
+	  double dy = static_cast<double>(isi->GetWindowLevelStartPosition()[1] -
+					  isi->GetWindowLevelCurrentPosition()[1]) / size[1];
+	  //Window is exponential in nature, use exponential to avoid falling into negative numbers
+	  dx = std::exp(1.0 * (dx*fabs(dx) + dx)) ; //Quadratic behavior for more reactive interface
+	  dy = 0.15 * (dy*fabs(dy) + dy) * (range[1]-range[0]);//Quadratic behavior for more reactive interface
 
-            this->SM->SetColorWindow(window*dx);
-            this->SM->SetColorLevel(level-dy);
-            this->SM->SetPreset(6);
-            this->SM->UpdateWindowLevel();
-            this->SM->Render();
-            return;
+	  this->SM->SetColorWindow(window*dx);
+	  this->SM->SetColorLevel(level-dy);
+	  this->SM->SetPreset(6);
+	  this->SM->UpdateWindowLevel();
+	  this->SM->Render();
+	  return;
         }
     }
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSlicerManagerCallback::Dolly(double factor, vtkRenderWindowInteractor *interactor)
 {
-    int VisibleInWindow = this->FindSlicerNumber(interactor->GetRenderWindow());
-    vtkRenderer* renderer;
-    if (VisibleInWindow>-1) 
-        renderer=this->SM->GetSlicer(VisibleInWindow)->GetRenderer();
-    else
+  int VisibleInWindow = this->FindSlicerNumber(interactor->GetRenderWindow());
+  vtkRenderer* renderer;
+  if (VisibleInWindow>-1) 
+    renderer=this->SM->GetSlicer(VisibleInWindow)->GetRenderer();
+  else
     {
-        return;
+      return;
     }
 
-    double viewFocus[4],viewPoint[4],motionVector[3], focalDepth;
-    double oldPos[3], newPos[3], distance[2];
-    vtkCamera *camera = renderer->GetActiveCamera();
-    camera->GetFocalPoint(viewFocus);
+  double viewFocus[4],viewPoint[4],motionVector[3], focalDepth;
+  double oldPos[3], newPos[3], distance[2];
+  vtkCamera *camera = renderer->GetActiveCamera();
+  camera->GetFocalPoint(viewFocus);
 
-    renderer->SetWorldPoint(viewFocus[0], viewFocus[0], viewFocus[0], 1.0);
-    renderer->WorldToDisplay();
-    renderer->GetDisplayPoint(viewFocus);
+  renderer->SetWorldPoint(viewFocus[0], viewFocus[0], viewFocus[0], 1.0);
+  renderer->WorldToDisplay();
+  renderer->GetDisplayPoint(viewFocus);
 
-    focalDepth = viewFocus[2];
+  focalDepth = viewFocus[2];
 
-    oldPos[0] = renderer->GetCenter()[0];
-    oldPos[1] = renderer->GetCenter()[1];
-    oldPos[2] = focalDepth;
+  oldPos[0] = renderer->GetCenter()[0];
+  oldPos[1] = renderer->GetCenter()[1];
+  oldPos[2] = focalDepth;
 
-    distance[0] = 1/factor*
-                  (interactor->GetEventPosition()[0]-renderer->GetCenter()[0]);
-    distance[1] = 1/factor*
-                  (interactor->GetEventPosition()[1]-renderer->GetCenter()[1]);
+  distance[0] = 1/factor*
+    (interactor->GetEventPosition()[0]-renderer->GetCenter()[0]);
+  distance[1] = 1/factor*
+    (interactor->GetEventPosition()[1]-renderer->GetCenter()[1]);
 
-    newPos[0] = interactor->GetEventPosition()[0] - distance[0];
-    newPos[1] = interactor->GetEventPosition()[1] - distance[1];
-    newPos[2] = focalDepth;
+  newPos[0] = interactor->GetEventPosition()[0] - distance[0];
+  newPos[1] = interactor->GetEventPosition()[1] - distance[1];
+  newPos[2] = focalDepth;
 
-    renderer->DisplayToNormalizedDisplay(oldPos[0],oldPos[1]);
-    renderer->NormalizedDisplayToViewport(oldPos[0],oldPos[1]);
-    renderer->ViewportToNormalizedViewport(oldPos[0],oldPos[1]);
-    renderer->NormalizedViewportToView(oldPos[0],oldPos[1],oldPos[2]);
-    renderer->ViewToWorld(oldPos[0],oldPos[1],oldPos[2]);
+  renderer->DisplayToNormalizedDisplay(oldPos[0],oldPos[1]);
+  renderer->NormalizedDisplayToViewport(oldPos[0],oldPos[1]);
+  renderer->ViewportToNormalizedViewport(oldPos[0],oldPos[1]);
+  renderer->NormalizedViewportToView(oldPos[0],oldPos[1],oldPos[2]);
+  renderer->ViewToWorld(oldPos[0],oldPos[1],oldPos[2]);
 
-    renderer->DisplayToNormalizedDisplay(newPos[0],newPos[1]);
-    renderer->NormalizedDisplayToViewport(newPos[0],newPos[1]);
-    renderer->ViewportToNormalizedViewport(newPos[0],newPos[1]);
-    renderer->NormalizedViewportToView(newPos[0],newPos[1],newPos[2]);
-    renderer->ViewToWorld(newPos[0],newPos[1],newPos[2]);
+  renderer->DisplayToNormalizedDisplay(newPos[0],newPos[1]);
+  renderer->NormalizedDisplayToViewport(newPos[0],newPos[1]);
+  renderer->ViewportToNormalizedViewport(newPos[0],newPos[1]);
+  renderer->NormalizedViewportToView(newPos[0],newPos[1],newPos[2]);
+  renderer->ViewToWorld(newPos[0],newPos[1],newPos[2]);
 
-    motionVector[0] = newPos[0] - oldPos[0];
-    motionVector[1] = newPos[1] - oldPos[1];
-    motionVector[2] = newPos[2] - oldPos[2];
+  motionVector[0] = newPos[0] - oldPos[0];
+  motionVector[1] = newPos[1] - oldPos[1];
+  motionVector[2] = newPos[2] - oldPos[2];
 
-    camera->GetFocalPoint(viewFocus);
-    camera->GetPosition(viewPoint);
-    camera->SetFocalPoint(motionVector[0] + viewFocus[0],
-                          motionVector[1] + viewFocus[1],
-                          motionVector[2] + viewFocus[2]);
+  camera->GetFocalPoint(viewFocus);
+  camera->GetPosition(viewPoint);
+  camera->SetFocalPoint(motionVector[0] + viewFocus[0],
+			motionVector[1] + viewFocus[1],
+			motionVector[2] + viewFocus[2]);
 
-    camera->SetPosition(motionVector[0] + viewPoint[0],
-                        motionVector[1] + viewPoint[1],
-                        motionVector[2] + viewPoint[2]);
+  camera->SetPosition(motionVector[0] + viewPoint[0],
+		      motionVector[1] + viewPoint[1],
+		      motionVector[2] + viewPoint[2]);
 
-    if (camera->GetParallelProjection())
+  if (camera->GetParallelProjection())
     {
-        camera->SetParallelScale(camera->GetParallelScale() / factor);
+      camera->SetParallelScale(camera->GetParallelScale() / factor);
     }
-    else
+  else
     {
-        camera->Dolly(factor);
+      camera->Dolly(factor);
     }
 
-    if (interactor->GetLightFollowCamera())
+  if (interactor->GetLightFollowCamera())
     {
-        renderer->UpdateLightsGeometryToFollowCamera();
+      renderer->UpdateLightsGeometryToFollowCamera();
     }
-    renderer->ResetCameraClippingRange();
-    //interactor->Render();
+  renderer->ResetCameraClippingRange();
+  //interactor->Render();
 }
 
 void vvSlicerManagerCallback::FlyToPosition(vtkRenderWindowInteractor *interactor,vvSlicer* slicer)
 {
-    double flyFrom[3], flyTo[3];
-    double d[3], focalPt[3], position[3], positionFrom[3];
-    int i, j;
-    int VisibleInWindow = this->FindSlicerNumber(interactor->GetRenderWindow());
-    vtkRenderer* renderer=NULL;
-    if (VisibleInWindow>-1) 
-        renderer=this->SM->GetSlicer(VisibleInWindow)->GetRenderer();
-    else
-        return;
+  double flyFrom[3], flyTo[3];
+  double d[3], focalPt[3], position[3], positionFrom[3];
+  int i, j;
+  int VisibleInWindow = this->FindSlicerNumber(interactor->GetRenderWindow());
+  vtkRenderer* renderer=NULL;
+  if (VisibleInWindow>-1) 
+    renderer=this->SM->GetSlicer(VisibleInWindow)->GetRenderer();
+  else
+    return;
 
-    interactor->GetPicker()->Pick(interactor->GetEventPosition()[0],
-                                  interactor->GetEventPosition()[1], 0.0,
-                                  renderer);
+  interactor->GetPicker()->Pick(interactor->GetEventPosition()[0],
+				interactor->GetEventPosition()[1], 0.0,
+				renderer);
 
-    vtkAssemblyPath *path=NULL;
-    vtkAbstractPropPicker *picker;
-    if ( (picker=vtkAbstractPropPicker::SafeDownCast(interactor->GetPicker())))
+  vtkAssemblyPath *path=NULL;
+  vtkAbstractPropPicker *picker;
+  if ( (picker=vtkAbstractPropPicker::SafeDownCast(interactor->GetPicker())))
     {
-        path = picker->GetPath();
+      path = picker->GetPath();
     }
-    if ( path != NULL )
+  if ( path != NULL )
     {
-        flyTo[0] = picker->GetPickPosition()[0];
-        flyTo[1] = picker->GetPickPosition()[1];
-        flyTo[2] = picker->GetPickPosition()[2];
-        renderer->GetActiveCamera()->GetFocalPoint(flyFrom);
-        renderer->GetActiveCamera()->GetPosition(positionFrom);
+      flyTo[0] = picker->GetPickPosition()[0];
+      flyTo[1] = picker->GetPickPosition()[1];
+      flyTo[2] = picker->GetPickPosition()[2];
+      renderer->GetActiveCamera()->GetFocalPoint(flyFrom);
+      renderer->GetActiveCamera()->GetPosition(positionFrom);
 
-        switch (slicer->GetSliceOrientation())
+      switch (slicer->GetSliceOrientation())
         {
         case vtkImageViewer2::SLICE_ORIENTATION_XY:
-            flyTo[2] = flyFrom[2];
-            break;
+	  flyTo[2] = flyFrom[2];
+	  break;
 
         case vtkImageViewer2::SLICE_ORIENTATION_XZ:
-            flyTo[1] = flyFrom[1];
-            break;
+	  flyTo[1] = flyFrom[1];
+	  break;
 
         case vtkImageViewer2::SLICE_ORIENTATION_YZ:
-            flyTo[0] = flyFrom[0];
-            break;
+	  flyTo[0] = flyFrom[0];
+	  break;
         }
 
 
-        for (i=0; i<3; i++)
+      for (i=0; i<3; i++)
         {
-            d[i] = flyTo[i] - flyFrom[i];
+	  d[i] = flyTo[i] - flyFrom[i];
         }
-        double distance = vtkMath::Normalize(d);
-        double delta = distance/15;
+      double distance = vtkMath::Normalize(d);
+      double delta = distance/15;
 
-        for (i=1; i<=15; i++)
+      for (i=1; i<=15; i++)
         {
-            for (j=0; j<3; j++)
+	  for (j=0; j<3; j++)
             {
-                focalPt[j] = flyFrom[j] + d[j]*i*delta;
-                position[j] = positionFrom[j] + d[j]*i*delta;
+	      focalPt[j] = flyFrom[j] + d[j]*i*delta;
+	      position[j] = positionFrom[j] + d[j]*i*delta;
             }
-            renderer->GetActiveCamera()->SetFocalPoint(focalPt);
-            renderer->GetActiveCamera()->SetPosition(position);
-            renderer->GetActiveCamera()->Dolly(0.3/15 + 1.0);
-            renderer->ResetCameraClippingRange();
-            interactor->Render();
+	  renderer->GetActiveCamera()->SetFocalPoint(focalPt);
+	  renderer->GetActiveCamera()->SetPosition(position);
+	  renderer->GetActiveCamera()->Dolly(0.3/15 + 1.0);
+	  renderer->ResetCameraClippingRange();
+	  interactor->Render();
         }
     }
 }

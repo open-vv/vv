@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvIntensityValueSlider.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/07 12:00:59 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2010/02/24 11:42:42 $
+  Version:   $Revision: 1.3 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -120,9 +120,9 @@ void vvIntensityValueSlider::SetMinimum(double min) {
 
 //------------------------------------------------------------------------------
 void vvIntensityValueSlider::Update() {
-  DD(mImage->GetScalarTypeAsString());
-  DD(mImage->GetFirstVTKImageData()->GetScalarTypeMax());
-  DD(mImage->GetFirstVTKImageData()->GetScalarTypeMin());
+ //  DD(mImage->GetScalarTypeAsString());
+//   DD(mImage->GetFirstVTKImageData()->GetScalarTypeMax());
+//   DD(mImage->GetFirstVTKImageData()->GetScalarTypeMin());
 
   // double max = mImage->GetFirstVTKImageData()->GetScalarTypeMax();
 //   double min = mImage->GetFirstVTKImageData()->GetScalarTypeMin();
@@ -137,8 +137,8 @@ void vvIntensityValueSlider::Update() {
     mImage->GetFirstVTKImageData()->GetScalarRange(range);
     mMin = range[0];
     mMax = range[1];
-    DD(mMax);
-    DD(mMin);
+   //  DD(mMax);
+//     DD(mMin);
     mSlider->setMaximum(mMax);
     mSlider->setMinimum(mMin);
     mSpinBox->setMaximum(mMax);

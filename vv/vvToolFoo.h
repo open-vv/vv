@@ -1,15 +1,15 @@
 /*=========================================================================
 
   Program:   vv
-  Module:    $RCSfile: vvToolBase.h,v $
+  Module:    $RCSfile: vvToolFoo.h,v $
   Language:  C++
-  Date:      $Date: 2010/02/24 11:42:42 $
-  Version:   $Revision: 1.3 $
+  Date:      $Date: 2010/02/24 11:43:37 $
+  Version:   $Revision: 1.1 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
-  Copyright (C) 2008
-  Léon Bérard cancer center  http://oncora1.lyon.fnclcc.fr
-  CREATIS                    http://www.creatis.insa-lyon.fr
+  Copyright (C) 2010
+  Léon Bérard cancer center http://oncora1.lyon.fnclcc.fr
+  CREATIS                   http://www.creatis.insa-lyon.fr
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,28 +25,33 @@
 
   =========================================================================*/
 
-#ifndef VVTOOLBASE_H
-#define VVTOOLBASE_H
+#ifndef VVTOOLFOO_H
+#define VVTOOLFOO_H
 
-#include "vvToolBaseBase.h"
-#include "vvToolCreator.h"
+#include <QtDesigner/QDesignerExportWidget>
+#include <QDialog>
+
+#include "vvToolBase.h"
+#include "ui_vvToolFoo.h"
 
 //------------------------------------------------------------------------------
-template<class ToolType>
-class vvToolBase : public vvToolBaseBase {
-public:
-  vvToolBase(vvMainWindowBase * m);
-  static void Initialize();  // can't be virtual, must be overwritten
+class vvToolFoo:
+  public QDialog,
+  public vvToolBase<vvToolFoo>, 
+  private Ui::vvToolFoo
+{
+  Q_OBJECT
+    public:
+  vvToolFoo(vvMainWindowBase* parent=0, Qt::WindowFlags f=0);
+  ~vvToolFoo();
 
-  static void SetToolName(QString n) { vvToolCreator<ToolType>::mSingleton->mToolName = n; }
-  static void SetToolMenuName(QString n) { vvToolCreator<ToolType>::mSingleton->mToolMenuName = n; }
-  static void SetToolIconFilename(QString n) { vvToolCreator<ToolType>::mSingleton->mToolIconFilename = n; }
-  static void SetToolTip(QString n) { vvToolCreator<ToolType>::mSingleton->mToolTip = n; }
+  static void Initialize();
 
-};
+ protected:
+  Ui::vvToolFoo ui;
+
+}; // end class vvToolFoo
 //------------------------------------------------------------------------------
-
-#include "vvToolBase.txx"
 
 #endif
 

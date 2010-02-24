@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   vv
-  Module:    $RCSfile: vvToolInputSelectorWidget.h,v $
+  Module:    $RCSfile: vvToolFoo.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/24 11:42:42 $
-  Version:   $Revision: 1.3 $
+  Date:      $Date: 2010/02/24 11:43:37 $
+  Version:   $Revision: 1.1 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -25,45 +25,39 @@
 
   =========================================================================*/
 
-#ifndef VVTOOLINPUTSELECTORWIDGET_H
-#define VVTOOLINPUTSELECTORWIDGET_H
-
-#include <QtDesigner/QDesignerExportWidget>
-#include <QDialog>
-#include "ui_vvToolInputSelectorWidget.h"
-#include "vvImage.h"
-
-class vvSlicerManager;
+#include "vvToolFoo.h"
 
 //------------------------------------------------------------------------------
-class vvToolInputSelectorWidget: public QWidget, private Ui::vvToolInputSelectorWidget 
-{
-  Q_OBJECT
-    public:
-  vvToolInputSelectorWidget(QWidget * parent=0, Qt::WindowFlags f=0);
-  ~vvToolInputSelectorWidget() {}
-  
-  void Initialize(std::vector<vvSlicerManager*> l, int index);
-  int GetSelectedInputIndex() { return mCurrentIndex; }
-  void SetToolTip(QString s);
-
- public slots:
-  void accept();
-  void reject();
-  void changeInput(int i);
-
- signals:
-  void accepted();
-  void rejected();
-
- protected:
-  Ui::vvToolInputSelectorWidget ui;
-  std::vector<vvSlicerManager*> mSlicerManagerList;
-  int mCurrentIndex;
-  vvSlicerManager * mCurrentSliceManager;
-
-}; // end class vvToolInputSelectorWidget
+// Create the tool and automagically (I like this word) insert it in
+// the main window menu.
+ADD_TOOL(vvToolFoo);
 //------------------------------------------------------------------------------
 
-#endif
+//------------------------------------------------------------------------------
+vvToolFoo::vvToolFoo(vvMainWindowBase * parent, Qt::WindowFlags f)
+  :QDialog(parent), 
+   vvToolBase<vvToolFoo>(parent), 
+   Ui::vvToolFoo() {
+  // Setup the UI
+  Ui_vvToolFoo::setupUi(this);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+vvToolFoo::~vvToolFoo() {
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolFoo::Initialize() {
+  SetToolName("Foo");
+  SetToolMenuName("Foo");
+  SetToolIconFilename(":/new/prefix1/icons/ducky.png");
+  SetToolTip("Make 'foo' on an image.");
+}
+//------------------------------------------------------------------------------
+
+
 

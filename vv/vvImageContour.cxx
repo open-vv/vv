@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvImageContour.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/07 12:00:59 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2010/02/24 11:42:42 $
+  Version:   $Revision: 1.3 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -76,7 +76,6 @@ void vvImageContour::setSlicer(vvSlicer * slicer) {
     mSquaresActorList.push_back(mSquaresActor);
     mSquaresList.push_back(mSquares);
     mClipperList.push_back(mClipper);
-
   }
   //mSquares->Update();
 }
@@ -84,7 +83,23 @@ void vvImageContour::setSlicer(vvSlicer * slicer) {
 
 
 //------------------------------------------------------------------------------
+void vvImageContour::removeActors() {
+ //  DD("removeActors");
+  if (!mSlicer) return;
+  mSlice = mSlicer->GetSlice();
+ //  DD(mSlice);
+  for(unsigned int i=0; i<mSquaresActorList.size(); i++) {
+    mSquaresActorList[i]->VisibilityOff();
+    //mSquaresActorList[i]->Update();
+  }
+}
+//------------------------------------------------------------------------------
+
+  
+//------------------------------------------------------------------------------
 void vvImageContour::update(int value) {
+  //  DD(value);
+  if (!mSlicer) return;
   mSlice = mSlicer->GetSlice();
 
   // Only change actor visibility if tslice change

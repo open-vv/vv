@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   vv
-  Module:    $RCSfile: vvToolManager.h,v $
+  Module:    $RCSfile: vvToolCreator.h,v $
   Language:  C++
-  Date:      $Date: 2010/02/24 11:42:42 $
-  Version:   $Revision: 1.3 $
+  Date:      $Date: 2010/02/24 11:43:37 $
+  Version:   $Revision: 1.1 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -25,41 +25,36 @@
 
   =========================================================================*/
 
-#ifndef VVTOOLMANAGER_H
-#define VVTOOLMANAGER_H
+#ifndef VVTOOLCREATOR_H
+#define VVTOOLCREATOR_H
 
-#include "clitkCommon.h"
-
-class vvToolCreatorBase;
-class vvMainWindowBase;
+#include "vvToolCreatorBase.h"
 
 //------------------------------------------------------------------------------
-// Manage a list of ToolCreator. Each tool will be automagically
-// inserted into a list at construction time, before main. Then the
-// MainWindow will call the 'Initialize' to insert the tool in the
-// menu bar.
-class vvToolManager {
-
+template<class ToolType>
+class vvToolCreator: public vvToolCreatorBase {
 public:
-
-  /// Get or build unique instance with this method
-  static vvToolManager * GetInstance();  
-
-  /// Add a tool creator in the list (called before main, via static member initialization)
-  static void AddTool(vvToolCreatorBase * v);
-
-  /// Called in MainWindow, insert all tools into the menu
-  static void InsertToolsInMenu(vvMainWindowBase * m);
-  
-protected:
-
-  /// Singleton object pointer
-  static vvToolManager * mSingleton;
-
-  /// list of all tool creators
-  std::vector<vvToolCreatorBase *> mListOfTools;
+  vvToolCreator(QString name):vvToolCreatorBase(name) {;}
+  virtual void InsertToolInMenu(vvMainWindowBase * m);
+  virtual void MenuSpecificToolSlot() { CreateTool<ToolType>(); }
+  static vvToolCreator<ToolType> * mSingleton;
 };
 //------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+#define CREATOR(CLASSNAME) vvToolCreator<CLASSNAME>::mSingleton
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+#define ADD_TOOL(NAME)                                          \
+  template<>                                                    \
+  vvToolCreator<NAME> * vvToolCreator<NAME>::mSingleton =       \
+    new vvToolCreator<NAME>(#NAME);
+//------------------------------------------------------------------------------
+
+#include "vvToolCreator.txx"
 
 #endif
 

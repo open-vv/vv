@@ -29,12 +29,10 @@ GNU General Public License for more details.
 #include <vector>
 
 #include "ui_vvMainWindow.h"
-
-#include "vvConstants.h"
-#include "vvImage.h"
-#include "vvMesh.h"
+#include "vvMainWindowBase.h"
 #include "vvToolManager.h"
-#include "clitkCommon.h"
+#include "vvConstants.h"
+#include "vvMesh.h"
 
 class vvSlicerManager;
 class vvHelpDialog;
@@ -45,16 +43,8 @@ class vtkRenderer;
 class vvDicomSeriesSelector;
 
 //------------------------------------------------------------------------------
-struct vvMainWindowToolInfo {
-  QMenu * mMenuTools;
-  std::vector<vvSlicerManager*> * mSlicerManagers;
-  int mSlicerManagerCurrentIndex;
-};
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-class vvMainWindow : public QMainWindow, private Ui::vvMainWindow
+class vvMainWindow: public vvMainWindowBase,
+                    private Ui::vvMainWindow
 {
   Q_OBJECT
 
@@ -71,7 +61,9 @@ class vvMainWindow : public QMainWindow, private Ui::vvMainWindow
   ///This is used to show an image when opened or computed
   void ShowLastImage();
 
-  vvMainWindowToolInfo * GetInfoForTool();
+  virtual void UpdateCurrentSlicer();
+  //vvMainWindowToolInfo * GetInfoForTool();
+//   void AddRunningTool(vvToolCreatorBase * tool);
 
 public slots:
   ///Allows the user to open and select various surfaces contained in a dicom-struct file
@@ -165,7 +157,7 @@ public slots:
 private:
 
   //variables
-  std::vector<vvSlicerManager*> mSlicerManagers;
+  // std::vector<vvSlicerManager*> mSlicerManagers;
   vvHelpDialog *help_dialog;
   vvDocumentation *documentation;
   vvDicomSeriesSelector *dicomSeriesSelector;
@@ -197,7 +189,8 @@ private:
   std::vector<QSlider*> verticalSliders;
   int mFrameRate;
 
-  vvMainWindowToolInfo * mCurrentToolInfo;
+  // vvMainWindowToolInfo * mCurrentToolInfo;
+  // std::vector<vvToolCreatorBase*> mListOfRunningTool;
 
   static vvMainWindow * mSingleton;
 };

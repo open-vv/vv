@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolBinarize.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/07 12:00:59 $
-  Version:   $Revision: 1.7 $
+  Date:      $Date: 2010/02/24 11:42:42 $
+  Version:   $Revision: 1.8 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -44,32 +44,30 @@ ADD_TOOL(vvToolBinarize);
 
 
 //------------------------------------------------------------------------------
-vvToolBinarize::vvToolBinarize(QWidget * parent, Qt::WindowFlags f)
-  :QDialog(parent,f), vvToolBase<vvToolBinarize>(), Ui::vvToolBinarize() 
-{
-  // Set Modality : dialog is not modal but stay always on top because
-  // parent is set at construction
-  setModal(false);
-  setAttribute(Qt::WA_DeleteOnClose);
+void vvToolBinarize::Initialize() {
+  SetToolName("Binarize");
+  SetToolMenuName("Binarize");
+  SetToolIconFilename(":/new/prefix1/icons/binarize.png");
+  SetToolTip("Image interactive binarization with thresholds.");
+}
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
+vvToolBinarize::vvToolBinarize(vvMainWindowBase * parent, Qt::WindowFlags f)
+  :vvToolWidgetBase(parent,f), 
+   vvToolBase<vvToolBinarize>(parent), 
+   Ui::vvToolBinarize() 
+{
   // GUI Initialization
-  setupUi(this);
+  Ui_vvToolBinarize::setupUi(mToolWidget);
 
   // Connect signals & slots  
-  connect(mToolInputSelectionWidget, SIGNAL(accepted()), this, SLOT(InputIsSelected()));
-  connect(mToolInputSelectionWidget, SIGNAL(rejected()), this, SLOT(close()));
-  connect(buttonBox, SIGNAL(accepted()), this, SLOT(apply()));
-  connect(buttonBox, SIGNAL(rejected()), this, SLOT(close()));
   connect(mThresholdSlider1, SIGNAL(valueChanged(double)), this, SLOT(valueChangedT1(double)));
   connect(mThresholdSlider2, SIGNAL(valueChanged(double)), this, SLOT(valueChangedT2(double)));
   connect(mRadioButtonLowerThan, SIGNAL(toggled(bool)), this, SLOT(enableLowerThan(bool)));
   connect(mCheckBoxUseFG, SIGNAL(toggled(bool)), this, SLOT(useFGBGtoggled(bool)));
   connect(mCheckBoxUseBG, SIGNAL(toggled(bool)), this, SLOT(useFGBGtoggled(bool)));
-
-  // VTK objects
-  //mImageContour = new vvImageContour;
-
-  //new vector of contours
 
   // Initialize some widget
   mThresholdSlider1->SetText("");
@@ -77,21 +75,14 @@ vvToolBinarize::vvToolBinarize(QWidget * parent, Qt::WindowFlags f)
   mFGSlider->SetText("Foreground value");
   mBGSlider->SetText("Background value");
 
-  // Disable main widget while input image is not selected
-  toolMainWidget->setEnabled(false);
-
   // Main filter 
   mFilter = new clitk::BinarizeImageGenericFilter<args_info_clitkBinarizeImage>; //DS PUT IN BASECLASS ?
-
-  // Initialize the input selection (mFilter should be create before !)
-  InitializeListOfInputImages(mToolInputSelectionWidget, mFilter);
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
 vvToolBinarize::~vvToolBinarize() {
-  //delete mImageContour;
 }
 //------------------------------------------------------------------------------
 
@@ -117,13 +108,10 @@ void vvToolBinarize::useFGBGtoggled(bool) {
 
 
 //------------------------------------------------------------------------------
-void vvToolBinarize::InputIsSelected() {
-
+void vvToolBinarize::InputIsSelected(vvSlicerManager * m) {
+  mCurrentSlicerManager = m;
   // Common
-  int index = mToolInputSelectionWidget->GetSelectedInputIndex();
-  mCurrentSliceManager = mSlicerManagersCompatible[index];
-  mCurrentImage = mCurrentSliceManager->GetImage();
-  toolMainWidget->setEnabled(true);
+  mCurrentImage = mCurrentSlicerManager->GetImage();
 
   // Specific for this gui
   mThresholdSlider1->SetValue(0);
@@ -132,7 +120,7 @@ void vvToolBinarize::InputIsSelected() {
   mThresholdSlider2->SetImage(mCurrentImage);
   mFGSlider->SetImage(mCurrentImage);
   mBGSlider->SetImage(mCurrentImage);
-  DD(mCurrentSliceManager->GetFileName().c_str());
+  //  DD(mCurrentSlicerManager->GetFileName().c_str());
   mFGSlider->SetMaximum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMax());
   mFGSlider->SetMinimum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMin());
   mBGSlider->SetMaximum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMax());
@@ -141,13 +129,13 @@ void vvToolBinarize::InputIsSelected() {
   mBGSlider->SetValue(0);
   
   // VTK objects for interactive display
-  for(int i=0;i<mCurrentSliceManager->NumberOfSlicers(); i++) {
+  for(int i=0;i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
     mImageContour.push_back(new vvImageContour);
-    mImageContour[i]->setSlicer(mCurrentSliceManager->GetSlicer(i));
+    mImageContour[i]->setSlicer(mCurrentSlicerManager->GetSlicer(i));
   }
   valueChangedT1(mThresholdSlider1->GetValue());
-  connect(mCurrentSliceManager,SIGNAL(UpdateSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
-  connect(mCurrentSliceManager,SIGNAL(UpdateTSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
+  connect(mCurrentSlicerManager,SIGNAL(UpdateSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
+  connect(mCurrentSlicerManager,SIGNAL(UpdateTSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
 
 }
 //------------------------------------------------------------------------------
@@ -155,11 +143,11 @@ void vvToolBinarize::InputIsSelected() {
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::UpdateSlice(int slicer,int slices) {
-  DD(slicer);
-  for(int i=0;i<mCurrentSliceManager->NumberOfSlicers(); i++) {
+  if (!mCurrentSlicerManager) close();
+  for(int i=0;i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
     mImageContour[i]->update(mThresholdSlider1->GetValue());
   }
-  mCurrentSliceManager->Render(); 
+  mCurrentSlicerManager->Render(); 
 }
 //------------------------------------------------------------------------------
 
@@ -183,7 +171,7 @@ void vvToolBinarize::GetArgsInfoFromGUI() {
 
   mArgsInfo.lower_given = 1;
   mArgsInfo.lower_arg = mThresholdSlider1->GetValue();
-  DD(mArgsInfo.lower_arg);
+  // DD(mArgsInfo.lower_arg);
   if (mRadioButtonLowerThan->isChecked()) {
     mArgsInfo.upper_given = 1;
     mArgsInfo.upper_arg = mThresholdSlider2->GetValue();
@@ -196,7 +184,7 @@ void vvToolBinarize::GetArgsInfoFromGUI() {
   mArgsInfo.fg_arg = mFGSlider->GetValue();
   mArgsInfo.bg_arg = mBGSlider->GetValue();
 
-  DD(inverseBGandFG);
+  // DD(inverseBGandFG);
   if (inverseBGandFG) {
     mArgsInfo.fg_arg = mFGSlider->GetValue();
     mArgsInfo.bg_arg = mBGSlider->GetValue();
@@ -224,6 +212,7 @@ void vvToolBinarize::GetArgsInfoFromGUI() {
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::apply() {
+  if (!mCurrentSlicerManager) close();
   GetArgsInfoFromGUI();
 
   // Main filter
@@ -236,8 +225,8 @@ void vvToolBinarize::apply() {
   // Output ???
   vvImage::Pointer output = filter->GetOutputVVImage();
   std::ostringstream osstream;
-  osstream << "Binarized_" << mCurrentSliceManager->GetSlicer(0)->GetFileName();
-  CREATOR(vvToolBinarize)->mMainWindow->AddImage(output,osstream.str()); 
+  osstream << "Binarized_" << mCurrentSlicerManager->GetSlicer(0)->GetFileName();
+  CREATOR(vvToolBinarize)->GetMainWindow()->AddImage(output,osstream.str()); 
   close();
 }
 //------------------------------------------------------------------------------
@@ -252,12 +241,15 @@ void vvToolBinarize::valueChangedT2(double v) {
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::valueChangedT1(double v) {
+  // DD(v);
+  if (!mCurrentSlicerManager) close();
+//   DD(mCurrentSlicerManager->GetSlicer(0));
   mThresholdSlider2->SetMinimum(v);
   int m1 = (int)lrint(v);
 
-  for(int i=0;i<mCurrentSliceManager->NumberOfSlicers(); i++) {
+  for(int i=0;i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
     mImageContour[i]->update(m1);
   }
-  mCurrentSliceManager->Render();
+  mCurrentSlicerManager->Render();
 }
 //------------------------------------------------------------------------------

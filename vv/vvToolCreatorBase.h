@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolCreatorBase.h,v $
   Language:  C++
-  Date:      $Date: 2010/01/29 13:54:37 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/02/24 11:42:42 $
+  Version:   $Revision: 1.2 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -28,14 +28,12 @@
 #ifndef VVTOOLCREATORBASE_H
 #define VVTOOLCREATORBASE_H
 
-#include "clitkCommon.h"
 #include <QObject>
+#include "vvSlicerManager.h"
+#include "vvMainWindowBase.h"
 
-// For vvMainWindowToolInfo
-#include "vvMainWindow.h"
-class vvMainWindow;
-// struct vvMainWindowToolInfo;
 class QAction;
+class vvToolBaseBase;
 
 //------------------------------------------------------------------------------
 class vvToolCreatorBase: public QObject {
@@ -43,48 +41,25 @@ class vvToolCreatorBase: public QObject {
   public:
 
   vvToolCreatorBase(QString name);
-  virtual ~vvToolCreatorBase() {;}
-  
-  virtual void Initialize(vvMainWindow * m);
-  virtual void UpdateEnabledTool();
+  virtual ~vvToolCreatorBase() {;}  
+  virtual void InsertToolInMenu(vvMainWindowBase * m);
   template<class ToolType> void CreateTool();
   virtual void MenuSpecificToolSlot() = 0;
-  
+  vvMainWindowBase * GetMainWindow() const { return mMainWindow; }
+
   QString mToolName;
   QString mToolMenuName;
   QString mToolIconFilename;
   QString mToolTip;
   QAction * mAction;
 
-  vvMainWindow * mMainWindow;
-
 public slots:
   virtual void MenuToolSlot() { MenuSpecificToolSlot(); }
+
+protected:
+  vvMainWindowBase * mMainWindow;
+  std::vector<vvToolBaseBase*> mListOfTool;
 };
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-template<class ToolType>
-class vvToolCreator: public vvToolCreatorBase {
-public:
-  vvToolCreator(QString name):vvToolCreatorBase(name) {;}
-  virtual void Initialize(vvMainWindow * m);
-  static vvToolCreator<ToolType> * mSingleton;
-  virtual void MenuSpecificToolSlot() { CreateTool<ToolType>(); }
-};
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-#define CREATOR(CLASSNAME) vvToolCreator<CLASSNAME>::mSingleton
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-#define ADD_TOOL(NAME)                                          \
-  template<>                                                    \
-  vvToolCreator<NAME> * vvToolCreator<NAME>::mSingleton =       \
-    new vvToolCreator<NAME>(#NAME);
 //------------------------------------------------------------------------------
 
 #include "vvToolCreatorBase.txx"

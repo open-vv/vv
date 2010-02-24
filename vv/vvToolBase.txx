@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   vv
-  Module:    $RCSfile: vvToolBase.h,v $
+  Module:    $RCSfile: vvToolBase.txx,v $
   Language:  C++
-  Date:      $Date: 2010/02/24 11:42:42 $
-  Version:   $Revision: 1.3 $
+  Date:      $Date: 2010/02/24 11:43:37 $
+  Version:   $Revision: 1.1 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -25,28 +25,21 @@
 
   =========================================================================*/
 
-#ifndef VVTOOLBASE_H
-#define VVTOOLBASE_H
-
-#include "vvToolBaseBase.h"
-#include "vvToolCreator.h"
-
 //------------------------------------------------------------------------------
 template<class ToolType>
-class vvToolBase : public vvToolBaseBase {
-public:
-  vvToolBase(vvMainWindowBase * m);
-  static void Initialize();  // can't be virtual, must be overwritten
-
-  static void SetToolName(QString n) { vvToolCreator<ToolType>::mSingleton->mToolName = n; }
-  static void SetToolMenuName(QString n) { vvToolCreator<ToolType>::mSingleton->mToolMenuName = n; }
-  static void SetToolIconFilename(QString n) { vvToolCreator<ToolType>::mSingleton->mToolIconFilename = n; }
-  static void SetToolTip(QString n) { vvToolCreator<ToolType>::mSingleton->mToolTip = n; }
-
-};
+vvToolBase<ToolType>::vvToolBase(vvMainWindowBase * m) { 
+  mMainWindowBase = m; 
+}
 //------------------------------------------------------------------------------
 
-#include "vvToolBase.txx"
-
-#endif
+//------------------------------------------------------------------------------  
+// Default value (to be overwritten)
+template<class ToolType>
+void vvToolBase<ToolType>::Initialize() {
+  SetToolName("Unnamed tool (use SetToolName in Initialize())");
+  SetToolMenuName("Unnamed tool");
+  SetToolIconFilename("");
+  SetToolTip("Unamed tool.");
+}
+//------------------------------------------------------------------------------    
 

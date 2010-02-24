@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   vv
-  Module:    $RCSfile: vvToolInputSelectorWidget.h,v $
+  Module:    $RCSfile: vvToolCropImage.h,v $
   Language:  C++
-  Date:      $Date: 2010/02/24 11:42:42 $
-  Version:   $Revision: 1.3 $
+  Date:      $Date: 2010/02/24 11:43:37 $
+  Version:   $Revision: 1.1 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -25,44 +25,53 @@
 
   =========================================================================*/
 
-#ifndef VVTOOLINPUTSELECTORWIDGET_H
-#define VVTOOLINPUTSELECTORWIDGET_H
+#ifndef VVTOOLCROPIMAGE_H
+#define VVTOOLCROPIMAGE_H
 
 #include <QtDesigner/QDesignerExportWidget>
 #include <QDialog>
-#include "ui_vvToolInputSelectorWidget.h"
-#include "vvImage.h"
 
-class vvSlicerManager;
+#include "vvToolBase.h"
+#include "vvToolWidgetBase.h"
+#include "vvMainWindowBase.h"
+#include "ui_vvToolCropImage.h"
 
 //------------------------------------------------------------------------------
-class vvToolInputSelectorWidget: public QWidget, private Ui::vvToolInputSelectorWidget 
+class vvToolCropImage:
+  public vvToolWidgetBase,
+  public vvToolBase<vvToolCropImage>, 
+  private Ui::vvToolCropImage 
 {
   Q_OBJECT
     public:
-  vvToolInputSelectorWidget(QWidget * parent=0, Qt::WindowFlags f=0);
-  ~vvToolInputSelectorWidget() {}
-  
-  void Initialize(std::vector<vvSlicerManager*> l, int index);
-  int GetSelectedInputIndex() { return mCurrentIndex; }
-  void SetToolTip(QString s);
+  vvToolCropImage(vvMainWindowBase * parent=0, Qt::WindowFlags f=0);
+  ~vvToolCropImage();
 
- public slots:
-  void accept();
-  void reject();
-  void changeInput(int i);
+  //-----------------------------------------------------
+  typedef vvToolCropImage Self;
+  bool close() { return QWidget::close(); }
+  virtual void InputIsSelected(vvSlicerManager *m);
+  //void AnImageIsBeingClosed(vvSlicerManager * m) { vvToolWidgetBase::TTAnImageIsBeingClosed(m); }
 
- signals:
-  void accepted();
-  void rejected();
+  void bar() { DD("crop::bar"); }
+
+
+public slots:
+  void apply() { DD("Apply"); }
+
+  //-----------------------------------------------------
+  static void Initialize() {
+    SetToolName("Crop");
+    SetToolMenuName("Crop");
+    SetToolIconFilename(":/new/prefix1/icons/binarize.png");
+    SetToolTip("Crop image.");
+  }
 
  protected:
-  Ui::vvToolInputSelectorWidget ui;
-  std::vector<vvSlicerManager*> mSlicerManagerList;
-  int mCurrentIndex;
-  vvSlicerManager * mCurrentSliceManager;
+  Ui::vvToolCropImage ui;
 
-}; // end class vvToolInputSelectorWidget
+
+}; // end class vvToolCropImage
 //------------------------------------------------------------------------------
 
 #endif

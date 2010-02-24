@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   vv
-  Module:    $RCSfile: vvToolCreatorBase.cxx,v $
+  Module:    $RCSfile: vvToolCropImage.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/24 11:42:42 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2010/02/24 11:43:37 $
+  Version:   $Revision: 1.1 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -25,32 +25,40 @@
 
   =========================================================================*/
 
-#include "vvToolCreatorBase.h"
-#include "vvToolManager.h"
-#include <QAction>
-#include <QMenu>
+#include "vvToolCropImage.h"
 
 //------------------------------------------------------------------------------
-vvToolCreatorBase::vvToolCreatorBase(QString name) { 
-  mToolName = name;
-  vvToolManager::GetInstance()->AddTool(this); 
+// Create the tool and automagically (I like this word) insert it in
+// the main window menu.
+ADD_TOOL(vvToolCropImage);
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+vvToolCropImage::vvToolCropImage(vvMainWindowBase * parent, Qt::WindowFlags f):
+  vvToolWidgetBase(parent, f), 
+  vvToolBase<vvToolCropImage>(parent), 
+  Ui::vvToolCropImage() {
+  // GUI Initialization
+  Ui_vvToolCropImage::setupUi(mToolWidget);
+
+  // Initialize the input selection
+  //UpdateInfoFromMainWindow();
+ //  InitializeListOfInputImages(*mMainWindowToolInfo->mSlicerManagers, 
+// 			      mMainWindowToolInfo->mSlicerManagerCurrentIndex); 
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvToolCreatorBase::InsertToolInMenu(vvMainWindowBase * m) { 
-  mMainWindow = m; 
-  // Create main action
-  if (mToolIconFilename == "noicon") 
-    mAction = new QAction(QString("&").append(mToolMenuName), this);
-  else 
-    mAction = new QAction(QIcon(mToolIconFilename), 
-                          QString("&").append(mToolMenuName), this);
-  mAction->setStatusTip(mToolTip);
-  // Connect the action
-  connect(mAction, SIGNAL(triggered()), this, SLOT(MenuToolSlot()));
-  mMainWindow->GetMenu()->addAction(mAction);
-} 
+vvToolCropImage::~vvToolCropImage() {
+
+}
 //------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
+void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer) {
+  DD("InputIsSelected");
+}
+//------------------------------------------------------------------------------

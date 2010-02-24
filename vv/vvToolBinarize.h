@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolBinarize.h,v $
   Language:  C++
-  Date:      $Date: 2010/02/07 12:00:59 $
-  Version:   $Revision: 1.5 $
+  Date:      $Date: 2010/02/24 11:42:42 $
+  Version:   $Revision: 1.6 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -29,9 +29,10 @@
 #define VVTOOLBINARIZE_H
 
 #include <QtDesigner/QDesignerExportWidget>
-#include <QDialog>
+//#include <QDialog>
 
 #include "vvToolBase.h"
+#include "vvToolWidgetBase.h"
 #include "vvImageContour.h"
 #include "ui_vvToolBinarize.h"
 #include "clitkBinarizeImage_ggo.h"
@@ -47,24 +48,17 @@
 
 //------------------------------------------------------------------------------
 class vvToolBinarize:
-  public QDialog, public vvToolBase<vvToolBinarize>, private Ui::vvToolBinarize 
+  public vvToolWidgetBase,
+  public vvToolBase<vvToolBinarize>, 
+  private Ui::vvToolBinarize 
 {
   Q_OBJECT
     public:
-  vvToolBinarize(QWidget * parent=0, Qt::WindowFlags f=0);
+  vvToolBinarize(vvMainWindowBase * parent=0, Qt::WindowFlags f=0);
   ~vvToolBinarize();
 
   //-----------------------------------------------------
-  typedef vvToolBinarize Self;
-
-  //-----------------------------------------------------
-  static void Initialize() {
-    SetToolName("Binarize");
-    SetToolMenuName("Binarize");
-    SetToolIconFilename(":/new/prefix1/icons/binarize.png");
-    SetToolTip("Image interactive binarization with thresholds.");
-  }
-
+  static void Initialize();
   void InputIsSet(bool b);
   void GetArgsInfoFromGUI();
 
@@ -74,9 +68,23 @@ class vvToolBinarize:
   void valueChangedT1(double v);
   void valueChangedT2(double v);
   void UpdateSlice(int slicer,int slices);
-  void InputIsSelected();
+  void InputIsSelected(vvSlicerManager * m);
   void enableLowerThan(bool b);
   void useFGBGtoggled(bool);
+  virtual bool close() { DD("vvToolBinarize::close"); 
+    for(unsigned int i=0; i<mImageContour.size(); i++)
+      mImageContour[i]->removeActors();
+    if (mCurrentSlicerManager)
+      mCurrentSlicerManager->Render();
+    return vvToolWidgetBase::close(); }
+
+  virtual void reject() { DD("vvToolBinarize::reject"); 
+    for(unsigned int i=0; i<mImageContour.size(); i++)
+      mImageContour[i]->removeActors();
+    if (mCurrentSlicerManager)
+      mCurrentSlicerManager->Render();
+    return vvToolWidgetBase::reject(); }
+
 
  protected:
   Ui::vvToolBinarize ui;

@@ -1,15 +1,15 @@
 /*=========================================================================
 
   Program:   vv
-  Module:    $RCSfile: vvToolBase.h,v $
+  Module:    $RCSfile: vvToolCreator.txx,v $
   Language:  C++
-  Date:      $Date: 2010/02/24 11:42:42 $
-  Version:   $Revision: 1.3 $
+  Date:      $Date: 2010/02/24 11:43:37 $
+  Version:   $Revision: 1.1 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
-  Léon Bérard cancer center  http://oncora1.lyon.fnclcc.fr
-  CREATIS                    http://www.creatis.insa-lyon.fr
+  Léon Bérard cancer center http://oncora1.lyon.fnclcc.fr
+  CREATIS-LRMN http://www.creatis.insa-lyon.fr
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,28 +25,21 @@
 
   =========================================================================*/
 
-#ifndef VVTOOLBASE_H
-#define VVTOOLBASE_H
-
-#include "vvToolBaseBase.h"
-#include "vvToolCreator.h"
-
 //------------------------------------------------------------------------------
+// Call when the ToolType is inserted into the menu
 template<class ToolType>
-class vvToolBase : public vvToolBaseBase {
-public:
-  vvToolBase(vvMainWindowBase * m);
-  static void Initialize();  // can't be virtual, must be overwritten
+void vvToolCreator<ToolType>::InsertToolInMenu(vvMainWindowBase * m) { 
+  mMainWindow = m;
 
-  static void SetToolName(QString n) { vvToolCreator<ToolType>::mSingleton->mToolName = n; }
-  static void SetToolMenuName(QString n) { vvToolCreator<ToolType>::mSingleton->mToolMenuName = n; }
-  static void SetToolIconFilename(QString n) { vvToolCreator<ToolType>::mSingleton->mToolIconFilename = n; }
-  static void SetToolTip(QString n) { vvToolCreator<ToolType>::mSingleton->mToolTip = n; }
+  // Default Initialization
+  mToolMenuName = mToolName;
+  mToolIconFilename = "noicon";
+  mToolTip = mToolName;
 
-};
+  // User Tool Initialization
+  ToolType::Initialize();
+
+  // Common Initialization (insertion into menu)
+  vvToolCreatorBase::InsertToolInMenu(mMainWindow); 
+}
 //------------------------------------------------------------------------------
-
-#include "vvToolBase.txx"
-
-#endif
-

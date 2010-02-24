@@ -73,6 +73,7 @@ SET(vv_SRCS
   vvResamplerDialog.cxx
   vvSegmentationDialog.cxx
   vvSurfaceViewerDialog.cxx
+  vvMainWindowBase.cxx
   vvMainWindow.cxx
   vvDeformationDialog.cxx
   vvImageWarp.cxx
@@ -102,12 +103,16 @@ SET(vv_SRCS
   vvIntensityValueSlider.cxx
   vvToolManager.cxx
   vvToolCreatorBase.cxx
+  vvToolWidgetBase.cxx
+  vvToolFoo.cxx
+  vvToolCropImage.cxx
   vvToolBinarize.cxx
   vvToolInputSelectorWidget.cxx
   vvImageContour.cxx
   )
 
 QT4_WRAP_CPP(vv_SRCS 
+  vvMainWindowBase.h 
   vvMainWindow.h 
   QTreePushButton.h 
   vvInfoPanel.h 
@@ -127,8 +132,11 @@ QT4_WRAP_CPP(vv_SRCS
   vvCropDialog.h
   vvIntensityValueSlider.h
   vvToolCreatorBase.h
+  vvToolFoo.h
   vvToolBinarize.h
   vvToolInputSelectorWidget.h
+  vvToolWidgetBase.h
+  vvToolCropImage.h
   )
 
 QT4_WRAP_UI(vv_UI_CXX 
@@ -149,6 +157,9 @@ QT4_WRAP_UI(vv_UI_CXX
   qt_ui/vvCropDialog.ui
   qt_ui/vvDummyWindow.ui #For testing
   qt_ui/vvIntensityValueSlider.ui
+  qt_ui/vvToolWidgetBase.ui
+  qt_ui/vvToolFoo.ui
+  qt_ui/vvToolCropImage.ui
   qt_ui/vvToolBinarize.ui
   qt_ui/vvToolInputSelectorWidget.ui
   )

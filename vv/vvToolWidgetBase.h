@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   vv
-  Module:    $RCSfile: vvToolInputSelectorWidget.h,v $
+  Module:    $RCSfile: vvToolWidgetBase.h,v $
   Language:  C++
-  Date:      $Date: 2010/02/24 11:42:42 $
-  Version:   $Revision: 1.3 $
+  Date:      $Date: 2010/02/24 11:43:37 $
+  Version:   $Revision: 1.1 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -25,44 +25,46 @@
 
   =========================================================================*/
 
-#ifndef VVTOOLINPUTSELECTORWIDGET_H
-#define VVTOOLINPUTSELECTORWIDGET_H
+#ifndef VVTOOLWIDGETBASE_H
+#define VVTOOLWIDGETBASE_H
 
 #include <QtDesigner/QDesignerExportWidget>
-#include <QDialog>
-#include "ui_vvToolInputSelectorWidget.h"
-#include "vvImage.h"
-
-class vvSlicerManager;
+#include "ui_vvToolWidgetBase.h"
+#include "clitkImageToImageGenericFilter.h"
+class vvMainWindowBase;
 
 //------------------------------------------------------------------------------
-class vvToolInputSelectorWidget: public QWidget, private Ui::vvToolInputSelectorWidget 
+class vvToolWidgetBase:
+  public QDialog, 
+  public Ui::vvToolWidgetBase 
 {
   Q_OBJECT
-    public:
-  vvToolInputSelectorWidget(QWidget * parent=0, Qt::WindowFlags f=0);
-  ~vvToolInputSelectorWidget() {}
-  
-  void Initialize(std::vector<vvSlicerManager*> l, int index);
-  int GetSelectedInputIndex() { return mCurrentIndex; }
-  void SetToolTip(QString s);
+  public:
 
- public slots:
-  void accept();
-  void reject();
-  void changeInput(int i);
+  vvToolWidgetBase(vvMainWindowBase * parent=0, Qt::WindowFlags f=0);
+  ~vvToolWidgetBase();
 
- signals:
-  void accepted();
-  void rejected();
+  virtual void InputIsSelected(vvSlicerManager *m) = 0;
 
- protected:
-  Ui::vvToolInputSelectorWidget ui;
-  std::vector<vvSlicerManager*> mSlicerManagerList;
-  int mCurrentIndex;
-  vvSlicerManager * mCurrentSliceManager;
+public slots:
+  virtual void apply() = 0;
+  void InputIsSelected();
+  void AnImageIsBeingClosed(vvSlicerManager * m);
+  void show();
+  virtual bool close();
 
-}; // end class vvToolInputSelectorWidget
+protected:
+  void InitializeInputs();
+  Ui::vvToolWidgetBase ui;
+  clitk::ImageToImageGenericFilterBase * mFilter;
+  vvMainWindowBase * mMainWindowBase;
+  std::vector<vvSlicerManager*> mSlicerManagersCompatible;
+  vvSlicerManager * mCurrentSlicerManager;
+  int mCurrentCompatibleIndex;
+  vvImage * mCurrentImage;
+  bool mIsInitialized;
+
+}; // end class vvToolWidgetBase
 //------------------------------------------------------------------------------
 
 #endif

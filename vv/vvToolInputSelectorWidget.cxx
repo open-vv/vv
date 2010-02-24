@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolInputSelectorWidget.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/01/29 13:54:37 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/02/24 11:42:42 $
+  Version:   $Revision: 1.2 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -48,7 +48,6 @@ vvToolInputSelectorWidget::vvToolInputSelectorWidget(QWidget * parent, Qt::Windo
 
 //------------------------------------------------------------------------------
 void vvToolInputSelectorWidget::Initialize(std::vector<vvSlicerManager*> l, int index) {
-  DD("Initialize"); DD(index);
   mInputSequenceBox->clear();
   mSlicerManagerList = l;
   mCurrentIndex = index;
@@ -70,8 +69,6 @@ void vvToolInputSelectorWidget::Initialize(std::vector<vvSlicerManager*> l, int 
 
 //------------------------------------------------------------------------------
 void vvToolInputSelectorWidget::SetToolTip(QString s) {
-  //  mLabelSelection->setToolTip(s);
-  //mInputSequenceBox->setToolTip(s);
   setToolTip(s);
 }
 //------------------------------------------------------------------------------

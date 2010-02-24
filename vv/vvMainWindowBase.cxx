@@ -1,13 +1,13 @@
 /*=========================================================================
 
   Program:   vv
-  Module:    $RCSfile: vvToolCreatorBase.txx,v $
+  Module:    $RCSfile: vvMainWindowBase.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/24 11:42:42 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2010/02/24 11:43:37 $
+  Version:   $Revision: 1.1 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
-  Copyright (C) 2008
+  Copyright (C) 2010
   Léon Bérard cancer center http://oncora1.lyon.fnclcc.fr
   CREATIS-LRMN http://www.creatis.insa-lyon.fr
 
@@ -25,18 +25,6 @@
 
   =========================================================================*/
 
-//------------------------------------------------------------------------------
-// Called when the tool is created
-template<class ToolType>
-void vvToolCreatorBase::CreateTool() {
-  // Get information on the current image
-  mMainWindow->UpdateCurrentSlicer();
-  // Create the tool
-  ToolType * tool = new ToolType(mMainWindow);
-  // Put it in the list of open tools
-  mListOfTool.push_back(tool);
-  // Go !
-  tool->show();
-}
-//------------------------------------------------------------------------------
+#include "vvMainWindowBase.h"
+
 

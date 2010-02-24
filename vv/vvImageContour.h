@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvImageContour.h,v $
   Language:  C++
-  Date:      $Date: 2010/02/07 12:00:59 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2010/02/24 11:42:42 $
+  Version:   $Revision: 1.3 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -50,6 +50,7 @@ class vvImageContour
   void setSlicer(vvSlicer * slicer);
   // vtkActor * getActor() { return mSquaresActor;}
   void update(int value);
+  void removeActors();
 
  protected:
   vvSlicer * mSlicer;

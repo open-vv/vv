@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>vvToolWidgetBase</class>
+ <widget class="QWidget" name="vvToolWidgetBase">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>615</width>
+    <height>372</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <widget class="vvToolInputSelectorWidget" name="mToolInputSelectionWidget" native="true"/>
+     <widget class="QWidget" name="mToolWidget" native="true"/>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+  <zorder>splitter</zorder>
+  <zorder>buttonBox</zorder>
+  <zorder>mToolInputSelectionWidget</zorder>
+  <zorder>groupBox</zorder>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>vvToolInputSelectorWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">vvToolInputSelectorWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

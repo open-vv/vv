@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolManager.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/03 10:54:08 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2010/02/24 11:42:42 $
+  Version:   $Revision: 1.3 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -26,9 +26,14 @@
   =========================================================================*/
 
 #include "vvToolManager.h"
-#include "vvMainWindow.h"
+#include "vvToolCreatorBase.h"
+#include "vvMainWindowBase.h"
 
+//------------------------------------------------------------------------------
+/// Unique static instance 
 vvToolManager* vvToolManager::mSingleton=0; 
+//------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 vvToolManager * vvToolManager::GetInstance() {
@@ -49,18 +54,10 @@ void vvToolManager::AddTool(vvToolCreatorBase * v)  {
 
 
 //------------------------------------------------------------------------------
-void vvToolManager::Initialize(vvMainWindow * m) {
+void vvToolManager::InsertToolsInMenu(vvMainWindowBase * m) {
   for(unsigned int i=0; i<GetInstance()->mListOfTools.size(); i++) {
-    GetInstance()->mListOfTools[i]->Initialize(m);
+    GetInstance()->mListOfTools[i]->InsertToolInMenu(m);
   }
 }
 //------------------------------------------------------------------------------
 
-
-//------------------------------------------------------------------------------
-void vvToolManager::UpdateEnabledTool() {
-  for(unsigned int i=0; i<GetInstance()->mListOfTools.size(); i++) {
-    GetInstance()->mListOfTools[i]->UpdateEnabledTool();
-  }
-}
-//------------------------------------------------------------------------------
