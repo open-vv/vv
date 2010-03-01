@@ -210,6 +210,7 @@ protected:
     int mVFLog;
     bool mUseReducedExtent;
     int * mReducedExtent;
+    int * mInitialExtent;
 
 private:
     void UpdateOrientation();

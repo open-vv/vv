@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolInputSelectorWidget.h,v $
   Language:  C++
-  Date:      $Date: 2010/02/24 11:42:42 $
-  Version:   $Revision: 1.3 $
+  Date:      $Date: 2010/03/01 15:38:09 $
+  Version:   $Revision: 1.4 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -45,7 +45,6 @@ class vvToolInputSelectorWidget: public QWidget, private Ui::vvToolInputSelector
   
   void Initialize(std::vector<vvSlicerManager*> l, int index);
   int GetSelectedInputIndex() { return mCurrentIndex; }
-  void SetToolTip(QString s);
 
  public slots:
   void accept();

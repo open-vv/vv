@@ -14,20 +14,6 @@
 // clitk include
 #include "clitkPortability.h"
 
-// std include
-//#include <config.h>
-//#include <cstdlib>
-//#include <algorithm>
-//#include <iostream>
-//#include <string>
-//#include <fstream>
-//#include <sstream>
-//#include <vector>
-//#include <math.h>
-//#include <typeinfo>
-//#include <utility>
-//#include <algorithm>
-
 // itk include (include std)
 #include <itkContinuousIndex.h>
 #include <itkMacro.h>

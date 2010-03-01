@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolWidgetBase.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/24 11:43:37 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/03/01 15:38:09 $
+  Version:   $Revision: 1.2 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -96,7 +96,7 @@ void vvToolWidgetBase::AnImageIsBeingClosed(vvSlicerManager * m) {
 void vvToolWidgetBase::InitializeInputs() {
   if (mFilter) {
     int j=0;
-    mToolInputSelectionWidget->SetToolTip(QString("%1").arg(mFilter->GetAvailableImageTypes().c_str()));
+    mToolInputSelectionWidget->setToolTip(QString("%1").arg(mFilter->GetAvailableImageTypes().c_str()));
     for(unsigned int i=0; i<mMainWindowBase->GetSlicerManagers().size(); i++) {
       vvImage * s = mMainWindowBase->GetSlicerManagers()[i]->GetImage();
       if (mFilter->CheckImageType(s->GetNumberOfDimensions(), 
@@ -124,6 +124,7 @@ void vvToolWidgetBase::InputIsSelected() {
   // Common
   int index = mToolInputSelectionWidget->GetSelectedInputIndex();
   mCurrentSlicerManager = mSlicerManagersCompatible[index];
+  mCurrentImage = mCurrentSlicerManager->GetImage();
   mToolWidget->setEnabled(true);
   if (!mCurrentSlicerManager) close();
   InputIsSelected(mCurrentSlicerManager);

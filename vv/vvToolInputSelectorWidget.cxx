@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolInputSelectorWidget.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/24 11:42:42 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2010/03/01 15:38:09 $
+  Version:   $Revision: 1.3 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -63,13 +63,6 @@ void vvToolInputSelectorWidget::Initialize(std::vector<vvSlicerManager*> l, int 
   if (mSlicerManagerList.size() == 1) {
     accept();
   }
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-void vvToolInputSelectorWidget::SetToolTip(QString s) {
-  setToolTip(s);
 }
 //------------------------------------------------------------------------------
 

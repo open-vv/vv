@@ -3,10 +3,10 @@
   Program:   vv
   Module:    $RCSfile: clitkImageToImageGenericFilter.txx,v $
   Language:  C++
-  Date:      $Date: 2010/02/18 14:47:20 $
-  Version:   $Revision: 1.6 $
+  Date:      $Date: 2010/03/01 15:37:41 $
+  Version:   $Revision: 1.7 $
   Author :   Joel Schaerer <joel.schaerer@creatis.insa-lyon.fr>
-             David Sarrut <david.sarrut@creatis.insa-lyon.fr>
+  David Sarrut <david.sarrut@creatis.insa-lyon.fr>
 
   Copyright (C) 2008
   Léon Bérard cancer center http://oncora1.lyon.fnclcc.fr
@@ -49,10 +49,10 @@ typename ImageType::Pointer clitk::ImageToImageGenericFilterBase::GetInput(unsig
   else if (mInputVVImages.size() > n)
     return typename ImageType::Pointer(const_cast<ImageType*>(vvImageToITK<ImageType>(mInputVVImages[n]).GetPointer()));
   else
-  {
-    assert(false); //No input, this shouldn't happen
-    return typename ImageType::Pointer(NULL);
-  }
+    {
+      assert(false); //No input, this shouldn't happen
+      return typename ImageType::Pointer(NULL);
+    }
 }
 //--------------------------------------------------------------------
 
@@ -60,8 +60,8 @@ typename ImageType::Pointer clitk::ImageToImageGenericFilterBase::GetInput(unsig
 //--------------------------------------------------------------------
 template<class FilterType>
 clitk::ImageToImageGenericFilter<FilterType>::ImageToImageGenericFilter(std::string filterName) :
-    ImageToImageGenericFilterBase(filterName), 
-    mImageTypesManager(static_cast<FilterType*>(this))
+  ImageToImageGenericFilterBase(filterName), 
+  mImageTypesManager(static_cast<FilterType*>(this))
 {
 }
 //--------------------------------------------------------------------
@@ -84,38 +84,46 @@ bool clitk::ImageToImageGenericFilter<FilterType>::Update() {
   return true;
 }
 //--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
 template<class FilterType>
 bool clitk::ImageToImageGenericFilter<FilterType>::CheckImageType(unsigned int dim,unsigned int ncomp, std::string pixeltype)
 {
-    return static_cast<bool>(mImageTypesManager.mMapOfImageTypeToFunction[dim][ncomp][pixeltype]);
+  return static_cast<bool>(mImageTypesManager.mMapOfImageTypeToFunction[dim][ncomp][pixeltype]);
 }
+//--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
 template<class FilterType>
 bool clitk::ImageToImageGenericFilter<FilterType>::CheckImageType()
 {
-    return static_cast<bool>(mImageTypesManager.mMapOfImageTypeToFunction[mDim][mNbOfComponents][mPixelTypeName]);
+  return static_cast<bool>(mImageTypesManager.mMapOfImageTypeToFunction[mDim][mNbOfComponents][mPixelTypeName]);
 }
+//--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
 template<class FilterType>
 std::string clitk::ImageToImageGenericFilter<FilterType>::GetAvailableImageTypes() {
-    std::ostringstream oss;
-    oss << "The filter <" << mFilterName << "> manages:" << std::endl;
+  std::ostringstream oss;
+  oss << "The filter <" << mFilterName << "> manages:" << std::endl;
     
-    typedef typename ImageTypesManager<FilterType>::MapOfImageComponentsToFunctionType::const_iterator MCompItType;
-    typedef typename ImageTypesManager<FilterType>::MapOfImageDimensionToFunctionType::const_iterator MDimItType;
-    typedef typename ImageTypesManager<FilterType>::MapOfPixelTypeToFunctionType::const_iterator MPixelItType;
-    for (MDimItType i=mImageTypesManager.mMapOfImageTypeToFunction.begin();
-            i!=mImageTypesManager.mMapOfImageTypeToFunction.end();
-            i++) {
-        for (MCompItType j=(*i).second.begin(); j!= (*i).second.end(); j++) {
-            for (MPixelItType k=(*j).second.begin(); k!= (*j).second.end(); k++) {
-                oss << "Dim: " << (*i).first 
-                    << ", Components: " << (*j).first 
-                    << ", Type: " << (*k).first << std::endl;
-            }
-        }
+  typedef typename ImageTypesManager<FilterType>::MapOfImageComponentsToFunctionType::const_iterator MCompItType;
+  typedef typename ImageTypesManager<FilterType>::MapOfImageDimensionToFunctionType::const_iterator MDimItType;
+  typedef typename ImageTypesManager<FilterType>::MapOfPixelTypeToFunctionType::const_iterator MPixelItType;
+  for (MDimItType i=mImageTypesManager.mMapOfImageTypeToFunction.begin();
+       i!=mImageTypesManager.mMapOfImageTypeToFunction.end();
+       i++) {
+    for (MCompItType j=(*i).second.begin(); j!= (*i).second.end(); j++) {
+      for (MPixelItType k=(*j).second.begin(); k!= (*j).second.end(); k++) {
+        oss << "Dim: " << (*i).first 
+            << ", Components: " << (*j).first 
+            << ", Type: " << (*k).first << std::endl;
+      }
     }
-    return oss.str();
+  }
+  return oss.str();
 }
 //--------------------------------------------------------------------
 

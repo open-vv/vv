@@ -131,7 +131,7 @@ public slots:
   void SaveSOScreenshot();
 
   void ShowContextMenu(QPoint point);
-  void CropImage();
+  //  void CropImage();
   void SplitImage();
   void CloseImage();
   void ReloadImage();

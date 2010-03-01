@@ -46,7 +46,6 @@ namespace clitk
   void BinarizeImageGenericFilter<args_info_type>::SetArgsInfo(const args_info_type & a) {
     mArgsInfo=a;
     SetIOVerbose(mArgsInfo.verbose_flag);
-
     if (mArgsInfo.imagetypes_flag) this->PrintAvailableImageTypes();
 
     if (mArgsInfo.input_given) {
@@ -83,15 +82,15 @@ namespace clitk
     if (mArgsInfo.lower_given) thresholdFilter->SetLowerThreshold(static_cast<PixelType>(mArgsInfo.lower_arg));
     if (mArgsInfo.upper_given) thresholdFilter->SetUpperThreshold(static_cast<PixelType>(mArgsInfo.upper_arg));
 
-    DD(mArgsInfo.lower_given);
-    DD(mArgsInfo.upper_given);
-    DD(mArgsInfo.lower_arg);
-    DD(mArgsInfo.upper_arg);
-    DD(mArgsInfo.fg_arg);
-    DD(mArgsInfo.bg_arg);
-    DD(mArgsInfo.fg_given);
-    DD(mArgsInfo.bg_given);
-    DD(mArgsInfo.mode_arg);
+    // DD(mArgsInfo.lower_given);
+    // DD(mArgsInfo.upper_given);
+    // DD(mArgsInfo.lower_arg);
+    // DD(mArgsInfo.upper_arg);
+    // DD(mArgsInfo.fg_arg);
+    // DD(mArgsInfo.bg_arg);
+    // DD(mArgsInfo.fg_given);
+    // DD(mArgsInfo.bg_given);
+    // DD(mArgsInfo.mode_arg);
 
 // <<<<<<< clitkBinarizeImageGenericFilter.txx
 //     DD(mArgsInfo.useFG_flag);

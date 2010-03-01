@@ -97,15 +97,14 @@ SET(vv_SRCS
   vvMeshActor.cxx
   vvMeshReader.cxx
   vvStructSelector.cxx
-  vvCropDialog.cxx
   vvMidPosition.cxx
   vvImageMapToWLColors.cxx
   vvIntensityValueSlider.cxx
   vvToolManager.cxx
   vvToolCreatorBase.cxx
   vvToolWidgetBase.cxx
-  vvToolFoo.cxx
-  vvToolFooWithWidgetBase.cxx
+#  vvToolFoo.cxx
+#  vvToolFooWithWidgetBase.cxx
   vvToolCropImage.cxx
   vvToolBinarize.cxx
   vvToolInputSelectorWidget.cxx
@@ -130,11 +129,10 @@ QT4_WRAP_CPP(vv_SRCS
   vvDeformationDialog.h
   vvSlicerManager.h
   vvStructSelector.h
-  vvCropDialog.h
   vvIntensityValueSlider.h
   vvToolCreatorBase.h
-  vvToolFoo.h
-  vvToolFooWithWidgetBase.h
+#  vvToolFoo.h
+#  vvToolFooWithWidgetBase.h
   vvToolBinarize.h
   vvToolInputSelectorWidget.h
   vvToolWidgetBase.h
@@ -156,12 +154,11 @@ QT4_WRAP_UI(vv_UI_CXX
   qt_ui/vvResamplerDialog.ui
   qt_ui/vvDeformationDialog.ui
   qt_ui/vvStructSelector.ui
-  qt_ui/vvCropDialog.ui
   qt_ui/vvDummyWindow.ui #For testing
   qt_ui/vvIntensityValueSlider.ui
   qt_ui/vvToolWidgetBase.ui
-  qt_ui/vvToolFoo.ui
-  qt_ui/vvToolCropImage.ui
+#  qt_ui/vvToolFoo.ui
+#  qt_ui/vvToolCropImage.ui
   qt_ui/vvToolBinarize.ui
   qt_ui/vvToolInputSelectorWidget.ui
   )

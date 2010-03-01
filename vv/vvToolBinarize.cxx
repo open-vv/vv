@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolBinarize.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/01 07:37:25 $
-  Version:   $Revision: 1.9 $
+  Date:      $Date: 2010/03/01 15:38:09 $
+  Version:   $Revision: 1.10 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -114,6 +114,7 @@ void vvToolBinarize::RemoveVTKObjects() {
 }
 //------------------------------------------------------------------------------
 
+
 //------------------------------------------------------------------------------
 bool vvToolBinarize::close() { 
   RemoveVTKObjects();
@@ -153,8 +154,6 @@ void vvToolBinarize::useFGBGtoggled(bool) {
 //------------------------------------------------------------------------------
 void vvToolBinarize::InputIsSelected(vvSlicerManager * m) {
   mCurrentSlicerManager = m;
-  // Common
-  mCurrentImage = mCurrentSlicerManager->GetImage();
 
   // Specific for this gui
   mThresholdSlider1->SetValue(0);
@@ -209,6 +208,7 @@ void vvToolBinarize::GetArgsInfoFromGUI() {
   DD(good);
   */
 
+  mArgsInfo.imagetypes_flag = 0;
   mArgsInfo.upper_given = 0;
   mArgsInfo.lower_given = 0;
   bool inverseBGandFG = false;
@@ -241,7 +241,7 @@ void vvToolBinarize::GetArgsInfoFromGUI() {
   }
   else mArgsInfo.mode_arg = (char*)"FG";
 
-  mArgsInfo.verbose_flag = true;
+  mArgsInfo.verbose_flag = false;
 
   // Required (even if not used)
   mArgsInfo.input_given = 0;
@@ -256,20 +256,22 @@ void vvToolBinarize::GetArgsInfoFromGUI() {
 //------------------------------------------------------------------------------
 void vvToolBinarize::apply() {
   if (!mCurrentSlicerManager) close();
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   GetArgsInfoFromGUI();
 
   // Main filter
   clitk::BinarizeImageGenericFilter<args_info_clitkBinarizeImage>::Pointer filter = 
-    clitk::BinarizeImageGenericFilter<args_info_clitkBinarizeImage>::New();
+     clitk::BinarizeImageGenericFilter<args_info_clitkBinarizeImage>::New();
   filter->SetArgsInfo(mArgsInfo);
   filter->SetInputVVImage(mCurrentImage);
   filter->Update();
 
-  // Output ???
+  // Output
   vvImage::Pointer output = filter->GetOutputVVImage();
   std::ostringstream osstream;
   osstream << "Binarized_" << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";
   AddImage(output,osstream.str()); 
+  QApplication::restoreOverrideCursor();
   close();
 }
 //------------------------------------------------------------------------------
@@ -284,12 +286,9 @@ void vvToolBinarize::valueChangedT2(double v) {
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::valueChangedT1(double v) {
-  // DD(v);
   if (!mCurrentSlicerManager) close();
-//   DD(mCurrentSlicerManager->GetSlicer(0));
   mThresholdSlider2->SetMinimum(v);
-  int m1 = (int)lrint(v);
-  
+  int m1 = (int)lrint(v);  
   if (!mInteractiveDisplayIsEnabled) return;
   for(int i=0;i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
     mImageContour[i]->update(m1);

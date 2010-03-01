@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolCropImage.h,v $
   Language:  C++
-  Date:      $Date: 2010/03/01 07:37:25 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2010/03/01 15:38:09 $
+  Version:   $Revision: 1.3 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -51,7 +51,17 @@ class vvToolCropImage:
 
 public slots:
   virtual void apply();
-  void sliderMoved(int s);
+  virtual bool close();
+  virtual void reject();
+  void sliderXMinValueChanged(int s);
+  void sliderXMaxValueChanged(int s);
+  void sliderYMinValueChanged(int s);
+  void sliderYMaxValueChanged(int s);
+  void sliderZMinValueChanged(int s);
+  void sliderZMaxValueChanged(int s);
+  // void sliderTMinValueChanged(int s);
+  // void sliderTMaxValueChanged(int s);
+  void autoCropValueChanged(double v);
 
   //-----------------------------------------------------
   static void Initialize() {
@@ -64,6 +74,9 @@ public slots:
  protected:
   Ui::vvToolCropImage ui;
   int * mReducedExtent;
+  int * mInitialExtent;
+  int mExtentSize;
+  void UpdateExtent();
 
 }; // end class vvToolCropImage
 //------------------------------------------------------------------------------

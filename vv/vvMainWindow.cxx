@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvMainWindow.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/01 07:37:25 $
-  Version:   $Revision: 1.13 $
+  Date:      $Date: 2010/03/01 15:38:09 $
+  Version:   $Revision: 1.14 $
   Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
   Copyright (C) 200COLUMN_IMAGE_NAME
@@ -54,7 +54,6 @@
 #include "vvMesh.h"
 #include "vvStructSelector.h"
 #include "vvMeshReader.h"
-#include "vvCropDialog.h"
 #include "vvConstants.h"
 
 #ifdef CLITK_VV_USE_BDCM
@@ -142,10 +141,10 @@ vvMainWindow::vvMainWindow():vvMainWindowBase() {
 
   contextMenu.addSeparator();
 
-  QAction* actionCrop_image = contextMenu.addAction(QIcon(QString::fromUtf8(":/new/prefix1/icons/crop.png")),
-                                                    tr("Crop Current Image"));
-  connect(actionCrop_image,SIGNAL(triggered()),this,SLOT(CropImage()));
-  contextActions.push_back(actionCrop_image);
+  // QAction* actionCrop_image = contextMenu.addAction(QIcon(QString::fromUtf8(":/new/prefix1/icons/crop.png")),
+  //                                                   tr("Crop Current Image"));
+  // connect(actionCrop_image,SIGNAL(triggered()),this,SLOT(CropImage()));
+  // contextActions.push_back(actionCrop_image);
 
   QAction* actionSplit_image = contextMenu.addAction(QIcon(QString::fromUtf8(":/new/prefix1/icons/cut.png")),
                                                      tr("Split Current Image"));
@@ -1088,8 +1087,8 @@ void vvMainWindow::ImageInfoChanged() {
       }
     windowSpinBox->setValue(mSlicerManagers[index]->GetColorWindow());
     levelSpinBox->setValue(mSlicerManagers[index]->GetColorLevel());
-    DD(mSlicerManagers[index]->GetColorMap());
-    DD(mSlicerManagers[index]->GetPreset());
+    // DD(mSlicerManagers[index]->GetColorMap());
+    // DD(mSlicerManagers[index]->GetPreset());
     presetComboBox->setCurrentIndex(mSlicerManagers[index]->GetPreset());
     colorMapComboBox->setCurrentIndex(mSlicerManagers[index]->GetColorMap());
 
@@ -1552,13 +1551,13 @@ void vvMainWindow::ReloadImage(QTreeWidgetItem* item, int column) {
 }
 //------------------------------------------------------------------------------
 
-void vvMainWindow::CropImage()
-{
-  int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
-  vvCropDialog crop(mSlicerManagers,index);
-  if(crop.exec())
-    AddImage(crop.GetOutput(),"cropped.mhd");
-}
+// void vvMainWindow::CropImage()
+// {
+//   int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
+//   vvCropDialog crop(mSlicerManagers,index);
+//   if(crop.exec())
+//     AddImage(crop.GetOutput(),"cropped.mhd");
+// }
 
 //------------------------------------------------------------------------------
 void vvMainWindow::SplitImage() {
@@ -2772,13 +2771,9 @@ void vvMainWindow::AddImage(vvSlicerManager * slicer_manager) {
 
 //------------------------------------------------------------------------------
 void vvMainWindow::UpdateCurrentSlicer() {
-  DD("UpdateCurrentSlicer");
   int index = -1;
-  DD(DataTree->selectedItems().size());
   if (DataTree->selectedItems().size() > 0) {
     index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
-    DD(DataTree->selectedItems()[0]);
-    DD(index);
   }
   mSlicerManagerCurrentIndex = index;    
 }

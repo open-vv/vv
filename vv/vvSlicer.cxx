@@ -74,6 +74,7 @@
 vtkCxxRevisionMacro(vvSlicer, "DummyRevision");
 vtkStandardNewMacro(vvSlicer);
 
+//------------------------------------------------------------------------------
 vvSlicer::vvSlicer()
 {
   mImage = NULL;
@@ -145,26 +146,50 @@ vvSlicer::vvSlicer()
   this->WindowLevel = vvImageMapToWLColors::New();
   this->InstallPipeline();
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 vtkImageMapToWindowLevelColors* vvSlicer::GetOverlayMapper() {
   return mOverlayMapper.GetPointer();
 }
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 vtkImageActor* vvSlicer::GetOverlayActor() {
   return mOverlayActor.GetPointer();
 }
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 vtkImageMapToWindowLevelColors* vvSlicer::GetFusionMapper() {
   return mFusionMapper.GetPointer();
 }
+//------------------------------------------------------------------------------
+
     
+//------------------------------------------------------------------------------
 vtkImageActor* vvSlicer::GetFusionActor() {
   return mFusionActor.GetPointer();
 }
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 vtkActor* vvSlicer::GetVFActor() {
   return mVFActor.GetPointer();
 }
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 vtkCornerAnnotation* vvSlicer::GetAnnotation() {
   return ca.GetPointer();
 }
+//------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvSlicer::EnableReducedExtent(bool b) {
@@ -194,34 +219,54 @@ void vvSlicer::AddContour(vvMesh::Pointer contour,bool propagate)
 
   SetContourSlice();
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSlicer::ToggleContourSuperposition()
 {
   for (std::vector<vvMeshActor*>::iterator i=mSurfaceCutActors.begin();
        i!=mSurfaceCutActors.end();i++)
     (*i)->ToggleSuperposition();
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSlicer::SetCursorColor(int r,int g, int b)
 {
   pdmA->GetProperty()->SetColor(r,g,b);
 }
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 void vvSlicer::SetCursorVisibility(bool s)
 {
   pdmA->SetVisibility(s);
 }
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 bool vvSlicer::GetCursorVisibility()
 {
   return pdmA->GetVisibility();
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 vvSlicer::~vvSlicer()
 {
   for (std::vector<vvMeshActor*>::iterator i=mSurfaceCutActors.begin();
        i!=mSurfaceCutActors.end();i++)
     delete (*i);
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSlicer::SetCurrentPosition(double x, double y, double z, int t)
 {
   mCurrent[0] = x;
@@ -229,7 +274,10 @@ void vvSlicer::SetCurrentPosition(double x, double y, double z, int t)
   mCurrent[2] = z;
   mCurrentTSlice = t;
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSlicer::SetImage(vvImage::Pointer image)
 {
   if (image->GetVTKImages().size())
@@ -241,7 +289,10 @@ void vvSlicer::SetImage(vvImage::Pointer image)
       ca->SetText(0,mFileName.c_str());
     }
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSlicer::SetOverlay(vvImage::Pointer overlay)
 {
   if (overlay->GetVTKImages().size())
@@ -276,7 +327,10 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
       SetTSlice(mCurrentTSlice);
     }
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSlicer::SetFusion(vvImage::Pointer fusion)
 {
   if (fusion->GetVTKImages().size())
@@ -302,7 +356,10 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion)
       SetTSlice(mCurrentTSlice);
     }
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSlicer::SetActorVisibility(const std::string& actor_type, int overlay_index ,bool vis)
 {
   if (actor_type == "vector")
@@ -321,7 +378,10 @@ void vvSlicer::SetActorVisibility(const std::string& actor_type, int overlay_ind
     this->mSurfaceCutActors[overlay_index]->GetActor()->SetVisibility(vis);
   UpdateDisplayExtent();
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSlicer::SetVF(vvImage::Pointer vf)
 {
   if (vf->GetVTKImages().size())
@@ -373,7 +433,10 @@ void vvSlicer::SetVF(vvImage::Pointer vf)
       SetTSlice(mCurrentTSlice);
     }
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSlicer::SetLandmarks(vvLandmarks* landmarks)
 {
   mLandmarks = landmarks;
@@ -420,7 +483,9 @@ void vvSlicer::SetLandmarks(vvLandmarks* landmarks)
       this->GetRenderer()->AddActor(mLandActor);
     }
 }
+//------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
 //FIXME: this function leaks memory, we should fix it someday :)
 void vvSlicer::RemoveActor(const std::string& actor_type, int overlay_index)
 {
@@ -455,7 +520,10 @@ void vvSlicer::RemoveActor(const std::string& actor_type, int overlay_index)
       mSurfaceCutActors.erase(mSurfaceCutActors.begin()+overlay_index);
     }
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSlicer::SetVFSubSampling(int sub)
 {
   if (mVOIFilter)
@@ -466,7 +534,10 @@ void vvSlicer::SetVFSubSampling(int sub)
   UpdateDisplayExtent();
   Render();
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSlicer::SetVFScale(int scale)
 {
   mScale = scale;
@@ -475,7 +546,10 @@ void vvSlicer::SetVFScale(int scale)
   UpdateDisplayExtent();
   Render();
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSlicer::SetVFLog(int log)
 {
   mVFLog = log;
@@ -487,7 +561,10 @@ void vvSlicer::SetVFLog(int log)
   UpdateDisplayExtent();
   Render();
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSlicer::SetTSlice(int t)
 {
   if (t < 0)
@@ -517,12 +594,18 @@ void vvSlicer::SetTSlice(int t)
       (*i)->SetTimeSlice(mCurrentTSlice);
   UpdateDisplayExtent();
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 int vvSlicer::GetTSlice()
 {
   return mCurrentTSlice;
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSlicer::SetSliceOrientation(int orientation)
 {
   //if 2D image, force to watch in Axial View
@@ -573,10 +656,6 @@ void vvSlicer::UpdateDisplayExtent()
     w_ext = mReducedExtent;
   }
   else w_ext = input->GetWholeExtent();
-
-  DD(w_ext[0]);
-  DD(w_ext[1]);
-  DD(w_ext[2]);
 
   switch (this->SliceOrientation)
     {
@@ -780,7 +859,10 @@ void vvSlicer::UpdateDisplayExtent()
         }
     }
 }
+//----------------------------------------------------------------------------
 
+
+//----------------------------------------------------------------------------
 void vvSlicer::ComputeVFDisplayedExtent(int x1,int x2,int y1,int y2,int z1,int z2,int vfExtent[6])
 {
   vtkImageData* image=this->GetInput();
@@ -799,7 +881,10 @@ void vvSlicer::ComputeVFDisplayedExtent(int x1,int x2,int y1,int y2,int z1,int z
 
   ClipDisplayedExtent(vfExtent,mVOIFilter->GetInput()->GetWholeExtent());
 }
+//----------------------------------------------------------------------------
 
+
+//----------------------------------------------------------------------------
 void vvSlicer::ComputeOverlayDisplayedExtent(int x1,int x2,int y1,int y2,int z1,int z2,int overExtent[6])
 {
   vtkImageData* image=this->GetInput();
@@ -817,7 +902,10 @@ void vvSlicer::ComputeOverlayDisplayedExtent(int x1,int x2,int y1,int y2,int z1,
     mOverlay->GetSpacing()[2];
   ClipDisplayedExtent(overExtent, mOverlayMapper->GetInput()->GetWholeExtent());
 }
+//----------------------------------------------------------------------------
 
+
+//----------------------------------------------------------------------------
 void vvSlicer::ComputeFusionDisplayedExtent(int x1,int x2,int y1,int y2,int z1,int z2,int fusExtent[6])
 {
   vtkImageData* image=this->GetInput();
@@ -835,7 +923,10 @@ void vvSlicer::ComputeFusionDisplayedExtent(int x1,int x2,int y1,int y2,int z1,i
     mFusion->GetSpacing()[2];
   ClipDisplayedExtent(fusExtent, mFusionMapper->GetInput()->GetWholeExtent());
 }
+//----------------------------------------------------------------------------
 
+
+//----------------------------------------------------------------------------
 void vvSlicer::ClipDisplayedExtent(int extent[6], int refExtent[6])
 {
   bool out = false;
@@ -870,7 +961,10 @@ void vvSlicer::ClipDisplayedExtent(int extent[6], int refExtent[6])
         extent[i+1] = refExtent[i];
       }
 }
+//----------------------------------------------------------------------------
 
+
+//----------------------------------------------------------------------------
 void vvSlicer::UpdateOrientation()
 {
   // Set the camera position
@@ -899,12 +993,18 @@ void vvSlicer::UpdateOrientation()
         }
     }
 }
+//----------------------------------------------------------------------------
 
+
+//----------------------------------------------------------------------------
 void vvSlicer::SetOpacity(double s)
 {
   this->GetImageActor()->SetOpacity(s);
 }
+//----------------------------------------------------------------------------
 
+
+//----------------------------------------------------------------------------
 void vvSlicer::SetRenderWindow(int orientation, vtkRenderWindow * rw)
 {
   this->Superclass::SetRenderWindow(rw);
@@ -934,7 +1034,10 @@ void vvSlicer::SetRenderWindow(int orientation, vtkRenderWindow * rw)
   SetSliceOrientation(2-(orientation%3));
   ResetCamera();
 }
+//----------------------------------------------------------------------------
 
+
+//----------------------------------------------------------------------------
 void vvSlicer::ResetCamera()
 {
   if (this->GetInput())
@@ -947,7 +1050,10 @@ void vvSlicer::ResetCamera()
       this->GetRenderer()->GetActiveCamera()->SetParallelScale(bmax/2);
     }
 }
+//----------------------------------------------------------------------------
 
+
+//----------------------------------------------------------------------------
 void vvSlicer::SetDisplayMode(bool i)
 {
   this->GetImageActor()->SetVisibility(i);
@@ -1110,8 +1216,10 @@ void vvSlicer::Render()
           std::stringstream val;
           val << value;
           worldPos += "data value : " + val.str();
-          worldPos += "\n mm : " + world1.str() + " " + world2.str() + " " + world3.str() + " " + temps.str();
-          worldPos += "\n pixel : " + pixel1.str() + " " + pixel2.str() + " " + pixel3.str() + " " + temps.str();
+          worldPos += "\n mm : " + world1.str() + " " + world2.str() + " " + 
+            world3.str() + " " + temps.str();
+          worldPos += "\n pixel : " + pixel1.str() + " " + pixel2.str() + " " + 
+            pixel3.str() + " " + temps.str();
         }
       ca->SetText(1,worldPos.c_str());
     }
@@ -1143,6 +1251,7 @@ void vvSlicer::UpdateCursorPosition()
 }
 //----------------------------------------------------------------------------
 
+
 //----------------------------------------------------------------------------
 void vvSlicer::UpdateLandmarks()
 {
@@ -1165,11 +1274,7 @@ void vvSlicer::UpdateLandmarks()
 //----------------------------------------------------------------------------
 void vvSlicer::SetSlice(int slice)
 {
-  DD("vvSlicer::SetSlice");
-  DD(slice);
   int *range = this->GetSliceRange();
-  DD(range[0]);
-  DD(range[1]);
   if (range)
     {
       if (slice < range[0])
