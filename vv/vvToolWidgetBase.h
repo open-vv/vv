@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolWidgetBase.h,v $
   Language:  C++
-  Date:      $Date: 2010/02/24 11:43:37 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/03/01 07:37:25 $
+  Version:   $Revision: 1.2 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -48,10 +48,10 @@ class vvToolWidgetBase:
 
 public slots:
   virtual void apply() = 0;
+  virtual bool close();
   void InputIsSelected();
   void AnImageIsBeingClosed(vvSlicerManager * m);
   void show();
-  virtual bool close();
 
 protected:
   void InitializeInputs();

@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolCropImage.h,v $
   Language:  C++
-  Date:      $Date: 2010/02/24 11:43:37 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/03/01 07:37:25 $
+  Version:   $Revision: 1.2 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -47,17 +47,11 @@ class vvToolCropImage:
   vvToolCropImage(vvMainWindowBase * parent=0, Qt::WindowFlags f=0);
   ~vvToolCropImage();
 
-  //-----------------------------------------------------
-  typedef vvToolCropImage Self;
-  bool close() { return QWidget::close(); }
   virtual void InputIsSelected(vvSlicerManager *m);
-  //void AnImageIsBeingClosed(vvSlicerManager * m) { vvToolWidgetBase::TTAnImageIsBeingClosed(m); }
-
-  void bar() { DD("crop::bar"); }
-
 
 public slots:
-  void apply() { DD("Apply"); }
+  virtual void apply();
+  void sliderMoved(int s);
 
   //-----------------------------------------------------
   static void Initialize() {
@@ -69,7 +63,7 @@ public slots:
 
  protected:
   Ui::vvToolCropImage ui;
-
+  int * mReducedExtent;
 
 }; // end class vvToolCropImage
 //------------------------------------------------------------------------------

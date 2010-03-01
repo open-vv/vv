@@ -105,6 +105,7 @@ SET(vv_SRCS
   vvToolCreatorBase.cxx
   vvToolWidgetBase.cxx
   vvToolFoo.cxx
+  vvToolFooWithWidgetBase.cxx
   vvToolCropImage.cxx
   vvToolBinarize.cxx
   vvToolInputSelectorWidget.cxx
@@ -133,6 +134,7 @@ QT4_WRAP_CPP(vv_SRCS
   vvIntensityValueSlider.h
   vvToolCreatorBase.h
   vvToolFoo.h
+  vvToolFooWithWidgetBase.h
   vvToolBinarize.h
   vvToolInputSelectorWidget.h
   vvToolWidgetBase.h

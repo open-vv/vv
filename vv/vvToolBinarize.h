@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolBinarize.h,v $
   Language:  C++
-  Date:      $Date: 2010/02/24 11:42:42 $
-  Version:   $Revision: 1.6 $
+  Date:      $Date: 2010/03/01 07:37:25 $
+  Version:   $Revision: 1.7 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -29,22 +29,12 @@
 #define VVTOOLBINARIZE_H
 
 #include <QtDesigner/QDesignerExportWidget>
-//#include <QDialog>
 
 #include "vvToolBase.h"
 #include "vvToolWidgetBase.h"
 #include "vvImageContour.h"
 #include "ui_vvToolBinarize.h"
 #include "clitkBinarizeImage_ggo.h"
-
-#include "vtkMarchingSquares.h"
-#include "vtkImageClip.h"
-#include "vtkMarchingCubes.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
-#include "vtkProperty.h"
-#include "vtkRenderer.h"
 
 //------------------------------------------------------------------------------
 class vvToolBinarize:
@@ -64,32 +54,23 @@ class vvToolBinarize:
 
   //-----------------------------------------------------
   public slots:
-  void apply();
+  virtual void apply();
+  virtual bool close();
+  virtual void reject();
   void valueChangedT1(double v);
   void valueChangedT2(double v);
   void UpdateSlice(int slicer,int slices);
   void InputIsSelected(vvSlicerManager * m);
   void enableLowerThan(bool b);
   void useFGBGtoggled(bool);
-  virtual bool close() { DD("vvToolBinarize::close"); 
-    for(unsigned int i=0; i<mImageContour.size(); i++)
-      mImageContour[i]->removeActors();
-    if (mCurrentSlicerManager)
-      mCurrentSlicerManager->Render();
-    return vvToolWidgetBase::close(); }
-
-  virtual void reject() { DD("vvToolBinarize::reject"); 
-    for(unsigned int i=0; i<mImageContour.size(); i++)
-      mImageContour[i]->removeActors();
-    if (mCurrentSlicerManager)
-      mCurrentSlicerManager->Render();
-    return vvToolWidgetBase::reject(); }
-
+  void InteractiveDisplayToggled(bool b);
 
  protected:
+  void RemoveVTKObjects();
   Ui::vvToolBinarize ui;
   args_info_clitkBinarizeImage mArgsInfo;
   std::vector<vvImageContour*> mImageContour;
+  bool mInteractiveDisplayIsEnabled;
 
 }; // end class vvToolBinarize
 //------------------------------------------------------------------------------

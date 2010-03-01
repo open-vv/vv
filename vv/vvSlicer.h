@@ -162,6 +162,9 @@ public:
     virtual void SetColorWindow(double s);
     virtual void SetColorLevel(double s);
 
+    void EnableReducedExtent(bool b);
+    void SetReducedExtent(int * ext);
+
 protected:
     vvSlicer();
     ~vvSlicer();
@@ -205,6 +208,8 @@ protected:
     int mSubSampling;
     int mScale;
     int mVFLog;
+    bool mUseReducedExtent;
+    int * mReducedExtent;
 
 private:
     void UpdateOrientation();

@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvImageContour.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/24 11:42:42 $
-  Version:   $Revision: 1.3 $
+  Date:      $Date: 2010/03/01 07:37:25 $
+  Version:   $Revision: 1.4 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -28,9 +28,12 @@
 #include "vvImageContour.h"
 #include <vtkImageActor.h>
 #include <vtkCamera.h>
+#include <vtkRenderer.h>
 #include <vtkMarchingSquares.h>
 #include <vtkImageClip.h>
 #include <vtkImageData.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
 
 //------------------------------------------------------------------------------
 vvImageContour::vvImageContour() {
@@ -57,7 +60,6 @@ void vvImageContour::setSlicer(vvSlicer * slicer) {
   mSlicer = slicer;  
 
   for (unsigned int numImage = 0; numImage < mSlicer->GetImage()->GetVTKImages().size(); numImage++) {
-    // DD(numImage);
     vtkImageClip * mClipper = vtkImageClip::New();
     vtkMarchingSquares * mSquares = vtkMarchingSquares::New();
     vtkPolyDataMapper * mSquaresMapper = vtkPolyDataMapper::New();
@@ -77,31 +79,42 @@ void vvImageContour::setSlicer(vvSlicer * slicer) {
     mSquaresList.push_back(mSquares);
     mClipperList.push_back(mClipper);
   }
-  //mSquares->Update();
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::removeActors() {
- //  DD("removeActors");
+void vvImageContour::hideActors() {
   if (!mSlicer) return;
   mSlice = mSlicer->GetSlice();
- //  DD(mSlice);
   for(unsigned int i=0; i<mSquaresActorList.size(); i++) {
     mSquaresActorList[i]->VisibilityOff();
-    //mSquaresActorList[i]->Update();
   }
 }
 //------------------------------------------------------------------------------
 
   
 //------------------------------------------------------------------------------
-void vvImageContour::update(int value) {
-  //  DD(value);
+void vvImageContour::showActors() {
   if (!mSlicer) return;
   mSlice = mSlicer->GetSlice();
+  mTSlice = mSlicer->GetTSlice();
+  //  for(unsigned int i=0; i<mSquaresActorList.size(); i++) {
+  mSquaresActorList[mTSlice]->VisibilityOn();
+  update(mValue);
+  //}
+}
+//------------------------------------------------------------------------------
 
+  
+//------------------------------------------------------------------------------
+void vvImageContour::update(int value) {
+  mValue= value;
+  if (!mSlicer) return;
+
+  // how to not update if not visible ?
+
+  mSlice = mSlicer->GetSlice();
   // Only change actor visibility if tslice change
   if (mTSlice != mSlicer->GetTSlice()) {
     if (mTSlice != -1) 
@@ -133,36 +146,30 @@ void vvImageContour::update(int value) {
       if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[0] > mSlice)
         {
 	  mSquaresActor->SetPosition(1,0,0);
-	  // mSquaresActor2->SetPosition(1,0,0);
         }
       else
         {
 	  mSquaresActor->SetPosition(-1,0,0);
-	  // mSquaresActor2->SetPosition(-1,0,0);
         }
       break;
     case 2:
       if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[1] > mSlice)
         {
 	  mSquaresActor->SetPosition(0,1,0);
-          //   mSquaresActor2->SetPosition(0,1,0);
         }
       else
         {
 	  mSquaresActor->SetPosition(0,-1,0);
-	  // mSquaresActor2->SetPosition(0,-1,0);
         }
       break;
     case 4:
       if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[2] > mSlice)
         {
 	  mSquaresActor->SetPosition(0,0,1);
-	  // mSquaresActor2->SetPosition(0,0,1);
         }
       else
         {
 	  mSquaresActor->SetPosition(0,0,-1);
-	  // mSquaresActor2->SetPosition(0,0,-1);
         }
       break;
     }

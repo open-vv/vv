@@ -78,6 +78,7 @@ vvSlicer::vvSlicer()
 {
   mImage = NULL;
   mCurrentTSlice = 0;
+  mUseReducedExtent = false;
 
   mCurrent[0] = -VTK_DOUBLE_MAX;
   mCurrent[1] = -VTK_DOUBLE_MAX;
@@ -165,6 +166,21 @@ vtkCornerAnnotation* vvSlicer::GetAnnotation() {
   return ca.GetPointer();
 }
 
+//------------------------------------------------------------------------------
+void vvSlicer::EnableReducedExtent(bool b) {
+  mUseReducedExtent = b;
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvSlicer::SetReducedExtent(int * ext) {
+  mReducedExtent = ext;
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 void vvSlicer::AddContour(vvMesh::Pointer contour,bool propagate)
 {
 
@@ -551,7 +567,16 @@ void vvSlicer::UpdateDisplayExtent()
       return;
     }
   input->UpdateInformation();
-  int *w_ext = input->GetWholeExtent();
+  int *w_ext;// = input->GetWholeExtent();
+
+  if (mUseReducedExtent) {
+    w_ext = mReducedExtent;
+  }
+  else w_ext = input->GetWholeExtent();
+
+  DD(w_ext[0]);
+  DD(w_ext[1]);
+  DD(w_ext[2]);
 
   switch (this->SliceOrientation)
     {
@@ -1140,7 +1165,11 @@ void vvSlicer::UpdateLandmarks()
 //----------------------------------------------------------------------------
 void vvSlicer::SetSlice(int slice)
 {
+  DD("vvSlicer::SetSlice");
+  DD(slice);
   int *range = this->GetSliceRange();
+  DD(range[0]);
+  DD(range[1]);
   if (range)
     {
       if (slice < range[0])
