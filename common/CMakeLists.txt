@@ -6,7 +6,7 @@ INCLUDE(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
 #=========================================================
 
 #=========================================================
-# make clitk libraries
+# make clitk libraries*
 
 SET(clitkCommon_SRC
   clitkCommon.cxx 
@@ -25,7 +25,7 @@ SET(clitkCommon_SRC
   clitkXdrImageIOFactory.cxx
   clitkOrientation.cxx
   vvImage.cxx
-  clitkImageToImageGenericFilter.cxx
+  clitkImageToImageGenericFilterBase.cxx
   clitkSignal.cxx  
 )  
 

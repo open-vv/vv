@@ -13,6 +13,20 @@
 
 #include "clitkImageResampleGenericFilter.h"
 
+// itk include
+#include "itkImage.h"
+#include "itkImageFileReader.h"
+#include "itkImageSeriesReader.h"
+#include "itkImageFileWriter.h"
+#include "itkRecursiveGaussianImageFilter.h"
+#include "itkResampleImageFilter.h"
+#include "itkAffineTransform.h"
+#include "itkNearestNeighborInterpolateImageFunction.h"
+#include "itkLinearInterpolateImageFunction.h"
+#include "itkBSplineInterpolateImageFunction.h"
+#include "itkBSplineInterpolateImageFunctionWithLUT.h"
+#include "itkCommand.h"
+
 //--------------------------------------------------------------------
 clitk::ImageResampleGenericFilter::ImageResampleGenericFilter():
   ImageToImageGenericFilter<Self>("ImageResample") {

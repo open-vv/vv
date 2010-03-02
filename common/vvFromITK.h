@@ -22,13 +22,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 =========================================================================*/
 
-#ifndef vvImageFromITK_h
-#define vvImageFromITK_h
+#ifndef VVIMAGEFROMITK_H
+#define VVIMAGEFROMITK_H
 
 #include "vvImage.h"
-#include <itkImage.h>
+//#include <itkImage.h>
 #include <itkExtractImageFilter.h>
-#include "itkImageToVTKImageFilter.h"
+#include <itkImageToVTKImageFilter.h>
 
 /**Converts the itk image to vv, handling the 4D problem
  * The time_sequence boolean specifies that the image is to be interpreted as a time sequence,

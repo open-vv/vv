@@ -21,8 +21,6 @@
  -------------------------------------------------------------------*/
 
 // clitk include
-#include "clitkCommon.h"
-#include "clitkImageCommon.h"
 #include "clitkImageToImageGenericFilter.h"
 
 // itk include

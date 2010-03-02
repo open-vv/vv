@@ -11,23 +11,7 @@
  -------------------------------------------------------------------*/
 
 // clitk include
-#include "clitkCommon.h"
-#include "clitkImageCommon.h"
 #include "clitkImageToImageGenericFilter.h"
-
-// itk include
-#include "itkImage.h"
-#include "itkImageFileReader.h"
-#include "itkImageSeriesReader.h"
-#include "itkImageFileWriter.h"
-#include "itkRecursiveGaussianImageFilter.h"
-#include "itkResampleImageFilter.h"
-#include "itkAffineTransform.h"
-#include "itkNearestNeighborInterpolateImageFunction.h"
-#include "itkLinearInterpolateImageFunction.h"
-#include "itkBSplineInterpolateImageFunction.h"
-#include "itkBSplineInterpolateImageFunctionWithLUT.h"
-#include "itkCommand.h"
 
 namespace clitk {
   
@@ -76,7 +60,7 @@ namespace clitk {
   }; // end class ImageResampleGenericFilter
   //--------------------------------------------------------------------
     
-#include "clitkImageResampleGenericFilter.txx"
+  //#include "clitkImageResampleGenericFilter.txx"
 
 } // end namespace
 //--------------------------------------------------------------------
