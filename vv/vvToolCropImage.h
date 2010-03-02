@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolCropImage.h,v $
   Language:  C++
-  Date:      $Date: 2010/03/01 15:38:09 $
-  Version:   $Revision: 1.3 $
+  Date:      $Date: 2010/03/02 13:28:43 $
+  Version:   $Revision: 1.4 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -67,7 +67,7 @@ public slots:
   static void Initialize() {
     SetToolName("Crop");
     SetToolMenuName("Crop");
-    SetToolIconFilename(":/new/prefix1/icons/binarize.png");
+    SetToolIconFilename(":/new/prefix1/icons/crop.png");
     SetToolTip("Crop image.");
   }
 

@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: clitkImageToImageGenericFilter.txx,v $
   Language:  C++
-  Date:      $Date: 2010/03/01 15:37:41 $
-  Version:   $Revision: 1.7 $
+  Date:      $Date: 2010/03/02 13:28:42 $
+  Version:   $Revision: 1.8 $
   Author :   Joel Schaerer <joel.schaerer@creatis.insa-lyon.fr>
   David Sarrut <david.sarrut@creatis.insa-lyon.fr>
 
@@ -26,35 +26,35 @@
 
   =========================================================================*/
 
-//--------------------------------------------------------------------
-template<class ImageType> 
-void clitk::ImageToImageGenericFilterBase::SetNextOutput(typename ImageType::Pointer output) {
-  if (mOutputFilenames.size())
-    {
-      clitk::writeImage<ImageType>(output, mOutputFilenames.front(), mIOVerbose);
-      mOutputFilenames.pop_front();
-    }
-  if (mInputVVImages.size()) //We assume that if a vv image is set as input, we want one as the output
-    mOutputVVImages.push_back(vvImageFromITK<ImageType::ImageDimension,typename ImageType::PixelType>(output));
-}
-//--------------------------------------------------------------------
+// //--------------------------------------------------------------------
+// template<class ImageType> 
+// void clitk::ImageToImageGenericFilterBase::SetNextOutput(typename ImageType::Pointer output) {
+//   if (mOutputFilenames.size())
+//     {
+//       clitk::writeImage<ImageType>(output, mOutputFilenames.front(), mIOVerbose);
+//       mOutputFilenames.pop_front();
+//     }
+//   if (mInputVVImages.size()) //We assume that if a vv image is set as input, we want one as the output
+//     mOutputVVImages.push_back(vvImageFromITK<ImageType::ImageDimension,typename ImageType::PixelType>(output));
+// }
+// //--------------------------------------------------------------------
 
 
-//--------------------------------------------------------------------
-template<class ImageType> 
-typename ImageType::Pointer clitk::ImageToImageGenericFilterBase::GetInput(unsigned int n) {
-  if (mInputFilenames.size() > n) {
-    return clitk::readImage<ImageType>(mInputFilenames[n], mIOVerbose);
-  }
-  else if (mInputVVImages.size() > n)
-    return typename ImageType::Pointer(const_cast<ImageType*>(vvImageToITK<ImageType>(mInputVVImages[n]).GetPointer()));
-  else
-    {
-      assert(false); //No input, this shouldn't happen
-      return typename ImageType::Pointer(NULL);
-    }
-}
-//--------------------------------------------------------------------
+// //--------------------------------------------------------------------
+// template<class ImageType> 
+// typename ImageType::Pointer clitk::ImageToImageGenericFilterBase::GetInput(unsigned int n) {
+//   if (mInputFilenames.size() > n) {
+//     return clitk::readImage<ImageType>(mInputFilenames[n], mIOVerbose);
+//   }
+//   else if (mInputVVImages.size() > n)
+//     return typename ImageType::Pointer(const_cast<ImageType*>(vvImageToITK<ImageType>(mInputVVImages[n]).GetPointer()));
+//   else
+//     {
+//       assert(false); //No input, this shouldn't happen
+//       return typename ImageType::Pointer(NULL);
+//     }
+// }
+// //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
