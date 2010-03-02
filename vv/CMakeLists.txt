@@ -158,7 +158,7 @@ QT4_WRAP_UI(vv_UI_CXX
   qt_ui/vvIntensityValueSlider.ui
   qt_ui/vvToolWidgetBase.ui
 #  qt_ui/vvToolFoo.ui
-#  qt_ui/vvToolCropImage.ui
+  qt_ui/vvToolCropImage.ui
   qt_ui/vvToolBinarize.ui
   qt_ui/vvToolInputSelectorWidget.ui
   )
