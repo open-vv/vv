@@ -3,8 +3,8 @@
   Program:   clitk
   Module:    $RCSfile: clitkSignalMeanPositionFilter.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/03 10:47:48 $
-  Version:   $Revision: 1.6 $
+  Date:      $Date: 2010/03/03 12:51:06 $
+  Version:   $Revision: 1.7 $
                                                                                 
   Copyright (c) CREATIS (Centre de Recherche et d'Applications en Traitement de
   l'Image). All rights reserved. See Doc/License.txt or
@@ -17,6 +17,7 @@
 =========================================================================*/
 
 #include "clitkSignalMeanPositionFilter.h"
+#include <fstream>
 
 //---------------------------------------------------------------------
 void clitk::SignalMeanPositionFilter::SetParameters(args_info_clitkSignalMeanPositionTracking & args) {
