@@ -3,7 +3,7 @@
 
 //Adapted from Signal.hh in ilr (Simon)
 
-#include "clitkImageCommon.h"
+#include "clitkCommon.h"
 #include "clitkIO.h"
 
 //include external library
@@ -45,13 +45,14 @@ class Signal{
     m_Data.resize(size,voidValue);
     SetSamplingPeriod(1);
   };
+  Signal(const Signal & s);
   
   ~Signal(){}
 
   //=====================================================================================  
   //IO
   void Read(string fileName);
-  void Read(string fileName, int col);
+  bool Read(string fileName, int col);
   void ReadXDR(string fileName);
   void Write(const string fileName);
   
@@ -78,6 +79,7 @@ class Signal{
   Signal & operator*=(Signal & d);
   
   //Functions
+  void CopyFrom(const Signal & s);
   Signal Normalize(double newMin=0.,double newMax=1.);
   vector<double> GetGlobalMinMax() const;
   double GetGlobalMean() const;
@@ -100,6 +102,17 @@ class Signal{
   
   void AddValue(double v);
   void ComputeAugmentedSpace(Signal & outputX, Signal & outputY, unsigned int delay) const;
+
+  void ResampleWithTimeWarpTo(clitk::Signal & output, bool lin=false) const ;
+  double GetValueAtNN(double t) const;
+  double GetValueAtLin(double t) const;
+  void Shift(int s, int length);
+
+  double GetTotalTimeDuration() const { return size()*GetSamplingPeriod(); }
+  double UnormalizedXcov(const Signal &,  Signal &) const;
+  Signal Xcov(const Signal &, int &, double &, double &);
+  double UnormalizedCorrelation(const Signal &input2) const;
+  double Correlation(const Signal &input2) const;
 
   //     double Compare(Signal & sigRef);
   //     int DerivateSigne( const_iterator & it) const;

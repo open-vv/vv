@@ -2,12 +2,33 @@
 #define CLITKSIGNAL_CXX
 
 #include "clitkSignal.h"
+#include <fstream>
 
 namespace clitk {
 
   //---------------------------------------------------------------------
+  Signal::Signal(const Signal & s) { // Copy
+    CopyFrom(s);
+  }
+  //---------------------------------------------------------------------
+
+
+  //---------------------------------------------------------------------
+  void Signal::CopyFrom(const Signal & s) {
+    SetSamplingPeriod(s.GetSamplingPeriod());
+    // DD(GetSamplingPeriod());
+    resize(s.size());
+    for(uint i=0; i<size(); i++) {
+      m_Data[i] = s[i];
+    }
+  }
+  //---------------------------------------------------------------------   
+        
+
+
+  //---------------------------------------------------------------------
   void Signal::Read(string fileName){
-    ifstream signalStream(fileName.c_str());
+    std::ifstream signalStream(fileName.c_str());
     SignalValueType point;
     if(!signalStream.is_open()){
       std::cerr << "ERROR: Couldn't open file " << fileName << " in Signal::Read" << std::endl;
@@ -28,12 +49,12 @@ namespace clitk {
 
 
   //---------------------------------------------------------------------
-  void Signal::Read(string fileName, int col){
+  bool Signal::Read(string fileName, int col){
     ifstream signalStream(fileName.c_str());
     SignalValueType point;
     if(!signalStream.is_open()){
       std::cerr << "ERROR: Couldn't open file " << fileName << " in Signal::Read" << std::endl;
-      return;
+      return false;
     }
     skipComment(signalStream);
     while(!signalStream.eof()) {
@@ -42,24 +63,28 @@ namespace clitk {
       // Read one line
       std::string line;
       std::getline(signalStream, line);
-        
+
       // Get column nb col
       istringstream iss(line);
       for(int i=0; i<col; i++) { // skip col-1 first column
         string sub;
         iss >> sub;
+        // DD(sub);
+        // DD(sub.size());
+        //         DD(iss.bad());
+        if (!iss) { 
+          std::cerr << "ERROR: no col n" << col << " in the line '" << line << "' ?" << std::endl;
+          return false; //exit(0);
+        }
       }
       iss >> point;
-      if (!iss) { 
-        std::cerr << "ERROR: no col n" << col << " in the line '" << line << "' ?" << std::endl;
-        exit(0);
-      }
       skipComment(signalStream);
       m_Data.push_back(point);
       //      cout << point << endl;
     }
     signalStream.close();
     SetSamplingPeriod(1.);
+    return true;
   }
   //---------------------------------------------------------------------
 
@@ -70,23 +95,23 @@ namespace clitk {
   Signal Signal::ConvertImageToSignal( Signal::ImageType::Pointer image)
   {
     //empty signal
-  Signal signal;
+    Signal signal;
 
-  //make an image iterator
-  itk::ImageRegionConstIterator<ImageType> it(image,image->GetLargestPossibleRegion());
-  it.Begin();
+    //make an image iterator
+    itk::ImageRegionConstIterator<ImageType> it(image,image->GetLargestPossibleRegion());
+    it.Begin();
 
-  //copy
-  while(!it.IsAtEnd())
-    {
-      signal.push_back(it.Get());
-      ++it;
-    }
+    //copy
+    while(!it.IsAtEnd())
+      {
+        signal.push_back(it.Get());
+        ++it;
+      }
 
-  //Spacing
-  signal.SetSamplingPeriod(image->GetSpacing()[0]);
+    //Spacing
+    signal.SetSamplingPeriod(image->GetSpacing()[0]);
 
-  return signal;
+    return signal;
   }
   //---------------------------------------------------------------------
 
@@ -95,41 +120,41 @@ namespace clitk {
   //Convert 1D signal to image
   Signal::ImageType::Pointer Signal::ConvertSignalToImage(Signal signal)
   {
-  //empty image
-  ImageType::Pointer image =ImageType::New();
-  ImageType::RegionType region;
-  ImageType::RegionType::IndexType index;
-  index[0]=0;
-  ImageType::RegionType::SizeType size;
-  size[0]=signal.size();
+    //empty image
+    ImageType::Pointer image =ImageType::New();
+    ImageType::RegionType region;
+    ImageType::RegionType::IndexType index;
+    index[0]=0;
+    ImageType::RegionType::SizeType size;
+    size[0]=signal.size();
 
-  region.SetIndex(index);
-  region.SetSize(size);
+    region.SetIndex(index);
+    region.SetSize(size);
 
-  image->SetRegions(region);
-  image->Allocate();
+    image->SetRegions(region);
+    image->Allocate();
 
-  //make an image iterator
-  itk::ImageRegionIterator<ImageType> mIt(image,image->GetLargestPossibleRegion());
-  mIt.Begin();
+    //make an image iterator
+    itk::ImageRegionIterator<ImageType> mIt(image,image->GetLargestPossibleRegion());
+    mIt.Begin();
 
-  //make a signal iterator
-  Signal::const_iterator sIt=signal.begin();
+    //make a signal iterator
+    Signal::const_iterator sIt=signal.begin();
 
-  //copy
-  while(sIt!=signal.end())
-    {
-      mIt.Set(*sIt);
-      sIt++;++mIt;
-    }
+    //copy
+    while(sIt!=signal.end())
+      {
+        mIt.Set(*sIt);
+        sIt++;++mIt;
+      }
   
   
-  //spacing
-  ImageType::SpacingType spacing;
-  spacing[0]=signal.GetSamplingPeriod();
-  image->SetSpacing(spacing);
+    //spacing
+    ImageType::SpacingType spacing;
+    spacing[0]=signal.GetSamplingPeriod();
+    image->SetSpacing(spacing);
   
-  return image;
+    return image;
   
   }
   //---------------------------------------------------------------------
@@ -188,8 +213,8 @@ namespace clitk {
     iterator itD;
     itD=mul.begin();
     while(it!=end()){
-     	*it *= *itD;
-	it++;itD++;
+      *it *= *itD;
+      it++;itD++;
     }
     return *this;
   }
@@ -341,7 +366,7 @@ namespace clitk {
   //---------------------------------------------------------------------
 
   
- //---------------------------------------------------------------------
+  //---------------------------------------------------------------------
 //   Signal Signal::LowPassFilter (double sampPeriod, double cutOffFrequency )
 //   {
 //     //output
@@ -484,7 +509,7 @@ namespace clitk {
     //Search the first value in extrema not 0.5  
     while(m_Data[beginCycle]!=1)
       {
-      beginCycle++;
+        beginCycle++;
       }
     
     //We search the corresponding end
@@ -492,7 +517,7 @@ namespace clitk {
     while(endCycle != size() && m_Data[endCycle]!=1){
       endCycle++;
    
-      }
+    }
 
     //============================================================
     //Calculate phase at the beginning (before the first extremum)
@@ -547,7 +572,7 @@ namespace clitk {
 	//the last part is shorter, copy the last cycle values
 	else{
 	  phase[i] = phase[i -(endCycle-beginCycle)];
-	    }
+        }
       }
 
     //===================================================================
@@ -581,7 +606,7 @@ namespace clitk {
     //Search the first value in extrema not 0.5  
     while(m_Data[beginCycle]!=1)
       {
-      beginCycle++;
+        beginCycle++;
     
       }
     //We search the corresponding end
@@ -589,7 +614,7 @@ namespace clitk {
     while(endCycle != size() && m_Data[endCycle]!=1){
       endCycle++;
     
-      }
+    }
 
     //===================================================================
     //Calculate phase at the beginning (before the first extremum)
@@ -645,7 +670,7 @@ namespace clitk {
 	//the last part is shorter, copy the last cycle values
 	else{
 	  phase[i] = phase[i -(endCycle-beginCycle)]+1;
-	    }
+        }
       }
 
     //===================================================================
@@ -676,11 +701,11 @@ namespace clitk {
     iterator monPhaseIt=monPhase.begin();
     iterator extremaIt =begin();
     while (extremaIt!= end())
-    {
-      if (*extremaIt==0.) *phaseIt=eIPhaseValue+floor(*monPhaseIt);
-      else if (*extremaIt==1.) *phaseIt=eEPhaseValue+floor(*monPhaseIt);
-      extremaIt++; phaseIt++;monPhaseIt++;
-    }
+      {
+        if (*extremaIt==0.) *phaseIt=eIPhaseValue+floor(*monPhaseIt);
+        else if (*extremaIt==1.) *phaseIt=eEPhaseValue+floor(*monPhaseIt);
+        extremaIt++; phaseIt++;monPhaseIt++;
+      }
     
     return phase;
 
@@ -761,6 +786,30 @@ namespace clitk {
   //---------------------------------------------------------------------
 
 
+
+//   //---------------------------------------------------------------------
+//   Signal Signal::ApproximateScatteredValuesWithBSplines(unsigned int splineOrder, unsigned int numberOfControlPoints)
+//   {
+//     //filter requires a vector pixelType
+//     typedef itk::PointSet<VectorType, 1> PointSetType;
+//     PointSetType::Pointer pointSet=PointSetType::New();
+//     typedef PointSetType::PointType PointType;
+    
+//     unsigned int i=0;  
+//     unsigned int pointIndex=0;  
+//     while (i< size())
+//       {
+//         if(m_Data[i]!=-1)
+//           {
+//             PointType p;
+//             p[0]= i;//JV spacing is allways 1
+//             pointSet->SetPoint( pointIndex, p );
+//             pointSet->SetPointData( pointIndex, m_Data[i] ); 
+//             pointIndex++;
+//           }
+//         i++;
+//       }
+// =======
 //  //---------------------------------------------------------------------
 //  Signal Signal::ApproximateScatteredValuesWithBSplines(unsigned int splineOrder, unsigned int numberOfControlPoints)
 //   {
@@ -899,18 +948,202 @@ namespace clitk {
   //---------------------------------------------------------------------
 
 
+  //---------------------------------------------------------------------
+  void Signal::ResampleWithTimeWarpTo(clitk::Signal & output, bool lin) const {
+    double sp = output.GetSamplingPeriod()/output.GetTotalTimeDuration()*GetTotalTimeDuration();
+    // DD(GetTotalTimeDuration());
+    //     DD(output.GetTotalTimeDuration());
+    //     DD(sp);
+    if (lin) {
+      for(uint i=0; i<output.size(); i++) {
+        output[i] = GetValueAtLin(i*sp);
+      }
+    }
+    else {
+      for(uint i=0; i<output.size(); i++) {
+        output[i] = GetValueAtNN(i*sp);
+      }
+    }
+  }
+  //---------------------------------------------------------------------
 
 
+  //---------------------------------------------------------------------
+  double Signal::GetValueAtNN(double t) const {
+    int index = (int)lrint(t/GetSamplingPeriod()); // closest point
+    // DD(index);
+    if ((index<0) || (index>=(int)size())) {
+      FATAL("out of bound for time " << t << "in this signal having " 
+            << size() << " values with sampling " << GetSamplingPeriod() << std::endl);
+    }
+    return (*this)[index];
+  }
+  //---------------------------------------------------------------------
 
 
+  //---------------------------------------------------------------------
+  double Signal::GetValueAtLin(double t) const {
+    double ti = t/GetSamplingPeriod();
+       // DD(t);
+//          DD(ti);
+    int index = (int)floor(ti); // floor point
+    // DD(index);
+    if (index<0) {
+      FATAL("out of bound for time " << t << " in this signal having " 
+            << size() << " values with sampling " << GetSamplingPeriod() << std::endl);
+    }
+    if (index>=(int)size()-1) { // last value
+      return (*this)[index];
+    }
+    // DD(index);
+//     DD(ti-index);
+//     DD((*this)[index]);
+//     DD((*this)[index+1]);
+    return ((ti-index)*((*this)[index+1]) + (1.0-(ti-index))*((*this)[index]));
+
+  }
+  //---------------------------------------------------------------------
 
 
+  //---------------------------------------------------------------------        
+  void clitk::Signal::Shift(int d, int length) {
+    std::cout << "Shift d=" << d << " length = " << length << std::endl;
+    // int d = (int)lrint(s/GetSamplingPeriod()); // closest integer delta
+    //     DD(d);
+    clitk::Signal temp;
+    temp.resize(length);//(uint)size());
+    temp.SetSamplingPeriod(GetSamplingPeriod());
+    for(uint i=0; i<temp.size(); i++) {
+      int j = (i+d) % size();
+      // DD(i);
+      //       DD(j);
+      temp[i] = (*this)[j];
+    }
+    CopyFrom(temp);
+  }
+  //---------------------------------------------------------------------        
+  //---------------------------------------------------------------------      
+  double Signal::UnormalizedXcov(const Signal &input2, Signal &output) const {
+	unsigned int N;
+	N=size();
+	unsigned int max;
+	max = 2*N;
+	output.resize(max);
+	assert(size() == input2.size()); //les signaux à comparer doivent avoir la même taille
 
 
+	//calcul de la moyenne
+	double mean1=0.,mean2=0.;
+	mean1=this->GetGlobalMean();
+	mean2=input2.GetGlobalMean();
+	
+	for (unsigned int k= 0;k<N;k++){
+	  double value=0.;
+	  for (unsigned int n=0;n<=k;n++){
+		value=value+((*this)[n] - mean1)*(input2[n+N-k-1] - mean2);	  
+	  }
+	  output[k]=value;
+	}
+	for (unsigned int k=N;k<max-1;k++){
+	  double value=0.;
+	  for (unsigned int n=0;n<max-k-1;n++){
+		value=value+((*this)[n+k-N+1] - mean1)*(input2[n] - mean2);	  //*input2??
+	  }
+	  output[k]=value;
+	}
+	double Coef;
+	Coef = output[N-1];
+	return Coef;
+	
+  }
+  
+ //---------------------------------------------------------------------        
+ //--------------------------------------------------------------------- 
+  double Signal::UnormalizedCorrelation(const Signal &input2) const {
+	unsigned int N;
+	N=size();
+	Signal output;
+	output.resize(N);
+	assert(size() == input2.size()); //les signaux à comparer doivent avoir la même taille
 
+	//calcul de la moyenne
+	double mean1=0.,mean2=0.;
+	mean1=this->GetGlobalMean();
+	mean2=input2.GetGlobalMean();
+	double value=0.;
+	for (unsigned int n=0;n<N;n++){
+		value=value+((*this)[n] - mean1)*(input2[n] - mean2);	  
+	}
+	return value;
+	
+  }
+  //---------------------------------------------------------------------        
+ //--------------------------------------------------------------------- 
+  double Signal::Correlation(const Signal &input2) const {
+	
+	assert(size() == input2.size()); //les signaux à comparer doivent avoir la même taille
+	
+	double cc11,cc22,cc;
+	Signal input1(*this);
+	
+	cc=this->UnormalizedCorrelation(input2);
+	cc11=this->UnormalizedCorrelation(input1);
+	cc22=input2.UnormalizedCorrelation (input2);
+	cc=cc/sqrt(cc11*cc22);
+	std::cout<<"coefficient de corrélation : "<<cc<<std::endl;
+	
+	return cc;
+	
+  }
+  
+ 
+ 
+ //---------------------------------------------------------------------        
+ //---------------------------------------------------------------------        
 
+  Signal Signal::Xcov(const Signal &input2 , int &shift, double &coef, double &cc) {
 
+	Signal temp_output,output;
+	unsigned int N;
+	N=size();
+	unsigned int max;
+	max = 2*N;
+	output.resize(max);
+	temp_output.resize(max);
+	double cc11,cc22;
+	Signal input1(*this);
+	
+	cc=this->UnormalizedXcov(input2,output);
+	cc11=this->UnormalizedCorrelation(input1);
+	cc22=input2.UnormalizedCorrelation (input2);
+	
+	unsigned int tailleOutput;
+	tailleOutput=output.size();
+	for (unsigned int k= 0;k<tailleOutput;k++){
+	  output[k]=output[k]/sqrt(cc11 * cc22 );
+	}
+	
+	coef=output[0];
+	shift=0;
+	for (unsigned int k= 0;k<tailleOutput;k++){
+	  if(output[k]>coef){
+		coef=output[k];
+		shift=k;
+	  }
+	}
+	cc=this->Correlation(input2);
+	shift=shift-N+1;
+	std::cout<<"shift: "<<shift<<std::endl;
+	std::cout<<"XcovMax: "<<coef<<std::endl;
 
+	
+	return output;
+  }
+  
+  //---------------------------------------------------------------------        
+ //---------------------------------------------------------------------   
+ 
+  
   //  double Signal::Compare(Signal & sigRef) {
   //     double coeffCorrParam[5]={0.,0.,0.,0.,0.};
     
@@ -1069,25 +1302,25 @@ namespace clitk {
   //     return ((double)(samp)/((double)size()*m_SamplingPeriod));
   //   }
 
-//   //---------------------------------------------------------------------
-//   Signal Signal::limPhaseDE(eIPhaseValue, eEPhaseValue)
-//   {
+  //   //---------------------------------------------------------------------
+  //   Signal Signal::limPhaseDE(eIPhaseValue, eEPhaseValue)
+  //   {
    
-//     //Create an empty signal
-//     phase.resize(size());
+  //     //Create an empty signal
+  //     phase.resize(size());
 
-//     iterator phaseIt=initialPhaseValues.begin();
-//     iterator monPhaseIt=monPhase.begin();
-//     iterator extremaIt =begin();
+  //     iterator phaseIt=initialPhaseValues.begin();
+  //     iterator monPhaseIt=monPhase.begin();
+  //     iterator extremaIt =begin();
 
-//     while (extremaIt!= end())
-//     {
-//       if (*extremaIt==0.) *phaseIt=eIPhaseValue+floor(*monPhaseIt);
-//       else if (*extremaIt==1.) *phaseIt=eEPhaseValue+floor(*monPhaseIt);
-//       extremaIt++; phaseIt++;monPhaseIt++;
-//     }
+  //     while (extremaIt!= end())
+  //     {
+  //       if (*extremaIt==0.) *phaseIt=eIPhaseValue+floor(*monPhaseIt);
+  //       else if (*extremaIt==1.) *phaseIt=eEPhaseValue+floor(*monPhaseIt);
+  //       extremaIt++; phaseIt++;monPhaseIt++;
+  //     }
 
-//   }
+  //   }
 
 
 }
