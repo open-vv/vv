@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: clitkImageToImageGenericFilterBase.txx,v $
   Language:  C++
-  Date:      $Date: 2010/03/02 13:02:52 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/03/03 13:00:36 $
+  Version:   $Revision: 1.2 $
   Author :   Joel Schaerer <joel.schaerer@creatis.insa-lyon.fr>
   David Sarrut <david.sarrut@creatis.insa-lyon.fr>
 
