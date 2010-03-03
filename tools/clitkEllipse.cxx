@@ -1,17 +1,20 @@
 /*=========================================================================
                                                                                 
   Program:   clitk
+  Module:    $RCSfile: clitkEllipse.cxx,v $
   Language:  C++
+  Date:      $Date: 2010/03/03 10:47:48 $
+  Version:   $Revision: 1.3 $
                                                                                 
   Copyright (c) CREATIS (Centre de Recherche et d'Applications en Traitement de
   l'Image). All rights reserved. See Doc/License.txt or
   http://www.creatis.insa-lyon.fr/Public/Gdcm/License.html for details.
                                                                                 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notices for more information.
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notices for more information.
                                                                              
-=========================================================================*/
+  =========================================================================*/
 
 #include "clitkEllipse.h"
 
@@ -32,7 +35,7 @@ clitk::Ellipse::Ellipse():a((*this)[0]), b((*this)[1]),
 clitk::Ellipse::Ellipse(const Ellipse & e):a((*this)[0]), b((*this)[1]), 
                                            c((*this)[2]), d((*this)[3]), 
                                            e((*this)[4]), f((*this)[5]) {
-  for(int i=0; i<7; i++) (*this)[i] = e[i];
+  for(int i=0; i<6; i++) (*this)[i] = e[i];
 }
 
 //---------------------------------------------------------------------
@@ -57,14 +60,28 @@ Vector2d clitk::Ellipse::ComputeSemiAxeLengths() {
   Vector2d center = ComputeCenter();
   double & k1 = center[0];
   double & k2 = center[1];
+  // DD(f);
   double mu = 1.0/(a*k1*k1 + b*k1*k2 + c*k2*k2 - f);
+  // DD(a*k1*k1);
+  //   DD(b*k1*k2);
+  //   DD(c*k2*k2);
+  //   DD(a*k1*k1 + b*k1*k2 + c*k2*k2 - f);
+  //   DD(mu);
   double m11 = mu * a;
   double m12 = mu * 0.5 * b;
   double m22 = mu * c;
   double l1 = ( (m11+m22) + sqrt((m11-m22)*(m11-m22)+4*m12*m12) )/2.0;
-  assert(l1>0.0);
+  // DD(k1);
+  //   DD(k2);
+  //   DD(mu);
+  //   DD(m11);
+  //   DD(m12);
+  //   DD(m22);
+  //   DD(l1);
+  assert(l1>=0.0);
   axis[1] = 1.0/sqrt(l1);
   double l2 = ((m11+m22)-sqrt((m11-m22)*(m11-m22)+4*m12*m12))/2.0;
+  // DD(l2);
   assert(l2>0.0);
   axis[0] = 1.0/sqrt(l2);
   return axis;
@@ -180,6 +197,7 @@ double clitk::Ellipse::EllipseFittingNextIteration() {
   // residual r (no need to optimize)
   GetVnlVector().normalize();
   double r = (St*current)*current;
+  // DD(r);
 
   // Temporary parameters
   Vector6d an;
@@ -235,12 +253,12 @@ void clitk::Ellipse::UpdateSMatrix(unsigned int begin, unsigned int n,
 
   // Initialisation of S
   S.Fill(0.0);
-  j = 0;
-  for(unsigned int i=begin; i<begin+n; i++) {
+  // j = 0;
+  for(unsigned int i=0; i<n; i++) {
     for(unsigned int x=0; x<6; x++)
       for(unsigned int y=0; y<6; y++) 
-        S(x,y) += z[j][x]*z[j][y];
-    j++;
+        S(x,y) += z[i][x]*z[i][y];
+    // j++;
   }
   Sinv = S.GetInverse();
   St = S.GetVnlMatrix().transpose();
@@ -280,3 +298,101 @@ void clitk::Ellipse::UpdateSMatrix(unsigned int begin, unsigned int n,
   }  
 }
 //---------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------
+void clitk::ComputeIsoPhaseFromListOfEllipses(std::vector<clitk::Ellipse*> & l, 
+                                              clitk::Signal & sx, 
+                                              clitk::Signal & sy, 
+                                              int nbIsoPhase, 
+                                              int delay, 
+                                              int L, 
+                                              clitk::Signal & phase) {
+  // Init
+  DD(nbIsoPhase);
+  std::vector<double> mIsoPhaseRefAngle(nbIsoPhase);
+  phase.resize(l.size());
+  double refphaseangle=0;
+  double previousangle=0;
+
+  // Loop on ellipses
+  // DD(l.size());
+  for (unsigned int i=0; i<l.size(); i++) {
+    // DD("=================================");
+    //     DD(i);
+    clitk::Ellipse & An = *l[i];
+    // DD(An);
+    //     DD(An.ComputeCenter());
+    //     DD(An.ComputeSemiAxeLengths());
+    //     DD(rad2deg(An.ComputeAngleInRad()));
+
+    // Compute current signed angle
+    Vector2d x1(An.ComputeCenter());
+    double a = l[0]->ComputeSemiAxeLengths()[0]; 
+    double theta = l[0]->ComputeAngleInRad(); 
+    Vector2d x2; x2[0] = x1[0]+a * cos(theta); x2[1] = x1[1]+a * sin(theta);
+    Vector2d x3(x1);
+    Vector2d x4; x4[0] = sx[i+L]; x4[1] = sy[i+L];
+    Vector2d A(x2-x1);
+    Vector2d B(x4-x3);
+    // DD(sx[i+L]);
+    //     DD(sy[i+L]);
+    // http://www.euclideanspace.com/maths/algebra/vectors/angleBetween/index.htm
+    double signed_angle = atan2(B[1], B[0]) - atan2(A[1], A[0]);
+    if (signed_angle<0) signed_angle = 2*M_PI+signed_angle;
+    
+    // First time : set the angle
+    if (i==0) {
+      // DD(signed_angle);
+      refphaseangle = signed_angle;
+      for(int a=0; a<nbIsoPhase; a++) {
+        if (a==0) mIsoPhaseRefAngle[a] = refphaseangle;//signed_angle;
+        else mIsoPhaseRefAngle[a] = (refphaseangle //signed_angle
+                                     + (2*M_PI)*a/nbIsoPhase);
+        if (mIsoPhaseRefAngle[a] > 2*M_PI) mIsoPhaseRefAngle[a] -= 2*M_PI;
+        if (mIsoPhaseRefAngle[a] < 0) mIsoPhaseRefAngle[a] = 2*M_PI-mIsoPhaseRefAngle[a];
+      }
+      int a=0;
+      while ((a<nbIsoPhase) && (signed_angle>=mIsoPhaseRefAngle[a])) { a++; }
+      phase[i] = a-1;
+      if (nbIsoPhase == 1) phase[i] = 1;
+    }
+    else {
+      phase[i] = phase[i-1];
+      
+      // Check if angle cross a ref angle
+      for(int a=0; a<nbIsoPhase; a++) {
+        // std::cout << "a=" << rad2deg(signed_angle) << " prev=" << rad2deg(previousangle)
+        //                   << " ref=" << rad2deg(mIsoPhaseRefAngle[a]) << " " << phase[i] << std::endl;
+        if (signed_angle > previousangle) {
+          // DD("cas1");
+          //             (((signed_angle > mIsoPhaseRefAngle[a]) && (previousangle < mIsoPhaseRefAngle[a]))) ||
+          //             ((mIsoPhaseRefAngle[a]==0) && (signed_angle < previousangle)))
+          if ((previousangle < mIsoPhaseRefAngle[a]) && 
+              (signed_angle >= mIsoPhaseRefAngle[a]))
+            {
+              // DD(a);
+              if (nbIsoPhase == 1) { // single phase, alternate 0 and 1
+                phase[i] = -phase[i-1];
+              }
+              else phase[i] = a;
+            }
+        }
+        else { // previousangle >= signed_angle (we turn around 0)
+          // DD("cas2");
+          if ((mIsoPhaseRefAngle[a] > previousangle) ||
+              (mIsoPhaseRefAngle[a] < signed_angle)) {
+            // DD(a);
+            if (nbIsoPhase == 1) { // single phase, alternate 0 and 1
+              phase[i] = -phase[i-1];
+            }
+            else phase[i] = a;
+          }
+        }
+      }
+    } 
+    previousangle = signed_angle;
+  }
+}
+//---------------------------------------------------------------------
+
