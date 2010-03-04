@@ -71,7 +71,7 @@ ADD_EXECUTABLE(clitkSignalMeanPositionTracking clitkSignalMeanPositionTracking.c
 TARGET_LINK_LIBRARIES(clitkSignalMeanPositionTracking clitkCommon ITKIO )
 
 ADD_EXECUTABLE(clitkSignalApparentMotionTracking clitkSignalApparentMotionTracking.cxx clitkTrajectory2D.cxx clitkSignalApparentMotionTrackingFilter.cxx clitkEllipse.cxx clitkSignalApparentMotionTracking_ggo.c)
-TARGET_LINK_LIBRARIES(clitkSignalApparentMotionTracking clitkCommon ITKIO fftw3)
+TARGET_LINK_LIBRARIES(clitkSignalApparentMotionTracking clitkCommon ITKIO)
 
 ADD_EXECUTABLE(clitkSignalFilter clitkSignalFilter.cxx clitkSignalFilter_ggo.c)
 TARGET_LINK_LIBRARIES(clitkSignalFilter clitkCommon ITKIO ) 
