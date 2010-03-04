@@ -1,5 +1,5 @@
 #File clitkSignalApparentMotionTrackingFilter.ggo
-Package "clitkSignalMeanPositionTracking"
+package "clitkSignalMeanPositionTracking"
 version "1.0"
 purpose "See Ruan 2008, compute mean position from a signal"
 
