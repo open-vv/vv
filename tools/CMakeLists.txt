@@ -67,15 +67,6 @@ TARGET_LINK_LIBRARIES(clitkInvertVF clitkCommon ITKIO clitkFilters)
 ADD_EXECUTABLE(clitkAffineTransform clitkAffineTransform.cxx  clitkAffineTransform_ggo.c)
 TARGET_LINK_LIBRARIES(clitkAffineTransform clitkCommon ITKIO  clitkFilters)
 
-ADD_EXECUTABLE(clitkSignalMeanPositionTracking clitkSignalMeanPositionTracking.cxx clitkSignalMeanPositionFilter.cxx clitkEllipse.cxx clitkSignalMeanPositionTracking_ggo.c)
-TARGET_LINK_LIBRARIES(clitkSignalMeanPositionTracking clitkCommon ITKIO )
-
-ADD_EXECUTABLE(clitkSignalApparentMotionTracking clitkSignalApparentMotionTracking.cxx clitkTrajectory2D.cxx clitkSignalApparentMotionTrackingFilter.cxx clitkEllipse.cxx clitkSignalApparentMotionTracking_ggo.c)
-TARGET_LINK_LIBRARIES(clitkSignalApparentMotionTracking clitkCommon ITKIO)
-
-ADD_EXECUTABLE(clitkSignalFilter clitkSignalFilter.cxx clitkSignalFilter_ggo.c)
-TARGET_LINK_LIBRARIES(clitkSignalFilter clitkCommon ITKIO ) 
-
 ADD_EXECUTABLE(clitkSetBackground clitkSetBackground.cxx
 clitkSetBackgroundGenericFilter.cxx clitkSetBackground_ggo.c)
 TARGET_LINK_LIBRARIES(clitkSetBackground clitkCommon ITKIO )
