@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvIntensityValueSlider.h,v $
   Language:  C++
-  Date:      $Date: 2010/02/05 09:06:46 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2010/03/05 10:32:33 $
+  Version:   $Revision: 1.3 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -50,13 +50,16 @@ class vvIntensityValueSlider:
   double GetValue() const { return mValue; }
   void SetValue(double d);
   void SetMaximum(double max);
-  void SetMinimum(double min);                         
+  void SetMinimum(double min);
+  void SetSingleStep(double step);                         
   void resetMinimum() { SetMinimum(mMin); }
   void resetMaximum() { SetMaximum(mMax); }
 
  public slots:
   void valueChangedFromSpinBox(double v);
   void valueChangedFromSlider(int v);
+  void SingleStepPlusClicked();
+  void SingleStepMinusClicked();
 
  signals:
   void valueChanged(double);
@@ -64,10 +67,12 @@ class vvIntensityValueSlider:
  protected:
   Ui::vvIntensityValueSlider ui;
   vvImage * mImage;
+  double mMin;
+  double mMax;
+  double mWidth;
   double mSliderFactor;
   double mValue;
-  double mMax;
-  double mMin;
+  bool mIsInteger;
 
 }; // end class vvIntensityValueSlider
 //------------------------------------------------------------------------------

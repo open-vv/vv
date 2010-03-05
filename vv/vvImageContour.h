@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvImageContour.h,v $
   Language:  C++
-  Date:      $Date: 2010/03/01 07:37:25 $
-  Version:   $Revision: 1.4 $
+  Date:      $Date: 2010/03/05 10:32:33 $
+  Version:   $Revision: 1.5 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -43,15 +43,16 @@ class vvImageContour
   ~vvImageContour();
 
   void setSlicer(vvSlicer * slicer);
-  void update(int value);
+  void update(double value);
   void hideActors();
   void showActors();
+  void setColor(double r, double g, double b);
 
  protected:
   vvSlicer * mSlicer;
   int mSlice;
   int mTSlice;
-  int mValue;
+  double mValue;
 
   std::vector<vtkImageClip*> mClipperList;
   std::vector<vtkMarchingSquares*> mSquaresList;

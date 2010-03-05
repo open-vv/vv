@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvIntensityValueSlider.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/01 07:37:25 $
-  Version:   $Revision: 1.4 $
+  Date:      $Date: 2010/03/05 10:32:33 $
+  Version:   $Revision: 1.5 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -33,13 +33,15 @@ vvIntensityValueSlider::vvIntensityValueSlider(QWidget * parent, Qt::WindowFlags
 {
   // GUI Initialization
   setupUi(this);  
-  mValue = 0;
-  SetMaximum(1000);
-  SetMinimum(-1000);
+  mIsInteger = true;
+  mButtonPlus->setHidden(true);
+  mButtonMinus->setHidden(true);
   
   // Connect signals & slots
   connect(mSpinBox, SIGNAL(valueChanged(double)), this, SLOT(valueChangedFromSpinBox(double)));
   connect(mSlider, SIGNAL(valueChanged(int)), this, SLOT(valueChangedFromSlider(int)));
+  connect(mButtonPlus, SIGNAL(clicked()), this, SLOT(SingleStepPlusClicked()));
+  connect(mButtonMinus, SIGNAL(clicked()), this, SLOT(SingleStepMinusClicked()));
 }
 //------------------------------------------------------------------------------
 
@@ -51,8 +53,39 @@ vvIntensityValueSlider::~vvIntensityValueSlider() {
 
 
 //------------------------------------------------------------------------------
+void vvIntensityValueSlider::SingleStepMinusClicked() {
+  mSpinBox->setSingleStep(mSpinBox->singleStep()*10);
+  mSpinBox->setDecimals(mSpinBox->decimals()-1);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvIntensityValueSlider::SetSingleStep(double step) {
+  mSpinBox->setSingleStep(step);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvIntensityValueSlider::SingleStepPlusClicked() {
+  mSpinBox->setSingleStep(mSpinBox->singleStep()/10);
+  mSpinBox->setDecimals(mSpinBox->decimals()+1);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 void vvIntensityValueSlider::valueChangedFromSpinBox(double v) {
-  mSlider->setValue(v);
+  if (v == mValue) return;
+  mSpinBox->setValue(v);
+  v = mSpinBox->value(); // this is needed to 'round' value according to spinBox precision
+  double vv;
+  if (!mIsInteger) {
+    vv = ((v-mMin)/mWidth)/mSliderFactor;
+  }
+  else vv = v;
+  mSlider->setValue(vv);
   mValue = v;
   emit valueChanged(v);
 }
@@ -60,8 +93,18 @@ void vvIntensityValueSlider::valueChangedFromSpinBox(double v) {
 
 
 //------------------------------------------------------------------------------
-void vvIntensityValueSlider::valueChangedFromSlider(int v) {
-  mSpinBox->setValue(v*mSliderFactor);
+void vvIntensityValueSlider::valueChangedFromSlider(int vv) {
+  double v;
+  if (!mIsInteger) {
+    v = ((double)vv*mSliderFactor)*mWidth+mMin;
+  }
+  else v= vv;
+
+  // arrondir ! ?
+
+  if (mValue == v) return;
+  mSpinBox->setValue(v);
+  mValue = v;
 }
 //------------------------------------------------------------------------------
 
@@ -82,16 +125,27 @@ void vvIntensityValueSlider::SetImage(vvImage * im) {
 
 
 //------------------------------------------------------------------------------
-void vvIntensityValueSlider::SetValue(double d) { 
-  mSpinBox->setValue(d);
+void vvIntensityValueSlider::SetValue(double v) { 
+  mValue = v;
+  mSpinBox->setValue(v);
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
 void vvIntensityValueSlider::SetMaximum(double max) {
-  mSlider->setMaximum(max);
+  mMax = max;
   mSpinBox->setMaximum(max);
+  
+  // If integer values : update slider max
+  if (mIsInteger == 1) {
+    mSlider->setMaximum(max);
+  }
+  else {
+    double step = mWidth/1000.0;
+    mSpinBox->setSingleStep(step);
+    mWidth = mMax-mMin;
+  }
   if (mValue > max) { SetValue(max); }
   QString tip = QString("Min = %1    Max = %2").arg(mSpinBox->minimum()).arg(max);
   setToolTip(tip);
@@ -101,8 +155,18 @@ void vvIntensityValueSlider::SetMaximum(double max) {
 
 //------------------------------------------------------------------------------
 void vvIntensityValueSlider::SetMinimum(double min) {
-  mSlider->setMinimum(min);
+  mMin = min;
   mSpinBox->setMinimum(min);
+
+  if (mIsInteger == 1) {
+    mSlider->setMinimum(min);
+  }
+  else {
+    double step = mWidth/1000.0;
+    mSpinBox->setSingleStep(step);
+    mWidth = mMax-mMin;
+  }
+
   if (mValue < min) { SetValue(min); }
   QString tip = QString("Min = %1    Max = %2").arg(min).arg(mSpinBox->maximum());
   setToolTip(tip);
@@ -112,28 +176,43 @@ void vvIntensityValueSlider::SetMinimum(double min) {
 
 //------------------------------------------------------------------------------
 void vvIntensityValueSlider::Update() {
+  double range[2];
+  mImage->GetFirstVTKImageData()->GetScalarRange(range);
+  mMin = range[0];
+  mMax = range[1];
+  double step = (mMax-mMin)/1000.0;
+  
   if (mImage->IsScalarTypeInteger()) {
-
+    mIsInteger = true;
     mSpinBox->setSingleStep(1.0);
     mSpinBox->setDecimals(0);
-    mSliderFactor = 1.0;
-
-    double range[2];
-    mImage->GetFirstVTKImageData()->GetScalarRange(range);
-    mMin = range[0];
-    mMax = range[1];
     mSlider->setMaximum(mMax);
     mSlider->setMinimum(mMin);
-    mSpinBox->setMaximum(mMax);
-    mSpinBox->setMinimum(mMin);
-
-    QString tip = QString("Min = %1    Max = %2").arg(mMin).arg(mMax);
-    setToolTip(tip);
+    mSlider->setSingleStep(1);
+    mSliderFactor = 1.0;
+    mWidth = 1.0;
   }
   else {
-    std::cerr << "NO floating point image yet !!" << std::endl;
-    exit(0);
+    mIsInteger = false;
+    mButtonPlus->setHidden(false);
+    mButtonMinus->setHidden(false);
+    mSpinBox->sizePolicy().setHorizontalPolicy(QSizePolicy::Expanding);
+    mSpinBox->setSingleStep(step);
+    mSpinBox->setDecimals(4);
+    mSlider->setMaximum(1000);
+    mSlider->setMinimum(0);
+    mSlider->setSingleStep(1);
+    mSliderFactor = 1.0/1000.0;
+    mWidth = mMax-mMin;
   }
+  
+  mSpinBox->setMaximum(mMax);
+  mSpinBox->setMinimum(mMin);
+  mSpinBox->setValue((mMax-mMin)/2.0+mMin);
+  
+  QString tip = QString("Min = %1    Max = %2").arg(mMin).arg(mMax);
+  setToolTip(tip);
 }
-
 //------------------------------------------------------------------------------
+
+

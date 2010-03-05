@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolBinarize.h,v $
   Language:  C++
-  Date:      $Date: 2010/03/01 07:37:25 $
-  Version:   $Revision: 1.7 $
+  Date:      $Date: 2010/03/05 10:32:33 $
+  Version:   $Revision: 1.8 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -70,6 +70,7 @@ class vvToolBinarize:
   Ui::vvToolBinarize ui;
   args_info_clitkBinarizeImage mArgsInfo;
   std::vector<vvImageContour*> mImageContour;
+  std::vector<vvImageContour*> mImageContourLower;
   bool mInteractiveDisplayIsEnabled;
 
 }; // end class vvToolBinarize

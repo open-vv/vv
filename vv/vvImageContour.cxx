@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvImageContour.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/01 07:37:25 $
-  Version:   $Revision: 1.4 $
+  Date:      $Date: 2010/03/05 10:32:33 $
+  Version:   $Revision: 1.5 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -84,6 +84,15 @@ void vvImageContour::setSlicer(vvSlicer * slicer) {
 
 
 //------------------------------------------------------------------------------
+void vvImageContour::setColor(double r, double g, double b) {
+  for(unsigned int i=0; i<mSquaresActorList.size(); i++) {
+    mSquaresActorList[i]->GetProperty()->SetColor(r,g,b);
+  }
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 void vvImageContour::hideActors() {
   if (!mSlicer) return;
   mSlice = mSlicer->GetSlice();
@@ -108,7 +117,7 @@ void vvImageContour::showActors() {
 
   
 //------------------------------------------------------------------------------
-void vvImageContour::update(int value) {
+void vvImageContour::update(double value) {
   mValue= value;
   if (!mSlicer) return;
 

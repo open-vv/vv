@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolBinarize.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/01 15:38:09 $
-  Version:   $Revision: 1.10 $
+  Date:      $Date: 2010/03/05 10:32:33 $
+  Version:   $Revision: 1.11 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -64,8 +64,6 @@ vvToolBinarize::vvToolBinarize(vvMainWindowBase * parent, Qt::WindowFlags f)
   mInteractiveDisplayIsEnabled = mCheckBoxInteractiveDisplay->isChecked();
 
   // Connect signals & slots  
-  connect(mThresholdSlider1, SIGNAL(valueChanged(double)), this, SLOT(valueChangedT1(double)));
-  connect(mThresholdSlider2, SIGNAL(valueChanged(double)), this, SLOT(valueChangedT2(double)));
   connect(mRadioButtonLowerThan, SIGNAL(toggled(bool)), this, SLOT(enableLowerThan(bool)));
   connect(mCheckBoxUseFG, SIGNAL(toggled(bool)), this, SLOT(useFGBGtoggled(bool)));
   connect(mCheckBoxUseBG, SIGNAL(toggled(bool)), this, SLOT(useFGBGtoggled(bool)));
@@ -96,8 +94,10 @@ void vvToolBinarize::InteractiveDisplayToggled(bool b) {
     RemoveVTKObjects();
   }
   else {
-    for(unsigned int i=0; i<mImageContour.size(); i++)
+    for(unsigned int i=0; i<mImageContour.size(); i++) {
       mImageContour[i]->showActors();
+      mImageContourLower[i]->showActors();
+    }
     if (mCurrentSlicerManager)
       mCurrentSlicerManager->Render();
   }
@@ -107,8 +107,10 @@ void vvToolBinarize::InteractiveDisplayToggled(bool b) {
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::RemoveVTKObjects() { 
-  for(unsigned int i=0; i<mImageContour.size(); i++)
+  for(unsigned int i=0; i<mImageContour.size(); i++) {
     mImageContour[i]->hideActors();
+    mImageContourLower[i]->hideActors();    
+  }
   if (mCurrentSlicerManager)
     mCurrentSlicerManager->Render();
 }
@@ -135,9 +137,18 @@ void vvToolBinarize::reject() {
 void vvToolBinarize::enableLowerThan(bool b) {
   if (!b) {
     mThresholdSlider1->resetMaximum();
+    for(unsigned int i=0; i<mImageContour.size(); i++) {
+      mImageContourLower[i]->hideActors();    
+    }
+    mCurrentSlicerManager->Render();
   }
   else {
     valueChangedT1(mThresholdSlider1->GetValue());
+    valueChangedT2(mThresholdSlider2->GetValue());
+    for(unsigned int i=0; i<mImageContour.size(); i++) {
+      mImageContourLower[i]->showActors();    
+    }
+    mCurrentSlicerManager->Render();
   }
 }
 //------------------------------------------------------------------------------
@@ -169,13 +180,23 @@ void vvToolBinarize::InputIsSelected(vvSlicerManager * m) {
   mBGSlider->SetMinimum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMin());
   mFGSlider->SetValue(1);
   mBGSlider->SetValue(0);
+  mFGSlider->SetSingleStep(1);
+  mBGSlider->SetSingleStep(1);
   
   // VTK objects for interactive display
   for(int i=0;i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
     mImageContour.push_back(new vvImageContour);
     mImageContour[i]->setSlicer(mCurrentSlicerManager->GetSlicer(i));
+    mImageContour[i]->setColor(1.0, 0.0, 0.0);
+    mImageContourLower.push_back(new vvImageContour);
+    mImageContourLower[i]->setSlicer(mCurrentSlicerManager->GetSlicer(i));
+    mImageContourLower[i]->setColor(0.0, 0.0, 1.0);
   }
   valueChangedT1(mThresholdSlider1->GetValue());
+
+  connect(mThresholdSlider1, SIGNAL(valueChanged(double)), this, SLOT(valueChangedT1(double)));
+  connect(mThresholdSlider2, SIGNAL(valueChanged(double)), this, SLOT(valueChangedT2(double)));
+
   connect(mCurrentSlicerManager,SIGNAL(UpdateSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
   connect(mCurrentSlicerManager,SIGNAL(UpdateTSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
 
@@ -189,6 +210,9 @@ void vvToolBinarize::UpdateSlice(int slicer,int slices) {
   if (!mCurrentSlicerManager) close();
   for(int i=0;i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
     mImageContour[i]->update(mThresholdSlider1->GetValue());
+    if (mRadioButtonLowerThan->isChecked()) 
+      mImageContourLower[i]->update(mThresholdSlider2->GetValue());
+
   }
   mCurrentSlicerManager->Render(); 
 }
@@ -279,19 +303,28 @@ void vvToolBinarize::apply() {
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::valueChangedT2(double v) {
-  if (mRadioButtonLowerThan->isChecked()) mThresholdSlider1->SetMaximum(v);
+  //  DD("valueChangedT2");
+  if (mRadioButtonLowerThan->isChecked()) {
+    mThresholdSlider1->SetMaximum(v);
+    if (!mInteractiveDisplayIsEnabled) return;
+    for(int i=0;i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
+      mImageContourLower[i]->update(v);
+    }
+    mCurrentSlicerManager->Render();
+  }
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::valueChangedT1(double v) {
+  //  DD("valueChangedT1");
   if (!mCurrentSlicerManager) close();
   mThresholdSlider2->SetMinimum(v);
-  int m1 = (int)lrint(v);  
+  //  int m1 = (int)lrint(v);  
   if (!mInteractiveDisplayIsEnabled) return;
   for(int i=0;i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
-    mImageContour[i]->update(m1);
+    mImageContour[i]->update(v);
   }
   mCurrentSlicerManager->Render();
 }
