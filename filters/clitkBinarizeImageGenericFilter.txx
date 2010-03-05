@@ -22,9 +22,9 @@ namespace clitk
   template<class args_info_type>
   BinarizeImageGenericFilter<args_info_type>::BinarizeImageGenericFilter():
     ImageToImageGenericFilter<Self>("Binarize") {
-    InitializeImageType<2>();
+    //    InitializeImageType<2>();
     InitializeImageType<3>();
-    InitializeImageType<4>();
+    //InitializeImageType<4>();
   }
   //--------------------------------------------------------------------
 
@@ -33,10 +33,10 @@ namespace clitk
   template<class args_info_type>
   template<unsigned int Dim>
   void BinarizeImageGenericFilter<args_info_type>::InitializeImageType() {      
-    ADD_IMAGE_TYPE(Dim, char);
+    //ADD_IMAGE_TYPE(Dim, char);
     ADD_IMAGE_TYPE(Dim, short);
     ADD_IMAGE_TYPE(Dim, int);
-    //ADD_IMAGE_TYPE(Dim, float);
+    ADD_IMAGE_TYPE(Dim, float);
   }
   //--------------------------------------------------------------------
   
