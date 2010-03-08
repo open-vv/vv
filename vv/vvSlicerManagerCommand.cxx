@@ -44,37 +44,32 @@
 #include <cmath>
 
 //------------------------------------------------------------------------------
-vvSlicerManagerCallback::vvSlicerManagerCallback()
+vvSlicerManagerCommand::vvSlicerManagerCommand()
 {
   mStartSlicer = -1;
+  mSlicerNumber=-1;
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
 //return the num of the current slicer if visible (-1 else)
-int vvSlicerManagerCallback::FindSlicerNumber(vtkRenderWindow* renwin)
+int vvSlicerManagerCommand::FindSlicerNumber(vtkRenderWindow* renwin)
 {
-  int result=-1;
-  for (int i = 0; i < SM->NumberOfSlicers(); i++)
-    {
-      if (SM->GetSlicer(i)->GetRenderWindow() == renwin
-	  && SM->GetSlicer(i)->GetRenderer()->GetDraw())
-        {
-	  //            DD(i);
-	  result=i;
-        }
-    }
-  return result;
+    if (renwin != SM->GetSlicer(mSlicerNumber)->GetRenderWindow() ||
+            !SM->GetSlicer(mSlicerNumber)->GetRenderer()->GetDraw())
+        return -1;
+    else return mSlicerNumber;
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvSlicerManagerCallback::Execute(vtkObject *caller,
+void vvSlicerManagerCommand::Execute(vtkObject *caller,
 				      unsigned long event,
 				      void *vtkNotUsed(callData))
 {
+  std::cerr << this << ":" << mSlicerNumber << endl;
   //KeyPress event
   vvInteractorStyleNavigator *isi =
     dynamic_cast<vvInteractorStyleNavigator *>(caller);
@@ -260,6 +255,7 @@ void vvSlicerManagerCallback::Execute(vtkObject *caller,
 
 	      if (KeyPress == "F1")
                 {
+    std::cerr << this << ":" << this->SM->GetId() << "\t" << VisibleInWindow << endl;
 		  this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetText(2,"Sagital\n<slice>");
 		  this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(0);
 		  this->SM->UpdateSliceRange(VisibleInWindow);
@@ -427,7 +423,7 @@ void vvSlicerManagerCallback::Execute(vtkObject *caller,
 
 
 //------------------------------------------------------------------------------
-void vvSlicerManagerCallback::Dolly(double factor, vtkRenderWindowInteractor *interactor)
+void vvSlicerManagerCommand::Dolly(double factor, vtkRenderWindowInteractor *interactor)
 {
   int VisibleInWindow = this->FindSlicerNumber(interactor->GetRenderWindow());
   vtkRenderer* renderer;
@@ -505,7 +501,7 @@ void vvSlicerManagerCallback::Dolly(double factor, vtkRenderWindowInteractor *in
   //interactor->Render();
 }
 
-void vvSlicerManagerCallback::FlyToPosition(vtkRenderWindowInteractor *interactor,vvSlicer* slicer)
+void vvSlicerManagerCommand::FlyToPosition(vtkRenderWindowInteractor *interactor,vvSlicer* slicer)
 {
   double flyFrom[3], flyTo[3];
   double d[3], focalPt[3], position[3], positionFrom[3];

@@ -338,8 +338,10 @@ void vvSlicerManager::SetSlicerWindow(int i, vtkRenderWindow* RW)
 
 void vvSlicerManager::SetInteractorStyleNavigator(int i, vtkInteractorStyle* style)
 {
-    vvSlicerManagerCallback *smc = vvSlicerManagerCallback::New();
+    vvSlicerManagerCommand *smc = vvSlicerManagerCommand::New();
+    std::cerr << smc << ":" << i << "  " << this << endl;
     smc->SM = this;
+    smc->SetSlicerNumber(i);
     mSlicers[i]->GetRenderWindow()->GetInteractor()->SetInteractorStyle(style);
 
     mSlicers[i]->GetRenderWindow()->GetInteractor()->

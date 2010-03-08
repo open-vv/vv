@@ -39,11 +39,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <sstream>
 
-class vvSlicerManagerCallback : public vtkCommand
+class vvSlicerManagerCommand : public vtkCommand
 {
 public:
-    static vvSlicerManagerCallback *New() {
-        return new vvSlicerManagerCallback;
+    static vvSlicerManagerCommand *New() {
+        return new vvSlicerManagerCommand;
     }
 
     void Execute(vtkObject *caller,
@@ -53,10 +53,11 @@ public:
     vvSlicerManager *SM;
     void Dolly(double factor, vtkRenderWindowInteractor *interactor);
     void FlyToPosition(vtkRenderWindowInteractor *interactor, vvSlicer* slicer);
+    void SetSlicerNumber(int slicer) {mSlicerNumber=slicer;}
 
 protected :
-    vvSlicerManagerCallback();
-    ~vvSlicerManagerCallback() {}
+    vvSlicerManagerCommand();
+    ~vvSlicerManagerCommand() {}
 
 private:
 
@@ -66,6 +67,8 @@ private:
     double InitialLevel;
     int mStartSlicer;
     bool newLandmark;
+    ///The slicer this callback commands
+    int mSlicerNumber;
 };
 
 #endif
