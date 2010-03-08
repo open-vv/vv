@@ -1008,10 +1008,10 @@ bool clitk::XdrImageIO::CanReadFile(const char* FileNameToRead)
 
     fstream = fopen(FileNameToRead, "rt");
     if (fstream == NULL)
-    {
-        AVSerror("Couldn't open file " << FileNameToRead);
+//    {
+//        AVSerror("Couldn't open file " << FileNameToRead);
         return false;
-    }
+//    }
     fgets(temp, 500, fstream);
     fclose(fstream);
 
