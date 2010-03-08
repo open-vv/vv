@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvMainWindow.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/01 15:38:09 $
-  Version:   $Revision: 1.14 $
+  Date:      $Date: 2010/03/08 10:12:28 $
+  Version:   $Revision: 1.15 $
   Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
   Copyright (C) 200COLUMN_IMAGE_NAME
@@ -567,45 +567,45 @@ void vvMainWindow::MergeImages() {
   for (int i = 0; i < files.size(); i++)
     {
       itk::ImageIOBase::Pointer reader = itk::ImageIOFactory::CreateImageIO(
-                                                                            files[i].toStdString().c_str(), itk::ImageIOFactory::ReadMode);
+              files[i].toStdString().c_str(), itk::ImageIOFactory::ReadMode);
       reader->SetFileName(files[i].toStdString().c_str());
       reader->ReadImageInformation();
-      if (reader)  NOViewWidget->hide();
-      NEViewWidget->hide();
-      SOViewWidget->hide();
-      SEViewWidget->hide();
-      {
-        if (i == 0)
-          currentDim = reader->GetNumberOfDimensions();
-        bool IsOk = true;
-        for (unsigned int j = 0;j < currentDim; j++)
+      if (reader)        {
+          //NOViewWidget->hide();
+          //NEViewWidget->hide();
+          //SOViewWidget->hide();
+          //SEViewWidget->hide();
+          if (i == 0)
+              currentDim = reader->GetNumberOfDimensions();
+          bool IsOk = true;
+          for (unsigned int j = 0;j < currentDim; j++)
           {
-            if (i == 0)
+              if (i == 0)
               {
-                if (j == 0)
+                  if (j == 0)
                   {
-                    currentSpacing.resize(currentDim);
-                    currentSize.resize(currentDim);
-                    currentOrigin.resize(currentDim);
+                      currentSpacing.resize(currentDim);
+                      currentSize.resize(currentDim);
+                      currentOrigin.resize(currentDim);
                   }
-                currentOrigin[j] = reader->GetOrigin(j);
-                currentSpacing[j] = reader->GetSpacing(j);
-                currentSize[j] = reader->GetDimensions(j);
+                  currentOrigin[j] = reader->GetOrigin(j);
+                  currentSpacing[j] = reader->GetSpacing(j);
+                  currentSize[j] = reader->GetDimensions(j);
               }
-            else if (currentDim != reader->GetNumberOfDimensions()
-                     || currentSpacing[j] != reader->GetSpacing(j)
-                     || currentSize[j] != (int)reader->GetDimensions(j)
-                     || currentOrigin[j] != reader->GetOrigin(j))
+              else if (currentDim != reader->GetNumberOfDimensions()
+                      || currentSpacing[j] != reader->GetSpacing(j)
+                      || currentSize[j] != (int)reader->GetDimensions(j)
+                      || currentOrigin[j] != reader->GetOrigin(j))
               {
-                QString error = "Cannot read file (too different from others ";
-                error += files[i].toStdString().c_str();
-                QMessageBox::information(this,tr("Reading problem"),error);
-                IsOk = false;
-                break;
+                  QString error = "Cannot read file (too different from others ";
+                  error += files[i].toStdString().c_str();
+                  QMessageBox::information(this,tr("Reading problem"),error);
+                  IsOk = false;
+                  break;
               }
           }
-        if (IsOk)
-          vector.push_back(files[i].toStdString());
+          if (IsOk)
+              vector.push_back(files[i].toStdString());
       }
     }
   if (vector.size() > 0)
