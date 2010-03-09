@@ -3,8 +3,8 @@
   Program:   clitk
   Module:    $RCSfile: clitkImageUncertainty.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/01/19 16:02:53 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/03/09 15:45:20 $
+  Version:   $Revision: 1.2 $
                                                                                 
   Copyright (c) CREATIS (Centre de Recherche et d'Applications en Traitement de
   l'Image). All rights reserved. See Doc/License.txt or
@@ -32,7 +32,7 @@
 
 // clitk include
 #include "clitkImageUncertainty_ggo.h"
-#include "clitkIO.h"
+#include "clitkImageCommon.h"
 
 // itk include
 #include "itkImageRegionConstIterator.h"
@@ -43,7 +43,6 @@ int main(int argc, char * argv[]) {
 
   // init command line
   GGO(clitkImageUncertainty, args_info);
-  CLITK_INIT;
 
   // Declare main types
   typedef float                          PixelType;
