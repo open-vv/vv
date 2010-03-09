@@ -51,7 +51,6 @@ class vvGlyph2D;
 class vvGlyphSource;
 class vtkCursor3D;
 class vtkCutter;
-class vtkPlane;
 class vtkAssignAttribute;
 class vtkScalarBarActor;
 
@@ -149,6 +148,8 @@ public:
     bool GetCursorVisibility();
     void SetCursorColor(int r,int g, int b);
 
+    void GetExtremasAroundMousePointer(double & min, double & max);
+
     void UpdateLandmarks();
     void ForceUpdateDisplayExtent();
 
@@ -162,6 +163,7 @@ public:
     virtual void SetColorWindow(double s);
     virtual void SetColorLevel(double s);
 
+    
     void EnableReducedExtent(bool b);
     void SetReducedExtent(int * ext);
 
@@ -197,7 +199,6 @@ protected:
     vtkSmartPointer<vtkPolyDataMapper> mLandMapper;
     vtkSmartPointer<vtkActor> mLandActor;
     vtkSmartPointer<vtkBox> mClipBox;
-    vtkSmartPointer<vtkPlane> mSlicePlane;
     vtkSmartPointer<vtkScalarBarActor> legend;
 
     std::vector<vvMeshActor*> mSurfaceCutActors;

@@ -808,8 +808,6 @@ void vvSlicerManager::UpdateSliceRange(int slicer)
 
 void vvSlicerManager::SetPreset(int preset)
 {
-    double range[2];
-    mImage->GetScalarRange(range);
     //vtkLookupTable* LUT = static_cast<vtkLookupTable*>(mSlicers[0]->GetWindowLevel()->GetLookupTable());
     double window = mSlicers[0]->GetColorWindow();
     double level = mSlicers[0]->GetColorLevel();
@@ -830,6 +828,8 @@ void vvSlicerManager::SetPreset(int preset)
         }
         else
         {
+            double range[2];
+            mImage->GetScalarRange(range);
             window = range[1] - range[0];
             level = (range[1] + range[0])* 0.5;
         }
@@ -870,6 +870,15 @@ void vvSlicerManager::SetPreset(int preset)
     //    SetColorMap(-1);
     //}
 }
+
+void vvSlicerManager::SetLocalColorWindowing(const int slicer)
+{
+    double min, max;
+	this->mSlicers[slicer]->GetExtremasAroundMousePointer(min, max);
+    this->SetColorWindow(max-min);
+    this->SetColorLevel(0.5*(min+max));
+}
+
 void vvSlicerManager::SetColorMap()
 {
     SetColorMap(mColorMap);

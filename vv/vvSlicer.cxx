@@ -68,8 +68,8 @@
 #include <vtkExtractVOI.h>
 #include <vtkSphereSource.h>
 #include <vtkCutter.h>
-#include <vtkPlane.h>
 #include <vtkAssignAttribute.h>
+#include <vtkImageAccumulate.h>
 
 vtkCxxRevisionMacro(vvSlicer, "DummyRevision");
 vtkStandardNewMacro(vvSlicer);
@@ -98,6 +98,7 @@ vvSlicer::vvSlicer()
   text += "F5 = horizontal flip; F6 = vertical flip\n\n";
   text += "0,1,2,3,4,5 : preset windowing\n";
   text += "6,7,8,9 : preset colormap\n";
+  text += "z : local windowing\n";
   text += "r : reset view\n";
   text += "l : reload image\n";
   text += "f : fly to mouse position\n";
@@ -1140,6 +1141,49 @@ void vvSlicer::SetColorLevel(double level)
 }
 //----------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------
+// Returns the min an the max value in a 41x41 region around the mouse pointer
+void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max)
+{
+    double fLocalExtents[6];
+    int iLocalExtents[6];
+    for(int i=0; i<3; i++)
+    {
+        //Define corners of an area on the screen
+	if(SliceOrientation != i)
+	{
+	    fLocalExtents[i*2  ] = mCurrent[i]-20;
+	    fLocalExtents[i*2+1] = mCurrent[i]+20;
+	}
+	else
+	{
+	    fLocalExtents[i*2  ] = mCurrent[i];
+	    fLocalExtents[i*2+1] = mCurrent[i];
+	}
+
+	//Convert to image pixel coordinates
+        fLocalExtents[i*2  ] = (fLocalExtents[i*2  ] - this->GetInput()->GetOrigin()[i])/this->GetInput()->GetSpacing()[i];
+        fLocalExtents[i*2+1] = (fLocalExtents[i*2+1] - this->GetInput()->GetOrigin()[i])/this->GetInput()->GetSpacing()[i];
+	
+	//Round
+	iLocalExtents[i*2  ] = lrint(fLocalExtents[i*2  ]);
+	iLocalExtents[i*2+1] = lrint(fLocalExtents[i*2+1]);
+    }
+    
+    ClipDisplayedExtent(iLocalExtents, this->GetInput()->GetExtent());
+    
+    vtkSmartPointer<vtkExtractVOI> voiFilter = vtkExtractVOI::New();
+    voiFilter->SetInput(this->GetInput());
+    voiFilter->SetVOI(iLocalExtents);
+
+    vtkSmartPointer<vtkImageAccumulate> accFilter = vtkImageAccumulate::New();
+    accFilter->SetInput(voiFilter->GetOutput());
+    accFilter->Update();
+   
+    min = *(accFilter->GetMin());
+    max = *(accFilter->GetMax());
+}
+//----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 void vvSlicer::Render()

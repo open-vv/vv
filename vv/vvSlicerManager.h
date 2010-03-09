@@ -133,6 +133,7 @@ public:
     void GenerateDefaultLookupTable();
     void SetColorWindow(double s);
     void SetColorLevel(double s);
+    void SetLocalColorWindowing(const int slicer);
     void SetOpacity(int i, double factor);
     void SetColorMap();
     void SetColorMap(int colormap);

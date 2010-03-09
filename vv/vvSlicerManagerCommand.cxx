@@ -107,6 +107,11 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
                 {
                     FlyToPosition(isi->GetInteractor(),this->SM->GetSlicer(VisibleInWindow));
                 }
+		if (KeyPress == "z")
+		{
+                   this->SM->SetLocalColorWindowing(VisibleInWindow);
+		   return;
+		}
                 if (KeyPress == "0")
                 {
                     this->SM->SetPreset(0);
