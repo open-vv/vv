@@ -877,6 +877,7 @@ void vvSlicerManager::SetLocalColorWindowing(const int slicer)
 	this->mSlicers[slicer]->GetExtremasAroundMousePointer(min, max);
     this->SetColorWindow(max-min);
     this->SetColorLevel(0.5*(min+max));
+	this->Render();
 }
 
 void vvSlicerManager::SetColorMap()
