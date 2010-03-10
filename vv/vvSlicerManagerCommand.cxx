@@ -182,7 +182,6 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
                 }
                 if (KeyPress == "minus")
                 {
-                    std::cout << "KeyPress : - " << std::endl;
                     this->SM->SetColorWindow(-this->SM->GetColorWindow());
                     this->SM->SetColorMap(-1);
                     this->SM->UpdateWindowLevel();
@@ -262,7 +261,6 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
 
                 if (KeyPress == "F1")
                 {
-                    //std::cerr << this << ":" << this->SM->GetId() << "\t" << VisibleInWindow << endl;
                     this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetText(2,"Sagital\n<slice>");
                     this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(0);
                     this->SM->UpdateSliceRange(VisibleInWindow);
