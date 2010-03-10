@@ -1035,7 +1035,7 @@
      <normaloff>:/new/prefix1/icons/open.png</normaloff>:/new/prefix1/icons/open.png</iconset>
    </property>
    <property name="text">
-    <string>Open VTK contour</string>
+    <string>Open VTK or OBJ contour</string>
    </property>
   </action>
   <action name="actionNavigation_Help">

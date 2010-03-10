@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvMainWindow.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/08 10:12:28 $
-  Version:   $Revision: 1.15 $
+  Date:      $Date: 2010/03/10 15:36:26 $
+  Version:   $Revision: 1.16 $
   Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
   Copyright (C) 200COLUMN_IMAGE_NAME
@@ -415,7 +415,7 @@ void vvMainWindow::OpenVTKContour()
 {
   if (mSlicerManagers.size() > 0)
     {
-      QString Extensions = "Images ( *.vtk)";
+      QString Extensions = "Images ( *.vtk; *.obj)";
       Extensions += ";;All Files (*)";
       QString file = QFileDialog::getOpenFileName(this,tr("Open vtkPolyData"),mInputPathName,Extensions);
       if (file.isNull())
@@ -423,6 +423,7 @@ void vvMainWindow::OpenVTKContour()
       QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
       int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
       vvMeshReader reader;
+      reader.SetImage(mSlicerManagers[index]->GetImage());
       reader.SetModeToVTK();
       reader.SetFilename(file.toStdString());
       reader.Update();

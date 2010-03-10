@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataReader.h>
+#include <vtkOBJReader.h>
 #include <vtkImageData.h>
 #include "clitkCommon.h"
 #include "vvMesh.h"
@@ -37,6 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vtkLinearExtrusionFilter.h>
 #include <vtkPolyDataToImageStencil.h>
 #include <vtkMarchingCubes.h>
+#include <itksys/SystemTools.hxx>
 
 #include <vtkMetaImageWriter.h>
 
@@ -54,11 +56,30 @@ void vvMesh::AddMesh(vtkPolyData* p)
 
 void vvMesh::ReadFromVTK(const char * filename)
 {
-    assert(GetNumberOfMeshes() == 0); ///We assume the object is empty
-    vtkSmartPointer<vtkPolyDataReader> r=vtkSmartPointer<vtkPolyDataReader>::New();
-    r->SetFileName(filename);
-    r->Update();
-    AddMesh(r->GetOutput());
+    DD("hello!");
+    std::string extension=itksys::SystemTools::GetFilenameLastExtension(std::string(filename));
+    if (extension == ".vtk" || extension== ".VTK")
+    {
+        assert(GetNumberOfMeshes() == 0); ///We assume the object is empty
+        vtkSmartPointer<vtkPolyDataReader> r=vtkSmartPointer<vtkPolyDataReader>::New();
+        r->SetFileName(filename);
+        r->Update();
+        assert(r->GetOutput());
+        AddMesh(r->GetOutput());
+    }
+    else if (extension == ".obj" || extension== ".OBJ")
+    {
+        assert(GetNumberOfMeshes() == 0); ///We assume the object is empty
+        vtkSmartPointer<vtkOBJReader> r=vtkSmartPointer<vtkOBJReader>::New();
+        r->SetFileName(filename);
+        r->Update();
+        assert(r->GetOutput());
+        AddMesh(r->GetOutput());
+    }
+    else
+        assert (false) ; //shouldn't happen
+
+    assert(GetNumberOfMeshes() != 0); ///We assume the object is empty
     structure_name=filename;
 }
 
