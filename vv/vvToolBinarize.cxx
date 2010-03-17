@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolBinarize.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/05 10:32:33 $
-  Version:   $Revision: 1.11 $
+  Date:      $Date: 2010/03/17 11:22:18 $
+  Version:   $Revision: 1.12 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -76,7 +76,10 @@ vvToolBinarize::vvToolBinarize(vvMainWindowBase * parent, Qt::WindowFlags f)
   mBGSlider->SetText("Background value");
 
   // Main filter 
-  mFilter = new clitk::BinarizeImageGenericFilter<args_info_clitkBinarizeImage>; //DS PUT IN BASECLASS ?
+  mFilter = new clitk::BinarizeImageGenericFilter<args_info_clitkBinarizeImage>;
+
+  // Set how many inputs are needed for this tool
+  AddInputSelector(mFilter);
 }
 //------------------------------------------------------------------------------
 
@@ -96,7 +99,8 @@ void vvToolBinarize::InteractiveDisplayToggled(bool b) {
   else {
     for(unsigned int i=0; i<mImageContour.size(); i++) {
       mImageContour[i]->showActors();
-      mImageContourLower[i]->showActors();
+      if (mRadioButtonLowerThan->isChecked())
+        mImageContourLower[i]->showActors();
     }
     if (mCurrentSlicerManager)
       mCurrentSlicerManager->Render();
@@ -127,6 +131,7 @@ bool vvToolBinarize::close() {
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::reject() { 
+  DD("vvToolBinarize::reject");
   RemoveVTKObjects();
   return vvToolWidgetBase::reject(); 
 }
@@ -163,6 +168,10 @@ void vvToolBinarize::useFGBGtoggled(bool) {
 
 
 //------------------------------------------------------------------------------
+// void vvToolBinarize::InputIsSelected(std::vector<vvSlicerManager *> & m) {
+//   DD("vvToolBinarize::InputIsSelected vector in binarize");
+//   DD(m.size());
+// }
 void vvToolBinarize::InputIsSelected(vvSlicerManager * m) {
   mCurrentSlicerManager = m;
 

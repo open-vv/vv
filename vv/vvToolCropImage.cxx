@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolCropImage.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/01 15:38:09 $
-  Version:   $Revision: 1.3 $
+  Date:      $Date: 2010/03/17 11:22:18 $
+  Version:   $Revision: 1.4 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -51,6 +51,8 @@ vvToolCropImage::vvToolCropImage(vvMainWindowBase * parent, Qt::WindowFlags f):
   // GUI Initialization
   Ui_vvToolCropImage::setupUi(mToolWidget);
 
+  // Set how many inputs are needed for this tool
+  AddInputSelector();
 }
 //------------------------------------------------------------------------------
 
@@ -191,6 +193,9 @@ void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer) {
   mReducedExtent = mCurrentSlicerManager->GetImage()->GetFirstVTKImageData()->GetWholeExtent();
   for(int i=0; i<6; i++) mInitialExtent[i] = mReducedExtent[i];
   for(int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
+    DD(i);
+    DD(mReducedExtent[i]);
+    DD(mInitialExtent[i]);
     mCurrentSlicerManager->GetSlicer(i)->EnableReducedExtent(true);
   }
   
@@ -251,6 +256,7 @@ void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer) {
   // connect(tmaxSlider, SIGNAL(valueChanged(int)), this, SLOT(sliderTMaxValueChanged(int)));
   
   //  connect(mIntensitySlider, SIGNAL(valueChanged(double)), this, SLOT(autoCropValueChanged(double)));
+  UpdateExtent();
 }
 //------------------------------------------------------------------------------
 

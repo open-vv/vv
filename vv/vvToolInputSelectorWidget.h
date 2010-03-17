@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolInputSelectorWidget.h,v $
   Language:  C++
-  Date:      $Date: 2010/03/01 15:38:09 $
-  Version:   $Revision: 1.4 $
+  Date:      $Date: 2010/03/17 11:22:18 $
+  Version:   $Revision: 1.5 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -31,9 +31,9 @@
 #include <QtDesigner/QDesignerExportWidget>
 #include <QDialog>
 #include "ui_vvToolInputSelectorWidget.h"
-#include "vvImage.h"
 
 class vvSlicerManager;
+class vvToolSimpleInputSelectorWidget;
 
 //------------------------------------------------------------------------------
 class vvToolInputSelectorWidget: public QWidget, private Ui::vvToolInputSelectorWidget 
@@ -43,24 +43,29 @@ class vvToolInputSelectorWidget: public QWidget, private Ui::vvToolInputSelector
   vvToolInputSelectorWidget(QWidget * parent=0, Qt::WindowFlags f=0);
   ~vvToolInputSelectorWidget() {}
   
-  void Initialize(std::vector<vvSlicerManager*> l, int index);
-  int GetSelectedInputIndex() { return mCurrentIndex; }
+  void AddInputSelector(const std::vector<vvSlicerManager*> & l, int index);  
+  void Initialize();
+  std::vector<vvSlicerManager*> & GetSelectedInputs();
+  void AnImageIsBeingClosed(vvSlicerManager * m);
+  int GetNumberOfInput();
 
  public slots:
-  void accept();
+  void accept(); // to change ! in something like acceptOneMoreInput
   void reject();
-  void changeInput(int i);
 
  signals:
   void accepted();
   void rejected();
 
  protected:
+  void AddInputSelector(vvToolSimpleInputSelectorWidget * input, 
+			std::vector<vvSlicerManager*> l, int index);
   Ui::vvToolInputSelectorWidget ui;
   std::vector<vvSlicerManager*> mSlicerManagerList;
   int mCurrentIndex;
   vvSlicerManager * mCurrentSliceManager;
-
+  int mNumberOfAcceptedInputs;
+  std::vector<vvToolSimpleInputSelectorWidget *> mListOfSimpleInputWidget;
 }; // end class vvToolInputSelectorWidget
 //------------------------------------------------------------------------------
 

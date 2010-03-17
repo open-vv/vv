@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolWidgetBase.h,v $
   Language:  C++
-  Date:      $Date: 2010/03/01 07:37:25 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2010/03/17 11:22:18 $
+  Version:   $Revision: 1.3 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -44,7 +44,10 @@ class vvToolWidgetBase:
   vvToolWidgetBase(vvMainWindowBase * parent=0, Qt::WindowFlags f=0);
   ~vvToolWidgetBase();
 
-  virtual void InputIsSelected(vvSlicerManager *m) = 0;
+  virtual void InputIsSelected(vvSlicerManager *m);
+  virtual void InputIsSelected(std::vector<vvSlicerManager*> & l);
+  void AddInputSelector(clitk::ImageToImageGenericFilterBase * f);
+  void AddInputSelector();
 
 public slots:
   virtual void apply() = 0;

@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolInputSelectorWidget.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/01 15:38:09 $
-  Version:   $Revision: 1.3 $
+  Date:      $Date: 2010/03/17 11:22:18 $
+  Version:   $Revision: 1.4 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -28,6 +28,7 @@
 #ifndef VVTOOLINPUTSELECTORWIDGET_CXX
 #define VVTOOLINPUTSELECTORWIDGET_CXX
 
+#include "vvToolSimpleInputSelectorWidget.h"
 #include "vvToolInputSelectorWidget.h"
 #include "vvSlicerManager.h"
 
@@ -35,76 +36,112 @@
 vvToolInputSelectorWidget::vvToolInputSelectorWidget(QWidget * parent, Qt::WindowFlags f):
   QWidget(parent, f) {
   setupUi(this);  
-
   setEnabled(true);
+  mNumberOfAcceptedInputs = 0;
+}
+//------------------------------------------------------------------------------
 
-  // Connect signals & slots  
-  connect(mInputSelectionButtonBox, SIGNAL(accepted()), this, SLOT(accept()));
-  connect(mInputSelectionButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
-  connect(mInputSequenceBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeInput(int)));  
+//------------------------------------------------------------------------------
+int vvToolInputSelectorWidget::GetNumberOfInput() {
+  return mListOfSimpleInputWidget.size();
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvToolInputSelectorWidget::Initialize(std::vector<vvSlicerManager*> l, int index) {
-  mInputSequenceBox->clear();
-  mSlicerManagerList = l;
-  mCurrentIndex = index;
-  for (unsigned int i = 0; i < mSlicerManagerList.size(); i++) {
-    mInputSequenceBox->addItem(mSlicerManagerList[i]->GetFileName().c_str());
-  }
-  mInputSequenceBox->setCurrentIndex(mCurrentIndex);
-  if (mSlicerManagerList.size() == 0) {
-    // TODO !!!
-    DD("no input > error message");
-    reject();
-  }
-  if (mSlicerManagerList.size() == 1) {
-    accept();
-  }
+void vvToolInputSelectorWidget::AddInputSelector(const std::vector<vvSlicerManager*> & l, int index) {
+  DD("ICICICICICICICIC AddInputSelector ADD layout");
+  DD(index);
+  DD(l.size());
+  vvToolSimpleInputSelectorWidget * input = new vvToolSimpleInputSelectorWidget;
+  mListOfSimpleInputWidget.push_back(input);
+
+  // copy list
+  std::vector<vvSlicerManager*> * ll = new std::vector<vvSlicerManager*>;
+  for(unsigned int i=0; i<l.size(); i++)
+    ll->push_back(l[i]);
+
+  // add
+  input->SetInputList(*ll, index);
+  input->setObjectName(QString::fromUtf8("TOTO"));
+  mVerticalLayout->addWidget(input);
+
+  // Enable or disable
+  if (GetNumberOfInput() == 1) input->setEnabled(true);
+  else input->setEnabled(false);
+  DD(GetNumberOfInput());
+
+  // Connect signals & slots  
+  connect(input, SIGNAL(accepted()), this, SLOT(accept()));
+  connect(input, SIGNAL(rejected()), this, SLOT(reject()));  
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolInputSelectorWidget::Initialize() {
+  for(unsigned int i=0; i<mListOfSimpleInputWidget.size(); i++)
+    mListOfSimpleInputWidget[i]->Initialize();
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
 void vvToolInputSelectorWidget::accept() {
-  mInputSelectionButtonBox->setEnabled(false);
-  mInputSequenceBox->setEnabled(false);
-  emit accepted();
+  DD("vvToolInputSelectorWidget::accept");
+  DD(mNumberOfAcceptedInputs);
+  mNumberOfAcceptedInputs++;
+  if (mNumberOfAcceptedInputs == GetNumberOfInput()) {
+    setEnabled(false);
+    emit accepted();
+  }
+  else {
+    DD("accepted");
+    //    for(unsigned int i=mNumberOfAcceptedInputs; i<mListOfSimpleInputWidget.size(); i++) {
+      //      mListOfSimpleInputWidget[i]->Initialize();
+      mListOfSimpleInputWidget[mNumberOfAcceptedInputs]->setEnabled(true);
+      //}
+  }
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
 void vvToolInputSelectorWidget::reject() {
-  emit rejected();
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-void vvToolInputSelectorWidget::changeInput(int index) {
-  mCurrentIndex = index;
-  vvImage * mCurrentImage = mSlicerManagerList[index]->GetImage();
-  unsigned int d = mCurrentImage->GetNumberOfDimensions();
-  QString size;
-  QString spacing;
-  for(unsigned int i=0; i<d-1; i++) {
-    size.append(QString("%1").arg(mCurrentImage->GetSize()[i]));
-    size.append("x");
-    spacing.append(QString("%1").arg(mCurrentImage->GetSpacing()[i]));
-    spacing.append("x");
+  DD("vvToolInputSelectorWidget::reject");
+  if (mNumberOfAcceptedInputs != 0)  {
+    //    for(unsigned int i=mNumberOfAcceptedInputs; i<mListOfSimpleInputWidget.size(); i++) {
+    //      mListOfSimpleInputWidget[i]->Initialize();
+    DD(mNumberOfAcceptedInputs);
+    mListOfSimpleInputWidget[mNumberOfAcceptedInputs]->setEnabled(false);
+    mListOfSimpleInputWidget[mNumberOfAcceptedInputs-1]->setEnabled(true);
+    mNumberOfAcceptedInputs--;
+    //}
   }
-  size.append(QString("%1").arg(mCurrentImage->GetSize()[d-1]));
-  spacing.append(QString("%1").arg(mCurrentImage->GetSpacing()[d-1]));
-  mLabelInputInfo->setText(QString("Image: %1D %2   %3    %4")
-                           .arg(d)
-                           .arg(mCurrentImage->GetScalarTypeAsString().c_str())
-                           .arg(size)
-                           .arg(spacing));
+  else {
+    emit rejected();
+  }
 }
 //------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+std::vector<vvSlicerManager*> & vvToolInputSelectorWidget::GetSelectedInputs() {
+  std::vector<vvSlicerManager*> * l = new std::vector<vvSlicerManager*>;
+  for(unsigned int i=0; i<mListOfSimpleInputWidget.size(); i++)
+    l->push_back(mListOfSimpleInputWidget[i]->GetSelectedInput());
+  return *l;
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolInputSelectorWidget::AnImageIsBeingClosed(vvSlicerManager * m) {
+  DD("TODO : verify that the image still exist !!");
+  //  for(int i=0; i<
+}
+//------------------------------------------------------------------------------
+
 
 #endif
 

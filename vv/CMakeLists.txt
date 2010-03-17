@@ -107,6 +107,7 @@ SET(vv_SRCS
 #  vvToolFooWithWidgetBase.cxx
   vvToolCropImage.cxx
   vvToolBinarize.cxx
+  vvToolSimpleInputSelectorWidget.cxx
   vvToolInputSelectorWidget.cxx
   vvImageContour.cxx
   )
@@ -134,6 +135,7 @@ QT4_WRAP_CPP(vv_SRCS
 #  vvToolFoo.h
 #  vvToolFooWithWidgetBase.h
   vvToolBinarize.h
+  vvToolSimpleInputSelectorWidget.h
   vvToolInputSelectorWidget.h
   vvToolWidgetBase.h
   vvToolCropImage.h
@@ -160,6 +162,7 @@ QT4_WRAP_UI(vv_UI_CXX
 #  qt_ui/vvToolFoo.ui
   qt_ui/vvToolCropImage.ui
   qt_ui/vvToolBinarize.ui
+  qt_ui/vvToolSimpleInputSelectorWidget.ui
   qt_ui/vvToolInputSelectorWidget.ui
   )
 
