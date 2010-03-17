@@ -1,15 +1,10 @@
 .git
 CVS
-tests_jef
 mctools
 *.swp
 Makefile
 tags
 doc
-CVS
-CMakeFiles
-CMakeCache.txt
-*_ggo.*
 *.directory
 build/*
 */.vimrc
