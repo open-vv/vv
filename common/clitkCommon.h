@@ -12,6 +12,8 @@
    -------------------------------------------------------------------*/
 
 // clitk include
+
+#include "clitkConfiguration.h"
 #include "clitkPortability.h"
 
 // itk include (include std)

@@ -8,6 +8,8 @@ INCLUDE(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
 #=========================================================
 # make clitk libraries*
 
+configure_file(clitkConfiguration.h.in ${PROJECT_BINARY_DIR}/clitkConfiguration.h)
+
 SET(clitkCommon_SRC
   clitkCommon.cxx 
   clitkListOfPair.cxx
