@@ -1,0 +1,21 @@
+#File  clitkImageArithm.ggo
+package "clitkImageArithm"
+version "1.0"
+purpose "Perform an arithmetic operation (+-*/ ...) using two images or using an image and a scalar value."
+
+
+option "config"      -	"Config file"  		    	  string   no
+option "verbose"     v 	"Verbose"		          flag	   off
+option "imagetypes"  -  "Display allowed image types"	  flag	   off
+
+option "input1"	   i 	"Input first image filename"	  string   yes
+option "input2"	   j 	"Input second image filename"	  string   no
+option "output"    o 	"Output image filename"	  	  string   yes
+
+option "scalar"	   s 	"Scalar value"		  double   no
+option "operation" t 	"Type of operation : \n With another image : 0=add, 1=multiply, 2=divide,\n 3=max, 4=min, 5=absdiff, 6=squareddiff,  7=difference, 8=relativ diff\n For 'scalar' : 0=add, 1=multiply, 2=inverse,\n 3=max, 4=min 5=absval 6=squareval\n 7=log 8=exp 9=sqrt" 	int default="0" no 
+option "pixelValue" - 	"Default value for NaN/Inf"	double   default="0.0" 	no
+
+option "setFloatOutput" f "Set output to float pixel type" flag off
+
+#option "binary"   b    "Mask for binary operation"  string	 no
