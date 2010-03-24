@@ -6,6 +6,7 @@ INCLUDE(../cmake/common.cmake)
 
 SET(clitkFilters_SRC
   clitkGuerreroVentilationGenericFilter.cxx
+  clitkImageArithm_ggo.c
   clitkImageArithmGenericFilter.cxx
   clitkImageConvertGenericFilter.cxx
   clitkImageFillRegionGenericFilter.cxx

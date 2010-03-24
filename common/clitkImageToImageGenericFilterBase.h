@@ -3,8 +3,8 @@
   Program:   clitk
   Module:    $RCSfile: clitkImageToImageGenericFilterBase.h,v $
   Language:  C++
-  Date:      $Date: 2010/03/03 13:00:36 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2010/03/24 10:48:05 $
+  Version:   $Revision: 1.3 $
   Author :   Joel Schaerer <joel.schaerer@creatis.insa-lyon.fr>
              David Sarrut <david.sarrut@creatis.insa-lyon.fr>
 
@@ -71,6 +71,7 @@ namespace clitk {
     void SetInputFilename(const std::string & filename);
     void AddInputFilename(const std::string & filename);
     void SetInputFilenames(const std::vector<std::string> & filenames);
+    void EnableReadOnDisk(bool b);
     void SetOutputFilename(const std::string & filename);
     void AddOutputFilename(const std::string & filename);
     void SetOutputFilenames(const std::vector<std::string> & filenames);
@@ -95,6 +96,7 @@ namespace clitk {
     virtual bool Update() = 0;
 
   protected:  
+    bool mReadOnDisk;
     /// Call this function to dispatch an output towards the correct sink
     template<class ImageType> 
     void SetNextOutput(typename ImageType::Pointer output);
@@ -124,7 +126,7 @@ namespace clitk {
 #define ADD_VEC_IMAGE_TYPE(DIM, COMP, PT) this->mImageTypesManager.template AddNewDimensionAndPixelType<DIM,COMP, PT>();
 #define ADD_IMAGE_TYPE(DIM, PT) this->mImageTypesManager.template AddNewDimensionAndPixelType<DIM, PT>();
 
-#include "clitkImageToImageGenericFilterBase.txx"
+  //#include "clitkImageToImageGenericFilterBase.txx"
 
 } // end namespace
 

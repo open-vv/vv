@@ -24,7 +24,6 @@
 
 // clitk include
 #include "clitkCommon.h"
-#include "clitkImageCommon.h"
 #include "clitkImageToImageGenericFilter.h"
 
 // itk include
@@ -33,32 +32,35 @@
 #include "itkImageRegionIterator.h"
 #include "itkImageRegionConstIterator.h"
 
+//--------------------------------------------------------------------
 namespace clitk {
   
-  //--------------------------------------------------------------------
-  // Main class for an Image Resample Generic Filter 
-  // (multiple dimensions, multiple pixel types)
-  class ImageArithmGenericFilter:
-  public clitk::ImageToImageGenericFilter<ImageArithmGenericFilter> {
-  
+  template<class args_info_type>
+  class ITK_EXPORT ImageArithmGenericFilter:
+    public clitk::ImageToImageGenericFilter<ImageArithmGenericFilter<args_info_type> > {
+    
   public:
 	
     // Constructor 
     ImageArithmGenericFilter ();
 
     // Types
-    typedef ImageArithmGenericFilter      Self;
-    typedef ImageToImageGenericFilterBase     Superclass;
-    typedef itk::SmartPointer<Self>       Pointer;
-    typedef itk::SmartPointer<const Self> ConstPointer;
+    typedef ImageArithmGenericFilter        Self;
+    typedef ImageToImageGenericFilterBase   Superclass;
+    typedef itk::SmartPointer<Self>         Pointer;
+    typedef itk::SmartPointer<const Self>   ConstPointer;
 
     // New
     itkNewMacro(Self);
     
+    //--------------------------------------------------------------------
+    void SetArgsInfo(const args_info_type & a);
+
     // Set methods
     void SetDefaultPixelValue (double value) {  mDefaultPixelValue = value ;}
     void SetTypeOfOperation (int value) {  mTypeOfOperation = value ;}
     void SetScalar (double value) {  mScalar = value ;}
+    void EnableOverwriteInputImage(bool b);
 
     // Get methods
     double GetDefaultPixelValue () { return  mDefaultPixelValue ;} 
@@ -76,23 +78,25 @@ namespace clitk {
     double mScalar;
     double mDefaultPixelValue;
     int mTypeOfOperation;  
+    args_info_type mArgsInfo;
+    bool mOverwriteInputImage;
+    bool mOutputIsFloat;
+    
+    template<class Iter1, class Iter2>
+      void ComputeImage(Iter1 it, Iter2 ito);
 
-    template<class ImageType>
-    typename ImageType::Pointer ComputeImage(typename ImageType::Pointer inputImage);
+    template<class Iter1, class Iter2, class Iter3>
+      void ComputeImage(Iter1 it1, Iter2 it2, Iter3 ito);
 
-    template<class ImageType1, class ImageType2>
-    typename ImageType1::Pointer
-    ComputeImage(typename ImageType1::Pointer inputImage1, 
-		 typename ImageType2::Pointer inputImage2);
     //--------------------------------------------------------------------
 
   }; // end class ImageArithmGenericFilter
-//--------------------------------------------------------------------
-
-//#include "clitkImageArithmGenericFilter.txx"
-
 } // end namespace
 //--------------------------------------------------------------------
+
+#ifndef ITK_MANUAL_INSTANTIATION
+#include "clitkImageArithmGenericFilter.txx"
+#endif
 
 #endif //#define CLITKIMAGEARITHMGENERICFILTER_H
 

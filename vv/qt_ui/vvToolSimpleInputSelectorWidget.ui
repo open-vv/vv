@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>573</width>
-    <height>125</height>
+    <width>407</width>
+    <height>82</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <number>0</number>
    </property>
    <item row="0" column="0">
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="mGroupBox">
      <property name="font">
       <font>
        <weight>75</weight>
@@ -47,104 +47,22 @@
          <item row="0" column="0">
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <item>
-            <widget class="QGroupBox" name="groupBox_2">
-             <property name="font">
-              <font>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="title">
-              <string>Already open</string>
-             </property>
-             <layout class="QGridLayout" name="gridLayout">
-              <property name="margin">
-               <number>1</number>
-              </property>
-              <item row="0" column="0">
-               <widget class="QComboBox" name="mInputSequenceBox">
-                <property name="font">
-                 <font>
-                  <pointsize>11</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>Bidon image number 1</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="mRadioButtonLowerThan">
-             <property name="font">
-              <font>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>OR</string>
-             </property>
-             <property name="autoExclusive">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="groupBox_3">
+            <widget class="QComboBox" name="mInputSequenceBox">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="font">
               <font>
+               <pointsize>11</pointsize>
                <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
-             <property name="title">
-              <string>Open a new file</string>
-             </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_4">
-              <property name="leftMargin">
-               <number>3</number>
+             <item>
+              <property name="text">
+               <string>Bidon image number 1</string>
               </property>
-              <property name="topMargin">
-               <number>3</number>
-              </property>
-              <property name="rightMargin">
-               <number>3</number>
-              </property>
-              <property name="bottomMargin">
-               <number>1</number>
-              </property>
-              <item>
-               <widget class="QLabel" name="label_2">
-                <property name="text">
-                 <string>Or open a new one</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QToolButton" name="toolButton">
-                <property name="text">
-                 <string>...</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="lineEdit">
-                <property name="text">
-                 <string>/home/toto/truc.mhd</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
+             </item>
             </widget>
            </item>
           </layout>
@@ -173,7 +91,7 @@
               <enum>QFrame::NoFrame</enum>
              </property>
              <property name="text">
-              <string>3D image Pixel type short bla bla</string>
+              <string>No selected image</string>
              </property>
             </widget>
            </item>
@@ -201,38 +119,5 @@
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>mRadioButtonLowerThan</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>groupBox_3</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>296</x>
-     <y>102</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>528</x>
-     <y>122</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>mRadioButtonLowerThan</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>mInputSequenceBox</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>269</x>
-     <y>93</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>214</x>
-     <y>93</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

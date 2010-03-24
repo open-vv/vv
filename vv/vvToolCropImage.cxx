@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolCropImage.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/17 11:22:18 $
-  Version:   $Revision: 1.4 $
+  Date:      $Date: 2010/03/24 10:48:18 $
+  Version:   $Revision: 1.5 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -52,7 +52,7 @@ vvToolCropImage::vvToolCropImage(vvMainWindowBase * parent, Qt::WindowFlags f):
   Ui_vvToolCropImage::setupUi(mToolWidget);
 
   // Set how many inputs are needed for this tool
-  AddInputSelector();
+  AddInputSelector("Select one image");
 }
 //------------------------------------------------------------------------------
 

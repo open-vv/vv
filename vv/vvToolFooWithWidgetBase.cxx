@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolFooWithWidgetBase.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/01 08:37:19 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/03/24 10:48:18 $
+  Version:   $Revision: 1.2 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -62,7 +62,7 @@ void vvToolFooWithWidgetBase::Initialize() {
 
 //------------------------------------------------------------------------------
 void vvToolFooWithWidgetBase::InputIsSelected(vvSlicerManager *m) {
-  mButton->setText(m->GetFileName().c_str());
+  
 }
 //------------------------------------------------------------------------------
 

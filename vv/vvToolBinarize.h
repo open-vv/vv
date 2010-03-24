@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolBinarize.h,v $
   Language:  C++
-  Date:      $Date: 2010/03/17 11:22:18 $
-  Version:   $Revision: 1.9 $
+  Date:      $Date: 2010/03/24 10:48:18 $
+  Version:   $Revision: 1.10 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -49,10 +49,8 @@ class vvToolBinarize:
 
   //-----------------------------------------------------
   static void Initialize();
-  void InputIsSet(bool b);
   void GetArgsInfoFromGUI();
   virtual void InputIsSelected(vvSlicerManager * m);
-  //  virtual void InputIsSelected(std::vector<vvSlicerManager *> & m);
 
   //-----------------------------------------------------
   public slots:

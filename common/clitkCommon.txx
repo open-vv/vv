@@ -132,6 +132,7 @@ std::string GetTypeAsString() {
 template<class ImageType>
 void CloneImage(const typename ImageType::Pointer & input, typename ImageType::Pointer & output) {
   output->SetRegions(input->GetLargestPossibleRegion());
+  output->SetOrigin(input->GetOrigin());
   output->SetSpacing(input->GetSpacing());
   output->Allocate();
   typedef itk::ImageRegionConstIterator<ImageType> ConstIteratorType; 

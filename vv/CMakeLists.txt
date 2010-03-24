@@ -110,6 +110,7 @@ SET(vv_SRCS
   vvToolSimpleInputSelectorWidget.cxx
   vvToolInputSelectorWidget.cxx
   vvImageContour.cxx
+  vvToolImageArithm.cxx
   )
 
 QT4_WRAP_CPP(vv_SRCS 
@@ -139,6 +140,7 @@ QT4_WRAP_CPP(vv_SRCS
   vvToolInputSelectorWidget.h
   vvToolWidgetBase.h
   vvToolCropImage.h
+  vvToolImageArithm.h
   )
 
 QT4_WRAP_UI(vv_UI_CXX 
@@ -158,12 +160,13 @@ QT4_WRAP_UI(vv_UI_CXX
   qt_ui/vvStructSelector.ui
   qt_ui/vvDummyWindow.ui #For testing
   qt_ui/vvIntensityValueSlider.ui
+  qt_ui/vvToolSimpleInputSelectorWidget.ui
+  qt_ui/vvToolInputSelectorWidget.ui
   qt_ui/vvToolWidgetBase.ui
 #  qt_ui/vvToolFoo.ui
   qt_ui/vvToolCropImage.ui
   qt_ui/vvToolBinarize.ui
-  qt_ui/vvToolSimpleInputSelectorWidget.ui
-  qt_ui/vvToolInputSelectorWidget.ui
+  qt_ui/vvToolImageArithm.ui
   )
 
 SET(vvUI_RCCS vvIcons.qrc)

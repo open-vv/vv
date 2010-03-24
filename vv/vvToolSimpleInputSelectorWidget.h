@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolSimpleInputSelectorWidget.h,v $
   Language:  C++
-  Date:      $Date: 2010/03/17 11:23:45 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/03/24 10:48:18 $
+  Version:   $Revision: 1.2 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -46,15 +46,19 @@ class vvToolSimpleInputSelectorWidget: public QWidget, private Ui::vvToolSimpleI
   void Initialize();
   int GetSelectedInputIndex() { return mCurrentIndex; }
   vvSlicerManager * GetSelectedInput();
+  void SetText(QString & s);
+  void EnableAllowSkip(bool b);
 
  public slots:
   void accept();
   void reject();
   void setEnabled(bool b);
+  void skip(QAbstractButton*);
 
  signals:
   void accepted();
   void rejected();
+  void sigskip();
 
  protected slots:
   void changeInput(int i);
@@ -64,6 +68,7 @@ class vvToolSimpleInputSelectorWidget: public QWidget, private Ui::vvToolSimpleI
   std::vector<vvSlicerManager*> mSlicerManagerList;
   int mCurrentIndex;
   vvSlicerManager * mCurrentSliceManager;
+  bool mAllowSkip;
 
 }; // end class vvToolSimpleInputSelectorWidget
 //------------------------------------------------------------------------------

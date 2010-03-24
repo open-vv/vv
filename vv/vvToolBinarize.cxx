@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolBinarize.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/17 11:22:18 $
-  Version:   $Revision: 1.12 $
+  Date:      $Date: 2010/03/24 10:48:18 $
+  Version:   $Revision: 1.13 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -79,7 +79,7 @@ vvToolBinarize::vvToolBinarize(vvMainWindowBase * parent, Qt::WindowFlags f)
   mFilter = new clitk::BinarizeImageGenericFilter<args_info_clitkBinarizeImage>;
 
   // Set how many inputs are needed for this tool
-  AddInputSelector(mFilter);
+  AddInputSelector("Select one image", mFilter);
 }
 //------------------------------------------------------------------------------
 
@@ -131,7 +131,7 @@ bool vvToolBinarize::close() {
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::reject() { 
-  DD("vvToolBinarize::reject");
+  // DD("vvToolBinarize::reject");
   RemoveVTKObjects();
   return vvToolWidgetBase::reject(); 
 }
@@ -295,8 +295,9 @@ void vvToolBinarize::apply() {
   // Main filter
   clitk::BinarizeImageGenericFilter<args_info_clitkBinarizeImage>::Pointer filter = 
      clitk::BinarizeImageGenericFilter<args_info_clitkBinarizeImage>::New();
-  filter->SetArgsInfo(mArgsInfo);
   filter->SetInputVVImage(mCurrentImage);
+  filter->SetArgsInfo(mArgsInfo);
+  filter->EnableReadOnDisk(false);
   filter->Update();
 
   // Output

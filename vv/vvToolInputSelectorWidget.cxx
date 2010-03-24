@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolInputSelectorWidget.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/17 11:22:18 $
-  Version:   $Revision: 1.4 $
+  Date:      $Date: 2010/03/24 10:48:18 $
+  Version:   $Revision: 1.5 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -49,12 +49,19 @@ int vvToolInputSelectorWidget::GetNumberOfInput() {
 
 
 //------------------------------------------------------------------------------
-void vvToolInputSelectorWidget::AddInputSelector(const std::vector<vvSlicerManager*> & l, int index) {
-  DD("ICICICICICICICIC AddInputSelector ADD layout");
-  DD(index);
-  DD(l.size());
+void vvToolInputSelectorWidget::AddInputSelector(QString & s, 
+						 const std::vector<vvSlicerManager*> & l, 
+						 int index, 
+						 bool allowSkip) {
+  //  DD("ICICICICICICICIC AddInputSelector ADD layout");
+  //  DD(index);
+  //DD(l.size());
   vvToolSimpleInputSelectorWidget * input = new vvToolSimpleInputSelectorWidget;
   mListOfSimpleInputWidget.push_back(input);
+  mSkipInput.push_back(false);
+  
+  input->SetText(s);
+  input->EnableAllowSkip(allowSkip);
 
   // copy list
   std::vector<vvSlicerManager*> * ll = new std::vector<vvSlicerManager*>;
@@ -69,11 +76,12 @@ void vvToolInputSelectorWidget::AddInputSelector(const std::vector<vvSlicerManag
   // Enable or disable
   if (GetNumberOfInput() == 1) input->setEnabled(true);
   else input->setEnabled(false);
-  DD(GetNumberOfInput());
+  //DD(GetNumberOfInput());
 
   // Connect signals & slots  
   connect(input, SIGNAL(accepted()), this, SLOT(accept()));
   connect(input, SIGNAL(rejected()), this, SLOT(reject()));  
+  connect(input, SIGNAL(sigskip()), this, SLOT(skip()));  
 }
 //------------------------------------------------------------------------------
 
@@ -88,19 +96,19 @@ void vvToolInputSelectorWidget::Initialize() {
 
 //------------------------------------------------------------------------------
 void vvToolInputSelectorWidget::accept() {
-  DD("vvToolInputSelectorWidget::accept");
-  DD(mNumberOfAcceptedInputs);
+  //  DD("vvToolInputSelectorWidget::accept");
+  //DD(mNumberOfAcceptedInputs);
   mNumberOfAcceptedInputs++;
   if (mNumberOfAcceptedInputs == GetNumberOfInput()) {
     setEnabled(false);
     emit accepted();
   }
   else {
-    DD("accepted");
+    //DD("accepted");
     //    for(unsigned int i=mNumberOfAcceptedInputs; i<mListOfSimpleInputWidget.size(); i++) {
-      //      mListOfSimpleInputWidget[i]->Initialize();
-      mListOfSimpleInputWidget[mNumberOfAcceptedInputs]->setEnabled(true);
-      //}
+    //      mListOfSimpleInputWidget[i]->Initialize();
+    mListOfSimpleInputWidget[mNumberOfAcceptedInputs]->setEnabled(true);
+    //}
   }
 }
 //------------------------------------------------------------------------------
@@ -108,11 +116,11 @@ void vvToolInputSelectorWidget::accept() {
 
 //------------------------------------------------------------------------------
 void vvToolInputSelectorWidget::reject() {
-  DD("vvToolInputSelectorWidget::reject");
+  //  DD("vvToolInputSelectorWidget::reject");
   if (mNumberOfAcceptedInputs != 0)  {
     //    for(unsigned int i=mNumberOfAcceptedInputs; i<mListOfSimpleInputWidget.size(); i++) {
     //      mListOfSimpleInputWidget[i]->Initialize();
-    DD(mNumberOfAcceptedInputs);
+    //    DD(mNumberOfAcceptedInputs);
     mListOfSimpleInputWidget[mNumberOfAcceptedInputs]->setEnabled(false);
     mListOfSimpleInputWidget[mNumberOfAcceptedInputs-1]->setEnabled(true);
     mNumberOfAcceptedInputs--;
@@ -126,10 +134,21 @@ void vvToolInputSelectorWidget::reject() {
 
 
 //------------------------------------------------------------------------------
+void vvToolInputSelectorWidget::skip() {
+  DD("SKIP");
+  mSkipInput[mNumberOfAcceptedInputs] = true;
+  accept();//mNumberOfAcceptedInputs++;
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 std::vector<vvSlicerManager*> & vvToolInputSelectorWidget::GetSelectedInputs() {
   std::vector<vvSlicerManager*> * l = new std::vector<vvSlicerManager*>;
-  for(unsigned int i=0; i<mListOfSimpleInputWidget.size(); i++)
-    l->push_back(mListOfSimpleInputWidget[i]->GetSelectedInput());
+  for(unsigned int i=0; i<mListOfSimpleInputWidget.size(); i++) {
+    if (!mSkipInput[i])
+      l->push_back(mListOfSimpleInputWidget[i]->GetSelectedInput());
+  }
   return *l;
 }
 //------------------------------------------------------------------------------
@@ -137,7 +156,7 @@ std::vector<vvSlicerManager*> & vvToolInputSelectorWidget::GetSelectedInputs() {
 
 //------------------------------------------------------------------------------
 void vvToolInputSelectorWidget::AnImageIsBeingClosed(vvSlicerManager * m) {
-  DD("TODO : verify that the image still exist !!");
+  //  DD("TODO : verify that the image still exist !!");
   //  for(int i=0; i<
 }
 //------------------------------------------------------------------------------

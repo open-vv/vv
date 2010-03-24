@@ -24,9 +24,6 @@ TARGET_LINK_LIBRARIES(clitkImageResample clitkCommon ITKIO clitkFilters)
 ADD_EXECUTABLE(clitkVFResample clitkVFResample.cxx   clitkImageResample_ggo.c)
 TARGET_LINK_LIBRARIES(clitkVFResample clitkCommon ITKIO clitkFilters)
 
-ADD_EXECUTABLE(clitkImageArithm clitkImageArithm.cxx   clitkImageArithm_ggo.c)
-TARGET_LINK_LIBRARIES(clitkImageArithm clitkCommon ITKIO ITKStatistics clitkFilters)
-
 ADD_EXECUTABLE(clitkImageCreate clitkImageCreate.cxx clitkImageCreate_ggo.c)
 TARGET_LINK_LIBRARIES(clitkImageCreate clitkCommon ITKStatistics ITKIO)
 
@@ -76,6 +73,9 @@ ADD_EXECUTABLE(clitkGuerreroVentilation clitkGuerreroVentilation.cxx
 )
 TARGET_LINK_LIBRARIES(clitkGuerreroVentilation clitkCommon ITKIO ITKBasicFilters
 clitkFilters)
+
+ADD_EXECUTABLE(clitkImageArithm clitkImageArithm.cxx)
+TARGET_LINK_LIBRARIES(clitkImageArithm clitkCommon ITKIO ITKStatistics clitkFilters)
 
 ADD_EXECUTABLE(clitkBinarizeImage clitkBinarizeImage.cxx)
 TARGET_LINK_LIBRARIES(clitkBinarizeImage clitkCommon ITKIO clitkFilters) 

@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolSimpleInputSelectorWidget.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/17 11:23:46 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/03/24 10:48:18 $
+  Version:   $Revision: 1.2 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -30,6 +30,7 @@
 
 #include "vvToolSimpleInputSelectorWidget.h"
 #include "vvSlicerManager.h"
+#include <QAbstractButton>
 
 //------------------------------------------------------------------------------
 vvToolSimpleInputSelectorWidget::vvToolSimpleInputSelectorWidget(QWidget * parent, Qt::WindowFlags f):
@@ -47,20 +48,36 @@ void vvToolSimpleInputSelectorWidget::Initialize() {
   connect(mInputSelectionButtonBox, SIGNAL(accepted()), this, SLOT(accept()));
   connect(mInputSelectionButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
   connect(mInputSequenceBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeInput(int)));  
-  DD("vvToolSimpleInputSelectorWidget::Initialize");
-  DD(mSlicerManagerList.size());
+  changeInput(0);
   if (mSlicerManagerList.size() == 1) {
-    DD("Initialize::accept");
-    accept();
+    if (!mAllowSkip) accept();
   }
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
+void vvToolSimpleInputSelectorWidget::SetText(QString & s) {
+  mGroupBox->setTitle(s);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolSimpleInputSelectorWidget::EnableAllowSkip(bool b) {
+  mAllowSkip = b;
+  if (mAllowSkip) {
+    mInputSelectionButtonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Discard);
+    connect(mInputSelectionButtonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(skip(QAbstractButton*)));
+  }
+  else 
+    mInputSelectionButtonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 void vvToolSimpleInputSelectorWidget::SetInputList(const std::vector<vvSlicerManager*> & l, int index) {
-  DD("vvToolSimpleInputSelectorWidget::SetInputList");
-  DD(index);
   mInputSequenceBox->clear();
   for(unsigned int i=0; i<l.size(); i++)
     mSlicerManagerList.push_back(l[i]);
@@ -96,18 +113,23 @@ void vvToolSimpleInputSelectorWidget::accept() {
 //------------------------------------------------------------------------------
 
 
+
 //------------------------------------------------------------------------------
 void vvToolSimpleInputSelectorWidget::reject() {
-  DD("vvToolSimpleInputSelectorWidget::reject()");
   emit rejected();
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
+void vvToolSimpleInputSelectorWidget::skip(QAbstractButton* b) {
+  if (b->text() == "Discard") emit sigskip();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 void vvToolSimpleInputSelectorWidget::changeInput(int index) {
-  DD("changeInput");
-  DD(index);
   if (index<0) return;
   mCurrentIndex = index;
   vvImage * mCurrentImage = mSlicerManagerList[index]->GetImage();

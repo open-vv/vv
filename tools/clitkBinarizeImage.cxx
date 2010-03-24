@@ -31,8 +31,8 @@ int main(int argc, char * argv[]) {
   CLITK_INIT;
 
   // Filter
-  clitk::BinarizeImageGenericFilter<args_info_clitkBinarizeImage>::Pointer filter = 
-    clitk::BinarizeImageGenericFilter<args_info_clitkBinarizeImage>::New();
+  typedef clitk::BinarizeImageGenericFilter<args_info_clitkBinarizeImage> FilterType;
+  FilterType::Pointer filter = FilterType::New();
   
   filter->SetArgsInfo(args_info);
   filter->Update();

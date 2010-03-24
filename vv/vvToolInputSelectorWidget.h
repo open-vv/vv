@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolInputSelectorWidget.h,v $
   Language:  C++
-  Date:      $Date: 2010/03/17 11:22:18 $
-  Version:   $Revision: 1.5 $
+  Date:      $Date: 2010/03/24 10:48:18 $
+  Version:   $Revision: 1.6 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -43,7 +43,7 @@ class vvToolInputSelectorWidget: public QWidget, private Ui::vvToolInputSelector
   vvToolInputSelectorWidget(QWidget * parent=0, Qt::WindowFlags f=0);
   ~vvToolInputSelectorWidget() {}
   
-  void AddInputSelector(const std::vector<vvSlicerManager*> & l, int index);  
+  void AddInputSelector(QString & s, const std::vector<vvSlicerManager*> & l, int index, bool allowSkip=false);  
   void Initialize();
   std::vector<vvSlicerManager*> & GetSelectedInputs();
   void AnImageIsBeingClosed(vvSlicerManager * m);
@@ -52,6 +52,7 @@ class vvToolInputSelectorWidget: public QWidget, private Ui::vvToolInputSelector
  public slots:
   void accept(); // to change ! in something like acceptOneMoreInput
   void reject();
+  void skip();
 
  signals:
   void accepted();
@@ -66,6 +67,7 @@ class vvToolInputSelectorWidget: public QWidget, private Ui::vvToolInputSelector
   vvSlicerManager * mCurrentSliceManager;
   int mNumberOfAcceptedInputs;
   std::vector<vvToolSimpleInputSelectorWidget *> mListOfSimpleInputWidget;
+  std::vector<bool> mSkipInput;
 }; // end class vvToolInputSelectorWidget
 //------------------------------------------------------------------------------
 

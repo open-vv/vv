@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvMainWindow.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/10 15:36:26 $
-  Version:   $Revision: 1.16 $
+  Date:      $Date: 2010/03/24 10:48:18 $
+  Version:   $Revision: 1.17 $
   Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
   Copyright (C) 200COLUMN_IMAGE_NAME
@@ -439,7 +439,7 @@ void vvMainWindow::OpenDCStructContour()
 {
   if (mSlicerManagers.size() > 0)
     {
-      QString Extensions = "Dicom Files ( *.dcm)";
+      QString Extensions = "Dicom Files ( *.dcm; RS*)";
       Extensions += ";;All Files (*)";
       QString file = QFileDialog::getOpenFileName(this,tr("Merge Images"),mInputPathName,Extensions);
       if (file.isNull())
