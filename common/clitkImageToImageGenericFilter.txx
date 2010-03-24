@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: clitkImageToImageGenericFilter.txx,v $
   Language:  C++
-  Date:      $Date: 2010/03/02 13:28:42 $
-  Version:   $Revision: 1.8 $
+  Date:      $Date: 2010/03/24 20:35:08 $
+  Version:   $Revision: 1.9 $
   Author :   Joel Schaerer <joel.schaerer@creatis.insa-lyon.fr>
   David Sarrut <david.sarrut@creatis.insa-lyon.fr>
 
@@ -117,9 +117,9 @@ std::string clitk::ImageToImageGenericFilter<FilterType>::GetAvailableImageTypes
        i++) {
     for (MCompItType j=(*i).second.begin(); j!= (*i).second.end(); j++) {
       for (MPixelItType k=(*j).second.begin(); k!= (*j).second.end(); k++) {
-        oss << "Dim: " << (*i).first 
-            << ", Components: " << (*j).first 
-            << ", Type: " << (*k).first << std::endl;
+        oss << "Dim: " << (*i).first;
+	if ((*j).first != 1) oss << ", Components: " << (*j).first;
+	oss << ", Type: " << (*k).first << std::endl;
       }
     }
   }

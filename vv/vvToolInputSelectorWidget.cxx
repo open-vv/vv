@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolInputSelectorWidget.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/24 10:48:18 $
-  Version:   $Revision: 1.5 $
+  Date:      $Date: 2010/03/24 20:35:13 $
+  Version:   $Revision: 1.6 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -70,7 +70,7 @@ void vvToolInputSelectorWidget::AddInputSelector(QString & s,
 
   // add
   input->SetInputList(*ll, index);
-  input->setObjectName(QString::fromUtf8("TOTO"));
+  // input->setObjectName(QString::fromUtf8("TOTO"));
   mVerticalLayout->addWidget(input);
 
   // Enable or disable
@@ -135,7 +135,7 @@ void vvToolInputSelectorWidget::reject() {
 
 //------------------------------------------------------------------------------
 void vvToolInputSelectorWidget::skip() {
-  DD("SKIP");
+  //  DD("SKIP");
   mSkipInput[mNumberOfAcceptedInputs] = true;
   accept();//mNumberOfAcceptedInputs++;
 }

@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolCropImage.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/24 10:48:18 $
-  Version:   $Revision: 1.5 $
+  Date:      $Date: 2010/03/24 20:35:13 $
+  Version:   $Revision: 1.6 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -193,9 +193,9 @@ void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer) {
   mReducedExtent = mCurrentSlicerManager->GetImage()->GetFirstVTKImageData()->GetWholeExtent();
   for(int i=0; i<6; i++) mInitialExtent[i] = mReducedExtent[i];
   for(int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
-    DD(i);
-    DD(mReducedExtent[i]);
-    DD(mInitialExtent[i]);
+    //DD(i);
+    //DD(mReducedExtent[i]);
+    //DD(mInitialExtent[i]);
     mCurrentSlicerManager->GetSlicer(i)->EnableReducedExtent(true);
   }
   

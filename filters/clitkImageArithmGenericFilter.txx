@@ -34,6 +34,7 @@ namespace clitk
   template<unsigned int Dim>
   void ImageArithmGenericFilter<args_info_type>::InitializeImageType() {      
     ADD_IMAGE_TYPE(Dim, char);
+    ADD_IMAGE_TYPE(Dim, uchar);
     ADD_IMAGE_TYPE(Dim, short);
     ADD_IMAGE_TYPE(Dim, float);
   }
@@ -269,12 +270,14 @@ namespace clitk
     case 3: // Max 
       while (!it.IsAtEnd()) {
         if (it.Get() < mScalar) ito.Set(PixelTypeDownCast<double, PixelType>(mScalar)); 
+        else ito.Set(PixelTypeDownCast<double, PixelType>(it.Get()));
         ++it; ++ito;
       }
       break;
     case 4: // Min
       while (!it.IsAtEnd()) {
         if (it.Get() > mScalar) ito.Set(PixelTypeDownCast<double, PixelType>(mScalar)); 
+        else ito.Set(PixelTypeDownCast<double, PixelType>(it.Get()));
         ++it; ++ito;
       }
       break;
@@ -282,6 +285,7 @@ namespace clitk
       while (!it.IsAtEnd()) {
         if (it.Get() <= 0) ito.Set(PixelTypeDownCast<double, PixelType>(-it.Get())); 
         // <= zero to avoid warning for unsigned types
+        else ito.Set(PixelTypeDownCast<double, PixelType>(it.Get()));
         ++it; ++ito;
       }
       break;

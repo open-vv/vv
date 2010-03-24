@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolSimpleInputSelectorWidget.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/24 10:48:18 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2010/03/24 20:35:13 $
+  Version:   $Revision: 1.3 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -48,9 +48,11 @@ void vvToolSimpleInputSelectorWidget::Initialize() {
   connect(mInputSelectionButtonBox, SIGNAL(accepted()), this, SLOT(accept()));
   connect(mInputSelectionButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
   connect(mInputSequenceBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeInput(int)));  
-  changeInput(0);
   if (mSlicerManagerList.size() == 1) {
     if (!mAllowSkip) accept();
+  }
+  if (mSlicerManagerList.size() == 0) {
+    reject();
   }
 }
 //------------------------------------------------------------------------------
@@ -78,6 +80,11 @@ void vvToolSimpleInputSelectorWidget::EnableAllowSkip(bool b) {
 
 //------------------------------------------------------------------------------
 void vvToolSimpleInputSelectorWidget::SetInputList(const std::vector<vvSlicerManager*> & l, int index) {
+  if (l.size() == 0) {
+    // TODO !!!
+    DD("no input > error message");
+    reject();
+  }
   mInputSequenceBox->clear();
   for(unsigned int i=0; i<l.size(); i++)
     mSlicerManagerList.push_back(l[i]);
@@ -86,11 +93,7 @@ void vvToolSimpleInputSelectorWidget::SetInputList(const std::vector<vvSlicerMan
     mInputSequenceBox->addItem(mSlicerManagerList[i]->GetFileName().c_str());
   }
   mInputSequenceBox->setCurrentIndex(mCurrentIndex);
-  if (mSlicerManagerList.size() == 0) {
-    // TODO !!!
-    DD("no input > error message");
-    reject();
-  }
+  changeInput(mCurrentIndex);
 }
 //------------------------------------------------------------------------------
 

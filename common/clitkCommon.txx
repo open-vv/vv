@@ -112,6 +112,9 @@ void GetSortedIndex(const std::vector<Type> & toSort, std::vector<int> & index, 
 //--------------------------------------------------------------------
 template<class TPixel>
 std::string GetTypeAsString() {
+  //  http://www.vtk.org/doc/release/3/html/vtkSetGet_8h-source.html
+  // and
+  // itkImageIOBase.cxx
   const std::type_info & PixType = typeid(TPixel);
   std::string pixelName;
   if (PixType == typeid(char)) pixelName = "char"; // 'plain" char is different from signed char and unsigned char ...

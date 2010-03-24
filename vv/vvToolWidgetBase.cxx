@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolWidgetBase.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/24 10:48:18 $
-  Version:   $Revision: 1.4 $
+  Date:      $Date: 2010/03/24 20:35:13 $
+  Version:   $Revision: 1.5 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -84,10 +84,11 @@ void vvToolWidgetBase::AddInputSelector(QString s, clitk::ImageToImageGenericFil
   int j=0;
   mFilter = f;
   mSlicerManagersCompatible.clear();
-  //  mToolInputSelectionWidget->setToolTip(QString("%1").arg(mFilter->GetAvailableImageTypes().c_str()));
+  mToolInputSelectionWidget->setToolTip(QString("%1").arg(mFilter->GetAvailableImageTypes().c_str()));
   for(unsigned int i=0; i<mMainWindowBase->GetSlicerManagers().size(); i++) {
     // DD(i);
     vvImage * s = mMainWindowBase->GetSlicerManagers()[i]->GetImage();
+    // DD(s->GetScalarTypeAsString());
     if (mFilter->CheckImageType(s->GetNumberOfDimensions(), 
 				s->GetNumberOfScalarComponents(), 
 				s->GetScalarTypeAsString())) {
@@ -97,7 +98,7 @@ void vvToolWidgetBase::AddInputSelector(QString s, clitk::ImageToImageGenericFil
     }
   }
   if (mSlicerManagersCompatible.size() == 0) {
-    QMessageBox::information(this, "No image","Sorry, could not perform operation. No compatible opened image type.");
+    QMessageBox::information(this, "No image","Sorry, could not perform operation. No (compatible) opened image type.");
     close();
     return;
   }
