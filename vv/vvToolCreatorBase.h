@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolCreatorBase.h,v $
   Language:  C++
-  Date:      $Date: 2010/02/24 11:42:42 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2010/03/24 13:37:34 $
+  Version:   $Revision: 1.3 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -52,6 +52,7 @@ class vvToolCreatorBase: public QObject {
   QString mToolIconFilename;
   QString mToolTip;
   QAction * mAction;
+  bool mExperimental;
 
 public slots:
   virtual void MenuToolSlot() { MenuSpecificToolSlot(); }

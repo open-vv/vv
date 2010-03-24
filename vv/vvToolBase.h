@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolBase.h,v $
   Language:  C++
-  Date:      $Date: 2010/03/01 07:37:25 $
-  Version:   $Revision: 1.4 $
+  Date:      $Date: 2010/03/24 13:37:34 $
+  Version:   $Revision: 1.5 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -42,6 +42,7 @@ public:
   static void SetToolMenuName(QString n) { vvToolCreator<ToolType>::mSingleton->mToolMenuName = n; }
   static void SetToolIconFilename(QString n) { vvToolCreator<ToolType>::mSingleton->mToolIconFilename = n; }
   static void SetToolTip(QString n) { vvToolCreator<ToolType>::mSingleton->mToolTip = n; }
+  static void SetToolExperimental(bool exp) { vvToolCreator<ToolType>::mSingleton->mExperimental = exp; }
 
   void AddImage(vvImage::Pointer image,std::string filename) {
     CREATOR(ToolType)->GetMainWindow()->AddImage(image,filename); 

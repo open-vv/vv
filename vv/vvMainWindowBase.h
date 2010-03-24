@@ -45,7 +45,8 @@ public:
   virtual void AddImage(vvImage::Pointer image,std::string filename) = 0;
   virtual void UpdateCurrentSlicer() = 0;
   const std::vector<vvSlicerManager*> & GetSlicerManagers() const { return mSlicerManagers; }
-  QMenu * GetMenu() const { return mMenuTools; }
+  QMenu * GetToolMenu() const { return mMenuTools; }
+  QMenu * GetExperimentalToolMenu() const { return mMenuExperimentalTools; }
   int GetSlicerManagerCurrentIndex() const { return mSlicerManagerCurrentIndex; }
   QWidget * GetMainWidget() { return mMainWidget; }
 
@@ -55,6 +56,7 @@ signals:
 protected:
   std::vector<vvSlicerManager*> mSlicerManagers;
   QMenu * mMenuTools;
+  QMenu * mMenuExperimentalTools;
   int mSlicerManagerCurrentIndex;
   QWidget* mMainWidget;
 };

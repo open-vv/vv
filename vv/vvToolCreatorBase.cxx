@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolCreatorBase.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/02/24 11:42:42 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2010/03/24 13:37:34 $
+  Version:   $Revision: 1.3 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2008
@@ -31,7 +31,7 @@
 #include <QMenu>
 
 //------------------------------------------------------------------------------
-vvToolCreatorBase::vvToolCreatorBase(QString name) { 
+vvToolCreatorBase::vvToolCreatorBase(QString name): mExperimental(false) { 
   mToolName = name;
   vvToolManager::GetInstance()->AddTool(this); 
 }
@@ -50,7 +50,10 @@ void vvToolCreatorBase::InsertToolInMenu(vvMainWindowBase * m) {
   mAction->setStatusTip(mToolTip);
   // Connect the action
   connect(mAction, SIGNAL(triggered()), this, SLOT(MenuToolSlot()));
-  mMainWindow->GetMenu()->addAction(mAction);
+  if (mExperimental)
+      mMainWindow->GetExperimentalToolMenu()->addAction(mAction);
+  else
+      mMainWindow->GetToolMenu()->addAction(mAction);
 } 
 //------------------------------------------------------------------------------
 

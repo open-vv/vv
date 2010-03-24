@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolImageArithm.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/24 13:02:59 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/03/24 13:37:34 $
+  Version:   $Revision: 1.2 $
   Author :   David Sarrut (david.sarrut@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -66,6 +66,7 @@ void vvToolImageArithm::Initialize() {
   SetToolMenuName("ImageArithm");
   SetToolIconFilename(":/new/prefix1/icons/cross.png");
   SetToolTip("Perform simple arithmetic operations on one or two images.");
+  SetToolExperimental(true);
 }
 //------------------------------------------------------------------------------
 

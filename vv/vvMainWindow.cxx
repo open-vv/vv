@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvMainWindow.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/24 10:48:18 $
-  Version:   $Revision: 1.17 $
+  Date:      $Date: 2010/03/24 13:37:34 $
+  Version:   $Revision: 1.18 $
   Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
   Copyright (C) 200COLUMN_IMAGE_NAME
@@ -112,6 +112,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase() {
 
   mInputPathName = "";
   mMenuTools = menuTools;
+  mMenuExperimentalTools = menuExperimental;
   mMainWidget = this;
 
   //Init the contextMenu
