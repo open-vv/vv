@@ -809,18 +809,24 @@
     <property name="title">
      <string>Tools</string>
     </property>
-    <addaction name="actionSegmentation"/>
     <addaction name="actionResampler"/>
-    <addaction name="actionSurface_Viewer"/>
-    <addaction name="actionDeformable_Registration"/>
     <addaction name="actionWarp_image_with_vector_field"/>
     <addaction name="actionMaximum_Intensity_Projection"/>
     <addaction name="actionCompute_mid_position_image"/>
+   </widget>
+   <widget class="QMenu" name="menuExperimental">
+    <property name="title">
+     <string>Experimental</string>
+    </property>
+    <addaction name="actionSurface_Viewer"/>
+    <addaction name="actionDeformable_Registration"/>
+    <addaction name="actionSegmentation"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuOverlay"/>
    <addaction name="menuScreenshots"/>
    <addaction name="menuTools"/>
+   <addaction name="menuExperimental"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -1058,6 +1064,11 @@
   <action name="actionCompute_mid_position_image">
    <property name="text">
     <string>Compute mid-position image</string>
+   </property>
+  </action>
+  <action name="actionExperimental">
+   <property name="text">
+    <string>Experimental...</string>
    </property>
   </action>
  </widget>
