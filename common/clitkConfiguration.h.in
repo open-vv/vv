@@ -1,0 +1,10 @@
+#ifndef clitk_configuration_h
+#define clitk_configuration_h
+//This file is interpreted by cmake, to define macros based on the cmake configuration options
+//
+
+
+#cmakedefine01 CLITK_EXPERIMENTAL
+
+
+#endif
