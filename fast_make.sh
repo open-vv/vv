@@ -68,5 +68,6 @@ make_pid=$(jobs -p %nice)
 #    sleep 1
 #done
 #rm memory_exhausted_lock 2>>/dev/null
+wait
 echo Done!
 echo
