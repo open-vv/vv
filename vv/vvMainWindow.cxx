@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvMainWindow.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/24 13:37:34 $
-  Version:   $Revision: 1.18 $
+  Date:      $Date: 2010/03/24 13:59:01 $
+  Version:   $Revision: 1.19 $
   Author :   Pierre Seroul (pierre.seroul@gmail.com)
 
   Copyright (C) 200COLUMN_IMAGE_NAME
@@ -321,6 +321,9 @@ vvMainWindow::vvMainWindow():vvMainWindowBase() {
 
   // Adding all new tools (insertion in the menu)
   vvToolManager::GetInstance()->InsertToolsInMenu(this);
+
+  if (!CLITK_EXPERIMENTAL)
+      menuExperimental->menuAction()->setVisible(false);
 }
 //------------------------------------------------------------------------------
 
