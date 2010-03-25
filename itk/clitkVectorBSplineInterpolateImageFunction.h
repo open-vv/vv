@@ -1,6 +1,5 @@
 #ifndef __clitkVectorBSplineInterpolateImageFunction_h
 #define __clitkVectorBSplineInterpolateImageFunction_h
-
 #include "clitkVectorBSplineDecompositionImageFilter.h"
 
 // First make sure that the configuration is available.

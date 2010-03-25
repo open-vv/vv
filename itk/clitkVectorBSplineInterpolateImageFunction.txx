@@ -1,9 +1,5 @@
 #ifndef _clitkVectorBSplineInterpolateImageFunction_txx
 #define _clitkVectorBSplineInterpolateImageFunction_txx
-
-// First, make sure that we include the configuration file.
-// This line may be removed once the ThreadSafeTransform gets
-// integrated into ITK.
 #include "itkConfigure.h"
 
 // Second, redirect to the optimized version if necessary

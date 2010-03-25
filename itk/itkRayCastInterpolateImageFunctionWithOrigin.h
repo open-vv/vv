@@ -1,21 +1,5 @@
-/*=========================================================================
-
-Program:   Insight Segmentation & Registration Toolkit
-Language:  C++
-
-Copyright (c) Insight Software Consortium. All rights reserved.
-See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
-
-This software is distributed WITHOUT ANY WARRANTY; without even 
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-PURPOSE.  See the above copyright notices for more information.
-
-=========================================================================*/
-//JV Support to origin is added, and the implicit shift to the center of the center of the volume removed  by two patches 
-
 #ifndef __itkRayCastInterpolateImageFunctionWithOrigin_h
 #define __itkRayCastInterpolateImageFunctionWithOrigin_h
-
 #include "itkInterpolateImageFunction.h"
 #include "itkTransform.h"
 #include "itkVector.h"

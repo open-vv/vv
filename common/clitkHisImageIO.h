@@ -1,6 +1,5 @@
 #ifndef CLITKHISIMAGEIO_H
 #define CLITKHISIMAGEIO_H
-
 /**
  ===================================================================
  * @file   clitkHisImageIO.h

@@ -1,6 +1,5 @@
 #ifndef CLITKORIENTATION_H
 #define CLITKORIENTATION_H
-
 /**
  ===================================================================
  * @file   clitkOrientation.h

@@ -1,7 +1,5 @@
 #ifndef __clitkForwardWarpImageFilter_h
 #define __clitkForwardWarpImageFilter_h
-
-//clitk include
 #include "clitkImageCommon.h"
 
 //itk include

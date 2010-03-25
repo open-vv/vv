@@ -1,7 +1,5 @@
 #ifndef __clitkInvertVFFilter_h
 #define __clitkInvertVFFilter_h
-
-//clitk include
 #include "clitkImageCommon.h"
 
 #include "itkImageToImageFilter.h"

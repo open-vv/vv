@@ -1,6 +1,5 @@
 #ifndef CLITKLISTOFPAIR_TXX
 #define CLITKLISTOFPAIR_TXX
-
 /**
  =================================================
  * @file   clitkListOfPair.txx

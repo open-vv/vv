@@ -1,6 +1,5 @@
 #ifndef __clitkZeroVFGenericFilter_txx
 #define __clitkZeroVFGenericFilter_txx
-
 #include "clitkZeroVFGenericFilter.h"
 
 

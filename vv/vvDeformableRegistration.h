@@ -1,6 +1,5 @@
 #ifndef VV_DEFORMABLE_REGISTRATION
 #define VV_DEFORMABLE_REGISTRATION
-
 #include <QMutex>
 #include <QString>
 class string;

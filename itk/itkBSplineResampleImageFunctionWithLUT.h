@@ -1,6 +1,5 @@
 #ifndef __itkBSplineResampleImageFunctionWithLUT_h
 #define __itkBSplineResampleImageFunctionWithLUT_h
-
 #include "itkBSplineInterpolateImageFunctionWithLUT.h"
 
 namespace itk

@@ -1,6 +1,5 @@
 #ifndef CLITKIMAGECONVERTGENERICFILTER_H
 #define CLITKIMAGECONVERTGENERICFILTER_H
-
 /**
  ===================================================================
  * @file   clitkImageConvertGenericFilter.h

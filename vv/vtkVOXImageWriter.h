@@ -1,6 +1,5 @@
 #ifndef __vtkVoxImageWriter_h
 #define __vtkVOXImageWriter_h
-
 #include "vtkImageWriter.h"
 #include <string>
 

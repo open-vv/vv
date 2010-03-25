@@ -1,6 +1,5 @@
 #ifndef CLITKIMAGEUTILITIES_TXX
 #define CLITKIMAGEUTILITIES_TXX
-
 /**
  =================================================
  * @file   clitkImageUtilities.txx

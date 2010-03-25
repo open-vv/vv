@@ -1,6 +1,5 @@
 #ifndef CLITKIMAGECONVERTGENERICFILTER_CXX
 #define CLITKIMAGECONVERTGENERICFILTER_CXX
-
 /**
  -------------------------------------------------
  * @file   clitkImageConvertGenericFilter.cxx

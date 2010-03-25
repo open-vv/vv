@@ -1,6 +1,5 @@
 #ifndef CLITKIMAGERESAMPLEGENERICFILTER_H
 #define CLITKIMAGERESAMPLEGENERICFILTER_H
-
 /**
  -------------------------------------------------------------------
  * @file   clitkImageResampleGenericFilter.h

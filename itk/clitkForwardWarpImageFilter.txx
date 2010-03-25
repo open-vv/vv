@@ -1,6 +1,5 @@
 #ifndef __clitkForwardWarpImageFilter_txx
 #define __clitkForwardWarpImageFilter_txx
-
 #include "clitkForwardWarpImageFilter.h"
 #include "clitkImageCommon.h"
 

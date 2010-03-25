@@ -1,6 +1,5 @@
 #ifndef __clitkSetBackgroundImageFilter_h
 #define __clitkSetBackgroundImageFilter_h
-
 #include "itkBinaryFunctorImageFilter.h"
 #include "itkNumericTraits.h"
 

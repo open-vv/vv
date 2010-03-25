@@ -1,6 +1,5 @@
 #ifndef CLITKIMAGEUTILITIES_H
 #define CLITKIMAGEUTILITIES_H
-
 /**
  ===================================================================
  * @file   clitkImageUtilities.h

@@ -1,7 +1,5 @@
 #ifndef __clitkGenericInterpolator_h
 #define __clitkGenericInterpolator_h
-
-//clitk include
 #include "clitkImageCommon.h"
 
 //itk include

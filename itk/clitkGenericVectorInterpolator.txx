@@ -1,6 +1,5 @@
 #ifndef __clitkGenericVectorInterpolator_txx	
 #define __clitkGenericVectorInterpolator_txx
-
 #include "clitkGenericVectorInterpolator.h"
 
 

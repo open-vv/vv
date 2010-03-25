@@ -1,6 +1,5 @@
 #ifndef CLITKCOMMON_H
 #define CLITKCOMMON_H
-
 /**
    -------------------------------------------------------------------
    * @file   clitkCommon.h

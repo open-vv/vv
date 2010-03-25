@@ -1,6 +1,5 @@
 #ifndef _CLITKVECTORBSPLINEINTERPOLATEIMAGEFUNCTIONWITHLUT_TXX
 #define _CLITKVECTORBSPLINEINTERPOLATEIMAGEFUNCTIONWITHLUT_TXX
-
 /* =========================================================================
                                                                                 
 @file   itkBSplineInterpolateImageFunctionWithLUT.txx

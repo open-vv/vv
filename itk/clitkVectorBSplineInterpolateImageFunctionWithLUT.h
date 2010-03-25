@@ -1,6 +1,5 @@
 #ifndef __clitkVectorBSplineInterpolateImageFunctionWithLUT_h
 #define __clitkVectorBSplineInterpolateImageFunctionWithLUT_h
-
 /* =========================================================================
                                                                                 
   @file   clitVectorkBSplineInterpolateImageFunctionWithLUT.h

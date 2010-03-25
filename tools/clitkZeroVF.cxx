@@ -1,7 +1,6 @@
 #ifndef clitkZeroVF_cxx
 #define clitkZeroVF_cxx
 
-
 /**
  * @file   clitkZeroVF.cxx
  * @author Joel Schaerer

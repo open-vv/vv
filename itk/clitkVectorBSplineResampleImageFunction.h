@@ -1,6 +1,5 @@
 #ifndef __clitkVectorBSplineResampleImageFunction_h
 #define __clitkVectorBSplineResampleImageFunction_h
-
 #include "clitkVectorBSplineInterpolateImageFunction.h"
 
 namespace clitk

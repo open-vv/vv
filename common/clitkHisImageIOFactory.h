@@ -1,6 +1,5 @@
 #ifndef CLITKHISIMAGEIOFACTORY_H
 #define CLITKHISIMAGEIOFACTORY_H
-
 /**
  ===================================================================
  * @file   clitkHisImageIOFactory.h

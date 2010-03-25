@@ -1,8 +1,5 @@
 #ifndef vvs_h
 #define vvs_h
-
-//This is a dummy executable for tests
-
 #include "ui_vvDummyWindow.h"
 #include <QMainWindow>
 

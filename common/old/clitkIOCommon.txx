@@ -1,6 +1,5 @@
 #ifndef CLITKIOCOMMON_TXX
 #define CLITKIOCOMMON_TXX
-
 /**
    =================================================
    * @file   clitkIOCommon.txx

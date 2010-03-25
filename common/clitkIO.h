@@ -1,6 +1,5 @@
 #ifndef CLITKIO_H
 #define CLITKIO_H
-
 /**
    -------------------------------------------------------------------
    * @file   clitkIO.h

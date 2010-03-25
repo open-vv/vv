@@ -1,6 +1,5 @@
 #ifndef CLITKVFRESAMPLEGENERICFILTER_CXX
 #define CLITKVFRESAMPLEGENERICFILTER_CXX
-
 /**
  -------------------------------------------------------------------
  * @file   clitkVFResampleGenericFilter.cxx

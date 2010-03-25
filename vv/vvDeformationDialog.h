@@ -1,6 +1,5 @@
 #ifndef VV_DEFORMATION_DIALOG
 #define VV_DEFORMATION_DIALOG
-
 #include <vector>
 #include <QDialog>
 #include <QString>

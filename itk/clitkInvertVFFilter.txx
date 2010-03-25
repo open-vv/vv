@@ -1,10 +1,5 @@
 #ifndef __clitkInvertVFFilter_txx
 #define __clitkInvertVFFilter_txx
-
-
-// Put the helper classes in an anonymous namespace so that it is not
-// exposed to the user
-
 namespace
 {
 

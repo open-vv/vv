@@ -1,6 +1,5 @@
 #ifndef CLITKTIMER_CXX
 #define CLITKTIMER_CXX
-
 /**
    =================================================
    * @file   clitkTimer.cxx

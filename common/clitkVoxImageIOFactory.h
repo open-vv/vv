@@ -1,6 +1,5 @@
 #ifndef CLITKVOXIMAGEIOFACTORY_H
 #define CLITKVOXIMAGEIOFACTORY_H
-
 /**
  ===================================================================
  * @file   clitkVoxImageIOFactory.h

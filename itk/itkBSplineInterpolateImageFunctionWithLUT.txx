@@ -1,6 +1,5 @@
 #ifndef _ITKINTERPOLATEIMAGEFUNCTIONWITHLUT_TXX
 #define _ITKINTERPOLATEIMAGEFUNCTIONWITHLUT_TXX
-
 /* =========================================================================
                                                                                 
 @file   itkBSplineInterpolateImageFunctionWithLUT.txx

@@ -1,6 +1,5 @@
 #ifndef CLITKIMAGERESAMPLEGENERICFILTER_TXX
 #define CLITKIMAGERESAMPLEGENERICFILTER_TXX
-
 /**
    ------------------------------------------------=
    * @file   clitkImageResampleGenericFilter.txx

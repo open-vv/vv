@@ -1,6 +1,5 @@
 #ifndef CLITKPORTABILITY_H
 #define CLITKPORTABILITY_H
-
 #if defined(WIN32)
 #  define _USE_MATH_DEFINES //Before math.h include (i.e. cmath)
 #endif

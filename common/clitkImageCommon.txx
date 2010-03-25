@@ -1,6 +1,5 @@
 #ifndef CLITKIMAGECOMMON_TXX
 #define CLITKIMAGECOMMON_TXX
-
 /**
    -------------------------------------------------
    * @file   clitkImageCommon.txx

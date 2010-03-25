@@ -1,6 +1,5 @@
 #ifndef CLITKIMAGECOMMON_H
 #define CLITKIMAGECOMMON_H
-
 /**
  -------------------------------------------------------------------
  * @file   clitkImageCommon.h

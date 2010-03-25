@@ -1,6 +1,5 @@
 #ifndef _clitkVectorBSplineDecompositionImageFilterWithOBD_txx
 #define _clitkVectorBSplineDecompositionImageFilterWithOBD_txx
-
 #include "clitkVectorBSplineDecompositionImageFilterWithOBD.h"
 #include "itkImageRegionConstIteratorWithIndex.h"
 #include "itkImageRegionIterator.h"

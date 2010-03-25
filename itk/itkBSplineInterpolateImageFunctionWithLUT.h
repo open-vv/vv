@@ -1,6 +1,5 @@
 #ifndef ITKBSPLINEINTERPOLATEIMAGEFUNCTIONWITHLUT_H
 #define ITKBSPLINEINTERPOLATEIMAGEFUNCTIONWITHLUT_H
-
 /* =========================================================================
                                                                                 
   @file   itkBSplineInterpolateImageFunctionWithLUT.h

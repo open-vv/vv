@@ -1,6 +1,5 @@
 #ifndef __itkBSplineDecompositionImageFilterWithOBD_h
 #define __itkBSplineDecompositionImageFilterWithOBD_h
-
 #include <vector>
 
 #include "itkImageLinearIteratorWithIndex.h"

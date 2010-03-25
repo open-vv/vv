@@ -1,6 +1,5 @@
 #ifndef CLITKTRANSFORMUTILITIES_H
 #define CLITKTRANSFORMUTILITIES_H
- 
 #include "itkMatrix.h"
 #include "itkArray.h"
 #include "itkPoint.h"

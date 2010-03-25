@@ -1,7 +1,5 @@
 #ifndef __clitkZeroVFGenericFilter_h
 #define __clitkZeroVFGenericFilter_h
-
-//clitk include
 #include "clitkImageCommon.h"
 #include "clitkImageCommon.h"
 

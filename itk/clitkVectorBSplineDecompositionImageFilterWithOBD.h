@@ -1,6 +1,5 @@
 #ifndef __clitkVectorBSplineDecompositionImageFilterWithOBD_h
 #define __clitkVectorBSplineDecompositionImageFilterWithOBD_h
-
 #include <vector>
 
 #include "itkImageLinearIteratorWithIndex.h"

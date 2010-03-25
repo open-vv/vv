@@ -1,6 +1,5 @@
 #ifndef CLITKLISTOFPAIR_H
 #define CLITKLISTOFPAIR_H
-
 /**
    ===================================================================
    * @file   clitkListOfPair.h

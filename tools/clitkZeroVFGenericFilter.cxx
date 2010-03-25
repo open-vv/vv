@@ -1,7 +1,5 @@
 #ifndef CLITKINVERTVFGENERICFILTER_CXX
 #define CLITKINVERTVFGENERICFILTER_CXX
-
-//clitk include
 #include "clitkZeroVFGenericFilter.h"
 
 
