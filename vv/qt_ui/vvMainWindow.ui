@@ -21,7 +21,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../vvIcons.qrc">
-    <normaloff>:/new/prefix1/icons/ducky.png</normaloff>:/new/prefix1/icons/ducky.png</iconset>
+    <normaloff>:/common/icons/ducky.png</normaloff>:/common/icons/ducky.png</iconset>
   </property>
   <property name="statusTip">
    <string>Type 'h' on image to display help on navigation</string>
@@ -99,7 +99,7 @@
          </property>
          <property name="icon">
           <iconset resource="../vvIcons.qrc">
-           <normaloff>:/new/prefix1/icons/cross.png</normaloff>:/new/prefix1/icons/cross.png</iconset>
+           <normaloff>:/common/icons/cross.png</normaloff>:/common/icons/cross.png</iconset>
          </property>
         </widget>
        </item>
@@ -135,7 +135,7 @@
          </property>
          <property name="icon">
           <iconset resource="../vvIcons.qrc">
-           <normaloff>:/new/prefix1/icons/player_play.png</normaloff>:/new/prefix1/icons/player_play.png</iconset>
+           <normaloff>:/common/icons/player_play.png</normaloff>:/common/icons/player_play.png</iconset>
          </property>
         </widget>
        </item>
@@ -191,7 +191,7 @@
          </property>
          <property name="icon">
           <iconset resource="../vvIcons.qrc">
-           <normaloff>:/new/prefix1/icons/invertcolor.png</normaloff>:/new/prefix1/icons/invertcolor.png</iconset>
+           <normaloff>:/common/icons/invertcolor.png</normaloff>:/common/icons/invertcolor.png</iconset>
          </property>
         </widget>
        </item>
@@ -344,7 +344,7 @@
          </property>
          <property name="icon">
           <iconset resource="../vvIcons.qrc">
-           <normaloff>:/new/prefix1/icons/adjustsize.png</normaloff>:/new/prefix1/icons/adjustsize.png</iconset>
+           <normaloff>:/common/icons/adjustsize.png</normaloff>:/common/icons/adjustsize.png</iconset>
          </property>
         </widget>
        </item>
@@ -833,7 +833,7 @@
   <action name="actionLoad_images">
    <property name="icon">
     <iconset resource="../vvIcons.qrc">
-     <normaloff>:/new/prefix1/icons/fileopen.png</normaloff>:/new/prefix1/icons/fileopen.png</iconset>
+     <normaloff>:/common/icons/fileopen.png</normaloff>:/common/icons/fileopen.png</iconset>
    </property>
    <property name="text">
     <string>Open image(s)</string>
@@ -847,7 +847,7 @@
   <action name="actionExit">
    <property name="icon">
     <iconset resource="../vvIcons.qrc">
-     <normaloff>:/new/prefix1/icons/exit.png</normaloff>:/new/prefix1/icons/exit.png</iconset>
+     <normaloff>:/common/icons/exit.png</normaloff>:/common/icons/exit.png</iconset>
    </property>
    <property name="text">
     <string>Exit</string>
@@ -896,7 +896,7 @@
   <action name="actionOpen_Dicom">
    <property name="icon">
     <iconset resource="../vvIcons.qrc">
-     <normaloff>:/new/prefix1/icons/open.png</normaloff>:/new/prefix1/icons/open.png</iconset>
+     <normaloff>:/common/icons/open.png</normaloff>:/common/icons/open.png</iconset>
    </property>
    <property name="text">
     <string>Open Dicom</string>
@@ -905,7 +905,7 @@
   <action name="actionOpen_Multiple_Images_As_One">
    <property name="icon">
     <iconset resource="../vvIcons.qrc">
-     <normaloff>:/new/prefix1/icons/open.png</normaloff>:/new/prefix1/icons/open.png</iconset>
+     <normaloff>:/common/icons/open.png</normaloff>:/common/icons/open.png</iconset>
    </property>
    <property name="text">
     <string>Open several xD images into a single (x+1) D</string>
@@ -919,7 +919,7 @@
   <action name="actionSave_As">
    <property name="icon">
     <iconset resource="../vvIcons.qrc">
-     <normaloff>:/new/prefix1/icons/filesave.png</normaloff>:/new/prefix1/icons/filesave.png</iconset>
+     <normaloff>:/common/icons/filesave.png</normaloff>:/common/icons/filesave.png</iconset>
    </property>
    <property name="text">
     <string>Save current image</string>
@@ -931,7 +931,7 @@
   <action name="actionAdd_VF_to_current_Image">
    <property name="icon">
     <iconset resource="../vvIcons.qrc">
-     <normaloff>:/new/prefix1/icons/cursor-uparrow.png</normaloff>:/new/prefix1/icons/cursor-uparrow.png</iconset>
+     <normaloff>:/common/icons/cursor-uparrow.png</normaloff>:/common/icons/cursor-uparrow.png</iconset>
    </property>
    <property name="text">
     <string>Add deformation field to current image</string>
@@ -940,7 +940,7 @@
   <action name="actionNorth_West_Window">
    <property name="icon">
     <iconset resource="../vvIcons.qrc">
-     <normaloff>:/new/prefix1/icons/NOgrid.png</normaloff>:/new/prefix1/icons/NOgrid.png</iconset>
+     <normaloff>:/common/icons/NOgrid.png</normaloff>:/common/icons/NOgrid.png</iconset>
    </property>
    <property name="text">
     <string>Save image in TL</string>
@@ -949,7 +949,7 @@
   <action name="actionNorth_East_Window">
    <property name="icon">
     <iconset resource="../vvIcons.qrc">
-     <normaloff>:/new/prefix1/icons/NEgrid.png</normaloff>:/new/prefix1/icons/NEgrid.png</iconset>
+     <normaloff>:/common/icons/NEgrid.png</normaloff>:/common/icons/NEgrid.png</iconset>
    </property>
    <property name="text">
     <string>Save image in TR</string>
@@ -958,7 +958,7 @@
   <action name="actionSouth_West_Window">
    <property name="icon">
     <iconset resource="../vvIcons.qrc">
-     <normaloff>:/new/prefix1/icons/SOgrid.png</normaloff>:/new/prefix1/icons/SOgrid.png</iconset>
+     <normaloff>:/common/icons/SOgrid.png</normaloff>:/common/icons/SOgrid.png</iconset>
    </property>
    <property name="text">
     <string>Save image in BL</string>
@@ -967,7 +967,7 @@
   <action name="actionSouth_East_Window">
    <property name="icon">
     <iconset resource="../vvIcons.qrc">
-     <normaloff>:/new/prefix1/icons/SEgrid.png</normaloff>:/new/prefix1/icons/SEgrid.png</iconset>
+     <normaloff>:/common/icons/SEgrid.png</normaloff>:/common/icons/SEgrid.png</iconset>
    </property>
    <property name="text">
     <string>Save image in BR</string>
@@ -976,7 +976,7 @@
   <action name="actionOpen_Image_With_Time">
    <property name="icon">
     <iconset resource="../vvIcons.qrc">
-     <normaloff>:/new/prefix1/icons/open.png</normaloff>:/new/prefix1/icons/open.png</iconset>
+     <normaloff>:/common/icons/open.png</normaloff>:/common/icons/open.png</iconset>
    </property>
    <property name="text">
     <string>Open xD image(s) as (x-1)D + t</string>
@@ -985,7 +985,7 @@
   <action name="actionMerge_images_as_n_dim_t">
    <property name="icon">
     <iconset resource="../vvIcons.qrc">
-     <normaloff>:/new/prefix1/icons/open.png</normaloff>:/new/prefix1/icons/open.png</iconset>
+     <normaloff>:/common/icons/open.png</normaloff>:/common/icons/open.png</iconset>
    </property>
    <property name="text">
     <string>Open several xD images into a single xD + t</string>
@@ -994,7 +994,7 @@
   <action name="actionAdd_fusion_image">
    <property name="icon">
     <iconset resource="../vvIcons.qrc">
-     <normaloff>:/new/prefix1/icons/fusion.png</normaloff>:/new/prefix1/icons/fusion.png</iconset>
+     <normaloff>:/common/icons/fusion.png</normaloff>:/common/icons/fusion.png</iconset>
    </property>
    <property name="text">
     <string>Add fusion image to current image</string>
@@ -1038,7 +1038,7 @@
   <action name="actionOpen_VTK_contour">
    <property name="icon">
     <iconset resource="../vvIcons.qrc">
-     <normaloff>:/new/prefix1/icons/open.png</normaloff>:/new/prefix1/icons/open.png</iconset>
+     <normaloff>:/common/icons/open.png</normaloff>:/common/icons/open.png</iconset>
    </property>
    <property name="text">
     <string>Open VTK or OBJ contour</string>
@@ -1055,7 +1055,7 @@
   <action name="actionOpen_Dicom_Struct">
    <property name="icon">
     <iconset resource="../vvIcons.qrc">
-     <normaloff>:/new/prefix1/icons/open.png</normaloff>:/new/prefix1/icons/open.png</iconset>
+     <normaloff>:/common/icons/open.png</normaloff>:/common/icons/open.png</iconset>
    </property>
    <property name="text">
     <string>Open Dicom-Struct</string>

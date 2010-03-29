@@ -88,7 +88,7 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="icon">
       <iconset resource="../vvIcons.qrc">
-       <normaloff>:/new/prefix1/icons/undo.png</normaloff>:/new/prefix1/icons/undo.png</iconset>
+       <normaloff>:/common/icons/undo.png</normaloff>:/common/icons/undo.png</iconset>
      </property>
     </widget>
    </item>
@@ -112,7 +112,7 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="icon">
       <iconset resource="../vvIcons.qrc">
-       <normaloff>:/new/prefix1/icons/open.png</normaloff>:/new/prefix1/icons/open.png</iconset>
+       <normaloff>:/common/icons/open.png</normaloff>:/common/icons/open.png</iconset>
      </property>
     </widget>
    </item>
@@ -123,7 +123,7 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="icon">
       <iconset resource="../vvIcons.qrc">
-       <normaloff>:/new/prefix1/icons/filesave.png</normaloff>:/new/prefix1/icons/filesave.png</iconset>
+       <normaloff>:/common/icons/filesave.png</normaloff>:/common/icons/filesave.png</iconset>
      </property>
     </widget>
    </item>

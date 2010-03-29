@@ -15,6 +15,7 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
 #ifndef VVTOOLBASE_H
 #define VVTOOLBASE_H
 #include "vvToolBaseBase.h"
@@ -37,6 +38,10 @@ public:
     CREATOR(ToolType)->GetMainWindow()->AddImage(image,filename); 
   }
 
+  void setSender(QObject *s) { mSender = s; }
+
+ protected:
+  QObject * mSender;
 };
 //------------------------------------------------------------------------------
 

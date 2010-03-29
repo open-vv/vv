@@ -15,12 +15,14 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
 template<class ToolType>
 void vvToolCreatorBase::CreateTool() {
   // Get information on the current image
   mMainWindow->UpdateCurrentSlicer();
   // Create the tool
   ToolType * tool = new ToolType(mMainWindow);
+  tool->setSender(mSender);
   // Put it in the list of open tools
   mListOfTool.push_back(tool);
   // Go !

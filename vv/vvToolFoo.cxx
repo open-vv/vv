@@ -44,7 +44,7 @@ vvToolFoo::~vvToolFoo() {
 void vvToolFoo::Initialize() {
   SetToolName("Foo");
   SetToolMenuName("Foo");
-  SetToolIconFilename(":/new/prefix1/icons/ducky.png");
+  SetToolIconFilename(":/common/icons/ducky.png");
   SetToolTip("Make 'foo' on an image.");
 }
 //------------------------------------------------------------------------------

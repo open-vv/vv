@@ -152,7 +152,7 @@ void vvLinkPanel::addLink()
         QTreePushButton* cButton = new QTreePushButton;
         cButton->setIndex(linkTableWidget->rowCount());
         cButton->setColumn(0);
-        cButton->setIcon(QIcon(QString::fromUtf8(":/new/prefix1/icons/exit.png")));
+        cButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/exit.png")));
         connect(cButton,SIGNAL(clickedInto(int, int)),
                 this,SLOT(removeLink(int, int)));
         cButton->setToolTip(tr("remove link"));

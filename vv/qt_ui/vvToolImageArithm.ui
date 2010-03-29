@@ -231,6 +231,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../vvIcons.qrc"/>
+ </resources>
  <connections/>
 </ui>

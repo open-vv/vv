@@ -15,6 +15,7 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
 #include "vvImageContour.h"
 #include <vtkImageActor.h>
 #include <vtkCamera.h>

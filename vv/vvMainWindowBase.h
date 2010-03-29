@@ -15,6 +15,7 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
 #ifndef VVMAINWINDOWBASE_H
 #define VVMAINWINDOWBASE_H
 #include "clitkCommon.h"
@@ -37,6 +38,7 @@ public:
   virtual void UpdateCurrentSlicer() = 0;
   const std::vector<vvSlicerManager*> & GetSlicerManagers() const { return mSlicerManagers; }
   QMenu * GetToolMenu() const { return mMenuTools; }
+  QMenu * GetContextMenu() const { return mContextMenu; }
   QMenu * GetExperimentalToolMenu() const { return mMenuExperimentalTools; }
   int GetSlicerManagerCurrentIndex() const { return mSlicerManagerCurrentIndex; }
   QWidget * GetMainWidget() { return mMainWidget; }
@@ -47,6 +49,7 @@ signals:
 protected:
   std::vector<vvSlicerManager*> mSlicerManagers;
   QMenu * mMenuTools;
+  QMenu * mContextMenu;
   QMenu * mMenuExperimentalTools;
   int mSlicerManagerCurrentIndex;
   QWidget* mMainWidget;

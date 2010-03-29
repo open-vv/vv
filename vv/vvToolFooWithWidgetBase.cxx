@@ -44,7 +44,7 @@ vvToolFooWithWidgetBase::~vvToolFooWithWidgetBase() {
 void vvToolFooWithWidgetBase::Initialize() {
   SetToolName("Foo");
   SetToolMenuName("Foo with WidgetBase");
-  SetToolIconFilename(":/new/prefix1/icons/ducky.png");
+  SetToolIconFilename(":/common/icons/ducky.png");
   SetToolTip("Make 'foo' on an image.");
 }
 //------------------------------------------------------------------------------

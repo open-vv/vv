@@ -14,9 +14,9 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-======================================================================-====*/
-#include "vvSlicer.h"
+  ======================================================================-====*/
 
+#include "vvSlicer.h"
 #include "vvImage.h"
 #include "vvSlicerManagerCommand.h"
 #include "vvGlyphSource.h"
@@ -1139,50 +1139,50 @@ void vvSlicer::SetColorLevel(double level)
 // Returns the min an the max value in a 41x41 region around the mouse pointer
 void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max)
 {
-    //Get mouse pointer position in view coordinates
-    double fLocalExtents[6];
-    for(int i=0; i<3; i++)
+  //Get mouse pointer position in view coordinates
+  double fLocalExtents[6];
+  for(int i=0; i<3; i++)
     {
-        fLocalExtents[i*2  ] = mCurrent[i];
-        fLocalExtents[i*2+1] = mCurrent[i];
+      fLocalExtents[i*2  ] = mCurrent[i];
+      fLocalExtents[i*2+1] = mCurrent[i];
     }
-    this->Renderer->WorldToView(fLocalExtents[0], fLocalExtents[2], fLocalExtents[4]);
-    this->Renderer->WorldToView(fLocalExtents[1], fLocalExtents[3], fLocalExtents[5]);
-    for(int i=0; i<3; i++)
+  this->Renderer->WorldToView(fLocalExtents[0], fLocalExtents[2], fLocalExtents[4]);
+  this->Renderer->WorldToView(fLocalExtents[1], fLocalExtents[3], fLocalExtents[5]);
+  for(int i=0; i<3; i++)
     {
-        if (i!=SliceOrientation) //SR: assumes that SliceOrientation is valid in ViewCoordinates (???)
+      if (i!=SliceOrientation) //SR: assumes that SliceOrientation is valid in ViewCoordinates (???)
         {
-            fLocalExtents[i*2  ] -= 0.2;
-            fLocalExtents[i*2+1] += 0.2;
+	  fLocalExtents[i*2  ] -= 0.2;
+	  fLocalExtents[i*2+1] += 0.2;
         }
     }
-    this->Renderer->ViewToWorld(fLocalExtents[0], fLocalExtents[2], fLocalExtents[4]);
-    this->Renderer->ViewToWorld(fLocalExtents[1], fLocalExtents[3], fLocalExtents[5]);
+  this->Renderer->ViewToWorld(fLocalExtents[0], fLocalExtents[2], fLocalExtents[4]);
+  this->Renderer->ViewToWorld(fLocalExtents[1], fLocalExtents[3], fLocalExtents[5]);
 
-    //Convert to image pixel coordinates (rounded)
-    int iLocalExtents[6];
-    for(int i=0; i<3; i++)
+  //Convert to image pixel coordinates (rounded)
+  int iLocalExtents[6];
+  for(int i=0; i<3; i++)
     {
-        fLocalExtents[i*2  ] = (fLocalExtents[i*2  ] - this->GetInput()->GetOrigin()[i])/this->GetInput()->GetSpacing()[i];
-        fLocalExtents[i*2+1] = (fLocalExtents[i*2+1] - this->GetInput()->GetOrigin()[i])/this->GetInput()->GetSpacing()[i];
+      fLocalExtents[i*2  ] = (fLocalExtents[i*2  ] - this->GetInput()->GetOrigin()[i])/this->GetInput()->GetSpacing()[i];
+      fLocalExtents[i*2+1] = (fLocalExtents[i*2+1] - this->GetInput()->GetOrigin()[i])/this->GetInput()->GetSpacing()[i];
     
-        iLocalExtents[i*2  ] = lrint(fLocalExtents[i*2  ]);
-        iLocalExtents[i*2+1] = lrint(fLocalExtents[i*2+1]);
+      iLocalExtents[i*2  ] = lrint(fLocalExtents[i*2  ]);
+      iLocalExtents[i*2+1] = lrint(fLocalExtents[i*2+1]);
 
-        if(iLocalExtents[i*2  ]>iLocalExtents[i*2+1])
-            std::swap(iLocalExtents[i*2], iLocalExtents[i*2+1]);
+      if(iLocalExtents[i*2  ]>iLocalExtents[i*2+1])
+	std::swap(iLocalExtents[i*2], iLocalExtents[i*2+1]);
     }
     
-    vtkSmartPointer<vtkExtractVOI> voiFilter = vtkExtractVOI::New();
-    voiFilter->SetInput(this->GetInput());
-    voiFilter->SetVOI(iLocalExtents);
+  vtkSmartPointer<vtkExtractVOI> voiFilter = vtkExtractVOI::New();
+  voiFilter->SetInput(this->GetInput());
+  voiFilter->SetVOI(iLocalExtents);
 
-    vtkSmartPointer<vtkImageAccumulate> accFilter = vtkImageAccumulate::New();
-    accFilter->SetInput(voiFilter->GetOutput());
-    accFilter->Update();
+  vtkSmartPointer<vtkImageAccumulate> accFilter = vtkImageAccumulate::New();
+  accFilter->SetInput(voiFilter->GetOutput());
+  accFilter->Update();
    
-    min = *(accFilter->GetMin());
-    max = *(accFilter->GetMax());
+  min = *(accFilter->GetMin());
+  max = *(accFilter->GetMax());
 }
 //----------------------------------------------------------------------------
 

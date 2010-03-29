@@ -15,6 +15,7 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
 #include <algorithm>
 #include <QMessageBox>
 #include <QInputDialog>
@@ -101,42 +102,43 @@ vvMainWindow::vvMainWindow():vvMainWindowBase() {
 
   mInputPathName = "";
   mMenuTools = menuTools;
+  mContextMenu = &contextMenu;
   mMenuExperimentalTools = menuExperimental;
   mMainWidget = this;
 
   //Init the contextMenu
   this->setContextMenuPolicy(Qt::CustomContextMenu);
   contextActions.resize(0);
-  QAction* actionOpen_new_image = contextMenu.addAction(QIcon(QString::fromUtf8(":/new/prefix1/icons/fileopen.png")),
+  QAction* actionOpen_new_image = contextMenu.addAction(QIcon(QString::fromUtf8(":/common/icons/fileopen.png")),
                                                         tr("O&pen new Image"));
   actionOpen_new_image->setShortcut(QKeySequence(tr("Ctrl+O")));
   connect(actionOpen_new_image,SIGNAL(triggered()),this,SLOT(OpenImages()));
   contextActions.push_back(actionOpen_new_image);
   contextMenu.addSeparator();
 
-  QAction* actionClose_Image = contextMenu.addAction(QIcon(QString::fromUtf8(":/new/prefix1/icons/exit.png")),
+  QAction* actionClose_Image = contextMenu.addAction(QIcon(QString::fromUtf8(":/common/icons/exit.png")),
                                                      tr("Close Current Image"));
   connect(actionClose_Image,SIGNAL(triggered()),this,SLOT(CloseImage()));
   contextActions.push_back(actionClose_Image);
 
-  QAction* actionReload_image = contextMenu.addAction(QIcon(QString::fromUtf8(":/new/prefix1/icons/rotateright.png")),
+  QAction* actionReload_image = contextMenu.addAction(QIcon(QString::fromUtf8(":/common/icons/rotateright.png")),
                                                       tr("Reload Current Image"));
   connect(actionReload_image,SIGNAL(triggered()),this,SLOT(ReloadImage()));
   contextActions.push_back(actionReload_image);
 
-  QAction* actionSave_image = contextMenu.addAction(QIcon(QString::fromUtf8(":/new/prefix1/icons/filesave.png")),
+  QAction* actionSave_image = contextMenu.addAction(QIcon(QString::fromUtf8(":/common/icons/filesave.png")),
                                                     tr("Save Current Image"));
   connect(actionSave_image,SIGNAL(triggered()),this,SLOT(SaveAs()));
   contextActions.push_back(actionSave_image);
 
   contextMenu.addSeparator();
 
-  // QAction* actionCrop_image = contextMenu.addAction(QIcon(QString::fromUtf8(":/new/prefix1/icons/crop.png")),
+  // QAction* actionCrop_image = contextMenu.addAction(QIcon(QString::fromUtf8(":/common/icons/crop.png")),
   //                                                   tr("Crop Current Image"));
   // connect(actionCrop_image,SIGNAL(triggered()),this,SLOT(CropImage()));
   // contextActions.push_back(actionCrop_image);
 
-  QAction* actionSplit_image = contextMenu.addAction(QIcon(QString::fromUtf8(":/new/prefix1/icons/cut.png")),
+  QAction* actionSplit_image = contextMenu.addAction(QIcon(QString::fromUtf8(":/common/icons/cut.png")),
                                                      tr("Split Current Image"));
   connect(actionSplit_image,SIGNAL(triggered()),this,SLOT(SplitImage()));
   contextActions.push_back(actionSplit_image);
@@ -146,7 +148,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase() {
   contextMenu.addAction(actionAdd_VF_to_current_Image);
   contextActions.push_back(actionAdd_VF_to_current_Image);
 
-  QAction* actionAdd_Overlay_to_current_Image = menuOverlay->addAction(QIcon(QString::fromUtf8(":/new/prefix1/icons/GPSup.png")),
+  QAction* actionAdd_Overlay_to_current_Image = menuOverlay->addAction(QIcon(QString::fromUtf8(":/common/icons/GPSup.png")),
                                                                        tr("Add overlay image to current image"));
   contextMenu.addAction(actionAdd_Overlay_to_current_Image);
   contextActions.push_back(actionAdd_Overlay_to_current_Image);
@@ -156,6 +158,21 @@ vvMainWindow::vvMainWindow():vvMainWindowBase() {
   contextMenu.addAction(actionAdd_fusion_image);
   connect(actionAdd_fusion_image,SIGNAL(triggered()),this,SLOT(AddFusionImage()));
   contextActions.push_back(actionAdd_fusion_image);
+
+  // TRIAL DS
+  /*
+  QMenu * m = new QMenu(menubar);
+  m->setTitle("TOTO");
+  //  m->setObjectName(QString::fromUtf8("TOTOTO"));
+  contextMenu.addMenu(m);
+  QAction * a = m->addAction(QIcon(QString::fromUtf8(":/common/icons/GPSup.png")),
+  		     tr("BIDON"));
+  QAction * b = m->addAction(QIcon(QString::fromUtf8(":/common/icons/GPSup.png")),
+  		     tr("BIDON2"));
+  m->addAction(a);
+  m->addAction(b);
+  connect(a,SIGNAL(triggered()),this,SLOT(AddFusionImage()));
+  */
 
   //init the DataTree
   mSlicerManagers.resize(0);
@@ -297,11 +314,11 @@ vvMainWindow::vvMainWindow():vvMainWindowBase() {
   if ( !recent_files.empty() )
     {
       QMenu * rmenu = new QMenu("Recently opened files...");
-      rmenu->setIcon(QIcon(QString::fromUtf8(":/new/prefix1/icons/open.png")));
+      rmenu->setIcon(QIcon(QString::fromUtf8(":/common/icons/open.png")));
       menuFile->insertMenu(actionOpen_Image_With_Time,rmenu);
       for (std::list<std::string>::iterator i = recent_files.begin();i!=recent_files.end();i++)
         {
-          QAction* current=new QAction(QIcon(QString::fromUtf8(":/new/prefix1/icons/open.png")),
+          QAction* current=new QAction(QIcon(QString::fromUtf8(":/common/icons/open.png")),
                                        (*i).c_str(),this);
           rmenu->addAction(current);
           connect(current,SIGNAL(triggered()),this,SLOT(OpenRecentImage()));
@@ -375,7 +392,7 @@ void vvMainWindow::AddContour(int image_index, vvMesh::Pointer contour, bool pro
   cButton->setItem(item);
   cButton->setColumn(COLUMN_CLOSE_IMAGE);
   cButton->setToolTip(tr("close image"));
-  cButton->setIcon(QIcon(QString::fromUtf8(":/new/prefix1/icons/exit.png")));
+  cButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/exit.png")));
   connect(cButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
           this,SLOT(CloseImage(QTreeWidgetItem*, int)));
 
@@ -383,7 +400,7 @@ void vvMainWindow::AddContour(int image_index, vvMesh::Pointer contour, bool pro
   rButton->setItem(item);
   rButton->setColumn(COLUMN_RELOAD_IMAGE);
   rButton->setToolTip(tr("reload image"));
-  rButton->setIcon(QIcon(QString::fromUtf8(":/new/prefix1/icons/rotateright.png")));
+  rButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/rotateright.png")));
   rButton->setEnabled(false);
   //Not implemented
   //connect(rButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
@@ -823,7 +840,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType fi
         cButton->setItem(item);
         cButton->setColumn(COLUMN_CLOSE_IMAGE);
         cButton->setToolTip(tr("close image"));
-        cButton->setIcon(QIcon(QString::fromUtf8(":/new/prefix1/icons/exit.png")));
+        cButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/exit.png")));
         connect(cButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
                 this,SLOT(CloseImage(QTreeWidgetItem*, int)));
 
@@ -831,7 +848,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType fi
         rButton->setItem(item);
         rButton->setColumn(COLUMN_RELOAD_IMAGE);
         rButton->setToolTip(tr("reload image"));
-        rButton->setIcon(QIcon(QString::fromUtf8(":/new/prefix1/icons/rotateright.png")));
+        rButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/rotateright.png")));
         connect(rButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
                 this,SLOT(ReloadImage(QTreeWidgetItem*, int)));
 
@@ -1615,7 +1632,7 @@ void vvMainWindow::SplitImage() {
               cButton->setItem(item);
               cButton->setColumn(COLUMN_CLOSE_IMAGE);
               cButton->setToolTip(tr("close image"));
-              cButton->setIcon(QIcon(QString::fromUtf8(":/new/prefix1/icons/exit.png")));
+              cButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/exit.png")));
               connect(cButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
                       this,SLOT(CloseImage(QTreeWidgetItem*, int)));
 
@@ -1623,7 +1640,7 @@ void vvMainWindow::SplitImage() {
               rButton->setItem(item);
               rButton->setColumn(COLUMN_RELOAD_IMAGE);
               rButton->setToolTip(tr("reload image"));
-              rButton->setIcon(QIcon(QString::fromUtf8(":/new/prefix1/icons/rotateright.png")));
+              rButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/rotateright.png")));
               rButton->setEnabled(false);
               connect(rButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
                       this,SLOT(ReloadImage(QTreeWidgetItem*, int)));
@@ -1878,7 +1895,7 @@ void vvMainWindow::AddOverlayImage(int index, QString file) {
       cButton->setItem(item);
       cButton->setColumn(COLUMN_CLOSE_IMAGE);
       cButton->setToolTip(tr("close image"));
-      cButton->setIcon(QIcon(QString::fromUtf8(":/new/prefix1/icons/exit.png")));
+      cButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/exit.png")));
       connect(cButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
               this,SLOT(CloseImage(QTreeWidgetItem*, int)));
 
@@ -1886,7 +1903,7 @@ void vvMainWindow::AddOverlayImage(int index, QString file) {
       rButton->setItem(item);
       rButton->setColumn(COLUMN_RELOAD_IMAGE);
       rButton->setToolTip(tr("reload image"));
-      rButton->setIcon(QIcon(QString::fromUtf8(":/new/prefix1/icons/rotateright.png")));
+      rButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/rotateright.png")));
       connect(rButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
               this,SLOT(ReloadImage(QTreeWidgetItem*, int)));
 
@@ -1968,7 +1985,7 @@ void vvMainWindow::AddFusionImage()
               cButton->setItem(item);
               cButton->setColumn(COLUMN_CLOSE_IMAGE);
               cButton->setToolTip(tr("close image"));
-              cButton->setIcon(QIcon(QString::fromUtf8(":/new/prefix1/icons/exit.png")));
+              cButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/exit.png")));
               connect(cButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
                       this,SLOT(CloseImage(QTreeWidgetItem*, int)));
 
@@ -1976,7 +1993,7 @@ void vvMainWindow::AddFusionImage()
               rButton->setItem(item);
               rButton->setColumn(COLUMN_RELOAD_IMAGE);
               rButton->setToolTip(tr("reload image"));
-              rButton->setIcon(QIcon(QString::fromUtf8(":/new/prefix1/icons/rotateright.png")));
+              rButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/rotateright.png")));
               connect(rButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
                       this,SLOT(ReloadImage(QTreeWidgetItem*, int)));
 
@@ -2053,7 +2070,7 @@ void vvMainWindow::AddFieldEntry(QString filename,int index,bool from_disk)
   cButton->setItem(item);
   cButton->setColumn(COLUMN_CLOSE_IMAGE);
   cButton->setToolTip(tr("close vector field"));
-  cButton->setIcon(QIcon(QString::fromUtf8(":/new/prefix1/icons/exit.png")));
+  cButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/exit.png")));
   connect(cButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
           this,SLOT(CloseImage(QTreeWidgetItem*, int)));
 
@@ -2062,7 +2079,7 @@ void vvMainWindow::AddFieldEntry(QString filename,int index,bool from_disk)
   rButton->setColumn(COLUMN_RELOAD_IMAGE);
   rButton->setToolTip(tr("reload vector field"));
   rButton->setEnabled(from_disk);
-  rButton->setIcon(QIcon(QString::fromUtf8(":/new/prefix1/icons/rotateright.png")));
+  rButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/rotateright.png")));
   connect(rButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
           this,SLOT(ReloadImage(QTreeWidgetItem*, int)));
 
@@ -2589,7 +2606,7 @@ void vvMainWindow::PlayPause() {
   if (playMode)
     {
       playMode = 0;
-      playButton->setIcon(QIcon(QString::fromUtf8(":/new/prefix1/icons/player_play.png")));
+      playButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/player_play.png")));
       ImageInfoChanged();
       return;
     }
@@ -2606,7 +2623,7 @@ void vvMainWindow::PlayPause() {
       if (has_temporal)
         {
           playMode = 1;
-          playButton->setIcon(QIcon(QString::fromUtf8(":/new/prefix1/icons/player_pause.png")));
+          playButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/player_pause.png")));
           QTimer::singleShot(1000/mFrameRate, this, SLOT(PlayNext()));
         }
     }
@@ -2706,14 +2723,14 @@ void vvMainWindow::AddImage(vvSlicerManager * slicer_manager) {
   QTreePushButton* cButton = new QTreePushButton;
   cButton->setItem(item);
   cButton->setColumn(COLUMN_CLOSE_IMAGE);
-  cButton->setIcon(QIcon(QString::fromUtf8(":/new/prefix1/icons/exit.png")));
+  cButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/exit.png")));
   connect(cButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
           this,SLOT(CloseImage(QTreeWidgetItem*, int)));
 
   QTreePushButton* rButton = new QTreePushButton;
   rButton->setItem(item);
   rButton->setColumn(COLUMN_RELOAD_IMAGE);
-  rButton->setIcon(QIcon(QString::fromUtf8(":/new/prefix1/icons/rotateright.png")));
+  rButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/rotateright.png")));
   rButton->setEnabled(0);
   connect(rButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
           this,SLOT(ReloadImage(QTreeWidgetItem*, int)));

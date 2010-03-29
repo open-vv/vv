@@ -15,6 +15,7 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
 #include "vvToolBinarize.h"
 #include "vvSlicerManager.h"
 #include "vvSlicer.h"
@@ -37,7 +38,7 @@ ADD_TOOL(vvToolBinarize);
 void vvToolBinarize::Initialize() {
   SetToolName("Binarize");
   SetToolMenuName("Binarize");
-  SetToolIconFilename(":/new/prefix1/icons/binarize.png");
+  SetToolIconFilename(":/common/icons/binarize.png");
   SetToolTip("Image interactive binarization with thresholds.");
 }
 //------------------------------------------------------------------------------

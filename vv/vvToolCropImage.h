@@ -56,7 +56,7 @@ public slots:
   static void Initialize() {
     SetToolName("Crop");
     SetToolMenuName("Crop");
-    SetToolIconFilename(":/new/prefix1/icons/crop.png");
+    SetToolIconFilename(":/common/icons/crop.png");
     SetToolTip("Crop image.");
   }
 

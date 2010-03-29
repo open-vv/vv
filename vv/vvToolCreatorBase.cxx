@@ -15,6 +15,7 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
 #include "vvToolCreatorBase.h"
 #include "vvToolManager.h"
 #include <QAction>
@@ -22,8 +23,16 @@
 
 //------------------------------------------------------------------------------
 vvToolCreatorBase::vvToolCreatorBase(QString name): mExperimental(false) { 
+  mUseContextMenu = false;
   mToolName = name;
   vvToolManager::GetInstance()->AddTool(this); 
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvToolCreatorBase::MenuToolSlot() { 
+  mSender = QObject::sender(); 
+  MenuSpecificToolSlot(); 
 }
 //------------------------------------------------------------------------------
 
@@ -31,6 +40,10 @@ vvToolCreatorBase::vvToolCreatorBase(QString name): mExperimental(false) {
 //------------------------------------------------------------------------------
 void vvToolCreatorBase::InsertToolInMenu(vvMainWindowBase * m) { 
   mMainWindow = m; 
+  if (mUseContextMenu) {
+    InsertToolInContextMenu();
+    return; 
+  }
   // Create main action
   if (mToolIconFilename == "noicon") 
     mAction = new QAction(QString("&").append(mToolMenuName), this);
@@ -47,3 +60,23 @@ void vvToolCreatorBase::InsertToolInMenu(vvMainWindowBase * m) {
 } 
 //------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
+void vvToolCreatorBase::InsertToolInContextMenu() { 
+  mMainWindow->GetContextMenu()->addMenu(mToolMenu);
+  for(unsigned int i=0; i<mListOfActions.size(); i++) {
+    connect(mListOfActions[i], SIGNAL(triggered()), this, SLOT(MenuToolSlot()));
+  }
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolCreatorBase::addMenuToContextMenu(QMenu * m) {
+  mToolMenu = m;
+  for(int i=0; i<m->actions().length(); i++) {
+    mListOfActions.push_back(m->actions()[i]);
+  }
+  mUseContextMenu = true;
+}
+//------------------------------------------------------------------------------

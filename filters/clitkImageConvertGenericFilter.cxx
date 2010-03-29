@@ -14,19 +14,9 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-======================================================================-====*/
+  ======================================================================-====*/
 #ifndef CLITKIMAGECONVERTGENERICFILTER_CXX
 #define CLITKIMAGECONVERTGENERICFILTER_CXX
-/**
- -------------------------------------------------
- * @file   clitkImageConvertGenericFilter.cxx
- * @author David Sarrut <david.sarrut@creatis.insa-lyon.fr>
- * @date   05 May 2008 10:57:19
- * 
- * @brief  
- * 
- * 
- -------------------------------------------------*/
 
 #include "clitkImageConvertGenericFilter.h"
 
@@ -34,6 +24,9 @@
 clitk::ImageConvertGenericFilter::ImageConvertGenericFilter():
   clitk::ImageToImageGenericFilter<Self>("ImageConvert") {
   mOutputPixelTypeName = "NotSpecified";
+  mWarningOccur = false;
+  mWarning = "";
+  mDisplayWarning = true;
   InitializeImageType<2>();
   InitializeImageType<3>();  
   InitializeImageType<4>();  
@@ -45,6 +38,7 @@ clitk::ImageConvertGenericFilter::ImageConvertGenericFilter():
 template<unsigned int Dim>
 void clitk::ImageConvertGenericFilter::InitializeImageType() {      
   ADD_IMAGE_TYPE(Dim, char);
+  ADD_IMAGE_TYPE(Dim, unsigned char);
   ADD_IMAGE_TYPE(Dim, short);
   ADD_IMAGE_TYPE(Dim, unsigned short);
   ADD_IMAGE_TYPE(Dim, int);
@@ -84,10 +78,10 @@ void clitk::ImageConvertGenericFilter::UpdateWithInputImageType() {
     this->SetNextOutput<InputImageType>(input);
   }
   else {
-#define TRY_TYPE(TYPE) \
+#define TRY_TYPE(TYPE)							\
     if (IsSameType<TYPE>(mOutputPixelTypeName)) { UpdateWithOutputType<InputImageType, TYPE>(); return; }
     TRY_TYPE(char);
-    // TRY_TYPE(signed char);
+    //    TRY_TYPE(signed char);
     TRY_TYPE(uchar);
     TRY_TYPE(short);
     TRY_TYPE(ushort);
@@ -114,29 +108,39 @@ void clitk::ImageConvertGenericFilter::UpdateWithOutputType() {
   typedef typename InputImageType::PixelType PixelType;
 
   // Warning
+  std::ostringstream osstream;
   if (std::numeric_limits<PixelType>::is_signed) {
     if (!std::numeric_limits<OutputPixelType>::is_signed) {
-      std::cerr << "Warning, input type is signed (" << mPixelTypeName << ") while output type is not (" 
-		<< mOutputPixelTypeName << "), use at your own responsability." << std::endl;
+      osstream << "Warning, input type is signed (" << mPixelTypeName << ") while output type is not (" 
+	       << mOutputPixelTypeName << "), use at your own responsability." << std::endl;
+      mWarningOccur = true;      
     }
   }
   if (!std::numeric_limits<PixelType>::is_integer) {
     if (std::numeric_limits<OutputPixelType>::is_integer) {
-      std::cerr << "Warning, input type is not integer (" << mPixelTypeName << ") while output type is (" 
-		<< mOutputPixelTypeName << "), use at your own responsability." << std::endl;
+      osstream << "Warning, input type is not integer (" << mPixelTypeName << ") while output type is (" 
+	       << mOutputPixelTypeName << "), use at your own responsability." << std::endl;
+      mWarningOccur = true;
     }
   }
   //  DD(std::numeric_limits<PixelType>::digits10);
   // DD(std::numeric_limits<OutputPixelType>::digits10);
   if (!std::numeric_limits<PixelType>::is_integer) {
     if (std::numeric_limits<OutputPixelType>::is_integer) {
-      std::cerr << "Warning, input type is not integer (" << mPixelTypeName << ") while output type is (" 
-		<< mOutputPixelTypeName << "), use at your own responsability." << std::endl;
+      osstream << "Warning, input type is not integer (" << mPixelTypeName << ") while output type is (" 
+	       << mOutputPixelTypeName << "), use at your own responsability." << std::endl;
+      mWarningOccur = true;
     }
   }
   if (std::numeric_limits<PixelType>::digits10 > std::numeric_limits<OutputPixelType>::digits10) {
-    std::cerr << "Warning, possible loss of precision : input type is (" << mPixelTypeName << ") while output type is (" 
-		<< mOutputPixelTypeName << "), use at your own responsability." << std::endl;
+    osstream << "Warning, possible loss of precision : input type is (" << mPixelTypeName << ") while output type is (" 
+	     << mOutputPixelTypeName << "), use at your own responsability." << std::endl;
+    mWarningOccur = true;
+  }
+
+  mWarning = osstream.str();
+  if (mDisplayWarning) {
+    std::cerr << mWarning;
   }
 
   // Cast

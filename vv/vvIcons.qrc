@@ -1,5 +1,11 @@
 <RCC>
-  <qresource prefix="/new/prefix1">
+  <qresource prefix="common" >
+    <file>icons/arithm.png</file>
+    <file>icons/green-arrow.png</file>
+    <file>icons/2b.png</file>
+    <file>icons/4b.png</file>
+    <file>icons/8b.png</file>
+    <file>icons/1b.png</file>
     <file>icons/binarize.png</file>
     <file>icons/crop.png</file>
     <file>icons/splashscreen2.png</file>

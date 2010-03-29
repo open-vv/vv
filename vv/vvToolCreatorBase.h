@@ -32,9 +32,11 @@ class vvToolCreatorBase: public QObject {
   vvToolCreatorBase(QString name);
   virtual ~vvToolCreatorBase() {;}  
   virtual void InsertToolInMenu(vvMainWindowBase * m);
+  virtual void InsertToolInContextMenu();
   template<class ToolType> void CreateTool();
   virtual void MenuSpecificToolSlot() = 0;
   vvMainWindowBase * GetMainWindow() const { return mMainWindow; }
+  void addMenuToContextMenu(QMenu * m);
 
   QString mToolName;
   QString mToolMenuName;
@@ -42,13 +44,17 @@ class vvToolCreatorBase: public QObject {
   QString mToolTip;
   QAction * mAction;
   bool mExperimental;
+  bool mUseContextMenu;
+  QMenu * mToolMenu;
+  std::vector<QAction*> mListOfActions;
 
 public slots:
-  virtual void MenuToolSlot() { MenuSpecificToolSlot(); }
+  virtual void MenuToolSlot();
 
 protected:
   vvMainWindowBase * mMainWindow;
   std::vector<vvToolBaseBase*> mListOfTool;
+  QObject * mSender;
 };
 //------------------------------------------------------------------------------
 

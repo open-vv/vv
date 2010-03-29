@@ -111,6 +111,7 @@ SET(vv_SRCS
   vvToolInputSelectorWidget.cxx
   vvImageContour.cxx
   vvToolImageArithm.cxx
+  vvToolConvert.cxx
   )
 
 QT4_WRAP_CPP(vv_SRCS 
@@ -141,6 +142,7 @@ QT4_WRAP_CPP(vv_SRCS
   vvToolWidgetBase.h
   vvToolCropImage.h
   vvToolImageArithm.h
+  vvToolConvert.h
   )
 
 QT4_WRAP_UI(vv_UI_CXX 

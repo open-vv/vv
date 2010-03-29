@@ -18,7 +18,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../vvIcons.qrc">
-    <normaloff>:/new/prefix1/icons/ducky.png</normaloff>:/new/prefix1/icons/ducky.png</iconset>
+    <normaloff>:/common/icons/ducky.png</normaloff>:/common/icons/ducky.png</iconset>
   </property>
   <layout class="QGridLayout">
    <item row="0" column="0">

@@ -15,6 +15,8 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
+//------------------------------------------------------------------------------
 template<class ToolType>
 void vvToolCreator<ToolType>::InsertToolInMenu(vvMainWindowBase * m) { 
   mMainWindow = m;

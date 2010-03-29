@@ -15,8 +15,9 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
-#ifndef vvSlicerManager_h
-#define vvSlicerManager_h
+#ifndef VVSLICERMANAGER_H
+#define VVSLICERMANAGER_H
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -113,9 +114,7 @@ public:
         return mId;
     }
 
-    void SetFilename(std::string f) {
-        mFileName = f;
-    }
+    void SetFilename(std::string f);
 
     void SetTSlice(int slice);
     void SetNextTSlice(int originating_slicer);

@@ -72,7 +72,7 @@ p, li { white-space: pre-wrap; }
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="../vvIcons.qrc">:/new/prefix1/icons/cursor-uparrow.png</pixmap>
+         <pixmap resource="../vvIcons.qrc">:/common/icons/cursor-uparrow.png</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -195,7 +195,7 @@ p, li { white-space: pre-wrap; }
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="../vvIcons.qrc">:/new/prefix1/icons/GPSup.png</pixmap>
+         <pixmap resource="../vvIcons.qrc">:/common/icons/GPSup.png</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -304,7 +304,7 @@ p, li { white-space: pre-wrap; }
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="../vvIcons.qrc">:/new/prefix1/icons/fusion.png</pixmap>
+         <pixmap resource="../vvIcons.qrc">:/common/icons/fusion.png</pixmap>
         </property>
        </widget>
       </item>

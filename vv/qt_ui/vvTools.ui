@@ -237,7 +237,7 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="icon">
         <iconset resource="../vvIcons.qrc">
-         <normaloff>:/new/prefix1/icons/standardbutton-apply-16.png</normaloff>:/new/prefix1/icons/standardbutton-apply-16.png</iconset>
+         <normaloff>:/common/icons/standardbutton-apply-16.png</normaloff>:/common/icons/standardbutton-apply-16.png</iconset>
        </property>
       </widget>
       <widget class="QLabel" name="label_11">

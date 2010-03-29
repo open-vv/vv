@@ -52,6 +52,9 @@ namespace clitk {
     
     // Members functions
     void SetOutputPixelType(std::string p) { mOutputPixelTypeName = p; }
+    bool IsWarningOccur() { return mWarningOccur; }
+    std::string & GetWarning() { return mWarning; }
+    void EnableDisplayWarning(bool b) { mDisplayWarning = b; }
 
     //--------------------------------------------------------------------
     // Main function called each time the filter is updated
@@ -61,6 +64,9 @@ namespace clitk {
   protected:
     template<unsigned int Dim> void InitializeImageType();
     std::string mOutputPixelTypeName;
+    std::string mWarning;
+    bool mWarningOccur;
+    bool mDisplayWarning;
 
     template<class InputImageType, class OutputPixelType> void UpdateWithOutputType();
 
