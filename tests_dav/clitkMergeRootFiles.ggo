@@ -1,0 +1,12 @@
+# --------------------------------------------
+# file clitkMergeRootFiles.ggo
+package "clitkMergeRootFiles"
+version "1.0"
+purpose "Merge several ROOT files"
+# --------------------------------------------
+
+option "config"                -  "Config file"               string no
+option "input"                 i  "Input ROOT filenames"      string multiple yes
+option "output"                o  "Output ROOT filename"      string yes
+
+
