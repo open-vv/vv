@@ -31,7 +31,7 @@ template<typename T>
 int IsNormal(const T val) {
 #if defined(_MSC_VER)
   return _finite(val);
-#elif defined(unix)
+#else
   return std::isnormal(val);
 #endif
 }
