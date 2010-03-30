@@ -74,7 +74,7 @@ void vvToolCreatorBase::InsertToolInContextMenu() {
 //------------------------------------------------------------------------------
 void vvToolCreatorBase::addMenuToContextMenu(QMenu * m) {
   mToolMenu = m;
-  for(int i=0; i<m->actions().length(); i++) {
+  for(int i=0; i<m->actions().size(); i++) {
     mListOfActions.push_back(m->actions()[i]);
   }
   mUseContextMenu = true;
