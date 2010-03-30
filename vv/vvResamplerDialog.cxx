@@ -15,8 +15,10 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
-#ifndef _vvResamplerDialog_CXX
-#define _vvResamplerDialog_CXX
+
+#ifndef _VVRESAMPLERDIALOG_CXX
+#define _VVRESAMPLERDIALOG_CXX
+
 #include "vvResamplerDialog.h"
 #include "clitkImageResampleGenericFilter.h"
 #include "vvSlicer.h"

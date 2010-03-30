@@ -755,6 +755,8 @@ void vvMainWindow::OpenRecentImage()
   mInputPathName = itksys::SystemTools::GetFilenamePath(images[0]).c_str();
   LoadImages(images,IMAGE);
 }
+//------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::OpenImageWithTime() {
@@ -773,6 +775,7 @@ void vvMainWindow::OpenImageWithTime() {
   LoadImages(vector, IMAGEWITHTIME);
 }
 //------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType filetype) {
@@ -809,11 +812,25 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType fi
 
     bool SetImageSucceed=false;
 
+    // Change filename if an image with the same already exist
+    //    DD(files[i]);
+    int number=0;
+    for(unsigned int l=0; l<mSlicerManagers.size(); l++) {
+      vvSlicerManager * v = mSlicerManagers[l];
+      //      DD(v->GetBaseFileName());
+      // DD(v->GetFileName());
+      if (v->GetBaseFileName() == 
+          vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(files[i]))) {
+        number = std::max(number, v->GetBaseFileNameNumber()+1);
+      }
+    }
+
+
     if (filetype == IMAGE || filetype == IMAGEWITHTIME)
-      SetImageSucceed = imageManager->SetImage(files[i],filetype);
+      SetImageSucceed = imageManager->SetImage(files[i],filetype, number);
     else
       {
-        SetImageSucceed = imageManager->SetImages(files,filetype);
+        SetImageSucceed = imageManager->SetImages(files,filetype, number);
       }
     if (SetImageSucceed == false)
       {

@@ -15,20 +15,11 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
 #ifndef CLITKCOMMON_H
 #define CLITKCOMMON_H
-/**
-   -------------------------------------------------------------------
-   * @file   clitkCommon.h
-   * @author David Sarrut <David.Sarrut@creatis.insa-lyon.fr>
-   * @date   17 May 2006 07:57:56
-
-   * @brief  
-
-   -------------------------------------------------------------------*/
 
 // clitk include
-
 #include "clitkConfiguration.h"
 #include "clitkPortability.h"
 
@@ -188,6 +179,9 @@ namespace clitk {
   // Open a File for reading/writing
   void openFileForReading(std::ifstream & is, const std::string & filename);
   void openFileForWriting(std::ofstream & os, const std::string & filename);
+
+  //--------------------------------------------------------------------
+  void readDoubleFromFile(const std::string & filename, std::vector<double> & list);
 
   //--------------------------------------------------------------------
   double cotan(double i);

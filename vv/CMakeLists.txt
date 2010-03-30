@@ -112,6 +112,7 @@ SET(vv_SRCS
   vvImageContour.cxx
   vvToolImageArithm.cxx
   vvToolConvert.cxx
+#  vvToolStructureSetManager.cxx
   )
 
 QT4_WRAP_CPP(vv_SRCS 
@@ -143,6 +144,7 @@ QT4_WRAP_CPP(vv_SRCS
   vvToolCropImage.h
   vvToolImageArithm.h
   vvToolConvert.h
+#  vvToolStructureSetManager.h
   )
 
 QT4_WRAP_UI(vv_UI_CXX 
@@ -169,6 +171,7 @@ QT4_WRAP_UI(vv_UI_CXX
   qt_ui/vvToolCropImage.ui
   qt_ui/vvToolBinarize.ui
   qt_ui/vvToolImageArithm.ui
+#  qt_ui/vvToolStructureSetManager.ui
   )
 
 SET(vvUI_RCCS vvIcons.qrc)

@@ -139,7 +139,7 @@ void vvSlicerManager::ToggleContourSuperposition()
 
 
 //----------------------------------------------------------------------------
-bool vvSlicerManager::SetImage(std::string filename,LoadedImageType type)
+bool vvSlicerManager::SetImage(std::string filename, LoadedImageType type, int n)
 {
   mFileName = filename;
   mType = type;
@@ -149,6 +149,12 @@ bool vvSlicerManager::SetImage(std::string filename,LoadedImageType type)
   filenames.push_back(filename);
   mReader->SetInputFilenames(filenames);
   mReader->Update(type);
+
+  mFileName = vtksys::SystemTools::GetFilenameName(mFileName);
+  mBaseFileName = vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(mFileName));
+  //  DD(mBaseFileName);
+  mBaseFileNameNumber = n;
+
   if (mReader->GetLastError().size() == 0)
     {
       mImage=mReader->GetOutput();
@@ -156,6 +162,7 @@ bool vvSlicerManager::SetImage(std::string filename,LoadedImageType type)
         {
 	  mSlicers[i]->SetFileName(vtksys::SystemTools::GetFilenameWithoutLastExtension(filename));
 	  mSlicers[i]->SetImage(mReader->GetOutput());
+          //          DD(mSlicers[i]->GetFileName());
         }
     }
   else
@@ -163,6 +170,10 @@ bool vvSlicerManager::SetImage(std::string filename,LoadedImageType type)
       mLastError = mReader->GetLastError();
       return false;
     }
+  if (n!=0) {
+    //    DD(mFileName);
+    mFileName.append("_"+clitk::toString(n));
+  }
   return true;
 }
 //----------------------------------------------------------------------------
@@ -181,7 +192,7 @@ void vvSlicerManager::SetImage(vvImage::Pointer image)
 
 
 //----------------------------------------------------------------------------
-bool vvSlicerManager::SetImages(std::vector<std::string> filenames,LoadedImageType type)
+bool vvSlicerManager::SetImages(std::vector<std::string> filenames,LoadedImageType type, int n)
 {
   mType = type;
   std::string fileWithoutExtension = vtksys::SystemTools::GetFilenameWithoutExtension(filenames[0]);
@@ -192,12 +203,16 @@ bool vvSlicerManager::SetImages(std::vector<std::string> filenames,LoadedImageTy
   else if (type == MERGEDWITHTIME)
     fileWithoutExtension += "_merged_wt";
 
+  mFileName = vtksys::SystemTools::GetFilenameName(mFileName);
   mFileName = fileWithoutExtension + vtksys::SystemTools::GetFilenameExtension(filenames[0]);
   if (mReader == NULL)
     mReader = new vvImageReader;
   mReader->SetInputFilenames(filenames);
   mReader->Update(type);
 
+  mBaseFileName = vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(mFileName));
+  //  DD(mBaseFileName);
+  mBaseFileNameNumber = n;
 
   if (mReader->GetLastError().size() == 0)
     {
@@ -213,7 +228,12 @@ bool vvSlicerManager::SetImages(std::vector<std::string> filenames,LoadedImageTy
       mLastError = mReader->GetLastError();
       return false;
     }
-  return true;
+  if (n!=0) {
+    //    DD(mFileName);
+    mFileName.append("_"+clitk::toString(n));
+    //    DD(mFileName);
+  }
+ return true;
 }
 //----------------------------------------------------------------------------
 

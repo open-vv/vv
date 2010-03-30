@@ -18,6 +18,7 @@
 
 #ifndef VVTOOLBASE_H
 #define VVTOOLBASE_H
+
 #include "vvToolBaseBase.h"
 #include "vvToolCreator.h"
 

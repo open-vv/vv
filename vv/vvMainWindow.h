@@ -15,11 +15,12 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
-#ifndef vvMainWindow_h
-#define vvMainWindow_h
+
+#ifndef VVMAINWINDOW_H
+#define VVMAINWINDOW_H
+
 #include <iostream>
 #include <vector>
-
 #include "ui_vvMainWindow.h"
 #include "vvMainWindowBase.h"
 #include "vvToolManager.h"
@@ -154,7 +155,6 @@ private:
   vvDocumentation *documentation;
   vvDicomSeriesSelector *dicomSeriesSelector;
 
-  QString mInputPathName;
   bool viewMode;
   bool playMode;
 

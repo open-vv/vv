@@ -15,18 +15,9 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
 #ifndef CLITKCOMMON_CXX
 #define CLITKCOMMON_CXX
-/**
-   -------------------------------------------------
-   * @file   clitkCommon.cxx
-   * @author David Sarrut <david.sarrut@creatis.insa-lyon.fr>
-   * @date   17 May 2006 07:59:06
-   * 
-   * @brief  
-   * 
-   * 
-   -------------------------------------------------*/
 
 #include "clitkCommon.h"
 #include <fstream>
@@ -277,6 +268,22 @@ void clitk::enableStdCerr() {
   std::cerr.rdbuf(clitk_stdcerr_backup);
 }
 //--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void clitk::readDoubleFromFile(const std::string & filename, std::vector<double> & list) {
+  std::ifstream is;
+  clitk::openFileForReading(is, filename);
+  list.clear();
+  while (is) {
+    clitk::skipComment(is);
+    double d;
+    is >> d;
+    if (is) list.push_back(d);
+  }
+}
+//--------------------------------------------------------------------
+
 
 #endif /* end #define CLITKCOMMON_CXX */
 

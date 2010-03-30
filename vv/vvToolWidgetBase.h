@@ -15,11 +15,14 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
 #ifndef VVTOOLWIDGETBASE_H
 #define VVTOOLWIDGETBASE_H
+
 #include <QtDesigner/QDesignerExportWidget>
 #include "ui_vvToolWidgetBase.h"
 #include "clitkImageToImageGenericFilter.h"
+
 class vvMainWindowBase;
 
 //------------------------------------------------------------------------------
@@ -49,7 +52,7 @@ protected:
   void InitializeInputs();
   Ui::vvToolWidgetBase ui;
   clitk::ImageToImageGenericFilterBase * mFilter;
-  vvMainWindowBase * mMainWindowBase;
+  vvMainWindowBase * mMainWindow;
   std::vector<vvSlicerManager*> mSlicerManagersCompatible;
   vvSlicerManager * mCurrentSlicerManager;
   int mCurrentCompatibleIndex;

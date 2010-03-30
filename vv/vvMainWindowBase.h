@@ -18,6 +18,7 @@
 
 #ifndef VVMAINWINDOWBASE_H
 #define VVMAINWINDOWBASE_H
+
 #include "clitkCommon.h"
 #include "vvImage.h"
 #include <qmainwindow.h>
@@ -42,6 +43,7 @@ public:
   QMenu * GetExperimentalToolMenu() const { return mMenuExperimentalTools; }
   int GetSlicerManagerCurrentIndex() const { return mSlicerManagerCurrentIndex; }
   QWidget * GetMainWidget() { return mMainWidget; }
+  const QString & GetInputPathName() { return mInputPathName; }
 
 signals:
   void AnImageIsBeingClosed(vvSlicerManager *);
@@ -53,6 +55,8 @@ protected:
   QMenu * mMenuExperimentalTools;
   int mSlicerManagerCurrentIndex;
   QWidget* mMainWidget;
+  QString mInputPathName;
+
 };
 //------------------------------------------------------------------------------
 

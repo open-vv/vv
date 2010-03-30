@@ -76,7 +76,6 @@ void vvToolConvert::Initialize() {
   mListOfPixelTypeIcons.push_back(":/common/icons/2b.png");
   mListOfPixelTypeIcons.push_back(":/common/icons/4b.png");
   mListOfPixelTypeIcons.push_back(":/common/icons/4b.png");
-  mListOfPixelTypeIcons.push_back(":/common/icons/4b.png");
   mListOfPixelTypeIcons.push_back(":/common/icons/8b.png");
 
   for(unsigned int i=0; i<mListOfPixelTypeNames.size(); i++) {

@@ -15,6 +15,7 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
 #include "vvToolWidgetBase.h"
 #include "vvMainWindowBase.h"
 #include "vvSlicerManager.h"
@@ -29,7 +30,7 @@ vvToolWidgetBase::vvToolWidgetBase(vvMainWindowBase * parent, Qt::WindowFlags f)
   // parent is set at construction
   mIsInitialized = false;
   mFilter = 0;
-  mMainWindowBase = parent;
+  mMainWindow = parent;
   setModal(false);
   setAttribute(Qt::WA_DeleteOnClose);
   mCurrentSlicerManager = 0;
@@ -38,7 +39,7 @@ vvToolWidgetBase::vvToolWidgetBase(vvMainWindowBase * parent, Qt::WindowFlags f)
   setupUi(this);
 
   // Connect signals & slots  
-  connect(mMainWindowBase, SIGNAL(AnImageIsBeingClosed(vvSlicerManager*)), 
+  connect(mMainWindow, SIGNAL(AnImageIsBeingClosed(vvSlicerManager*)), 
           this, SLOT(AnImageIsBeingClosed(vvSlicerManager*)));
   connect(mToolInputSelectionWidget, SIGNAL(accepted()), this, SLOT(InputIsSelected()));
   connect(mToolInputSelectionWidget, SIGNAL(rejected()), this, SLOT(close()));
@@ -75,15 +76,15 @@ void vvToolWidgetBase::AddInputSelector(QString s, clitk::ImageToImageGenericFil
   mFilter = f;
   mSlicerManagersCompatible.clear();
   mToolInputSelectionWidget->setToolTip(QString("%1").arg(mFilter->GetAvailableImageTypes().c_str()));
-  for(unsigned int i=0; i<mMainWindowBase->GetSlicerManagers().size(); i++) {
+  for(unsigned int i=0; i<mMainWindow->GetSlicerManagers().size(); i++) {
     // DD(i);
-    vvImage * s = mMainWindowBase->GetSlicerManagers()[i]->GetImage();
+    vvImage * s = mMainWindow->GetSlicerManagers()[i]->GetImage();
     // DD(s->GetScalarTypeAsString());
     if (mFilter->CheckImageType(s->GetNumberOfDimensions(), 
 				s->GetNumberOfScalarComponents(), 
 				s->GetScalarTypeAsString())) {
-      mSlicerManagersCompatible.push_back(mMainWindowBase->GetSlicerManagers()[i]);
-      if ((int)i == mMainWindowBase->GetSlicerManagerCurrentIndex()) mCurrentCompatibleIndex = j;
+      mSlicerManagersCompatible.push_back(mMainWindow->GetSlicerManagers()[i]);
+      if ((int)i == mMainWindow->GetSlicerManagerCurrentIndex()) mCurrentCompatibleIndex = j;
       j++;
     }
   }
@@ -100,18 +101,18 @@ void vvToolWidgetBase::AddInputSelector(QString s, clitk::ImageToImageGenericFil
 //------------------------------------------------------------------------------
 void vvToolWidgetBase::AddInputSelector(QString s, bool allowSkip) {
   // DD("AddInput without filter");
-  //   DD(mMainWindowBase->GetSlicerManagers().size());
+  //   DD(mMainWindow->GetSlicerManagers().size());
   mSlicerManagersCompatible.clear();
-  for(unsigned int i=0; i<mMainWindowBase->GetSlicerManagers().size(); i++) {
-    mSlicerManagersCompatible.push_back(mMainWindowBase->GetSlicerManagers()[i]);
+  for(unsigned int i=0; i<mMainWindow->GetSlicerManagers().size(); i++) {
+    mSlicerManagersCompatible.push_back(mMainWindow->GetSlicerManagers()[i]);
   }
-  if (mMainWindowBase->GetSlicerManagers().size() == 0) {
+  if (mMainWindow->GetSlicerManagers().size() == 0) {
     QMessageBox::information(this, "No image","Sorry, could not perform operation. No opened image type.");
     close();
     return;
   }
-  mToolInputSelectionWidget->AddInputSelector(s, mMainWindowBase->GetSlicerManagers(),
-					      mMainWindowBase->GetSlicerManagerCurrentIndex(), allowSkip);
+  mToolInputSelectionWidget->AddInputSelector(s, mMainWindow->GetSlicerManagers(),
+					      mMainWindow->GetSlicerManagerCurrentIndex(), allowSkip);
 }
 //------------------------------------------------------------------------------
 
@@ -152,20 +153,20 @@ void vvToolWidgetBase::InitializeInputs() {
     if (mFilter) {
     int j=0;
     mToolInputSelectionWidget->setToolTip(QString("%1").arg(mFilter->GetAvailableImageTypes().c_str()));
-    for(unsigned int i=0; i<mMainWindowBase->GetSlicerManagers().size(); i++) {
-    vvImage * s = mMainWindowBase->GetSlicerManagers()[i]->GetImage();
+    for(unsigned int i=0; i<mMainWindow->GetSlicerManagers().size(); i++) {
+    vvImage * s = mMainWindow->GetSlicerManagers()[i]->GetImage();
     if (mFilter->CheckImageType(s->GetNumberOfDimensions(), 
     s->GetNumberOfScalarComponents(), 
     s->GetScalarTypeAsString())) {
-    mSlicerManagersCompatible.push_back(mMainWindowBase->GetSlicerManagers()[i]);
-    if ((int)i == mMainWindowBase->GetSlicerManagerCurrentIndex()) mCurrentCompatibleIndex = j;
+    mSlicerManagersCompatible.push_back(mMainWindow->GetSlicerManagers()[i]);
+    if ((int)i == mMainWindow->GetSlicerManagerCurrentIndex()) mCurrentCompatibleIndex = j;
     j++;
     }
     }
     }
     else {
-    mSlicerManagersCompatible = mMainWindowBase->GetSlicerManagers();
-    mCurrentCompatibleIndex = mMainWindowBase->GetSlicerManagerCurrentIndex();
+    mSlicerManagersCompatible = mMainWindow->GetSlicerManagers();
+    mCurrentCompatibleIndex = mMainWindow->GetSlicerManagerCurrentIndex();
     }
     mToolInputSelectionWidget->Initialize(mSlicerManagersCompatible, 
     mCurrentCompatibleIndex);
