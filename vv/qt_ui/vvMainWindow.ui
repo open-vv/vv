@@ -810,7 +810,6 @@
      <string>Tools</string>
     </property>
     <addaction name="actionResampler"/>
-    <addaction name="actionWarp_image_with_vector_field"/>
     <addaction name="actionMaximum_Intensity_Projection"/>
     <addaction name="actionCompute_mid_position_image"/>
    </widget>
@@ -821,6 +820,7 @@
     <addaction name="actionSurface_Viewer"/>
     <addaction name="actionDeformable_Registration"/>
     <addaction name="actionSegmentation"/>
+    <addaction name="actionWarp_image_with_vector_field"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuOverlay"/>
