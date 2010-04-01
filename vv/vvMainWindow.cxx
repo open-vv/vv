@@ -341,7 +341,8 @@ void vvMainWindow::ComputeMIP()
   vvSlicerManager* selected_slicer = mSlicerManagers[GetSlicerIndexFromItem(DataTree->selectedItems()[0])];
   QFileInfo info(selected_slicer->GetFileName().c_str());
   mip.Compute(selected_slicer);
-  AddImage(mip.GetOutput(),info.path().toStdString()+"/"+info.completeBaseName().toStdString()+"_mip.mhd");
+  if (!mip.error)
+      AddImage(mip.GetOutput(),info.path().toStdString()+"/"+info.completeBaseName().toStdString()+"_mip.mhd");
 }
 //------------------------------------------------------------------------------
 

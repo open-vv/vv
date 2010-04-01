@@ -24,6 +24,7 @@
 #include "vvToITK.h"
 #include "vvFromITK.h"
 #include "vvMaximumIntensityProjection.h"
+#include <QMessageBox>
 
 void vvMaximumIntensityProjection::Compute(vvSlicerManager * slicer_manager)
 {
@@ -32,10 +33,15 @@ if (clitk::IsSameType<TYPE>(image->GetScalarTypeAsString())) { this->Update_With
     std::string list = clitk::CreateListOfTypes<short>();
     vvImage::Pointer image=slicer_manager->GetSlicer(0)->GetImage();
     TRY_TYPE(float);
+    TRY_TYPE(double);
+    TRY_TYPE(int);
+    TRY_TYPE(unsigned int);
     TRY_TYPE(short);
-    std::cerr << "Error, I don't know the type '" << image->GetScalarTypeAsString() << "' for the input image. "
-        << std::endl << "Known types are " << list << std::endl;
-    exit(0);
+    TRY_TYPE(unsigned short);
+    TRY_TYPE(char);
+    TRY_TYPE(unsigned char);
+    QMessageBox::warning(0,"Unsupported image type",QString("Error, I don't know the type")+QString(image->GetScalarTypeAsString().c_str()) +QString("' for the input image.\nKnown types are ") + QString(list.c_str()));
+    error=true;
 #undef TRY_TYPE
 }
 
@@ -51,7 +57,8 @@ void vvMaximumIntensityProjection::Update_WithPixelType(vvImage::Pointer image)
             Update_WithDimAndPixelType<PixelType,4>(image);
             break;;
         default:
-            DD("Error: dimension not handled.");
+            QMessageBox::warning(0,"Unsupported image dimension",QString("Unsupported image dimension. Supported dimensions are 3 and 4"));
+            error=true;
     }
 }
 

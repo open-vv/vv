@@ -27,6 +27,7 @@ public:
     ///Computes the MIP image on the given vvImage
     void Compute(vvSlicerManager*);
     vvImage::Pointer GetOutput() {return mOutputImage;};
+    bool error;
 
 protected:
     template<class PixelType,int Dim> void Update_WithDimAndPixelType(vvImage::Pointer);
