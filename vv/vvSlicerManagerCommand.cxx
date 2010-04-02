@@ -97,16 +97,14 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
             if (event == vtkCommand::KeyPressEvent)
             {
                 std::string KeyPress = isi->GetInteractor()->GetKeySym();
-              if (KeyPress == "a")
-              {
-                  this->SM->PrevImage(VisibleInWindow);
-                  return;
-              }
-              if (KeyPress == "q")
-              {
-                  this->SM->NextImage(VisibleInWindow);
-                  return;
-              }
+                if (KeyPress == "Tab")
+                {
+                    if(isi->GetInteractor()->GetShiftKey())
+                        this->SM->PrevImage(VisibleInWindow);
+                    else
+                        this->SM->NextImage(VisibleInWindow);
+                    return;
+                }
                 if (KeyPress == "f" || KeyPress == "F")
                 {
                     FlyToPosition(isi->GetInteractor(),this->SM->GetSlicer(VisibleInWindow));
