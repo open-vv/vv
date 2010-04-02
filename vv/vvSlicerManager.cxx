@@ -635,6 +635,8 @@ void vvSlicerManager::UpdateViews(int current,int slicer)
 		    mSlicers[i]->SetSlice((int)floor(x));
 		  break;
                 }
+              // DD("UpdateViews::");
+              // DD(i);
 	      UpdateSlice(i);
 	      UpdateTSlice(i);
             }
@@ -932,6 +934,9 @@ void vvSlicerManager::UpdateWindowLevel()
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateSlice(int slicer)
 {
+  // DD("vvSlicerManager::UpdateSlice emit UpdateSlice");
+  // DD(slicer);
+  // DD(mSlicers[slicer]->GetSlice());
   emit UpdateSlice(slicer, mSlicers[slicer]->GetSlice());
 }
 //----------------------------------------------------------------------------

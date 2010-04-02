@@ -32,5 +32,13 @@ SET(clitkCommon_SRC
 
 ADD_LIBRARY(clitkCommon STATIC ${clitkCommon_SRC})
 
+
+ADD_LIBRARY(clitkDicomRTStruct STATIC
+  clitkDicomRT_Contour.cxx
+  clitkDicomRT_ROI.cxx
+  clitkDicomRT_StructureSet.cxx
+  clitkDicomRT_ROI_ConvertToImageFilter.cxx
+)
+
 #ADD_LIBRARY(clitkCommonShared SHARED ${clitkCommon_SRC})
 #SET_TARGET_PROPERTIES(clitkCommonShared PROPERTIES COMPILE_FLAGS -fPIC)

@@ -2378,7 +2378,8 @@ void vvMainWindow::NOVerticalSliderChanged() {
       if (DataTree->topLevelItem(i)->data(COLUMN_UL_VIEW,Qt::CheckStateRole).toInt() > 1)
         {
           mSlicerManagers[i]->GetSlicer(0)->SetSlice(value);
-          mSlicerManagers[i]->UpdateSlice(0); // <-- DS add this. Not too much update ? 
+          // mSlicerManagers[i]->UpdateSlice(0);
+          // <-- DS add this. Not too much update ? YES.
           break;
         }
     }

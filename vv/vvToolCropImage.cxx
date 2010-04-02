@@ -56,7 +56,7 @@ vvToolCropImage::~vvToolCropImage() {
 
 //------------------------------------------------------------------------------
 bool vvToolCropImage::close() { 
-  for(int i=0; i<6; i++) mReducedExtent[i] = mInitialExtent[i];
+  for(int i=0; i<mExtentSize; i++) mReducedExtent[i] = mInitialExtent[i];
   UpdateExtent();
   return vvToolWidgetBase::close(); 
 }
@@ -65,7 +65,7 @@ bool vvToolCropImage::close() {
 
 //------------------------------------------------------------------------------
 void vvToolCropImage::reject() { 
-  for(int i=0; i<6; i++) mReducedExtent[i] = mInitialExtent[i];
+  for(int i=0; i<mExtentSize; i++) mReducedExtent[i] = mInitialExtent[i];
   UpdateExtent();
   return vvToolWidgetBase::reject(); 
 }
@@ -181,7 +181,7 @@ void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer) {
   mReducedExtent = new int[mExtentSize];
   mInitialExtent = new int[mExtentSize];
   mReducedExtent = mCurrentSlicerManager->GetImage()->GetFirstVTKImageData()->GetWholeExtent();
-  for(int i=0; i<6; i++) mInitialExtent[i] = mReducedExtent[i];
+  for(int i=0; i<mExtentSize; i++) mInitialExtent[i] = mReducedExtent[i];
   for(int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
     //DD(i);
     //DD(mReducedExtent[i]);

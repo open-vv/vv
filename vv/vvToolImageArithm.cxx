@@ -57,7 +57,7 @@ void vvToolImageArithm::Initialize() {
   SetToolMenuName("ImageArithm");
   SetToolIconFilename(":/common/icons/arithm.png");
   SetToolTip("Perform simple arithmetic operations on one or two images.");
-  SetToolExperimental(true);
+  SetToolExperimental(false);
 }
 //------------------------------------------------------------------------------
 
