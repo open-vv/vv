@@ -19,6 +19,7 @@
 #ifndef VVSLICERMANAGER_H
 #define VVSLICERMANAGER_H
 
+// std
 #include <iostream>
 #include <vector>
 #include <string>
@@ -182,6 +183,9 @@ class vvSlicerManager : public QObject {
 
   vvLandmarks *GetLandmarks();
   void AddLandmark(float x,float y,float z,float t);
+  
+  void NextImage(int slicer);
+  void PrevImage(int slicer);
 
 signals :
   void currentImageChanged(std::string id);
@@ -196,6 +200,7 @@ signals :
   void WindowLevelChanged(double window, double level, int preset, int colormap);
   void UpdateLinkManager(std::string, int slicer, double x, double y, double z, int temps);
   void LandmarkAdded();
+  void ChangeImageWithIndexOffset(vvSlicerManager *sm, int slicer, int offset);
 
 protected:
   std::vector<vvSlicer*> mSlicers;

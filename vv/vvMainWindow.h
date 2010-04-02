@@ -46,7 +46,6 @@ class vvMainWindow: public vvMainWindowBase,
   ~vvMainWindow();
   void LoadImages(std::vector<std::string> filenames, LoadedImageType type);
   void AddImage(vvImage::Pointer image,std::string filename);
-  void AddImage(vvSlicerManager * m);
   void AddField(QString file,int index);
   void AddOverlayImage(int index, QString filename);
   ///Adds a mesh to a SlicerManager, with optional warping by vector field
@@ -105,6 +104,7 @@ public slots:
   void UpdateLinkManager(std::string id, int slicer, double x, double y, double z, int temps);
   void AddLink(QString image1,QString image2);
   void RemoveLink(QString image1,QString image2);
+  void ChangeImageWithIndexOffset(vvSlicerManager *sm, int slicer, int offset);
 
   ///Generic method called when any one of the horizontal sliders is moved
   void HorizontalSliderMoved(int value,int column, int slicer_index);
@@ -172,6 +172,7 @@ private:
   QString GetVectorDoubleAsString(std::vector<double> vectorDouble);
   QString GetVectorIntAsString(std::vector<int> vectorInt);
   int GetSlicerIndexFromItem(QTreeWidgetItem* item);
+  QTreeWidgetItem* GetItemFromSlicerManager(vvSlicerManager* sm);
   void SaveScreenshot(vtkImageData* image);
 
   QMenu contextMenu;

@@ -18,18 +18,18 @@
 #include "vvSlicerManagerCommand.h"
 #include "vvSlicerManager.h"
 
-#include "vtkTextProperty.h"
-#include "vtkRenderer.h"
-#include "vtkImageActor.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkPropPicker.h"
-#include "vtkCamera.h"
-#include "vtkImageMapToWindowLevelColors.h"
-#include "vtkLookupTable.h"
-#include "vtkMath.h"
-#include "vtkAbstractPropPicker.h"
-#include "vtkAssemblyPath.h"
-#include "vtkCornerAnnotation.h"
+#include <vtkTextProperty.h>
+#include <vtkRenderer.h>
+#include <vtkImageActor.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkPropPicker.h>
+#include <vtkCamera.h>
+#include <vtkImageMapToWindowLevelColors.h>
+#include <vtkLookupTable.h>
+#include <vtkMath.h>
+#include <vtkAbstractPropPicker.h>
+#include <vtkAssemblyPath.h>
+#include <vtkCornerAnnotation.h>
 #include <vtkRenderWindow.h>
 
 #include "vvSlicer.h"
@@ -63,8 +63,8 @@ int vvSlicerManagerCommand::FindSlicerNumber(vtkRenderWindow* renwin)
 
 //------------------------------------------------------------------------------
 void vvSlicerManagerCommand::Execute(vtkObject *caller,
-        unsigned long event,
-        void *vtkNotUsed(callData))
+                                     unsigned long event,
+                                     void *vtkNotUsed(callData))
 {
     //KeyPress event
     vvInteractorStyleNavigator *isi =
@@ -77,7 +77,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
 
         int VisibleInWindow = this->FindSlicerNumber(isi->GetInteractor()->GetRenderWindow());
         vtkRenderer* renderer=NULL;
-        if (VisibleInWindow>-1) 
+        if (VisibleInWindow>-1)
             renderer=this->SM->GetSlicer(VisibleInWindow)->GetRenderer();
         newLandmark = false;
 
@@ -97,9 +97,20 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
             if (event == vtkCommand::KeyPressEvent)
             {
                 std::string KeyPress = isi->GetInteractor()->GetKeySym();
+              if (KeyPress == "a")
+              {
+                  this->SM->PrevImage(VisibleInWindow);
+                  return;
+              }
+              if (KeyPress == "q")
+              {
+                  this->SM->NextImage(VisibleInWindow);
+                  return;
+              }
                 if (KeyPress == "f" || KeyPress == "F")
                 {
                     FlyToPosition(isi->GetInteractor(),this->SM->GetSlicer(VisibleInWindow));
+                  return;
                 }
 		if (KeyPress == "z")
 		{
@@ -371,7 +382,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
             if (newLandmark)
             {
                 this->SM->AddLandmark(xWorld,yWorld,zWorld,
-                        this->SM->GetSlicer(VisibleInWindow)->GetTSlice());
+                                      this->SM->GetSlicer(VisibleInWindow)->GetTSlice());
                 this->SM->GetSlicer(VisibleInWindow)->UpdateLandmarks();
                 this->SM->Render();
             }
@@ -402,9 +413,9 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
 
             // Compute normalized delta
             double dx = static_cast<double>(isi->GetWindowLevelCurrentPosition()[0] -
-                    isi->GetWindowLevelStartPosition()[0]) / size[0];
+                                            isi->GetWindowLevelStartPosition()[0]) / size[0];
             double dy = static_cast<double>(isi->GetWindowLevelStartPosition()[1] -
-                    isi->GetWindowLevelCurrentPosition()[1]) / size[1];
+                                            isi->GetWindowLevelCurrentPosition()[1]) / size[1];
             //Window is exponential in nature, use exponential to avoid falling into negative numbers
             dx = std::exp(1.0 * (dx*fabs(dx) + dx)) ; //Quadratic behavior for more reactive interface
             dy = 0.15 * (dy*fabs(dy) + dy) * (range[1]-range[0]);//Quadratic behavior for more reactive interface
@@ -426,7 +437,7 @@ void vvSlicerManagerCommand::Dolly(double factor, vtkRenderWindowInteractor *int
 {
     int VisibleInWindow = this->FindSlicerNumber(interactor->GetRenderWindow());
     vtkRenderer* renderer;
-    if (VisibleInWindow>-1) 
+    if (VisibleInWindow>-1)
         renderer=this->SM->GetSlicer(VisibleInWindow)->GetRenderer();
     else
     {
@@ -476,12 +487,12 @@ void vvSlicerManagerCommand::Dolly(double factor, vtkRenderWindowInteractor *int
     camera->GetFocalPoint(viewFocus);
     camera->GetPosition(viewPoint);
     camera->SetFocalPoint(motionVector[0] + viewFocus[0],
-            motionVector[1] + viewFocus[1],
-            motionVector[2] + viewFocus[2]);
+                          motionVector[1] + viewFocus[1],
+                          motionVector[2] + viewFocus[2]);
 
     camera->SetPosition(motionVector[0] + viewPoint[0],
-            motionVector[1] + viewPoint[1],
-            motionVector[2] + viewPoint[2]);
+                        motionVector[1] + viewPoint[1],
+                        motionVector[2] + viewPoint[2]);
 
     if (camera->GetParallelProjection())
     {
@@ -507,14 +518,14 @@ void vvSlicerManagerCommand::FlyToPosition(vtkRenderWindowInteractor *interactor
     int i, j;
     int VisibleInWindow = this->FindSlicerNumber(interactor->GetRenderWindow());
     vtkRenderer* renderer=NULL;
-    if (VisibleInWindow>-1) 
+    if (VisibleInWindow>-1)
         renderer=this->SM->GetSlicer(VisibleInWindow)->GetRenderer();
     else
         return;
 
     interactor->GetPicker()->Pick(interactor->GetEventPosition()[0],
-            interactor->GetEventPosition()[1], 0.0,
-            renderer);
+                                  interactor->GetEventPosition()[1], 0.0,
+                                  renderer);
 
     vtkAssemblyPath *path=NULL;
     vtkAbstractPropPicker *picker;
@@ -532,17 +543,17 @@ void vvSlicerManagerCommand::FlyToPosition(vtkRenderWindowInteractor *interactor
 
         switch (slicer->GetSliceOrientation())
         {
-            case vtkImageViewer2::SLICE_ORIENTATION_XY:
-                flyTo[2] = flyFrom[2];
-                break;
+        case vtkImageViewer2::SLICE_ORIENTATION_XY:
+            flyTo[2] = flyFrom[2];
+            break;
 
-            case vtkImageViewer2::SLICE_ORIENTATION_XZ:
-                flyTo[1] = flyFrom[1];
-                break;
+        case vtkImageViewer2::SLICE_ORIENTATION_XZ:
+            flyTo[1] = flyFrom[1];
+            break;
 
-            case vtkImageViewer2::SLICE_ORIENTATION_YZ:
-                flyTo[0] = flyFrom[0];
-                break;
+        case vtkImageViewer2::SLICE_ORIENTATION_YZ:
+            flyTo[0] = flyFrom[0];
+            break;
         }
 
 

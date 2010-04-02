@@ -27,15 +27,15 @@
 #include "vvMesh.h"
 #include "vvImageMapToWLColors.h"
 
-#include "vtkImageActor.h"
-#include "vtkImageData.h"
-#include "vtkRenderWindow.h"
-#include "vtkRendererCollection.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkImageMapToWindowLevelColors.h"
-#include "vtkWindowLevelLookupTable.h"
-#include "vtkColorTransferFunction.h"
-#include "vtkImageClip.h"
+#include <vtkImageActor.h>
+#include <vtkImageData.h>
+#include <vtkRenderWindow.h>
+#include <vtkRendererCollection.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkImageMapToWindowLevelColors.h>
+#include <vtkWindowLevelLookupTable.h>
+#include <vtkColorTransferFunction.h>
+#include <vtkImageClip.h>
 #include <vtkLODActor.h>
 #include <vtkPointData.h>
 #include <vtksys/SystemTools.hxx>
@@ -1192,5 +1192,19 @@ void vvSlicerManager::AddLandmark(float x,float y,float z,float t)
 								     (int)z_index,0);
   this->GetLandmarks()->AddLandmark(x,y,z,t,value);
   emit LandmarkAdded();
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+void vvSlicerManager::PrevImage(int slicer)
+{
+  emit ChangeImageWithIndexOffset(this, slicer, -1);
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+void vvSlicerManager::NextImage(int slicer)
+{
+  emit ChangeImageWithIndexOffset(this, slicer,  1);
 }
 //----------------------------------------------------------------------------

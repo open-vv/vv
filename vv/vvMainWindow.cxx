@@ -881,29 +881,30 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType fi
 
         linkPanel->addImage(imageManager->GetFileName(), id.toStdString());
 
-        connect(mSlicerManagers.back(),SIGNAL(currentImageChanged(std::string)),
+        connect(mSlicerManagers.back(), SIGNAL(currentImageChanged(std::string)),
                 this,SLOT(CurrentImageChanged(std::string)));
-        connect(mSlicerManagers.back(),SIGNAL(
-                                              UpdatePosition(int, double, double, double, double, double, double, double)),this,
-                SLOT(MousePositionChanged(int,double, double, double, double, double, double, double)));
-        connect(mSlicerManagers.back(),SIGNAL(UpdateVector(int, double, double, double, double)),
+        connect(mSlicerManagers.back(), SIGNAL(UpdatePosition(int, double, double, double, double, double, double, double)),
+             this,SLOT(MousePositionChanged(int,double, double, double, double, double, double, double)));
+        connect(mSlicerManagers.back(), SIGNAL(UpdateVector(int, double, double, double, double)),
                 this, SLOT(VectorChanged(int,double,double,double, double)));
-        connect(mSlicerManagers.back(),SIGNAL(UpdateOverlay(int, double, double)),
+        connect(mSlicerManagers.back(), SIGNAL(UpdateOverlay(int, double, double)),
                 this, SLOT(OverlayChanged(int,double,double)));
-        connect(mSlicerManagers.back(),SIGNAL(UpdateFusion(int, double)),
+        connect(mSlicerManagers.back(), SIGNAL(UpdateFusion(int, double)),
                 this, SLOT(FusionChanged(int,double)));
-        connect(mSlicerManagers.back(),SIGNAL(UpdateWindows(int, int, int)),
+        connect(mSlicerManagers.back(), SIGNAL(UpdateWindows(int, int, int)),
                 this,SLOT(WindowsChanged(int, int, int)));
-        connect(mSlicerManagers.back(),SIGNAL(WindowLevelChanged(double, double,int, int)),
+        connect(mSlicerManagers.back(), SIGNAL(WindowLevelChanged(double, double,int, int)),
                 this,SLOT(WindowLevelChanged(double, double, int, int)));
-        connect(mSlicerManagers.back(),SIGNAL(UpdateSlice(int,int)),
+        connect(mSlicerManagers.back(), SIGNAL(UpdateSlice(int,int)),
                 this,SLOT(UpdateSlice(int,int)));
-        connect(mSlicerManagers.back(),SIGNAL(UpdateTSlice(int, int)),
+        connect(mSlicerManagers.back(), SIGNAL(UpdateTSlice(int, int)),
                 this,SLOT(UpdateTSlice(int, int)));
-        connect(mSlicerManagers.back(),SIGNAL(UpdateSliceRange(int,int,int,int,int)),
+        connect(mSlicerManagers.back(), SIGNAL(UpdateSliceRange(int,int,int,int,int)),
                 this,SLOT(UpdateSliceRange(int,int,int,int,int)));
-        connect(mSlicerManagers.back(),SIGNAL(UpdateLinkManager(std::string,int,double,double,double,int)),
+        connect(mSlicerManagers.back(), SIGNAL(UpdateLinkManager(std::string,int,double,double,double,int)),
                 this,SLOT(UpdateLinkManager(std::string,int,double,double,double,int)));
+        connect(mSlicerManagers.back(), SIGNAL(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)),
+                this,SLOT(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)));
         connect(mSlicerManagers.back(),SIGNAL(LandmarkAdded()),landmarksPanel,SLOT(AddPoint()));
         InitSlicers();
         numberofsuccesulreads++;
@@ -1307,12 +1308,27 @@ int vvMainWindow::GetSlicerIndexFromItem(QTreeWidgetItem* item) {
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+QTreeWidgetItem* vvMainWindow::GetItemFromSlicerManager(vvSlicerManager* sm) {
+    QString id = sm->GetId().c_str();
+    for (int i = 0; i < DataTree->topLevelItemCount(); i++)
+    {
+        if (DataTree->topLevelItem(i)->data(COLUMN_IMAGE_NAME,Qt::UserRole).toString() == id)
+            return DataTree->topLevelItem(i);
+    }
+    return NULL;
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 void vvMainWindow::DisplayChanged(QTreeWidgetItem *clicked_item, int column) {
   int index = GetSlicerIndexFromItem(clicked_item);
   if ( column >= COLUMN_CLOSE_IMAGE || column <= 0)
     return;
   for (unsigned int i = 0; i < mSlicerManagers.size(); i++)
     {
+     //Trick to avoid redoing twice the job for a key (sr)
+      mSlicerManagers[i]->GetSlicer(column-1)->GetRenderWindow()-> GetInteractor()->SetKeySym("Crap");
+      
       QTreeWidgetItem* current_row=DataTree->topLevelItem(i);
       if (DataTree->topLevelItem(index) == current_row)
         {
@@ -2328,6 +2344,21 @@ void vvMainWindow::RemoveLink(QString image1,QString image2) {
 }
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+void vvMainWindow::ChangeImageWithIndexOffset(vvSlicerManager *sm, int slicer, int offset)
+{
+    int index = 0;
+    while(sm != mSlicerManagers[index])
+        index++;
+    index = (index+offset) % mSlicerManagers.size();
+
+    QTreeWidgetItem* item = GetItemFromSlicerManager(mSlicerManagers[index]);
+    //CurrentImageChanged(mSlicerManagers[index]->GetId()); //select new image
+    item->setData(slicer+1,Qt::CheckStateRole,2);         //change checkbox
+    DisplayChanged(item,slicer+1);
+}
+//------------------------------------------------------------------------------
+
 void vvMainWindow::HorizontalSliderMoved(int value,int column, int slicer_index)
 {
   for (unsigned int i = 0; i < mSlicerManagers.size(); i++)
@@ -2717,17 +2748,10 @@ void vvMainWindow::SurfaceViewerLaunch()
 //------------------------------------------------------------------------------
 void vvMainWindow::AddImage(vvImage::Pointer image,std::string filename)
 {
-  vvSlicerManager* m = new vvSlicerManager(4);
-  m->SetImage(image);
-  m->SetFilename(filename);
-  AddImage(m);
-}
-
-//------------------------------------------------------------------------------
-void vvMainWindow::AddImage(vvSlicerManager * slicer_manager) {
+  vvSlicerManager* slicer_manager = new vvSlicerManager(4);
+  slicer_manager->SetImage(image);
+  slicer_manager->SetFilename(filename);
   mSlicerManagers.push_back(slicer_manager);
-
-  std::string filename = slicer_manager->GetFileName();
 
   //create an item in the tree with good settings
   QTreeWidgetItem *item = new QTreeWidgetItem();
@@ -2765,30 +2789,31 @@ void vvMainWindow::AddImage(vvSlicerManager * slicer_manager) {
 
   linkPanel->addImage(filename, id.toStdString());
 
-  connect(mSlicerManagers.back(),SIGNAL(currentImageChanged(std::string)),
-          this,SLOT(CurrentImageChanged(std::string)));
-  connect(mSlicerManagers.back(),SIGNAL(
-                                        UpdatePosition(int, double, double, double, double, double, double, double)),this,
-          SLOT(MousePositionChanged(int,double, double, double, double, double, double, double)));
-  connect(mSlicerManagers.back(),SIGNAL(UpdateVector(int, double, double, double, double)),
+  connect(mSlicerManagers.back(), SIGNAL(currentImageChanged(std::string)),
+          this, SLOT(CurrentImageChanged(std::string)));
+  connect(mSlicerManagers.back(), SIGNAL(UpdatePosition(int, double, double, double, double, double, double, double)),
+          this, SLOT(MousePositionChanged(int,double, double, double, double, double, double, double)));
+  connect(mSlicerManagers.back(), SIGNAL(UpdateVector(int, double, double, double, double)),
           this, SLOT(VectorChanged(int,double,double,double, double)));
-  connect(mSlicerManagers.back(),SIGNAL(UpdateOverlay(int, double, double)),
+  connect(mSlicerManagers.back(), SIGNAL(UpdateOverlay(int, double, double)),
           this, SLOT(OverlayChanged(int,double,double)));
-  connect(mSlicerManagers.back(),SIGNAL(UpdateFusion(int, double)),
+  connect(mSlicerManagers.back(), SIGNAL(UpdateFusion(int, double)),
           this, SLOT(FusionChanged(int,double)));
-  connect(mSlicerManagers.back(),SIGNAL(UpdateWindows(int, int, int)),
+  connect(mSlicerManagers.back(), SIGNAL(UpdateWindows(int, int, int)),
           this,SLOT(WindowsChanged(int, int, int)));
-  connect(mSlicerManagers.back(),SIGNAL(WindowLevelChanged(double, double,int, int)),
+  connect(mSlicerManagers.back(), SIGNAL(WindowLevelChanged(double, double,int, int)),
           this,SLOT(WindowLevelChanged(double, double, int, int)));
-  connect(mSlicerManagers.back(),SIGNAL(UpdateSlice(int,int)),
+  connect(mSlicerManagers.back(), SIGNAL(UpdateSlice(int,int)),
           this,SLOT(UpdateSlice(int,int)));
-  connect(mSlicerManagers.back(),SIGNAL(UpdateTSlice(int, int)),
+  connect(mSlicerManagers.back(), SIGNAL(UpdateTSlice(int, int)),
           this,SLOT(UpdateTSlice(int, int)));
-  connect(mSlicerManagers.back(),SIGNAL(UpdateSliceRange(int,int,int,int,int)),
+  connect(mSlicerManagers.back(), SIGNAL(UpdateSliceRange(int,int,int,int,int)),
           this,SLOT(UpdateSliceRange(int,int,int,int,int)));
-  connect(mSlicerManagers.back(),SIGNAL(UpdateLinkManager(std::string,int,double,double,double,int)),
+  connect(mSlicerManagers.back(), SIGNAL(UpdateLinkManager(std::string,int,double,double,double,int)),
           this,SLOT(UpdateLinkManager(std::string,int,double,double,double,int)));
-  connect(mSlicerManagers.back(),SIGNAL(LandmarkAdded()),landmarksPanel,SLOT(AddPoint()));
+  connect(mSlicerManagers.back(), SIGNAL(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)),
+          this,SLOT(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)));
+  connect(mSlicerManagers.back(), SIGNAL(LandmarkAdded()),landmarksPanel,SLOT(AddPoint()));
   UpdateTree();
   qApp->processEvents();
   InitSlicers();
