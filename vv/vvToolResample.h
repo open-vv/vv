@@ -45,9 +45,6 @@ public:
     vvImage::Pointer GetOutput() {
         return mOutput;
     }
-    bool GetDisplayResult() {
-        return display_result->checkState() > 0;
-    }
     std::string GetOutputFileName();
     static void Initialize();
     void apply();

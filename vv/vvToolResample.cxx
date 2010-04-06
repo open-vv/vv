@@ -198,6 +198,7 @@ QString vvToolResample::GetSizeInBytes(std::vector<int> & size) {
         result += QString::number(t);
         result += " KB)";
     }
+    else result += ")";
     return result;
 }
 //====================================================================

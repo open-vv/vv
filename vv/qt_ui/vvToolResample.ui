@@ -40,7 +40,7 @@
           <item>
            <widget class="QLabel" name="mInputFormatLabel">
             <property name="text">
-             <string>.mhd</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -58,7 +58,7 @@
           <item>
            <widget class="QLabel" name="mInputDimLabel">
             <property name="text">
-             <string>TextLabel</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -76,7 +76,7 @@
           <item>
            <widget class="QLabel" name="mInputPixelTypeLabel">
             <property name="text">
-             <string>TextLabel</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -94,7 +94,7 @@
           <item>
            <widget class="QLabel" name="mInputSizeLabel">
             <property name="text">
-             <string>TextLabel</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -112,7 +112,7 @@
           <item>
            <widget class="QLabel" name="mInputSpacingLabel">
             <property name="text">
-             <string>TextLabel</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -130,31 +130,7 @@
           <item>
            <widget class="QLabel" name="mInputMemoryLabel">
             <property name="text">
-             <string>TextLabel</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="_23">
-          <item>
-           <widget class="QLabel" name="label_8">
-            <property name="text">
-             <string>Display result?</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="display_result">
-            <property name="text">
              <string/>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-            <property name="autoExclusive">
-             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -1056,7 +1032,7 @@ p, li { white-space: pre-wrap; }
           <item>
            <widget class="QLabel" name="mOutputSizeLabel">
             <property name="text">
-             <string>TextLabel</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -1074,7 +1050,7 @@ p, li { white-space: pre-wrap; }
           <item>
            <widget class="QLabel" name="mOutputSpacingLabel">
             <property name="text">
-             <string>TextLabel</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -1092,7 +1068,7 @@ p, li { white-space: pre-wrap; }
           <item>
            <widget class="QLabel" name="mOutputMemoryLabel">
             <property name="text">
-             <string>TextLabel</string>
+             <string/>
             </property>
            </widget>
           </item>
