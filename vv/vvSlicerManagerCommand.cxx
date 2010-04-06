@@ -108,13 +108,13 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
                 if (KeyPress == "f" || KeyPress == "F")
                 {
                     FlyToPosition(isi->GetInteractor(),this->SM->GetSlicer(VisibleInWindow));
-                  return;
+                    return;
                 }
-		if (KeyPress == "z")
-		{
-                   this->SM->SetLocalColorWindowing(VisibleInWindow);
-		   return;
-		}
+                if (KeyPress == "w")
+                {
+                    this->SM->SetLocalColorWindowing(VisibleInWindow);
+                    return;
+                }
                 if (KeyPress == "0")
                 {
                     this->SM->SetPreset(0);
@@ -190,13 +190,13 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
                     this->SM->UpdateWindowLevel();
                     return;
                 }
-                if (KeyPress == "u")
+                if (KeyPress == "c")
                 {
                     this->SM->ToggleContourSuperposition();
                     this->SM->Render();
                     return;
                 }
-                if (KeyPress == "i")
+                if (KeyPress == "l")
                 {
                     this->SM->ToggleInterpolation();
                     this->SM->Render();
@@ -208,7 +208,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
                     this->SM->Render();
                     return;
                 }
-                if (KeyPress == "l")
+                if (KeyPress == "u")
                 {
                     this->SM->Reload();
                     this->SM->Render();
@@ -262,21 +262,21 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
                 if (KeyPress == "Right")
                     this->SM->SetNextTSlice(VisibleInWindow);
 
-                if (KeyPress == "F1")
+                if (KeyPress == "F2")
                 {
                     this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetText(2,"Sagital\n<slice>");
                     this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(0);
                     this->SM->UpdateSliceRange(VisibleInWindow);
                     this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
                 }
-                if (KeyPress == "F2")
+                if (KeyPress == "F3")
                 {
                     this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetText(2,"Coronal\n<slice>");
                     this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(1);
                     this->SM->UpdateSliceRange(VisibleInWindow);
                     this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
                 }
-                if (KeyPress == "F3")
+                if (KeyPress == "F4")
                 {
                     this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetText(2,"Axial\n<slice>");
                     this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(2);

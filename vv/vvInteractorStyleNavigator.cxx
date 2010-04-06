@@ -341,8 +341,8 @@ void vvInteractorStyleNavigator::OnChar()
         break;
     }
 
-    case 'w'  :
-    case 'W'  :
+    case 'o'  :
+    case 'O'  :
     {
         this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
                                 this->Interactor->GetEventPosition()[1]);
@@ -358,8 +358,8 @@ void vvInteractorStyleNavigator::OnChar()
         this->ReleaseFocus();
         break;
     }
-    case 'x'  :
-    case 'X'  :
+    case 'i'  :
+    case 'I'  :
     {
         this->FindPokedRenderer(rwi->GetEventPosition()[0],
                                 rwi->GetEventPosition()[1]);
