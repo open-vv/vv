@@ -71,7 +71,6 @@ SET(vv_SRCS
   vvQProgressDialogITKCommand.cxx
   vvQDicomSeriesSelector.cxx
   QTreePushButton.cxx
-  vvResamplerDialog.cxx
   vvSegmentationDialog.cxx
   vvSurfaceViewerDialog.cxx
   vvMainWindowBase.cxx
@@ -116,6 +115,7 @@ SET(vv_SRCS
   # vvToolStructureSetManager.cxx
 #   vvStructureSetActor.cxx
 #   vvROIActor.cxx
+  vvToolResample.cxx
   )
 
 QT4_WRAP_CPP(vv_SRCS 
@@ -130,7 +130,6 @@ QT4_WRAP_CPP(vv_SRCS
   vvHelpDialog.h  
   vvProgressDialog.h 
   vvQDicomSeriesSelector.h 
-  vvResamplerDialog.h
   vvSegmentationDialog.h
   vvSurfaceViewerDialog.h
   vvDeformationDialog.h
@@ -150,6 +149,7 @@ QT4_WRAP_CPP(vv_SRCS
   # vvToolStructureSetManager.h
  #  vvStructureSetActor.h
 #   vvROIActor.h
+  vvToolResample.h
   )
 
 QT4_WRAP_UI(vv_UI_CXX 
@@ -164,7 +164,6 @@ QT4_WRAP_UI(vv_UI_CXX
   qt_ui/vvDicomSeriesSelector.ui 
   qt_ui/vvSegmentationDialog.ui
   qt_ui/vvSurfaceViewerDialog.ui
-  qt_ui/vvResamplerDialog.ui
   qt_ui/vvDeformationDialog.ui
   qt_ui/vvStructSelector.ui
   qt_ui/vvDummyWindow.ui #For testing
@@ -177,6 +176,7 @@ QT4_WRAP_UI(vv_UI_CXX
   qt_ui/vvToolBinarize.ui
   qt_ui/vvToolImageArithm.ui
   # qt_ui/vvToolStructureSetManager.ui
+  qt_ui/vvToolResample.ui
   )
 
 SET(vvUI_RCCS vvIcons.qrc)

@@ -809,7 +809,6 @@
     <property name="title">
      <string>Tools</string>
     </property>
-    <addaction name="actionResampler"/>
     <addaction name="actionMaximum_Intensity_Projection"/>
     <addaction name="actionCompute_mid_position_image"/>
    </widget>

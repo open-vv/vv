@@ -33,7 +33,6 @@
 #include "vvSlicer.h"
 #include "vvInteractorStyleNavigator.h"
 #include "vvImageWriter.h"
-#include "vvResamplerDialog.h"
 #include "vvSegmentationDialog.h"
 #include "vvSurfaceViewerDialog.h"
 #include "vvDeformationDialog.h"
@@ -255,8 +254,6 @@ vvMainWindow::vvMainWindow():vvMainWindowBase() {
   connect(actionDocumentation,SIGNAL(triggered()),this,SLOT(ShowDocumentation()));
 
   ///////////////////////////////////////////////
-  contextMenu.addAction(actionResampler);
-  connect(actionResampler,SIGNAL(triggered()),this,SLOT(ResampleCurrentImage()));
   connect(actionSegmentation,SIGNAL(triggered()),this,SLOT(SegmentationOnCurrentImage()));
   connect(actionSurface_Viewer,SIGNAL(triggered()),this,SLOT(SurfaceViewerLaunch()));
   ///////////////////////////////////////////////
@@ -2716,16 +2713,6 @@ void vvMainWindow::UpdateRenderWindows() {
   if (NEViewWidget->GetRenderWindow()) NEViewWidget->GetRenderWindow()->Render();
   if (SOViewWidget->GetRenderWindow()) SOViewWidget->GetRenderWindow()->Render();
   if (SEViewWidget->GetRenderWindow()) SEViewWidget->GetRenderWindow()->Render();
-}
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-void vvMainWindow::ResampleCurrentImage() {
-  vvResamplerDialog resampler;
-  int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
-  resampler.SetSlicerManagers(mSlicerManagers,index);
-  if (resampler.exec()) 
-    AddImage(resampler.GetOutput(),resampler.GetOutputFileName());
 }
 //------------------------------------------------------------------------------
 

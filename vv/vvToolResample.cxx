@@ -16,60 +16,32 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
 
-#ifndef _VVRESAMPLERDIALOG_CXX
-#define _VVRESAMPLERDIALOG_CXX
-
-#include "vvResamplerDialog.h"
-#include "clitkImageResampleGenericFilter.h"
+#include "vvToolResample.h"
 #include "vvSlicer.h"
+#include "vvToolCreator.h"
 
 #include <QFileInfo>
 #include <QMessageBox>
 
 #define COLUMN_IMAGE_NAME 7
 
-//====================================================================
-vvResamplerDialog::vvResamplerDialog(QWidget * parent, Qt::WindowFlags f)
-        :QDialog(parent,f), Ui::vvResamplerDialog() {
-
-    // initialization
-    setupUi(this);
-    Init();
-
-    // Connect signals & slots
-    connect(this, SIGNAL(accepted()), this, SLOT(Resample()));
-    connect(mImagesComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(UpdateCurrentInputImage()));
-
-    connect(sizeRadioButton, SIGNAL(clicked()), this, SLOT(UpdateControlSizeAndSpacing()));
-    connect(scaleSizeRadioButton, SIGNAL(clicked()), this, SLOT(UpdateControlSizeAndSpacing()));
-    connect(isoSizeRadioButton, SIGNAL(clicked()), this, SLOT(UpdateControlSizeAndSpacing()));
-    connect(spacingRadioButton, SIGNAL(clicked()), this, SLOT(UpdateControlSizeAndSpacing()));
-    connect(scaleSpacingRadioButton, SIGNAL(clicked()), this, SLOT(UpdateControlSizeAndSpacing()));
-    connect(isoSpacingRadioButton, SIGNAL(clicked()), this, SLOT(UpdateControlSizeAndSpacing()));
-
-    connect(xSizeLineEdit, SIGNAL(textEdited(QString)),this,SLOT(ComputeNewSpacingFromSize()));
-    connect(ySizeLineEdit, SIGNAL(textEdited(QString)),this,SLOT(ComputeNewSpacingFromSize()));
-    connect(zSizeLineEdit, SIGNAL(textEdited(QString)),this,SLOT(ComputeNewSpacingFromSize()));
-    connect(xSpacingLineEdit, SIGNAL(textEdited(QString)),this,SLOT(ComputeNewSizeFromSpacing()));
-    connect(ySpacingLineEdit, SIGNAL(textEdited(QString)),this,SLOT(ComputeNewSizeFromSpacing()));
-    connect(zSpacingLineEdit, SIGNAL(textEdited(QString)),this,SLOT(ComputeNewSizeFromSpacing()));
-    connect(scaleSizeLineEdit,SIGNAL(textEdited(QString)),this,SLOT(ComputeNewSizeFromScale()));
-    connect(scaleSpacingLineEdit,SIGNAL(textEdited(QString)),this,SLOT(ComputeNewSpacingFromScale()));
-    connect(isoSizeLineEdit,SIGNAL(textEdited(QString)),this,SLOT(ComputeNewSizeFromIso()));
-    connect(isoSpacingLineEdit,SIGNAL(textEdited(QString)),this,SLOT(ComputeNewSpacingFromIso()));
-
-    connect(gaussianFilterCheckBox,SIGNAL(stateChanged(int)),this,SLOT(UpdateGaussianFilter()));
-    connect(interpolationComboBox,SIGNAL(currentIndexChanged(QString)),this,SLOT(UpdateInterpolation()));
-}
-//====================================================================
+ADD_TOOL(vvToolResample);
 
 //====================================================================
-void vvResamplerDialog::Init() {
+vvToolResample::vvToolResample(vvMainWindowBase * parent, Qt::WindowFlags f):
+    vvToolWidgetBase(parent,f),
+    vvToolBase<vvToolResample>(parent),
+    Ui::vvToolResample()
+{
+    Ui_vvToolResample::setupUi(mToolWidget);
+
+    mFilter = clitk::ImageResampleGenericFilter::New();
     mLastError ="";
 
     mInputFileFormat = "";
     ComponentType = "";
     mPixelType = "";
+    mCurrentSlicerManager=NULL;
 
     mInputSize.resize(0);
     mInputSpacing.resize(0);
@@ -114,21 +86,50 @@ void vvResamplerDialog::Init() {
     mInputSizeLabel->setPalette(qPalette);
     mInputSpacingLabel->setPalette(qPalette);
 
-    UpdateCurrentInputImage();
+    // Set how many inputs are needed for this tool
+    AddInputSelector("Select an image to resample", mFilter);
+
+    // Connect signals & slots
+
+    connect(sizeRadioButton, SIGNAL(clicked()), this, SLOT(UpdateControlSizeAndSpacing()));
+    connect(scaleSizeRadioButton, SIGNAL(clicked()), this, SLOT(UpdateControlSizeAndSpacing()));
+    connect(isoSizeRadioButton, SIGNAL(clicked()), this, SLOT(UpdateControlSizeAndSpacing()));
+    connect(spacingRadioButton, SIGNAL(clicked()), this, SLOT(UpdateControlSizeAndSpacing()));
+    connect(scaleSpacingRadioButton, SIGNAL(clicked()), this, SLOT(UpdateControlSizeAndSpacing()));
+    connect(isoSpacingRadioButton, SIGNAL(clicked()), this, SLOT(UpdateControlSizeAndSpacing()));
+
+    connect(xSizeLineEdit, SIGNAL(textEdited(QString)),this,SLOT(ComputeNewSpacingFromSize()));
+    connect(ySizeLineEdit, SIGNAL(textEdited(QString)),this,SLOT(ComputeNewSpacingFromSize()));
+    connect(zSizeLineEdit, SIGNAL(textEdited(QString)),this,SLOT(ComputeNewSpacingFromSize()));
+    connect(xSpacingLineEdit, SIGNAL(textEdited(QString)),this,SLOT(ComputeNewSizeFromSpacing()));
+    connect(ySpacingLineEdit, SIGNAL(textEdited(QString)),this,SLOT(ComputeNewSizeFromSpacing()));
+    connect(zSpacingLineEdit, SIGNAL(textEdited(QString)),this,SLOT(ComputeNewSizeFromSpacing()));
+    connect(scaleSizeLineEdit,SIGNAL(textEdited(QString)),this,SLOT(ComputeNewSizeFromScale()));
+    connect(scaleSpacingLineEdit,SIGNAL(textEdited(QString)),this,SLOT(ComputeNewSpacingFromScale()));
+    connect(isoSizeLineEdit,SIGNAL(textEdited(QString)),this,SLOT(ComputeNewSizeFromIso()));
+    connect(isoSpacingLineEdit,SIGNAL(textEdited(QString)),this,SLOT(ComputeNewSpacingFromIso()));
+
+    connect(gaussianFilterCheckBox,SIGNAL(stateChanged(int)),this,SLOT(UpdateGaussianFilter()));
+    connect(interpolationComboBox,SIGNAL(currentIndexChanged(QString)),this,SLOT(UpdateInterpolation()));
 }
 //====================================================================
 
 //====================================================================
-void vvResamplerDialog::UpdateCurrentInputImage() {
-    // Set current image & index
-    mCurrentIndex = mImagesComboBox->currentIndex();
-    if (mCurrentIndex == -1) {
-        mCurrentImage = NULL;
-        return ;
-    }
-    mCurrentImage = mSlicerManagers[mCurrentIndex]->GetSlicer(0)->GetImage();
+void vvToolResample::Initialize() {
+  SetToolName("Resample Image");
+  SetToolMenuName("Resample");
+  SetToolIconFilename(":/common/icons/resample.png");
+  SetToolTip("Resample image with various interpolation methods.");
+}
+//====================================================================
+
+//====================================================================
+void vvToolResample::InputIsSelected(vvSlicerManager* m) {
+
+    mCurrentSlicerManager = m;
+    mCurrentImage = mCurrentSlicerManager->GetSlicer(0)->GetImage();
     if (mCurrentImage.IsNull()) return;
-    mInputFileName = mSlicerManagers[mCurrentIndex]->GetFileName().c_str();
+    mInputFileName = mCurrentSlicerManager->GetFileName().c_str();
 
     // Set current information
     mPixelType = mCurrentImage->GetScalarTypeAsString().c_str();
@@ -168,7 +169,7 @@ void vvResamplerDialog::UpdateCurrentInputImage() {
 //====================================================================
 
 //====================================================================
-void vvResamplerDialog::UpdateOutputInfo() {
+void vvToolResample::UpdateOutputInfo() {
     mOutputSizeLabel->setText(GetVectorIntAsString(mOutputSize));
     mOutputSpacingLabel->setText(GetVectorDoubleAsString(mOutputSpacing));
     mOutputMemoryLabel->setText(GetSizeInBytes(mOutputSize));
@@ -176,7 +177,7 @@ void vvResamplerDialog::UpdateOutputInfo() {
 //====================================================================
 
 //====================================================================
-QString vvResamplerDialog::GetSizeInBytes(std::vector<int> & size) {
+QString vvToolResample::GetSizeInBytes(std::vector<int> & size) {
     int t = 1;
     for (unsigned int i=0; i<size.size(); i++) t *= size[i];
     t *= mCurrentImage->GetScalarSize()*mCurrentImage->GetNumberOfScalarComponents();
@@ -202,7 +203,7 @@ QString vvResamplerDialog::GetSizeInBytes(std::vector<int> & size) {
 //====================================================================
 
 //====================================================================
-QString vvResamplerDialog::GetVectorDoubleAsString(std::vector<double> vectorDouble) {
+QString vvToolResample::GetVectorDoubleAsString(std::vector<double> vectorDouble) {
     QString result;
     for (unsigned int i= 0; i<vectorDouble.size(); i++) {
         if (i != 0)
@@ -214,7 +215,7 @@ QString vvResamplerDialog::GetVectorDoubleAsString(std::vector<double> vectorDou
 //====================================================================
 
 //====================================================================
-QString vvResamplerDialog::GetVectorIntAsString(std::vector<int> vectorInt) {
+QString vvToolResample::GetVectorIntAsString(std::vector<int> vectorInt) {
     QString result;
     for (unsigned int i= 0; i<vectorInt.size(); i++) {
         if (i != 0)
@@ -226,7 +227,7 @@ QString vvResamplerDialog::GetVectorIntAsString(std::vector<int> vectorInt) {
 //====================================================================
 
 //====================================================================
-void vvResamplerDialog::FillSizeEdit(std::vector<int> size) {
+void vvToolResample::FillSizeEdit(std::vector<int> size) {
     xSizeLineEdit->setText(QString::number(size[0]));
     ySizeLineEdit->setText(QString::number(size[1]));
     if (size.size() > 2)
@@ -235,7 +236,7 @@ void vvResamplerDialog::FillSizeEdit(std::vector<int> size) {
 //====================================================================
 
 //====================================================================
-void vvResamplerDialog::FillSpacingEdit(std::vector<double> spacing) {
+void vvToolResample::FillSpacingEdit(std::vector<double> spacing) {
     xSpacingLineEdit->setText(QString::number(spacing[0]));
     ySpacingLineEdit->setText(QString::number(spacing[1]));
     if (spacing.size() > 2)
@@ -244,7 +245,7 @@ void vvResamplerDialog::FillSpacingEdit(std::vector<double> spacing) {
 //====================================================================
 
 //====================================================================
-void vvResamplerDialog::UpdateOutputSizeAndSpacing() {
+void vvToolResample::UpdateOutputSizeAndSpacing() {
     mOutputSize.resize(mDimension);
     mOutputSize = mInputSize;
     mOutputSpacing.resize(mDimension);
@@ -264,7 +265,7 @@ void vvResamplerDialog::UpdateOutputSizeAndSpacing() {
 //====================================================================
 
 //====================================================================
-void vvResamplerDialog::UpdateControlSizeAndSpacing() {
+void vvToolResample::UpdateControlSizeAndSpacing() {
     scaleSizeLineEdit->setText("");
     scaleSpacingLineEdit->setText("");
     isoSizeLineEdit->setText("");
@@ -308,7 +309,7 @@ void vvResamplerDialog::UpdateControlSizeAndSpacing() {
 //====================================================================
 
 //====================================================================
-void vvResamplerDialog::ComputeNewSpacingFromSize() {
+void vvToolResample::ComputeNewSpacingFromSize() {
     double newSpacing = mInputSpacing[0]*mInputSize[0];
     xSpacingLineEdit->setText(QString::number(newSpacing/xSizeLineEdit->text().toDouble()));
     newSpacing = mInputSpacing[1]*mInputSize[1];
@@ -323,7 +324,7 @@ void vvResamplerDialog::ComputeNewSpacingFromSize() {
 //====================================================================
 
 //====================================================================
-void vvResamplerDialog::ComputeNewSizeFromSpacing() {
+void vvToolResample::ComputeNewSizeFromSpacing() {
     double newSize = mInputSpacing[0]*mInputSize[0];
     xSizeLineEdit->setText(QString::number(newSize/xSpacingLineEdit->text().toDouble()));
     newSize = mInputSpacing[1]*mInputSize[1];
@@ -338,7 +339,7 @@ void vvResamplerDialog::ComputeNewSizeFromSpacing() {
 //====================================================================
 
 //====================================================================
-void vvResamplerDialog::ComputeNewSpacingFromScale() {
+void vvToolResample::ComputeNewSpacingFromScale() {
     xSpacingLineEdit->setText(QString::number(mInputSpacing[0]*scaleSpacingLineEdit->text().toDouble()/100));
     ySpacingLineEdit->setText(QString::number(mInputSpacing[1]*scaleSpacingLineEdit->text().toDouble()/100));
     if (mDimension > 2)
@@ -348,7 +349,7 @@ void vvResamplerDialog::ComputeNewSpacingFromScale() {
 //====================================================================
 
 //====================================================================
-void vvResamplerDialog::ComputeNewSizeFromScale() {
+void vvToolResample::ComputeNewSizeFromScale() {
     xSizeLineEdit->setText(QString::number(mInputSize[0]*scaleSizeLineEdit->text().toDouble()/100));
     ySizeLineEdit->setText(QString::number(mInputSize[1]*scaleSizeLineEdit->text().toDouble()/100));
     if (mDimension > 2)
@@ -358,7 +359,7 @@ void vvResamplerDialog::ComputeNewSizeFromScale() {
 //====================================================================
 
 //====================================================================
-void vvResamplerDialog::ComputeNewSpacingFromIso() {
+void vvToolResample::ComputeNewSpacingFromIso() {
     xSpacingLineEdit->setText(QString::number(isoSpacingLineEdit->text().toDouble()));
     ySpacingLineEdit->setText(QString::number(isoSpacingLineEdit->text().toDouble()));
     if (mDimension > 2)
@@ -368,7 +369,7 @@ void vvResamplerDialog::ComputeNewSpacingFromIso() {
 //====================================================================
 
 //====================================================================
-void vvResamplerDialog::ComputeNewSizeFromIso() {
+void vvToolResample::ComputeNewSizeFromIso() {
     xSizeLineEdit->setText(QString::number(isoSizeLineEdit->text().toDouble()));
     ySizeLineEdit->setText(QString::number(isoSizeLineEdit->text().toDouble()));
     if (mDimension > 2)
@@ -378,7 +379,7 @@ void vvResamplerDialog::ComputeNewSizeFromIso() {
 //====================================================================
 
 //====================================================================
-void vvResamplerDialog::UpdateInterpolation() {
+void vvToolResample::UpdateInterpolation() {
     if (interpolationComboBox->currentText() == "BSpline") {
         bSplineLabel->show();
         bSplineOrderSpinBox->show();
@@ -401,7 +402,7 @@ void vvResamplerDialog::UpdateInterpolation() {
 //====================================================================
 
 //====================================================================
-void vvResamplerDialog::UpdateGaussianFilter() {
+void vvToolResample::UpdateGaussianFilter() {
     if (gaussianFilterCheckBox->isChecked()) {
         gaussianFilterLabel->show();
         xGaussianLineEdit->show();
@@ -418,18 +419,9 @@ void vvResamplerDialog::UpdateGaussianFilter() {
 }
 //====================================================================
 
-//====================================================================
-void vvResamplerDialog::SetSlicerManagers(std::vector<vvSlicerManager*> & m,int current_image_index) {
-    mSlicerManagers = m;
-    for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
-        mImagesComboBox->addItem(mSlicerManagers[i]->GetFileName().c_str());
-    }
-    mImagesComboBox->setCurrentIndex(current_image_index);
-}
-//====================================================================
 
 //====================================================================
-void vvResamplerDialog::Resample() {
+void vvToolResample::apply() {
 
     // Get resampler options
     std::vector<double> sigma;
@@ -437,36 +429,33 @@ void vvResamplerDialog::Resample() {
     sigma.push_back(yGaussianLineEdit->text().toDouble());
     if (mDimension > 2) sigma.push_back(zGaussianLineEdit->text().toDouble());
 
-
-    // Create resampler filter
-    clitk::ImageResampleGenericFilter::Pointer filter = clitk::ImageResampleGenericFilter::New();
-    filter->SetOutputSize(mOutputSize);
-    filter->SetOutputSpacing(mOutputSpacing);
-    filter->SetInterpolationName(interpolationComboBox->currentText().toLower().toStdString());
+    mFilter->SetOutputSize(mOutputSize);
+    mFilter->SetOutputSpacing(mOutputSpacing);
+    mFilter->SetInterpolationName(interpolationComboBox->currentText().toLower().toStdString());
 
     if (interpolationComboBox->currentText() == "BSpline")
-        filter->SetBSplineOrder(bSplineOrderSpinBox->value());
+        mFilter->SetBSplineOrder(bSplineOrderSpinBox->value());
     else if (interpolationComboBox->currentText() == "Blut (faster BSpline)") {
-        filter->SetInterpolationName("blut");
-        filter->SetBSplineOrder(bSplineOrderSpinBox->value());
-        filter->SetBLUTSampling(bLUTSpinBox->value());
+        mFilter->SetInterpolationName("blut");
+        mFilter->SetBSplineOrder(bSplineOrderSpinBox->value());
+        mFilter->SetBLUTSampling(bLUTSpinBox->value());
     }
     if (gaussianFilterCheckBox->isChecked())
-        filter->SetGaussianSigma(sigma);
-    //  filter->SetOutputFileName(OutputFileName.toStdString());
-    filter->SetDefaultPixelValue(defaultPixelValueLineEdit->text().toDouble());
-    filter->SetInputVVImage(mCurrentImage);
+        mFilter->SetGaussianSigma(sigma);
+    //  mFilter->SetOutputFileName(OutputFileName.toStdString());
+    mFilter->SetDefaultPixelValue(defaultPixelValueLineEdit->text().toDouble());
+    mFilter->SetInputVVImage(mCurrentImage);
 
     // Go !
-    filter->Update();
-    mOutput = filter->GetOutputVVImage();
+    mFilter->Update();
+    mOutput = mFilter->GetOutputVVImage();
+    AddImage(mOutput,GetOutputFileName());
+    close();
 }
 //====================================================================
-std::string vvResamplerDialog::GetOutputFileName()
+std::string vvToolResample::GetOutputFileName()
 {
-    QFileInfo info(mImagesComboBox->currentText());
+    QFileInfo info(QString(mCurrentSlicerManager->GetFileName().c_str()));
     return (info.path().toStdString() + "/resampled_" + info.fileName().toStdString());
 }
-
-#endif /* end #define _vvResamplerDialog_CXX */
 

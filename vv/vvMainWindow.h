@@ -88,7 +88,6 @@ public slots:
   void VectorChanged(int visibility, double x, double y, double z, double value);
   void OverlayChanged(int visibility, double valueOver, double valueRef);
   void FusionChanged(int visibility, double value);
-  void ResampleCurrentImage();
   void SegmentationOnCurrentImage();
   void SurfaceViewerLaunch();
 

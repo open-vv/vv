@@ -15,25 +15,31 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
-#ifndef _VVRESAMPLERDIALOG_H
-#define _VVRESAMPLERDIALOG_H
-#include "ui_vvResamplerDialog.h"
+#ifndef _vvToolResample_h
+#define _vvToolResample_h
+#include "ui_vvToolResample.h"
 #include "clitkCommon.h"
 #include "vvImage.h"
 #include "vvSlicerManager.h"
+#include "vvToolWidgetBase.h"
+#include "vvToolBase.h"
+#include "clitkImageResampleGenericFilter.h"
 
 #include <QtDesigner/QDesignerExportWidget>
 #include <QTreeWidget>
 
 //====================================================================
-class vvResamplerDialog :  public QDialog, private Ui::vvResamplerDialog {
+class vvToolResample :  
+    public vvToolWidgetBase,
+    public vvToolBase<vvToolResample>, 
+    private Ui::vvToolResample 
+{
 
     Q_OBJECT
 
 public:
     // constructor - destructor
-    vvResamplerDialog(QWidget * parent=0, Qt::WindowFlags f=0);
-    void SetSlicerManagers(std::vector<vvSlicerManager*> & m,int current_image_index);
+    vvToolResample(vvMainWindowBase * parent=0, Qt::WindowFlags f=0);
 
     // Get output result
     vvImage::Pointer GetOutput() {
@@ -43,10 +49,11 @@ public:
         return display_result->checkState() > 0;
     }
     std::string GetOutputFileName();
+    static void Initialize();
+    void apply();
 
 public slots:
 //  void SetImagesList(QTreeWidget * tree);
-    void Resample();
     void UpdateControlSizeAndSpacing();
     void ComputeNewSizeFromSpacing();
     void ComputeNewSizeFromScale();
@@ -56,13 +63,14 @@ public slots:
     void ComputeNewSpacingFromIso();
     void UpdateInterpolation();
     void UpdateGaussianFilter();
-    void UpdateCurrentInputImage();
+    void InputIsSelected(vvSlicerManager* m);
 
 protected:
-    Ui::vvResamplerDialog ui;
-    std::vector<vvSlicerManager*> mSlicerManagers;
+    Ui::vvToolResample ui;
     vvImage::Pointer mOutput;
+    clitk::ImageResampleGenericFilter::Pointer mFilter;
 
+    vvSlicerManager* mCurrentSlicerManager;
     vvImage::Pointer mCurrentImage;
     int mCurrentIndex;
 
@@ -83,7 +91,6 @@ protected:
 
     QStringList OutputListFormat;
 
-    void Init();
     void UpdateInputInfo();
     void UpdateOutputInfo();
     void UpdateOutputFormat();
@@ -95,8 +102,8 @@ protected:
     QString GetVectorDoubleAsString(std::vector<double> vectorDouble);
     QString GetVectorIntAsString(std::vector<int> vectorInt);
 
-}; // end class vvResamplerDialog
+}; // end class vvToolResample
 //====================================================================
 
-#endif /* end #define _VVRESAMPLERDIALOG_H */
+#endif
 
