@@ -429,6 +429,7 @@ void vvToolResample::apply() {
     sigma.push_back(xGaussianLineEdit->text().toDouble());
     sigma.push_back(yGaussianLineEdit->text().toDouble());
     if (mDimension > 2) sigma.push_back(zGaussianLineEdit->text().toDouble());
+    if (mDimension == 4) sigma.push_back(0.01); //FIXME Don't filter along the temporal direction
 
     mFilter->SetOutputSize(mOutputSize);
     mFilter->SetOutputSpacing(mOutputSpacing);

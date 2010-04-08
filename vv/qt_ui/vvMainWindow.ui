@@ -810,7 +810,6 @@
      <string>Tools</string>
     </property>
     <addaction name="actionMaximum_Intensity_Projection"/>
-    <addaction name="actionCompute_mid_position_image"/>
    </widget>
    <widget class="QMenu" name="menuExperimental">
     <property name="title">
@@ -820,6 +819,7 @@
     <addaction name="actionDeformable_Registration"/>
     <addaction name="actionSegmentation"/>
     <addaction name="actionWarp_image_with_vector_field"/>
+    <addaction name="actionCompute_mid_position_image"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuOverlay"/>
@@ -1026,7 +1026,7 @@
   </action>
   <action name="actionWarp_image_with_vector_field">
    <property name="text">
-    <string>Warp image with vector field</string>
+    <string>Verify Registration</string>
    </property>
   </action>
   <action name="actionMaximum_Intensity_Projection">
