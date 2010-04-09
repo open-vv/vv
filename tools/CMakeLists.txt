@@ -3,12 +3,6 @@
 INCLUDE(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
 #=========================================================
 
-SET(clitkGGO_SRC
-  clitkImageResample_ggo.c
-  )  
-
-ADD_LIBRARY(clitkGGO STATIC ${clitkGGO_SRC})
-
 ADD_EXECUTABLE(clitkDicomInfo clitkDicomInfo.cxx clitkDicomInfo_ggo.c)
 TARGET_LINK_LIBRARIES(clitkDicomInfo clitkCommon ITKIO) 
 
@@ -76,6 +70,9 @@ clitkFilters)
 
 ADD_EXECUTABLE(clitkImageArithm clitkImageArithm.cxx)
 TARGET_LINK_LIBRARIES(clitkImageArithm clitkCommon ITKIO ITKStatistics clitkFilters)
+
+ADD_EXECUTABLE(clitkFooImage clitkFooImage.cxx)
+TARGET_LINK_LIBRARIES(clitkFooImage clitkCommon ITKIO clitkFilters) 
 
 ADD_EXECUTABLE(clitkBinarizeImage clitkBinarizeImage.cxx)
 TARGET_LINK_LIBRARIES(clitkBinarizeImage clitkCommon ITKIO clitkFilters) 
