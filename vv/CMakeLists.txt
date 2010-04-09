@@ -43,7 +43,6 @@ LINK_LIBRARIES (
   #ITKIO
   clitkCommon
   clitkDicomRTStruct
-  #clitkGGO
   clitkFilters
   ${QT_QTCORE_LIBRARY}
   ${QT_QTGUI_LIBRARY}

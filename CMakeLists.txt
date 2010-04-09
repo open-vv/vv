@@ -24,6 +24,7 @@ ELSE(ITK_FOUND)
   MESSAGE(FATAL_ERROR
           "Cannot build without ITK.  Please set ITK_DIR.")
 ENDIF(ITK_FOUND)
+
 #=========================================================
 IF(CLITK_BUILD_VV)
     FIND_PACKAGE(VTK)

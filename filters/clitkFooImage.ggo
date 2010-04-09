@@ -1,5 +1,5 @@
-#File clitkBinarizeImage.ggo
-package "clitkBinarizeImage"
+#File clitkFooImage.ggo
+package "clitkFooImage"
 version "1.0"
 purpose ""
 
@@ -14,6 +14,6 @@ option "lower"    	l   	"Lower intensity (default=min), fg is greater than this 
 option "upper"    	u   	"Upper intensity (default=max), fg is lower than this value"	  double 	no
 
 option "fg"    		-   	"Foreground (FG) or 'inside' value"	 	  double 	no	default="1"
-option "bg"    		-   	"Background (BG) or 'ouside' value"	 	  double 	no	default="0"
-option "mode" 		-   	"Use FG and/or BG values (if FG, the BG is replaced by the input image values)"	values="FG","BG","both"  default="both" required
+        option "bg"    		-   	"Background (BG) or 'ouside' value"	 	  double 	no	default="0"
+                    option "mode" 		-   	"Use FG and/or BG values (if FG, the BG is replaced by the input image values)"	values="FG","BG","both"  default="both" no
 
