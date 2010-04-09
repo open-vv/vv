@@ -80,7 +80,7 @@ namespace clitk {
 } // end namespace
 
   // explicit template instantiation
-template class itk::CreateObjectFunction<clitk::VfImageIO>;
+//template class itk::CreateObjectFunction<clitk::VfImageIO>;
 
 #endif /* end #define CLITKVFIMAGEIO_H */
 

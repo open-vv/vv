@@ -69,7 +69,7 @@ namespace clitk {
 } // end namespace
 
   // explicit template instantiation
-template class itk::CreateObjectFunction<clitk::HisImageIO>;
+//template class itk::CreateObjectFunction<clitk::HisImageIO>;
 
 #endif /* end #define CLITKHISIMAGEIO_H */
 

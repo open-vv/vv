@@ -79,3 +79,6 @@ TARGET_LINK_LIBRARIES(clitkImageArithm clitkCommon ITKIO ITKStatistics clitkFilt
 
 ADD_EXECUTABLE(clitkBinarizeImage clitkBinarizeImage.cxx)
 TARGET_LINK_LIBRARIES(clitkBinarizeImage clitkCommon ITKIO clitkFilters) 
+
+ADD_EXECUTABLE(clitkMedianImageFilter clitkMedianImageFilter.cxx clitkMedianImageFilter_ggo.c)
+TARGET_LINK_LIBRARIES(clitkMedianImageFilter clitkCommon ITKIO clitkFilters ITKBasicFilters)

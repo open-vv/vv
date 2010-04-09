@@ -103,6 +103,7 @@ SET(vv_SRCS
   vvToolManager.cxx
   vvToolCreatorBase.cxx
   vvToolWidgetBase.cxx
+  vvToolMedianFilter.cxx
 #  vvToolFoo.cxx
 #  vvToolFooWithWidgetBase.cxx
   vvToolCropImage.cxx
@@ -139,6 +140,7 @@ QT4_WRAP_CPP(vv_SRCS
   vvToolCreatorBase.h
 #  vvToolFoo.h
 #  vvToolFooWithWidgetBase.h
+  vvToolMedianFilter.h
   vvToolBinarize.h
   vvToolSimpleInputSelectorWidget.h
   vvToolInputSelectorWidget.h
@@ -171,6 +173,7 @@ QT4_WRAP_UI(vv_UI_CXX
   qt_ui/vvToolSimpleInputSelectorWidget.ui
   qt_ui/vvToolInputSelectorWidget.ui
   qt_ui/vvToolWidgetBase.ui
+  qt_ui/vvToolMedianFilter.ui
 #  qt_ui/vvToolFoo.ui
   qt_ui/vvToolCropImage.ui
   qt_ui/vvToolBinarize.ui
@@ -184,10 +187,11 @@ QT4_ADD_RESOURCES(vv_SRCS ${vvUI_RCCS})
 
 #=========================================================
 #support for parallel deformable registration with OpenMP
+IF(NOT __APPLE__)
 IF(CMAKE_COMPILER_IS_GNUCC)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp -march=native")
 ENDIF(CMAKE_COMPILER_IS_GNUCC)
-
+ENDIF(NOT __APPLE__)
 #=========================================================
 
 IF (CLITK_VV_USE_BDCM)

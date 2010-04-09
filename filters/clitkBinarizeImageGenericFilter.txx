@@ -31,6 +31,8 @@
 #include "itkBinaryThresholdImageFilter.h"
 #include "itkMaskImageFilter.h"
 #include "itkMaskNegatedImageFilter.h"
+#include <clitkCommon.h>
+#include <tiff.h>
 
 namespace clitk
 {
@@ -53,8 +55,11 @@ namespace clitk
     ADD_IMAGE_TYPE(Dim, char);
     ADD_IMAGE_TYPE(Dim, uchar);
     ADD_IMAGE_TYPE(Dim, short);
+    ADD_IMAGE_TYPE(Dim, ushort);
     ADD_IMAGE_TYPE(Dim, int);
+    ADD_IMAGE_TYPE(Dim, uint16);
     ADD_IMAGE_TYPE(Dim, float);
+    ADD_IMAGE_TYPE(Dim, double);
   }
   //--------------------------------------------------------------------
   

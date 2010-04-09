@@ -78,7 +78,7 @@ namespace clitk {
 } // end namespace
 
   // explicit template instantiation
-template class itk::CreateObjectFunction<clitk::VoxImageIO>;
+//template class itk::CreateObjectFunction<clitk::VoxImageIO>;
 
 #endif /* end #define CLITKVOXIMAGEIO_H */
 

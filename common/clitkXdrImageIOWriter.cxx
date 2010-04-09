@@ -31,7 +31,7 @@
 #include <sys/stat.h>
 
 //From mbfield.h
-#ifndef unix
+#if !defined(unix) && !defined(__APPLE__)
 //#define _read  readfix
 #endif
 #define AVSINT ptrdiff_t
@@ -39,13 +39,14 @@
 #define AVS_OK
 
 //From portdefs.h
-#ifdef unix
+#if defined(unix) || defined(__APPLE__)
 #define O_BINARY 0
 #define setmode(a,b) 0
 #endif
 
 #ifndef __LARGE__
-#  if defined(__GNUC__) || defined(unix)
+#  if defined(__GNUC__) || defined(unix) || defined(__APPLE__)
+
      typedef long long Q_INT64;
      typedef unsigned long long Q_UINT64;
 #    define Q_INT64_CONST(x) (x##ll)
@@ -94,7 +95,7 @@ void clitk::XdrImageIO::Write(const void* buffer)
 #include <math.h>
 #include <stdlib.h>
 #include <limits.h>
-#ifndef unix
+#if !defined(unix) && !defined(__APPLE__)
 #include <io.h>
 #endif
 #include <fcntl.h>

@@ -29,7 +29,7 @@
 
 #include "clitkCommon.h"
 #include <ctime> 
-#if defined(unix)
+#if defined(unix) || defined(__APPLE__)
 #  include <sys/time.h>
 #  include <sys/resource.h>
 #elif defined(WIN32)
@@ -59,7 +59,7 @@ namespace clitk {
     //====================================================================
     
   protected:
-#if defined(unix)
+#if defined(unix) || defined(__APPLE__)
     rusage mBegin; 
     rusage mEnd;
 #elif defined(WIN32)

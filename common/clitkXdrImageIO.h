@@ -84,7 +84,7 @@ protected:
 } // end namespace
 
 // explicit template instantiation
-template class itk::CreateObjectFunction<clitk::XdrImageIO>;
+//template class itk::CreateObjectFunction<clitk::XdrImageIO>;
 
 #endif /* end #define CLITKXDRIMAGEIO_H */
 
