@@ -15,8 +15,11 @@ SET(clitkFilters_SRC
   clitkVFResampleGenericFilter.cxx
   clitkBinarizeImageGenericFilter.cxx
   clitkBinarizeImage_ggo.c
-  clitkFooImage_ggo.c
   clitkMedianImageGenericFilter.cxx
+  clitkMedianImageFilter_ggo.c
+  clitkFooImage_ggo.c
+  
+
   )  
 
 ADD_LIBRARY(clitkFilters STATIC ${clitkFilters_SRC})

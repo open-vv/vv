@@ -3,6 +3,7 @@
 INCLUDE(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
 #=========================================================
 
+
 ADD_EXECUTABLE(clitkDicomInfo clitkDicomInfo.cxx clitkDicomInfo_ggo.c)
 TARGET_LINK_LIBRARIES(clitkDicomInfo clitkCommon ITKIO) 
 
@@ -77,5 +78,5 @@ TARGET_LINK_LIBRARIES(clitkFooImage clitkCommon ITKIO clitkFilters)
 ADD_EXECUTABLE(clitkBinarizeImage clitkBinarizeImage.cxx)
 TARGET_LINK_LIBRARIES(clitkBinarizeImage clitkCommon ITKIO clitkFilters) 
 
-ADD_EXECUTABLE(clitkMedianImageFilter clitkMedianImageFilter.cxx clitkMedianImageFilter_ggo.c)
+ADD_EXECUTABLE(clitkMedianImageFilter clitkMedianImageFilter.cxx)
 TARGET_LINK_LIBRARIES(clitkMedianImageFilter clitkCommon ITKIO clitkFilters ITKBasicFilters)
