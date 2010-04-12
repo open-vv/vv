@@ -15,11 +15,11 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
-#ifndef clitkFooImageGenericFilter_txx
-#define clitkFooImageGenericFilter_txx
+#ifndef clitkUnsharpMaskGenericFilter_txx
+#define clitkUnsharpMaskGenericFilter_txx
 
 /* =================================================
- * @file   clitkFooImageGenericFilter.txx
+ * @file   clitkUnsharpMaskGenericFilter.txx
  * @author Jef Vandemeulebroucke <jef@creatis.insa-lyon.fr>
  * @date   29 june 2009
  *
@@ -28,22 +28,20 @@
  ===================================================*/
 
 // itk include
-#include "itkBinaryThresholdImageFilter.h"
-#include "itkMaskImageFilter.h"
-#include "itkMaskNegatedImageFilter.h"
+#include "itkRecursiveGaussianImageFilter.h"
+#include "itkSubtractImageFilter.h"
 #include <clitkCommon.h>
-#include <tiff.h>
 
 namespace clitk
 {
 
 //--------------------------------------------------------------------
 template<class args_info_type>
-FooImageGenericFilter<args_info_type>::FooImageGenericFilter():
-        ImageToImageGenericFilter<Self>("FooImage") {
+UnsharpMaskGenericFilter<args_info_type>::UnsharpMaskGenericFilter():
+        ImageToImageGenericFilter<Self>("UnsharpMask") {
     InitializeImageType<2>();
     InitializeImageType<3>();
-    InitializeImageType<4>();
+    //InitializeImageType<4>();
 }
 //--------------------------------------------------------------------
 
@@ -51,7 +49,7 @@ FooImageGenericFilter<args_info_type>::FooImageGenericFilter():
 //--------------------------------------------------------------------
 template<class args_info_type>
 template<unsigned int Dim>
-void FooImageGenericFilter<args_info_type>::InitializeImageType() {
+void UnsharpMaskGenericFilter<args_info_type>::InitializeImageType() {
     ADD_IMAGE_TYPE(Dim, char);
     ADD_IMAGE_TYPE(Dim, uchar);
     ADD_IMAGE_TYPE(Dim, short);
@@ -65,7 +63,7 @@ void FooImageGenericFilter<args_info_type>::InitializeImageType() {
 
 //--------------------------------------------------------------------
 template<class args_info_type>
-void FooImageGenericFilter<args_info_type>::SetArgsInfo(const args_info_type & a) {
+void UnsharpMaskGenericFilter<args_info_type>::SetArgsInfo(const args_info_type & a) {
     mArgsInfo=a;
     SetIOVerbose(mArgsInfo.verbose_flag);
     if (mArgsInfo.imagetypes_flag) this->PrintAvailableImageTypes();
@@ -85,7 +83,7 @@ void FooImageGenericFilter<args_info_type>::SetArgsInfo(const args_info_type & a
 template<class args_info_type>
 template<class InputImageType>
 void
-FooImageGenericFilter<args_info_type>::UpdateWithInputImageType()
+UnsharpMaskGenericFilter<args_info_type>::UpdateWithInputImageType()
 {
 
     // Reading input
@@ -93,52 +91,25 @@ FooImageGenericFilter<args_info_type>::UpdateWithInputImageType()
 
     // Main filter
     typedef typename InputImageType::PixelType PixelType;
-    typedef itk::Image<char, InputImageType::ImageDimension> OutputImageType;
+    typedef itk::Image<float, InputImageType::ImageDimension> OutputImageType;
 
     // Filter
-    typedef itk::BinaryThresholdImageFilter<InputImageType, OutputImageType> BinaryThresholdImageFilterType;
-    typename BinaryThresholdImageFilterType::Pointer thresholdFilter=BinaryThresholdImageFilterType::New();
-    thresholdFilter->SetInput(input);
-    thresholdFilter->SetInsideValue(mArgsInfo.fg_arg);
+    typedef itk::RecursiveGaussianImageFilter<InputImageType, OutputImageType> RecursiveGaussianImageFilterType;
+    typename RecursiveGaussianImageFilterType::Pointer gaussianFilter=RecursiveGaussianImageFilterType::New();
+    gaussianFilter->SetInput(input);
+    gaussianFilter->SetSigma(mArgsInfo.sigma_arg);
 
-    if (mArgsInfo.lower_given) thresholdFilter->SetLowerThreshold(static_cast<PixelType>(mArgsInfo.lower_arg));
-    if (mArgsInfo.upper_given) thresholdFilter->SetUpperThreshold(static_cast<PixelType>(mArgsInfo.upper_arg));
+    typedef itk::SubtractImageFilter<InputImageType, OutputImageType, OutputImageType> SubtractFilterType;
+    typename SubtractFilterType::Pointer subtractFilter = SubtractFilterType::New();
+    subtractFilter->SetInput1(input);
+    subtractFilter->SetInput2(gaussianFilter->GetOutput());
+    subtractFilter->Update();
 
-    if (mArgsInfo.mode_arg == std::string("both")) {
-        thresholdFilter->SetOutsideValue(mArgsInfo.bg_arg);
-        thresholdFilter->Update();
-
-        typename OutputImageType::Pointer outputImage = thresholdFilter->GetOutput();
-        this->template SetNextOutput<OutputImageType>(outputImage);
-    }
-    else {
-        typename InputImageType::Pointer outputImage;
-        thresholdFilter->SetOutsideValue(0);
-        if (mArgsInfo.mode_arg == std::string("BG")) {
-            typedef itk::MaskImageFilter<InputImageType,OutputImageType> maskFilterType;
-            typename maskFilterType::Pointer maskFilter = maskFilterType::New();
-            maskFilter->SetInput1(input);
-            maskFilter->SetInput2(thresholdFilter->GetOutput());
-            maskFilter->SetOutsideValue(mArgsInfo.bg_arg);
-            maskFilter->Update();
-            outputImage = maskFilter->GetOutput();
-        }
-        else {
-            typedef itk::MaskNegatedImageFilter<InputImageType,OutputImageType> maskFilterType;
-            typename maskFilterType::Pointer maskFilter = maskFilterType::New();
-            maskFilter->SetInput1(input);
-            maskFilter->SetInput2(thresholdFilter->GetOutput());
-            maskFilter->SetOutsideValue(mArgsInfo.fg_arg);
-            maskFilter->Update();
-            outputImage = maskFilter->GetOutput();
-        }
-        // Write/Save results
-        this->template SetNextOutput<InputImageType>(outputImage);
-    }
+    this->template SetNextOutput<OutputImageType>(subtractFilter->GetOutput());
 }
 //--------------------------------------------------------------------
 
 
 }//end clitk
 
-#endif //#define clitkFooImageGenericFilter_txx
+#endif //#define clitkUnsharpMaskGenericFilter_txx

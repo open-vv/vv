@@ -3,17 +3,16 @@ package "clitkFooImage"
 version "1.0"
 purpose ""
 
-option "config"	  	-	"Config file"			  string  	no
+option "config"	  	-	"Config file"			  string  	optional
 option "verbose"   	v   	"Verbose"			  flag		off
 
 option "imagetypes" 	-   	"Display allowed image types"	  flag		off
 
-option "input"		i	"Input image filename"		  string  	yes
-option "output"    	o   	"Output image filename"		  string 	yes
-option "lower"    	l   	"Lower intensity (default=min), fg is greater than this value"	  double 	no
-option "upper"    	u   	"Upper intensity (default=max), fg is lower than this value"	  double 	no
+option "input"		i	"Input image filename"		  string  	required
+option "output"    	o   	"Output image filename"		  string 	required
+option "lower"    	l   	"Lower intensity (default=min), fg is greater than this value"	  double 	optional
+option "upper"    	u   	"Upper intensity (default=max), fg is lower than this value"	  double 	optional
 
-option "fg"    		-   	"Foreground (FG) or 'inside' value"	 	  double 	no	default="1"
-        option "bg"    		-   	"Background (BG) or 'ouside' value"	 	  double 	no	default="0"
-                    option "mode" 		-   	"Use FG and/or BG values (if FG, the BG is replaced by the input image values)"	values="FG","BG","both"  default="both" no
-
+option "fg"    		-   	"Foreground (FG) or 'inside' value"	 	  double 	optional	default="1"
+option "bg"    		-   	"Background (BG) or 'ouside' value"	 	  double 	optional	default="0"
+option "mode" 		-   	"Use FG and/or BG values (if FG, the BG is replaced by the input image values)"	values="FG","BG","both"  default="both" optional

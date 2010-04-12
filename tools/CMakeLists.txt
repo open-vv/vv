@@ -72,6 +72,9 @@ clitkFilters)
 ADD_EXECUTABLE(clitkImageArithm clitkImageArithm.cxx)
 TARGET_LINK_LIBRARIES(clitkImageArithm clitkCommon ITKIO ITKStatistics clitkFilters)
 
+ADD_EXECUTABLE(clitkUnsharpMask clitkUnsharpMask.cxx clitkUnsharpMask_ggo.c)
+TARGET_LINK_LIBRARIES(clitkUnsharpMask clitkCommon ITKIO) 
+
 ADD_EXECUTABLE(clitkFooImage clitkFooImage.cxx)
 TARGET_LINK_LIBRARIES(clitkFooImage clitkCommon ITKIO clitkFilters) 
 
