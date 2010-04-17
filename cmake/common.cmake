@@ -17,6 +17,7 @@ MACRO (WRAP_GGO GGO_SRCS)
                            ARGS < ${GGO_FILE_ABS}
                                   --output-dir=${CMAKE_CURRENT_BINARY_DIR}
                                   --arg-struct-name=args_info_${GGO_BASEFILENAME}
+                                  --func-name=cmdline_parser_${GGO_BASEFILENAME}
                                   --file-name=${GGO_BASEFILENAME}_ggo
                                   --unamed-opts
                                   --conf-parser
