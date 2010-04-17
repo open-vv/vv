@@ -99,7 +99,6 @@ namespace clitk
   void ImageArithmGenericFilter<args_info_type>::UpdateWithInputImageType() {
     // Read input1
     typename ImageType::Pointer input1 = this->template GetInput<ImageType>(0);
-    typename ImageType::PixelType PixelType;
 
     // Set input image iterator
     typedef itk::ImageRegionIterator<ImageType> IteratorType;
@@ -117,7 +116,7 @@ namespace clitk
     }
 
     // Check if overwrite and outputisfloat and pixeltype is not float -> do not overwrite
-    if (mOverwriteInputImage && mOutputIsFloat && (typeid(PixelType) != typeid(float))) {
+    if (mOverwriteInputImage && mOutputIsFloat && (typeid(ImageType::PixelType) != typeid(float))) {
       // std::cerr << "Warning. Could not use both mOverwriteInputImage and mOutputIsFloat, because input is " 
       //                     << typeid(PixelType).name()
       //                     << std::endl;
@@ -213,7 +212,7 @@ namespace clitk
       break;
     case 5: // Absolute difference
       while (!ito.IsAtEnd()) {
-        ito.Set(PixelTypeDownCast<double, PixelType>(fabs(it2.Get()-it1.Get()))); 
+        ito.Set(PixelTypeDownCast<double, PixelType>(fabs((double)it2.Get()-(double)it1.Get()))); 
         ++it1; ++it2; ++ito;
       }
       break;

@@ -32,7 +32,6 @@
 #include "itkMaskImageFilter.h"
 #include "itkMaskNegatedImageFilter.h"
 #include <clitkCommon.h>
-#include <tiff.h>
 
 namespace clitk
 {
