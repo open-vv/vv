@@ -25,6 +25,8 @@
 //--------------------------------------------------------------------
 vvImage::vvImage() {
   mVtkImages.resize(0);
+  mTimeSpacing = 1;
+  mTimeOrigin = 0;
 }
 //--------------------------------------------------------------------
 
@@ -147,7 +149,7 @@ std::vector<double> vvImage::GetSpacing() {
   for (int i = 0; i < dim; i++)
     {
       if (i == 3)
-        spacing.push_back(1);
+        spacing.push_back(mTimeSpacing);
       else
         spacing.push_back(mVtkImages[0]->GetSpacing()[i]);
     }
@@ -163,7 +165,7 @@ std::vector<double> vvImage::GetOrigin() const {
   for (int i = 0; i < dim; i++)
     {
       if (i == 3)
-        origin.push_back(0);
+        origin.push_back(mTimeOrigin);
       else
         origin.push_back(mVtkImages[0]->GetOrigin()[i]);
     }

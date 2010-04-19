@@ -79,6 +79,8 @@ template<unsigned int Dim, class PixelType> vvImage::Pointer vvImageFromITK(type
             image->DeepCopy(connector->GetOutput());
             vv_image->AddImage(image);
         }
+        vv_image->SetTimeSpacing(input->GetSpacing()[Dim-1]);
+        vv_image->SetTimeOrigin(input->GetOrigin()[Dim-1]);        
     }
     else //Dim == 1,2,3 and not time_sequence
     {

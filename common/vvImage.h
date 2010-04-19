@@ -17,6 +17,7 @@
 ======================================================================-====*/
 #ifndef VVIMAGE_H
 #define VVIMAGE_H
+
 #include <iostream>
 #include <vector>
 #include <itkObjectFactory.h>
@@ -50,10 +51,15 @@ public :
   bool IsScalarTypeInteger();
   bool IsScalarTypeInteger(int t);
 
+  void SetTimeSpacing(double s) { mTimeSpacing = s; }
+  void SetTimeOrigin(double o) { mTimeOrigin = o; }
+
 private:
   vvImage();
   ~vvImage();
   std::vector<vtkImageData*> mVtkImages;
+  double mTimeOrigin;
+  double mTimeSpacing;
 
 };
 
