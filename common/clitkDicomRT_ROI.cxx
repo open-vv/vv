@@ -40,6 +40,16 @@ clitk::DicomRT_ROI::~DicomRT_ROI() {
 
 
 //--------------------------------------------------------------------
+void clitk::DicomRT_ROI::SetDisplayColor(double r, double v, double b) {
+  mColor.resize(3);
+  mColor[0] = r;
+  mColor[1] = v;
+  mColor[2] = b;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
 int clitk::DicomRT_ROI::GetROINumber() const {
   return mNumber;
 }

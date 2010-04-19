@@ -43,6 +43,8 @@ namespace clitk {
     const std::vector<double> & GetDisplayColor() const;
     vtkPolyData * GetMesh();
     const vvImage::Pointer GetImage() const;
+
+    void SetDisplayColor(double r, double v, double b);
     
   protected:
     void ComputeMesh();
