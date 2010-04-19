@@ -116,7 +116,7 @@ namespace clitk
     }
 
     // Check if overwrite and outputisfloat and pixeltype is not float -> do not overwrite
-    if (mOverwriteInputImage && mOutputIsFloat && (typeid(ImageType::PixelType) != typeid(float))) {
+    if (mOverwriteInputImage && mOutputIsFloat && (typeid(typename ImageType::PixelType) != typeid(float))) {
       // std::cerr << "Warning. Could not use both mOverwriteInputImage and mOutputIsFloat, because input is " 
       //                     << typeid(PixelType).name()
       //                     << std::endl;
