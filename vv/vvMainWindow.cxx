@@ -104,6 +104,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase() {
   mContextMenu = &contextMenu;
   mMenuExperimentalTools = menuExperimental;
   mMainWidget = this;
+  mCurrentTime = -1;
 
   //Init the contextMenu
   this->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -919,6 +920,17 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType fi
     }
   QApplication::restoreOverrideCursor();
 
+  // Try to guess default WindowLevel
+  double range[2];
+  mSlicerManagers.back()->GetImage()->GetFirstVTKImageData()->GetScalarRange(range);
+  // DD(range[0]);
+  //   DD(range[1]);
+  if ((range[0] == 0) && (range[1] == 1)) {
+    presetComboBox->setCurrentIndex(5);// binary
+  }
+  else {
+    // TODO
+  }
 }
 //------------------------------------------------------------------------------
 
@@ -2056,8 +2068,10 @@ void vvMainWindow::AddFusionImage()
         }
     }
 }
+//------------------------------------------------------------------------------
 
 
+//------------------------------------------------------------------------------
 void vvMainWindow::OpenField()
 {
   int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
@@ -2078,7 +2092,10 @@ void vvMainWindow::OpenField()
   if (!file.isEmpty())
     AddField(file,index);
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvMainWindow::AddFieldEntry(QString filename,int index,bool from_disk)
 {
   //create an item in the tree with good settings
@@ -2127,7 +2144,10 @@ void vvMainWindow::AddFieldEntry(QString filename,int index,bool from_disk)
   ImageInfoChanged();
   QApplication::restoreOverrideCursor();
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvMainWindow::AddField(vvImage::Pointer vf,QString file,int index)
 {
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -2144,7 +2164,10 @@ void vvMainWindow::AddField(vvImage::Pointer vf,QString file,int index)
     }
   QApplication::restoreOverrideCursor();
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvMainWindow::AddField(QString file,int index)
 {
   if (QFile::exists(file))
@@ -2180,6 +2203,7 @@ void vvMainWindow::AddField(QString file,int index)
 }
 //------------------------------------------------------------------------------
 
+
 //------------------------------------------------------------------------------
 void vvMainWindow::SetVFProperty(int subsampling, int scale, int log) {
   int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
@@ -2197,6 +2221,7 @@ void vvMainWindow::SetVFProperty(int subsampling, int scale, int log) {
     }
 }
 //------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::SetOverlayProperty(int color) {
@@ -2373,28 +2398,41 @@ void vvMainWindow::HorizontalSliderMoved(int value,int column, int slicer_index)
         }
     }
 }
+//------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::NOHorizontalSliderMoved() {
+  // if (mCurrentTime == NOHorizontalSlider->value()) return;
   HorizontalSliderMoved(NOHorizontalSlider->value(),COLUMN_UL_VIEW,0);
+ //  mCurrentTime = NOHorizontalSlider->value();
 }
 //------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::NEHorizontalSliderMoved() {
+  // if (mCurrentTime == NEHorizontalSlider->value()) return;
   HorizontalSliderMoved(NEHorizontalSlider->value(),COLUMN_UR_VIEW,1);
+ //  mCurrentTime = NEHorizontalSlider->value();
 }
 //------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::SOHorizontalSliderMoved() {
+  // if (mCurrentTime == SOHorizontalSlider->value()) return;
   HorizontalSliderMoved(SOHorizontalSlider->value(),COLUMN_DL_VIEW,2);
+  // mCurrentTime = SOHorizontalSlider->value();
 }
 //------------------------------------------------------------------------------
 
+
 //------------------------------------------------------------------------------
 void vvMainWindow::SEHorizontalSliderMoved() {
+  // if (mCurrentTime == SEHorizontalSlider->value()) return;
   HorizontalSliderMoved(SEHorizontalSlider->value(),COLUMN_DR_VIEW,3);
+  // mCurrentTime = SEHorizontalSlider->value();
 }
 //------------------------------------------------------------------------------
 
@@ -2406,6 +2444,7 @@ void vvMainWindow::NOVerticalSliderChanged() {
       if (DataTree->topLevelItem(i)->data(COLUMN_UL_VIEW,Qt::CheckStateRole).toInt() > 1)
         {
           mSlicerManagers[i]->GetSlicer(0)->SetSlice(value);
+          mSlicerManagers[i]->VerticalSliderHasChanged(0, value);
           // mSlicerManagers[i]->UpdateSlice(0);
           // <-- DS add this. Not too much update ? YES.
           break;
@@ -2413,6 +2452,7 @@ void vvMainWindow::NOVerticalSliderChanged() {
     }
 }
 //------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::NEVerticalSliderChanged() {
@@ -2428,6 +2468,7 @@ void vvMainWindow::NEVerticalSliderChanged() {
 }
 //------------------------------------------------------------------------------
 
+
 //------------------------------------------------------------------------------
 void vvMainWindow::SOVerticalSliderChanged() {
   int value = SOVerticalSlider->value();
@@ -2441,6 +2482,7 @@ void vvMainWindow::SOVerticalSliderChanged() {
     }
 }
 //------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::SEVerticalSliderChanged() {
@@ -2456,6 +2498,7 @@ void vvMainWindow::SEVerticalSliderChanged() {
 }
 //------------------------------------------------------------------------------
 
+
 //------------------------------------------------------------------------------
 void vvMainWindow::UpdateSlice(int slicer, int slice) {
   if (slicer == 0) {
@@ -2470,6 +2513,7 @@ void vvMainWindow::UpdateSlice(int slicer, int slice) {
     SEVerticalSlider->setValue(slice);
 }
 //------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::UpdateTSlice(int slicer, int slice) {
@@ -2490,6 +2534,7 @@ void vvMainWindow::UpdateTSlice(int slicer, int slice) {
     }
 }
 //------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::UpdateSliceRange(int slicer, int min, int max, int tmin, int tmax) {
@@ -2526,6 +2571,7 @@ void vvMainWindow::UpdateSliceRange(int slicer, int min, int max, int tmin, int 
 }
 //------------------------------------------------------------------------------
 
+
 //------------------------------------------------------------------------------
 void vvMainWindow::SaveNOScreenshot() {
   vtkWindowToImageFilter *w2i = vtkWindowToImageFilter::New();
@@ -2535,6 +2581,7 @@ void vvMainWindow::SaveNOScreenshot() {
   w2i->Delete();
 }
 //------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::SaveNEScreenshot() {
@@ -2546,6 +2593,7 @@ void vvMainWindow::SaveNEScreenshot() {
 }
 //------------------------------------------------------------------------------
 
+
 //------------------------------------------------------------------------------
 void vvMainWindow::SaveSOScreenshot() {
   vtkWindowToImageFilter *w2i = vtkWindowToImageFilter::New();
@@ -2556,6 +2604,7 @@ void vvMainWindow::SaveSOScreenshot() {
 }
 //------------------------------------------------------------------------------
 
+
 //------------------------------------------------------------------------------
 void vvMainWindow::SaveSEScreenshot() {
   vtkWindowToImageFilter *w2i = vtkWindowToImageFilter::New();
@@ -2565,6 +2614,7 @@ void vvMainWindow::SaveSEScreenshot() {
   w2i->Delete();
 }
 //------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::SaveScreenshot(vtkImageData* image) {
@@ -2629,6 +2679,7 @@ void vvMainWindow::SaveScreenshot(vtkImageData* image) {
 
 }
 //------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::GoToCursor() {

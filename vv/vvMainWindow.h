@@ -143,9 +143,6 @@ public slots:
   }
   void UpdateRenderWindows();
 
-// signals:
-//   void SlicerManagersHasChanged();
-
 private:
 
   //variables
@@ -185,6 +182,9 @@ private:
   // std::vector<vvToolCreatorBase*> mListOfRunningTool;
 
   static vvMainWindow * mSingleton;
+
+  int mCurrentTime;
+
 };
 
 #include "vvMainWindow.txx"
