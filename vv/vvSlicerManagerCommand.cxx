@@ -294,6 +294,15 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
                 return;
             }
 
+	    //DD(event);
+	    // Mouse release HERE 
+	    if (event == vtkCommand::EndPickEvent) {
+	      //	      DD(VisibleInWindow);
+	      if (VisibleInWindow > -1)
+		this->SM->LeftButtonReleaseEvent(VisibleInWindow);
+	      return; // no return !!!! ???
+	    }
+
             if (event == vtkCommand::StartWindowLevelEvent)
             {
                 mStartSlicer = -1;
@@ -508,7 +517,10 @@ void vvSlicerManagerCommand::Dolly(double factor, vtkRenderWindowInteractor *int
     renderer->ResetCameraClippingRange();
     //interactor->Render();
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSlicerManagerCommand::FlyToPosition(vtkRenderWindowInteractor *interactor,vvSlicer* slicer)
 {
     double flyFrom[3], flyTo[3];
@@ -577,3 +589,4 @@ void vvSlicerManagerCommand::FlyToPosition(vtkRenderWindowInteractor *interactor
         }
     }
 }
+//------------------------------------------------------------------------------
