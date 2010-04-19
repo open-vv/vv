@@ -110,11 +110,12 @@ SET(vv_SRCS
   vvToolSimpleInputSelectorWidget.cxx
   vvToolInputSelectorWidget.cxx
   vvImageContour.cxx
+  vvBinaryImageOverlayActor.cxx
   vvToolImageArithm.cxx
   vvToolConvert.cxx
-  # vvToolStructureSetManager.cxx
-#   vvStructureSetActor.cxx
-#   vvROIActor.cxx
+  vvToolStructureSetManager.cxx
+  vvStructureSetActor.cxx
+  vvROIActor.cxx
   vvToolResample.cxx
   )
 
@@ -147,9 +148,9 @@ QT4_WRAP_CPP(vv_SRCS
   vvToolCropImage.h
   vvToolImageArithm.h
   vvToolConvert.h
-  # vvToolStructureSetManager.h
- #  vvStructureSetActor.h
-#   vvROIActor.h
+  vvToolStructureSetManager.h
+  vvStructureSetActor.h
+  vvROIActor.h
   vvToolResample.h
   )
 
@@ -177,7 +178,7 @@ QT4_WRAP_UI(vv_UI_CXX
   qt_ui/vvToolCropImage.ui
   qt_ui/vvToolBinarize.ui
   qt_ui/vvToolImageArithm.ui
-  # qt_ui/vvToolStructureSetManager.ui
+  qt_ui/vvToolStructureSetManager.ui
   qt_ui/vvToolResample.ui
   )
 
