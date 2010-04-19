@@ -5,7 +5,6 @@ purpose ""
 
 option "config"	  	-	"Config file"			  string  	no
 option "verbose"   	v   	"Verbose"			  flag		off
-
 option "imagetypes" 	-   	"Display allowed image types"	  flag		off
 
 option "input"		i	"Input image filename"		  string  	yes

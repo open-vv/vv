@@ -15,23 +15,16 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
-#ifndef clitkBinarizeImageGenericFilter_txx
-#define clitkBinarizeImageGenericFilter_txx
 
-/* =================================================
- * @file   clitkBinarizeImageGenericFilter.txx
- * @author Jef Vandemeulebroucke <jef@creatis.insa-lyon.fr>
- * @date   29 june 2009
- * 
- * @brief 
- * 
- ===================================================*/
+#ifndef CLITKBINARIZEIMAGEGENERICFILTER_TXX
+#define CLITKBINARIZEIMAGEGENERICFILTER_TXX
 
 // itk include
 #include "itkBinaryThresholdImageFilter.h"
 #include "itkMaskImageFilter.h"
 #include "itkMaskNegatedImageFilter.h"
 #include <clitkCommon.h>
+// #include <tiff.h>
 
 namespace clitk
 {
@@ -56,6 +49,7 @@ namespace clitk
     ADD_IMAGE_TYPE(Dim, short);
     ADD_IMAGE_TYPE(Dim, ushort);
     ADD_IMAGE_TYPE(Dim, int);
+    // ADD_IMAGE_TYPE(Dim, uint16);
     ADD_IMAGE_TYPE(Dim, float);
     ADD_IMAGE_TYPE(Dim, double);
   }
