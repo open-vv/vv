@@ -209,6 +209,7 @@ void vvToolBinarize::UpdateSlice(int slicer,int slices) {
   if (!mInteractiveDisplayIsEnabled) return;
   if (!mCurrentSlicerManager) close();
   for(int i=0;i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
+    //    DD(i);
     mImageContour[i]->update(mThresholdSlider1->GetValue());
     if (mRadioButtonLowerThan->isChecked()) 
       mImageContourLower[i]->update(mThresholdSlider2->GetValue());
@@ -217,6 +218,7 @@ void vvToolBinarize::UpdateSlice(int slicer,int slices) {
   mCurrentSlicerManager->Render(); 
 }
 //------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::GetArgsInfoFromGUI() {
@@ -311,7 +313,7 @@ void vvToolBinarize::valueChangedT2(double v) {
     for(int i=0;i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
       mImageContourLower[i]->update(v);
     }
-    mCurrentSlicerManager->Render();
+    // mCurrentSlicerManager->Render();
   }
 }
 //------------------------------------------------------------------------------
@@ -327,6 +329,6 @@ void vvToolBinarize::valueChangedT1(double v) {
   for(int i=0;i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
     mImageContour[i]->update(v);
   }
-  mCurrentSlicerManager->Render();
+  // mCurrentSlicerManager->Render();
 }
 //------------------------------------------------------------------------------

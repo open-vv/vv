@@ -280,6 +280,7 @@ void vvInteractorStyleNavigator::OnLeftButtonDown()
 //----------------------------------------------------------------------------
 void vvInteractorStyleNavigator::OnLeftButtonUp()
 {
+  //  DD("OnLeftButtonUp");
     switch (this->State)
     {
     case VTKIS_PICK:
