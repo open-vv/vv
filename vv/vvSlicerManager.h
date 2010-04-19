@@ -1,3 +1,4 @@
+
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
@@ -186,6 +187,8 @@ class vvSlicerManager : public QObject {
   
   void NextImage(int slicer);
   void PrevImage(int slicer);
+  void LeftButtonReleaseEvent(int slicer);
+  void VerticalSliderHasChanged(int slicer, int slice);
 
 signals :
   void currentImageChanged(std::string id);
@@ -201,6 +204,8 @@ signals :
   void UpdateLinkManager(std::string, int slicer, double x, double y, double z, int temps);
   void LandmarkAdded();
   void ChangeImageWithIndexOffset(vvSlicerManager *sm, int slicer, int offset);
+  void LeftButtonReleaseSignal(int slicer);
+  void AVerticalSliderHasChanged(int slicer, int slice);
 
 protected:
   std::vector<vvSlicer*> mSlicers;
@@ -235,6 +240,9 @@ protected:
   std::list<std::string> mLinkedId;
 
   vvLandmarks* mLandmarks;
+  
+  std::vector<int> mPreviousSlice;
+  std::vector<int> mPreviousTSlice;
 };
 
 #endif

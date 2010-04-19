@@ -69,11 +69,12 @@ vvSlicerManager::vvSlicerManager(int numberOfSlicers)
   mLandmarks = NULL;
   mLinkedId.resize(0);
 
-  for ( int i = 0; i < numberOfSlicers; i++)
-    {
-      vvSlicer *slicer = vvSlicer::New();
-      mSlicers.push_back(slicer);
-    }
+  for ( int i = 0; i < numberOfSlicers; i++) {
+    vvSlicer *slicer = vvSlicer::New();
+    mSlicers.push_back(slicer);
+  }
+  mPreviousSlice.resize(numberOfSlicers);
+  mPreviousTSlice.resize(numberOfSlicers);
 }
 //----------------------------------------------------------------------------
 
@@ -233,7 +234,7 @@ bool vvSlicerManager::SetImages(std::vector<std::string> filenames,LoadedImageTy
     mFileName.append("_"+clitk::toString(n));
     //    DD(mFileName);
   }
- return true;
+  return true;
 }
 //----------------------------------------------------------------------------
 
@@ -328,17 +329,29 @@ bool vvSlicerManager::SetVF(std::string filename)
 //----------------------------------------------------------------------------
 bool vvSlicerManager::SetVF(vvImage::Pointer vf,std::string filename)
 {
-  if (vf->GetNumberOfDimensions() > mImage->GetNumberOfDimensions())
-    {
-      mLastError = " Vector field dimension cannot be greater then reference image!";
+  if (vf->GetNumberOfDimensions() > mImage->GetNumberOfDimensions()) {
+    mLastError = "Sorry, vector field dimension cannot be greater then reference image.";
+    return false;
+  }
+  if (vf->GetNumberOfDimensions() == 4) {
+    // DD(vf->GetSpacing()[3]);
+    //     DD(mImage->GetSpacing()[3]);
+    //     DD(vf->GetOrigin()[3]);
+    //     DD(mImage->GetOrigin()[3]);    
+    if (vf->GetSpacing()[3] != mImage->GetSpacing()[3]) {
+      mLastError = "Sorry, vector field time spacing cannot be different from time spacing of the reference image.";
       return false;
     }
+    if (vf->GetOrigin()[3] != mImage->GetOrigin()[3]) {
+      mLastError = "Sorry, vector field time origin cannot be different from time origin of the reference image.";
+      return false;
+    }
+  }
   mVF=vf;
   mVFName = filename;
-  for ( unsigned int i = 0; i < mSlicers.size(); i++)
-    {
-      mSlicers[i]->SetVF(vf);
-    }
+  for ( unsigned int i = 0; i < mSlicers.size(); i++) {
+    mSlicers[i]->SetVF(vf);
+  }
   return true;
 }
 //----------------------------------------------------------------------------
@@ -431,7 +444,18 @@ void vvSlicerManager::SetInteractorStyleNavigator(int i, vtkInteractorStyle* sty
     GetInteractorStyle()->AddObserver(vtkCommand::MouseWheelForwardEvent, smc);
   mSlicers[i]->GetRenderWindow()->GetInteractor()->
     GetInteractorStyle()->AddObserver(vtkCommand::MouseWheelBackwardEvent, smc);
+  // mSlicers[i]->GetRenderWindow()->GetInteractor()->
+  //   GetInteractorStyle()->AddObserver(vtkCommand::LeftButtonReleaseEvent, smc);
+  mSlicers[i]->GetRenderWindow()->GetInteractor()->
+     GetInteractorStyle()->AddObserver(vtkCommand::EndPickEvent, smc);
   smc->Delete();
+}
+//----------------------------------------------------------------------------
+
+
+//----------------------------------------------------------------------------
+void vvSlicerManager::LeftButtonReleaseEvent(int slicer) {
+  emit LeftButtonReleaseSignal(slicer);
 }
 //----------------------------------------------------------------------------
 
@@ -447,9 +471,11 @@ void vvSlicerManager::SetTSlice(int slice)
     mLandmarks->SetTime(slice);
   for ( unsigned int i = 0; i < mSlicers.size(); i++)
     {
-      mSlicers[i]->SetTSlice(slice);
-      if (mSlicers[i]->GetImageActor()->GetVisibility())
-	UpdateTSlice(i);
+      if (slice != mSlicers[i]->GetTSlice()) {
+        mSlicers[i]->SetTSlice(slice);
+        if (mSlicers[i]->GetImageActor()->GetVisibility())
+          UpdateTSlice(i);
+      }
     }
 }
 //----------------------------------------------------------------------------
@@ -462,6 +488,9 @@ void vvSlicerManager::SetNextTSlice(int originating_slicer)
   t++;
   if (t > mSlicers[0]->GetTMax())
     t = 0;
+  // DD("SetNextTSlice");
+//   DD(originating_slicer);
+//   DD(t);
   emit UpdateTSlice(originating_slicer,t);
 }
 //----------------------------------------------------------------------------
@@ -500,6 +529,9 @@ void vvSlicerManager::SetTSliceInSlicer(int tslice, int slicer)
     tslice = mSlicers[slicer]->GetTMax();
   if (mLandmarks)
     mLandmarks->SetTime(tslice);
+
+  if (mSlicers[slicer]->GetTSlice() == tslice) return;
+
   mSlicers[slicer]->SetTSlice(tslice);
   if (mSlicers[slicer]->GetImageActor()->GetVisibility())
     UpdateTSlice(slicer);
@@ -935,9 +967,14 @@ void vvSlicerManager::UpdateWindowLevel()
 void vvSlicerManager::UpdateSlice(int slicer)
 {
   // DD("vvSlicerManager::UpdateSlice emit UpdateSlice");
-  // DD(slicer);
-  // DD(mSlicers[slicer]->GetSlice());
+//   DD(slicer);
+//   DD(mSlicers[slicer]->GetSlice());
+  if (mPreviousSlice[slicer] == mSlicers[slicer]->GetSlice()) {
+    //DD("============= NOTHING");
+    return;
+  }
   emit UpdateSlice(slicer, mSlicers[slicer]->GetSlice());
+  mPreviousSlice[slicer] = mSlicers[slicer]->GetSlice();
 }
 //----------------------------------------------------------------------------
 
@@ -945,7 +982,19 @@ void vvSlicerManager::UpdateSlice(int slicer)
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateTSlice(int slicer)
 {
-  emit UpdateTSlice(slicer,mSlicers[0]->GetTSlice());
+  // DD("vvSlicerManager::UpdateTSlice emit UpdateTSlice");
+//   DD(slicer);
+//   DD(mSlicers[slicer]->GetTSlice());
+//   DD(mSlicers[slicer]->GetSlice());
+  if (mPreviousSlice[slicer] == mSlicers[slicer]->GetSlice()) {
+    if (mPreviousTSlice[slicer] == mSlicers[slicer]->GetTSlice()) {
+      //      DD("************** NOTHING ***********");
+      return;
+    }
+  }
+  mPreviousSlice[slicer] = mSlicers[slicer]->GetSlice();
+  mPreviousTSlice[slicer] = mSlicers[slicer]->GetTSlice();
+  emit UpdateTSlice(slicer,mSlicers[slicer]->GetTSlice());  
 }
 //----------------------------------------------------------------------------
 
@@ -1202,9 +1251,17 @@ void vvSlicerManager::PrevImage(int slicer)
 }
 //----------------------------------------------------------------------------
 
+
 //----------------------------------------------------------------------------
 void vvSlicerManager::NextImage(int slicer)
 {
   emit ChangeImageWithIndexOffset(this, slicer,  1);
+}
+//----------------------------------------------------------------------------
+
+
+//----------------------------------------------------------------------------
+void vvSlicerManager::VerticalSliderHasChanged(int slicer, int slice) {
+  emit AVerticalSliderHasChanged(slicer, slice);
 }
 //----------------------------------------------------------------------------
