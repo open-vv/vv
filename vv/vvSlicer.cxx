@@ -566,6 +566,9 @@ void vvSlicer::SetTSlice(int t)
     t = 0;
   else if ((unsigned int)t >= mImage->GetVTKImages().size())
     t = mImage->GetVTKImages().size() -1;
+
+  if (mCurrentTSlice == t) return;
+
   mCurrentTSlice = t;
   this->SetInput(mImage->GetVTKImages()[t]);
   if (mVF && mVFActor->GetVisibility())
@@ -635,6 +638,27 @@ void vvSlicer::SetSliceOrientation(int orientation)
 
   SetContourSlice();
 }
+//----------------------------------------------------------------------------
+
+
+//----------------------------------------------------------------------------
+int * vvSlicer::GetExtent() {
+  int *w_ext;
+  if (mUseReducedExtent) {
+    w_ext = mReducedExtent;
+  }
+  else w_ext = GetInput()->GetWholeExtent();
+  return w_ext;
+}
+//----------------------------------------------------------------------------
+
+
+//----------------------------------------------------------------------------
+int vvSlicer::GetOrientation() {
+  return this->SliceOrientation;
+}
+//----------------------------------------------------------------------------
+
 
 //----------------------------------------------------------------------------
 void vvSlicer::UpdateDisplayExtent()
@@ -1189,6 +1213,8 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max)
 //----------------------------------------------------------------------------
 void vvSlicer::Render()
 {
+  //  DD("Render");
+  //DD(SliceOrientation);
   if (this->GetWindowLevel()->GetLookupTable() && !this->mOverlay && !this->mFusion)
     {
       legend->SetLookupTable(this->GetWindowLevel()->GetLookupTable());
@@ -1380,3 +1406,5 @@ void vvSlicer::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 //----------------------------------------------------------------------------
+
+
