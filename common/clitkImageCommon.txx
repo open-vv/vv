@@ -96,6 +96,39 @@ typename itk::Image<PixelType,4>::Pointer NewImage4D(int sx, int sy, int sz, int
 }
 //--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
+template<class ImageType>
+typename ImageType::Pointer NewImageLike(const typename ImageType::Pointer input, bool allocate) {
+  typename ImageType::Pointer output = ImageType::New();
+  output->SetRegions(input->GetLargestPossibleRegion());
+  output->SetOrigin(input->GetOrigin());
+  output->SetSpacing(input->GetSpacing());
+  if (allocate) output->Allocate();
+  return output;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template<class ImageType>
+void CopyValues(const typename ImageType::Pointer input, 
+                typename ImageType::Pointer output) {  
+  typedef itk::ImageRegionConstIterator<ImageType> ConstIteratorType; 
+  ConstIteratorType pi(input,input->GetLargestPossibleRegion());
+  pi.GoToBegin();  
+  typedef itk::ImageRegionIterator<ImageType> IteratorType; 
+  IteratorType po(output,input->GetLargestPossibleRegion());
+  po.GoToBegin(); 
+  while (!pi.IsAtEnd()) {
+    po.Set(pi.Get());
+    ++pi;
+    ++po;
+  }
+}
+//--------------------------------------------------------------------
+
+
 //--------------------------------------------------------------------
 template<class ImageType>
 typename ImageType::Pointer readImage(const std::string & filename, const bool verbose) {

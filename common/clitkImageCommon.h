@@ -52,6 +52,11 @@ namespace clitk {
   template<class PixelType>
   typename itk::Image<PixelType,4>::Pointer NewImage4D(int sx, int sy, int sz, int st, double dx=1.0, double dy=1.0, double dz=1.0, double dt=1.0);
 
+  template<class ImageType>
+  typename ImageType::Pointer NewImageLike(const typename ImageType::Pointer input, bool allocate=true);
+
+  template<class ImageType>
+  void CopyValues(const typename ImageType::Pointer input, typename ImageType::Pointer output);
   //--------------------------------------------------------------------
   // New Image creation (with allocation)
 
