@@ -69,6 +69,7 @@ ENDIF(PROJECT_BINARY_DIR STREQUAL ${PROJECT_SOURCE_DIR})
 OPTION(CLITK_BUILD_VV "Build vv the 4D visualizer (requires VTK and QT)" ON)
 OPTION(CLITK_BUILD_TOOLS "Build command-line tools" OFF)
 OPTION(CLITK_EXPERIMENTAL "Enable experimental software and features" OFF)
+OPTION(CLITK_BUILD_SEGMENTATION "Build segmentation tools" OFF)
 #=========================================================
 
 include_directories(itk filters ${PROJECT_BINARY_DIR})
@@ -84,5 +85,9 @@ ENDIF(CLITK_BUILD_VV)
 IF (CLITK_BUILD_TOOLS)
   add_subdirectory(tools)
 ENDIF(CLITK_BUILD_TOOLS)
+
+IF (CLITK_BUILD_SEGMENTATION)
+    add_subdirectory(segmentation)
+ENDIF (CLITK_BUILD_SEGMENTATION)
 
 #=========================================================
