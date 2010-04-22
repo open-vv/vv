@@ -276,6 +276,7 @@ bool vvImage::IsScalarTypeInteger(int t) {
 void vvImage::SetTransform(vtkAbstractTransform  *transform)
 {
   mVtkImageReslice->SetResliceTransform(transform);
+  mVtkImageReslice->Update();
 }
 //--------------------------------------------------------------------
 
