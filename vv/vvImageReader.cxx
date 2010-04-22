@@ -126,7 +126,6 @@ void vvImageReader::ReadNkiImageTransform()
     typedef itk::ImageFileReader< itk::Image< double, 2 > > MatrixReaderType;
     MatrixReaderType::Pointer readerTransfo = MatrixReaderType::New();
     readerTransfo->SetFileName(mInputFilenames[0]+".MACHINEORIENTATION");
-DD(mInputFilenames[0]+".MACHINEORIENTATION");
     try
     {   readerTransfo->Update();
     }
@@ -150,7 +149,6 @@ DD(mInputFilenames[0]+".MACHINEORIENTATION");
         vtkSmartPointer<vtkTransform> pt = vtkSmartPointer<vtkTransform>::New();
         pt->SetMatrix( mat );
         pt->Inverse();
-DD(*pt);
         mImage->SetTransform( pt );
     }
 }
