@@ -1176,8 +1176,8 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max)
     {
       if (i!=SliceOrientation) //SR: assumes that SliceOrientation is valid in ViewCoordinates (???)
         {
-	  fLocalExtents[i*2  ] -= 0.2;
-	  fLocalExtents[i*2+1] += 0.2;
+	      fLocalExtents[i*2  ] -= 0.2;
+	      fLocalExtents[i*2+1] += 0.2;
         }
     }
   this->Renderer->ViewToWorld(fLocalExtents[0], fLocalExtents[2], fLocalExtents[4]);
@@ -1194,17 +1194,24 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max)
       iLocalExtents[i*2+1] = lrint(fLocalExtents[i*2+1]);
 
       if(iLocalExtents[i*2  ]>iLocalExtents[i*2+1])
-	std::swap(iLocalExtents[i*2], iLocalExtents[i*2+1]);
+	  std::swap(iLocalExtents[i*2], iLocalExtents[i*2+1]);
     }
-    
+
   vtkSmartPointer<vtkExtractVOI> voiFilter = vtkExtractVOI::New();
   voiFilter->SetInput(this->GetInput());
   voiFilter->SetVOI(iLocalExtents);
+  voiFilter->Update();
+  if (!voiFilter->GetOutput()->GetNumberOfPoints())
+    {
+      min = 0;
+      max = 0;
+      return;
+    }
 
   vtkSmartPointer<vtkImageAccumulate> accFilter = vtkImageAccumulate::New();
   accFilter->SetInput(voiFilter->GetOutput());
   accFilter->Update();
-   
+  
   min = *(accFilter->GetMin());
   max = *(accFilter->GetMax());
 }
