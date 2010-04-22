@@ -37,13 +37,7 @@ clitk::ImageConvertGenericFilter::ImageConvertGenericFilter():
 //--------------------------------------------------------------------
 template<unsigned int Dim>
 void clitk::ImageConvertGenericFilter::InitializeImageType() {      
-  ADD_IMAGE_TYPE(Dim, char);
-  ADD_IMAGE_TYPE(Dim, unsigned char);
-  ADD_IMAGE_TYPE(Dim, short);
-  ADD_IMAGE_TYPE(Dim, unsigned short);
-  ADD_IMAGE_TYPE(Dim, int);
-  ADD_IMAGE_TYPE(Dim, float);
-  ADD_IMAGE_TYPE(Dim, double);
+    ADD_DEFAULT_IMAGE_TYPES(Dim);
 }
 //--------------------------------------------------------------------
 

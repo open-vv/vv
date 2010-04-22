@@ -60,13 +60,7 @@ clitk::ImageResampleGenericFilter::ImageResampleGenericFilter():
 //--------------------------------------------------------------------
 template<unsigned int Dim>
 void clitk::ImageResampleGenericFilter::InitializeImageTypeWithDim() {      
-    ADD_IMAGE_TYPE(Dim, char);
-    ADD_IMAGE_TYPE(Dim, uchar);
-    ADD_IMAGE_TYPE(Dim, short);
-    ADD_IMAGE_TYPE(Dim, ushort);
-    ADD_IMAGE_TYPE(Dim, int);
-    ADD_IMAGE_TYPE(Dim, float);
-    ADD_IMAGE_TYPE(Dim, double);
+  ADD_DEFAULT_IMAGE_TYPES(Dim);
 }
 //--------------------------------------------------------------------
 

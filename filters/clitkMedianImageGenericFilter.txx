@@ -32,13 +32,7 @@ namespace clitk
   template<class args_info_type>
   template<unsigned int Dim>
   void MedianImageGenericFilter<args_info_type>::InitializeImageType() {      
-    ADD_IMAGE_TYPE(Dim, char);
-    ADD_IMAGE_TYPE(Dim, uchar);
-    ADD_IMAGE_TYPE(Dim, short);
-    ADD_IMAGE_TYPE(Dim, int);
-    ADD_IMAGE_TYPE(Dim, float);
-    ADD_IMAGE_TYPE(Dim, double);
-    ADD_IMAGE_TYPE(Dim, unsigned short); 
+    ADD_DEFAULT_IMAGE_TYPES(Dim);
   }
   //--------------------------------------------------------------------
   

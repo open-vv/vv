@@ -112,6 +112,13 @@ namespace clitk {
 
 #define ADD_VEC_IMAGE_TYPE(DIM, COMP, PT) this->mImageTypesManager.template AddNewDimensionAndPixelType<DIM,COMP, PT>();
 #define ADD_IMAGE_TYPE(DIM, PT) this->mImageTypesManager.template AddNewDimensionAndPixelType<DIM, PT>();
+#define ADD_DEFAULT_IMAGE_TYPES(DIM) ADD_IMAGE_TYPE(DIM, char);   \
+                                     ADD_IMAGE_TYPE(DIM, uchar);  \
+                                     ADD_IMAGE_TYPE(DIM, short);  \
+                                     ADD_IMAGE_TYPE(DIM, ushort); \
+                                     ADD_IMAGE_TYPE(DIM, int);    \
+                                     ADD_IMAGE_TYPE(DIM, float);  \
+                                     ADD_IMAGE_TYPE(DIM, double);
 
   //#include "clitkImageToImageGenericFilterBase.txx"
 
