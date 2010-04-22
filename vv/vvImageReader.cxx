@@ -117,5 +117,43 @@ void vvImageReader::SetInputFilenames(const std::vector<std::string> & filenames
 }
 //------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
+//Read transformation in NKI format (Xdr, transposed, cm)
+void vvImageReader::ReadNkiImageTransform()
+{
+    bool bRead=true;
+    typedef itk::ImageFileReader< itk::Image< double, 2 > > MatrixReaderType;
+    MatrixReaderType::Pointer readerTransfo = MatrixReaderType::New();
+    readerTransfo->SetFileName(mInputFilenames[0]+".MACHINEORIENTATION");
+DD(mInputFilenames[0]+".MACHINEORIENTATION");
+    try
+    {   readerTransfo->Update();
+    }
+    catch( itk::ExceptionObject & err )
+    {   bRead=false;
+    }
+        
+    if (bRead)
+    {   double mat[16];
+
+        //Transpose matrix (NKI format)
+        for(int j=0; j<4; j++)
+            for(int i=0; i<4; i++)
+                mat[4*j+i]=readerTransfo->GetOutput()->GetBufferPointer()[4*i+j];
+
+        //From cm to mm
+        for(int i=0; i<3; i++)
+            mat[4*i+3]*=10;
+
+        //Set Transformation
+        vtkSmartPointer<vtkTransform> pt = vtkSmartPointer<vtkTransform>::New();
+        pt->SetMatrix( mat );
+        pt->Inverse();
+DD(*pt);
+        mImage->SetTransform( pt );
+    }
+}
+//------------------------------------------------------------------------------
 #endif
 

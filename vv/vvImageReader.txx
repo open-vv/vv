@@ -22,8 +22,11 @@
 #include <string>
 #include <itkImageFileReader.h>
 #include <itkImageSeriesReader.h>
+#include <itkImageToVTKImageFilter.h>
+
+#include <vtkTransform.h>
+
 #include "clitkCommon.h"
-#include "itkImageToVTKImageFilter.h"
 #include "vvFromITK.h"
 #include "vvConstants.h"
 
@@ -48,6 +51,10 @@ void vvImageReader::UpdateWithDim(std::string InputPixelType) {
     UpdateWithDimAndInputPixelType<float,VImageDimension>();
   else
     std::cerr << "Error, input pixel type : " << InputPixelType << " unknown !" << std::endl;
+
+  if (CLITK_EXPERIMENTAL)
+    if (mLastError.size()==0)
+      ReadNkiImageTransform();
 }
 //----------------------------------------------------------------------------
 

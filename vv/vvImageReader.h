@@ -74,6 +74,8 @@ protected:
     int mDim;
     std::string mInputPixelType;
 
+    //====================================================================
+    void ReadNkiImageTransform();
 private:
     vvImage::Pointer mImage;
 
