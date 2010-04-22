@@ -18,55 +18,76 @@
 #ifndef VVIMAGE_CXX
 #define VVIMAGE_CXX
 #include "vvImage.h"
-#include "vtkImageData.h"
 #include "clitkCommon.h"
+
+#include <vtkImageData.h>
+#include <vtkImageReslice.h>
+
 #include <cassert>
 
 //--------------------------------------------------------------------
 vvImage::vvImage() {
-  mVtkImages.resize(0);
-  mTimeSpacing = 1;
-  mTimeOrigin = 0;
+    Init();
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void vvImage::Init() {
+    mTimeSpacing = 1;
+    mTimeOrigin = 0;
+    if (CLITK_EXPERIMENTAL)
+    {
+        mVtkImageReslice = vtkSmartPointer<vtkImageReslice>::New();
+        mVtkImageReslice->SetInterpolationModeToLinear();
+        mVtkImageReslice->AutoCropOutputOn();
+    }
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
 vvImage::~vvImage() {
-  for (unsigned int i = 0; i < mVtkImages.size(); i++) {
-    if (mVtkImages[i] != NULL)
-      mVtkImages[i]->Delete();
-  }
+    Reset();
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-void vvImage::SetImage(std::vector<vtkImageData*> images) {
-  for (unsigned int i = 0; i < mVtkImages.size(); i++) {
-    if (mVtkImages[i] != NULL)
-      mVtkImages[i]->Delete();
-  }
-  mVtkImages.resize(0);
-  for (unsigned int i = 0; i < images.size(); i++) {
-    mVtkImages.push_back(images[i]);
-  }
+void vvImage::Reset() {
+    if (CLITK_EXPERIMENTAL)
+    {
+        for (unsigned int i = 0; i < mVtkImages.size(); i++)
+            mVtkImages[i] = (vtkImageData*)mVtkImageReslice->GetInput(i);
+        mVtkImageReslice->RemoveAllInputs();
+    }
+    for (unsigned int i = 0; i < mVtkImages.size(); i++)
+        mVtkImages[i]->Delete();
+    mVtkImages.resize(0);
+    Init();
 }
 //--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void vvImage::SetImage(std::vector< vtkImageData* > images) {
+    Reset();
+    for (unsigned int i = 0; i < images.size(); i++)
+        AddImage(images[i]);
+}
+//--------------------------------------------------------------------
+
 
 //--------------------------------------------------------------------
 void vvImage::AddImage(vtkImageData* image) {
-  mVtkImages.push_back(image);
-}
-//--------------------------------------------------------------------
-
-//--------------------------------------------------------------------
-void vvImage::Init() {
-  for (unsigned int i = 0; i < mVtkImages.size(); i++) {
-    if (mVtkImages[i] != NULL)
-      mVtkImages[i]->Delete();
-  }
-  mVtkImages.resize(0);
+    if (CLITK_EXPERIMENTAL)
+    {
+        mVtkImageReslice->SetInput(mVtkImages.size(), image);
+        mVtkImageReslice->Update();
+        mVtkImages.push_back( mVtkImageReslice->GetOutput( mVtkImages.size() ) );
+    }
+    else
+        mVtkImages.push_back(image);
 }
 //--------------------------------------------------------------------
 
@@ -250,5 +271,12 @@ bool vvImage::IsScalarTypeInteger(int t) {
 }
 //--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
+void vvImage::SetTransform(vtkAbstractTransform  *transform)
+{
+  mVtkImageReslice->SetResliceTransform(transform);
+}
+//--------------------------------------------------------------------
 
 #endif // VVIMAGE_CXX

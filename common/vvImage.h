@@ -21,8 +21,11 @@
 #include <iostream>
 #include <vector>
 #include <itkObjectFactory.h>
+#include <vtkSmartPointer.h>
 
 class vtkImageData;
+class vtkImageReslice;
+class vtkAbstractTransform;
 
 class vvImage : public itk::LightObject {
 public :
@@ -31,6 +34,8 @@ public :
   itkNewMacro(Self);
 
   void Init();
+  void Reset();
+
   void SetImage(std::vector<vtkImageData*> images);
   void AddImage(vtkImageData* image);
   const std::vector<vtkImageData*>& GetVTKImages();
@@ -53,6 +58,7 @@ public :
 
   void SetTimeSpacing(double s) { mTimeSpacing = s; }
   void SetTimeOrigin(double o) { mTimeOrigin = o; }
+  void SetTransform(vtkAbstractTransform  *transform);
 
 private:
   vvImage();
@@ -60,7 +66,7 @@ private:
   std::vector<vtkImageData*> mVtkImages;
   double mTimeOrigin;
   double mTimeSpacing;
-
+  vtkSmartPointer<vtkImageReslice> mVtkImageReslice;
 };
 
 #endif
