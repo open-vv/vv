@@ -1286,10 +1286,9 @@ void vvSlicer::Render()
           pixel2 << (int)Y;
           pixel3 << (int)Z;
           temps << mCurrentTSlice;
-          double value = this->GetInput()->GetScalarComponentAsDouble(
-                                                                      (int)X,
-                                                                      (int)Y,
-                                                                      (int)Z,0);
+          double value = this->GetInput()->GetScalarComponentAsDouble(lrint(X),
+                                                                      lrint(Y),
+                                                                      lrint(Z),0);
 
           std::stringstream val;
           val << value;
