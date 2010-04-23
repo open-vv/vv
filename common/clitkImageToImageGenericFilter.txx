@@ -44,9 +44,13 @@ bool clitk::ImageToImageGenericFilter<FilterType>::Update() {
 
 //--------------------------------------------------------------------
 template<class FilterType>
-bool clitk::ImageToImageGenericFilter<FilterType>::CheckImageType(unsigned int dim,unsigned int ncomp, std::string pixeltype)
-{
-  return static_cast<bool>(mImageTypesManager.mMapOfImageTypeToFunction[dim][ncomp][pixeltype]);
+bool clitk::ImageToImageGenericFilter<FilterType>::CheckImageType(unsigned int dim, unsigned int ncomp, std::string pixeltype)
+{ //SR: commented line creates an element in mMapOfImageTypeToFunction which, even if 0, is confusing, e.g. for GetAvailableImageTypes
+  //return static_cast<bool>(mImageTypesManager.mMapOfImageTypeToFunction[dim][ncomp][pixeltype]);
+  typename ImageTypesManager<FilterType>::MapOfImageDimensionToFunctionType &m = mImageTypesManager.mMapOfImageTypeToFunction;
+  return (m            .find(dim)       != m.end()      &&
+          m[dim]       .find(ncomp)     != m[dim].end() &&
+          m[dim][ncomp].find(pixeltype) != m[dim][ncomp].end());
 }
 //--------------------------------------------------------------------
 
@@ -55,7 +59,7 @@ bool clitk::ImageToImageGenericFilter<FilterType>::CheckImageType(unsigned int d
 template<class FilterType>
 bool clitk::ImageToImageGenericFilter<FilterType>::CheckImageType()
 {
-  return static_cast<bool>(mImageTypesManager.mMapOfImageTypeToFunction[mDim][mNbOfComponents][mPixelTypeName]);
+  return CheckImageType(mDim, mNbOfComponents, mPixelTypeName);
 }
 //--------------------------------------------------------------------
 
