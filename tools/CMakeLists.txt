@@ -69,7 +69,7 @@ ADD_EXECUTABLE(clitkGuerreroVentilation clitkGuerreroVentilation.cxx
 TARGET_LINK_LIBRARIES(clitkGuerreroVentilation clitkCommon ITKIO ITKBasicFilters
 clitkFilters)
 
-ADD_EXECUTABLE(clitkImageArithm clitkImageArithm.cxx)
+ADD_EXECUTABLE(clitkImageArithm clitkImageArithm.cxx clitkImageArithm_ggo.c )
 TARGET_LINK_LIBRARIES(clitkImageArithm clitkCommon ITKIO ITKStatistics clitkFilters)
 
 ADD_EXECUTABLE(clitkUnsharpMask clitkUnsharpMask.cxx)
@@ -78,8 +78,8 @@ TARGET_LINK_LIBRARIES(clitkUnsharpMask clitkCommon ITKIO clitkFilters)
 ADD_EXECUTABLE(clitkFooImage clitkFooImage.cxx)
 TARGET_LINK_LIBRARIES(clitkFooImage clitkCommon ITKIO clitkFilters) 
 
-ADD_EXECUTABLE(clitkBinarizeImage clitkBinarizeImage.cxx)
+ADD_EXECUTABLE(clitkBinarizeImage clitkBinarizeImage.cxx clitkBinarizeImage_ggo.c)
 TARGET_LINK_LIBRARIES(clitkBinarizeImage clitkCommon ITKIO clitkFilters) 
 
-ADD_EXECUTABLE(clitkMedianImageFilter clitkMedianImageFilter.cxx)
+ADD_EXECUTABLE(clitkMedianImageFilter clitkMedianImageFilter.cxx clitkMedianImageFilter_ggo.c)
 TARGET_LINK_LIBRARIES(clitkMedianImageFilter clitkCommon ITKIO clitkFilters ITKBasicFilters)

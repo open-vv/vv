@@ -25,6 +25,8 @@
 
 class vtkImageData;
 class vtkImageReslice;
+class vtkTransform;
+class vtkImageReslice;
 class vtkAbstractTransform;
 
 class vvImage : public itk::LightObject {
@@ -55,18 +57,33 @@ public :
   bool IsTimeSequence();
   bool IsScalarTypeInteger();
   bool IsScalarTypeInteger(int t);
+  vtkAbstractTransform * GetTransform();
+  void SetTransform(vtkAbstractTransform  *transform);
+  vtkImageReslice* GetVTKImageReslice();
+  void SetVTKImageReslice(vtkImageReslice *reslice);
+  
+  void SetRotateX(int xvalue);  
+  void SetRotateY(int yvalue);  
+  void SetRotateZ(int zvalue);
+
+  void SetTranslationX(int xvalue);  
+  void SetTranslationY(int yvalue);  
+  void SetTranslationZ(int zvalue);
+  void SetOrigin(double value[3]);
+ private:
 
   void SetTimeSpacing(double s) { mTimeSpacing = s; }
   void SetTimeOrigin(double o) { mTimeOrigin = o; }
-  void SetTransform(vtkAbstractTransform  *transform);
 
-private:
+ private:
   vvImage();
   ~vvImage();
   std::vector<vtkImageData*> mVtkImages;
+  vtkSmartPointer<vtkImageReslice> mVtkImageReslice;
+  vtkSmartPointer<vtkTransform> transform;
   double mTimeOrigin;
   double mTimeSpacing;
-  vtkSmartPointer<vtkImageReslice> mVtkImageReslice;
+  double * origin;
 };
 
 #endif

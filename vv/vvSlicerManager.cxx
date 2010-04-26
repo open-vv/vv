@@ -1,4 +1,4 @@
-/*=========================================================================
+  /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
   Authors belong to: 
@@ -1265,4 +1265,5 @@ void vvSlicerManager::NextImage(int slicer)
 void vvSlicerManager::VerticalSliderHasChanged(int slicer, int slice) {
   emit AVerticalSliderHasChanged(slicer, slice);
 }
+    
 //----------------------------------------------------------------------------

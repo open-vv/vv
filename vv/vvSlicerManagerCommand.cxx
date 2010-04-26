@@ -31,9 +31,11 @@
 #include <vtkAssemblyPath.h>
 #include <vtkCornerAnnotation.h>
 #include <vtkRenderWindow.h>
-
+#include <vvImage.h>
+#include <vtkImageReslice.h>
 #include "vvSlicer.h"
 #include "vvInteractorStyleNavigator.h"
+#include "vtkTransform.h"
 
 #include <cmath>
 
@@ -80,6 +82,8 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
         if (VisibleInWindow>-1)
             renderer=this->SM->GetSlicer(VisibleInWindow)->GetRenderer();
         newLandmark = false;
+	
+
 
         if (event == vtkCommand::StartPickEvent && VisibleInWindow == -1)
         {
@@ -283,6 +287,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
                     this->SM->UpdateSliceRange(VisibleInWindow);
                     this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
                 }
+                
             }
 
             //All type of mouse events

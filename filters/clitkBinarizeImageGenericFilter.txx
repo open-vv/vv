@@ -23,6 +23,7 @@
 #include "itkBinaryThresholdImageFilter.h"
 #include "itkMaskImageFilter.h"
 #include "itkMaskNegatedImageFilter.h"
+
 #include <clitkCommon.h>
 // #include <tiff.h>
 
@@ -100,7 +101,6 @@ namespace clitk
     // DD(mArgsInfo.bg_given);
     // DD(mArgsInfo.mode_arg);
 
-// <<<<<<< clitkBinarizeImageGenericFilter.txx
 //     DD(mArgsInfo.useFG_flag);
 //     DD(mArgsInfo.useBG_flag);
 

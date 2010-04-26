@@ -46,7 +46,8 @@ class vtkCursor3D;
 class vtkCutter;
 class vtkAssignAttribute;
 class vtkScalarBarActor;
-
+class vtkTransform;
+class vtkImageReslice;
 
 class vvSlicer: public vtkImageViewer2
 {
@@ -70,8 +71,8 @@ public:
     vtkImageMapToWindowLevelColors* GetFusionMapper() ;
     vtkImageActor* GetFusionActor() ;
     vtkActor* GetVFActor() ;
-    vtkCornerAnnotation* GetAnnotation() ;
-
+    vtkCornerAnnotation* GetAnnotation();
+    
     void SetFusion(vvImage::Pointer inputFusion);
     vvImage::Pointer GetFusion() {
         return mFusion;
@@ -197,7 +198,6 @@ protected:
     vtkSmartPointer<vtkActor> mLandActor;
     vtkSmartPointer<vtkBox> mClipBox;
     vtkSmartPointer<vtkScalarBarActor> legend;
-
     std::vector<vvMeshActor*> mSurfaceCutActors;
 
     int mCurrentTSlice;

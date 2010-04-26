@@ -3,8 +3,8 @@
     Program:   vv
     Module:    $RCSfile: vvToolMedianFilter.h,v $
     Language:  C++
-    Date:      $Date: 2010/04/09 09:53:50 $
-    Version:   $Revision: 1.1 $
+    Date:      $Date: 2010/04/26 18:21:55 $
+    Version:   $Revision: 1.2 $
     Author :   Bharath Navalpakkam (Bharath.Navalpakkam@creatis.insa-lyon.fr)
 
     Copyright (C) 2010
@@ -30,7 +30,7 @@
 
   #include <QtDesigner/QDesignerExportWidget>
   #include "vvToolBase.h"
-  #include "QDialog"
+  #include "QWidget"
   #include "vvToolWidgetBase.h"
   #include "ui_vvToolMedianFilter.h"
   #include "clitkMedianImageFilter_ggo.h"
@@ -55,15 +55,10 @@
  
 
     public slots:    
-          void UpdatevalueH1();
-	  void UpdatevalueH2();
-          void UpdatevalueH3();
-	  
-	  
-   
- 
     
-      
+     void UpdateH1slider();   
+     void UpdateH2slider();   
+     void UpdateH3slider();
   protected:
 
       Ui::vvToolMedianFilter ui;

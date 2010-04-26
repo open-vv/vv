@@ -54,6 +54,7 @@ protected :
 
 private:
 
+  
     int FindSlicerNumber(vtkRenderWindow* renwin);
 
     double InitialWindow;

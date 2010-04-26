@@ -3,8 +3,8 @@
       Program:   vv
       Module:    $RCSfile: vvToolMedianFilter.cxx,v $
       Language:  C++
-      Date:      $Date: 2010/04/09 09:53:27 $
-      Version:   $Revision: 1.1 $
+      Date:      $Date: 2010/04/26 18:21:55 $
+      Version:   $Revision: 1.2 $
       Author :   Bharath Navalpakkam (Bharath.Navalpakkam@creatis.insa-lyon.fr)
 
       Copyright (C) 2010
@@ -42,7 +42,7 @@
       :vvToolWidgetBase(parent,f), 
       vvToolBase<vvToolMedianFilter>(parent), 
       Ui::vvToolMedianFilter()
-      {
+      {		
 	
       // Setup the UI
     
@@ -62,13 +62,10 @@
     vvToolMedianFilter::~vvToolMedianFilter() {
     }
     //------------------------------------------------------------------------------
-
- 
-
     void vvToolMedianFilter::Initialize() {
       SetToolName("MedianFilter");
       SetToolMenuName("MedianFilter");
-      SetToolIconFilename(":/new/prefix1/icons/ducky.png");
+      SetToolIconFilename(":common/icons/ducky.png");
       SetToolTip("Make 'MedianFilter' on an image.");
     }
     //------------------------------------------------------------------------------
@@ -76,21 +73,15 @@
   void vvToolMedianFilter::apply() {
 
      GetArgsInfoFromGUI();
-
     if (!mCurrentSlicerManager) close();
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   // Main filter
   clitk::MedianImageGenericFilter<args_info_clitkMedianImageFilter>::Pointer filter = 
      clitk::MedianImageGenericFilter<args_info_clitkMedianImageFilter>::New();
-    
- 
    filter->SetInputVVImage(mCurrentImage);
-  filter->SetArgsInfo(mArgsInfo);
- 
-  filter->EnableReadOnDisk(false);
-  filter->Update();
-  
-
+   filter->SetArgsInfo(mArgsInfo);
+   filter->EnableReadOnDisk(false);
+   filter->Update();
   // Output
   vvImage::Pointer output = filter->GetOutputVVImage();
   std::ostringstream osstream;
@@ -98,14 +89,9 @@
   AddImage(output,osstream.str()); 
   QApplication::restoreOverrideCursor();
   close();
-     
-
   }
-
     //------------------------------------------------------------------------------
-
   void vvToolMedianFilter::GetArgsInfoFromGUI() {
-
     /* //KEEP THIS FOR READING GGO FROM FILE
       int argc=1;
       std::string a = "toto";
@@ -116,59 +102,57 @@
       int good = cmdline_parser_ext(argc, argv, &args_info, &p);
     DD(good);
     */
-     mArgsInfo.radius_given=0;
-      mArgsInfo.verbose_flag = false;
+    mArgsInfo.radius_given=0;
+    mArgsInfo.verbose_flag = false;
    // mArgsInfo.radius_arg = new int[3];
-
   // Required (even if not used)
     mArgsInfo.input_given = 0;
     mArgsInfo.output_given = 0;
-    
     mArgsInfo.input_arg=new char;
     mArgsInfo.output_arg = new char;
-    
- 
-  mArgsInfo.config_given=0;
-  mArgsInfo.verbose_given=0;
-  
-    
- //  mArgsInfo.radius_arg[0]=1;
-   // mArgsInfo.radius_arg[1]=1;
-  //  mArgsInfo.radius_arg[2]=1;
-
+    mArgsInfo.config_given=0;
+    mArgsInfo.verbose_given=0;
   }
   //------------------------------------------------------------------------------
 void vvToolMedianFilter::InputIsSelected(vvSlicerManager *m){
   mCurrentSlicerManager =m;
   // Specific for this gui
-                    
-  mArgsInfo.radius_arg = new int[3];
-  connect(horizontalSlider, SIGNAL(valueChanged(int)), this, SLOT(UpdatevalueH1()));
-  connect(horizontalSlider_2, SIGNAL(valueChanged(int)), this, SLOT(UpdatevalueH2())); 
-  connect(horizontalSlider_3, SIGNAL(valueChanged(int)), this, SLOT(UpdatevalueH3()));
-  
-  
-  
+    mArgsInfo.radius_arg = new int[3];
+  int checkdimensions=mCurrentSlicerManager->GetDimension();
+  if(checkdimensions<3)
+  {
+   horizontalSlider_3->hide();
+   spinBox_3->hide();
+   mArgsInfo.radius_arg[2]=0;
+   connect(horizontalSlider, SIGNAL(valueChanged(int)), this, SLOT(UpdateH1slider()));
+   connect(horizontalSlider_2, SIGNAL(valueChanged(int)), this, SLOT(UpdateH2slider())); 
+  }
+  else
+  {
+  horizontalSlider->show();
+  horizontalSlider_2->show();  
+  horizontalSlider_3->show();
+  connect(horizontalSlider, SIGNAL(valueChanged(int)), this, SLOT(UpdateH1slider()));
+  connect(horizontalSlider_2, SIGNAL(valueChanged(int)), this, SLOT(UpdateH2slider()));
+  connect(horizontalSlider_3, SIGNAL(valueChanged(int)), this, SLOT(UpdateH3slider()));   
+  }
 }
 
-  //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
-void vvToolMedianFilter::UpdatevalueH1()
+void vvToolMedianFilter::UpdateH1slider()
 {
+  
   mArgsInfo.radius_arg[0]=horizontalSlider->value();
-  QString string1 = QString::number(mArgsInfo.radius_arg[0]);
-  lineEdit->setText(string1);
+  spinBox->setValue(mArgsInfo.radius_arg[0]);
 }
-void vvToolMedianFilter::UpdatevalueH2()
+void vvToolMedianFilter::UpdateH2slider()
 {
-    mArgsInfo.radius_arg[1]=horizontalSlider_2->value(); 
-   QString string2 = QString::number(mArgsInfo.radius_arg[1]);
-  lineEdit_2->setText(string2);
+  mArgsInfo.radius_arg[1]=horizontalSlider_2->value(); 
+  spinBox_2->setValue(mArgsInfo.radius_arg[1]);
 }
-void vvToolMedianFilter::UpdatevalueH3()
+void vvToolMedianFilter::UpdateH3slider()
 {
   mArgsInfo.radius_arg[2]=horizontalSlider_3->value(); 
-  QString string3 = QString::number(mArgsInfo.radius_arg[2]);
-  lineEdit_3->setText(string3);
-
+  spinBox_3->setValue(mArgsInfo.radius_arg[2]);
 }

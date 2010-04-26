@@ -64,6 +64,7 @@
 #include <vtkCutter.h>
 #include <vtkAssignAttribute.h>
 #include <vtkImageAccumulate.h>
+#include <vtkImageReslice.h>
 
 vtkCxxRevisionMacro(vvSlicer, "DummyRevision");
 vtkStandardNewMacro(vvSlicer);
@@ -140,6 +141,7 @@ vvSlicer::vvSlicer()
   this->WindowLevel->Delete();
   this->WindowLevel = vvImageMapToWLColors::New();
   this->InstallPipeline();
+  
 }
 //------------------------------------------------------------------------------
 
@@ -1412,5 +1414,10 @@ void vvSlicer::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 //----------------------------------------------------------------------------
+
+
+   
+   
+
 
 

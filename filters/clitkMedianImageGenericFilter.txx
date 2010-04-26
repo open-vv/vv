@@ -1,4 +1,4 @@
-#ifndef clitkMedianImageGenericFilter_txx
+ #ifndef clitkMedianImageGenericFilter_txx
 #define clitkMedianImageGenericFilter_txx
 
 /* =================================================

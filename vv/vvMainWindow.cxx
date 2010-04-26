@@ -1545,7 +1545,7 @@ void vvMainWindow::CloseImage(QTreeWidgetItem* item, int column) {
       msgBox.addButton(tr("Cancel"), QMessageBox::RejectRole);
       if (msgBox.exec() == QMessageBox::AcceptRole)
         {
-          this->close();
+	  this->close();
         }
     }
   else
@@ -1904,6 +1904,7 @@ void vvMainWindow::SelectOverlayImage() {
 
 //------------------------------------------------------------------------------
 void vvMainWindow::AddOverlayImage(int index, QString file) {
+
   mInputPathName = itksys::SystemTools::GetFilenamePath(file.toStdString()).c_str();
   itk::ImageIOBase::Pointer reader = itk::ImageIOFactory::CreateImageIO(
                                                                         file.toStdString().c_str(), itk::ImageIOFactory::ReadMode);
@@ -1914,7 +1915,7 @@ void vvMainWindow::AddOverlayImage(int index, QString file) {
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   vvProgressDialog progress("Opening " + file.toStdString());
   qApp->processEvents();
-
+  
   std::string filename = itksys::SystemTools::GetFilenameWithoutExtension(file.toStdString()).c_str();
   if (mSlicerManagers[index]->SetOverlay(file.toStdString(),dimension, component))
     {
@@ -1929,7 +1930,7 @@ void vvMainWindow::AddOverlayImage(int index, QString file) {
         {
           item->setData(j,Qt::CheckStateRole,DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole));
           mSlicerManagers[index]->GetSlicer(j-1)->SetActorVisibility("overlay",0,
-                                                                     DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole).toInt());
+                                                                    DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole).toInt());
         }
 
       //Create the buttons for reload and close
