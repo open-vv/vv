@@ -46,6 +46,9 @@ namespace clitk {
 
     void SetDisplayColor(double r, double v, double b);
     
+    double GetBackgroundValueLabelImage() const;
+    void SetBackgroundValueLabelImage(double bg);
+    
   protected:
     void ComputeMesh();
     std::string mName;
@@ -55,6 +58,7 @@ namespace clitk {
     vtkPolyData * mMesh;
     bool mMeshIsUpToDate;
     vvImage::Pointer mImage;
+    double mBackgroundValue;
   };
   //--------------------------------------------------------------------
 

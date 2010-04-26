@@ -35,11 +35,13 @@ class vvStructureSetActor: public QObject {
   void SetStructureSet(clitk::DicomRT_StructureSet * s);
   void SetSlicerManager(vvSlicerManager * s);
   void CreateNewROIActor(int n);
+  vvROIActor* GetROIActor(int n);
 
  protected:
   clitk::DicomRT_StructureSet * mStructureSet;
   vvSlicerManager * mSlicerManager;
   std::vector<vvROIActor*> mROIActors;
+  std::map<int, int> mMapROIIndex;
 
 }; // end class vvStructureSetActor
 //------------------------------------------------------------------------------

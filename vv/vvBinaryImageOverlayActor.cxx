@@ -61,7 +61,6 @@ void vvBinaryImageOverlayActor::setColor(double r, double g, double b) {
 //------------------------------------------------------------------------------
 
 
-
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::setSlicer(vvSlicer * slicer) {
   mSlicer = slicer;
@@ -83,13 +82,17 @@ void vvBinaryImageOverlayActor::initialize() {
   // Create an actor for each time slice
   for (unsigned int numImage = 0; numImage < mSlicer->GetImage()->GetVTKImages().size(); numImage++) {
     DD(numImage);
+
+    // how many intensity ? 
+    
+
     vtkImageMapToRGBA * mOverlayMapper = vtkImageMapToRGBA::New();
     mOverlayMapper->SetInput(mImage->GetVTKImages()[0]); // DS TODO : to change if it is 4D !!!
     vtkLookupTable * lut = vtkLookupTable::New();
     DD(lut->IsOpaque ());
     lut->SetRange(0,1);
     lut->SetNumberOfTableValues(2);
-    lut->SetTableValue(0, 0, 0, 0, 0.0);   // BG
+    lut->SetTableValue(mBackgroundValue, 0, 0, 0, 0.0);   // BG
     lut->SetTableValue(1, mColor[0], mColor[1], mColor[2], mAlpha); // FG
     DD(mColor[0]);
     mOverlayMapper->SetLookupTable(lut);
@@ -109,8 +112,9 @@ void vvBinaryImageOverlayActor::initialize() {
 
 
 //------------------------------------------------------------------------------
-void vvBinaryImageOverlayActor::setImage(vvImage::Pointer image) {
+void vvBinaryImageOverlayActor::setImage(vvImage::Pointer image, double bg) {
   mImage = image;
+  mBackgroundValue = bg;
 }
 //------------------------------------------------------------------------------
 
@@ -141,16 +145,11 @@ void vvBinaryImageOverlayActor::showActors() {
   
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::update(int slicer, int slice) {
-  // DD("update");
-  // DD(slicer);
-  // DD(slice);
   if (!mSlicer) return;
-  // DD(mSlicer->GetSlice());
-  // DD(mSlicer->GetTSlice());
 
   if (mPreviousSlice == mSlicer->GetSlice()) {
     if (mPreviousTSlice == mSlicer->GetTSlice()) {
-      DD("=========== NOTHING");
+      //DD("=========== NOTHING");
       return; // Nothing to do
     }
   }
@@ -160,18 +159,6 @@ void vvBinaryImageOverlayActor::update(int slicer, int slice) {
   mTSlice = mSlicer->GetTSlice();
 
   // Update extent
-  //  DD("Update extent");
-
-  /*
-1 - get extent
-2 - orientation
-3 - compute new extent : ComputeImageDisplayedExtent
-4 - ClipDisplayedExtent
-5 - actor SetDisplayExtent
-
-==> à mettre dans slicer.
-  ==> fct (image input, image à overl)
-  */
   int * imageExtent = mSlicer->GetExtent();
   int orientation = mSlicer->GetOrientation();
   int maskExtent[6];
@@ -185,10 +172,7 @@ void vvBinaryImageOverlayActor::update(int slicer, int slice) {
   // 	    << maskExtent[3] << " " << maskExtent[4] << " " << maskExtent[5] << std::endl;
   SetDisplayExtentAndCameraPosition(orientation, mSlice, maskExtent, mImageActorList[mTSlice], 0.0);
   
-  // TOO SLOW ? 
-  //mSlicer->Render();
-
-  //
+  // set previous slice
   mPreviousTSlice = mSlicer->GetTSlice();
   mPreviousSlice  = mSlicer->GetSlice();
 }
@@ -249,12 +233,9 @@ void vvBinaryImageOverlayActor::SetDisplayExtentAndCameraPosition(int orientatio
 								  int * extent, 
 								  vtkImageActor * actor, 
 								  double position) {
-  //  DD("SetDisplayExtentAndCameraPosition");
-  //DD(orientation);
-  //DD(slice);
   actor->SetDisplayExtent(extent);
   
-
+  // Set position
   if (orientation == vtkImageViewer2::SLICE_ORIENTATION_XY) {
     if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[2] > slice)
       actor->SetPosition(0,0, position);

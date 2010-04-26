@@ -42,25 +42,30 @@ class vvToolStructureSetManager:
   virtual void InputIsSelected(vvSlicerManager *m);
 
   int addStructureSet(clitk::DicomRT_StructureSet * mStructureSet);
-  void addStructureSetInTreeWidget(int index, clitk::DicomRT_StructureSet * s);
+  void updateStructureSetInTreeWidget(int index, clitk::DicomRT_StructureSet * s);
   void addRoiInTreeWidget(clitk::DicomRT_ROI * roi, QTreeWidgetItem * w);
 
 public slots:
   virtual void apply();
   void open(int type);
   void LeftButtonReleaseEvent(int slicer);
+  void openBinaryImage();
+  void selectedItemChangedInTree();
 
  protected:
   Ui::vvToolStructureSetManager ui;
-  void openBinaryImage();
   clitk::DicomRT_StructureSet * mCurrentStructureSet;
   vvStructureSetActor * mCurrentStructureSetActor;
   int mCurrentStructureSetIndex;
   vtkLookupTable * mDefaultLUTColor;
-  
+ 
+  void setCurrentSelectedROI(clitk::DicomRT_ROI * roi);
+ 
   std::vector<clitk::DicomRT_StructureSet*> mStructureSetsList;
   std::vector<vvStructureSetActor *> mStructureSetActorsList;
-  std::map<int, QTreeWidgetItem *> mStructureSetItemsList;
+  std::map<int, QTreeWidgetItem *> mMapStructureSetIndexToTreeWidget;
+  std::map<clitk::DicomRT_ROI*, QTreeWidgetItem *> mMapROIToTreeWidget;
+  std::map<QTreeWidgetItem *, clitk::DicomRT_ROI*> mMapTreeWidgetToROI;
 
 }; // end class vvToolStructureSetManager
 //------------------------------------------------------------------------------

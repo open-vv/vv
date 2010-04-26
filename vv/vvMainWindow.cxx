@@ -2445,8 +2445,8 @@ void vvMainWindow::NOVerticalSliderChanged() {
         {
           mSlicerManagers[i]->GetSlicer(0)->SetSlice(value);
           mSlicerManagers[i]->VerticalSliderHasChanged(0, value);
-          // mSlicerManagers[i]->UpdateSlice(0);
-          // <-- DS add this. Not too much update ? YES.
+          // mSlicerManagers[i]->UpdateSlice(0);  // <-- DS add this. Not too much update ? YES.
+	  mSlicerManagers[i]->GetSlicer(0)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ? 
           break;
         }
     }
@@ -2462,6 +2462,8 @@ void vvMainWindow::NEVerticalSliderChanged() {
       if (DataTree->topLevelItem(i)->data(COLUMN_UR_VIEW,Qt::CheckStateRole).toInt() > 1)
         {
           mSlicerManagers[i]->GetSlicer(1)->SetSlice(value);
+          mSlicerManagers[i]->VerticalSliderHasChanged(1, value);
+	  mSlicerManagers[i]->GetSlicer(1)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ? 
           break;
         }
     }
@@ -2477,6 +2479,8 @@ void vvMainWindow::SOVerticalSliderChanged() {
       if (DataTree->topLevelItem(i)->data(COLUMN_DL_VIEW,Qt::CheckStateRole).toInt() > 1)
         {
           mSlicerManagers[i]->GetSlicer(2)->SetSlice(value);
+          mSlicerManagers[i]->VerticalSliderHasChanged(2, value);
+	  mSlicerManagers[i]->GetSlicer(2)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ? 
           break;
         }
     }
@@ -2492,6 +2496,8 @@ void vvMainWindow::SEVerticalSliderChanged() {
       if (DataTree->topLevelItem(i)->data(COLUMN_DR_VIEW,Qt::CheckStateRole).toInt() > 1)
         {
           mSlicerManagers[i]->GetSlicer(3)->SetSlice(value);
+          mSlicerManagers[i]->VerticalSliderHasChanged(3, value);
+	  mSlicerManagers[i]->GetSlicer(3)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ? 
           break;
         }
     }

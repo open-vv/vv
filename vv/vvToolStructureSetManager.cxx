@@ -20,6 +20,7 @@
 #include "vvImageReader.h"
 #include "vvStructureSetActor.h"
 #include "vvSlicer.h"
+#include "vvROIActor.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <vtkLookupTable.h>
@@ -83,14 +84,38 @@ void vvToolStructureSetManager::InputIsSelected(vvSlicerManager *m) {
   s.push_back(1);
   splitter->setSizes(s);
   // Connect open menus
-  connect(mOpenComboBox, SIGNAL(activated(int)), this, SLOT(open(int)));
+  //  connect(mOpenComboBox, SIGNAL(activated(int)), this, SLOT(open(int)));
+  
+  connect(mOpenBinaryButton, SIGNAL(clicked()), this, SLOT(openBinaryImage()));
+
   DD(mCurrentImage->GetNumberOfDimensions());
 
-  // To trigger the Render ??
-  //  connect(m,SIGNAL(releasemouse()),this,SLOT(Render()));
-  
-  //  connect(m, SIGNAL(UpdateSlice(int, int)), SLOT(UpdateSlice(int, int)));
-  connect(m, SIGNAL(LeftButtonReleaseSignal(int)), SLOT(LeftButtonReleaseEvent(int)));
+  // Seems that the following is not needed to refresh ...
+  //  connect(m, SIGNAL(LeftButtonReleaseSignal(int)), SLOT(LeftButtonReleaseEvent(int)));
+
+  connect(mTree, SIGNAL(itemSelectionChanged()), this, SLOT(selectedItemChangedInTree()));
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolStructureSetManager::selectedItemChangedInTree() {
+  DD("selectedItemChangedInTree");
+  QList<QTreeWidgetItem *> l = mTree->selectedItems();
+  DD(l.size());
+  QTreeWidgetItem * w = l[0];
+  if (mMapTreeWidgetToROI.find(w) == mMapTreeWidgetToROI.end()) return; // Search for SS (first)
+  clitk::DicomRT_ROI * roi = mMapTreeWidgetToROI[w];
+  DD(roi->GetName());
+  setCurrentSelectedROI(roi);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolStructureSetManager::setCurrentSelectedROI(clitk::DicomRT_ROI * roi) {
+  //  mCheckBoxShow = // get roi actor .../
+
 }
 //------------------------------------------------------------------------------
 
@@ -132,30 +157,37 @@ void vvToolStructureSetManager::addRoiInTreeWidget(clitk::DicomRT_ROI * roi, QTr
   for(int i=0; i<w->columnCount (); i++) {
     w->setBackground(i, brush);
   }
+  mMapROIToTreeWidget[roi] = w;
+  mMapTreeWidgetToROI[w] = roi;
+  // Connect ROI TreeWidget
+  // TODO
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvToolStructureSetManager::addStructureSetInTreeWidget(int index, clitk::DicomRT_StructureSet * s) {
-  // Main row item
-  QTreeWidgetItem * ss = new QTreeWidgetItem(mTree);
-  //  ss->setFlags(Qt::ItemIsSelectable|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled|Qt::ItemIsTristate);
-  ss->setText(0, QString("S%1").arg(index));
-  ss->setText(1, QString("%1").arg(s->GetLabel().c_str()));
+void vvToolStructureSetManager::updateStructureSetInTreeWidget(int index, clitk::DicomRT_StructureSet * s) {
+  QTreeWidgetItem * ss;
+  if (mMapStructureSetIndexToTreeWidget.find(index) == mMapStructureSetIndexToTreeWidget.end()) {
+    // Main row item
+    ss = new QTreeWidgetItem(mTree);
+    //  ss->setFlags(Qt::ItemIsSelectable|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled|Qt::ItemIsTristate);
+    ss->setText(0, QString("S%1").arg(index));
+    ss->setText(1, QString("%1").arg(s->GetLabel().c_str()));
+    // Insert in list
+    mMapStructureSetIndexToTreeWidget[index] = ss;
+    
+    // Connect Structure TreeWidget
+    // TODO
+  }
+  else ss = mMapStructureSetIndexToTreeWidget[index];
 
   // Insert ROI
   const std::vector<clitk::DicomRT_ROI*> & rois = s->GetListOfROI();
   for(unsigned int i=0; i<rois.size(); i++) {
-    DD(i);
-    addRoiInTreeWidget(rois[i], ss);
+    if (mMapROIToTreeWidget.find(rois[i]) == mMapROIToTreeWidget.end())
+      addRoiInTreeWidget(rois[i], ss);
   }
-  
-  // Insert in list
-  mStructureSetItemsList[index] = ss;
-  
-  // Connect
-  //  TODO
 }
 //------------------------------------------------------------------------------
 
@@ -184,6 +216,7 @@ void vvToolStructureSetManager::openBinaryImage() {
   DD("openBinaryImage");
   // Select current StructureSet (or create)
   int index;
+  DD(mCurrentStructureSetIndex);
   if (mCurrentStructureSet == NULL) {
     if (mStructureSetsList.size() == 0) { // Create a default SS
       clitk::DicomRT_StructureSet * mStructureSet = new clitk::DicomRT_StructureSet;
@@ -193,13 +226,15 @@ void vvToolStructureSetManager::openBinaryImage() {
     else { // Get first SS
       index = 0;
     }
-    // TODO -> SET THIS SS AS CURRENT
-    mCurrentStructureSet = mStructureSetsList[index];
-    mCurrentStructureSetActor = mStructureSetActorsList[index];
   }
   else {
     index = mCurrentStructureSetIndex;
   }
+  DD(index);
+  // TODO -> SET THIS SS AS CURRENT
+  mCurrentStructureSet = mStructureSetsList[index];
+  mCurrentStructureSetActor = mStructureSetActorsList[index];
+  mCurrentStructureSetIndex = index;
   DD(mCurrentStructureSet->GetName());
 
   // Open images
@@ -210,6 +245,7 @@ void vvToolStructureSetManager::openBinaryImage() {
 				 mMainWindowBase->GetInputPathName(),Extensions);
   if (filename.size() == 0) return;
 
+  std::vector<int> mLoadedROIIndex;
   for(int i=0; i<filename.size(); i++) {
     DD(filename[i].toStdString());
 
@@ -232,41 +268,52 @@ void vvToolStructureSetManager::openBinaryImage() {
       return;
     }
     vvImage::Pointer binaryImage = mReader->GetOutput();
-  //  delete mReader;
+    //  delete mReader;
 
-  // Check Dimension
-  int dim = mCurrentImage->GetNumberOfDimensions();
-  DD(dim);
-  int bin_dim = binaryImage->GetNumberOfDimensions();
-  DD(bin_dim);
-  if (dim < bin_dim) {  ////////// TO CHANGE FOR 3D/4D
-    std::ostringstream os;
-    os << "Error. Loaded binary image is " << bin_dim 
-	      << "D while selected image is " << dim << "D" << std::endl;
-    QMessageBox::information(this,tr("Reading problem"),os.str().c_str());
-    return;
-  }
+    // Check Dimension
+    int dim = mCurrentImage->GetNumberOfDimensions();
+    DD(dim);
+    int bin_dim = binaryImage->GetNumberOfDimensions();
+    DD(bin_dim);
+    if (dim < bin_dim) {  ////////// TO CHANGE FOR 3D/4D
+      std::ostringstream os;
+      os << "Error. Loaded binary image is " << bin_dim 
+	 << "D while selected image is " << dim << "D" << std::endl;
+      QMessageBox::information(this,tr("Reading problem"),os.str().c_str());
+      return;
+    }
+    
+    // Add a new roi to the structure
+    int n = mCurrentStructureSet->AddBinaryImageAsNewROI(binaryImage, filename[i].toStdString());
+    //DD(n);
+    mLoadedROIIndex.push_back(n);
 
-  // Add a new roi to the structure
-  int n = mCurrentStructureSet->AddBinaryImageAsNewROI(binaryImage, filename[i].toStdString());
-  DD(n);
-  
-  // Change color NEED DEFAULT COLOR LIST
-  DD(mDefaultLUTColor->GetNumberOfTableValues ());
-  if (n<mDefaultLUTColor->GetNumberOfTableValues ()) {
-    double * color = mDefaultLUTColor->GetTableValue(n % mDefaultLUTColor->GetNumberOfTableValues ());
-    DD(color[0]);
-    DD(color[1]);
-    DD(color[2]);
-    mCurrentStructureSet->GetROI(n)->SetDisplayColor(color[0], color[1], color[2]);
-  }
-  
-  // Add a new roi actor
-  mCurrentStructureSetActor->CreateNewROIActor(n);
-  }
+    mCurrentStructureSet->GetROI(n)->SetBackgroundValueLabelImage(mBackgroundValueSpinBox->value());
+    
+    // Change color NEED DEFAULT COLOR LIST
+    DD(mDefaultLUTColor->GetNumberOfTableValues ());
+    if (n<mDefaultLUTColor->GetNumberOfTableValues ()) {
+      double * color = mDefaultLUTColor->GetTableValue(n % mDefaultLUTColor->GetNumberOfTableValues ());
+      DD(color[0]);
+      DD(color[1]);
+      DD(color[2]);
+      mCurrentStructureSet->GetROI(n)->SetDisplayColor(color[0], color[1], color[2]);
+    }
+    
+    // Add a new roi actor
+    mCurrentStructureSetActor->CreateNewROIActor(n);
+  } // end loop on n selected filenames
 
   // Update the TreeWidget
-  addStructureSetInTreeWidget(index, mCurrentStructureSet);
+  updateStructureSetInTreeWidget(index, mCurrentStructureSet);
+  
+  // Render loaded ROIs (the first is sufficient)
+  for(unsigned int i=0; i<mLoadedROIIndex.size(); i++) {
+    mCurrentStructureSetActor->GetROIActor(mLoadedROIIndex[i])->Update();
+  }
+  for(int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
+    mCurrentSlicerManager->GetSlicer(i)->Render(); 
+  }
 }
 //------------------------------------------------------------------------------
 

@@ -41,7 +41,7 @@ class vvBinaryImageOverlayActor
   void hideActors();
   void showActors();
   void setColor(double r, double g, double b);
-  void setImage(vvImage::Pointer image);
+  void setImage(vvImage::Pointer image, double bg);
   void initialize();
 
  protected:
@@ -53,6 +53,7 @@ class vvBinaryImageOverlayActor
   vvImage::Pointer mImage;
   std::vector<double> mColor;
   double mAlpha;
+  double mBackgroundValue;
   
   std::vector<vtkImageMapToRGBA *> mMapperList;
   std::vector<vtkImageActor*> mImageActorList;

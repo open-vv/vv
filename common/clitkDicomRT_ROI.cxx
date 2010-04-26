@@ -69,13 +69,26 @@ const std::vector<double> & clitk::DicomRT_ROI::GetDisplayColor() const {
 }
 //--------------------------------------------------------------------
 
-
  
 //--------------------------------------------------------------------
 void clitk::DicomRT_ROI::Print(std::ostream & os) const {
   os << "ROI " << mNumber << "\t" << mName 
      << "\t(" << mColor[0] << " " << mColor[1] << " " << mColor[2] << ")"
      << "\t Contours = " << mListOfContours.size() << std::endl;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void clitk::DicomRT_ROI::SetBackgroundValueLabelImage(double bg){
+  mBackgroundValue = bg;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+double clitk::DicomRT_ROI::GetBackgroundValueLabelImage() const {
+  return mBackgroundValue;
 }
 //--------------------------------------------------------------------
 

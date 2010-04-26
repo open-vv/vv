@@ -17,16 +17,7 @@
 ======================================================================-====*/
 #ifndef CLITKIMAGECOMMON_TXX
 #define CLITKIMAGECOMMON_TXX
-/**
-   -------------------------------------------------
-   * @file   clitkImageCommon.txx
-   * @author David Sarrut <david.sarrut@creatis.insa-lyon.fr>
-   * @date   07 Sep 2007 11:34:19
-   * 
-   * @brief  
-   * 
-   * 
-   -------------------------------------------------*/
+
 
 //--------------------------------------------------------------------
 template<class PixelType>
@@ -101,9 +92,8 @@ typename itk::Image<PixelType,4>::Pointer NewImage4D(int sx, int sy, int sz, int
 template<class ImageType>
 typename ImageType::Pointer NewImageLike(const typename ImageType::Pointer input, bool allocate) {
   typename ImageType::Pointer output = ImageType::New();
-  output->SetRegions(input->GetLargestPossibleRegion());
-  output->SetOrigin(input->GetOrigin());
-  output->SetSpacing(input->GetSpacing());
+  output->CopyInformation(input);
+  output->SetRegions(input->GetLargestPossibleRegion());  
   if (allocate) output->Allocate();
   return output;
 }

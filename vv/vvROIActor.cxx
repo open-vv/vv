@@ -23,6 +23,7 @@
 #include <vtkImageActor.h>
 #include <vtkCamera.h>
 #include <vtkRenderer.h>
+//#include <vtkRenderWindow.h>
 #include <vtkMarchingSquares.h>
 #include <vtkImageClip.h>
 #include <vtkImageData.h>
@@ -62,7 +63,6 @@ void vvROIActor::Initialize() {
   if (mROI->GetImage()) {
     mImageContour.clear();
     mOverlayActors.clear();
-    DD(mSlicerManager->NumberOfSlicers());
     for(int i=0;i<mSlicerManager->NumberOfSlicers(); i++) {
       mImageContour.push_back(new vvImageContour);
       mImageContour[i]->setSlicer(mSlicerManager->GetSlicer(i));
@@ -74,7 +74,7 @@ void vvROIActor::Initialize() {
       mImageContour[i]->setPreserveMemoryModeEnabled(false);        
       
       mOverlayActors.push_back(new vvBinaryImageOverlayActor);
-      mOverlayActors[i]->setImage(mROI->GetImage());
+      mOverlayActors[i]->setImage(mROI->GetImage(), mROI->GetBackgroundValueLabelImage());
       mOverlayActors[i]->setColor(mROI->GetDisplayColor()[0], 
 				  mROI->GetDisplayColor()[1], 
 				  mROI->GetDisplayColor()[2]);
@@ -92,7 +92,6 @@ void vvROIActor::Initialize() {
 
 //------------------------------------------------------------------------------
 void vvROIActor::Update() {
-  DD("vvROIActor::Update");
   for(int i=0; i<mSlicerManager->NumberOfSlicers(); i++) {
     UpdateSlice(i, mSlicerManager->GetSlicer(i)->GetSlice());
   }
@@ -102,9 +101,6 @@ void vvROIActor::Update() {
 
 //------------------------------------------------------------------------------
 void vvROIActor::UpdateSlice(int slicer, int slices) {
-  // DD("UpdateSlice");
-  // DD(slicer);
-  // DD(slices);
    if (!mROI->GetImage())  return;
 
   if (!mSlicerManager) {
@@ -115,10 +111,10 @@ void vvROIActor::UpdateSlice(int slicer, int slices) {
   // CONTOUR HERE 
   // mImageContour[slicer]->update(1.0); 
 
-
+  // Refresh overlays
   mOverlayActors[slicer]->update(slicer, slices);
 
-  // TOO SLOW !!!!!
-  //  mSlicerManager->GetSlicer(slicer)->Render(); 
+  // Do not used the following line : TOO SLOW.
+  // mSlicerManager->GetSlicer(slicer)->GetRenderWindow()->Render(); 
 }
 //------------------------------------------------------------------------------

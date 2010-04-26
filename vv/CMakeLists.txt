@@ -60,7 +60,7 @@ LINK_DIRECTORIES(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR} )
 
 #=========================================================
 
-OPTION(CLITK_VV_USE_BDCM "Build vv with Dicom selector bdcm" OFF)
+# OPTION(CLITK_VV_USE_BDCM "Build vv with Dicom selector bdcm" OFF)
 
 SET(vv_SRCS
   vvInfoPanel.cxx
@@ -194,26 +194,26 @@ ENDIF(CMAKE_COMPILER_IS_GNUCC)
 ENDIF(NOT __APPLE__)
 #=========================================================
 
-IF (CLITK_VV_USE_BDCM)
-  FIND_PACKAGE(bdcm)
-  IF(bdcm_FOUND)
-    INCLUDE(${bdcm_USE_FILE})
-  ELSE(bdcm_FOUND)
-    MESSAGE(FATAL_ERROR
-      "Cannot build without BDCM.  Please set BDCM_DIR.")
-  ENDIF(bdcm_FOUND)
-  #LINK_DIRECTORIES(/home/dsarrut/src/bdcm/build/)
-  #INCLUDE_DIRECTORIES(/home/dsarrut/src/bdcm/src2/)
+# IF (CLITK_VV_USE_BDCM)
+#   FIND_PACKAGE(bdcm)
+#   IF(bdcm_FOUND)
+#     INCLUDE(${bdcm_USE_FILE})
+#   ELSE(bdcm_FOUND)
+#     MESSAGE(FATAL_ERROR
+#       "Cannot build without BDCM.  Please set BDCM_DIR.")
+#   ENDIF(bdcm_FOUND)
+#   #LINK_DIRECTORIES(/home/dsarrut/src/bdcm/build/)
+#   #INCLUDE_DIRECTORIES(/home/dsarrut/src/bdcm/src2/)
 
-  FIND_PACKAGE(GDCM)
-  IF(GDCM_FOUND)
-    INCLUDE(${GDCM_USE_FILE})
-  ELSE(GDCM_FOUND)
-    MESSAGE(FATAL_ERROR
-      "Cannot build without GDCM.  Please set GDCM_DIR.")
-  ENDIF(GDCM_FOUND)
+#   FIND_PACKAGE(GDCM)
+#   IF(GDCM_FOUND)
+#     INCLUDE(${GDCM_USE_FILE})
+#   ELSE(GDCM_FOUND)
+#     MESSAGE(FATAL_ERROR
+#       "Cannot build without GDCM.  Please set GDCM_DIR.")
+#   ENDIF(GDCM_FOUND)
 
-ENDIF (CLITK_VV_USE_BDCM)
+# ENDIF (CLITK_VV_USE_BDCM)
 
 IF(WIN32)
   SET(EXE_ICON vvIcon.rc)
