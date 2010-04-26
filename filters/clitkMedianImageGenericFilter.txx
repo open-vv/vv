@@ -71,7 +71,7 @@ namespace clitk
 
     // Main filter   
     typedef itk::Image<PixelType, InputImageType::ImageDimension> OutputImageType;
-    class  InputImageType::SizeType indexRadius;
+    typename InputImageType::SizeType indexRadius;
 
     // Filter
     typedef itk::MedianImageFilter<InputImageType, OutputImageType> MedianImageFilterType; 
