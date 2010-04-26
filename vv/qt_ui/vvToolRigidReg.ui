@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>vvToolRigidReg</class>
+ <widget class="QWidget" name="vvToolRigidReg">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>374</width>
+    <height>233</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="1" column="1">
+      <widget class="QSlider" name="xtrans_slider">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QSpinBox" name="xtrans_sb"/>
+     </item>
+     <item row="6" column="1">
+      <widget class="QSlider" name="ytrans_slider">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="2">
+      <widget class="QSpinBox" name="ytrans_sb"/>
+     </item>
+     <item row="7" column="1">
+      <widget class="QSlider" name="ztrans_slider">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="2">
+      <widget class="QSpinBox" name="ztrans_sb"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="xtrans">
+       <property name="text">
+        <string>X Translations</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="ytrans">
+       <property name="text">
+        <string>Y Translations</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="ztrans">
+       <property name="text">
+        <string>Z Translations</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <widget class="QSlider" name="xrot_slider">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="2">
+      <widget class="QSpinBox" name="xrot_sb"/>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="xrot">
+       <property name="text">
+        <string>X Rotations</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="1">
+      <widget class="QSlider" name="yrot_slider">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="2">
+      <widget class="QSpinBox" name="yrot_sb"/>
+     </item>
+     <item row="9" column="0">
+      <widget class="QLabel" name="yrot">
+       <property name="text">
+        <string>Y Rotations</string>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="1">
+      <widget class="QSlider" name="zrot_slider">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="2">
+      <widget class="QSpinBox" name="zrot_sb"/>
+     </item>
+     <item row="10" column="0">
+      <widget class="QLabel" name="zrot">
+       <property name="text">
+        <string>Z Rotations</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="setcenter_label">
+       <property name="text">
+        <string>Set Origin(X,Y,Z)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLineEdit" name="Xval"/>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="Yval"/>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="Zval"/>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
