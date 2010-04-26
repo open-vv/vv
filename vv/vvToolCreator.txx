@@ -33,3 +33,12 @@ void vvToolCreator<ToolType>::InsertToolInMenu(vvMainWindowBase * m) {
   vvToolCreatorBase::InsertToolInMenu(mMainWindow); 
 }
 //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+template<class ToolType>
+vvToolCreator<ToolType>* & vvToolCreator<ToolType>::GetInstance() { 
+  if(!mSingleton)
+    mSingleton = new vvToolCreator<ToolType>;
+  return mSingleton;
+}
+//------------------------------------------------------------------------------

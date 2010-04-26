@@ -29,11 +29,11 @@ public:
   vvToolBase(vvMainWindowBase * m);
   static void Initialize();  // can't be virtual, must be overwritten
 
-  static void SetToolName(QString n) { vvToolCreator<ToolType>::mSingleton->mToolName = n; }
-  static void SetToolMenuName(QString n) { vvToolCreator<ToolType>::mSingleton->mToolMenuName = n; }
-  static void SetToolIconFilename(QString n) { vvToolCreator<ToolType>::mSingleton->mToolIconFilename = n; }
-  static void SetToolTip(QString n) { vvToolCreator<ToolType>::mSingleton->mToolTip = n; }
-  static void SetToolExperimental(bool exp) { vvToolCreator<ToolType>::mSingleton->mExperimental = exp; }
+  static void SetToolName(QString n) { vvToolCreator<ToolType>::GetInstance()->mToolName = n; }
+  static void SetToolMenuName(QString n) { vvToolCreator<ToolType>::GetInstance()->mToolMenuName = n; }
+  static void SetToolIconFilename(QString n) { vvToolCreator<ToolType>::GetInstance()->mToolIconFilename = n; }
+  static void SetToolTip(QString n) { vvToolCreator<ToolType>::GetInstance()->mToolTip = n; }
+  static void SetToolExperimental(bool exp) { vvToolCreator<ToolType>::GetInstance()->mExperimental = exp; }
 
   void AddImage(vvImage::Pointer image,std::string filename) {
     CREATOR(ToolType)->GetMainWindow()->AddImage(image,filename); 

@@ -24,24 +24,28 @@
 template<class ToolType>
 class vvToolCreator: public vvToolCreatorBase {
 public:
-  vvToolCreator(QString name):vvToolCreatorBase(name) {;}
+  static vvToolCreator<ToolType> *&GetInstance();
   virtual void InsertToolInMenu(vvMainWindowBase * m);
   virtual void MenuSpecificToolSlot() { CreateTool<ToolType>(); }
+private:
+  vvToolCreator():vvToolCreatorBase(mToolCreatorName) {;}
   static vvToolCreator<ToolType> * mSingleton;
+  static const QString mToolCreatorName;
 };
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-#define CREATOR(CLASSNAME) vvToolCreator<CLASSNAME>::mSingleton
+#define CREATOR(CLASSNAME) vvToolCreator<CLASSNAME>::GetInstance()
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-#define ADD_TOOL(NAME)                                          \
-  template<>                                                    \
-  vvToolCreator<NAME> * vvToolCreator<NAME>::mSingleton =       \
-    new vvToolCreator<NAME>(#NAME);
+// Initiliazes the static parameters and creates a dummy pointer (required for windows)
+#define ADD_TOOL(NAME)                                                           \
+  template<> const QString        vvToolCreator<NAME>::mToolCreatorName = #NAME; \
+  template<> vvToolCreator<NAME> *vvToolCreator<NAME>::mSingleton       = NULL;  \
+  const vvToolCreator<NAME> *dummy##NAME = vvToolCreator<NAME>::GetInstance();
 //------------------------------------------------------------------------------
 
 #include "vvToolCreator.txx"
