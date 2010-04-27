@@ -94,28 +94,9 @@ void vvToolStructureSetManager::InputIsSelected(vvSlicerManager *m) {
   //  connect(m, SIGNAL(LeftButtonReleaseSignal(int)), SLOT(LeftButtonReleaseEvent(int)));
 
   connect(mTree, SIGNAL(itemSelectionChanged()), this, SLOT(selectedItemChangedInTree()));
-}
-//------------------------------------------------------------------------------
+  connect(mCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(visibleROIToggled(bool)));
 
-
-//------------------------------------------------------------------------------
-void vvToolStructureSetManager::selectedItemChangedInTree() {
-  DD("selectedItemChangedInTree");
-  QList<QTreeWidgetItem *> l = mTree->selectedItems();
-  DD(l.size());
-  QTreeWidgetItem * w = l[0];
-  if (mMapTreeWidgetToROI.find(w) == mMapTreeWidgetToROI.end()) return; // Search for SS (first)
-  clitk::DicomRT_ROI * roi = mMapTreeWidgetToROI[w];
-  DD(roi->GetName());
-  setCurrentSelectedROI(roi);
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-void vvToolStructureSetManager::setCurrentSelectedROI(clitk::DicomRT_ROI * roi) {
-  //  mCheckBoxShow = // get roi actor .../
-
+  //  TODO connect(mOpacitySlider, SIGNAL(valueChanged(int), this, SLOT(opacityChanged(int))));
 }
 //------------------------------------------------------------------------------
 
@@ -235,6 +216,7 @@ void vvToolStructureSetManager::openBinaryImage() {
   mCurrentStructureSet = mStructureSetsList[index];
   mCurrentStructureSetActor = mStructureSetActorsList[index];
   mCurrentStructureSetIndex = index;
+  DD(mCurrentStructureSetIndex);
   DD(mCurrentStructureSet->GetName());
 
   // Open images
@@ -323,3 +305,67 @@ void vvToolStructureSetManager::apply() {
   close();
 }
 //------------------------------------------------------------------------------
+
+
+
+//------------------------------------------------------------------------------
+// CURRENT ROI INTERACTION
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolStructureSetManager::selectedItemChangedInTree() {
+  DD("selectedItemChangedInTree");
+  QList<QTreeWidgetItem *> l = mTree->selectedItems();
+  DD(l.size());
+  QTreeWidgetItem * w = l[0];
+  if (mMapTreeWidgetToROI.find(w) == mMapTreeWidgetToROI.end()) return; // Search for SS (first)
+  clitk::DicomRT_ROI * roi = mMapTreeWidgetToROI[w];
+  DD(roi->GetName());
+  //setCurrentSelectedROI(roi);
+
+  mROInameLabel->setText(roi->GetName().c_str());
+  DD(roi->GetROINumber());
+  DD(mCurrentStructureSetIndex);
+  vvROIActor * actor = mStructureSetActorsList[mCurrentStructureSetIndex]->GetROIActor(roi->GetROINumber());
+  mCurrentROI = roi;
+  mCurrentROIActor = actor;
+
+  DD(actor);
+  DD(actor->IsVisible());
+  mCheckBoxShow->setChecked(actor->IsVisible());
+
+  //actor->SetSelected(true); // remove old selection
+
+  DD("ici");
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolStructureSetManager::visibleROIToggled(bool b) {
+  DD(b);
+  mCurrentROIActor->SetVisible(b);
+  //mCurrentROIActor->Update();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolStructureSetManager::opacityChanged(int v) {
+  DD(v);
+  mCurrentROIActor->SetOpacity((double)v/100.0);
+  mCurrentROIActor->Update();
+}
+//------------------------------------------------------------------------------
+
+
+
+
+//------------------------------------------------------------------------------
+//void vvToolStructureSetManager::getActorFromROI() {
+//  mStructureSetActorsList[mCurrentStructureSetIndex]->GetROIActor(n);
+//}
+//------------------------------------------------------------------------------
+
+

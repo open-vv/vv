@@ -34,6 +34,7 @@
 vvROIActor::vvROIActor() {
   mImageContour.clear();
   mOverlayActors.clear();
+  mIsVisible = true;
 }
 //------------------------------------------------------------------------------
 
@@ -54,6 +55,29 @@ void vvROIActor::SetROI(const clitk::DicomRT_ROI * s) {
 //------------------------------------------------------------------------------
 void vvROIActor::SetSlicerManager(vvSlicerManager * s) {
   mSlicerManager = s;
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvROIActor::SetVisible(bool b) {
+  mIsVisible = b;
+  if (!b) { // remove actor
+    for(unsigned int i= 0; i<mOverlayActors.size(); i++) 
+      mOverlayActors[i]->hideActors();
+  }
+  else {
+    for(unsigned int i= 0; i<mOverlayActors.size(); i++) 
+      mOverlayActors[i]->showActors();
+  }
+  Update();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+bool vvROIActor::IsVisible() {
+  return mIsVisible;
 }
 //------------------------------------------------------------------------------
 
@@ -101,7 +125,9 @@ void vvROIActor::Update() {
 
 //------------------------------------------------------------------------------
 void vvROIActor::UpdateSlice(int slicer, int slices) {
-   if (!mROI->GetImage())  return;
+  if (!mROI->GetImage())  return;
+  
+  if (!mIsVisible) return;
 
   if (!mSlicerManager) {
     std::cerr << "Error. No mSlicerManager ?" << std::endl;
@@ -118,3 +144,14 @@ void vvROIActor::UpdateSlice(int slicer, int slices) {
   // mSlicerManager->GetSlicer(slicer)->GetRenderWindow()->Render(); 
 }
 //------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvROIActor::SetOpacity(double d) {
+  mOpacity = d; 
+  for(unsigned int i=0; mOverlayActors.size(); i++) {
+    mOverlayActors[i]->SetOpacity(d);
+  }
+}
+//------------------------------------------------------------------------------
+

@@ -24,6 +24,7 @@
 #include "vvToolWidgetBase.h"
 #include "clitkDicomRT_StructureSet.h"
 #include "ui_vvToolStructureSetManager.h"
+#include "vvROIActor.h"
 
 class vvStructureSetActor;
 
@@ -51,12 +52,16 @@ public slots:
   void LeftButtonReleaseEvent(int slicer);
   void openBinaryImage();
   void selectedItemChangedInTree();
+  void visibleROIToggled(bool b);
+  void opacityChanged(int v);
 
  protected:
   Ui::vvToolStructureSetManager ui;
   clitk::DicomRT_StructureSet * mCurrentStructureSet;
   vvStructureSetActor * mCurrentStructureSetActor;
   int mCurrentStructureSetIndex;
+  clitk::DicomRT_ROI * mCurrentROI;
+  vvROIActor * mCurrentROIActor;
   vtkLookupTable * mDefaultLUTColor;
  
   void setCurrentSelectedROI(clitk::DicomRT_ROI * roi);

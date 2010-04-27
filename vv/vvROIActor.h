@@ -38,6 +38,9 @@ class vvROIActor: public QObject {
   void SetSlicerManager(vvSlicerManager * s);
   void Update();
   void Initialize();
+  void SetVisible(bool b);
+  bool IsVisible();
+  void SetOpacity(double x);
 
 public slots:
   void UpdateSlice(int slicer, int slices);
@@ -47,6 +50,9 @@ public slots:
   vvSlicerManager * mSlicerManager;
   std::vector<vvImageContour *> mImageContour;
   std::vector<vvBinaryImageOverlayActor *> mOverlayActors;
+  
+  bool mIsVisible;
+  double mOpacity;
 
 }; // end class vvROIActor
 //------------------------------------------------------------------------------

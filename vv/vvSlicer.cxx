@@ -1375,6 +1375,9 @@ void vvSlicer::SetSlice(int slice)
   SetContourSlice();
   this->Modified();
   this->UpdateDisplayExtent();
+
+  //  DD("SetSlice de slicer = Render");
+
   this->Render();
 }
 //----------------------------------------------------------------------------

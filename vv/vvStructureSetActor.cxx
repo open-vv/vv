@@ -48,10 +48,12 @@ void vvStructureSetActor::SetSlicerManager(vvSlicerManager * s) {
 
 //------------------------------------------------------------------------------
 vvROIActor * vvStructureSetActor::GetROIActor(int n) {
+  DD(n);
   if (mMapROIIndex.find(n) == mMapROIIndex.end()) {
     std::cerr << "No ROI number " << n << std::endl;
     return NULL;    
   }
+  DD(mMapROIIndex[n]);
   return mROIActors[mMapROIIndex[n]];
 }
 //------------------------------------------------------------------------------

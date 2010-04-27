@@ -112,6 +112,14 @@ void vvBinaryImageOverlayActor::initialize() {
 
 
 //------------------------------------------------------------------------------
+void vvBinaryImageOverlayActor::SetOpacity(double d) {
+  mAlpha = d;
+  // TODO !!lut->SetTableValue(1, mColor[0], mColor[1], mColor[2], mAlpha); // FG
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::setImage(vvImage::Pointer image, double bg) {
   mImage = image;
   mBackgroundValue = bg;

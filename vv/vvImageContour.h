@@ -73,7 +73,7 @@ class vvImageContour
   void updateActor(vtkActor * actor, 
 		   vtkMarchingSquares * squares,
 		   vtkImageClip * clipper, 
-		   int threshold, int orientation, int slice);
+		   double threshold, int orientation, int slice);
   void createActor(int orientation, int slice);
   int computeCurrentOrientation();
   

@@ -43,6 +43,7 @@ class vvBinaryImageOverlayActor
   void setColor(double r, double g, double b);
   void setImage(vvImage::Pointer image, double bg);
   void initialize();
+  void SetOpacity(double d);
 
  protected:
   vvSlicer * mSlicer;
