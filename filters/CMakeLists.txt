@@ -6,21 +6,16 @@ INCLUDE(../cmake/common.cmake)
 
 SET(clitkFilters_SRC
   clitkGuerreroVentilationGenericFilter.cxx
-  #clitkBinarizeImage_ggo.c
-  #clitkImageArithmGenericFilter.cxx
+  clitkBinarizeImage_ggo.c
   clitkImageConvertGenericFilter.cxx
   clitkImageFillRegionGenericFilter.cxx
   clitkImageResampleGenericFilter.cxx
   clitkSplitImageGenericFilter.cxx
   clitkVFResampleGenericFilter.cxx
-  clitkBinarizeImageGenericFilter.cxx
   clitkImageArithmGenericFilter.cxx
-  clitkMedianImageGenericFilter.cxx
- # clitkMedianImageFilter_ggo.c
-#  clitkBinarizeImageGenericFilter.cxx
-  clitkBinarizeImage_ggo.c
-#  clitkMedianImageGenericFilter.cxx
   clitkMedianImageFilter_ggo.c
+  clitkBinarizeImageGenericFilter.cxx
+  clitkMedianImageGenericFilter.cxx
   clitkUnsharpMask_ggo.c
   clitkFooImage_ggo.c
   clitkImageArithm_ggo.c
