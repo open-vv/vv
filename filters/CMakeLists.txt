@@ -12,9 +12,7 @@ SET(clitkFilters_SRC
   clitkImageResampleGenericFilter.cxx
   clitkSplitImageGenericFilter.cxx
   clitkVFResampleGenericFilter.cxx
-  clitkImageArithmGenericFilter.cxx
   clitkMedianImageFilter_ggo.c
-  clitkBinarizeImageGenericFilter.cxx
   clitkMedianImageGenericFilter.cxx
   clitkUnsharpMask_ggo.c
   clitkFooImage_ggo.c
