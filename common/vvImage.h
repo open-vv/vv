@@ -70,7 +70,6 @@ public :
   void SetTranslationY(int yvalue);  
   void SetTranslationZ(int zvalue);
   void SetOrigin(double value[3]);
- private:
 
   void SetTimeSpacing(double s) { mTimeSpacing = s; }
   void SetTimeOrigin(double o) { mTimeOrigin = o; }
