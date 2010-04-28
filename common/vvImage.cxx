@@ -177,8 +177,6 @@ std::vector<double> vvImage::GetSpacing()
   return spacing;
 }
 //--------------------------------------------------------------------
-
-//--------------------------------------------------------------------
 std::vector<double> vvImage::GetOrigin() const
 {
   std::vector<double> origin;
@@ -274,77 +272,31 @@ bool vvImage::IsScalarTypeInteger(int t)
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
-vtkTransform * vvImage::GetTransform()
+vtkSmartPointer<vtkTransform> vvImage::GetTransform()
 {
   return mTransform;
 }
 //--------------------------------------------------------------------
 
-//-------------------------------------------------------------------
-void vvImage::SetRotateX(int xvalue)
-{
-  mTransform->PostMultiply();
-  mTransform->Translate(-origin[0],-origin[1],-origin[2]);
-  mTransform->RotateX(xvalue);
-  mTransform->Translate(origin[0],origin[1],origin[2]);
-}
-
 //--------------------------------------------------------------------
-
-//-------------------------------------------------------------------
-void vvImage::SetRotateY(int yvalue)
-{
-  mTransform->PostMultiply();
-  mTransform->Translate(-origin[0],-origin[1],-origin[2]);
-  mTransform->RotateY(yvalue);
-  mTransform->Translate(origin[0],origin[1],origin[2]);
-}
-//--------------------------------------------------------------------
-
-//-------------------------------------------------------------------
-void vvImage::SetRotateZ(int zvalue)
-{
-  mTransform->PostMultiply();
-  mTransform->Translate(-origin[0],-origin[1],-origin[2]);
-  mTransform->RotateZ(zvalue);
-  mTransform->Translate(origin[0],origin[1],origin[2]);
-}
-//--------------------------------------------------------------------
-
-//-------------------------------------------------------------------
-void vvImage::SetTranslationX(int xvalue)
-{
-  mTransform->Translate(xvalue,0,0);
-}
-//--------------------------------------------------------------------
-
-//-------------------------------------------------------------------
-
-void vvImage::SetTranslationY(int yvalue)
-{
-  mTransform->Translate(0,yvalue,0);
-}
-//--------------------------------------------------------------------
-
-//-------------------------------------------------------------------
-void vvImage::SetTranslationZ(int zvalue)
-{
-  mTransform->Translate(0,0,zvalue);
-}
-//-------------------------------------------------------------------
-
-//-------------------------------------------------------------------
-void vvImage::SetOrigin(double value[3])
-{
-  origin[0]=value[0];
-  origin[1]=value[1];
-  origin[2]=value[2];
-}
-
-//--------------------------------------------------------------------
-void vvImage::SetTransform(vtkTransform  *transform)
+void vvImage::SetTransform(vtkSmartPointer<vtkTransform> transform)
 {
   mTransform = transform;
+  this->UpdateReslice();
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+void vvImage::UpdateReslice()
+{
+  for (unsigned int i=0; i<mVtkImageReslice.size(); i++) {
+    mVtkImageReslice[i]->UpdateInformation();
+    mVtkImageReslice[i]->UpdateWholeExtent();
+    mVtkImageReslice[i]->Update();
+    mVtkImageReslice[i]->UpdateInformation();
+    mVtkImageReslice[i]->UpdateWholeExtent();
+    mVtkImageReslice[i]->Update();
+  }
 }
 //--------------------------------------------------------------------
 

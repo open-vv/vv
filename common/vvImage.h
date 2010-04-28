@@ -58,32 +58,28 @@ public :
   bool IsTimeSequence();
   bool IsScalarTypeInteger();
   bool IsScalarTypeInteger(int t);
-  vtkTransform * GetTransform();
-  void SetTransform(vtkTransform  *transform);
-  vtkImageReslice* GetVTKImageReslice();
-  void SetVTKImageReslice(vtkImageReslice *reslice);
 
-  void SetRotateX(int xvalue);
-  void SetRotateY(int yvalue);
-  void SetRotateZ(int zvalue);
+  vtkSmartPointer<vtkTransform> GetTransform();
+  void SetTransform(vtkSmartPointer<vtkTransform> transform);
 
-  void SetTranslationX(int xvalue);
-  void SetTranslationY(int yvalue);
-  void SetTranslationZ(int zvalue);
-  void SetOrigin(double value[3]);
+  void SetTimeSpacing(double s) {
+    mTimeSpacing = s;
+  }
+  void SetTimeOrigin(double o) {
+    mTimeOrigin = o;
+  }
 
-  void SetTimeSpacing(double s) { mTimeSpacing = s; }
-  void SetTimeOrigin(double o) { mTimeOrigin = o; }
+  void UpdateReslice();
 
 private:
   vvImage();
   ~vvImage();
+
   std::vector<vtkImageData*> mVtkImages;
   std::vector< vtkSmartPointer<vtkImageReslice> > mVtkImageReslice;
   vtkSmartPointer<vtkTransform> mTransform;
   double mTimeOrigin;
   double mTimeSpacing;
-  double * origin;
 };
 
 #endif
