@@ -128,13 +128,25 @@
      <item row="0" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QLineEdit" name="Xval"/>
+        <widget class="QLineEdit" name="Xval">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="Yval"/>
+        <widget class="QLineEdit" name="Yval">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="Zval"/>
+        <widget class="QLineEdit" name="Zval">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
