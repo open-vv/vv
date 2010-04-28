@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -29,7 +29,8 @@ class vtkTransform;
 class vtkImageReslice;
 class vtkAbstractTransform;
 
-class vvImage : public itk::LightObject {
+class vvImage : public itk::LightObject
+{
 public :
   typedef vvImage Self;
   typedef itk::SmartPointer<Self> Pointer;
@@ -42,7 +43,7 @@ public :
   void AddImage(vtkImageData* image);
   const std::vector<vtkImageData*>& GetVTKImages();
   vtkImageData* GetFirstVTKImageData();
-  
+
   int GetNumberOfDimensions() const;
   int GetNumberOfSpatialDimensions();
   ///Writes the scalar range to the provided array, which must have room for two doubles
@@ -57,29 +58,29 @@ public :
   bool IsTimeSequence();
   bool IsScalarTypeInteger();
   bool IsScalarTypeInteger(int t);
-  vtkAbstractTransform * GetTransform();
-  void SetTransform(vtkAbstractTransform  *transform);
+  vtkTransform * GetTransform();
+  void SetTransform(vtkTransform  *transform);
   vtkImageReslice* GetVTKImageReslice();
   void SetVTKImageReslice(vtkImageReslice *reslice);
-  
-  void SetRotateX(int xvalue);  
-  void SetRotateY(int yvalue);  
+
+  void SetRotateX(int xvalue);
+  void SetRotateY(int yvalue);
   void SetRotateZ(int zvalue);
 
-  void SetTranslationX(int xvalue);  
-  void SetTranslationY(int yvalue);  
+  void SetTranslationX(int xvalue);
+  void SetTranslationY(int yvalue);
   void SetTranslationZ(int zvalue);
   void SetOrigin(double value[3]);
 
   void SetTimeSpacing(double s) { mTimeSpacing = s; }
   void SetTimeOrigin(double o) { mTimeOrigin = o; }
 
- private:
+private:
   vvImage();
   ~vvImage();
   std::vector<vtkImageData*> mVtkImages;
-  vtkSmartPointer<vtkImageReslice> mVtkImageReslice;
-  vtkSmartPointer<vtkTransform> transform;
+  std::vector< vtkSmartPointer<vtkImageReslice> > mVtkImageReslice;
+  vtkSmartPointer<vtkTransform> mTransform;
   double mTimeOrigin;
   double mTimeSpacing;
   double * origin;
