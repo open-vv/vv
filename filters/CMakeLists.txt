@@ -4,19 +4,23 @@ INCLUDE(../cmake/common.cmake)
 #=========================================================
 # make clitk libraries
 
+WRAP_GGO(clitkFilters_GGO_C
+  clitkBinarizeImage.ggo
+  clitkUnsharpMask.ggo
+  clitkFooImage.ggo
+  clitkImageArithm.ggo
+  clitkMedianImageFilter.ggo
+)
+
 SET(clitkFilters_SRC
+  ${clitkFilters_GGO_C}
   clitkGuerreroVentilationGenericFilter.cxx
-  clitkBinarizeImage_ggo.c
   clitkImageConvertGenericFilter.cxx
   clitkImageFillRegionGenericFilter.cxx
   clitkImageResampleGenericFilter.cxx
   clitkSplitImageGenericFilter.cxx
   clitkVFResampleGenericFilter.cxx
-  clitkMedianImageFilter_ggo.c
   clitkMedianImageGenericFilter.cxx
-  clitkUnsharpMask_ggo.c
-  clitkFooImage_ggo.c
-  clitkImageArithm_ggo.c
-  )  
+)  
 
 ADD_LIBRARY(clitkFilters STATIC ${clitkFilters_SRC})
