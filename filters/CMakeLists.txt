@@ -10,6 +10,7 @@ WRAP_GGO(clitkFilters_GGO_C
   clitkFooImage.ggo
   clitkImageArithm.ggo
   clitkMedianImageFilter.ggo
+  clitkResampleImage.ggo
 )
 
 SET(clitkFilters_SRC

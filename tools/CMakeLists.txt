@@ -94,3 +94,7 @@ TARGET_LINK_LIBRARIES(clitkBinarizeImage clitkCommon ITKIO clitkFilters)
 WRAP_GGO(clitkMedianImageFilter_GGO_C clitkMedianImageFilter.ggo)
 ADD_EXECUTABLE(clitkMedianImageFilter clitkMedianImageFilter.cxx)
 TARGET_LINK_LIBRARIES(clitkMedianImageFilter clitkCommon ITKIO clitkFilters ITKBasicFilters)
+
+ADD_EXECUTABLE(clitkResampleImage clitkResampleImage.cxx ${clitkResampleImage_GGO_C})
+TARGET_LINK_LIBRARIES(clitkResampleImage clitkCommon ITKIO clitkFilters)
+
