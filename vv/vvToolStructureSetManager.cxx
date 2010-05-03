@@ -95,8 +95,7 @@ void vvToolStructureSetManager::InputIsSelected(vvSlicerManager *m) {
 
   connect(mTree, SIGNAL(itemSelectionChanged()), this, SLOT(selectedItemChangedInTree()));
   connect(mCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(visibleROIToggled(bool)));
-
-  //  TODO connect(mOpacitySlider, SIGNAL(valueChanged(int), this, SLOT(opacityChanged(int))));
+  connect(mOpacitySlider, SIGNAL(valueChanged(int)), this, SLOT(opacityChanged(int)));
 }
 //------------------------------------------------------------------------------
 
@@ -334,7 +333,7 @@ void vvToolStructureSetManager::selectedItemChangedInTree() {
   DD(actor);
   DD(actor->IsVisible());
   mCheckBoxShow->setChecked(actor->IsVisible());
-
+  mOpacitySlider->setValue((int)lrint(actor->GetOpacity()*100));
   //actor->SetSelected(true); // remove old selection
 
   DD("ici");
@@ -353,9 +352,15 @@ void vvToolStructureSetManager::visibleROIToggled(bool b) {
 
 //------------------------------------------------------------------------------
 void vvToolStructureSetManager::opacityChanged(int v) {
+  //  if (!mCurrentROIActor) return;
   DD(v);
   mCurrentROIActor->SetOpacity((double)v/100.0);
+  DD("ici");
   mCurrentROIActor->Update();
+  // Render !
+  //  for(int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
+    mCurrentSlicerManager->Render(); 
+    //}
 }
 //------------------------------------------------------------------------------
 

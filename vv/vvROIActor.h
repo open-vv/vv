@@ -41,6 +41,7 @@ class vvROIActor: public QObject {
   void SetVisible(bool b);
   bool IsVisible();
   void SetOpacity(double x);
+  double GetOpacity();
 
 public slots:
   void UpdateSlice(int slicer, int slices);

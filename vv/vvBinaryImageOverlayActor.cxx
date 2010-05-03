@@ -37,6 +37,7 @@ vvBinaryImageOverlayActor::vvBinaryImageOverlayActor() {
   mAlpha = 0.6;
   mImage = 0;
   mSlicer = 0;
+  mColorLUT = vtkLookupTable::New();
 }
 //------------------------------------------------------------------------------
 
@@ -84,18 +85,15 @@ void vvBinaryImageOverlayActor::initialize() {
     DD(numImage);
 
     // how many intensity ? 
-    
-
     vtkImageMapToRGBA * mOverlayMapper = vtkImageMapToRGBA::New();
     mOverlayMapper->SetInput(mImage->GetVTKImages()[0]); // DS TODO : to change if it is 4D !!!
-    vtkLookupTable * lut = vtkLookupTable::New();
-    DD(lut->IsOpaque ());
-    lut->SetRange(0,1);
-    lut->SetNumberOfTableValues(2);
-    lut->SetTableValue(mBackgroundValue, 0, 0, 0, 0.0);   // BG
-    lut->SetTableValue(1, mColor[0], mColor[1], mColor[2], mAlpha); // FG
+    DD(mColorLUT->IsOpaque ());
+    mColorLUT->SetRange(0,1);
+    mColorLUT->SetNumberOfTableValues(2);
+    mColorLUT->SetTableValue(mBackgroundValue, 0, 0, 0, 0.0);   // BG
+    mColorLUT->SetTableValue(1, mColor[0], mColor[1], mColor[2], mAlpha); // FG
     DD(mColor[0]);
-    mOverlayMapper->SetLookupTable(lut);
+    mOverlayMapper->SetLookupTable(mColorLUT);
     
     vtkImageActor * mOverlayActor = vtkImageActor::New();
     mOverlayActor->SetInput(mOverlayMapper->GetOutput());
@@ -114,7 +112,21 @@ void vvBinaryImageOverlayActor::initialize() {
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::SetOpacity(double d) {
   mAlpha = d;
-  // TODO !!lut->SetTableValue(1, mColor[0], mColor[1], mColor[2], mAlpha); // FG
+  mColorLUT->SetTableValue(1, mColor[0], mColor[1], mColor[2], mAlpha); // FG
+  for (unsigned int numImage = 0; numImage < mSlicer->GetImage()->GetVTKImages().size(); numImage++) {
+    DD(numImage);
+
+    // how many intensity ? 
+    vtkImageMapToRGBA * mOverlayMapper = mMapperList[numImage];
+    mOverlayMapper->SetLookupTable(mColorLUT);
+    
+    vtkImageActor * mOverlayActor = mImageActorList[numImage];
+    mOverlayActor->SetInput(mOverlayMapper->GetOutput());
+    //mOverlayActor->SetPickable(0);
+    //    mOverlayActor->SetVisibility(true);
+    //mOverlayActor->SetOpacity(1.0);
+  }
+  DD("end SetOpacity");
 }
 //------------------------------------------------------------------------------
 

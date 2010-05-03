@@ -35,6 +35,7 @@ vvROIActor::vvROIActor() {
   mImageContour.clear();
   mOverlayActors.clear();
   mIsVisible = true;
+  mOpacity = 0.7;
 }
 //------------------------------------------------------------------------------
 
@@ -102,6 +103,7 @@ void vvROIActor::Initialize() {
       mOverlayActors[i]->setColor(mROI->GetDisplayColor()[0], 
 				  mROI->GetDisplayColor()[1], 
 				  mROI->GetDisplayColor()[2]);
+      mOverlayActors[i]->SetOpacity(mOpacity);
       mOverlayActors[i]->setSlicer(mSlicerManager->GetSlicer(i));
       mOverlayActors[i]->initialize();
     }
@@ -148,10 +150,21 @@ void vvROIActor::UpdateSlice(int slicer, int slices) {
 
 //------------------------------------------------------------------------------
 void vvROIActor::SetOpacity(double d) {
+  if (d == mOpacity) return;
   mOpacity = d; 
-  for(unsigned int i=0; mOverlayActors.size(); i++) {
+  DD(mOpacity);
+  for(unsigned int i=0; i<mOverlayActors.size(); i++) {
+    DD(i);
     mOverlayActors[i]->SetOpacity(d);
   }
+  DD("end vvROIActor::SetOpacity");
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+double vvROIActor::GetOpacity() {
+  return mOpacity;
 }
 //------------------------------------------------------------------------------
 

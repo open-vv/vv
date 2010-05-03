@@ -55,7 +55,8 @@ class vvBinaryImageOverlayActor
   std::vector<double> mColor;
   double mAlpha;
   double mBackgroundValue;
-  
+  vtkLookupTable * mColorLUT;
+
   std::vector<vtkImageMapToRGBA *> mMapperList;
   std::vector<vtkImageActor*> mImageActorList;
 
