@@ -1601,6 +1601,10 @@ void vvMainWindow::ReloadImage(QTreeWidgetItem* item, int column) {
     mSlicerManagers[index]->ReloadFusion();
   else
     mSlicerManagers[index]->Reload();
+
+  // Update view and info
+  ImageInfoChanged();
+  mSlicerManagers[index]->Render();
   QApplication::restoreOverrideCursor();  
 }
 //------------------------------------------------------------------------------

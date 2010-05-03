@@ -281,6 +281,26 @@ void vvSlicer::SetImage(vvImage::Pointer image)
     {
       mImage = image;
       this->Superclass::SetInput(image->GetVTKImages()[0]);
+
+      // Prevent crash when reload -> change slice if outside extent
+      int extent[6];
+      this->GetInput()->GetWholeExtent(extent);
+      if (SliceOrientation == 0) {
+        if (Slice >= extent[1]) {
+          Slice = (extent[1]-extent[0])/2.0;
+        }
+      }
+      if (SliceOrientation == 1) {
+        if (Slice >= extent[3]) {
+          Slice = (extent[3]-extent[2])/2.0;
+        }
+      }
+      if (SliceOrientation == 2) {
+        if (Slice >= extent[5]) {
+          Slice = (extent[5]-extent[4])/2.0;
+        }
+      }
+
       this->UpdateDisplayExtent();
       mCurrentTSlice = 0;
       ca->SetText(0,mFileName.c_str());
@@ -1378,7 +1398,8 @@ void vvSlicer::SetSlice(int slice)
 
   //  DD("SetSlice de slicer = Render");
 
-  this->Render();
+  // Seems to work without this line
+  //  this->Render();
 }
 //----------------------------------------------------------------------------
 
