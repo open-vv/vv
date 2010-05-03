@@ -63,9 +63,12 @@ namespace clitk
   //--------------------------------------------------------------------
     
 } // end namespace clitk
+//--------------------------------------------------------------------
 
+//--------------------------------------------------------------------
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "clitkBinarizeImageGenericFilter.txx"
 #endif
+//--------------------------------------------------------------------
 
 #endif // #define clitkBinarizeImageGenericFilter_h

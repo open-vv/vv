@@ -15,16 +15,9 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
 #ifndef CLITKIMAGERESAMPLEGENERICFILTER_H
 #define CLITKIMAGERESAMPLEGENERICFILTER_H
-/**
- -------------------------------------------------------------------
- * @file   clitkImageResampleGenericFilter.h
- * @author David Sarrut <David.Sarrut@creatis.insa-lyon.fr>
- * @date   23 Feb 2008 08:37:53
-
- * @brief  
- -------------------------------------------------------------------*/
 
 // clitk include
 #include "clitkImageToImageGenericFilter.h"
