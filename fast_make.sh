@@ -27,7 +27,7 @@ then
    sleep 1
    make -j${cpus}
 else #use all the available computing power by default
-    cpus=$(( $(cat /proc/cpuinfo | grep -c ^processor) + 2 ))
+    cpus=$(( $(cat /proc/cpuinfo | grep -c ^processor) + 0 ))
     echo "Building with ${cpus} cpus..."
 fi
 
