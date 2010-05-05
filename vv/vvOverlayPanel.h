@@ -54,7 +54,7 @@ public slots:
     void setFusionProperty();
 
 signals:
-    void VFPropertyUpdated(int subsampling, int scale, int log);
+    void VFPropertyUpdated(int subsampling, int scale, int log, int width);
     void OverlayPropertyUpdated(int color);
     void FusionPropertyUpdated(int opacity, int colormap, double window, double level);
 

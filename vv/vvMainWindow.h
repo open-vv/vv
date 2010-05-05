@@ -131,7 +131,7 @@ public slots:
   void SelectOverlayImage();
   void AddFusionImage();
 
-  void SetVFProperty(int subsampling,int scale,int lut);
+  void SetVFProperty(int subsampling,int scale,int lut, int width);
   void SetOverlayProperty(int color);
   void SetFusionProperty(int opacity,int colormap,double window,double level);
 

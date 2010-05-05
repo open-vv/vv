@@ -40,6 +40,7 @@ vvOverlayPanel::vvOverlayPanel(QWidget * parent):QWidget(parent)
     connect(subSamplingSpinBox,SIGNAL(editingFinished()),this,SLOT(setVFProperty()));
     connect(scaleSpinBox,SIGNAL(editingFinished()),this,SLOT(setVFProperty()));
     connect(lutCheckBox,SIGNAL(clicked()),this,SLOT(setVFProperty()));
+    connect(vfWidthSpinBox,SIGNAL(editingFinished()),this,SLOT(setVFProperty()));
     connect(colorHorizontalSlider,SIGNAL(valueChanged(int)),this,SLOT(setOverlayProperty()));
     connect(opacityHorizontalSlider,SIGNAL(valueChanged(int)),this,SLOT(setFusionProperty()));
     connect(fusionColorMapComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setFusionProperty()));
@@ -94,7 +95,8 @@ void vvOverlayPanel::setVFProperty()
 {
     emit VFPropertyUpdated(subSamplingSpinBox->value(),
                            scaleSpinBox->value(),
-                           lutCheckBox->checkState());
+                           lutCheckBox->checkState(),
+                           vfWidthSpinBox->value());
 }
 
 void vvOverlayPanel::getCurrentVectorInfo(int visibility, double x,double y,double z, double value)

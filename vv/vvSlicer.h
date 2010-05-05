@@ -113,6 +113,7 @@ public:
         return mSubSampling;
     }
     void SetVFScale(int scale);
+    void SetVFWidth(int width);
     int GetVFScale() {
         return mScale;
     }
@@ -206,6 +207,7 @@ protected:
     int mSubSampling;
     int mScale;
     int mVFLog;
+    int mVFWidth;
     bool mUseReducedExtent;
     int * mReducedExtent;
     int * mInitialExtent;

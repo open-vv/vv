@@ -88,6 +88,7 @@ vvSlicer::vvSlicer()
   mSubSampling = 5;
   mScale = 1;
   mVFLog = 0;
+  mVFWidth = 1;
 
   std::string text = "F1 = sagital; F2 = coronal; F3 = axial\n";
   text += "F5 = horizontal flip; F6 = vertical flip\n\n";
@@ -443,6 +444,7 @@ void vvSlicer::SetVF(vvImage::Pointer vf)
         mVFActor = vtkActor::New();
       mVFActor->SetMapper(mVFMapper);
       mVFActor->SetPickable(0);
+      mVFActor->GetProperty()->SetLineWidth(mVFWidth);
       this->UpdateDisplayExtent();
       this->GetRenderer()->AddActor(mVFActor);
 
@@ -560,6 +562,17 @@ void vvSlicer::SetVFScale(int scale)
   mScale = scale;
   if (mArrow)
     mArrow->SetScale(mScale);
+  UpdateDisplayExtent();
+  Render();
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvSlicer::SetVFWidth(int width)
+{
+  mVFWidth = width;
+  if (mVFActor)
+    mVFActor->GetProperty()->SetLineWidth(mVFWidth);
   UpdateDisplayExtent();
   Render();
 }
