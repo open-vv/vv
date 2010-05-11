@@ -36,14 +36,15 @@ class vvBinaryImageOverlayActor
   vvBinaryImageOverlayActor();
   ~vvBinaryImageOverlayActor();
 
-  void setSlicer(vvSlicer * slicer);
-  void update(int slicer, int slice);
-  void hideActors();
-  void showActors();
-  void setColor(double r, double g, double b);
-  void setImage(vvImage::Pointer image, double bg);
-  void initialize();
+  void SetSlicer(vvSlicer * slicer);
+  void SetColor(double r, double g, double b);
   void SetOpacity(double d);
+  void SetImage(vvImage::Pointer image, double bg);
+  void Initialize();
+  void UpdateColor();
+  void UpdateSlice(int slicer, int slice);
+  void HideActors();
+  void ShowActors();
 
  protected:
   vvSlicer * mSlicer;

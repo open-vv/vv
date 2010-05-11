@@ -52,6 +52,7 @@ class vvToolBinarize:
   void enableLowerThan(bool b);
   void useFGBGtoggled(bool);
   void InteractiveDisplayToggled(bool b);
+  //  void LeftButtonReleaseEvent(int slicer);
 
  protected:
   void RemoveVTKObjects();

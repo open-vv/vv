@@ -48,12 +48,10 @@ void vvStructureSetActor::SetSlicerManager(vvSlicerManager * s) {
 
 //------------------------------------------------------------------------------
 vvROIActor * vvStructureSetActor::GetROIActor(int n) {
-  DD(n);
   if (mMapROIIndex.find(n) == mMapROIIndex.end()) {
     std::cerr << "No ROI number " << n << std::endl;
     return NULL;    
   }
-  DD(mMapROIIndex[n]);
   return mROIActors[mMapROIIndex[n]];
 }
 //------------------------------------------------------------------------------
@@ -61,11 +59,8 @@ vvROIActor * vvStructureSetActor::GetROIActor(int n) {
 
 //------------------------------------------------------------------------------
 void vvStructureSetActor::CreateNewROIActor(int n) {
-  DD("AddROIActor");
-  DD(n);
-
   // Check
-  const clitk::DicomRT_ROI * roi = mStructureSet->GetROI(n);
+  clitk::DicomRT_ROI * roi = mStructureSet->GetROI(n);
   if (roi == NULL) {
     std::cerr << "Error. No ROI number " << n << std::endl;
     exit(0);

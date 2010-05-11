@@ -34,7 +34,8 @@ class vvROIActor: public QObject {
   vvROIActor();
   ~vvROIActor();
 
-  void SetROI(const clitk::DicomRT_ROI * r);
+  void SetROI(clitk::DicomRT_ROI * r);
+  clitk::DicomRT_ROI * GetROI() { return mROI; }
   void SetSlicerManager(vvSlicerManager * s);
   void Update();
   void Initialize();
@@ -42,18 +43,21 @@ class vvROIActor: public QObject {
   bool IsVisible();
   void SetOpacity(double x);
   double GetOpacity();
+  void SetSelected(bool b);
 
 public slots:
   void UpdateSlice(int slicer, int slices);
+  void UpdateColor();
 
  protected:
-  const clitk::DicomRT_ROI * mROI;
+  clitk::DicomRT_ROI * mROI;
   vvSlicerManager * mSlicerManager;
   std::vector<vvImageContour *> mImageContour;
   std::vector<vvBinaryImageOverlayActor *> mOverlayActors;
   
   bool mIsVisible;
   double mOpacity;
+  bool mIsSelected;
 
 }; // end class vvROIActor
 //------------------------------------------------------------------------------

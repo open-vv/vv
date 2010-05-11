@@ -21,8 +21,11 @@
 #include "vvStructureSetActor.h"
 #include "vvSlicer.h"
 #include "vvROIActor.h"
+
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QColorDialog>
+
 #include <vtkLookupTable.h>
 #include <vtkRenderWindow.h>
 
@@ -41,6 +44,9 @@ vvToolStructureSetManager::vvToolStructureSetManager(vvMainWindowBase * parent, 
   Ui_vvToolStructureSetManager::setupUi(mToolWidget);
   mTree->clear();
   mCurrentStructureSet = NULL;
+  mCurrentStructureSetIndex = -1;
+  mGroupBoxROI->setEnabled(false);
+  mCurrentROIActor = NULL;
   
   mDefaultLUTColor = vtkLookupTable::New();
   for(unsigned int i=0; i<mDefaultLUTColor->GetNumberOfTableValues(); i++) {
@@ -96,6 +102,7 @@ void vvToolStructureSetManager::InputIsSelected(vvSlicerManager *m) {
   connect(mTree, SIGNAL(itemSelectionChanged()), this, SLOT(selectedItemChangedInTree()));
   connect(mCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(visibleROIToggled(bool)));
   connect(mOpacitySlider, SIGNAL(valueChanged(int)), this, SLOT(opacityChanged(int)));
+  connect(mChangeColorButton, SIGNAL(clicked()), this, SLOT(changeColor()));
 }
 //------------------------------------------------------------------------------
 
@@ -315,55 +322,91 @@ void vvToolStructureSetManager::apply() {
 //------------------------------------------------------------------------------
 void vvToolStructureSetManager::selectedItemChangedInTree() {
   DD("selectedItemChangedInTree");
+  
+  // Search which roi is selected
   QList<QTreeWidgetItem *> l = mTree->selectedItems();
   DD(l.size());
   QTreeWidgetItem * w = l[0];
-  if (mMapTreeWidgetToROI.find(w) == mMapTreeWidgetToROI.end()) return; // Search for SS (first)
+  if (mMapTreeWidgetToROI.find(w) == mMapTreeWidgetToROI.end()) {
+    mCurrentROIActor = NULL;
+    mCurrentROI = NULL;
+    mGroupBoxROI->setEnabled(false);
+    return; // Search for SS (first)
+  }
   clitk::DicomRT_ROI * roi = mMapTreeWidgetToROI[w];
-  DD(roi->GetName());
-  //setCurrentSelectedROI(roi);
+  //  DD(roi->GetName());
 
-  mROInameLabel->setText(roi->GetName().c_str());
-  DD(roi->GetROINumber());
-  DD(mCurrentStructureSetIndex);
+  // Get selected roi actor
+  if (mCurrentROIActor != NULL) {
+    mCurrentROIActor->SetSelected(false);
+    mCurrentROIActor->Update();
+  }
+
   vvROIActor * actor = mStructureSetActorsList[mCurrentStructureSetIndex]->GetROIActor(roi->GetROINumber());
   mCurrentROI = roi;
   mCurrentROIActor = actor;
 
-  DD(actor);
-  DD(actor->IsVisible());
+  // Update GUI
+  mGroupBoxROI->setEnabled(true);
+  mROInameLabel->setText(roi->GetName().c_str());
   mCheckBoxShow->setChecked(actor->IsVisible());
+  
+  // Warning -> avoir unuseful Render here by disconnect slider
+  // 
+  disconnect(mOpacitySlider, SIGNAL(valueChanged(int)), 
+	     this, SLOT(opacityChanged(int)));
   mOpacitySlider->setValue((int)lrint(actor->GetOpacity()*100));
-  //actor->SetSelected(true); // remove old selection
+  mOpacitySpinBox->setValue((int)lrint(actor->GetOpacity()*100));
+  connect(mOpacitySlider, SIGNAL(valueChanged(int)), 
+	  this, SLOT(opacityChanged(int)));
 
-  DD("ici");
+  actor->SetSelected(true); // remove old selection  
+  // The following must not render !!
+  DD("before update");
+  actor->Update(); // To change in UpdateSelecte
+  DD("after update");
+
+  mCurrentSlicerManager->Render();
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
 void vvToolStructureSetManager::visibleROIToggled(bool b) {
-  DD(b);
   mCurrentROIActor->SetVisible(b);
-  //mCurrentROIActor->Update();
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
 void vvToolStructureSetManager::opacityChanged(int v) {
-  //  if (!mCurrentROIActor) return;
-  DD(v);
   mCurrentROIActor->SetOpacity((double)v/100.0);
-  DD("ici");
-  mCurrentROIActor->Update();
-  // Render !
-  //  for(int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
-    mCurrentSlicerManager->Render(); 
-    //}
+  mCurrentROIActor->UpdateColor();
+  mCurrentSlicerManager->Render(); 
 }
 //------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
+void vvToolStructureSetManager::changeColor() {
+  QColor color;
+  color.setRgbF(mCurrentROIActor->GetROI()->GetDisplayColor()[0], 
+		mCurrentROIActor->GetROI()->GetDisplayColor()[1], 
+		mCurrentROIActor->GetROI()->GetDisplayColor()[2]);
+  QColor c = QColorDialog::getColor(color, this, "Choose the ROI color");
+  mCurrentROIActor->GetROI()->SetDisplayColor(c.redF(), c.greenF(), c.blueF());
+  mCurrentROIActor->UpdateColor();
+
+  QTreeWidgetItem * w = mMapROIToTreeWidget[mCurrentROI];  
+  QBrush brush(QColor(mCurrentROI->GetDisplayColor()[0]*255, 
+		      mCurrentROI->GetDisplayColor()[1]*255, 
+		      mCurrentROI->GetDisplayColor()[2]*255));
+  brush.setStyle(Qt::SolidPattern);
+  for(int i=0; i<w->columnCount (); i++) {
+    w->setBackground(i, brush);
+  }
+}
+//------------------------------------------------------------------------------
 
 
 

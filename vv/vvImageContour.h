@@ -39,6 +39,7 @@ class vvImageContour
   void hideActors();
   void showActors();
   void setColor(double r, double g, double b);
+  void SetLineWidth(double w);
   void setImage(vvImage::Pointer image);
   void setPreserveMemoryModeEnabled(bool b);
 

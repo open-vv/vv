@@ -36,6 +36,7 @@ vvROIActor::vvROIActor() {
   mOverlayActors.clear();
   mIsVisible = true;
   mOpacity = 0.7;
+  mIsSelected = false;
 }
 //------------------------------------------------------------------------------
 
@@ -47,7 +48,7 @@ vvROIActor::~vvROIActor() {
 
 
 //------------------------------------------------------------------------------
-void vvROIActor::SetROI(const clitk::DicomRT_ROI * s) {
+void vvROIActor::SetROI(clitk::DicomRT_ROI * s) {
   mROI = s;
 }
 //------------------------------------------------------------------------------
@@ -65,11 +66,11 @@ void vvROIActor::SetVisible(bool b) {
   mIsVisible = b;
   if (!b) { // remove actor
     for(unsigned int i= 0; i<mOverlayActors.size(); i++) 
-      mOverlayActors[i]->hideActors();
+      mOverlayActors[i]->HideActors();
   }
   else {
     for(unsigned int i= 0; i<mOverlayActors.size(); i++) 
-      mOverlayActors[i]->showActors();
+      mOverlayActors[i]->ShowActors();
   }
   Update();
 }
@@ -92,20 +93,21 @@ void vvROIActor::Initialize() {
       mImageContour.push_back(new vvImageContour);
       mImageContour[i]->setSlicer(mSlicerManager->GetSlicer(i));
       mImageContour[i]->setImage(mROI->GetImage());
-      //      mImageContour[i]->setColor(1.0, 0.0, 0.0);
-      mImageContour[i]->setColor(mROI->GetDisplayColor()[0], 
-				 mROI->GetDisplayColor()[1], 
-				 mROI->GetDisplayColor()[2]);
-      mImageContour[i]->setPreserveMemoryModeEnabled(false);        
+      //mImageContour[i]->setColor(1.0, 0.0, 0.0);
+      mImageContour[i]->setColor(1.0-mROI->GetDisplayColor()[0], 
+      				 1.0-mROI->GetDisplayColor()[1], 
+      				 1.0-mROI->GetDisplayColor()[2]);
+      mImageContour[i]->setPreserveMemoryModeEnabled(true);
+      mImageContour[i]->setSlicer(mSlicerManager->GetSlicer(i));
       
       mOverlayActors.push_back(new vvBinaryImageOverlayActor);
-      mOverlayActors[i]->setImage(mROI->GetImage(), mROI->GetBackgroundValueLabelImage());
-      mOverlayActors[i]->setColor(mROI->GetDisplayColor()[0], 
+      mOverlayActors[i]->SetImage(mROI->GetImage(), mROI->GetBackgroundValueLabelImage());
+      mOverlayActors[i]->SetColor(mROI->GetDisplayColor()[0], 
 				  mROI->GetDisplayColor()[1], 
 				  mROI->GetDisplayColor()[2]);
       mOverlayActors[i]->SetOpacity(mOpacity);
-      mOverlayActors[i]->setSlicer(mSlicerManager->GetSlicer(i));
-      mOverlayActors[i]->initialize();
+      mOverlayActors[i]->SetSlicer(mSlicerManager->GetSlicer(i));
+      mOverlayActors[i]->Initialize();
     }
     
     connect(mSlicerManager,SIGNAL(UpdateSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
@@ -137,10 +139,17 @@ void vvROIActor::UpdateSlice(int slicer, int slices) {
   }
 
   // CONTOUR HERE 
-  // mImageContour[slicer]->update(1.0); 
+  DD("vvROIActor::UpdateSlice");
+  DD(mROI->GetName());
+  DD(mIsSelected);
+  DD(mROI->GetBackgroundValueLabelImage());
+  if (mIsSelected) {
+    mImageContour[slicer]->update(1.0);//mROI->GetBackgroundValueLabelImage()); 
+    //    mImageContour[slicer]->showActors();
+  }
 
   // Refresh overlays
-  mOverlayActors[slicer]->update(slicer, slices);
+  mOverlayActors[slicer]->UpdateSlice(slicer, slices);
 
   // Do not used the following line : TOO SLOW.
   // mSlicerManager->GetSlicer(slicer)->GetRenderWindow()->Render(); 
@@ -149,15 +158,34 @@ void vvROIActor::UpdateSlice(int slicer, int slices) {
 
 
 //------------------------------------------------------------------------------
+// void vvROIActor::UpdateOpacity(double d) {
+//   if (d == mOpacity) return;
+//   mOpacity = d; 
+//   for(unsigned int i=0; i<mOverlayActors.size(); i++) {
+//     mOverlayActors[i]->SetOpacity(d);
+//     mOverlayActors[i]->UpdateColor();
+//   }
+//   mSlicerManager->Render(); 
+// }
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 void vvROIActor::SetOpacity(double d) {
-  if (d == mOpacity) return;
   mOpacity = d; 
-  DD(mOpacity);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvROIActor::UpdateColor() {
   for(unsigned int i=0; i<mOverlayActors.size(); i++) {
-    DD(i);
-    mOverlayActors[i]->SetOpacity(d);
+    mOverlayActors[i]->SetOpacity(mOpacity);
+    mOverlayActors[i]->SetColor(mROI->GetDisplayColor()[0], 
+				mROI->GetDisplayColor()[1], 
+				mROI->GetDisplayColor()[2]);
+    mOverlayActors[i]->UpdateColor();
   }
-  DD("end vvROIActor::SetOpacity");
 }
 //------------------------------------------------------------------------------
 
@@ -165,6 +193,24 @@ void vvROIActor::SetOpacity(double d) {
 //------------------------------------------------------------------------------
 double vvROIActor::GetOpacity() {
   return mOpacity;
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvROIActor::SetSelected(bool b) {
+  mIsSelected = b;
+  if (b) {
+    for(int i=0; i<mSlicerManager->NumberOfSlicers(); i++) {
+      mImageContour[i]->SetLineWidth(3.0);
+      mImageContour[i]->showActors();
+    }
+  }
+  else {
+    for(int i=0; i<mSlicerManager->NumberOfSlicers(); i++) {
+      mImageContour[i]->hideActors();
+    }
+  } 
 }
 //------------------------------------------------------------------------------
 

@@ -26,6 +26,7 @@
 #include <vtkImageActor.h>
 #include <vtkCamera.h>
 #include <vtkImageClip.h>
+#include <vtkRenderWindow.h>
 
 //------------------------------------------------------------------------------
 // Create the tool and automagically (I like this word) insert it in
@@ -200,7 +201,19 @@ void vvToolBinarize::InputIsSelected(vvSlicerManager * m) {
   connect(mCurrentSlicerManager,SIGNAL(UpdateSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
   connect(mCurrentSlicerManager,SIGNAL(UpdateTSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
 
+  //  connect(mCurrentSlicerManager, SIGNAL(LeftButtonReleaseSignal(int)), SLOT(LeftButtonReleaseEvent(int)));
 }
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+// void vvToolBinarize::LeftButtonReleaseEvent(int slicer) {
+//   DD("LeftButtonReleaseEvent");
+//   for(int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
+//     if (i == slicer);
+//     mCurrentSlicerManager->GetSlicer(i)->GetRenderWindow()->Render();
+//   }
+// }
 //------------------------------------------------------------------------------
 
 

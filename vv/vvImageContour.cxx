@@ -106,6 +106,15 @@ void vvImageContour::setColor(double r, double g, double b) {
 
 
 //------------------------------------------------------------------------------
+void vvImageContour::SetLineWidth(double w) {
+  for(unsigned int i=0; i<mSquaresActorList.size(); i++) {
+    mSquaresActorList[i]->GetProperty()->SetLineWidth(w);
+  }
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 void vvImageContour::hideActors() {
   if (!mSlicer) return;
   mSlice = mSlicer->GetSlice();
@@ -131,10 +140,12 @@ void vvImageContour::showActors() {
   
 //------------------------------------------------------------------------------
 void vvImageContour::update(double value) {
+  //  DD(value);
   if (!mSlicer) return;
   if (mPreviousValue == value) {
     if (mPreviousSlice == mSlicer->GetSlice()) {
       if (mPreviousTSlice == mSlicer->GetTSlice()) {
+	// DD("vvImageContour::update nothing");
         return; // Nothing to do
       }
     }
@@ -145,14 +156,18 @@ void vvImageContour::update(double value) {
 
   // Get current slice
   mSlice = mSlicer->GetSlice();
-
+  //  DD(mDisplayModeIsPreserveMemory);
   if (mDisplayModeIsPreserveMemory) {
     updateWithPreserveMemoryMode();
   }
   else {
     updateWithFastCacheMode();
   }
-  mSlicer->Render();
+
+
+  mSlicer->Render(); //DS ---> REMOVE ??
+
+
   mPreviousTSlice = mSlicer->GetTSlice();
   mPreviousSlice  = mSlicer->GetSlice();
   mPreviousValue  = value;
@@ -178,6 +193,10 @@ void vvImageContour::updateWithPreserveMemoryMode() {
   vtkImageClip * mClipper = mClipperList[mTSlice];
   vtkActor * mSquaresActor = mSquaresActorList[mTSlice];
   int orientation = computeCurrentOrientation();
+  //  DD(orientation);
+  //DD(mValue);
+  //DD(mSlice);
+  //DD(mPreviousTslice);
   updateActor(mSquaresActor, mSquares, mClipper, mValue, orientation, mSlice);
   mSquaresActorList[mTSlice]->VisibilityOn();
   if (mPreviousTslice != mTSlice) {

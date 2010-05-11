@@ -15,6 +15,7 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
 #include "vvToolCropImage.h"
 #include <QComboBox>
 #include <QCursor>
@@ -245,6 +246,9 @@ void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer) {
   // connect(tminSlider, SIGNAL(valueChanged(int)), this, SLOT(sliderTMinValueChanged(int)));
   // connect(tmaxSlider, SIGNAL(valueChanged(int)), this, SLOT(sliderTMaxValueChanged(int)));
   
+  //  connect(mCurrentSlicerManager,SIGNAL(UpdateSlice(int,int)),this,SLOT(UpdateExtent()));
+  //connect(mCurrentSlicerManager,SIGNAL(UpdateTSlice(int,int)),this,SLOT(UpdateExtent()));
+
   //  connect(mIntensitySlider, SIGNAL(valueChanged(double)), this, SLOT(autoCropValueChanged(double)));
   UpdateExtent();
 }

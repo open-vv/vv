@@ -54,6 +54,7 @@ public slots:
   void selectedItemChangedInTree();
   void visibleROIToggled(bool b);
   void opacityChanged(int v);
+  void changeColor();
 
  protected:
   Ui::vvToolStructureSetManager ui;
