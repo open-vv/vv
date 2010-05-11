@@ -274,7 +274,7 @@ p, li { white-space: pre-wrap; }
       </widget>
      </item>
      <item>
-      <widget class="QGroupBox" name="groupBox">
+      <widget class="QGroupBox" name="mGroupBoxROI">
        <property name="title">
         <string>Current ROI</string>
        </property>
@@ -306,6 +306,9 @@ p, li { white-space: pre-wrap; }
           </item>
           <item>
            <widget class="QPushButton" name="mChangeColorButton_2">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="toolTip">
              <string/>
             </property>
@@ -343,7 +346,7 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="spinBox"/>
+           <widget class="QSpinBox" name="mOpacitySpinBox"/>
           </item>
          </layout>
         </item>
@@ -357,32 +360,6 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="text">
            <string>Name : Lung</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="vectorFieldNameLabel_3">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Number of contours : 340</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="vectorFieldNameLabel_6">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>From binary image : 100x100x33</string>
           </property>
          </widget>
         </item>
@@ -400,7 +377,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>mOpacitySlider</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>spinBox</receiver>
+   <receiver>mOpacitySpinBox</receiver>
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -414,7 +391,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>spinBox</sender>
+   <sender>mOpacitySpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>mOpacitySlider</receiver>
    <slot>setValue(int)</slot>
