@@ -45,6 +45,7 @@ namespace clitk {
     const vvImage::Pointer GetImage() const;
 
     void SetDisplayColor(double r, double v, double b);
+    std::vector<double> & GetDisplayColor() { return mColor; }
     
     double GetBackgroundValueLabelImage() const;
     void SetBackgroundValueLabelImage(double bg);
