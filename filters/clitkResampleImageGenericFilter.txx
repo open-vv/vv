@@ -28,7 +28,7 @@ namespace clitk {
   template<class args_info_type>
   ResampleImageGenericFilter<args_info_type>::ResampleImageGenericFilter():
     ImageToImageGenericFilter<Self>("Resample") {
-    // InitializeImageType<2>();
+    InitializeImageType<2>();
     InitializeImageType<3>();
     InitializeImageType<4>();
   }
@@ -39,8 +39,8 @@ namespace clitk {
   template<class args_info_type>
   template<unsigned int Dim>
   void ResampleImageGenericFilter<args_info_type>::InitializeImageType() {      
-    //    ADD_DEFAULT_IMAGE_TYPES(Dim);
-    ADD_IMAGE_TYPE(Dim, short);
+    ADD_DEFAULT_IMAGE_TYPES(Dim);
+    //ADD_IMAGE_TYPE(Dim, short);
   }
   //--------------------------------------------------------------------
   
@@ -89,7 +89,7 @@ namespace clitk {
     typename OutputImageType::SpacingType spacing;
     typename OutputImageType::SizeType size;
     if (mArgsInfo.spacing_given == 1) {
-      filter->SetIsoSpacing(mArgsInfo.spacing_arg[0]);
+      filter->SetOutputIsoSpacing(mArgsInfo.spacing_arg[0]);
     }
     else {
       if ((mArgsInfo.spacing_given != 0) && (mArgsInfo.size_given != 0)) {
