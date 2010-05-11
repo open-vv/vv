@@ -41,7 +41,7 @@ namespace clitk {
   ResampleImageWithOptionsFilter():itk::ImageToImageFilter<TInputImage, TOutputImage>() {
     static const unsigned int dim = InputImageType::ImageDimension;
     this->SetNumberOfRequiredInputs(1);
-    m_IsoSpacing = -1;
+    m_OutputIsoSpacing = -1;
     m_InterpolationType = NearestNeighbor;
     m_GaussianFilteringEnabled = true;
     m_BSplineOrder = 3;
@@ -115,9 +115,9 @@ namespace clitk {
     InputImageSpacingType inputSpacing = input->GetSpacing();
     InputImageSizeType inputSize = input->GetLargestPossibleRegion().GetSize();
 
-    if (m_IsoSpacing != -1) { // apply isoSpacing
+    if (m_OutputIsoSpacing != -1) { // apply isoSpacing
       for(unsigned int i=0; i<dim; i++) {
-        m_OutputSpacing[i] = m_IsoSpacing;
+        m_OutputSpacing[i] = m_OutputIsoSpacing;
         m_OutputSize[i] = (int)lrint(inputSize[i]*inputSpacing[i]/m_OutputSpacing[i]);
       }
     }
@@ -152,7 +152,9 @@ namespace clitk {
     OutputImageRegionType region;
     region.SetSize(m_OutputSize);
     region.SetIndex(input->GetLargestPossibleRegion().GetIndex());
+    DD(input->GetLargestPossibleRegion().GetIndex());
     outputImage->SetLargestPossibleRegion(region);
+    outputImage->SetSpacing(m_OutputSpacing);
 
     // Init Gaussian sigma
     if (m_GaussianSigma[0] != -1) { // Gaussian filter set by user
@@ -189,6 +191,9 @@ namespace clitk {
     typedef itk::ResampleImageFilter<InputImageType,OutputImageType> FilterType;
     typename FilterType::Pointer filter = FilterType::New();
     filter->GraftOutput(this->GetOutput());
+//     this->GetOutput()->Print(std::cout);
+//     this->GetOutput()->SetBufferedRegion(this->GetOutput()->GetLargestPossibleRegion());
+//     this->GetOutput()->Print(std::cout);
 
     // Print options if needed
     if (m_VerboseOptions) {
@@ -282,7 +287,9 @@ namespace clitk {
     filter->Update();
     
     // Set output
+    // DD("before Graft");
     this->GraftOutput(filter->GetOutput());
+    // DD("after Graft");
   }
   //--------------------------------------------------------------------
   

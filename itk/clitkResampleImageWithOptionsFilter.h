@@ -92,8 +92,8 @@ namespace clitk {
     // Options
     itkGetMacro(LastDimensionIsTime, bool);
     itkSetMacro(LastDimensionIsTime, bool);
-    itkSetMacro(IsoSpacing, double);
-    itkGetMacro(IsoSpacing, double);
+    itkSetMacro(OutputIsoSpacing, double);
+    itkGetMacro(OutputIsoSpacing, double);
     itkSetMacro(OutputSpacing, OutputImageSpacingType);
     itkGetMacro(OutputSpacing, OutputImageSpacingType);
     itkSetMacro(OutputSize, OutputImageSizeType);
@@ -120,7 +120,7 @@ namespace clitk {
     virtual ~ResampleImageWithOptionsFilter() {}
     
     bool m_LastDimensionIsTime;
-    double m_IsoSpacing;
+    double m_OutputIsoSpacing;
     InterpolationTypeEnumeration m_InterpolationType;
     bool m_GaussianFilteringEnabled;
     int m_BSplineOrder;
