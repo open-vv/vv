@@ -175,10 +175,17 @@ void vvToolBinarize::InputIsSelected(vvSlicerManager * m) {
   mFGSlider->SetImage(mCurrentImage);
   mBGSlider->SetImage(mCurrentImage);
   //  DD(mCurrentSlicerManager->GetFileName().c_str());
-  mFGSlider->SetMaximum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMax());
-  mFGSlider->SetMinimum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMin());
-  mBGSlider->SetMaximum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMax());
-  mBGSlider->SetMinimum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMin());
+ //  mFGSlider->SetMaximum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMax());
+//   mFGSlider->SetMinimum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMin());
+//   mBGSlider->SetMaximum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMax());
+//   mBGSlider->SetMinimum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMin());
+
+  // Output is uchar ...
+  mFGSlider->SetMaximum(255);
+  mFGSlider->SetMinimum(0);
+  mBGSlider->SetMaximum(255);
+  mBGSlider->SetMinimum(0);
+
   mFGSlider->SetValue(1);
   mBGSlider->SetValue(0);
   mFGSlider->SetSingleStep(1);
@@ -221,14 +228,10 @@ void vvToolBinarize::InputIsSelected(vvSlicerManager * m) {
 void vvToolBinarize::UpdateSlice(int slicer,int slices) {
   if (!mInteractiveDisplayIsEnabled) return;
   if (!mCurrentSlicerManager) close();
-  for(int i=0;i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
-    //    DD(i);
-    mImageContour[i]->update(mThresholdSlider1->GetValue());
-    if (mRadioButtonLowerThan->isChecked()) 
-      mImageContourLower[i]->update(mThresholdSlider2->GetValue());
-
-  }
-  mCurrentSlicerManager->Render(); 
+  mImageContour[slicer]->update(mThresholdSlider1->GetValue());
+  if (mRadioButtonLowerThan->isChecked()) 
+    mImageContourLower[slicer]->update(mThresholdSlider2->GetValue());
+  //  mCurrentSlicerManager->GetSlicer(slicer)->Render(); 
 }
 //------------------------------------------------------------------------------
 
