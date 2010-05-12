@@ -81,7 +81,7 @@ namespace clitk
 
     // Main filter
     typedef typename InputImageType::PixelType PixelType;
-    typedef itk::Image<char, InputImageType::ImageDimension> OutputImageType;
+    typedef itk::Image<uchar, InputImageType::ImageDimension> OutputImageType;
 
     // Filter
     typedef itk::BinaryThresholdImageFilter<InputImageType, OutputImageType> BinaryThresholdImageFilterType;
