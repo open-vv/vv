@@ -424,7 +424,7 @@ void vvMainWindow::OpenVTKContour()
 {
   if (mSlicerManagers.size() > 0)
     {
-      QString Extensions = "Images ( *.vtk; *.obj)";
+      QString Extensions = "Images ( *.vtk *.obj)";
       Extensions += ";;All Files (*)";
       QString file = QFileDialog::getOpenFileName(this,tr("Open vtkPolyData"),mInputPathName,Extensions);
       if (file.isNull())
