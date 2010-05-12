@@ -582,6 +582,10 @@ void vvSlicerManager::SetOpacity(int i, double factor)
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateViews(int current,int slicer)
 {
+  // DD("UpdateViews");
+//   DD(current);
+//   DD(slicer);
+
   double x = (mSlicers[slicer]->GetCurrentPosition()[0] - mSlicers[slicer]->GetInput()->GetOrigin()[0])
     /mSlicers[slicer]->GetInput()->GetSpacing()[0];
   double y = (mSlicers[slicer]->GetCurrentPosition()[1] - mSlicers[slicer]->GetInput()->GetOrigin()[1])
@@ -729,8 +733,10 @@ double vvSlicerManager::GetColorLevel()
 //----------------------------------------------------------------------------
 void vvSlicerManager::Render()
 {
+  // DD("vvSlicerManager::Render");
   for ( unsigned int i = 0; i < mSlicers.size(); i++)
     {
+     //  DD(i);
       mSlicers[i]->Render();
     }
 }
@@ -974,6 +980,7 @@ void vvSlicerManager::UpdateSlice(int slicer)
     return;
   }
   emit UpdateSlice(slicer, mSlicers[slicer]->GetSlice());
+  mSlicers[slicer]->Render(); // DS <-- I add this, this could/must be the only Render ...
   mPreviousSlice[slicer] = mSlicers[slicer]->GetSlice();
 }
 //----------------------------------------------------------------------------

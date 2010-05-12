@@ -1256,7 +1256,7 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max)
 void vvSlicer::Render()
 {
   //  DD("vvSlicer::Render");
-  //DD(SliceOrientation);
+  // DD(SliceOrientation);
   if (this->GetWindowLevel()->GetLookupTable() && !this->mOverlay && !this->mFusion)
     {
       legend->SetLookupTable(this->GetWindowLevel()->GetLookupTable());

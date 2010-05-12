@@ -2340,6 +2340,7 @@ void vvMainWindow::SaveAs() {
 }
 //------------------------------------------------------------------------------
 
+
 //------------------------------------------------------------------------------
 void vvMainWindow::AddLink(QString image1,QString image2) {
   for (unsigned int i = 0; i < mSlicerManagers.size();i++)
@@ -2356,8 +2357,10 @@ void vvMainWindow::AddLink(QString image1,QString image2) {
 }
 //------------------------------------------------------------------------------
 
+
 //------------------------------------------------------------------------------
 void vvMainWindow::RemoveLink(QString image1,QString image2) {
+  // DD("vvMainWindow:RemoveLink");
   for (unsigned int i = 0; i < mSlicerManagers.size();i++)
     {
       if (image1.toStdString() == mSlicerManagers[i]->GetId())
@@ -2444,15 +2447,20 @@ void vvMainWindow::SEHorizontalSliderMoved() {
 
 //------------------------------------------------------------------------------
 void vvMainWindow::NOVerticalSliderChanged() {
-  int value = NOVerticalSlider->value();
+  static int value=-1;
+  if (value == NOVerticalSlider->value()) return;
+  else value = NOVerticalSlider->value();                                           
+  //  int value = NOVerticalSlider->value();
   for (unsigned int i = 0; i < mSlicerManagers.size(); i++)
     {
       if (DataTree->topLevelItem(i)->data(COLUMN_UL_VIEW,Qt::CheckStateRole).toInt() > 1)
         {
-          mSlicerManagers[i]->GetSlicer(0)->SetSlice(value);
-          mSlicerManagers[i]->VerticalSliderHasChanged(0, value);
-          mSlicerManagers[i]->UpdateSlice(0);  // <-- DS add this. Not too much update ? YES. but needed for ImageContour ...
-	  mSlicerManagers[i]->GetSlicer(0)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ? 
+          if (mSlicerManagers[i]->GetSlicer(0)->GetSlice() != value) {
+            mSlicerManagers[i]->GetSlicer(0)->SetSlice(value);
+            mSlicerManagers[i]->VerticalSliderHasChanged(0, value);
+            mSlicerManagers[i]->UpdateSlice(0);  // <-- DS add this. Not too much update ? YES. but needed for ImageContour ...
+            //mSlicerManagers[i]->GetSlicer(0)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ? 
+          }
           break;
         }
     }
@@ -2462,15 +2470,20 @@ void vvMainWindow::NOVerticalSliderChanged() {
 
 //------------------------------------------------------------------------------
 void vvMainWindow::NEVerticalSliderChanged() {
-  int value = NEVerticalSlider->value();
+  static int value=-1;
+  if (value == NEVerticalSlider->value()) return;
+  else value = NEVerticalSlider->value();                                           
+  //  int value = NEVerticalSlider->value();
   for (unsigned int i = 0; i < mSlicerManagers.size(); i++)
     {
       if (DataTree->topLevelItem(i)->data(COLUMN_UR_VIEW,Qt::CheckStateRole).toInt() > 1)
         {
-          mSlicerManagers[i]->GetSlicer(1)->SetSlice(value);
-          mSlicerManagers[i]->VerticalSliderHasChanged(1, value);
-	  mSlicerManagers[i]->UpdateSlice(1);
-	  mSlicerManagers[i]->GetSlicer(1)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ? 
+	  if (mSlicerManagers[i]->GetSlicer(1)->GetSlice() != value) {
+            mSlicerManagers[i]->GetSlicer(1)->SetSlice(value);
+            mSlicerManagers[i]->VerticalSliderHasChanged(1, value);
+            mSlicerManagers[i]->UpdateSlice(1);
+            //mSlicerManagers[i]->GetSlicer(1)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ? 
+          }
           break;
         }
     }
@@ -2480,15 +2493,24 @@ void vvMainWindow::NEVerticalSliderChanged() {
 
 //------------------------------------------------------------------------------
 void vvMainWindow::SOVerticalSliderChanged() {
-  int value = SOVerticalSlider->value();
+  // DD("SOVerticalSliderChanged");
+  static int value=-1;
+  // DD(value);
+//   DD(SOVerticalSlider->value());
+  if (value == SOVerticalSlider->value()) return;
+  else value = SOVerticalSlider->value();                                           
+  //int value = SOVerticalSlider->value();
   for (unsigned int i = 0; i < mSlicerManagers.size(); i++)
     {
       if (DataTree->topLevelItem(i)->data(COLUMN_DL_VIEW,Qt::CheckStateRole).toInt() > 1)
         {
-          mSlicerManagers[i]->GetSlicer(2)->SetSlice(value);
-          mSlicerManagers[i]->VerticalSliderHasChanged(2, value);
-	  mSlicerManagers[i]->UpdateSlice(2);
-	  mSlicerManagers[i]->GetSlicer(2)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ? 
+	  if (mSlicerManagers[i]->GetSlicer(2)->GetSlice() != value) {
+	    mSlicerManagers[i]->GetSlicer(2)->SetSlice(value);
+	    mSlicerManagers[i]->VerticalSliderHasChanged(2, value);
+	    mSlicerManagers[i]->UpdateSlice(2);
+	    //mSlicerManagers[i]->GetSlicer(2)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ? 
+	  }
+	  // else { DD("avoid SOVerticalSlider slicer update"); }
           break;
         }
     }
@@ -2498,15 +2520,20 @@ void vvMainWindow::SOVerticalSliderChanged() {
 
 //------------------------------------------------------------------------------
 void vvMainWindow::SEVerticalSliderChanged() {
-  int value = SEVerticalSlider->value();
+  static int value=-1;
+  if (value == SEVerticalSlider->value()) return;
+  else value = SEVerticalSlider->value();                                           
+  // int value = SEVerticalSlider->value();
   for (unsigned int i = 0; i < mSlicerManagers.size(); i++)
     {
       if (DataTree->topLevelItem(i)->data(COLUMN_DR_VIEW,Qt::CheckStateRole).toInt() > 1)
         {
-          mSlicerManagers[i]->GetSlicer(3)->SetSlice(value);
-          mSlicerManagers[i]->VerticalSliderHasChanged(3, value);
-	  mSlicerManagers[i]->UpdateSlice(3);
-	  mSlicerManagers[i]->GetSlicer(3)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ? 
+          if (mSlicerManagers[i]->GetSlicer(3)->GetSlice() != value) {
+            mSlicerManagers[i]->GetSlicer(3)->SetSlice(value);
+            mSlicerManagers[i]->VerticalSliderHasChanged(3, value);
+            mSlicerManagers[i]->UpdateSlice(3);
+            //mSlicerManagers[i]->GetSlicer(3)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ? 
+          }
           break;
         }
     }
@@ -2516,16 +2543,26 @@ void vvMainWindow::SEVerticalSliderChanged() {
 
 //------------------------------------------------------------------------------
 void vvMainWindow::UpdateSlice(int slicer, int slice) {
+  // DD("vvMainWindow::UpdateSlice");
+//   DD(slicer);
+//   DD(slice);
   if (slicer == 0) {
-    if (slice != NOVerticalSlider->value())
-      NOVerticalSlider->setValue(slice);
+    //    if (slice != NOVerticalSlider->value())
+    NOVerticalSlider->setValue(slice);
   }
-  else if (slicer == 1)
+  else {
+    if (slicer == 1)
     NEVerticalSlider->setValue(slice);
-  else if (slicer == 2)
-    SOVerticalSlider->setValue(slice);
-  else if (slicer == 3)
-    SEVerticalSlider->setValue(slice);
+    else {
+      if (slicer == 2)
+	SOVerticalSlider->setValue(slice);
+      else {
+	if (slicer == 3)
+	  SEVerticalSlider->setValue(slice);
+      }
+    }
+  }
+  // DD("vvMainWindow:UpdateSlice END");
 }
 //------------------------------------------------------------------------------
 

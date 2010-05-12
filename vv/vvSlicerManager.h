@@ -164,7 +164,7 @@ class vvSlicerManager : public QObject {
     mLinkedId.push_back(newId);
   }
   void RemoveLink(std::string oldId) {
-    mLinkedId.remove(oldId);
+    mLinkedId.remove(oldId); 
   }
 
   ///Remove the actor defined by its type and index (example: 3rd contour)
