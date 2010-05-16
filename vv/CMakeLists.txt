@@ -118,6 +118,7 @@ SET(vv_SRCS
   vvStructureSetActor.cxx
   vvROIActor.cxx
   vvToolResample.cxx
+  vvBlendImageActor.cxx
   )
 
 QT4_WRAP_CPP(vv_SRCS 

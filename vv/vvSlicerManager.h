@@ -115,7 +115,7 @@ class vvSlicerManager : public QObject {
   void SetColorMap(int colormap);
   void SetPreset(int preset);
   void SetOverlayColor(int color) {
-    mOverlayColor = color;
+    mOverlayColor = (color/60)*60; //SR: new vvBlendImageActor needs 0 or 255 per component
   }
   void SetFusionOpacity(int opacity) {
     mFusionOpacity = opacity;

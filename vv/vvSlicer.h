@@ -34,6 +34,7 @@ class vtkPolyDataMapper2D;
 class vtkProperty2D;
 class vtkClipPolyData;
 class vtkImageActor;
+class vvBlendImageActor;
 class vtkBox;
 class vtkCornerAnnotation;
 class vtkExtractVOI;
@@ -67,7 +68,7 @@ public:
     }
 
     vtkImageMapToWindowLevelColors* GetOverlayMapper(); 
-    vtkImageActor* GetOverlayActor() ;
+    vvBlendImageActor* GetOverlayActor() ;
     vtkImageMapToWindowLevelColors* GetFusionMapper() ;
     vtkImageActor* GetFusionActor() ;
     vtkActor* GetVFActor() ;
@@ -179,7 +180,7 @@ protected:
     vvLandmarks* mLandmarks;
 
     vtkSmartPointer<vtkImageMapToWindowLevelColors> mOverlayMapper;
-    vtkSmartPointer<vtkImageActor> mOverlayActor;
+    vtkSmartPointer<vvBlendImageActor> mOverlayActor;
     vtkSmartPointer<vtkImageMapToWindowLevelColors> mFusionMapper;
     vtkSmartPointer<vtkImageActor> mFusionActor;
     vtkSmartPointer<vtkCornerAnnotation> ca;

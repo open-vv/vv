@@ -34,6 +34,7 @@
 #include <vtkImageMapToWindowLevelColors.h>
 #include <vtkImageData.h>
 #include <vtkImageActor.h>
+#include <vvBlendImageActor.h>
 #include <vtkToolkits.h>
 #include <vtkObjectFactory.h>
 #include <vtkPointData.h>
@@ -155,7 +156,7 @@ vtkImageMapToWindowLevelColors* vvSlicer::GetOverlayMapper() {
 
 
 //------------------------------------------------------------------------------
-vtkImageActor* vvSlicer::GetOverlayActor() {
+vvBlendImageActor* vvSlicer::GetOverlayActor() {
   return mOverlayActor.GetPointer();
 }
 //------------------------------------------------------------------------------
@@ -323,7 +324,7 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
 
       if (!mOverlayActor)
         {
-          mOverlayActor = vtkImageActor::New();
+          mOverlayActor = vvBlendImageActor::New();
           mOverlayActor->SetInput(mOverlayMapper->GetOutput());
           mOverlayActor->SetPickable(0);
           mOverlayActor->SetVisibility(false);

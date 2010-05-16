@@ -26,6 +26,7 @@
 #include "vvImageReader.h"
 #include "vvMesh.h"
 #include "vvImageMapToWLColors.h"
+#include "vvBlendImageActor.h"
 
 #include <vtkImageActor.h>
 #include <vtkImageData.h>
