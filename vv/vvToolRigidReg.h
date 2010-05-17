@@ -47,6 +47,7 @@ public slots:
     SetToolMenuName("Register");
     SetToolIconFilename(":/common/icons/register.png");
     SetToolTip("Register Image.");
+    SetToolExperimental(true);
   }
   void SetXvalue();
   void SetYvalue();

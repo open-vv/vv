@@ -3,8 +3,8 @@
       Program:   vv
       Module:    $RCSfile: vvToolMedianFilter.cxx,v $
       Language:  C++
-      Date:      $Date: 2010/04/26 18:21:55 $
-      Version:   $Revision: 1.2 $
+      Date:      $Date: 2010/05/17 10:41:49 $
+      Version:   $Revision: 1.3 $
       Author :   Bharath Navalpakkam (Bharath.Navalpakkam@creatis.insa-lyon.fr)
 
       Copyright (C) 2010
@@ -67,6 +67,7 @@
       SetToolMenuName("MedianFilter");
       SetToolIconFilename(":common/icons/ducky.png");
       SetToolTip("Make 'MedianFilter' on an image.");
+      SetToolExperimental(true);
     }
     //------------------------------------------------------------------------------
 
