@@ -211,6 +211,7 @@ void vvToolRigidReg::SetTransform(double tX, double tY, double tZ, double aX, do
 
   for (int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
     mCurrentSlicerManager->GetImage()->UpdateReslice();
+    mCurrentSlicerManager->GetSlicer(i)->ForceUpdateDisplayExtent();
     mCurrentSlicerManager->GetSlicer(i)->Render();
   }
 }
