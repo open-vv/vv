@@ -7,8 +7,7 @@ INCLUDE(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
 
 #=========================================================
 # make clitk libraries*
-
-configure_file(clitkConfiguration.h.in ${PROJECT_BINARY_DIR}/clitkConfiguration.h)
+CONFIGURE_FILE(clitkConfiguration.h.in ${PROJECT_BINARY_DIR}/clitkConfiguration.h)
 
 SET(clitkCommon_SRC
   clitkCommon.cxx 
@@ -31,7 +30,7 @@ SET(clitkCommon_SRC
 )  
 
 ADD_LIBRARY(clitkCommon STATIC ${clitkCommon_SRC})
-
+TARGET_LINK_LIBRARIES(clitkCommon vtkCommon vtkImaging ITKBasicFilters)
 
 ADD_LIBRARY(clitkDicomRTStruct STATIC
   clitkDicomRT_Contour.cxx

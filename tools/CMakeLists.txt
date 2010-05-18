@@ -1,4 +1,3 @@
-
 #=========================================================
 INCLUDE(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
 #=========================================================
@@ -75,26 +74,21 @@ WRAP_GGO(clitkGuerreroVentilation_GGO_C clitkGuerreroVentilation.ggo)
 ADD_EXECUTABLE(clitkGuerreroVentilation clitkGuerreroVentilation.cxx ${clitkGuerreroVentilation_GGO_C})
 TARGET_LINK_LIBRARIES(clitkGuerreroVentilation clitkCommon ITKIO ITKBasicFilters clitkFilters)
 
-WRAP_GGO(clitkImageArithm_GGO_C clitkImageArithm.ggo)
 ADD_EXECUTABLE(clitkImageArithm clitkImageArithm.cxx)
 TARGET_LINK_LIBRARIES(clitkImageArithm clitkCommon ITKIO ITKStatistics clitkFilters)
 
-WRAP_GGO(clitkUnsharpMask_GGO_C clitkUnsharpMask.ggo)
 ADD_EXECUTABLE(clitkUnsharpMask clitkUnsharpMask.cxx)
 TARGET_LINK_LIBRARIES(clitkUnsharpMask clitkCommon ITKIO clitkFilters) 
 
-WRAP_GGO(clitkFooImage_GGO_C clitkFooImage.ggo)
 ADD_EXECUTABLE(clitkFooImage clitkFooImage.cxx)
 TARGET_LINK_LIBRARIES(clitkFooImage clitkCommon ITKIO clitkFilters) 
 
-WRAP_GGO(clitkBinarizeImage_GGO_C clitkBinarizeImage.ggo)
 ADD_EXECUTABLE(clitkBinarizeImage clitkBinarizeImage.cxx)
 TARGET_LINK_LIBRARIES(clitkBinarizeImage clitkCommon ITKIO clitkFilters) 
 
-WRAP_GGO(clitkMedianImageFilter_GGO_C clitkMedianImageFilter.ggo)
 ADD_EXECUTABLE(clitkMedianImageFilter clitkMedianImageFilter.cxx)
-TARGET_LINK_LIBRARIES(clitkMedianImageFilter clitkCommon ITKIO clitkFilters ITKBasicFilters)
+TARGET_LINK_LIBRARIES(clitkMedianImageFilter clitkCommon ITKIO ITKBasicFilters clitkFilters)
 
-ADD_EXECUTABLE(clitkResampleImage clitkResampleImage.cxx ${clitkResampleImage_GGO_C})
+ADD_EXECUTABLE(clitkResampleImage clitkResampleImage.cxx)
 TARGET_LINK_LIBRARIES(clitkResampleImage clitkCommon ITKIO clitkFilters)
 

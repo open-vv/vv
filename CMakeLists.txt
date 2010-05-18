@@ -7,43 +7,31 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 PROJECT(clitk)
 #=========================================================
-#IF(CMAKE_COMPILER_IS_GNUCXX)
-#  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
-#  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ")
-#ENDIF(CMAKE_COMPILER_IS_GNUCXX)
-IF(MSVC)
-  ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_DEPRECATE -D_SCL_SECURE_NO_WARNINGS)
-ENDIF(MSVC)
+
+#=========================================================
+INCLUDE(cmake/common.cmake)
+#=========================================================
+
 #=========================================================
 # Find ITK (required)
 FIND_PACKAGE(ITK)
 IF(ITK_FOUND)
   INCLUDE(${ITK_USE_FILE})
-  LINK_LIBRARIES(ITKBasicFilters)
 ELSE(ITK_FOUND)
   MESSAGE(FATAL_ERROR
           "Cannot build without ITK.  Please set ITK_DIR.")
 ENDIF(ITK_FOUND)
+#=========================================================
 
 #=========================================================
-IF(CLITK_BUILD_VV)
-    FIND_PACKAGE(VTK)
-    IF(VTK_FOUND)
-      INCLUDE(${VTK_USE_FILE})
-      LINK_LIBRARIES (
-        vtkCommon
-        vtkRendering
-        vtkIO
-        vtkFiltering
-        vtkGraphics
-        vtkWidgets
-        vtkImaging
-        )
-    ELSE(VTK_FOUND)
-      MESSAGE(FATAL_ERROR
-        "Please set VTK_DIR.")
-    ENDIF(VTK_FOUND)
-ENDIF(CLITK_BUILD_VV)
+# Find VTK (required)
+FIND_PACKAGE(VTK REQUIRED)
+IF(VTK_FOUND)
+  INCLUDE(${VTK_USE_FILE})
+ELSE(VTK_FOUND)
+  MESSAGE(FATAL_ERROR "Please set VTK_DIR.")
+ENDIF(VTK_FOUND)
+#=========================================================
 
 #=========================================================
 # Find gengetopt
@@ -51,10 +39,6 @@ FIND_PATH(CLITK_GENGETOPT gengetopt)
 IF (CLITK_GENGETOPT STREQUAL "CLITK_GENGETOPT-NOTFOUND")
   MESSAGE("gengetopt not found, please install it (see http://www.gnu.org/software/gengetopt/gengetopt.html)")
 ENDIF (CLITK_GENGETOPT STREQUAL "CLITK_GENGETOPT-NOTFOUND")
-#=========================================================
-
-#=========================================================
-INCLUDE(cmake/common.cmake)
 #=========================================================
 
 #=========================================================
@@ -66,28 +50,35 @@ ENDIF(PROJECT_BINARY_DIR STREQUAL ${PROJECT_SOURCE_DIR})
 #=========================================================
 
 #=========================================================
-OPTION(CLITK_BUILD_VV "Build vv the 4D visualizer (requires VTK and QT)" ON)
-OPTION(CLITK_BUILD_TOOLS "Build command-line tools" OFF)
+# Remove some MS Visual c++ flags
+IF(MSVC)
+  ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_DEPRECATE -D_SCL_SECURE_NO_WARNINGS)
+ENDIF(MSVC)
+#=========================================================
+
+#=========================================================
+INCLUDE_DIRECTORIES(itk filters ${PROJECT_BINARY_DIR})
+
+# Select what is compiled
+ADD_SUBDIRECTORY(common)
+ADD_SUBDIRECTORY(filters)
+
+# Compilation options
 OPTION(CLITK_EXPERIMENTAL "Enable experimental software and features" OFF)
-OPTION(CLITK_BUILD_SEGMENTATION "Build segmentation tools" OFF)
-#=========================================================
 
-include_directories(itk filters ${PROJECT_BINARY_DIR})
-
-#=========================================================
-add_subdirectory(common)
-add_subdirectory(filters)
-
+OPTION(CLITK_BUILD_VV "Build vv the 4D visualizer (requires VTK and QT)" ON)
 IF (CLITK_BUILD_VV)
   add_subdirectory(vv)
 ENDIF(CLITK_BUILD_VV)
 
+OPTION(CLITK_BUILD_TOOLS "Build command-line tools" OFF)
 IF (CLITK_BUILD_TOOLS)
   add_subdirectory(tools)
 ENDIF(CLITK_BUILD_TOOLS)
 
+OPTION(CLITK_BUILD_SEGMENTATION "Build segmentation tools" OFF)
 IF (CLITK_BUILD_SEGMENTATION)
-    add_subdirectory(segmentation)
+  add_subdirectory(segmentation)
 ENDIF (CLITK_BUILD_SEGMENTATION)
-
 #=========================================================
+
