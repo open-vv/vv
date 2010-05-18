@@ -170,7 +170,7 @@ INCLUDE_DIRECTORIES(
 
 LINK_DIRECTORIES(${QT_INCLUDES})
 ADD_EXECUTABLE(vv ${vv_SRCS} vv.cxx ${vv_UI_CXX} ${EXE_ICON})
-TARGET_LINK_LIBRARIES(vv clitkCommon clitkDicomRTStruct clitkFilters ${ITK_LIBRARIES} QVTK)
+TARGET_LINK_LIBRARIES(vv clitkCommon clitkDicomRTStruct clitkFilters ${ITK_LIBRARIES} QVTK vtkHybrid)
 
 IF (CLITK_VV_USE_BDCM)
   TARGET_LINK_LIBRARIES(vv bdcm)
