@@ -290,11 +290,6 @@ void vvImage::SetTransform(vtkSmartPointer<vtkTransform> transform)
 void vvImage::UpdateReslice()
 {
   for (unsigned int i=0; i<mVtkImageReslice.size(); i++) {
-    mVtkImageReslice[i]->UpdateInformation();
-    mVtkImageReslice[i]->UpdateWholeExtent();
-    mVtkImageReslice[i]->Update();
-    mVtkImageReslice[i]->UpdateInformation();
-    mVtkImageReslice[i]->UpdateWholeExtent();
     mVtkImageReslice[i]->Update();
   }
 }
