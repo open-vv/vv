@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -22,10 +22,10 @@
    * @file   clitkVoxImageIO.cxx
    * @author David Sarrut <david.sarrut@creatis.insa-lyon.fr>
    * @date   17 May 2006 08:03:07
-   * 
-   * @brief  
-   * 
-   * 
+   *
+   * @brief
+   *
+   *
    -------------------------------------------------*/
 
 // clitk include
@@ -37,25 +37,26 @@
 
 //--------------------------------------------------------------------
 // Read Image Information
-void clitk::VoxImageIO::ReadImageInformation() {
+void clitk::VoxImageIO::ReadImageInformation()
+{
   // open file
   std::ifstream is;
-  clitk::openFileForReading(is, m_FileName);  
+  clitk::openFileForReading(is, m_FileName);
   // read magic number
-  std::string mn; 
-  is >> mn; 
+  std::string mn;
+  is >> mn;
   //DD(mn);
   if (mn != "VOX") {
     itkExceptionMacro(<<"read magic number '" << mn << "' while expect VOX");
-  }	
+  }
   // read vox file version
-  skipComment(is); 
-  is >> mn; 
+  skipComment(is);
+  is >> mn;
   //DD(mn);
   if (mn != "v2") {
     itkExceptionMacro(<<"read old format '" << mn << "'. TODO");
-  }  
-	
+  }
+
   // ONLY 3D IMAGES YET ...
 
   // read grid size/spacing
@@ -63,25 +64,25 @@ void clitk::VoxImageIO::ReadImageInformation() {
   itk::Vector<double,3> spacing;
   itk::Vector<double,3> origin;
   origin.Fill(0.0);
-  skipComment(is); 
-  is >> dim[0]; 
-  is >> dim[1]; 
+  skipComment(is);
+  is >> dim[0];
+  is >> dim[1];
   is >> dim[2];
   //DD(dim);
-  skipComment(is); 
+  skipComment(is);
   is >> spacing[0];
   is >> spacing[1];
   is >> spacing[2];
   //DD(spacing);
   skipComment(is);
-  int d; 
+  int d;
   is >> d;
   if (d != 3 && d != 2) {
     itkExceptionMacro(<<"could not read no " << d << "D image (only 2D and 3D). TODO");
   }
   // read data type
   skipComment(is);
-  std::string dataTypeName; 
+  std::string dataTypeName;
   is >> dataTypeName;
   //DD(dataTypeName);
 
@@ -101,7 +102,7 @@ void clitk::VoxImageIO::ReadImageInformation() {
   // set other information
   SetByteOrderToLittleEndian();
   SetPixelType(itk::ImageIOBase::SCALAR);
-  SetNumberOfComponents(1);  
+  SetNumberOfComponents(1);
 
   if (dataTypeName == "char") SetComponentType(itk::ImageIOBase::CHAR);
   else if (dataTypeName == "schar") SetComponentType(itk::ImageIOBase::CHAR);
@@ -114,16 +115,16 @@ void clitk::VoxImageIO::ReadImageInformation() {
   else if (dataTypeName == "float") SetComponentType(itk::ImageIOBase::FLOAT);
   else if (dataTypeName == "double") SetComponentType(itk::ImageIOBase::DOUBLE);
   else {
-    itkExceptionMacro(<<"Read failed: Wanted pixel type " 
-		      << "(char, uchar, short, ushort, int, uint, float, double)" 
-		      << " but read " << dataTypeName);
+    itkExceptionMacro(<<"Read failed: Wanted pixel type "
+                      << "(char, uchar, short, ushort, int, uint, float, double)"
+                      << " but read " << dataTypeName);
   }
 
 } ////
 
 //--------------------------------------------------------------------
 // Read Image Information
-bool clitk::VoxImageIO::CanReadFile(const char* FileNameToRead) 
+bool clitk::VoxImageIO::CanReadFile(const char* FileNameToRead)
 {
   std::string filename(FileNameToRead);
   std::string filenameext = GetExtension(filename);
@@ -133,7 +134,7 @@ bool clitk::VoxImageIO::CanReadFile(const char* FileNameToRead)
 
 //--------------------------------------------------------------------
 // Read Image Content
-void clitk::VoxImageIO::Read(void * buffer) 
+void clitk::VoxImageIO::Read(void * buffer)
 {
   // Adapted from itkRawImageIO
 
@@ -146,31 +147,31 @@ void clitk::VoxImageIO::Read(void * buffer)
   if ( file.fail() ) {
     itkExceptionMacro(<<"File seek failed (Vox Read)");
   }
-	
+
   unsigned long numberOfBytesToBeRead = GetComponentSize();
   for(unsigned int i=0; i<GetNumberOfDimensions(); i++) numberOfBytesToBeRead *= GetDimensions(i);
 
   //DD(numberOfBytesToBeRead);
-	
+
   if(!this->ReadBufferAsBinary(file, buffer, numberOfBytesToBeRead)) {
-    itkExceptionMacro(<<"Read failed: Wanted " 
-		      << numberOfBytesToBeRead
-		      << " bytes, but read " 
-		      << file.gcount() << " bytes.");
+    itkExceptionMacro(<<"Read failed: Wanted "
+                      << numberOfBytesToBeRead
+                      << " bytes, but read "
+                      << file.gcount() << " bytes.");
   }
   itkDebugMacro(<< "Reading Done");
 
   {
     using namespace itk;
     // Swap bytes if necessary
-    if itkReadRawBytesAfterSwappingMacro( unsigned short, USHORT ) 
-      else if itkReadRawBytesAfterSwappingMacro( short, SHORT ) 
-	else if itkReadRawBytesAfterSwappingMacro( char, CHAR ) 
-	  else if itkReadRawBytesAfterSwappingMacro( unsigned char, UCHAR ) 
-	    else if itkReadRawBytesAfterSwappingMacro( unsigned int, UINT ) 
-	      else if itkReadRawBytesAfterSwappingMacro( int, INT ) 
-		else if itkReadRawBytesAfterSwappingMacro( float, FLOAT ) 
-		  else if itkReadRawBytesAfterSwappingMacro( double, DOUBLE );
+    if itkReadRawBytesAfterSwappingMacro( unsigned short, USHORT )
+      else if itkReadRawBytesAfterSwappingMacro( short, SHORT )
+        else if itkReadRawBytesAfterSwappingMacro( char, CHAR )
+          else if itkReadRawBytesAfterSwappingMacro( unsigned char, UCHAR )
+            else if itkReadRawBytesAfterSwappingMacro( unsigned int, UINT )
+              else if itkReadRawBytesAfterSwappingMacro( int, INT )
+                else if itkReadRawBytesAfterSwappingMacro( float, FLOAT )
+                  else if itkReadRawBytesAfterSwappingMacro( double, DOUBLE );
   }
 }
 
@@ -189,13 +190,13 @@ void clitk::VoxImageIO::WriteImageInformation(bool keepOfStream)
   file << "VOX v2" << std::endl;
   // write grid size/spacing
   file << "# Size" << std::endl;
-  file << GetDimensions(0) << " " 
-       << GetDimensions(1) << " " 
+  file << GetDimensions(0) << " "
+       << GetDimensions(1) << " "
        << GetDimensions(2) << std::endl;
   file << "# Spacing" << std::endl;
-  file.precision(40);  
-  file << GetSpacing(0) << " " 
-       << GetSpacing(1) << " " 
+  file.precision(40);
+  file << GetSpacing(0) << " "
+       << GetSpacing(1) << " "
        << GetSpacing(2) << std::endl;
   file << "# Image dim" << std::endl << "3" << std::endl;
   file << "# Image type" << std::endl;
@@ -210,16 +211,16 @@ void clitk::VoxImageIO::WriteImageInformation(bool keepOfStream)
   else if (GetComponentType() == itk::ImageIOBase::FLOAT) dataTypeName = "float";
   else if (GetComponentType() == itk::ImageIOBase::DOUBLE) dataTypeName = "double";
   else {
-    itkExceptionMacro(<<"Write failed: Wanted pixel type " 
-		      << "(char, uchar, short, ushort, int, uint, float, double)" 
-		      << " but Vox is : " << dataTypeName);
+    itkExceptionMacro(<<"Write failed: Wanted pixel type "
+                      << "(char, uchar, short, ushort, int, uint, float, double)"
+                      << " but Vox is : " << dataTypeName);
   }
   file << dataTypeName << std::endl;
 
   // close file
-  if (!keepOfStream) file.close();	
+  if (!keepOfStream) file.close();
 }
-  
+
 //--------------------------------------------------------------------
 // Write Image Information
 bool clitk::VoxImageIO::CanWriteFile(const char* FileNameToWrite)
@@ -232,7 +233,7 @@ bool clitk::VoxImageIO::CanWriteFile(const char* FileNameToWrite)
 
 //--------------------------------------------------------------------
 // Write Image
-void clitk::VoxImageIO::Write(const void * buffer) 
+void clitk::VoxImageIO::Write(const void * buffer)
 {
   clitk::VoxImageIO::WriteImageInformation(true);
   SetByteOrderToLittleEndian();
@@ -244,16 +245,16 @@ void clitk::VoxImageIO::Write(const void * buffer)
   const unsigned long numberOfComponents = this->GetImageSizeInComponents();
   // Swap bytes if necessary
   using namespace itk;
-  if itkWriteRawBytesAfterSwappingMacro( unsigned short, USHORT ) 
-    else if itkWriteRawBytesAfterSwappingMacro( short, SHORT ) 
-      else if itkWriteRawBytesAfterSwappingMacro( char, CHAR ) 
-	else if itkWriteRawBytesAfterSwappingMacro( unsigned char, UCHAR ) 
-	  else if itkWriteRawBytesAfterSwappingMacro( unsigned int, UINT ) 
-	    else if itkWriteRawBytesAfterSwappingMacro( int, INT ) 
-	      else if itkWriteRawBytesAfterSwappingMacro( float, FLOAT ) 
-		else if itkWriteRawBytesAfterSwappingMacro( double, DOUBLE ) ;
+  if itkWriteRawBytesAfterSwappingMacro( unsigned short, USHORT )
+    else if itkWriteRawBytesAfterSwappingMacro( short, SHORT )
+      else if itkWriteRawBytesAfterSwappingMacro( char, CHAR )
+        else if itkWriteRawBytesAfterSwappingMacro( unsigned char, UCHAR )
+          else if itkWriteRawBytesAfterSwappingMacro( unsigned int, UINT )
+            else if itkWriteRawBytesAfterSwappingMacro( int, INT )
+              else if itkWriteRawBytesAfterSwappingMacro( float, FLOAT )
+                else if itkWriteRawBytesAfterSwappingMacro( double, DOUBLE ) ;
   //-------------------------------------------
-	  
+
   file.close();
 } ////
 

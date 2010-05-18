@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -17,7 +17,7 @@
 ======================================================================-====*/
 template<class FilterType>
 clitk::ImageToImageGenericFilter<FilterType>::ImageToImageGenericFilter(std::string filterName) :
-  ImageToImageGenericFilterBase(filterName), 
+  ImageToImageGenericFilterBase(filterName),
   mImageTypesManager(static_cast<FilterType*>(this))
 {
 }
@@ -26,9 +26,10 @@ clitk::ImageToImageGenericFilter<FilterType>::ImageToImageGenericFilter(std::str
 
 //--------------------------------------------------------------------
 template<class FilterType>
-bool clitk::ImageToImageGenericFilter<FilterType>::Update() {
-  GetInputImageDimensionAndPixelType(mDim,mPixelTypeName,mNbOfComponents);    
-  
+bool clitk::ImageToImageGenericFilter<FilterType>::Update()
+{
+  GetInputImageDimensionAndPixelType(mDim,mPixelTypeName,mNbOfComponents);
+
   // Check ImageType
   if (!CheckImageType()) {
     if (mFailOnImageTypeError) ImageTypeError();
@@ -45,7 +46,8 @@ bool clitk::ImageToImageGenericFilter<FilterType>::Update() {
 //--------------------------------------------------------------------
 template<class FilterType>
 bool clitk::ImageToImageGenericFilter<FilterType>::CheckImageType(unsigned int dim, unsigned int ncomp, std::string pixeltype)
-{ //SR: commented line creates an element in mMapOfImageTypeToFunction which, even if 0, is confusing, e.g. for GetAvailableImageTypes
+{
+  //SR: commented line creates an element in mMapOfImageTypeToFunction which, even if 0, is confusing, e.g. for GetAvailableImageTypes
   //return static_cast<bool>(mImageTypesManager.mMapOfImageTypeToFunction[dim][ncomp][pixeltype]);
   typename ImageTypesManager<FilterType>::MapOfImageDimensionToFunctionType &m = mImageTypesManager.mMapOfImageTypeToFunction;
   return (m            .find(dim)       != m.end()      &&
@@ -66,10 +68,11 @@ bool clitk::ImageToImageGenericFilter<FilterType>::CheckImageType()
 
 //--------------------------------------------------------------------
 template<class FilterType>
-std::string clitk::ImageToImageGenericFilter<FilterType>::GetAvailableImageTypes() {
+std::string clitk::ImageToImageGenericFilter<FilterType>::GetAvailableImageTypes()
+{
   std::ostringstream oss;
   oss << "The filter <" << mFilterName << "> manages:" << std::endl;
-    
+
   typedef typename ImageTypesManager<FilterType>::MapOfImageComponentsToFunctionType::const_iterator MCompItType;
   typedef typename ImageTypesManager<FilterType>::MapOfImageDimensionToFunctionType::const_iterator MDimItType;
   typedef typename ImageTypesManager<FilterType>::MapOfPixelTypeToFunctionType::const_iterator MPixelItType;
@@ -79,8 +82,8 @@ std::string clitk::ImageToImageGenericFilter<FilterType>::GetAvailableImageTypes
     for (MCompItType j=(*i).second.begin(); j!= (*i).second.end(); j++) {
       for (MPixelItType k=(*j).second.begin(); k!= (*j).second.end(); k++) {
         oss << "Dim: " << (*i).first;
-	if ((*j).first != 1) oss << ", Components: " << (*j).first;
-	oss << ", Type: " << (*k).first << std::endl;
+        if ((*j).first != 1) oss << ", Components: " << (*j).first;
+        oss << ", Type: " << (*k).first << std::endl;
       }
     }
   }

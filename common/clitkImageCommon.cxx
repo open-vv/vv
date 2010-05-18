@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -22,26 +22,27 @@
    * @file   clitkImageCommon.cxx
    * @author David Sarrut <david.sarrut@creatis.insa-lyon.fr>
    * @date   02 Oct 2007 14:30:47
-   * 
-   * @brief  
-   * 
-   * 
+   *
+   * @brief
+   *
+   *
    ------------------------------------------------=*/
 
 #include "clitkImageCommon.h"
 
 //--------------------------------------------------------------------
-void clitk::ReadImageDimensionAndPixelType(const std::string & filename, 
-					   int & dimension, 
-					   std::string & pixeType) {
-  itk::ImageIOBase::Pointer genericReader = 
+void clitk::ReadImageDimensionAndPixelType(const std::string & filename,
+    int & dimension,
+    std::string & pixeType)
+{
+  itk::ImageIOBase::Pointer genericReader =
     itk::ImageIOFactory::CreateImageIO(filename.c_str(), itk::ImageIOFactory::ReadMode);
   if (!genericReader) {
     std::cerr << "Image file format unknown while reading " << filename << std::endl;
     exit(0);
   }
   genericReader->SetFileName(filename.c_str());
-  genericReader->ReadImageInformation();  
+  genericReader->ReadImageInformation();
   pixeType = genericReader->GetComponentTypeAsString(genericReader->GetComponentType());
   dimension = genericReader->GetNumberOfDimensions();
 }
@@ -49,17 +50,18 @@ void clitk::ReadImageDimensionAndPixelType(const std::string & filename,
 
 
 //--------------------------------------------------------------------
-void clitk::ReadImageDimensionAndPixelType(const std::string & filename, 
-					   int & dimension, 
-					   std::string & pixeType, int & components) {
-  itk::ImageIOBase::Pointer genericReader = 
+void clitk::ReadImageDimensionAndPixelType(const std::string & filename,
+    int & dimension,
+    std::string & pixeType, int & components)
+{
+  itk::ImageIOBase::Pointer genericReader =
     itk::ImageIOFactory::CreateImageIO(filename.c_str(), itk::ImageIOFactory::ReadMode);
   if (!genericReader) {
     std::cerr << "Image file format unknown while reading " << filename << std::endl;
     exit(0);
   }
   genericReader->SetFileName(filename.c_str());
-  genericReader->ReadImageInformation();  
+  genericReader->ReadImageInformation();
   pixeType = genericReader->GetComponentTypeAsString(genericReader->GetComponentType());
   dimension = genericReader->GetNumberOfDimensions();
   components= genericReader->GetNumberOfComponents();
@@ -67,9 +69,10 @@ void clitk::ReadImageDimensionAndPixelType(const std::string & filename,
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
-// Read a dicom header  
-gdcm::File * clitk::readDicomHeader(const std::string & filename, 
-				    const bool verbose) {
+// Read a dicom header
+gdcm::File * clitk::readDicomHeader(const std::string & filename,
+                                    const bool verbose)
+{
   if (verbose) {
     std::cout << "Reading DICOM <" << filename << ">" << std::endl;
   }
@@ -82,17 +85,16 @@ gdcm::File * clitk::readDicomHeader(const std::string & filename,
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
-itk::ImageIOBase::Pointer clitk::readImageHeader(const std::string & filename, bool exit_on_error) {
+itk::ImageIOBase::Pointer clitk::readImageHeader(const std::string & filename, bool exit_on_error)
+{
   itk::ImageIOBase::Pointer reader =
     itk::ImageIOFactory::CreateImageIO(filename.c_str(), itk::ImageIOFactory::ReadMode);
   if (!reader) {
-      if (exit_on_error) //default behavior for tools who don't handle the problem
-      {
-          std::cerr << "Error reading file " << filename << ", exiting immediately" << std::endl;
-          std::exit(-1);
-      }
-      else
-          return NULL;
+    if (exit_on_error) { //default behavior for tools who don't handle the problem
+      std::cerr << "Error reading file " << filename << ", exiting immediately" << std::endl;
+      std::exit(-1);
+    } else
+      return NULL;
   }
   reader->SetFileName(filename);
   reader->ReadImageInformation();
@@ -101,7 +103,8 @@ itk::ImageIOBase::Pointer clitk::readImageHeader(const std::string & filename, b
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
-void clitk::printImageHeader(itk::ImageIOBase::Pointer header, std::ostream & os, const int level) {
+void clitk::printImageHeader(itk::ImageIOBase::Pointer header, std::ostream & os, const int level)
+{
   unsigned int dim = header->GetNumberOfDimensions();
   std::string pixelTypeName = header->GetComponentTypeAsString(header->GetComponentType());
   std::vector<int> inputSize;
@@ -115,7 +118,7 @@ void clitk::printImageHeader(itk::ImageIOBase::Pointer header, std::ostream & os
     inputSize[i] = header->GetDimensions(i);
     inputOrigin[i] = header->GetOrigin(i);
   }
-  int pixelSize = 
+  int pixelSize =
     clitk::GetTypeSizeFromString(header->GetComponentTypeAsString(header->GetComponentType()));
   unsigned int nbOfComponents = header->GetNumberOfComponents();
   if (level == 0) {
@@ -129,13 +132,12 @@ void clitk::printImageHeader(itk::ImageIOBase::Pointer header, std::ostream & os
        << "  ";
     for(unsigned int i=0; i< dim-1; i++)
       os << inputSpacing[i] << "x";
-    os << inputSpacing[dim-1] 
+    os << inputSpacing[dim-1]
        << "  ";
     for(unsigned int i=0; i< dim-1; i++)
       os << inputOrigin[i] << "x";
     os << inputOrigin[dim-1] << " ";
-  }
-  else {
+  } else {
     os << "Dim       = " << dim << "D" << std::endl;
     os << "PixelType = " << pixelTypeName << std::endl;
     if (nbOfComponents > 1)
@@ -154,19 +156,19 @@ void clitk::printImageHeader(itk::ImageIOBase::Pointer header, std::ostream & os
       os << "# voxels  = " << header->GetImageSizeInPixels() << std::endl;
       os << "Size (mm) = ";
       for(unsigned int i=0; i< dim; i++) {
- 	os << inputSize[i]*inputSpacing[i] << " ";
+        os << inputSize[i]*inputSpacing[i] << " ";
       }
       os << "mm" << std::endl;
       os << "Origin (mm)= ";
       for(unsigned int i=0; i< dim; i++) {
- 	os << inputOrigin[i] << " ";
+        os << inputOrigin[i] << " ";
       }
       os << "mm" << std::endl;
 
       os << "Volume    = ";
       double vol=1.0;
       for(unsigned int i=0; i< dim; i++) {
- 	vol *= inputSize[i]*inputSpacing[i]/10.0;
+        vol *= inputSize[i]*inputSpacing[i]/10.0;
       }
       os << vol << " cc" << std::endl;
       int mem = header->GetImageSizeInPixels()*pixelSize*nbOfComponents;
@@ -174,16 +176,16 @@ void clitk::printImageHeader(itk::ImageIOBase::Pointer header, std::ostream & os
       double memMb = (double)mem/1024.0/1024.0;
       double memGb = (double)mem/1024.0/1024.0/1024.0;
       if (lrint(memKb) <= 0)
- 	os << "Memory    = " << mem << " bytes" << std::endl;
+        os << "Memory    = " << mem << " bytes" << std::endl;
       else {
- 	if (lrint(memMb) <= 0)
- 	  os << "Memory    = " << memKb << " Kb (" << mem << " bytes)" << std::endl;
- 	else {
- 	  if (lrint(memGb) <= 0)
- 	    os << "Memory    = " << memMb << " Mb (" << mem << " bytes)" << std::endl;
- 	  else 
- 	    os << "Memory     = " << memGb << " Gb (" << mem << " bytes)" << std::endl;
- 	}
+        if (lrint(memMb) <= 0)
+          os << "Memory    = " << memKb << " Kb (" << mem << " bytes)" << std::endl;
+        else {
+          if (lrint(memGb) <= 0)
+            os << "Memory    = " << memMb << " Mb (" << mem << " bytes)" << std::endl;
+          else
+            os << "Memory     = " << memGb << " Gb (" << mem << " bytes)" << std::endl;
+        }
       }
     }
   }

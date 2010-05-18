@@ -38,10 +38,11 @@ namespace clitk
 //--------------------------------------------------------------------
 template<class args_info_type>
 UnsharpMaskGenericFilter<args_info_type>::UnsharpMaskGenericFilter():
-        ImageToImageGenericFilter<Self>("UnsharpMask") {
-    InitializeImageType<2>();
-    InitializeImageType<3>();
-    //InitializeImageType<4>();
+  ImageToImageGenericFilter<Self>("UnsharpMask")
+{
+  InitializeImageType<2>();
+  InitializeImageType<3>();
+  //InitializeImageType<4>();
 }
 //--------------------------------------------------------------------
 
@@ -49,25 +50,27 @@ UnsharpMaskGenericFilter<args_info_type>::UnsharpMaskGenericFilter():
 //--------------------------------------------------------------------
 template<class args_info_type>
 template<unsigned int Dim>
-void UnsharpMaskGenericFilter<args_info_type>::InitializeImageType() {
-    ADD_DEFAULT_IMAGE_TYPES(Dim);
+void UnsharpMaskGenericFilter<args_info_type>::InitializeImageType()
+{
+  ADD_DEFAULT_IMAGE_TYPES(Dim);
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
 template<class args_info_type>
-void UnsharpMaskGenericFilter<args_info_type>::SetArgsInfo(const args_info_type & a) {
-    mArgsInfo=a;
-    SetIOVerbose(mArgsInfo.verbose_flag);
-    if (mArgsInfo.imagetypes_flag) this->PrintAvailableImageTypes();
+void UnsharpMaskGenericFilter<args_info_type>::SetArgsInfo(const args_info_type & a)
+{
+  mArgsInfo=a;
+  SetIOVerbose(mArgsInfo.verbose_flag);
+  if (mArgsInfo.imagetypes_flag) this->PrintAvailableImageTypes();
 
-    if (mArgsInfo.input_given) {
-        SetInputFilename(mArgsInfo.input_arg);
-    }
-    if (mArgsInfo.output_given) {
-        SetOutputFilename(mArgsInfo.output_arg);
-    }
+  if (mArgsInfo.input_given) {
+    SetInputFilename(mArgsInfo.input_arg);
+  }
+  if (mArgsInfo.output_given) {
+    SetOutputFilename(mArgsInfo.output_arg);
+  }
 }
 //--------------------------------------------------------------------
 
@@ -80,26 +83,26 @@ void
 UnsharpMaskGenericFilter<args_info_type>::UpdateWithInputImageType()
 {
 
-    // Reading input
-    typename InputImageType::Pointer input = this->template GetInput<InputImageType>(0);
+  // Reading input
+  typename InputImageType::Pointer input = this->template GetInput<InputImageType>(0);
 
-    // Main filter
-    typedef typename InputImageType::PixelType PixelType;
-    typedef itk::Image<float, InputImageType::ImageDimension> OutputImageType;
+  // Main filter
+  typedef typename InputImageType::PixelType PixelType;
+  typedef itk::Image<float, InputImageType::ImageDimension> OutputImageType;
 
-    // Filter
-    typedef itk::RecursiveGaussianImageFilter<InputImageType, OutputImageType> RecursiveGaussianImageFilterType;
-    typename RecursiveGaussianImageFilterType::Pointer gaussianFilter=RecursiveGaussianImageFilterType::New();
-    gaussianFilter->SetInput(input);
-    gaussianFilter->SetSigma(mArgsInfo.sigma_arg);
+  // Filter
+  typedef itk::RecursiveGaussianImageFilter<InputImageType, OutputImageType> RecursiveGaussianImageFilterType;
+  typename RecursiveGaussianImageFilterType::Pointer gaussianFilter=RecursiveGaussianImageFilterType::New();
+  gaussianFilter->SetInput(input);
+  gaussianFilter->SetSigma(mArgsInfo.sigma_arg);
 
-    typedef itk::SubtractImageFilter<InputImageType, OutputImageType, OutputImageType> SubtractFilterType;
-    typename SubtractFilterType::Pointer subtractFilter = SubtractFilterType::New();
-    subtractFilter->SetInput1(input);
-    subtractFilter->SetInput2(gaussianFilter->GetOutput());
-    subtractFilter->Update();
+  typedef itk::SubtractImageFilter<InputImageType, OutputImageType, OutputImageType> SubtractFilterType;
+  typename SubtractFilterType::Pointer subtractFilter = SubtractFilterType::New();
+  subtractFilter->SetInput1(input);
+  subtractFilter->SetInput2(gaussianFilter->GetOutput());
+  subtractFilter->Update();
 
-    this->template SetNextOutput<OutputImageType>(subtractFilter->GetOutput());
+  this->template SetNextOutput<OutputImageType>(subtractFilter->GetOutput());
 }
 //--------------------------------------------------------------------
 

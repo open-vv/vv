@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -22,10 +22,10 @@
  * @file   clitkImageUtilities.cxx
  * @author David Sarrut <david.sarrut@creatis.insa-lyon.fr>
  * @date   22 Sep 2006 10:39:40
- * 
- * @brief  
- * 
- * 
+ *
+ * @brief
+ *
+ *
  =================================================*/
 
 #include "clitkImageUtilities.h"

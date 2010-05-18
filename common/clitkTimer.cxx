@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -22,10 +22,10 @@
    * @file   clitkTimer.cxx
    * @author David Sarrut <david.sarrut@creatis.insa-lyon.fr>
    * @date   18 Jul 2007 16:27:45
-   * 
-   * @brief  
-   * 
-   * 
+   *
+   * @brief
+   *
+   *
    =================================================*/
 
 // #ifdef UNIX
@@ -33,9 +33,10 @@
 #include "clitkTimer.h"
 
 //====================================================================
-/// Constructs the class 
-clitk::Timer::Timer() { 
-  Reset(); 
+/// Constructs the class
+clitk::Timer::Timer()
+{
+  Reset();
 #if defined(WIN32)
   QueryPerformanceFrequency((LARGE_INTEGER*)&mFrequency);
 #endif
@@ -43,7 +44,8 @@ clitk::Timer::Timer() {
 //====================================================================
 
 //====================================================================
-void clitk::Timer::Start() {
+void clitk::Timer::Start()
+{
 #if defined(unix) || defined(__APPLE__)
   getrusage(RUSAGE_SELF, &mBegin);
 #elif defined(WIN32)
@@ -54,12 +56,13 @@ void clitk::Timer::Start() {
 //====================================================================
 
 //====================================================================
-void clitk::Timer::Stop(bool accumulate) {
+void clitk::Timer::Stop(bool accumulate)
+{
 #if defined(unix) || defined (__APPLE__)
   getrusage(RUSAGE_SELF, &mEnd);
   if (accumulate) {
     mElapsed += (mEnd.ru_utime.tv_usec - mBegin.ru_utime.tv_usec)+
-      (mEnd.ru_utime.tv_sec - mBegin.ru_utime.tv_sec)*1000000;
+                (mEnd.ru_utime.tv_sec - mBegin.ru_utime.tv_sec)*1000000;
   }
 #elif defined(WIN32)
   QueryPerformanceCounter((LARGE_INTEGER*)&mEnd);
@@ -74,7 +77,8 @@ void clitk::Timer::Stop(bool accumulate) {
 //====================================================================
 
 //====================================================================
-void clitk::Timer::Print(std::ostream & os) const {
+void clitk::Timer::Print(std::ostream & os) const
+{
   if (mNumberOfCall != 1) {
     os << "Timer #     = " << mNumberOfCall << std::endl;
     os << "Timer total = " << mElapsed << " usec \t" << mElapsed/1000000.0 << " sec." << mElapsed/1000000.0/60 << " min."
@@ -88,19 +92,21 @@ void clitk::Timer::Print(std::ostream & os) const {
   // os << "\tmBegin.ru_utime.tv_sec = " << mBegin.ru_utime.tv_sec << std::endl;
 //   os << "\tmEnd.ru_utime.tv_sec = " << mEnd.ru_utime.tv_sec << std::endl;
 //   os << "\tmBegin.ru_utime.tv_usec = " << mBegin.ru_utime.tv_usec << std::endl;
-//   os << "\tmEnd.ru_utime.tv_usec = " << mEnd.ru_utime.tv_usec << std::endl;  
+//   os << "\tmEnd.ru_utime.tv_usec = " << mEnd.ru_utime.tv_usec << std::endl;
 }
 //====================================================================
 
 //====================================================================
-void clitk::Timer::Print(std::string text, std::ostream & os) const {
+void clitk::Timer::Print(std::string text, std::ostream & os) const
+{
   os << text;
   Print(os);
-}  
+}
 //====================================================================
 
 //====================================================================
-void clitk::Timer::Reset() {
+void clitk::Timer::Reset()
+{
   mNumberOfCall = 0;
   mElapsed = 0;
 }

@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -30,7 +30,8 @@
 #include "gdcmFile.h"
 
 //--------------------------------------------------------------------
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv[])
+{
 
   // init command line
   GGO(clitkDicomInfo, args_info);
@@ -47,7 +48,7 @@ int main(int argc, char * argv[]) {
     header->Print();
   }
 
-  // this is the end my friend  
+  // this is the end my friend
   return 0;
 }
 //--------------------------------------------------------------------

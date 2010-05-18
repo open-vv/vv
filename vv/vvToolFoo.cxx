@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -25,9 +25,10 @@ ADD_TOOL(vvToolFoo);
 
 //------------------------------------------------------------------------------
 vvToolFoo::vvToolFoo(vvMainWindowBase * parent, Qt::WindowFlags f)
-  :QDialog(parent), 
-   vvToolBase<vvToolFoo>(parent), 
-   Ui::vvToolFoo() {
+  :QDialog(parent),
+   vvToolBase<vvToolFoo>(parent),
+   Ui::vvToolFoo()
+{
   // Setup the UI
   Ui_vvToolFoo::setupUi(this);
 }
@@ -35,13 +36,15 @@ vvToolFoo::vvToolFoo(vvMainWindowBase * parent, Qt::WindowFlags f)
 
 
 //------------------------------------------------------------------------------
-vvToolFoo::~vvToolFoo() {
+vvToolFoo::~vvToolFoo()
+{
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvToolFoo::Initialize() {
+void vvToolFoo::Initialize()
+{
   SetToolName("Foo");
   SetToolMenuName("Foo");
   SetToolIconFilename(":/common/icons/ducky.png");

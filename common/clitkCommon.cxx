@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -26,24 +26,24 @@
 
 //------------------------------------------------------------------
 // skip line which begin with a sharp '#'
-void clitk::skipComment(std::istream & is) 
+void clitk::skipComment(std::istream & is)
 {
   char c;
   char line[1024];
   if (is.eof()) return;
-  is >> c ; 
+  is >> c ;
   while (is && (c == '#')) {
-	is.getline (line, 1024); 
-	is >> c;
-	if (is.eof()) return;
+    is.getline (line, 1024);
+    is >> c;
+    if (is.eof()) return;
   }
   is.unget();
 } ////
 //------------------------------------------------------------------
-  
+
 //------------------------------------------------------------------
 // linear (rough) conversion from Hounsfield Unit to density
-double clitk::HU2density(double HU) 
+double clitk::HU2density(double HU)
 {
   return (HU+1000.0)/1000.0;
 } ////
@@ -51,15 +51,15 @@ double clitk::HU2density(double HU)
 
 //------------------------------------------------------------------
 // Return filename extension
-std::string clitk::GetExtension(const std::string& filename) 
+std::string clitk::GetExtension(const std::string& filename)
 {
   // This assumes that the final '.' in a file name is the delimiter
   // for the file's extension type
-  const std::string::size_type it = filename.find_last_of( "." );	
+  const std::string::size_type it = filename.find_last_of( "." );
   // This determines the file's type by creating a new string
   // who's value is the extension of the input filename
   // eg. "myimage.gif" has an extension of "gif"
-  std::string fileExt( filename, it+1, filename.length() );	
+  std::string fileExt( filename, it+1, filename.length() );
   return( fileExt );
 } ////
 //------------------------------------------------------------------
@@ -70,15 +70,15 @@ void clitk::VerboseInProgress(const int nb, const int current, const int percent
 {
   static int previous = -1;
   const int rounded = (100*current)/nb;
-  if (previous==rounded) return; 
+  if (previous==rounded) return;
   previous = rounded;
 
   std::ostringstream oss;
   oss << std::setw(4) << rounded << '%';
 
   std::cout << oss.str() << std::flush;
-  for (unsigned int i=0; i<oss.str().length(); ++i) 
-	std::cout << "\b" << std::flush;
+  for (unsigned int i=0; i<oss.str().length(); ++i)
+    std::cout << "\b" << std::flush;
 }
 //------------------------------------------------------------------
 
@@ -100,19 +100,22 @@ float clitk::PixelTypeDownCast(const double & x)
 //------------------------------------------------------------------
 
 //------------------------------------------------------------------
-double clitk::rad2deg(const double anglerad) {
+double clitk::rad2deg(const double anglerad)
+{
   return (anglerad/M_PI*180.0);
 }
 //------------------------------------------------------------------
 
 //------------------------------------------------------------------
-double clitk::deg2rad(const double angledeg) {
+double clitk::deg2rad(const double angledeg)
+{
   return (angledeg*(M_PI/180.0));
 }
 //------------------------------------------------------------------
 
 //------------------------------------------------------------------
-int clitk::GetTypeSizeFromString(const std::string & type) {
+int clitk::GetTypeSizeFromString(const std::string & type)
+{
 #define RETURN_SIZEOF_PIXEL(TYPENAME, TYPE)		\
   if (type == #TYPENAME) return sizeof(TYPE);
   RETURN_SIZEOF_PIXEL(char, char);
@@ -133,30 +136,39 @@ int clitk::GetTypeSizeFromString(const std::string & type) {
 
 //------------------------------------------------------------------
 template<>
-bool clitk::IsSameType<signed char>(std::string t) { 
-  if ((t==GetTypeAsString<signed char>()) || (t == "schar")) return true; else return false; 
+bool clitk::IsSameType<signed char>(std::string t)
+{
+  if ((t==GetTypeAsString<signed char>()) || (t == "schar")) return true;
+  else return false;
 }
 
 template<>
-bool clitk::IsSameType<char>(std::string t) { 
-  if ((t==GetTypeAsString<char>()) || (t == "char")) return true; else return false; 
+bool clitk::IsSameType<char>(std::string t)
+{
+  if ((t==GetTypeAsString<char>()) || (t == "char")) return true;
+  else return false;
 }
 
 template<>
-bool clitk::IsSameType<unsigned char>(std::string t) { 
-  if ((t==GetTypeAsString<unsigned char>()) || (t == "uchar")) return true; else return false; 
+bool clitk::IsSameType<unsigned char>(std::string t)
+{
+  if ((t==GetTypeAsString<unsigned char>()) || (t == "uchar")) return true;
+  else return false;
 }
 
 template<>
-bool clitk::IsSameType<unsigned short>(std::string t) { 
-  if ((t==GetTypeAsString<unsigned short>()) || (t == "ushort")) return true; else return false; 
+bool clitk::IsSameType<unsigned short>(std::string t)
+{
+  if ((t==GetTypeAsString<unsigned short>()) || (t == "ushort")) return true;
+  else return false;
 }
 //------------------------------------------------------------------
 
 //------------------------------------------------------------------
-void clitk::FindAndReplace(std::string & line, 
-		    const std::string & tofind, 
-		    const std::string & replacement) {
+void clitk::FindAndReplace(std::string & line,
+                           const std::string & tofind,
+                           const std::string & replacement)
+{
   int pos = line.find(tofind);
   while (pos!= (int)std::string::npos) {
     line.replace(pos, tofind.size(), replacement);
@@ -166,9 +178,10 @@ void clitk::FindAndReplace(std::string & line,
 //------------------------------------------------------------------
 
 //------------------------------------------------------------------
-void clitk::FindAndReplace(std::string & line, 
-		    const std::vector<std::string> & tofind, 
-		    const std::vector<std::string> & toreplace) {
+void clitk::FindAndReplace(std::string & line,
+                           const std::vector<std::string> & tofind,
+                           const std::vector<std::string> & toreplace)
+{
   for(unsigned int i=0; i<tofind.size(); i++) {
     FindAndReplace(line, tofind[i], toreplace[i]);
   }
@@ -176,10 +189,11 @@ void clitk::FindAndReplace(std::string & line,
 //------------------------------------------------------------------
 
 //------------------------------------------------------------------
-void clitk::FindAndReplace(std::ifstream & in, 
-		    const std::vector<std::string> & tofind, 
-		    const std::vector<std::string> & toreplace,
-		    std::ofstream & out) {
+void clitk::FindAndReplace(std::ifstream & in,
+                           const std::vector<std::string> & tofind,
+                           const std::vector<std::string> & toreplace,
+                           std::ofstream & out)
+{
   std::string line;
   if (tofind.size() != toreplace.size()) {
     std::cerr << "Error' tofind' is size=" << tofind.size() << std::endl;
@@ -194,9 +208,10 @@ void clitk::FindAndReplace(std::ifstream & in,
 //------------------------------------------------------------------
 
 //------------------------------------------------------------------
-double clitk::ComputeEuclideanDistanceFromPointToPlane(const itk::ContinuousIndex<double, 3> point, 
-						       const itk::ContinuousIndex<double, 3> pointInPlane, 
-						       const itk::ContinuousIndex<double, 3> normalPlane) {
+double clitk::ComputeEuclideanDistanceFromPointToPlane(const itk::ContinuousIndex<double, 3> point,
+    const itk::ContinuousIndex<double, 3> pointInPlane,
+    const itk::ContinuousIndex<double, 3> normalPlane)
+{
   // http://mathworld.wolfram.com/Plane.html
   // http://mathworld.wolfram.com/Point-PlaneDistance.html
   double a = normalPlane[0];
@@ -214,24 +229,26 @@ double clitk::ComputeEuclideanDistanceFromPointToPlane(const itk::ContinuousInde
   double d = -a*x0 - b*y0 - c*z0;
   DD(d);
   double distance = (a*x + b*y + c*z + d) / norm;
-  
+
   return distance;
 }
 //------------------------------------------------------------------
 
 //--------------------------------------------------------------------
 // Open a file for reading
-void clitk::openFileForReading(std::ifstream & is, const std::string & filename) {
+void clitk::openFileForReading(std::ifstream & is, const std::string & filename)
+{
   is.open(filename.c_str(), std::ios::in);
   if ( is.fail() ) {
     itkGenericExceptionMacro(<< "Could not open file (for reading): " << filename);
   }
 }
 //--------------------------------------------------------------------
-  
+
 //--------------------------------------------------------------------
 // Open a file for writing
-void clitk::openFileForWriting(std::ofstream & os, const std::string & filename)  {
+void clitk::openFileForWriting(std::ofstream & os, const std::string & filename)
+{
   os.open(filename.c_str(), std::ios::out);
   if ( os.fail() ) {
     itkGenericExceptionMacro(<< "Could not open file (for writing): " << filename);
@@ -240,14 +257,17 @@ void clitk::openFileForWriting(std::ofstream & os, const std::string & filename)
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
-double clitk::cotan(double i) { return(1.0 / tan(i)); }
-double clitk::invcotan(double x) { 
+double clitk::cotan(double i)
+{
+  return(1.0 / tan(i));
+}
+double clitk::invcotan(double x)
+{
   //  http://mathworld.wolfram.com/InverseCotangent.html
   double y;
   if (x<0) {
     y = -0.5*M_PI-atan(x);
-  }
-  else {
+  } else {
     y = 0.5*M_PI-atan(x);
   }
   return y;
@@ -256,7 +276,8 @@ double clitk::invcotan(double x) {
 
 //--------------------------------------------------------------------
 std::streambuf * clitk_stdcerr_backup;
-void clitk::disableStdCerr() {
+void clitk::disableStdCerr()
+{
   clitk_stdcerr_backup = std::cerr.rdbuf();
   std::stringstream oss;
   std::cerr.rdbuf( oss.rdbuf() );
@@ -264,14 +285,16 @@ void clitk::disableStdCerr() {
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
-void clitk::enableStdCerr() {
+void clitk::enableStdCerr()
+{
   std::cerr.rdbuf(clitk_stdcerr_backup);
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-void clitk::readDoubleFromFile(const std::string & filename, std::vector<double> & list) {
+void clitk::readDoubleFromFile(const std::string & filename, std::vector<double> & list)
+{
   std::ifstream is;
   clitk::openFileForReading(is, filename);
   list.clear();

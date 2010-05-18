@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -21,13 +21,14 @@
 #include "vvMainWindowBase.h"
 
 //------------------------------------------------------------------------------
-/// Unique static instance 
-vvToolManager* vvToolManager::mSingleton=0; 
+/// Unique static instance
+vvToolManager* vvToolManager::mSingleton=0;
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-vvToolManager * vvToolManager::GetInstance() {
+vvToolManager * vvToolManager::GetInstance()
+{
   if (mSingleton == 0) {
     mSingleton = new vvToolManager;
   }
@@ -37,15 +38,17 @@ vvToolManager * vvToolManager::GetInstance() {
 
 
 //------------------------------------------------------------------------------
-void vvToolManager::AddTool(vvToolCreatorBase * v)  {
+void vvToolManager::AddTool(vvToolCreatorBase * v)
+{
   std::cout << "Adding the tool <" << v->mToolName.toStdString() << ">." << std::endl;
   GetInstance()->mListOfTools.push_back(v);
-}  
+}
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvToolManager::InsertToolsInMenu(vvMainWindowBase * m) {
+void vvToolManager::InsertToolsInMenu(vvMainWindowBase * m)
+{
   for(unsigned int i=0; i<GetInstance()->mListOfTools.size(); i++) {
     GetInstance()->mListOfTools[i]->InsertToolInMenu(m);
   }

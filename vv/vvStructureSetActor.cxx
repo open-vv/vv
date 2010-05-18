@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -20,37 +20,42 @@
 #include "vvROIActor.h"
 
 //------------------------------------------------------------------------------
-vvStructureSetActor::vvStructureSetActor() {
+vvStructureSetActor::vvStructureSetActor()
+{
 
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-vvStructureSetActor::~vvStructureSetActor() {
+vvStructureSetActor::~vvStructureSetActor()
+{
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvStructureSetActor::SetStructureSet(clitk::DicomRT_StructureSet * s) {
+void vvStructureSetActor::SetStructureSet(clitk::DicomRT_StructureSet * s)
+{
   mStructureSet = s;
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvStructureSetActor::SetSlicerManager(vvSlicerManager * s) {
+void vvStructureSetActor::SetSlicerManager(vvSlicerManager * s)
+{
   mSlicerManager = s;
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-vvROIActor * vvStructureSetActor::GetROIActor(int n) {
+vvROIActor * vvStructureSetActor::GetROIActor(int n)
+{
   if (mMapROIIndex.find(n) == mMapROIIndex.end()) {
     std::cerr << "No ROI number " << n << std::endl;
-    return NULL;    
+    return NULL;
   }
   return mROIActors[mMapROIIndex[n]];
 }
@@ -58,7 +63,8 @@ vvROIActor * vvStructureSetActor::GetROIActor(int n) {
 
 
 //------------------------------------------------------------------------------
-void vvStructureSetActor::CreateNewROIActor(int n) {
+void vvStructureSetActor::CreateNewROIActor(int n)
+{
   // Check
   clitk::DicomRT_ROI * roi = mStructureSet->GetROI(n);
   if (roi == NULL) {

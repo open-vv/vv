@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -29,8 +29,8 @@
 
 void initialize_IO()
 {
-    itk::ImageIOFactory::RegisterBuiltInFactories();
-    clitk::VoxImageIOFactory::RegisterOneFactory();
-    clitk::VfImageIOFactory::RegisterOneFactory();
-    nkitk::XDRImageIOFactory::RegisterOneFactory();
+  itk::ImageIOFactory::RegisterBuiltInFactories();
+  clitk::VoxImageIOFactory::RegisterOneFactory();
+  clitk::VfImageIOFactory::RegisterOneFactory();
+  nkitk::XDRImageIOFactory::RegisterOneFactory();
 }

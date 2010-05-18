@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -22,10 +22,10 @@
  * @file   clitkHisImageIOFactory.cxx
  * @author Simon Rit <simon.rit@gmail.com>
  * @date   16 Feb 2010
- * 
- * @brief  
- * 
- * 
+ *
+ * @brief
+ *
+ *
  =================================================*/
 
 #include "clitkHisImageIOFactory.h"
@@ -33,7 +33,7 @@
 #include <fstream>
 
 //====================================================================
-clitk::HisImageIOFactory::HisImageIOFactory() 
+clitk::HisImageIOFactory::HisImageIOFactory()
 {
   this->RegisterOverride("itkImageIOBase",
                          "HisImageIO",

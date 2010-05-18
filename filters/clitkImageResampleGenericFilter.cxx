@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -23,7 +23,7 @@
  * @author David Sarrut <David.Sarrut@creatis.insa-lyon.fr>
  * @date   23 Feb 2008 08:37:53
 
- * @brief  
+ * @brief
 
  -------------------------------------------------------------------*/
 
@@ -45,7 +45,8 @@
 
 //--------------------------------------------------------------------
 clitk::ImageResampleGenericFilter::ImageResampleGenericFilter():
-  ImageToImageGenericFilter<Self>("ImageResample") {
+  ImageToImageGenericFilter<Self>("ImageResample")
+{
   mApplyGaussianFilterBefore = false;
   mDefaultPixelValue = 0.0;
   mInterpolatorName = "NN";
@@ -59,7 +60,8 @@ clitk::ImageResampleGenericFilter::ImageResampleGenericFilter():
 
 //--------------------------------------------------------------------
 template<unsigned int Dim>
-void clitk::ImageResampleGenericFilter::InitializeImageTypeWithDim() {      
+void clitk::ImageResampleGenericFilter::InitializeImageTypeWithDim()
+{
   ADD_DEFAULT_IMAGE_TYPES(Dim);
 }
 //--------------------------------------------------------------------
@@ -67,7 +69,8 @@ void clitk::ImageResampleGenericFilter::InitializeImageTypeWithDim() {
 
 //--------------------------------------------------------------------
 template<class InputImageType>
-void clitk::ImageResampleGenericFilter::UpdateWithInputImageType() {
+void clitk::ImageResampleGenericFilter::UpdateWithInputImageType()
+{
 
   // Some typedefs
   typedef typename InputImageType::SizeType    SizeType;
@@ -105,7 +108,7 @@ void clitk::ImageResampleGenericFilter::UpdateWithInputImageType() {
   // Create Image Filter
   typedef itk::ResampleImageFilter<InputImageType,InputImageType> FilterType;
   typename FilterType::Pointer filter = FilterType::New();
-    
+
   // Instance of the transform object to be passed to the resample
   // filter. By default, identity transform is applied
   typedef itk::AffineTransform<double, InputImageType::ImageDimension> TransformType;
@@ -129,36 +132,32 @@ void clitk::ImageResampleGenericFilter::UpdateWithInputImageType() {
 
   // Select interpolator
   if (mInterpolatorName == "nn") {
-    typedef itk::NearestNeighborInterpolateImageFunction<InputImageType, double> InterpolatorType;     
+    typedef itk::NearestNeighborInterpolateImageFunction<InputImageType, double> InterpolatorType;
     typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
     filter->SetInterpolator(interpolator);
-  }
-  else { 
+  } else {
     if (mInterpolatorName == "linear") {
-      typedef itk::LinearInterpolateImageFunction<InputImageType, double> InterpolatorType;     
+      typedef itk::LinearInterpolateImageFunction<InputImageType, double> InterpolatorType;
       typename InterpolatorType::Pointer interpolator =  InterpolatorType::New();
       filter->SetInterpolator(interpolator);
-    }
-    else {
+    } else {
       if (mInterpolatorName == "bspline") {
-	typedef itk::BSplineInterpolateImageFunction<InputImageType, double> InterpolatorType; 
-	typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
-	interpolator->SetSplineOrder(mBSplineOrder);
-	filter->SetInterpolator(interpolator);
-      }
-      else {
-	if (mInterpolatorName == "blut") {
-	  typedef itk::BSplineInterpolateImageFunctionWithLUT<InputImageType, double> InterpolatorType; 
-	  typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
-	  interpolator->SetSplineOrder(mBSplineOrder);
-	  interpolator->SetLUTSamplingFactor(mSamplingFactors[0]);
-	  filter->SetInterpolator(interpolator);
-	}
-	else {
-	  std::cerr << "Sorry, I do not know the interpolator '" << mInterpolatorName 
-		    << "'. Known interpolators are :  nn, linear, bspline, blut" << std::endl;
-	  exit(0);
-	}
+        typedef itk::BSplineInterpolateImageFunction<InputImageType, double> InterpolatorType;
+        typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
+        interpolator->SetSplineOrder(mBSplineOrder);
+        filter->SetInterpolator(interpolator);
+      } else {
+        if (mInterpolatorName == "blut") {
+          typedef itk::BSplineInterpolateImageFunctionWithLUT<InputImageType, double> InterpolatorType;
+          typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
+          interpolator->SetSplineOrder(mBSplineOrder);
+          interpolator->SetLUTSamplingFactor(mSamplingFactors[0]);
+          filter->SetInterpolator(interpolator);
+        } else {
+          std::cerr << "Sorry, I do not know the interpolator '" << mInterpolatorName
+                    << "'. Known interpolators are :  nn, linear, bspline, blut" << std::endl;
+          exit(0);
+        }
       }
     }
   }
@@ -180,23 +179,21 @@ void clitk::ImageResampleGenericFilter::UpdateWithInputImageType() {
       else gaussianFilters[i]->SetInput(gaussianFilters[i-1]->GetOutput());
     }
     filter->SetInput(gaussianFilters[InputImageType::ImageDimension-1]->GetOutput());
-  }
-  else {
+  } else {
     filter->SetInput(input);
   }
 
   // Go !
-  try { 
+  try {
     filter->Update();
-  }
-  catch( itk::ExceptionObject & err ) {
-    std::cerr << "Error while filtering " << mInputFilenames[0].c_str() 
-	      << " " << err << std::endl;
+  } catch( itk::ExceptionObject & err ) {
+    std::cerr << "Error while filtering " << mInputFilenames[0].c_str()
+              << " " << err << std::endl;
     exit(0);
   }
 
   // Get result
-   typename InputImageType::Pointer outputImage = filter->GetOutput();
+  typename InputImageType::Pointer outputImage = filter->GetOutput();
 
   // Write/save results
   this->SetNextOutput<InputImageType>(outputImage);
@@ -206,27 +203,31 @@ void clitk::ImageResampleGenericFilter::UpdateWithInputImageType() {
 
 
 //--------------------------------------------------------------------
-void clitk::ImageResampleGenericFilter::SetOutputSize(const std::vector<int> & size) {
+void clitk::ImageResampleGenericFilter::SetOutputSize(const std::vector<int> & size)
+{
   mOutputSize.resize(size.size());
   std::copy(size.begin(), size.end(), mOutputSize.begin());
 }
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
-void clitk::ImageResampleGenericFilter::SetOutputSpacing(const std::vector<double> & spacing) {
+void clitk::ImageResampleGenericFilter::SetOutputSpacing(const std::vector<double> & spacing)
+{
   mOutputSpacing.resize(spacing.size());
   std::copy(spacing.begin(), spacing.end(), mOutputSpacing.begin());
 }
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
-void clitk::ImageResampleGenericFilter::SetInterpolationName(const std::string & inter) {
+void clitk::ImageResampleGenericFilter::SetInterpolationName(const std::string & inter)
+{
   mInterpolatorName = inter;
 }
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
-void clitk::ImageResampleGenericFilter::SetGaussianSigma(const std::vector<double> & sigma) {
+void clitk::ImageResampleGenericFilter::SetGaussianSigma(const std::vector<double> & sigma)
+{
   mApplyGaussianFilterBefore = true;
   mSigma.resize(sigma.size());
   std::copy(sigma.begin(), sigma.end(), mSigma.begin());

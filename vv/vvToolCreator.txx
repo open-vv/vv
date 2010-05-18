@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -18,7 +18,8 @@
 
 //------------------------------------------------------------------------------
 template<class ToolType>
-void vvToolCreator<ToolType>::InsertToolInMenu(vvMainWindowBase * m) { 
+void vvToolCreator<ToolType>::InsertToolInMenu(vvMainWindowBase * m)
+{
   mMainWindow = m;
 
   // Default Initialization
@@ -30,13 +31,14 @@ void vvToolCreator<ToolType>::InsertToolInMenu(vvMainWindowBase * m) {
   ToolType::Initialize();
 
   // Common Initialization (insertion into menu)
-  vvToolCreatorBase::InsertToolInMenu(mMainWindow); 
+  vvToolCreatorBase::InsertToolInMenu(mMainWindow);
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 template<class ToolType>
-vvToolCreator<ToolType>* & vvToolCreator<ToolType>::GetInstance() { 
+vvToolCreator<ToolType>* & vvToolCreator<ToolType>::GetInstance()
+{
   if(!mSingleton)
     mSingleton = new vvToolCreator<ToolType>;
   return mSingleton;

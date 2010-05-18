@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -31,7 +31,8 @@
 #include "clitkImageConvertGenericFilter.h"
 
 //-------------------------------------------------------------------=
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv[])
+{
 
   // init command line
   GGO(clitkImageConvert, args_info);
@@ -48,7 +49,7 @@ int main(int argc, char * argv[]) {
   if (l.size() < 1) {
     std::cerr << "Error, you should give at least one --input option or one image filename on the commande line." << std::endl;
     exit(0);
-  }  
+  }
 
   // Create filter
   clitk::ImageConvertGenericFilter::Pointer filter = clitk::ImageConvertGenericFilter::New();
@@ -58,9 +59,9 @@ int main(int argc, char * argv[]) {
   if (args_info.type_given) filter->SetOutputPixelType(args_info.type_arg);
 
   // Go !
-  filter->Update();  
+  filter->Update();
 
-  // this is the end my friend  
+  // this is the end my friend
   return 0;
 }
 //-------------------------------------------------------------------=

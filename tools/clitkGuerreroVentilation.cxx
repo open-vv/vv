@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -28,7 +28,8 @@
 #include "clitkIO.h"
 
 //--------------------------------------------------------------------
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv[])
+{
 
   // Init command line
   GGO(clitkGuerreroVentilation, args_info);
@@ -37,7 +38,7 @@ int main(int argc, char * argv[]) {
   // Read image dimension
   itk::ImageIOBase::Pointer header = clitk::readImageHeader(args_info.input_arg);
   //unsigned int dim = header->GetNumberOfDimensions();
-  
+
   // Check parameters
   // Main filter
   clitk::GuerreroVentilationGenericFilter filter;
@@ -48,6 +49,6 @@ int main(int argc, char * argv[]) {
   filter.SetUseCorrectFormula(args_info.correct_flag);
   filter.Update();
 
-  // this is the end my friend  
+  // this is the end my friend
   return 0;
 } // end main

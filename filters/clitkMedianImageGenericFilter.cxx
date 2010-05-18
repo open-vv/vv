@@ -4,10 +4,10 @@
 /* =================================================
  * @file   clitkMedianImageGenericFilter.cxx
  * @author Bharath Navalpakkam <Bharath.Navalpakkam@creatis.insa-lyon.fr>
- * @date  20.03.2010  
- * 
- * @brief 
- * 
+ * @date  20.03.2010
+ *
+ * @brief
+ *
  ===================================================*/
 
 #include "clitkMedianImageGenericFilter.h"

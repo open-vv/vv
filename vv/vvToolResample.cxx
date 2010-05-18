@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -31,7 +31,8 @@ ADD_TOOL(vvToolResample);
 vvToolResample::vvToolResample(vvMainWindowBase * parent, Qt::WindowFlags f):
   vvToolWidgetBase(parent,f),
   vvToolBase<vvToolResample>(parent),
-  Ui::vvToolResample() {
+  Ui::vvToolResample()
+{
   Ui_vvToolResample::setupUi(mToolWidget);
 
   mFilter = clitk::ImageResampleGenericFilter::New();
@@ -115,7 +116,8 @@ vvToolResample::vvToolResample(vvMainWindowBase * parent, Qt::WindowFlags f):
 
 
 //------------------------------------------------------------------------------
-void vvToolResample::Initialize() {
+void vvToolResample::Initialize()
+{
   SetToolName("Resample Image");
   SetToolMenuName("Resample");
   SetToolIconFilename(":/common/icons/resample.png");
@@ -125,7 +127,8 @@ void vvToolResample::Initialize() {
 
 
 //------------------------------------------------------------------------------
-void vvToolResample::InputIsSelected(vvSlicerManager* m) {
+void vvToolResample::InputIsSelected(vvSlicerManager* m)
+{
 
   mCurrentSlicerManager = m;
   mCurrentImage = mCurrentSlicerManager->GetSlicer(0)->GetImage();
@@ -141,7 +144,7 @@ void vvToolResample::InputIsSelected(vvSlicerManager* m) {
   mInputOrigin.resize(mDimension);
   mInputSpacing.resize(mDimension);
   mInputSize.resize(mDimension);
-  for (int i = 0; i < mDimension;i++) {
+  for (int i = 0; i < mDimension; i++) {
     mInputOrigin[i] = mCurrentImage->GetOrigin()[i];
     mInputSpacing[i] = mCurrentImage->GetSpacing()[i];
     mInputSize[i] = mCurrentImage->GetSize()[i];
@@ -171,7 +174,8 @@ void vvToolResample::InputIsSelected(vvSlicerManager* m) {
 
 
 //------------------------------------------------------------------------------
-void vvToolResample::UpdateOutputInfo() {
+void vvToolResample::UpdateOutputInfo()
+{
   mOutputSizeLabel->setText(GetVectorIntAsString(mOutputSize));
   mOutputSpacingLabel->setText(GetVectorDoubleAsString(mOutputSpacing));
   mOutputMemoryLabel->setText(GetSizeInBytes(mOutputSize));
@@ -180,7 +184,8 @@ void vvToolResample::UpdateOutputInfo() {
 
 
 //------------------------------------------------------------------------------
-QString vvToolResample::GetSizeInBytes(std::vector<int> & size) {
+QString vvToolResample::GetSizeInBytes(std::vector<int> & size)
+{
   int t = 1;
   for (unsigned int i=0; i<size.size(); i++) t *= size[i];
   t *= mCurrentImage->GetScalarSize()*mCurrentImage->GetNumberOfScalarComponents();
@@ -190,25 +195,23 @@ QString vvToolResample::GetSizeInBytes(std::vector<int> & size) {
     t /= 1000000000;
     result += QString::number(t);
     result += " GB)";
-  }
-  else if (t > 1000000) {
+  } else if (t > 1000000) {
     t /= 1000000;
     result += QString::number(t);
     result += " MB)";
-  }
-  else if (t > 1000) {
+  } else if (t > 1000) {
     t /= 1000;
     result += QString::number(t);
     result += " KB)";
-  }
-  else result += ")";
+  } else result += ")";
   return result;
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-QString vvToolResample::GetVectorDoubleAsString(std::vector<double> vectorDouble) {
+QString vvToolResample::GetVectorDoubleAsString(std::vector<double> vectorDouble)
+{
   QString result;
   for (unsigned int i= 0; i<vectorDouble.size(); i++) {
     if (i != 0)
@@ -221,7 +224,8 @@ QString vvToolResample::GetVectorDoubleAsString(std::vector<double> vectorDouble
 
 
 //------------------------------------------------------------------------------
-QString vvToolResample::GetVectorIntAsString(std::vector<int> vectorInt) {
+QString vvToolResample::GetVectorIntAsString(std::vector<int> vectorInt)
+{
   QString result;
   for (unsigned int i= 0; i<vectorInt.size(); i++) {
     if (i != 0)
@@ -234,7 +238,8 @@ QString vvToolResample::GetVectorIntAsString(std::vector<int> vectorInt) {
 
 
 //------------------------------------------------------------------------------
-void vvToolResample::FillSizeEdit(std::vector<int> size) {
+void vvToolResample::FillSizeEdit(std::vector<int> size)
+{
   xSizeLineEdit->setText(QString::number(size[0]));
   ySizeLineEdit->setText(QString::number(size[1]));
   if (size.size() > 2)
@@ -244,7 +249,8 @@ void vvToolResample::FillSizeEdit(std::vector<int> size) {
 
 
 //------------------------------------------------------------------------------
-void vvToolResample::FillSpacingEdit(std::vector<double> spacing) {
+void vvToolResample::FillSpacingEdit(std::vector<double> spacing)
+{
   xSpacingLineEdit->setText(QString::number(spacing[0]));
   ySpacingLineEdit->setText(QString::number(spacing[1]));
   if (spacing.size() > 2)
@@ -254,7 +260,8 @@ void vvToolResample::FillSpacingEdit(std::vector<double> spacing) {
 
 
 //------------------------------------------------------------------------------
-void vvToolResample::UpdateOutputSizeAndSpacing() {
+void vvToolResample::UpdateOutputSizeAndSpacing()
+{
   mOutputSize.resize(mDimension);
   mOutputSize = mInputSize;
   mOutputSpacing.resize(mDimension);
@@ -275,7 +282,8 @@ void vvToolResample::UpdateOutputSizeAndSpacing() {
 
 
 //------------------------------------------------------------------------------
-void vvToolResample::UpdateControlSizeAndSpacing() {
+void vvToolResample::UpdateControlSizeAndSpacing()
+{
   scaleSizeLineEdit->setText("");
   scaleSpacingLineEdit->setText("");
   isoSizeLineEdit->setText("");
@@ -298,15 +306,13 @@ void vvToolResample::UpdateControlSizeAndSpacing() {
     ySizeLineEdit->setReadOnly(0);
     if (mDimension > 2)
       zSizeLineEdit->setReadOnly(0);
-  }
-  else {
+  } else {
     if (spacingRadioButton->isChecked()) {
       xSpacingLineEdit->setReadOnly(0);
       ySpacingLineEdit->setReadOnly(0);
       if (mDimension > 2)
         zSpacingLineEdit->setReadOnly(0);
-    }
-    else if (scaleSizeRadioButton->isChecked())
+    } else if (scaleSizeRadioButton->isChecked())
       scaleSizeLineEdit->setReadOnly(0);
     else if (scaleSpacingRadioButton->isChecked())
       scaleSpacingLineEdit->setReadOnly(0);
@@ -320,39 +326,40 @@ void vvToolResample::UpdateControlSizeAndSpacing() {
 
 
 //------------------------------------------------------------------------------
-void vvToolResample::ComputeNewSpacingFromSize() {
+void vvToolResample::ComputeNewSpacingFromSize()
+{
   double newSpacing = mInputSpacing[0]*mInputSize[0];
   xSpacingLineEdit->setText(QString::number(newSpacing/xSizeLineEdit->text().toDouble()));
   newSpacing = mInputSpacing[1]*mInputSize[1];
   ySpacingLineEdit->setText(QString::number(newSpacing/ySizeLineEdit->text().toDouble()));
-  if (mDimension > 2)
-    {
-      newSpacing = mInputSpacing[2]*mInputSize[2];
-      zSpacingLineEdit->setText(QString::number(newSpacing/zSizeLineEdit->text().toDouble()));
-    }
+  if (mDimension > 2) {
+    newSpacing = mInputSpacing[2]*mInputSize[2];
+    zSpacingLineEdit->setText(QString::number(newSpacing/zSizeLineEdit->text().toDouble()));
+  }
   UpdateOutputSizeAndSpacing();
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvToolResample::ComputeNewSizeFromSpacing() {
+void vvToolResample::ComputeNewSizeFromSpacing()
+{
   double newSize = mInputSpacing[0]*mInputSize[0];
   xSizeLineEdit->setText(QString::number(newSize/xSpacingLineEdit->text().toDouble()));
   newSize = mInputSpacing[1]*mInputSize[1];
   ySizeLineEdit->setText(QString::number(newSize/ySpacingLineEdit->text().toDouble()));
-  if (mDimension > 2)
-    {
-      newSize = mInputSpacing[2]*mInputSize[2];
-      zSizeLineEdit->setText(QString::number(newSize/zSpacingLineEdit->text().toDouble()));
-    }
+  if (mDimension > 2) {
+    newSize = mInputSpacing[2]*mInputSize[2];
+    zSizeLineEdit->setText(QString::number(newSize/zSpacingLineEdit->text().toDouble()));
+  }
   UpdateOutputSizeAndSpacing();
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvToolResample::ComputeNewSpacingFromScale() {
+void vvToolResample::ComputeNewSpacingFromScale()
+{
   xSpacingLineEdit->setText(QString::number(mInputSpacing[0]*scaleSpacingLineEdit->text().toDouble()/100));
   ySpacingLineEdit->setText(QString::number(mInputSpacing[1]*scaleSpacingLineEdit->text().toDouble()/100));
   if (mDimension > 2)
@@ -363,7 +370,8 @@ void vvToolResample::ComputeNewSpacingFromScale() {
 
 
 //------------------------------------------------------------------------------
-void vvToolResample::ComputeNewSizeFromScale() {
+void vvToolResample::ComputeNewSizeFromScale()
+{
   xSizeLineEdit->setText(QString::number(mInputSize[0]*scaleSizeLineEdit->text().toDouble()/100));
   ySizeLineEdit->setText(QString::number(mInputSize[1]*scaleSizeLineEdit->text().toDouble()/100));
   if (mDimension > 2)
@@ -374,7 +382,8 @@ void vvToolResample::ComputeNewSizeFromScale() {
 
 
 //------------------------------------------------------------------------------
-void vvToolResample::ComputeNewSpacingFromIso() {
+void vvToolResample::ComputeNewSpacingFromIso()
+{
   xSpacingLineEdit->setText(QString::number(isoSpacingLineEdit->text().toDouble()));
   ySpacingLineEdit->setText(QString::number(isoSpacingLineEdit->text().toDouble()));
   if (mDimension > 2)
@@ -385,7 +394,8 @@ void vvToolResample::ComputeNewSpacingFromIso() {
 
 
 //------------------------------------------------------------------------------
-void vvToolResample::ComputeNewSizeFromIso() {
+void vvToolResample::ComputeNewSizeFromIso()
+{
   xSizeLineEdit->setText(QString::number(isoSizeLineEdit->text().toDouble()));
   ySizeLineEdit->setText(QString::number(isoSizeLineEdit->text().toDouble()));
   if (mDimension > 2)
@@ -396,20 +406,19 @@ void vvToolResample::ComputeNewSizeFromIso() {
 
 
 //------------------------------------------------------------------------------
-void vvToolResample::UpdateInterpolation() {
+void vvToolResample::UpdateInterpolation()
+{
   if (interpolationComboBox->currentText() == "BSpline") {
     bSplineLabel->show();
     bSplineOrderSpinBox->show();
     bLUTFactorLabel->hide();
     bLUTSpinBox->hide();
-  }
-  else if (interpolationComboBox->currentText() == "B-LUT (faster BSpline)")   {
+  } else if (interpolationComboBox->currentText() == "B-LUT (faster BSpline)")   {
     bSplineLabel->show();
     bSplineOrderSpinBox->show();
     bLUTFactorLabel->show();
     bLUTSpinBox->show();
-  }
-  else {
+  } else {
     bSplineLabel->hide();
     bSplineOrderSpinBox->hide();
     bLUTFactorLabel->hide();
@@ -420,15 +429,15 @@ void vvToolResample::UpdateInterpolation() {
 
 
 //------------------------------------------------------------------------------
-void vvToolResample::UpdateGaussianFilter() {
+void vvToolResample::UpdateGaussianFilter()
+{
   if (gaussianFilterCheckBox->isChecked()) {
     gaussianFilterLabel->show();
     xGaussianLineEdit->show();
     yGaussianLineEdit->show();
     if (mDimension > 2)
       zGaussianLineEdit->show();
-  }
-  else {
+  } else {
     gaussianFilterLabel->hide();
     xGaussianLineEdit->hide();
     yGaussianLineEdit->hide();
@@ -439,7 +448,8 @@ void vvToolResample::UpdateGaussianFilter() {
 
 
 //------------------------------------------------------------------------------
-void vvToolResample::apply() {
+void vvToolResample::apply()
+{
 
   // Get resampler options
   std::vector<double> sigma;
@@ -475,7 +485,8 @@ void vvToolResample::apply() {
 
 
 //------------------------------------------------------------------------------
-std::string vvToolResample::GetOutputFileName() {
+std::string vvToolResample::GetOutputFileName()
+{
   QFileInfo info(QString(mCurrentSlicerManager->GetFileName().c_str()));
   return (info.path().toStdString() + "/resampled_" + info.fileName().toStdString());
 }

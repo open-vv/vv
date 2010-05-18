@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -23,26 +23,28 @@
  * @author David Sarrut <David.Sarrut@creatis.insa-lyon.fr>
  * @date   23 Feb 2008
 
- * @brief  
+ * @brief
  -------------------------------------------------------------------*/
 
 #include "clitkImageFillRegionGenericFilter.h"
 
 //--------------------------------------------------------------------
 clitk::ImageFillRegionGenericFilter::ImageFillRegionGenericFilter():
-  clitk::ImageToImageGenericFilter<Self>("ImageFillRegion") {
+  clitk::ImageToImageGenericFilter<Self>("ImageFillRegion")
+{
   InitializeImageType<2>();
-  InitializeImageType<3>();   
+  InitializeImageType<3>();
   mPixelValue = 0;
   m_IsCentered=false;
-  mSphericRegion=false;  
+  mSphericRegion=false;
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
 template<unsigned int Dim>
-void clitk::ImageFillRegionGenericFilter::InitializeImageType() {      
+void clitk::ImageFillRegionGenericFilter::InitializeImageType()
+{
   // ADD_IMAGE_TYPE(Dim, char);
   ADD_IMAGE_TYPE(Dim, short);
   // ADD_IMAGE_TYPE(Dim, unsigned short);
@@ -56,7 +58,8 @@ void clitk::ImageFillRegionGenericFilter::InitializeImageType() {
 
 //--------------------------------------------------------------------
 template<class ImageType>
-void clitk::ImageFillRegionGenericFilter::UpdateWithInputImageType() {
+void clitk::ImageFillRegionGenericFilter::UpdateWithInputImageType()
+{
 
   // Typedef
   typedef typename ImageType::PixelType PixelType;
@@ -69,7 +72,7 @@ void clitk::ImageFillRegionGenericFilter::UpdateWithInputImageType() {
   typename ImageType::Pointer input = GetInput<ImageType>(0);
 
   // Get pixel value in correct type
-  PixelType value = PixelTypeDownCast<double, PixelType>(mPixelValue); 
+  PixelType value = PixelTypeDownCast<double, PixelType>(mPixelValue);
 
   // Get region
   typedef typename ImageType::RegionType RegionType;
@@ -101,7 +104,8 @@ void clitk::ImageFillRegionGenericFilter::UpdateWithInputImageType() {
 
 //--------------------------------------------------------------------
 template<unsigned int Dim, class PixelType>
-void clitk::ImageFillRegionGenericFilter::Update_WithDimAndPixelType_SphericRegion() {
+void clitk::ImageFillRegionGenericFilter::Update_WithDimAndPixelType_SphericRegion()
+{
 
   // Read input
   typedef itk::Image<PixelType,Dim> ImageType;
@@ -109,48 +113,46 @@ void clitk::ImageFillRegionGenericFilter::Update_WithDimAndPixelType_SphericRegi
   typename ImageType::Pointer input = GetInput<ImageType>(0);
 
   // Get pixel value in correct type
-  PixelType value = PixelTypeDownCast<double, PixelType>(mPixelValue); 
+  PixelType value = PixelTypeDownCast<double, PixelType>(mPixelValue);
 
   // Centered?
-  if(m_IsCentered)
-    {
-      typename ImageType::SizeType size= input->GetLargestPossibleRegion().GetSize();
-      typename ImageType::SpacingType spacing= input->GetSpacing();
-      typename ImageType::PointType origin= input->GetOrigin();
-      mCenter.resize(Dim);
-      for (unsigned int i=0; i<Dim; i++)
-	mCenter[i]=origin[i]+(double)size[i]/2*spacing[i];
-    }
+  if(m_IsCentered) {
+    typename ImageType::SizeType size= input->GetLargestPossibleRegion().GetSize();
+    typename ImageType::SpacingType spacing= input->GetSpacing();
+    typename ImageType::PointType origin= input->GetOrigin();
+    mCenter.resize(Dim);
+    for (unsigned int i=0; i<Dim; i++)
+      mCenter[i]=origin[i]+(double)size[i]/2*spacing[i];
+  }
 
   // Build iterator
   typedef itk::ImageRegionIteratorWithIndex<ImageType> IteratorType;
   IteratorType it(input, input->GetLargestPossibleRegion());
   it.GoToBegin();
 
-  typename ImageType::PointType point; 
-  //typename itk::Vector<double, Dim> distance; 
+  typename ImageType::PointType point;
+  //typename itk::Vector<double, Dim> distance;
   typename ImageType::IndexType index;
   //bool inside;
   double distance;
-  
-  while (!it.IsAtEnd())
-    {    
-      //      inside=true;
-      index=it.GetIndex();
-      input->TransformIndexToPhysicalPoint(index, point);
-      distance=0.0;      
-      for(unsigned int i=0; i<Dim; i++)
-	distance+=powf( ( (mCenter[i]-point[i])/mRadius[i] ), 2);
-	
-      //  inside= ( (fabs(distance[i])<fabs(mRadius[i])) && inside );
-      // 	  distance[i]=mCenter[i]-point[i];
-      // 	  inside= ( (fabs(distance[i])<fabs(mRadius[i])) && inside );
-      //	}
-      
-      if (distance<1)
-	it.Set(value);
-      ++it;
-    }
+
+  while (!it.IsAtEnd()) {
+    //      inside=true;
+    index=it.GetIndex();
+    input->TransformIndexToPhysicalPoint(index, point);
+    distance=0.0;
+    for(unsigned int i=0; i<Dim; i++)
+      distance+=powf( ( (mCenter[i]-point[i])/mRadius[i] ), 2);
+
+    //  inside= ( (fabs(distance[i])<fabs(mRadius[i])) && inside );
+    // 	  distance[i]=mCenter[i]-point[i];
+    // 	  inside= ( (fabs(distance[i])<fabs(mRadius[i])) && inside );
+    //	}
+
+    if (distance<1)
+      it.Set(value);
+    ++it;
+  }
 
   // Write results
   SetNextOutput<ImageType>(input);
@@ -161,10 +163,10 @@ void clitk::ImageFillRegionGenericFilter::Update_WithDimAndPixelType_SphericRegi
 
 
 //--------------------------------------------------------------------
-void clitk::ImageFillRegionGenericFilter::SetSphericRegion(std::vector<double> &  radius, 
-  							   std::vector<double> & center) 
+void clitk::ImageFillRegionGenericFilter::SetSphericRegion(std::vector<double> &  radius,
+    std::vector<double> & center)
 {
-  mRadius.clear(); 
+  mRadius.clear();
   mRadius.resize(radius.size());
   std::copy(radius.begin(), radius.end(), mRadius.begin());
   mCenter.clear();
@@ -174,8 +176,9 @@ void clitk::ImageFillRegionGenericFilter::SetSphericRegion(std::vector<double> &
   m_IsCentered=false;
 }
 
-void clitk::ImageFillRegionGenericFilter::SetSphericRegion(std::vector<double> & radius) {
-  mRadius.clear(); 
+void clitk::ImageFillRegionGenericFilter::SetSphericRegion(std::vector<double> & radius)
+{
+  mRadius.clear();
   mRadius.resize(radius.size());
   std::copy(radius.begin(), radius.end(), mRadius.begin());
   m_IsCentered=true;

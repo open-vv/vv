@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -17,7 +17,8 @@
 ======================================================================-====*/
 
 template<class ToolType>
-void vvToolCreatorBase::CreateTool() {
+void vvToolCreatorBase::CreateTool()
+{
   // Get information on the current image
   mMainWindow->UpdateCurrentSlicer();
   // Create the tool

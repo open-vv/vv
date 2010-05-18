@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -22,10 +22,10 @@
  * @file   clitkCorrelationRatioImageToImageMetric.txx
  * @author Jef Vandemeulebroucke <jef@creatis.insa-lyon.fr>
  * @date   July 30  18:14:53 2007
- * 
+ *
  * @brief  Compute the correlation ratio between 2 images
- * 
- * 
+ *
+ *
  */
 
 #include "clitkCorrelationRatioImageToImageMetric.h"
@@ -39,7 +39,7 @@ namespace clitk
 /*
  * Constructor
  */
-template <class TFixedImage, class TMovingImage> 
+template <class TFixedImage, class TMovingImage>
 CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
 ::CorrelationRatioImageToImageMetric()
 {
@@ -47,39 +47,36 @@ CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
 
 }
 
-template <class TFixedImage, class TMovingImage> 
+template <class TFixedImage, class TMovingImage>
 void
 CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
 ::Initialize(void) throw ( ExceptionObject )
 {
 
   this->Superclass::Initialize();
-  
+
   // Compute the minimum and maximum for the FixedImage over the FixedImageRegion.
   // We can't use StatisticsImageFilter to do this because the filter computes the min/max for the largest possible region
   double fixedImageMin = NumericTraits<double>::max();
   double fixedImageMax = NumericTraits<double>::NonpositiveMin();
 
   typedef ImageRegionConstIterator<FixedImageType> FixedIteratorType;
-  FixedIteratorType fixedImageIterator( 
+  FixedIteratorType fixedImageIterator(
     this->m_FixedImage, this->GetFixedImageRegion() );
 
-  for ( fixedImageIterator.GoToBegin(); 
-        !fixedImageIterator.IsAtEnd(); ++fixedImageIterator )
-    {
+  for ( fixedImageIterator.GoToBegin();
+        !fixedImageIterator.IsAtEnd(); ++fixedImageIterator ) {
 
     double sample = static_cast<double>( fixedImageIterator.Get() );
 
-    if ( sample < fixedImageMin )
-      {
+    if ( sample < fixedImageMin ) {
       fixedImageMin = sample;
-      }
-
-    if ( sample > fixedImageMax )
-      {
-      fixedImageMax = sample;
-      }
     }
+
+    if ( sample > fixedImageMax ) {
+      fixedImageMax = sample;
+    }
+  }
 
   // Compute binsize for the fixedImage
   m_FixedImageBinSize = ( fixedImageMax - fixedImageMin ) / m_NumberOfBins;
@@ -94,7 +91,7 @@ CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
 /*
  * Get the match Measure
  */
-template <class TFixedImage, class TMovingImage> 
+template <class TFixedImage, class TMovingImage>
 typename CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>::MeasureType
 CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
 ::GetValue( const TransformParametersType & parameters ) const
@@ -104,10 +101,9 @@ CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
 
   FixedImageConstPointer fixedImage = this->m_FixedImage;
 
-  if( !fixedImage ) 
-    {
+  if( !fixedImage ) {
     itkExceptionMacro( << "Fixed image has not been assigned" );
-    }
+  }
 
   typedef  itk::ImageRegionConstIteratorWithIndex<FixedImageType> FixedIteratorType;
 
@@ -122,86 +118,79 @@ CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
   this->SetTransformParameters( parameters );
 
 
-  //temporary measures for the calculation 
+  //temporary measures for the calculation
   RealType mSMV=0;
   RealType mMSV=0;
 
-  while(!ti.IsAtEnd())
-    {
+  while(!ti.IsAtEnd()) {
 
     index = ti.GetIndex();
-    
+
     typename Superclass::InputPointType inputPoint;
     fixedImage->TransformIndexToPhysicalPoint( index, inputPoint );
 
     // Verify that the point is in the fixed Image Mask
-    if( this->m_FixedImageMask && !this->m_FixedImageMask->IsInside( inputPoint ) )
-      {
+    if( this->m_FixedImageMask && !this->m_FixedImageMask->IsInside( inputPoint ) ) {
       ++ti;
       continue;
-      }
+    }
 
     typename Superclass::OutputPointType transformedPoint = this->m_Transform->TransformPoint( inputPoint );
 
     //Verify that the point is in the moving Image Mask
-    if( this->m_MovingImageMask && !this->m_MovingImageMask->IsInside( transformedPoint ) )
-      {
+    if( this->m_MovingImageMask && !this->m_MovingImageMask->IsInside( transformedPoint ) ) {
       ++ti;
       continue;
-      }
+    }
 
     // Verify is the interpolated value is in the buffer
-    if( this->m_Interpolator->IsInsideBuffer( transformedPoint ) )
-      {
-	//Accumulate calculations for the correlation ratio
-	//For each pixel the is in both masks and the buffer we adapt the following measures:
-	//movingMeanSquaredValue mMSV; movingSquaredMeanValue mSMV; 
-	//movingMeanSquaredValuePerBin[i] mSMVPB; movingSquaredMeanValuePerBin[i] mSMVPB
-	//NumberOfPixelsCounted, NumberOfPixelsCountedPerBin[i]
- 
-	//get the value of the moving image
-	const RealType movingValue  = this->m_Interpolator->Evaluate( transformedPoint );
-	// for the variance of the overlapping moving image we accumulate the following measures
-	const RealType movingSquaredValue=movingValue*movingValue;
-	mMSV+=movingSquaredValue;
-	mSMV+=movingValue;
+    if( this->m_Interpolator->IsInsideBuffer( transformedPoint ) ) {
+      //Accumulate calculations for the correlation ratio
+      //For each pixel the is in both masks and the buffer we adapt the following measures:
+      //movingMeanSquaredValue mMSV; movingSquaredMeanValue mSMV;
+      //movingMeanSquaredValuePerBin[i] mSMVPB; movingSquaredMeanValuePerBin[i] mSMVPB
+      //NumberOfPixelsCounted, NumberOfPixelsCountedPerBin[i]
 
-	//get the fixed value
-	const RealType fixedValue   = ti.Get();
+      //get the value of the moving image
+      const RealType movingValue  = this->m_Interpolator->Evaluate( transformedPoint );
+      // for the variance of the overlapping moving image we accumulate the following measures
+      const RealType movingSquaredValue=movingValue*movingValue;
+      mMSV+=movingSquaredValue;
+      mSMV+=movingValue;
 
-	//check in which bin the fixed value belongs, get the index 
-	const double fixedImageBinTerm =        (fixedValue - m_FixedImageMin) / m_FixedImageBinSize;
-	const unsigned int fixedImageBinIndex = static_cast<unsigned int>( vcl_floor(fixedImageBinTerm ) );
-	//adapt the measures per bin
-	this->m_mMSVPB[fixedImageBinIndex]+=movingSquaredValue;
-	this->m_mSMVPB[fixedImageBinIndex]+=movingValue;
-	//increase the fixed image bin and the total pixel count
-	this->m_NumberOfPixelsCountedPerBin[fixedImageBinIndex]+=1;
-	this->m_NumberOfPixelsCounted++;
-      }
-    
+      //get the fixed value
+      const RealType fixedValue   = ti.Get();
+
+      //check in which bin the fixed value belongs, get the index
+      const double fixedImageBinTerm =        (fixedValue - m_FixedImageMin) / m_FixedImageBinSize;
+      const unsigned int fixedImageBinIndex = static_cast<unsigned int>( vcl_floor(fixedImageBinTerm ) );
+      //adapt the measures per bin
+      this->m_mMSVPB[fixedImageBinIndex]+=movingSquaredValue;
+      this->m_mSMVPB[fixedImageBinIndex]+=movingValue;
+      //increase the fixed image bin and the total pixel count
+      this->m_NumberOfPixelsCountedPerBin[fixedImageBinIndex]+=1;
+      this->m_NumberOfPixelsCounted++;
+    }
+
     ++ti;
-    }
+  }
 
-  if( !this->m_NumberOfPixelsCounted )
-    {
-      itkExceptionMacro(<<"All the points mapped to outside of the moving image");
-    }
-  else
-    {
+  if( !this->m_NumberOfPixelsCounted ) {
+    itkExceptionMacro(<<"All the points mapped to outside of the moving image");
+  } else {
 
-      //apdapt the measures per bin
-      for (unsigned int i=0; i< m_NumberOfBins; i++ ){
-	if (this->m_NumberOfPixelsCountedPerBin[i]>0){
-	measure+=(this->m_mMSVPB[i]-((this->m_mSMVPB[i]*this->m_mSMVPB[i])/this->m_NumberOfPixelsCountedPerBin[i]));
-	}
+    //apdapt the measures per bin
+    for (unsigned int i=0; i< m_NumberOfBins; i++ ) {
+      if (this->m_NumberOfPixelsCountedPerBin[i]>0) {
+        measure+=(this->m_mMSVPB[i]-((this->m_mSMVPB[i]*this->m_mSMVPB[i])/this->m_NumberOfPixelsCountedPerBin[i]));
       }
-
-      //Normalize with the global measures
-      measure /= (mMSV-((mSMV*mSMV)/ this->m_NumberOfPixelsCounted));
-      return measure;
-
     }
+
+    //Normalize with the global measures
+    measure /= (mMSV-((mSMV*mSMV)/ this->m_NumberOfPixelsCounted));
+    return measure;
+
+  }
 }
 
 
@@ -211,7 +200,7 @@ CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
 /*
  * Get the Derivative Measure
  */
-template < class TFixedImage, class TMovingImage> 
+template < class TFixedImage, class TMovingImage>
 void
 CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
 ::GetDerivative( const TransformParametersType & parameters,
@@ -219,27 +208,25 @@ CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
 {
 
   itkDebugMacro("GetDerivative( " << parameters << " ) ");
-  
-  if( !this->GetGradientImage() )
-    {
+
+  if( !this->GetGradientImage() ) {
     itkExceptionMacro(<<"The gradient image is null, maybe you forgot to call Initialize()");
-    }
+  }
 
   FixedImageConstPointer fixedImage = this->m_FixedImage;
 
-  if( !fixedImage ) 
-    {
+  if( !fixedImage ) {
     itkExceptionMacro( << "Fixed image has not been assigned" );
-    }
+  }
 
   const unsigned int ImageDimension = FixedImageType::ImageDimension;
 
 
   typedef  itk::ImageRegionConstIteratorWithIndex<
-    FixedImageType> FixedIteratorType;
+  FixedImageType> FixedIteratorType;
 
   typedef  itk::ImageRegionConstIteratorWithIndex<
-    ITK_TYPENAME Superclass::GradientImageType> GradientIteratorType;
+  ITK_TYPENAME Superclass::GradientImageType> GradientIteratorType;
 
 
   FixedIteratorType ti( fixedImage, this->GetFixedImageRegion() );
@@ -256,119 +243,106 @@ CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
 
   ti.GoToBegin();
 
-  while(!ti.IsAtEnd())
-    {
+  while(!ti.IsAtEnd()) {
 
     index = ti.GetIndex();
-    
+
     typename Superclass::InputPointType inputPoint;
     fixedImage->TransformIndexToPhysicalPoint( index, inputPoint );
 
-    if( this->m_FixedImageMask && !this->m_FixedImageMask->IsInside( inputPoint ) )
-      {
+    if( this->m_FixedImageMask && !this->m_FixedImageMask->IsInside( inputPoint ) ) {
       ++ti;
       continue;
-      }
+    }
 
     typename Superclass::OutputPointType transformedPoint = this->m_Transform->TransformPoint( inputPoint );
 
-    if( this->m_MovingImageMask && !this->m_MovingImageMask->IsInside( transformedPoint ) )
-      {
+    if( this->m_MovingImageMask && !this->m_MovingImageMask->IsInside( transformedPoint ) ) {
       ++ti;
       continue;
-      }
+    }
 
-    if( this->m_Interpolator->IsInsideBuffer( transformedPoint ) )
-      {
+    if( this->m_Interpolator->IsInsideBuffer( transformedPoint ) ) {
       const RealType movingValue  = this->m_Interpolator->Evaluate( transformedPoint );
 
       const TransformJacobianType & jacobian =
-        this->m_Transform->GetJacobian( inputPoint ); 
+        this->m_Transform->GetJacobian( inputPoint );
 
-      
+
       const RealType fixedValue     = ti.Value();
       this->m_NumberOfPixelsCounted++;
-      const RealType diff = movingValue - fixedValue; 
+      const RealType diff = movingValue - fixedValue;
 
-      // Get the gradient by NearestNeighboorInterpolation: 
+      // Get the gradient by NearestNeighboorInterpolation:
       // which is equivalent to round up the point components.
       typedef typename Superclass::OutputPointType OutputPointType;
       typedef typename OutputPointType::CoordRepType CoordRepType;
       typedef ContinuousIndex<CoordRepType,MovingImageType::ImageDimension>
-        MovingImageContinuousIndexType;
+      MovingImageContinuousIndexType;
 
       MovingImageContinuousIndexType tempIndex;
       this->m_MovingImage->TransformPhysicalPointToContinuousIndex( transformedPoint, tempIndex );
 
-      typename MovingImageType::IndexType mappedIndex; 
-      for( unsigned int j = 0; j < MovingImageType::ImageDimension; j++ )
-        {
+      typename MovingImageType::IndexType mappedIndex;
+      for( unsigned int j = 0; j < MovingImageType::ImageDimension; j++ ) {
         mappedIndex[j] = static_cast<long>( vnl_math_rnd( tempIndex[j] ) );
-        }
+      }
 
-      const GradientPixelType gradient = 
+      const GradientPixelType gradient =
         this->GetGradientImage()->GetPixel( mappedIndex );
 
-      for(unsigned int par=0; par<ParametersDimension; par++)
-        {
+      for(unsigned int par=0; par<ParametersDimension; par++) {
         RealType sum = NumericTraits< RealType >::Zero;
-        for(unsigned int dim=0; dim<ImageDimension; dim++)
-          {
+        for(unsigned int dim=0; dim<ImageDimension; dim++) {
           sum += 2.0 * diff * jacobian( dim, par ) * gradient[dim];
-          }
-        derivative[par] += sum;
         }
+        derivative[par] += sum;
       }
+    }
 
     ++ti;
-    }
+  }
 
-  if( !this->m_NumberOfPixelsCounted )
-    {
+  if( !this->m_NumberOfPixelsCounted ) {
     itkExceptionMacro(<<"All the points mapped to outside of the moving image");
-    }
-  else
-    {
-    for(unsigned int i=0; i<ParametersDimension; i++)
-      {
+  } else {
+    for(unsigned int i=0; i<ParametersDimension; i++) {
       derivative[i] /= this->m_NumberOfPixelsCounted;
-      }
     }
+  }
 
 }
 
 
 /*
- * Get both the match Measure and the Derivative Measure 
+ * Get both the match Measure and the Derivative Measure
  */
-template <class TFixedImage, class TMovingImage> 
+template <class TFixedImage, class TMovingImage>
 void
 CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
-::GetValueAndDerivative(const TransformParametersType & parameters, 
+::GetValueAndDerivative(const TransformParametersType & parameters,
                         MeasureType & value, DerivativeType  & derivative) const
 {
 
   itkDebugMacro("GetValueAndDerivative( " << parameters << " ) ");
 
-  if( !this->GetGradientImage() )
-    {
+  if( !this->GetGradientImage() ) {
     itkExceptionMacro(<<"The gradient image is null, maybe you forgot to call Initialize()");
-    }
+  }
 
   FixedImageConstPointer fixedImage = this->m_FixedImage;
 
-  if( !fixedImage ) 
-    {
+  if( !fixedImage ) {
     itkExceptionMacro( << "Fixed image has not been assigned" );
-    }
+  }
 
   const unsigned int ImageDimension = FixedImageType::ImageDimension;
 
   typedef  itk::ImageRegionConstIteratorWithIndex<
-    FixedImageType> FixedIteratorType;
+  FixedImageType> FixedIteratorType;
 
   typedef  itk::ImageRegionConstIteratorWithIndex<
-    ITK_TYPENAME Superclass::GradientImageType> GradientIteratorType;
+  ITK_TYPENAME Superclass::GradientImageType> GradientIteratorType;
 
 
   FixedIteratorType ti( fixedImage, this->GetFixedImageRegion() );
@@ -387,88 +361,77 @@ CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
 
   ti.GoToBegin();
 
-  while(!ti.IsAtEnd())
-    {
+  while(!ti.IsAtEnd()) {
 
     index = ti.GetIndex();
-    
+
     typename Superclass::InputPointType inputPoint;
     fixedImage->TransformIndexToPhysicalPoint( index, inputPoint );
 
-    if( this->m_FixedImageMask && !this->m_FixedImageMask->IsInside( inputPoint ) )
-      {
+    if( this->m_FixedImageMask && !this->m_FixedImageMask->IsInside( inputPoint ) ) {
       ++ti;
       continue;
-      }
+    }
 
     typename Superclass::OutputPointType transformedPoint = this->m_Transform->TransformPoint( inputPoint );
 
-    if( this->m_MovingImageMask && !this->m_MovingImageMask->IsInside( transformedPoint ) )
-      {
+    if( this->m_MovingImageMask && !this->m_MovingImageMask->IsInside( transformedPoint ) ) {
       ++ti;
       continue;
-      }
+    }
 
-    if( this->m_Interpolator->IsInsideBuffer( transformedPoint ) )
-      {
+    if( this->m_Interpolator->IsInsideBuffer( transformedPoint ) ) {
       const RealType movingValue  = this->m_Interpolator->Evaluate( transformedPoint );
 
       const TransformJacobianType & jacobian =
-        this->m_Transform->GetJacobian( inputPoint ); 
+        this->m_Transform->GetJacobian( inputPoint );
 
-      
+
       const RealType fixedValue     = ti.Value();
       this->m_NumberOfPixelsCounted++;
 
-      const RealType diff = movingValue - fixedValue; 
-  
+      const RealType diff = movingValue - fixedValue;
+
       measure += diff * diff;
 
-      // Get the gradient by NearestNeighboorInterpolation: 
+      // Get the gradient by NearestNeighboorInterpolation:
       // which is equivalent to round up the point components.
       typedef typename Superclass::OutputPointType OutputPointType;
       typedef typename OutputPointType::CoordRepType CoordRepType;
       typedef ContinuousIndex<CoordRepType,MovingImageType::ImageDimension>
-        MovingImageContinuousIndexType;
+      MovingImageContinuousIndexType;
 
       MovingImageContinuousIndexType tempIndex;
       this->m_MovingImage->TransformPhysicalPointToContinuousIndex( transformedPoint, tempIndex );
 
-      typename MovingImageType::IndexType mappedIndex; 
-      for( unsigned int j = 0; j < MovingImageType::ImageDimension; j++ )
-        {
+      typename MovingImageType::IndexType mappedIndex;
+      for( unsigned int j = 0; j < MovingImageType::ImageDimension; j++ ) {
         mappedIndex[j] = static_cast<long>( vnl_math_rnd( tempIndex[j] ) );
-        }
+      }
 
-      const GradientPixelType gradient = 
+      const GradientPixelType gradient =
         this->GetGradientImage()->GetPixel( mappedIndex );
 
-      for(unsigned int par=0; par<ParametersDimension; par++)
-        {
+      for(unsigned int par=0; par<ParametersDimension; par++) {
         RealType sum = NumericTraits< RealType >::Zero;
-        for(unsigned int dim=0; dim<ImageDimension; dim++)
-          {
+        for(unsigned int dim=0; dim<ImageDimension; dim++) {
           sum += 2.0 * diff * jacobian( dim, par ) * gradient[dim];
-          }
-        derivative[par] += sum;
         }
+        derivative[par] += sum;
       }
+    }
 
     ++ti;
-    }
+  }
 
-  if( !this->m_NumberOfPixelsCounted )
-    {
+  if( !this->m_NumberOfPixelsCounted ) {
     itkExceptionMacro(<<"All the points mapped to outside of the moving image");
-    }
-  else
-    {
-    for(unsigned int i=0; i<ParametersDimension; i++)
-      {
+  } else {
+    for(unsigned int i=0; i<ParametersDimension; i++) {
       derivative[i] /= this->m_NumberOfPixelsCounted;
-      }
-    measure /= this->m_NumberOfPixelsCounted;
     }
+    measure /= this->m_NumberOfPixelsCounted;
+  }
 
   value = measure;
 

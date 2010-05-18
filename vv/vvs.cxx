@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -24,29 +24,29 @@
 
 int main( int argc, char** argv )
 {
-    initialize_IO();
-    QApplication app(argc,argv);
-    vvDummyWindow w;
-    w.show();
-    return app.exec();
+  initialize_IO();
+  QApplication app(argc,argv);
+  vvDummyWindow w;
+  w.show();
+  return app.exec();
 }
 
 vvDummyWindow::vvDummyWindow()
 {
-    setupUi(this);
+  setupUi(this);
 }
 
 void vvDummyWindow::Run()
 {
-    vvImageReader imr;
-    imr.SetInputFilename("CT_UNTAGGED2MM_0.mhd");
-    imr.Update(IMAGE);
+  vvImageReader imr;
+  imr.SetInputFilename("CT_UNTAGGED2MM_0.mhd");
+  imr.Update(IMAGE);
 
-    vvMeshReader r;
-    r.SetImage(imr.GetOutput());
-    r.SetFilename("struct.DCM");
-    std::vector<int> selected;
-    selected.push_back(1);
-    r.SetSelectedItems(selected);
-    r.Update();
+  vvMeshReader r;
+  r.SetImage(imr.GetOutput());
+  r.SetFilename("struct.DCM");
+  std::vector<int> selected;
+  selected.push_back(1);
+  r.SetSelectedItems(selected);
+  r.Update();
 }

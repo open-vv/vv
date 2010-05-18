@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -32,22 +32,22 @@ ImageToVTKImageFilter<TInputImage>
 ::ImageToVTKImageFilter()
 {
 
-    m_Importer = vtkImageImport::New();
+  m_Importer = vtkImageImport::New();
 
-    m_Exporter = ExporterFilterType::New();
+  m_Exporter = ExporterFilterType::New();
 
-    m_Importer->SetUpdateInformationCallback(m_Exporter->GetUpdateInformationCallback());
-    m_Importer->SetPipelineModifiedCallback(m_Exporter->GetPipelineModifiedCallback());
-    m_Importer->SetWholeExtentCallback(m_Exporter->GetWholeExtentCallback());
-    m_Importer->SetSpacingCallback(m_Exporter->GetSpacingCallback());
-    m_Importer->SetOriginCallback(m_Exporter->GetOriginCallback());
-    m_Importer->SetScalarTypeCallback(m_Exporter->GetScalarTypeCallback());
-    m_Importer->SetNumberOfComponentsCallback(m_Exporter->GetNumberOfComponentsCallback());
-    m_Importer->SetPropagateUpdateExtentCallback(m_Exporter->GetPropagateUpdateExtentCallback());
-    m_Importer->SetUpdateDataCallback(m_Exporter->GetUpdateDataCallback());
-    m_Importer->SetDataExtentCallback(m_Exporter->GetDataExtentCallback());
-    m_Importer->SetBufferPointerCallback(m_Exporter->GetBufferPointerCallback());
-    m_Importer->SetCallbackUserData(m_Exporter->GetCallbackUserData());
+  m_Importer->SetUpdateInformationCallback(m_Exporter->GetUpdateInformationCallback());
+  m_Importer->SetPipelineModifiedCallback(m_Exporter->GetPipelineModifiedCallback());
+  m_Importer->SetWholeExtentCallback(m_Exporter->GetWholeExtentCallback());
+  m_Importer->SetSpacingCallback(m_Exporter->GetSpacingCallback());
+  m_Importer->SetOriginCallback(m_Exporter->GetOriginCallback());
+  m_Importer->SetScalarTypeCallback(m_Exporter->GetScalarTypeCallback());
+  m_Importer->SetNumberOfComponentsCallback(m_Exporter->GetNumberOfComponentsCallback());
+  m_Importer->SetPropagateUpdateExtentCallback(m_Exporter->GetPropagateUpdateExtentCallback());
+  m_Importer->SetUpdateDataCallback(m_Exporter->GetUpdateDataCallback());
+  m_Importer->SetDataExtentCallback(m_Exporter->GetDataExtentCallback());
+  m_Importer->SetBufferPointerCallback(m_Exporter->GetBufferPointerCallback());
+  m_Importer->SetCallbackUserData(m_Exporter->GetCallbackUserData());
 
 }
 
@@ -61,11 +61,10 @@ template <class TInputImage>
 ImageToVTKImageFilter<TInputImage>
 ::~ImageToVTKImageFilter()
 {
-    if ( m_Importer )
-    {
-        m_Importer->Delete();
-        m_Importer = 0;
-    }
+  if ( m_Importer ) {
+    m_Importer->Delete();
+    m_Importer = 0;
+  }
 }
 
 
@@ -78,7 +77,7 @@ void
 ImageToVTKImageFilter<TInputImage>
 ::SetInput( const InputImageType * inputImage )
 {
-    m_Exporter->SetInput( inputImage );
+  m_Exporter->SetInput( inputImage );
 }
 
 
@@ -91,7 +90,7 @@ vtkImageData *
 ImageToVTKImageFilter<TInputImage>
 ::GetOutput() const
 {
-    return m_Importer->GetOutput();
+  return m_Importer->GetOutput();
 }
 
 
@@ -105,7 +104,7 @@ vtkImageImport *
 ImageToVTKImageFilter<TInputImage>
 ::GetImporter() const
 {
-    return m_Importer;
+  return m_Importer;
 }
 
 
@@ -118,7 +117,7 @@ typename ImageToVTKImageFilter<TInputImage>::ExporterFilterType *
 ImageToVTKImageFilter<TInputImage>
 ::GetExporter() const
 {
-    return m_Exporter.GetPointer();
+  return m_Exporter.GetPointer();
 }
 
 
@@ -131,7 +130,7 @@ void
 ImageToVTKImageFilter<TInputImage>
 ::Update()
 {
-    m_Importer->Update();
+  m_Importer->Update();
 }
 
 

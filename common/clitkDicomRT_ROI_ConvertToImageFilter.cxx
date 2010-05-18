@@ -2,7 +2,7 @@
   Program:         vv http://www.creatis.insa-lyon.fr/rio/vv
   Main authors :   XX XX XX
 
-  Authors belongs to: 
+  Authors belongs to:
   - University of LYON           http://www.universite-lyon.fr/
   - Léon Bérard cancer center    http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory      http://www.creatis.insa-lyon.fr
@@ -17,7 +17,7 @@
 
   =========================================================================*/
 
-#include "clitkDicomRT_ROI_ConvertToImageFilter.h" 
+#include "clitkDicomRT_ROI_ConvertToImageFilter.h"
 #include <vtkPolyDataToImageStencil.h>
 #include <vtkSmartPointer.h>
 #include <vtkImageStencil.h>
@@ -26,7 +26,8 @@
 #include "clitkImageCommon.h"
 
 //--------------------------------------------------------------------
-clitk::DicomRT_ROI_ConvertToImageFilter::DicomRT_ROI_ConvertToImageFilter() {
+clitk::DicomRT_ROI_ConvertToImageFilter::DicomRT_ROI_ConvertToImageFilter()
+{
   mROI = NULL;
   mImageInfoIsSet = false;
   mWriteOutput = false;
@@ -36,28 +37,32 @@ clitk::DicomRT_ROI_ConvertToImageFilter::DicomRT_ROI_ConvertToImageFilter() {
 
 
 //--------------------------------------------------------------------
-clitk::DicomRT_ROI_ConvertToImageFilter::~DicomRT_ROI_ConvertToImageFilter() {
-  
+clitk::DicomRT_ROI_ConvertToImageFilter::~DicomRT_ROI_ConvertToImageFilter()
+{
+
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI_ConvertToImageFilter::SetROI(clitk::DicomRT_ROI * roi) {
+void clitk::DicomRT_ROI_ConvertToImageFilter::SetROI(clitk::DicomRT_ROI * roi)
+{
   mROI = roi;
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI_ConvertToImageFilter::SetCropMaskEnabled(bool b) {
+void clitk::DicomRT_ROI_ConvertToImageFilter::SetCropMaskEnabled(bool b)
+{
   mCropMask = b;
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI_ConvertToImageFilter::SetOutputImageFilename(std::string s) {
+void clitk::DicomRT_ROI_ConvertToImageFilter::SetOutputImageFilename(std::string s)
+{
   mOutputFilename = s;
   mWriteOutput = true;
 }
@@ -65,7 +70,8 @@ void clitk::DicomRT_ROI_ConvertToImageFilter::SetOutputImageFilename(std::string
 
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI_ConvertToImageFilter::SetImageFilename(std::string f) {
+void clitk::DicomRT_ROI_ConvertToImageFilter::SetImageFilename(std::string f)
+{
   itk::ImageIOBase::Pointer header = clitk::readImageHeader(f);
   if (header->GetNumberOfDimensions() < 3) {
     std::cerr << "Error. Please provide a 3D image instead of " << f << std::endl;
@@ -88,7 +94,8 @@ void clitk::DicomRT_ROI_ConvertToImageFilter::SetImageFilename(std::string f) {
 
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI_ConvertToImageFilter::Update() {
+void clitk::DicomRT_ROI_ConvertToImageFilter::Update()
+{
   if (!mROI) {
     std::cerr << "Error. No ROI set, please use SetROI." << std::endl;
     exit(0);
@@ -98,31 +105,31 @@ void clitk::DicomRT_ROI_ConvertToImageFilter::Update() {
     exit(0);
   }
   // DD("Update");
-  
+
   // Get Mesh
   vtkPolyData * mesh = mROI->GetMesh();
   DD(mesh->GetNumberOfCells());
-  
+
   // Get bounds
-  double *bounds=mesh->GetBounds(); 
+  double *bounds=mesh->GetBounds();
   // for(int i=0; i<6; i++){
 //     DD(bounds[i]);
 //   }
 
   // Compute origin
-  std::vector<double> origin; 
+  std::vector<double> origin;
   origin.resize(3);
   origin[0] = floor((bounds[0]-mOrigin[0])/mSpacing[0]-2)*mSpacing[0]+mOrigin[0];
   origin[1] = floor((bounds[2]-mOrigin[1])/mSpacing[1]-2)*mSpacing[1]+mOrigin[1];
   origin[2] = floor((bounds[4]-mOrigin[2])/mSpacing[2]-2)*mSpacing[2]+mOrigin[2];
-  
+
   // Compute extend
-  std::vector<double> extend; 
+  std::vector<double> extend;
   extend.resize(3);
   extend[0] = ceil((bounds[1]-origin[0])/mSpacing[0]+4);
   extend[1] = ceil((bounds[3]-origin[1])/mSpacing[1]+4);
   extend[2] = ceil((bounds[5]-origin[2])/mSpacing[2]+4);
-  
+
   // If no crop, set initial image size/origin
   if (!mCropMask) {
     for(int i=0; i<3; i++) {
@@ -130,14 +137,14 @@ void clitk::DicomRT_ROI_ConvertToImageFilter::Update() {
       extend[i] = mSize[i]-1;
     }
   }
-  
+
   // Create new output image
   mBinaryImage = vtkImageData::New();
   mBinaryImage->SetScalarTypeToUnsignedChar();
   mBinaryImage->SetOrigin(&origin[0]);
   mBinaryImage->SetSpacing(&mSpacing[0]);
-  mBinaryImage->SetExtent(0, extend[0], 
-                          0, extend[1], 
+  mBinaryImage->SetExtent(0, extend[0],
+                          0, extend[1],
                           0, extend[2]);
   mBinaryImage->AllocateScalars();
 
@@ -148,14 +155,14 @@ void clitk::DicomRT_ROI_ConvertToImageFilter::Update() {
   //   }
   memset(mBinaryImage->GetScalarPointer(), 0,
          mBinaryImage->GetDimensions()[0]*mBinaryImage->GetDimensions()[1]*mBinaryImage->GetDimensions()[2]*sizeof(unsigned char));
-  
+
   // Extrude
   vtkSmartPointer<vtkLinearExtrusionFilter> extrude=vtkSmartPointer<vtkLinearExtrusionFilter>::New();
   extrude->SetInput(mesh);
   ///We extrude in the -slice_spacing direction to respect the FOCAL convention // ?????????????
   extrude->SetVector(0, 0, -mSpacing[2]);
 
-  // Binarization  
+  // Binarization
   vtkSmartPointer<vtkPolyDataToImageStencil> sts=vtkSmartPointer<vtkPolyDataToImageStencil>::New();
   //The following line is extremely important
   //http://www.nabble.com/Bug-in-vtkPolyDataToImageStencil--td23368312.html#a23370933
@@ -165,27 +172,28 @@ void clitk::DicomRT_ROI_ConvertToImageFilter::Update() {
   //sts->SetInput(mesh);
 
   vtkSmartPointer<vtkImageStencil> stencil=vtkSmartPointer<vtkImageStencil>::New();
-  stencil->SetStencil(sts->GetOutput());  
+  stencil->SetStencil(sts->GetOutput());
   stencil->SetInput(mBinaryImage);
   stencil->ReverseStencilOn();
   stencil->Update();
   mBinaryImage->ShallowCopy(stencil->GetOutput());
-  
+
   if (mWriteOutput) {
-     typedef itk::Image<unsigned char, 3> ImageType;
-     typedef itk::VTKImageToImageFilter<ImageType> ConnectorType;
-     ConnectorType::Pointer connector = ConnectorType::New();
-     connector->SetInput(GetOutput());
-     connector->Update();
-     clitk::writeImage<ImageType>(connector->GetOutput(), mOutputFilename);  
+    typedef itk::Image<unsigned char, 3> ImageType;
+    typedef itk::VTKImageToImageFilter<ImageType> ConnectorType;
+    ConnectorType::Pointer connector = ConnectorType::New();
+    connector->SetInput(GetOutput());
+    connector->Update();
+    clitk::writeImage<ImageType>(connector->GetOutput(), mOutputFilename);
   }
 }
 //--------------------------------------------------------------------
 
 
-    
+
 //--------------------------------------------------------------------
-vtkImageData * clitk::DicomRT_ROI_ConvertToImageFilter::GetOutput() {
+vtkImageData * clitk::DicomRT_ROI_ConvertToImageFilter::GetOutput()
+{
   return mBinaryImage;
 }
 //--------------------------------------------------------------------

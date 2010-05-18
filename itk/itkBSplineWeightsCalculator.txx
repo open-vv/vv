@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - LÃ©on BÃ©rard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -16,21 +16,21 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
 /* =========================================================================
-                                                                                
+
   @file   itkBSplineWeightsCalculator.h
   @author David Sarrut <david.sarrut@creatis.insa-lyon.fr>
 
-  Copyright (c) 
-  * CREATIS (Centre de Recherche et d'Applications en Traitement de l'Image). 
+  Copyright (c)
+  * CREATIS (Centre de Recherche et d'Applications en Traitement de l'Image).
     All rights reserved. See Doc/License.txt or
     http://www.creatis.insa-lyon.fr/Public/Gdcm/License.html for details.
   * Léon Bérard cancer center, 28 rue Laënnec, 69373 Lyon cedex 08, France
   * http://www.creatis.insa-lyon.fr/rio
-                                                                                
+
   This software is distributed WITHOUT ANY WARRANTY; without even the
   implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
   PURPOSE.  See the above copyright notices for more information.
-                                                                             
+
 ========================================================================= */
 
 #ifndef ITKBSPLINEWEIGHTSCALCULATOR_TXX
@@ -38,7 +38,8 @@
 
 //====================================================================
 template<int VDimension>
-typename Index<VDimension>::IndexValueType Index2Offset(const Index<VDimension> & index, const Index<VDimension> & offsetTable) {
+typename Index<VDimension>::IndexValueType Index2Offset(const Index<VDimension> & index, const Index<VDimension> & offsetTable)
+{
   long v = index[0];
   for(int l=1; l<VDimension; l++) {
     v += index[l] * offsetTable[l];
@@ -50,7 +51,8 @@ typename Index<VDimension>::IndexValueType Index2Offset(const Index<VDimension> 
 //====================================================================
 template<class TCoefficientType, int VDimension>
 BSplineWeightsCalculator<TCoefficientType, VDimension>::
-BSplineWeightsCalculator() {
+BSplineWeightsCalculator()
+{
   mWeightsAreUpToDate = false;
 }
 //====================================================================
@@ -58,7 +60,8 @@ BSplineWeightsCalculator() {
 //====================================================================
 template<class TCoefficientType, int VDimension>
 void BSplineWeightsCalculator<TCoefficientType, VDimension>::
-SetSplineOrder(int splineOrder) {
+SetSplineOrder(int splineOrder)
+{
   SizeType temp;
   for(int l=0; l<VDimension; l++) temp[l] = splineOrder;
   SetSplineOrders(temp);
@@ -68,7 +71,8 @@ SetSplineOrder(int splineOrder) {
 //====================================================================
 template<class TCoefficientType, int VDimension>
 void BSplineWeightsCalculator<TCoefficientType, VDimension>::
-SetSplineOrders(const SizeType & splineOrder) {
+SetSplineOrders(const SizeType & splineOrder)
+{
   // Compute support size
   mSupportSize = 1;
   for(int l=0; l<VDimension; l++) {
@@ -86,12 +90,11 @@ SetSplineOrders(const SizeType & splineOrder) {
       int l=0;
       bool stop = false;
       while (!stop) {
-	mSupportIndex[k+1][l]++;
-	if (mSupportIndex[k+1][l] == (int)mSplineSupport[l]) { //Ds supportindex=int support=uint
-	  mSupportIndex[k+1][l] = 0;
-	  l++;
-	}
-	else stop = true;
+        mSupportIndex[k+1][l]++;
+        if (mSupportIndex[k+1][l] == (int)mSplineSupport[l]) { //Ds supportindex=int support=uint
+          mSupportIndex[k+1][l] = 0;
+          l++;
+        } else stop = true;
       }
     }
   }
@@ -102,7 +105,8 @@ SetSplineOrders(const SizeType & splineOrder) {
 //====================================================================
 template<class TCoefficientType, int VDimension>
 void BSplineWeightsCalculator<TCoefficientType, VDimension>::
-SetSamplingFactor(int sampling) {
+SetSamplingFactor(int sampling)
+{
   for(int l=0; l<VDimension; l++) mSamplingFactors[l] = sampling;
   mWeightsAreUpToDate = false;
 }
@@ -111,7 +115,8 @@ SetSamplingFactor(int sampling) {
 ///====================================================================
 template<class TCoefficientType, int VDimension>
 void BSplineWeightsCalculator<TCoefficientType, VDimension>::
-SetSamplingFactors(const SizeType & sampling) {
+SetSamplingFactors(const SizeType & sampling)
+{
   for(int l=0; l<VDimension; l++) mSamplingFactors[l] = sampling[l];
   mWeightsAreUpToDate = false;
 }
@@ -119,20 +124,22 @@ SetSamplingFactors(const SizeType & sampling) {
 
 //====================================================================
 template<class TCoefficientType, int VDimension>
-typename BSplineWeightsCalculator<TCoefficientType, VDimension>::InitialWeightsType & 
+typename BSplineWeightsCalculator<TCoefficientType, VDimension>::InitialWeightsType &
 BSplineWeightsCalculator<TCoefficientType, VDimension>::
-GetInitialWeights(int order) {
+GetInitialWeights(int order)
+{
   if (!mBasisFunctionCoefficientsMatrixAreUpToDate[order]) ComputeBasisFunctionCoefficientsMatrix(order);
   return mBasisFunctionCoefficientsMatrix[order];
 }
 //====================================================================
 
 //====================================================================
-template<class T> inline T factorial(T rhs) {
-  T lhs = (T)1;  
+template<class T> inline T factorial(T rhs)
+{
+  T lhs = (T)1;
   for(T x=(T)1; x<=rhs; ++x) {
     lhs *= x;
-  }  
+  }
   return lhs;
 }
 //====================================================================
@@ -140,7 +147,8 @@ template<class T> inline T factorial(T rhs) {
 //====================================================================
 template<class TCoefficientType, int VDimension>
 double BSplineWeightsCalculator<TCoefficientType, VDimension>::
-BinomialCoefficient(int i, int j) {
+BinomialCoefficient(int i, int j)
+{
   double f = (factorial(i))/(factorial(j) * factorial(i-j));
   return f;
 }
@@ -149,7 +157,8 @@ BinomialCoefficient(int i, int j) {
 //====================================================================
 template<class TCoefficientType, int VDimension>
 void BSplineWeightsCalculator<TCoefficientType, VDimension>::
-ComputeBasisFunctionCoefficientsMatrix(int order) {
+ComputeBasisFunctionCoefficientsMatrix(int order)
+{
   // Compute the sxs matrix of coefficients used to build the different
   // polynomials. With s the support is order+1.
   int s = order+1;
@@ -160,9 +169,9 @@ ComputeBasisFunctionCoefficientsMatrix(int order) {
     for(int j=0; j<s; j++) {
       mBasisFunctionCoefficientsMatrix[order][i][j] = 0.0;
       for(int m=j; m<s; m++) {
-	double a = pow((double)(s-(m+1)),i) * pow((double)-1,m-j) * BinomialCoefficient(s, m-j);
-	mBasisFunctionCoefficientsMatrix[order][i][j] += a;
-      }	  
+        double a = pow((double)(s-(m+1)),i) * pow((double)-1,m-j) * BinomialCoefficient(s, m-j);
+        mBasisFunctionCoefficientsMatrix[order][i][j] += a;
+      }
       mBasisFunctionCoefficientsMatrix[order][i][j] *= BinomialCoefficient(s-1, i);
     }
   }
@@ -179,8 +188,9 @@ ComputeBasisFunctionCoefficientsMatrix(int order) {
 //====================================================================
 template<class TCoefficientType, int VDimension>
 TCoefficientType BSplineWeightsCalculator<TCoefficientType, VDimension>::
-BSplineEvaluate(int order, int k, double e) {
-  // Evaluate a BSpline 
+BSplineEvaluate(int order, int k, double e)
+{
+  // Evaluate a BSpline
   int s=order+1;
   TCoefficientType v = 0.0;
   for(int p=0; p<s; p++) {
@@ -193,7 +203,8 @@ BSplineEvaluate(int order, int k, double e) {
 //====================================================================
 template<class TCoefficientType, int VDimension>
 void BSplineWeightsCalculator<TCoefficientType, VDimension>::
-ComputeSampledWeights1D(std::vector<std::vector<TCoefficientType> > & w, int order, int sampling) {
+ComputeSampledWeights1D(std::vector<std::vector<TCoefficientType> > & w, int order, int sampling)
+{
   int s = order+1;
   w.resize(s);
   for(int k=0; k<s; k++) w[k].resize(sampling);
@@ -210,7 +221,7 @@ ComputeSampledWeights1D(std::vector<std::vector<TCoefficientType> > & w, int ord
     }
     e += offset;
     if (fabs(1.0-e)<=1e-6) e = 1.0; // (for even order)
-    if (e>=1.0) e = e-1.0; 
+    if (e>=1.0) e = e-1.0;
   }
 }
 //====================================================================
@@ -218,10 +229,11 @@ ComputeSampledWeights1D(std::vector<std::vector<TCoefficientType> > & w, int ord
 //====================================================================
 template<class TCoefficientType, int VDimension>
 void BSplineWeightsCalculator<TCoefficientType, VDimension>::
-ComputeSampledWeights() {
+ComputeSampledWeights()
+{
   mWeights.resize(VDimension);
   // Loop over dimension to compute weights
-  for(int l=0; l<VDimension; l++) { 
+  for(int l=0; l<VDimension; l++) {
     ComputeSampledWeights1D(mWeights[l], mSplineOrders[l], mSamplingFactors[l]);
   }
   mWeightsAreUpToDate = true;
@@ -231,13 +243,14 @@ ComputeSampledWeights() {
 //====================================================================
 template<class TCoefficientType, int VDimension>
 void BSplineWeightsCalculator<TCoefficientType, VDimension>::
-ComputeTensorProducts() {
+ComputeTensorProducts()
+{
   // Initial BSpline samples weights
   ComputeSampledWeights();
-  
+
   // tensor product memory offsets
   mTensorProductMemoryOffset[0] = 1;
-  for(int l=1; l<VDimension; l++) {    
+  for(int l=1; l<VDimension; l++) {
     mTensorProductMemoryOffset[l] = mTensorProductMemoryOffset[l-1]*mSamplingFactors[l-1];
   }
 
@@ -256,23 +269,22 @@ ComputeTensorProducts() {
     for(int k=0; k<mSupportSize; k++) { // Loop over support positions
       TCoefficientType B = 1.0;
 
-      for(int l=0; l<VDimension; l++) { // loop for tensor product	
-	B *= mWeights[l][mSupportIndex[k][l]][mPositionIndex[l]];
+      for(int l=0; l<VDimension; l++) { // loop for tensor product
+        B *= mWeights[l][mSupportIndex[k][l]][mPositionIndex[l]];
       }
       mTensorProducts[a][k] = B;
     }
-    
+
     // Next sample Position index
     int l=0;
     bool stop = false;
     while (!stop) {
       mPositionIndex[l]++;
       if (mPositionIndex[l] == (int)mSamplingFactors[l]) {
-	mPositionIndex[l] = 0;
-	l++;
-      }
-      else stop = true;
-    }      
+        mPositionIndex[l] = 0;
+        l++;
+      } else stop = true;
+    }
   }
 }
 //====================================================================
@@ -280,7 +292,8 @@ ComputeTensorProducts() {
 //====================================================================
 template<class TCoefficientType, int VDimension>
 const TCoefficientType * BSplineWeightsCalculator<TCoefficientType, VDimension>::
-GetFirstTensorProduct(const IndexType & index) const {
+GetFirstTensorProduct(const IndexType & index) const
+{
   int i = Index2Offset<VDimension>(index, mTensorProductMemoryOffset);
   return &(mTensorProducts[i][0]);
 }

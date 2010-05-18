@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -31,7 +31,8 @@
 #include <itkLineConstIterator.h>
 
 //--------------------------------------------------------------------
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv[])
+{
 
   // Init command line
   GGO(clitkImageExtractLine, args_info);
@@ -41,7 +42,7 @@ int main(int argc, char * argv[]) {
   typedef float PixelType;
   const unsigned int Dimension=3;
   typedef itk::Image<PixelType, Dimension> ImageType;
-  
+
   // Check options
   if (args_info.firstIndex_given != Dimension) {
     std::cerr << "Please give " << Dimension << "values to --firstIndex option" << std::endl;
@@ -63,7 +64,7 @@ int main(int argc, char * argv[]) {
   double length = 0.0;
   for(unsigned int i=0; i<Dimension; i++) {
     firstIndex[i] = args_info.firstIndex_arg[i];
-    lastIndex[i] = args_info.lastIndex_arg[i];    
+    lastIndex[i] = args_info.lastIndex_arg[i];
     if (args_info.mm_flag) {
       firstIndex[i] /= spacing[i];
       lastIndex[i] /= spacing[i];
@@ -82,13 +83,13 @@ int main(int argc, char * argv[]) {
     ++iter;
   }
   double step = length/values.size();
-  
+
   // If isocenter is used
   double isoDistance = 0.0;
   if (args_info.isocenter_given) { // isoCenter is in mm
     IndexType isoCenter;
-    for(unsigned int i=0; i<Dimension; i++) { 
-      isoCenter[i] = args_info.isocenter_arg[i]; 
+    for(unsigned int i=0; i<Dimension; i++) {
+      isoCenter[i] = args_info.isocenter_arg[i];
       isoDistance += pow(isoCenter[i] - firstIndex[i]*spacing[i],2);
     }
     DD(isoCenter);
@@ -111,15 +112,14 @@ int main(int argc, char * argv[]) {
       lg += step;
     }
     os.close();
-  }
-  else {
+  } else {
     for(unsigned int i=0; i<values.size(); i++) {
       os << values[i] << std::endl;
     }
     os.close();
   }
 
-  // this is the end my friend  
+  // this is the end my friend
   return 0;
 } // end main
 

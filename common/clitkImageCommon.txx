@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -21,7 +21,8 @@
 
 //--------------------------------------------------------------------
 template<class PixelType>
-typename itk::Image<PixelType,1>::Pointer NewImage1D(int vsize, double vspacing) {
+typename itk::Image<PixelType,1>::Pointer NewImage1D(int vsize, double vspacing)
+{
   typedef itk::Image<PixelType,1> ImageType;
   typename ImageType::Pointer g = ImageType::New();
   typename ImageType::SizeType size;
@@ -38,16 +39,19 @@ typename itk::Image<PixelType,1>::Pointer NewImage1D(int vsize, double vspacing)
 
 //--------------------------------------------------------------------
 template<class PixelType>
-typename itk::Image<PixelType,2>::Pointer NewImage2D(int sx, int sy, double dx, double dy) {
+typename itk::Image<PixelType,2>::Pointer NewImage2D(int sx, int sy, double dx, double dy)
+{
   typedef itk::Image<PixelType,2> ImageType;
   typename ImageType::Pointer g = ImageType::New();
   typename ImageType::SizeType size;
-  size[0] = sx; size[1] = sy;
+  size[0] = sx;
+  size[1] = sy;
   typename ImageType::RegionType region;
   region.SetSize(size);
   g->SetRegions(region);
   typename ImageType::SpacingType spacing;
-  spacing[0] = dx; spacing[1] = dy;
+  spacing[0] = dx;
+  spacing[1] = dy;
   g->SetSpacing(spacing);
   return g;
 }
@@ -55,16 +59,21 @@ typename itk::Image<PixelType,2>::Pointer NewImage2D(int sx, int sy, double dx, 
 
 //--------------------------------------------------------------------
 template<class PixelType>
-typename itk::Image<PixelType,3>::Pointer NewImage3D(int sx, int sy, int sz, double dx, double dy, double dz) {
+typename itk::Image<PixelType,3>::Pointer NewImage3D(int sx, int sy, int sz, double dx, double dy, double dz)
+{
   typedef itk::Image<PixelType,3> ImageType;
   typename ImageType::Pointer g = ImageType::New();
   typename ImageType::SizeType size;
-  size[0] = sx; size[1] = sy; size[2] = sz;
+  size[0] = sx;
+  size[1] = sy;
+  size[2] = sz;
   typename ImageType::RegionType region;
   region.SetSize(size);
   g->SetRegions(region);
   typename ImageType::SpacingType spacing;
-  spacing[0] = dx; spacing[1] = dy; spacing[2] = dz;
+  spacing[0] = dx;
+  spacing[1] = dy;
+  spacing[2] = dz;
   g->SetSpacing(spacing);
   return g;
 }
@@ -72,16 +81,23 @@ typename itk::Image<PixelType,3>::Pointer NewImage3D(int sx, int sy, int sz, dou
 
 //--------------------------------------------------------------------
 template<class PixelType>
-typename itk::Image<PixelType,4>::Pointer NewImage4D(int sx, int sy, int sz, int st, double dx, double dy, double dz, double dt) {
+typename itk::Image<PixelType,4>::Pointer NewImage4D(int sx, int sy, int sz, int st, double dx, double dy, double dz, double dt)
+{
   typedef itk::Image<PixelType,3> ImageType;
   typename ImageType::Pointer g = ImageType::New();
   typename ImageType::SizeType size;
-  size[0] = sx; size[1] = sy; size[2] = sz; size[3] = st;
+  size[0] = sx;
+  size[1] = sy;
+  size[2] = sz;
+  size[3] = st;
   typename ImageType::RegionType region;
   region.SetSize(size);
   g->SetRegions(region);
   typename ImageType::SpacingType spacing;
-  spacing[0] = dx; spacing[1] = dy; spacing[2] = dz; spacing[3] = dt;
+  spacing[0] = dx;
+  spacing[1] = dy;
+  spacing[2] = dz;
+  spacing[3] = dt;
   g->SetSpacing(spacing);
   return g;
 }
@@ -90,10 +106,11 @@ typename itk::Image<PixelType,4>::Pointer NewImage4D(int sx, int sy, int sz, int
 
 //--------------------------------------------------------------------
 template<class ImageType>
-typename ImageType::Pointer NewImageLike(const typename ImageType::Pointer input, bool allocate) {
+typename ImageType::Pointer NewImageLike(const typename ImageType::Pointer input, bool allocate)
+{
   typename ImageType::Pointer output = ImageType::New();
   output->CopyInformation(input);
-  output->SetRegions(input->GetLargestPossibleRegion());  
+  output->SetRegions(input->GetLargestPossibleRegion());
   if (allocate) output->Allocate();
   return output;
 }
@@ -102,14 +119,15 @@ typename ImageType::Pointer NewImageLike(const typename ImageType::Pointer input
 
 //--------------------------------------------------------------------
 template<class ImageType>
-void CopyValues(const typename ImageType::Pointer input, 
-                typename ImageType::Pointer output) {  
-  typedef itk::ImageRegionConstIterator<ImageType> ConstIteratorType; 
+void CopyValues(const typename ImageType::Pointer input,
+                typename ImageType::Pointer output)
+{
+  typedef itk::ImageRegionConstIterator<ImageType> ConstIteratorType;
   ConstIteratorType pi(input,input->GetLargestPossibleRegion());
-  pi.GoToBegin();  
-  typedef itk::ImageRegionIterator<ImageType> IteratorType; 
+  pi.GoToBegin();
+  typedef itk::ImageRegionIterator<ImageType> IteratorType;
   IteratorType po(output,input->GetLargestPossibleRegion());
-  po.GoToBegin(); 
+  po.GoToBegin();
   while (!pi.IsAtEnd()) {
     po.Set(pi.Get());
     ++pi;
@@ -121,17 +139,17 @@ void CopyValues(const typename ImageType::Pointer input,
 
 //--------------------------------------------------------------------
 template<class ImageType>
-typename ImageType::Pointer readImage(const std::string & filename, const bool verbose) {
+typename ImageType::Pointer readImage(const std::string & filename, const bool verbose)
+{
   typedef itk::ImageFileReader<ImageType> ReaderType;
   typename ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName(filename.c_str());
   if (verbose) {
     std::cout << "Reading [" << filename << "] ... " << std::endl;
   }
-  try { 
-    reader->Update(); 
-  }
-  catch(itk::ExceptionObject & err) {
+  try {
+    reader->Update();
+  } catch(itk::ExceptionObject & err) {
     std::cerr << "Exception while reading image [" << filename << "]" << std::endl;
     std::cerr << err << std::endl;
     exit(0);
@@ -142,8 +160,9 @@ typename ImageType::Pointer readImage(const std::string & filename, const bool v
 
 //--------------------------------------------------------------------
 template<typename ImageType>
-typename ImageType::Pointer readImage(const std::vector<std::string> & filenames, 
-				      const bool verbose) {
+typename ImageType::Pointer readImage(const std::vector<std::string> & filenames,
+                                      const bool verbose)
+{
   if (filenames.size() == 1) return readImage<ImageType>(filenames[0], verbose);
   typedef itk::ImageSeriesReader<ImageType> ReaderType;
   typename ReaderType::Pointer reader = ReaderType::New();
@@ -152,11 +171,10 @@ typename ImageType::Pointer readImage(const std::vector<std::string> & filenames
     std::cout << "Reading " << filenames[0] << " and others ..." << std::endl;
   }
   try {
-    reader->Update(); 
-  }
-  catch( itk::ExceptionObject & err ) {
+    reader->Update();
+  } catch( itk::ExceptionObject & err ) {
     std::cerr << "Error while reading " << filenames[0]
-	      << " or other files ..." << err << std::endl;
+              << " or other files ..." << err << std::endl;
     exit(0);
   }
   return reader->GetOutput();
@@ -165,7 +183,8 @@ typename ImageType::Pointer readImage(const std::vector<std::string> & filenames
 
 //--------------------------------------------------------------------
 template<class ImageType>
-void writeImage(const typename ImageType::Pointer image, const std::string & filename, const bool verbose) {
+void writeImage(const typename ImageType::Pointer image, const std::string & filename, const bool verbose)
+{
   typedef itk::ImageFileWriter<ImageType> WriterType;
   typename WriterType::Pointer writer = WriterType::New();
   writer->SetFileName(filename.c_str());
@@ -173,10 +192,9 @@ void writeImage(const typename ImageType::Pointer image, const std::string & fil
   if (verbose) {
     std::cout << "Writing [" << filename << "] ... " << std::endl;
   }
-  try { 
-    writer->Update(); 
-  }
-  catch( itk::ExceptionObject & err ) {
+  try {
+    writer->Update();
+  } catch( itk::ExceptionObject & err ) {
     std::cerr << "Exception while writing image [" << filename << "]" << std::endl;
     std::cerr << err << std::endl;
     exit(-1);
@@ -186,7 +204,8 @@ void writeImage(const typename ImageType::Pointer image, const std::string & fil
 
 //--------------------------------------------------------------------
 template<class ImageType>
-void writeImage(const ImageType* image, const std::string & filename, const bool verbose) {
+void writeImage(const ImageType* image, const std::string & filename, const bool verbose)
+{
   typedef itk::ImageFileWriter<ImageType> WriterType;
   typename WriterType::Pointer writer = WriterType::New();
   writer->SetFileName(filename.c_str());
@@ -194,10 +213,9 @@ void writeImage(const ImageType* image, const std::string & filename, const bool
   if (verbose) {
     std::cout << "Writing [" << filename << "] ... " << std::endl;
   }
-  try { 
-    writer->Update(); 
-  }
-  catch( itk::ExceptionObject & err ) {
+  try {
+    writer->Update();
+  } catch( itk::ExceptionObject & err ) {
     std::cerr << "Exception while writing image [" << filename << "]" << std::endl;
     std::cerr << err << std::endl;
     exit(-1);
@@ -215,8 +233,8 @@ void writeImage(const ImageType* image, const std::string & filename, const bool
 //   if (verbose) {
 //     std::cout << "Writing [" << filename << "] ... " << std::endl;
 //   }
-//   try { 
-//     writer->Update(); 
+//   try {
+//     writer->Update();
 //   }
 //   catch( itk::ExceptionObject & err ) {
 //     std::cerr << "Exception while writing image [" << filename << "]" << std::endl;
@@ -230,8 +248,8 @@ void writeImage(const ImageType* image, const std::string & filename, const bool
 //--------------------------------------------------------------------
 // Compute the number of different intensities in an image
 template<class ImageType>
-int ComputeHowManyDifferentIntensity(const typename ImageType::Pointer & image, 
-				     std::vector<typename ImageType::PixelType> & l)
+int ComputeHowManyDifferentIntensity(const typename ImageType::Pointer & image,
+                                     std::vector<typename ImageType::PixelType> & l)
 {
   //std::set<typename ImageType::PixelType> listOfIntensities;
   std::map<typename ImageType::PixelType, bool> listOfIntensities;
@@ -241,14 +259,14 @@ int ComputeHowManyDifferentIntensity(const typename ImageType::Pointer & image,
   pi.Begin();
   while (!pi.IsAtEnd()) {
     if (!listOfIntensities[pi.Get()]) listOfIntensities[pi.Get()] = true;
-    // if (std::find(listOfIntensities.begin(), 
-    // 				  listOfIntensities.end(), 
+    // if (std::find(listOfIntensities.begin(),
+    // 				  listOfIntensities.end(),
     // 				  pi.Get()) == listOfIntensities.end()) {
     // 	  listOfIntensities.insert(pi.Get());
     // 	}
     ++pi;
   }
-  
+
   //typename std::set<typename ImageType::PixelType>::const_iterator ppi = listOfIntensities.begin();
   typename std::map<typename ImageType::PixelType, bool>::const_iterator ppi = listOfIntensities.begin();
   while (ppi != listOfIntensities.end()) {
@@ -259,21 +277,22 @@ int ComputeHowManyDifferentIntensity(const typename ImageType::Pointer & image,
   return listOfIntensities.size();
 }
 //--------------------------------------------------------------------
-  
+
 //--------------------------------------------------------------------
 template<class InputImageType, class MaskImageType>
-void ComputeWeightsOfEachClasses(const typename InputImageType::Pointer & input, 
-				 const typename MaskImageType::Pointer & mask,
-				 const std::vector<typename MaskImageType::PixelType> & listOfIntensities, 
-				 std::map<typename MaskImageType::PixelType, 
-				 std::map<typename InputImageType::PixelType, double> > & mapOfLabelsAndWeights) {
+void ComputeWeightsOfEachClasses(const typename InputImageType::Pointer & input,
+                                 const typename MaskImageType::Pointer & mask,
+                                 const std::vector<typename MaskImageType::PixelType> & listOfIntensities,
+                                 std::map<typename MaskImageType::PixelType,
+                                 std::map<typename InputImageType::PixelType, double> > & mapOfLabelsAndWeights)
+{
   // Check size
   if (input->GetLargestPossibleRegion() != mask->GetLargestPossibleRegion()) {
     itkGenericExceptionMacro(<< "Input and mask images have not the same size"
-			     << std::endl
-			     << "Input = " << input->GetLargestPossibleRegion()
-			     << std::endl
-			     << "Mask = " << mask->GetLargestPossibleRegion());
+                             << std::endl
+                             << "Input = " << input->GetLargestPossibleRegion()
+                             << std::endl
+                             << "Mask = " << mask->GetLargestPossibleRegion());
   }
 
   // reset weights list

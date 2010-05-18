@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -33,11 +33,11 @@
 //====================================================================
 clitk::XdrImageIOFactory::XdrImageIOFactory()
 {
-    this->RegisterOverride("itkImageIOBase",
-                           "XdrImageIO",
-                           "Xdr Image IO",
-                           1,
-                           itk::CreateObjectFunction<XdrImageIO>::New());
+  this->RegisterOverride("itkImageIOBase",
+                         "XdrImageIO",
+                         "Xdr Image IO",
+                         1,
+                         itk::CreateObjectFunction<XdrImageIO>::New());
 }
 
 

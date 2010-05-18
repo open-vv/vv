@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -35,9 +35,10 @@ ADD_TOOL(vvToolCropImage);
 
 //------------------------------------------------------------------------------
 vvToolCropImage::vvToolCropImage(vvMainWindowBase * parent, Qt::WindowFlags f):
-  vvToolWidgetBase(parent, f), 
-  vvToolBase<vvToolCropImage>(parent), 
-  Ui::vvToolCropImage() {
+  vvToolWidgetBase(parent, f),
+  vvToolBase<vvToolCropImage>(parent),
+  Ui::vvToolCropImage()
+{
 
   // GUI Initialization
   Ui_vvToolCropImage::setupUi(mToolWidget);
@@ -49,32 +50,36 @@ vvToolCropImage::vvToolCropImage(vvMainWindowBase * parent, Qt::WindowFlags f):
 
 
 //------------------------------------------------------------------------------
-vvToolCropImage::~vvToolCropImage() {
+vvToolCropImage::~vvToolCropImage()
+{
 
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-bool vvToolCropImage::close() { 
+bool vvToolCropImage::close()
+{
   for(int i=0; i<mExtentSize; i++) mReducedExtent[i] = mInitialExtent[i];
   UpdateExtent();
-  return vvToolWidgetBase::close(); 
+  return vvToolWidgetBase::close();
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvToolCropImage::reject() { 
+void vvToolCropImage::reject()
+{
   for(int i=0; i<mExtentSize; i++) mReducedExtent[i] = mInitialExtent[i];
   UpdateExtent();
-  return vvToolWidgetBase::reject(); 
+  return vvToolWidgetBase::reject();
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvToolCropImage::sliderXMinValueChanged(int s) {
+void vvToolCropImage::sliderXMinValueChanged(int s)
+{
   xmaxSlider->setMinimum(xminSlider->value());
   mReducedExtent[0] = xminSlider->value();
   UpdateExtent();
@@ -83,7 +88,8 @@ void vvToolCropImage::sliderXMinValueChanged(int s) {
 
 
 //------------------------------------------------------------------------------
-void vvToolCropImage::sliderXMaxValueChanged(int s) {
+void vvToolCropImage::sliderXMaxValueChanged(int s)
+{
   xminSlider->setMaximum(xmaxSlider->value());
   mReducedExtent[1] = xmaxSlider->value();
   UpdateExtent();
@@ -92,7 +98,8 @@ void vvToolCropImage::sliderXMaxValueChanged(int s) {
 
 
 //------------------------------------------------------------------------------
-void vvToolCropImage::sliderYMinValueChanged(int s) {
+void vvToolCropImage::sliderYMinValueChanged(int s)
+{
   ymaxSlider->setMinimum(yminSlider->value());
   mReducedExtent[2] = yminSlider->value();
   UpdateExtent();
@@ -101,7 +108,8 @@ void vvToolCropImage::sliderYMinValueChanged(int s) {
 
 
 //------------------------------------------------------------------------------
-void vvToolCropImage::sliderYMaxValueChanged(int s) {
+void vvToolCropImage::sliderYMaxValueChanged(int s)
+{
   yminSlider->setMaximum(ymaxSlider->value());
   mReducedExtent[3] = ymaxSlider->value();
   UpdateExtent();
@@ -110,7 +118,8 @@ void vvToolCropImage::sliderYMaxValueChanged(int s) {
 
 
 //------------------------------------------------------------------------------
-void vvToolCropImage::sliderZMinValueChanged(int s) {
+void vvToolCropImage::sliderZMinValueChanged(int s)
+{
   zmaxSlider->setMinimum(zminSlider->value());
   mReducedExtent[4] = zminSlider->value();
   UpdateExtent();
@@ -119,7 +128,8 @@ void vvToolCropImage::sliderZMinValueChanged(int s) {
 
 
 //------------------------------------------------------------------------------
-void vvToolCropImage::sliderZMaxValueChanged(int s) {
+void vvToolCropImage::sliderZMaxValueChanged(int s)
+{
   zminSlider->setMaximum(zmaxSlider->value());
   mReducedExtent[5] = zmaxSlider->value();
   UpdateExtent();
@@ -146,18 +156,20 @@ void vvToolCropImage::sliderZMaxValueChanged(int s) {
 
 
 //------------------------------------------------------------------------------
-void vvToolCropImage::UpdateExtent() {
+void vvToolCropImage::UpdateExtent()
+{
   for(int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
     mCurrentSlicerManager->GetSlicer(i)->SetReducedExtent(mReducedExtent);
-    mCurrentSlicerManager->GetSlicer(i)->ForceUpdateDisplayExtent();    
-    mCurrentSlicerManager->GetSlicer(i)->Render();    
+    mCurrentSlicerManager->GetSlicer(i)->ForceUpdateDisplayExtent();
+    mCurrentSlicerManager->GetSlicer(i)->Render();
   }
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer) {
+void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer)
+{
 
   // Change interface according to number of dimension
   mExtentSize = 2*slicer->GetDimension();
@@ -177,7 +189,7 @@ void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer) {
     spin_zmin->setHidden(true);
     spin_zmax->setHidden(true);
   }
-  
+
   // Record initial extend
   mReducedExtent = new int[mExtentSize];
   mInitialExtent = new int[mExtentSize];
@@ -189,7 +201,7 @@ void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer) {
     //DD(mInitialExtent[i]);
     mCurrentSlicerManager->GetSlicer(i)->EnableReducedExtent(true);
   }
-  
+
   // Not now ....
   //  mIntensitySlider->SetImage(mCurrentImage);
   //mIntensitySlider->setEnabled(false);
@@ -229,13 +241,13 @@ void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer) {
     spin_zmax->setMaximum(imsize[2]-1);
     spin_zmax->setValue(imsize[2]-1);
   }
-  
+
   // if (slicer->GetDimension() >3) {
   //   spin_tmin->setMaximum(imsize[3]-1);
   //   spin_tmax->setMaximum(imsize[3]-1);
   //   spin_tmax->setValue(imsize[3]-1);
-  // }  
-  
+  // }
+
   // Connect
   connect(xminSlider, SIGNAL(valueChanged(int)), this, SLOT(sliderXMinValueChanged(int)));
   connect(xmaxSlider, SIGNAL(valueChanged(int)), this, SLOT(sliderXMaxValueChanged(int)));
@@ -245,7 +257,7 @@ void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer) {
   connect(zmaxSlider, SIGNAL(valueChanged(int)), this, SLOT(sliderZMaxValueChanged(int)));
   // connect(tminSlider, SIGNAL(valueChanged(int)), this, SLOT(sliderTMinValueChanged(int)));
   // connect(tmaxSlider, SIGNAL(valueChanged(int)), this, SLOT(sliderTMaxValueChanged(int)));
-  
+
   //  connect(mCurrentSlicerManager,SIGNAL(UpdateSlice(int,int)),this,SLOT(UpdateExtent()));
   //connect(mCurrentSlicerManager,SIGNAL(UpdateTSlice(int,int)),this,SLOT(UpdateExtent()));
 
@@ -256,7 +268,8 @@ void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer) {
 
 
 //------------------------------------------------------------------------------
-void vvToolCropImage::autoCropValueChanged(double v) {
+void vvToolCropImage::autoCropValueChanged(double v)
+{
   // DD(v);
   //  vvImageToITKImageVector -> TODO a generic method
   // then sliceriterator on each dimension from in to max
@@ -266,34 +279,34 @@ void vvToolCropImage::autoCropValueChanged(double v) {
 
 
 //------------------------------------------------------------------------------
-void vvToolCropImage::apply() {
+void vvToolCropImage::apply()
+{
 
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   vvImage::Pointer mResult=vvImage::New();
   vvImage::Pointer image= mCurrentSlicerManager->GetImage();
   for (std::vector<vtkImageData*>::const_iterator i=image->GetVTKImages().begin();
-       i!=image->GetVTKImages().end();i++)
-    {
-      vtkSmartPointer<vtkImageClip> filter=vtkSmartPointer<vtkImageClip>::New();
-      ///Vtk is very weird, you need to "translate the extent" to get the correct origin
-      //http://markmail.org/message/vndc2tr6kcabiakp#query:vtkImageClip%20origin+page:1+mid:6na7y57floutklvz+state:results
-      vtkSmartPointer<vtkImageTranslateExtent> translate=vtkSmartPointer<vtkImageTranslateExtent>::New();
-      filter->SetInput(*i);
-      filter->SetOutputWholeExtent(xminSlider->value(),xmaxSlider->value(),
-                                   yminSlider->value(),ymaxSlider->value(),
-                                   zminSlider->value(),zmaxSlider->value());
-      translate->SetTranslation(-xminSlider->value(),-yminSlider->value(),-zminSlider->value());
-      translate->SetInput(filter->GetOutput());
-      filter->ClipDataOn(); //Really create a cropped copy of the image
-      translate->Update();
-      vtkImageData* output=vtkImageData::New();
-      output->ShallowCopy(translate->GetOutput());
-      mResult->AddImage(output);
-    }
+       i!=image->GetVTKImages().end(); i++) {
+    vtkSmartPointer<vtkImageClip> filter=vtkSmartPointer<vtkImageClip>::New();
+    ///Vtk is very weird, you need to "translate the extent" to get the correct origin
+    //http://markmail.org/message/vndc2tr6kcabiakp#query:vtkImageClip%20origin+page:1+mid:6na7y57floutklvz+state:results
+    vtkSmartPointer<vtkImageTranslateExtent> translate=vtkSmartPointer<vtkImageTranslateExtent>::New();
+    filter->SetInput(*i);
+    filter->SetOutputWholeExtent(xminSlider->value(),xmaxSlider->value(),
+                                 yminSlider->value(),ymaxSlider->value(),
+                                 zminSlider->value(),zmaxSlider->value());
+    translate->SetTranslation(-xminSlider->value(),-yminSlider->value(),-zminSlider->value());
+    translate->SetInput(filter->GetOutput());
+    filter->ClipDataOn(); //Really create a cropped copy of the image
+    translate->Update();
+    vtkImageData* output=vtkImageData::New();
+    output->ShallowCopy(translate->GetOutput());
+    mResult->AddImage(output);
+  }
   QApplication::restoreOverrideCursor();
   std::ostringstream osstream;
   osstream << "Crop_" << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";
-  AddImage(mResult, osstream.str()); 
+  AddImage(mResult, osstream.str());
   close();
 }
 //------------------------------------------------------------------------------

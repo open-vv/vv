@@ -36,9 +36,9 @@ ADD_TOOL(vvToolRigidReg);
 
 //------------------------------------------------------------------------------
 vvToolRigidReg::vvToolRigidReg(vvMainWindowBase * parent, Qt::WindowFlags f):
-    vvToolWidgetBase(parent, f),
-    vvToolBase<vvToolRigidReg>(parent),
-    Ui::vvToolRigidReg()
+  vvToolWidgetBase(parent, f),
+  vvToolBase<vvToolRigidReg>(parent),
+  Ui::vvToolRigidReg()
 {
   // GUI Initialization
   Ui_vvToolRigidReg::setupUi(mToolWidget);

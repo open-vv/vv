@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -29,13 +29,14 @@ ADD_TOOL(vvToolImageArithm);
 
 //------------------------------------------------------------------------------
 vvToolImageArithm::vvToolImageArithm(vvMainWindowBase * parent, Qt::WindowFlags f)
-  :vvToolWidgetBase(parent, f), 
-   vvToolBase<vvToolImageArithm>(parent), 
-   Ui::vvToolImageArithm() {
+  :vvToolWidgetBase(parent, f),
+   vvToolBase<vvToolImageArithm>(parent),
+   Ui::vvToolImageArithm()
+{
   // Setup the UI
   Ui_vvToolImageArithm::setupUi(mToolWidget);
 
-  // Main filter 
+  // Main filter
   mFilter = new clitk::ImageArithmGenericFilter<args_info_clitkImageArithm>;
 
   // Set how many inputs are needed for this tool
@@ -46,13 +47,15 @@ vvToolImageArithm::vvToolImageArithm(vvMainWindowBase * parent, Qt::WindowFlags 
 
 
 //------------------------------------------------------------------------------
-vvToolImageArithm::~vvToolImageArithm() {
+vvToolImageArithm::~vvToolImageArithm()
+{
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvToolImageArithm::Initialize() {
+void vvToolImageArithm::Initialize()
+{
   SetToolName("ImageArithm");
   SetToolMenuName("ImageArithm");
   SetToolIconFilename(":/common/icons/arithm.png");
@@ -63,9 +66,10 @@ void vvToolImageArithm::Initialize() {
 
 
 //------------------------------------------------------------------------------
-void vvToolImageArithm::InputIsSelected(std::vector<vvSlicerManager *> & l) {
+void vvToolImageArithm::InputIsSelected(std::vector<vvSlicerManager *> & l)
+{
   mInput1 = l[0];
-  mInput2 = l[1];  
+  mInput2 = l[1];
   mTwoInputs = true;
   mGroupBoxOneInput->setEnabled(false);
   mGroupBoxTwoInputs->setEnabled(true);
@@ -74,7 +78,8 @@ void vvToolImageArithm::InputIsSelected(std::vector<vvSlicerManager *> & l) {
 
 
 //------------------------------------------------------------------------------
-void vvToolImageArithm::InputIsSelected(vvSlicerManager * l) {
+void vvToolImageArithm::InputIsSelected(vvSlicerManager * l)
+{
   mInput1 = l;
   mTwoInputs = false;
   // DD("Single input");
@@ -85,7 +90,8 @@ void vvToolImageArithm::InputIsSelected(vvSlicerManager * l) {
 
 
 //------------------------------------------------------------------------------
-void vvToolImageArithm::GetArgsInfoFromGUI() {
+void vvToolImageArithm::GetArgsInfoFromGUI()
+{
   //  DD("GetArgsInfoFromGUI");
   mArgsInfo.input1_given = false;
   if (mTwoInputs) {
@@ -99,9 +105,8 @@ void vvToolImageArithm::GetArgsInfoFromGUI() {
     if (radioButtonMin->isChecked()) mArgsInfo.operation_arg = 4;
     if (radioButtonAbsDiff->isChecked()) mArgsInfo.operation_arg = 5;
     if (radioButtonSquaredDiff->isChecked()) mArgsInfo.operation_arg = 6;
-  }
-  else {
-    mArgsInfo.input2_given = false;    
+  } else {
+    mArgsInfo.input2_given = false;
     mArgsInfo.scalar_given = true;
     if (radioButtonSumV->isChecked()) mArgsInfo.operation_arg = 0;
     if (radioButtonMultiplyV->isChecked()) mArgsInfo.operation_arg = 1;
@@ -117,7 +122,7 @@ void vvToolImageArithm::GetArgsInfoFromGUI() {
     mArgsInfo.scalar_arg = mValueSpinBox->value();
   }
   mArgsInfo.output_given = false;
-  mArgsInfo.verbose_flag = false;  
+  mArgsInfo.verbose_flag = false;
   mArgsInfo.setFloatOutput_flag = mCheckBoxUseFloatOutputType->isChecked();
   mArgsInfo.imagetypes_flag = false;
 }
@@ -125,7 +130,8 @@ void vvToolImageArithm::GetArgsInfoFromGUI() {
 
 
 //------------------------------------------------------------------------------
-void vvToolImageArithm::apply() {
+void vvToolImageArithm::apply()
+{
   if (!mCurrentSlicerManager) close();
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   GetArgsInfoFromGUI();
@@ -135,7 +141,7 @@ void vvToolImageArithm::apply() {
     // Input
     inputs.push_back(mInput1->GetImage());
     inputs.push_back(mInput2->GetImage());
-    
+
     // Check input type
     if (inputs[0]->GetScalarTypeAsString() != inputs[1]->GetScalarTypeAsString()) {
       std::cerr << "Sorry inputs should have the same pixeltype." << std::endl;
@@ -146,28 +152,27 @@ void vvToolImageArithm::apply() {
       close();
       return;
     }
-  }   
-  else {
+  } else {
     // Input
     inputs.push_back(mInput1->GetImage());
     DD("Single input");
   }
-   
+
   // Main filter
-  clitk::ImageArithmGenericFilter<args_info_clitkImageArithm>::Pointer filter = 
+  clitk::ImageArithmGenericFilter<args_info_clitkImageArithm>::Pointer filter =
     clitk::ImageArithmGenericFilter<args_info_clitkImageArithm>::New();
   filter->SetInputVVImages(inputs);
   filter->SetArgsInfo(mArgsInfo);
   filter->EnableReadOnDisk(false);
   filter->EnableOverwriteInputImage(false);
   filter->Update();
-    
+
   // Output
   vvImage::Pointer output = filter->GetOutputVVImage();
   std::ostringstream osstream;
-  osstream << "Arithm_" << mArgsInfo.operation_arg << "_ " 
+  osstream << "Arithm_" << mArgsInfo.operation_arg << "_ "
            << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";
-  AddImage(output,osstream.str()); 
+  AddImage(output,osstream.str());
   QApplication::restoreOverrideCursor();
   close();
 }

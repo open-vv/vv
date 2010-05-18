@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -53,8 +53,7 @@ void vvImageReader::Update(LoadedImageType type)
   itk::ImageIOBase::Pointer reader = itk::ImageIOFactory::CreateImageIO(mInputFilenames[0].c_str(), itk::ImageIOFactory::ReadMode);
   if (!reader) {
     mLastError="Unable to read file.";
-  }
-  else {
+  } else {
     reader->SetFileName(mInputFilenames[0]);
     reader->ReadImageInformation();
     if (mInputFilenames.size() > 1)
@@ -67,17 +66,17 @@ void vvImageReader::Update(LoadedImageType type)
 
 
 //------------------------------------------------------------------------------
-void vvImageReader::Update(int dim,std::string inputPixelType, LoadedImageType type) {
+void vvImageReader::Update(int dim,std::string inputPixelType, LoadedImageType type)
+{
   //CALL_FOR_ALL_DIMS(dim,UpdateWithDim,inputPixelType);
   mType = type;
   mDim = dim;
   mInputPixelType=inputPixelType;
   this->start(); //Start heavy read operation in a separate thread
-  while (this->isRunning())
-    {
-      qApp->processEvents();
-      this->wait(50);
-    }
+  while (this->isRunning()) {
+    qApp->processEvents();
+    this->wait(50);
+  }
 }
 //------------------------------------------------------------------------------
 
@@ -112,7 +111,8 @@ void vvImageReader::SetInputFilename(const std::string & filename)
 
 
 //------------------------------------------------------------------------------
-void vvImageReader::SetInputFilenames(const std::vector<std::string> & filenames) {
+void vvImageReader::SetInputFilenames(const std::vector<std::string> & filenames)
+{
   mInputFilenames = filenames;
 }
 //------------------------------------------------------------------------------
@@ -122,35 +122,34 @@ void vvImageReader::SetInputFilenames(const std::vector<std::string> & filenames
 //Read transformation in NKI format (Xdr, transposed, cm)
 void vvImageReader::ReadNkiImageTransform()
 {
-    bool bRead=true;
-    typedef itk::ImageFileReader< itk::Image< double, 2 > > MatrixReaderType;
-    MatrixReaderType::Pointer readerTransfo = MatrixReaderType::New();
-    readerTransfo->SetFileName(mInputFilenames[0]+".MACHINEORIENTATION");
-    try
-    {   readerTransfo->Update();
-    }
-    catch( itk::ExceptionObject & err )
-    {   bRead=false;
-    }
-        
-    if (bRead)
-    {   double mat[16];
+  bool bRead=true;
+  typedef itk::ImageFileReader< itk::Image< double, 2 > > MatrixReaderType;
+  MatrixReaderType::Pointer readerTransfo = MatrixReaderType::New();
+  readerTransfo->SetFileName(mInputFilenames[0]+".MACHINEORIENTATION");
+  try {
+    readerTransfo->Update();
+  } catch( itk::ExceptionObject & err ) {
+    bRead=false;
+  }
 
-        //Transpose matrix (NKI format)
-        for(int j=0; j<4; j++)
-            for(int i=0; i<4; i++)
-                mat[4*j+i]=readerTransfo->GetOutput()->GetBufferPointer()[4*i+j];
+  if (bRead) {
+    double mat[16];
 
-        //From cm to mm
-        for(int i=0; i<3; i++)
-            mat[4*i+3]*=10;
+    //Transpose matrix (NKI format)
+    for(int j=0; j<4; j++)
+      for(int i=0; i<4; i++)
+        mat[4*j+i]=readerTransfo->GetOutput()->GetBufferPointer()[4*i+j];
 
-        //Set Transformation
-        vtkSmartPointer<vtkTransform> pt = vtkSmartPointer<vtkTransform>::New();
-        pt->SetMatrix( mat );
-        pt->Inverse();
-        mImage->SetTransform( pt );
-    }
+    //From cm to mm
+    for(int i=0; i<3; i++)
+      mat[4*i+3]*=10;
+
+    //Set Transformation
+    vtkSmartPointer<vtkTransform> pt = vtkSmartPointer<vtkTransform>::New();
+    pt->SetMatrix( mat );
+    pt->Inverse();
+    mImage->SetTransform( pt );
+  }
 }
 //------------------------------------------------------------------------------
 #endif

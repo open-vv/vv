@@ -2,7 +2,7 @@
   Program:         vv http://www.creatis.insa-lyon.fr/rio/vv
   Main authors :   XX XX XX
 
-  Authors belongs to: 
+  Authors belongs to:
   - University of LYON           http://www.universite-lyon.fr/
   - Léon Bérard cancer center    http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory      http://www.creatis.insa-lyon.fr
@@ -17,12 +17,13 @@
 
   =========================================================================*/
 
-#include "clitkDicomRT_ROI.h" 
+#include "clitkDicomRT_ROI.h"
 #include <vtkSmartPointer.h>
 #include <vtkAppendPolyData.h>
 
 //--------------------------------------------------------------------
-clitk::DicomRT_ROI::DicomRT_ROI() {
+clitk::DicomRT_ROI::DicomRT_ROI()
+{
   mName = "NoName";
   mNumber = -1;
   mColor.resize(3);
@@ -33,14 +34,16 @@ clitk::DicomRT_ROI::DicomRT_ROI() {
 
 
 //--------------------------------------------------------------------
-clitk::DicomRT_ROI::~DicomRT_ROI() {
-  
+clitk::DicomRT_ROI::~DicomRT_ROI()
+{
+
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI::SetDisplayColor(double r, double v, double b) {
+void clitk::DicomRT_ROI::SetDisplayColor(double r, double v, double b)
+{
   mColor.resize(3);
   mColor[0] = r;
   mColor[1] = v;
@@ -50,29 +53,33 @@ void clitk::DicomRT_ROI::SetDisplayColor(double r, double v, double b) {
 
 
 //--------------------------------------------------------------------
-int clitk::DicomRT_ROI::GetROINumber() const {
+int clitk::DicomRT_ROI::GetROINumber() const
+{
   return mNumber;
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-const std::string & clitk::DicomRT_ROI::GetName() const {
+const std::string & clitk::DicomRT_ROI::GetName() const
+{
   return mName;
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-const std::vector<double> & clitk::DicomRT_ROI::GetDisplayColor() const {
+const std::vector<double> & clitk::DicomRT_ROI::GetDisplayColor() const
+{
   return mColor;
 }
 //--------------------------------------------------------------------
 
- 
+
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI::Print(std::ostream & os) const {
-  os << "ROI " << mNumber << "\t" << mName 
+void clitk::DicomRT_ROI::Print(std::ostream & os) const
+{
+  os << "ROI " << mNumber << "\t" << mName
      << "\t(" << mColor[0] << " " << mColor[1] << " " << mColor[2] << ")"
      << "\t Contours = " << mListOfContours.size() << std::endl;
 }
@@ -80,29 +87,32 @@ void clitk::DicomRT_ROI::Print(std::ostream & os) const {
 
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI::SetBackgroundValueLabelImage(double bg){
+void clitk::DicomRT_ROI::SetBackgroundValueLabelImage(double bg)
+{
   mBackgroundValue = bg;
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-double clitk::DicomRT_ROI::GetBackgroundValueLabelImage() const {
+double clitk::DicomRT_ROI::GetBackgroundValueLabelImage() const
+{
   return mBackgroundValue;
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::SQItem * item) {
-  
+void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::SQItem * item)
+{
+
   // Change number if needed
-  
+
   // TODO
 
   // ROI number [Referenced ROI Number]
   mNumber = atoi(item->GetEntryValue(0x3006,0x0084).c_str());
-  
+
   // Retrieve ROI Name
   mName = rois[mNumber];
 
@@ -111,8 +121,8 @@ void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::SQItem * 
 
   // Read contours [Contour Sequence]
   gdcm::SeqEntry * contours=item->GetSeqEntry(0x3006,0x0040);
-  for(gdcm::SQItem* j=contours->GetFirstSQItem();j!=0;j=contours->GetNextSQItem()) {
-    DicomRT_Contour * c = new DicomRT_Contour;    
+  for(gdcm::SQItem* j=contours->GetFirstSQItem(); j!=0; j=contours->GetNextSQItem()) {
+    DicomRT_Contour * c = new DicomRT_Contour;
     bool b = c->Read(j);
     if (b) mListOfContours.push_back(c);
   }
@@ -121,7 +131,8 @@ void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::SQItem * 
 
 
 //--------------------------------------------------------------------
-vtkPolyData * clitk::DicomRT_ROI::GetMesh() {
+vtkPolyData * clitk::DicomRT_ROI::GetMesh()
+{
   if (!mMeshIsUpToDate) {
     ComputeMesh();
   }
@@ -131,7 +142,8 @@ vtkPolyData * clitk::DicomRT_ROI::GetMesh() {
 
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI::ComputeMesh() {
+void clitk::DicomRT_ROI::ComputeMesh()
+{
   vtkAppendPolyData * append = vtkAppendPolyData::New();
   for(unsigned int i=0; i<mListOfContours.size(); i++) {
     append->AddInput(mListOfContours[i]->GetMesh());
@@ -144,16 +156,17 @@ void clitk::DicomRT_ROI::ComputeMesh() {
 
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI::SetFromBinaryImage(vvImage::Pointer image, int n, 
-					    std::string name, 
-					    std::vector<double> color) {
-  
+void clitk::DicomRT_ROI::SetFromBinaryImage(vvImage::Pointer image, int n,
+    std::string name,
+    std::vector<double> color)
+{
+
   // ROI number [Referenced ROI Number]
   mNumber = n;
-  
+
   // ROI Name
   mName = name;
-    
+
   // ROI Color [ROI Display Color]
   mColor = color;
 
@@ -167,7 +180,8 @@ void clitk::DicomRT_ROI::SetFromBinaryImage(vvImage::Pointer image, int n,
 
 
 //--------------------------------------------------------------------
-const vvImage::Pointer clitk::DicomRT_ROI::GetImage() const {
+const vvImage::Pointer clitk::DicomRT_ROI::GetImage() const
+{
   return mImage;
 }
 //--------------------------------------------------------------------

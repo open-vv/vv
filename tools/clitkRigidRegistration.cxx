@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -20,9 +20,9 @@
  * @file   clitkRigidRegistration.cxx
  * @author Jef Vandemeulebroucke <jef.Vandemeulebroucke@creatis.insa-lyon.fr>
  * @date   14 August 2007
- * 
+ *
  * @brief Perform a rigid registration between 2 images
- * 
+ *
  -------------------------------------------------*/
 
 
@@ -39,9 +39,9 @@ using namespace std;
 int main( int argc, char *argv[] )
 {
   //init command line and check options
-  GGO(args_info);  
+  GGO(args_info);
   CLITK_INIT;
-  
+
   //---------------------------------------------------------------------------
   //Set all the options passed through the commandline
 
@@ -51,7 +51,7 @@ int main( int argc, char *argv[] )
   rigidRegistration.SetGradient(args_info.gradient_flag);
   rigidRegistration.SetZeroOrigin(args_info.zero_origin_flag);
 
- //Input
+//Input
   rigidRegistration.SetFixedImageName(args_info.reference_arg);
   rigidRegistration.SetMovingImageName(args_info.object_arg);
   rigidRegistration.SetFixedImageMaskGiven(args_info.mask_given);
@@ -83,9 +83,9 @@ int main( int argc, char *argv[] )
   rigidRegistration.SetTransZ(args_info.transZ_arg);
 
   //Optimizer
-  rigidRegistration.SetLevels(args_info.levels_arg); 
-  rigidRegistration.SetIstep(args_info.Istep_arg); 
-  rigidRegistration.SetFstep(args_info.Fstep_arg); 
+  rigidRegistration.SetLevels(args_info.levels_arg);
+  rigidRegistration.SetIstep(args_info.Istep_arg);
+  rigidRegistration.SetFstep(args_info.Fstep_arg);
   rigidRegistration.SetRelax(args_info.relax_arg);
   rigidRegistration.SetInc(args_info.inc_arg);
   rigidRegistration.SetDec(args_info.dec_arg);
@@ -101,9 +101,9 @@ int main( int argc, char *argv[] )
   rigidRegistration.SetStdDev(args_info.stdDev_arg);
 
   //Preprocessing
-  rigidRegistration.SetBlur(args_info.blur_arg); 
-  rigidRegistration.SetNormalize(args_info.normalize_flag); 
+  rigidRegistration.SetBlur(args_info.blur_arg);
+  rigidRegistration.SetNormalize(args_info.normalize_flag);
 
   rigidRegistration.Update();
-  
+
 }

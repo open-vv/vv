@@ -30,20 +30,21 @@
 #include "clitkFooImageGenericFilter.h"
 
 //--------------------------------------------------------------------
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv[])
+{
 
-    // Init command line
-    GGO(clitkFooImage, args_info);
-    CLITK_INIT;
+  // Init command line
+  GGO(clitkFooImage, args_info);
+  CLITK_INIT;
 
-    // Filter
-    typedef clitk::FooImageGenericFilter<args_info_clitkFooImage> FilterType;
-    FilterType::Pointer filter = FilterType::New();
+  // Filter
+  typedef clitk::FooImageGenericFilter<args_info_clitkFooImage> FilterType;
+  FilterType::Pointer filter = FilterType::New();
 
-    filter->SetArgsInfo(args_info);
-    filter->Update();
+  filter->SetArgsInfo(args_info);
+  filter->Update();
 
-    return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }// end main
 
 //--------------------------------------------------------------------

@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -19,14 +19,14 @@
 
 QTreePushButton::QTreePushButton():QPushButton()
 {
-    m_item = NULL;
-    m_index = 0;
-    m_column = 0;
-    connect(this,SIGNAL(clicked()),this, SLOT(clickedIntoATree()));
+  m_item = NULL;
+  m_index = 0;
+  m_column = 0;
+  connect(this,SIGNAL(clicked()),this, SLOT(clickedIntoATree()));
 }
 
 void QTreePushButton::clickedIntoATree()
 {
-    emit clickedInto(m_item,m_column);
-    emit clickedInto(m_index,m_column);
+  emit clickedInto(m_item,m_column);
+  emit clickedInto(m_index,m_column);
 }

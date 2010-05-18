@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -18,11 +18,11 @@
 
 /* =================================================
  * @file   clitkWarpImage.cxx
- * @author 
- * @date   
- * 
- * @brief 
- * 
+ * @author
+ * @date
+ *
+ * @brief
+ *
  ===================================================*/
 
 
@@ -33,7 +33,8 @@
 
 
 //--------------------------------------------------------------------
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv[])
+{
 
   // Init command line
   GGO(clitkWarpImage, args_info);
@@ -41,7 +42,7 @@ int main(int argc, char * argv[]) {
 
   // Filter
   clitk::WarpImageGenericFilter::Pointer genericFilter=clitk::WarpImageGenericFilter::New();
-  
+
   genericFilter->SetArgsInfo(args_info);
   genericFilter->Update();
 

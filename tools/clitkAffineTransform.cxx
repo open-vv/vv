@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -18,11 +18,11 @@
 
 /* =================================================
  * @file   clitkAffineTransform.cxx
- * @author 
- * @date   
- * 
- * @brief 
- * 
+ * @author
+ * @date
+ *
+ * @brief
+ *
  ===================================================*/
 
 
@@ -32,7 +32,8 @@
 #include "clitkAffineTransformGenericFilter.h"
 
 //--------------------------------------------------------------------
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv[])
+{
 
   // Init command line
   GGO(clitkAffineTransform, args_info);
@@ -41,7 +42,7 @@ int main(int argc, char * argv[]) {
   // Filter
   typedef clitk::AffineTransformGenericFilter<args_info_clitkAffineTransform> FilterType;
   FilterType::Pointer genericFilter = FilterType::New();
-  
+
   genericFilter->SetArgsInfo(args_info);
   genericFilter->Update();
 

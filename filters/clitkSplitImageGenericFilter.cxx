@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -21,7 +21,7 @@
  * @author Joël Schaerer
  * @date   20 April 2009
 
- * @brief  
+ * @brief
  -------------------------------------------------------------------*/
 
 #include "clitkSplitImageGenericFilter.h"
@@ -29,7 +29,8 @@
 #include "clitkSplitImageGenericFilter.txx"
 //--------------------------------------------------------------------
 clitk::SplitImageGenericFilter::SplitImageGenericFilter():
-  clitk::ImageToImageGenericFilter<Self>("SplitImage") {
+  clitk::ImageToImageGenericFilter<Self>("SplitImage")
+{
   mSplitDimension = 0;
   InitializeImageType<3>();
   InitializeImageType<4>();
@@ -39,7 +40,8 @@ clitk::SplitImageGenericFilter::SplitImageGenericFilter():
 
 //--------------------------------------------------------------------
 template<unsigned int Dim>
-void clitk::SplitImageGenericFilter::InitializeImageType() {      
+void clitk::SplitImageGenericFilter::InitializeImageType()
+{
   ADD_DEFAULT_IMAGE_TYPES(Dim);
   ADD_VEC_IMAGE_TYPE(Dim, 3,float);
 }
@@ -47,7 +49,8 @@ void clitk::SplitImageGenericFilter::InitializeImageType() {
 
 //--------------------------------------------------------------------
 template<class ImageType>
-void clitk::SplitImageGenericFilter::UpdateWithInputImageType() {
+void clitk::SplitImageGenericFilter::UpdateWithInputImageType()
+{
 
   // Read input
   typedef typename ImageType::PixelType PixelType;
@@ -67,17 +70,16 @@ void clitk::SplitImageGenericFilter::UpdateWithInputImageType() {
   typename ImageType::IndexType index=input->GetLargestPossibleRegion().GetIndex();
   std::string base_filename=GetOutputFilename();
   unsigned int number_of_output_images=input->GetLargestPossibleRegion().GetSize()[mSplitDimension];
-  for (unsigned int i=0;i<number_of_output_images;i++)
-  {
-      std::ostringstream ss;
-      ss << i;
-      index[mSplitDimension]=i;
-      extracted_region.SetIndex(index);
-      filter->SetExtractionRegion(extracted_region);
-      filter->Update();
-      SetOutputFilename(base_filename+"_"+ss.str()+".mhd");
-      typename OutputImageType::Pointer output=filter->GetOutput();
-      SetNextOutput<OutputImageType>(output);
+  for (unsigned int i=0; i<number_of_output_images; i++) {
+    std::ostringstream ss;
+    ss << i;
+    index[mSplitDimension]=i;
+    extracted_region.SetIndex(index);
+    filter->SetExtractionRegion(extracted_region);
+    filter->Update();
+    SetOutputFilename(base_filename+"_"+ss.str()+".mhd");
+    typename OutputImageType::Pointer output=filter->GetOutput();
+    SetNextOutput<OutputImageType>(output);
   }
 }
 //--------------------------------------------------------------------

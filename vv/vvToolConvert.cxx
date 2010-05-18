@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -45,18 +45,20 @@ vvToolConvert::vvToolConvert(vvMainWindowBase * parent, Qt::WindowFlags f):
 
 
 //------------------------------------------------------------------------------
-vvToolConvert::~vvToolConvert() {
+vvToolConvert::~vvToolConvert()
+{
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvToolConvert::Initialize() {
+void vvToolConvert::Initialize()
+{
   SetToolName("Convert");
   SetToolMenuName("Convert with WidgetBase");
   SetToolIconFilename(":/common/icons/ducky.png");
   SetToolTip("Make 'foo' on an image.");
-  
+
   // Create a menu to choose the convert image
   QMenu * m = new QMenu();
   m->setTitle("Convert to ");
@@ -80,8 +82,8 @@ void vvToolConvert::Initialize() {
 
   for(unsigned int i=0; i<mListOfPixelTypeNames.size(); i++) {
     std::string & s = mListOfPixelTypeNames[i];
-    mMapOfPixelType[s] = m->addAction(QIcon(QString::fromUtf8(mListOfPixelTypeIcons[i].c_str())), 
-				      tr(s.c_str()));
+    mMapOfPixelType[s] = m->addAction(QIcon(QString::fromUtf8(mListOfPixelTypeIcons[i].c_str())),
+                                      tr(s.c_str()));
     m->addAction(mMapOfPixelType[s]);
   }
 
@@ -91,7 +93,8 @@ void vvToolConvert::Initialize() {
 
 
 //------------------------------------------------------------------------------
-void vvToolConvert::show() {
+void vvToolConvert::show()
+{
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   // Get action menu name
   QAction * cc = dynamic_cast<QAction*>(mSender);
@@ -100,33 +103,34 @@ void vvToolConvert::show() {
   int index = mMainWindowBase->GetSlicerManagerCurrentIndex();
   vvSlicerManager * m = mMainWindowBase->GetSlicerManagers()[index];
   assert(m != NULL); // Should no occur
-  
+
   // Create filter and run !
   clitk::ImageConvertGenericFilter * filter = new clitk::ImageConvertGenericFilter;
   filter->SetInputVVImage(m->GetImage());
   filter->SetOutputPixelType(type);
   filter->EnableDisplayWarning(false);
   filter->Update();
-      
+
   // Manage warning
   if (filter->IsWarningOccur()) {
     QApplication::restoreOverrideCursor();
-    QMessageBox::warning(mMainWindowBase, "Warning", filter->GetWarning().c_str());	
+    QMessageBox::warning(mMainWindowBase, "Warning", filter->GetWarning().c_str());
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   }
-  
+
   // Output
   vvImage::Pointer output = filter->GetOutputVVImage();
   std::ostringstream osstream;
   osstream << "Convert_" << type << "_" << m->GetSlicer(0)->GetFileName() << ".mhd";
-  AddImage(output,osstream.str()); 
+  AddImage(output,osstream.str());
   QApplication::restoreOverrideCursor();
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvToolConvert::apply() {
+void vvToolConvert::apply()
+{
   // nothing !!
 }
 //------------------------------------------------------------------------------

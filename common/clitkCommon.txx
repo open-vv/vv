@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -22,13 +22,14 @@
    * @file   clitkCommon.txx
    * @author David Sarrut <david.sarrut@creatis.insa-lyon.fr>
    * @date   18 May 2006
-   * 
+   *
    -------------------------------------------------*/
 
 //--------------------------------------------------------------------
 // Convert float, double ... to string
 template<class T>
-std::string toString(const T & t) {
+std::string toString(const T & t)
+{
   std::ostringstream myStream;
   myStream << t << std::flush;
   return(myStream.str());
@@ -38,7 +39,8 @@ std::string toString(const T & t) {
 //--------------------------------------------------------------------
 // Convert float*, double* ... to string
 template<class T>
-std::string toStringVector(const T * t, const int n) {
+std::string toStringVector(const T * t, const int n)
+{
   std::ostringstream myStream;
   for(int i=0; i<n-1; i++)
     myStream << clitk::toString<T>(t[i]) << " ";
@@ -50,7 +52,8 @@ std::string toStringVector(const T * t, const int n) {
 //--------------------------------------------------------------------
 // Convert float*, double* ... to string
 template<class T>
-std::string toStringVector(const T & t, const int n) {
+std::string toStringVector(const T & t, const int n)
+{
   std::ostringstream myStream;
   for(int i=0; i<n-1; i++)
     myStream << t[i] << " ";
@@ -62,7 +65,8 @@ std::string toStringVector(const T & t, const int n) {
 //--------------------------------------------------------------------
 // Convert float*, double* ... to string
 template<class T>
-std::string toStringVector(const std::vector<T> & t) {
+std::string toStringVector(const std::vector<T> & t)
+{
   return toStringVector(&t[0], t.size());
 }
 //--------------------------------------------------------------------
@@ -70,7 +74,8 @@ std::string toStringVector(const std::vector<T> & t) {
 //--------------------------------------------------------------------
 // Convert a pixel type to another (downcast)
 template<class TPixelUp, class TPixelDown>
-TPixelDown PixelTypeDownCast(const TPixelUp & x) {
+TPixelDown PixelTypeDownCast(const TPixelUp & x)
+{
   return (TPixelDown)lrint(x);
 }
 //--------------------------------------------------------------------
@@ -79,7 +84,7 @@ TPixelDown PixelTypeDownCast(const TPixelUp & x) {
 template<class Type>
 struct vectorComparisonLowerThan: public std::binary_function<int, int, bool> {
   vectorComparisonLowerThan(const std::vector<Type> & v):vect(v) {};
-  bool operator()(int x, int y) { 
+  bool operator()(int x, int y) {
     return (vect[x] < vect[y]);
   }
   const std::vector<Type> & vect;
@@ -90,7 +95,7 @@ struct vectorComparisonLowerThan: public std::binary_function<int, int, bool> {
 template<class Type>
 struct vectorComparisonGreaterThan: public std::binary_function<int, int, bool> {
   vectorComparisonGreaterThan(const std::vector<Type> & v):vect(v) {};
-  bool operator()(int x, int y) { 
+  bool operator()(int x, int y) {
     return (vect[x] > vect[y]);
   }
   const std::vector<Type> & vect;
@@ -99,23 +104,25 @@ struct vectorComparisonGreaterThan: public std::binary_function<int, int, bool> 
 
 //--------------------------------------------------------------------
 template<class Type>
-void GetSortedIndex(const std::vector<Type> & toSort, std::vector<int> & index, bool increasing) {
-  index.resize(toSort.size());  
+void GetSortedIndex(const std::vector<Type> & toSort, std::vector<int> & index, bool increasing)
+{
+  index.resize(toSort.size());
   for(unsigned int i=0; i<index.size(); i++) index[i] = i;
-  if (increasing) 
-    std::sort(index.begin(), 
-	      index.end(), 
-	      vectorComparisonLowerThan<double>(toSort));
-  else 
-    std::sort(index.begin(), 
-	      index.end(), 
-	      vectorComparisonGreaterThan<double>(toSort));
+  if (increasing)
+    std::sort(index.begin(),
+              index.end(),
+              vectorComparisonLowerThan<double>(toSort));
+  else
+    std::sort(index.begin(),
+              index.end(),
+              vectorComparisonGreaterThan<double>(toSort));
 }
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
 template<class TPixel>
-std::string GetTypeAsString() {
+std::string GetTypeAsString()
+{
   //  http://www.vtk.org/doc/release/3/html/vtkSetGet_8h-source.html
   // and
   // itkImageIOBase.cxx
@@ -137,17 +144,18 @@ std::string GetTypeAsString() {
 
 //--------------------------------------------------------------------
 template<class ImageType>
-void CloneImage(const typename ImageType::Pointer & input, typename ImageType::Pointer & output) {
+void CloneImage(const typename ImageType::Pointer & input, typename ImageType::Pointer & output)
+{
   output->SetRegions(input->GetLargestPossibleRegion());
   output->SetOrigin(input->GetOrigin());
   output->SetSpacing(input->GetSpacing());
   output->Allocate();
-  typedef itk::ImageRegionConstIterator<ImageType> ConstIteratorType; 
+  typedef itk::ImageRegionConstIterator<ImageType> ConstIteratorType;
   ConstIteratorType pi(input,input->GetLargestPossibleRegion());
-  pi.GoToBegin();  
-  typedef itk::ImageRegionIterator<ImageType> IteratorType; 
+  pi.GoToBegin();
+  typedef itk::ImageRegionIterator<ImageType> IteratorType;
   IteratorType po(output,input->GetLargestPossibleRegion());
-  po.GoToBegin(); 
+  po.GoToBegin();
   while (!pi.IsAtEnd()) {
     po.Set(pi.Get());
     ++pi;

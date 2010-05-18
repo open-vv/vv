@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -22,22 +22,22 @@
  * @file   clitkVfImageIOFactory.cxx
  * @author Simon Rit <simon.rit@gmail.com>
  * @date   Mon Sep 18 10:14:25 2006
- * 
- * @brief  
- * 
- * 
+ *
+ * @brief
+ *
+ *
  */
 
 #include "clitkVfImageIOFactory.h"
 
 //====================================================================
-clitk::VfImageIOFactory::VfImageIOFactory() 
+clitk::VfImageIOFactory::VfImageIOFactory()
 {
-  this->RegisterOverride("itkImageIOBase", 
-						 "VfImageIO",
-						 "Vf Image IO", 
-						 1,
-						 itk::CreateObjectFunction<VfImageIO>::New());
+  this->RegisterOverride("itkImageIOBase",
+                         "VfImageIO",
+                         "Vf Image IO",
+                         1,
+                         itk::CreateObjectFunction<VfImageIO>::New());
 }
 
 

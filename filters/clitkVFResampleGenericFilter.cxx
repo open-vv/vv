@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -23,7 +23,7 @@
  * @author David Sarrut <David.Sarrut@creatis.insa-lyon.fr>
  * @date   23 Feb 2008 08:37:53
 
- * @brief  
+ * @brief
 
  -------------------------------------------------------------------*/
 
@@ -31,7 +31,8 @@
 
 //--------------------------------------------------------------------
 clitk::VFResampleGenericFilter::VFResampleGenericFilter():
-  clitk::ImageToImageGenericFilter<Self>("VFResample") {
+  clitk::ImageToImageGenericFilter<Self>("VFResample")
+{
   InitializeImageType<2>();
   InitializeImageType<3>();
   InitializeImageType<4>();
@@ -45,7 +46,8 @@ clitk::VFResampleGenericFilter::VFResampleGenericFilter():
 
 //--------------------------------------------------------------------
 template<unsigned int Dim>
-void clitk::VFResampleGenericFilter::InitializeImageType() {
+void clitk::VFResampleGenericFilter::InitializeImageType()
+{
   ADD_IMAGE_TYPE(Dim, float);
 }
 //--------------------------------------------------------------------
@@ -53,23 +55,25 @@ void clitk::VFResampleGenericFilter::InitializeImageType() {
 
 //--------------------------------------------------------------------
 template<class ImageType>
-void clitk::VFResampleGenericFilter::UpdateWithInputImageType() {
+void clitk::VFResampleGenericFilter::UpdateWithInputImageType()
+{
 
-  if (mNbOfComponents == 1) { 
+  if (mNbOfComponents == 1) {
     std::cerr << "Error, only one components ? Use clitkImageResample instead." << std::endl;
     exit(0);
   }
   typedef typename ImageType::PixelType PixelType;
   if (mNbOfComponents == 2) Update_WithDimAndPixelTypeAndComponent<ImageType::ImageDimension,PixelType,2>();
-  if (mNbOfComponents == 3) Update_WithDimAndPixelTypeAndComponent<ImageType::ImageDimension,PixelType,3>();  
-  if (mNbOfComponents == 4) Update_WithDimAndPixelTypeAndComponent<ImageType::ImageDimension,PixelType,4>();  
+  if (mNbOfComponents == 3) Update_WithDimAndPixelTypeAndComponent<ImageType::ImageDimension,PixelType,3>();
+  if (mNbOfComponents == 4) Update_WithDimAndPixelTypeAndComponent<ImageType::ImageDimension,PixelType,4>();
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
 template<unsigned int Dim, class PixelType, unsigned int DimCompo>
-void clitk::VFResampleGenericFilter::Update_WithDimAndPixelTypeAndComponent() {
+void clitk::VFResampleGenericFilter::Update_WithDimAndPixelTypeAndComponent()
+{
   // Reading input
   typedef itk::Vector<PixelType, DimCompo> DisplacementType;
   typedef itk::Image< DisplacementType, Dim > ImageType;
@@ -86,8 +90,9 @@ void clitk::VFResampleGenericFilter::Update_WithDimAndPixelTypeAndComponent() {
 
 //--------------------------------------------------------------------
 template<class ImageType>
-typename ImageType::Pointer 
-clitk::VFResampleGenericFilter::ComputeImage(typename ImageType::Pointer inputImage) {
+typename ImageType::Pointer
+clitk::VFResampleGenericFilter::ComputeImage(typename ImageType::Pointer inputImage)
+{
 
   // Check options
   static unsigned int dim = ImageType::ImageDimension;
@@ -114,7 +119,7 @@ clitk::VFResampleGenericFilter::ComputeImage(typename ImageType::Pointer inputIm
   // Create Image Filter
   typedef itk::VectorResampleImageFilter<ImageType,ImageType> FilterType;
   typename FilterType::Pointer filter = FilterType::New();
-    
+
   // Instance of the transform object to be passed to the resample
   // filter. By default, identity transform is applied
   typedef itk::AffineTransform<double, ImageType::ImageDimension> TransformType;
@@ -138,18 +143,16 @@ clitk::VFResampleGenericFilter::ComputeImage(typename ImageType::Pointer inputIm
 
   // Select interpolator
   if (mInterpolatorName == "nn") {
-    typedef itk::VectorNearestNeighborInterpolateImageFunction<ImageType, double> InterpolatorType;     
+    typedef itk::VectorNearestNeighborInterpolateImageFunction<ImageType, double> InterpolatorType;
     typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
     filter->SetInterpolator(interpolator);
-  }
-  else { 
+  } else {
     if (mInterpolatorName == "linear") {
-      typedef itk::VectorLinearInterpolateImageFunction<ImageType, double> InterpolatorType;     
+      typedef itk::VectorLinearInterpolateImageFunction<ImageType, double> InterpolatorType;
       typename InterpolatorType::Pointer interpolator =  InterpolatorType::New();
       filter->SetInterpolator(interpolator);
-    }
-    else {
-      std::cerr << "Sorry, I do not know the interpolator (for vector field) '" << mInterpolatorName 
+    } else {
+      std::cerr << "Sorry, I do not know the interpolator (for vector field) '" << mInterpolatorName
                 << "'. Known interpolators are :  nn, linear" << std::endl;
       exit(0);
     }
@@ -172,50 +175,52 @@ clitk::VFResampleGenericFilter::ComputeImage(typename ImageType::Pointer inputIm
       else gaussianFilters[i]->SetInput(gaussianFilters[i-1]->GetOutput());
     }
     filter->SetInput(gaussianFilters[ImageType::ImageDimension-1]->GetOutput());
-  }
-  else {
+  } else {
     filter->SetInput(inputImage);
   }
 
   // Go !
-  try { 
+  try {
     filter->Update();
-  }
-  catch( itk::ExceptionObject & err ) {
-    std::cerr << "Error while filtering " << mInputFilenames[0].c_str() 
-	      << " " << err << std::endl;
+  } catch( itk::ExceptionObject & err ) {
+    std::cerr << "Error while filtering " << mInputFilenames[0].c_str()
+              << " " << err << std::endl;
     exit(0);
   }
 
   // Return result
   return filter->GetOutput();
-  
+
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-void clitk::VFResampleGenericFilter::SetOutputSize(const std::vector<int> & size) {
+void clitk::VFResampleGenericFilter::SetOutputSize(const std::vector<int> & size)
+{
   mOutputSize.resize(size.size());
   std::copy(size.begin(), size.end(), mOutputSize.begin());
 }
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
-void clitk::VFResampleGenericFilter::SetOutputSpacing(const std::vector<double> & spacing) {
+void clitk::VFResampleGenericFilter::SetOutputSpacing(const std::vector<double> & spacing)
+{
   mOutputSpacing.resize(spacing.size());
   std::copy(spacing.begin(), spacing.end(), mOutputSpacing.begin());
 }
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
-void clitk::VFResampleGenericFilter::SetInterpolationName(const std::string & inter) {
+void clitk::VFResampleGenericFilter::SetInterpolationName(const std::string & inter)
+{
   mInterpolatorName = inter;
 }
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
-void clitk::VFResampleGenericFilter::SetGaussianSigma(const std::vector<double> & sigma) {
+void clitk::VFResampleGenericFilter::SetGaussianSigma(const std::vector<double> & sigma)
+{
   mApplyGaussianFilterBefore = true;
   mSigma.resize(sigma.size());
   std::copy(sigma.begin(), sigma.end(), mSigma.begin());

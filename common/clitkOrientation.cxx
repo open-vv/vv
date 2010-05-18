@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -22,10 +22,10 @@
    * @file   clitkOrientation.cxx
    * @author David Sarrut <david.sarrut@creatis.insa-lyon.fr>
    * @date   01 Nov 2006 18:02:49
-   * 
-   * @brief  
-   * 
-   * 
+   *
+   * @brief
+   *
+   *
    =================================================*/
 
 #include "clitkOrientation.h"
@@ -39,34 +39,34 @@ itk::SpatialOrientation::CoordinateTerms clitk::GetOrientation(char c)
   if ((c == 'A') || (c == 'a')) return itk::SpatialOrientation::ITK_COORDINATE_Anterior;
   if ((c == 'I') || (c == 'i')) return itk::SpatialOrientation::ITK_COORDINATE_Inferior;
   if ((c == 'S') || (c == 's')) return itk::SpatialOrientation::ITK_COORDINATE_Superior;
-  std::cerr <<"I don't know the orientation '" << c 
-	    << "'. Valid letters are LR/AP/IS (or in lowercase)" << std::endl;
+  std::cerr <<"I don't know the orientation '" << c
+            << "'. Valid letters are LR/AP/IS (or in lowercase)" << std::endl;
   exit(0);
 }
 //====================================================================
 
 //====================================================================
 bool clitk::CheckOrientation(itk::SpatialOrientation::CoordinateTerms a,
-			     itk::SpatialOrientation::CoordinateTerms b) 
+                             itk::SpatialOrientation::CoordinateTerms b)
 {
-  if ((a==itk::SpatialOrientation::ITK_COORDINATE_Right) || 
+  if ((a==itk::SpatialOrientation::ITK_COORDINATE_Right) ||
       (a==itk::SpatialOrientation::ITK_COORDINATE_Left)) {
     if ((b==itk::SpatialOrientation::ITK_COORDINATE_Right) ||
-	(b==itk::SpatialOrientation::ITK_COORDINATE_Left)) {
+        (b==itk::SpatialOrientation::ITK_COORDINATE_Left)) {
       return false;
     }
   }
-  if ((a==itk::SpatialOrientation::ITK_COORDINATE_Posterior) || 
+  if ((a==itk::SpatialOrientation::ITK_COORDINATE_Posterior) ||
       (a==itk::SpatialOrientation::ITK_COORDINATE_Anterior)) {
     if ((b==itk::SpatialOrientation::ITK_COORDINATE_Posterior) ||
-	(b==itk::SpatialOrientation::ITK_COORDINATE_Anterior)) {
+        (b==itk::SpatialOrientation::ITK_COORDINATE_Anterior)) {
       return false;
     }
   }
-  if ((a==itk::SpatialOrientation::ITK_COORDINATE_Inferior) || 
+  if ((a==itk::SpatialOrientation::ITK_COORDINATE_Inferior) ||
       (a==itk::SpatialOrientation::ITK_COORDINATE_Superior)) {
     if ((b==itk::SpatialOrientation::ITK_COORDINATE_Inferior) ||
-	(b==itk::SpatialOrientation::ITK_COORDINATE_Superior)) {
+        (b==itk::SpatialOrientation::ITK_COORDINATE_Superior)) {
       return false;
     }
   }
@@ -83,12 +83,12 @@ itk::SpatialOrientation::ValidCoordinateOrientationFlags clitk::GetOrientation(c
 
   if (CheckOrientation(f1, f2) && CheckOrientation(f2,f3) && CheckOrientation(f1,f3)) {
     return static_cast<itk::SpatialOrientation::ValidCoordinateOrientationFlags>(
-										 (f1     << itk::SpatialOrientation::ITK_COORDINATE_PrimaryMinor) 
-										 + (f2  << itk::SpatialOrientation::ITK_COORDINATE_SecondaryMinor)
-										 + (f3 << itk::SpatialOrientation::ITK_COORDINATE_TertiaryMinor));
+             (f1     << itk::SpatialOrientation::ITK_COORDINATE_PrimaryMinor)
+             + (f2  << itk::SpatialOrientation::ITK_COORDINATE_SecondaryMinor)
+             + (f3 << itk::SpatialOrientation::ITK_COORDINATE_TertiaryMinor));
   }
-  std::cerr <<"I don't know the orientation '" << a << b << c 
-	    << "'. Valid letters are LR/AP/IS (or in lowercase)" << std::endl;
+  std::cerr <<"I don't know the orientation '" << a << b << c
+            << "'. Valid letters are LR/AP/IS (or in lowercase)" << std::endl;
   exit(0);
 }
 //====================================================================
@@ -97,8 +97,8 @@ itk::SpatialOrientation::ValidCoordinateOrientationFlags clitk::GetOrientation(c
 itk::SpatialOrientation::ValidCoordinateOrientationFlags clitk::GetOrientation(const std::string & orient)
 {
   if (orient.size() >= 3) return GetOrientation(orient[0], orient[1], orient[2]);
-  std::cerr <<"I don't know the orientation '" << orient 
-	    << "'. Valid string are three letters LR/AP/IS (or in lowercase)" << std::endl;
+  std::cerr <<"I don't know the orientation '" << orient
+            << "'. Valid string are three letters LR/AP/IS (or in lowercase)" << std::endl;
   exit(0);
 }
 //====================================================================
@@ -115,28 +115,29 @@ itk::SpatialOrientation::CoordinateTerms clitk::GetOrientation(const int i, cons
 //====================================================================
 
 //====================================================================
-int clitk::WhereIsDimInThisOrientation(const int dim, const itk::SpatialOrientation::ValidCoordinateOrientationFlags flag) {
+int clitk::WhereIsDimInThisOrientation(const int dim, const itk::SpatialOrientation::ValidCoordinateOrientationFlags flag)
+{
   if (dim ==0) {
     for(int i=0; i<3; i++) {
       int j = GetOrientation(i, flag);
-      if ((j == itk::SpatialOrientation::ITK_COORDINATE_Right) || 
-	  (j == itk::SpatialOrientation::ITK_COORDINATE_Left)) return i;
+      if ((j == itk::SpatialOrientation::ITK_COORDINATE_Right) ||
+          (j == itk::SpatialOrientation::ITK_COORDINATE_Left)) return i;
     }
-  }	
+  }
   if (dim ==1) {
     for(int i=0; i<3; i++) {
       int j = GetOrientation(i, flag);
-      if ((j == itk::SpatialOrientation::ITK_COORDINATE_Anterior) || 
-	  (j == itk::SpatialOrientation::ITK_COORDINATE_Posterior)) return i;
+      if ((j == itk::SpatialOrientation::ITK_COORDINATE_Anterior) ||
+          (j == itk::SpatialOrientation::ITK_COORDINATE_Posterior)) return i;
     }
-  }	
+  }
   if (dim ==2) {
     for(int i=0; i<3; i++) {
       int j = GetOrientation(i, flag);
-      if ((j == itk::SpatialOrientation::ITK_COORDINATE_Superior) || 
-	  (j == itk::SpatialOrientation::ITK_COORDINATE_Inferior)) return i;
+      if ((j == itk::SpatialOrientation::ITK_COORDINATE_Superior) ||
+          (j == itk::SpatialOrientation::ITK_COORDINATE_Inferior)) return i;
     }
-  }	
+  }
   return 0; // just to avoid warning
 }
 //====================================================================
@@ -144,11 +145,11 @@ int clitk::WhereIsDimInThisOrientation(const int dim, const itk::SpatialOrientat
 //====================================================================
 int clitk::GetDim(const itk::SpatialOrientation::CoordinateTerms t)
 {
-  if ((t == itk::SpatialOrientation::ITK_COORDINATE_Right) || 
+  if ((t == itk::SpatialOrientation::ITK_COORDINATE_Right) ||
       (t == itk::SpatialOrientation::ITK_COORDINATE_Left)) return 0;
   if ((t == itk::SpatialOrientation::ITK_COORDINATE_Anterior) ||
       (t == itk::SpatialOrientation::ITK_COORDINATE_Posterior)) return 1;
-  if ((t == itk::SpatialOrientation::ITK_COORDINATE_Inferior) || 
+  if ((t == itk::SpatialOrientation::ITK_COORDINATE_Inferior) ||
       (t == itk::SpatialOrientation::ITK_COORDINATE_Superior)) return 2;
   std::cerr <<"Invalid CoordinateTerms = " << t << std::endl;
   exit(0);
@@ -156,11 +157,11 @@ int clitk::GetDim(const itk::SpatialOrientation::CoordinateTerms t)
 //====================================================================
 
 //====================================================================
-void clitk::FlipPoint(const itk::Point<double, 3> in, 
-		      const itk::SpatialOrientation::ValidCoordinateOrientationFlags inFlag, 
-		      const itk::SpatialOrientation::ValidCoordinateOrientationFlags outFlag, 
-		      const itk::Point<double, 3> & imageSize,
-		      itk::Point<double, 3> & out)
+void clitk::FlipPoint(const itk::Point<double, 3> in,
+                      const itk::SpatialOrientation::ValidCoordinateOrientationFlags inFlag,
+                      const itk::SpatialOrientation::ValidCoordinateOrientationFlags outFlag,
+                      const itk::Point<double, 3> & imageSize,
+                      itk::Point<double, 3> & out)
 {
   for(int i=0; i<3; i++) {
     // DD(i);

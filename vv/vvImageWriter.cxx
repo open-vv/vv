@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -22,36 +22,40 @@
 
 #include <string.h>
 //====================================================================
-vvImageWriter::vvImageWriter() {
-    mImage = NULL;
-    mOutputFilename = "";
-    mLastError = "";
-    mUseAnObserver = false;
+vvImageWriter::vvImageWriter()
+{
+  mImage = NULL;
+  mOutputFilename = "";
+  mLastError = "";
+  mUseAnObserver = false;
 }
 //====================================================================
 
 //====================================================================
-vvImageWriter::~vvImageWriter() {
+vvImageWriter::~vvImageWriter()
+{
 }
 //====================================================================
 
 //====================================================================
-void vvImageWriter::Update(int dim,std::string OutputPixelType) {
-    //CALL_FOR_ALL_DIMS(dim,UpdateWithDim,inputPixelType);
-    if (dim == 2)
-        UpdateWithDim<2>(OutputPixelType);
-    else if (dim == 3)
-        UpdateWithDim<3>(OutputPixelType);
-    else if (dim == 4)
-        UpdateWithDim<4>(OutputPixelType);
-    else
-        std::cerr << "dim not know in Update ! " << std::endl;
+void vvImageWriter::Update(int dim,std::string OutputPixelType)
+{
+  //CALL_FOR_ALL_DIMS(dim,UpdateWithDim,inputPixelType);
+  if (dim == 2)
+    UpdateWithDim<2>(OutputPixelType);
+  else if (dim == 3)
+    UpdateWithDim<3>(OutputPixelType);
+  else if (dim == 4)
+    UpdateWithDim<4>(OutputPixelType);
+  else
+    std::cerr << "dim not know in Update ! " << std::endl;
 }
 //====================================================================
 
 //====================================================================
-void vvImageWriter::SetOutputFileName(std::string filename) {
-    mOutputFilename = filename;
+void vvImageWriter::SetOutputFileName(std::string filename)
+{
+  mOutputFilename = filename;
 }
 //====================================================================
 

@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -22,10 +22,10 @@
    * @file   clitkVFResampleGenericFilter.txx
    * @author David Sarrut <david.sarrut@creatis.insa-lyon.fr>
    * @date   23 Feb 2008 08:40:11
-   * 
-   * @brief  
-   * 
-   * 
+   *
+   * @brief
+   *
+   *
    ------------------------------------------------=*/
 
 //--------------------------------------------------------------------

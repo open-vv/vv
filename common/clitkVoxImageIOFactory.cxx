@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -22,10 +22,10 @@
  * @file   clitkVoxImageIOFactory.cxx
  * @author David Sarrut <david.sarrut@creatis.insa-lyon.fr>
  * @date   03 Jul 2006 11:29:10
- * 
- * @brief  
- * 
- * 
+ *
+ * @brief
+ *
+ *
  =================================================*/
 
 #include "clitkVoxImageIOFactory.h"
@@ -33,13 +33,13 @@
 #include <fstream>
 
 //====================================================================
-clitk::VoxImageIOFactory::VoxImageIOFactory() 
+clitk::VoxImageIOFactory::VoxImageIOFactory()
 {
-  this->RegisterOverride("itkImageIOBase", 
-						 "VoxImageIO",
-						 "Vox Image IO", 
-						 1,
-						 itk::CreateObjectFunction<VoxImageIO>::New());
+  this->RegisterOverride("itkImageIOBase",
+                         "VoxImageIO",
+                         "Vox Image IO",
+                         1,
+                         itk::CreateObjectFunction<VoxImageIO>::New());
 }
 
 

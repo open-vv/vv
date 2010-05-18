@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -22,7 +22,8 @@
 #include "clitkResampleImageGenericFilter.h"
 
 //--------------------------------------------------------------------
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv[])
+{
 
   // Init command line
   GGO(clitkResampleImage, args_info);
@@ -30,11 +31,11 @@ int main(int argc, char * argv[]) {
   // Filter
   typedef clitk::ResampleImageGenericFilter<args_info_clitkResampleImage> FilterType;
   FilterType::Pointer filter = FilterType::New();
-  
+
   filter->SetArgsInfo(args_info);
   filter->Update();
 
-  // this is the end my friend  
+  // this is the end my friend
   return EXIT_SUCCESS;
 
 }// end main

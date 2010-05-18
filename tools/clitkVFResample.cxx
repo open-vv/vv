@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -30,7 +30,8 @@
 #include "clitkVFResampleGenericFilter.h"
 
 //--------------------------------------------------------------------
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv[])
+{
 
   // Init command line
   GGO(clitkImageResample, args_info);
@@ -83,10 +84,10 @@ int main(int argc, char * argv[]) {
       exit(0);
     }
     for(unsigned int i=0; i<dim; i++) {
-      if ((args_info.size_arg[i] == -1) || (args_info.size_arg[i]==0)) 
-	outputSize[i] = inputSize[i];
-      else 
-	outputSize[i] = args_info.size_arg[i];
+      if ((args_info.size_arg[i] == -1) || (args_info.size_arg[i]==0))
+        outputSize[i] = inputSize[i];
+      else
+        outputSize[i] = args_info.size_arg[i];
       outputSpacing[i] = inputSize[i]*inputSpacing[i]/outputSize[i];
     }
   }
@@ -95,20 +96,18 @@ int main(int argc, char * argv[]) {
   if (!args_info.size_given && args_info.spacing_given) {
     if (args_info.spacing_given != dim) {
       if (args_info.spacing_given == 1) {
-	for(unsigned int i=0; i<dim; i++) outputSpacing[i] = args_info.spacing_arg[0];
+        for(unsigned int i=0; i<dim; i++) outputSpacing[i] = args_info.spacing_arg[0];
+      } else {
+        std::cerr << "Input image is " << dim << "D, please give " << dim << " spacing numbers." << std::endl;
+        exit(0);
       }
-      else {
-	std::cerr << "Input image is " << dim << "D, please give " << dim << " spacing numbers." << std::endl;
-	exit(0);
-      }
-    }
-    else {
+    } else {
       for(unsigned int i=0; i<dim; i++) {
-	if ((args_info.spacing_arg[i] == -1) || (args_info.spacing_arg[i]==0)) 
-	  outputSpacing[i] = inputSpacing[i];
-	else 
-	  outputSpacing[i] = args_info.spacing_arg[i];
-	
+        if ((args_info.spacing_arg[i] == -1) || (args_info.spacing_arg[i]==0))
+          outputSpacing[i] = inputSpacing[i];
+        else
+          outputSpacing[i] = args_info.spacing_arg[i];
+
       }
     }
     for(unsigned int i=0; i<dim; i++)
@@ -120,7 +119,7 @@ int main(int argc, char * argv[]) {
     DDV(outputSize,dim);
     DDV(outputSpacing,dim);
   }
-  
+
   // Get sigma option for Gaussian filter
   std::vector<double> sigma;
   sigma.resize(args_info.gauss_given);
@@ -128,12 +127,11 @@ int main(int argc, char * argv[]) {
   if (args_info.gauss_given) {
     if (args_info.gauss_given != dim) {
       if (args_info.gauss_given == 1) {
-	sigma.resize(dim);
-	for(unsigned int i=0; i<dim; i++) sigma[i] = args_info.gauss_arg[0];
-      }
-      else {
-	std::cerr << "Input image is " << dim << "D, please give " << dim << " sigma numbers for gaussian filter." << std::endl;
-	exit(0);
+        sigma.resize(dim);
+        for(unsigned int i=0; i<dim; i++) sigma[i] = args_info.gauss_arg[0];
+      } else {
+        std::cerr << "Input image is " << dim << "D, please give " << dim << " sigma numbers for gaussian filter." << std::endl;
+        exit(0);
       }
     }
   }
@@ -149,11 +147,11 @@ int main(int argc, char * argv[]) {
   if (args_info.gauss_given)
     filter->SetGaussianSigma(sigma);
   filter->SetOutputFilename(args_info.output_arg);
-  
-  // Go ! 
+
+  // Go !
   filter->Update();
 
-  // this is the end my friend  
+  // this is the end my friend
   return 0;
 }// end main
 //--------------------------------------------------------------------

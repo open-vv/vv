@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -102,7 +102,7 @@
 //     }
 //   else
 //     assert(false); //No input image, shouldn't happen
-  
+
 //   if (mIOVerbose) {
 //     std::cout << "Input is " << mDim << "D " << mPixelTypeName << "." << std::endl;
 //   }
@@ -162,8 +162,8 @@
 
 // //--------------------------------------------------------------------
 // void clitk::ImageToImageGenericFilterBase::ImageTypeError() {
-//   std::cerr << "**Error** The filter <" << mFilterName << "> is not available for " 
-//             << mDim << "D images with pixel=" 
+//   std::cerr << "**Error** The filter <" << mFilterName << "> is not available for "
+//             << mDim << "D images with pixel="
 //             << mPixelTypeName << " and "
 //             << mNbOfComponents << " component." << std::endl;
 //   std::cerr << GetAvailableImageTypes();

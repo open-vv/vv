@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -22,47 +22,48 @@
    * @file   clitkImageConvertGenericFilter.txx
    * @author David Sarrut <david.sarrut@creatis.insa-lyon.fr>
    * @date   05 May 2008 11:14:20
-   * 
-   * @brief  
-   * 
-   * 
+   *
+   * @brief
+   *
+   *
    =================================================*/
 
 #include <limits>
 
 //====================================================================
 template<unsigned int Dim>
-void ImageConvertGenericFilter::Update_WithDim() {  
+void ImageConvertGenericFilter::Update_WithDim()
+{
 #define TRY_TYPE(TYPE) \
-  if (IsSameType<TYPE>(mPixelTypeName)) { Update_WithDimAndPixelType<Dim, TYPE>(); return; } 
+  if (IsSameType<TYPE>(mPixelTypeName)) { Update_WithDimAndPixelType<Dim, TYPE>(); return; }
   // TRY_TYPE(signed char);
   TRY_TYPE(char);
   TRY_TYPE(uchar);
   TRY_TYPE(short);
   TRY_TYPE(ushort);
-  TRY_TYPE(int); 
-  TRY_TYPE(unsigned int); 
+  TRY_TYPE(int);
+  TRY_TYPE(unsigned int);
   TRY_TYPE(float);
   TRY_TYPE(double);
 #undef TRY_TYPE
 
   std::string list = CreateListOfTypes<uchar, short, ushort, int, uint, float, double>();
   std::cerr << "Error, I don't know the type '" << mPixelTypeName << "' for the input image '"
-	    << mInputFilenames[0] << "'." << std::endl << "Known types are " << list << std::endl;
+            << mInputFilenames[0] << "'." << std::endl << "Known types are " << list << std::endl;
   exit(0);
 }
 //====================================================================
 
 //====================================================================
 template<unsigned int Dim, class PixelType>
-void ImageConvertGenericFilter::Update_WithDimAndPixelType() {
+void ImageConvertGenericFilter::Update_WithDimAndPixelType()
+{
   if ((mPixelTypeName == mOutputPixelTypeName) || (mOutputPixelTypeName == "NotSpecified")) {
     typedef itk::Image<PixelType,Dim> InputImageType;
     typename InputImageType::Pointer input = clitk::readImage<InputImageType>(mInputFilenames);
     //clitk::writeImage<InputImageType>(input, mOutputFilename, mIOVerbose);
     this->SetNextOutput<InputImageType>(input);
-  }
-  else {
+  } else {
 #define TRY_TYPE(TYPE) \
     if (IsSameType<TYPE>(mOutputPixelTypeName)) { Update_WithDimAndPixelTypeAndOutputType<Dim, PixelType, TYPE>(); return; }
     TRY_TYPE(char);
@@ -76,16 +77,17 @@ void ImageConvertGenericFilter::Update_WithDimAndPixelType() {
 #undef TRY_TYPE
 
     std::string list = CreateListOfTypes<char, uchar, short, ushort, int, float, double>();
-    std::cerr << "Error, I don't know the output type '" << mOutputPixelTypeName 
-	      << "'. " << std::endl << "Known types are " << list << "." << std::endl;
+    std::cerr << "Error, I don't know the output type '" << mOutputPixelTypeName
+              << "'. " << std::endl << "Known types are " << list << "." << std::endl;
     exit(0);
-  }  
+  }
 }
 //====================================================================
 
 //====================================================================
 template<unsigned int Dim, class PixelType, class OutputPixelType>
-void ImageConvertGenericFilter::Update_WithDimAndPixelTypeAndOutputType() {
+void ImageConvertGenericFilter::Update_WithDimAndPixelTypeAndOutputType()
+{
   // Read
   typedef itk::Image<PixelType,Dim> InputImageType;
   typename InputImageType::Pointer input = clitk::readImage<InputImageType>(mInputFilenames);
@@ -93,27 +95,27 @@ void ImageConvertGenericFilter::Update_WithDimAndPixelTypeAndOutputType() {
   // Warning
   if (std::numeric_limits<PixelType>::is_signed) {
     if (!std::numeric_limits<OutputPixelType>::is_signed) {
-      std::cerr << "Warning, input type is signed (" << mPixelTypeName << ") while output type is not (" 
-		<< mOutputPixelTypeName << "), use at your own responsability." << std::endl;
+      std::cerr << "Warning, input type is signed (" << mPixelTypeName << ") while output type is not ("
+                << mOutputPixelTypeName << "), use at your own responsability." << std::endl;
     }
   }
   if (!std::numeric_limits<PixelType>::is_integer) {
     if (std::numeric_limits<OutputPixelType>::is_integer) {
-      std::cerr << "Warning, input type is not integer (" << mPixelTypeName << ") while output type is (" 
-		<< mOutputPixelTypeName << "), use at your own responsability." << std::endl;
+      std::cerr << "Warning, input type is not integer (" << mPixelTypeName << ") while output type is ("
+                << mOutputPixelTypeName << "), use at your own responsability." << std::endl;
     }
   }
   //  DD(std::numeric_limits<PixelType>::digits10);
   // DD(std::numeric_limits<OutputPixelType>::digits10);
   if (!std::numeric_limits<PixelType>::is_integer) {
     if (std::numeric_limits<OutputPixelType>::is_integer) {
-      std::cerr << "Warning, input type is not integer (" << mPixelTypeName << ") while output type is (" 
-		<< mOutputPixelTypeName << "), use at your own responsability." << std::endl;
+      std::cerr << "Warning, input type is not integer (" << mPixelTypeName << ") while output type is ("
+                << mOutputPixelTypeName << "), use at your own responsability." << std::endl;
     }
   }
   if (std::numeric_limits<PixelType>::digits10 > std::numeric_limits<OutputPixelType>::digits10) {
-    std::cerr << "Warning, possible loss of precision : input type is (" << mPixelTypeName << ") while output type is (" 
-		<< mOutputPixelTypeName << "), use at your own responsability." << std::endl;
+    std::cerr << "Warning, possible loss of precision : input type is (" << mPixelTypeName << ") while output type is ("
+              << mOutputPixelTypeName << "), use at your own responsability." << std::endl;
   }
 
   // Cast

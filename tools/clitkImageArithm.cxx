@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -29,7 +29,8 @@
 #include "clitkImageArithmGenericFilter.h"
 
 //--------------------------------------------------------------------
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv[])
+{
 
   // Init command line
   GGO(clitkImageArithm, args_info);
@@ -41,8 +42,8 @@ int main(int argc, char * argv[]) {
   // Go !
   filter->SetArgsInfo(args_info);
   filter->Update();
-  
-  // this is the end my friend  
+
+  // this is the end my friend
   return EXIT_SUCCESS;
 } // end main
 

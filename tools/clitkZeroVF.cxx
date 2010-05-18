@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -22,9 +22,9 @@
  * @file   clitkZeroVF.cxx
  * @author Joel Schaerer
  * @date   July 20  10:14:53 2007
- * 
+ *
  * @brief  Creates a VF filled with zeros the size of the input VF
- * 
+ *
  */
 
 // clitk include
@@ -35,11 +35,11 @@
 
 int main( int argc, char *argv[] )
 {
-  
+
   // Init command line
   GGO(clitkZeroVF, args_info);
   CLITK_INIT;
-  
+
   //Creation of the generic filter
   clitk::ZeroVFGenericFilter::Pointer zeroVFGenericFilter= clitk::ZeroVFGenericFilter::New();
 
@@ -49,7 +49,7 @@ int main( int argc, char *argv[] )
   zeroVFGenericFilter->SetVerbose(args_info.verbose_flag);
 
   //update
-  zeroVFGenericFilter->Update();  
+  zeroVFGenericFilter->Update();
   return EXIT_SUCCESS;
 }
 #endif

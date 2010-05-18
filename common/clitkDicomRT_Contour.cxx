@@ -2,7 +2,7 @@
   Program:         vv http://www.creatis.insa-lyon.fr/rio/vv
   Main authors :   XX XX XX
 
-  Authors belongs to: 
+  Authors belongs to:
   - University of LYON           http://www.universite-lyon.fr/
   - Léon Bérard cancer center    http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory      http://www.creatis.insa-lyon.fr
@@ -17,11 +17,12 @@
 
   =========================================================================*/
 
-#include "clitkDicomRT_Contour.h" 
+#include "clitkDicomRT_Contour.h"
 #include <vtkCellArray.h>
 
 //--------------------------------------------------------------------
-clitk::DicomRT_Contour::DicomRT_Contour() {
+clitk::DicomRT_Contour::DicomRT_Contour()
+{
   mMeshIsUpToDate = false;
   mNbOfPoints = 0;
 }
@@ -29,23 +30,26 @@ clitk::DicomRT_Contour::DicomRT_Contour() {
 
 
 //--------------------------------------------------------------------
-clitk::DicomRT_Contour::~DicomRT_Contour() {
-  
+clitk::DicomRT_Contour::~DicomRT_Contour()
+{
+
 }
 //--------------------------------------------------------------------
 
 
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_Contour::Print(std::ostream & os) const {
+void clitk::DicomRT_Contour::Print(std::ostream & os) const
+{
   DD("TODO : print Contours");
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-bool clitk::DicomRT_Contour::Read(gdcm::SQItem * item) {
-  
+bool clitk::DicomRT_Contour::Read(gdcm::SQItem * item)
+{
+
   // Contour type [Contour Geometric Type]
   mType = item->GetEntryValue(0x3006,0x0042);
   // DD(mType);
@@ -53,15 +57,15 @@ bool clitk::DicomRT_Contour::Read(gdcm::SQItem * item) {
     std::cerr << "Skip this contour : type=" << mType << std::endl;
     return false;
   }
-  
+
   // Number of points [Number of Contour Points]
   mNbOfPoints = parse_value<int>(item->GetEntryValue(0x3006,0x0046));
   // DD(mNbOfPoints);
-  
+
   // Read values [Contour Data]
   std::vector<float> points = parse_string<float>(item->GetEntryValue(0x3006,0x0050),'\\');
   assert(points.size() == static_cast<unsigned int>(mNbOfPoints)*3);
-  
+
   // Organize values
   mData = vtkPoints::New();
   mData->SetDataTypeToDouble();
@@ -89,7 +93,8 @@ bool clitk::DicomRT_Contour::Read(gdcm::SQItem * item) {
 
 
 //--------------------------------------------------------------------
-vtkPolyData * clitk::DicomRT_Contour::GetMesh() {
+vtkPolyData * clitk::DicomRT_Contour::GetMesh()
+{
   if (!mMeshIsUpToDate) {
     ComputeMesh();
   }
@@ -99,17 +104,18 @@ vtkPolyData * clitk::DicomRT_Contour::GetMesh() {
 
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_Contour::ComputeMesh() {  
- //  DD("ComputeMesh Contour");
+void clitk::DicomRT_Contour::ComputeMesh()
+{
+//  DD("ComputeMesh Contour");
   mMesh = vtkPolyData::New();
   mMesh->Allocate(); //for cell structures
   mMesh->SetPoints(vtkPoints::New());
   vtkIdType ids[2];
   for (unsigned int idx=0 ; idx<mNbOfPoints ; idx++) {
-    mMesh->GetPoints()->InsertNextPoint(mData->GetPoint(idx)[0], 
-                                        mData->GetPoint(idx)[1], 
+    mMesh->GetPoints()->InsertNextPoint(mData->GetPoint(idx)[0],
+                                        mData->GetPoint(idx)[1],
                                         mData->GetPoint(idx)[2]);
-    ids[0]=idx; 
+    ids[0]=idx;
     ids[1]=(ids[0]+1) % mNbOfPoints; //0-1,1-2,...,n-1-0
     // DD(ids[0]);
 //     DD(ids[1]);

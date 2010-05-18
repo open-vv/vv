@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -20,9 +20,9 @@
  * @file   clitkBinarizeImageGenericFilter.txx
  * @author Jef Vandemeulebroucke <jef@creatis.insa-lyon.fr>
  * @date   29 June 2009
- * 
+ *
  * @brief Binarize an image
- * 
+ *
  ===================================================*/
 
 // clitk
@@ -30,7 +30,8 @@
 #include "clitkBinarizeImageGenericFilter.h"
 
 //--------------------------------------------------------------------
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv[])
+{
 
   // Init command line
   GGO(clitkBinarizeImage, args_info);
@@ -39,7 +40,7 @@ int main(int argc, char * argv[]) {
   // Filter
   typedef clitk::BinarizeImageGenericFilter<args_info_clitkBinarizeImage> FilterType;
   FilterType::Pointer filter = FilterType::New();
-  
+
   filter->SetArgsInfo(args_info);
   filter->Update();
 

@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -25,9 +25,10 @@ ADD_TOOL(vvToolFooWithWidgetBase);
 
 //------------------------------------------------------------------------------
 vvToolFooWithWidgetBase::vvToolFooWithWidgetBase(vvMainWindowBase * parent, Qt::WindowFlags f)
-  :vvToolWidgetBase(parent, f), 
-   vvToolBase<vvToolFooWithWidgetBase>(parent), 
-   Ui::vvToolFoo() {
+  :vvToolWidgetBase(parent, f),
+   vvToolBase<vvToolFooWithWidgetBase>(parent),
+   Ui::vvToolFoo()
+{
   // Setup the UI
   Ui_vvToolFoo::setupUi(mToolWidget);
 }
@@ -35,13 +36,15 @@ vvToolFooWithWidgetBase::vvToolFooWithWidgetBase(vvMainWindowBase * parent, Qt::
 
 
 //------------------------------------------------------------------------------
-vvToolFooWithWidgetBase::~vvToolFooWithWidgetBase() {
+vvToolFooWithWidgetBase::~vvToolFooWithWidgetBase()
+{
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvToolFooWithWidgetBase::Initialize() {
+void vvToolFooWithWidgetBase::Initialize()
+{
   SetToolName("Foo");
   SetToolMenuName("Foo with WidgetBase");
   SetToolIconFilename(":/common/icons/ducky.png");
@@ -51,14 +54,16 @@ void vvToolFooWithWidgetBase::Initialize() {
 
 
 //------------------------------------------------------------------------------
-void vvToolFooWithWidgetBase::InputIsSelected(vvSlicerManager *m) {
-  
+void vvToolFooWithWidgetBase::InputIsSelected(vvSlicerManager *m)
+{
+
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvToolFooWithWidgetBase::apply() {
+void vvToolFooWithWidgetBase::apply()
+{
   close();
 }
 //------------------------------------------------------------------------------
