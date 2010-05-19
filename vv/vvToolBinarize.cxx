@@ -14,7 +14,7 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-======================================================================-====*/
+  ======================================================================-====*/
 
 #include "vvToolBinarize.h"
 #include "vvSlicerManager.h"
@@ -92,9 +92,9 @@ void vvToolBinarize::InteractiveDisplayToggled(bool b)
     RemoveVTKObjects();
   } else {
     for(unsigned int i=0; i<mImageContour.size(); i++) {
-      mImageContour[i]->showActors();
+      mImageContour[i]->ShowActors();
       if (mRadioButtonLowerThan->isChecked())
-        mImageContourLower[i]->showActors();
+        mImageContourLower[i]->ShowActors();
     }
     if (mCurrentSlicerManager)
       mCurrentSlicerManager->Render();
@@ -107,8 +107,8 @@ void vvToolBinarize::InteractiveDisplayToggled(bool b)
 void vvToolBinarize::RemoveVTKObjects()
 {
   for(unsigned int i=0; i<mImageContour.size(); i++) {
-    mImageContour[i]->hideActors();
-    mImageContourLower[i]->hideActors();
+    mImageContour[i]->HideActors();
+    mImageContourLower[i]->HideActors();    
   }
   if (mCurrentSlicerManager)
     mCurrentSlicerManager->Render();
@@ -141,14 +141,14 @@ void vvToolBinarize::enableLowerThan(bool b)
   if (!b) {
     mThresholdSlider1->resetMaximum();
     for(unsigned int i=0; i<mImageContour.size(); i++) {
-      mImageContourLower[i]->hideActors();
+      mImageContourLower[i]->HideActors();    
     }
     mCurrentSlicerManager->Render();
   } else {
     valueChangedT1(mThresholdSlider1->GetValue());
     valueChangedT2(mThresholdSlider2->GetValue());
     for(unsigned int i=0; i<mImageContour.size(); i++) {
-      mImageContourLower[i]->showActors();
+      mImageContourLower[i]->ShowActors();    
     }
     mCurrentSlicerManager->Render();
   }
@@ -182,10 +182,10 @@ void vvToolBinarize::InputIsSelected(vvSlicerManager * m)
   mFGSlider->SetImage(mCurrentImage);
   mBGSlider->SetImage(mCurrentImage);
   //  DD(mCurrentSlicerManager->GetFileName().c_str());
-//  mFGSlider->SetMaximum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMax());
-//   mFGSlider->SetMinimum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMin());
-//   mBGSlider->SetMaximum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMax());
-//   mBGSlider->SetMinimum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMin());
+  //  mFGSlider->SetMaximum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMax());
+  //   mFGSlider->SetMinimum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMin());
+  //   mBGSlider->SetMaximum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMax());
+  //   mBGSlider->SetMinimum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMin());
 
   // Output is uchar ...
   mFGSlider->SetMaximum(255);
@@ -201,11 +201,11 @@ void vvToolBinarize::InputIsSelected(vvSlicerManager * m)
   // VTK objects for interactive display
   for(int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
     mImageContour.push_back(new vvImageContour);
-    mImageContour[i]->setSlicer(mCurrentSlicerManager->GetSlicer(i));
-    mImageContour[i]->setColor(1.0, 0.0, 0.0);
+    mImageContour[i]->SetSlicer(mCurrentSlicerManager->GetSlicer(i));
+    mImageContour[i]->SetColor(1.0, 0.0, 0.0);
     mImageContourLower.push_back(new vvImageContour);
-    mImageContourLower[i]->setSlicer(mCurrentSlicerManager->GetSlicer(i));
-    mImageContourLower[i]->setColor(0.0, 0.0, 1.0);
+    mImageContourLower[i]->SetSlicer(mCurrentSlicerManager->GetSlicer(i));
+    mImageContourLower[i]->SetColor(0.0, 0.0, 1.0);
   }
   valueChangedT1(mThresholdSlider1->GetValue());
 
@@ -236,10 +236,10 @@ void vvToolBinarize::UpdateSlice(int slicer,int slices)
 {
   if (!mInteractiveDisplayIsEnabled) return;
   if (!mCurrentSlicerManager) close();
-  mImageContour[slicer]->update(mThresholdSlider1->GetValue());
-  if (mRadioButtonLowerThan->isChecked())
-    mImageContourLower[slicer]->update(mThresholdSlider2->GetValue());
-  //  mCurrentSlicerManager->GetSlicer(slicer)->Render();
+  mImageContour[slicer]->Update(mThresholdSlider1->GetValue());
+  if (mRadioButtonLowerThan->isChecked()) 
+    mImageContourLower[slicer]->Update(mThresholdSlider2->GetValue());
+  //  mCurrentSlicerManager->GetSlicer(slicer)->Render(); 
 }
 //------------------------------------------------------------------------------
 
@@ -249,14 +249,14 @@ void vvToolBinarize::GetArgsInfoFromGUI()
 {
 
   /* //KEEP THIS FOR READING GGO FROM FILE
-    int argc=1;
-    std::string a = "toto";
-    char * const* argv = new char*;
-    //a.c_str();
-    struct cmdline_parser_params p;
-    p.check_required = 0;
-    int good = cmdline_parser_ext(argc, argv, &args_info, &p);
-  DD(good);
+     int argc=1;
+     std::string a = "toto";
+     char * const* argv = new char*;
+     //a.c_str();
+     struct cmdline_parser_params p;
+     p.check_required = 0;
+     int good = cmdline_parser_ext(argc, argv, &args_info, &p);
+     DD(good);
   */
 
   mArgsInfo.imagetypes_flag = 0;
@@ -336,8 +336,8 @@ void vvToolBinarize::valueChangedT2(double v)
   if (mRadioButtonLowerThan->isChecked()) {
     mThresholdSlider1->SetMaximum(v);
     if (!mInteractiveDisplayIsEnabled) return;
-    for(int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
-      mImageContourLower[i]->update(v);
+    for(int i=0;i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
+      mImageContourLower[i]->Update(v);
     }
     // mCurrentSlicerManager->Render();
   }
@@ -353,8 +353,8 @@ void vvToolBinarize::valueChangedT1(double v)
   mThresholdSlider2->SetMinimum(v);
   //  int m1 = (int)lrint(v);
   if (!mInteractiveDisplayIsEnabled) return;
-  for(int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
-    mImageContour[i]->update(v);
+  for(int i=0;i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
+    mImageContour[i]->Update(v);
   }
   // mCurrentSlicerManager->Render();
 }

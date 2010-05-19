@@ -34,14 +34,14 @@ class vvImageContour
   vvImageContour();
   ~vvImageContour();
 
-  void setSlicer(vvSlicer * slicer);
-  void update(double value);
-  void hideActors();
-  void showActors();
-  void setColor(double r, double g, double b);
+  void SetSlicer(vvSlicer * slicer);
+  void Update(double value);
+  void HideActors();
+  void ShowActors();
+  void SetColor(double r, double g, double b);
   void SetLineWidth(double w);
-  void setImage(vvImage::Pointer image);
-  void setPreserveMemoryModeEnabled(bool b);
+  void SetImage(vvImage::Pointer image);
+  void SetPreserveMemoryModeEnabled(bool b);
 
  protected:
   vvSlicer * mSlicer;
@@ -65,18 +65,18 @@ class vvImageContour
   std::vector<std::vector<vtkActor*> > mListOfCachedContourActors;
 
   // Functions
-  void initializeCacheMode();
-  void updateWithPreserveMemoryMode();
-  void updateWithFastCacheMode();
-  void createNewActor(vtkActor ** actor, 
+  void InitializeCacheMode();
+  void UpdateWithPreserveMemoryMode();
+  void UpdateWithFastCacheMode();
+  void CreateNewActor(vtkActor ** actor, 
 		      vtkMarchingSquares ** squares, 
 		      vtkImageClip ** clipper, int numImage);
-  void updateActor(vtkActor * actor, 
+  void UpdateActor(vtkActor * actor, 
 		   vtkMarchingSquares * squares,
 		   vtkImageClip * clipper, 
 		   double threshold, int orientation, int slice);
-  void createActor(int orientation, int slice);
-  int computeCurrentOrientation();
+  void CreateActor(int orientation, int slice);
+  int ComputeCurrentOrientation();
   
 }; // end class vvImageContour
 //------------------------------------------------------------------------------

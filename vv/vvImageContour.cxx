@@ -52,15 +52,14 @@ vvImageContour::~vvImageContour()
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::setSlicer(vvSlicer * slicer)
-{
-  mSlicer = slicer;
+void vvImageContour::SetSlicer(vvSlicer * slicer) {
+  mSlicer = slicer;  
   // Create an actor for each time slice
   for (unsigned int numImage = 0; numImage < mSlicer->GetImage()->GetVTKImages().size(); numImage++) {
     vtkImageClip * mClipper = vtkImageClip::New();
     vtkMarchingSquares * mSquares = vtkMarchingSquares::New();
     vtkActor * mSquaresActor = vtkActor::New();
-    createNewActor(&mSquaresActor, &mSquares, &mClipper, numImage);
+    CreateNewActor(&mSquaresActor, &mSquares, &mClipper, numImage);
     mSquaresActorList.push_back(mSquaresActor);
     mSquaresList.push_back(mSquares);
     mClipperList.push_back(mClipper);
@@ -70,8 +69,7 @@ void vvImageContour::setSlicer(vvSlicer * slicer)
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::setImage(vvImage::Pointer image)
-{
+void vvImageContour::SetImage(vvImage::Pointer image) {
   for (unsigned int numImage = 0; numImage < image->GetVTKImages().size(); numImage++) {
     mClipperList[numImage]->SetInput(image->GetVTKImages()[numImage]);
   }
@@ -82,27 +80,26 @@ void vvImageContour::setImage(vvImage::Pointer image)
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::setPreserveMemoryModeEnabled(bool b)
-{
+void vvImageContour::SetPreserveMemoryModeEnabled(bool b) {
   // FastCache mode work only if threshold is always the same
   if (mDisplayModeIsPreserveMemory == b) return;
   mDisplayModeIsPreserveMemory = b;
   if (!b) {
-    hideActors();
-    initializeCacheMode();
-  } else {
+    HideActors();
+    InitializeCacheMode();
+  }
+  else {
     for(unsigned int d=0; d<mListOfCachedContourActors.size(); d++)
       mListOfCachedContourActors[d].clear();
     mListOfCachedContourActors.clear();
-    showActors();
+    ShowActors();
   }
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::setColor(double r, double g, double b)
-{
+void vvImageContour::SetColor(double r, double g, double b) {
   for(unsigned int i=0; i<mSquaresActorList.size(); i++) {
     mSquaresActorList[i]->GetProperty()->SetColor(r,g,b);
   }
@@ -121,8 +118,7 @@ void vvImageContour::SetLineWidth(double w)
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::hideActors()
-{
+void vvImageContour::HideActors() {
   if (!mSlicer) return;
   mSlice = mSlicer->GetSlice();
   for(unsigned int i=0; i<mSquaresActorList.size(); i++) {
@@ -133,22 +129,20 @@ void vvImageContour::hideActors()
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::showActors()
-{
+void vvImageContour::ShowActors() {
   if (!mSlicer) return;
   mSlice = mSlicer->GetSlice();
   mTSlice = mSlicer->GetTSlice();
   //  for(unsigned int i=0; i<mSquaresActorList.size(); i++) {
   mSquaresActorList[mTSlice]->VisibilityOn();
-  update(mValue);
+  Update(mValue);
   //}
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::update(double value)
-{
+void vvImageContour::Update(double value) {
   //  DD(value);
   if (!mSlicer) return;
   if (mPreviousValue == value) {
@@ -167,9 +161,10 @@ void vvImageContour::update(double value)
   mSlice = mSlicer->GetSlice();
   //  DD(mDisplayModeIsPreserveMemory);
   if (mDisplayModeIsPreserveMemory) {
-    updateWithPreserveMemoryMode();
-  } else {
-    updateWithFastCacheMode();
+    UpdateWithPreserveMemoryMode();
+  }
+  else {
+    UpdateWithFastCacheMode();
   }
 
 
@@ -184,8 +179,7 @@ void vvImageContour::update(double value)
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::updateWithPreserveMemoryMode()
-{
+void vvImageContour::UpdateWithPreserveMemoryMode() {
   // Only change actor visibility if tslice change
   //DD(mTSlice);
   //DD(mSlice);
@@ -201,12 +195,12 @@ void vvImageContour::updateWithPreserveMemoryMode()
   vtkMarchingSquares * mSquares = mSquaresList[mTSlice];
   vtkImageClip * mClipper = mClipperList[mTSlice];
   vtkActor * mSquaresActor = mSquaresActorList[mTSlice];
-  int orientation = computeCurrentOrientation();
+  int orientation = ComputeCurrentOrientation();
   //  DD(orientation);
   //DD(mValue);
   //DD(mSlice);
   //DD(mPreviousTslice);
-  updateActor(mSquaresActor, mSquares, mClipper, mValue, orientation, mSlice);
+  UpdateActor(mSquaresActor, mSquares, mClipper, mValue, orientation, mSlice);
   mSquaresActorList[mTSlice]->VisibilityOn();
   if (mPreviousTslice != mTSlice) {
     if (mPreviousTslice != -1) mSquaresActorList[mPreviousTslice]->VisibilityOff();
@@ -216,8 +210,7 @@ void vvImageContour::updateWithPreserveMemoryMode()
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::initializeCacheMode()
-{
+void vvImageContour::InitializeCacheMode() {
   mPreviousSlice = mPreviousOrientation = 0;
   int dim = mSlicer->GetImage()->GetNumberOfDimensions();
 
@@ -235,8 +228,7 @@ void vvImageContour::initializeCacheMode()
 
 
 //------------------------------------------------------------------------------
-int vvImageContour::computeCurrentOrientation()
-{
+int vvImageContour::ComputeCurrentOrientation() {
   // Get extent of image in the slicer
   int* extent = mSlicer->GetImageActor()->GetDisplayExtent();
 
@@ -254,10 +246,9 @@ int vvImageContour::computeCurrentOrientation()
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::updateWithFastCacheMode()
-{
+void vvImageContour::UpdateWithFastCacheMode() {
   // Compute orientation
-  int orientation = computeCurrentOrientation();
+  int orientation = ComputeCurrentOrientation();
 
   if ((mPreviousSlice == mSlice) && (mPreviousOrientation == orientation)) return;
 
@@ -268,8 +259,8 @@ void vvImageContour::updateWithFastCacheMode()
     vtkImageClip * mClipper;
     vtkMarchingSquares * mSquares;
     vtkActor * mSquaresActor;
-    createNewActor(&mSquaresActor, &mSquares, &mClipper, 0);
-    updateActor(mSquaresActor, mSquares, mClipper, mValue, orientation, mSlice);
+    CreateNewActor(&mSquaresActor, &mSquares, &mClipper, 0);
+    UpdateActor(mSquaresActor, mSquares, mClipper, mValue, orientation, mSlice);
     mListOfCachedContourActors[orientation][mSlice] = mSquaresActor;
     mSquaresActor->VisibilityOn();
   }
@@ -283,11 +274,10 @@ void vvImageContour::updateWithFastCacheMode()
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::createNewActor(vtkActor ** actor,
-                                    vtkMarchingSquares ** squares,
-                                    vtkImageClip ** clipper,
-                                    int numImage)
-{
+void vvImageContour::CreateNewActor(vtkActor ** actor, 
+                                    vtkMarchingSquares ** squares, 
+                                    vtkImageClip ** clipper, 
+                                    int numImage) {
   vtkActor * mSquaresActor = (*actor = vtkActor::New());
   vtkImageClip * mClipper = (*clipper = vtkImageClip::New());
   vtkMarchingSquares * mSquares = (*squares = vtkMarchingSquares::New());
@@ -310,12 +300,10 @@ void vvImageContour::createNewActor(vtkActor ** actor,
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::updateActor(vtkActor * actor,
-                                 vtkMarchingSquares * squares,
-                                 vtkImageClip * clipper,
-                                 double threshold, int orientation, int slice)
-{
-
+void vvImageContour::UpdateActor(vtkActor * actor, 
+                                 vtkMarchingSquares * squares, 
+                                 vtkImageClip * clipper, 
+                                 double threshold, int orientation, int slice) {
   // Set parameter for the MarchigSquare
   squares->SetValue(0, threshold);
 
@@ -351,7 +339,7 @@ void vvImageContour::updateActor(vtkActor * actor,
 
   // Move the actor to be visible
   // DD(orientation);
-//   DD(slice);
+  //   DD(slice);
 
   //TO SIMPLiFY :!!!!!!!!! == ???????
   // actor->SetPosition(-1,-1,-1);

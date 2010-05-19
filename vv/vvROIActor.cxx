@@ -36,8 +36,11 @@ vvROIActor::vvROIActor()
   mImageContour.clear();
   mOverlayActors.clear();
   mIsVisible = true;
+  mIsContourVisible = false;
   mOpacity = 0.7;
   mIsSelected = false;
+  mContourWidth = 2;
+  mContourColor.resize(3);
 }
 //------------------------------------------------------------------------------
 
@@ -58,8 +61,14 @@ void vvROIActor::SetROI(clitk::DicomRT_ROI * s)
 
 
 //------------------------------------------------------------------------------
-void vvROIActor::SetSlicerManager(vvSlicerManager * s)
-{
+void vvROIActor::SetContourWidth(int n) {
+  mContourWidth = n;
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvROIActor::SetSlicerManager(vvSlicerManager * s) {
   mSlicerManager = s;
 }
 //------------------------------------------------------------------------------
@@ -82,30 +91,58 @@ void vvROIActor::SetVisible(bool b)
 
 
 //------------------------------------------------------------------------------
-bool vvROIActor::IsVisible()
-{
+void vvROIActor::SetContourVisible(bool b) {
+  mIsContourVisible = b;
+  if (!b) { // remove actor
+    for(unsigned int i= 0; i<mOverlayActors.size(); i++) {
+      //      mOverlayActors[i]->HideActors();
+      mImageContour[i]->HideActors();
+    }
+  }
+  else {
+    for(unsigned int i= 0; i<mOverlayActors.size(); i++) {
+      // mOverlayActors[i]->ShowActors();
+      mImageContour[i]->ShowActors();
+    }
+  }
+  Update();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+bool vvROIActor::IsVisible() {
   return mIsVisible;
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvROIActor::Initialize()
-{
+bool vvROIActor::IsContourVisible() {
+  return mIsContourVisible;
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvROIActor::Initialize() {
   if (mROI->GetImage()) {
     mImageContour.clear();
     mOverlayActors.clear();
     for(int i=0; i<mSlicerManager->NumberOfSlicers(); i++) {
       mImageContour.push_back(new vvImageContour);
-      mImageContour[i]->setSlicer(mSlicerManager->GetSlicer(i));
-      mImageContour[i]->setImage(mROI->GetImage());
+      mImageContour[i]->SetSlicer(mSlicerManager->GetSlicer(i));
+      mImageContour[i]->SetImage(mROI->GetImage());
       //mImageContour[i]->setColor(1.0, 0.0, 0.0);
-      mImageContour[i]->setColor(1.0-mROI->GetDisplayColor()[0],
-                                 1.0-mROI->GetDisplayColor()[1],
-                                 1.0-mROI->GetDisplayColor()[2]);
-      mImageContour[i]->setPreserveMemoryModeEnabled(true);
-      mImageContour[i]->setSlicer(mSlicerManager->GetSlicer(i));
-
+      mContourColor[0] = 1.0-mROI->GetDisplayColor()[0];
+      mContourColor[1] = 1.0-mROI->GetDisplayColor()[1];
+      mContourColor[2] = 1.0-mROI->GetDisplayColor()[2];
+      mImageContour[i]->SetColor(mContourColor[0], mContourColor[1], mContourColor[2]);
+      mImageContour[i]->SetLineWidth(mContourWidth);
+      mImageContour[i]->SetPreserveMemoryModeEnabled(true);
+      mImageContour[i]->SetSlicer(mSlicerManager->GetSlicer(i));
+      mImageContour[i]->HideActors();
+      
       mOverlayActors.push_back(new vvBinaryImageOverlayActor);
       mOverlayActors[i]->SetImage(mROI->GetImage(), mROI->GetBackgroundValueLabelImage());
       mOverlayActors[i]->SetColor(mROI->GetDisplayColor()[0],
@@ -146,13 +183,18 @@ void vvROIActor::UpdateSlice(int slicer, int slices)
     exit(0);
   }
 
-  // CONTOUR HERE
-  DD("vvROIActor::UpdateSlice");
-  DD(mROI->GetName());
-  DD(mIsSelected);
-  DD(mROI->GetBackgroundValueLabelImage());
+  // CONTOUR HERE 
+  //  DD("vvROIActor::UpdateSlice");
+  //DD(mROI->GetName());
+  //DD(mIsSelected);
+  //DD(mROI->GetBackgroundValueLabelImage());
   if (mIsSelected) {
-    mImageContour[slicer]->update(1.0);//mROI->GetBackgroundValueLabelImage());
+    mImageContour[slicer]->Update(1.0);//mROI->GetBackgroundValueLabelImage()); 
+    //    mImageContour[slicer]->showActors();
+  }
+  if (mIsContourVisible) {
+    mImageContour[slicer]->SetLineWidth(mContourWidth);
+    mImageContour[slicer]->Update(mROI->GetBackgroundValueLabelImage()+1); 
     //    mImageContour[slicer]->showActors();
   }
 
@@ -187,14 +229,34 @@ void vvROIActor::SetOpacity(double d)
 
 
 //------------------------------------------------------------------------------
-void vvROIActor::UpdateColor()
-{
+void vvROIActor::SetContourColor(double r, double v, double b) {
+  mContourColor[0] = r;
+  mContourColor[1] = v;
+  mContourColor[2] = b;  
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+std::vector<double> & vvROIActor::GetContourColor() { 
+  return mContourColor; 
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvROIActor::UpdateColor() {
   for(unsigned int i=0; i<mOverlayActors.size(); i++) {
     mOverlayActors[i]->SetOpacity(mOpacity);
     mOverlayActors[i]->SetColor(mROI->GetDisplayColor()[0],
                                 mROI->GetDisplayColor()[1],
                                 mROI->GetDisplayColor()[2]);
     mOverlayActors[i]->UpdateColor();
+  }
+  for(unsigned int i=0; i<mImageContour.size(); i++) {
+    mImageContour[i]->SetLineWidth(mContourWidth);
+    mImageContour[i]->SetColor(mContourColor[0], mContourColor[1], mContourColor[2]);
+    mImageContour[i]->Update(mROI->GetBackgroundValueLabelImage()+1);
   }
 }
 //------------------------------------------------------------------------------
@@ -215,11 +277,11 @@ void vvROIActor::SetSelected(bool b)
   if (b) {
     for(int i=0; i<mSlicerManager->NumberOfSlicers(); i++) {
       mImageContour[i]->SetLineWidth(3.0);
-      mImageContour[i]->showActors();
+      mImageContour[i]->ShowActors();
     }
   } else {
     for(int i=0; i<mSlicerManager->NumberOfSlicers(); i++) {
-      mImageContour[i]->hideActors();
+      mImageContour[i]->HideActors();
     }
   }
 }

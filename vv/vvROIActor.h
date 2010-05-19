@@ -40,10 +40,16 @@ class vvROIActor: public QObject {
   void Update();
   void Initialize();
   void SetVisible(bool b);
+  void SetContourVisible(bool b);
   bool IsVisible();
+  bool IsContourVisible();
   void SetOpacity(double x);
   double GetOpacity();
   void SetSelected(bool b);
+  void SetContourWidth(int n);
+  int GetContourWidth() { return mContourWidth; }
+  void SetContourColor(double r, double v, double b);
+  std::vector<double> & GetContourColor();
 
 public slots:
   void UpdateSlice(int slicer, int slices);
@@ -56,8 +62,11 @@ public slots:
   std::vector<vvBinaryImageOverlayActor *> mOverlayActors;
   
   bool mIsVisible;
+  bool mIsContourVisible;
   double mOpacity;
   bool mIsSelected;
+  int mContourWidth;
+  std::vector<double> mContourColor;
 
 }; // end class vvROIActor
 //------------------------------------------------------------------------------
