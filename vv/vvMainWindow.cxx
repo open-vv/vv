@@ -2316,17 +2316,23 @@ void vvMainWindow::NOVerticalSliderChanged()
   if (value == NOVerticalSlider->value()) return;
   else value = NOVerticalSlider->value();
   //  int value = NOVerticalSlider->value();
-  for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
-    if (DataTree->topLevelItem(i)->data(COLUMN_UL_VIEW,Qt::CheckStateRole).toInt() > 1) {
-      if (mSlicerManagers[i]->GetSlicer(0)->GetSlice() != value) {
-        mSlicerManagers[i]->GetSlicer(0)->SetSlice(value);
-        mSlicerManagers[i]->VerticalSliderHasChanged(0, value);
-        mSlicerManagers[i]->UpdateSlice(0);  // <-- DS add this. Not too much update ? YES. but needed for ImageContour ...
-        //mSlicerManagers[i]->GetSlicer(0)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ?
-      }
-      break;
+  for (unsigned int i = 0; i < mSlicerManagers.size(); i++)
+    {
+      if (DataTree->topLevelItem(i)->data(COLUMN_UL_VIEW,Qt::CheckStateRole).toInt() > 1)
+        {
+          if (mSlicerManagers[i]->GetSlicer(0)->GetSlice() != value) {
+            mSlicerManagers[i]->GetSlicer(0)->SetSlice(value);
+            mSlicerManagers[i]->VerticalSliderHasChanged(0, value);
+            
+            // If nor Update/Render -> slider not work
+            // only render = ok navigation, but for contour Update needed but slower ? 
+
+            mSlicerManagers[i]->UpdateSlice(0);  // <-- DS add this. Not too much update ? YES. but needed for ImageContour ...
+            //mSlicerManagers[i]->GetSlicer(0)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ? 
+          }
+          break;
+        }
     }
-  }
 }
 //------------------------------------------------------------------------------
 
