@@ -14,7 +14,7 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-======================================================================-====*/
+  ======================================================================-====*/
 
 #ifndef CLITKRESAMPLEIMAGEGENERICFILTER_TXX
 #define CLITKRESAMPLEIMAGEGENERICFILTER_TXX
@@ -22,15 +22,12 @@
 // clitk
 #include "clitkResampleImageWithOptionsFilter.h"
 
-namespace clitk
-{
-
 //--------------------------------------------------------------------
 template<class args_info_type>
-ResampleImageGenericFilter<args_info_type>::ResampleImageGenericFilter():
-  ImageToImageGenericFilter<Self>("Resample")
+clitk::ResampleImageGenericFilter<args_info_type>::ResampleImageGenericFilter():
+  ImageToImageGenericFilter<Self>("Resample") 
 {
-  InitializeImageType<2>();
+  // InitializeImageType<2>();
   InitializeImageType<3>();
   InitializeImageType<4>();
 }
@@ -40,17 +37,17 @@ ResampleImageGenericFilter<args_info_type>::ResampleImageGenericFilter():
 //--------------------------------------------------------------------
 template<class args_info_type>
 template<unsigned int Dim>
-void ResampleImageGenericFilter<args_info_type>::InitializeImageType()
-{
-  ADD_DEFAULT_IMAGE_TYPES(Dim);
-  //ADD_IMAGE_TYPE(Dim, short);
+void clitk::ResampleImageGenericFilter<args_info_type>::InitializeImageType() 
+{      
+  //ADD_DEFAULT_IMAGE_TYPES(Dim);
+  ADD_IMAGE_TYPE(Dim, short);
 }
 //--------------------------------------------------------------------
-
+  
 
 //--------------------------------------------------------------------
 template<class args_info_type>
-void ResampleImageGenericFilter<args_info_type>::SetArgsInfo(const args_info_type & a)
+void clitk::ResampleImageGenericFilter<args_info_type>::SetArgsInfo(const args_info_type & a) 
 {
   mArgsInfo=a;
   if (mArgsInfo.imagetypes_flag) this->PrintAvailableImageTypes();
@@ -71,7 +68,7 @@ void ResampleImageGenericFilter<args_info_type>::SetArgsInfo(const args_info_typ
 template<class args_info_type>
 template<class InputImageType>
 void
-ResampleImageGenericFilter<args_info_type>::UpdateWithInputImageType()
+clitk::ResampleImageGenericFilter<args_info_type>::UpdateWithInputImageType()
 {
 
   // Reading input
@@ -172,7 +169,6 @@ ResampleImageGenericFilter<args_info_type>::UpdateWithInputImageType()
 }
 //--------------------------------------------------------------------
 
-}
 
 #endif /* end #define CLITKRESAMPLEIMAGEGENERICFILTER_TXX */
 

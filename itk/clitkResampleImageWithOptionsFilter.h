@@ -131,6 +131,7 @@ namespace clitk {
     GaussianSigmaType m_GaussianSigma;
     OutputImagePixelType m_DefaultPixelValue;
     bool m_VerboseOptions;
+    OutputImageRegionType m_OutputRegion;
 
     virtual void GenerateInputRequestedRegion();
     virtual void GenerateOutputInformation();

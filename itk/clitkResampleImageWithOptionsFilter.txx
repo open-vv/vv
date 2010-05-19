@@ -33,13 +33,10 @@
 #include "itkBSplineInterpolateImageFunctionWithLUT.h"
 #include "itkCommand.h"
 
-namespace clitk
-{
-
 //--------------------------------------------------------------------
 template <class TInputImage, class TOutputImage>
-ResampleImageWithOptionsFilter<TInputImage, TOutputImage>::
-ResampleImageWithOptionsFilter():itk::ImageToImageFilter<TInputImage, TOutputImage>()
+clitk::ResampleImageWithOptionsFilter<TInputImage, TOutputImage>::
+ResampleImageWithOptionsFilter():itk::ImageToImageFilter<TInputImage, TOutputImage>() 
 {
   static const unsigned int dim = InputImageType::ImageDimension;
   this->SetNumberOfRequiredInputs(1);
@@ -64,8 +61,8 @@ ResampleImageWithOptionsFilter():itk::ImageToImageFilter<TInputImage, TOutputIma
 //--------------------------------------------------------------------
 template <class TInputImage, class TOutputImage>
 void
-ResampleImageWithOptionsFilter<TInputImage, TOutputImage>::
-SetInput(const InputImageType * image)
+clitk::ResampleImageWithOptionsFilter<TInputImage, TOutputImage>::
+SetInput(const InputImageType * image) 
 {
   // Process object is not const-correct so the const casting is required.
   this->SetNthInput(0, const_cast<InputImageType *>(image));
@@ -76,8 +73,8 @@ SetInput(const InputImageType * image)
 //--------------------------------------------------------------------
 template <class TInputImage, class TOutputImage>
 void
-ResampleImageWithOptionsFilter<TInputImage, TOutputImage>::
-GenerateInputRequestedRegion()
+clitk::ResampleImageWithOptionsFilter<TInputImage, TOutputImage>::
+GenerateInputRequestedRegion() 
 {
   // call the superclass's implementation of this method
   Superclass::GenerateInputRequestedRegion();
@@ -97,8 +94,8 @@ GenerateInputRequestedRegion()
 //--------------------------------------------------------------------
 template <class TInputImage, class TOutputImage>
 void
-ResampleImageWithOptionsFilter<TInputImage, TOutputImage>::
-GenerateOutputInformation()
+clitk::ResampleImageWithOptionsFilter<TInputImage, TOutputImage>::
+GenerateOutputInformation() 
 {
   static const unsigned int dim = InputImageType::ImageDimension;
 
@@ -148,25 +145,27 @@ GenerateOutputInformation()
     m_OutputSize[l] = inputSize[l];
     m_OutputSpacing[l] = inputSpacing[l];
   }
-
+    
   // Set Size/Spacing
   OutputImagePointer outputImage = this->GetOutput(0);
-  OutputImageRegionType region;
-  region.SetSize(m_OutputSize);
-  region.SetIndex(input->GetLargestPossibleRegion().GetIndex());
-  DD(input->GetLargestPossibleRegion().GetIndex());
-  outputImage->SetLargestPossibleRegion(region);
+  // OutputImageRegionType region;
+  m_OutputRegion.SetSize(m_OutputSize);
+  m_OutputRegion.SetIndex(input->GetLargestPossibleRegion().GetIndex());
+  outputImage->CopyInformation(input);
+  outputImage->SetLargestPossibleRegion(m_OutputRegion);
   outputImage->SetSpacing(m_OutputSpacing);
 
   // Init Gaussian sigma
   if (m_GaussianSigma[0] != -1) { // Gaussian filter set by user
     m_GaussianFilteringEnabled = true;
-  } else {
+  }
+  else {
     if (m_GaussianFilteringEnabled) { // Automated sigma when downsample
       for(unsigned int i=0; i<dim; i++) {
         if (m_OutputSpacing[i] > inputSpacing[i]) { // downsample
           m_GaussianSigma[i] = 0.5*m_OutputSpacing[i];// / inputSpacing[i]);
-        } else m_GaussianSigma[i] = 0; // will be ignore after
+        }
+        else m_GaussianSigma[i] = 0; // will be ignore after
       }
     }
   }
@@ -179,22 +178,27 @@ GenerateOutputInformation()
 
 //--------------------------------------------------------------------
 template <class TInputImage, class TOutputImage>
-void
-ResampleImageWithOptionsFilter<TInputImage, TOutputImage>::
-GenerateData()
+void 
+clitk::ResampleImageWithOptionsFilter<TInputImage, TOutputImage>::
+GenerateData() 
 {
-
+   
   // Get input pointer
   InputImagePointer input = dynamic_cast<InputImageType*>(itk::ProcessObject::GetInput(0));
   static const unsigned int dim = InputImageType::ImageDimension;
+
+  // Set regions and allocate
+  this->GetOutput()->SetRegions(m_OutputRegion);
+  this->GetOutput()->Allocate();
+  // this->GetOutput()->FillBuffer(m_DefaultPixelValue);
 
   // Create main Resample Image Filter
   typedef itk::ResampleImageFilter<InputImageType,OutputImageType> FilterType;
   typename FilterType::Pointer filter = FilterType::New();
   filter->GraftOutput(this->GetOutput());
-//     this->GetOutput()->Print(std::cout);
-//     this->GetOutput()->SetBufferedRegion(this->GetOutput()->GetLargestPossibleRegion());
-//     this->GetOutput()->Print(std::cout);
+  //     this->GetOutput()->Print(std::cout);
+  //     this->GetOutput()->SetBufferedRegion(this->GetOutput()->GetLargestPossibleRegion());
+  //     this->GetOutput()->Print(std::cout);
 
   // Print options if needed
   if (m_VerboseOptions) {
@@ -205,18 +209,10 @@ GenerateData()
       std::cout << "Sigma          = " << m_GaussianSigma << std::endl;
     std::cout << "Interpol       = ";
     switch (m_InterpolationType) {
-    case NearestNeighbor:
-      std::cout << "NearestNeighbor" << std::endl;
-      break;
-    case Linear:
-      std::cout << "Linear" << std::endl;
-      break;
-    case BSpline:
-      std::cout << "BSpline " << m_BSplineOrder << std::endl;
-      break;
-    case B_LUT:
-      std::cout << "B-LUT " << m_BSplineOrder << " " << m_BLUTSamplingFactor << std::endl;
-      break;
+    case NearestNeighbor: std::cout << "NearestNeighbor" << std::endl; break;
+    case Linear: std::cout << "Linear" << std::endl; break;
+    case BSpline: std::cout << "BSpline " << m_BSplineOrder << std::endl; break;
+    case B_LUT: std::cout << "B-LUT " << m_BSplineOrder << " " << m_BLUTSamplingFactor << std::endl; break;
     }
     std::cout << "Threads        = " << this->GetNumberOfThreads() << std::endl;
     std::cout << "LastDimIsTime  = " << m_LastDimensionIsTime << std::endl;
@@ -229,7 +225,8 @@ GenerateData()
   filter->SetOutputSpacing(m_OutputSpacing);
   filter->SetOutputOrigin(input->GetOrigin());
   filter->SetDefaultPixelValue(m_DefaultPixelValue);
-  filter->SetNumberOfThreads(this->GetNumberOfThreads());
+  filter->SetNumberOfThreads(this->GetNumberOfThreads()); 
+  filter->SetOutputDirection(input->GetDirection()); // <-- NEEDED if we want to keep orientation (in case of PermutAxes for example)
 
   // Select interpolator
   switch (m_InterpolationType) {
@@ -263,6 +260,7 @@ GenerateData()
   }
 
   // Initial Gaussian blurring if needed
+  // TODO : replace by itk::DiscreteGaussianImageFilter for small sigma
   typedef itk::RecursiveGaussianImageFilter<InputImageType, InputImageType> GaussianFilterType;
   std::vector<typename GaussianFilterType::Pointer> gaussianFilters;
   if (m_GaussianFilteringEnabled) {
@@ -294,6 +292,3 @@ GenerateData()
   // DD("after Graft");
 }
 //--------------------------------------------------------------------
-
-}//end clitk
-
