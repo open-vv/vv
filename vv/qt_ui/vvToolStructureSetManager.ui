@@ -6,109 +6,84 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>483</width>
-    <height>519</height>
+    <width>485</width>
+    <height>476</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_4">
+  <layout class="QVBoxLayout" name="verticalLayout_3">
+   <item>
+    <widget class="QLabel" name="mROInameLabel_3">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>ROI viewer: choose one or several binary images to load</string>
+     </property>
+    </widget>
+   </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
-      <widget class="QGroupBox" name="groupBox_3">
-       <property name="title">
-        <string>Add Label Image from file</string>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QPushButton" name="mOpenBinaryButton">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>24</width>
-            <height>24</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Open label image</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset resource="../vvIcons.qrc">
-            <normaloff>:/common/icons/fileopen.png</normaloff>:/common/icons/fileopen.png</iconset>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout_3">
-          <item>
-           <widget class="QLabel" name="dimensionStaticLabel">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;Background value :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="mBackgroundValueSpinBox"/>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
      <item>
-      <widget class="QGroupBox" name="groupBox_4">
-       <property name="title">
-        <string>Add DICOM RT contours</string>
-       </property>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QPushButton" name="mOpenBinaryButton_3">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>24</width>
-            <height>24</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Open DICOM  RT Struct</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset resource="../vvIcons.qrc">
-            <normaloff>:/common/icons/fileopen.png</normaloff>:/common/icons/fileopen.png</iconset>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QLabel" name="vectorFieldNameLabel_4">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Load ROI from label image</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="mOpenBinaryButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>24</width>
+           <height>24</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Open label image</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../vvIcons.qrc">
+           <normaloff>:/common/icons/fileopen.png</normaloff>:/common/icons/fileopen.png</iconset>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <spacer name="horizontalSpacer">
@@ -123,25 +98,42 @@ p, li { white-space: pre-wrap; }
        </property>
       </spacer>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLabel" name="vectorFieldNameLabel">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Filter: </string>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QLabel" name="dimensionStaticLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;Background value :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="mBackgroundValueSpinBox"/>
+       </item>
+      </layout>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit"/>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
@@ -172,78 +164,64 @@ p, li { white-space: pre-wrap; }
        <string>Name</string>
       </property>
      </column>
+     <column>
+      <property name="text">
+       <string>Color</string>
+      </property>
+     </column>
      <item>
       <property name="text">
-       <string>1</string>
-      </property>
-      <property name="background">
-       <brush brushstyle="SolidPattern">
-        <color alpha="255">
-         <red>170</red>
-         <green>0</green>
-         <blue>0</blue>
-        </color>
-       </brush>
+       <string>10</string>
       </property>
       <property name="text">
-       <string>Default</string>
-      </property>
-      <property name="flags">
-       <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled|ItemIsTristate</set>
-      </property>
-      <item>
-       <property name="text">
-        <string>1</string>
-       </property>
-       <property name="text">
-        <string>mask1</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>2</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </item>
-     </item>
-     <item>
-      <property name="text">
-       <string>1</string>
+       <string>Toto.mhd.toiefkjhfdjvhjhf</string>
       </property>
       <property name="text">
-       <string>Rib</string>
+       <string>Red</string>
       </property>
-      <item>
-       <property name="text">
-        <string>1</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>2</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </item>
      </item>
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QGroupBox" name="groupBox_2">
+      <widget class="QGroupBox" name="groupBox">
        <property name="title">
-        <string>Current Structure Set</string>
+        <string>All ROI</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QLabel" name="vectorFieldNameLabel_2">
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <widget class="QCheckBox" name="mCheckBoxShowAll">
+            <property name="text">
+             <string>Show</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="tristate">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="mContourCheckBoxShowAll">
+            <property name="text">
+             <string>Contour</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="tristate">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QLabel" name="vectorFieldNameLabel_8">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -251,24 +229,36 @@ p, li { white-space: pre-wrap; }
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Number of ROI : 34</string>
+           <string>Opacity</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="vectorFieldNameLabel_4">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Loaded from : 
- RS...dcom 
- toto.mhd</string>
+         <widget class="QSlider" name="mOpacitySliderAll">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_10">
+          <item>
+           <widget class="QSpinBox" name="mOpacitySpinBoxAll"/>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>37</width>
+              <height>17</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
@@ -276,11 +266,11 @@ p, li { white-space: pre-wrap; }
      <item>
       <widget class="QGroupBox" name="mGroupBoxROI">
        <property name="title">
-        <string>Current ROI</string>
+        <string>Selected ROI</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
           <item>
            <widget class="QCheckBox" name="mCheckBoxShow">
             <property name="text">
@@ -300,24 +290,7 @@ p, li { white-space: pre-wrap; }
              <bool>false</bool>
             </property>
             <property name="text">
-             <string>color</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="mChangeColorButton_2">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="toolTip">
-             <string/>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset resource="../vvIcons.qrc">
-              <normaloff>:/common/icons/rotateright.png</normaloff>:/common/icons/rotateright.png</iconset>
+             <string>Color</string>
             </property>
            </widget>
           </item>
@@ -347,6 +320,60 @@ p, li { white-space: pre-wrap; }
           </item>
           <item>
            <widget class="QSpinBox" name="mOpacitySpinBox"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_9">
+          <item>
+           <widget class="QCheckBox" name="mContourCheckBoxShow">
+            <property name="text">
+             <string>Contour</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="mChangeContourColorButton">
+            <property name="toolTip">
+             <string/>
+            </property>
+            <property name="autoFillBackground">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Color</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QLabel" name="mROInameLabel_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Width</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="mContourWidthSpinBox">
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>5</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </item>
@@ -382,11 +409,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>344</x>
-     <y>416</y>
+     <y>381</y>
     </hint>
     <hint type="destinationlabel">
      <x>426</x>
-     <y>416</y>
+     <y>381</y>
     </hint>
    </hints>
   </connection>
@@ -398,11 +425,43 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>432</x>
-     <y>421</y>
+     <y>386</y>
     </hint>
     <hint type="destinationlabel">
      <x>351</x>
-     <y>421</y>
+     <y>386</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mOpacitySpinBoxAll</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>mOpacitySliderAll</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>88</x>
+     <y>433</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>86</x>
+     <y>408</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mOpacitySliderAll</sender>
+   <signal>sliderMoved(int)</signal>
+   <receiver>mOpacitySpinBoxAll</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>128</x>
+     <y>410</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>128</x>
+     <y>433</y>
     </hint>
    </hints>
   </connection>
