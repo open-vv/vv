@@ -168,6 +168,14 @@ INCLUDE_DIRECTORIES(
   ../tools
   )
 
+IF(WIN32)
+  SET(EXE_ICON vvIcon.rc)
+ENDIF(WIN32)
+
+IF(UNIX)
+  SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++")
+ENDIF(UNIX)
+
 LINK_DIRECTORIES(${QT_INCLUDES})
 ADD_EXECUTABLE(vv ${vv_SRCS} vv.cxx ${vv_UI_CXX} ${EXE_ICON})
 TARGET_LINK_LIBRARIES(vv clitkCommon clitkDicomRTStruct clitkFilters ${ITK_LIBRARIES} QVTK vtkHybrid)
@@ -180,42 +188,28 @@ ENDIF (CLITK_VV_USE_BDCM)
 #=========================================================
 # Install options (also used by CPack)
 IF(UNIX AND NOT APPLE)
-  INSTALL(TARGETS vv
-          DESTINATION .)
+  INSTALL (FILES ${EXECUTABLE_OUTPUT_PATH}/vv DESTINATION . PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
+  INSTALL (FILES ${CMAKE_CURRENT_SOURCE_DIR}/icons/ducky.png DESTINATION .)
+
   #QT
-  FOREACH(LIB QtCore QtGui QtOpenGL QtWebKit QtXmlPatterns QtNetwork QtSql)
-    INSTALL(FILES "${QT_LIBRARY_DIR}/lib${LIB}.so.${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}"
-            RENAME "lib${LIB}.so.${QT_VERSION_MAJOR}"
-            DESTINATION .)
-  ENDFOREACH(LIB)
-
-  #VTK
-  FOREACH(LIB QVTK vtkQtChart vtkViews vtkInfovis vtkWidgets vtkHybrid vtkRendering vtkImaging vtkGraphics vtkverdict
-              vtkIO vtkFiltering vtkCommon vtkDICOMParser vtkmetaio vtksqlite vtkpng vtktiff vtkjpeg vtkexpat vtksys
-              vtkftgl vtkfreetype vtkexoIIc vtkNetCDF vtklibxml2 vtkzlib vtkalglib)
-    INSTALL(FILES "${VTK_DIR}/bin/lib${LIB}.so.${VTK_VERSION_MAJOR}.${VTK_VERSION_MINOR}.0"
-            RENAME "lib${LIB}.so.${VTK_VERSION_MAJOR}.${VTK_VERSION_MINOR}"
-            DESTINATION .)
-  ENDFOREACH(LIB)
-
-  #ITK
-  FOREACH(LIB ITKAlgorithms ITKStatistics ITKFEM itkNetlibSlatec ITKNumerics ITKBasicFilters ITKIO ITKNrrdIO itkgdcm
-              itkjpeg12 itkjpeg16 itkopenjpeg itkpng itktiff itkjpeg8 ITKSpatialObject ITKCommon itkvnl_inst
-              itkvnl_algo itkv3p_netlib itkvnl itkvcl ITKMetaIO itksys ITKDICOMParser ITKEXPAT ITKniftiio ITKznz itkzlib)
-    INSTALL(FILES "${ITK_DIR}/bin/lib${LIB}.so.${ITK_VERSION_MAJOR}.${ITK_VERSION_MINOR}.0"
-            RENAME "lib${LIB}.so.${ITK_VERSION_MAJOR}.${ITK_VERSION_MINOR}"
-            DESTINATION .)
-    ENDFOREACH(LIB)
+  #FOREACH(LIB QtCore QtGui QtOpenGL QtNetwork QtSql)
+  #  INSTALL(FILES "${QT_LIBRARY_DIR}/lib${LIB}.so.${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}"
+  #          RENAME "lib${LIB}.so.${QT_VERSION_MAJOR}"
+  #          DESTINATION .)
+  #ENDFOREACH(LIB)
 ENDIF(UNIX AND NOT APPLE)
 
 IF(WIN32)
-  SET(EXE_ICON vvIcon.rc)
+  INCLUDE(InstallRequiredSystemLibraries)
+  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/icons/ducky.png DESTINATION bin)
+  INSTALL(FILES ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}/vv.exe DESTINATION bin)
+  INSTALL(FILES ${QT_PLUGINS_DIR}/../bin/QtCore4.dll DESTINATION bin)
+  INSTALL(FILES ${QT_PLUGINS_DIR}/../bin/QtGui4.dll DESTINATION bin)
 ENDIF(WIN32)
 
 #=========================================================
 # CPack options
-INCLUDE(InstallRequiredSystemLibraries)
-
+SET(CPACK_PACKAGE_NAME vv)
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "vv, the 4D slicer : let's jump into a new dimension !")
 SET(CPACK_PACKAGE_VENDOR "Creatis-CLB")
 SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/ReadMe.txt")
@@ -224,18 +218,17 @@ SET(CPACK_PACKAGE_VERSION_MAJOR "1")
 SET(CPACK_PACKAGE_VERSION_MINOR "1")
 SET(CPACK_PACKAGE_VERSION_PATCH "0")
 SET(CPACK_PACKAGE_INSTALL_DIRECTORY "vv")
-#IF(WIN32 AND NOT UNIX)
-  # There is a bug in NSI that does not handle full unix paths properly. Make
-  # sure there is at least one set of four (4) backlasshes.
-#  SET(CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}\\\\ducky.png")
-#  SET(CPACK_NSIS_INSTALLED_ICON_NAME "bin/${CMAKE_BUILD_TYPE}\\\\vv.exe")
-#  SET(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} The 4D slicer")
-#  SET(CPACK_NSIS_HELP_LINK "http://www.creatis.insa-lyon.fr/rio")
-#  SET(CPACK_NSIS_URL_INFO_ABOUT "http://www.creatis.insa-lyon.fr/rio")
-#  SET(CPACK_NSIS_MODIFY_PATH ON)
-#ELSE(WIN32 AND NOT UNIX)
-#  SET(CPACK_STRIP_FILES "bin/vv")
-#  SET(CPACK_SOURCE_STRIP_FILES "")
-#ENDIF(WIN32 AND NOT UNIX)
+IF(WIN32)
+  SET(CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/ducky.png")
+  SET(CPACK_NSIS_INSTALLED_ICON_NAME "bin/${CMAKE_BUILD_TYPE}/vv.exe")
+  SET(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} The 4D slicer")
+  SET(CPACK_NSIS_HELP_LINK "http://www.creatis.insa-lyon.fr/rio/vv")
+  SET(CPACK_NSIS_URL_INFO_ABOUT "http://www.creatis.insa-lyon.fr/rio")
+  SET(CPACK_NSIS_MODIFY_PATH ON)
+ELSE(WIN32)
+  SET(CPACK_STRIP_FILES "bin/vv")
+  SET(CPACK_SOURCE_STRIP_FILES "")
+ENDIF(WIN32)
 SET(CPACK_PACKAGE_EXECUTABLES "vv" "vv")
 INCLUDE(CPack)
+
