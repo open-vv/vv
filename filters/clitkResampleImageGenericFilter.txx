@@ -27,7 +27,7 @@ template<class args_info_type>
 clitk::ResampleImageGenericFilter<args_info_type>::ResampleImageGenericFilter():
   ImageToImageGenericFilter<Self>("Resample") 
 {
-  // InitializeImageType<2>();
+  InitializeImageType<2>();
   InitializeImageType<3>();
   InitializeImageType<4>();
 }
@@ -39,8 +39,8 @@ template<class args_info_type>
 template<unsigned int Dim>
 void clitk::ResampleImageGenericFilter<args_info_type>::InitializeImageType() 
 {      
-  //ADD_DEFAULT_IMAGE_TYPES(Dim);
-  ADD_IMAGE_TYPE(Dim, short);
+  ADD_DEFAULT_IMAGE_TYPES(Dim);
+  //ADD_IMAGE_TYPE(Dim, short);
 }
 //--------------------------------------------------------------------
   
