@@ -42,19 +42,25 @@ class vvToolStructureSetManager:
   static void Initialize();
   virtual void InputIsSelected(vvSlicerManager *m);
 
-  int addStructureSet(clitk::DicomRT_StructureSet * mStructureSet);
-  void updateStructureSetInTreeWidget(int index, clitk::DicomRT_StructureSet * s);
-  void addRoiInTreeWidget(clitk::DicomRT_ROI * roi, QTreeWidgetItem * w);
+  int AddStructureSet(clitk::DicomRT_StructureSet * mStructureSet);
+  void UpdateStructureSetInTreeWidget(int index, clitk::DicomRT_StructureSet * s);
+  void AddRoiInTreeWidget(clitk::DicomRT_ROI * roi, QTreeWidget * w);
 
 public slots:
   virtual void apply();
-  void open(int type);
+  void Open(int type);
   void LeftButtonReleaseEvent(int slicer);
-  void openBinaryImage();
-  void selectedItemChangedInTree();
-  void visibleROIToggled(bool b);
-  void opacityChanged(int v);
-  void changeColor();
+  void OpenBinaryImage();
+  void SelectedItemChangedInTree();
+  void VisibleROIToggled(bool b);
+  void VisibleContourROIToggled(bool b);
+  void OpacityChanged(int v);
+  void ChangeColor();
+  void ChangeContourColor();
+  void ChangeContourWidth(int n);
+  void AllVisibleROIToggled(bool b);
+  void AllVisibleContourROIToggled(bool b);
+  void AllOpacityChanged(int v);
 
  protected:
   Ui::vvToolStructureSetManager ui;
@@ -72,6 +78,8 @@ public slots:
   std::map<int, QTreeWidgetItem *> mMapStructureSetIndexToTreeWidget;
   std::map<clitk::DicomRT_ROI*, QTreeWidgetItem *> mMapROIToTreeWidget;
   std::map<QTreeWidgetItem *, clitk::DicomRT_ROI*> mMapTreeWidgetToROI;
+  bool mIsAllVisibleEnabled;
+  int mNumberOfVisibleROI;
 
 }; // end class vvToolStructureSetManager
 //------------------------------------------------------------------------------

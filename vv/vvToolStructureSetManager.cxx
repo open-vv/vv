@@ -14,7 +14,7 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-======================================================================-====*/
+  ======================================================================-====*/
 
 #include "vvToolStructureSetManager.h"
 #include "vvImageReader.h"
@@ -48,7 +48,7 @@ vvToolStructureSetManager::vvToolStructureSetManager(vvMainWindowBase * parent, 
   mCurrentStructureSetIndex = -1;
   mGroupBoxROI->setEnabled(false);
   mCurrentROIActor = NULL;
-
+  mIsAllVisibleEnabled = false;
   mDefaultLUTColor = vtkLookupTable::New();
   for(unsigned int i=0; i<mDefaultLUTColor->GetNumberOfTableValues(); i++) {
     double r = (rand()/(RAND_MAX+1.0));
@@ -74,12 +74,11 @@ vvToolStructureSetManager::~vvToolStructureSetManager()
 
 
 //------------------------------------------------------------------------------
-void vvToolStructureSetManager::Initialize()
-{
-  SetToolName("StructureSetManager");
-  SetToolMenuName("StructureSet");
+void vvToolStructureSetManager::Initialize() {
+  SetToolName("ROIManager");
+  SetToolMenuName("Display ROI");
   SetToolIconFilename(":/common/icons/ducky.png");
-  SetToolTip("Display Structure Set.");
+  SetToolTip("Display ROI from label image.");
   SetToolExperimental(true);
 }
 //------------------------------------------------------------------------------
@@ -95,18 +94,23 @@ void vvToolStructureSetManager::InputIsSelected(vvSlicerManager *m)
   splitter->setSizes(s);
   // Connect open menus
   //  connect(mOpenComboBox, SIGNAL(activated(int)), this, SLOT(open(int)));
-
-  connect(mOpenBinaryButton, SIGNAL(clicked()), this, SLOT(openBinaryImage()));
-
+  connect(mOpenBinaryButton, SIGNAL(clicked()), this, SLOT(OpenBinaryImage()));
   DD(mCurrentImage->GetNumberOfDimensions());
 
   // Seems that the following is not needed to refresh ...
   //  connect(m, SIGNAL(LeftButtonReleaseSignal(int)), SLOT(LeftButtonReleaseEvent(int)));
 
-  connect(mTree, SIGNAL(itemSelectionChanged()), this, SLOT(selectedItemChangedInTree()));
-  connect(mCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(visibleROIToggled(bool)));
-  connect(mOpacitySlider, SIGNAL(valueChanged(int)), this, SLOT(opacityChanged(int)));
-  connect(mChangeColorButton, SIGNAL(clicked()), this, SLOT(changeColor()));
+  connect(mTree, SIGNAL(itemSelectionChanged()), this, SLOT(SelectedItemChangedInTree()));
+  connect(mCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(VisibleROIToggled(bool)));
+  connect(mOpacitySlider, SIGNAL(valueChanged(int)), this, SLOT(OpacityChanged(int)));
+  connect(mChangeColorButton, SIGNAL(clicked()), this, SLOT(ChangeColor()));
+  connect(mContourCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(VisibleContourROIToggled(bool)));  
+  connect(mChangeContourColorButton, SIGNAL(clicked()), this, SLOT(ChangeContourColor()));
+  connect(mContourWidthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeContourWidth(int)));
+
+  connect(mCheckBoxShowAll, SIGNAL(toggled(bool)), this, SLOT(AllVisibleROIToggled(bool)));
+  connect(mOpacitySliderAll, SIGNAL(valueChanged(int)), this, SLOT(AllOpacityChanged(int)));
+  connect(mContourCheckBoxShowAll, SIGNAL(toggled(bool)), this, SLOT(AllVisibleContourROIToggled(bool)));  
 }
 //------------------------------------------------------------------------------
 
@@ -127,38 +131,28 @@ void vvToolStructureSetManager::LeftButtonReleaseEvent(int slicer)
 
 
 //------------------------------------------------------------------------------
-void vvToolStructureSetManager::open(int type)
-{
-  DD(type);
+void vvToolStructureSetManager::Open(int type) {
   switch (type) {
-  case 0:
-    openBinaryImage();
-    return; // Open binary image;
-  case 1:
-    DD("TODO");
-    return; // Open DICOM RT
-  case 2:
-    DD("TODO");
-    return; // Open mesh
-  default:
-    std::cerr << "Error ????" << std::endl;
-    exit(0);
+  case 0: OpenBinaryImage(); return; // Open binary image;
+  case 1: DD("TODO"); return; // Open DICOM RT
+  case 2: DD("TODO"); return; // Open mesh
+  default: std::cerr << "Error ????" << std::endl; exit(0);
   }
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvToolStructureSetManager::addRoiInTreeWidget(clitk::DicomRT_ROI * roi, QTreeWidgetItem * ww)
-{
+void vvToolStructureSetManager::AddRoiInTreeWidget(clitk::DicomRT_ROI * roi, QTreeWidget * ww) {
   QTreeWidgetItem * w = new QTreeWidgetItem(ww);
   w->setText(0, QString("%1").arg(roi->GetROINumber()));
   w->setText(1, QString("%1").arg(roi->GetName().c_str()));
+  //  w->setText(1, QString("%1").arg(roi->GetName().c_str()));
   QBrush brush(QColor(roi->GetDisplayColor()[0]*255, roi->GetDisplayColor()[1]*255, roi->GetDisplayColor()[2]*255));
   brush.setStyle(Qt::SolidPattern);
-  for(int i=0; i<w->columnCount (); i++) {
-    w->setBackground(i, brush);
-  }
+  //  for(int i=0; i<w->columnCount (); i++) {
+  w->setBackground(2, brush);
+  //}
   mMapROIToTreeWidget[roi] = w;
   mMapTreeWidgetToROI[w] = roi;
   // Connect ROI TreeWidget
@@ -168,35 +162,37 @@ void vvToolStructureSetManager::addRoiInTreeWidget(clitk::DicomRT_ROI * roi, QTr
 
 
 //------------------------------------------------------------------------------
-void vvToolStructureSetManager::updateStructureSetInTreeWidget(int index, clitk::DicomRT_StructureSet * s)
-{
-  QTreeWidgetItem * ss;
-  if (mMapStructureSetIndexToTreeWidget.find(index) == mMapStructureSetIndexToTreeWidget.end()) {
-    // Main row item
-    ss = new QTreeWidgetItem(mTree);
-    //  ss->setFlags(Qt::ItemIsSelectable|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled|Qt::ItemIsTristate);
-    ss->setText(0, QString("S%1").arg(index));
-    ss->setText(1, QString("%1").arg(s->GetLabel().c_str()));
-    // Insert in list
-    mMapStructureSetIndexToTreeWidget[index] = ss;
+void vvToolStructureSetManager::UpdateStructureSetInTreeWidget(int index, clitk::DicomRT_StructureSet * s) {
 
-    // Connect Structure TreeWidget
-    // TODO
-  } else ss = mMapStructureSetIndexToTreeWidget[index];
+  /* ==> Please, keep this comment (if need several SS)
+     QTreeWidgetItem * ss;
+     if (mMapStructureSetIndexToTreeWidget.find(index) == mMapStructureSetIndexToTreeWidget.end()) {
+     // Main row item
+     ss = new QTreeWidgetItem(mTree);
+     //  ss->setFlags(Qt::ItemIsSelectable|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled|Qt::ItemIsTristate);
+     ss->setText(0, QString("S%1").arg(index));
+     ss->setText(1, QString("%1").arg(s->GetLabel().c_str()));
+     // Insert in list
+     mMapStructureSetIndexToTreeWidget[index] = ss;
+    
+     // Connect Structure TreeWidget
+     // TODO
+     }
+     else ss = mMapStructureSetIndexToTreeWidget[index];
+  */
 
   // Insert ROI
   const std::vector<clitk::DicomRT_ROI*> & rois = s->GetListOfROI();
   for(unsigned int i=0; i<rois.size(); i++) {
     if (mMapROIToTreeWidget.find(rois[i]) == mMapROIToTreeWidget.end())
-      addRoiInTreeWidget(rois[i], ss);
+      AddRoiInTreeWidget(rois[i], mTree); // replace mTree with ss if several SS
   }
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-int vvToolStructureSetManager::addStructureSet(clitk::DicomRT_StructureSet * mStructureSet)
-{
+int vvToolStructureSetManager::AddStructureSet(clitk::DicomRT_StructureSet * mStructureSet) {
 
   // Create actor for this SS
   vvStructureSetActor * mStructureSetActor = new vvStructureSetActor;
@@ -215,42 +211,42 @@ int vvToolStructureSetManager::addStructureSet(clitk::DicomRT_StructureSet * mSt
 
 
 //------------------------------------------------------------------------------
-void vvToolStructureSetManager::openBinaryImage()
-{
-  DD("openBinaryImage");
+void vvToolStructureSetManager::OpenBinaryImage() {
+  //  DD("openBinaryImage");
   // Select current StructureSet (or create)
   int index;
-  DD(mCurrentStructureSetIndex);
+  //  DD(mCurrentStructureSetIndex);
   if (mCurrentStructureSet == NULL) {
     if (mStructureSetsList.size() == 0) { // Create a default SS
       clitk::DicomRT_StructureSet * mStructureSet = new clitk::DicomRT_StructureSet;
-      index = addStructureSet(mStructureSet);
-      DD(index);
-    } else { // Get first SS
+      index = AddStructureSet(mStructureSet);
+      //DD(index);
+    }
+    else { // Get first SS
       index = 0;
     }
   } else {
     index = mCurrentStructureSetIndex;
   }
-  DD(index);
+  //  DD(index);
   // TODO -> SET THIS SS AS CURRENT
   mCurrentStructureSet = mStructureSetsList[index];
   mCurrentStructureSetActor = mStructureSetActorsList[index];
   mCurrentStructureSetIndex = index;
-  DD(mCurrentStructureSetIndex);
-  DD(mCurrentStructureSet->GetName());
+  //  DD(mCurrentStructureSetIndex);
+  //DD(mCurrentStructureSet->GetName());
 
   // Open images
   QString Extensions = "Images files ( *.mhd *.hdr *.his)";
   Extensions += ";;All Files (*)";
   QStringList filename =
     QFileDialog::getOpenFileNames(this,tr("Open binary image"),
-                                  mMainWindowBase->GetInputPathName(),Extensions);
+				  mMainWindowBase->GetInputPathName(),Extensions);
   if (filename.size() == 0) return;
 
   std::vector<int> mLoadedROIIndex;
   for(int i=0; i<filename.size(); i++) {
-    DD(filename[i].toStdString());
+    //DD(filename[i].toStdString());
 
     // Open Image
     //init the progress events
@@ -275,9 +271,9 @@ void vvToolStructureSetManager::openBinaryImage()
 
     // Check Dimension
     int dim = mCurrentImage->GetNumberOfDimensions();
-    DD(dim);
+    //DD(dim);
     int bin_dim = binaryImage->GetNumberOfDimensions();
-    DD(bin_dim);
+    //DD(bin_dim);
     if (dim < bin_dim) {  ////////// TO CHANGE FOR 3D/4D
       std::ostringstream os;
       os << "Error. Loaded binary image is " << bin_dim
@@ -294,22 +290,25 @@ void vvToolStructureSetManager::openBinaryImage()
     mCurrentStructureSet->GetROI(n)->SetBackgroundValueLabelImage(mBackgroundValueSpinBox->value());
 
     // Change color NEED DEFAULT COLOR LIST
-    DD(mDefaultLUTColor->GetNumberOfTableValues ());
+    //DD(mDefaultLUTColor->GetNumberOfTableValues ());
     if (n<mDefaultLUTColor->GetNumberOfTableValues ()) {
       double * color = mDefaultLUTColor->GetTableValue(n % mDefaultLUTColor->GetNumberOfTableValues ());
-      DD(color[0]);
-      DD(color[1]);
-      DD(color[2]);
+      //DD(color[0]);
+      //DD(color[1]);
+      //DD(color[2]);
       mCurrentStructureSet->GetROI(n)->SetDisplayColor(color[0], color[1], color[2]);
     }
 
     // Add a new roi actor
     mCurrentStructureSetActor->CreateNewROIActor(n);
+
+    // CheckBox for "All"
+    if (mCurrentStructureSetActor->GetROIActor(n)->IsVisible())
+      mNumberOfVisibleROI++;
   } // end loop on n selected filenames
 
   // Update the TreeWidget
-  updateStructureSetInTreeWidget(index, mCurrentStructureSet);
-
+  UpdateStructureSetInTreeWidget(index, mCurrentStructureSet);
   // Render loaded ROIs (the first is sufficient)
   for(unsigned int i=0; i<mLoadedROIIndex.size(); i++) {
     mCurrentStructureSetActor->GetROIActor(mLoadedROIIndex[i])->Update();
@@ -317,17 +316,16 @@ void vvToolStructureSetManager::openBinaryImage()
   for(int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
     mCurrentSlicerManager->GetSlicer(i)->Render();
   }
+  
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvToolStructureSetManager::apply()
-{
+void vvToolStructureSetManager::apply() {
   close();
 }
 //------------------------------------------------------------------------------
-
 
 
 //------------------------------------------------------------------------------
@@ -336,13 +334,10 @@ void vvToolStructureSetManager::apply()
 
 
 //------------------------------------------------------------------------------
-void vvToolStructureSetManager::selectedItemChangedInTree()
-{
-  DD("selectedItemChangedInTree");
-
+void vvToolStructureSetManager::SelectedItemChangedInTree() {
   // Search which roi is selected
   QList<QTreeWidgetItem *> l = mTree->selectedItems();
-  DD(l.size());
+  if (l.size() == 0) return;
   QTreeWidgetItem * w = l[0];
   if (mMapTreeWidgetToROI.find(w) == mMapTreeWidgetToROI.end()) {
     mCurrentROIActor = NULL;
@@ -367,21 +362,24 @@ void vvToolStructureSetManager::selectedItemChangedInTree()
   mGroupBoxROI->setEnabled(true);
   mROInameLabel->setText(roi->GetName().c_str());
   mCheckBoxShow->setChecked(actor->IsVisible());
-
-  // Warning -> avoir unuseful Render here by disconnect slider
-  //
-  disconnect(mOpacitySlider, SIGNAL(valueChanged(int)),
-             this, SLOT(opacityChanged(int)));
+  mContourCheckBoxShow->setChecked(actor->IsContourVisible());
+  mContourWidthSpinBox->setValue(actor->GetContourWidth());
+  
+  // Warning -> avoir unuseful Render here by disconnect slider 
+  disconnect(mOpacitySlider, SIGNAL(valueChanged(int)), 
+	     this, SLOT(OpacityChanged(int)));
   mOpacitySlider->setValue((int)lrint(actor->GetOpacity()*100));
   mOpacitySpinBox->setValue((int)lrint(actor->GetOpacity()*100));
-  connect(mOpacitySlider, SIGNAL(valueChanged(int)),
-          this, SLOT(opacityChanged(int)));
+  connect(mOpacitySlider, SIGNAL(valueChanged(int)), 
+	  this, SLOT(OpacityChanged(int)));
 
-  actor->SetSelected(true); // remove old selection
+  // Temporary disable selection
+  //  actor->SetSelected(true); // remove old selection  
+
   // The following must not render !!
-  DD("before update");
+  //  DD("before update");
   actor->Update(); // To change in UpdateSelecte
-  DD("after update");
+  //DD("after update");
 
   mCurrentSlicerManager->Render();
 }
@@ -389,26 +387,76 @@ void vvToolStructureSetManager::selectedItemChangedInTree()
 
 
 //------------------------------------------------------------------------------
-void vvToolStructureSetManager::visibleROIToggled(bool b)
-{
+void vvToolStructureSetManager::VisibleROIToggled(bool b) {
   mCurrentROIActor->SetVisible(b);
+  if (b) mNumberOfVisibleROI++;
+  else mNumberOfVisibleROI--;
+  //mNumberOfVisibleROI;
+  //  if (mNumberOfVisibleROI == mCurrentStructureSetIndex
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvToolStructureSetManager::opacityChanged(int v)
-{
+void vvToolStructureSetManager::VisibleContourROIToggled(bool b) {
+  mCurrentROIActor->SetContourVisible(b);
+  mCurrentROIActor->UpdateColor();
+  mCurrentSlicerManager->Render(); 
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolStructureSetManager::OpacityChanged(int v) {
+  if (mCurrentROIActor == NULL) return;
   mCurrentROIActor->SetOpacity((double)v/100.0);
   mCurrentROIActor->UpdateColor();
-  mCurrentSlicerManager->Render();
+  mCurrentSlicerManager->Render(); 
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvToolStructureSetManager::changeColor()
-{
+void vvToolStructureSetManager::AllVisibleROIToggled(bool b) {
+  DD(b);
+  DD(mIsAllVisibleEnabled);
+  DD(mNumberOfVisibleROI);
+  if (b == mIsAllVisibleEnabled) return;
+  if (b) mCheckBoxShowAll->setCheckState(Qt::Checked);
+  else mCheckBoxShowAll->setCheckState(Qt::Unchecked);
+  mIsAllVisibleEnabled = b;
+  for(int i=0; i<mCurrentStructureSetActor->GetNumberOfROIs(); i++) {
+    mCurrentStructureSetActor->GetROIList()[i]->SetVisible(b);
+  }
+  // Update current selection
+  mCheckBoxShow->setChecked(b);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolStructureSetManager::AllVisibleContourROIToggled(bool b) {
+  /*mCurrentROIActor->SetContourVisible(b);
+    mCurrentROIActor->UpdateColor();
+    mCurrentSlicerManager->Render(); 
+  */
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolStructureSetManager::AllOpacityChanged(int v) {
+  /*if (mCurrentROIActor == NULL) return;
+    mCurrentROIActor->SetOpacity((double)v/100.0);
+    mCurrentROIActor->UpdateColor();
+    mCurrentSlicerManager->Render(); 
+  */
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolStructureSetManager::ChangeColor() {
   QColor color;
   color.setRgbF(mCurrentROIActor->GetROI()->GetDisplayColor()[0],
                 mCurrentROIActor->GetROI()->GetDisplayColor()[1],
@@ -422,12 +470,37 @@ void vvToolStructureSetManager::changeColor()
                       mCurrentROI->GetDisplayColor()[1]*255,
                       mCurrentROI->GetDisplayColor()[2]*255));
   brush.setStyle(Qt::SolidPattern);
-  for(int i=0; i<w->columnCount (); i++) {
-    w->setBackground(i, brush);
-  }
+  //  for(int i=0; i<w->columnCount (); i++) {
+  w->setBackground(2, brush);
+  //}
+  
+  // Render
+  mCurrentSlicerManager->Render();
 }
 //------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
+void vvToolStructureSetManager::ChangeContourColor() {
+  QColor color;
+  color.setRgbF(mCurrentROIActor->GetContourColor()[0], 
+		mCurrentROIActor->GetContourColor()[1], 
+		mCurrentROIActor->GetContourColor()[2]);
+  QColor c = QColorDialog::getColor(color, this, "Choose the contour color");
+  mCurrentROIActor->SetContourColor(c.redF(), c.greenF(), c.blueF());
+  mCurrentROIActor->UpdateColor();
+  mCurrentSlicerManager->Render();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolStructureSetManager::ChangeContourWidth(int n) {
+  mCurrentROIActor->SetContourWidth(n);
+  mCurrentROIActor->UpdateColor();
+  mCurrentSlicerManager->Render();
+}
+//------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
