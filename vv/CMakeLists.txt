@@ -209,7 +209,7 @@ ENDIF(WIN32)
 
 #=========================================================
 # CPack options
-ET(CPACK_PACKAGE_NAME "vv")
+SET(CPACK_PACKAGE_NAME "vv")
 SET(CPACK_SOURCE_PACKAGE_FILE_NAME "vv-src")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "vv, the 4D slicer : let's jump into a new dimension !")
 SET(CPACK_PACKAGE_VENDOR "Creatis-CLB")
