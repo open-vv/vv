@@ -140,7 +140,21 @@ QT4_WRAP_UI(vv_UI_CXX
 
 QT4_ADD_RESOURCES(vv_SRCS vvIcons.qrc)
 
-ADD_DEFINITIONS(-DQT_DLL)
+
+# if Windows and Qt was built as a static lib then don't set QT_DLL flag
+SET(QT_STATIC 0)
+IF (WIN32)
+  IF(EXISTS ${QT_LIBRARY_DIR}/QtCore.prl)
+    FILE(READ ${QT_LIBRARY_DIR}/QtCore.prl QT_CORE_PRL)
+    IF(${QT_CORE_PRL} MATCHES "static")
+      SET(QT_STATIC 1)
+    ENDIF(${QT_CORE_PRL} MATCHES "static")
+  ENDIF(EXISTS ${QT_LIBRARY_DIR}/QtCore.prl)
+ENDIF(WIN32)
+IF(NOT QT_STATIC)
+  ADD_DEFINITIONS(-DQT_DLL)
+ENDIF(NOT QT_STATIC)
+
 ADD_DEFINITIONS(-DQT_THREAD_SUPPORT)
 
 INCLUDE_DIRECTORIES(
@@ -172,10 +186,6 @@ IF(WIN32)
   SET(EXE_ICON vvIcon.rc)
 ENDIF(WIN32)
 
-IF(UNIX)
-  SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++")
-ENDIF(UNIX)
-
 LINK_DIRECTORIES(${QT_INCLUDES})
 ADD_EXECUTABLE(vv ${vv_SRCS} vv.cxx ${vv_UI_CXX} ${EXE_ICON})
 TARGET_LINK_LIBRARIES(vv clitkCommon clitkDicomRTStruct clitkFilters ${ITK_LIBRARIES} QVTK vtkHybrid)
@@ -200,12 +210,11 @@ IF(UNIX AND NOT APPLE)
 ENDIF(UNIX AND NOT APPLE)
 
 IF(WIN32)
-  INCLUDE(InstallRequiredSystemLibraries)
-  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/icons/ducky.png DESTINATION bin)
-  INSTALL(FILES ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}/vv.exe DESTINATION bin)
-  INSTALL(FILES ${QT_PLUGINS_DIR}/../bin/QtCore4.dll DESTINATION bin)
-  INSTALL(FILES ${QT_PLUGINS_DIR}/../bin/QtGui4.dll DESTINATION bin)
+  #INCLUDE(InstallRequiredSystemLibraries)
+  INSTALL(FILES ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}/vv.exe DESTINATION .)
+  #INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/icons/ducky.png DESTINATION .)
 ENDIF(WIN32)
+#=========================================================
 
 #=========================================================
 # CPack options
@@ -220,12 +229,16 @@ SET(CPACK_PACKAGE_VERSION_MINOR "1")
 SET(CPACK_PACKAGE_INSTALL_DIRECTORY "vv")
 
 IF(WIN32)
-  SET(CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/ducky.png")
-  SET(CPACK_NSIS_INSTALLED_ICON_NAME "bin/${CMAKE_BUILD_TYPE}/vv.exe")
+  # There is a bug in NSI that does not handle full unix paths properly. Make
+  # sure there is at least one set of four (4) backlasshes.
+  SET(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}\\\\icons\\\\ducky.ico")
+  SET(CPACK_NSIS_INSTALLED_ICON_NAME "${EXECUTABLE_OUTPUT_PATH}\\\\${CMAKE_BUILD_TYPE}\\\\vv.exe")
   SET(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} The 4D slicer")
   SET(CPACK_NSIS_HELP_LINK "http://www.creatis.insa-lyon.fr/rio/vv")
   SET(CPACK_NSIS_URL_INFO_ABOUT "http://www.creatis.insa-lyon.fr/rio")
+  SET(CPACK_NSIS_CONTACT "vv@creatis.insa-lyon.fr")
   SET(CPACK_NSIS_MODIFY_PATH ON)
+  SET(CPACK_BINARY_ZIP ON)
 ELSE(WIN32)
   SET(CPACK_STRIP_FILES "bin/vv")
   SET(CPACK_GENERATOR "STGZ")
@@ -233,4 +246,4 @@ ELSE(WIN32)
 ENDIF(WIN32)
 SET(CPACK_PACKAGE_EXECUTABLES "vv" "vv")
 INCLUDE(CPack)
-
+#=========================================================
