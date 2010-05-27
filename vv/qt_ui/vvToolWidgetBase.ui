@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>179</width>
-    <height>61</height>
+    <height>62</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,14 @@
       <enum>Qt::Vertical</enum>
      </property>
      <widget class="vvToolInputSelectorWidget" name="mToolInputSelectionWidget" native="true"/>
-     <widget class="QWidget" name="mToolWidget" native="true"/>
+     <widget class="QWidget" name="mToolWidget" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
     </widget>
    </item>
    <item>
