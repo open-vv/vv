@@ -188,8 +188,8 @@ GenerateData()
   static const unsigned int dim = InputImageType::ImageDimension;
 
   // Set regions and allocate
-  this->GetOutput()->SetRegions(m_OutputRegion);
-  this->GetOutput()->Allocate();
+  //this->GetOutput()->SetRegions(m_OutputRegion);
+  //this->GetOutput()->Allocate();
   // this->GetOutput()->FillBuffer(m_DefaultPixelValue);
 
   // Create main Resample Image Filter
@@ -288,7 +288,10 @@ GenerateData()
 
   // Set output
   // DD("before Graft");
-  this->GraftOutput(filter->GetOutput());
+
+  //this->GraftOutput(filter->GetOutput());
+  this->SetNthOutput(0, filter->GetOutput());
+
   // DD("after Graft");
 }
 //--------------------------------------------------------------------
