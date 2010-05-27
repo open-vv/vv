@@ -36,10 +36,12 @@ namespace clitk {
     void Read(std::map<int, std::string> & rois, gdcm::SQItem * item);
     void SetFromBinaryImage(vvImage::Pointer image, int n, 
 			    std::string name, 
-			    std::vector<double> color);
+			    std::vector<double> color, 
+			    std::string filename);
 
     int GetROINumber() const;
     const std::string & GetName() const;
+    const std::string & GetFilename() const;
     const std::vector<double> & GetDisplayColor() const;
     vtkPolyData * GetMesh();
     const vvImage::Pointer GetImage() const;
@@ -50,9 +52,12 @@ namespace clitk {
     double GetBackgroundValueLabelImage() const;
     void SetBackgroundValueLabelImage(double bg);
     
+    void SetImage(vvImage * im);
+    
   protected:
     void ComputeMesh();
     std::string mName;
+    std::string mFilename;
     int mNumber;
     std::vector<double> mColor;
     std::vector<DicomRT_Contour*> mListOfContours;

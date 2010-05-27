@@ -113,8 +113,8 @@ clitk::DicomRT_ROI* clitk::DicomRT_StructureSet::GetROI(int n)
     std::cerr << "No ROI number " << n << std::endl;
     return NULL;
   }
-  DD(mListOfROI[mMapOfROIIndex[n]]->GetName());
-  DD(mListOfROI[mMapOfROIIndex[n]]->GetROINumber());
+  //  DD(mListOfROI[mMapOfROIIndex[n]]->GetName());
+  //DD(mListOfROI[mMapOfROIIndex[n]]->GetROINumber());
   return mListOfROI[mMapOfROIIndex[n]];
 }
 //--------------------------------------------------------------------
@@ -213,22 +213,22 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename)
 //--------------------------------------------------------------------
 int clitk::DicomRT_StructureSet::AddBinaryImageAsNewROI(vvImage::Pointer im, std::string n)
 {
-  DD("AddBinaryImageAsNewROI");
+  //DD("AddBinaryImageAsNewROI");
   // Search max ROI number
   int max = -1;
   for(unsigned int i=0; i<mListOfROI.size(); i++) {
     if (mListOfROI[i]->GetROINumber() > max)
       max = mListOfROI[i]->GetROINumber();
   }
-  DD(max);
+  //  DD(max);
   ++max;
-  DD(max);
+  //DD(max);
 
   // Compute name
   std::ostringstream oss;
-  oss << vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(n))
-      << "_roi_" << max << vtksys::SystemTools::GetFilenameLastExtension(n);
-  DD(oss.str());
+  oss << vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(n));
+  //      << "_roi_" << max << vtksys::SystemTools::GetFilenameLastExtension(n);
+  //DD(oss.str());
   mMapOfROIName[max] = oss.str();
 
   // Set color
@@ -239,13 +239,10 @@ int clitk::DicomRT_StructureSet::AddBinaryImageAsNewROI(vvImage::Pointer im, std
 
   // Create ROI
   DicomRT_ROI * roi = new DicomRT_ROI;
-  roi->SetFromBinaryImage(im,
-                          max,
-                          oss.str(),
-                          color);
+  roi->SetFromBinaryImage(im, max, oss.str(), color, n);
   mListOfROI.push_back(roi);
   mMapOfROIIndex[mListOfROI.size()-1] = max;
-  DD(mMapOfROIIndex[mListOfROI.size()-1]);
+  //DD(mMapOfROIIndex[mListOfROI.size()-1]);
   return max;
 }
 //--------------------------------------------------------------------

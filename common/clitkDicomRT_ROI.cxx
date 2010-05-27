@@ -69,6 +69,14 @@ const std::string & clitk::DicomRT_ROI::GetName() const
 
 
 //--------------------------------------------------------------------
+const std::string & clitk::DicomRT_ROI::GetFilename() const
+{
+  return mFilename;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
 const std::vector<double> & clitk::DicomRT_ROI::GetDisplayColor() const
 {
   return mColor;
@@ -131,6 +139,14 @@ void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::SQItem * 
 
 
 //--------------------------------------------------------------------
+void clitk::DicomRT_ROI::SetImage(vvImage * image)
+{
+  mImage = image;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
 vtkPolyData * clitk::DicomRT_ROI::GetMesh()
 {
   if (!mMeshIsUpToDate) {
@@ -157,8 +173,9 @@ void clitk::DicomRT_ROI::ComputeMesh()
 
 //--------------------------------------------------------------------
 void clitk::DicomRT_ROI::SetFromBinaryImage(vvImage::Pointer image, int n,
-    std::string name,
-    std::vector<double> color)
+					    std::string name,
+					    std::vector<double> color, 
+					    std::string filename)
 {
 
   // ROI number [Referenced ROI Number]
@@ -166,6 +183,7 @@ void clitk::DicomRT_ROI::SetFromBinaryImage(vvImage::Pointer image, int n,
 
   // ROI Name
   mName = name;
+  mFilename = filename;
 
   // ROI Color [ROI Display Color]
   mColor = color;
