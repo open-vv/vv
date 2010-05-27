@@ -37,6 +37,7 @@ public:
 
   virtual void AddImage(vvImage::Pointer image,std::string filename) = 0;
   virtual void UpdateCurrentSlicer() = 0;
+  virtual QTabWidget * GetTab() = 0;
   const std::vector<vvSlicerManager*> & GetSlicerManagers() const { return mSlicerManagers; }
   QMenu * GetToolMenu() const { return mMenuTools; }
   QMenu * GetContextMenu() const { return mContextMenu; }
@@ -47,6 +48,7 @@ public:
 
 signals:
   void AnImageIsBeingClosed(vvSlicerManager *);
+  void SelectedImageHasChanged(vvSlicerManager *);
 
 protected:
   std::vector<vvSlicerManager*> mSlicerManagers;

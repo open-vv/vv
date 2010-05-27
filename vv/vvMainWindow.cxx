@@ -540,6 +540,13 @@ vvMainWindow::~vvMainWindow()
 }
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+QTabWidget * vvMainWindow::GetTab()
+{
+  return tabWidget;
+}
+//------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::MergeImages()
@@ -915,6 +922,7 @@ void vvMainWindow::UpdateTree()
 //------------------------------------------------------------------------------
 void vvMainWindow::CurrentImageChanged(std::string id)
 {
+  //  DD("CurrentImageChanged");
   int selected = 0;
   for (int i = 0; i < DataTree->topLevelItemCount(); i++) {
     if (DataTree->topLevelItem(i)->data(COLUMN_IMAGE_NAME,Qt::UserRole).toString().toStdString() == id) {
@@ -927,6 +935,8 @@ void vvMainWindow::CurrentImageChanged(std::string id)
 
   }
   DataTree->topLevelItem(selected)->setSelected(1);
+  //  DD(mSlicerManagers[selected]->GetFileName());
+  emit SelectedImageHasChanged(mSlicerManagers[selected]);
 }
 //------------------------------------------------------------------------------
 

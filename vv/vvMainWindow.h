@@ -54,6 +54,7 @@ class vvMainWindow: public vvMainWindowBase,
   void ShowLastImage();
 
   virtual void UpdateCurrentSlicer();
+  virtual QTabWidget * GetTab();
   //vvMainWindowToolInfo * GetInfoForTool();
 //   void AddRunningTool(vvToolCreatorBase * tool);
 
