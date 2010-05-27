@@ -167,9 +167,7 @@ void vvImageContour::Update(double value) {
     UpdateWithFastCacheMode();
   }
 
-
-  mSlicer->Render(); //DS ---> REMOVE ??
-
+  //  mSlicer->Render(); //DS ---> REMOVE ??
 
   mPreviousTSlice = mSlicer->GetTSlice();
   mPreviousSlice  = mSlicer->GetSlice();

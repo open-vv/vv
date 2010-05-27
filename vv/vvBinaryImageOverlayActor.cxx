@@ -169,7 +169,8 @@ void vvBinaryImageOverlayActor::HideActors()
   for(unsigned int i=0; i<mImageActorList.size(); i++) {
     mImageActorList[i]->VisibilityOff();
   }
-  mSlicer->Render();
+  // Caller MUST call Render
+  //  mSlicer->Render();
 }
 //------------------------------------------------------------------------------
 
@@ -184,7 +185,8 @@ void vvBinaryImageOverlayActor::ShowActors()
   mImageActorList[mTSlice]->VisibilityOn();
   UpdateSlice(0, mSlice);
   //}
-  mSlicer->Render();
+  // Caller MUST call Render
+  //mSlicer->Render();
 }
 //------------------------------------------------------------------------------
 
@@ -243,9 +245,9 @@ void vvBinaryImageOverlayActor::UpdateSlice(int slicer, int slice)
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::ComputeExtent(int orientation,
-    int slice,
-    int * inExtent,
-    int * outExtent)
+					      int slice,
+					      int * inExtent,
+					      int * outExtent)
 {
   //  std::cout << "InExtent = " << inExtent[0] << " " << inExtent[1] << " " << inExtent[2] << " "
   //	    << inExtent[3] << " " << inExtent[4] << " " << inExtent[5] << std::endl;
@@ -292,13 +294,11 @@ void vvBinaryImageOverlayActor::ComputeExtent(int * inExtent, int * outExtent, v
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::SetDisplayExtentAndCameraPosition(int orientation,
-    int slice,
-    int * extent,
-    vtkImageActor * actor,
-    double position)
+								  int slice,
+								  int * extent,
+								  vtkImageActor * actor,
+								  double position)
 {
-  actor->SetDisplayExtent(extent);
-
   // Set position
   if (orientation == vtkImageViewer2::SLICE_ORIENTATION_XY) {
     if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[2] > slice)
@@ -318,10 +318,7 @@ void vvBinaryImageOverlayActor::SetDisplayExtentAndCameraPosition(int orientatio
     else
       actor->SetPosition(-position,0, 0);
   }
-
+  actor->SetDisplayExtent(extent);
 }
 //------------------------------------------------------------------------------
-
-
-
 
