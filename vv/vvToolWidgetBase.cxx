@@ -54,6 +54,41 @@ vvToolWidgetBase::vvToolWidgetBase(vvMainWindowBase * parent, Qt::WindowFlags f)
 
 
 //------------------------------------------------------------------------------
+vvToolWidgetBase::vvToolWidgetBase(vvMainWindowBase * parent, Qt::WindowFlags f, bool b):
+  QDialog(NULL, f), 
+  Ui::vvToolWidgetBase()
+{
+  DD("const without qdialog");
+  // TRIAL 
+
+  mIsInitialized = false;
+  mFilter = 0;
+  mMainWindow = parent;
+  //  setModal(false);
+  //setAttribute(Qt::WA_DeleteOnClose);
+  mCurrentSlicerManager = 0;
+
+  // GUI Initialization
+  setupUi(this);
+
+  // Connect signals & slots
+  connect(mMainWindow, SIGNAL(AnImageIsBeingClosed(vvSlicerManager*)),
+          this, SLOT(AnImageIsBeingClosed(vvSlicerManager*)));
+  connect(mToolInputSelectionWidget, SIGNAL(accepted()), this, SLOT(InputIsSelected()));
+  connect(mToolInputSelectionWidget, SIGNAL(rejected()), this, SLOT(close()));
+  //connect(buttonBox, SIGNAL(accepted()), this, SLOT(apply()));
+  //connect(buttonBox, SIGNAL(rejected()), this, SLOT(close()));
+
+  // Disable main widget while input image is not selected
+  mToolWidget->setEnabled(false);
+  buttonBox->hide();
+  hide();
+  DD("end const");
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 vvToolWidgetBase::~vvToolWidgetBase()
 {
 
@@ -62,27 +97,14 @@ vvToolWidgetBase::~vvToolWidgetBase()
 
 
 //------------------------------------------------------------------------------
-// void vvToolWidgetBase::SetNumberOfNeededInputs(int nb) {
-//   mNumberOfInputs = nb;
-//   mListOfFilters.resize(nb);
-//   for(int i=0; i<mNumberOfInputs; i++) mListOfFilters[i] = 0;
-// }
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
 void vvToolWidgetBase::AddInputSelector(QString s, clitk::ImageToImageGenericFilterBase * f, bool allowSkip)
 {
-  // DD("AddInputSelector with filter");
-  //   DD(mMainWindowBase->GetSlicerManagers().size());
   int j=0;
   mFilter = f;
   mSlicerManagersCompatible.clear();
   mToolInputSelectionWidget->setToolTip(QString("%1").arg(mFilter->GetAvailableImageTypes().c_str()));
   for(unsigned int i=0; i<mMainWindow->GetSlicerManagers().size(); i++) {
-    // DD(i);
     vvImage * s = mMainWindow->GetSlicerManagers()[i]->GetImage();
-    // DD(s->GetScalarTypeAsString());
     if (mFilter->CheckImageType(s->GetNumberOfDimensions(),
                                 s->GetNumberOfScalarComponents(),
                                 s->GetScalarTypeAsString())) {
@@ -104,8 +126,6 @@ void vvToolWidgetBase::AddInputSelector(QString s, clitk::ImageToImageGenericFil
 //------------------------------------------------------------------------------
 void vvToolWidgetBase::AddInputSelector(QString s, bool allowSkip)
 {
-  // DD("AddInput without filter");
-  //   DD(mMainWindow->GetSlicerManagers().size());
   mSlicerManagersCompatible.clear();
   for(unsigned int i=0; i<mMainWindow->GetSlicerManagers().size(); i++) {
     mSlicerManagersCompatible.push_back(mMainWindow->GetSlicerManagers()[i]);
@@ -122,10 +142,20 @@ void vvToolWidgetBase::AddInputSelector(QString s, bool allowSkip)
 
 
 //------------------------------------------------------------------------------
+void vvToolWidgetBase::HideInputSelector()
+{
+  QList<int> s;
+  s.push_back(0);
+  s.push_back(1);
+  splitter->setSizes(s);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 void vvToolWidgetBase::show()
 {
   if (!mIsInitialized) {
-    //  DD("show -> init");
     mToolInputSelectionWidget->Initialize();
     mIsInitialized = true;
   }
@@ -137,7 +167,6 @@ void vvToolWidgetBase::show()
 //------------------------------------------------------------------------------
 bool vvToolWidgetBase::close()
 {
-  // DD("vvToolWidgetBase::close()");
   return QDialog::close();
 }
 //------------------------------------------------------------------------------

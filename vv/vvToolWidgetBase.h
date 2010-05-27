@@ -34,12 +34,14 @@ class vvToolWidgetBase:
   public:
 
   vvToolWidgetBase(vvMainWindowBase * parent=0, Qt::WindowFlags f=0);
+  vvToolWidgetBase(vvMainWindowBase * parent, Qt::WindowFlags f, bool b);
   ~vvToolWidgetBase();
 
   virtual void InputIsSelected(vvSlicerManager *m);
   virtual void InputIsSelected(std::vector<vvSlicerManager*> & l);
   void AddInputSelector(QString s, clitk::ImageToImageGenericFilterBase * f, bool allowSkip=false);
   void AddInputSelector(QString s, bool allowSkip=false);
+  void HideInputSelector();
 
 public slots:
   virtual void apply() = 0;
