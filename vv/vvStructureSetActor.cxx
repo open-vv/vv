@@ -35,6 +35,22 @@ vvStructureSetActor::~vvStructureSetActor()
 
 
 //------------------------------------------------------------------------------
+int vvStructureSetActor::GetNumberOfROIs() 
+{ 
+  return mROIActors.size(); 
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+std::vector<vvROIActor*> & vvStructureSetActor::GetROIList() 
+{ 
+  return mROIActors; 
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 void vvStructureSetActor::SetStructureSet(clitk::DicomRT_StructureSet * s)
 {
   mStructureSet = s;
@@ -72,15 +88,21 @@ void vvStructureSetActor::CreateNewROIActor(int n)
     exit(0);
   }
 
+  // If already exist : delete it
+  int old = -1;
+  if (mMapROIIndex.find(n) != mMapROIIndex.end()) {
+    delete mROIActors[mMapROIIndex[n]];
+    old = mMapROIIndex[n];
+  }
+
   // Add ROI Actors
   vvROIActor * actor = new vvROIActor;
-  mROIActors.push_back(actor);
+  if (old == -1) mROIActors.push_back(actor);
+  else mROIActors[old] = actor;
   actor->SetROI(roi);
   actor->SetSlicerManager(mSlicerManager);
   actor->Initialize();
   mMapROIIndex[n] = mROIActors.size()-1;
-
-  //  actor->Update();
 }
 //------------------------------------------------------------------------------
 

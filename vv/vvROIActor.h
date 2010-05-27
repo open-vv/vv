@@ -54,6 +54,7 @@ class vvROIActor: public QObject {
 public slots:
   void UpdateSlice(int slicer, int slices);
   void UpdateColor();
+  void UpdateImage();
 
  protected:
   clitk::DicomRT_ROI * mROI;

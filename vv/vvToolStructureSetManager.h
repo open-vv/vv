@@ -49,7 +49,6 @@ class vvToolStructureSetManager:
 public slots:
   virtual void apply();
   void Open(int type);
-  void LeftButtonReleaseEvent(int slicer);
   void OpenBinaryImage();
   void SelectedItemChangedInTree();
   void VisibleROIToggled(bool b);
@@ -58,9 +57,9 @@ public slots:
   void ChangeColor();
   void ChangeContourColor();
   void ChangeContourWidth(int n);
-  void AllVisibleROIToggled(bool b);
+  void AllVisibleROIToggled(int b);
   void AllVisibleContourROIToggled(bool b);
-  void AllOpacityChanged(int v);
+  void ReloadCurrentROI();
 
  protected:
   Ui::vvToolStructureSetManager ui;
@@ -70,17 +69,19 @@ public slots:
   clitk::DicomRT_ROI * mCurrentROI;
   vvROIActor * mCurrentROIActor;
   vtkLookupTable * mDefaultLUTColor;
- 
-  void setCurrentSelectedROI(clitk::DicomRT_ROI * roi);
- 
-  std::vector<clitk::DicomRT_StructureSet*> mStructureSetsList;
-  std::vector<vvStructureSetActor *> mStructureSetActorsList;
-  std::map<int, QTreeWidgetItem *> mMapStructureSetIndexToTreeWidget;
-  std::map<clitk::DicomRT_ROI*, QTreeWidgetItem *> mMapROIToTreeWidget;
-  std::map<QTreeWidgetItem *, clitk::DicomRT_ROI*> mMapTreeWidgetToROI;
   bool mIsAllVisibleEnabled;
   int mNumberOfVisibleROI;
-
+  int mNumberOfVisibleContourROI;
+  std::vector<clitk::DicomRT_StructureSet*>        mStructureSetsList;
+  std::vector<vvStructureSetActor *>               mStructureSetActorsList;
+  std::map<int, QTreeWidgetItem *>                 mMapStructureSetIndexToTreeWidget;
+  std::map<clitk::DicomRT_ROI*, QTreeWidgetItem *> mMapROIToTreeWidget;
+  std::map<QTreeWidgetItem *, clitk::DicomRT_ROI*> mMapTreeWidgetToROI;
+ 
+  void setCurrentSelectedROI(clitk::DicomRT_ROI * roi);
+  void UpdateAllROIStatus();
+  virtual bool close();
+ 
 }; // end class vvToolStructureSetManager
 //------------------------------------------------------------------------------
 
