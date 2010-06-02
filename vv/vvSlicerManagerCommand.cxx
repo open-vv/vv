@@ -188,7 +188,16 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
           this->SM->Render();
           return;
         }
-        if (KeyPress == "u") {
+        if (KeyPress == "x") {
+	  for(int i=0;i<SM->NumberOfSlicers();i++)
+	  {
+	   SM->RemoveActor("overlay",0);
+	   SM->SetColorMap(0);
+	   SM->Render();
+	  }
+	   return;
+	}
+	if (KeyPress == "u") {
           this->SM->Reload();
           this->SM->Render();
           return;
