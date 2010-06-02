@@ -53,12 +53,6 @@ public slots:
   void SetXvalue();
   void SetYvalue();
   void SetZvalue();
-  void SetOrderXtrans();
-  void SetOrderYtrans();
-  void SetOrderZtrans();
-  void SetOrderXrot();
-  void SetOrderYrot();
-  void SetOrderZrot();
   void UpdateXtranslider();
   void UpdateXtransb();
   void UpdateYtranslider();
@@ -77,18 +71,16 @@ public slots:
   void ResetTransform();
   void SetRotationCenter();
   void SetSliderRanges();
-  void UpdateTextEditor(vtkMatrix4x4 *matrix,QString SetOrder);
+  void UpdateTextEditor(vtkMatrix4x4 *matrix);
   void InitializeSliders();
-  
   protected:
   Ui::vvToolRigidReg ui;
   vvSlicerManager * mInput1;
   vvSlicerManager * mInput2;
   vvMainWindow * mWindow;
-  QString mOrder;
   bool mTwoInputs;
   std::vector<int> mImageSize;
-  void SetTransform(double tX, double tY, double tZ, double aX, double aY, double aZ);
+  void SetTransform(double tX, double tY, double tZ, double aX, double aY, double aZ,bool update);
   void SetTransform(vtkMatrix4x4 * matrix);
 }; // end class vvToolRigidReg
 //------------------------------------------------------------------------------
