@@ -22,6 +22,7 @@
 #include <itkImageFileReader.h>
 #include "vvImageReader.h"
 #include "vvImageReader.txx"
+#include "clitkTransformUtilities.h"
 
 //------------------------------------------------------------------------------
 vvImageReader::vvImageReader()
@@ -133,22 +134,36 @@ void vvImageReader::ReadNkiImageTransform()
   }
 
   if (bRead) {
-    double mat[16];
-
     //Transpose matrix (NKI format)
     for(int j=0; j<4; j++)
       for(int i=0; i<4; i++)
-        mat[4*j+i]=readerTransfo->GetOutput()->GetBufferPointer()[4*i+j];
+        mImage->GetTransform()->GetMatrix()->SetElement(j,i,readerTransfo->GetOutput()->GetBufferPointer()[4*i+j]);
 
     //From cm to mm
     for(int i=0; i<3; i++)
-      mat[4*i+3]*=10;
+      mImage->GetTransform()->GetMatrix()->SetElement(i,3,10*mImage->GetTransform()->GetMatrix()->GetElement(i,3));
 
-    //Set Transformation
-    vtkSmartPointer<vtkTransform> pt = vtkSmartPointer<vtkTransform>::New();
-    pt->SetMatrix( mat );
-    pt->Inverse();
-    mImage->SetTransform( pt );
+    mImage->GetTransform()->Inverse();
+    mImage->UpdateReslice();
+  }
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+//Read transformation in ASCII format
+void vvImageReader::ReadMatImageTransform()
+{
+  std::string filename(mInputFilenames[0]+".mat");
+  std::ifstream f(filename.c_str());
+  if(f.is_open()) {
+    f.close();
+    
+    itk::Matrix<double, 4, 4> itkMat = clitk::ReadMatrix3D(filename);
+    for(int j=0; j<4; j++)
+      for(int i=0; i<4; i++)
+        mImage->GetTransform()->GetMatrix()->SetElement(j,i,itkMat[j][i]);
+    mImage->UpdateReslice();
   }
 }
 //------------------------------------------------------------------------------

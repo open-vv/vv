@@ -53,9 +53,10 @@ void vvImageReader::UpdateWithDim(std::string InputPixelType)
   else
     std::cerr << "Error, input pixel type : " << InputPixelType << " unknown !" << std::endl;
 
-  if (CLITK_EXPERIMENTAL)
-    if (mLastError.size()==0)
-      ReadNkiImageTransform();
+  if (CLITK_EXPERIMENTAL && mLastError.size()==0) {
+    ReadNkiImageTransform();
+    ReadMatImageTransform();
+  }
 }
 //----------------------------------------------------------------------------
 

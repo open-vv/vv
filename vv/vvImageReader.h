@@ -76,6 +76,7 @@ protected:
 
     //====================================================================
     void ReadNkiImageTransform();
+    void ReadMatImageTransform();
 private:
     vvImage::Pointer mImage;
 
