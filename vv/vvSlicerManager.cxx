@@ -1168,12 +1168,19 @@ void vvSlicerManager::AddLandmark(float x,float y,float z,float t)
   double x_index = (x - mSlicers[0]->GetInput()->GetOrigin()[0])/mSlicers[0]->GetInput()->GetSpacing()[0];
   double y_index = (y - mSlicers[0]->GetInput()->GetOrigin()[1])/mSlicers[0]->GetInput()->GetSpacing()[1];
   double z_index = (z - mSlicers[0]->GetInput()->GetOrigin()[2])/mSlicers[0]->GetInput()->GetSpacing()[2];
-  double value = mSlicers[0]->GetInput()->GetScalarComponentAsDouble(
-                   (int)x_index,
-                   (int)y_index,
-                   (int)z_index,0);
-  this->GetLandmarks()->AddLandmark(x,y,z,t,value);
-  emit LandmarkAdded();
+  if (x_index >= mSlicers[0]->GetInput()->GetWholeExtent()[0] &&
+      x_index <= mSlicers[0]->GetInput()->GetWholeExtent()[1] &&
+      y_index >= mSlicers[0]->GetInput()->GetWholeExtent()[2] &&
+      y_index <= mSlicers[0]->GetInput()->GetWholeExtent()[3] &&
+      z_index >= mSlicers[0]->GetInput()->GetWholeExtent()[4] &&
+      z_index <= mSlicers[0]->GetInput()->GetWholeExtent()[5]) {
+    double value = mSlicers[0]->GetInput()->GetScalarComponentAsDouble(
+                     (int)x_index,
+                     (int)y_index,
+                     (int)z_index,0);
+    this->GetLandmarks()->AddLandmark(x,y,z,t,value);
+    emit LandmarkAdded();
+  }
 }
 //----------------------------------------------------------------------------
 
