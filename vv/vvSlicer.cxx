@@ -736,8 +736,8 @@ void vvSlicer::UpdateDisplayExtent()
         bounds[1] = ImageActor->GetBounds()[1];
         bounds[2] = ImageActor->GetBounds()[2];
         bounds[3] = ImageActor->GetBounds()[3];
-        bounds[4] = ImageActor->GetBounds()[4]-(0.9/this->GetInput()->GetSpacing()[2]);
-        bounds[5] = ImageActor->GetBounds()[5]+(0.9/this->GetInput()->GetSpacing()[2]);
+        bounds[4] = ImageActor->GetBounds()[4]-fabs(0.5/this->GetInput()->GetSpacing()[2]);
+        bounds[5] = ImageActor->GetBounds()[5]+fabs(0.5/this->GetInput()->GetSpacing()[2]);
         mClipBox->SetBounds(bounds);
         UpdateLandmarks();
       }
@@ -786,8 +786,8 @@ void vvSlicer::UpdateDisplayExtent()
         double bounds [6];
         bounds[0] = ImageActor->GetBounds()[0];
         bounds[1] = ImageActor->GetBounds()[1];
-        bounds[2] = ImageActor->GetBounds()[2]-(0.5/this->GetInput()->GetSpacing()[1]);
-        bounds[3] = ImageActor->GetBounds()[3]+(0.5/this->GetInput()->GetSpacing()[1]);
+        bounds[2] = ImageActor->GetBounds()[2]-fabs(0.5/this->GetInput()->GetSpacing()[1]);
+        bounds[3] = ImageActor->GetBounds()[3]+fabs(0.5/this->GetInput()->GetSpacing()[1]);
         bounds[4] = ImageActor->GetBounds()[4];
         bounds[5] = ImageActor->GetBounds()[5];
         mClipBox->SetBounds(bounds);
@@ -836,8 +836,8 @@ void vvSlicer::UpdateDisplayExtent()
     if (mLandActor) {
       if (mClipBox) {
         double bounds [6];
-        bounds[0] = ImageActor->GetBounds()[0]-(0.5/this->GetInput()->GetSpacing()[0]);
-        bounds[1] = ImageActor->GetBounds()[1]+(0.5/this->GetInput()->GetSpacing()[0]);
+        bounds[0] = ImageActor->GetBounds()[0]-fabs(0.5/this->GetInput()->GetSpacing()[0]);
+        bounds[1] = ImageActor->GetBounds()[1]+fabs(0.5/this->GetInput()->GetSpacing()[0]);
         bounds[2] = ImageActor->GetBounds()[2];
         bounds[3] = ImageActor->GetBounds()[3];
         bounds[4] = ImageActor->GetBounds()[4];
