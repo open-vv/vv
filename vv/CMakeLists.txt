@@ -171,7 +171,7 @@ INCLUDE_DIRECTORIES(
 #support for parallel deformable registration with OpenMP
 IF(NOT __APPLE__)
 IF(CMAKE_COMPILER_IS_GNUCC)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp -march=native")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 ENDIF(CMAKE_COMPILER_IS_GNUCC)
 ENDIF(NOT __APPLE__)
 #=========================================================
@@ -226,24 +226,25 @@ SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/ReadMe.txt")
 SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/License.txt")
 SET(CPACK_PACKAGE_VERSION_MAJOR "1")
 SET(CPACK_PACKAGE_VERSION_MINOR "1")
+SET(CPACK_PACKAGE_VERSION_PATCH "0")
 SET(CPACK_PACKAGE_INSTALL_DIRECTORY "vv")
 
 IF(WIN32)
   # There is a bug in NSI that does not handle full unix paths properly. Make
   # sure there is at least one set of four (4) backlasshes.
   SET(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}\\\\icons\\\\ducky.ico")
-  SET(CPACK_NSIS_INSTALLED_ICON_NAME "${EXECUTABLE_OUTPUT_PATH}\\\\${CMAKE_BUILD_TYPE}\\\\vv.exe")
-  SET(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} The 4D slicer")
+  SET(CPACK_NSIS_INSTALLED_ICON_NAME "${CMAKE_BUILD_TYPE}\\\\vv.exe")
+  SET(CPACK_NSIS_DISPLAY_NAME "vv - The 4D slicer")
   SET(CPACK_NSIS_HELP_LINK "http://www.creatis.insa-lyon.fr/rio/vv")
   SET(CPACK_NSIS_URL_INFO_ABOUT "http://www.creatis.insa-lyon.fr/rio")
   SET(CPACK_NSIS_CONTACT "vv@creatis.insa-lyon.fr")
-  SET(CPACK_NSIS_MODIFY_PATH ON)
-  SET(CPACK_BINARY_ZIP ON)
+  SET(CPACK_NSIS_CREATE_ICONS_EXTRA "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\vv.lnk\\\" \\\"$INSTDIR\\\\vv.exe\\\" ")
+  SET(CPACK_NSIS_DELETE_ICONS_EXTRA "Delete \\\"$SMPROGRAMS\\\\$MUI_TEMP\\\\vv.lnk\\\" ")
+  #SET(CPACK_NSIS_MODIFY_PATH ON) SR: buggy, wait for cmake updates for a fix
+  #SET(CPACK_BINARY_ZIP ON)
 ELSE(WIN32)
-  SET(CPACK_STRIP_FILES "bin/vv")
   SET(CPACK_GENERATOR "STGZ")
   SET(CPACK_SOURCE_GENERATOR "TGZ") 
 ENDIF(WIN32)
-SET(CPACK_PACKAGE_EXECUTABLES "vv" "vv")
 INCLUDE(CPack)
 #=========================================================
