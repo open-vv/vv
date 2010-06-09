@@ -356,7 +356,8 @@ void vvInteractorStyleNavigator::OnChar()
     //Do nothing, this is handled in vvSlicerManagerCommand
     break;
   default:
-    this->Superclass::OnChar();
+    //SR: we don't use the default vtk keys => removed to avoid conflicts
+    //this->Superclass::OnChar();
     break;
   }
 }
