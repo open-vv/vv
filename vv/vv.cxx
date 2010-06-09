@@ -30,11 +30,6 @@
 //------------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
-#ifdef _WIN32
-  HWND hWnd = GetConsoleWindow();
-  ShowWindow( hWnd, SW_HIDE );
-#endif
-
   CLITK_INIT;
 
   QApplication app( argc, argv );
