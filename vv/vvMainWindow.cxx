@@ -45,10 +45,6 @@
 #include "vvMeshReader.h"
 #include "vvConstants.h"
 
-#ifdef CLITK_VV_USE_BDCM
-#include <bdcmDicomFilesSelectorDialog.h>
-#endif
-
 // ITK include
 #include "itkImage.h"
 #include "itkImageFileReader.h"
@@ -678,32 +674,11 @@ void vvMainWindow::OpenDicom()
 {
   std::vector<std::string> files;
 
-#ifdef CLITK_VV_USE_BDCM
-  bool r = bdcm::OpenDicomFilesSelectorDialog(files,
-           "DicomFilesSelectorDialog test",
-           0,0,800,800,1);
-
-  if (r) {
-    std::cout << "$$$$ main : user clicked 'OK' $$$$"<<std::endl;
-    std::cout << "$$$$ selected files : "<<std::endl;
-    std::vector<std::string>::iterator i;
-    for (i=files.begin(); i!=files.end(); ++i) {
-      std::cout << *i << std::endl;
-    }
-    std::cout << "$$$$ "<<std::endl;
-
-    LoadImages(files,DICOM);
-  } else {
-    std::cout << "$$$$ main : user clicked 'CANCEL' $$$$"<<std::endl;
-  }
-#else
   std::cout << "dicomSeriesSelector " << std::endl;
   if (dicomSeriesSelector->exec() == QDialog::Accepted) {
     files = *(dicomSeriesSelector->GetFilenames());
     LoadImages(files,DICOM);
   }
-#endif
-
 }
 //------------------------------------------------------------------------------
 

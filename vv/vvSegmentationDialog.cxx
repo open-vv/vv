@@ -78,6 +78,7 @@ vvSegmentationDialog::vvSegmentationDialog(QWidget * parent, Qt::WindowFlags f)
   //m3DMapper = vtkPolyDataMapper::New();
   //m3DActor = vtkActor::New();
   m3DExtractor = vtkMarchingCubes::New();
+  m3DExtractor->ComputeScalarsOff();
   m3DMappers.clear();
   m3DActors.clear();
 
