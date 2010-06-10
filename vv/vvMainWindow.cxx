@@ -864,19 +864,19 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType fi
     UpdateTree();
     InitDisplay();
     ShowLastImage();
+
+    // Try to guess default WindowLevel
+    double range[2];
+    mSlicerManagers.back()->GetImage()->GetFirstVTKImageData()->GetScalarRange(range);
+    // DD(range[0]);
+    //   DD(range[1]);
+    if ((range[0] == 0) && (range[1] == 1)) {
+      presetComboBox->setCurrentIndex(5);// binary
+    } else {
+      // TODO
+    }
   }
   QApplication::restoreOverrideCursor();
-
-  // Try to guess default WindowLevel
-  double range[2];
-  mSlicerManagers.back()->GetImage()->GetFirstVTKImageData()->GetScalarRange(range);
-  // DD(range[0]);
-  //   DD(range[1]);
-  if ((range[0] == 0) && (range[1] == 1)) {
-    presetComboBox->setCurrentIndex(5);// binary
-  } else {
-    // TODO
-  }
 }
 //------------------------------------------------------------------------------
 
