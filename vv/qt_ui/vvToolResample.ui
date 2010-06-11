@@ -924,6 +924,11 @@
               <string>Blut (faster BSpline)</string>
              </property>
             </item>
+            <item>
+             <property name="text">
+              <string>Windowed Sinc</string>
+             </property>
+            </item>
            </widget>
           </item>
          </layout>

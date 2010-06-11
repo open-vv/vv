@@ -38,6 +38,7 @@
 #include "itkResampleImageFilter.h"
 #include "itkAffineTransform.h"
 #include "itkNearestNeighborInterpolateImageFunction.h"
+#include "itkWindowedSincInterpolateImageFunction.h"
 #include "itkLinearInterpolateImageFunction.h"
 #include "itkBSplineInterpolateImageFunction.h"
 #include "itkBSplineInterpolateImageFunctionWithLUT.h"
@@ -141,22 +142,28 @@ void clitk::ImageResampleGenericFilter::UpdateWithInputImageType()
       typename InterpolatorType::Pointer interpolator =  InterpolatorType::New();
       filter->SetInterpolator(interpolator);
     } else {
-      if (mInterpolatorName == "bspline") {
-        typedef itk::BSplineInterpolateImageFunction<InputImageType, double> InterpolatorType;
-        typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
-        interpolator->SetSplineOrder(mBSplineOrder);
+      if (mInterpolatorName == "windowed sinc") {
+        typedef itk::WindowedSincInterpolateImageFunction<InputImageType, 4> InterpolatorType;
+        typename InterpolatorType::Pointer interpolator =  InterpolatorType::New();
         filter->SetInterpolator(interpolator);
       } else {
-        if (mInterpolatorName == "blut") {
-          typedef itk::BSplineInterpolateImageFunctionWithLUT<InputImageType, double> InterpolatorType;
+        if (mInterpolatorName == "bspline") {
+          typedef itk::BSplineInterpolateImageFunction<InputImageType, double> InterpolatorType;
           typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
           interpolator->SetSplineOrder(mBSplineOrder);
-          interpolator->SetLUTSamplingFactor(mSamplingFactors[0]);
-          filter->SetInterpolator(interpolator);
+          filter->SetInterpolator(interpolator); 
         } else {
-          std::cerr << "Sorry, I do not know the interpolator '" << mInterpolatorName
-                    << "'. Known interpolators are :  nn, linear, bspline, blut" << std::endl;
-          exit(0);
+          if (mInterpolatorName == "blut") {
+            typedef itk::BSplineInterpolateImageFunctionWithLUT<InputImageType, double> InterpolatorType;
+            typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
+            interpolator->SetSplineOrder(mBSplineOrder);
+            interpolator->SetLUTSamplingFactor(mSamplingFactors[0]);
+            filter->SetInterpolator(interpolator);
+          } else {
+            std::cerr << "Sorry, I do not know the interpolator '" << mInterpolatorName
+              << "'. Known interpolators are :  nn, linear, bspline, blut" << std::endl;
+            exit(0);
+          }
         }
       }
     }
