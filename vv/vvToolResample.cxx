@@ -413,7 +413,7 @@ void vvToolResample::UpdateInterpolation()
     bSplineOrderSpinBox->show();
     bLUTFactorLabel->hide();
     bLUTSpinBox->hide();
-  } else if (interpolationComboBox->currentText() == "B-LUT (faster BSpline)")   {
+  } else if (interpolationComboBox->currentText() == "Blut (faster BSpline)")   {
     bSplineLabel->show();
     bSplineOrderSpinBox->show();
     bLUTFactorLabel->show();
@@ -464,7 +464,7 @@ void vvToolResample::apply()
 
   if (interpolationComboBox->currentText() == "BSpline")
     mFilter->SetBSplineOrder(bSplineOrderSpinBox->value());
-  else if (interpolationComboBox->currentText() == "B-LUT (faster BSpline)") {
+  else if (interpolationComboBox->currentText() == "Blut (faster BSpline)") {
     mFilter->SetInterpolationName("blut");
     mFilter->SetBSplineOrder(bSplineOrderSpinBox->value());
     mFilter->SetBLUTSampling(bLUTSpinBox->value());
