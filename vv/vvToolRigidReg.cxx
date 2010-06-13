@@ -538,17 +538,17 @@ void vvToolRigidReg::ReadFile()
     DD(orientations[1]);
     DD(orientations[2]);*/
   //set the sliders  and spin box values 
-    xtrans_slider->setValue(round(translations[0]/mInput1->GetImage()->GetSpacing()[0]));
+    xtrans_slider->setValue(rint(translations[0]/mInput1->GetImage()->GetSpacing()[0]));
     UpdateXtranslider();
-    ytrans_slider->setValue(round(translations[1]/mInput1->GetImage()->GetSpacing()[1]));
+    ytrans_slider->setValue(rint(translations[1]/mInput1->GetImage()->GetSpacing()[1]));
     UpdateYtranslider();	
-    ztrans_slider->setValue(round(translations[2]/mInput1->GetImage()->GetSpacing()[2]));
+    ztrans_slider->setValue(rint(translations[2]/mInput1->GetImage()->GetSpacing()[2]));
     UpdateZtranslider();
-    yrot_slider->setValue(round(orientations[1]));
+    yrot_slider->setValue(rint(orientations[1]));
     UpdateYrotslider();
-    xrot_slider->setValue(round(orientations[0]));
+    xrot_slider->setValue(rint(orientations[0]));
     UpdateXrotslider();	
-    zrot_slider->setValue(round(orientations[2]));
+    zrot_slider->setValue(rint(orientations[2]));
     UpdateZrotslider();
 }
 //------------------------------------------------------------------------------
