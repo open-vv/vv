@@ -1,0 +1,89 @@
+# file clitkAffineRegistration.ggo
+package "clitk"
+version "1.0"
+purpose "Compute an affine registration between two images." 
+
+option "config"	  	-	"Config file"			string  	no
+
+section "Run Time"
+
+option "verbose"   	v  	"Verbose"		  		flag	off
+option "gradient"   	-  	"If verbose, show gradient at each iteration" 	flag	off
+option "threads"	-	"Number of threads to use  (default=min(#cores,8))" 	int 	 no
+
+
+section "Input (Both images have to be of the same dimension (2 or 3D). For 2D-3D registrations, give the 2D image a third dimension of 1 and set it to the reference image.)"
+
+option "reference"	i	"Reference or fixed image filename"		string  yes
+option "target"     	j 	"Target or moving image filename"		string  yes
+option "referenceMask" 	m 	"Mask to placed over the reference image"	string	 no
+option "targetMask" 	- 	"Mask to placed over the target image"	string	 no
+
+section "Output"
+
+option "output"     	o 	"Transformed object image filename"							string  no
+option "checker_after"  - 	"Checherboard representation of the transformed object image and reference image"	string  no
+option "checker_before"  - 	"Checherboard representation of the object image and reference image"			string  no
+option "after"     	- 	"Difference between the reference image and the transformed object"			string  no
+option "before"     	- 	"Difference between the reference image and the original object image"			string  no
+option "matrix"     	- 	"Affine matrix (reference to object space) filename "					string  no
+
+
+section "Interpolator"
+
+option "interp"		-	"Interpolation: 0=NN, 1=Linear, 2=BSpline, 3=BLUT"	int  	no  default="1"
+option "interpOrder"	-	"Order if BLUT or BSpline (0-5)"		        int  	no  default="3"
+option "interpSF"	-	"Sampling factor if BLUT"			        int  	no  default="20"
+
+
+section "Transform (Input and Output transformation parameters map the physical space of the fixed or reference image into the physical space of the moving or object image. Positive rotations result in a counter-clockwise rotation for the moving image. Positive translations result in shift along the negative axis for the moving image.)"
+
+option "transform"  - "Type: 0=Identity, 1=Translation, 2=Rigid, 3=Affine" int no  default="2"
+option "transX"     x "1-3: Initial translation in mm along the X axis"  float no  default="0.0"
+option "transY"     y "1-3: Initial translation in mm along the Y axis"  float no  default="0.0"
+option "transZ"     z "1-3: Initial translation in mm along the Z axis"  float no  default="0.0"
+option "initMatrix" - "2-3: Initial matrix (reference to object space) filename " string  no
+option "moment"     - "2-3: Initialize translation by aligning the center of gravities for the respective intensities" flag off
+
+section "Metric (optimized, threaded versions are available for *, compile ITK with REVIEW and OPT_REGISTRATION enabled)"
+
+option "metric" 	-       "Type: 0=Mean-Squares*, 1=Normalized CC*, 2=Histogram CC, 3=Gradient-Difference, 4=Viola-Wells MI, 5=Histogram MI, 6=Mattes' MI*, 7=Normalized MI, 8=CR, 9=SSD for BLUT FFD**" 	int 	no 	default="0"
+option "samples" 	-       "Specify fraction [0, 1] of samples of the reference image used for the metric (* only). Use high fraction for detailed images (eg. 0.2, 0.5), for smooth images 0.01 might be enough." float 	no 	default="1"
+option "intThreshold"	-       "Fixed image samples intensity threshold (* only; caution with --normalize)" 			        float	no		
+option "subtractMean"	-       "1: Subtract mean for NCC calculation (narrows optimal)" 		                               	flag	on	
+option "bins"	 	-       "2,5-8: Number of histogram bins" 	                                                                int 	no      default="50"
+option "random" 	-       "4,6: Samples should be taken randomly, otherwise uniformly"			                       	flag 	off 	
+option "stdDev"		-       "4: specify the standard deviation in mm of the gaussian kernels for both PDF estimations" 		float 	no 	default="0.4" 	
+option "explicitPDFDerivatives"	-       "6: Calculate PDF derivatives explicitly (rigid=true; FFD=false)" 		                flag    on
+
+
+section "Preprocessing"
+
+option "normalize"	-       "Normalize images before registration (not necessary for metric 1,2,5,6,8; caution with --intThreshold)" 			flag 	off 	
+option "blur"		-       "Blur images before registration, use Gaussian with std dev (none by default) " 	float 	no  default="0.0" 	
+
+
+section "Optimizer"
+
+option "optimizer"	-	"0=Simplex, 1=Powell, 2=FRPR, 3=Regular Step GD, 4=VersorRigid3D, 5=Conjugated Gradient, 6=L-BFGS, 7=L-BFGS-B" int no default="0" 
+option "delta"		-	"0: Initial delta, otherwise automatic"    						double 	no			
+option "step" 		-       "1,2,3,4: Initial stepsize (to be multiplied with the gradient)" 			double	no	default="2.0"	
+option "relax" 		-       "3,4: Relaxation of the stepsize (multiplied each time the gradient changes sign)" 	double	no	default="0.7"
+option "valueTol"	-	"0,1,2: Tolerance on the function"							double 	no	default="0.01"
+option "stepTol"	-	"0,1,3,4: Tolerance on the step size"							double  no 	default="0.1"
+option "gradTol"	-	"3,4,6,7: Tolerance on the (projected) gradient magnitude (7: 1=low->1e-10=high precision)"	double 	no	default="1e-5"			
+option "lineAcc"	- 	"6: Line accuracy (eg: high=0.1, low=0.9)" 	double	no 	default="0.9"
+option "convFactor"	-	"7: Convergence factor: terminate if factor*machine_precision>reduction in cost (1e+12 low, 1e+7 moderate and 1e+1 high precision) "	double		no	default="1e+12"
+option "maxIt"		-	"0-7: Maximum number of iterations"					int 	no	default="500"
+option "maxLineIt"	-	"Maximum number of line iterations"					int 	no	default="50"	
+option "maxEval"	-	"Maximum number of evaluations"						int	no	default="500"
+option "maxCorr"	-	"Maximum number of corrections"						int	no	default="5"
+option "selectBound"	-	"7: Select the type of bound: 0=none, 1=u, 2=u&l, 3=l"			int 	no	default="0"
+option "lowerBound"	-	"7: The lower bound"							double 	no	
+option "upperBound"	-	"7: The upper bound"							double 	no	
+
+option "rWeight" 	-       "Weight of 1Â° of rotation during optimisation (high weight, less change)" 		float	no	default="50.0"
+option "tWeight"	-       "Weight of 1mm of translation  during optimisation (high weight, less change)" 		float	no	default="1.0"
+option "levels"		-       "Number of resolution levels"						 		int	no	default="1"						
+option "inc" 		-       "Increment factor (x)  previous step/tol = new step/tol at next resolution level" 	float	no	default="1.2"
+option "dec" 		-       "Decrement factor (:)  previous step/tol = new step/tol at next resolution level" 	float	no	default="4"

@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -15,6 +15,7 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
 #ifndef __clitkCorrelationRatioImageToImageMetric_h
 #define __clitkCorrelationRatioImageToImageMetric_h
 
@@ -22,15 +23,15 @@
  * @file   clitkCorrelationRatioImageToImageMetric.h
  * @author Jef Vandemeulebroucke <jef@creatis.insa-lyon.fr>
  * @date   July 30  18:14:53 2007
- * 
+ *
  * @brief  Compute the correlation ratio between 2 images
- * 
- * 
+ *
+ *
  */
 
 /* This computes the correlation ratio between 2 images
  *
- * This class is templated over the FixedImage type and the MovingImage 
+ * This class is templated over the FixedImage type and the MovingImage
  * type.
  *
  * The fixed and moving images are set via methods SetFixedImage() and
@@ -50,7 +51,7 @@
  *
  * The number of intensity bins used can be set through the SetNumberOfBins() method
  *
- * On Initialize(), we find the min and max intensities in the fixed image and compute the width of 
+ * On Initialize(), we find the min and max intensities in the fixed image and compute the width of
  * the intensity bins. The data structures which hold the bins and related measures are initialised.
  */
 
@@ -63,9 +64,9 @@ using namespace itk;
 namespace clitk
 {
 
-template < class TFixedImage, class TMovingImage > 
-class ITK_EXPORT CorrelationRatioImageToImageMetric: 
-    public ImageToImageMetric< TFixedImage, TMovingImage>
+template < class TFixedImage, class TMovingImage >
+class ITK_EXPORT CorrelationRatioImageToImageMetric:
+  public ImageToImageMetric< TFixedImage, TMovingImage>
 {
 public:
 
@@ -78,11 +79,11 @@ public:
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
- 
+
   /** Run-time type information (and related methods). */
   itkTypeMacro(CorrelationRatioImageToImageMetric, ImageToImageMetric);
 
- 
+
   /** Types transferred from the base class */
   typedef typename Superclass::RealType                 RealType;
   typedef typename Superclass::TransformType            TransformType;
@@ -99,11 +100,11 @@ public:
   typedef typename Superclass::MovingImageConstPointer  MovingImageConstPointer;
 
 
- /** 
-   *  Initialize the Metric by 
-   *  (1) making sure that all the components are present and plugged 
-   *      together correctly,
-   *  (3) allocate memory for bin data structures. */
+  /**
+    *  Initialize the Metric by
+    *  (1) making sure that all the components are present and plugged
+    *      together correctly,
+    *  (3) allocate memory for bin data structures. */
   virtual void Initialize(void) throw ( ExceptionObject );
 
   /** Get the derivatives of the match measure. */
@@ -117,10 +118,10 @@ public:
   void GetValueAndDerivative( const TransformParametersType & parameters,
                               MeasureType& Value, DerivativeType& Derivative ) const;
 
- /** Number of bins to used in the calculation. Typical value is 50. */
+  /** Number of bins to used in the calculation. Typical value is 50. */
   itkSetClampMacro( NumberOfBins, unsigned long,
                     1, NumericTraits<unsigned long>::max() );
-  itkGetConstReferenceMacro( NumberOfBins, unsigned long);   
+  itkGetConstReferenceMacro( NumberOfBins, unsigned long);
 
 protected:
   CorrelationRatioImageToImageMetric();
@@ -138,7 +139,7 @@ private:
   double m_FixedImageBinSize;
 
   //The number of pixels in the fixed image bins are stored in a vector
-   mutable std::vector<unsigned long> m_NumberOfPixelsCountedPerBin;
+  mutable std::vector<unsigned long> m_NumberOfPixelsCountedPerBin;
 
   //The mMSVPB and the mSMVPB are stored in vectors of realtype
   typedef float ValueType;

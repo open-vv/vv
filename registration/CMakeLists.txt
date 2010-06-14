@@ -1,0 +1,4 @@
+WRAP_GGO(clitkAffineRegistration_GGO_C clitkAffineRegistration.ggo)
+ADD_EXECUTABLE(clitkAffineRegistration clitkAffineRegistration.cxx clitkAffineRegistrationGenericFilter.cxx ${clitkAffineRegistration_GGO_C} clitkLBFGSBOptimizer.cxx clitkGenericAffineTransform.cxx)
+TARGET_LINK_LIBRARIES(clitkAffineRegistration clitkCommon ITKIO clitkFilters ITKNumerics ITKStatistics)
+
