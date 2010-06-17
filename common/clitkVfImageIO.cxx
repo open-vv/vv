@@ -152,6 +152,7 @@ void clitk::VfImageIO::WriteImageInformation(bool keepOfStream)
 
   // Open the file
   clitk::openFileForWriting(file, m_FileName);
+  file.precision(40);
   // write magic number
   file << "IAMA3DVECTORFIELD V2 " << std::endl;
   // write grid size/spacing
