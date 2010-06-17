@@ -146,9 +146,13 @@ clitk::ResampleImageGenericFilter<args_info_type>::UpdateWithInputImageType()
         if (interp == "blut") {
           filter->SetInterpolationType(ResampleImageFilterType::B_LUT);
         } else {
-          std::cerr << "Error. I do not know interpolation '" << mArgsInfo.interp_arg
-                    << "'. Choose among: nn, linear, bspline, blut" << std::endl;
-          exit(0);
+          if (interp == "windowed sinc") {
+            filter->SetInterpolationType(ResampleImageFilterType::WSINC);
+          } else {
+            std::cerr << "Error. I do not know interpolation '" << mArgsInfo.interp_arg
+              << "'. Choose among: nn, linear, bspline, blut, windowed sinc" << std::endl;
+            exit(0);
+          }
         }
       }
     }

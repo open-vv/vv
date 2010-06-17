@@ -28,6 +28,7 @@
 #include "itkResampleImageFilter.h"
 #include "itkAffineTransform.h"
 #include "itkNearestNeighborInterpolateImageFunction.h"
+#include "itkWindowedSincInterpolateImageFunction.h"
 #include "itkLinearInterpolateImageFunction.h"
 #include "itkBSplineInterpolateImageFunction.h"
 #include "itkBSplineInterpolateImageFunctionWithLUT.h"
@@ -213,6 +214,7 @@ GenerateData()
     case Linear: std::cout << "Linear" << std::endl; break;
     case BSpline: std::cout << "BSpline " << m_BSplineOrder << std::endl; break;
     case B_LUT: std::cout << "B-LUT " << m_BSplineOrder << " " << m_BLUTSamplingFactor << std::endl; break;
+    case WSINC: std::cout << "Windowed Sinc" << std::endl; break;
     }
     std::cout << "Threads        = " << this->GetNumberOfThreads() << std::endl;
     std::cout << "LastDimIsTime  = " << m_LastDimensionIsTime << std::endl;
@@ -254,6 +256,12 @@ GenerateData()
     typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
     interpolator->SetSplineOrder(m_BSplineOrder);
     interpolator->SetLUTSamplingFactor(m_BLUTSamplingFactor);
+    filter->SetInterpolator(interpolator);
+    break;
+  }
+  case WSINC: {
+    typedef itk::WindowedSincInterpolateImageFunction<InputImageType, 4> InterpolatorType;
+    typename InterpolatorType::Pointer interpolator =  InterpolatorType::New();
     filter->SetInterpolator(interpolator);
     break;
   }

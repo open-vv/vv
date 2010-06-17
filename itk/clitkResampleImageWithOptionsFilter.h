@@ -80,7 +80,8 @@ namespace clitk {
       NearestNeighbor = 0,
       Linear = 1, 
       BSpline = 2, 
-      B_LUT = 3
+      B_LUT = 3,
+      WSINC
     } InterpolationTypeEnumeration;
 
     /** Input : image to resample */
