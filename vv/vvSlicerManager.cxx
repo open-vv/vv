@@ -40,6 +40,7 @@ It is distributed under dual licence
 #include <vtkLODActor.h>
 #include <vtkPointData.h>
 #include <vtksys/SystemTools.hxx>
+#include <vtkCamera.h>
 
 //----------------------------------------------------------------------------
 vvSlicerManager::vvSlicerManager(int numberOfSlicers)
@@ -418,6 +419,8 @@ void vvSlicerManager::SetInteractorStyleNavigator(int i, vtkInteractorStyle* sty
   //   GetInteractorStyle()->AddObserver(vtkCommand::LeftButtonReleaseEvent, smc);
   mSlicers[i]->GetRenderWindow()->GetInteractor()->
   GetInteractorStyle()->AddObserver(vtkCommand::EndPickEvent, smc);
+  mSlicers[i]->GetRenderWindow()->GetInteractor()->
+  GetInteractorStyle()->AddObserver(vtkCommand::EndInteractionEvent, smc);
   smc->Delete();
 }
 //----------------------------------------------------------------------------
@@ -665,6 +668,72 @@ void vvSlicerManager::UpdateLinked(int slicer)
 }
 //----------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------
+void vvSlicerManager::UpdateLinkedNavigation(vvSlicer *slicer, bool bPropagate)
+{
+  for ( unsigned int i = 0; i < mSlicers.size(); i++) {
+    vtkCamera *camera = mSlicers[i]     ->GetRenderer()->GetActiveCamera();
+    vtkCamera *refCam = slicer->GetRenderer()->GetActiveCamera();
+    camera->SetParallelScale(refCam->GetParallelScale());
+
+    double position[3], focal[3];
+    camera->GetPosition(position);
+    camera->GetFocalPoint(focal);
+
+    double refPosition[3], refFocal[3];
+    refCam->GetPosition(refPosition);
+    refCam->GetFocalPoint(refFocal);
+
+    if(slicer->GetSliceOrientation()==mSlicers[i]->GetSliceOrientation()) {
+      for(int i=0; i<3; i++) {
+        position[i] = refPosition[i];
+        focal[i]    = refFocal[i];
+      }
+    }
+
+    if(slicer->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_XY) {
+      if(mSlicers[i]->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_XZ) {
+        position[0] = refPosition[0];
+        focal[0]    = refFocal[0];
+      }
+      if(mSlicers[i]->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_YZ) {
+        position[1] = refPosition[1];
+        focal[1]    = refFocal[1];
+      }
+    }
+
+    if(slicer->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_XZ) {
+      if(mSlicers[i]->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_YZ) {
+        position[2] = refPosition[2];
+        focal[2]    = refFocal[2];
+      }
+      if(mSlicers[i]->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_XY) {
+        position[0] = refPosition[0];
+        focal[0]    = refFocal[0];
+      }
+    }
+
+    if(slicer->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_YZ) {
+      if(mSlicers[i]->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_XY) {
+        position[1] = refPosition[1];
+        focal[1]    = refFocal[1];
+      }
+      if(mSlicers[i]->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_XZ) {
+        position[2] = refPosition[2];
+        focal[2]    = refFocal[2];
+      }
+    }
+
+    camera->SetFocalPoint(focal);
+    camera->SetPosition(position);
+
+    if(bPropagate)
+      for (std::list<std::string>::const_iterator i = mLinkedId.begin(); i != mLinkedId.end(); i++)
+        emit UpdateLinkedNavigation(*i, this);
+  }
+  Render();
+}
+//----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 double vvSlicerManager::GetColorWindow()

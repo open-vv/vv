@@ -189,15 +189,14 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
           return;
         }
         if (KeyPress == "x") {
-	  for(int i=0;i<SM->NumberOfSlicers();i++)
-	  {
-	   SM->RemoveActor("overlay",0);
-	   SM->SetColorMap(0);
-	   SM->Render();
-	  }
-	   return;
-	}
-	if (KeyPress == "u") {
+          for(int i=0; i<SM->NumberOfSlicers(); i++) {
+            SM->RemoveActor("overlay",0);
+            SM->SetColorMap(0);
+            SM->Render();
+          }
+          return;
+        }
+        if (KeyPress == "u") {
           this->SM->Reload();
           this->SM->Render();
           return;
@@ -300,6 +299,10 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
         mStartSlicer = -1;
       }
 
+      if (event == vtkCommand::EndInteractionEvent) {
+        this->SM->UpdateLinkedNavigation(this->SM->GetSlicer(VisibleInWindow),true);
+        return;
+      }
     }
     if (VisibleInWindow > -1) {
       this->SM->Activated();

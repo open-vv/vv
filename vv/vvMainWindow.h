@@ -102,6 +102,7 @@ public slots:
   void UpdateWindowLevel();
   void SwitchWindowLevel();
   void UpdateLinkManager(std::string id, int slicer, double x, double y, double z, int temps);
+  void UpdateLinkedNavigation(std::string id, vvSlicerManager *sm);
   void AddLink(QString image1,QString image2);
   void RemoveLink(QString image1,QString image2);
   void ChangeImageWithIndexOffset(vvSlicerManager *sm, int slicer, int offset);

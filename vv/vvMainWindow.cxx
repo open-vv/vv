@@ -849,6 +849,8 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType fi
               this,SLOT(UpdateSliceRange(int,int,int,int,int)));
       connect(mSlicerManagers.back(), SIGNAL(UpdateLinkManager(std::string,int,double,double,double,int)),
               this,SLOT(UpdateLinkManager(std::string,int,double,double,double,int)));
+      connect(mSlicerManagers.back(), SIGNAL(UpdateLinkedNavigation(std::string,vvSlicerManager*)),
+              this,SLOT(UpdateLinkedNavigation(std::string,vvSlicerManager*)));
       connect(mSlicerManagers.back(), SIGNAL(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)),
               this,SLOT(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)));
       connect(mSlicerManagers.back(),SIGNAL(LandmarkAdded()),landmarksPanel,SLOT(AddPoint()));
@@ -1606,6 +1608,8 @@ void vvMainWindow::SplitImage()
                 this,SLOT(UpdateSliceRange(int,int,int,int,int)));
         connect(mSlicerManagers.back(),SIGNAL(UpdateLinkManager(std::string,int,double,double,double,int)),
                 this,SLOT(UpdateLinkManager(std::string,int,double,double,double,int)));
+        connect(mSlicerManagers.back(), SIGNAL(UpdateLinkedNavigation(std::string,vvSlicerManager*)),
+                this,SLOT(UpdateLinkedNavigation(std::string,vvSlicerManager*)));
         connect(mSlicerManagers.back(),SIGNAL(LandmarkAdded()),landmarksPanel,SLOT(AddPoint()));
         UpdateTree();
         qApp->processEvents();
@@ -1720,6 +1724,17 @@ void vvMainWindow::UpdateLinkManager(std::string id, int slicer, double x, doubl
       mSlicerManagers[i]->GetSlicer(slicer)->SetCurrentPosition(x,y,z,temps);
       mSlicerManagers[i]->UpdateViews(0,slicer);
       break;
+    }
+  }
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::UpdateLinkedNavigation(std::string id, vvSlicerManager * sm)
+{
+  for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
+    if (id == mSlicerManagers[i]->GetId()) {
+      mSlicerManagers[i]->UpdateLinkedNavigation(sm->GetSlicer(0));
     }
   }
 }
@@ -2301,23 +2316,21 @@ void vvMainWindow::NOVerticalSliderChanged()
   if (value == NOVerticalSlider->value()) return;
   else value = NOVerticalSlider->value();
   //  int value = NOVerticalSlider->value();
-  for (unsigned int i = 0; i < mSlicerManagers.size(); i++)
-    {
-      if (DataTree->topLevelItem(i)->data(COLUMN_UL_VIEW,Qt::CheckStateRole).toInt() > 1)
-        {
-          if (mSlicerManagers[i]->GetSlicer(0)->GetSlice() != value) {
-            mSlicerManagers[i]->GetSlicer(0)->SetSlice(value);
-            mSlicerManagers[i]->VerticalSliderHasChanged(0, value);
-            
-            // If nor Update/Render -> slider not work
-            // only render = ok navigation, but for contour Update needed but slower ? 
+  for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
+    if (DataTree->topLevelItem(i)->data(COLUMN_UL_VIEW,Qt::CheckStateRole).toInt() > 1) {
+      if (mSlicerManagers[i]->GetSlicer(0)->GetSlice() != value) {
+        mSlicerManagers[i]->GetSlicer(0)->SetSlice(value);
+        mSlicerManagers[i]->VerticalSliderHasChanged(0, value);
 
-            mSlicerManagers[i]->UpdateSlice(0);  // <-- DS add this. Not too much update ? YES. but needed for ImageContour ...
-            //mSlicerManagers[i]->GetSlicer(0)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ? 
-          }
-          break;
-        }
+        // If nor Update/Render -> slider not work
+        // only render = ok navigation, but for contour Update needed but slower ?
+
+        mSlicerManagers[i]->UpdateSlice(0);  // <-- DS add this. Not too much update ? YES. but needed for ImageContour ...
+        //mSlicerManagers[i]->GetSlicer(0)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ?
+      }
+      break;
     }
+  }
 }
 //------------------------------------------------------------------------------
 
@@ -2734,6 +2747,8 @@ void vvMainWindow::AddImage(vvImage::Pointer image,std::string filename)
           this,SLOT(UpdateSliceRange(int,int,int,int,int)));
   connect(mSlicerManagers.back(), SIGNAL(UpdateLinkManager(std::string,int,double,double,double,int)),
           this,SLOT(UpdateLinkManager(std::string,int,double,double,double,int)));
+  connect(mSlicerManagers.back(), SIGNAL(UpdateLinkedNavigation(std::string,vvSlicerManager*)),
+          this,SLOT(UpdateLinkedNavigation(std::string,vvSlicerManager*)));
   connect(mSlicerManagers.back(), SIGNAL(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)),
           this,SLOT(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)));
   connect(mSlicerManagers.back(), SIGNAL(LandmarkAdded()),landmarksPanel,SLOT(AddPoint()));

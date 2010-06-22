@@ -158,6 +158,7 @@ class vvSlicerManager : public QObject {
   void SetCursorVisibility(int s);
   void UpdateViews(int current, int slicer);
   void UpdateLinked(int slicer);
+  void UpdateLinkedNavigation(vvSlicer *slicer, bool bPropagate=false);
   void Render();
 
   void AddLink(std::string newId) {
@@ -202,6 +203,7 @@ signals :
   void UpdateSliceRange(int slice, int min, int max, int tmin, int tmax);
   void WindowLevelChanged(double window, double level, int preset, int colormap);
   void UpdateLinkManager(std::string, int slicer, double x, double y, double z, int temps);
+  void UpdateLinkedNavigation(std::string, vvSlicerManager*);
   void LandmarkAdded();
   void ChangeImageWithIndexOffset(vvSlicerManager *sm, int slicer, int offset);
   void LeftButtonReleaseSignal(int slicer);

@@ -472,7 +472,9 @@ void vvInteractorStyleNavigator::Pan()
     this->CurrentRenderer->UpdateLightsGeometryToFollowCamera();
   }
 
-  rwi->Render();
+  this->InvokeEvent(vtkCommand::EndInteractionEvent, this);
+
+//  rwi->Render();
 }
 
 //----------------------------------------------------------------------------
@@ -557,6 +559,8 @@ void vvInteractorStyleNavigator::Dolly(double factor)
   }
   this->CurrentRenderer->ResetCameraClippingRange();
   //this->Interactor->Render();
+
+  this->InvokeEvent(vtkCommand::EndInteractionEvent, this);
 }
 
 
