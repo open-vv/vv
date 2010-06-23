@@ -316,6 +316,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
       } else if (event == vtkCommand::MouseWheelForwardEvent && isi->GetInteractor()->GetControlKey()) {
         double factor = 2;
         this->Dolly(pow((double)1.1, factor),isi->GetInteractor());
+        Execute(caller, vtkCommand::EndInteractionEvent, NULL);
       } else if (event == vtkCommand::MouseWheelBackwardEvent && !isi->GetInteractor()->GetControlKey()) {
         this->SM->GetSlicer(VisibleInWindow)->SetSlice(this->SM->GetSlicer(VisibleInWindow)->GetSlice()-1);
         this->SM->UpdateSlice(VisibleInWindow);
@@ -323,6 +324,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
       } else if (event == vtkCommand::MouseWheelBackwardEvent && isi->GetInteractor()->GetControlKey()) {
         double factor = -2;
         this->Dolly(pow((double)1.1, factor),isi->GetInteractor());
+        Execute(caller, vtkCommand::EndInteractionEvent, NULL);
       }
       double xWorld=0;
       double yWorld=0;
