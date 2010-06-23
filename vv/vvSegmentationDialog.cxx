@@ -413,9 +413,9 @@ void vvSegmentationDialog::InsertSeed()
   point4D[3] = mManager->GetLandmarks()->GetCoordinates(
                  mManager->GetLandmarks()->GetNumberOfPoints()-1)[3];
 
-  point4D[0] = point4D[0]/mManager->GetSlicer(0)->GetImage()->GetVTKImages()[0]->GetSpacing()[0];
-  point4D[1] = point4D[1]/mManager->GetSlicer(0)->GetImage()->GetVTKImages()[0]->GetSpacing()[1];
-  point4D[2] = point4D[2]/mManager->GetSlicer(0)->GetImage()->GetVTKImages()[0]->GetSpacing()[2];
+  point4D[0] = (point4D[0]-mManager->GetSlicer(0)->GetImage()->GetVTKImages()[0]->GetOrigin()[0])/mManager->GetSlicer(0)->GetImage()->GetVTKImages()[0]->GetSpacing()[0];
+  point4D[1] = (point4D[1]-mManager->GetSlicer(0)->GetImage()->GetVTKImages()[0]->GetOrigin()[1])/mManager->GetSlicer(0)->GetImage()->GetVTKImages()[0]->GetSpacing()[1];
+  point4D[2] = (point4D[2]-mManager->GetSlicer(0)->GetImage()->GetVTKImages()[0]->GetOrigin()[2])/mManager->GetSlicer(0)->GetImage()->GetVTKImages()[0]->GetSpacing()[2];
 
   vtkImageSeedConnectivity* seed = vtkImageSeedConnectivity::New();
   seed->SetInputConnectValue(1);
