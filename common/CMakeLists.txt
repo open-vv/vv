@@ -27,6 +27,7 @@ SET(clitkCommon_SRC
   clitkOrientation.cxx
   vvImage.cxx
   clitkImageToImageGenericFilterBase.cxx
+  clitkFilterBase.cxx
 )  
 
 ADD_LIBRARY(clitkCommon STATIC ${clitkCommon_SRC})
