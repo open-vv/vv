@@ -49,6 +49,7 @@ SET(vv_SRCS
   vvToolManager.cxx
   vvToolCreatorBase.cxx
   vvToolWidgetBase.cxx
+  vvToolWidgetWithStepsBase.cxx
   vvToolMedianFilter.cxx
   vvToolRigidReg.cxx
 #  vvToolFoo.cxx
@@ -66,6 +67,8 @@ SET(vv_SRCS
   vvROIActor.cxx
   vvToolResample.cxx
   vvBlendImageActor.cxx
+#  vvToolExtractLung.cxx
+#  vvToolConnectedComponentLabeling.cxx
   )
 #=========================================================
 
@@ -100,6 +103,7 @@ QT4_WRAP_CPP(vv_SRCS
   vvToolSimpleInputSelectorWidget.h
   vvToolInputSelectorWidget.h
   vvToolWidgetBase.h
+  vvToolWidgetWithStepsBase.h
   vvToolCropImage.h
   vvToolImageArithm.h
   vvToolConvert.h
@@ -107,6 +111,8 @@ QT4_WRAP_CPP(vv_SRCS
   vvStructureSetActor.h
   vvROIActor.h
   vvToolResample.h
+#  vvToolExtractLung.h
+#  vvToolConnectedComponentLabeling.h
   )
 
 QT4_WRAP_UI(vv_UI_CXX 
@@ -128,6 +134,7 @@ QT4_WRAP_UI(vv_UI_CXX
   qt_ui/vvToolSimpleInputSelectorWidget.ui
   qt_ui/vvToolInputSelectorWidget.ui
   qt_ui/vvToolWidgetBase.ui
+  qt_ui/vvToolWidgetWithStepsBase.ui
   qt_ui/vvToolMedianFilter.ui
   qt_ui/vvToolRigidReg.ui
 #  qt_ui/vvToolFoo.ui
@@ -136,6 +143,8 @@ QT4_WRAP_UI(vv_UI_CXX
   qt_ui/vvToolImageArithm.ui
   qt_ui/vvToolStructureSetManager.ui
   qt_ui/vvToolResample.ui
+#  qt_ui/vvToolExtractLung.ui
+#  qt_ui/vvToolConnectedComponentLabeling.ui
   )
 
 QT4_ADD_RESOURCES(vv_SRCS vvIcons.qrc)
@@ -180,6 +189,7 @@ ENDIF(NOT __APPLE__)
 INCLUDE_DIRECTORIES(
   ../common
   ../tools
+  ../segmentation
   )
 
 IF(WIN32)
@@ -188,7 +198,7 @@ ENDIF(WIN32)
 
 LINK_DIRECTORIES(${QT_INCLUDES})
 ADD_EXECUTABLE(vv ${vv_SRCS} vv.cxx ${vv_UI_CXX} ${EXE_ICON})
-TARGET_LINK_LIBRARIES(vv clitkCommon clitkDicomRTStruct clitkFilters ${ITK_LIBRARIES} QVTK vtkHybrid)
+TARGET_LINK_LIBRARIES(vv clitkCommon clitkDicomRTStruct clitkFilters clitkSegmentationFilters ${ITK_LIBRARIES} QVTK vtkHybrid)
 
 #=========================================================
 
