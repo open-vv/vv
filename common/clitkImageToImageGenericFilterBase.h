@@ -17,14 +17,16 @@
 ======================================================================-====*/
 #ifndef CLITKIMAGETOIMAGEGENERICFILTERBASE_H
 #define CLITKIMAGETOIMAGEGENERICFILTERBASE_H
+
+// clitk 
 #include "clitkCommon.h"
 #include "clitkImageCommon.h"
 #include "clitkCommonGenericFilter.h"
 
-// itk include
+// itk 
 #include <itkImage.h>
 
-// vv include
+// vv 
 #include "vvImage.h"
 #include "vvFromITK.h"
 #include "vvToITK.h"
@@ -48,6 +50,11 @@ namespace clitk {
     // Filters information
     const std::string & GetFilterName();
     void SetFilterName(std::string & n);
+    
+    // Error management
+    itkSetMacro(LastError, std::string);
+    itkGetConstMacro(LastError, std::string);
+    bool HasError() { return (GetLastError() != ""); }
 
     // Generic IO
     /// Returns the dimension and pixel type of the *first* input
@@ -83,7 +90,7 @@ namespace clitk {
     virtual bool Update() = 0;
 
   protected:  
-    bool mReadOnDisk;
+    bool m_ReadOnDisk;
     /// Call this function to dispatch an output towards the correct sink
     template<class ImageType> 
     void SetNextOutput(typename ImageType::Pointer output);
@@ -92,21 +99,23 @@ namespace clitk {
     template<class ImageType> 
     typename ImageType::Pointer GetInput(unsigned int n);
 
-    std::vector<std::string> mInputFilenames;
-    std::list<std::string> mOutputFilenames;
+    std::vector<std::string> m_InputFilenames;
+    std::list<std::string> m_OutputFilenames;
 
-    bool mIOVerbose;
-    unsigned int mDim;
-    std::string mPixelTypeName;
-    unsigned int mNbOfComponents;
-    std::string mFilterName;
+    bool m_IOVerbose;
+    unsigned int m_Dim;
+    std::string m_PixelTypeName;
+    unsigned int m_NbOfComponents;
+    std::string m_FilterName;
 
-    std::vector<vvImage::Pointer> mInputVVImages;
-    std::vector<vvImage::Pointer> mOutputVVImages;
+    std::vector<vvImage::Pointer> m_InputVVImages;
+    std::vector<vvImage::Pointer> m_OutputVVImages;
 
     void ImageTypeError();
     void SetImageTypeError();
-    bool mFailOnImageTypeError;
+    bool m_FailOnImageTypeError;
+    
+    std::string m_LastError;
 
   }; // end class clitk::ImageToImageGenericFilter
 

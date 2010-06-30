@@ -25,11 +25,12 @@ clitk::ImageToImageGenericFilterBase::~ImageToImageGenericFilterBase() {}
 
 //--------------------------------------------------------------------
 clitk::ImageToImageGenericFilterBase::ImageToImageGenericFilterBase(std::string n)
-  :mIOVerbose(false)
+  :m_IOVerbose(false)
 {
-  mFilterName = n;
-  mFailOnImageTypeError = true;
-  mReadOnDisk = true;
+  m_FilterName = n;
+  m_FailOnImageTypeError = true;
+  m_ReadOnDisk = true;
+  m_LastError = "";
 }
 //--------------------------------------------------------------------
 
@@ -37,7 +38,7 @@ clitk::ImageToImageGenericFilterBase::ImageToImageGenericFilterBase(std::string 
 //--------------------------------------------------------------------
 void clitk::ImageToImageGenericFilterBase::SetInputFilenames(const std::vector<std::string> & filenames)
 {
-  mInputFilenames=filenames;
+  m_InputFilenames = filenames;
 }
 //--------------------------------------------------------------------
 
@@ -45,7 +46,7 @@ void clitk::ImageToImageGenericFilterBase::SetInputFilenames(const std::vector<s
 //--------------------------------------------------------------------
 void clitk::ImageToImageGenericFilterBase::EnableReadOnDisk(bool b)
 {
-  mReadOnDisk = b;
+  m_ReadOnDisk = b;
 }
 //--------------------------------------------------------------------
 
@@ -63,7 +64,7 @@ void clitk::ImageToImageGenericFilterBase::SetInputFilename(const std::string & 
 //--------------------------------------------------------------------
 void clitk::ImageToImageGenericFilterBase::AddInputFilename(const std::string & filename)
 {
-  mInputFilenames.push_back(filename);
+  m_InputFilenames.push_back(filename);
 }
 //--------------------------------------------------------------------
 
@@ -71,8 +72,8 @@ void clitk::ImageToImageGenericFilterBase::AddInputFilename(const std::string & 
 //--------------------------------------------------------------------
 void clitk::ImageToImageGenericFilterBase::SetOutputFilename(const std::string & filename)
 {
-  mOutputFilenames.clear();
-  mOutputFilenames.push_back(filename);
+  m_OutputFilenames.clear();
+  m_OutputFilenames.push_back(filename);
 }
 //--------------------------------------------------------------------
 
@@ -80,7 +81,7 @@ void clitk::ImageToImageGenericFilterBase::SetOutputFilename(const std::string &
 //--------------------------------------------------------------------
 void clitk::ImageToImageGenericFilterBase::AddOutputFilename(const std::string & filename)
 {
-  mOutputFilenames.push_back(filename);
+  m_OutputFilenames.push_back(filename);
 }
 //--------------------------------------------------------------------
 
@@ -88,8 +89,8 @@ void clitk::ImageToImageGenericFilterBase::AddOutputFilename(const std::string &
 //--------------------------------------------------------------------
 void clitk::ImageToImageGenericFilterBase::SetOutputFilenames(const std::vector<std::string> & filenames)
 {
-  mOutputFilenames.clear();
-  std::copy(filenames.begin(),filenames.end(),mOutputFilenames.begin());
+  m_OutputFilenames.clear();
+  std::copy(filenames.begin(),filenames.end(),m_OutputFilenames.begin());
 }
 //--------------------------------------------------------------------
 
@@ -97,8 +98,8 @@ void clitk::ImageToImageGenericFilterBase::SetOutputFilenames(const std::vector<
 //--------------------------------------------------------------------
 std::string clitk::ImageToImageGenericFilterBase::GetOutputFilename()
 {
-  assert(mOutputFilenames.size() == 1);
-  return mOutputFilenames.front();
+  assert(m_OutputFilenames.size() == 1);
+  return m_OutputFilenames.front();
 }
 //--------------------------------------------------------------------
 
@@ -107,21 +108,21 @@ std::string clitk::ImageToImageGenericFilterBase::GetOutputFilename()
 void clitk::ImageToImageGenericFilterBase::GetInputImageDimensionAndPixelType(unsigned int& dim, \
     std::string& pixeltype,unsigned int& components)
 {
-  if (mReadOnDisk && mInputFilenames.size()) {
+  if (m_ReadOnDisk && m_InputFilenames.size()) {
     int comp_temp,dim_temp; //clitkCommonImage takes ints
-    ReadImageDimensionAndPixelType(mInputFilenames[0], dim_temp, pixeltype,comp_temp);
+    ReadImageDimensionAndPixelType(m_InputFilenames[0], dim_temp, pixeltype,comp_temp);
     components=comp_temp;
     dim=dim_temp;
   } else {
-    if (mInputVVImages.size()) {
-      pixeltype=mInputVVImages[0]->GetScalarTypeAsString();
-      dim=mInputVVImages[0]->GetNumberOfDimensions();
-      components=mInputVVImages[0]->GetNumberOfScalarComponents();
+    if (m_InputVVImages.size()) {
+      pixeltype=m_InputVVImages[0]->GetScalarTypeAsString();
+      dim=m_InputVVImages[0]->GetNumberOfDimensions();
+      components=m_InputVVImages[0]->GetNumberOfScalarComponents();
     } else
       assert(false); //No input image, shouldn't happen
   }
-  if (mIOVerbose) {
-    std::cout << "Input is " << mDim << "D " << mPixelTypeName << "." << std::endl;
+  if (m_IOVerbose) {
+    std::cout << "Input is " << m_Dim << "D " << m_PixelTypeName << "." << std::endl;
   }
 }
 //--------------------------------------------------------------------
@@ -130,8 +131,8 @@ void clitk::ImageToImageGenericFilterBase::GetInputImageDimensionAndPixelType(un
 //--------------------------------------------------------------------
 vvImage::Pointer clitk::ImageToImageGenericFilterBase::GetOutputVVImage ()
 {
-  assert(mOutputVVImages.size());
-  return mOutputVVImages[0];
+  assert(m_OutputVVImages.size());
+  return m_OutputVVImages[0];
 }
 //--------------------------------------------------------------------
 
@@ -139,7 +140,7 @@ vvImage::Pointer clitk::ImageToImageGenericFilterBase::GetOutputVVImage ()
 //--------------------------------------------------------------------
 std::vector<vvImage::Pointer> clitk::ImageToImageGenericFilterBase::GetOutputVVImages()
 {
-  return mOutputVVImages;
+  return m_OutputVVImages;
 }
 //--------------------------------------------------------------------
 
@@ -147,8 +148,8 @@ std::vector<vvImage::Pointer> clitk::ImageToImageGenericFilterBase::GetOutputVVI
 //--------------------------------------------------------------------
 void clitk::ImageToImageGenericFilterBase::SetInputVVImage (vvImage::Pointer input)
 {
-  mInputVVImages.clear();
-  mInputVVImages.push_back(input);
+  m_InputVVImages.clear();
+  m_InputVVImages.push_back(input);
 }
 //--------------------------------------------------------------------
 
@@ -156,7 +157,7 @@ void clitk::ImageToImageGenericFilterBase::SetInputVVImage (vvImage::Pointer inp
 //--------------------------------------------------------------------
 void clitk::ImageToImageGenericFilterBase::AddInputVVImage (vvImage::Pointer input)
 {
-  mInputVVImages.push_back(input);
+  m_InputVVImages.push_back(input);
 }
 //--------------------------------------------------------------------
 
@@ -164,7 +165,7 @@ void clitk::ImageToImageGenericFilterBase::AddInputVVImage (vvImage::Pointer inp
 //--------------------------------------------------------------------
 void clitk::ImageToImageGenericFilterBase::SetInputVVImages (std::vector<vvImage::Pointer> input)
 {
-  mInputVVImages=input;
+  m_InputVVImages=input;
 }
 //--------------------------------------------------------------------
 
@@ -181,10 +182,10 @@ void clitk::ImageToImageGenericFilterBase::PrintAvailableImageTypes()
 //--------------------------------------------------------------------
 void clitk::ImageToImageGenericFilterBase::ImageTypeError()
 {
-  std::cerr << "**Error** The filter <" << mFilterName << "> is not available for "
-            << mDim << "D images with pixel="
-            << mPixelTypeName << " and "
-            << mNbOfComponents << " component." << std::endl;
+  std::cerr << "**Error** The filter <" << m_FilterName << "> is not available for "
+            << m_Dim << "D images with pixel="
+            << m_PixelTypeName << " and "
+            << m_NbOfComponents << " component." << std::endl;
   std::cerr << GetAvailableImageTypes();
   exit(0);
 }
@@ -203,7 +204,7 @@ void clitk::ImageToImageGenericFilterBase::SetImageTypeError()
 //--------------------------------------------------------------------
 const std::string & clitk::ImageToImageGenericFilterBase::GetFilterName()
 {
-  return mFilterName;
+  return m_FilterName;
 }
 //--------------------------------------------------------------------
 
@@ -211,7 +212,7 @@ const std::string & clitk::ImageToImageGenericFilterBase::GetFilterName()
 //--------------------------------------------------------------------
 void clitk::ImageToImageGenericFilterBase::SetFilterName(std::string & n)
 {
-  mFilterName = n;
+  m_FilterName = n;
 }
 //--------------------------------------------------------------------
 
@@ -219,7 +220,7 @@ void clitk::ImageToImageGenericFilterBase::SetFilterName(std::string & n)
 //--------------------------------------------------------------------
 void clitk::ImageToImageGenericFilterBase::SetIOVerbose(bool b)
 {
-  mIOVerbose = b;
+  m_IOVerbose = b;
 }
 //--------------------------------------------------------------------
 
@@ -274,12 +275,12 @@ DEF_SetNextOutput_And_GetInput(double, 4);
 template<class ImageType>
 void clitk::ImageToImageGenericFilterBase::SetNextOutput(typename ImageType::Pointer output)
 {
-  if (mOutputFilenames.size()) {
-    clitk::writeImage<ImageType>(output, mOutputFilenames.front(), mIOVerbose);
-    mOutputFilenames.pop_front();
+  if (m_OutputFilenames.size()) {
+    clitk::writeImage<ImageType>(output, m_OutputFilenames.front(), m_IOVerbose);
+    m_OutputFilenames.pop_front();
   }
-  if (mInputVVImages.size()) //We assume that if a vv image is set as input, we want one as the output
-    mOutputVVImages.push_back(vvImageFromITK<ImageType::ImageDimension,typename ImageType::PixelType>(output));
+  if (m_InputVVImages.size()) //We assume that if a vv image is set as input, we want one as the output
+    m_OutputVVImages.push_back(vvImageFromITK<ImageType::ImageDimension,typename ImageType::PixelType>(output));
 }
 //--------------------------------------------------------------------
 
@@ -288,11 +289,11 @@ void clitk::ImageToImageGenericFilterBase::SetNextOutput(typename ImageType::Poi
 template<class ImageType>
 typename ImageType::Pointer clitk::ImageToImageGenericFilterBase::GetInput(unsigned int n)
 {
-  if (mReadOnDisk && mInputFilenames.size() > n) {
-    return clitk::readImage<ImageType>(mInputFilenames[n], mIOVerbose);
+  if (m_ReadOnDisk && m_InputFilenames.size() > n) {
+    return clitk::readImage<ImageType>(m_InputFilenames[n], m_IOVerbose);
   } else {
-    if (mInputVVImages.size() > n)
-      return typename ImageType::Pointer(const_cast<ImageType*>(vvImageToITK<ImageType>(mInputVVImages[n]).GetPointer()));
+    if (m_InputVVImages.size() > n)
+      return typename ImageType::Pointer(const_cast<ImageType*>(vvImageToITK<ImageType>(m_InputVVImages[n]).GetPointer()));
     else {
       assert(false); //No input, this shouldn't happen
       return typename ImageType::Pointer(NULL);
