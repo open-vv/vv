@@ -92,3 +92,11 @@ TARGET_LINK_LIBRARIES(clitkMedianImageFilter clitkCommon ITKIO ITKBasicFilters c
 ADD_EXECUTABLE(clitkResampleImage clitkResampleImage.cxx)
 TARGET_LINK_LIBRARIES(clitkResampleImage clitkCommon ITKIO clitkFilters)
 
+WRAP_GGO(clitkMinMaxMask_GGO_C clitkMinMaxMask.ggo)
+ADD_EXECUTABLE(clitkMinMaxMask clitkMinMaxMask.cxx ${clitkMinMaxMask_GGO_C})
+TARGET_LINK_LIBRARIES(clitkMinMaxMask clitkCommon ITKIO ITKStatistics clitkFilters)
+
+ADD_EXECUTABLE(clitkAutoCrop clitkAutoCrop.cxx)
+TARGET_LINK_LIBRARIES(clitkAutoCrop clitkCommon ITKIO ITKStatistics clitkFilters)
+
+
