@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="common" >
+    <file>icons/lung-overlay.png</file>
     <file>icons/arithm.png</file>
     <file>icons/green-arrow.png</file>
     <file>icons/2b.png</file>
