@@ -1,0 +1,51 @@
+#File clitkExtractLungs.ggo
+package "clitkExtractLungs"
+version "1.0"
+purpose "Segment lungs in CT image. Need 'patient' mask."
+
+option "config"	        -  "Config file"		  string  	no
+option "imagetypes"     -  "Display allowed image types"  flag          off
+option "verbose"        v  "Verbose"			  flag		off
+option "verboseStep"    -  "Verbose each step"		  flag		off
+option "writeStep"      w  "Write image at each step"	  flag		off
+option "verboseOption"  -  "Display options values"       flag          off
+option "verboseWarningOff" -  "Do not display warning"    flag          off
+
+section "I/O"
+
+option "input"         i	"Input CT image filename"	  string  	yes
+option "patient"       p	"Input patient mask filename"	  string  	yes
+option "patientBG"   -	"Patient Background"              int           default="0" no
+option "output"        o 	"Output lungs mask filename"      string 	yes
+option "outputTrachea" t 	"Output trachea mask filename"    string 	no
+
+section "Step 1 : Air remove"
+
+option "lower"	     -	"Initial lower threshold"                 double	no  	
+option "upper"	     -	"Initial upper threshold"		  double	no  	default="-300"
+option "minSize"     -	"Minimum component size in voxels"	  int		no  	default="100"
+option "remove1"     -	"Labels not to keep in air mask (lungs)"  int		no  	multiple 	default="2"
+option "firstKeep1"  -	"First label to keep"			  int		no  	default="1"
+option "lastKeep1"   -	"Last label to keep"		          int		no  	
+
+section "Step 2 : find trachea"
+
+option "upperThresholdForTrachea"    -	"Initial upper threshold for trachea"  double	no  default="-900"
+option "multiplierForTrachea"	     -	"Multiplier for the region growing"    double	no  default="5"
+option "thresholdStepSizeForTrachea" -	"Threshold step size"	               int      no  default="64"
+option "seed"                        -	"Index of the trachea seed point"      int	no  multiple
+
+section "Step 3 : auto extract lung"
+
+option "bins"	     -	"Number of bins to use for the Otsu thresholding"	int		no	default="500"	
+option "remove2"     -	"Labels not to keep in air mask (gas)"    int		no  	multiple
+option "firstKeep2"  -	"First label to keep"			  int		no  	default="1"
+option "lastKeep2"   -	"Last label to keep"		          int		no  	
+
+section "Step 4 : remove trachea"
+
+option "radius"      -  "Radius for dilation"                     int           no      default="1"
+option "remove3"     -	"Labels not to keep in lungs mask (trachea)"    int		no  	multiple
+option "firstKeep3"  -	"First label to keep"			  int		no  	default="1"
+option "lastKeep3"   -	"Last label to keep"		          int		no  	default="2"
+

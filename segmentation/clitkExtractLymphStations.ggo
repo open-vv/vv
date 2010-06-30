@@ -1,0 +1,27 @@
+#File clitkExtractLymphStations.ggo
+package "clitkExtractLymphStations"
+version "1.0"
+purpose "Extract LymphStations with help of TODO"
+
+option "config"	        -  "Config file"		  string  	no
+option "imagetypes"     -  "Display allowed image types"  flag          off
+option "verbose"        v  "Verbose"			  flag		off
+option "verboseStep"    -  "Verbose each step"		  flag		off
+option "writeStep"      w  "Write image at each step"	  flag		off
+option "verboseOption"  -  "Display options values"       flag          off
+option "verboseWarningOff" -  "Do not display warning"    flag          off
+
+section "I/O"
+
+option "mediastinum"   m	"Input mediastinum mask filename" string  	yes
+option "trachea"       t	"Input trachea mask filename"	  string  	yes
+option "output"        o 	"Output lungs mask filename"      string 	yes
+
+option "carenaZposition"   		c	"Sup-Inf position of the carena (in mm)" double no
+option "middleLobeBronchusZposition"   	b	"Sup-Inf position of the middle lobe bronchus (in mm)" double no
+option "spacing"     -	"Intermediate resampling spacing"         double no default="6"
+option "fuzzy1"	     -	"Fuzzy relative position threshold"	  double no default="0.6"
+
+
+
+

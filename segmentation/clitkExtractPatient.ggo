@@ -1,0 +1,53 @@
+#File clitkExtractPatient.ggo
+package "clitkExtractPatient"
+version "1.0"
+purpose "Prefer high resolution input and resample (NN) output at the end (like). Input is binarized using initial thresholds, connected components are labeled (firstLabel). The air label (1) is removed. The remaining is binarized and relabeled, patient should now be the principal label (secondLabel). Two mechanismes are provided to influence the label images. Crop to reduce connectivity (image is restored to original size), eg for SBF. Decomposition through ersion and reconstruction through dilation (slow), eg for Pulmo bellows. Choose which labels to keep from second Label image. Final mask is cleaned by opening and closing."
+
+option "config"	        -  "Config file"		  string  	no
+option "imagetypes"     -  "Display allowed image types"  flag          off
+option "verbose"        v  "Verbose"			  flag		off
+option "verboseStep"    -  "Verbose each step"		  flag		off
+option "writeStep"      w  "Write image at each step"	  flag		off
+option "verboseOption"  -  "Display options values"       flag          off
+option "verboseWarningOff" -  "Do not display warning"    flag          off
+
+section "I/O"
+
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+
+section "Binarize"
+
+option "lower"		-	"Initial lower threshold"	double		no  	
+option "upper"		-	"Initial upper threshold"	double		no  	default="-300"
+
+section "First Label Image (air=1)"
+
+option "erode1"		 -	"Decompose through erosion" 		flag		off	
+option "radius1"	 -	"Radius for erosion and dilation" 	int		multiple 	no 	default="1"
+option "new1"		 -	"Number of new labels" 			int		no 	default="1"	
+option "max1"		 -	"Max number of labels to consider" 	int		no 	default="2"	
+
+section "Second Label Image (air=1)"
+
+option "erode2"		 -	"Decompose through erosion" 		flag		off	
+option "radius2"	 -	"Radius for erosion and dilation" 	int		multiple 	no 	default="1"
+option "new2"		 -	"Number of new labels" 			int		no 	default="1"	
+option "max2"		 -	"Max number of labels to consider" 	int		no 	default="2"	
+# option "crop"		-	"Crop the first label image"	  	flag 	off	
+# option "boundingBox"   	b   	"Bounding box of the crop region (minX,maxX,...)" int 	no  multiple
+# option "lowerS"    	-   	"Size of the lower crop region"	  int 	no  multiple
+# option "upperS"    	-   	"Size of the upper crop region"	  int 	no  multiple
+
+section "Labels to keep (air=1)"
+
+option	"firstKeep"  	-		"First label to keep"			int 	no	default="1"
+option  "lastKeep" 	-		"Last label to keep"			int 	no	default="1"	
+option  "remove"  	-		"Labels to remove"			int 	no	multiple	
+
+section "Clean-up"
+
+option "openClose"	- 	"Perform morphological opening and closing with unit radius"	flag 	on
+option "autoCrop"	- 	"Crop final mask to BoundingBox"	                        flag 	off
+
+

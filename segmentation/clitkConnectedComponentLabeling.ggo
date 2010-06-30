@@ -1,0 +1,20 @@
+#File clitkConnectedComponentLabeling.ggo
+package "clitkConnectedComponentLabeling"
+version "1.0"
+purpose "Basic segmentation : connected component labeling "
+
+option "config"	        -  "Config file"		  string  	no
+option "verbose"        v  "Verbose"			  flag		off
+option "imagetypes"     -  "Display allowed image types"  flag          off
+option "verboseOption"  -  "Display options values"       flag          off
+
+section "I/O"
+
+option "input"       i	"Input image filename"		  string  	yes
+option "inputBG"     -	"Input Background"                int           default="0" no
+option "output"      o 	"Output filename"      		  string 	yes
+
+section "Labelize"
+
+option "minSize"     -	"Minimum component size in voxels"	  int  no   default="100"
+option "full"        -	"Full connecticity"  	   		  flag off  

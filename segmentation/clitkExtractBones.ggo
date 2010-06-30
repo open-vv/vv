@@ -1,0 +1,34 @@
+#File clitkExtractBones.ggo
+package "clitkExtractBones"
+version "1.0"
+purpose "Extract bony anatomy through thresholding and connected component labelling. Resample mask afterwards (interp= NN) to match another one (like)"
+
+option "config"	        -  "Config file"		  string  	no
+option "imagetypes"     -  "Display allowed image types"  flag          off
+option "verbose"        v  "Verbose"			  flag		off
+option "verboseStep"    -  "Verbose each step"		  flag		off
+option "writeStep"      w  "Write image at each step"	  flag		off
+option "verboseOption"  -  "Display options values"       flag          off
+option "verboseWarningOff" -  "Do not display warning"    flag          off
+
+section "I/O"
+
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+option "like"    	l   	"Resample like this image"	  string 	no
+
+section "Initial connected component labelling (CCL)"
+
+option "lower1"			-	"Lower threshold for CCL"			double	no default="100" 
+option "upper1"			-	"Upper threshold for CCL"			double	no default="1500" 
+option "minSize"		-	"Minimal Component Size for CCL"		int 	no default="100" 
+option "full"			-	"Use full connectivity (one side is enough)"	flag	off 
+
+section "Neighborhood Connected Region Growing (RG)"
+
+option "lower2"		-	"Lower threshold for RG"		double	no	default="10" 
+option "upper2"		-	"Upper threshold for RG"		double	no 	default="1500" 
+option "radius2"	-	"Neighborhood radius"			int	no 	multiple	default="1" 
+option "sampleRate2"	-	"Sample rate of label image for RG: number of voxels to skip between seeds"	int	no 	default="0" 
+
+option "autoCrop"	- 	"Crop final mask to BoundingBox"        flag 	off

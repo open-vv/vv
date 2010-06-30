@@ -1,0 +1,13 @@
+#File clitkFillMask.ggo
+package "clitkFillMask"
+version "1.0"
+purpose "Fill in holes (bg=0) in an object (fg=1) of a binary image, by running over the slices and retaining only one connected component bg."
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+option "dir"    	d   	"Directions (axes) to perform filling (defaults to 2,1,0)"	int multiple no
+
+

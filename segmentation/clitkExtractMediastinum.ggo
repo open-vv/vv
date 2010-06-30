@@ -1,0 +1,34 @@
+#File clitkExtractMediastinum.ggo
+package "clitkExtractMediastinum"
+version "1.0"
+purpose "Extract mediastinum with help of patient/lungs/bones mask"
+
+option "config"	        -  "Config file"		  string  	no
+option "imagetypes"     -  "Display allowed image types"  flag          off
+option "verbose"        v  "Verbose"			  flag		off
+option "verboseStep"    -  "Verbose each step"		  flag		off
+option "writeStep"      w  "Write image at each step"	  flag		off
+option "verboseOption"  -  "Display options values"       flag          off
+option "verboseWarningOff" -  "Do not display warning"    flag          off
+
+section "I/O"
+
+option "patient"       p	"Input patient mask filename"	  string  	yes
+option "patientBG"     -	"Patient Background"              int           default="0" no
+option "bones"         b	"Input bones mask filename"	  string  	yes
+option "bonesBG"       -	"Bones Background"                int           default="0" no
+option "lung"          l	"Input lung mask filename"	  string  	yes
+option "lungBG"        -	"Lung Background"                 int           default="0" no
+option "lungLeft"      -	"Lung Left value"                 int           default="1" no
+option "lungRight"     -	"Lung Right value"                int           default="2" no
+
+option "output"        o 	"Output lungs mask filename"      string 	yes
+
+section "Step 1 : Left/Right limits with lungs"
+
+option "spacing"     -	"Intermediate resampling spacing"         double no default="6"
+option "fuzzy1"	     -	"Fuzzy relative position threshold"	  double no default="0.6"
+
+section "Step 2 : Ant/Post limits with bones"
+
+option "fuzzy2"	     -	"Fuzzy relative position threshold"	  double no default="0.6"
