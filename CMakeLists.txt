@@ -76,14 +76,15 @@ IF (CLITK_BUILD_TOOLS)
   add_subdirectory(tools)
 ENDIF(CLITK_BUILD_TOOLS)
 
+OPTION(CLITK_BUILD_SEGMENTATION "Build segmentation tools" OFF)
+IF (CLITK_BUILD_SEGMENTATION)
+  add_subdirectory(segmentation)
+ENDIF (CLITK_BUILD_SEGMENTATION)
+
 OPTION(CLITK_BUILD_REGISTRATION "Build command-line registration tools" OFF)
 IF (CLITK_BUILD_REGISTRATION)
   add_subdirectory(registration)
 ENDIF(CLITK_BUILD_REGISTRATION)
 
-#OPTION(CLITK_BUILD_SEGMENTATION "Build segmentation tools" OFF)
-#IF (CLITK_BUILD_SEGMENTATION)
-#  add_subdirectory(segmentation)
-#ENDIF (CLITK_BUILD_SEGMENTATION)
 #=========================================================
 
