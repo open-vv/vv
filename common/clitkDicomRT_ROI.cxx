@@ -29,6 +29,8 @@ clitk::DicomRT_ROI::DicomRT_ROI()
   mColor.resize(3);
   mColor[0] = mColor[1] = mColor[2] = 0;
   mMeshIsUpToDate = false;
+  mBackgroundValue = 0;
+  mForegroundValue = 1;
 }
 //--------------------------------------------------------------------
 
@@ -106,6 +108,22 @@ void clitk::DicomRT_ROI::SetBackgroundValueLabelImage(double bg)
 double clitk::DicomRT_ROI::GetBackgroundValueLabelImage() const
 {
   return mBackgroundValue;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void clitk::DicomRT_ROI::SetForegroundValueLabelImage(double bg)
+{
+  mForegroundValue = bg;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+double clitk::DicomRT_ROI::GetForegroundValueLabelImage() const
+{
+  return mForegroundValue;
 }
 //--------------------------------------------------------------------
 

@@ -52,6 +52,9 @@ namespace clitk {
     double GetBackgroundValueLabelImage() const;
     void SetBackgroundValueLabelImage(double bg);
     
+    double GetForegroundValueLabelImage() const;
+    void SetForegroundValueLabelImage(double bg);
+    
     void SetImage(vvImage * im);
     
   protected:
@@ -65,6 +68,7 @@ namespace clitk {
     bool mMeshIsUpToDate;
     vvImage::Pointer mImage;
     double mBackgroundValue;
+    double mForegroundValue;
   };
   //--------------------------------------------------------------------
 
