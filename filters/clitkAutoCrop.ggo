@@ -1,0 +1,17 @@
+#File clitkAutoCrop.ggo
+package "clitkAutoCrop"
+version "1.0"
+purpose "Crop a mask image"
+
+option "config"	        -  "Config file"		  string  	no
+option "imagetypes"     -  "Display allowed image types"  flag          off
+option "verbose"        v  "Verbose"			  flag		off
+option "verboseOption"  -  "Display options values"       flag          off
+option "verboseWarningOff" -  "Do not display warning"    flag          off
+
+section "I/O"
+
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+
+option "BG"		-	"Background value in input."      double        default="0" no  	
