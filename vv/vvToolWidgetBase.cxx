@@ -16,32 +16,116 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
 
+// vv
 #include "vvToolWidgetBase.h"
 #include "vvMainWindowBase.h"
 #include "vvSlicerManager.h"
+
+// Qt
 #include <QMessageBox>
+#include <QKeyEvent>
+#include <QDockWidget>
 
 //------------------------------------------------------------------------------
-vvToolWidgetBase::vvToolWidgetBase(vvMainWindowBase * parent, Qt::WindowFlags f)
-  :QDialog(parent, f),
-   Ui::vvToolWidgetBase()
-{
+// Static initialisation
+int vvToolWidgetBase::mTabNumber = -1;
+QWidget * vvToolWidgetBase::mStaticWidgetForTab = NULL;
+QVBoxLayout * vvToolWidgetBase::mStaticVerticalLayout = NULL;
+bool vvToolWidgetBase::mIsAnotherToolWaitInput = false;
 
-  // Set Modality : dialog is not modal but stay always on top because
-  // parent is set at construction
+//------------------------------------------------------------------------------
+vvToolWidgetBase::vvToolWidgetBase(vvMainWindowBase * parent, Qt::WindowFlags f, bool initialize):
+  QWidget(parent, f),
+  Ui::vvToolWidgetBase()
+{
+  mMainWindow = parent;
+  setAttribute(Qt::WA_DeleteOnClose);
+  if (initialize) Initialization();
+  // DD(isWindow());
+  if (isWindow()) { // In this case, the tool is a floating windows
+    // this->grabKeyboard();   // for the ESC key to close the dialog
+    mPreventToUseTwoToolsOnSameInput = false;
+  }
+  else { // In this case it is inserted into a tab
+    DD("Not implemented yet TODO !!");
+    exit(0);
+    // Prevent to load two tools at the same time
+    DD(mIsAnotherToolWaitInput);
+    if (mIsAnotherToolWaitInput) {
+      //      setVisible(false);
+      QWidget::close();
+      DD("before return");
+      return;
+    }
+    else mIsAnotherToolWaitInput = true;
+    mPreventToUseTwoToolsOnSameInput = true;
+    // Setup the UI in a new widget
+
+    mWidgetForTab = new QWidget(this); 
+                                // <-- try to set mToolWidget instead of this ? NO  (loop)
+                                // <-- try to set parent instead of this ? NO, change nothing
+
+    QVBoxLayout * verticalLayout = new QVBoxLayout;//(mWidgetForTab);
+    verticalLayout->addWidget(mToolInputSelectionWidget);
+    verticalLayout->addWidget(mToolWidget);
+    verticalLayout->setContentsMargins(1, 1, 1, 1);
+    mWidgetForTab->setLayout(verticalLayout);
+    DD(mWidgetForTab->isVisible());
+    mWidgetForTab->setVisible(true);
+    DD(mWidgetForTab->isVisible());
+
+    // Is this the first time we add a tab ? 
+    if (parent->GetTab()->widget(mTabNumber) == NULL) { // Yes, create main widget
+      DD("Create main widget");
+      mStaticWidgetForTab = new QWidget(parent->GetTab());//parent, f); 
+                                // <-- try to set mToolWidget instead of nothing ? NO loop
+                                // <-- try to set parent->GetTab() instead of nothing ? 
+      mStaticVerticalLayout = new QVBoxLayout;//(mStaticWidgetForTab);
+      mStaticWidgetForTab->setLayout(mStaticVerticalLayout);
+
+      /*mWidgetForTab = new QWidget(mStaticWidgetForTab);
+    QVBoxLayout * verticalLayout = new QVBoxLayout;//(mWidgetForTab);
+    verticalLayout->addWidget(mToolInputSelectionWidget);
+    verticalLayout->addWidget(mToolWidget);
+    verticalLayout->setContentsMargins(1, 1, 1, 1);
+    mWidgetForTab->setLayout(verticalLayout);
+    DD(mWidgetForTab->isVisible());
+    mWidgetForTab->setVisible(true);
+    DD(mWidgetForTab->isVisible());*/
+
+      //<----------      mStaticVerticalLayout->addWidget(mWidgetForTab); 
+
+      mTabNumber = parent->GetTab()->addTab(mStaticWidgetForTab, "");
+      DD(mStaticWidgetForTab->isVisible());
+      mStaticWidgetForTab->setVisible(true);
+      DD(mStaticWidgetForTab->isVisible());
+      //      mWidgetForTab->setParent(mStaticWidgetForTab);
+    }
+    else {
+      DD("insert into widget");
+      mStaticVerticalLayout->addWidget(mWidgetForTab);
+      SwapCurrentWidget();
+      mToolWidget->setEnabled(true);
+    }
+    parent->GetTab()->setCurrentIndex(mTabNumber); 
+    buttonBox->hide(); // No OK/Cancel by default in this case
+  }
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolWidgetBase::Initialization() 
+{
+  mCurrentSlicerManager = 0;
   mIsInitialized = false;
   mFilter = 0;
-  mMainWindow = parent;
-  setModal(false);
-  setAttribute(Qt::WA_DeleteOnClose);
-  mCurrentSlicerManager = 0;
-
+  setWindowModality(Qt::NonModal);
   // GUI Initialization
-  setupUi(this);
-
+  setupUi(this); ///////////////////////////// TRIAL
   // Connect signals & slots
-  connect(mMainWindow, SIGNAL(AnImageIsBeingClosed(vvSlicerManager*)),
-          this, SLOT(AnImageIsBeingClosed(vvSlicerManager*)));
+  connect(mMainWindow, SIGNAL(AnImageIsBeingClosed(vvSlicerManager*)), this, SLOT(AnImageIsBeingClosed(vvSlicerManager*)));
+  connect(mMainWindow, SIGNAL(SelectedImageHasChanged(vvSlicerManager*)), this, SLOT(SelectedImageHasChanged(vvSlicerManager*)));
   connect(mToolInputSelectionWidget, SIGNAL(accepted()), this, SLOT(InputIsSelected()));
   connect(mToolInputSelectionWidget, SIGNAL(rejected()), this, SLOT(close()));
   connect(buttonBox, SIGNAL(accepted()), this, SLOT(apply()));
@@ -54,44 +138,43 @@ vvToolWidgetBase::vvToolWidgetBase(vvMainWindowBase * parent, Qt::WindowFlags f)
 
 
 //------------------------------------------------------------------------------
-vvToolWidgetBase::vvToolWidgetBase(vvMainWindowBase * parent, Qt::WindowFlags f, bool b):
-  QDialog(NULL, f), 
-  Ui::vvToolWidgetBase()
+vvToolWidgetBase::~vvToolWidgetBase()
 {
-  DD("const without qdialog");
-  // TRIAL 
-
-  mIsInitialized = false;
-  mFilter = 0;
-  mMainWindow = parent;
-  //  setModal(false);
-  //setAttribute(Qt::WA_DeleteOnClose);
-  mCurrentSlicerManager = 0;
-
-  // GUI Initialization
-  setupUi(this);
-
-  // Connect signals & slots
-  connect(mMainWindow, SIGNAL(AnImageIsBeingClosed(vvSlicerManager*)),
-          this, SLOT(AnImageIsBeingClosed(vvSlicerManager*)));
-  connect(mToolInputSelectionWidget, SIGNAL(accepted()), this, SLOT(InputIsSelected()));
-  connect(mToolInputSelectionWidget, SIGNAL(rejected()), this, SLOT(close()));
-  //connect(buttonBox, SIGNAL(accepted()), this, SLOT(apply()));
-  //connect(buttonBox, SIGNAL(rejected()), this, SLOT(close()));
-
-  // Disable main widget while input image is not selected
-  mToolWidget->setEnabled(false);
-  buttonBox->hide();
-  hide();
-  DD("end const");
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-vvToolWidgetBase::~vvToolWidgetBase()
+void vvToolWidgetBase::keyPressEvent(QKeyEvent *event) 
 {
+ //  DD("KEYPRESSEVENT");
+  if (event->key() == Qt::Key_Escape) {
+    reject();
+    event->accept();
+    return;
+  } 
+  else {
+    QWidget::keyPressEvent(event);
+  }
+  //  event->ignore();
+  //mMainWindow->keyPressEvent(event);
+  // QWidget::keyPressEvent(event);
+}
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
+void vvToolWidgetBase::accept()
+{
+  apply();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolWidgetBase::reject()
+{
+  close();
 }
 //------------------------------------------------------------------------------
 
@@ -114,9 +197,17 @@ void vvToolWidgetBase::AddInputSelector(QString s, clitk::ImageToImageGenericFil
     }
   }
   if (mSlicerManagersCompatible.size() == 0) {
-    QMessageBox::information(this, "No image","Sorry, could not perform operation. No (compatible) opened image type.");
-    close();
+    QMessageBox::information(this, "No image","Sorry, could not perform operation. No (compatible) image.");
+    reject();
     return;
+  }
+  if (mPreventToUseTwoToolsOnSameInput) {
+    CheckInputList(mSlicerManagersCompatible, mCurrentCompatibleIndex);
+    if (mSlicerManagersCompatible.size() == 0) {
+      QMessageBox::information(mMainWindow, tr("Error"), "Sorry, no other loaded images can use this tool. Abort");
+      reject();
+      return;
+    }
   }
   mToolInputSelectionWidget->AddInputSelector(s, mSlicerManagersCompatible, mCurrentCompatibleIndex, allowSkip);
 }
@@ -131,12 +222,20 @@ void vvToolWidgetBase::AddInputSelector(QString s, bool allowSkip)
     mSlicerManagersCompatible.push_back(mMainWindow->GetSlicerManagers()[i]);
   }
   if (mMainWindow->GetSlicerManagers().size() == 0) {
-    QMessageBox::information(this, "No image","Sorry, could not perform operation. No opened image type.");
+    QMessageBox::information(this, "No image","Sorry, could not perform operation. No (compatible) image.");
     close();
     return;
   }
-  mToolInputSelectionWidget->AddInputSelector(s, mMainWindow->GetSlicerManagers(),
-      mMainWindow->GetSlicerManagerCurrentIndex(), allowSkip);
+  mCurrentCompatibleIndex = mMainWindow->GetSlicerManagerCurrentIndex();
+  if (mPreventToUseTwoToolsOnSameInput) {
+    CheckInputList(mSlicerManagersCompatible,  mCurrentCompatibleIndex);
+    if (mSlicerManagersCompatible.size() == 0) {
+      QMessageBox::information(mMainWindow, tr("Error"), "Sorry, no other loaded images can use this tool. Abort");
+      close();
+      return;
+    }
+  }
+  mToolInputSelectionWidget->AddInputSelector(s, mSlicerManagersCompatible, mCurrentCompatibleIndex, allowSkip);
 }
 //------------------------------------------------------------------------------
 
@@ -159,7 +258,35 @@ void vvToolWidgetBase::show()
     mToolInputSelectionWidget->Initialize();
     mIsInitialized = true;
   }
-  QDialog::show();
+  QWidget::show();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolWidgetBase::closeEvent(QCloseEvent *event) 
+{
+ //  DD("closeEvent");
+  mIsAnotherToolWaitInput = false;
+  if (isWindow()) {
+    event->accept();//return QWidget::close();
+    return;
+  }
+  else {
+    if (!mStaticWidgetForTab) {
+      event->accept();//return QWidget::close();
+      return;
+    }
+    mStaticVerticalLayout->removeWidget(mWidgetForTab);
+    mWidgetForTab->close();
+    delete mWidgetForTab;
+    QList<QObject*> l =mStaticWidgetForTab->children(); 
+    if (l.size() > 1) {
+      QWidget * c = dynamic_cast<QWidget*>(l[1]);
+      c->setVisible(true);
+    }
+  }
+  event->accept();
 }
 //------------------------------------------------------------------------------
 
@@ -167,7 +294,8 @@ void vvToolWidgetBase::show()
 //------------------------------------------------------------------------------
 bool vvToolWidgetBase::close()
 {
-  return QDialog::close();
+  // DD("vvToolWidgetBase::close()");
+  return QWidget::close();
 }
 //------------------------------------------------------------------------------
 
@@ -184,47 +312,57 @@ void vvToolWidgetBase::AnImageIsBeingClosed(vvSlicerManager * m)
 
 
 //------------------------------------------------------------------------------
-void vvToolWidgetBase::InitializeInputs()
+void vvToolWidgetBase::SwapCurrentWidget()
 {
-  /*
-    if (mFilter) {
-    int j=0;
-    mToolInputSelectionWidget->setToolTip(QString("%1").arg(mFilter->GetAvailableImageTypes().c_str()));
-    for(unsigned int i=0; i<mMainWindow->GetSlicerManagers().size(); i++) {
-    vvImage * s = mMainWindow->GetSlicerManagers()[i]->GetImage();
-    if (mFilter->CheckImageType(s->GetNumberOfDimensions(),
-    s->GetNumberOfScalarComponents(),
-    s->GetScalarTypeAsString())) {
-    mSlicerManagersCompatible.push_back(mMainWindow->GetSlicerManagers()[i]);
-    if ((int)i == mMainWindow->GetSlicerManagerCurrentIndex()) mCurrentCompatibleIndex = j;
-    j++;
-    }
-    }
+  mStaticWidgetForTab->setUpdatesEnabled(false);
+  QList<QObject*> l =mStaticWidgetForTab->children(); 
+  for(int i=1; i<l.size(); i++) {
+    QWidget * c = dynamic_cast<QWidget*>(l[i]);
+    if (l[i] == mWidgetForTab) {
+      c->setVisible(true);
     }
     else {
-    mSlicerManagersCompatible = mMainWindow->GetSlicerManagers();
-    mCurrentCompatibleIndex = mMainWindow->GetSlicerManagerCurrentIndex();
+      c->setVisible(false);
     }
-    mToolInputSelectionWidget->Initialize(mSlicerManagersCompatible,
-    mCurrentCompatibleIndex);
-    mIsInitialized = true;
-  */
+  } 
+  mStaticWidgetForTab->setUpdatesEnabled(true);
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-// void vvToolWidgetBase::SetNumberOfNeededInputs(int i) {
-//   DD("SetNumberOfNeededInputs");
-//   DD(i);
-// }
+void vvToolWidgetBase::SelectedImageHasChanged(vvSlicerManager * m)
+{
+  if (!isWindow()) { // When the tool is not in a window, it is in a tab : we only display if needed
+    if (mCurrentSlicerManager == NULL) return;
+    if (mToolWidget == NULL) return;
+    if (m != mCurrentSlicerManager) { // current tool is not selected
+      mToolWidget->setEnabled(false);
+    }
+    else { // The current tool is selected
+      SwapCurrentWidget();
+      mToolWidget->setEnabled(true);
+    }
+  }
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolWidgetBase::InitializeInputs()
+{
+}
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
 void vvToolWidgetBase::InputIsSelected()
 {
-  // DD("InputIsSelected");
+  //  DD("vvToolWidgetBase::InputIsSelected()");
+  //DD(mWidgetForTab->isVisible());
+  //DD(mToolWidget->isVisible());
+  //DD(mStaticWidgetForTab->isVisible());
+
   buttonBox->setEnabled(true);
   std::vector<vvSlicerManager*> & l = mToolInputSelectionWidget->GetSelectedInputs();
   mCurrentSlicerManager = l[0];
@@ -233,6 +371,7 @@ void vvToolWidgetBase::InputIsSelected()
   if (!mCurrentSlicerManager) close();
   if (l.size() == 1) InputIsSelected(mCurrentSlicerManager);
   else InputIsSelected(l);
+  mIsAnotherToolWaitInput = false;
 }
 //------------------------------------------------------------------------------
 
@@ -250,8 +389,6 @@ void vvToolWidgetBase::InputIsSelected(vvSlicerManager * m)
 void vvToolWidgetBase::InputIsSelected(std::vector<vvSlicerManager*> & l)
 {
   buttonBox->setEnabled(true);
-  // DD("InputIsSelected(vector)");
-  //   DD(l.size());
   if (l.size() == 1) InputIsSelected(l[0]);
   else {
     std::cerr << "You MUST overwrite this method vvToolWidgetBase::InputIsSelected(vector<vvSlicerManager *> m) if you use several input" << std::endl;

@@ -23,18 +23,20 @@
 #include "ui_vvToolWidgetBase.h"
 #include "clitkImageToImageGenericFilter.h"
 
+// qt
+ #include <QCloseEvent>
+
 class vvMainWindowBase;
 
 //------------------------------------------------------------------------------
 class vvToolWidgetBase:
-  public QDialog, 
+  public QWidget, 
   public Ui::vvToolWidgetBase 
 {
   Q_OBJECT
   public:
 
-  vvToolWidgetBase(vvMainWindowBase * parent=0, Qt::WindowFlags f=0);
-  vvToolWidgetBase(vvMainWindowBase * parent, Qt::WindowFlags f, bool b);
+  vvToolWidgetBase(vvMainWindowBase * parent=0, Qt::WindowFlags f=Qt::Dialog, bool initialize=true); // default is a dialog
   ~vvToolWidgetBase();
 
   virtual void InputIsSelected(vvSlicerManager *m);
@@ -42,15 +44,20 @@ class vvToolWidgetBase:
   void AddInputSelector(QString s, clitk::ImageToImageGenericFilterBase * f, bool allowSkip=false);
   void AddInputSelector(QString s, bool allowSkip=false);
   void HideInputSelector();
+  void accept();
+  void reject();
 
 public slots:
   virtual void apply() = 0;
   virtual bool close();
   void InputIsSelected();
-  void AnImageIsBeingClosed(vvSlicerManager * m);
+  virtual void AnImageIsBeingClosed(vvSlicerManager * m);
+  virtual void SelectedImageHasChanged(vvSlicerManager * m);
   void show();
+  virtual void keyPressEvent(QKeyEvent *event);
 
 protected:
+  virtual void Initialization();
   void InitializeInputs();
   Ui::vvToolWidgetBase ui;
   clitk::ImageToImageGenericFilterBase * mFilter;
@@ -60,6 +67,17 @@ protected:
   int mCurrentCompatibleIndex;
   vvImage * mCurrentImage;
   bool mIsInitialized;
+  QWidget * mWidgetForTab;
+  
+  // The static members manage all tool instances
+  static QWidget * mStaticWidgetForTab; // <-- MUST BE CHANGED IN VECTOR 
+  static int mTabNumber;
+  static QVBoxLayout * mStaticVerticalLayout;  // <-- MUST BE CHANGED IN VECTOR 
+  static bool mIsAnotherToolWaitInput;
+  virtual void CheckInputList(std::vector<vvSlicerManager*> & l, int & index) { }
+  virtual void closeEvent(QCloseEvent *event);
+  void SwapCurrentWidget();
+  bool mPreventToUseTwoToolsOnSameInput;
 
 }; // end class vvToolWidgetBase
 //------------------------------------------------------------------------------
