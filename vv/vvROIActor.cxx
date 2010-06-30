@@ -43,6 +43,7 @@ vvROIActor::vvROIActor()
   mIsSelected = false;
   mContourWidth = 1;
   mContourColor.resize(3);
+  m_modeBG = true;
 }
 //------------------------------------------------------------------------------
 
@@ -160,7 +161,16 @@ void vvROIActor::Initialize() {
       mImageContour[i]->HideActors();
       
       mOverlayActors.push_back(new vvBinaryImageOverlayActor);
-      mOverlayActors[i]->SetImage(mROI->GetImage(), mROI->GetBackgroundValueLabelImage());
+
+      // BG or FG
+      if (m_modeBG) {
+	mOverlayActors[i]->SetImage(mROI->GetImage(), mROI->GetBackgroundValueLabelImage());
+      }
+      else {
+	mOverlayActors[i]->SetImage(mROI->GetImage(), mROI->GetForegroundValueLabelImage(), false);
+      }
+
+
       mOverlayActors[i]->SetColor(mROI->GetDisplayColor()[0],
                                   mROI->GetDisplayColor()[1],
                                   mROI->GetDisplayColor()[2]);

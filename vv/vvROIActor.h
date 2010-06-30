@@ -50,6 +50,7 @@ class vvROIActor: public QObject {
   int GetContourWidth() { return mContourWidth; }
   void SetContourColor(double r, double v, double b);
   std::vector<double> & GetContourColor();
+  void SetBGMode(bool b) { m_modeBG = b; }
 
 public slots:
   void UpdateSlice(int slicer, int slices);
@@ -68,6 +69,7 @@ public slots:
   bool mIsSelected;
   int mContourWidth;
   std::vector<double> mContourColor;
+  bool m_modeBG;
 
 }; // end class vvROIActor
 //------------------------------------------------------------------------------
