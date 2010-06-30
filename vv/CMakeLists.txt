@@ -198,7 +198,7 @@ ENDIF(WIN32)
 
 LINK_DIRECTORIES(${QT_INCLUDES})
 ADD_EXECUTABLE(vv ${vv_SRCS} vv.cxx ${vv_UI_CXX} ${EXE_ICON})
-TARGET_LINK_LIBRARIES(vv clitkCommon clitkDicomRTStruct clitkFilters clitkSegmentationFilters ${ITK_LIBRARIES} QVTK vtkHybrid)
+TARGET_LINK_LIBRARIES(vv clitkCommon clitkDicomRTStruct clitkFilters ${ITK_LIBRARIES} QVTK vtkHybrid)
 
 #=========================================================
 
