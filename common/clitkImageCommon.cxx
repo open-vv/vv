@@ -38,7 +38,7 @@ void clitk::ReadImageDimensionAndPixelType(const std::string & filename,
   itk::ImageIOBase::Pointer genericReader =
     itk::ImageIOFactory::CreateImageIO(filename.c_str(), itk::ImageIOFactory::ReadMode);
   if (!genericReader) {
-    std::cerr << "Image file format unknown while reading " << filename << std::endl;
+    std::cerr << "Image file format unknown while reading file <" << filename << ">" << std::endl;
     exit(0);
   }
   genericReader->SetFileName(filename.c_str());
@@ -137,6 +137,7 @@ void clitk::printImageHeader(itk::ImageIOBase::Pointer header, std::ostream & os
     for(unsigned int i=0; i< dim-1; i++)
       os << inputOrigin[i] << "x";
     os << inputOrigin[dim-1] << " ";
+    os << header->GetImageSizeInPixels() << " ";
   } else {
     os << "Dim       = " << dim << "D" << std::endl;
     os << "PixelType = " << pixelTypeName << std::endl;

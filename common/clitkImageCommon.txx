@@ -181,6 +181,7 @@ typename ImageType::Pointer readImage(const std::vector<std::string> & filenames
 }
 //--------------------------------------------------------------------
 
+
 //--------------------------------------------------------------------
 template<class ImageType>
 void writeImage(const typename ImageType::Pointer image, const std::string & filename, const bool verbose)
@@ -201,6 +202,7 @@ void writeImage(const typename ImageType::Pointer image, const std::string & fil
   }
 }
 //--------------------------------------------------------------------
+
 
 //--------------------------------------------------------------------
 template<class ImageType>
@@ -278,6 +280,7 @@ int ComputeHowManyDifferentIntensity(const typename ImageType::Pointer & image,
 }
 //--------------------------------------------------------------------
 
+
 //--------------------------------------------------------------------
 template<class InputImageType, class MaskImageType>
 void ComputeWeightsOfEachClasses(const typename InputImageType::Pointer & input,
@@ -310,6 +313,35 @@ void ComputeWeightsOfEachClasses(const typename InputImageType::Pointer & input,
     ++pi;
     ++pm;
   }
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template<class ImageType1, class ImageType2>
+bool HasSameSizeAndSpacing(typename ImageType1::ConstPointer A, 
+                           typename ImageType2::ConstPointer B) 
+{
+  if (A->GetImageDimension() != B->GetImageDimension()) return false;
+  for(unsigned int i=0; i<A->GetImageDimension(); i++) {
+    if (A->GetSpacing()[i] != B->GetSpacing()[i]) return false;
+    if (A->GetLargestPossibleRegion().GetSize()[i] != B->GetLargestPossibleRegion().GetSize()[i]) return false;
+  }
+  return true;
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+template<class ImageType1, class ImageType2>
+bool HasSameSizeAndSpacing(typename ImageType1::Pointer A, 
+                           typename ImageType2::Pointer B) 
+{
+  if (A->GetImageDimension() != B->GetImageDimension()) return false;
+  for(unsigned int i=0; i<A->GetImageDimension(); i++) {
+    if (A->GetSpacing()[i] != B->GetSpacing()[i]) return false;
+    if (A->GetLargestPossibleRegion().GetSize()[i] != B->GetLargestPossibleRegion().GetSize()[i]) return false;
+  }
+  return true;
 }
 //--------------------------------------------------------------------
 

@@ -17,15 +17,6 @@
 ======================================================================-====*/
 #ifndef CLITKIMAGECOMMON_H
 #define CLITKIMAGECOMMON_H
-/**
- -------------------------------------------------------------------
- * @file   clitkImageCommon.h
- * @author David Sarrut <David.Sarrut@creatis.insa-lyon.fr>
- * @date   07 Sep 2007 11:30:10
-
- * @brief  
-
- -------------------------------------------------------------------*/
 
 // clitk
 #include "clitkCommon.h"
@@ -102,6 +93,15 @@ namespace clitk {
 				   const std::vector<typename MaskImageType::PixelType> & listOfIntensities, 
 				   std::map<typename MaskImageType::PixelType, 
 				   std::map<typename InputImageType::PixelType, double> > & mapOfLabelsAndWeights);
+
+  //--------------------------------------------------------------------
+  template<class ImageType1, class ImageType2>
+  bool HasSameSizeAndSpacing(typename ImageType1::ConstPointer A, 
+                             typename ImageType2::ConstPointer B);
+
+  template<class ImageType1, class ImageType2>
+  bool HasSameSizeAndSpacing(typename ImageType1::Pointer A, 
+                             typename ImageType2::Pointer B);
 
 #include "clitkImageCommon.txx"
 
