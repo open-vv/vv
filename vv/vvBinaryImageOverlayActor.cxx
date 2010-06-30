@@ -39,6 +39,9 @@ vvBinaryImageOverlayActor::vvBinaryImageOverlayActor()
   mImage = 0;
   mSlicer = 0;
   mColorLUT = vtkLookupTable::New();
+  mForegroundValue = 1;
+  mBackgroundValue = 0;
+  m_modeBG = true;
 }
 //------------------------------------------------------------------------------
 
@@ -90,10 +93,31 @@ void vvBinaryImageOverlayActor::Initialize()
     // how many intensity ?
     vtkImageMapToRGBA * mOverlayMapper = vtkImageMapToRGBA::New();
     mOverlayMapper->SetInput(mImage->GetVTKImages()[0]); // DS TODO : to change if it is 4D !!!
-    mColorLUT->SetRange(0,1);
-    mColorLUT->SetNumberOfTableValues(2);
-    mColorLUT->SetTableValue(mBackgroundValue, 0, 0, 0, 0.0);   // BG
-    mColorLUT->SetTableValue(1, mColor[0], mColor[1], mColor[2], mAlpha); // FG
+
+    // DD("change to nb of intensity");
+    double range[2];
+    mImage->GetVTKImages()[0]->GetScalarRange(range);
+    // DD(range[0]);
+//     DD(range[1]);
+    int n = range[1]-range[0]+1;
+    mColorLUT->SetRange(range[0],range[1]);
+    mColorLUT->SetNumberOfTableValues(n);
+
+    // Mode BG -> all is color except BG
+    if (m_modeBG) {
+      for(int i=0; i<n; i++) {
+	mColorLUT->SetTableValue(i, mColor[0], mColor[1], mColor[2], mAlpha);
+      }
+      mColorLUT->SetTableValue(mBackgroundValue, 0, 0, 0, 0.0);
+    }
+    else {
+      // Mode FG -> all is BG, except FG which is color
+      for(int i=0; i<n; i++) {
+	mColorLUT->SetTableValue(i, 0, 0, 0, 0.0);
+      }
+      mColorLUT->SetTableValue(mForegroundValue, mColor[0], mColor[1], mColor[2], mAlpha);
+    }
+
     mOverlayMapper->SetLookupTable(mColorLUT);
 
     vtkImageActor * mOverlayActor = vtkImageActor::New();
@@ -153,10 +177,19 @@ void vvBinaryImageOverlayActor::SetOpacity(double d)
 
 
 //------------------------------------------------------------------------------
-void vvBinaryImageOverlayActor::SetImage(vvImage::Pointer image, double bg)
+void vvBinaryImageOverlayActor::SetImage(vvImage::Pointer image, double bg, bool modeBG)
 {
+  //  DD("vvBinaryImageOverlayActor::SetImage");
+  //DD(modeBG);
   mImage = image;
-  mBackgroundValue = bg;
+  if (modeBG) {
+    mBackgroundValue = bg;
+    m_modeBG = true;
+  }
+  else {
+    mForegroundValue = bg;
+    m_modeBG = false;
+  }
 }
 //------------------------------------------------------------------------------
 

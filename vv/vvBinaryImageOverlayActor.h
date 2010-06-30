@@ -39,7 +39,7 @@ class vvBinaryImageOverlayActor
   void SetSlicer(vvSlicer * slicer);
   void SetColor(double r, double g, double b);
   void SetOpacity(double d);
-  void SetImage(vvImage::Pointer image, double bg);
+  void SetImage(vvImage::Pointer image, double bg, bool modeBG=true);
   void Initialize();
   void UpdateColor();
   void UpdateSlice(int slicer, int slice);
@@ -56,6 +56,8 @@ class vvBinaryImageOverlayActor
   std::vector<double> mColor;
   double mAlpha;
   double mBackgroundValue;
+  double mForegroundValue;
+  bool m_modeBG;
   vtkLookupTable * mColorLUT;
 
   std::vector<vtkImageMapToRGBA *> mMapperList;
