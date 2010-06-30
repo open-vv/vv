@@ -28,17 +28,17 @@ clitk::ImageToImageGenericFilter<FilterType>::ImageToImageGenericFilter(std::str
 template<class FilterType>
 bool clitk::ImageToImageGenericFilter<FilterType>::Update()
 {
-  GetInputImageDimensionAndPixelType(mDim,mPixelTypeName,mNbOfComponents);
+  GetInputImageDimensionAndPixelType(m_Dim,m_PixelTypeName,m_NbOfComponents);
 
   // Check ImageType
   if (!CheckImageType()) {
-    if (mFailOnImageTypeError) ImageTypeError();
+    if (m_FailOnImageTypeError) ImageTypeError();
     else SetImageTypeError();
     return false;
   }
 
   // Go ! Call the right templatized function
-  mImageTypesManager.DoIt(mDim, mNbOfComponents, mPixelTypeName);
+  mImageTypesManager.DoIt(m_Dim, m_NbOfComponents, m_PixelTypeName);
   return true;
 }
 //--------------------------------------------------------------------
@@ -61,7 +61,7 @@ bool clitk::ImageToImageGenericFilter<FilterType>::CheckImageType(unsigned int d
 template<class FilterType>
 bool clitk::ImageToImageGenericFilter<FilterType>::CheckImageType()
 {
-  return CheckImageType(mDim, mNbOfComponents, mPixelTypeName);
+  return CheckImageType(m_Dim, m_NbOfComponents, m_PixelTypeName);
 }
 //--------------------------------------------------------------------
 
@@ -71,7 +71,7 @@ template<class FilterType>
 std::string clitk::ImageToImageGenericFilter<FilterType>::GetAvailableImageTypes()
 {
   std::ostringstream oss;
-  oss << "The filter <" << mFilterName << "> manages:" << std::endl;
+  oss << "The filter <" << m_FilterName << "> manages:" << std::endl;
 
   typedef typename ImageTypesManager<FilterType>::MapOfImageComponentsToFunctionType::const_iterator MCompItType;
   typedef typename ImageTypesManager<FilterType>::MapOfImageDimensionToFunctionType::const_iterator MDimItType;
