@@ -66,6 +66,7 @@ public slots:
   int * mInitialExtent;
   int mExtentSize;
   void UpdateExtent();
+  virtual void closeEvent(QCloseEvent *event);
 
 }; // end class vvToolCropImage
 //------------------------------------------------------------------------------

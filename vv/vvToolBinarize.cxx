@@ -16,13 +16,16 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
   ======================================================================-====*/
 
+// vv
 #include "vvToolBinarize.h"
 #include "vvSlicerManager.h"
 #include "vvSlicer.h"
 #include "vvToolInputSelectorWidget.h"
 
+// clitk
 #include "clitkBinarizeImageGenericFilter.h"
 
+// vtk
 #include <vtkImageActor.h>
 #include <vtkCamera.h>
 #include <vtkImageClip.h>
@@ -52,6 +55,7 @@ vvToolBinarize::vvToolBinarize(vvMainWindowBase * parent, Qt::WindowFlags f)
    vvToolBase<vvToolBinarize>(parent),
    Ui::vvToolBinarize()
 {
+  DD("Const binarize");
   // GUI Initialization
   Ui_vvToolBinarize::setupUi(mToolWidget);
   mInteractiveDisplayIsEnabled = mCheckBoxInteractiveDisplay->isChecked();
@@ -119,8 +123,16 @@ void vvToolBinarize::RemoveVTKObjects()
 //------------------------------------------------------------------------------
 bool vvToolBinarize::close()
 {
-  RemoveVTKObjects();
+  // RemoveVTKObjects();
   return vvToolWidgetBase::close();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolBinarize::closeEvent(QCloseEvent *event) {
+  RemoveVTKObjects();
+  event->accept();
 }
 //------------------------------------------------------------------------------
 

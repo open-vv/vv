@@ -16,15 +16,6 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
 
-/* =================================================
- * @file   clitkBinarizeImageGenericFilter.txx
- * @author Jef Vandemeulebroucke <jef@creatis.insa-lyon.fr>
- * @date   29 June 2009
- *
- * @brief Binarize an image
- *
- ===================================================*/
-
 // clitk
 #include "clitkBinarizeImage_ggo.h"
 #include "clitkBinarizeImageGenericFilter.h"

@@ -17,12 +17,14 @@
 ======================================================================-====*/
 #ifndef VVTOOLBINARIZE_H
 #define VVTOOLBINARIZE_H
+
 #include <QtDesigner/QDesignerExportWidget>
 
 #include "vvToolBase.h"
 #include "vvToolWidgetBase.h"
 #include "vvImageContour.h"
 #include "ui_vvToolBinarize.h"
+
 #include "clitkBinarizeImage_ggo.h"
 
 //------------------------------------------------------------------------------
@@ -56,6 +58,7 @@ class vvToolBinarize:
 
  protected:
   void RemoveVTKObjects();
+  virtual void closeEvent(QCloseEvent *event);
   Ui::vvToolBinarize ui;
   args_info_clitkBinarizeImage mArgsInfo;
   std::vector<vvImageContour*> mImageContour;

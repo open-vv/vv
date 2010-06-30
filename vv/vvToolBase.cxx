@@ -16,17 +16,9 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
 
-
 #ifndef VVTOOLBASE_CXX
 #define VVTOOLBASE_CXX
 #include "vvToolBase.h"
-
-// //------------------------------------------------------------------------------
-// void vvToolBaseBase::initializeListOfInputImages() {
-
-// }
-
-
 
 #endif
 

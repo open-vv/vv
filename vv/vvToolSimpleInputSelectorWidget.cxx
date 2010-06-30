@@ -97,6 +97,7 @@ void vvToolSimpleInputSelectorWidget::setEnabled(bool b)
   QWidget::setEnabled(b);
   mInputSelectionButtonBox->setEnabled(b);
   mInputSequenceBox->setEnabled(b);
+  
 }
 //------------------------------------------------------------------------------
 
@@ -131,10 +132,15 @@ void vvToolSimpleInputSelectorWidget::skip(QAbstractButton* b)
 //------------------------------------------------------------------------------
 void vvToolSimpleInputSelectorWidget::changeInput(int index)
 {
+ //  DD(index);
   if (index<0) return;
+  if (index>=(int)mSlicerManagerList.size()) return;
   mCurrentIndex = index;
   vvImage * mCurrentImage = mSlicerManagerList[index]->GetImage();
+  if (mCurrentImage == NULL) return;
+ //  DD("la");
   unsigned int d = mCurrentImage->GetNumberOfDimensions();
+ //  DD(d);
   QString size;
   QString spacing;
   for(unsigned int i=0; i<d-1; i++) {
@@ -145,11 +151,12 @@ void vvToolSimpleInputSelectorWidget::changeInput(int index)
   }
   size.append(QString("%1").arg(mCurrentImage->GetSize()[d-1]));
   spacing.append(QString("%1").arg(mCurrentImage->GetSpacing()[d-1]));
-  mLabelInputInfo->setText(QString("Image: %1D %2   %3    %4")
+  mLabelInputInfo->setText(QString("%1D %2\n%3\n%4")
                            .arg(d)
                            .arg(mCurrentImage->GetScalarTypeAsString().c_str())
                            .arg(size)
                            .arg(spacing));
+ //  DD("fin");
 }
 //------------------------------------------------------------------------------
 

@@ -58,10 +58,20 @@ vvToolCropImage::~vvToolCropImage()
 
 
 //------------------------------------------------------------------------------
-bool vvToolCropImage::close()
+void vvToolCropImage::closeEvent(QCloseEvent *event)
 {
   for(int i=0; i<mExtentSize; i++) mReducedExtent[i] = mInitialExtent[i];
   UpdateExtent();
+  event->accept();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+bool vvToolCropImage::close()
+{
+  // for(int i=0; i<mExtentSize; i++) mReducedExtent[i] = mInitialExtent[i];
+//   UpdateExtent();
   return vvToolWidgetBase::close();
 }
 //------------------------------------------------------------------------------

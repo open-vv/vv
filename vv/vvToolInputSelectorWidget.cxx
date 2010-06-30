@@ -81,6 +81,7 @@ void vvToolInputSelectorWidget::AddInputSelector(QString & s,
 //------------------------------------------------------------------------------
 void vvToolInputSelectorWidget::Initialize()
 {
+  // setWindowModality(Qt::WindowModal);
   for(unsigned int i=0; i<mListOfSimpleInputWidget.size(); i++)
     mListOfSimpleInputWidget[i]->Initialize();
 }
@@ -90,6 +91,7 @@ void vvToolInputSelectorWidget::Initialize()
 //------------------------------------------------------------------------------
 void vvToolInputSelectorWidget::accept()
 {
+  // setWindowModality(Qt::NonModal);
   //  DD("vvToolInputSelectorWidget::accept");
   //DD(mNumberOfAcceptedInputs);
   mNumberOfAcceptedInputs++;

@@ -225,13 +225,13 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
           return;
         }
         if (KeyPress == "Up") {
-          DD("------------ up");
+	  //          DD("------------ up");
           this->SM->GetSlicer(VisibleInWindow)->SetSlice(this->SM->GetSlicer(VisibleInWindow)->GetSlice()+1);
-          DD("------------ after set slice");
+          //DD("------------ after set slice");
           this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
-          DD("------------ after UpdateInfoOnCursorPosition");
+          //DD("------------ after UpdateInfoOnCursorPosition");
           this->SM->UpdateSlice(VisibleInWindow);
-          DD("------------ after updateslice");
+          //DD("------------ after updateslice");
         }
         if (KeyPress == "Down") {
           this->SM->GetSlicer(VisibleInWindow)->SetSlice(this->SM->GetSlicer(VisibleInWindow)->GetSlice()-1);

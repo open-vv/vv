@@ -35,8 +35,11 @@ public:
   static void SetToolTip(QString n) { vvToolCreator<ToolType>::GetInstance()->mToolTip = n; }
   static void SetToolExperimental(bool exp) { vvToolCreator<ToolType>::GetInstance()->mExperimental = exp; }
 
-  void AddImage(vvImage::Pointer image,std::string filename) {
-    CREATOR(ToolType)->GetMainWindow()->AddImage(image,filename); 
+  static QIcon GetToolIcon() { return QIcon(vvToolCreator<ToolType>::GetInstance()->mToolIconFilename); }
+  static QString & GetToolName() { return vvToolCreator<ToolType>::GetInstance()->mToolName; }
+
+  vvSlicerManager * AddImage(vvImage::Pointer image,std::string filename) {
+    return CREATOR(ToolType)->GetMainWindow()->AddImage(image,filename); 
   }
 
   void setSender(QObject *s) { mSender = s; }
