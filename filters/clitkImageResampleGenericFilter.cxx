@@ -194,7 +194,7 @@ void clitk::ImageResampleGenericFilter::UpdateWithInputImageType()
   try {
     filter->Update();
   } catch( itk::ExceptionObject & err ) {
-    std::cerr << "Error while filtering " << mInputFilenames[0].c_str()
+    std::cerr << "Error while filtering " << m_InputFilenames[0].c_str()
               << " " << err << std::endl;
     exit(0);
   }

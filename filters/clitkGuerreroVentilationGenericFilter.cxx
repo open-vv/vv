@@ -54,7 +54,7 @@ void clitk::GuerreroVentilationGenericFilter::UpdateWithInputImageType()
 {
 
   // Input should be 2
-  assert(mInputFilenames.size() == 2);
+  assert(m_InputFilenames.size() == 2);
 
   // Reading input
   typedef ImageType InputImageType;

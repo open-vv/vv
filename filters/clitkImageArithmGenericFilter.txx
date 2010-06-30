@@ -17,6 +17,9 @@
 ======================================================================-====*/
 #ifndef CLITKIMAGEARITHMGENERICFILTER_TXX
 #define CLITKIMAGEARITHMGENERICFILTER_TXX
+
+#include "clitkImageCommon.h"
+
 namespace clitk
 {
 
@@ -106,6 +109,12 @@ void ImageArithmGenericFilter<args_info_type>::UpdateWithInputImageType()
   // typedef input2
   typename ImageType::Pointer input2 = this->template GetInput<ImageType>(1);
   IteratorType it2;
+
+  // Check dimension
+  if (!clitk::HasSameSizeAndSpacing<ImageType, ImageType>(input1, input2)) {
+    std::cerr << "* ERROR * the images (input and input2) must have the same size & spacing";
+    return;
+  }
 
   if (mIsOperationUseASecondImage) {
     // Read input2
@@ -220,6 +229,7 @@ void  ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it1, Iter2 it
     }
     break;
   case 5: // Absolute difference
+      DD("AbsoluteDifff");
     while (!ito.IsAtEnd()) {
       ito.Set(PixelTypeDownCast<double, PixelType>(fabs((double)it2.Get()-(double)it1.Get())));
       ++it1;

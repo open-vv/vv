@@ -50,16 +50,16 @@ void clitk::ImageConvertGenericFilter::UpdateWithInputImageType()
 {
 
   // Verbose stuff
-  if (mIOVerbose) {
-    if (mInputFilenames.size() == 1) {
-      std::cout << "Input image <" << mInputFilenames[0] << "> is ";
-      itk::ImageIOBase::Pointer header = clitk::readImageHeader(mInputFilenames[0]);
+  if (m_IOVerbose) {
+    if (m_InputFilenames.size() == 1) {
+      std::cout << "Input image <" << m_InputFilenames[0] << "> is ";
+      itk::ImageIOBase::Pointer header = clitk::readImageHeader(m_InputFilenames[0]);
       printImageHeader(header, std::cout);
       std::cout << std::endl;
     } else {
-      for(unsigned int i=0; i<mInputFilenames.size(); i++) {
-        std::cout << "Input image " << i << " <" << mInputFilenames[i] << "> is ";
-        itk::ImageIOBase::Pointer h = clitk::readImageHeader(mInputFilenames[i]);
+      for(unsigned int i=0; i<m_InputFilenames.size(); i++) {
+        std::cout << "Input image " << i << " <" << m_InputFilenames[i] << "> is ";
+        itk::ImageIOBase::Pointer h = clitk::readImageHeader(m_InputFilenames[i]);
         printImageHeader(h, std::cout);
         std::cout << std::endl;
       }
@@ -67,10 +67,10 @@ void clitk::ImageConvertGenericFilter::UpdateWithInputImageType()
   }
 
 
-  if ((mPixelTypeName == mOutputPixelTypeName) || (mOutputPixelTypeName == "NotSpecified")) {
-    //    typename InputImageType::Pointer input = clitk::readImage<InputImageType>(mInputFilenames);
+  if ((m_PixelTypeName == mOutputPixelTypeName) || (mOutputPixelTypeName == "NotSpecified")) {
+    //    typename InputImageType::Pointer input = clitk::readImage<InputImageType>(m_InputFilenames);
     typename InputImageType::Pointer input = this->template GetInput<InputImageType>(0);
-    //clitk::writeImage<InputImageType>(input, mOutputFilename, mIOVerbose);
+    //clitk::writeImage<InputImageType>(input, mOutputFilename, m_IOVerbose);
     this->SetNextOutput<InputImageType>(input);
   } else {
 #define TRY_TYPE(TYPE)							\
@@ -107,14 +107,14 @@ void clitk::ImageConvertGenericFilter::UpdateWithOutputType()
   std::ostringstream osstream;
   if (std::numeric_limits<PixelType>::is_signed) {
     if (!std::numeric_limits<OutputPixelType>::is_signed) {
-      osstream << "Warning, input type is signed (" << mPixelTypeName << ") while output type is not ("
+      osstream << "Warning, input type is signed (" << m_PixelTypeName << ") while output type is not ("
                << mOutputPixelTypeName << "), use at your own responsability." << std::endl;
       mWarningOccur = true;
     }
   }
   if (!std::numeric_limits<PixelType>::is_integer) {
     if (std::numeric_limits<OutputPixelType>::is_integer) {
-      osstream << "Warning, input type is not integer (" << mPixelTypeName << ") while output type is ("
+      osstream << "Warning, input type is not integer (" << m_PixelTypeName << ") while output type is ("
                << mOutputPixelTypeName << "), use at your own responsability." << std::endl;
       mWarningOccur = true;
     }
@@ -123,13 +123,13 @@ void clitk::ImageConvertGenericFilter::UpdateWithOutputType()
   // DD(std::numeric_limits<OutputPixelType>::digits10);
   if (!std::numeric_limits<PixelType>::is_integer) {
     if (std::numeric_limits<OutputPixelType>::is_integer) {
-      osstream << "Warning, input type is not integer (" << mPixelTypeName << ") while output type is ("
+      osstream << "Warning, input type is not integer (" << m_PixelTypeName << ") while output type is ("
                << mOutputPixelTypeName << "), use at your own responsability." << std::endl;
       mWarningOccur = true;
     }
   }
   if (std::numeric_limits<PixelType>::digits10 > std::numeric_limits<OutputPixelType>::digits10) {
-    osstream << "Warning, possible loss of precision : input type is (" << mPixelTypeName << ") while output type is ("
+    osstream << "Warning, possible loss of precision : input type is (" << m_PixelTypeName << ") while output type is ("
              << mOutputPixelTypeName << "), use at your own responsability." << std::endl;
     mWarningOccur = true;
   }
@@ -148,7 +148,7 @@ void clitk::ImageConvertGenericFilter::UpdateWithOutputType()
 
   // Write
   SetNextOutput<OutputImageType>(filter->GetOutput());
-  //clitk::writeImage<OutputImageType>(filter->GetOutput(), mOutputFilename, mIOVerbose);
+  //clitk::writeImage<OutputImageType>(filter->GetOutput(), mOutputFilename, m_IOVerbose);
 }
 //====================================================================
 

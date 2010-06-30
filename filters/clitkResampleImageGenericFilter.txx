@@ -90,32 +90,39 @@ clitk::ResampleImageGenericFilter<args_info_type>::UpdateWithInputImageType()
   static const unsigned int dim = OutputImageType::ImageDimension;
   typename OutputImageType::SpacingType spacing;
   typename OutputImageType::SizeType size;
-  if (mArgsInfo.spacing_given == 1) {
-    filter->SetOutputIsoSpacing(mArgsInfo.spacing_arg[0]);
-  } else {
-    if ((mArgsInfo.spacing_given != 0) && (mArgsInfo.size_given != 0)) {
-      std::cerr << "Error: use spacing or size, not both." << std::endl;
-      exit(0);
-    }
 
-    if (!((mArgsInfo.spacing_given == 0) && (mArgsInfo.size_given == 0))) {
-
-      if ((mArgsInfo.spacing_given != 0) && (mArgsInfo.spacing_given != dim)) {
-        std::cerr << "Error: spacing should have one or " << dim << " values." << std::endl;
+  if (mArgsInfo.like_given) {
+    DD("like");
+    
+  }
+  else {
+    if (mArgsInfo.spacing_given == 1) {
+      filter->SetOutputIsoSpacing(mArgsInfo.spacing_arg[0]);
+    } else {
+      if ((mArgsInfo.spacing_given != 0) && (mArgsInfo.size_given != 0)) {
+        std::cerr << "Error: use spacing or size, not both." << std::endl;
         exit(0);
       }
-      if ((mArgsInfo.size_given != 0) && (mArgsInfo.size_given != dim)) {
-        std::cerr << "Error: size should have " << dim << " values." << std::endl;
-        exit(0);
+
+      if (!((mArgsInfo.spacing_given == 0) && (mArgsInfo.size_given == 0))) {
+
+        if ((mArgsInfo.spacing_given != 0) && (mArgsInfo.spacing_given != dim)) {
+          std::cerr << "Error: spacing should have one or " << dim << " values." << std::endl;
+          exit(0);
+        }
+        if ((mArgsInfo.size_given != 0) && (mArgsInfo.size_given != dim)) {
+          std::cerr << "Error: size should have " << dim << " values." << std::endl;
+          exit(0);
+        }
+        if (mArgsInfo.spacing_given)
+          for(unsigned int i=0; i<dim; i++)
+            spacing[i] = mArgsInfo.spacing_arg[i];
+        if (mArgsInfo.size_given)
+          for(unsigned int i=0; i<dim; i++)
+            size[i] = mArgsInfo.size_arg[i];
+        filter->SetOutputSpacing(spacing);
+        filter->SetOutputSize(size);
       }
-      if (mArgsInfo.spacing_given)
-        for(unsigned int i=0; i<dim; i++)
-          spacing[i] = mArgsInfo.spacing_arg[i];
-      if (mArgsInfo.size_given)
-        for(unsigned int i=0; i<dim; i++)
-          size[i] = mArgsInfo.size_arg[i];
-      filter->SetOutputSpacing(spacing);
-      filter->SetOutputSize(size);
     }
   }
 

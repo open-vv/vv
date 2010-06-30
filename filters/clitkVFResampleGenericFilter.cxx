@@ -58,14 +58,14 @@ template<class ImageType>
 void clitk::VFResampleGenericFilter::UpdateWithInputImageType()
 {
 
-  if (mNbOfComponents == 1) {
+  if (m_NbOfComponents == 1) {
     std::cerr << "Error, only one components ? Use clitkImageResample instead." << std::endl;
     exit(0);
   }
   typedef typename ImageType::PixelType PixelType;
-  if (mNbOfComponents == 2) Update_WithDimAndPixelTypeAndComponent<ImageType::ImageDimension,PixelType,2>();
-  if (mNbOfComponents == 3) Update_WithDimAndPixelTypeAndComponent<ImageType::ImageDimension,PixelType,3>();
-  if (mNbOfComponents == 4) Update_WithDimAndPixelTypeAndComponent<ImageType::ImageDimension,PixelType,4>();
+  if (m_NbOfComponents == 2) Update_WithDimAndPixelTypeAndComponent<ImageType::ImageDimension,PixelType,2>();
+  if (m_NbOfComponents == 3) Update_WithDimAndPixelTypeAndComponent<ImageType::ImageDimension,PixelType,3>();
+  if (m_NbOfComponents == 4) Update_WithDimAndPixelTypeAndComponent<ImageType::ImageDimension,PixelType,4>();
 }
 //--------------------------------------------------------------------
 
@@ -78,7 +78,7 @@ void clitk::VFResampleGenericFilter::Update_WithDimAndPixelTypeAndComponent()
   typedef itk::Vector<PixelType, DimCompo> DisplacementType;
   typedef itk::Image< DisplacementType, Dim > ImageType;
 
-  typename ImageType::Pointer input = clitk::readImage<ImageType>(mInputFilenames, mIOVerbose);
+  typename ImageType::Pointer input = clitk::readImage<ImageType>(m_InputFilenames, m_IOVerbose);
 
   // Main filter
   typename ImageType::Pointer outputImage = ComputeImage<ImageType>(input);
@@ -183,7 +183,7 @@ clitk::VFResampleGenericFilter::ComputeImage(typename ImageType::Pointer inputIm
   try {
     filter->Update();
   } catch( itk::ExceptionObject & err ) {
-    std::cerr << "Error while filtering " << mInputFilenames[0].c_str()
+    std::cerr << "Error while filtering " << m_InputFilenames[0].c_str()
               << " " << err << std::endl;
     exit(0);
   }

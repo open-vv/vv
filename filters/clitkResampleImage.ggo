@@ -12,6 +12,7 @@ option "thread" 	-   	"Nb of thread to use (default=max)"  int        no
 section "Input & Output options"
 option "input"		i	"Input image filename"                  string 	yes
 option "output"    	o   	"Output image filename"		        string 	yes
+option "like"    	l   	"Resample like this image"	        string 	no
 option "size"	 	-  	"Number of pixels of each coordonate"	int	no	multiple  default="0"
 option "spacing"	-  	"Spacing in mm between pixels" 		float	no	multiple  default="-1.0"
 option "default"	d	"Default pixel value"			float	no 	default = "0.0"
