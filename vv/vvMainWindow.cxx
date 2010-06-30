@@ -102,6 +102,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   mMenuExperimentalTools = menuExperimental;
   mMainWidget = this;
   mCurrentTime = -1;
+  mCurrentSelectedImageId = "";
 
   //Init the contextMenu
   this->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -899,7 +900,10 @@ void vvMainWindow::UpdateTree()
 //------------------------------------------------------------------------------
 void vvMainWindow::CurrentImageChanged(std::string id)
 {
-  //  DD("CurrentImageChanged");
+  // DD("CurrentImageChanged");
+//   DD(id);
+//   DD(mCurrentSelectedImageId);
+  if (id == mCurrentSelectedImageId) return; // Do nothing
   int selected = 0;
   for (int i = 0; i < DataTree->topLevelItemCount(); i++) {
     if (DataTree->topLevelItem(i)->data(COLUMN_IMAGE_NAME,Qt::UserRole).toString().toStdString() == id) {
@@ -912,7 +916,8 @@ void vvMainWindow::CurrentImageChanged(std::string id)
 
   }
   DataTree->topLevelItem(selected)->setSelected(1);
-  //  DD(mSlicerManagers[selected]->GetFileName());
+  // DD(mSlicerManagers[selected]->GetFileName());
+  mCurrentSelectedImageId = id;
   emit SelectedImageHasChanged(mSlicerManagers[selected]);
 }
 //------------------------------------------------------------------------------
@@ -1875,7 +1880,38 @@ void vvMainWindow::AddOverlayImage(int index, QString file)
     QMessageBox::information(this,tr("Problem reading image !"),error);
   }
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
+void vvMainWindow::AddROI(int index, QString file)
+{
+  DD("AddImageAndROI");
+  /*
+  // Get slice manager
+
+  // Load image
+
+  vvImageReader * mReader = new vvImageReader;
+  mReader->SetInputFilename(filename.toStdString());
+  mReader->Update(IMAGE);
+  if (mReader->GetLastError().size() != 0) {
+    std::cerr << "Error while reading " << filename.toStdString() << std::endl;
+    QString error = "Cannot open file \n";
+    error += mReader->GetLastError().c_str();
+    QMessageBox::information(this,tr("Reading problem"),error);
+    delete mReader;
+    return;
+  }
+  vvImage::Pointer roi = mReader->GetOutput();
+
+  // Create roi in new tool
+  vvToolStructureSetManager::AddImage(mCurrentSlicerManager, roi);
+*/
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 void vvMainWindow::AddFusionImage()
 {
   int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
@@ -2360,7 +2396,6 @@ void vvMainWindow::NEVerticalSliderChanged()
 //------------------------------------------------------------------------------
 void vvMainWindow::SOVerticalSliderChanged()
 {
-  // DD("SOVerticalSliderChanged");
   static int value=-1;
   // DD(value);
 //   DD(SOVerticalSlider->value());
@@ -2682,7 +2717,7 @@ void vvMainWindow::SurfaceViewerLaunch()
 }
 
 //------------------------------------------------------------------------------
-void vvMainWindow::AddImage(vvImage::Pointer image,std::string filename)
+vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filename)
 {
   vvSlicerManager* slicer_manager = new vvSlicerManager(4);
   slicer_manager->SetImage(image);
@@ -2758,6 +2793,9 @@ void vvMainWindow::AddImage(vvImage::Pointer image,std::string filename)
   ShowLastImage();
   InitDisplay();
   qApp->processEvents();
+  
+  // End
+  return slicer_manager;
 }
 //------------------------------------------------------------------------------
 

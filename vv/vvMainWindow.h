@@ -45,9 +45,10 @@ class vvMainWindow: public vvMainWindowBase,
   vvMainWindow();
   ~vvMainWindow();
   void LoadImages(std::vector<std::string> filenames, LoadedImageType type);
-  void AddImage(vvImage::Pointer image,std::string filename);
+  vvSlicerManager * AddImage(vvImage::Pointer image,std::string filename);
   void AddField(QString file,int index);
   void AddOverlayImage(int index, QString filename);
+  void AddROI(int index, QString filename);
   ///Adds a mesh to a SlicerManager, with optional warping by vector field
   void AddContour(int image_index, vvMesh::Pointer contour, bool propagation);
   ///This is used to show an image when opened or computed
@@ -179,6 +180,8 @@ private:
   std::vector<QSlider*> horizontalSliders;
   std::vector<QSlider*> verticalSliders;
   int mFrameRate;
+  
+  std::string mCurrentSelectedImageId;
 
   // vvMainWindowToolInfo * mCurrentToolInfo;
   // std::vector<vvToolCreatorBase*> mListOfRunningTool;

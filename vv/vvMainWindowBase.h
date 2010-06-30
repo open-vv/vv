@@ -35,7 +35,7 @@ public:
   vvMainWindowBase() { mSlicerManagerCurrentIndex = -1; }
   ~vvMainWindowBase() { }
 
-  virtual void AddImage(vvImage::Pointer image,std::string filename) = 0;
+  virtual vvSlicerManager * AddImage(vvImage::Pointer image,std::string filename) = 0;
   virtual void UpdateCurrentSlicer() = 0;
   virtual QTabWidget * GetTab() = 0;
   const std::vector<vvSlicerManager*> & GetSlicerManagers() const { return mSlicerManagers; }
