@@ -38,37 +38,30 @@
 ADD_TOOL(vvToolStructureSetManager);
 //------------------------------------------------------------------------------
 
+int vvToolStructureSetManager::m_NumberOfTool = 0;
+std::vector<vvSlicerManager*> vvToolStructureSetManager::mListOfInputs;
+std::map<vvSlicerManager*, vvToolStructureSetManager*> vvToolStructureSetManager::mListOfOpenTool;
+
 //------------------------------------------------------------------------------
-vvToolStructureSetManager::vvToolStructureSetManager(vvMainWindowBase * parent, Qt::WindowFlags f)
-  :vvToolWidgetBase(parent, f),//, true),
-   vvToolBase<vvToolStructureSetManager>(parent),
-   Ui::vvToolStructureSetManager()
+vvToolStructureSetManager::vvToolStructureSetManager(vvMainWindowBase * parent, 
+                                                     Qt::WindowFlags f, 
+                                                     vvSlicerManager * current):
+  vvToolWidgetBase(parent, f), 
+  // if Qt::Widget -> No dialog in this case (in tab) ; PB = "invisible widget on menu" !
+  // if "f" normal widget
+  vvToolBase<vvToolStructureSetManager>(parent),
+  Ui::vvToolStructureSetManager()
 {
-  // Setup the UI
-  /*
-  QWidget * aw = new QWidget(parent, f);
-  QVBoxLayout * verticalLayout = new QVBoxLayout(aw);
-  verticalLayout->addWidget(mToolInputSelectionWidget);
-  verticalLayout->addWidget(mToolWidget);
-  aw->setLayout(verticalLayout);
-  */
   Ui_vvToolStructureSetManager::setupUi(mToolWidget);
 
-  // ----------------
-  // Essai TAB
-  /*
-  //int a = mMainWindowBase->GetTab()->addTab(mToolWidget, "Toto"); 
-  int a = mMainWindowBase->GetTab()->addTab(aw, "Toto"); 
-
-  // essai avec mToolWidget ? ok  mais frame à cacher ... 
-  // Changer le construceur par defautl de widgetbase -> pas dialog, pas parent (cf doc)
-  mMainWindowBase->GetTab()->setCurrentIndex(a); 
-  mMainWindowBase->GetTab()->setTabIcon(a, QIcon(vvToolCreator<vvToolStructureSetManager>::GetInstance()->mToolIconFilename));
-  DD(this->width());
-  */
-  // ---------------
-
+  //  this->setFixedWidth(120);
+  m_NumberOfTool++;
+  mCurrentStructureSetActor = 0;
+  connect(mCloseButton, SIGNAL(clicked()), this, SLOT(close()));
+  mCloseButton->setVisible(false);
   mTree->clear();
+  mTree->header()->resizeSection(0, 30);
+  mMainWindowBase->GetTab()->setTabIcon(mTabNumber, GetToolIcon());
   mCurrentStructureSet = NULL;
   mCurrentStructureSetIndex = -1;
   mGroupBoxROI->setEnabled(false);
@@ -87,7 +80,18 @@ vvToolStructureSetManager::vvToolStructureSetManager(vvMainWindowBase * parent, 
 #include "vvDefaultLut.h"
 
   // Add input selector
-  AddInputSelector("Select image");
+  if (current == NULL) {
+    MustOpenDialogWhenCreated = true;
+    AddInputSelector("Select image");
+  }
+  else {
+    MustOpenDialogWhenCreated = false;
+    buttonBox->setEnabled(true);
+    mCurrentSlicerManager = current;
+    mCurrentImage = mCurrentSlicerManager->GetImage();
+    mToolWidget->setEnabled(true);
+    InputIsSelected(mCurrentSlicerManager);
+  }
 }
 //------------------------------------------------------------------------------
 
@@ -95,15 +99,17 @@ vvToolStructureSetManager::vvToolStructureSetManager(vvMainWindowBase * parent, 
 //------------------------------------------------------------------------------
 vvToolStructureSetManager::~vvToolStructureSetManager()
 {
+  m_NumberOfTool--;
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
+// STATIC
 void vvToolStructureSetManager::Initialize() {
   SetToolName("ROIManager");
   SetToolMenuName("Display ROI");
-  SetToolIconFilename(":/common/icons/ducky.png");
+  SetToolIconFilename(":/common/icons/lung-overlay.png");
   SetToolTip("Display ROI from label image.");
   SetToolExperimental(true);
 }
@@ -113,15 +119,25 @@ void vvToolStructureSetManager::Initialize() {
 //------------------------------------------------------------------------------
 void vvToolStructureSetManager::InputIsSelected(vvSlicerManager *m)
 {
+  //int mTabNumber = parent->GetTab()->addTab(this, "");
+  //  this->setFixedWidth(120);
+  //this->setPreferedHeight(441);  
   // Refuse if 4D
   if (mCurrentImage->GetNumberOfDimensions() != 3) {
     QMessageBox::information(this,tr("Sorry only 3D yet"), tr("Sorry only 3D yet"));
     close();
-    // return;
   }
   // Hide selector
   HideInputSelector(); // splitter
-  //  mToolInputSelectionWidget->hide();
+  mToolInputSelectionWidget->hide();
+  mLabelInputInfo->setText(QString("%1").arg(m->GetFileName().c_str()));
+
+  // add to instance
+  // if (!isWindow()) {
+  mListOfInputs.push_back(mCurrentSlicerManager);
+  mListOfOpenTool[mCurrentSlicerManager] = this;
+  // }
+
   // Connect open menus
   connect(mOpenBinaryButton, SIGNAL(clicked()), this, SLOT(OpenBinaryImage()));
   connect(mTree, SIGNAL(itemSelectionChanged()), this, SLOT(SelectedItemChangedInTree()));
@@ -134,6 +150,10 @@ void vvToolStructureSetManager::InputIsSelected(vvSlicerManager *m)
   connect(mReloadButton, SIGNAL(clicked()), this, SLOT(ReloadCurrentROI()));
   connect(mCheckBoxShowAll, SIGNAL(stateChanged(int)), this, SLOT(AllVisibleROIToggled(int)));
   connect(mContourCheckBoxShowAll, SIGNAL(toggled(bool)), this, SLOT(AllVisibleContourROIToggled(bool)));
+
+  // Browse to load image
+  if (MustOpenDialogWhenCreated)
+    OpenBinaryImage();
 }
 //------------------------------------------------------------------------------
 
@@ -160,6 +180,8 @@ void vvToolStructureSetManager::AddRoiInTreeWidget(clitk::DicomRT_ROI * roi, QTr
   w->setBackground(2, brush);
   mMapROIToTreeWidget[roi] = w;
   mMapTreeWidgetToROI[w] = roi;
+  mTree->resizeColumnToContents(0);
+  mTree->resizeColumnToContents(1);
 }
 //------------------------------------------------------------------------------
 
@@ -193,7 +215,8 @@ int vvToolStructureSetManager::AddStructureSet(clitk::DicomRT_StructureSet * mSt
 
 
 //------------------------------------------------------------------------------
-void vvToolStructureSetManager::OpenBinaryImage() {
+void vvToolStructureSetManager::OpenBinaryImage() 
+{
   int index;
   if (mCurrentStructureSet == NULL) {
     if (mStructureSetsList.size() == 0) { // Create a default SS
@@ -216,7 +239,7 @@ void vvToolStructureSetManager::OpenBinaryImage() {
     QFileDialog::getOpenFileNames(this,tr("Open binary image"),
 				  mMainWindowBase->GetInputPathName(),Extensions);
   if (filename.size() == 0) return;
-  std::vector<int> mLoadedROIIndex;
+  mLoadedROIIndex.clear();
   for(int i=0; i<filename.size(); i++) {
     // Open Image
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -236,42 +259,18 @@ void vvToolStructureSetManager::OpenBinaryImage() {
       return;
     }
     vvImage::Pointer binaryImage = mReader->GetOutput();
+    AddImage(binaryImage, filename[i].toStdString(), mBackgroundValueSpinBox->value());
+  }
+  UpdateImage();
+}
+//------------------------------------------------------------------------------
 
-    // Check Dimension
-    int dim = mCurrentImage->GetNumberOfDimensions();
-    int bin_dim = binaryImage->GetNumberOfDimensions();
-    if (dim < bin_dim) {  ////////// TO CHANGE FOR 3D/4D
-      std::ostringstream os;
-      os << "Error. Loaded binary image is " << bin_dim
-         << "D while selected image is " << dim << "D" << std::endl;
-      QMessageBox::information(this,tr("Reading problem"),os.str().c_str());
-      return;
-    }
 
-    // Add a new roi to the structure
-    int n = mCurrentStructureSet->AddBinaryImageAsNewROI(binaryImage, filename[i].toStdString());
-    mLoadedROIIndex.push_back(n);
-    mCurrentStructureSet->GetROI(n)->SetBackgroundValueLabelImage(mBackgroundValueSpinBox->value());
-
-    // Change color
-    if (n<mDefaultLUTColor->GetNumberOfTableValues ()) {
-      double * color = mDefaultLUTColor->GetTableValue(n % mDefaultLUTColor->GetNumberOfTableValues ());
-      mCurrentStructureSet->GetROI(n)->SetDisplayColor(color[0], color[1], color[2]);
-    }
-
-    // Add a new roi actor
-    mCurrentStructureSetActor->CreateNewROIActor(n);
-
-    // CheckBox for "All"
-    if (mCurrentStructureSetActor->GetROIActor(n)->IsVisible())
-      mNumberOfVisibleROI++;
-    if (mCurrentStructureSetActor->GetROIActor(n)->IsContourVisible())
-      mNumberOfVisibleContourROI++;
-    UpdateAllROIStatus();
-  } // end loop on n selected filenames
-
+//------------------------------------------------------------------------------
+void vvToolStructureSetManager::UpdateImage() 
+{
   // Update the TreeWidget
-  UpdateStructureSetInTreeWidget(index, mCurrentStructureSet);
+  UpdateStructureSetInTreeWidget(mCurrentStructureSetIndex, mCurrentStructureSet);
   // Render loaded ROIs (the first is sufficient)
   for(unsigned int i=0; i<mLoadedROIIndex.size(); i++) {
     mCurrentStructureSetActor->GetROIActor(mLoadedROIIndex[i])->Update();
@@ -279,6 +278,64 @@ void vvToolStructureSetManager::OpenBinaryImage() {
   for(int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
     mCurrentSlicerManager->GetSlicer(i)->Render();
   }  
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolStructureSetManager::AddImage(vvImage::Pointer binaryImage, std::string filename, double BG, bool m_modeBG) 
+{
+  // Check current structure set
+  int index;
+  if (mCurrentStructureSet == NULL) {
+    if (mStructureSetsList.size() == 0) { // Create a default SS
+      clitk::DicomRT_StructureSet * mStructureSet = new clitk::DicomRT_StructureSet;
+      index = AddStructureSet(mStructureSet);
+    }
+    else { // Get first SS
+      index = 0;
+    }
+  } else {
+    index = mCurrentStructureSetIndex;
+  }
+  mCurrentStructureSet = mStructureSetsList[index];
+  mCurrentStructureSetActor = mStructureSetActorsList[index];
+  mCurrentStructureSetIndex = index;
+
+  // Check Dimension
+  int dim = mCurrentImage->GetNumberOfDimensions();
+  int bin_dim = binaryImage->GetNumberOfDimensions();
+  if (dim < bin_dim) {  ////////// TO CHANGE FOR 3D/4D
+    std::ostringstream os;
+    os << "Error. Loaded binary image is " << bin_dim
+       << "D while selected image is " << dim << "D" << std::endl;
+    QMessageBox::information(this,tr("Reading problem"),os.str().c_str());
+    return;
+  }
+  
+  // Add a new roi to the structure
+  int n = mCurrentStructureSet->AddBinaryImageAsNewROI(binaryImage, filename);
+  mLoadedROIIndex.push_back(n);
+  if (m_modeBG) 
+    mCurrentStructureSet->GetROI(n)->SetBackgroundValueLabelImage(BG);
+  else 
+    mCurrentStructureSet->GetROI(n)->SetForegroundValueLabelImage(BG);
+  
+  // Change color
+  if (n<mDefaultLUTColor->GetNumberOfTableValues ()) {
+    double * color = mDefaultLUTColor->GetTableValue(n % mDefaultLUTColor->GetNumberOfTableValues ());
+    mCurrentStructureSet->GetROI(n)->SetDisplayColor(color[0], color[1], color[2]);
+  }
+  
+  // Add a new roi actor
+  mCurrentStructureSetActor->CreateNewROIActor(n, m_modeBG);
+  
+  // CheckBox for "All"
+  if (mCurrentStructureSetActor->GetROIActor(n)->IsVisible())
+    mNumberOfVisibleROI++;
+  if (mCurrentStructureSetActor->GetROIActor(n)->IsContourVisible())
+    mNumberOfVisibleContourROI++;
+  UpdateAllROIStatus();
 }
 //------------------------------------------------------------------------------
 
@@ -294,17 +351,40 @@ void vvToolStructureSetManager::apply()
 //------------------------------------------------------------------------------
 bool vvToolStructureSetManager::close()
 {
+  return vvToolWidgetBase::close();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolStructureSetManager::closeEvent(QCloseEvent *event) 
+{
+  // DD("vvToolStructureSetManager::closeEvent()");
+  std::vector<vvSlicerManager*>::iterator iter = std::find(mListOfInputs.begin(), mListOfInputs.end(), mCurrentSlicerManager);
+  if (iter != mListOfInputs.end()) mListOfInputs.erase(iter);
+  
+  //  DD("how delete mListOfOpenTool ???");
+  mListOfOpenTool.erase(mCurrentSlicerManager);
+
   mCheckBoxShowAll->setCheckState(Qt::Unchecked);
   mContourCheckBoxShowAll->setCheckState(Qt::Unchecked);
-  if (mCurrentSlicerManager) mCurrentSlicerManager->Render();
+  if (mCurrentSlicerManager != 0) mCurrentSlicerManager->Render();
   if (mCurrentStructureSetActor) {
     for(int i=0; i<mCurrentStructureSetActor->GetNumberOfROIs(); i++) {
+      // DD(i);
       mCurrentStructureSetActor->GetROIList()[i]->SetVisible(false);
       mCurrentStructureSetActor->GetROIList()[i]->SetContourVisible(false);
       delete mCurrentStructureSetActor->GetROIList()[i];
     }
   }
-  return vvToolWidgetBase::close();
+
+  if (!isWindow()) {
+    if (m_NumberOfTool == 1) {
+      mMainWindow->GetTab()->removeTab(mTabNumber);
+    }
+  } 
+
+  event->accept();
 }
 //------------------------------------------------------------------------------
 
@@ -503,6 +583,11 @@ void vvToolStructureSetManager::ReloadCurrentROI() {
     QMessageBox::information(mMainWindowBase, tr("Sorry, error. Could not reload"), mReader->GetLastError().c_str());
     return;
   }
+  //  delete mCurrentROI->GetImage();
+  // DD(mCurrentROI->GetImage()->GetFirstVTKImageData()->GetDataReleased());
+//   DD(mCurrentROI->GetImage()->GetFirstVTKImageData()->GetReferenceCount());
+  mCurrentROI->GetImage()->GetFirstVTKImageData()->ReleaseData();
+  // DD(mCurrentROI->GetImage()->GetFirstVTKImageData()->GetDataReleased());
   mCurrentROI->SetImage(mReader->GetOutput());
   
   // Update visu"
@@ -512,3 +597,66 @@ void vvToolStructureSetManager::ReloadCurrentROI() {
 //------------------------------------------------------------------------------
 
 
+//------------------------------------------------------------------------------
+void vvToolStructureSetManager::CheckInputList(std::vector<vvSlicerManager*> & l, int & index) 
+{
+  DD("TODO CheckInputList");
+
+  for(unsigned int i=0; i<l.size(); i++) {
+    std::vector<vvSlicerManager*>::iterator iter = std::find(mListOfInputs.begin(), mListOfInputs.end(), l[i]);
+    if (iter != mListOfInputs.end()) {
+      for(unsigned int j=i;j<l.size(); j++) l[j] = l[j+1];
+      l.pop_back();
+      if (index == (int)i) index = 0;
+      i--;
+    }
+  }
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+// STATIC
+vvToolStructureSetManager * vvToolStructureSetManager::AddImage(vvSlicerManager * m, vvImage::Pointer image, double BG, bool m_modeBG)
+{
+  //  DD("static AddImage");
+  //DD(mListOfInputs.size());
+  
+  if (mListOfOpenTool[m]) {
+    DD("found");
+    vvToolStructureSetManager * tool = mListOfOpenTool[m];
+    tool->AddImage(image, "bidon.mhd", BG, m_modeBG);
+    tool->UpdateImage();
+    //    tool->show();
+    return tool;
+  }
+  else {
+    DD("not found");
+  }
+
+  std::vector<vvSlicerManager*>::iterator iter = 
+    std::find(mListOfInputs.begin(), mListOfInputs.end(), m);
+  if (iter != mListOfInputs.end()) {
+    DD("found");
+    DD("TODO");
+    
+  }
+  else {
+    DD("not found");
+
+    // mMainWindowBase instead of NULL, should be static ?
+    
+    vvToolStructureSetManager * tool = new vvToolStructureSetManager
+      (CREATOR(vvToolStructureSetManager)->GetMainWindow(), Qt::Dialog, m);
+    
+    // WARNING : load list of image and selec -> to change to force mCurrentSlicerManager
+
+    //    tool->InputIsSelected();
+    tool->AddImage(image, "bidon.mhd", BG, m_modeBG);
+    tool->UpdateImage();
+    tool->show();
+    return tool;
+  }
+  return NULL;
+}
+//------------------------------------------------------------------------------

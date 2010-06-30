@@ -34,7 +34,7 @@ class vvStructureSetActor: public QObject {
 
   void SetStructureSet(clitk::DicomRT_StructureSet * s);
   void SetSlicerManager(vvSlicerManager * s);
-  void CreateNewROIActor(int n);
+  void CreateNewROIActor(int n, bool modeBG=true);
   vvROIActor* GetROIActor(int n);
   int GetNumberOfROIs();
   std::vector<vvROIActor*> & GetROIList();

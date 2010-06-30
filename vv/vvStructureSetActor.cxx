@@ -79,7 +79,7 @@ vvROIActor * vvStructureSetActor::GetROIActor(int n)
 
 
 //------------------------------------------------------------------------------
-void vvStructureSetActor::CreateNewROIActor(int n)
+void vvStructureSetActor::CreateNewROIActor(int n, bool modeBG)
 {
   // Check
   clitk::DicomRT_ROI * roi = mStructureSet->GetROI(n);
@@ -99,6 +99,7 @@ void vvStructureSetActor::CreateNewROIActor(int n)
   vvROIActor * actor = new vvROIActor;
   if (old == -1) mROIActors.push_back(actor);
   else mROIActors[old] = actor;
+  actor->SetBGMode(modeBG);
   actor->SetROI(roi);
   actor->SetSlicerManager(mSlicerManager);
   actor->Initialize();
