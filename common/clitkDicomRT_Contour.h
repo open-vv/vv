@@ -51,33 +51,6 @@ namespace clitk {
   };
   //--------------------------------------------------------------------
 
-  //--------------------------------------------------------------------
-  template<class ElementType>
-  ElementType parse_value(std::string str)
-  {
-    std::istringstream parser(str);
-    ElementType value;
-    parser >> value;
-    if (parser.fail()) {
-      DD(str);
-      DD(value);
-    }
-    assert(!parser.fail());
-    return value;
-  }
-
-  template<class ElementType>
-  std::vector<ElementType> parse_string(std::string str,char delim) {
-    std::istringstream ss(str);
-    std::string token;
-    std::vector<ElementType> result;
-    while (getline(ss,token,delim))
-      {
-        result.push_back(parse_value<ElementType>(token));
-      }
-    return result;
-  }
-  //--------------------------------------------------------------------
 
 
 } // end namespace clitk

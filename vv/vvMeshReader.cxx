@@ -35,6 +35,7 @@
 #include "clitkCommon.h"
 #include "vvMeshReader.h"
 #include "vvProgressDialog.h"
+#include <clitkCommon.h>
 
 vvMeshReader::vvMeshReader() :
   vtk_mode(false)
@@ -76,28 +77,6 @@ void vvMeshReader::run()
   }
 }
 
-template<class ElementType>
-ElementType parse_value(std::string str)
-{
-  std::istringstream parser(str);
-  ElementType value;
-  parser >> value;
-  assert(!parser.fail());
-  return value;
-}
-
-template<class ElementType>
-std::vector<ElementType> parse_string(std::string str,char delim)
-{
-  std::istringstream ss(str);
-  std::string token;
-  std::vector<ElementType> result;
-  while (getline(ss,token,delim)) {
-    result.push_back(parse_value<ElementType>(token));
-  }
-  return result;
-}
-
 std::vector<std::pair<int,std::string> > vvMeshReader::GetROINames()
 {
   assert(filename!="");
@@ -137,7 +116,7 @@ std::vector<vvMesh::Pointer> vvMeshReader::readSelectedContours()
     ss >> roi_number;
     if (std::find(selected_contours.begin(),selected_contours.end(),roi_number) != selected_contours.end()) { //Only read selected ROIs
       vvMesh::Pointer current_roi=vvMesh::New();
-      std::vector<double> rgb=parse_string<double>(i->GetEntryValue(0x3006,0x002a),'\\');
+      std::vector<double> rgb=clitk::parse_string<double>(i->GetEntryValue(0x3006,0x002a),'\\');
       assert(rgb.size()==3);
       current_roi->r=rgb[0]/255;
       current_roi->g=rgb[1]/255;
@@ -148,8 +127,8 @@ std::vector<vvMesh::Pointer> vvMeshReader::readSelectedContours()
       for(gdcm::SQItem* j=contours->GetFirstSQItem(); j!=0; j=contours->GetNextSQItem()) { //loop over 2D contours
         std::string contour_type=j->GetEntryValue(0x3006,0x0042);
         if (contour_type=="CLOSED_PLANAR ") {
-          int point_number=parse_value<int>(j->GetEntryValue(0x3006,0x0046));
-          std::vector<float> points=parse_string<float>(j->GetEntryValue(0x3006,0x0050),'\\');
+          int point_number=clitk::parse_value<int>(j->GetEntryValue(0x3006,0x0046));
+          std::vector<float> points=clitk::parse_string<float>(j->GetEntryValue(0x3006,0x0050),'\\');
           assert(points.size() == static_cast<unsigned int>(point_number)*3);
           if (z0 == -1) //First contour
             z0=points[2];

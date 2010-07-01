@@ -25,6 +25,44 @@
    *
    -------------------------------------------------*/
 
+//-------------------------------------------------------
+// Utility functions for text file parsing (author: joel schaerer)
+
+template<class ElementType>
+ElementType parse_value(std::string str)
+{
+  std::istringstream parser(str);
+  ElementType value;
+  parser >> value;
+  assert(!parser.fail());
+  return value;
+}
+
+template<class ElementType>
+std::vector<ElementType> parse_string(std::string str,char delim)
+{
+  std::istringstream ss(str);
+  std::string token;
+  std::vector<ElementType> result;
+  while (std::getline(ss,token,delim)) {
+    result.push_back(parse_value<ElementType>(token));
+  }
+  return result;
+}
+
+template<class ElementType>
+std::vector<std::vector<ElementType> > parse_file(const char* filename,char delim)
+{
+  std::ifstream fs(filename);
+  std::string line;
+  std::vector<std::vector<ElementType> > result;
+  while (std::getline(fs,line)) {
+    if (line[0] != '#') //skip comments
+      result.push_back(parse_string<ElementType>(line,delim));
+  }
+  return result;
+}
+
 //--------------------------------------------------------------------
 // Convert float, double ... to string
 template<class T>

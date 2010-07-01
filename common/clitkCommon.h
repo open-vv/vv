@@ -29,6 +29,8 @@
 #include <itkImageRegionConstIterator.h>
 #include <itkImageRegionIterator.h>
 
+#include <fstream>
+
 //--------------------------------------------------------------------
 namespace clitk {
 
