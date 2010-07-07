@@ -138,7 +138,7 @@ void vvImage::GetScalarRange(double* range)
 }
 
 //--------------------------------------------------------------------
-std::string vvImage::GetScalarTypeAsString()
+std::string vvImage::GetScalarTypeAsITKString()
 {
   // WARNING VTK pixel type different from ITK Pixel type
   std::string vtktype = mVtkImages[0]->GetScalarTypeAsString();
@@ -294,5 +294,19 @@ void vvImage::UpdateReslice()
   }
 }
 //--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+vtkImageData * CopyAndCastToFloatFrom(vtkImageData * input)
+{
+  vtkImageData * p = vtkImageData::New();
+  p->SetExtent(input->GetExtent ()); // Only first ! could not be 4D
+  p->SetScalarTypeToFloat();
+  p->AllocateScalars();
+  p->CopyAndCastFrom(input, input->GetExtent());
+  return p;
+}
+//--------------------------------------------------------------------
+
 
 #endif // VVIMAGE_CXX
