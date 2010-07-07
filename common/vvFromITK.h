@@ -17,11 +17,15 @@
 ======================================================================-====*/
 #ifndef VVIMAGEFROMITK_H
 #define VVIMAGEFROMITK_H
+
+// vv
 #include "vvImage.h"
-//#include <itkImage.h>
+
+// itk
 #include <itkExtractImageFilter.h>
 #include <itkImageToVTKImageFilter.h>
 
+//------------------------------------------------------------------------------
 /**Converts the itk image to vv, handling the 4D problem
  * The time_sequence boolean specifies that the image is to be interpreted as a time sequence,
  * even if its dim is < 4. */
@@ -103,5 +107,6 @@ template<unsigned int Dim, class PixelType> vvImage::Pointer vvImageFromITK(type
     }
     return vv_image;
 }
+//------------------------------------------------------------------------------
 
 #endif //vvImageFromITK
