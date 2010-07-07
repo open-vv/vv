@@ -35,9 +35,9 @@
 #include "itkCommand.h"
 
 //--------------------------------------------------------------------
-template <class TInputImage, class TOutputImage>
-clitk::ResampleImageWithOptionsFilter<TInputImage, TOutputImage>::
-ResampleImageWithOptionsFilter():itk::ImageToImageFilter<TInputImage, TOutputImage>() 
+template <class InputImageType, class OutputImageType>
+clitk::ResampleImageWithOptionsFilter<InputImageType, OutputImageType>::
+ResampleImageWithOptionsFilter():itk::ImageToImageFilter<InputImageType, OutputImageType>() 
 {
   static const unsigned int dim = InputImageType::ImageDimension;
   this->SetNumberOfRequiredInputs(1);
@@ -60,9 +60,9 @@ ResampleImageWithOptionsFilter():itk::ImageToImageFilter<TInputImage, TOutputIma
 
 
 //--------------------------------------------------------------------
-template <class TInputImage, class TOutputImage>
+template <class InputImageType, class OutputImageType>
 void
-clitk::ResampleImageWithOptionsFilter<TInputImage, TOutputImage>::
+clitk::ResampleImageWithOptionsFilter<InputImageType, OutputImageType>::
 SetInput(const InputImageType * image) 
 {
   // Process object is not const-correct so the const casting is required.
@@ -72,9 +72,9 @@ SetInput(const InputImageType * image)
 
 
 //--------------------------------------------------------------------
-template <class TInputImage, class TOutputImage>
+template <class InputImageType, class OutputImageType>
 void
-clitk::ResampleImageWithOptionsFilter<TInputImage, TOutputImage>::
+clitk::ResampleImageWithOptionsFilter<InputImageType, OutputImageType>::
 GenerateInputRequestedRegion() 
 {
   // call the superclass's implementation of this method
@@ -82,7 +82,7 @@ GenerateInputRequestedRegion()
 
   // get pointers to the input and output
   InputImagePointer  inputPtr  =
-    const_cast< TInputImage *>( this->GetInput() );
+    const_cast< InputImageType *>( this->GetInput() );
 
   // Request the entire input image
   InputImageRegionType inputRegion;
@@ -93,9 +93,9 @@ GenerateInputRequestedRegion()
 
 
 //--------------------------------------------------------------------
-template <class TInputImage, class TOutputImage>
+template <class InputImageType, class OutputImageType>
 void
-clitk::ResampleImageWithOptionsFilter<TInputImage, TOutputImage>::
+clitk::ResampleImageWithOptionsFilter<InputImageType, OutputImageType>::
 GenerateOutputInformation() 
 {
   static const unsigned int dim = InputImageType::ImageDimension;
@@ -178,9 +178,9 @@ GenerateOutputInformation()
 
 
 //--------------------------------------------------------------------
-template <class TInputImage, class TOutputImage>
+template <class InputImageType, class OutputImageType>
 void 
-clitk::ResampleImageWithOptionsFilter<TInputImage, TOutputImage>::
+clitk::ResampleImageWithOptionsFilter<InputImageType, OutputImageType>::
 GenerateData() 
 {
    
@@ -301,5 +301,32 @@ GenerateData()
   this->SetNthOutput(0, filter->GetOutput());
 
   // DD("after Graft");
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template<class InputImageType>
+typename InputImageType::Pointer 
+clitk::ResampleImageSpacing(typename InputImageType::Pointer input, 
+                            typename InputImageType::SpacingType spacing, 
+                            int interpolationType)
+{
+  typedef clitk::ResampleImageWithOptionsFilter<InputImageType> ResampleFilterType;
+  typename ResampleFilterType::Pointer resampler = ResampleFilterType::New();
+  resampler->SetInput(input);
+  resampler->SetOutputSpacing(spacing);
+  typename ResampleFilterType::InterpolationTypeEnumeration inter=ResampleFilterType::NearestNeighbor;
+  switch(interpolationType) {
+  case 0: inter = ResampleFilterType::NearestNeighbor; break;
+  case 1: inter = ResampleFilterType::Linear; break;
+  case 2: inter = ResampleFilterType::BSpline; break;
+  case 3: inter = ResampleFilterType::B_LUT; break;
+  case 4: inter = ResampleFilterType::WSINC; break;
+  }
+  resampler->SetInterpolationType(inter);
+  resampler->SetGaussianFilteringEnabled(true);
+  resampler->Update();
+  return resampler->GetOutput();
 }
 //--------------------------------------------------------------------
