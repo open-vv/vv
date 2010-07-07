@@ -42,7 +42,7 @@ namespace clitk {
   public:
     /** Standard class typedefs. */
     typedef itk::ImageToImageFilter<TImageType, TImageType> Superclass;
-    typedef ExtractLymphStationsFilter            Self;
+    typedef ExtractLymphStationsFilter          Self;
     typedef itk::SmartPointer<Self>             Pointer;
     typedef itk::SmartPointer<const Self>       ConstPointer;
     

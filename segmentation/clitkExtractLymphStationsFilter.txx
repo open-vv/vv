@@ -23,9 +23,10 @@
 #include "clitkCommon.h"
 #include "clitkExtractLymphStationsFilter.h"
 #include "clitkAddRelativePositionConstraintToLabelImageFilter.h"
-#include "clitkSegmentationFunctions.h"
+#include "clitkSegmentationUtils.h"
 #include "clitkAutoCropFilter.h"
-#include "clitkSegmentationFunctions.h"
+#include "clitkSegmentationUtils.h"
+#include "clitkSliceBySliceRelativePositionFilter.h"
 
 // itk
 #include <deque>
@@ -196,6 +197,7 @@ GenerateOutputInformation() {
   }
   DD((int)leftLabel);
   
+  /*
   // Relative position 
   StartNewStep("Left/Right limits with trachea");
 
@@ -233,12 +235,102 @@ GenerateOutputInformation() {
   relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold1());
   relPosFilter->Update();
   m_working_image = relPosFilter->GetOutput();
-
+  */
 
   //-----------------------------------------------------
-  //  StartNewStep("Left/Right limits with trachea (slice by slice");
-  //  typedef SliceBySliceImageFilter<ImageType, ImageType, 
+  StartNewStep("Left/Right limits with trachea (slice by slice");
+  
+  // Select LeftLabel (set label 1 to 0)
+  ImagePointer temp = SetBackground<ImageType, ImageType>(m_working_trachea, m_working_trachea, 1, 0);
+  writeImage<ImageType>(temp, "temp1.mhd");
 
+  /*
+    - écrire utilisation de filter SliceBySliceRelPosFilter (combine in a 3D)
+    - filter SliceBySliceRelPosFilter + combine in a 3D 
+          - resampling, affine transfo to pair the slices
+          - extract list of images (ecrire utilisation de ExtractSliceFilter)
+   */
+
+  typedef clitk::SliceBySliceRelativePositionFilter<ImageType> SliceRelPosFilterType;
+  typename SliceRelPosFilterType::Pointer sliceRelPosFilter = SliceRelPosFilterType::New();
+  sliceRelPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
+  sliceRelPosFilter->VerboseStepOn();
+  sliceRelPosFilter->WriteStepOn();
+  sliceRelPosFilter->SetInput(m_working_image);
+  sliceRelPosFilter->SetInputObject(temp);
+  sliceRelPosFilter->SetDirection(2);
+  sliceRelPosFilter->Update();
+  m_working_image = sliceRelPosFilter->GetOutput();
+  writeImage<ImageType>(m_working_image, "afterslicebyslice.mhd");
+
+  /*
+  
+
+  itk::ImageSliceConstIteratorWithIndex<ImageType> it(temp, temp->GetRequestedRegion());
+  itk::ImageRegionIterator<SliceType> * ot;
+  typename SliceType::Pointer slice;
+  it.SetFirstDirection(0);
+  it.SetSecondDirection(1);
+  it.GoToBegin();
+  typename SliceType::RegionType mSliceRegion;
+  typename SliceType::IndexType mSliceIndex;
+  typename SliceType::SizeType mSliceSize;
+  typename SliceType::SpacingType mSliceSpacing;
+  typename SliceType::PointType mSliceOrigin;
+  mSliceIndex[0] = temp->GetLargestPossibleRegion().GetIndex()[0];
+  mSliceIndex[1] = temp->GetLargestPossibleRegion().GetIndex()[1];
+  mSliceSize[0] = temp->GetLargestPossibleRegion().GetSize()[0];
+  mSliceSize[1] = temp->GetLargestPossibleRegion().GetSize()[1];
+  mSliceSpacing[0] = temp->GetSpacing()[0];
+  mSliceSpacing[1] = temp->GetSpacing()[1];
+  mSliceOrigin[0] = temp->GetOrigin()[0];
+  mSliceOrigin[1] = temp->GetOrigin()[1];
+  mSliceRegion.SetIndex(mSliceIndex);
+  mSliceRegion.SetSize(mSliceSize);
+  int i=0;
+  while( !it.IsAtEnd() ) {
+    // DD(i);
+    slice = SliceType::New();
+    slice->SetRegions(mSliceRegion);  
+    slice->SetOrigin(mSliceOrigin);
+    slice->SetSpacing(mSliceSpacing);
+    slice->Allocate();
+    ot = new itk::ImageRegionIterator<SliceType>(slice, slice->GetLargestPossibleRegion());
+    ot->GoToBegin();
+    // DD(it.GetIndex());
+    while(!it.IsAtEndOfSlice()) {
+      // DD(ot->GetIndex());
+      while(!it.IsAtEndOfLine()) {
+        ot->Set(it.Get());
+        ++it;
+        ++(*ot);
+      }
+      it.NextLine();
+    }
+    mImageSlices.push_back(slice);
+    it.NextSlice();
+    ++i;
+  } 
+  writeImage<SliceType>(mImageSlices[10], "slice.mhd");
+
+  // Perform RelPos by slice
+  for(int i=0; i<mImageSlices.size(); i++) {
+    DD(i);
+    typedef clitk::AddRelativePositionConstraintToLabelImageFilter<SliceType> RelPosFilterType;
+    typename RelPosFilterType::Pointer relPosFilter = RelPosFilterType::New();
+    //    relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
+    relPosFilter->VerboseStepOff();
+    relPosFilter->WriteStepOff();
+    relPosFilter->SetInput(m_working_image); 
+    relPosFilter->SetInputObject(temp); 
+    relPosFilter->SetOrientationType(RelPosFilterType::RightTo);
+    relPosFilter->SetIntermediateSpacing(GetIntermediateSpacing());
+    relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold1());
+    relPosFilter->Update();
+    m_working_image = relPosFilter->GetOutput();
+  }
+
+  */
   
   DD("end");
   m_output = m_working_image;
