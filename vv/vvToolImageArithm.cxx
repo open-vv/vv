@@ -143,10 +143,10 @@ void vvToolImageArithm::apply()
     inputs.push_back(mInput2->GetImage());
 
     // Check input type
-    if (inputs[0]->GetScalarTypeAsString() != inputs[1]->GetScalarTypeAsString()) {
+    if (inputs[0]->GetScalarTypeAsITKString() != inputs[1]->GetScalarTypeAsITKString()) {
       std::cerr << "Sorry inputs should have the same pixeltype." << std::endl;
-      std::cerr << "Input1 = " << inputs[0]->GetScalarTypeAsString() << std::endl;
-      std::cerr << "Input2 = " << inputs[1]->GetScalarTypeAsString() << std::endl;
+      std::cerr << "Input1 = " << inputs[0]->GetScalarTypeAsITKString() << std::endl;
+      std::cerr << "Input2 = " << inputs[1]->GetScalarTypeAsITKString() << std::endl;
       QApplication::restoreOverrideCursor();
       QMessageBox::information(this, "Wrong image type","Sorry, could not perform operation. Please select inputs with same pixe type.");
       close();

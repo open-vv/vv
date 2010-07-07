@@ -979,7 +979,7 @@ void vvMainWindow::ImageInfoChanged()
       inputSpacing.resize(dimension);
       inputSize.resize(dimension);
       sizeMM.resize(dimension);
-      pixelType = mSlicerManagers[index]->GetImage()->GetScalarTypeAsString().c_str();
+      pixelType = mSlicerManagers[index]->GetImage()->GetScalarTypeAsITKString().c_str();
       for (int i = 0; i < dimension; i++) {
         origin[i] = imageSelected->GetOrigin()[i];
         inputSpacing[i] = imageSelected->GetSpacing()[i];
@@ -995,7 +995,7 @@ void vvMainWindow::ImageInfoChanged()
       inputSpacing.resize(dimension);
       inputSize.resize(dimension);
       sizeMM.resize(dimension);
-      pixelType = mSlicerManagers[index]->GetVF()->GetScalarTypeAsString().c_str();
+      pixelType = mSlicerManagers[index]->GetVF()->GetScalarTypeAsITKString().c_str();
       for (int i = 0; i < dimension; i++) {
         origin[i] = imageSelected->GetOrigin()[i];
         inputSpacing[i] = imageSelected->GetSpacing()[i];
@@ -1011,7 +1011,7 @@ void vvMainWindow::ImageInfoChanged()
       inputSpacing.resize(dimension);
       inputSize.resize(dimension);
       sizeMM.resize(dimension);
-      pixelType = mSlicerManagers[index]->GetImage()->GetScalarTypeAsString().c_str();
+      pixelType = mSlicerManagers[index]->GetImage()->GetScalarTypeAsITKString().c_str();
       for (int i = 0; i < dimension; i++) {
         origin[i] = imageSelected->GetOrigin()[i];
         inputSpacing[i] = imageSelected->GetSpacing()[i];
@@ -1027,7 +1027,7 @@ void vvMainWindow::ImageInfoChanged()
       inputSpacing.resize(dimension);
       inputSize.resize(dimension);
       sizeMM.resize(dimension);
-      pixelType = mSlicerManagers[index]->GetImage()->GetScalarTypeAsString().c_str();
+      pixelType = mSlicerManagers[index]->GetImage()->GetScalarTypeAsITKString().c_str();
       for (int i = 0; i < dimension; i++) {
         origin[i] = imageSelected->GetOrigin()[i];
         inputSpacing[i] = imageSelected->GetSpacing()[i];

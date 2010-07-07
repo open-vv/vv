@@ -43,7 +43,7 @@ template<unsigned int Dim>
 void vvImageWarp::Update_WithDim()
 {
 #define TRY_TYPE(TYPE)							\
-  if (clitk::IsSameType<TYPE>(mInputImage->GetScalarTypeAsString())) { this->Update_WithDimAndPixelType<Dim, TYPE>(); return; }
+  if (clitk::IsSameType<TYPE>(mInputImage->GetScalarTypeAsITKString())) { this->Update_WithDimAndPixelType<Dim, TYPE>(); return; }
 //  TRY_TYPE(signed char);
 //  TRY_TYPE(uchar);
   TRY_TYPE(short);
@@ -54,7 +54,7 @@ void vvImageWarp::Update_WithDim()
 #undef TRY_TYPE
 
   std::string list = clitk::CreateListOfTypes<char, clitk::uchar, short, ushort, int, float, double>();
-  std::cerr << "Error, I don't know the type '" << mInputImage->GetScalarTypeAsString() << "' for the input image. "
+  std::cerr << "Error, I don't know the type '" << mInputImage->GetScalarTypeAsITKString() << "' for the input image. "
             << std::endl << "Known types are " << list << std::endl;
   exit(0);
 }

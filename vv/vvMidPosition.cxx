@@ -64,7 +64,7 @@ void vvMidPosition::run()
     error_message="Computation of midposition is only supported for 4D image sequences.";
   else if (!slicer_manager->GetVF())
     error_message="A VF is required for midposition computation";
-  else if (slicer_manager->GetVF()->GetScalarTypeAsString() != "float")
+  else if (slicer_manager->GetVF()->GetScalarTypeAsITKString() != "float")
     error_message="Please use a vector field of type float.";
   else {
     VFType::ConstPointer vf = vvImageToITK<VFType>(slicer_manager->GetVF());
@@ -74,7 +74,7 @@ void vvMidPosition::run()
     inv_filter->SetInput(avg_vf);
     inv_filter->Update();
     progress++;
-    if (slicer_manager->GetImage()->GetScalarTypeAsString() == "short")
+    if (slicer_manager->GetImage()->GetScalarTypeAsITKString() == "short")
       this->output=WarpRefImage<short>(inv_filter->GetOutput(),slicer_manager->GetImage(),reference_image_index);
     else {
       error_message="Unsupported image pixel type.";

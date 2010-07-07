@@ -14,7 +14,7 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-======================================================================-====*/
+  ======================================================================-====*/
 #include <itkImage.h>
 #include <itkMaximumProjectionImageFilter.h>
 
@@ -29,7 +29,7 @@
 void vvMaximumIntensityProjection::Compute(vvSlicerManager * slicer_manager)
 {
 #define TRY_TYPE(TYPE)							\
-if (clitk::IsSameType<TYPE>(image->GetScalarTypeAsString())) { this->Update_WithPixelType<TYPE>(image); return; }
+  if (clitk::IsSameType<TYPE>(image->GetScalarTypeAsITKString())) { this->Update_WithPixelType<TYPE>(image); return; }
   std::string list = clitk::CreateListOfTypes<short>();
   vvImage::Pointer image=slicer_manager->GetSlicer(0)->GetImage();
   TRY_TYPE(float);
@@ -40,7 +40,8 @@ if (clitk::IsSameType<TYPE>(image->GetScalarTypeAsString())) { this->Update_With
   TRY_TYPE(unsigned short);
   TRY_TYPE(char);
   TRY_TYPE(unsigned char);
-  QMessageBox::warning(0,"Unsupported image type",QString("Error, I don't know the type")+QString(image->GetScalarTypeAsString().c_str()) +QString("' for the input image.\nKnown types are ") + QString(list.c_str()));
+  QMessageBox::warning(0,"Unsupported image type",
+                       QString("Error, I don't know the type")+QString(image->GetScalarTypeAsITKString().c_str()) +QString("' for the input image.\nKnown types are ") + QString(list.c_str()));
   error=true;
 #undef TRY_TYPE
 }

@@ -190,7 +190,7 @@ void vvToolWidgetBase::AddInputSelector(QString s, clitk::ImageToImageGenericFil
     vvImage * s = mMainWindow->GetSlicerManagers()[i]->GetImage();
     if (mFilter->CheckImageType(s->GetNumberOfDimensions(),
                                 s->GetNumberOfScalarComponents(),
-                                s->GetScalarTypeAsString())) {
+                                s->GetScalarTypeAsITKString())) {
       mSlicerManagersCompatible.push_back(mMainWindow->GetSlicerManagers()[i]);
       if ((int)i == mMainWindow->GetSlicerManagerCurrentIndex()) mCurrentCompatibleIndex = j;
       j++;

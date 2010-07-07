@@ -17,8 +17,12 @@
 ======================================================================-====*/
 #ifndef VVTOOLINPUTSELECTORWIDGET_CXX
 #define VVTOOLINPUTSELECTORWIDGET_CXX
+
+// vv
 #include "vvToolSimpleInputSelectorWidget.h"
 #include "vvSlicerManager.h"
+
+// qt
 #include <QAbstractButton>
 
 //------------------------------------------------------------------------------
@@ -153,7 +157,7 @@ void vvToolSimpleInputSelectorWidget::changeInput(int index)
   spacing.append(QString("%1").arg(mCurrentImage->GetSpacing()[d-1]));
   mLabelInputInfo->setText(QString("%1D %2\n%3\n%4")
                            .arg(d)
-                           .arg(mCurrentImage->GetScalarTypeAsString().c_str())
+                           .arg(mCurrentImage->GetScalarTypeAsITKString().c_str())
                            .arg(size)
                            .arg(spacing));
  //  DD("fin");

@@ -136,7 +136,7 @@ void vvToolResample::InputIsSelected(vvSlicerManager* m)
   mInputFileName = mCurrentSlicerManager->GetFileName().c_str();
 
   // Set current information
-  mPixelType = mCurrentImage->GetScalarTypeAsString().c_str();
+  mPixelType = mCurrentImage->GetScalarTypeAsITKString().c_str();
   //ds      ComponentType = mCurrentImageGetNumberOfScalarComponents();
   mDimension = mCurrentImage->GetNumberOfDimensions();
 
