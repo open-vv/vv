@@ -33,9 +33,9 @@
 namespace clitk {
 
   //--------------------------------------------------------------------
-  template <class TImageType>
-  AutoCropFilter<TImageType>::
-  AutoCropFilter():itk::ImageToImageFilter<TImageType, TImageType>() {
+  template <class ImageType>
+  AutoCropFilter<ImageType>::
+  AutoCropFilter():itk::ImageToImageFilter<ImageType, ImageType>() {
     this->SetNumberOfRequiredInputs(1);
     m_BackgroundValue  = 0;
   }
@@ -43,20 +43,20 @@ namespace clitk {
 
 
   //--------------------------------------------------------------------
-  template <class TImageType>
+  template <class ImageType>
   void 
-  AutoCropFilter<TImageType>::
-  SetInput(const TImageType * image) {
+  AutoCropFilter<ImageType>::
+  SetInput(const ImageType * image) {
     // Process object is not const-correct so the const casting is required.
-    this->SetNthInput(0, const_cast<TImageType *>( image ));
+    this->SetNthInput(0, const_cast<ImageType *>( image ));
   }
   //--------------------------------------------------------------------
   
 
   //--------------------------------------------------------------------
-  template <class TImageType>
+  template <class ImageType>
   void 
-  AutoCropFilter<TImageType>::  
+  AutoCropFilter<ImageType>::  
   SetBackgroundValue(ImagePixelType p) {
     m_BackgroundValue = p;
   }
@@ -64,9 +64,9 @@ namespace clitk {
 
 
   //--------------------------------------------------------------------
-  template <class TImageType>
+  template <class ImageType>
   void 
-  AutoCropFilter<TImageType>::
+  AutoCropFilter<ImageType>::
   GenerateOutputInformation() {    
 
     // Superclass
@@ -114,10 +114,11 @@ namespace clitk {
   //--------------------------------------------------------------------
    
   //--------------------------------------------------------------------
-  template <class TImageType>
+  template <class ImageType>
   void 
-  AutoCropFilter<TImageType>::
+  AutoCropFilter<ImageType>::
   GenerateData() {
+    DD("AutoCropFilter::GenerateData");
     // Get input pointers
     ImageConstPointer input = dynamic_cast<const ImageType*>(itk::ProcessObject::GetInput(0));
   

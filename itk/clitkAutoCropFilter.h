@@ -29,14 +29,14 @@ namespace clitk {
   */
   //--------------------------------------------------------------------
   
-  template <class TImageType>
+  template <class ImageType>
   class ITK_EXPORT AutoCropFilter: 
-    public itk::ImageToImageFilter<TImageType, TImageType> {
+    public itk::ImageToImageFilter<ImageType, ImageType> {
 
   public:
     /** Standard class typedefs. */
     typedef AutoCropFilter                         Self;
-    typedef itk::ImageToImageFilter<TImageType, TImageType>  Superclass;
+    typedef itk::ImageToImageFilter<ImageType, ImageType>  Superclass;
     typedef itk::SmartPointer<Self>                          Pointer;
     typedef itk::SmartPointer<const Self>                    ConstPointer;
     
@@ -47,7 +47,6 @@ namespace clitk {
     itkTypeMacro(AutoCropFilter, ImageToImageFilter);
 
     /** Some convenient typedefs. */
-    typedef TImageType                       ImageType;
     typedef typename ImageType::ConstPointer ImageConstPointer;
     typedef typename ImageType::Pointer      ImagePointer;
     typedef typename ImageType::PixelType    ImagePixelType;
@@ -61,7 +60,7 @@ namespace clitk {
     void SetBackgroundValue(ImagePixelType p);
 
     /** ImageDimension constants */
-    itkStaticConstMacro(ImageDimension, unsigned int, TImageType::ImageDimension);
+    itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
     
   protected:
     AutoCropFilter();
