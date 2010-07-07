@@ -20,6 +20,8 @@
 #define CLITKSEGMENTATIONUTILS_H
 
 #include "clitkCommon.h"
+#include "clitkAutoCropFilter.h"
+#include "clitkLabelizeParameters.h"
 #include <itkBoundingBox.h>
 
 namespace clitk {
@@ -43,7 +45,94 @@ namespace clitk {
                            const typename itk::BoundingBox<unsigned long, 
                            ImageType::ImageDimension>::Pointer bb, 
                            typename ImageType::RegionType & region);
+  //--------------------------------------------------------------------
+  template<class TInternalImageType, class TMaskInternalImageType>
+  typename TInternalImageType::Pointer
+  SetBackground(typename TInternalImageType::ConstPointer input,
+                typename TMaskInternalImageType::ConstPointer mask, 
+                typename TMaskInternalImageType::PixelType maskBG, 
+                typename TInternalImageType::PixelType outValue);
+  //--------------------------------------------------------------------
 
+    
+  //--------------------------------------------------------------------
+  template<class TInternalImageType, class TMaskInternalImageType>
+  typename TInternalImageType::Pointer
+  SetBackground(typename TInternalImageType::Pointer input, 
+                typename TMaskInternalImageType::Pointer mask, 
+                typename TMaskInternalImageType::PixelType maskBG, 
+                typename TInternalImageType::PixelType outValue) {
+    return SetBackground<TInternalImageType, TMaskInternalImageType>
+      (static_cast<typename TInternalImageType::ConstPointer>(input),  
+       static_cast<typename TMaskInternalImageType::ConstPointer>(mask), 
+       maskBG, outValue);
+  }
+  //--------------------------------------------------------------------
+
+
+  //-------------------------------------------------------------------- 
+  template<class TImageType>
+  typename TImageType::Pointer
+  Labelize(typename TImageType::Pointer input, 
+           typename TImageType::PixelType BG, 
+           bool isFullyConnected, 
+           int minimalComponentSize);
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class TImageType>
+  typename TImageType::Pointer
+  RemoveLabels(typename TImageType::Pointer input, 
+               typename TImageType::PixelType BG, 
+               std::vector<typename TImageType::PixelType> & labelsToRemove);
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+    typename ImageType::Pointer
+    AutoCrop(typename ImageType::Pointer input, 
+	     typename ImageType::PixelType BG) {
+      typedef clitk::AutoCropFilter<ImageType> AutoCropFilterType;
+      typename AutoCropFilterType::Pointer autoCropFilter = AutoCropFilterType::New();
+      autoCropFilter->SetInput(input);
+      autoCropFilter->Update();   
+      return autoCropFilter->GetOutput();
+  }
+
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class TImageType>
+  typename TImageType::Pointer
+  KeepLabels(typename TImageType::Pointer input,
+             typename TImageType::PixelType BG, 
+             typename TImageType::PixelType FG,  
+             typename TImageType::PixelType firstKeep, 
+             typename TImageType::PixelType lastKeep, 
+             bool useLastKeep);
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class TImageType>
+  typename TImageType::Pointer
+  LabelizeAndSelectLabels(typename TImageType::Pointer input,
+                          typename TImageType::PixelType BG, 
+                          typename TImageType::PixelType FG, 
+                          bool isFullyConnected,
+                          int minimalComponentSize,
+                          LabelizeParameters<typename TImageType::PixelType> * param);
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::Pointer
+  EnlargeImageLike(typename ImageType::Pointer input,
+                   typename ImageType::Pointer like, 
+                   typename ImageType::PixelType BG);
+  
 }
 
 #include "clitkSegmentationUtils.txx"
