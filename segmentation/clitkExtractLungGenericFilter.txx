@@ -97,8 +97,7 @@ void clitk::ExtractLungGenericFilter<ArgsInfoType>::UpdateWithInputImageType()
   // Write/Save results
   typename OutputImageType::Pointer output = filter->GetOutput();
   this->template SetNextOutput<OutputImageType>(output); 
-  if (mArgsInfo.outputTrachea_given) 
-    this->template SetNextOutput<typename FilterType::MaskImageType>(filter->GetTracheaImage()); 
+  this->template SetNextOutput<typename FilterType::MaskImageType>(filter->GetTracheaImage()); 
 }
 //--------------------------------------------------------------------
 

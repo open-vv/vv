@@ -22,7 +22,7 @@
 // clitk
 #include "clitkImageCommon.h"
 #include "clitkSetBackgroundImageFilter.h"
-#include "clitkSegmentationFunctions.h"
+#include "clitkSegmentationUtils.h"
 #include "clitkAutoCropFilter.h"
 
 // itk
@@ -161,7 +161,7 @@ GenerateOutputInformation()
   patient = dynamic_cast<const TMaskImageType*>(itk::ProcessObject::GetInput(1));
 
   // Check image
-  if (!HasSameSizeAndSpacing<TInputImageType, TMaskImageType>(input, patient)) {
+  if (!HaveSameSizeAndSpacing<TInputImageType, TMaskImageType>(input, patient)) {
     this->SetLastError("* ERROR * the images (input and patient mask) must have the same size & spacing");
     return;
   }
@@ -209,6 +209,7 @@ GenerateOutputInformation()
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   StartNewStep("Find the trachea");
+  //DD(m_Seeds.size());
   if (m_Seeds.size() == 0) { // try to find seed
     // Search seed (parameters = UpperThresholdForTrachea)
     static const unsigned int Dim = InputImageType::ImageDimension;
@@ -219,18 +220,21 @@ GenerateOutputInformation()
     sliceRegionSize[Dim-1]=5;
     sliceRegion.SetSize(sliceRegionSize);
     sliceRegion.SetIndex(sliceRegionIndex);
-    
+    //DD(GetUpperThresholdForTrachea());
+    //DD(sliceRegion);
     typedef  itk::ImageRegionConstIterator<InputImageType> IteratorType;
     IteratorType it(working_input, sliceRegion);
     it.GoToBegin();
     while (!it.IsAtEnd()) {
       if(it.Get() < GetUpperThresholdForTrachea() ) {
         AddSeed(it.GetIndex());
+	//	DD(it.GetIndex());
       }
       ++it;
     }
   }
   
+  //DD(m_Seeds.size());
   if (m_Seeds.size() != 0) {
     // Explosion controlled region growing
     typedef clitk::ExplosionControlledThresholdConnectedImageFilter<InputImageType, InternalImageType> ImageFilterType;
@@ -360,10 +364,10 @@ GenerateOutputInformation()
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   StartNewStep("Croping lung");
-  cropFilter = CropFilterType::New(); // Needed to reset pipeline
-  cropFilter->SetInput(working_image);
-  cropFilter->Update();   
-  working_image = cropFilter->GetOutput();
+  typename CropFilterType::Pointer cropFilter2 = CropFilterType::New(); // Needed to reset pipeline
+  cropFilter2->SetInput(working_image);
+  cropFilter2->Update();   
+  working_image = cropFilter2->GetOutput();
   StopCurrentStep<InternalImageType>(working_image);
 
   //--------------------------------------------------------------------
