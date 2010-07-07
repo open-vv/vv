@@ -67,7 +67,9 @@ SET(vv_SRCS
   vvROIActor.cxx
   vvToolResample.cxx
   vvBlendImageActor.cxx
-#  vvToolExtractLung.cxx
+  vvLabelImageLoaderWidget.cxx
+  vvToolExtractLung.cxx
+  vvToolPlastimatch.cxx
 #  vvToolConnectedComponentLabeling.cxx
   )
 #=========================================================
@@ -111,7 +113,9 @@ QT4_WRAP_CPP(vv_SRCS
   vvStructureSetActor.h
   vvROIActor.h
   vvToolResample.h
-#  vvToolExtractLung.h
+  vvLabelImageLoaderWidget.h
+  vvToolExtractLung.h
+  vvToolPlastimatch.h
 #  vvToolConnectedComponentLabeling.h
   )
 
@@ -143,7 +147,9 @@ QT4_WRAP_UI(vv_UI_CXX
   qt_ui/vvToolImageArithm.ui
   qt_ui/vvToolStructureSetManager.ui
   qt_ui/vvToolResample.ui
-#  qt_ui/vvToolExtractLung.ui
+  qt_ui/vvLabelImageLoaderWidget.ui
+  qt_ui/vvToolExtractLung.ui
+  qt_ui/vvToolPlastimatch.ui
 #  qt_ui/vvToolConnectedComponentLabeling.ui
   )
 
@@ -198,7 +204,7 @@ ENDIF(WIN32)
 
 LINK_DIRECTORIES(${QT_INCLUDES})
 ADD_EXECUTABLE(vv ${vv_SRCS} vv.cxx ${vv_UI_CXX} ${EXE_ICON})
-TARGET_LINK_LIBRARIES(vv clitkCommon clitkDicomRTStruct clitkFilters ${ITK_LIBRARIES} QVTK vtkHybrid)
+TARGET_LINK_LIBRARIES(vv clitkCommon clitkDicomRTStruct clitkFilters clitkSegmentationFilters ${ITK_LIBRARIES} QVTK vtkHybrid)
 
 #=========================================================
 
