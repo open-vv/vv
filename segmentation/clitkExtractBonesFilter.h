@@ -23,7 +23,7 @@
 #include "clitkFilterBase.h"
 #include "clitkDecomposeAndReconstructImageFilter.h"
 #include "clitkExplosionControlledThresholdConnectedImageFilter.h"
-#include "clitkSegmentationFunctions.h"
+#include "clitkSegmentationUtils.h"
 
 // itk
 #include "itkStatisticsImageFilter.h"

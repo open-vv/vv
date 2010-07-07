@@ -22,7 +22,7 @@
 // clitk
 #include "clitkImageCommon.h"
 #include "clitkSetBackgroundImageFilter.h"
-#include "clitkSegmentationFunctions.h"
+#include "clitkSegmentationUtils.h"
 #include "clitkAutoCropFilter.h"
 
 // itk

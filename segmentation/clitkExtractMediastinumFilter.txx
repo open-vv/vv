@@ -23,7 +23,7 @@
 #include "clitkCommon.h"
 #include "clitkExtractMediastinumFilter.h"
 #include "clitkAddRelativePositionConstraintToLabelImageFilter.h"
-#include "clitkSegmentationFunctions.h"
+#include "clitkSegmentationUtils.h"
 
 // itk
 #include <deque>
