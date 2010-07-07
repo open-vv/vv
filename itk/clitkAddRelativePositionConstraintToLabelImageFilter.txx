@@ -210,34 +210,39 @@ GenerateData() {
   // relative position for each point belonging to the input image
   // domain, so we have to extend (pad) the object image to fit the
   // domain size
-  typename ImageType::Pointer output = ImageType::New();
-  SizeType size;
-  for(unsigned int i=0; i<dim; i++) {
-    size[i] = lrint((input->GetLargestPossibleRegion().GetSize()[i]*input->GetSpacing()[i])/(double)working_image->GetSpacing()[i]);
+  if (!clitk::HaveSameSizeAndSpacing<ImageType, ImageType>(input, working_image)) {
+    typename ImageType::Pointer output = ImageType::New();
+    SizeType size;
+    for(unsigned int i=0; i<dim; i++) {
+      size[i] = lrint((input->GetLargestPossibleRegion().GetSize()[i]*input->GetSpacing()[i])/(double)working_image->GetSpacing()[i]);
+    }
+    RegionType region;
+    region.SetSize(size);
+    // output->SetLargestPossibleRegion(region);
+    output->SetRegions(region);
+    output->SetSpacing(working_image->GetSpacing());
+    output->SetOrigin(input->GetOrigin());
+    output->Allocate();
+    output->FillBuffer(m_BackgroundValue);
+    typename PadFilterType::Pointer padFilter = PadFilterType::New();
+    typename PadFilterType::InputImageIndexType index;
+    for(unsigned int i=0; i<dim; i++) {
+      index[i] = lrint((working_image->GetOrigin()[i] - input->GetOrigin()[i])/(double)m_IntermediateSpacing);
+    }
+    padFilter->SetSourceImage(working_image);
+    padFilter->SetDestinationImage(output);
+    padFilter->SetDestinationIndex(index);
+    padFilter->SetSourceRegion(working_image->GetLargestPossibleRegion());
+    padFilter->Update();
+    working_image = padFilter->GetOutput();
   }
-  RegionType region;
-  region.SetSize(size);
-  // output->SetLargestPossibleRegion(region);
-  output->SetRegions(region);
-  output->SetSpacing(working_image->GetSpacing());
-  output->SetOrigin(input->GetOrigin());
-  output->Allocate();
-  output->FillBuffer(m_BackgroundValue);
-  typename PadFilterType::Pointer padFilter = PadFilterType::New();
-  typename PadFilterType::InputImageIndexType index;
-  for(unsigned int i=0; i<dim; i++) {
-    index[i] = lrint((working_image->GetOrigin()[i] - input->GetOrigin()[i])/(double)m_IntermediateSpacing);
+  else {
+    DD("[debug] RelPos : same size and spacing : no padding");
   }
-  padFilter->SetSourceImage(working_image);
-  padFilter->SetDestinationImage(output);
-  padFilter->SetDestinationIndex(index);
-  padFilter->SetSourceRegion(working_image->GetLargestPossibleRegion());
-  padFilter->Update();
-  working_image = padFilter->GetOutput();
 
   // Keep object image (with resampline and pad)
   object_resampled = working_image;
- //  writeImage<ImageType>(working_image, "pad.mhd");
+  //  writeImage<ImageType>(working_image, "pad.mhd");
 
   // Step 3: compute rel pos in object
   typedef itk::RelativePositionPropImageFilter<ImageType, FloatImageType> RelPosFilterType;
@@ -311,6 +316,9 @@ GenerateData() {
     padFilter2->SetSourceRegion(working_image->GetLargestPossibleRegion());
     padFilter2->Update();
     working_image = padFilter2->GetOutput();
+  }
+  else {
+    DD("[debug] Rel Pos : no padding after");
   }
   // writeImage<ImageType>(working_image, "pad2.mhd");
 
