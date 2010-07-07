@@ -319,7 +319,7 @@ void ComputeWeightsOfEachClasses(const typename InputImageType::Pointer & input,
 
 //--------------------------------------------------------------------
 template<class ImageType1, class ImageType2>
-bool HasSameSizeAndSpacing(typename ImageType1::ConstPointer A, 
+bool HaveSameSizeAndSpacing(typename ImageType1::ConstPointer A, 
                            typename ImageType2::ConstPointer B) 
 {
   if (A->GetImageDimension() != B->GetImageDimension()) return false;
@@ -333,13 +333,39 @@ bool HasSameSizeAndSpacing(typename ImageType1::ConstPointer A,
 
 //--------------------------------------------------------------------
 template<class ImageType1, class ImageType2>
-bool HasSameSizeAndSpacing(typename ImageType1::Pointer A, 
+bool HaveSameSizeAndSpacing(typename ImageType1::Pointer A, 
                            typename ImageType2::Pointer B) 
 {
   if (A->GetImageDimension() != B->GetImageDimension()) return false;
   for(unsigned int i=0; i<A->GetImageDimension(); i++) {
     if (A->GetSpacing()[i] != B->GetSpacing()[i]) return false;
     if (A->GetLargestPossibleRegion().GetSize()[i] != B->GetLargestPossibleRegion().GetSize()[i]) return false;
+  }
+  return true;
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+template<class ImageType1, class ImageType2>
+bool HaveSameSpacing(typename ImageType1::ConstPointer A, 
+                     typename ImageType2::ConstPointer B) 
+{
+  if (A->GetImageDimension() != B->GetImageDimension()) return false;
+  for(unsigned int i=0; i<A->GetImageDimension(); i++) {
+    if (A->GetSpacing()[i] != B->GetSpacing()[i]) return false;
+  }
+  return true;
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+template<class ImageType1, class ImageType2>
+bool HaveSameSpacing(typename ImageType1::Pointer A, 
+                           typename ImageType2::Pointer B) 
+{
+  if (A->GetImageDimension() != B->GetImageDimension()) return false;
+  for(unsigned int i=0; i<A->GetImageDimension(); i++) {
+    if (A->GetSpacing()[i] != B->GetSpacing()[i]) return false;
   }
   return true;
 }

@@ -96,12 +96,21 @@ namespace clitk {
 
   //--------------------------------------------------------------------
   template<class ImageType1, class ImageType2>
-  bool HasSameSizeAndSpacing(typename ImageType1::ConstPointer A, 
+  bool HaveSameSizeAndSpacing(typename ImageType1::ConstPointer A, 
                              typename ImageType2::ConstPointer B);
 
   template<class ImageType1, class ImageType2>
-  bool HasSameSizeAndSpacing(typename ImageType1::Pointer A, 
+  bool HaveSameSizeAndSpacing(typename ImageType1::Pointer A, 
                              typename ImageType2::Pointer B);
+
+  //--------------------------------------------------------------------
+  template<class ImageType1, class ImageType2>
+  bool HaveSameSpacing(typename ImageType1::ConstPointer A, 
+                       typename ImageType2::ConstPointer B);
+
+  template<class ImageType1, class ImageType2>
+  bool HaveSameSpacing(typename ImageType1::Pointer A, 
+                       typename ImageType2::Pointer B);
 
 #include "clitkImageCommon.txx"
 
