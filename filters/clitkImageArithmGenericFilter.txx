@@ -111,7 +111,7 @@ void ImageArithmGenericFilter<args_info_type>::UpdateWithInputImageType()
   IteratorType it2;
 
   // Check dimension
-  if (!clitk::HasSameSizeAndSpacing<ImageType, ImageType>(input1, input2)) {
+  if (!clitk::HaveSameSizeAndSpacing<ImageType, ImageType>(input1, input2)) {
     std::cerr << "* ERROR * the images (input and input2) must have the same size & spacing";
     return;
   }
