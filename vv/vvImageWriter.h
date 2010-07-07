@@ -14,7 +14,7 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-======================================================================-====*/
+  ======================================================================-====*/
 #ifndef vvImageWriter_H
 #define vvImageWriter_H
 #include <string>
@@ -27,52 +27,52 @@
 class vvImageWriter {
 
 public:
-    // constructor
-    vvImageWriter();
-    ~vvImageWriter();
+  // constructor
+  vvImageWriter();
+  ~vvImageWriter();
 
-    void SetOutputFileName(std::string filename);
-    void SetObserver(itk::Command::Pointer o) {
-        mUseAnObserver = true;
-        mObserver = o;
-    }
-    void DisableObserver() {
-        mUseAnObserver = false;
-    }
+  void SetOutputFileName(std::string filename);
+  void SetObserver(itk::Command::Pointer o) {
+    mUseAnObserver = true;
+    mObserver = o;
+  }
+  void DisableObserver() {
+    mUseAnObserver = false;
+  }
 
-    void SetInput(vvImage::Pointer image) {
-        mImage = image;
-    }
+  void SetInput(vvImage::Pointer image) {
+    mImage = image;
+  }
 
-    std::string GetLastError() {
-        return mLastError;
-    }
+  std::string GetLastError() {
+    return mLastError;
+  }
 
-    //====================================================================
-    // Main function
-    void Update() {
-        Update(mImage->GetNumberOfDimensions(),mImage->GetScalarTypeAsString());
-    }
-    void Update(int dim, std::string OutputPixelType);
+  //====================================================================
+  // Main function
+  void Update() {
+    Update(mImage->GetNumberOfDimensions(),mImage->GetScalarTypeAsITKString());
+  }
+  void Update(int dim, std::string OutputPixelType);
 
 protected:
-    //====================================================================
-    std::string mOutputFilename;
-    itk::Command::Pointer mObserver;
+  //====================================================================
+  std::string mOutputFilename;
+  itk::Command::Pointer mObserver;
 
-    std::string mLastError;
-    bool mUseAnObserver;
+  std::string mLastError;
+  bool mUseAnObserver;
 
-    //====================================================================
-    template<unsigned int VImageDimension>
-    void UpdateWithDim(std::string OutputPixelType);
+  //====================================================================
+  template<unsigned int VImageDimension>
+  void UpdateWithDim(std::string OutputPixelType);
 
-    //====================================================================
-    template<class OutputPixelType, unsigned int VImageDimension>
-    void UpdateWithDimAndOutputPixelType();
+  //====================================================================
+  template<class OutputPixelType, unsigned int VImageDimension>
+  void UpdateWithDimAndOutputPixelType();
 
 private:
-    vvImage::Pointer mImage;
+  vvImage::Pointer mImage;
 
 }; // end class vvImageWriter
 

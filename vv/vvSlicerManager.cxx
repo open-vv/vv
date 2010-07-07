@@ -1,20 +1,20 @@
 /*=========================================================================
-Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
+  Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-Authors belong to:
-- University of LYON              http://www.universite-lyon.fr/
-- Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
-- CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
+  Authors belong to:
+  - University of LYON              http://www.universite-lyon.fr/
+  - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
+  - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
 
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the copyright notices for more information.
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the copyright notices for more information.
 
-It is distributed under dual licence
+  It is distributed under dual licence
 
-- BSD        See included LICENSE.txt file
-- CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-======================================================================-====*/
+  - BSD        See included LICENSE.txt file
+  - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+  ======================================================================-====*/
 
 #include "vvSlicerManager.h"
 #include "vvSlicer.h"
@@ -396,31 +396,31 @@ void vvSlicerManager::SetInteractorStyleNavigator(int i, vtkInteractorStyle* sty
   mSlicers[i]->GetRenderWindow()->GetInteractor()->SetInteractorStyle(style);
 
   mSlicers[i]->GetRenderWindow()->GetInteractor()->
-  GetInteractorStyle()->AddObserver(vtkCommand::KeyPressEvent, smc);
+    GetInteractorStyle()->AddObserver(vtkCommand::KeyPressEvent, smc);
   mSlicers[i]->GetRenderWindow()->GetInteractor()->
-  GetInteractorStyle()->AddObserver(vtkCommand::WindowLevelEvent, smc);
+    GetInteractorStyle()->AddObserver(vtkCommand::WindowLevelEvent, smc);
   mSlicers[i]->GetRenderWindow()->GetInteractor()->
-  GetInteractorStyle()->AddObserver(vtkCommand::EndWindowLevelEvent, smc);
+    GetInteractorStyle()->AddObserver(vtkCommand::EndWindowLevelEvent, smc);
   mSlicers[i]->GetRenderWindow()->GetInteractor()->
-  GetInteractorStyle()->AddObserver(vtkCommand::StartWindowLevelEvent, smc);
+    GetInteractorStyle()->AddObserver(vtkCommand::StartWindowLevelEvent, smc);
   mSlicers[i]->GetRenderWindow()->GetInteractor()->
-  GetInteractorStyle()->AddObserver(vtkCommand::PickEvent, smc);
+    GetInteractorStyle()->AddObserver(vtkCommand::PickEvent, smc);
   mSlicers[i]->GetRenderWindow()->GetInteractor()->
-  GetInteractorStyle()->AddObserver(vtkCommand::StartPickEvent, smc);
+    GetInteractorStyle()->AddObserver(vtkCommand::StartPickEvent, smc);
   mSlicers[i]->GetRenderWindow()->GetInteractor()->
-  GetInteractorStyle()->AddObserver(vtkCommand::LeaveEvent, smc);
+    GetInteractorStyle()->AddObserver(vtkCommand::LeaveEvent, smc);
   mSlicers[i]->GetRenderWindow()->GetInteractor()->
-  GetInteractorStyle()->AddObserver(vtkCommand::UserEvent, smc);
+    GetInteractorStyle()->AddObserver(vtkCommand::UserEvent, smc);
   mSlicers[i]->GetRenderWindow()->GetInteractor()->
-  GetInteractorStyle()->AddObserver(vtkCommand::MouseWheelForwardEvent, smc);
+    GetInteractorStyle()->AddObserver(vtkCommand::MouseWheelForwardEvent, smc);
   mSlicers[i]->GetRenderWindow()->GetInteractor()->
-  GetInteractorStyle()->AddObserver(vtkCommand::MouseWheelBackwardEvent, smc);
+    GetInteractorStyle()->AddObserver(vtkCommand::MouseWheelBackwardEvent, smc);
   // mSlicers[i]->GetRenderWindow()->GetInteractor()->
   //   GetInteractorStyle()->AddObserver(vtkCommand::LeftButtonReleaseEvent, smc);
   mSlicers[i]->GetRenderWindow()->GetInteractor()->
-  GetInteractorStyle()->AddObserver(vtkCommand::EndPickEvent, smc);
+    GetInteractorStyle()->AddObserver(vtkCommand::EndPickEvent, smc);
   mSlicers[i]->GetRenderWindow()->GetInteractor()->
-  GetInteractorStyle()->AddObserver(vtkCommand::EndInteractionEvent, smc);
+    GetInteractorStyle()->AddObserver(vtkCommand::EndInteractionEvent, smc);
   smc->Delete();
 }
 //----------------------------------------------------------------------------
@@ -462,8 +462,8 @@ void vvSlicerManager::SetNextTSlice(int originating_slicer)
   if (t > mSlicers[0]->GetTMax())
     t = 0;
   // DD("SetNextTSlice");
-//   DD(originating_slicer);
-//   DD(t);
+  //   DD(originating_slicer);
+  //   DD(t);
   emit UpdateTSlice(originating_slicer,t);
 }
 //----------------------------------------------------------------------------
@@ -552,15 +552,15 @@ void vvSlicerManager::SetOpacity(int i, double factor)
 void vvSlicerManager::UpdateViews(int current,int slicer)
 {
   // DD("UpdateViews");
-//   DD(current);
-//   DD(slicer);
+  //   DD(current);
+  //   DD(slicer);
 
   double x = (mSlicers[slicer]->GetCurrentPosition()[0] - mSlicers[slicer]->GetInput()->GetOrigin()[0])
-             /mSlicers[slicer]->GetInput()->GetSpacing()[0];
+    /mSlicers[slicer]->GetInput()->GetSpacing()[0];
   double y = (mSlicers[slicer]->GetCurrentPosition()[1] - mSlicers[slicer]->GetInput()->GetOrigin()[1])
-             /mSlicers[slicer]->GetInput()->GetSpacing()[1];
+    /mSlicers[slicer]->GetInput()->GetSpacing()[1];
   double z = (mSlicers[slicer]->GetCurrentPosition()[2] - mSlicers[slicer]->GetInput()->GetOrigin()[2])
-             /mSlicers[slicer]->GetInput()->GetSpacing()[2];
+    /mSlicers[slicer]->GetInput()->GetSpacing()[2];
 
   if (x >= mSlicers[slicer]->GetInput()->GetWholeExtent()[0] &&
       x <= mSlicers[slicer]->GetInput()->GetWholeExtent()[1] &&
@@ -647,11 +647,11 @@ void vvSlicerManager::UpdateViews(int current,int slicer)
 void vvSlicerManager::UpdateLinked(int slicer)
 {
   double x = (mSlicers[slicer]->GetCurrentPosition()[0] - mSlicers[slicer]->GetInput()->GetOrigin()[0])
-             /mSlicers[slicer]->GetInput()->GetSpacing()[0];
+    /mSlicers[slicer]->GetInput()->GetSpacing()[0];
   double y = (mSlicers[slicer]->GetCurrentPosition()[1] - mSlicers[slicer]->GetInput()->GetOrigin()[1])
-             /mSlicers[slicer]->GetInput()->GetSpacing()[1];
+    /mSlicers[slicer]->GetInput()->GetSpacing()[1];
   double z = (mSlicers[slicer]->GetCurrentPosition()[2] - mSlicers[slicer]->GetInput()->GetOrigin()[2])
-             /mSlicers[slicer]->GetInput()->GetSpacing()[2];
+    /mSlicers[slicer]->GetInput()->GetSpacing()[2];
 
   if (x >= mSlicers[slicer]->GetInput()->GetWholeExtent()[0] &&
       x <= mSlicers[slicer]->GetInput()->GetWholeExtent()[1] &&
@@ -863,11 +863,11 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
   double y = mSlicers[slicer]->GetCursorPosition()[1];
   double z = mSlicers[slicer]->GetCursorPosition()[2];
   double X = (x - mSlicers[slicer]->GetInput()->GetOrigin()[0])/
-             mSlicers[slicer]->GetInput()->GetSpacing()[0];
+    mSlicers[slicer]->GetInput()->GetSpacing()[0];
   double Y = (y - mSlicers[slicer]->GetInput()->GetOrigin()[1])/
-             mSlicers[slicer]->GetInput()->GetSpacing()[1];
+    mSlicers[slicer]->GetInput()->GetSpacing()[1];
   double Z = (z - mSlicers[slicer]->GetInput()->GetOrigin()[2])/
-             mSlicers[slicer]->GetInput()->GetSpacing()[2];
+    mSlicers[slicer]->GetInput()->GetSpacing()[2];
   double value = -VTK_DOUBLE_MAX;
   int displayVec = 0;
   double xVec=0, yVec=0, zVec=0, valueVec=0;
@@ -881,9 +881,9 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
       Z >= mSlicers[slicer]->GetInput()->GetWholeExtent()[4] &&
       Z <= mSlicers[slicer]->GetInput()->GetWholeExtent()[5]) {
     value = mSlicers[slicer]->GetInput()->GetScalarComponentAsDouble(
-              (int)floor(X),
-              (int)floor(Y),
-              (int)floor(Z),0);
+                                                                     (int)floor(X),
+                                                                     (int)floor(Y),
+                                                                     (int)floor(Z),0);
     if (mSlicers[slicer]->GetVFActor() && mSlicers[slicer]->GetVFActor()->GetVisibility()) {
       displayVec = 1;
       unsigned int currentTime = mSlicers[slicer]->GetTSlice();
@@ -907,11 +907,11 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
     if (mSlicers[slicer]->GetOverlayActor() && mSlicers[slicer]->GetOverlayActor()->GetVisibility()) {
       displayOver = 1;
       double Xover = (x - mSlicers[slicer]->GetOverlay()->GetOrigin()[0])
-                     /mSlicers[slicer]->GetOverlay()->GetSpacing()[0];
+        /mSlicers[slicer]->GetOverlay()->GetSpacing()[0];
       double Yover = (y - mSlicers[slicer]->GetOverlay()->GetOrigin()[1])
-                     /mSlicers[slicer]->GetOverlay()->GetSpacing()[1];
+        /mSlicers[slicer]->GetOverlay()->GetSpacing()[1];
       double Zover = (z - mSlicers[slicer]->GetOverlay()->GetOrigin()[2])
-                     /mSlicers[slicer]->GetOverlay()->GetSpacing()[2];
+        /mSlicers[slicer]->GetOverlay()->GetSpacing()[2];
       if (Xover >= mSlicers[slicer]->GetOverlayMapper()->GetInput()->GetWholeExtent()[0] &&
           Xover <= mSlicers[slicer]->GetOverlayMapper()->GetInput()->GetWholeExtent()[1] &&
           Yover >= mSlicers[slicer]->GetOverlayMapper()->GetInput()->GetWholeExtent()[2] &&
@@ -919,20 +919,20 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
           Zover >= mSlicers[slicer]->GetOverlayMapper()->GetInput()->GetWholeExtent()[4] &&
           Zover <= mSlicers[slicer]->GetOverlayMapper()->GetInput()->GetWholeExtent()[5]) {
         valueOver = static_cast<vtkImageData*>(mSlicers[slicer]->GetOverlayMapper()->GetInput())->
-                    GetScalarComponentAsDouble(
-                      (int)floor(Xover),
-                      (int)floor(Yover),
-                      (int)floor(Zover),0);
+          GetScalarComponentAsDouble(
+                                     (int)floor(Xover),
+                                     (int)floor(Yover),
+                                     (int)floor(Zover),0);
       }
     }
     if (mSlicers[slicer]->GetFusionActor() && mSlicers[slicer]->GetFusionActor()->GetVisibility()) {
       displayFus = 1;
       double Xfus = (x - mSlicers[slicer]->GetFusion()->GetOrigin()[0])
-                    /mSlicers[slicer]->GetFusion()->GetSpacing()[0];
+        /mSlicers[slicer]->GetFusion()->GetSpacing()[0];
       double Yfus = (y - mSlicers[slicer]->GetFusion()->GetOrigin()[1])
-                    /mSlicers[slicer]->GetFusion()->GetSpacing()[1];
+        /mSlicers[slicer]->GetFusion()->GetSpacing()[1];
       double Zfus = (z - mSlicers[slicer]->GetFusion()->GetOrigin()[2])
-                    /mSlicers[slicer]->GetFusion()->GetSpacing()[2];
+        /mSlicers[slicer]->GetFusion()->GetSpacing()[2];
       if (Xfus >= mSlicers[slicer]->GetFusionMapper()->GetInput()->GetWholeExtent()[0] &&
           Xfus <= mSlicers[slicer]->GetFusionMapper()->GetInput()->GetWholeExtent()[1] &&
           Yfus >= mSlicers[slicer]->GetFusionMapper()->GetInput()->GetWholeExtent()[2] &&
@@ -940,10 +940,10 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
           Zfus >= mSlicers[slicer]->GetFusionMapper()->GetInput()->GetWholeExtent()[4] &&
           Zfus <= mSlicers[slicer]->GetFusionMapper()->GetInput()->GetWholeExtent()[5]) {
         valueFus = static_cast<vtkImageData*>(mSlicers[slicer]->GetFusionMapper()->GetInput())->
-                   GetScalarComponentAsDouble(
-                     (int)floor(Xfus),
-                     (int)floor(Yfus),
-                     (int)floor(Zfus),0);
+          GetScalarComponentAsDouble(
+                                     (int)floor(Xfus),
+                                     (int)floor(Yfus),
+                                     (int)floor(Zfus),0);
       }
     }
     emit UpdatePosition(mSlicers[slicer]->GetCursorVisibility(),
@@ -982,8 +982,8 @@ void vvSlicerManager::UpdateWindowLevel()
 void vvSlicerManager::UpdateSlice(int slicer)
 {
   // DD("vvSlicerManager::UpdateSlice emit UpdateSlice");
-//   DD(slicer);
-//   DD(mSlicers[slicer]->GetSlice());
+  //   DD(slicer);
+  //   DD(mSlicers[slicer]->GetSlice());
   if (mPreviousSlice[slicer] == mSlicers[slicer]->GetSlice()) {
     //DD("============= NOTHING");
     return;
@@ -999,9 +999,9 @@ void vvSlicerManager::UpdateSlice(int slicer)
 void vvSlicerManager::UpdateTSlice(int slicer)
 {
   // DD("vvSlicerManager::UpdateTSlice emit UpdateTSlice");
-//   DD(slicer);
-//   DD(mSlicers[slicer]->GetTSlice());
-//   DD(mSlicers[slicer]->GetSlice());
+  //   DD(slicer);
+  //   DD(mSlicers[slicer]->GetTSlice());
+  //   DD(mSlicers[slicer]->GetSlice());
   if (mPreviousSlice[slicer] == mSlicers[slicer]->GetSlice()) {
     if (mPreviousTSlice[slicer] == mSlicers[slicer]->GetTSlice()) {
       //      DD("************** NOTHING ***********");
@@ -1032,7 +1032,7 @@ void vvSlicerManager::SetPreset(int preset)
   double window = mSlicers[0]->GetColorWindow();
   double level = mSlicers[0]->GetColorLevel();
 
-  std::string component_type=mImage->GetScalarTypeAsString();
+  std::string component_type=mImage->GetScalarTypeAsITKString();
   switch (preset) {
   case 0:
     if (component_type == "unsigned_char") {
@@ -1193,7 +1193,7 @@ void vvSlicerManager::SetColorMap(int colormap)
       invLUT->SetHueRange(double((mOverlayColor+180)%360)/360,double((mOverlayColor+180)%360)/360);
       invLUT->Build();
       dynamic_cast<vvImageMapToWLColors*>(mSlicers[i]->GetWindowLevel())
-      ->SetWindowLevelMode(true);
+        ->SetWindowLevelMode(true);
       mSlicers[i]->GetWindowLevel()->SetLookupTable(supLUT);
       mSlicers[i]->GetOverlayMapper()->SetLookupTable(invLUT);
       invLUT->Delete();
@@ -1244,9 +1244,9 @@ void vvSlicerManager::AddLandmark(float x,float y,float z,float t)
       z_index >= mSlicers[0]->GetInput()->GetWholeExtent()[4] &&
       z_index <= mSlicers[0]->GetInput()->GetWholeExtent()[5]) {
     double value = mSlicers[0]->GetInput()->GetScalarComponentAsDouble(
-                     (int)x_index,
-                     (int)y_index,
-                     (int)z_index,0);
+                                                                       (int)x_index,
+                                                                       (int)y_index,
+                                                                       (int)z_index,0);
     this->GetLandmarks()->AddLandmark(x,y,z,t,value);
     emit LandmarkAdded();
   }

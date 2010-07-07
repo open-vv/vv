@@ -15,9 +15,22 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
+//std 
 #include <sstream>
 #include <cassert>
 #include <vector>
+
+// clitk
+#include "clitkCommon.h"
+
+// vv
+#include "vvMesh.h"
+
+// itk
+#include <itksys/SystemTools.hxx>
+
+// vtk
 #include <vtkSmartPointer.h>
 #include <vtkFloatArray.h>
 #include <vtkPointData.h>
@@ -25,14 +38,10 @@
 #include <vtkPolyDataReader.h>
 #include <vtkOBJReader.h>
 #include <vtkImageData.h>
-#include "clitkCommon.h"
-#include "vvMesh.h"
 #include <vtkImageStencil.h>
 #include <vtkLinearExtrusionFilter.h>
 #include <vtkPolyDataToImageStencil.h>
 #include <vtkMarchingCubes.h>
-#include <itksys/SystemTools.hxx>
-
 #include <vtkMetaImageWriter.h>
 
 vvMesh::vvMesh() :
