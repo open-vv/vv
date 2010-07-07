@@ -115,9 +115,9 @@ void clitk::ImageToImageGenericFilterBase::GetInputImageDimensionAndPixelType(un
     dim=dim_temp;
   } else {
     if (m_InputVVImages.size()) {
-      pixeltype=m_InputVVImages[0]->GetScalarTypeAsString();
-      dim=m_InputVVImages[0]->GetNumberOfDimensions();
-      components=m_InputVVImages[0]->GetNumberOfScalarComponents();
+      pixeltype = m_InputVVImages[0]->GetScalarTypeAsITKString();
+      dim = m_InputVVImages[0]->GetNumberOfDimensions();
+      components = m_InputVVImages[0]->GetNumberOfScalarComponents();
     } else
       assert(false); //No input image, shouldn't happen
   }
