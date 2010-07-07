@@ -617,46 +617,25 @@ void vvToolStructureSetManager::CheckInputList(std::vector<vvSlicerManager*> & l
 
 //------------------------------------------------------------------------------
 // STATIC
-vvToolStructureSetManager * vvToolStructureSetManager::AddImage(vvSlicerManager * m, vvImage::Pointer image, double BG, bool m_modeBG)
+vvToolStructureSetManager * vvToolStructureSetManager::AddImage(vvSlicerManager * m, std::string name, vvImage::Pointer image, double BG, bool m_modeBG)
 {
-  //  DD("static AddImage");
-  //DD(mListOfInputs.size());
+  DD("static AddImage");
+  DD(mListOfInputs.size());
   
+  // If the tool is open for this vvSlicerManager, use it and return
   if (mListOfOpenTool[m]) {
-    DD("found");
     vvToolStructureSetManager * tool = mListOfOpenTool[m];
-    tool->AddImage(image, "bidon.mhd", BG, m_modeBG);
+    tool->AddImage(image, name, BG, m_modeBG);
     tool->UpdateImage();
-    //    tool->show();
     return tool;
   }
-  else {
-    DD("not found");
-  }
 
-  std::vector<vvSlicerManager*>::iterator iter = 
-    std::find(mListOfInputs.begin(), mListOfInputs.end(), m);
-  if (iter != mListOfInputs.end()) {
-    DD("found");
-    DD("TODO");
-    
-  }
-  else {
-    DD("not found");
-
-    // mMainWindowBase instead of NULL, should be static ?
-    
-    vvToolStructureSetManager * tool = new vvToolStructureSetManager
-      (CREATOR(vvToolStructureSetManager)->GetMainWindow(), Qt::Dialog, m);
-    
-    // WARNING : load list of image and selec -> to change to force mCurrentSlicerManager
-
-    //    tool->InputIsSelected();
-    tool->AddImage(image, "bidon.mhd", BG, m_modeBG);
-    tool->UpdateImage();
-    tool->show();
-    return tool;
-  }
-  return NULL;
+  // If the tool is not open, create it
+  vvToolStructureSetManager * tool = new vvToolStructureSetManager
+    (CREATOR(vvToolStructureSetManager)->GetMainWindow(), Qt::Dialog, m);
+  tool->AddImage(image, name, BG, m_modeBG);
+  tool->UpdateImage();
+  tool->show();
+  return tool;
 }
 //------------------------------------------------------------------------------

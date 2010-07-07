@@ -46,7 +46,7 @@ class vvToolStructureSetManager:
   void UpdateStructureSetInTreeWidget(int index, clitk::DicomRT_StructureSet * s);
   void AddRoiInTreeWidget(clitk::DicomRT_ROI * roi, QTreeWidget * w);
 
-  static vvToolStructureSetManager * AddImage(vvSlicerManager * m, vvImage::Pointer image, double BG, bool modeBG=true);    
+  static vvToolStructureSetManager * AddImage(vvSlicerManager * m, std::string name, vvImage::Pointer image, double BG, bool modeBG=true);    
   void AddImage(vvImage::Pointer image, std::string filename, double BG, bool modeBG=true);
   void UpdateImage();
 
