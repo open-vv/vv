@@ -1,5 +1,6 @@
 <RCC>
-  <qresource prefix="common" >
+  <qresource prefix="common">
+    <file>icons/plastimatch.png</file>
     <file>icons/lung-overlay.png</file>
     <file>icons/arithm.png</file>
     <file>icons/green-arrow.png</file>
