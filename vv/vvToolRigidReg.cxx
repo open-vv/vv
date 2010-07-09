@@ -234,7 +234,7 @@ void vvToolRigidReg::SetTransform(vtkMatrix4x4 *matrix)
     transform->PostMultiply();
     transform->Concatenate(matrix);
     transform->Update();
-    mCurrentSlicerManager->GetImage()->SetTransform(transform);
+//    mCurrentSlicerManager->GetImage()->SetTransform(transform);
    
     for (int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
       mCurrentSlicerManager->GetImage()->UpdateReslice();
