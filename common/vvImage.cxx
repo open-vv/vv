@@ -19,14 +19,21 @@
 #define VVIMAGE_CXX
 #include "vvImage.h"
 #include "clitkCommon.h"
-#include <vtkTransform.h>
 #include <vtkImageData.h>
 #include <vtkImageReslice.h>
 #include <cassert>
 
+#include <vtkGeneralTransform.h>
+#include <vtkTransform.h>
+#include <vtkGridTransform.h>
+
 //--------------------------------------------------------------------
-vvImage::vvImage()
+vvImage::vvImage():mGeneralTransform(vtkSmartPointer<vtkGeneralTransform>::New()),
+		   mTransform       (vtkSmartPointer<vtkTransform>::New()),
+	           mGridTransform   (vtkSmartPointer<vtkGridTransform>::New())
 {
+  mGeneralTransform->Concatenate(mTransform);
+  mGeneralTransform->Concatenate(mGridTransform);
   Init();
 }
 //--------------------------------------------------------------------
@@ -37,9 +44,6 @@ void vvImage::Init()
 {
   mTimeSpacing = 1;
   mTimeOrigin = 0;
-
-  if (CLITK_EXPERIMENTAL)
-    mTransform = vtkSmartPointer<vtkTransform>::New();
 }
 //--------------------------------------------------------------------
 
@@ -53,12 +57,8 @@ vvImage::~vvImage()
 //--------------------------------------------------------------------
 void vvImage::Reset()
 {
-  if (CLITK_EXPERIMENTAL)
-    for (unsigned int i = 0; i < mVtkImages.size(); i++)
-      mVtkImageReslice[i]->GetInput(0)->Delete();
-  else
-    for (unsigned int i = 0; i < mVtkImages.size(); i++)
-      mVtkImages[i]->Delete();
+  for (unsigned int i = 0; i < mVtkImages.size(); i++)
+    mVtkImageReslice[i]->GetInput()->Delete();
 
   mVtkImages.resize(0);
   mVtkImageReslice.resize(0);
@@ -66,7 +66,6 @@ void vvImage::Reset()
   Init();
 }
 //--------------------------------------------------------------------
-
 
 //--------------------------------------------------------------------
 void vvImage::SetImage(std::vector< vtkImageData* > images)
@@ -81,19 +80,16 @@ void vvImage::SetImage(std::vector< vtkImageData* > images)
 //--------------------------------------------------------------------
 void vvImage::AddImage(vtkImageData* image)
 {
-  if (CLITK_EXPERIMENTAL) {
-    mVtkImageReslice.push_back(vtkSmartPointer<vtkImageReslice>::New());
+  mVtkImageReslice.push_back(vtkSmartPointer<vtkImageReslice>::New());
 
-    mVtkImageReslice.back()->SetInterpolationModeToLinear();
-    mVtkImageReslice.back()->AutoCropOutputOn();
-    mVtkImageReslice.back()->SetBackgroundColor(-1000,-1000,-1000,1);
-    mVtkImageReslice.back()->SetResliceTransform(mTransform);
-    mVtkImageReslice.back()->SetInput(0, image);
-    mVtkImageReslice.back()->Update();
+  mVtkImageReslice.back()->SetInterpolationModeToLinear();
+  mVtkImageReslice.back()->AutoCropOutputOn();
+  mVtkImageReslice.back()->SetBackgroundColor(-1000,-1000,-1000,1);
+  mVtkImageReslice.back()->SetResliceTransform(mGeneralTransform);
+  mVtkImageReslice.back()->SetInput(0, image);
+  mVtkImageReslice.back()->Update();
 
-    mVtkImages.push_back( mVtkImageReslice.back()->GetOutput(0) );
-  } else
-    mVtkImages.push_back(image);
+  mVtkImages.push_back( mVtkImageReslice.back()->GetOutput(0) );
 }
 //--------------------------------------------------------------------
 
@@ -107,7 +103,7 @@ int vvImage::GetNumberOfSpatialDimensions()
     return dim;
 }
 //--------------------------------------------------------------------
-//
+
 //--------------------------------------------------------------------
 int vvImage::GetNumberOfDimensions() const
 {
@@ -124,6 +120,8 @@ int vvImage::GetNumberOfDimensions() const
   return 0;
 }
 //--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
 void vvImage::GetScalarRange(double* range)
 {
   assert(mVtkImages.size());
@@ -136,6 +134,7 @@ void vvImage::GetScalarRange(double* range)
     if (temp[1] > range[1]) range[1]=temp[1];
   }
 }
+//--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
 std::string vvImage::GetScalarTypeAsITKString()
@@ -233,14 +232,12 @@ const std::vector<vtkImageData*>& vvImage::GetVTKImages()
 }
 //--------------------------------------------------------------------
 
-
 //--------------------------------------------------------------------
 vtkImageData* vvImage::GetFirstVTKImageData()
 {
   return mVtkImages[0];
 }
 //--------------------------------------------------------------------
-
 
 //--------------------------------------------------------------------
 bool vvImage::IsScalarTypeInteger()
@@ -279,10 +276,9 @@ vtkSmartPointer<vtkTransform> vvImage::GetTransform()
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
-void vvImage::SetTransform(vtkSmartPointer<vtkTransform> transform)
+vtkSmartPointer<vtkGridTransform> vvImage::GetGridTransform()
 {
-  mTransform = transform;
-  this->UpdateReslice();
+  return mGridTransform;
 }
 //--------------------------------------------------------------------
 

@@ -31,7 +31,7 @@ SET(clitkCommon_SRC
 )  
 
 ADD_LIBRARY(clitkCommon STATIC ${clitkCommon_SRC})
-TARGET_LINK_LIBRARIES(clitkCommon vtkCommon vtkImaging ITKBasicFilters)
+TARGET_LINK_LIBRARIES(clitkCommon vtkCommon vtkImaging vtkHybrid ITKBasicFilters)
 
 ADD_LIBRARY(clitkDicomRTStruct STATIC
   clitkDicomRT_Contour.cxx
