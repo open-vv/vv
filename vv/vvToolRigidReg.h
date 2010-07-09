@@ -26,6 +26,7 @@
 #include "vvMainWindow.h"
 #include "ui_vvToolRigidReg.h"
 #include "vtkMatrix4x4.h"
+#include "clitkAffineRegistration_ggo.h"
 
 //------------------------------------------------------------------------------
 class vvToolRigidReg:
@@ -50,29 +51,24 @@ public slots:
     SetToolTip("Register Image.");
     SetToolExperimental(true);
   }
+  virtual void GetArgsInfoFromGUI();
+  void SetOverlay();
+  void RemoveOverlay();
   void SetXvalue();
   void SetYvalue();
   void SetZvalue();
-  void UpdateXtranslider();
-  void UpdateXtransb();
-  void UpdateYtranslider();
-  void UpdateYtransb();
-  void UpdateZtranslider();
-  void UpdateZtransb();
-  void UpdateXrotslider();
-  void UpdateXrotsb();
-  void UpdateYrotslider();
-  void UpdateYrotsb(); 
-  void UpdateZrotslider();
-  void UpdateZrotsb();  
-  void SetOverlay();
+  void Render();
+  void UpdateTextEditor(vtkMatrix4x4 *matrix,QTextEdit *textEdit);
+  void UpdateTransform_sliders();
+  void UpdateTransform_sb();
+  void UpdateTransform(bool slider_enabled);  
+  void AutoRegister();
   void SaveFile();
   void ReadFile();
   void ResetTransform();
   void SetRotationCenter();
   void SetSliderRanges();
-  void UpdateTextEditor(vtkMatrix4x4 *matrix);
-  void InitializeSliders();
+  void InitializeSliders(double xtrans,double ytrans, double ztrans, double xrot, double yrot, double zrot,bool sliders);
   protected:
   Ui::vvToolRigidReg ui;
   vvSlicerManager * mInput1;
@@ -80,10 +76,12 @@ public slots:
   vvMainWindow * mWindow;
   bool mTwoInputs;
   std::vector<int> mImageSize;
+  args_info_clitkAffineRegistration mArgsInfo;
+  double mInitialMatrix[16];
   void SetTransform(double tX, double tY, double tZ, double aX, double aY, double aZ,bool update);
   void SetTransform(vtkMatrix4x4 * matrix);
 }; // end class vvToolRigidReg
 //------------------------------------------------------------------------------
 
 #endif
-
+  
