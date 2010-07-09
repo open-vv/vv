@@ -26,7 +26,7 @@
 #include "vvMainWindow.h"
 #include "ui_vvToolRigidReg.h"
 #include "vtkMatrix4x4.h"
-#include "clitkAffineRegistration_ggo.h"
+//#include "clitkAffineRegistration_ggo.h"
 
 //------------------------------------------------------------------------------
 class vvToolRigidReg:
@@ -76,7 +76,7 @@ public slots:
   vvMainWindow * mWindow;
   bool mTwoInputs;
   std::vector<int> mImageSize;
-  args_info_clitkAffineRegistration mArgsInfo;
+  //args_info_clitkAffineRegistration mArgsInfo;
   double mInitialMatrix[16];
   void SetTransform(double tX, double tY, double tZ, double aX, double aY, double aZ,bool update);
   void SetTransform(vtkMatrix4x4 * matrix);
