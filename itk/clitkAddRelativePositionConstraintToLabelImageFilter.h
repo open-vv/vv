@@ -43,15 +43,15 @@ namespace clitk {
   */
   //--------------------------------------------------------------------
   
-  template <class TImageType>
+  template <class ImageType>
   class ITK_EXPORT AddRelativePositionConstraintToLabelImageFilter:
     public clitk::FilterBase, 
-    public itk::ImageToImageFilter<TImageType, TImageType> 
+    public itk::ImageToImageFilter<ImageType, ImageType> 
   {
 
   public:
     /** Standard class typedefs. */
-    typedef itk::ImageToImageFilter<TImageType, TImageType> Superclass;
+    typedef itk::ImageToImageFilter<ImageType, ImageType>      Superclass;
     typedef AddRelativePositionConstraintToLabelImageFilter    Self;
     typedef itk::SmartPointer<Self>                            Pointer;
     typedef itk::SmartPointer<const Self>                      ConstPointer;
@@ -64,7 +64,6 @@ namespace clitk {
     FILTERBASE_INIT;
 
     /** Some convenient typedefs. */
-    typedef TImageType                      ImageType;
     typedef typename ImageType::ConstPointer ImageConstPointer;
     typedef typename ImageType::Pointer      ImagePointer;
     typedef typename ImageType::RegionType   RegionType; 
@@ -73,7 +72,7 @@ namespace clitk {
     typedef typename ImageType::SizeType     SizeType;
     
     /** ImageDimension constants */
-    itkStaticConstMacro(ImageDimension, unsigned int, TImageType::ImageDimension);
+    itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
     typedef itk::Image<float, ImageDimension> FloatImageType;
 
     /** Orientation types */
@@ -89,21 +88,31 @@ namespace clitk {
     // Options
     void SetOrientationType(OrientationTypeEnumeration orientation);
     itkGetConstMacro(OrientationType, OrientationTypeEnumeration);
+
     void SetAngle1(double a);
     void SetAngle2(double a);
     itkGetConstMacro(Angle1, double);
     itkGetConstMacro(Angle2, double);
+
     itkGetConstMacro(ResampleBeforeRelativePositionFilter, bool);
     itkSetMacro(ResampleBeforeRelativePositionFilter, bool);
     itkBooleanMacro(ResampleBeforeRelativePositionFilter);
+
     itkGetConstMacro(IntermediateSpacing, double);
     itkSetMacro(IntermediateSpacing, double);
+
     itkGetConstMacro(FuzzyThreshold, double);
     itkSetMacro(FuzzyThreshold, double);
+
     itkGetConstMacro(BackgroundValue, PixelType);
     itkSetMacro(BackgroundValue, PixelType);
+
     itkGetConstMacro(ObjectBackgroundValue, PixelType);
     itkSetMacro(ObjectBackgroundValue, PixelType);
+
+    itkGetConstMacro(AutoCrop, bool);
+    itkSetMacro(AutoCrop, bool);
+    itkBooleanMacro(AutoCrop);
 
   protected:
     AddRelativePositionConstraintToLabelImageFilter();
@@ -117,6 +126,7 @@ namespace clitk {
     double m_Angle1;
     double m_Angle2;
     bool m_ResampleBeforeRelativePositionFilter;
+    bool m_AutoCrop;
 
     virtual void GenerateOutputInformation();
     virtual void GenerateInputRequestedRegion();

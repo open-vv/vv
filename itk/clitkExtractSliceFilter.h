@@ -47,13 +47,28 @@ namespace clitk {
   class ITK_EXPORT ExtractSliceFilter:
     public clitk::FilterBase, 
     public itk::ImageToImageFilter<ImageType, 
-                                   std::vector<typename itk::Image<typename ImageType::PixelType, 
-                                                                   ImageType::ImageDimension-1>::Pointer> > 
+                                   typename itk::Image<typename ImageType::PixelType, ImageType::ImageDimension-1> >
   {
 
   public:
+    /** Some convenient typedefs. */
+    typedef typename ImageType::ConstPointer ImageConstPointer;
+    typedef typename ImageType::Pointer      ImagePointer;
+    typedef typename ImageType::RegionType   RegionType; 
+    typedef typename ImageType::PixelType    PixelType;
+    typedef typename ImageType::SpacingType  SpacingType;
+    typedef typename ImageType::SizeType     SizeType;
+    typedef typename ImageType::IndexType    IndexType;
+    
+    /** ImageDimension constants */
+    itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
+
+    /** Slice image type **/
+    typedef itk::Image<PixelType, ImageDimension-1> SliceType;
+    typedef typename SliceType::Pointer             SliceTypePointer;
+
     /** Standard class typedefs. */
-    typedef itk::ImageToImageFilter<ImageType, ImageType> Superclass;
+    typedef itk::ImageToImageFilter<ImageType, SliceType>   Superclass;
     typedef ExtractSliceFilter                              Self;
     typedef itk::SmartPointer<Self>                         Pointer;
     typedef itk::SmartPointer<const Self>                   ConstPointer;
@@ -65,27 +80,15 @@ namespace clitk {
     itkTypeMacro(ExtractSliceFilter, ImageToImageFilter);
     FILTERBASE_INIT;
 
-    /** Some convenient typedefs. */
-    typedef typename ImageType::ConstPointer ImageConstPointer;
-    typedef typename ImageType::Pointer      ImagePointer;
-    typedef typename ImageType::RegionType   RegionType; 
-    typedef typename ImageType::PixelType    PixelType;
-    typedef typename ImageType::SpacingType  SpacingType;
-    typedef typename ImageType::SizeType     SizeType;
-    
-    /** ImageDimension constants */
-    itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
-
-    /** Slice image type **/
-    typedef itk::Image<PixelType, ImageDimension-1> SliceType;
-    typedef typename SliceType::Pointer             SliceTypePointer;
-
     /** Input : initial image and object */
     void SetInput(const ImageType * image);
     
     // Options
     itkGetConstMacro(Direction, int);
     itkSetMacro(Direction, int);
+    
+    // Get results
+    void GetOutputSlices(std::vector<typename SliceType::Pointer> & o);
 
   protected:
     ExtractSliceFilter();
@@ -97,9 +100,14 @@ namespace clitk {
     virtual void GenerateInputRequestedRegion();
     virtual void GenerateData();
 
+    int m_NumberOfSlices;
     ImagePointer input;
     ImagePointer object;
-    std::vector<SliceTypePointer> output;
+    SliceType *  output;
+    
+    RegionType m_region;
+    SizeType   m_size;
+    IndexType  m_index;
 
   private:
     ExtractSliceFilter(const Self&); //purposely not implemented

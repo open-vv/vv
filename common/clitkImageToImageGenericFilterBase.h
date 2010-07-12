@@ -15,6 +15,7 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
 #ifndef CLITKIMAGETOIMAGEGENERICFILTERBASE_H
 #define CLITKIMAGETOIMAGEGENERICFILTERBASE_H
 
@@ -22,6 +23,7 @@
 #include "clitkCommon.h"
 #include "clitkImageCommon.h"
 #include "clitkCommonGenericFilter.h"
+#include "clitkFilterBase.h"
 
 // itk 
 #include <itkImage.h>
@@ -60,7 +62,6 @@ namespace clitk {
     /// Returns the dimension and pixel type of the *first* input
     void GetInputImageDimensionAndPixelType(unsigned int& dim, std::string& pixeltype,
                                             unsigned int & components);
-
     // File IO
     void SetInputFilename(const std::string & filename);
     void AddInputFilename(const std::string & filename);
@@ -89,6 +90,9 @@ namespace clitk {
     // Main function to call for using the filter. 
     virtual bool Update() = 0;
 
+    // Get the associated filter
+    FilterBase * GetFilterBase() { return m_FilterBase; }
+
   protected:  
     bool m_ReadOnDisk;
     /// Call this function to dispatch an output towards the correct sink
@@ -116,6 +120,8 @@ namespace clitk {
     bool m_FailOnImageTypeError;
     
     std::string m_LastError;
+    void SetFilterBase(FilterBase * f) { m_FilterBase = f; }
+    FilterBase * m_FilterBase;
 
   }; // end class clitk::ImageToImageGenericFilter
 

@@ -38,6 +38,7 @@ ExtractLungFilter():
   clitk::FilterBase(),
   itk::ImageToImageFilter<TInputImageType, TMaskImageType>()
 {
+  SetNumberOfSteps(10);
   // Default global options
   this->SetNumberOfRequiredInputs(2);
   SetPatientMaskBackgroundValue(0);
@@ -154,7 +155,6 @@ GenerateOutputInformation()
 { 
   input   = dynamic_cast<const TInputImageType*>(itk::ProcessObject::GetInput(0));
   Superclass::GenerateOutputInformation();
-//   MaskImagePointer output = this->GetOutput(0);
 
   // Get input pointers
   input   = dynamic_cast<const TInputImageType*>(itk::ProcessObject::GetInput(0));
@@ -165,6 +165,9 @@ GenerateOutputInformation()
     this->SetLastError("* ERROR * the images (input and patient mask) must have the same size & spacing");
     return;
   }
+  
+  // Set Number of steps
+  SetNumberOfSteps(9);
   
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------

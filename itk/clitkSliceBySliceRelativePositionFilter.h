@@ -21,6 +21,7 @@
 
 // clitk
 #include "clitkFilterBase.h"
+#include "clitkAddRelativePositionConstraintToLabelImageFilter.h"
 
 namespace clitk {
   
@@ -38,7 +39,7 @@ namespace clitk {
 
   public:
     /** Standard class typedefs. */
-    typedef itk::ImageToImageFilter<ImageType, ImageType> Superclass;
+    typedef itk::ImageToImageFilter<ImageType, ImageType>   Superclass;
     typedef SliceBySliceRelativePositionFilter              Self;
     typedef itk::SmartPointer<Self>                         Pointer;
     typedef itk::SmartPointer<const Self>                   ConstPointer;
@@ -50,6 +51,10 @@ namespace clitk {
     itkTypeMacro(SliceBySliceRelativePositionFilter, ImageToImageFilter);
     FILTERBASE_INIT;
 
+    /** ImageDimension constants */
+    itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
+    typedef itk::Image<float, ImageDimension> FloatImageType;
+
     /** Some convenient typedefs. */
     typedef typename ImageType::ConstPointer ImageConstPointer;
     typedef typename ImageType::Pointer      ImagePointer;
@@ -57,11 +62,10 @@ namespace clitk {
     typedef typename ImageType::PixelType    PixelType;
     typedef typename ImageType::SpacingType  SpacingType;
     typedef typename ImageType::SizeType     SizeType;
+    typedef itk::Image<PixelType, ImageDimension-1> SliceType;
+    typedef clitk::AddRelativePositionConstraintToLabelImageFilter<SliceType> RelPosFilterType;
+    typedef typename RelPosFilterType::OrientationTypeEnumeration OrientationTypeEnumeration;
     
-    /** ImageDimension constants */
-    itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
-    typedef itk::Image<float, ImageDimension> FloatImageType;
-
     /** Input : initial image and object */
     void SetInput(const ImageType * image);
     void SetInputObject(const ImageType * image);
@@ -72,12 +76,26 @@ namespace clitk {
     itkGetConstMacro(ObjectBackgroundValue, PixelType);
     itkSetMacro(ObjectBackgroundValue, PixelType);
 
+    itkSetMacro(OrientationType, OrientationTypeEnumeration);
+    itkGetConstMacro(OrientationType, OrientationTypeEnumeration);
+    itkGetConstMacro(ResampleBeforeRelativePositionFilter, bool);
+    itkSetMacro(ResampleBeforeRelativePositionFilter, bool);
+    itkBooleanMacro(ResampleBeforeRelativePositionFilter);
+    itkGetConstMacro(IntermediateSpacing, double);
+    itkSetMacro(IntermediateSpacing, double);
+    itkGetConstMacro(FuzzyThreshold, double);
+    itkSetMacro(FuzzyThreshold, double);
+
   protected:
     SliceBySliceRelativePositionFilter();
     virtual ~SliceBySliceRelativePositionFilter() {}
     
     int m_Direction;
     PixelType m_ObjectBackgroundValue;
+    OrientationTypeEnumeration m_OrientationType;
+    double m_IntermediateSpacing;
+    double m_FuzzyThreshold;
+    bool m_ResampleBeforeRelativePositionFilter;
 
     virtual void GenerateOutputInformation();
     virtual void GenerateInputRequestedRegion();

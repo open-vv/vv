@@ -60,6 +60,8 @@ namespace clitk {
     GGO_DefineOption_Flag(verboseOption, SetVerboseOption);
 
     // Steps management
+    itkSetMacro(NumberOfSteps, int);
+    itkGetConstMacro(NumberOfSteps, int);
     itkSetMacro(VerboseStep, bool);
     itkGetConstMacro(VerboseStep, bool);
     itkBooleanMacro(VerboseStep);
@@ -76,6 +78,8 @@ namespace clitk {
     itkGetConstMacro(CurrentStepId, std::string);
     itkSetMacro(CurrentStepBaseId, std::string);
     itkGetConstMacro(CurrentStepBaseId, std::string);
+    itkSetMacro(CurrentStepName, std::string);
+    itkGetConstMacro(CurrentStepName, std::string);
 
     // Convenient function for verbose option
     template<class OptionType>
@@ -101,6 +105,9 @@ namespace clitk {
     itkBooleanMacro(VerboseWarningOff);
     GGO_DefineOption_Flag(verboseWarningOff, SetVerboseWarningOff);
     
+    // Use this function to stop (when threaded)
+    void MustStop();
+    
   protected:
     FilterBase();
     virtual ~FilterBase() {}    
@@ -113,12 +120,15 @@ namespace clitk {
     bool m_VerboseStep;
     bool m_WriteStep;
     int m_CurrentStepNumber;
+    int m_NumberOfSteps;
     std::string m_CurrentStepId;
     std::string m_CurrentStepBaseId;
     std::string m_LastError;
+    std::string m_CurrentStepName;
     bool m_StopOnError;
     std::string m_Warning;
     bool m_VerboseWarningOff;
+    bool m_MustStop;
 
   private:
     FilterBase(const Self&); //purposely not implemented

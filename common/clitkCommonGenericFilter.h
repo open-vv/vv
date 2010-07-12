@@ -20,6 +20,7 @@
 #define CLITKCOMMONGENERICFILTER_H
 
 #include "clitkCommon.h"
+#include "clitkFilterBase.h"
 
 /*--------------------------------------------------------------------
   DISCLAIMER : I obviously know how to make this mess much clearer and
@@ -65,14 +66,14 @@ namespace clitk {
         mMapOfImageTypeToFunction[dim][ncomp][pixelname]->Execute();
     }
     template<unsigned int Dim, unsigned int NComp, class PixelType>
-    void AddNewDimensionAndPixelType() {
+      void AddNewDimensionAndPixelType() {
         typedef itk::Image<itk::Vector<PixelType,NComp>,Dim> InputImageType;
         mMapOfImageTypeToFunction[Dim][NComp][ GetTypeAsString<PixelType>() ] = 
             new GenericFilterFunctorWithDimAndPixelType<FilterType, InputImageType>(mFilter);
     }
     /// Specialization for NComp == 1
     template<unsigned int Dim, class PixelType>
-    void AddNewDimensionAndPixelType() {
+      void AddNewDimensionAndPixelType() {
         typedef itk::Image<PixelType,Dim> InputImageType;
         mMapOfImageTypeToFunction[Dim][1][ GetTypeAsString<PixelType>() ] = 
             new GenericFilterFunctorWithDimAndPixelType<FilterType, InputImageType>(mFilter);

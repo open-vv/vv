@@ -36,11 +36,11 @@
 #include "RelativePositionPropImageFilter.h"
 
 //--------------------------------------------------------------------
-template <class TImageType>
-clitk::AddRelativePositionConstraintToLabelImageFilter<TImageType>::
+template <class ImageType>
+clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
 AddRelativePositionConstraintToLabelImageFilter():
   clitk::FilterBase(),
-  itk::ImageToImageFilter<TImageType, TImageType>()
+  itk::ImageToImageFilter<ImageType, ImageType>()
 {
   this->SetNumberOfRequiredInputs(2);
   SetFuzzyThreshold(0.6);
@@ -49,39 +49,17 @@ AddRelativePositionConstraintToLabelImageFilter():
   SetOrientationType(LeftTo);
   ResampleBeforeRelativePositionFilterOn();
   SetIntermediateSpacing(10);
-
-  // Step 1 : resample (option=sampling)
-  // Step 2 : Pad (no)
-  // Step 3 : relative position  (option = angle)
-  // Step 4 : Threshold
-  // Step 5 : Erode for boundary
-  // Step 6 : resample to initial spacing
-  // Step 7 : pad if not the same size : it can occur when downsample and upsample
-  // Step 6: combine input+thresholded relpos
-  // Step 7: autocrop
-
-  // Step 1 : resample
-  ResampleBeforeRelativePositionFilterOn();
-  SetIntermediateSpacing(10);
-  SetOrientationType(LeftTo);
-  // SegmentationStep * step = new SegmentationStep;
-  //   step->SetName("Initial resampling and relative position map");
-  //   SetStep(step, &Self::ResampleAndRelativePositionMap);
-
-  // Step 3 : threshold + postprocess
-  // SetFuzzyThreshold(0.4);
-  //  step = new SegmentationStep;
-  //   step->SetName("Map threshold and post-processing");
-  //   SetStep(step, &Self::MapThresholdAndPostProcessing);
+  AutoCropOn();
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-template <class TImageType>
+template <class ImageType>
 void 
-clitk::AddRelativePositionConstraintToLabelImageFilter<TImageType>::
-SetInput(const ImageType * image) {
+clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
+SetInput(const ImageType * image) 
+{
   // Process object is not const-correct so the const casting is required.
   this->SetNthInput(0, const_cast<ImageType *>(image));
 }
@@ -89,10 +67,11 @@ SetInput(const ImageType * image) {
   
 
 //--------------------------------------------------------------------
-template <class TImageType>
+template <class ImageType>
 void 
-clitk::AddRelativePositionConstraintToLabelImageFilter<TImageType>::
-SetInputObject(const ImageType * image) {
+clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
+SetInputObject(const ImageType * image) 
+{
   // Process object is not const-correct so the const casting is required.
   this->SetNthInput(1, const_cast<ImageType *>(image));
 }
@@ -100,11 +79,12 @@ SetInputObject(const ImageType * image) {
   
 
 //--------------------------------------------------------------------
-template <class TImageType>
+template <class ImageType>
 void 
-clitk::AddRelativePositionConstraintToLabelImageFilter<TImageType>::
-GenerateOutputInformation() { 
-  ImagePointer input = dynamic_cast<TImageType*>(itk::ProcessObject::GetInput(0));
+clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
+GenerateOutputInformation() 
+{ 
+  ImagePointer input = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
   ImagePointer outputImage = this->GetOutput(0);
   outputImage->SetRegions(outputImage->GetLargestPossibleRegion());
 }
@@ -112,15 +92,16 @@ GenerateOutputInformation() {
 
 
 //--------------------------------------------------------------------
-template <class TImageType>
+template <class ImageType>
 void 
-clitk::AddRelativePositionConstraintToLabelImageFilter<TImageType>::
-GenerateInputRequestedRegion() {
+clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
+GenerateInputRequestedRegion() 
+{
   // Call default
-  itk::ImageToImageFilter<TImageType, TImageType>::GenerateInputRequestedRegion();
+  itk::ImageToImageFilter<ImageType, ImageType>::GenerateInputRequestedRegion();
   // Get input pointers and set requested region to common region
-  ImagePointer input1 = dynamic_cast<TImageType*>(itk::ProcessObject::GetInput(0));
-  ImagePointer input2 = dynamic_cast<TImageType*>(itk::ProcessObject::GetInput(1));
+  ImagePointer input1 = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
+  ImagePointer input2 = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(1));
   input1->SetRequestedRegion(input1->GetLargestPossibleRegion());
   input2->SetRequestedRegion(input2->GetLargestPossibleRegion());
 }
@@ -128,10 +109,11 @@ GenerateInputRequestedRegion() {
 
   
 //--------------------------------------------------------------------
-template <class TImageType>
+template <class ImageType>
 void 
-clitk::AddRelativePositionConstraintToLabelImageFilter<TImageType>::
-SetAngle1(double a) {
+clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
+SetAngle1(double a) 
+{
   SetOrientationType(Angle);
   m_Angle1 = a;
 }
@@ -139,10 +121,11 @@ SetAngle1(double a) {
 
 
 //--------------------------------------------------------------------
-template <class TImageType>
+template <class ImageType>
 void 
-clitk::AddRelativePositionConstraintToLabelImageFilter<TImageType>::
-SetAngle2(double a) {
+clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
+SetAngle2(double a) 
+{
   SetOrientationType(Angle);
   m_Angle2 = a;
 }
@@ -150,10 +133,11 @@ SetAngle2(double a) {
 
 
 //--------------------------------------------------------------------
-template <class TImageType>
+template <class ImageType>
 void 
-clitk::AddRelativePositionConstraintToLabelImageFilter<TImageType>::
-SetOrientationType(OrientationTypeEnumeration orientation) {
+clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
+SetOrientationType(OrientationTypeEnumeration orientation) 
+{
   m_OrientationType = orientation;
   switch (m_OrientationType) {
   case LeftTo:   m_Angle1 = clitk::deg2rad(0);   m_Angle2 = clitk::deg2rad(0);   break;
@@ -177,19 +161,19 @@ SetOrientationType(OrientationTypeEnumeration orientation) {
 
 
 //--------------------------------------------------------------------
-template <class TImageType>
+template <class ImageType>
 void 
-clitk::AddRelativePositionConstraintToLabelImageFilter<TImageType>::
-GenerateData() {
+clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
+GenerateData() 
+{
   // Get input pointer
   input = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
   object = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(1));
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
-  StartNewStep("Resample And Relative Position Map");
-  
   static const unsigned int dim = ImageType::ImageDimension;
+  StartNewStep("Initial resample and pad");  
   // Step 1 : resample
   if (m_ResampleBeforeRelativePositionFilter) {
     typedef clitk::ResampleImageWithOptionsFilter<ImageType> ResampleFilterType;
@@ -203,8 +187,7 @@ GenerateData() {
   }
   else {
     working_image = object;
-  }    
-  // writeImage<ImageType>(working_image, "res.mhd");
+  }
 
   // Step 2: object pad to input image -> we want to compute the
   // relative position for each point belonging to the input image
@@ -227,7 +210,7 @@ GenerateData() {
     typename PadFilterType::Pointer padFilter = PadFilterType::New();
     typename PadFilterType::InputImageIndexType index;
     for(unsigned int i=0; i<dim; i++) {
-      index[i] = lrint((working_image->GetOrigin()[i] - input->GetOrigin()[i])/(double)m_IntermediateSpacing);
+      index[i] = lrint((working_image->GetOrigin()[i] - input->GetOrigin()[i])/working_image->GetSpacing()[i]);
     }
     padFilter->SetSourceImage(working_image);
     padFilter->SetDestinationImage(output);
@@ -237,14 +220,14 @@ GenerateData() {
     working_image = padFilter->GetOutput();
   }
   else {
-    DD("[debug] RelPos : same size and spacing : no padding");
+    // DD("[debug] RelPos : same size and spacing : no padding");
   }
-
   // Keep object image (with resampline and pad)
   object_resampled = working_image;
-  //  writeImage<ImageType>(working_image, "pad.mhd");
+  StopCurrentStep<ImageType>(working_image);
 
   // Step 3: compute rel pos in object
+  StartNewStep("Relative Position Map");  
   typedef itk::RelativePositionPropImageFilter<ImageType, FloatImageType> RelPosFilterType;
   typename RelPosFilterType::Pointer relPosFilter = RelPosFilterType::New();
   relPosFilter->SetInput(working_image);
@@ -256,12 +239,11 @@ GenerateData() {
   // relPosFilter->SetVerboseProgress(true);
   relPosFilter->Update();
   relPos = relPosFilter->GetOutput();
-  this->template StopCurrentStep<FloatImageType>(relPos);
+  StopCurrentStep<FloatImageType>(relPos);
                
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
-  StartNewStep("Map Threshold And Post Processing");
-
+  StartNewStep("Map Threshold");
   // Step 1: threshold
   typedef itk::BinaryThresholdImageFilter<FloatImageType, ImageType> BinaryThresholdImageFilterType;
   typename BinaryThresholdImageFilterType::Pointer thresholdFilter = BinaryThresholdImageFilterType::New();
@@ -271,10 +253,14 @@ GenerateData() {
   thresholdFilter->SetLowerThreshold(m_FuzzyThreshold);
   thresholdFilter->Update();
   working_image = thresholdFilter->GetOutput();
+  StopCurrentStep<ImageType>(working_image);
 
+  //--------------------------------------------------------------------
+  //--------------------------------------------------------------------
+  StartNewStep("Post Processing: erosion with initial mask");
   // Step 2 : erosion with initial mask to exclude pixels that were
   // inside the resampled version and outside the original mask
-  typedef itk::BinaryBallStructuringElement<unsigned int, 3> StructuringElementType; 
+  typedef itk::BinaryBallStructuringElement<unsigned int, ImageDimension> StructuringElementType; 
   StructuringElementType kernel;
   kernel.SetRadius(1);
   kernel.CreateStructuringElement();
@@ -286,9 +272,13 @@ GenerateData() {
   erodeFilter->SetErodeValue(m_BackgroundValue+1);
   erodeFilter->Update();
   working_image = erodeFilter->GetOutput();
+  StopCurrentStep<ImageType>(working_image);
 
+  //--------------------------------------------------------------------
+  //--------------------------------------------------------------------
   // Step 5: resample to initial spacing
   if (m_ResampleBeforeRelativePositionFilter) {
+    StartNewStep("Resample to get the same sampling than input");
     typedef clitk::ResampleImageWithOptionsFilter<ImageType> ResampleFilterType;
     typename ResampleFilterType::Pointer resampleFilter = ResampleFilterType::New();
     resampleFilter->SetDefaultPixelValue(m_BackgroundValue);
@@ -298,12 +288,14 @@ GenerateData() {
     // resampleFilter->SetVerboseOptions(true);
     resampleFilter->Update();
     working_image = resampleFilter->GetOutput();
+  StopCurrentStep<ImageType>(working_image);
   }
 
-  // writeImage<ImageType>(working_image, "resinitial.mhd");
-
+  //--------------------------------------------------------------------
+  //--------------------------------------------------------------------
   // Pre Step 6: pad if not the same size : it can occur when downsample and upsample
   if (working_image->GetLargestPossibleRegion() != input->GetLargestPossibleRegion()) {
+    StartNewStep("Pad to get the same size than input");
     typename ImageType::Pointer temp = ImageType::New();
     temp->CopyInformation(input);
     temp->SetRegions(input->GetLargestPossibleRegion()); // Do not forget !!
@@ -316,15 +308,20 @@ GenerateData() {
     padFilter2->SetSourceRegion(working_image->GetLargestPossibleRegion());
     padFilter2->Update();
     working_image = padFilter2->GetOutput();
+    StopCurrentStep<ImageType>(working_image);
   }
   else {
-    DD("[debug] Rel Pos : no padding after");
+    //DD("[debug] Rel Pos : no padding after");
   }
-  // writeImage<ImageType>(working_image, "pad2.mhd");
 
+  //--------------------------------------------------------------------
+  //--------------------------------------------------------------------
   // Step 6: combine input+thresholded relpos
+  StartNewStep("Combine with initial input (boolean And)");
   typedef clitk::BooleanOperatorLabelImageFilter<ImageType> BoolFilterType;
   typename BoolFilterType::Pointer combineFilter = BoolFilterType::New();
+  writeImage<ImageType>(input, "i.mhd");
+  writeImage<ImageType>(working_image, "w.mhd");
   combineFilter->SetBackgroundValue(m_BackgroundValue);
   combineFilter->SetBackgroundValue1(m_BackgroundValue);
   combineFilter->SetBackgroundValue2(m_BackgroundValue);
@@ -335,6 +332,7 @@ GenerateData() {
   combineFilter->InPlaceOn();
   combineFilter->Update(); 
   working_image = combineFilter->GetOutput();
+  // writeImage<ImageType>(working_image, "res.mhd");
  
   combineFilter = BoolFilterType::New();
   combineFilter->SetInput1(working_image);
@@ -344,16 +342,21 @@ GenerateData() {
   combineFilter->Update(); 
 
   working_image = combineFilter->GetOutput();
-  // writeImage<ImageType>(working_image, "combine.mhd");
+  StopCurrentStep<ImageType>(working_image);
 
+  //--------------------------------------------------------------------
+  //--------------------------------------------------------------------
   // Step 7: autocrop
-  typedef clitk::AutoCropFilter<ImageType> CropFilterType;
-  typename CropFilterType::Pointer cropFilter = CropFilterType::New();
-  cropFilter->SetInput(working_image);
-  cropFilter->ReleaseDataFlagOff();
-  cropFilter->Update();   
-  working_image = cropFilter->GetOutput();
-  this->template StopCurrentStep<ImageType>(working_image);
+  if (GetAutoCrop()) {
+    StartNewStep("Final AutoCrop");
+    typedef clitk::AutoCropFilter<ImageType> CropFilterType;
+    typename CropFilterType::Pointer cropFilter = CropFilterType::New();
+    cropFilter->SetInput(working_image);
+    cropFilter->ReleaseDataFlagOff();
+    cropFilter->Update();   
+    working_image = cropFilter->GetOutput();
+    StopCurrentStep<ImageType>(working_image);
+  }
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------

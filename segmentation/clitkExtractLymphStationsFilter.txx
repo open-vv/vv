@@ -29,12 +29,12 @@
 #include "clitkSliceBySliceRelativePositionFilter.h"
 
 // itk
-#include <deque>
 #include <itkStatisticsLabelMapFilter.h>
 #include <itkLabelImageToStatisticsLabelMapFilter.h>
 #include <itkRegionOfInterestImageFilter.h>
 #include <itkBinaryThresholdImageFilter.h>
 #include <itkImageSliceConstIteratorWithIndex.h>
+#include <itkBinaryThinningImageFilter.h>
 
 // itk ENST
 #include "RelativePositionPropImageFilter.h"
@@ -119,7 +119,7 @@ GenerateOutputInformation() {
   // ----------------------------------------------------------------
   // Superior limit = carena
   // Inferior limit = origine middle lobe bronchus
-  StartNewStep("Inf/Sup limits with carena/bronchus");
+  StartNewStep("Inf/Sup mediastinum limits with carena/bronchus");
   ImageRegionType region = m_mediastinum->GetLargestPossibleRegion(); DD(region);
   ImageSizeType size = region.GetSize();
   ImageIndexType index = region.GetIndex();
@@ -144,7 +144,7 @@ GenerateOutputInformation() {
   // ----------------------------------------------------------------
   // ----------------------------------------------------------------
   // Separate trachea in two CCL
-  StartNewStep("Separate trachea");
+  StartNewStep("Separate trachea under carena");
   // DD(region);
   ImageRegionType trachea_region = m_trachea->GetLargestPossibleRegion();
   for(int i=0; i<3; i++) {
@@ -176,8 +176,7 @@ GenerateOutputInformation() {
 
   // Labelize and consider two main labels
   m_working_trachea = Labelize<ImageType>(m_working_trachea, 0, true, 1);
-  StopCurrentStep<ImageType>(m_working_trachea);
-  
+
   // Detect wich label is at Left
   typedef itk::ImageSliceConstIteratorWithIndex<ImageType> SliceIteratorType;
   SliceIteratorType iter(m_working_trachea, m_working_trachea->GetLargestPossibleRegion());
@@ -186,6 +185,7 @@ GenerateOutputInformation() {
   iter.GoToBegin();
   bool stop = false;
   ImagePixelType leftLabel;
+  ImagePixelType rightLabel;
   while (!stop) {
     if (iter.Get() != m_BackgroundValueTrachea) {
       //     DD(iter.GetIndex());
@@ -195,61 +195,29 @@ GenerateOutputInformation() {
     }
     ++iter;
   }
+  if (leftLabel == 1) rightLabel = 2;
+  else rightLabel = 1;
   DD((int)leftLabel);
+  DD((int)rightLabel);  
+
+  // End step
+  StopCurrentStep<ImageType>(m_working_trachea);
   
-  /*
-  // Relative position 
-  StartNewStep("Left/Right limits with trachea");
-
-  // Select LeftLabel (set label 1 to 0)
-  ImagePointer temp = SetBackground<ImageType, ImageType>(m_working_trachea, m_working_trachea, 1, 0);
-  writeImage<ImageType>(temp, "temp1.mhd");
-
-  // Left relative position
-  typedef clitk::AddRelativePositionConstraintToLabelImageFilter<TImageType> RelPosFilterType;
-  typename RelPosFilterType::Pointer relPosFilter = RelPosFilterType::New();
-  relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
-  relPosFilter->VerboseStepOff();
-  relPosFilter->WriteStepOff();
-  relPosFilter->SetInput(m_working_image); 
-  relPosFilter->SetInputObject(temp); 
-  relPosFilter->SetOrientationType(RelPosFilterType::RightTo);
-  relPosFilter->SetIntermediateSpacing(GetIntermediateSpacing());
-  relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold1());
-  relPosFilter->Update();
-  m_working_image = relPosFilter->GetOutput();
-
-  // Select RightLabel (set label 2 to 0)
-  temp = SetBackground<ImageType, ImageType>(m_working_trachea, m_working_trachea, 2, 0);
-  writeImage<ImageType>(temp, "temp2.mhd");
-
-  // Left relative position
-  relPosFilter = RelPosFilterType::New();
-  relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
-  relPosFilter->VerboseStepOn();
-  relPosFilter->WriteStepOn();
-  relPosFilter->SetInput(m_working_image); 
-  relPosFilter->SetInputObject(temp); 
-  relPosFilter->SetOrientationType(RelPosFilterType::LeftTo);
-  relPosFilter->SetIntermediateSpacing(GetIntermediateSpacing());
-  relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold1());
-  relPosFilter->Update();
-  m_working_image = relPosFilter->GetOutput();
+  //-----------------------------------------------------
+  /*  DD("TEST Skeleton");
+  typedef itk::BinaryThinningImageFilter<ImageType, ImageType> SkeletonFilterType;
+  typename SkeletonFilterType::Pointer skeletonFilter = SkeletonFilterType::New();
+  skeletonFilter->SetInput(m_working_trachea);
+  skeletonFilter->Update();
+  writeImage<ImageType>(skeletonFilter->GetOutput(), "skel.mhd");
+  writeImage<ImageType>(skeletonFilter->GetThinning(), "skel2.mhd");  
   */
 
   //-----------------------------------------------------
-  StartNewStep("Left/Right limits with trachea (slice by slice");
-  
-  // Select LeftLabel (set label 1 to 0)
-  ImagePointer temp = SetBackground<ImageType, ImageType>(m_working_trachea, m_working_trachea, 1, 0);
+  StartNewStep("Left limits with bronchus (slice by slice)");  
+  // Select LeftLabel (set right label to 0)
+  ImagePointer temp = SetBackground<ImageType, ImageType>(m_working_trachea, m_working_trachea, rightLabel, 0);
   writeImage<ImageType>(temp, "temp1.mhd");
-
-  /*
-    - écrire utilisation de filter SliceBySliceRelPosFilter (combine in a 3D)
-    - filter SliceBySliceRelPosFilter + combine in a 3D 
-          - resampling, affine transfo to pair the slices
-          - extract list of images (ecrire utilisation de ExtractSliceFilter)
-   */
 
   typedef clitk::SliceBySliceRelativePositionFilter<ImageType> SliceRelPosFilterType;
   typename SliceRelPosFilterType::Pointer sliceRelPosFilter = SliceRelPosFilterType::New();
@@ -259,79 +227,33 @@ GenerateOutputInformation() {
   sliceRelPosFilter->SetInput(m_working_image);
   sliceRelPosFilter->SetInputObject(temp);
   sliceRelPosFilter->SetDirection(2);
+  sliceRelPosFilter->SetFuzzyThreshold(0.8);
+  sliceRelPosFilter->SetOrientationType(SliceRelPosFilterType::RelPosFilterType::RightTo);
   sliceRelPosFilter->Update();
   m_working_image = sliceRelPosFilter->GetOutput();
   writeImage<ImageType>(m_working_image, "afterslicebyslice.mhd");
 
-  /*
-  
 
-  itk::ImageSliceConstIteratorWithIndex<ImageType> it(temp, temp->GetRequestedRegion());
-  itk::ImageRegionIterator<SliceType> * ot;
-  typename SliceType::Pointer slice;
-  it.SetFirstDirection(0);
-  it.SetSecondDirection(1);
-  it.GoToBegin();
-  typename SliceType::RegionType mSliceRegion;
-  typename SliceType::IndexType mSliceIndex;
-  typename SliceType::SizeType mSliceSize;
-  typename SliceType::SpacingType mSliceSpacing;
-  typename SliceType::PointType mSliceOrigin;
-  mSliceIndex[0] = temp->GetLargestPossibleRegion().GetIndex()[0];
-  mSliceIndex[1] = temp->GetLargestPossibleRegion().GetIndex()[1];
-  mSliceSize[0] = temp->GetLargestPossibleRegion().GetSize()[0];
-  mSliceSize[1] = temp->GetLargestPossibleRegion().GetSize()[1];
-  mSliceSpacing[0] = temp->GetSpacing()[0];
-  mSliceSpacing[1] = temp->GetSpacing()[1];
-  mSliceOrigin[0] = temp->GetOrigin()[0];
-  mSliceOrigin[1] = temp->GetOrigin()[1];
-  mSliceRegion.SetIndex(mSliceIndex);
-  mSliceRegion.SetSize(mSliceSize);
-  int i=0;
-  while( !it.IsAtEnd() ) {
-    // DD(i);
-    slice = SliceType::New();
-    slice->SetRegions(mSliceRegion);  
-    slice->SetOrigin(mSliceOrigin);
-    slice->SetSpacing(mSliceSpacing);
-    slice->Allocate();
-    ot = new itk::ImageRegionIterator<SliceType>(slice, slice->GetLargestPossibleRegion());
-    ot->GoToBegin();
-    // DD(it.GetIndex());
-    while(!it.IsAtEndOfSlice()) {
-      // DD(ot->GetIndex());
-      while(!it.IsAtEndOfLine()) {
-        ot->Set(it.Get());
-        ++it;
-        ++(*ot);
-      }
-      it.NextLine();
-    }
-    mImageSlices.push_back(slice);
-    it.NextSlice();
-    ++i;
-  } 
-  writeImage<SliceType>(mImageSlices[10], "slice.mhd");
+  //-----------------------------------------------------
+  StartNewStep("Right limits with bronchus (slice by slice)");
+  // Select LeftLabel (set right label to 0)
+  temp = SetBackground<ImageType, ImageType>(m_working_trachea, m_working_trachea, leftLabel, 0);
+  writeImage<ImageType>(temp, "temp2.mhd");
 
-  // Perform RelPos by slice
-  for(int i=0; i<mImageSlices.size(); i++) {
-    DD(i);
-    typedef clitk::AddRelativePositionConstraintToLabelImageFilter<SliceType> RelPosFilterType;
-    typename RelPosFilterType::Pointer relPosFilter = RelPosFilterType::New();
-    //    relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
-    relPosFilter->VerboseStepOff();
-    relPosFilter->WriteStepOff();
-    relPosFilter->SetInput(m_working_image); 
-    relPosFilter->SetInputObject(temp); 
-    relPosFilter->SetOrientationType(RelPosFilterType::RightTo);
-    relPosFilter->SetIntermediateSpacing(GetIntermediateSpacing());
-    relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold1());
-    relPosFilter->Update();
-    m_working_image = relPosFilter->GetOutput();
-  }
+  sliceRelPosFilter = SliceRelPosFilterType::New();
+  sliceRelPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
+  sliceRelPosFilter->VerboseStepOn();
+  sliceRelPosFilter->WriteStepOn();
+  sliceRelPosFilter->SetInput(m_working_image);
+  sliceRelPosFilter->SetInputObject(temp);
+  sliceRelPosFilter->SetDirection(2);
+  sliceRelPosFilter->SetFuzzyThreshold(0.8);
+  sliceRelPosFilter->SetOrientationType(SliceRelPosFilterType::RelPosFilterType::LeftTo);
+  sliceRelPosFilter->Update();
+  m_working_image = sliceRelPosFilter->GetOutput();
+  writeImage<ImageType>(m_working_image, "afterslicebyslice.mhd");
 
-  */
-  
+
   DD("end");
   m_output = m_working_image;
   StopCurrentStep<ImageType>(m_output);

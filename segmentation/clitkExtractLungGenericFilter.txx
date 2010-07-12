@@ -26,6 +26,7 @@ template<class ArgsInfoType>
 clitk::ExtractLungGenericFilter<ArgsInfoType>::ExtractLungGenericFilter():
   ImageToImageGenericFilter<Self>("ExtractLung") 
 {
+  this->SetFilterBase(NULL);
   // Default values
   cmdline_parser_clitkExtractLung_init(&mArgsInfo);
   InitializeImageType<3>();
@@ -78,6 +79,9 @@ void clitk::ExtractLungGenericFilter<ArgsInfoType>::UpdateWithInputImageType()
   // Create filter
   typedef clitk::ExtractLungFilter<ImageType, MaskImageType> FilterType;
   typename FilterType::Pointer filter = FilterType::New();
+
+  // Set the filter (needed for example for threaded monitoring)
+  this->SetFilterBase(filter);
     
   // Set global Options 
   filter->SetArgsInfo(mArgsInfo);

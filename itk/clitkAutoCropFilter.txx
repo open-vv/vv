@@ -89,12 +89,13 @@ namespace clitk {
     typename ImageToMapFilterType::Pointer imageToLabelFilter = ImageToMapFilterType::New();  
     imageToLabelFilter->SetBackgroundValue(m_BackgroundValue);
     imageToLabelFilter->SetInput(input);
+    DD(input->GetLargestPossibleRegion());
     
     // AutoCrop
     typedef itk::AutoCropLabelMapFilter<LabelMapType> AutoCropFilterType;
     typename AutoCropFilterType::Pointer autoCropFilter = AutoCropFilterType::New();
     autoCropFilter->SetInput(imageToLabelFilter->GetOutput());
-
+    
     // Convert to LabelImage
     typedef itk::LabelMapToLabelImageFilter<LabelMapType, ImageType> MapToImageFilterType;
     typename MapToImageFilterType::Pointer labelToImageFilter = MapToImageFilterType::New();       
@@ -102,10 +103,18 @@ namespace clitk {
 
     // Go ! (needed)
     labelToImageFilter->Update();
+    DD("CHECK AUTOCROP IF NB LABEL == 0 !!!");
     m_labeImage = labelToImageFilter->GetOutput();
 
     // Update the output size
     m_Region = m_labeImage->GetLargestPossibleRegion();
+    DD(m_Region);
+    // Sometimes the index is 9223372036854775807 ???
+    if (m_Region.GetIndex()[0] > 99999) {
+      typename ImageType::IndexType index; 
+      index.Fill(0);
+      m_Region.SetIndex(index);
+    }
     output->SetLargestPossibleRegion(m_Region);
     output->SetRequestedRegion(m_Region);
     output->SetBufferedRegion(m_Region);
@@ -118,7 +127,6 @@ namespace clitk {
   void 
   AutoCropFilter<ImageType>::
   GenerateData() {
-    DD("AutoCropFilter::GenerateData");
     // Get input pointers
     ImageConstPointer input = dynamic_cast<const ImageType*>(itk::ProcessObject::GetInput(0));
   

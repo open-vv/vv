@@ -22,6 +22,7 @@
 //--------------------------------------------------------------------
 clitk::FilterBase::FilterBase() 
 {
+  m_MustStop = false;
   SetVerboseOption(false);
   SetCurrentStepNumber(0);
   SetCurrentStepBaseId("");
@@ -79,8 +80,10 @@ void clitk::FilterBase::StartNewStep(std::string s)
     SetCurrentStepId(oss.str());
   }
 
+  m_CurrentStepName = "Step "+GetCurrentStepId()+" -- "+s;
   if (m_VerboseStep) {
-    std::cout << "Step " << GetCurrentStepId() << " -- " << s << std::endl;
+    std::cout << m_CurrentStepName << std::endl;
+    //"Step " << GetCurrentStepId() << " -- " << s << std::endl;
   }
 }
 //--------------------------------------------------------------------
@@ -92,4 +95,13 @@ void clitk::FilterBase::StopCurrentStep()
   
 }
 //--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void clitk::FilterBase::MustStop()
+{
+  m_MustStop = true;
+}
+//--------------------------------------------------------------------
+
 

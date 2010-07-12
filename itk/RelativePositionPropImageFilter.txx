@@ -3,8 +3,8 @@
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: RelativePositionPropImageFilter.txx,v $
   Language:  C++
-  Date:      $Date: 2010/06/30 05:58:56 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2010/07/12 06:57:25 $
+  Version:   $Revision: 1.2 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
@@ -16,6 +16,7 @@
   =========================================================================*/
 #ifndef _RelativePositionPropImageFilter_txx
 #define _RelativePositionPropImageFilter_txx
+
 #include "RelativePositionPropImageFilter.h"
 
 #include "itkNeighborhoodOperatorImageFilter.h"
@@ -23,7 +24,6 @@
 #include "itkZeroFluxNeumannBoundaryCondition.h"
 #include "itkProgressAccumulator.h"
 #include "itkImageFileWriter.h"
-
 #include "itkSimpleContourExtractorImageFilter.h"
 #include "itkUnaryFunctorImageFilter.h"
 
