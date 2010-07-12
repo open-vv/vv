@@ -109,7 +109,7 @@ vvToolStructureSetManager::~vvToolStructureSetManager()
 void vvToolStructureSetManager::Initialize() {
   SetToolName("ROIManager");
   SetToolMenuName("Display ROI");
-  SetToolIconFilename(":/common/icons/lung-overlay.png");
+  SetToolIconFilename(":/common/icons/tool-roi.png");
   SetToolTip("Display ROI from label image.");
   SetToolExperimental(true);
 }

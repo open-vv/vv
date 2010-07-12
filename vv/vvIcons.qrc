@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="common">
+    <file>icons/tool-roi.png</file>
     <file>icons/plastimatch.png</file>
     <file>icons/lung-overlay.png</file>
     <file>icons/arithm.png</file>
