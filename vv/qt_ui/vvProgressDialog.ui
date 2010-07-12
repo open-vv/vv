@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>267</width>
-    <height>59</height>
+    <width>264</width>
+    <height>120</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,8 +20,11 @@
    <iconset resource="../vvIcons.qrc">
     <normaloff>:/common/icons/ducky.png</normaloff>:/common/icons/ducky.png</iconset>
   </property>
-  <layout class="QGridLayout">
-   <item row="0" column="0">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="bottomMargin">
+    <number>3</number>
+   </property>
+   <item>
     <widget class="QLabel" name="textLabel">
      <property name="text">
       <string>Opening image </string>
@@ -31,7 +34,14 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item>
+    <widget class="QProgressBar" name="progressBar">
+     <property name="value">
+      <number>24</number>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QLabel" name="progressLabel">
      <property name="text">
       <string>Please wait ...</string>
@@ -41,10 +51,22 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QProgressBar" name="progressBar">
-     <property name="value">
-      <number>24</number>
+   <item>
+    <widget class="QDialogButtonBox" name="mCancelButton">
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel</set>
+     </property>
+     <property name="centerButtons">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>412</width>
-    <height>384</height>
+    <width>349</width>
+    <height>378</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -37,14 +37,11 @@
    <item>
     <widget class="QGroupBox" name="mMaskLoaderBox">
      <property name="title">
-      <string>GroupBox</string>
+      <string>Choose input patient binary mask</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="1" column="0">
-       <widget class="vvLabelImageLoaderWidget" name="mPatientMaskInputWidget" native="true">
-        <zorder>mOptionsBox</zorder>
-        <zorder>mOptionsBox</zorder>
-       </widget>
+       <widget class="vvLabelImageLoaderWidget" name="mPatientMaskInputWidget" native="true"/>
       </item>
      </layout>
     </widget>
@@ -52,7 +49,7 @@
    <item>
     <widget class="QGroupBox" name="mOptionsBox">
      <property name="title">
-      <string>GroupBox</string>
+      <string>Extract Lung Options</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
@@ -115,7 +112,6 @@
           <property name="enabled">
            <bool>false</bool>
           </property>
-          <zorder>mPatientMaskInputWidget</zorder>
          </widget>
         </item>
         <item row="1" column="1">

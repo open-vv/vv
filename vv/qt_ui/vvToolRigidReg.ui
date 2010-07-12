@@ -6,305 +6,309 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>844</width>
-    <height>456</height>
+    <width>740</width>
+    <height>472</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QTabWidget" name="tabWidget">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>851</width>
-     <height>611</height>
-    </rect>
-   </property>
-   <property name="currentIndex">
-    <number>0</number>
-   </property>
-   <widget class="QWidget" name="tab_3">
-    <attribute name="title">
-     <string>Manual</string>
-    </attribute>
-    <widget class="QWidget" name="gridLayoutWidget">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>841</width>
-       <height>571</height>
-      </rect>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
      </property>
-     <layout class="QGridLayout" name="gridLayout_4">
-      <item row="0" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_28">
-        <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Rotation Center(X,Y,Z)</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="Xval"/>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="Yval"/>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="Zval"/>
-        </item>
-        <item>
-         <widget class="QPushButton" name="resetbutton">
-          <property name="text">
-           <string>Reset</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="1" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_29">
-        <item>
-         <widget class="QLabel" name="ytans">
-          <property name="text">
-           <string>X Trans</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_37"/>
-        </item>
-        <item>
-         <widget class="QSlider" name="xtrans_slider">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QDoubleSpinBox" name="xtrans_sb"/>
-        </item>
-       </layout>
-      </item>
-      <item row="4" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_32">
-        <item>
-         <widget class="QLabel" name="yrot">
-          <property name="text">
-           <string>Y Rot   </string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_40"/>
-        </item>
-        <item>
-         <widget class="QSlider" name="yrot_slider">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QDoubleSpinBox" name="yrot_sb"/>
-        </item>
-       </layout>
-      </item>
-      <item row="5" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_33">
-        <item>
-         <widget class="QLabel" name="xrot">
-          <property name="text">
-           <string>X Rot   </string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_42"/>
-        </item>
-        <item>
-         <widget class="QSlider" name="xrot_slider">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QDoubleSpinBox" name="xrot_sb"/>
-        </item>
-       </layout>
-      </item>
-      <item row="6" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_34">
-        <item>
-         <widget class="QLabel" name="zrot">
-          <property name="text">
-           <string>Z Rot   </string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_43"/>
-        </item>
-        <item>
-         <widget class="QSlider" name="zrot_slider">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QDoubleSpinBox" name="zrot_sb"/>
-        </item>
-       </layout>
-      </item>
-      <item row="9" column="0">
-       <layout class="QGridLayout" name="gridLayout_6">
-        <item row="1" column="3">
-         <widget class="QTextEdit" name="textEdit"/>
-        </item>
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
+       <string>Manual</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="0" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_28">
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Rotation Center(X,Y,Z)</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="Xval"/>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="Yval"/>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="Zval"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="resetbutton">
+             <property name="text">
+              <string>Reset</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_29">
+           <item>
+            <widget class="QLabel" name="ytans">
+             <property name="text">
+              <string>X Trans</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_37"/>
+           </item>
+           <item>
+            <widget class="QSlider" name="xtrans_slider">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="xtrans_sb"/>
+           </item>
+          </layout>
+         </item>
+         <item row="4" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_32">
+           <item>
+            <widget class="QLabel" name="yrot">
+             <property name="text">
+              <string>Y Rot   </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_40"/>
+           </item>
+           <item>
+            <widget class="QSlider" name="yrot_slider">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="yrot_sb"/>
+           </item>
+          </layout>
+         </item>
+         <item row="5" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_33">
+           <item>
+            <widget class="QLabel" name="xrot">
+             <property name="text">
+              <string>X Rot   </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_42"/>
+           </item>
+           <item>
+            <widget class="QSlider" name="xrot_slider">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="xrot_sb"/>
+           </item>
+          </layout>
+         </item>
+         <item row="6" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_34">
+           <item>
+            <widget class="QLabel" name="zrot">
+             <property name="text">
+              <string>Z Rot   </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_43"/>
+           </item>
+           <item>
+            <widget class="QSlider" name="zrot_slider">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="zrot_sb"/>
+           </item>
+          </layout>
+         </item>
+         <item row="9" column="0">
+          <layout class="QGridLayout" name="gridLayout_6">
+           <item row="1" column="3">
+            <widget class="QTextEdit" name="textEdit">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QPushButton" name="loadbutton">
+             <property name="text">
+              <string>Load</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QPushButton" name="savebutton">
+             <property name="text">
+              <string>Save</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QTextEdit" name="textEdit_2">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Initial Transform</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignBottom|Qt::AlignHCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Current Transform</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="3" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_31">
+           <item>
+            <widget class="QLabel" name="ztrans">
+             <property name="text">
+              <string>Z Trans</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_39"/>
+           </item>
+           <item>
+            <widget class="QSlider" name="ztrans_slider">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="ztrans_sb"/>
+           </item>
+          </layout>
+         </item>
+         <item row="2" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_30">
+           <item>
+            <widget class="QLabel" name="ytrans">
+             <property name="text">
+              <string>Y Trans</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_38"/>
+           </item>
+           <item>
+            <widget class="QSlider" name="ytrans_slider">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="ytrans_sb"/>
+           </item>
+          </layout>
+         </item>
+         <item row="9" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout_49"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_4">
+      <attribute name="title">
+       <string>Automatic</string>
+      </attribute>
+      <widget class="QWidget" name="gridLayoutWidget_2">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>841</width>
+         <height>571</height>
+        </rect>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_5">
         <item row="1" column="0">
-         <widget class="QPushButton" name="loadbutton">
-          <property name="text">
-           <string>Load</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_45"/>
         </item>
-        <item row="1" column="1">
-         <widget class="QPushButton" name="savebutton">
-          <property name="text">
-           <string>Save</string>
-          </property>
-         </widget>
+        <item row="2" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_46"/>
         </item>
-        <item row="1" column="2">
-         <widget class="QTextEdit" name="textEdit_2"/>
+        <item row="0" column="1">
+         <widget class="QTextEdit" name="tab2textedit"/>
         </item>
-        <item row="0" column="2">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Initial Transform</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignBottom|Qt::AlignHCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="3">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Current Transform</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
+        <item row="0" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_44">
+          <item>
+           <widget class="QPushButton" name="tab2loadbutton">
+            <property name="text">
+             <string>Load</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="tab2applybutton">
+            <property name="text">
+             <string>Apply</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
-      </item>
-      <item row="3" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_31">
-        <item>
-         <widget class="QLabel" name="ztrans">
-          <property name="text">
-           <string>Z Trans</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_39"/>
-        </item>
-        <item>
-         <widget class="QSlider" name="ztrans_slider">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QDoubleSpinBox" name="ztrans_sb"/>
-        </item>
-       </layout>
-      </item>
-      <item row="2" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_30">
-        <item>
-         <widget class="QLabel" name="ytrans">
-          <property name="text">
-           <string>Y Trans</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_38"/>
-        </item>
-        <item>
-         <widget class="QSlider" name="ytrans_slider">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QDoubleSpinBox" name="ytrans_sb"/>
-        </item>
-       </layout>
-      </item>
-      <item row="9" column="1">
-       <layout class="QHBoxLayout" name="horizontalLayout_49"/>
-      </item>
-     </layout>
+      </widget>
+     </widget>
     </widget>
-   </widget>
-   <widget class="QWidget" name="tab_4">
-    <attribute name="title">
-     <string>Automatic</string>
-    </attribute>
-    <widget class="QWidget" name="gridLayoutWidget_2">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>841</width>
-       <height>571</height>
-      </rect>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_5">
-      <item row="1" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_45"/>
-      </item>
-      <item row="2" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_46"/>
-      </item>
-      <item row="0" column="1">
-       <widget class="QTextEdit" name="tab2textedit"/>
-      </item>
-      <item row="0" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_44">
-        <item>
-         <widget class="QPushButton" name="tab2loadbutton">
-          <property name="text">
-           <string>Load</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="tab2applybutton">
-          <property name="text">
-           <string>Apply</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </widget>
-  </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>
