@@ -17,6 +17,7 @@
 ======================================================================-====*/
 #ifndef VVTOOLINPUTSELECTORWIDGET_CXX
 #define VVTOOLINPUTSELECTORWIDGET_CXX
+
 #include "vvToolSimpleInputSelectorWidget.h"
 #include "vvToolInputSelectorWidget.h"
 #include "vvSlicerManager.h"

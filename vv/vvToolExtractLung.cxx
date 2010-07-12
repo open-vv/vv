@@ -23,7 +23,7 @@
 #include "vvImageReader.h"
 #include "vvImageWriter.h"
 #include "vvLabelImageLoaderWidget.h"
-#include "vvProgressDialog.h"
+#include "vvThreadedFilter.h"
 
 // Qt
 #include <QMessageBox>
@@ -45,6 +45,7 @@ vvToolExtractLung::vvToolExtractLung(vvMainWindowBase * parent, Qt::WindowFlags 
   Ui_vvToolExtractLung::setupUi(mToolWidget);
   mMaskLoaderBox->setEnabled(false);
   mOptionsBox->setEnabled(false);
+  mPatientMaskInputWidget->SetText("Patient mask");
   connect(mPatientMaskInputWidget, SIGNAL(accepted()), this, SLOT(PatientMaskInputIsSelected()));
 
   // Default values
@@ -54,7 +55,7 @@ vvToolExtractLung::vvToolExtractLung(vvMainWindowBase * parent, Qt::WindowFlags 
   mFilter = FilterType::New();  
 
   // Add input selector
-  AddInputSelector("Select image", mFilter);
+  AddInputSelector("Select CT thorax image", mFilter);
 }
 //------------------------------------------------------------------------------
 
@@ -137,12 +138,15 @@ void vvToolExtractLung::apply()
   mFilter->SetArgsInfo(mArgsInfo);
 
   DD("mfilter->Update");
-  // vvThreadedFilter a;
-  // a->SetFilter(mFilter)
+  vvThreadedFilter thread;
+  //  thread.SetFilter((clitk::FilterBase*)&(*mFilter));
+  //  thread.SetFilter((clitk::FilterBase*)&(*mFilter));
+  thread.SetFilter(&(*mFilter));
   // connect(a, SIGNAL(rejected()), this, SLOT(FilterHasBeenCanceled()));
-  // a->Update();
+  thread.Update();
   // if (a->HasError()) { DD(a->GetError()); return; }
-  mFilter->Update();
+  //  mFilter->Update();
+  DD("after thread");
 
   // Check error
   if (mFilter->HasError()) {
@@ -154,6 +158,12 @@ void vvToolExtractLung::apply()
   // Get output
   std::vector<vvImage::Pointer> output = mFilter->GetOutputVVImages();
   DD(output.size());
+  
+  if (output.size() == 0) {
+    std::cerr << "Error : no output ?" << std::endl;
+    close();
+    return;
+  }
   
   // Set Lung into VV
   DD("lung");

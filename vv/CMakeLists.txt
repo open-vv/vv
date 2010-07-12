@@ -21,6 +21,7 @@ SET(vv_SRCS
   vvSurfaceViewerDialog.cxx
   vvMainWindowBase.cxx
   vvMainWindow.cxx
+  vvProgressDialog.cxx
   vvDeformationDialog.cxx
   vvImageWarp.cxx
   vvDeformableRegistration.cxx
@@ -46,6 +47,7 @@ SET(vv_SRCS
   vvMidPosition.cxx
   vvImageMapToWLColors.cxx
   vvIntensityValueSlider.cxx
+  vvThreadedFilter.cxx
   vvToolManager.cxx
   vvToolCreatorBase.cxx
   vvToolWidgetBase.cxx
@@ -96,6 +98,7 @@ QT4_WRAP_CPP(vv_SRCS
   vvSlicerManager.h
   vvStructSelector.h
   vvIntensityValueSlider.h
+  vvThreadedFilter.h
   vvToolCreatorBase.h
 #  vvToolFoo.h
 #  vvToolFooWithWidgetBase.h
@@ -135,7 +138,7 @@ QT4_WRAP_UI(vv_UI_CXX
   qt_ui/vvStructSelector.ui
   qt_ui/vvDummyWindow.ui #For testing
   qt_ui/vvIntensityValueSlider.ui
-  qt_ui/vvToolSimpleInputSelectorWidget.ui
+#  qt_ui/vvToolSimpleInputSelectorWidget.ui
   qt_ui/vvToolInputSelectorWidget.ui
   qt_ui/vvToolWidgetBase.ui
 #  qt_ui/vvToolWidgetWithStepsBase.ui

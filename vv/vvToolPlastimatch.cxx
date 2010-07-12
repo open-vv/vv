@@ -194,13 +194,18 @@ void vvToolPlastimatch::apply()
   */
 
   // Get warped output and display it
-  m_WarpedImage = vvImageFromITK<3, float>(m_WarpedImageITK);
-  std::ostringstream osstream;
-  osstream << "plm_warped_" << m_InputSlicerManagers[1]->GetFileName() << ".mhd";
-  AddImage(m_WarpedImage, osstream.str());
-
-  // Get DVF 
-  DD("TODO get and display DVF");
+  if (m_WarpedImageITK) {
+    m_WarpedImage = vvImageFromITK<3, float>(m_WarpedImageITK);
+    std::ostringstream osstream;
+    osstream << "plm_warped_" << m_InputSlicerManagers[1]->GetFileName() << ".mhd";
+    AddImage(m_WarpedImage, osstream.str());
+    
+    // Get DVF 
+    DD("TODO get and display DVF");
+  }
+  else {
+    QMessageBox::information(this, "Error", "No result ...");
+  }
 
   // End
   QApplication::restoreOverrideCursor();

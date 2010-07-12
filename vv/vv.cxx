@@ -55,6 +55,7 @@ int main( int argc, char** argv )
 
   std::vector<std::string> filenames;
   std::vector<std::pair<int ,std::string> > overlays;
+  std::vector<std::pair<int ,std::string> > rois;
   std::vector<std::pair<int ,std::string> > vector_fields;
   if (argc >1) {
     for (int i = 1; i < argc; i++) {
@@ -63,12 +64,24 @@ int main( int argc, char** argv )
         assert(filenames.size()>=1);
         vector_fields.push_back(std::make_pair(filenames.size()-1,argv[i+1]));
         i++; //skip vf name
-      } else if (temp=="--overlay") {
-        assert(filenames.size()>=1);
-        overlays.push_back(std::make_pair(filenames.size()-1,argv[i+1]));
-        i++; //skip overlay name
-      } else
-        filenames.push_back(temp);
+      } 
+      else {
+	if (temp=="--overlay") {
+	  assert(filenames.size()>=1);
+	  overlays.push_back(std::make_pair(filenames.size()-1,argv[i+1]));
+	  i++; //skip overlay name
+	} 
+	else {
+	  if (temp=="--roi") {
+	    assert(filenames.size()>=1);
+	    rois.push_back(std::make_pair(filenames.size()-1,argv[i+1]));
+	    i++; //skip overlay name
+	  } 
+	  else {
+	    filenames.push_back(temp);
+	  }
+	}
+      }
     }
     window.LoadImages(filenames,IMAGE);
     for (std::vector<std::pair<int ,std::string> >::iterator i=overlays.begin();
@@ -77,6 +90,12 @@ int main( int argc, char** argv )
     for (std::vector<std::pair<int ,std::string> >::iterator i=vector_fields.begin();
          i!=vector_fields.end(); i++)
       window.AddField((*i).second.c_str(), (*i).first);
+    for (std::vector<std::pair<int ,std::string> >::iterator i=rois.begin();
+         i!=rois.end(); i++) {
+      DD((*i).second.c_str());
+      DD((*i).first);
+      // window.AddROI((*i).second.c_str(), (*i).first);
+    }
 
   }
 

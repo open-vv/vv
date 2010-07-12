@@ -754,7 +754,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType fi
   //open images as 1 or multiples
   for (int i = 0; i < fileSize; i++) {
 
-    progress.Update("Opening " + files[i]);
+    progress.SetText("Opening " + files[i]);
     progress.SetProgress(i,fileSize);
     qApp->processEvents();
 

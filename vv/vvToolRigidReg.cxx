@@ -15,23 +15,27 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
+// vv
 #include "vvToolRigidReg.h"
-#include <QComboBox>
-#include <QCursor>
-#include <QApplication>
+#include "vvImageReader.h"
+#include "vvSlicer.h"
+
+// vtk
 #include <vtkImageData.h>
 #include <vtkSmartPointer.h>
 #include <vtkTransform.h>
-#include <vvImageReader.h>
-#include "vvImage.h"
-#include "vvSlicer.h"
-#include <QFile>
+
+// clitk
 #include "clitkTransformUtilities.h"
-#include <QString>
+
+// qt
 #include <QMessageBox>
-#include <vvMainWindow.h>
 #include <QFileDialog>
 #include <QTextStream>
+#include <QComboBox>
+#include <QCursor>
+
 //------------------------------------------------------------------------------
 // Create the tool and automagically (I like this word) insert it in
 // the main window menu.
@@ -46,10 +50,10 @@ vvToolRigidReg::vvToolRigidReg(vvMainWindowBase * parent, Qt::WindowFlags f):
 {
   // GUI Initialization
   Ui_vvToolRigidReg::setupUi(mToolWidget);
-   QSize qsize;
-   qsize.setHeight(470);
-   qsize.setWidth(850);
-   mToolWidget->setFixedSize(qsize);
+   // QSize qsize;
+//    qsize.setHeight(470);
+//    qsize.setWidth(850);
+//    mToolWidget->setFixedSize(qsize);
 
 
   // Set how many inputs are needed for this tool
@@ -389,8 +393,8 @@ void vvToolRigidReg::SaveFile()
 {
   //Write the Transformation Matrix
     QString f1 = QFileDialog::getSaveFileName(this, tr("Save Transformation Matrix File"),
-		            "/home",
-                            tr("Text (*.mat *.txt *.doc *.rtf)"));
+                                              mMainWindow->GetInputPathName(),
+                                              tr("Text (*.mat *.txt *.doc *.rtf)"));
     QFile file1(f1);
     std::vector<QString> transparameters;
     QString line1;
@@ -429,7 +433,7 @@ void vvToolRigidReg::ReadFile()
    QString file1 = QFileDialog::getOpenFileName(
                     this,
 		    "Choose the Transformation Parameters file",
-                    "/home",
+                    mMainWindow->GetInputPathName(),
                     "Text (*.mat *.txt *.rtf *.doc)");
     if (file1.isEmpty())
     return;

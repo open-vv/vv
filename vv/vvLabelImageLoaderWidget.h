@@ -15,6 +15,7 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
 #ifndef VVLABELIMAGELOADERWIDGET_H
 #define VVLABELIMAGELOADERWIDGET_H
 
@@ -38,6 +39,7 @@ class vvLabelImageLoaderWidget: public QWidget, private Ui::vvLabelImageLoaderWi
 
   vvImage::Pointer GetImage();
   double GetBackgroundValue();
+  void SetText(QString t);
   
 signals:
   void accepted();

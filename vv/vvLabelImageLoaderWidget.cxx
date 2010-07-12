@@ -15,6 +15,7 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
 #ifndef VVTOOLINPUTSELECTORWIDGET_CXX
 #define VVTOOLINPUTSELECTORWIDGET_CXX
 
@@ -55,6 +56,14 @@ vvImage::Pointer vvLabelImageLoaderWidget::GetImage()
 double vvLabelImageLoaderWidget::GetBackgroundValue()
 {
   return mBackgroundValueSpinBox->value();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvLabelImageLoaderWidget::SetText(QString t)
+{
+  mOpenLabel->setText(t);
 }
 //------------------------------------------------------------------------------
 

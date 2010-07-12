@@ -197,7 +197,10 @@ void vvToolWidgetBase::AddInputSelector(QString s, clitk::ImageToImageGenericFil
     }
   }
   if (mSlicerManagersCompatible.size() == 0) {
-    QMessageBox::information(this, "No image","Sorry, could not perform operation. No (compatible) image.");
+    std::ostringstream osstream;
+    osstream << "Sorry, could not perform operation. No (compatible) image. "
+             << mFilter->GetAvailableImageTypes();
+    QMessageBox::information(this, "No image", osstream.str().c_str());
     reject();
     return;
   }
@@ -295,6 +298,7 @@ void vvToolWidgetBase::closeEvent(QCloseEvent *event)
 bool vvToolWidgetBase::close()
 {
   // DD("vvToolWidgetBase::close()");
+  QApplication::restoreOverrideCursor();
   return QWidget::close();
 }
 //------------------------------------------------------------------------------
