@@ -25,8 +25,8 @@
  -------------------------------------------------------------------*/
 
 #include "clitkSplitImageGenericFilter.h"
-
 #include "clitkSplitImageGenericFilter.txx"
+#include <itkIntensityWindowingImageFilter.h>
 //--------------------------------------------------------------------
 clitk::SplitImageGenericFilter::SplitImageGenericFilter():
   clitk::ImageToImageGenericFilter<Self>("SplitImage")
@@ -43,7 +43,7 @@ template<unsigned int Dim>
 void clitk::SplitImageGenericFilter::InitializeImageType()
 {
   ADD_DEFAULT_IMAGE_TYPES(Dim);
-  ADD_VEC_IMAGE_TYPE(Dim, 3,float);
+  //ADD_VEC_IMAGE_TYPE(Dim, 3,float);
 }
 //--------------------------------------------------------------------
 
@@ -72,14 +72,24 @@ void clitk::SplitImageGenericFilter::UpdateWithInputImageType()
   unsigned int number_of_output_images=input->GetLargestPossibleRegion().GetSize()[mSplitDimension];
   for (unsigned int i=0; i<number_of_output_images; i++) {
     std::ostringstream ss;
-    ss << i;
+    ss << std::setfill('0') << std::setw((int)(log10(number_of_output_images)+1)) << i;
     index[mSplitDimension]=i;
     extracted_region.SetIndex(index);
     filter->SetExtractionRegion(extracted_region);
     filter->Update();
-    SetOutputFilename(base_filename+"_"+ss.str()+".mhd");
-    typename OutputImageType::Pointer output=filter->GetOutput();
-    SetNextOutput<OutputImageType>(output);
+    if(this->m_Png){
+      typedef itk::Image< unsigned char, ImageType::ImageDimension-1 > OutputPngImageType;
+      typedef itk::IntensityWindowingImageFilter< OutputImageType, OutputPngImageType > CastFilterType;
+      typename CastFilterType::Pointer cast = CastFilterType::New();
+      cast->SetWindowLevel(this->m_Window, this->m_Level);
+      cast->SetInput(filter->GetOutput());
+      SetOutputFilename(base_filename+"_"+ss.str()+".png");
+      SetNextOutput<OutputPngImageType>(cast->GetOutput());
+    }
+    else {
+      SetOutputFilename(base_filename+"_"+ss.str()+".mhd");
+      SetNextOutput<OutputImageType>(filter->GetOutput());
+    }
   }
 }
 //--------------------------------------------------------------------

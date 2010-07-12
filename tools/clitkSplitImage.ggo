@@ -10,3 +10,6 @@ option "output"    o 	"Output image base filename"	  string   yes
 option "verbose"   v 	"Verbose"		  flag	   off
 
 option "dimension"     d 	"Dimension to split on"  int yes
+option "png"       p 	"Png file format"		  flag	   off
+option "window"    w  "Window" double no
+option "level"     l  "Level"  double no

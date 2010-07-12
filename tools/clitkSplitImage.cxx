@@ -53,6 +53,8 @@ int main(int argc, char * argv[])
   filter.SetInputFilename(args_info.input_arg);
   filter.SetOutputFilename(args_info.output_arg);
   filter.SetSplitDimension(args_info.dimension_arg);
+  filter.SetPng(args_info.png_flag);
+  filter.SetWindowLevel(args_info.window_arg, args_info.level_arg);
   filter.SetVerbose(args_info.verbose_flag);
   filter.Update();
 

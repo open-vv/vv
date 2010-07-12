@@ -57,6 +57,8 @@ namespace clitk {
     // Set methods
     void SetSplitDimension (int dim) { mSplitDimension = dim; }
     void SetVerbose (const bool v) { m_Verbose = v; }
+    void SetPng (const bool v) { m_Png = v; }
+    void SetWindowLevel(const double w, const double l){ m_Window = w; m_Level = l;}
 
    //--------------------------------------------------------------------
     // Main function called each time the filter is updated
@@ -67,6 +69,8 @@ namespace clitk {
     template<unsigned int Dim> void InitializeImageType();
     int  mSplitDimension;
     bool m_Verbose;
+    bool m_Png;
+    double m_Window, m_Level;
 
   }; // end class SplitImageGenericFilter
 //--------------------------------------------------------------------
