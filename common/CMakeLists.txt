@@ -24,6 +24,8 @@ SET(clitkCommon_SRC
   clitkXdrImageIOReader.cxx  
   clitkXdrImageIOWriter.cxx  
   clitkXdrImageIOFactory.cxx
+  clitkHndImageIO.cxx
+  clitkHndImageIOFactory.cxx
   clitkOrientation.cxx
   vvImage.cxx
   clitkImageToImageGenericFilterBase.cxx

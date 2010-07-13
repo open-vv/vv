@@ -36,14 +36,11 @@
 // clitk include
 #include "clitkIO.h"
 #include "clitkImageCommon.h"
-#include "clitkVoxImageIO.h"
 #include "clitkVoxImageIOFactory.h"
-#include "clitkHisImageIO.h"
 #include "clitkHisImageIOFactory.h"
-#include "clitkVfImageIO.h"
 #include "clitkVfImageIOFactory.h"
-#include "clitkXdrImageIO.h"
 #include "clitkXdrImageIOFactory.h"
+#include "clitkHndImageIOFactory.h"
 
 //--------------------------------------------------------------------
 // Register factories
@@ -54,5 +51,6 @@ void clitk::RegisterClitkFactories()
   clitk::VfImageIOFactory::RegisterOneFactory();
   clitk::HisImageIOFactory::RegisterOneFactory();
   clitk::XdrImageIOFactory::RegisterOneFactory();
+  clitk::HndImageIOFactory::RegisterOneFactory();
 } ////
 

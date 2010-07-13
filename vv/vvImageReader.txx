@@ -46,6 +46,8 @@ void vvImageReader::UpdateWithDim(std::string InputPixelType)
     UpdateWithDimAndInputPixelType<unsigned char,VImageDimension>();
   else if (InputPixelType == "int")
     UpdateWithDimAndInputPixelType<int,VImageDimension>();
+  else if (InputPixelType == "unsigned_int")
+    UpdateWithDimAndInputPixelType<unsigned int,VImageDimension>();
   else if (InputPixelType == "double")
     UpdateWithDimAndInputPixelType<double,VImageDimension>();
   else if (InputPixelType == "float")
