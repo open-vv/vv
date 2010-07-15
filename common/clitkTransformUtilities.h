@@ -151,12 +151,6 @@ namespace clitk
     return matrix;
   }
   
-  template <unsigned int Dimension >
-  inline itk::Matrix<double, Dimension+1, Dimension+1>
-  GetBackwardAffineMatrix(itk::Array<double> transformParameters)
-  {
-  }
-
   inline itk::Matrix<double, 3, 3> GetRotationMatrix3D(itk::Array<double> rotationParameters)
   {
     itk::Matrix<double, 3, 3> matrix;
