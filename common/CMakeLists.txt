@@ -14,6 +14,7 @@ SET(clitkCommon_SRC
   clitkListOfPair.cxx
   clitkTimer.cxx
   clitkImageCommon.cxx
+  clitkTransformUtilities.cxx
   clitkIO.cxx
   clitkVoxImageIO.cxx  
   clitkVoxImageIOFactory.cxx

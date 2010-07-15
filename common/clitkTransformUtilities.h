@@ -15,6 +15,7 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
 #ifndef CLITKTRANSFORMUTILITIES_H
 #define CLITKTRANSFORMUTILITIES_H
 #include "itkMatrix.h"
@@ -30,9 +31,12 @@ namespace clitk
   //Declarations
   //============================================================================
   itk::Matrix<double, 3, 3> GetForwardAffineMatrix2D(itk::Array<double> transformParameters);
-  itk::Matrix<double, 3, 3> GetBackwardAffineMatrix2D(itk::Array<double> transformParameters);
   itk::Matrix<double, 4, 4> GetForwardAffineMatrix3D(itk::Array<double> transformParameters);
+
+  itk::Matrix<double, 3, 3> GetBackwardAffineMatrix2D(itk::Array<double> transformParameters);
   itk::Matrix<double, 4, 4> GetBackwardAffineMatrix3D(itk::Array<double> transformParameters);
+  template <unsigned int Dimension > itk::Matrix<double, Dimension+1, Dimension+1> GetBackwardAffineMatrix(itk::Array<double> transformParameters);
+
   itk::Matrix<double, 3, 3> GetRotationMatrix3D(itk::Array<double> rotationParameters);
   itk::Point<double, 3> GetRotatedPoint3D(itk::Array<double> rotationParameters, itk::Point<double, 3> input);
   itk::Matrix<double, 4, 4> GetCenteredRotationMatrix3D(itk::Array<double> rotationParameters,itk::Point<double,3> centerOfRotation);
@@ -77,25 +81,6 @@ namespace clitk
     return matrix;
   }
   
-  inline  itk::Matrix<double, 3, 3> GetBackwardAffineMatrix2D(itk::Array<double> transformParameters)
-  {
-    itk::Matrix<double, 3, 3> matrix;
-    //rotation part
-    matrix[0][0]=cos(transformParameters[0]);
-    matrix[0][1]=sin(transformParameters[0]);
-    matrix[1][0]=-sin(transformParameters[0]);
-    matrix[1][1]=cos(transformParameters[0]);
-    //translation part
-    matrix[0][2]=transformParameters[1];
-    matrix[1][2]=transformParameters[2];
-    //homogenize
-    matrix[2][0]=0.;
-    matrix[2][1]=0.;
-    matrix[2][2]=1.;
-    return matrix;
-  }
- 
- 
   inline  itk::Matrix<double, 4, 4> GetForwardAffineMatrix3D(itk::Array<double> transformParameters)
   {
     itk::Matrix<double, 4, 4> matrix;
@@ -122,6 +107,25 @@ namespace clitk
   }
  
  
+  inline  itk::Matrix<double, 3, 3> GetBackwardAffineMatrix2D(itk::Array<double> transformParameters)
+  {
+    itk::Matrix<double, 3, 3> matrix;
+    //rotation part
+    matrix[0][0]=cos(transformParameters[0]);
+    matrix[0][1]=sin(transformParameters[0]);
+    matrix[1][0]=-sin(transformParameters[0]);
+    matrix[1][1]=cos(transformParameters[0]);
+    //translation part
+    matrix[0][2]=transformParameters[1];
+    matrix[1][2]=transformParameters[2];
+    //homogenize
+    matrix[2][0]=0.;
+    matrix[2][1]=0.;
+    matrix[2][2]=1.;
+    return matrix;
+  }
+
+
   inline  itk::Matrix<double, 4, 4> GetBackwardAffineMatrix3D(itk::Array<double> transformParameters)
   {
     itk::Matrix<double, 4, 4> matrix;
@@ -147,6 +151,12 @@ namespace clitk
     return matrix;
   }
   
+  template <unsigned int Dimension >
+  inline itk::Matrix<double, Dimension+1, Dimension+1>
+  GetBackwardAffineMatrix(itk::Array<double> transformParameters)
+  {
+  }
+
   inline itk::Matrix<double, 3, 3> GetRotationMatrix3D(itk::Array<double> rotationParameters)
   {
     itk::Matrix<double, 3, 3> matrix;
