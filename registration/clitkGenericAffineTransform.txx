@@ -92,10 +92,10 @@ GenericAffineTransform<args_info_type, TCoordRep, Dimension>::GetTransform()
     tMatrix->SetCenter(center);
 
     //Initialize transform
+    tMatrix->SetOffset(offset);
     if(m_ArgsInfo.initMatrix_given) {
       itk::Matrix<double, Dimension+1 , Dimension+1> matHom = ReadMatrix<Dimension>(m_ArgsInfo.initMatrix_arg);
       typename MatrixXType::MatrixType matrix = GetRotationalPartMatrix(matHom);
-      tMatrix->SetOffset(offset);
       tMatrix->SetMatrix(matrix);
     }
     m_Transform=tMatrix;

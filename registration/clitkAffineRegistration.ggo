@@ -42,8 +42,8 @@ option "transform"  - "Type: 0=Identity, 1=Translation, 2=Rigid, 3=Affine" int n
 option "transX"     x "1-3: Initial translation in mm along the X axis"  float no  default="0.0"
 option "transY"     y "1-3: Initial translation in mm along the Y axis"  float no  default="0.0"
 option "transZ"     z "1-3: Initial translation in mm along the Z axis"  float no  default="0.0"
-option "initMatrix" - "2-3: Initial matrix (reference to object space) filename " string  no
-option "moment"     - "2-3: Initialize translation by aligning the center of gravities for the respective intensities" flag off
+option "initMatrix" - "1-3: Initial matrix (reference to object space) filename " string  no
+option "moment"     - "1-3: Initialize translation by aligning the center of gravities for the respective intensities" flag off
 
 section "Metric (optimized, threaded versions are available for *, compile ITK with REVIEW and OPT_REGISTRATION enabled)"
 

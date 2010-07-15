@@ -1,4 +1,4 @@
-/*=========================================================================
+ /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
   Authors belong to:
@@ -29,9 +29,10 @@ template<>
 itk::MatrixOffsetTransformBase<double, 2, 2>::Pointer
 clitk::GenericAffineTransform<args_info_clitkAffineRegistration, double, 2>::GetNewEulerTransform()
 {
-  itk::Euler2DTransform< double >::Pointer p = itk::Euler2DTransform< double >::New();
+  typedef itk::Euler2DTransform< double > Transform2DType;
+  Transform2DType::Pointer t2 = Transform2DType::New();
   itk::MatrixOffsetTransformBase<double, 2, 2>::Pointer pp;
-  pp = p;
+  pp = t2;
   return pp;
 }
 
@@ -40,9 +41,11 @@ template<>
 itk::MatrixOffsetTransformBase<double, 3, 3>::Pointer
 clitk::GenericAffineTransform<args_info_clitkAffineRegistration, double, 3>::GetNewEulerTransform()
 {
-  itk::Euler3DTransform< double >::Pointer p = itk::Euler3DTransform< double >::New();
+  typedef itk::Euler3DTransform < double > Transform3DType;
+  Transform3DType::Pointer t3 = Transform3DType::New();
+  t3->SetComputeZYX(true); //SR: required?
   itk::MatrixOffsetTransformBase<double, 3, 3>::Pointer pp;
-  pp = p;
+  pp = t3;
   return pp;
 }
 }

@@ -527,7 +527,7 @@ AffineRegistrationGenericFilter::UpdateWithDimAndPixelType()
       matrix[3][3] = 1.0;
     }
   } else {
-//    matrix = clitk::GetBackwardAffineMatrix3D(finalParameters);
+    matrix = clitk::GetBackwardAffineMatrix<Dimension>(finalParameters);
   }
 
   std::cout << " Affine transform matrix =" << std::endl;
