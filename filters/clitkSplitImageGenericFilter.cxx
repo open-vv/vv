@@ -72,7 +72,7 @@ void clitk::SplitImageGenericFilter::UpdateWithInputImageType()
   unsigned int number_of_output_images=input->GetLargestPossibleRegion().GetSize()[mSplitDimension];
   for (unsigned int i=0; i<number_of_output_images; i++) {
     std::ostringstream ss;
-    ss << std::setfill('0') << std::setw((int)(log10(number_of_output_images)+1)) << i;
+    ss << std::setfill('0') << std::setw((int)(log10(double(number_of_output_images))+1)) << i;
     index[mSplitDimension]=i;
     extracted_region.SetIndex(index);
     filter->SetExtractionRegion(extracted_region);
