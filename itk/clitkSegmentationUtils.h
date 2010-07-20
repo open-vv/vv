@@ -81,11 +81,11 @@ namespace clitk {
 
 
   //--------------------------------------------------------------------
-  template<class TImageType>
-  typename TImageType::Pointer
-  RemoveLabels(typename TImageType::Pointer input, 
-               typename TImageType::PixelType BG, 
-               std::vector<typename TImageType::PixelType> & labelsToRemove);
+  template<class ImageType>
+  typename ImageType::Pointer
+  RemoveLabels(typename ImageType::Pointer input, 
+               typename ImageType::PixelType BG, 
+               std::vector<typename ImageType::PixelType> & labelsToRemove);
   //--------------------------------------------------------------------
 
 
