@@ -463,9 +463,9 @@ void vvToolRigidReg::ReadFile()
 
     //In the Order or Y X Z //
     //now  postmultiply for the rotations
-    SetTransform(0,0,0,0,0,-round(orientations[2]),false);
-    SetTransform(0,0,0,-round(orientations[0]),0,0,false);
-    SetTransform(0,0,0,0,-round(orientations[1]),0,false);
+    SetTransform(0,0,0,0,0,-rint(orientations[2]),false);
+    SetTransform(0,0,0,-rint(orientations[0]),0,0,false);
+    SetTransform(0,0,0,0,-rint(orientations[1]),0,false);
 
     transform->GetPosition(translations);
     transform->Identity();
