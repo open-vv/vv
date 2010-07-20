@@ -138,7 +138,7 @@ QT4_WRAP_UI(vv_UI_CXX
   qt_ui/vvStructSelector.ui
   qt_ui/vvDummyWindow.ui #For testing
   qt_ui/vvIntensityValueSlider.ui
-#  qt_ui/vvToolSimpleInputSelectorWidget.ui
+  qt_ui/vvToolSimpleInputSelectorWidget.ui
   qt_ui/vvToolInputSelectorWidget.ui
   qt_ui/vvToolWidgetBase.ui
 #  qt_ui/vvToolWidgetWithStepsBase.ui
