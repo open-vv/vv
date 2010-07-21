@@ -49,7 +49,7 @@ public:
   }
 
   void Execute(const itk::Object * object, const itk::EventObject & event) {
-    if( !(itk::IterationEvent().CheckEvent( &event )) ) {
+    if ( !(itk::IterationEvent().CheckEvent( &event )) ) {
       return;
     }
 
@@ -58,6 +58,29 @@ public:
 
   OptimizerPointer m_Optimizer;
 };
+//==================================================================================================================================//
+//Constructor
+//===================================================================================================================================//
+
+template<class args_info_clitkAffineRegistration>
+AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>::AffineRegistrationGenericFilter():
+    ImageToImageGenericFilter<Self>("Register")
+
+{
+  InitializeImageType<2>();
+  InitializeImageType<3>();
+  m_Verbose=false;
+}
+//==========================================================================================================//
+//============================================================================================================//
+//--------------------------------------------------------------------
+template<class args_info_type>
+template<unsigned int Dim>
+void AffineRegistrationGenericFilter<args_info_type>::InitializeImageType()
+{
+  ADD_DEFAULT_IMAGE_TYPES(Dim);
+}
+//--------------------------------------------------------------------
 
 
 //==============================================================================
@@ -87,7 +110,7 @@ public:
   // is the pointer to the object which invoked the event and the
   // second is the event that was invoked.
   void Execute(itk::Object * object, const itk::EventObject & event) {
-    if( !(itk::IterationEvent().CheckEvent( &event )) ) {
+    if ( !(itk::IterationEvent().CheckEvent( &event )) ) {
       return;
     }
 
@@ -126,31 +149,21 @@ public:
   args_info_clitkAffineRegistration m_ArgsInfo;
 };
 
-
-//==============================================================================
-// Update with the number of dimensions
-//==============================================================================
-template <unsigned int Dimension>
-void AffineRegistrationGenericFilter::UpdateWithDim(std::string PixelType)
-{
-  if (m_Verbose) std::cout  << "Images were detected to be "<< Dimension << "D and " << PixelType << "..." << std::endl;
-  if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and float..." << std::endl;
-  UpdateWithDimAndPixelType<Dimension, float>();
-  // }
-
-}
-
-
 //==============================================================================
 // Update with the number of dimensions and pixeltype
 //==============================================================================
-template <unsigned int Dimension, class PixelType>
-void
-AffineRegistrationGenericFilter::UpdateWithDimAndPixelType()
+template<class args_info_clitkAffineRegistration>
+template<class InputImageType>
+void AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>::UpdateWithInputImageType()
 {
   //=============================================================================
   //Input
   //=============================================================================
+
+  typedef typename  InputImageType::PixelType PixelType;
+//typedef typename InputImageType::ImageDimension Dimension;
+
+
   bool threadsGiven=m_ArgsInfo.threads_given;
   int threads=m_ArgsInfo.threads_arg;
 
@@ -158,11 +171,11 @@ AffineRegistrationGenericFilter::UpdateWithDimAndPixelType()
   typedef double TCoordRep;
 
   //The pixeltype of the fixed image will be used for output
-  typedef itk::Image< PixelType, Dimension > FixedImageType;
+  typedef itk::Image< PixelType, InputImageType::ImageDimension > FixedImageType;
 
   //Whatever the pixel type, internally we work with an image represented in float
-  typedef   PixelType     InternalPixelType;
-  typedef itk::Image< InternalPixelType, Dimension > InternalImageType;
+  typedef typename  InputImageType::PixelType  InternalPixelType;
+  typedef itk::Image< InternalPixelType, InputImageType::ImageDimension > InternalImageType;
 
   //Read in the reference/fixed image
   typedef itk::ImageFileReader< InternalImageType > ReaderType;
@@ -242,7 +255,7 @@ AffineRegistrationGenericFilter::UpdateWithDimAndPixelType()
   //============================================================================
   // Setting up the moving image in a reference system
   //============================================================================
-  const itk::Vector<double, Dimension> movingResolution = movingImage->GetSpacing();
+  const itk::Vector<double, InputImageType::ImageDimension> movingResolution = movingImage->GetSpacing();
   typename InternalImageType::RegionType movingRegion = movingImage->GetLargestPossibleRegion();
   typename InternalImageType::RegionType::SizeType  movingSize = movingRegion.GetSize();
 
@@ -250,11 +263,11 @@ AffineRegistrationGenericFilter::UpdateWithDimAndPixelType()
   if (m_Verbose) {
     std::cout << "Object or Moving image:"<<std::endl;
     std::cout << "Size: " << movingSize[0] << ", " << movingSize[1];
-    if (Dimension==3) std::cout<<", " << movingSize[2];
+    if (InputImageType::ImageDimension==3) std::cout<<", " << movingSize[2];
     std::cout << std::endl;
 
     std::cout<< "Resolution: "<< movingResolution[0] << ", " << movingResolution[1];
-    if (Dimension==3) std::cout<< ", " << movingResolution[2];
+    if (InputImageType::ImageDimension==3) std::cout<< ", " << movingResolution[2];
     std::cout << std::endl;
   }
 
@@ -262,7 +275,7 @@ AffineRegistrationGenericFilter::UpdateWithDimAndPixelType()
   //============================================================================
   // Setting up the fixed image in a reference system
   //============================================================================
-  const itk::Vector<double, Dimension> fixedResolution = fixedImage->GetSpacing();
+  const itk::Vector<double, InputImageType::ImageDimension> fixedResolution = fixedImage->GetSpacing();
   typename InternalImageType::RegionType fixedRegion = fixedImage->GetLargestPossibleRegion();
   typename InternalImageType::RegionType::SizeType fixedSize = fixedRegion.GetSize();
 
@@ -270,11 +283,11 @@ AffineRegistrationGenericFilter::UpdateWithDimAndPixelType()
   if (m_Verbose) {
     std::cout << "Target or Moving image:"<<std::endl;
     std::cout << "Size: " << fixedSize[0] << ", " << fixedSize[1];
-    if (Dimension==3) std::cout<<", " << fixedSize[2];
+    if (InputImageType::ImageDimension==3) std::cout<<", " << fixedSize[2];
     std::cout << std::endl;
 
     std::cout<< "Resolution: "<< fixedResolution[0] << ", " << fixedResolution[1];
-    if (Dimension==3) std::cout<< ", " << fixedResolution[2];
+    if (InputImageType::ImageDimension==3) std::cout<< ", " << fixedResolution[2];
     std::cout << std::endl;
   }
 
@@ -283,17 +296,17 @@ AffineRegistrationGenericFilter::UpdateWithDimAndPixelType()
   //===========================================================================
   // If given, we connect a mask to reference or target
   //============================================================================
-  typedef itk::ImageMaskSpatialObject<  Dimension >   MaskType;
+  typedef itk::ImageMaskSpatialObject<  InputImageType::ImageDimension >   MaskType;
   typename MaskType::Pointer  fixedMask=NULL;
   if (m_ArgsInfo.referenceMask_given) {
     fixedMask= MaskType::New();
-    typedef itk::Image< unsigned char, Dimension >   ImageMaskType;
+    typedef itk::Image< unsigned char, InputImageType::ImageDimension >   ImageMaskType;
     typedef itk::ImageFileReader< ImageMaskType >    MaskReaderType;
     typename MaskReaderType::Pointer  maskReader = MaskReaderType::New();
     maskReader->SetFileName(m_ArgsInfo.referenceMask_arg);
     try {
       maskReader->Update();
-    } catch( itk::ExceptionObject & err ) {
+    } catch ( itk::ExceptionObject & err ) {
       std::cerr << "ExceptionObject caught while reading mask !" << std::endl;
       std::cerr << err << std::endl;
       return;
@@ -304,17 +317,17 @@ AffineRegistrationGenericFilter::UpdateWithDimAndPixelType()
     fixedMask->SetImage( maskReader->GetOutput() );
   }
 
-  typedef itk::ImageMaskSpatialObject<  Dimension >   MaskType;
+  typedef itk::ImageMaskSpatialObject<  InputImageType::ImageDimension >   MaskType;
   typename MaskType::Pointer  movingMask=NULL;
   if (m_ArgsInfo.targetMask_given) {
     movingMask= MaskType::New();
-    typedef itk::Image< unsigned char, Dimension >   ImageMaskType;
+    typedef itk::Image< unsigned char, InputImageType::ImageDimension >   ImageMaskType;
     typedef itk::ImageFileReader< ImageMaskType >    MaskReaderType;
     typename MaskReaderType::Pointer  maskReader = MaskReaderType::New();
     maskReader->SetFileName(m_ArgsInfo.targetMask_arg);
     try {
       maskReader->Update();
-    } catch( itk::ExceptionObject & err ) {
+    } catch ( itk::ExceptionObject & err ) {
       std::cerr << "ExceptionObject caught !" << std::endl;
       std::cerr << err << std::endl;
     }
@@ -380,8 +393,8 @@ AffineRegistrationGenericFilter::UpdateWithDimAndPixelType()
 
     fixedCalculator->SetImage(fixedThresh);
     fixedCalculator->Compute();
-    Vector<double, Dimension> fixedCenter=fixedCalculator->GetCenterOfGravity();
-    if(m_Verbose)std::cout<<"The fixed center of gravity is "<<fixedCenter<<"..."<<std::endl;
+    Vector<double, InputImageType::ImageDimension> fixedCenter=fixedCalculator->GetCenterOfGravity();
+    if (m_Verbose)std::cout<<"The fixed center of gravity is "<<fixedCenter<<"..."<<std::endl;
 
     typedef itk::ImageMomentsCalculator< InternalImageType > CalculatorType;
     typename CalculatorType::Pointer movingCalculator= CalculatorType::New();
@@ -398,24 +411,24 @@ AffineRegistrationGenericFilter::UpdateWithDimAndPixelType()
 
     movingCalculator->SetImage(movingThresh);
     movingCalculator->Compute();
-    Vector<double, Dimension> movingCenter=movingCalculator->GetCenterOfGravity();
-    if(m_Verbose)std::cout<<"The moving center of gravity is "<<movingCenter<<"..."<<std::endl;
+    Vector<double, InputImageType::ImageDimension> movingCenter=movingCalculator->GetCenterOfGravity();
+    if (m_Verbose)std::cout<<"The moving center of gravity is "<<movingCenter<<"..."<<std::endl;
 
-    Vector<double, Dimension> shift= movingCenter-fixedCenter;
-    if(m_Verbose)std::cout<<"The initial shift applied is "<<shift<<"..."<<std::endl;
+    Vector<double, InputImageType::ImageDimension> shift= movingCenter-fixedCenter;
+    if (m_Verbose)std::cout<<"The initial shift applied is "<<shift<<"..."<<std::endl;
 
     m_ArgsInfo.transX_arg= shift [0];
     m_ArgsInfo.transY_arg= shift [1];
-    if (Dimension==3) m_ArgsInfo.transZ_arg=shift [2];
+    if (InputImageType::ImageDimension==3) m_ArgsInfo.transZ_arg=shift [2];
   }
 
   //============================================================================
   // Transform
   //============================================================================
-  typedef clitk::GenericAffineTransform<args_info_clitkAffineRegistration, TCoordRep, Dimension > GenericAffineTransformType;
+  typedef clitk::GenericAffineTransform<args_info_clitkAffineRegistration, TCoordRep, InputImageType::ImageDimension > GenericAffineTransformType;
   typename GenericAffineTransformType::Pointer genericAffineTransform = GenericAffineTransformType::New();
   genericAffineTransform->SetArgsInfo(m_ArgsInfo);
-  typedef itk::Transform< double, Dimension, Dimension > TransformType;
+  typedef itk::Transform< double, InputImageType::ImageDimension, InputImageType::ImageDimension > TransformType;
   typename TransformType::Pointer transform = genericAffineTransform->GetTransform();
 
 
@@ -434,7 +447,7 @@ AffineRegistrationGenericFilter::UpdateWithDimAndPixelType()
   //============================================================================
   typedef clitk::GenericOptimizer<args_info_clitkAffineRegistration> GenericOptimizerType;
   unsigned int nParam = transform->GetNumberOfParameters();
-  GenericOptimizerType::Pointer genericOptimizer=GenericOptimizerType::New();
+  typename GenericOptimizerType::Pointer genericOptimizer=GenericOptimizerType::New();
   genericOptimizer->SetArgsInfo(m_ArgsInfo);
   genericOptimizer->SetOutputIteration(m_Verbose);
   genericOptimizer->SetOutputPosition(m_Verbose);
@@ -447,12 +460,11 @@ AffineRegistrationGenericFilter::UpdateWithDimAndPixelType()
 
   // Scales
   itk::Optimizer::ScalesType scales( nParam );
-  for (unsigned int i=nParam-Dimension; i<nParam; i++) //Translations
+  for (unsigned int i=nParam-InputImageType::ImageDimension; i<nParam; i++) //Translations
     scales[i] = m_ArgsInfo.tWeight_arg;
-  for (unsigned int i=0; i<nParam-Dimension; i++)      //Rest
+  for (unsigned int i=0; i<nParam-InputImageType::ImageDimension; i++)      //Rest
     scales[i] = m_ArgsInfo.rWeight_arg*180./M_PI;
   optimizer->SetScales(scales);
-
   //============================================================================
   // Multiresolution registration
   //============================================================================
@@ -499,7 +511,7 @@ AffineRegistrationGenericFilter::UpdateWithDimAndPixelType()
 
   try {
     registration->StartRegistration();
-  } catch( itk::ExceptionObject & err ) {
+  } catch ( itk::ExceptionObject & err ) {
     std::cerr << "ExceptionObject caught !" << std::endl;
     std::cerr << err << std::endl;
   }
@@ -511,30 +523,30 @@ AffineRegistrationGenericFilter::UpdateWithDimAndPixelType()
   OptimizerType::ParametersType finalParameters = registration->GetLastTransformParameters();
   std::cout<< "Result : " <<std::setprecision(12)<<std::endl;
 
-  for (unsigned int i=nParam-Dimension; i<nParam; i++) //Translations
+  for (unsigned int i=nParam-InputImageType::ImageDimension; i<nParam; i++) //Translations
     std::cout << " Translation " << i << " = " << finalParameters[i];
-  for (unsigned int i=0; i<nParam-Dimension; i++)      //Rest
+  for (unsigned int i=0; i<nParam-InputImageType::ImageDimension; i++)      //Rest
     std::cout << " Other parameter " << i << " = " << finalParameters[i];
 
 
-  itk::Matrix<double,Dimension+1,Dimension+1> matrix;
-  if(m_ArgsInfo.transform_arg == 3) {
-    for(unsigned int i=0; i<Dimension; i++) {
-      matrix[i][3] =  finalParameters[nParam-Dimension+i];
-      for(unsigned int j=0; j<Dimension; j++) {
+  itk::Matrix<double,InputImageType::ImageDimension+1,InputImageType::ImageDimension+1> matrix;
+  if (m_ArgsInfo.transform_arg == 3) {
+    for (unsigned int i=0; i<InputImageType::ImageDimension; i++) {
+      matrix[i][3] =  finalParameters[nParam-InputImageType::ImageDimension+i];
+      for (unsigned int j=0; j<InputImageType::ImageDimension; j++) {
         matrix[i][j] = finalParameters[i*3+j];
       }
       matrix[3][3] = 1.0;
     }
   } else {
-    matrix = clitk::GetBackwardAffineMatrix<Dimension>(finalParameters);
+    matrix = clitk::GetBackwardAffineMatrix<InputImageType::ImageDimension>(finalParameters);
   }
 
   std::cout << " Affine transform matrix =" << std::endl;
   std::cout << matrix <<std::setprecision(6)<< std::endl;
 
   // Write matrix to a file
-  if(m_ArgsInfo.matrix_given) {
+  if (m_ArgsInfo.matrix_given) {
     std::ofstream mFile;
     mFile.open(m_ArgsInfo.matrix_arg);
     mFile<<std::setprecision(12)<<matrix<< std::setprecision(6)<<std::endl;
