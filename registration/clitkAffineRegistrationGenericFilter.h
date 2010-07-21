@@ -29,6 +29,8 @@
 #include "clitkGenericOptimizer.h"
 #include "clitkGenericInterpolator.h"
 #include "clitkGenericAffineTransform.h"
+#include "clitkImageToImageGenericFilter.h"
+
 
 //itk include
 #include <itkMultiResolutionImageRegistrationMethod.h>
@@ -58,52 +60,46 @@ namespace clitk
 {
 
 //====================================================================
-class AffineRegistrationGenericFilter: public itk::LightObject
+template<class args_info_clitkAffineRegistration>
+class ITK_EXPORT AffineRegistrationGenericFilter:
+    public ImageToImageGenericFilter<AffineRegistrationGenericFilter<args_info_clitkAffineRegistration> >
 {
 public:
 
+  AffineRegistrationGenericFilter();
+
   //================================================
   typedef AffineRegistrationGenericFilter        Self;
-  typedef itk::LightObject  Superclass;
   typedef itk::SmartPointer<Self>        Pointer;
   typedef itk::SmartPointer<const Self> ConstPointer;
 
   //================================================
   itkNewMacro(Self);
+  itkTypeMacro(AffineRegistrationGenericFilter, LightObject);
+
 
   //====================================================================
   // Set methods
   void SetArgsInfo(const args_info_clitkAffineRegistration args_info) {
     m_ArgsInfo=args_info;
     m_Verbose=m_ArgsInfo.verbose_flag;
+    if (m_ArgsInfo.reference_given) {
+      SetInputFilename(m_ArgsInfo.reference_arg);
+    }
+    if (m_ArgsInfo.target_given) {
+      SetOutputFilename(m_ArgsInfo.target_arg);
+    }
+
   }
-
   //====================================================================
-  // Update
-  void Update();
+  template<unsigned int Dim>
+  void InitializeImageType();
 
-protected:
-  const char * GetNameOfClass() const {
-    return "AffineRegistrationGenericFilter";
-  }
-
-  //====================================================================
-  // Constructor & Destructor
-  AffineRegistrationGenericFilter();
-  ~AffineRegistrationGenericFilter() {
-    ;
-  }
-
-  //====================================================================
-  //Templated member functions
-  template <unsigned int Dimension> void UpdateWithDim(std::string PixelType);
-  template <unsigned int Dimension, class PixelType> void UpdateWithDimAndPixelType();
-
-  //====================================================================
-  //Member Data
-public:
   bool m_Verbose;
   args_info_clitkAffineRegistration m_ArgsInfo;
+
+  template<class InputImageType>
+  void UpdateWithInputImageType();
 };
 }
 
