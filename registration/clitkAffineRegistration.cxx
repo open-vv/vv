@@ -18,6 +18,7 @@
 
 // clitk include
 #include "clitkIO.h"
+#include "clitkAffineRegistration_ggo.h"
 #include "clitkAffineRegistrationGenericFilter.h"
 
 int main( int argc, char *argv[] )
@@ -28,7 +29,8 @@ int main( int argc, char *argv[] )
 
   //===========================================================================
   //Set all the options passed through the commandline
-  clitk::AffineRegistrationGenericFilter::Pointer genericFilter=clitk::AffineRegistrationGenericFilter::New();
+  typedef clitk::AffineRegistrationGenericFilter<args_info_clitkAffineRegistration> FilterType;
+  FilterType::Pointer genericFilter = FilterType::New();
   genericFilter->SetArgsInfo(args_info);
   genericFilter->Update();
 
