@@ -34,6 +34,7 @@ public:
   static void SetToolIconFilename(QString n) { vvToolCreator<ToolType>::GetInstance()->mToolIconFilename = n; }
   static void SetToolTip(QString n) { vvToolCreator<ToolType>::GetInstance()->mToolTip = n; }
   static void SetToolExperimental(bool exp) { vvToolCreator<ToolType>::GetInstance()->mExperimental = exp; }
+  static void SetToolInMenu(std::string menu) { vvToolCreator<ToolType>::GetInstance()->SetMenuName(menu); }
 
   static QIcon GetToolIcon() { return QIcon(vvToolCreator<ToolType>::GetInstance()->mToolIconFilename); }
   static QString & GetToolName() { return vvToolCreator<ToolType>::GetInstance()->mToolName; }
