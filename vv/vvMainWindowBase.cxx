@@ -15,6 +15,17 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
 #include "vvMainWindowBase.h"
+
+//------------------------------------------------------------------------------
+QMenu * vvMainWindowBase::GetMenu(std::string menuName) const
+{
+  if (menuName == "Tools") return mMenuTools;
+  if (menuName == "Segmentation") return mMenuSegmentation;
+  std::cerr << "Error in vvMainWindowBase::GetMenu: menu '" << menuName << "' is unknown." << std::endl;
+  exit(0);
+}
+//------------------------------------------------------------------------------
 
 

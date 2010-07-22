@@ -42,34 +42,29 @@ int vvToolInputSelectorWidget::GetNumberOfInput()
 
 //------------------------------------------------------------------------------
 void vvToolInputSelectorWidget::AddInputSelector(QString & s,
-    const std::vector<vvSlicerManager*> & l,
-    int index,
-    bool allowSkip)
+						 const std::vector<vvSlicerManager*> & l,
+						 int index,
+						 bool allowSkip)
 {
-  //  DD("ICICICICICICICIC AddInputSelector ADD layout");
-  //  DD(index);
-  //DD(l.size());
+  // Create a input selector widget 
   vvToolSimpleInputSelectorWidget * input = new vvToolSimpleInputSelectorWidget;
   mListOfSimpleInputWidget.push_back(input);
   mSkipInput.push_back(false);
-
   input->SetText(s);
   input->EnableAllowSkip(allowSkip);
 
-  // copy list
+  // Copy the list of slicermanager
   std::vector<vvSlicerManager*> * ll = new std::vector<vvSlicerManager*>;
   for(unsigned int i=0; i<l.size(); i++)
     ll->push_back(l[i]);
 
-  // add
+  // Add
   input->SetInputList(*ll, index);
-  // input->setObjectName(QString::fromUtf8("TOTO"));
   mVerticalLayout->addWidget(input);
 
   // Enable or disable
   if (GetNumberOfInput() == 1) input->setEnabled(true);
   else input->setEnabled(false);
-  //DD(GetNumberOfInput());
 
   // Connect signals & slots
   connect(input, SIGNAL(accepted()), this, SLOT(accept()));
@@ -82,7 +77,6 @@ void vvToolInputSelectorWidget::AddInputSelector(QString & s,
 //------------------------------------------------------------------------------
 void vvToolInputSelectorWidget::Initialize()
 {
-  // setWindowModality(Qt::WindowModal);
   for(unsigned int i=0; i<mListOfSimpleInputWidget.size(); i++)
     mListOfSimpleInputWidget[i]->Initialize();
 }
@@ -92,19 +86,12 @@ void vvToolInputSelectorWidget::Initialize()
 //------------------------------------------------------------------------------
 void vvToolInputSelectorWidget::accept()
 {
-  // setWindowModality(Qt::NonModal);
-  //  DD("vvToolInputSelectorWidget::accept");
-  //DD(mNumberOfAcceptedInputs);
   mNumberOfAcceptedInputs++;
   if (mNumberOfAcceptedInputs == GetNumberOfInput()) {
     setEnabled(false);
     emit accepted();
   } else {
-    //DD("accepted");
-    //    for(unsigned int i=mNumberOfAcceptedInputs; i<mListOfSimpleInputWidget.size(); i++) {
-    //      mListOfSimpleInputWidget[i]->Initialize();
     mListOfSimpleInputWidget[mNumberOfAcceptedInputs]->setEnabled(true);
-    //}
   }
 }
 //------------------------------------------------------------------------------
@@ -113,15 +100,10 @@ void vvToolInputSelectorWidget::accept()
 //------------------------------------------------------------------------------
 void vvToolInputSelectorWidget::reject()
 {
-  //  DD("vvToolInputSelectorWidget::reject");
   if (mNumberOfAcceptedInputs != 0)  {
-    //    for(unsigned int i=mNumberOfAcceptedInputs; i<mListOfSimpleInputWidget.size(); i++) {
-    //      mListOfSimpleInputWidget[i]->Initialize();
-    //    DD(mNumberOfAcceptedInputs);
     mListOfSimpleInputWidget[mNumberOfAcceptedInputs]->setEnabled(false);
     mListOfSimpleInputWidget[mNumberOfAcceptedInputs-1]->setEnabled(true);
     mNumberOfAcceptedInputs--;
-    //}
   } else {
     emit rejected();
   }
@@ -132,9 +114,8 @@ void vvToolInputSelectorWidget::reject()
 //------------------------------------------------------------------------------
 void vvToolInputSelectorWidget::skip()
 {
-  //  DD("SKIP");
   mSkipInput[mNumberOfAcceptedInputs] = true;
-  accept();//mNumberOfAcceptedInputs++;
+  accept();
 }
 //------------------------------------------------------------------------------
 

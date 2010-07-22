@@ -40,6 +40,7 @@ public:
   virtual QTabWidget * GetTab() = 0;
   const std::vector<vvSlicerManager*> & GetSlicerManagers() const { return mSlicerManagers; }
   QMenu * GetToolMenu() const { return mMenuTools; }
+  QMenu * GetMenu(std::string menuName) const;// { return mMenuTools; }
   QMenu * GetContextMenu() const { return mContextMenu; }
   QMenu * GetExperimentalToolMenu() const { return mMenuExperimentalTools; }
   int GetSlicerManagerCurrentIndex() const { return mSlicerManagerCurrentIndex; }
@@ -53,6 +54,7 @@ signals:
 protected:
   std::vector<vvSlicerManager*> mSlicerManagers;
   QMenu * mMenuTools;
+  QMenu * mMenuSegmentation;
   QMenu * mContextMenu;
   QMenu * mMenuExperimentalTools;
   int mSlicerManagerCurrentIndex;

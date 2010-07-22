@@ -17,7 +17,11 @@
 ======================================================================-====*/
 #ifndef VVTOOLCREATORBASE_H
 #define VVTOOLCREATORBASE_H
+
+//qt
 #include <QObject>
+
+// vv
 #include "vvSlicerManager.h"
 #include "vvMainWindowBase.h"
 
@@ -37,6 +41,7 @@ class vvToolCreatorBase: public QObject {
   virtual void MenuSpecificToolSlot() = 0;
   vvMainWindowBase * GetMainWindow() const { return mMainWindow; }
   void addMenuToContextMenu(QMenu * m);
+  void SetMenuName(std::string m) { m_MenuName = m; }
 
   QString mToolName;
   QString mToolMenuName;
@@ -55,6 +60,7 @@ protected:
   vvMainWindowBase * mMainWindow;
   std::vector<vvToolBaseBase*> mListOfTool;
   QObject * mSender;
+  std::string m_MenuName;
 };
 //------------------------------------------------------------------------------
 

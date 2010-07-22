@@ -98,6 +98,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
 
   mInputPathName = "";
   mMenuTools = menuTools;
+  //  mMenuSegmentation = menuSegmentation;
   mContextMenu = &contextMenu;
   mMenuExperimentalTools = menuExperimental;
   mMainWidget = this;
@@ -765,18 +766,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType fi
     bool SetImageSucceed=false;
 
     // Change filename if an image with the same already exist
-    //    DD(files[i]);
-    int number=0;
-    for(unsigned int l=0; l<mSlicerManagers.size(); l++) {
-      vvSlicerManager * v = mSlicerManagers[l];
-      //      DD(v->GetBaseFileName());
-      // DD(v->GetFileName());
-      if (v->GetBaseFileName() ==
-          vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(files[i]))) {
-        number = std::max(number, v->GetBaseFileNameNumber()+1);
-      }
-    }
-
+    int number = GetImageDuplicateFilenameNumber(files[i]);
 
     if (filetype == IMAGE || filetype == IMAGEWITHTIME)
       SetImageSucceed = imageManager->SetImage(files[i],filetype, number);
@@ -2715,13 +2705,36 @@ void vvMainWindow::SurfaceViewerLaunch()
   vvSurfaceViewerDialog surfaceViewer;
   surfaceViewer.exec();
 }
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+int vvMainWindow::GetImageDuplicateFilenameNumber(std::string filename)
+{
+  int number=0;
+  for(unsigned int l=0; l<mSlicerManagers.size(); l++) {
+    vvSlicerManager * v = mSlicerManagers[l];
+    if (v->GetBaseFileName() ==
+	vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(filename))) {
+      number = std::max(number, v->GetBaseFileNameNumber()+1);
+    }
+  }
+  return number;
+}
+//------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filename)
 {
+  // Change filename if another image exist with the same name
+  int number = GetImageDuplicateFilenameNumber(filename);
+
+  // Create new SliceManager
   vvSlicerManager* slicer_manager = new vvSlicerManager(4);
-  slicer_manager->SetImage(image);
-  slicer_manager->SetFilename(filename);
+  slicer_manager->SetImage(image);//, IMAGE, number);
+  //  filename = filename+"_"+clitk::toString(number);
+  slicer_manager->SetFilename(filename, number);
   mSlicerManagers.push_back(slicer_manager);
 
   //create an item in the tree with good settings

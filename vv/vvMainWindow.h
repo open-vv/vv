@@ -173,6 +173,7 @@ private:
   int GetSlicerIndexFromItem(QTreeWidgetItem* item);
   QTreeWidgetItem* GetItemFromSlicerManager(vvSlicerManager* sm);
   void SaveScreenshot(vtkImageData* image);
+  int GetImageDuplicateFilenameNumber(std::string filename);
 
   QMenu contextMenu;
   //QMenu *AddSubImageMenu;

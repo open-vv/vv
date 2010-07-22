@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>vvMainWindow</class>
  <widget class="QMainWindow" name="vvMainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -758,7 +761,7 @@
      <x>0</x>
      <y>0</y>
      <width>1008</width>
-     <height>23</height>
+     <height>27</height>
     </rect>
    </property>
    <property name="defaultUp">

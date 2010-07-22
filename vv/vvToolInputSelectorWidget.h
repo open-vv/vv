@@ -17,8 +17,12 @@
 ======================================================================-====*/
 #ifndef VVTOOLINPUTSELECTORWIDGET_H
 #define VVTOOLINPUTSELECTORWIDGET_H
+
+// qt
 #include <QtDesigner/QDesignerExportWidget>
 #include <QDialog>
+
+// vv
 #include "ui_vvToolInputSelectorWidget.h"
 
 class vvSlicerManager;

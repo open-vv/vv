@@ -136,15 +136,12 @@ void vvToolSimpleInputSelectorWidget::skip(QAbstractButton* b)
 //------------------------------------------------------------------------------
 void vvToolSimpleInputSelectorWidget::changeInput(int index)
 {
- //  DD(index);
   if (index<0) return;
   if (index>=(int)mSlicerManagerList.size()) return;
   mCurrentIndex = index;
   vvImage * mCurrentImage = mSlicerManagerList[index]->GetImage();
   if (mCurrentImage == NULL) return;
- //  DD("la");
   unsigned int d = mCurrentImage->GetNumberOfDimensions();
- //  DD(d);
   QString size;
   QString spacing;
   for(unsigned int i=0; i<d-1; i++) {
@@ -160,7 +157,6 @@ void vvToolSimpleInputSelectorWidget::changeInput(int index)
                            .arg(mCurrentImage->GetScalarTypeAsITKString().c_str())
                            .arg(size)
                            .arg(spacing));
- //  DD("fin");
 }
 //------------------------------------------------------------------------------
 

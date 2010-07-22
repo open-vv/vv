@@ -26,6 +26,7 @@ vvToolCreatorBase::vvToolCreatorBase(QString name): mExperimental(false)
 {
   mUseContextMenu = false;
   mToolName = name;
+  m_MenuName = "Tools";
   vvToolManager::GetInstance()->AddTool(this);
 }
 //------------------------------------------------------------------------------
@@ -58,8 +59,9 @@ void vvToolCreatorBase::InsertToolInMenu(vvMainWindowBase * m)
   connect(mAction, SIGNAL(triggered()), this, SLOT(MenuToolSlot()));
   if (mExperimental)
     mMainWindow->GetExperimentalToolMenu()->addAction(mAction);
-  else
-    mMainWindow->GetToolMenu()->addAction(mAction);
+  else {
+    mMainWindow->GetMenu(m_MenuName)->addAction(mAction);
+  }
 }
 //------------------------------------------------------------------------------
 

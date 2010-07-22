@@ -86,7 +86,7 @@ vvToolStructureSetManager::vvToolStructureSetManager(vvMainWindowBase * parent,
   }
   else {
     MustOpenDialogWhenCreated = false;
-    buttonBox->setEnabled(true);
+    mMainButtonBox->setEnabled(true);
     mCurrentSlicerManager = current;
     mCurrentImage = mCurrentSlicerManager->GetImage();
     mToolWidget->setEnabled(true);
@@ -585,7 +585,7 @@ void vvToolStructureSetManager::ReloadCurrentROI() {
   }
   //  delete mCurrentROI->GetImage();
   // DD(mCurrentROI->GetImage()->GetFirstVTKImageData()->GetDataReleased());
-//   DD(mCurrentROI->GetImage()->GetFirstVTKImageData()->GetReferenceCount());
+  //   DD(mCurrentROI->GetImage()->GetFirstVTKImageData()->GetReferenceCount());
   mCurrentROI->GetImage()->GetFirstVTKImageData()->ReleaseData();
   // DD(mCurrentROI->GetImage()->GetFirstVTKImageData()->GetDataReleased());
   mCurrentROI->SetImage(mReader->GetOutput());
@@ -600,8 +600,6 @@ void vvToolStructureSetManager::ReloadCurrentROI() {
 //------------------------------------------------------------------------------
 void vvToolStructureSetManager::CheckInputList(std::vector<vvSlicerManager*> & l, int & index) 
 {
-  DD("TODO CheckInputList");
-
   for(unsigned int i=0; i<l.size(); i++) {
     std::vector<vvSlicerManager*>::iterator iter = std::find(mListOfInputs.begin(), mListOfInputs.end(), l[i]);
     if (iter != mListOfInputs.end()) {
@@ -619,9 +617,6 @@ void vvToolStructureSetManager::CheckInputList(std::vector<vvSlicerManager*> & l
 // STATIC
 vvToolStructureSetManager * vvToolStructureSetManager::AddImage(vvSlicerManager * m, std::string name, vvImage::Pointer image, double BG, bool m_modeBG)
 {
-  DD("static AddImage");
-  DD(mListOfInputs.size());
-  
   // If the tool is open for this vvSlicerManager, use it and return
   if (mListOfOpenTool[m]) {
     vvToolStructureSetManager * tool = mListOfOpenTool[m];
