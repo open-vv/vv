@@ -22,13 +22,13 @@
 //--------------------------------------------------------------------
 clitk::FilterBase::FilterBase() 
 {
-  m_MustStop = false;
+  SetMustStop(false);
   SetVerboseOption(false);
   SetCurrentStepNumber(0);
   SetCurrentStepBaseId("");
   StopOnErrorOn();
   ResetLastError();
-  VerboseWarningOffOn(); // OffOn, it's cool not ?
+  VerboseWarningOffOn(); // OffOn, it's cool no ?
   SetWarning("");
 }
 //--------------------------------------------------------------------
@@ -68,6 +68,8 @@ void clitk::FilterBase::SetWarning(std::string e)
 //--------------------------------------------------------------------
 void clitk::FilterBase::StartNewStep(std::string s) 
 {
+  //m_CurrentStepTimer.Reset();
+  // m_CurrentStepTimer.Start();
   m_CurrentStepNumber++;
   if (GetCurrentStepBaseId() != "") {
     std::ostringstream oss;
@@ -92,15 +94,32 @@ void clitk::FilterBase::StartNewStep(std::string s)
 //--------------------------------------------------------------------
 void clitk::FilterBase::StopCurrentStep() 
 {
-  
+  // m_CurrentStepTimer.Stop();
+  //  m_CurrentStepTimer.Print(std::cout);
+  //  std::ostringstream oss;
+  //oss << " (" << 
+    //  m_CurrentStepName = m_CurrentStepName +"
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-void clitk::FilterBase::MustStop()
+void clitk::FilterBase::SetMustStop(bool b)
 {
-  m_MustStop = true;
+  m_MustStop = b;
+  if (GetMustStop()) {
+    SetLastError("Filter is interrupted.");  
+  }
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+bool clitk::FilterBase::GetMustStop()
+{
+  if (m_MustStop) return true;
+  if (HasError()) return true;
+  return false;
 }
 //--------------------------------------------------------------------
 

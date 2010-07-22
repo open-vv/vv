@@ -92,6 +92,12 @@ namespace clitk {
 
     // Get the associated filter
     FilterBase * GetFilterBase() { return m_FilterBase; }
+    
+    // Indicate that the filter must stop as soon as possible (if threaded)
+    void MustStop();
+    itkSetMacro(StopOnError, bool);
+    itkGetConstMacro(StopOnError, bool);
+    itkBooleanMacro(StopOnError);    
 
   protected:  
     bool m_ReadOnDisk;
@@ -122,6 +128,7 @@ namespace clitk {
     std::string m_LastError;
     void SetFilterBase(FilterBase * f) { m_FilterBase = f; }
     FilterBase * m_FilterBase;
+    bool m_StopOnError;
 
   }; // end class clitk::ImageToImageGenericFilter
 

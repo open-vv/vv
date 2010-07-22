@@ -35,6 +35,7 @@ clitk::ImageToImageGenericFilterBase::ImageToImageGenericFilterBase(std::string 
   m_FailOnImageTypeError = true;
   m_ReadOnDisk = true;
   m_LastError = "";
+  StopOnErrorOn();
 }
 //--------------------------------------------------------------------
 
@@ -302,6 +303,16 @@ typename ImageType::Pointer clitk::ImageToImageGenericFilterBase::GetInput(unsig
       assert(false); //No input, this shouldn't happen
       return typename ImageType::Pointer(NULL);
     }
+  }
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void clitk::ImageToImageGenericFilterBase::MustStop()
+{
+  if (m_FilterBase != NULL) {
+    m_FilterBase->SetMustStop(true);
   }
 }
 //--------------------------------------------------------------------

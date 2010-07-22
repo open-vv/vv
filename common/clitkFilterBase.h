@@ -21,6 +21,7 @@
 
 // clitk
 #include "clitkCommon.h"
+#include "clitkTimer.h"
 #include "clitkFilterMacros.txx"
 #include "clitkLabelizeParameters.h"
 
@@ -106,7 +107,8 @@ namespace clitk {
     GGO_DefineOption_Flag(verboseWarningOff, SetVerboseWarningOff);
     
     // Use this function to stop (when threaded)
-    void MustStop();
+    void SetMustStop(bool b);
+    bool GetMustStop();
     
   protected:
     FilterBase();
@@ -129,6 +131,7 @@ namespace clitk {
     std::string m_Warning;
     bool m_VerboseWarningOff;
     bool m_MustStop;
+    Timer m_CurrentStepTimer;
 
   private:
     FilterBase(const Self&); //purposely not implemented
@@ -139,6 +142,8 @@ namespace clitk {
 
 } // end namespace clitk
 //--------------------------------------------------------------------
+
+#define StartNewStepOrStop(s) StartNewStep(s); if (GetMustStop()) return;
 
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "clitkFilterBase.txx"

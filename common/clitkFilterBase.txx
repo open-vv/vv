@@ -60,6 +60,7 @@ void clitk::FilterBase::VerboseOptionV(std::string name, int nb, OptionType * va
 template<class TInternalImageType>
 void clitk::FilterBase::StopCurrentStep(typename TInternalImageType::Pointer p) 
 {
+  StopCurrentStep();
   if (m_WriteStep) {
     std::ostringstream name;
     name << "step-" << GetCurrentStepId() << ".mhd";
