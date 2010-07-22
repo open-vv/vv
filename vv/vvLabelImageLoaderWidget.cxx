@@ -71,8 +71,6 @@ void vvLabelImageLoaderWidget::SetText(QString t)
 //------------------------------------------------------------------------------
 void vvLabelImageLoaderWidget::OpenImage()
 {
-  DD("OpenImage");
-
   // Browse for file
   QString Extensions = "Images files ( *.mhd *.hdr *.his)";
   Extensions += ";;All Files (*)";
@@ -82,6 +80,7 @@ void vvLabelImageLoaderWidget::OpenImage()
   if (filename == "") return; // nothing to do
   
   // Open Image
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   vvImageReader * mReader = new vvImageReader;
   mReader->SetInputFilename(filename.toStdString());
   mReader->Update(IMAGE);
@@ -109,9 +108,7 @@ void vvLabelImageLoaderWidget::OpenImage()
     return;
   }
 
-  DD(temp->GetScalarTypeAsITKString());
   if (temp->GetScalarTypeAsITKString() != "unsigned_char") {
-    DD("Cast");
     vtkImageData * p = vtkImageData::New();
     p->SetExtent(temp->GetFirstVTKImageData()->GetExtent ()); // Only first ! could not be 4D
     p->SetScalarTypeToUnsignedChar();
@@ -129,6 +126,7 @@ void vvLabelImageLoaderWidget::OpenImage()
   
   // Set GUI
   mLabelInputInfo->setText(vtksys::SystemTools::GetFilenameName(filename.toStdString()).c_str());
+  QApplication::restoreOverrideCursor();
   emit accepted();
 }
 //------------------------------------------------------------------------------
