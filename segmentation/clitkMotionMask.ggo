@@ -1,0 +1,76 @@
+#File clitkMotionMask.ggo
+Package "clitkMotionMask"
+version "1.0"
+purpose "From an input CT image (HU), extract feature images (air, ribs and lungs) and calculate the motion mask using levelsets"
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+
+section "I/O"
+
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+option "monitor"	m	"Monitoring image for levelsets"  string 	no
+option "spacing"	-	"Low dimensional spacing to perform initial level set steps" double    no multiple	default="4"
+
+section "Feature Images (feature=1,rest=0). Set them or extract them from the input"
+
+option "featureAir"		-	"Input feature image"		string		no
+option "lowerThresholdAir"	-	"Lower threshold for air feature image extraction"	double	no default="-10000" 
+option "upperThresholdAir"	-	"Upper threshold for air feature image extraction"	double	no default="-800" 
+option "pad"			-	"Make a border of air around the image (for cropped images)" flag	off 
+option "featureBones"		-	"Input feature image"		string		no
+option "lowerThresholdBones"	-	"Lower threshold for bones feature image extraction"	double	no default="100" 
+option "upperThresholdBones"	-	"Upper threshold for bones feature image extraction"	double	no default="1000" 
+option "featureLungs"		-	"Input feature image"		string		no
+option "lowerThresholdLungs"	-	"Lower threshold for lungs feature image extraction"	double	no default="-950" 
+option "upperThresholdLungs"	-	"Upper threshold for lungs feature image extraction"	double	no default="-600" 
+option "writeFeature"		-	"Write the combined feature image"			string	no  
+
+
+section "Ellipsoide initialization"
+
+option	"ellips"	-	"Input ellipsoide image (=1, at half resolution)" 					   string	no
+option	"offset"	-	"Offset for ellips center from body center of gravity (default= 0,-50,0 mm)"  	   double	no	multiple
+option 	"axes"		-	"Half axes of the ellips (default= 100,30,150)"					   double 	no	multiple
+option  "writeEllips"	-	"Write the initial ellipsoide image"			string	no  
+
+
+section "Ellipsoide growing"
+
+option	"grownEllips"	-	"Input grown ellips image (=1, at half resolution)" 		   string	no
+option	"offsetDetect"	-	"Offset of detection point from abdomen (default= 0,-10,0 mm)" 	   double	no	multiple
+option	"detectionPairs" -	"Additional images to detect the abdomen (eg end-inhalation frame). The most anterior point will be retained." string no multiple
+option	"detectionPoint"	-	"Physical coordinates of the detection point from abdomen (default= 0,-10,0 mm)" 	   double	no	multiple
+option	"curve1"	-	"Curvature for this levelset" 					   double	no      default="35.0"	
+option	"maxRMS1"	-	"Tolerance for this levelset"					   double	no      default="0.001"	
+option	"iter1"		-	"Iterations performed between monitoring"  	 		   int		no      default="50"	
+option  "writeGrownEllips"	-	"Write the grown ellipsoide image"			   string	no  
+
+
+section "Filling the bones image"
+
+option	"filledRibs"	-	"Input filled rib image (=1, at half resolution)" 	string	no
+option	"fillingLevel"	-	"Minimum lung fill level: [0,100] %" 			double	no	default="98.0"
+option	"curve2"	-	"Curvature for this levelset" 				double	no      default="30.0"	
+option	"maxRMS2"	-	"Tolerance for this levelset"				double	no      default="0.001"	
+option	"iter2"		-	"Iterations performed between monitoring"  	 	int	no      default="50"	
+option  "writeFilledRibs"	-	"Write the filled ribs image image"		string	no  
+
+
+section "Collapsing to the lung image"
+
+option	"curve3"	-	"Curvature for this levelset" 		double	no      default="30.0"	
+option	"prop3"		-	"Propagation for this levelset" 	double	no      default="0"
+option	"maxRMS3"	-	"Tolerance for this levelset"		double	no      default="0.001"	
+option	"iter3"		-	"Iterations performed between monitoring" int	no      default="20"	
+option	"maxIter3"	-	"Iterations performed between monitoring" int	no      default="500"	
+	
+
+section "Clean-up"
+
+option "openClose"	- 	"Perform morphological opening and closing with unit radius"	flag 	on
+
+
+

@@ -1,0 +1,26 @@
+#File clitkDecomposeAndReconstruct.ggo
+Package "clitkDecomposeAndReconstruct"
+version "1.0"
+purpose "Erode a binary image to decompose into different labels, keeping a record of the eroded regions (erosion padding value). Dilate all labels of a label image  separately, only dilating the marked regions (erosion padding value)."
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+section "I/O"
+
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+
+section "Parameters"
+	
+option "type"		t	"0=Erode to decompose(binary image) , 1=Dilate to reconstuct(label image) , 2= 1(0(x))"			int		no	default="0"
+option "full"		f	"Use full connectivity (1 side connected enough)"				flag		on
+option "fg" 	 	-   	"0: Foreground value (erode only this label)"					float		no		 	        
+option "bg" 	 	-   	"1: Background value (ignore this label)"					float		no	default="0" 	        
+option "pad" 	 	-   	"0,1: The erosion padding value"						float		no	default="-1" 	        
+option "bound"  	b   	"0-1: Set borders to foreground"						flag		off 
+option "radius"   	r   	"Use binary ball element with given radius"					int		no	multiple 	default="1"		
+option "new"  	 	n   	"0,2: Erode till at least n new labels appear"					int		no	default="1"		
+option "max"  	 	-   	"1,2: Consider only the n largest labels (rest will be put to fg)"		int		no	default="10"		
+option "min"  	 	-   	"0,2: Minimum number of erosions"						int		no	default="1"		
+option "minSize" 	-   	"0,2: Minimum object size"						int		no	default="10"		
