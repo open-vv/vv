@@ -134,7 +134,6 @@ clitk::Labelize(typename ImageType::Pointer input,
                 typename ImageType::PixelType BG, 
                 bool isFullyConnected, 
                 int minimalComponentSize) {
-
   // Connected Component label 
   typedef itk::ConnectedComponentImageFilter<ImageType, ImageType> ConnectFilterType;
   typename ConnectFilterType::Pointer connectFilter = ConnectFilterType::New();

@@ -132,7 +132,7 @@ namespace clitk {
   EnlargeImageLike(typename ImageType::Pointer input,
                    typename ImageType::Pointer like, 
                    typename ImageType::PixelType BG);
-  
+
 }
 
 #include "clitkSegmentationUtils.txx"
