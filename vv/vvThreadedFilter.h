@@ -39,6 +39,9 @@ class vvThreadedFilter: public QThread
 
 public slots:
   void reject();
+  
+ signals:
+  void ThreadInterrupted();
 
 protected:
   void run();

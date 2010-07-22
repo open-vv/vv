@@ -27,7 +27,6 @@
 vvThreadedFilter::vvThreadedFilter():
   QThread()
 {
-  DD("vvThreadedFilter");
   m_Filter = NULL;
 }
 //------------------------------------------------------------------------------
@@ -43,7 +42,6 @@ vvThreadedFilter::~vvThreadedFilter()
 //------------------------------------------------------------------------------
 void vvThreadedFilter::SetFilter(clitk::ImageToImageGenericFilterBase * f)
 {
-  DD("SetFilter");
   m_Filter = f;
 }
 //------------------------------------------------------------------------------
@@ -56,14 +54,15 @@ void vvThreadedFilter::Update()
 
   // Show a progress bar while computing
   vvProgressDialog progress("Computing ...",100);
+  progress.SetCancelButtonEnabled(true);
   connect(&progress, SIGNAL(rejected()), this, SLOT(reject()));
   this->start();
   this->setTerminationEnabled(true);
   std::string temp;
   while (this->isRunning()) {
-    DD(this->isRunning());
-    m_FilterBase = m_Filter->GetFilterBase(); // get filterbase only after Update
+    m_FilterBase = m_Filter->GetFilterBase(); // get filterbase is only set after Update
     if (m_FilterBase != NULL) {
+      //      m_FilterBase->StopOnErrorOff(); // filter can be interrupted
       progress.SetProgress(m_FilterBase->GetCurrentStepNumber(), 
 			   m_FilterBase->GetNumberOfSteps());
       if (temp != m_FilterBase->GetCurrentStepName()) {
@@ -74,7 +73,6 @@ void vvThreadedFilter::Update()
     this->wait(200); // in milisecond
     qApp->processEvents();
   }
-  DD("after loop");
 }
 //------------------------------------------------------------------------------
 
@@ -91,12 +89,16 @@ void vvThreadedFilter::run()
 //------------------------------------------------------------------------------
 void vvThreadedFilter::reject()
 {
-  DD("vvThreadedFilter::reject");
+  // First, say the filter it must stop
+  if (m_FilterBase != NULL) {
+    m_FilterBase->SetMustStop(true);
+  }
+  // Indicate to the user it will stop
+  QApplication::restoreOverrideCursor();
+  QMessageBox::information(new QWidget, tr("Error"), m_FilterBase->GetLastError().c_str());  
+  // Quit the thread (is it needed ?)
   this->quit();
-  // if (m_Filter != NULL) {
-//     m_Filter->MustStop();
-//   }
-  DD("after terminate");
+  emit ThreadInterrupted();
 }
 //------------------------------------------------------------------------------
 
