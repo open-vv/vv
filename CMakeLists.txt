@@ -76,7 +76,7 @@ IF (CLITK_BUILD_TOOLS)
   add_subdirectory(tools)
 ENDIF(CLITK_BUILD_TOOLS)
 
-OPTION(CLITK_BUILD_SEGMENTATION "Build segmentation tools" OFF)
+OPTION(CLITK_BUILD_SEGMENTATION "Build segmentation tools" ON)
 IF (CLITK_BUILD_SEGMENTATION)
   add_subdirectory(segmentation)
 ENDIF (CLITK_BUILD_SEGMENTATION)
