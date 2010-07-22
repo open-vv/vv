@@ -44,15 +44,17 @@ vvToolExtractLung::vvToolExtractLung(vvMainWindowBase * parent, Qt::WindowFlags 
   // GUI
   Ui_vvToolExtractLung::setupUi(mToolWidget);
   mMaskLoaderBox->setEnabled(false);
-  mOptionsBox->setEnabled(false);
+  //mOptionsBox->setEnabled(false);
   mPatientMaskInputWidget->SetText("Patient mask");
   connect(mPatientMaskInputWidget, SIGNAL(accepted()), this, SLOT(PatientMaskInputIsSelected()));
 
   // Default values
-  cmdline_parser_clitkExtractLung_init(&mArgsInfo);
+  mArgsInfo = new ArgsInfoType;
+  cmdline_parser_clitkExtractLung_init(mArgsInfo);
+  m_IsThreadInterrupted = false;
 
   // Create a new ExtractLung filter
-  mFilter = FilterType::New();  
+  mFilter = new FilterType;  // used in AddInputSelector
 
   // Add input selector
   AddInputSelector("Select CT thorax image", mFilter);
@@ -73,7 +75,8 @@ void vvToolExtractLung::Initialize() {
   SetToolMenuName("Extract lungs");
   SetToolIconFilename(":/common/icons/lung-overlay.png");
   SetToolTip("Extract lung mask from thorax CT.");
-  SetToolExperimental(true);
+  //  SetToolExperimental(true);
+  //  SetToolInMenu("Segmentation");
 }
 //------------------------------------------------------------------------------
 
@@ -81,7 +84,6 @@ void vvToolExtractLung::Initialize() {
 //------------------------------------------------------------------------------
 void vvToolExtractLung::InputIsSelected(vvSlicerManager *m)
 {
-  DD("InputIsSelected");
   // Hide selector
   HideInputSelector(); // splitter
   mToolInputSelectionWidget->hide();
@@ -96,13 +98,18 @@ void vvToolExtractLung::InputIsSelected(vvSlicerManager *m)
 //------------------------------------------------------------------------------
 void vvToolExtractLung::PatientMaskInputIsSelected()
 {
-  DD("PatientMaskInputIsSelected");
-  mMaskLoaderBox->setEnabled(false);
-  mOptionsBox->setEnabled(true);
-
   // Get Patient mask and BG value
   mPatient = mPatientMaskInputWidget->GetImage();  
   mPatientBackgroundValue = mPatientMaskInputWidget->GetBackgroundValue();
+  
+  // Check patient dimension
+  if (mPatient->GetNumberOfDimensions() != 3) {
+    QMessageBox::information(this,tr("*Error*"), "Mask image must be 3D");
+    return;
+  }
+   
+  mMaskLoaderBox->setEnabled(false);
+  //mOptionsBox->setEnabled(true);
 }
 //------------------------------------------------------------------------------
 
@@ -110,16 +117,15 @@ void vvToolExtractLung::PatientMaskInputIsSelected()
 //------------------------------------------------------------------------------
 void vvToolExtractLung::GetArgsInfoFromGUI() 
 {
-  DD("GetArgsInfoFromGUI");
-  mArgsInfo.patientBG_arg = 0; //mPatientBackgroundValueSpinBox->value();
-  mArgsInfo.verboseOption_flag = true;
-  mArgsInfo.verboseStep_flag = true;
-  mArgsInfo.writeStep_flag = false;
-  mArgsInfo.input_given = 0;
-  mArgsInfo.patient_given = 0;
-  mArgsInfo.output_given = 0;
-  mArgsInfo.outputTrachea_given = 0;
-  mArgsInfo.remove1_given = 0;
+  mArgsInfo->patientBG_arg = 0; //mPatientBackgroundValueSpinBox->value();
+  mArgsInfo->verboseOption_flag = false;
+  mArgsInfo->verboseStep_flag = false;
+  mArgsInfo->writeStep_flag = false;
+  mArgsInfo->input_given = 0;
+  mArgsInfo->patient_given = 0;
+  mArgsInfo->output_given = 0;
+  mArgsInfo->outputTrachea_given = 0;
+  mArgsInfo->remove1_given = 0;
 }
 //------------------------------------------------------------------------------
 
@@ -127,46 +133,52 @@ void vvToolExtractLung::GetArgsInfoFromGUI()
 //------------------------------------------------------------------------------
 void vvToolExtractLung::apply() 
 {
-  DD("apply");
+  // Change cursor to wait
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   
+  // Read options from GUI and put it in the ArgsInfo struct
   GetArgsInfoFromGUI();
 
-  mFilter->SetIOVerbose(true);  
+  // Create new filter
+  if (mFilter) delete mFilter;
+  mFilter = new FilterType;  // needed when thread cancel the filter
+  mFilter->StopOnErrorOff();
+  //  mFilter->SetIOVerbose(true);
   mFilter->AddInputVVImage(mCurrentImage); // CT
   mFilter->AddInputVVImage(mPatient); // patient mask
-  mFilter->SetArgsInfo(mArgsInfo);
+  mFilter->SetArgsInfo(*mArgsInfo);
 
-  DD("mfilter->Update");
+  // Created threaded execution
   vvThreadedFilter thread;
-  //  thread.SetFilter((clitk::FilterBase*)&(*mFilter));
-  //  thread.SetFilter((clitk::FilterBase*)&(*mFilter));
-  thread.SetFilter(&(*mFilter));
-  // connect(a, SIGNAL(rejected()), this, SLOT(FilterHasBeenCanceled()));
+  connect(&thread, SIGNAL(ThreadInterrupted()), this, SLOT(ThreadInterrupted()));
+  thread.SetFilter(mFilter);
   thread.Update();
-  // if (a->HasError()) { DD(a->GetError()); return; }
-  //  mFilter->Update();
-  DD("after thread");
 
-  // Check error
+  // Check if the thread has been canceled. In this case, return
+  if (m_IsThreadInterrupted) {
+    m_IsThreadInterrupted = false;
+    QApplication::restoreOverrideCursor(); 
+    return;
+  }
+  disconnect(&thread, SIGNAL(ThreadInterrupted()), this, SLOT(ThreadInterrupted()));
+    
+  // Check error during filter
   if (mFilter->HasError()) {
-    QMessageBox::information(this,tr("*Error* while finding lung"), mFilter->GetLastError().c_str());
-    reject();
+    QApplication::restoreOverrideCursor();
+    QMessageBox::information(this,tr("Error"), mFilter->GetLastError().c_str());
     return;
   }
   
   // Get output
   std::vector<vvImage::Pointer> output = mFilter->GetOutputVVImages();
-  DD(output.size());
-  
   if (output.size() == 0) {
     std::cerr << "Error : no output ?" << std::endl;
+    QApplication::restoreOverrideCursor();
     close();
     return;
   }
   
   // Set Lung into VV
-  DD("lung");
   vvImage::Pointer lung = output[0];
   std::ostringstream osstream;
   osstream << "Lung_" << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";
@@ -177,7 +189,6 @@ void vvToolExtractLung::apply()
 
   // Set trachea into VV
   if (output.size() == 2) {
-    DD("trachea");
     vvImage::Pointer trachea = output[1];
     std::ostringstream osstream;
     osstream << "Trachea_" << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";
@@ -200,4 +211,11 @@ bool vvToolExtractLung::close()
 }
 //------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
+void vvToolExtractLung::ThreadInterrupted() 
+{ 
+  m_IsThreadInterrupted = true; 
+}
+//------------------------------------------------------------------------------
 

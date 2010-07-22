@@ -53,15 +53,17 @@ public slots:
   virtual void apply();
   virtual bool close();
   void PatientMaskInputIsSelected();
+  void ThreadInterrupted();
 
   //-----------------------------------------------------
 protected:
   typedef args_info_clitkExtractLung ArgsInfoType;
-  ArgsInfoType mArgsInfo;
+  ArgsInfoType * mArgsInfo;
   typedef clitk::ExtractLungGenericFilter<ArgsInfoType> FilterType;
-  FilterType::Pointer mFilter;
+  FilterType * mFilter;
   vvImage::Pointer mPatient;
   double mPatientBackgroundValue;
+  bool m_IsThreadInterrupted;
 
 }; // end class vvToolExtractLung
 //------------------------------------------------------------------------------
