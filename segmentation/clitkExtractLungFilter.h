@@ -54,15 +54,36 @@ namespace clitk {
   */
   //--------------------------------------------------------------------
   
-  template <class TInputImageType, class TMaskImageType>
+
+  //--------------------------------------------------------------------
+template<class IndexType, class PixelType>
+class Bifurcation
+{
+public:
+  Bifurcation(IndexType _index, PixelType _l, PixelType _l1, PixelType _l2) {
+    index = _index;
+    _l = l;
+    _l1 = l1;
+    _l2 = l2;
+  }
+  IndexType index;
+  PixelType l;
+  PixelType l1;
+  PixelType l2;
+};
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template <class TImageType, class TMaskImageType>
   class ITK_EXPORT ExtractLungFilter: 
     public clitk::FilterBase, 
-    public itk::ImageToImageFilter<TInputImageType, TMaskImageType> 
+    public itk::ImageToImageFilter<TImageType, TMaskImageType> 
   {
     
   public:
     /** Standard class typedefs. */
-    typedef itk::ImageToImageFilter<TInputImageType, TMaskImageType> Superclass;
+    typedef itk::ImageToImageFilter<TImageType, TMaskImageType> Superclass;
     typedef ExtractLungFilter              Self;
     typedef itk::SmartPointer<Self>        Pointer;
     typedef itk::SmartPointer<const Self>  ConstPointer;
@@ -75,13 +96,13 @@ namespace clitk {
     FILTERBASE_INIT;
 
     /** Some convenient typedefs */
-    typedef TInputImageType                       InputImageType;
-    typedef typename InputImageType::ConstPointer InputImageConstPointer;
-    typedef typename InputImageType::Pointer      InputImagePointer;
-    typedef typename InputImageType::RegionType   InputImageRegionType; 
-    typedef typename InputImageType::PixelType    InputImagePixelType; 
-    typedef typename InputImageType::SizeType     InputImageSizeType; 
-    typedef typename InputImageType::IndexType    InputImageIndexType; 
+    typedef TImageType                       ImageType;
+    typedef typename ImageType::ConstPointer InputImageConstPointer;
+    typedef typename ImageType::Pointer      InputImagePointer;
+    typedef typename ImageType::RegionType   InputImageRegionType; 
+    typedef typename ImageType::PixelType    InputImagePixelType; 
+    typedef typename ImageType::SizeType     InputImageSizeType; 
+    typedef typename ImageType::IndexType    InputImageIndexType; 
         
     typedef TMaskImageType                       MaskImageType;
     typedef typename MaskImageType::ConstPointer MaskImageConstPointer;
@@ -91,15 +112,15 @@ namespace clitk {
     typedef typename MaskImageType::SizeType     MaskImageSizeType; 
     typedef typename MaskImageType::IndexType    MaskImageIndexType; 
 
-    itkStaticConstMacro(ImageDimension, unsigned int, InputImageType::ImageDimension);
+    itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
     typedef int InternalPixelType;
-    typedef itk::Image<InternalPixelType, InputImageType::ImageDimension> InternalImageType;
-    typedef typename InternalImageType::Pointer                           InternalImagePointer;
-    typedef typename InternalImageType::IndexType                         InternalIndexType;
-    typedef LabelizeParameters<InternalPixelType>                         LabelParamType;
+    typedef itk::Image<InternalPixelType, ImageType::ImageDimension> InternalImageType;
+    typedef typename InternalImageType::Pointer                      InternalImagePointer;
+    typedef typename InternalImageType::IndexType                    InternalIndexType;
+    typedef LabelizeParameters<InternalPixelType>                    LabelParamType;
     
     /** Connect inputs */
-    void SetInput(const InputImageType * image);
+    void SetInput(const ImageType * image);
     void SetInputPatientMask(MaskImageType * mask, MaskImagePixelType BG);
     itkSetMacro(PatientMaskBackgroundValue, MaskImagePixelType);
     itkGetConstMacro(PatientMaskBackgroundValue, MaskImagePixelType);
@@ -152,7 +173,7 @@ namespace clitk {
 
     void AddSeed(InternalIndexType s);
     std::vector<InternalIndexType> & GetSeeds() { return  m_Seeds; }
-    GGO_DefineOption_Vector(seed, AddSeed, InternalIndexType, InputImageType::ImageDimension, true);
+    GGO_DefineOption_Vector(seed, AddSeed, InternalIndexType, ImageType::ImageDimension, true);
 
     // Step 3 options ExtractLung
     itkSetMacro(NumberOfHistogramBins, int);
@@ -177,12 +198,25 @@ namespace clitk {
     //     itkGetConstMacro(FinalOpenClose, bool);
     //     itkBooleanMacro(FinalOpenClose);
 
- //    virtual void Update();
+    // Bronchial bifurcations
+    itkSetMacro(FindBronchialBifurcations, bool);
+    itkGetConstMacro(FindBronchialBifurcations, bool);
+    itkBooleanMacro(FindBronchialBifurcations);
 
   protected:
     ExtractLungFilter();
     virtual ~ExtractLungFilter() {}
-    
+
+    // Main members
+    InputImageConstPointer input;
+    MaskImageConstPointer patient;
+    InputImagePointer working_input;
+    typename InternalImageType::Pointer working_image;  
+    typename InternalImageType::Pointer trachea_tmp;
+    MaskImagePointer trachea;
+    MaskImagePointer output;
+    unsigned int m_MaxSeedNumber;
+
     // Global options
     itkSetMacro(BackgroundValue, MaskImagePixelType);
     itkSetMacro(ForegroundValue, MaskImagePixelType);
@@ -214,21 +248,16 @@ namespace clitk {
     // Step 5
     //     bool m_FinalOpenClose;
     
+    bool m_FindBronchialBifurcations;
+    
     virtual void GenerateOutputInformation();
     virtual void GenerateData();
 
-    // Steps
-    void RemoveAir();
-    void FindTrachea();
-    void ExtractLung();
-    void RemoveTrachea();
-    void LungSeparation();
-    InputImageConstPointer input;
-    MaskImageConstPointer patient;
-    InputImagePointer working_input;
-    typename InternalImageType::Pointer working_image;  
-    typename InternalImageType::Pointer trachea_tmp;
-    MaskImagePointer trachea;
+    typedef Bifurcation<MaskImageIndexType,MaskImagePixelType> BifurcationType;
+    void TrackFromThisIndex(std::vector<BifurcationType> & listOfBifurcations, 
+                            MaskImagePointer skeleton, 
+                            MaskImageIndexType index,
+                            MaskImagePixelType label);
         
   private:
     ExtractLungFilter(const Self&); //purposely not implemented

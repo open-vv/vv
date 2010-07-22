@@ -227,7 +227,7 @@ GenerateOutputInformation() {
   sliceRelPosFilter->SetInput(m_working_image);
   sliceRelPosFilter->SetInputObject(temp);
   sliceRelPosFilter->SetDirection(2);
-  sliceRelPosFilter->SetFuzzyThreshold(0.8);
+  sliceRelPosFilter->SetFuzzyThreshold(0.6);
   sliceRelPosFilter->SetOrientationType(SliceRelPosFilterType::RelPosFilterType::RightTo);
   sliceRelPosFilter->Update();
   m_working_image = sliceRelPosFilter->GetOutput();
@@ -247,7 +247,7 @@ GenerateOutputInformation() {
   sliceRelPosFilter->SetInput(m_working_image);
   sliceRelPosFilter->SetInputObject(temp);
   sliceRelPosFilter->SetDirection(2);
-  sliceRelPosFilter->SetFuzzyThreshold(0.8);
+  sliceRelPosFilter->SetFuzzyThreshold(0.6);
   sliceRelPosFilter->SetOrientationType(SliceRelPosFilterType::RelPosFilterType::LeftTo);
   sliceRelPosFilter->Update();
   m_working_image = sliceRelPosFilter->GetOutput();

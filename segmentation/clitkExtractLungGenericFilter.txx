@@ -84,6 +84,7 @@ void clitk::ExtractLungGenericFilter<ArgsInfoType>::UpdateWithInputImageType()
   this->SetFilterBase(filter);
     
   // Set global Options 
+  filter->SetStopOnError(this->GetStopOnError());
   filter->SetArgsInfo(mArgsInfo);
   filter->SetInput(input);
   filter->SetInputPatientMask(patient, mArgsInfo.patientBG_arg);

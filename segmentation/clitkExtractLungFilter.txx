@@ -30,20 +30,26 @@
 #include "itkConnectedComponentImageFilter.h"
 #include "itkRelabelComponentImageFilter.h"
 #include "itkOtsuThresholdImageFilter.h"
+#include "itkBinaryThinningImageFilter3D.h"
+#include "itkImageIteratorWithIndex.h"
+
 
 //--------------------------------------------------------------------
-template <class TInputImageType, class TMaskImageType>
-clitk::ExtractLungFilter<TInputImageType, TMaskImageType>::
+template <class ImageType, class MaskImageType>
+clitk::ExtractLungFilter<ImageType, MaskImageType>::
 ExtractLungFilter():
   clitk::FilterBase(),
-  itk::ImageToImageFilter<TInputImageType, TMaskImageType>()
+  itk::ImageToImageFilter<ImageType, MaskImageType>()
 {
   SetNumberOfSteps(10);
+  m_MaxSeedNumber = 500;
+
   // Default global options
   this->SetNumberOfRequiredInputs(2);
   SetPatientMaskBackgroundValue(0);
   SetBackgroundValue(0); // Must be zero
   SetForegroundValue(1);
+  SetMinimalComponentSize(100);
 
   // Step 1 default values
   SetUpperThreshold(-300);
@@ -75,37 +81,40 @@ ExtractLungFilter():
   p3->SetLastKeep(2);
   p3->UseLastKeepOff();
   SetLabelizeParameters3(p3);
+  
+  // Step 5 : find bronchial bifurcations
+  FindBronchialBifurcationsOn();
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-template <class TInputImageType, class TMaskImageType>
+template <class ImageType, class MaskImageType>
 void 
-clitk::ExtractLungFilter<TInputImageType, TMaskImageType>::
-SetInput(const TInputImageType * image) 
+clitk::ExtractLungFilter<ImageType, MaskImageType>::
+SetInput(const ImageType * image) 
 {
-  this->SetNthInput(0, const_cast<TInputImageType *>(image));
+  this->SetNthInput(0, const_cast<ImageType *>(image));
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-template <class TInputImageType, class TMaskImageType>
+template <class ImageType, class MaskImageType>
 void 
-clitk::ExtractLungFilter<TInputImageType, TMaskImageType>::
-SetInputPatientMask(TMaskImageType * image, MaskImagePixelType bg ) 
+clitk::ExtractLungFilter<ImageType, MaskImageType>::
+SetInputPatientMask(MaskImageType * image, MaskImagePixelType bg ) 
 {
-  this->SetNthInput(1, const_cast<TMaskImageType *>(image));
+  this->SetNthInput(1, const_cast<MaskImageType *>(image));
   SetPatientMaskBackgroundValue(bg);
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-template <class TInputImageType, class TMaskImageType>
+template <class ImageType, class MaskImageType>
 void 
-clitk::ExtractLungFilter<TInputImageType, TMaskImageType>::
+clitk::ExtractLungFilter<ImageType, MaskImageType>::
 AddSeed(InternalIndexType s) 
 { 
   m_Seeds.push_back(s);
@@ -114,10 +123,10 @@ AddSeed(InternalIndexType s)
 
 
 //--------------------------------------------------------------------
-template <class TInputImageType, class TMaskImageType>
+template <class ImageType, class MaskImageType>
 template<class ArgsInfoType>
 void 
-clitk::ExtractLungFilter<TInputImageType, TMaskImageType>::
+clitk::ExtractLungFilter<ImageType, MaskImageType>::
 SetArgsInfo(ArgsInfoType mArgsInfo)
 {
   SetVerboseOption_GGO(mArgsInfo);
@@ -138,6 +147,8 @@ SetArgsInfo(ArgsInfoType mArgsInfo)
   SetThresholdStepSizeForTrachea_GGO(mArgsInfo);
   AddSeed_GGO(mArgsInfo);
 
+  SetMinimalComponentSize_GGO(mArgsInfo);
+  
   SetNumberOfHistogramBins_GGO(mArgsInfo);
   SetLabelizeParameters2_GGO(mArgsInfo);
 
@@ -148,39 +159,36 @@ SetArgsInfo(ArgsInfoType mArgsInfo)
 
 
 //--------------------------------------------------------------------
-template <class TInputImageType, class TMaskImageType>
+template <class ImageType, class MaskImageType>
 void 
-clitk::ExtractLungFilter<TInputImageType, TMaskImageType>::
+clitk::ExtractLungFilter<ImageType, MaskImageType>::
 GenerateOutputInformation() 
 { 
-  input   = dynamic_cast<const TInputImageType*>(itk::ProcessObject::GetInput(0));
-  Superclass::GenerateOutputInformation();
+  Superclass::GenerateOutputInformation(); // Needed  ??
+  this->GetOutput(0)->SetRequestedRegion(this->GetOutput(0)->GetLargestPossibleRegion());
 
   // Get input pointers
-  input   = dynamic_cast<const TInputImageType*>(itk::ProcessObject::GetInput(0));
-  patient = dynamic_cast<const TMaskImageType*>(itk::ProcessObject::GetInput(1));
+  patient = dynamic_cast<const MaskImageType*>(itk::ProcessObject::GetInput(1));
+  input   = dynamic_cast<const ImageType*>(itk::ProcessObject::GetInput(0));
 
   // Check image
-  if (!HaveSameSizeAndSpacing<TInputImageType, TMaskImageType>(input, patient)) {
+  if (!HaveSameSizeAndSpacing<ImageType, MaskImageType>(input, patient)) {
     this->SetLastError("* ERROR * the images (input and patient mask) must have the same size & spacing");
     return;
   }
   
-  // Set Number of steps
-  SetNumberOfSteps(9);
-  
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
-  StartNewStep("Set background to initial image");
-  working_input = SetBackground<TInputImageType, TMaskImageType>
+  StartNewStepOrStop("Set background to initial image");
+  working_input = SetBackground<ImageType, MaskImageType>
     (input, patient, GetPatientMaskBackgroundValue(), -1000);
-  StopCurrentStep<InputImageType>(working_input);
+  StopCurrentStep<ImageType>(working_input);
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
-  StartNewStep("Remove Air");
+  StartNewStepOrStop("Remove Air");
   // Threshold to get air
-  typedef itk::BinaryThresholdImageFilter<InputImageType, InternalImageType> InputBinarizeFilterType; 
+  typedef itk::BinaryThresholdImageFilter<ImageType, InternalImageType> InputBinarizeFilterType; 
   typename InputBinarizeFilterType::Pointer binarizeFilter=InputBinarizeFilterType::New();
   binarizeFilter->SetInput(working_input);
   if (m_UseLowerThreshold) binarizeFilter->SetLowerThreshold(m_LowerThreshold);
@@ -192,8 +200,10 @@ GenerateOutputInformation()
   
   // Labelize and keep right labels
   working_image = Labelize<InternalImageType>(working_image, GetBackgroundValue(), true, GetMinimalComponentSize());
+
   working_image = RemoveLabels<InternalImageType>
     (working_image, GetBackgroundValue(), GetLabelizeParameters1()->GetLabelsToRemove());
+
   typename InternalImageType::Pointer air = KeepLabels<InternalImageType>
     (working_image, 
      GetBackgroundValue(), 
@@ -203,19 +213,18 @@ GenerateOutputInformation()
      GetLabelizeParameters1()->GetUseLastKeep());
  
   // Set Air to BG
-  working_input = SetBackground<TInputImageType, InternalImageType>
+  working_input = SetBackground<ImageType, InternalImageType>
     (working_input, air, this->GetForegroundValue(), this->GetBackgroundValue());
 
   // End
-  StopCurrentStep<InputImageType>(working_input);
+  StopCurrentStep<ImageType>(working_input);
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
-  StartNewStep("Find the trachea");
-  //DD(m_Seeds.size());
+  StartNewStepOrStop("Find the trachea");
   if (m_Seeds.size() == 0) { // try to find seed
     // Search seed (parameters = UpperThresholdForTrachea)
-    static const unsigned int Dim = InputImageType::ImageDimension;
+    static const unsigned int Dim = ImageType::ImageDimension;
     typename InternalImageType::RegionType sliceRegion = working_input->GetLargestPossibleRegion();
     typename InternalImageType::SizeType sliceRegionSize = sliceRegion.GetSize();
     typename InternalImageType::IndexType sliceRegionIndex = sliceRegion.GetIndex();
@@ -223,24 +232,20 @@ GenerateOutputInformation()
     sliceRegionSize[Dim-1]=5;
     sliceRegion.SetSize(sliceRegionSize);
     sliceRegion.SetIndex(sliceRegionIndex);
-    //DD(GetUpperThresholdForTrachea());
-    //DD(sliceRegion);
-    typedef  itk::ImageRegionConstIterator<InputImageType> IteratorType;
+    typedef  itk::ImageRegionConstIterator<ImageType> IteratorType;
     IteratorType it(working_input, sliceRegion);
     it.GoToBegin();
     while (!it.IsAtEnd()) {
       if(it.Get() < GetUpperThresholdForTrachea() ) {
         AddSeed(it.GetIndex());
-	//	DD(it.GetIndex());
       }
       ++it;
     }
   }
   
-  //DD(m_Seeds.size());
   if (m_Seeds.size() != 0) {
     // Explosion controlled region growing
-    typedef clitk::ExplosionControlledThresholdConnectedImageFilter<InputImageType, InternalImageType> ImageFilterType;
+    typedef clitk::ExplosionControlledThresholdConnectedImageFilter<ImageType, InternalImageType> ImageFilterType;
     typename ImageFilterType::Pointer f= ImageFilterType::New();
     f->SetInput(working_input);
     f->SetVerbose(false);
@@ -256,26 +261,23 @@ GenerateOutputInformation()
     f->SetThresholdStepSize(GetThresholdStepSizeForTrachea());
     f->SetMinimumThresholdStepSize(1);
     for(unsigned int i=0; i<m_Seeds.size();i++) {
-      //    std::cout<<"Adding seed " <<m_Seeds[i]<<"..."<<std::endl;
       f->AddSeed(m_Seeds[i]);
     }  
     f->Update();
     trachea_tmp = f->GetOutput();
     // Set output
     StopCurrentStep<InternalImageType>(trachea_tmp);
-
   }
   else { // Trachea not found
     this->SetWarning("* WARNING * No seed found for trachea.");
-    // Set output
     StopCurrentStep();
   }
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
-  StartNewStep("Extract the lung with Otsu filter");
+  StartNewStepOrStop("Extract the lung with Otsu filter");
   // Automated Otsu thresholding and relabeling
-  typedef itk::OtsuThresholdImageFilter<InputImageType,InternalImageType> OtsuThresholdImageFilterType;
+  typedef itk::OtsuThresholdImageFilter<ImageType,InternalImageType> OtsuThresholdImageFilterType;
   typename OtsuThresholdImageFilterType::Pointer otsuFilter=OtsuThresholdImageFilterType::New();
   otsuFilter->SetInput(working_input);
   otsuFilter->SetNumberOfHistogramBins(GetNumberOfHistogramBins());
@@ -289,7 +291,7 @@ GenerateOutputInformation()
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
-  StartNewStep("Select labels");
+  StartNewStepOrStop("Select labels");
   // Keep right labels
   working_image = LabelizeAndSelectLabels<InternalImageType>
     (working_image, 
@@ -305,13 +307,13 @@ GenerateOutputInformation()
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   if (m_Seeds.size() != 0) { // if ==0 ->no trachea found
-    StartNewStep("Remove the trachea");
+    StartNewStepOrStop("Remove the trachea");
     // Set the trachea
     working_image = SetBackground<InternalImageType, InternalImageType>
       (working_image, trachea_tmp, 1, -1);
   
    // Dilate the trachea 
-    static const unsigned int Dim = InputImageType::ImageDimension;
+    static const unsigned int Dim = ImageType::ImageDimension;
     typedef itk::BinaryBallStructuringElement<InternalPixelType, Dim> KernelType;
     KernelType structuringElement;
     structuringElement.SetRadius(GetRadiusForTrachea());
@@ -346,14 +348,13 @@ GenerateOutputInformation()
     // Set output
     StopCurrentStep<InternalImageType>(working_image);
   }
-  
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   typedef clitk::AutoCropFilter<InternalImageType> CropFilterType;
   typename CropFilterType::Pointer cropFilter = CropFilterType::New();
   if (m_Seeds.size() != 0) { // if ==0 ->no trachea found
-    StartNewStep("Croping trachea");
+    StartNewStepOrStop("Croping trachea");
     cropFilter->SetInput(trachea_tmp);
     cropFilter->Update(); // Needed
     typedef itk::CastImageFilter<InternalImageType, MaskImageType> CastImageFilterType;
@@ -366,7 +367,7 @@ GenerateOutputInformation()
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
-  StartNewStep("Croping lung");
+  StartNewStepOrStop("Croping lung");
   typename CropFilterType::Pointer cropFilter2 = CropFilterType::New(); // Needed to reset pipeline
   cropFilter2->SetInput(working_image);
   cropFilter2->Update();   
@@ -375,7 +376,7 @@ GenerateOutputInformation()
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
-  StartNewStep("Separate Left/Right lungs");
+  StartNewStepOrStop("Separate Left/Right lungs");
   // Initial label
   working_image = Labelize<InternalImageType>(working_image, 
                                               GetBackgroundValue(), 
@@ -391,10 +392,10 @@ GenerateOutputInformation()
   working_image = statisticsImageFilter->GetOutput();	
  
   // Decompose the first label
-  static const unsigned int Dim = InputImageType::ImageDimension;
+  static const unsigned int Dim = ImageType::ImageDimension;
   if (initialNumberOfLabels<2) {
     // Structuring element radius
-    typename InputImageType::SizeType radius;
+    typename ImageType::SizeType radius;
     for (unsigned int i=0;i<Dim;i++) radius[i]=1;
     typedef clitk::DecomposeAndReconstructImageFilter<InternalImageType,InternalImageType> DecomposeAndReconstructFilterType;
     typename DecomposeAndReconstructFilterType::Pointer decomposeAndReconstructFilter=DecomposeAndReconstructFilterType::New();
@@ -421,24 +422,151 @@ GenerateOutputInformation()
   thresholdFilter->Update();
   working_image = thresholdFilter->GetOutput();
   StopCurrentStep<InternalImageType> (working_image);
+  
+  // Final Cast 
+  StartNewStepOrStop("Final cast"); 
+  typedef itk::CastImageFilter<InternalImageType, MaskImageType> CastImageFilterType;
+  typename CastImageFilterType::Pointer caster= CastImageFilterType::New();
+  caster->SetInput(working_image);
+  caster->Update();
+  output = caster->GetOutput();
+
+  // Update output info
+  this->GetOutput(0)->SetRegions(output->GetLargestPossibleRegion());
+
+  // Try to extract bifurcation in the trachea (bronchi)
+  // STILL EXPERIMENTAL
+  if (GetFindBronchialBifurcations()) {
+    StartNewStepOrStop("Find bronchial bifurcations");
+    // Step 1 : extract skeleton
+    // Define the thinning filter
+    typedef itk::BinaryThinningImageFilter3D<MaskImageType, MaskImageType> ThinningFilterType;
+    typename ThinningFilterType::Pointer thinningFilter = ThinningFilterType::New();
+    thinningFilter->SetInput(trachea);
+    thinningFilter->Update();
+    typename MaskImageType::Pointer skeleton = thinningFilter->GetOutput();
+    writeImage<MaskImageType>(skeleton, "skeleton.mhd");
+
+    // Step 2 : tracking
+    DD("tracking");
+    
+    // Step 2.1 : find first point for tracking
+    typedef itk::ImageRegionConstIteratorWithIndex<MaskImageType> IteratorType;
+    IteratorType it(skeleton, skeleton->GetLargestPossibleRegion());
+    it.GoToReverseBegin();
+    while ((!it.IsAtEnd()) && (it.Get() == GetBackgroundValue())) { 
+      --it;
+    }
+    if (it.IsAtEnd()) {
+      this->SetLastError("ERROR: first point in the skeleton not found ! Abord");
+      return;
+    }
+    DD(skeleton->GetLargestPossibleRegion().GetIndex());
+    typename MaskImageType::IndexType index = it.GetIndex();
+    DD(index);
+    
+    // Step 2.2 : initialize neighborhooditerator
+    typedef itk::NeighborhoodIterator<MaskImageType> NeighborhoodIteratorType;
+    typename NeighborhoodIteratorType::SizeType radius;
+    radius.Fill(1);
+    NeighborhoodIteratorType nit(radius, skeleton, skeleton->GetLargestPossibleRegion());
+    DD(nit.GetSize());
+    DD(nit.Size());
+    
+    // Find first label number (must be different from BG and FG)
+    typename MaskImageType::PixelType label = GetForegroundValue()+1;
+    while ((label == GetBackgroundValue()) || (label == GetForegroundValue())) { label++; }
+    DD(label);
+
+    // Track from the first point
+    std::vector<BifurcationType> listOfBifurcations;
+    TrackFromThisIndex(listOfBifurcations, skeleton, index, label);
+    DD("end track");
+    DD(listOfBifurcations.size());
+    writeImage<MaskImageType>(skeleton, "skeleton2.mhd");
+
+    for(unsigned int i=0; i<listOfBifurcations.size(); i++) {
+      typename MaskImageType::PointType p;
+      skeleton->TransformIndexToPhysicalPoint(listOfBifurcations[i].index, p);
+      DD(p);
+    }
+
+  }
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-template <class TInputImageType, class TMaskImageType>
+template <class ImageType, class MaskImageType>
 void 
-clitk::ExtractLungFilter<TInputImageType, TMaskImageType>::
+clitk::ExtractLungFilter<ImageType, MaskImageType>::
 GenerateData() {
-  // Final Cast 
-  typedef itk::CastImageFilter<InternalImageType, MaskImageType> CastImageFilterType;
-  typename CastImageFilterType::Pointer caster= CastImageFilterType::New();
-  caster->SetInput(working_image);
-  caster->Update();
-  // Set output
-  //this->SetNthOutput(0, caster->GetOutput()); // -> no because redo filter otherwise
-  this->GraftOutput(caster->GetOutput());
-  return;
+  // Do not put some "startnewstep" here, because the object if
+  // modified and the filter's pipeline it do two times. But it is
+  // required to quit if MustStop was set before.
+  if (GetMustStop()) return;
+  
+  // If everything goes well, set the output
+  this->GraftOutput(output); // not SetNthOutput
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class ImageType, class MaskImageType>
+void 
+clitk::ExtractLungFilter<ImageType, MaskImageType>::
+TrackFromThisIndex(std::vector<BifurcationType> & listOfBifurcations, 
+                   MaskImagePointer skeleton, 
+                   MaskImageIndexType index,
+                   MaskImagePixelType label) {
+  DD("TrackFromThisIndex");
+  DD(index);
+  DD((int)label);
+  // Create NeighborhoodIterator 
+  typedef itk::NeighborhoodIterator<MaskImageType> NeighborhoodIteratorType;
+  typename NeighborhoodIteratorType::SizeType radius;
+  radius.Fill(1);
+  NeighborhoodIteratorType nit(radius, skeleton, skeleton->GetLargestPossibleRegion());
+      
+  // Track
+  std::vector<typename NeighborhoodIteratorType::IndexType> listOfTrackedPoint;
+  bool stop = false;
+  while (!stop) {
+    nit.SetLocation(index);
+    // DD((int)nit.GetCenterPixel());
+    nit.SetCenterPixel(label);
+    listOfTrackedPoint.clear();
+    for(unsigned int i=0; i<nit.Size(); i++) {
+      if (i != nit.GetCenterNeighborhoodIndex ()) { // Do not observe the current point
+        //          DD(nit.GetIndex(i));
+        if (nit.GetPixel(i) == GetForegroundValue()) { // if this is foreground, we continue the tracking
+          // DD(nit.GetIndex(i));
+          listOfTrackedPoint.push_back(nit.GetIndex(i));
+        }
+      }
+    }
+    // DD(listOfTrackedPoint.size());
+    if (listOfTrackedPoint.size() == 1) {
+      index = listOfTrackedPoint[0];
+    }
+    else {
+      if (listOfTrackedPoint.size() == 2) {
+        BifurcationType bif(index, label, label+1, label+2);
+        listOfBifurcations.push_back(bif);
+        TrackFromThisIndex(listOfBifurcations, skeleton, listOfTrackedPoint[0], label+1);
+        TrackFromThisIndex(listOfBifurcations, skeleton, listOfTrackedPoint[1], label+2);
+      }
+      else {
+        if (listOfTrackedPoint.size() > 2) {
+          std::cerr << "too much bifurcation points ... ?" << std::endl;
+          exit(0);
+        }
+        // Else this it the end of the tracking
+      }
+      stop = true;
+    }
+  }
 }
 //--------------------------------------------------------------------
 
