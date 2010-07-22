@@ -14,9 +14,9 @@ WRAP_GGO(clitkImageConvert_GGO_C clitkImageConvert.ggo)
 ADD_EXECUTABLE(clitkImageConvert clitkImageConvert.cxx ${clitkImageConvert_GGO_C})
 TARGET_LINK_LIBRARIES(clitkImageConvert clitkCommon ITKIO clitkFilters)
 
-WRAP_GGO(clitkImageResample_GGO_C clitkImageResample.ggo)
-ADD_EXECUTABLE(clitkImageResample clitkImageResample.cxx ${clitkImageResample_GGO_C})
-TARGET_LINK_LIBRARIES(clitkImageResample clitkCommon ITKIO clitkFilters)
+# WRAP_GGO(clitkImageResample_GGO_C clitkImageResample.ggo)
+# ADD_EXECUTABLE(clitkImageResample clitkImageResample.cxx ${clitkImageResample_GGO_C})
+# TARGET_LINK_LIBRARIES(clitkImageResample clitkCommon ITKIO clitkFilters)
 
 WRAP_GGO(clitkVFResample_GGO_C clitkVFResample.ggo)
 ADD_EXECUTABLE(clitkVFResample clitkVFResample.cxx ${clitkImageResample_GGO_C})
@@ -89,8 +89,9 @@ TARGET_LINK_LIBRARIES(clitkBinarizeImage clitkCommon ITKIO clitkFilters)
 ADD_EXECUTABLE(clitkMedianImageFilter clitkMedianImageFilter.cxx)
 TARGET_LINK_LIBRARIES(clitkMedianImageFilter clitkCommon ITKIO ITKBasicFilters clitkFilters)
 
-ADD_EXECUTABLE(clitkResampleImage clitkResampleImage.cxx)
-TARGET_LINK_LIBRARIES(clitkResampleImage clitkCommon ITKIO clitkFilters)
+WRAP_GGO(clitkResampleImage_GGO_C clitkResampleImage.ggo)
+ADD_EXECUTABLE(clitkResampleImage clitkResampleImage.cxx clitkResampleImageGenericFilter.cxx ${clitkResampleImage_GGO_C})
+TARGET_LINK_LIBRARIES(clitkResampleImage clitkCommon ITKIO)
 
 WRAP_GGO(clitkMinMaxMask_GGO_C clitkMinMaxMask.ggo)
 ADD_EXECUTABLE(clitkMinMaxMask clitkMinMaxMask.cxx ${clitkMinMaxMask_GGO_C})
@@ -99,4 +100,7 @@ TARGET_LINK_LIBRARIES(clitkMinMaxMask clitkCommon ITKIO ITKStatistics clitkFilte
 ADD_EXECUTABLE(clitkAutoCrop clitkAutoCrop.cxx)
 TARGET_LINK_LIBRARIES(clitkAutoCrop clitkCommon ITKIO ITKStatistics clitkFilters)
 
+WRAP_GGO(clitkDicomRTStruct2BinaryImage_GGO_C clitkDicomRTStruct2BinaryImage.ggo)
+ADD_EXECUTABLE(clitkDicomRTStruct2BinaryImage clitkDicomRT_ROI_ConvertToImageFilter.cxx clitkDicomRTStruct2BinaryImage.cxx ${clitkDicomRTStruct2BinaryImage_GGO_C})
+TARGET_LINK_LIBRARIES(clitkDicomRTStruct2BinaryImage ITKCommon clitkDicomRTStruct clitkCommon ITKIO QVTK)
 
