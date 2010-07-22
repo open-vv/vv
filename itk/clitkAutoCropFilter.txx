@@ -29,6 +29,7 @@
 #include "itkLabelImageToLabelMapFilter.h"
 #include "itkLabelMapToLabelImageFilter.h"
 #include "itkRegionOfInterestImageFilter.h"
+#include "itkExtractImageFilter.h"
 
 namespace clitk {
 
@@ -89,12 +90,12 @@ namespace clitk {
     typename ImageToMapFilterType::Pointer imageToLabelFilter = ImageToMapFilterType::New();  
     imageToLabelFilter->SetBackgroundValue(m_BackgroundValue);
     imageToLabelFilter->SetInput(input);
-    DD(input->GetLargestPossibleRegion());
     
     // AutoCrop
     typedef itk::AutoCropLabelMapFilter<LabelMapType> AutoCropFilterType;
     typename AutoCropFilterType::Pointer autoCropFilter = AutoCropFilterType::New();
     autoCropFilter->SetInput(imageToLabelFilter->GetOutput());
+    autoCropFilter->ReleaseDataFlagOff(); 
     
     // Convert to LabelImage
     typedef itk::LabelMapToLabelImageFilter<LabelMapType, ImageType> MapToImageFilterType;
@@ -103,12 +104,10 @@ namespace clitk {
 
     // Go ! (needed)
     labelToImageFilter->Update();
-    DD("CHECK AUTOCROP IF NB LABEL == 0 !!!");
     m_labeImage = labelToImageFilter->GetOutput();
 
     // Update the output size
     m_Region = m_labeImage->GetLargestPossibleRegion();
-    DD(m_Region);
     // Sometimes the index is 9223372036854775807 ???
     if (m_Region.GetIndex()[0] > 99999) {
       typename ImageType::IndexType index; 
@@ -131,11 +130,19 @@ namespace clitk {
     ImageConstPointer input = dynamic_cast<const ImageType*>(itk::ProcessObject::GetInput(0));
   
     // Extract the region
-    typedef itk::RegionOfInterestImageFilter<ImageType, ImageType> CropFilterType;
+
+    //TO CHANGE WITH EXTRACTIMAGEFILTER ! 
+
+    //    typedef itk::RegionOfInterestImageFilter<ImageType, ImageType> CropFilterType;
+    typedef itk::ExtractImageFilter<ImageType, ImageType> CropFilterType;
     m_labeImage->SetRequestedRegion(m_labeImage->GetLargestPossibleRegion());
     typename CropFilterType::Pointer cropFilter = CropFilterType::New();
     cropFilter->SetInput(m_labeImage);
-    cropFilter->SetRegionOfInterest(m_Region);
+
+    // cropFilter->SetRegionOfInterest(m_Region);
+    cropFilter->SetExtractionRegion(m_Region);
+
+    cropFilter->ReleaseDataFlagOff();
 
     // Go ! 
     cropFilter->Update();
