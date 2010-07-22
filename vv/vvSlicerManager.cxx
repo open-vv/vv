@@ -107,11 +107,20 @@ vvSlicerManager::~vvSlicerManager()
 
 
 //------------------------------------------------------------------------------
-void vvSlicerManager::SetFilename(std::string f)
+void vvSlicerManager::SetFilename(std::string filename, int number)
 {
-  mFileName = f;
+  mFileName = filename;
+  mFileName = vtksys::SystemTools::GetFilenameName(mFileName);
+  mBaseFileName = vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(mFileName));
+  //  DD(mBaseFileName);
+  mBaseFileNameNumber = number;
+
   for(unsigned int i=0; i<mSlicers.size(); i++) {
-    mSlicers[i]->SetFileName(f);
+    mSlicers[i]->SetFileName(vtksys::SystemTools::GetFilenameWithoutLastExtension(filename));
+  }
+  
+  if (number != 0) {
+    mFileName.append("_"+clitk::toString(number));
   }
 }
 //------------------------------------------------------------------------------
@@ -139,7 +148,6 @@ void vvSlicerManager::ToggleContourSuperposition()
 //----------------------------------------------------------------------------
 bool vvSlicerManager::SetImage(std::string filename, LoadedImageType type, int n)
 {
-  mFileName = filename;
   mType = type;
   if (mReader == NULL)
     mReader = new vvImageReader;
@@ -148,10 +156,11 @@ bool vvSlicerManager::SetImage(std::string filename, LoadedImageType type, int n
   mReader->SetInputFilenames(filenames);
   mReader->Update(type);
 
-  mFileName = vtksys::SystemTools::GetFilenameName(mFileName);
-  mBaseFileName = vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(mFileName));
+  SetFilename(filename, n);
+  //  mFileName = vtksys::SystemTools::GetFilenameName(mFileName);
+  //mBaseFileName = vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(mFileName));
   //  DD(mBaseFileName);
-  mBaseFileNameNumber = n;
+  //mBaseFileNameNumber = n;
 
   if (mReader->GetLastError().size() == 0) {
     mImage=mReader->GetOutput();
@@ -164,10 +173,10 @@ bool vvSlicerManager::SetImage(std::string filename, LoadedImageType type, int n
     mLastError = mReader->GetLastError();
     return false;
   }
-  if (n!=0) {
-    //    DD(mFileName);
-    mFileName.append("_"+clitk::toString(n));
-  }
+  // if (n!=0) {
+  //   //    DD(mFileName);
+  //   mFileName.append("_"+clitk::toString(n));
+  // }
   return true;
 }
 //----------------------------------------------------------------------------

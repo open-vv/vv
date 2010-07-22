@@ -99,7 +99,7 @@ class vvSlicerManager : public QObject {
     else return -1;
   }
 
-  void SetFilename(std::string f);
+  void SetFilename(std::string f, int number=0);
 
   void SetTSlice(int slice);
   void SetNextTSlice(int originating_slicer);
