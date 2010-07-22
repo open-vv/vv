@@ -29,7 +29,7 @@ int main(int argc, char * argv[])
   GGO(clitkResampleImage, args_info);
 
   // Filter
-  typedef clitk::ResampleImageGenericFilter<args_info_clitkResampleImage> FilterType;
+  typedef clitk::ResampleImageGenericFilter FilterType;
   FilterType::Pointer filter = FilterType::New();
 
   filter->SetArgsInfo(args_info);
