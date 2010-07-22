@@ -1,0 +1,48 @@
+#File clitkDemonsDeformableRegistration.ggo
+#Author: Jef Vandemeulebroucke <jefvdmb@gmail.com>
+#Date : Tue 13 Februari 2009 16.35 
+
+Package "clitk"
+Version "Apply Demons registration between (2D or 3D) images..."
+
+
+option "config"	  	-	"Config file"			string  	no
+
+
+section "Run Time"
+
+option "verbose"   	v   	"Verbose"			flag		off
+option "threads"	-	"Number of threads to use for intensive algorithms (default=min(cores,8))" 	int 	 no
+option "debug"		-	"Give debug info" 		flag 	 	off
+
+
+section "Input"
+
+option "reference"	r	"Input reference image"			string 		yes
+option "target"		t	"Input target image"			string 		yes
+option "init"		-	"Input initial deformation field"	string 		no
+
+section "Output"
+
+option "vf"		-	"Result DVF"				string 		yes
+option "output"		o	"Deformed target image"			string 		yes
+option "before"		-	"Difference image before "		string 		no
+option "after"		-	"Difference image after "		string 		no
+
+section "Demons"
+
+option "demons"		- 	"Type: 0=normal, 1=symm, 2=fast symm, 3=diffeomorphic"		int 		no	default="3"
+option "levels"		-	"Number of resolution levels"					int		no	default="1"	
+option "maxIter"	-	"Maximum number of iterations at each resolution level"		int	  	no 	multiple default="50"
+option "maxRMSError"	-	"Maximum RMS error at each resolution level"			double		no	multiple default="1"	
+option "stop"		-	"Maximum oscillations at each resolution level (-1=unset)" 	int		no	multiple default="-1"					
+option "sd"     	- 	"SD (in mm) for smoothing in each dimension"			double	 	no	multiple default="2.0"
+option "maxStep"	-	"2,3: Maximum step size (mm)"					double		no	default="2"	
+option "scaleSD"	-	"Scale SD to coarse resolution levels"				flag		off	
+option "scaleStep"	-	"2,3: Scale maximum step size to coarse resolution levels"	flag		off	
+option "fluid"     	- 	"Smooth update field instead of deformation field"		flag		off	
+option "spacing"	-	"Use image spacing for derivatives (non-isotropic voxels)"	flag		off
+option "intThreshold"	-	"0,1,2: Intensity threshold to consider intensity equal"	double		no	default="0.001"	
+option "movGrad"	-	"1: Use moving image gradient"					flag		off	
+option "gradType"	-	"2,3: 0=Symmetric, 1=fixed, 2=warpedMoving, 3=mappedMoving"	int		no	default="0" 	
+option "firstOrder"	-	"3: Use first order approx for exponential"			flag		off	

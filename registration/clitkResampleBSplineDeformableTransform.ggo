@@ -1,0 +1,22 @@
+#File clitkResampleBSplineDeformableTransform.ggo
+Package "clitkResampleBSplineDeformableTransform"
+version "1.0"
+purpose "Resample the B-spline control point grid to given properties. Coefficients are resampled to values with the desired properties and reconverted to coefficients "
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+option "like"		-	"Resample output like this image" string	no		
+
+
+section "Output Image Properties"
+
+option "origin"			-	"Origin for the output image"			double		multiple no	
+option "size"			-	"Size for the output image"			int		multiple no	      
+option "spacing"		-	"Spacing for the output image"			double		multiple no	       
+
+
+
+

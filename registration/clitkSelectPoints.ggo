@@ -1,0 +1,24 @@
+#File clitkSelectPoints.ggo
+Package "clitkSelectPoints"
+version "1.0"
+purpose "Perform a selection of points on the reference and target lists of points, based on criteria applied to the reference list."
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+section "Input"
+
+option "ref"   		r   	"List of points in reference"	 	string		yes 			
+option "input"		i	"Lists of points in targets"	  	string  	multiple 	yes
+
+
+section "Output"
+
+option "sRef"  		-   	"List of points selected in reference"	 	string		yes 			
+option "sInput"		o	"Lists of points selected in targets"	  	string  	multiple 	yes
+
+section "Selection: Provide lower and upper coordinate bounds for as much as components as provided"
+
+option "component"	c	"Component index [0,2]"	int 		multiple	yes	
+option	"lower"		l	"Lower bound"		double		multiple	yes	
+option	"upper"		u	"Upper bound"		double		multiple	yes	

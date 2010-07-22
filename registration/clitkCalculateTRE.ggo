@@ -1,0 +1,33 @@
+#File clitkCalculateTRE.ggo
+Package "clitkCalculateTRE"
+version "1.0"
+purpose "Calculate TRE: give a reference point list and 1 or more target point lists. In case of the latter, the number of DVF (or the size of the 4th D) given should match the number of lists. Use --shipFirst to skip the first phase of a 4D DVF. General summarizes for all points (mean, SD, max) in magnitude and par component. Tre and warp gives all values for all points. "
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+
+section "Input"
+
+option "ref"   		-   	"List of points in reference"	 	string		yes 			
+option "input"		i	"Lists of points in targets"	  	string  	multiple 	yes
+option "vf"    		-   	"Input deformation fields"	  	string 		multiple	yes
+option "skip"		-	"Skip a phase of a 4D DVF"		int		no	
+
+section "Interpolation"
+
+option "interpVF"	-	"Interpolation: 0=NN, 1=Linear, 2=BSpline, 3=BLUT"	int  	no  default="1"
+option "interpVFOrder"	-	"Order if BLUT or BSpline (0-5)"		        int  	no  default="3"
+option "interpVFSF"	-	"Sampling factor if BLUT"			        int  	no  default="20"
+
+
+section "Output"
+
+option "general"		-	"Summarized TRE values (mean, SD, max)"	string		no	
+option "original"		-	"Original distances: base filename"	string		no	
+option "originalMag"		-	"Original magnitude of distances: base filename"	string		no	
+option "displacement"		-	"Estmated displacements: base filename"	string		no	
+option "displacementMag"	-	"Estimated magnitude displacements: base filename"	string		no
+option "tre"			-	"All TRE values: base filename"	 	string		no	
+option "treMag"			-	"All TRE magnitude values: base filename"	 	string		no	
+option "warp"			-	"All warped points: base filename"	string		no	

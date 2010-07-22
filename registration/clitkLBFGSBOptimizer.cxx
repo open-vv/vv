@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to:
+  Authors belong to: 
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -15,30 +15,15 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
-
-/*=========================================================================
-
-  Program:   Insight Segmentation & Registration Toolkit
-  Module:    $RCSfile: clitkLBFGSBOptimizer.cxx,v $
-  Language:  C++
-  Date:      $Date: 2010/06/14 17:32:06 $
-  Version:   $Revision: 1.1 $
-
-  Copyright (c) Insight Software Consortium. All rights reserved.
-  See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notices for more information.
-
-=========================================================================*/
 #ifndef __clitkLBFGSBOptimizer_cxx
 #define __clitkLBFGSBOptimizer_cxx
-
 #include "clitkLBFGSBOptimizer.h"
 #include "vnl/algo/vnl_lbfgsb.h"
 #include <vnl/vnl_math.h>
 
+extern "C" {
+  extern double v3p_netlib_dpmeps_();
+}
 
 namespace clitk
 {
@@ -51,7 +36,7 @@ namespace clitk
  * vnl_lbfgsb into iteration events in ITK.
  */
 class ITK_EXPORT LBFGSBOptimizerHelper :
-  public vnl_lbfgsb
+    public vnl_lbfgsb
 {
 public:
   typedef LBFGSBOptimizerHelper               Self;
@@ -68,7 +53,7 @@ private:
   LBFGSBOptimizer* m_ItkObj;
 };
 
-
+  
 
 
 /**
@@ -81,7 +66,7 @@ LBFGSBOptimizer
   m_VnlOptimizer         = 0;
 
   m_LowerBound       = InternalBoundValueType(0);
-  m_UpperBound       = InternalBoundValueType(0);
+  m_UpperBound       = InternalBoundValueType(0); 
   m_BoundSelection   = InternalBoundSelectionType(0);
 
   m_CostFunctionConvergenceFactor   = 1e+7;
@@ -92,7 +77,8 @@ LBFGSBOptimizer
   m_CurrentIteration                = 0;
   m_Value                           = 0.0;
   m_InfinityNormOfProjectedGradient = 0.0;
-
+  m_StopConditionDescription.str("");
+ 
 }
 
 
@@ -111,41 +97,42 @@ LBFGSBOptimizer
 void
 LBFGSBOptimizer
 ::PrintSelf( std::ostream& os, itk::Indent indent) const
-{
+{  
   Superclass::PrintSelf(os, indent);
 
   os << indent << "LowerBound: " << m_LowerBound << std::endl;
   os << indent << "UpperBound: " << m_UpperBound << std::endl;
   os << indent << "BoundSelection: " << m_BoundSelection << std::endl;
 
-  os << indent << "CostFunctionConvergenceFactor: " <<
-     m_CostFunctionConvergenceFactor << std::endl;
+  os << indent << "CostFunctionConvergenceFactor: " << 
+    m_CostFunctionConvergenceFactor << std::endl;
 
   os << indent << "ProjectedGradientTolerance: " <<
-     m_ProjectedGradientTolerance << std::endl;
+    m_ProjectedGradientTolerance << std::endl;
 
   os << indent << "MaximumNumberOfIterations: " <<
-     m_MaximumNumberOfIterations << std::endl;
+    m_MaximumNumberOfIterations << std::endl;
 
   os << indent << "MaximumNumberOfEvaluations: " <<
-     m_MaximumNumberOfEvaluations << std::endl;
+    m_MaximumNumberOfEvaluations << std::endl;
 
-  os << indent << "MaximumNumberOfCorrections: " <<
-     m_MaximumNumberOfCorrections << std::endl;
+  os << indent << "MaximumNumberOfCorrections: " << 
+    m_MaximumNumberOfCorrections << std::endl;
 
-  os << indent << "CurrentIteration: " <<
-     m_CurrentIteration << std::endl;
+  os << indent << "CurrentIteration: " << 
+    m_CurrentIteration << std::endl;
 
   os << indent << "Value: " <<
-     m_Value << std::endl;
+    m_Value << std::endl;
 
   os << indent << "InfinityNormOfProjectedGradient: " <<
-     m_InfinityNormOfProjectedGradient << std::endl;
+    m_InfinityNormOfProjectedGradient << std::endl;
 
-  if( this->m_VnlOptimizer ) {
-    os << indent << "Vnl LBFGSB Failure Code: " <<
-       this->m_VnlOptimizer->get_failure_code() << std::endl;
-  }
+  if( this->m_VnlOptimizer )
+    {
+    os << indent << "Vnl LBFGSB Failure Code: " << 
+      this->m_VnlOptimizer->get_failure_code() << std::endl;
+    }
 }
 
 /**
@@ -154,12 +141,13 @@ LBFGSBOptimizer
 void
 LBFGSBOptimizer
 ::SetLowerBound(
-  const BoundValueType& value )
+const BoundValueType& value )
 {
   m_LowerBound = value;
-  if( m_OptimizerInitialized ) {
+  if( m_OptimizerInitialized )
+    {
     m_VnlOptimizer->set_lower_bound( m_LowerBound );
-  }
+    }
 
   this->Modified();
 }
@@ -168,13 +156,13 @@ LBFGSBOptimizer
  * Get lower bound
  */
 const
-LBFGSBOptimizer
+LBFGSBOptimizer 
 ::BoundValueType &
 LBFGSBOptimizer
 ::GetLowerBound()
 {
   return m_LowerBound;
-}
+} 
 
 /**
  * Set upper bound
@@ -182,12 +170,13 @@ LBFGSBOptimizer
 void
 LBFGSBOptimizer
 ::SetUpperBound(
-  const BoundValueType& value )
+const BoundValueType& value )
 {
   m_UpperBound = value;
-  if( m_OptimizerInitialized ) {
+  if( m_OptimizerInitialized )
+    {
     m_VnlOptimizer->set_upper_bound( m_UpperBound );
-  }
+    }
 
   this->Modified();
 }
@@ -196,13 +185,13 @@ LBFGSBOptimizer
  * Get upper bound
  */
 const
-LBFGSBOptimizer
+LBFGSBOptimizer 
 ::BoundValueType &
 LBFGSBOptimizer
 ::GetUpperBound()
 {
   return m_UpperBound;
-}
+} 
 
 
 /**
@@ -211,12 +200,13 @@ LBFGSBOptimizer
 void
 LBFGSBOptimizer
 ::SetBoundSelection(
-  const BoundSelectionType& value )
+const BoundSelectionType& value )
 {
   m_BoundSelection = value;
-  if( m_OptimizerInitialized ) {
+  if( m_OptimizerInitialized )
+    {
     m_VnlOptimizer->set_bound_selection( m_BoundSelection );
-  }
+    }
   this->Modified();
 }
 
@@ -224,35 +214,37 @@ LBFGSBOptimizer
  * Get bound selection array
  */
 const
-LBFGSBOptimizer
+LBFGSBOptimizer 
 ::BoundSelectionType &
 LBFGSBOptimizer
 ::GetBoundSelection()
 {
   return m_BoundSelection;
-}
+} 
 
 
 /** Set/Get the CostFunctionConvergenceFactor. Algorithm terminates
  * when the reduction in cost function is less than factor * epsmcj
  * where epsmch is the machine precision.
- * Typical values for factor: 1e+12 for low accuracy;
+ * Typical values for factor: 1e+12 for low accuracy; 
  * 1e+7 for moderate accuracy and 1e+1 for extremely high accuracy.
  */
 void
 LBFGSBOptimizer
 ::SetCostFunctionConvergenceFactor( double value )
 {
-  if( value < 1.0 ) {
-    itkExceptionMacro("Value " << value
-                      << " is too small for SetCostFunctionConvergenceFactor()"
-                      << "a typical range would be from 1.0 to 1e+12");
-  }
+  if( value < 1.0 )
+    {
+    itkExceptionMacro("Value " << value 
+      << " is too small for SetCostFunctionConvergenceFactor()"
+      << "a typical range would be from 1.0 to 1e+12");
+    }
   m_CostFunctionConvergenceFactor = value;
-  if( m_OptimizerInitialized ) {
+  if( m_OptimizerInitialized )
+    {
     m_VnlOptimizer->set_cost_function_convergence_factor(
       m_CostFunctionConvergenceFactor );
-  }
+    }
   this->Modified();
 }
 
@@ -266,10 +258,11 @@ LBFGSBOptimizer
 ::SetProjectedGradientTolerance( double value )
 {
   m_ProjectedGradientTolerance = value;
-  if( m_OptimizerInitialized ) {
+  if( m_OptimizerInitialized )
+    {
     m_VnlOptimizer->set_projected_gradient_tolerance(
       m_ProjectedGradientTolerance );
-  }
+    }
   this->Modified();
 }
 
@@ -290,9 +283,10 @@ LBFGSBOptimizer
 ::SetMaximumNumberOfEvaluations( unsigned int value )
 {
   m_MaximumNumberOfEvaluations = value;
-  if( m_OptimizerInitialized ) {
+  if( m_OptimizerInitialized )
+    {
     m_VnlOptimizer->set_max_function_evals( m_MaximumNumberOfEvaluations );
-  }
+    }
   this->Modified();
 }
 
@@ -303,10 +297,11 @@ LBFGSBOptimizer
 ::SetMaximumNumberOfCorrections( unsigned int value )
 {
   m_MaximumNumberOfCorrections = value;
-  if( m_OptimizerInitialized ) {
+  if( m_OptimizerInitialized )
+    {
     m_VnlOptimizer->set_max_variable_metric_corrections(
       m_MaximumNumberOfCorrections );
-  }
+    }
   this->Modified();
 }
 
@@ -320,18 +315,19 @@ SetCostFunction( itk::SingleValuedCostFunction * costFunction )
 {
   m_CostFunction = costFunction;
 
-  const unsigned int numberOfParameters =
+  const unsigned int numberOfParameters = 
     costFunction->GetNumberOfParameters();
 
-  CostFunctionAdaptorType * adaptor =
+  CostFunctionAdaptorType * adaptor = 
     new CostFunctionAdaptorType( numberOfParameters );
-
+       
   adaptor->SetCostFunction( costFunction );
 
-  if( m_OptimizerInitialized ) {
+  if( m_OptimizerInitialized )
+    { 
     delete m_VnlOptimizer;
-  }
-
+    }
+    
   this->SetCostFunctionAdaptor( adaptor );
 
   m_VnlOptimizer = new InternalOptimizerType( *adaptor, this );
@@ -342,7 +338,7 @@ SetCostFunction( itk::SingleValuedCostFunction * costFunction )
   m_VnlOptimizer->set_bound_selection( m_BoundSelection );
   m_VnlOptimizer->set_cost_function_convergence_factor(
     m_CostFunctionConvergenceFactor );
-  m_VnlOptimizer->set_projected_gradient_tolerance(
+  m_VnlOptimizer->set_projected_gradient_tolerance( 
     m_ProjectedGradientTolerance );
   m_VnlOptimizer->set_max_function_evals( m_MaximumNumberOfEvaluations );
   m_VnlOptimizer->set_max_variable_metric_corrections(
@@ -361,43 +357,52 @@ void
 LBFGSBOptimizer
 ::StartOptimization( void )
 {
-
+  
   // Check if all the bounds parameters are the same size as the initial parameters.
   unsigned int numberOfParameters = m_CostFunction->GetNumberOfParameters();
 
-  if ( this->GetInitialPosition().Size() < numberOfParameters ) {
+  if ( this->GetInitialPosition().Size() < numberOfParameters )
+    {
     itkExceptionMacro( << "InitialPosition array does not have sufficient number of elements" );
-  }
+    }
 
-  if ( m_LowerBound.size() < numberOfParameters ) {
+  if ( m_LowerBound.size() < numberOfParameters )
+    {
     itkExceptionMacro( << "LowerBound array does not have sufficient number of elements" );
-  }
+    }
 
-  if ( m_UpperBound.size() < numberOfParameters ) {
+  if ( m_UpperBound.size() < numberOfParameters )
+    {
     itkExceptionMacro( << "UppperBound array does not have sufficient number of elements" );
-  }
+    }
 
-  if ( m_BoundSelection.size() < numberOfParameters ) {
+  if ( m_BoundSelection.size() < numberOfParameters )
+    {
     itkExceptionMacro( << "BoundSelection array does not have sufficient number of elements" );
-  }
+    }
 
-  if( this->GetMaximize() ) {
+  if( this->GetMaximize() )
+    {
     this->GetNonConstCostFunctionAdaptor()->NegateCostFunctionOn();
-  }
+    }
 
   this->SetCurrentPosition( this->GetInitialPosition() );
 
   ParametersType parameters( this->GetInitialPosition() );
 
-  // vnl optimizers return the solution by reference
+  // Clear the description
+  m_StopConditionDescription.str("");
+
+  // vnl optimizers return the solution by reference 
   // in the variable provided as initial position
   m_VnlOptimizer->minimize( parameters );
 
-  if ( parameters.size() != this->GetInitialPosition().Size() ) {
+  if ( parameters.size() != this->GetInitialPosition().Size() )
+    {
     // set current position to initial position and throw an exception
     this->SetCurrentPosition( this->GetInitialPosition() );
     itkExceptionMacro( << "Error occured in optimization" );
-  }
+    }
 
   this->SetCurrentPosition( parameters );
 
@@ -440,13 +445,81 @@ LBFGSBOptimizerHelper
 
 
   // Return true to terminate the optimization loop.
-  if( this->num_iterations_ > m_ItkObj->m_MaximumNumberOfIterations ) {
+  if( this->num_iterations_ > m_ItkObj->m_MaximumNumberOfIterations )
+    {
+    m_ItkObj->m_StopConditionDescription <<
+      "Too many iterations. Iterations = " <<
+      m_ItkObj->m_MaximumNumberOfIterations;
     return true;
-  } else {
+    }
+  else
+    {
     return false;
-  }
+    }
 }
 
+const std::string
+LBFGSBOptimizer::
+GetStopConditionDescription() const
+{
+  if (m_VnlOptimizer)
+    {
+    m_StopConditionDescription.str("");
+    m_StopConditionDescription << this->GetNameOfClass() << ": ";
+    switch (m_VnlOptimizer->get_failure_code())
+      {
+      case vnl_nonlinear_minimizer::ERROR_FAILURE:
+        m_StopConditionDescription << "Failure";
+        break;
+      case vnl_nonlinear_minimizer::ERROR_DODGY_INPUT:
+        m_StopConditionDescription << "Dodgy input";
+        break;
+      case vnl_nonlinear_minimizer::CONVERGED_FTOL:
+        m_StopConditionDescription << "Function tolerance reached after "
+                                   << m_CurrentIteration
+                                   << " iterations. "
+                                   << "The relative reduction of the cost function <= "
+                                   << m_CostFunctionConvergenceFactor * v3p_netlib_dpmeps_()
+                                   << " = CostFunctionConvergenceFactor ("
+                                   << m_CostFunctionConvergenceFactor
+                                   << ") * machine precision ("
+                                   << v3p_netlib_dpmeps_()
+                                   << ").";
+        break;
+      case vnl_nonlinear_minimizer::CONVERGED_XTOL:
+        m_StopConditionDescription << "Solution tolerance reached";
+        break;
+      case vnl_nonlinear_minimizer::CONVERGED_XFTOL:
+        m_StopConditionDescription << "Solution and Function tolerance both reached";
+        break;
+      case vnl_nonlinear_minimizer::CONVERGED_GTOL:
+        m_StopConditionDescription << "Gradient tolerance reached. "
+                                   << "Projected gradient tolerance is "
+                                   << m_ProjectedGradientTolerance;
+        break;
+      case vnl_nonlinear_minimizer::FAILED_TOO_MANY_ITERATIONS:
+        m_StopConditionDescription << "Too many iterations. Iterations = "
+                                   << m_MaximumNumberOfEvaluations;
+        break;
+      case vnl_nonlinear_minimizer::FAILED_FTOL_TOO_SMALL:
+        m_StopConditionDescription << "Function tolerance too small";
+        break;
+      case vnl_nonlinear_minimizer::FAILED_XTOL_TOO_SMALL:
+        m_StopConditionDescription << "Solution tolerance too small";
+        break;
+      case vnl_nonlinear_minimizer::FAILED_GTOL_TOO_SMALL:
+        m_StopConditionDescription << "Gradient tolerance too small";
+        break;
+      case vnl_nonlinear_minimizer::FAILED_USER_REQUEST:
+        break;
+      }
+    return m_StopConditionDescription.str();
+    }
+  else
+    {
+    return std::string("");
+    }
+}
 
 } // end namespace clitk
 

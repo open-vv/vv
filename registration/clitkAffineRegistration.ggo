@@ -1,7 +1,7 @@
 # file clitkAffineRegistration.ggo
 package "clitk"
 version "1.0"
-purpose "Compute an affine registration between two images." 
+purpose "Perform an affine registration between two images." 
 
 option "config"	  	-	"Config file"			string  	no
 
@@ -12,7 +12,7 @@ option "gradient"   	-  	"If verbose, show gradient at each iteration" 	flag	off
 option "threads"	-	"Number of threads to use  (default=min(#cores,8))" 	int 	 no
 
 
-section "Input (Both images have to be of the same dimension (2 or 3D). For 2D-3D registrations, give the 2D image a third dimension of 1 and set it to the reference image.)"
+section "Input (Both images have to be of the same dimension (2 or 3D). For 2D-3D (non-projective) registrations, give the 2D image a third dimension of 1 and set it to the reference image.)"
 
 option "reference"	i	"Reference or fixed image filename"		string  yes
 option "target"     	j 	"Target or moving image filename"		string  yes
@@ -54,7 +54,7 @@ option "subtractMean"	-       "1: Subtract mean for NCC calculation (narrows opt
 option "bins"	 	-       "2,5-8: Number of histogram bins" 	                                                                int 	no      default="50"
 option "random" 	-       "4,6: Samples should be taken randomly, otherwise uniformly"			                       	flag 	off 	
 option "stdDev"		-       "4: specify the standard deviation in mm of the gaussian kernels for both PDF estimations" 		float 	no 	default="0.4" 	
-option "explicitPDFDerivatives"	-       "6: Calculate PDF derivatives explicitly (rigid=true; FFD=false)" 		                flag    on
+option "explicitPDFDerivatives"	-       "6: Calculate PDF derivatives explicitly (affine=true; FFD=false)" 		                flag    on
 
 
 section "Preprocessing"
@@ -82,7 +82,7 @@ option "selectBound"	-	"7: Select the type of bound: 0=none, 1=u, 2=u&l, 3=l"			
 option "lowerBound"	-	"7: The lower bound"							double 	no	
 option "upperBound"	-	"7: The upper bound"							double 	no	
 
-option "rWeight" 	-       "Weight of 1Â° of rotation during optimisation (high weight, less change)" 		float	no	default="50.0"
+option "rWeight" 	-       "Weight of 1° of rotation during optimisation (high weight, less change)" 		float	no	default="50.0"
 option "tWeight"	-       "Weight of 1mm of translation  during optimisation (high weight, less change)" 		float	no	default="1.0"
 option "levels"		-       "Number of resolution levels"						 		int	no	default="1"						
 option "inc" 		-       "Increment factor (x)  previous step/tol = new step/tol at next resolution level" 	float	no	default="1.2"

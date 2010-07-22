@@ -1,0 +1,26 @@
+#File clitkPointTrajectory.ggo
+Package "clitkPointTrajectory"
+version "1.0"
+purpose "Compute the cyclic trajectory of a point based input transform. The transform can be given by N lists of (manually identified) landmarks, a 4DDVF or a ST transform. Interpolation is performed between "
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+section "IO"
+
+option "ref"		r	"Reference point list"		  		string		no	
+option "phaseIncrement"	p	"Phase step size for the trajectory [0,10)"	double	 	no	default="0.1"
+option "trajectory"    	o	"Base filename for the trajectory files(+pointNumber) "		 string 	yes
+
+
+section "Transform: either given n lists of points; a 4DVF or the coefficient image of a spatiotemporal transform"
+option 	"transform"	t	"Transform type: 0=points, 1=4DVF, 2=coeff"	int	no	default="0"
+option  "points"	-	"0:Lists of points"					string 		no multiple
+option  "input"		i	"1,2: 4DVF or coeff image"		string 		no
+option 	"interpVF"	-	"0,1: Interpolation: 0=NN, 1=Linear, 2=BSpline, 3=BLUT"	int  	no  default="1"
+option 	"interpVFOrder"	-	"0,1: Order if BLUT or BSpline (0-5)"		        int  	no  default="3"
+option	"interpVFSF"	-	"0,1: Sampling factor if BLUT"			        int  	no  default="20"
+option  "order"    	-   	"2: Spline order"	 				int	 	multiple 	no 
+option  "mask"		m	"2: Mask image filename"				string		no 
+option  "spacing"	-	"2: Spacing of the ref image for the sampling factor"	double		no	default="2" 
+option  "shape"		-	"2: Shape of the transform: 0=egg, 1=diamond"		int		no	default="0" 

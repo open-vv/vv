@@ -1,0 +1,18 @@
+#File clitkMatrixTransformToVF.ggo
+Package "clitkMatrixTransformToVF"
+version "1.0"
+purpose "Convert a matrix to a DVF with given properties"
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "matrix"		i	"Input matrix filename"		  string  	yes
+option "output"		o	"Output image filename"		  string  	yes
+option "dim"		d	"Dimension"		  int  	no 	default="3"
+
+section "Output Image Properties"
+option "like"			-	"Make output like this image"			string		no		
+option "origin"			-	"Origin for the output image"			double		multiple no	default="0.0"
+option "size"			-	"Size for the output image"			int		multiple no	default="100"       
+option "spacing"		-	"Spacing for the output image"			double		multiple no	default="1.0"       
+

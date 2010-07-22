@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to:
+  Authors belong to: 
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -15,26 +15,8 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
-
-/*=========================================================================
-
-  Program:   Insight Segmentation & Registration Toolkit
-  Module:    $RCSfile: clitkLBFGSBOptimizer.h,v $
-  Language:  C++
-  Date:      $Date: 2010/06/14 17:32:07 $
-  Version:   $Revision: 1.1 $
-
-  Copyright (c) Insight Software Consortium. All rights reserved.
-  See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notices for more information.
-
-=========================================================================*/
 #ifndef __clitkLBFGSBOptimizer_h
 #define __clitkLBFGSBOptimizer_h
-
 #include "itkSingleValuedNonLinearVnlOptimizer.h"
 
 namespace clitk
@@ -61,21 +43,21 @@ class ITK_EXPORT LBFGSBOptimizerHelper;
  *
  * References:
  *
- * [1] R. H. Byrd, P. Lu and J. Nocedal.
- * A Limited Memory Algorithm for Bound Constrained Optimization, (1995),
- * SIAM Journal on Scientific and Statistical Computing ,
- * 16, 5, pp. 1190-1208.
+ * [1] R. H. Byrd, P. Lu and J. Nocedal. 
+ * A Limited Memory Algorithm for Bound Constrained Optimization, (1995), 
+ * SIAM Journal on Scientific and Statistical Computing , 
+ * 16, 5, pp. 1190-1208. 
  *
- * [2] C. Zhu, R. H. Byrd and J. Nocedal.
- * L-BFGS-B: Algorithm 778: L-BFGS-B, FORTRAN routines for large scale
- * bound constrained optimization (1997),
- * ACM Transactions on Mathematical Software,
- * Vol 23, Num. 4, pp. 550 - 560.
+ * [2] C. Zhu, R. H. Byrd and J. Nocedal. 
+ * L-BFGS-B: Algorithm 778: L-BFGS-B, FORTRAN routines for large scale 
+ * bound constrained optimization (1997), 
+ * ACM Transactions on Mathematical Software, 
+ * Vol 23, Num. 4, pp. 550 - 560. 
  *
  * \ingroup Numerics Optimizers
  */
-class ITK_EXPORT LBFGSBOptimizer :
-  public itk::SingleValuedNonLinearVnlOptimizer
+class ITK_EXPORT LBFGSBOptimizer : 
+    public itk::SingleValuedNonLinearVnlOptimizer
 {
 public:
   /** Standard "Self" typedef. */
@@ -83,7 +65,7 @@ public:
   typedef itk::SingleValuedNonLinearVnlOptimizer   Superclass;
   typedef itk::SmartPointer<Self>                  Pointer;
   typedef itk::SmartPointer<const Self>            ConstPointer;
-
+  
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
@@ -91,12 +73,12 @@ public:
   itkTypeMacro( LBFGSBOptimizer, SingleValuedNonLinearVnlOptimizer );
 
   /**  BoundValue type.
-   *  Use for defining the lower and upper bounds on the variables.
+   *  Use for defining the lower and upper bounds on the variables. 
    */
   typedef itk::Array<double>             BoundValueType;
 
   /** BoundSelection type
-   * Use for defining the boundary condition for each variables.
+   * Use for defining the boundary condition for each variables. 
    */
   typedef itk::Array<long>                BoundSelectionType;
 
@@ -136,7 +118,7 @@ public:
   /** Set/Get the CostFunctionConvergenceFactor. Algorithm terminates
    * when the reduction in cost function is less than factor * epsmcj
    * where epsmch is the machine precision.
-   * Typical values for factor: 1e+12 for low accuracy;
+   * Typical values for factor: 1e+12 for low accuracy; 
    * 1e+7 for moderate accuracy and 1e+1 for extremely high accuracy.
    */
   virtual void SetCostFunctionConvergenceFactor( double );
@@ -162,9 +144,10 @@ public:
   itkGetMacro( MaximumNumberOfCorrections, unsigned int );
 
   /** This optimizer does not support scaling of the derivatives. */
-  void SetScales( const ScalesType & ) {
+  void SetScales( const ScalesType & )
+    {
     itkExceptionMacro( << "This optimizer does not support scales." );
-  }
+    }
 
   /** Get the current iteration number. */
   itkGetConstReferenceMacro( CurrentIteration, unsigned int );
@@ -175,6 +158,9 @@ public:
   /** Get the current infinity norm of the project gradient of the cost
    * function. */
   itkGetConstReferenceMacro( InfinityNormOfProjectedGradient, double );
+
+  /** Get the reason for termination */
+  const std::string GetStopConditionDescription() const;
 
 protected:
   LBFGSBOptimizer();
@@ -193,7 +179,7 @@ private:
 
   bool                     m_OptimizerInitialized;
   InternalOptimizerType  * m_VnlOptimizer;
-
+  mutable itk::OStringStream    m_StopConditionDescription;
   BoundValueType           m_LowerBound;
   BoundValueType           m_UpperBound;
   BoundSelectionType       m_BoundSelection;
