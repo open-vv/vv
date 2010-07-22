@@ -1,7 +1,7 @@
 #File clitkDecomposeAndReconstruct.ggo
 Package "clitkDecomposeAndReconstruct"
 version "1.0"
-purpose "Erode a binary image to decompose into different labels, keeping a record of the eroded regions (erosion padding value). Dilate all labels of a label image  separately, only dilating the marked regions (erosion padding value)."
+purpose "Decompose through erosion, and reconstruct through dilation. Erode a binary image to decompose into different labels, keeping a record of the eroded regions (=erosion padding value). Dilate all labels of a label image  separately, only dilating the marked regions (erosion padding value)."
 
 option "config"	  	-	"Config file"			  string  	no
 option "verbose"   	v   	"Verbose"			  flag		off

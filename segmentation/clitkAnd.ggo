@@ -1,7 +1,7 @@
 #File clitkAnd.ggo
 Package "clitkAnd"
 version "1.0"
-purpose ""
+purpose "Perform a pixel-wise logical AND between to images"
 
 option "config"	  	-	"Config file"			  string  	no
 option "verbose"   	v   	"Verbose"			  flag		off

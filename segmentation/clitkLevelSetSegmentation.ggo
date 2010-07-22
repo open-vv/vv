@@ -1,7 +1,7 @@
 #File clitkLevelSetSegmentation.ggo
 Package "clitkLevelSetSegmentation"
 version "1.0"
-purpose ""
+purpose "Perform a levelset segmentation. Standard preprocessing is available to create the feature image."
 
 option "config"	  	-	"Config file"			  string  	no
 option "verbose"   	v   	"Verbose"			  flag		off

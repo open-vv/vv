@@ -1,7 +1,7 @@
 #File clitkRegionGrowing.ggo
 Package "clitkRegionGrowing"
 version "1.0"
-purpose "Region growing from a seed point"
+purpose "Region growing from a seed point using various types of conditions to control the growing"
 
 option "config"	  	-	"Config file"			  string  	no
 option "verbose"   	v   	"Verbose"			  flag		off

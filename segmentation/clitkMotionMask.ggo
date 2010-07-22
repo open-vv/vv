@@ -1,7 +1,7 @@
 #File clitkMotionMask.ggo
 Package "clitkMotionMask"
 version "1.0"
-purpose "From an input CT image (HU), extract feature images (air, ribs and lungs) and calculate the motion mask using levelsets"
+purpose "From an input CT image (HU), extract feature images (air, ribs and lungs) and calculate the motion mask using levelsets, Vandemeulebroucke2010, ICCR. More elaborate methods for extracting the feature images have been incude in clitkExtract*, with *=Lungs,Bones,Patient."
 
 option "config"	  	-	"Config file"			  string  	no
 option "verbose"   	v   	"Verbose"			  flag		off
