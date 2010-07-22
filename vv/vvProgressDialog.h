@@ -22,6 +22,7 @@
 // vv
 #include "ui_vvProgressDialog.h"
 
+//------------------------------------------------------------------------------
 class vvProgressDialog : 
   public QDialog, 
   private Ui::vvProgressDialog
@@ -31,9 +32,11 @@ class vvProgressDialog :
   public:
   vvProgressDialog(std::string message,bool show_progress=false);
   ~vvProgressDialog() {}
+  void SetCancelButtonEnabled(bool b);
   void SetText(std::string message);
   void AddToText(std::string message);
   void SetProgress(unsigned int current,unsigned int max);
 };
+//------------------------------------------------------------------------------
 
 #endif

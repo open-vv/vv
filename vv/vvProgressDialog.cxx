@@ -24,6 +24,7 @@ vvProgressDialog::vvProgressDialog(std::string message, bool show_progress)
 {
   setupUi(this);
   connect(mCancelButton, SIGNAL(rejected()), this, SLOT(reject()));
+  SetCancelButtonEnabled(false);
   textLabel->setText(message.c_str());
   if (show_progress) 
     progressBar->show();
@@ -33,6 +34,26 @@ vvProgressDialog::vvProgressDialog(std::string message, bool show_progress)
 }
 //------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
+void vvProgressDialog::SetCancelButtonEnabled(bool b)
+{
+  if (b) {
+    mCancelButton->show();
+    //setMaximumHeight(500);
+    //setMinimumHeight(80);
+    //QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    // sizePolicy.setHorizontalStretch(0);
+    // sizePolicy.setVerticalStretch(0);
+    // sizePolicy.setHeightForWidth(sizePolicy().hasHeightForWidth());
+    //setSizePolicy(sizePolicy);
+  }
+  else {
+    mCancelButton->hide();
+    //    setFixedHeight(80); // fixe the size when no cancel button
+  }
+}
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvProgressDialog::SetText(std::string message)
