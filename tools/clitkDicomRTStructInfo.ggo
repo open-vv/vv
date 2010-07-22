@@ -1,0 +1,11 @@
+# file clitkDicomRTStructInfo.ggo
+Package "clitk"
+version "Read and print DICOM RT Structure set file (contours)"
+
+option "config"	  	 - "Config file"		 string  	no
+option "input"		 i "Input Dicom file"		 string		yes
+
+#option "roi"		 r "ROI to print (ID)"		 int		no
+#option "contour"	 c "contour to print (ID)"	 int            no
+#option "offset"		 o "to display points as image offsets" flag	off
+
