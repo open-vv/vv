@@ -1,5 +1,5 @@
 # file clitkDicomRTStruct2BinaryImage.ggo
-Package "clitk"
+package "clitk"
 version "Convert DICOM RT Structure Set (contours) to binary image"
 
 option "config"	  	 - "Config file"		     string  	no
