@@ -72,10 +72,6 @@ WRAP_GGO(clitkLevelSetSegmentation_GGO_C clitkLevelSetSegmentation.ggo)
 ADD_EXECUTABLE(clitkLevelSetSegmentation clitkLevelSetSegmentation.cxx clitkLevelSetSegmentationGenericFilter.cxx ${clitkLevelSetSegmentation_GGO_C})
 TARGET_LINK_LIBRARIES(clitkLevelSetSegmentation clitkCommon ITKIO)
 
-# WRAP_GGO(clitkBinarizeImage_GGO_C clitkBinarizeImage.ggo)
-# ADD_EXECUTABLE(clitkBinarizeImage clitkBinarizeImage.cxx clitkBinarizeImageGenericFilter.cxx ${clitkBinarizeImage_GGO_C})
-# TARGET_LINK_LIBRARIES(clitkBinarizeImage clitkCommon ITKIO)
-
 WRAP_GGO(clitkAnd_GGO_C clitkAnd.ggo)
 ADD_EXECUTABLE(clitkAnd clitkAnd.cxx clitkAndGenericFilter.cxx ${clitkAnd_GGO_C})
 TARGET_LINK_LIBRARIES(clitkAnd clitkCommon ITKIO )
