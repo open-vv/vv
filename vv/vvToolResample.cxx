@@ -16,10 +16,12 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
   ======================================================================-====*/
 
+// vv
 #include "vvToolResample.h"
 #include "vvSlicer.h"
 #include "vvToolCreator.h"
 
+// qt
 #include <QFileInfo>
 #include <QMessageBox>
 
@@ -35,6 +37,7 @@ vvToolResample::vvToolResample(vvMainWindowBase * parent, Qt::WindowFlags f):
 {
   Ui_vvToolResample::setupUi(mToolWidget);
 
+  //  mFilter = clitk::ResampleImageGenericFilter::New();
   mFilter = clitk::ImageResampleGenericFilter::New();
   mLastError ="";
 
@@ -457,6 +460,15 @@ void vvToolResample::apply()
   sigma.push_back(yGaussianLineEdit->text().toDouble());
   if (mDimension > 2) sigma.push_back(zGaussianLineEdit->text().toDouble());
   if (mDimension == 4) sigma.push_back(0.01); //FIXME Don't filter along the temporal direction
+
+  /*
+  // Build ArgsInfo
+  typename clitk::ResampleImageGenericFilter::ArgsInfoType mArgsInfo;
+  mArgsInfo.size_given = mDimension;
+  mArgsInfo.size_arg = mDimension;
+  for(int i=0; i<mDimension; i++) {
+    mArgsInfo.size = mOutputSize;
+  */
 
   mFilter->SetOutputSize(mOutputSize);
   mFilter->SetOutputSpacing(mOutputSpacing);

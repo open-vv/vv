@@ -19,14 +19,18 @@
 #ifndef _VVTOOLRESAMPLE_H
 #define _VVTOOLRESAMPLE_H
 
-#include "ui_vvToolResample.h"
-#include "clitkCommon.h"
+// clitk
 #include "clitkImageResampleGenericFilter.h"
+//#include "clitkResampleImageGenericFilter.h"
+
+// vv
+#include "ui_vvToolResample.h"
 #include "vvImage.h"
 #include "vvSlicerManager.h"
 #include "vvToolWidgetBase.h"
 #include "vvToolBase.h"
 
+// qt
 #include <QtDesigner/QDesignerExportWidget>
 #include <QTreeWidget>
 
@@ -67,6 +71,7 @@ protected:
   Ui::vvToolResample ui;
   vvImage::Pointer mOutput;
   clitk::ImageResampleGenericFilter::Pointer mFilter;
+  //clitk::ResampleImageGenericFilter::Pointer mFilter;
 
   vvSlicerManager* mCurrentSlicerManager;
   vvImage::Pointer mCurrentImage;
