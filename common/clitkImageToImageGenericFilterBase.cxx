@@ -36,6 +36,7 @@ clitk::ImageToImageGenericFilterBase::ImageToImageGenericFilterBase(std::string 
   m_ReadOnDisk = true;
   m_LastError = "";
   StopOnErrorOn();
+  SetFilterBase(NULL);
 }
 //--------------------------------------------------------------------
 
