@@ -104,3 +104,83 @@ WRAP_GGO(clitkDicomRTStruct2BinaryImage_GGO_C clitkDicomRTStruct2BinaryImage.ggo
 ADD_EXECUTABLE(clitkDicomRTStruct2BinaryImage clitkDicomRT_ROI_ConvertToImageFilter.cxx clitkDicomRTStruct2BinaryImage.cxx ${clitkDicomRTStruct2BinaryImage_GGO_C})
 TARGET_LINK_LIBRARIES(clitkDicomRTStruct2BinaryImage ITKCommon clitkDicomRTStruct clitkCommon ITKIO QVTK)
 
+ADD_EXECUTABLE(clitkImageLog clitkImageLog.cxx clitkImageLog_ggo.c)
+TARGET_LINK_LIBRARIES(clitkImageLog clitkJef ITKIO clitkCommon fftw3)
+
+ADD_EXECUTABLE(clitkFilter clitkFilter.cxx clitkFilterGenericFilter.cxx  clitkFilter_ggo.c)
+TARGET_LINK_LIBRARIES(clitkFilter ITKIO clitkCommon)
+
+ADD_EXECUTABLE(clitkConeBeamProjectImage clitkConeBeamProjectImage.cxx clitkConeBeamProjectImageGenericFilter.cxx clitkConeBeamProjectImage_ggo.c)
+TARGET_LINK_LIBRARIES(clitkConeBeamProjectImage  ITKIO clitkCommon clitkJef)
+
+ADD_EXECUTABLE(clitkComposeVF clitkComposeVFGenericFilter.cxx clitkComposeVF.cxx clitkComposeVF_ggo.c)
+TARGET_LINK_LIBRARIES(clitkComposeVF ITKBasicFilters ITKIO clitkCommon)
+
+ADD_EXECUTABLE(clitkShroud clitkShroudGenericFilter.cxx clitkShroud.cxx clitkShroud_ggo.c)
+TARGET_LINK_LIBRARIES(clitkShroud ITKIO clitkCommon clitkJef fftw3) 
+
+ADD_EXECUTABLE(clitkMergeSequence clitkMergeSequence.cxx clitkMergeSequenceGenericFilter.cxx clitkMergeSequence_ggo.c)
+TARGET_LINK_LIBRARIES(clitkMergeSequence ITKIO clitkCommon)
+
+ADD_EXECUTABLE(clitkBackProjectImage clitkBackProjectImage.cxx clitkBackProjectImageGenericFilter.cxx clitkBackProjectImage_ggo.c)
+TARGET_LINK_LIBRARIES(clitkBackProjectImage ITKIO clitkCommon clitkJef)
+
+ADD_EXECUTABLE(clitkCropImage clitkCropImage.cxx clitkCropImageGenericFilter.cxx clitkCropImage_ggo.c)
+TARGET_LINK_LIBRARIES(clitkCropImage clitkCommon ITKIO)
+
+ADD_EXECUTABLE(clitkExtractSlice clitkExtractSlice.cxx clitkExtractSliceGenericFilter.cxx clitkExtractSlice_ggo.c)
+TARGET_LINK_LIBRARIES(clitkExtractSlice clitkCommon ITKIO)
+
+ADD_EXECUTABLE(clitkFlipImage clitkFlipImage.cxx clitkFlipImageGenericFilter.cxx clitkFlipImage_ggo.c)
+TARGET_LINK_LIBRARIES(clitkFlipImage clitkCommon ITKIO)
+
+ADD_EXECUTABLE(clitkMirrorPadImage clitkMirrorPadImage.cxx clitkMirrorPadImageGenericFilter.cxx clitkMirrorPadImage_ggo.c)
+TARGET_LINK_LIBRARIES(clitkMirrorPadImage clitkCommon ITKIO)
+
+ADD_EXECUTABLE(clitkImageMoment clitkImageMoment.cxx clitkImageMomentGenericFilter.cxx clitkImageMoment_ggo.c)
+TARGET_LINK_LIBRARIES(clitkImageMoment clitkCommon ITKI)
+
+ADD_EXECUTABLE(clitkImageStatistics clitkImageStatistics.cxx clitkImageStatisticsGenericFilter.cxx clitkImageStatistics_ggo.c)
+TARGET_LINK_LIBRARIES(clitkImageStatistics clitkCommon ITKIO ITKStatistics)
+
+ADD_EXECUTABLE(clitkSetOrigin clitkSetOrigin.cxx clitkSetOriginGenericFilter.cxx clitkSetOrigin_ggo.c)
+TARGET_LINK_LIBRARIES(clitkSetOrigin clitkCommon ITKIO ITKStatistics)
+
+ADD_EXECUTABLE(clitkGetOrigin clitkGetOrigin.cxx clitkGetOriginGenericFilter.cxx clitkGetOrigin_ggo.c)
+TARGET_LINK_LIBRARIES(clitkGetOrigin clitkCommon ITKIO )
+
+ADD_EXECUTABLE(clitkGetDirection clitkGetDirection.cxx clitkGetDirectionGenericFilter.cxx clitkGetDirection_ggo.c)
+TARGET_LINK_LIBRARIES(clitkGetDirection clitkCommon ITKIO)
+
+ADD_EXECUTABLE(clitkSetDirection clitkSetDirection.cxx clitkSetDirectionGenericFilter.cxx clitkSetDirection_ggo.c)
+TARGET_LINK_LIBRARIES(clitkSetDirection clitkCommon ITKIO)
+
+ADD_EXECUTABLE(clitkGetSize  clitkGetSize.cxx clitkGetSizeGenericFilter.cxx clitkGetSize_ggo.c)
+TARGET_LINK_LIBRARIES(clitkGetSize clitkJef clitkCommon ITKNumerics ITKStatistics ITKIO)
+
+ADD_EXECUTABLE(clitkGetSpacing  clitkGetSpacing.cxx clitkGetSpacingGenericFilter.cxx clitkGetSpacing_ggo.c)
+TARGET_LINK_LIBRARIES(clitkGetSpacing clitkJef clitkCommon ITKNumerics ITKStatistics ITKIO)
+
+ADD_EXECUTABLE(clitkSetSpacing  clitkSetSpacing.cxx clitkSetSpacingGenericFilter.cxx clitkSetSpacing_ggo.c)
+TARGET_LINK_LIBRARIES(clitkSetSpacing clitkJef clitkCommon ITKNumerics ITKStatistics ITKIO)
+
+ADD_EXECUTABLE(clitkCombineImage clitkCombineImage.cxx clitkCombineImageGenericFilter.cxx clitkCombineImage_ggo.c)
+TARGET_LINK_LIBRARIES(clitkCombineImage clitkCommon ITKIO)
+
+ADD_EXECUTABLE(clitkPermuteAxes clitkPermuteAxes.cxx clitkPermuteAxesGenericFilter.cxx clitkPermuteAxes_ggo.c)
+TARGET_LINK_LIBRARIES(clitkPermuteAxes clitkCommon ITKIO)
+
+ADD_EXECUTABLE(clitkChangeImageOrientation clitkChangeImageOrientation.cxx clitkChangeImageOrientationGenericFilter.cxx clitkChangeImageOrientation_ggo.c)
+TARGET_LINK_LIBRARIES(clitkChangeImageOrientation clitkCommon ITKIO)
+
+ADD_EXECUTABLE(clitkVFArithm  clitkVFArithm.cxx clitkVFArithmGenericFilter.cxx clitkVFArithm_ggo.c)
+TARGET_LINK_LIBRARIES(clitkVFArithm clitkJef clitkCommon ITKNumerics ITKStatistics ITKIO)
+
+ADD_EXECUTABLE(clitkVFConvert clitkVFConvert.cxx clitkVFConvertGenericFilter.cxx clitkVFConvert_ggo.c)
+TARGET_LINK_LIBRARIES(clitkVFConvert ITKBasicFilters ITKIO clitkCommon )
+
+ADD_EXECUTABLE(clitkImageToVectorImage  clitkImageToVectorImage.cxx clitkImageToVectorImageGenericFilter.cxx clitkImageToVectorImage_ggo.c)
+TARGET_LINK_LIBRARIES(clitkImageToVectorImage clitkJef clitkCommon ITKNumerics ITKStatistics ITKIO)
+
+ADD_EXECUTABLE(clitkVectorImageToImage  clitkVectorImageToImage.cxx clitkVectorImageToImageGenericFilter.cxx clitkVectorImageToImage_ggo.c)
+TARGET_LINK_LIBRARIES(clitkVectorImageToImage clitkJef clitkCommon ITKNumerics ITKStatistics ITKIO)
