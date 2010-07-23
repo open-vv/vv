@@ -47,6 +47,7 @@ class vvToolExtractLung:
   static void Initialize();
   virtual void InputIsSelected(vvSlicerManager *m);
   void GetArgsInfoFromGUI();
+  void SetGUIFromArgsInfo();
 
   //-----------------------------------------------------
 public slots:

@@ -44,13 +44,14 @@ vvToolExtractLung::vvToolExtractLung(vvMainWindowBase * parent, Qt::WindowFlags 
   // GUI
   Ui_vvToolExtractLung::setupUi(mToolWidget);
   mMaskLoaderBox->setEnabled(false);
-  //mOptionsBox->setEnabled(false);
+  mOptionsBox->setEnabled(false);
   mPatientMaskInputWidget->SetText("Patient mask");
   connect(mPatientMaskInputWidget, SIGNAL(accepted()), this, SLOT(PatientMaskInputIsSelected()));
 
   // Default values
   mArgsInfo = new ArgsInfoType;
   cmdline_parser_clitkExtractLung_init(mArgsInfo);
+  SetGUIFromArgsInfo();
   m_IsThreadInterrupted = false;
 
   // Create a new ExtractLung filter
@@ -109,7 +110,25 @@ void vvToolExtractLung::PatientMaskInputIsSelected()
   }
    
   mMaskLoaderBox->setEnabled(false);
-  //mOptionsBox->setEnabled(true);
+  mOptionsBox->setEnabled(true);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolExtractLung::SetGUIFromArgsInfo() 
+{
+  mAirUpperThresholdSlider->SetText("Upper threshold for air");
+  mAirUpperThresholdSlider->SetMinimum(-1200);
+  mAirUpperThresholdSlider->SetMaximum(2000);
+  DD(mArgsInfo->upper_arg);
+  mAirUpperThresholdSlider->SetValue(mArgsInfo->upper_arg);
+
+  mAirLowerThresholdSlider->SetText("Lower threshold for air");
+  mAirLowerThresholdSlider->SetMinimum(-1200);
+  mAirLowerThresholdSlider->SetMaximum(2000);
+  mAirLowerThresholdSlider->SetValue(mArgsInfo->lower_arg);
+
 }
 //------------------------------------------------------------------------------
 
@@ -117,15 +136,19 @@ void vvToolExtractLung::PatientMaskInputIsSelected()
 //------------------------------------------------------------------------------
 void vvToolExtractLung::GetArgsInfoFromGUI() 
 {
-  mArgsInfo->patientBG_arg = 0; //mPatientBackgroundValueSpinBox->value();
-  mArgsInfo->verboseOption_flag = false;
-  mArgsInfo->verboseStep_flag = false;
+  mArgsInfo->patientBG_arg = mPatientMaskInputWidget->GetBackgroundValue();
+  mArgsInfo->verboseOption_flag = true; // DEBUG. TO CHANGE
+  mArgsInfo->verboseStep_flag = true; // DEBUG. TO CHANGE
   mArgsInfo->writeStep_flag = false;
   mArgsInfo->input_given = 0;
   mArgsInfo->patient_given = 0;
   mArgsInfo->output_given = 0;
   mArgsInfo->outputTrachea_given = 0;
   mArgsInfo->remove1_given = 0;
+  
+  mArgsInfo->upper_arg = mAirUpperThresholdSlider->GetValue();
+  mArgsInfo->lower_arg = mAirLowerThresholdSlider->GetValue();
+  if (mRadioButtonLowerThan->isChecked()) mArgsInfo->lower_given = 1;
 }
 //------------------------------------------------------------------------------
 
@@ -138,6 +161,15 @@ void vvToolExtractLung::apply()
   
   // Read options from GUI and put it in the ArgsInfo struct
   GetArgsInfoFromGUI();
+  
+  // Check options
+  if (mArgsInfo->lower_given) {
+    if (mArgsInfo->lower_arg > mArgsInfo->upper_arg) {    
+      QApplication::restoreOverrideCursor(); 
+      QMessageBox::information(this,tr("Error"), "Lower threshold cannot be greater than upper threshold.");
+      return;
+    }
+  }
 
   // Create new filter
   if (mFilter) delete mFilter;

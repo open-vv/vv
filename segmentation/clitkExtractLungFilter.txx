@@ -164,8 +164,8 @@ void
 clitk::ExtractLungFilter<ImageType, MaskImageType>::
 GenerateOutputInformation() 
 { 
-  Superclass::GenerateOutputInformation(); // Needed  ??
-  this->GetOutput(0)->SetRequestedRegion(this->GetOutput(0)->GetLargestPossibleRegion());
+  Superclass::GenerateOutputInformation();
+  //this->GetOutput(0)->SetRequestedRegion(this->GetOutput(0)->GetLargestPossibleRegion());
 
   // Get input pointers
   patient = dynamic_cast<const MaskImageType*>(itk::ProcessObject::GetInput(1));
@@ -187,6 +187,13 @@ GenerateOutputInformation()
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   StartNewStepOrStop("Remove Air");
+  // Check threshold
+  if (m_UseLowerThreshold) {
+    if (m_LowerThreshold > m_UpperThreshold) {
+      this->SetLastError("ERROR: lower threshold cannot be greater than upper threshold.");
+      return;
+    }
+  }
   // Threshold to get air
   typedef itk::BinaryThresholdImageFilter<ImageType, InternalImageType> InputBinarizeFilterType; 
   typename InputBinarizeFilterType::Pointer binarizeFilter=InputBinarizeFilterType::New();
@@ -458,7 +465,7 @@ GenerateOutputInformation()
       --it;
     }
     if (it.IsAtEnd()) {
-      this->SetLastError("ERROR: first point in the skeleton not found ! Abord");
+      this->SetLastError("ERROR: first point in the skeleton not found ! Abort");
       return;
     }
     DD(skeleton->GetLargestPossibleRegion().GetIndex());
