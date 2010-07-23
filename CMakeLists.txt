@@ -57,7 +57,7 @@ ENDIF(MSVC)
 #=========================================================
 
 #=========================================================
-INCLUDE_DIRECTORIES(itk filters ${PROJECT_BINARY_DIR})
+INCLUDE_DIRECTORIES(itk filters segmentation registration tools ${PROJECT_BINARY_DIR})
 
 # Select what is compiled
 ADD_SUBDIRECTORY(common)
