@@ -143,12 +143,26 @@ public:
     return;
   }
 
-  void SetArgsInfo(args_info_clitkAffineRegistration a) {
+ void SetArgsInfo(args_info_clitkAffineRegistration a) {
     m_ArgsInfo=a;
   }
   args_info_clitkAffineRegistration m_ArgsInfo;
 };
 
+//==============================================================================================//
+// ArgsInfo
+//==============================================================================================//
+template<class args_info_clitkAffineRegistration>
+void AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>::SetArgsInfo(const args_info_clitkAffineRegistration & a)
+{
+  m_ArgsInfo=a;
+  if (m_ArgsInfo.reference_given) AddInputFilename(m_ArgsInfo.reference_arg);
+  if (m_ArgsInfo.target_given) {
+    AddInputFilename(m_ArgsInfo.target_arg);
+  }
+
+  if (m_ArgsInfo.output_given) SetOutputFilename(m_ArgsInfo.output_arg);
+}
 //==============================================================================
 // Update with the number of dimensions and pixeltype
 //==============================================================================
@@ -170,6 +184,18 @@ void AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>::UpdateW
   //Coordinate Representation
   typedef double TCoordRep;
 
+
+  typename InputImageType::Pointer fixedImage = this->template GetInput<InputImageType>(0);
+
+  typename InputImageType::Pointer inputFixedImage = this->template GetInput<InputImageType>(0);
+
+  // typedef input2
+  typename InputImageType::Pointer movingImage = this->template GetInput<InputImageType>(1);
+
+  typename InputImageType::Pointer inputMovingImage = this->template GetInput<InputImageType>(1);
+
+
+
   //The pixeltype of the fixed image will be used for output
   typedef itk::Image< PixelType, InputImageType::ImageDimension > FixedImageType;
 
@@ -178,27 +204,27 @@ void AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>::UpdateW
   typedef itk::Image< InternalPixelType, InputImageType::ImageDimension > InternalImageType;
 
   //Read in the reference/fixed image
-  typedef itk::ImageFileReader< InternalImageType > ReaderType;
-  typename ReaderType::Pointer  fixedImageReader  = ReaderType::New();
-  fixedImageReader->SetFileName( m_ArgsInfo.reference_arg);
+//  typedef itk::ImageFileReader< InternalImageType > ReaderType;
+//  typename ReaderType::Pointer  fixedImageReader  = ReaderType::New();
+//  fixedImageReader->SetFileName( m_ArgsInfo.reference_arg);
 
 
   //Read in the object/moving image
-  typename ReaderType::Pointer movingImageReader = ReaderType::New();
-  movingImageReader->SetFileName( m_ArgsInfo.target_arg );
+//  typename ReaderType::Pointer movingImageReader = ReaderType::New();
+//  movingImageReader->SetFileName( m_ArgsInfo.target_arg );
   if (m_Verbose) std::cout<<"Reading images..."<<std::endl;
-  fixedImageReader->Update();
-  movingImageReader->Update();
+//  fixedImageReader->Update();
+//  movingImageReader->Update();
 
   if (m_Verbose) std::cout  << "Reading images... " << std::endl;
 
   //we connect pointers to these internal images
-  typename InternalImageType::Pointer fixedImage= fixedImageReader->GetOutput();
-  typename InternalImageType::Pointer movingImage= movingImageReader->GetOutput();
+ // typedef typename  fixedImageReader fixedImage;
+ // typedef typename  movingImageReader movingImage;
 
   //We keep the images used for input for possible output
-  typename InternalImageType::Pointer inputFixedImage= fixedImageReader->GetOutput();
-  typename InternalImageType::Pointer inputMovingImage= movingImageReader->GetOutput();
+// typedef typename   fixedImageReader inputFixedImage;
+// typedef typename  movingImageReader inputMovingImage;
 
 
   //============================================================================
@@ -562,10 +588,10 @@ void AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>::UpdateW
     typename    ResampleFilterType::Pointer resampler = ResampleFilterType::New();
 
     resampler->SetTransform( transform );
-    resampler->SetInput( movingImageReader->GetOutput() );
-    resampler->SetSize( fixedImageReader ->GetOutput()->GetLargestPossibleRegion().GetSize() );
-    resampler->SetOutputOrigin(  fixedImageReader ->GetOutput()->GetOrigin() );
-    resampler->SetOutputSpacing( fixedImageReader ->GetOutput()->GetSpacing() );
+    resampler->SetInput( movingImage );
+    resampler->SetSize( fixedImage->GetLargestPossibleRegion().GetSize() );
+    resampler->SetOutputOrigin(  fixedImage->GetOrigin() );
+    resampler->SetOutputSpacing( fixedImage->GetSpacing() );
     resampler->SetDefaultPixelValue( 0 );
 
     //Output?
@@ -635,7 +661,7 @@ void AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>::UpdateW
       typedef itk::SubtractImageFilter< InternalImageType, FixedImageType,FixedImageType > DifferenceImageFilterType;
       typename DifferenceImageFilterType::Pointer differenceAfterFilter= DifferenceImageFilterType::New();
 
-      differenceAfterFilter->SetInput1(fixedImageReader ->GetOutput());
+      differenceAfterFilter->SetInput1(fixedImage);
       differenceAfterFilter->SetInput2(resampler->GetOutput());
 
       // Prepare a writer to write the difference image
@@ -653,13 +679,13 @@ void AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>::UpdateW
   if (m_ArgsInfo.before_given) {
     typedef itk::CastImageFilter< InternalImageType,FixedImageType > CastFilterType;
     typename    CastFilterType::Pointer  caster =  CastFilterType::New();
-    caster->SetInput( movingImageReader->GetOutput() );
+    caster->SetInput( movingImage );
 
     typedef itk::SubtractImageFilter< InternalImageType, FixedImageType, FixedImageType > DifferenceImageFilterType;
     typename DifferenceImageFilterType::Pointer differenceBeforeFilter= DifferenceImageFilterType::New();
 
 
-    differenceBeforeFilter->SetInput1(fixedImageReader ->GetOutput());
+    differenceBeforeFilter->SetInput1(fixedImage);
     differenceBeforeFilter->SetInput2(caster->GetOutput());
 
     // Prepare a writer to write the difference image
