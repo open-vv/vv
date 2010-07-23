@@ -1,0 +1,12 @@
+#File clitkFlipImage.ggo
+Package "clitkFlipImage"
+version "1.0"
+purpose ""
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+option "axe"    	a   	"Axe"		  		  int 	no 	default="0"
+option "origin"    	-   	"Flip around origin"		  flag 	off

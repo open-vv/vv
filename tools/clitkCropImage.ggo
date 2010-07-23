@@ -1,0 +1,14 @@
+#File clitkCropImage.ggo
+Package "clitkCropImage"
+version "1.0"
+purpose "Reduce the image size by removing regions at the lower and upper end."
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+option "boundingBox"   	b   	"Bounding box of the crop region" int 	no 	multiple
+option "lower"    	l   	"Size of the lower crop region"	  int 	no  multiple
+option "upper"    	u   	"Size of the upper crop region"	  int 	no  multiple
+option "origin"    	-   	"Set new origin to zero"	  flag 	off  

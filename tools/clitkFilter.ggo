@@ -1,0 +1,30 @@
+#File clitkFilter.ggo
+Package "clitkFilter"
+version "1.0"
+purpose ""
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+option "mask"   	 	m   	"Mask in which the filter should be applied"	string		no
+
+option "float"   	 	-   	"Convert to float first "	  	   flag		off 	
+
+section "Filter" 
+
+option "type"   	 	t   	"Type of filter: 0=derivative, 1= gradient magnitude, 2= projection, 3= intensity windowing, 4=BSplineDownsampling with factor 2, 5=normalize intensities (mean=0 ,SD=1), 6=anisotropic diffusion, 7=gradient anisotropic diffusion, 8=curvature anisotropic diffusion, 9= curvature flow"	  int		no 	default="0"
+option "order"   	 	-   	"0: what order"	  	   int		no 	default="1"
+option "direction"   	 	-   	"0-2: what direction"	   int		no 	default="0"
+option "projection"   	 	-   	"2: what accumulation (0=sum, 1=max, 2=min) "	  int		no 	default="0"
+option "inputMin"		-	"3: set window minimum"	  float		no 	default="0"
+option "inputMax"		-	"3: set window maximum"	  float		no 	default="100"
+option "outputMin"		-	"3: set output minimum"	  float		no 	default="0"
+option "outputMax"		-	"3: set output maximum"	  float		no 	default="255"
+option "resamplerType"		-	"4: Resampler type to use for the downsampling (0=Standard, 1=Centered, 2=L2, 3=L2Centered) "	  int		no 	default="0"
+option "splineOrder"		-	"4: SplineOrder to use for the downsampling (0-5, some resamplers only odd) "	  int		no 	default="3"
+option "cond"			-	"6-8: conductance parameter" 			double no	default="3.0"
+option "time"			-	"6-9: Time step (6,7: 0.25 for 2D and 0.125 for 3D; 8,9:0.125 for 2D and 0.0625 for 3D)" 	double no	default="0.125"
+option "iter"			-	"6-9: Iterations (6-8=5; 9=10)" 				double no	default="5"
+option "radius"			-	"9: radius" 	double no	default="1"

@@ -1,0 +1,12 @@
+#File clitkSetDirection.ggo
+Package "clitkSetDirection"
+version "1.0"
+purpose ""
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+option "direction"	d	"Direction cosine matrix (defaults to identity)"	double 	multiple no	
+

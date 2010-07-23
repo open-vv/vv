@@ -19,7 +19,7 @@
 #define CLITKVFRESAMPLE_CXX
 /**
    ------------------------------------------------=
-   * @file   clitkImageResample.cxx
+   * @file   clitkVFResample.cxx
    * @author David Sarrut <David.Sarrut@creatis.insa-lyon.fr>
    * @date   23 Feb 2008 08:37:53
    ------------------------------------------------=*/

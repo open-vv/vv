@@ -1,0 +1,12 @@
+#File clitkVFConvert.ggo
+Package "clitkVFConvert"
+version "1.0"
+purpose "Convert file format"
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+
+

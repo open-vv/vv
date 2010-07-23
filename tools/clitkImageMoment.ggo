@@ -1,0 +1,12 @@
+#File clitkImageMoment.ggo
+Package "clitkImageMoment"
+version "1.0"
+purpose "Calculate the image moment: the center of gravity"
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"		i	"Input image filename"		  string  	yes
+option "center"		c	"Compute center of gravity"	  flag  	on
+option "second"		s	"Compute second order moments"	  flag  	off
+option "axes"		a	"Compute the principal axes"	  flag  	off

@@ -1,0 +1,14 @@
+#File clitkComposeVF.ggo
+#Author: Jef Vandemeulebroucke <jefvdmb@gmail.com>
+#Date : Tue 20 August 16.35 
+
+Package "clitk"
+Version "Read two vector fields (.mhd, .vf, ..) and compose them using linear interpolation"
+
+option "config"	  	 	-	"Config file"			string  	no
+option "input1"    	 	i   	"Input1 VF filename"		string 		yes
+option "input2"    	 	j   	"Input2 VF filename"		string 		yes
+option "output"    	 	o   	"Output VF filename"		string 		yes
+option "pad"    	 	p   	"Edgepadding value"		float 	multiple 	no  default="0.0"
+option "verbose"   	 	v   	"Verbose"			flag		off
+

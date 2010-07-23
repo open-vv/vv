@@ -1,0 +1,11 @@
+#File clitkImageToVectorImage.ggo
+Package "clitkImageToVectorImage"
+version "1.0"
+purpose "Compose 3 images to 1 vector image"
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "output"    	o   	"Output image filename"		  string 	yes
+
+

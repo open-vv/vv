@@ -1,0 +1,14 @@
+#File clitkMirrorPadImage.ggo
+Package "clitkMirrorPadImage"
+version "1.0"
+purpose ""
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+option "mirror"    	m   	"Mirror the entire image along given axis"	int 		no
+option "pad"    	p   	"Mirror pad with given size"	  int 		multiple	no
+option "lower"    	l   	"Pad on lower end (else upper)"	  flag 		off
+option "origin"    	-   	"Set new origin to 0"		  flag 		off

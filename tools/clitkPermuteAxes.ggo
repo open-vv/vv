@@ -1,0 +1,13 @@
+#File clitkPermuteAxes.ggo
+Package "clitkPermuteAxes"
+version "1.0"
+purpose ""
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+option "order"		-	"The new order of the axes (n comma separated values [o,N])" int multiple yes
+
+

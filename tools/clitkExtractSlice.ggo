@@ -1,0 +1,13 @@
+#File clitkExtractSlice.ggo
+Package "clitkExtractSlice"
+version "1.0"
+purpose "Extract a slice: will collapse the dimension given by axe, retaining only the index given by slice."
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+option "axe"    	a   	"Axe (0,1, ...)"		  int	 	no 	default="0"
+option "slice"    	s   	"Slice index (0,1,....)"	  int	 	no 	default="0"
+

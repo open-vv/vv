@@ -1,0 +1,14 @@
+#File clitkSetSpacing.ggo
+Package "clitkSetSpacing"
+version "1.0"
+purpose ""
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+option "like"    	l   	"Like image filename"		  string 	no
+option "spacing"    	s   	"Spacing"		  	  double	no	multiple	default="1"
+
+

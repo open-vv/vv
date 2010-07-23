@@ -1,0 +1,21 @@
+#File clitkBSplineCoefficientsToValues.ggo
+Package "clitkBSplineCoefficientsToValues"
+version "1.0"
+purpose ""
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+section "I/O"
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+option "matrix"		m	"Matrix transform to add"	string		no
+
+section "Options"
+option "like"    	l   	"Resample output this image (size, spacing,origin)"	string 	no
+option "size"		-	"New output size if different from input"  	int 	no 	multiple
+option "spacing"	-	"New output spacing if different from input" 	double 	no 	multiple
+option "origin"		-	"New output origin if different from input" 	double 	no 	multiple
+option "pad"		-	"Edge padding value" 				double 	no 	default="0.0"
+option "order"    	-   	"Spline order of the coefficient image"		int 	no	default="3"
+

@@ -1,0 +1,37 @@
+#File clitkConeBeamProjectImage.ggo
+Package "clitk"
+Version "Project a 3D image with cone-beam geometry"
+
+option "config"	  	 	-	"Config file"			  string  	no
+
+section "Run Time"
+
+option "verbose"   	v   	"Verbose"			flag		off
+option "threads"	-	"Number of threads to use (default=min(cores,8))" 	int 	 no
+
+
+section "Input"
+
+option "input"		 	i	"Input grid filename"		  string  	yes
+option "output"    	 	o  	"Output grid filename"		  string 	yes
+option "mask"   	 	m   	"2D Mask in which the filter should be applied (not supported yet;-)"	string		no
+
+
+section "Projection Parameters"
+
+option "iso"   	 		-   	"The isocenter"			  		double		no 	multiple default="0.0"        
+option "screen"   	 	-   	"Specify the source to screen distance in mm"	double		no 	default="1536.0"
+option "axis"   	 	-   	"Specify the source to axis distance in mm"	double		no 	default="1000.0"
+option "angle"   	 	-   	"Specify the projection angle"			double		no 	default="0.0"
+option "matrix"   	 	-   	"Rigid tranform prior to projection (4x4)"	string		no 	
+option "pad"   	 		-   	"Padding value"					float		no 	default="0.0"
+
+
+section "Output Image"
+
+option "like"			-	"Make output like this image"			string		no		
+option "origin"			-	"Origin for the output image"			double		multiple no	default="0.0"
+option "size"			-	"Size for the output image"			int		multiple no	default="512"       
+option "spacing"		-	"Spacing for the output image"			double		multiple no	default="0.8"       
+
+
