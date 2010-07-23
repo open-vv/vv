@@ -2,8 +2,8 @@
 #Author: Jef Vandemeulebroucke <jefvdmb@gmail.com>
 #Date : Tue 28 April 2009 16.35 
 
-Package "clitk"
-Version "Perform standard morphological operations"
+package "clitk"
+version "Perform standard morphological operations"
 
 option "config"	  	 	-	"Config file"			  string  	no
 

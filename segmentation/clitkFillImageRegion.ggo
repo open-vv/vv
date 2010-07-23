@@ -1,5 +1,5 @@
 #File clitkFillImageRegion.ggo
-Package "clitkFillImageRegion"
+package "clitkFillImageRegion"
 version "1.0"
 purpose ""
 

@@ -1,5 +1,5 @@
 #File clitkCalculateDistanceMap.ggo
-Package "clitkCalculateDistanceMap"
+package "clitkCalculateDistanceMap"
 version "1.0"
 purpose "Calculate the distance map(float) of a binary image: Signed Danielsson Distance Map filter or Fast Marching filter"
 

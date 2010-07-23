@@ -1,5 +1,5 @@
 #File clitkLevelSetSegmentation.ggo
-Package "clitkLevelSetSegmentation"
+package "clitkLevelSetSegmentation"
 version "1.0"
 purpose "Perform a levelset segmentation. Standard preprocessing is available to create the feature image."
 

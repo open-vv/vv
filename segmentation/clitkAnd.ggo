@@ -1,5 +1,5 @@
 #File clitkAnd.ggo
-Package "clitkAnd"
+package "clitkAnd"
 version "1.0"
 purpose "Perform a pixel-wise logical AND between to images"
 

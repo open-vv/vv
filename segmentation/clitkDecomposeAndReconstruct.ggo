@@ -1,5 +1,5 @@
 #File clitkDecomposeAndReconstruct.ggo
-Package "clitkDecomposeAndReconstruct"
+package "clitkDecomposeAndReconstruct"
 version "1.0"
 purpose "Decompose through erosion, and reconstruct through dilation. Erode a binary image to decompose into different labels, keeping a record of the eroded regions (=erosion padding value). Dilate all labels of a label image  separately, only dilating the marked regions (erosion padding value)."
 

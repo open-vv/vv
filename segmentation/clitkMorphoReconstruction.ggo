@@ -1,5 +1,5 @@
 #File clitkMorphoReconstruction.ggo
-Package "clitkMorphoReconstruction"
+package "clitkMorphoReconstruction"
 version "1.0"
 purpose "Morphological reconstruction: restore a marker image by preserving regions and using a mask image. For opening and closing, the mask is the original image."
 
