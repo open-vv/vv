@@ -72,6 +72,9 @@ void clitk::ExtractPatientGenericFilter<ArgsInfoType>::UpdateWithInputImageType(
   typedef clitk::ExtractPatientFilter<ImageType, OutputImageType> FilterType;
   typename FilterType::Pointer filter = FilterType::New();
     
+  // Set the filter (needed for example for threaded monitoring)
+  this->SetFilterBase(filter);
+    
   // Set global Options 
   filter->SetArgsInfo(mArgsInfo);
   filter->SetInput(input);
