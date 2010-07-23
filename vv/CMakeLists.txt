@@ -70,6 +70,7 @@ SET(vv_SRCS
   vvToolResample.cxx
   vvBlendImageActor.cxx
   vvLabelImageLoaderWidget.cxx
+  vvToolExtractPatient.cxx
   vvToolExtractLung.cxx
   vvToolPlastimatch.cxx
 #  vvToolConnectedComponentLabeling.cxx
@@ -117,6 +118,7 @@ QT4_WRAP_CPP(vv_SRCS
   vvROIActor.h
   vvToolResample.h
   vvLabelImageLoaderWidget.h
+  vvToolExtractPatient.h
   vvToolExtractLung.h
   vvToolPlastimatch.h
 #  vvToolConnectedComponentLabeling.h
@@ -151,6 +153,7 @@ QT4_WRAP_UI(vv_UI_CXX
   qt_ui/vvToolStructureSetManager.ui
   qt_ui/vvToolResample.ui
   qt_ui/vvLabelImageLoaderWidget.ui
+  qt_ui/vvToolExtractPatient.ui
   qt_ui/vvToolExtractLung.ui
   qt_ui/vvToolPlastimatch.ui
 #  qt_ui/vvToolConnectedComponentLabeling.ui
