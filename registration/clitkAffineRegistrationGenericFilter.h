@@ -23,6 +23,7 @@
 #include "clitkIO.h"
 #include "clitkCommon.h"
 #include "clitkAffineRegistration_ggo.h"
+#include "clitkImageArithm_ggo.h"
 #include "clitkCorrelationRatioImageToImageMetric.h"
 #include "clitkTransformUtilities.h"
 #include "clitkGenericMetric.h"
@@ -56,6 +57,7 @@
 #include <iostream>
 #include <iomanip>
 
+struct args_info_clitkImageArithm;
 namespace clitk
 {
 
@@ -70,27 +72,19 @@ public:
 
   //================================================
   typedef AffineRegistrationGenericFilter        Self;
+  
   typedef itk::SmartPointer<Self>        Pointer;
   typedef itk::SmartPointer<const Self> ConstPointer;
-
+  typedef ImageToImageGenericFilterBase   Superclass;
   //================================================
   itkNewMacro(Self);
-  itkTypeMacro(AffineRegistrationGenericFilter, LightObject);
+  //itkTypeMacro(AffineRegistrationGenericFilter, LightObject);
 
 
   //====================================================================
   // Set methods
-  void SetArgsInfo(const args_info_clitkAffineRegistration args_info) {
-    m_ArgsInfo=args_info;
-    m_Verbose=m_ArgsInfo.verbose_flag;
-    if (m_ArgsInfo.reference_given) {
-      SetInputFilename(m_ArgsInfo.reference_arg);
-    }
-    if (m_ArgsInfo.target_given) {
-      SetOutputFilename(m_ArgsInfo.target_arg);
-    }
+       void SetArgsInfo(const args_info_clitkAffineRegistration & a);
 
-  }
   //====================================================================
   template<unsigned int Dim>
   void InitializeImageType();
