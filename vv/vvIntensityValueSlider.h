@@ -17,11 +17,16 @@
 ======================================================================-====*/
 #ifndef VVINTENSITYVALUESLIDER_H
 #define VVINTENSITYVALUESLIDER_H
+
+// qt
 #include <QtDesigner/QDesignerExportWidget>
 #include <QDialog>
 
-#include "ui_vvIntensityValueSlider.h"
+// clitk 
 #include "clitkCommon.h"
+
+// vv
+#include "ui_vvIntensityValueSlider.h"
 #include "vvImage.h"
 #include "vtkImageData.h"
 
