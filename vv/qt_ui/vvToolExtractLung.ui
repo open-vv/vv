@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>249</width>
-    <height>97</height>
+    <height>199</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,6 +16,12 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="mLabelInput">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="font">
       <font>
        <pointsize>11</pointsize>
@@ -36,12 +42,58 @@
    </item>
    <item>
     <widget class="QGroupBox" name="mMaskLoaderBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="title">
       <string>Choose input patient binary mask</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="1" column="0">
-       <widget class="vvLabelImageLoaderWidget" name="mPatientMaskInputWidget" native="true"/>
+       <widget class="vvLabelImageLoaderWidget" name="mPatientMaskInputWidget" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="mOptionsBox">
+     <property name="title">
+      <string>Extract Lung Options</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="vvIntensityValueSlider" name="mAirUpperThresholdSlider" native="true"/>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="mRadioButtonLowerThan">
+          <property name="text">
+           <string>use lower</string>
+          </property>
+          <property name="autoExclusive">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="vvIntensityValueSlider" name="mAirLowerThresholdSlider" native="true">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -49,6 +101,12 @@
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>vvIntensityValueSlider</class>
+   <extends>QWidget</extends>
+   <header>vvIntensityValueSlider.h</header>
+   <container>1</container>
+  </customwidget>
   <customwidget>
    <class>vvLabelImageLoaderWidget</class>
    <extends>QWidget</extends>
@@ -59,5 +117,22 @@
  <resources>
   <include location="../vvIcons.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>mRadioButtonLowerThan</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>mAirLowerThresholdSlider</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>64</x>
+     <y>275</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>79</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
