@@ -134,18 +134,6 @@ private:
                                          LocallyAdaptiveBinaryThresholdImageFunction##y; } \
   }
 
-#if ITK_TEMPLATE_EXPLICIT
-# include "Templates/clitkLocallyAdaptiveBinaryThresholdImageFunction+-.h"
-#endif
-
-#if ITK_TEMPLATE_TXX
 # include "clitkLocallyAdaptiveBinaryThresholdImageFunction.txx"
-#endif
-
-/*
-#ifndef ITK_MANUAL_INSTANTIATION
-#include "clitkLocallyAdaptiveBinaryThresholdImageFunction.txx"
-#endif
-*/
 
 #endif
