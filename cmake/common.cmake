@@ -5,7 +5,6 @@ ENDMACRO(DD)
 #=========================================================
 # Process ggo (gengetopt) files (http://www.gnu.org/software/gengetopt/)
 MACRO (WRAP_GGO GGO_SRCS)
-    MAKE_DIRECTORY(${CMAKE_BINARY_DIR}/ggo)
     FOREACH(GGO_FILE ${ARGN})
         GET_FILENAME_COMPONENT(GGO_BASEFILENAME ${GGO_FILE} NAME_WE)
         GET_FILENAME_COMPONENT(GGO_FILE_ABS ${GGO_FILE} ABSOLUTE)
@@ -43,5 +42,7 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 LINK_DIRECTORIES(${PROJECT_BINARY_DIR}/lib)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/common)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/tools)
-INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR}/filters)  #For _ggo.h includes from other directories
+INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR}/tools)         #For _ggo.h includes from other directories
+INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR}/segmentation)  #For _ggo.h includes from other directories
+INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR}/registration)  #For _ggo.h includes from other directories
 #=========================================================
