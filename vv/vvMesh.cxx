@@ -58,7 +58,6 @@ void vvMesh::AddMesh(vtkPolyData* p)
 
 void vvMesh::ReadFromVTK(const char * filename)
 {
-  DD("hello!");
   std::string extension=itksys::SystemTools::GetFilenameLastExtension(std::string(filename));
   if (extension == ".vtk" || extension== ".VTK") {
     assert(GetNumberOfMeshes() == 0); ///We assume the object is empty

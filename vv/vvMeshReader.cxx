@@ -61,7 +61,7 @@ void vvMeshReader::run()
     vvMesh::Pointer m=vvMesh::New();
     m->ReadFromVTK(filename.c_str());
     if (vf) m->propagateContour(vf);
-    m->ComputeMasks(image->GetVTKImages()[0],true);
+    m->ComputeMasks(image->GetVTKImages()[0],false); //don't extrude the contour
     result.push_back(m);
   } else { //Read a Dicom-struct file
     assert(selected_contours.size() > 0);
