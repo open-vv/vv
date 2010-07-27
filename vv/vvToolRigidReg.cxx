@@ -227,7 +227,11 @@ void vvToolRigidReg::SetTransform(double tX, double tY, double tZ, double aX, do
 void vvToolRigidReg::SetTransform(vtkMatrix4x4 *matrix)
 {
     vtkSmartPointer<vtkTransform> transform =mCurrentSlicerManager->GetImage()->GetTransform();
-    transform->SetMatrix(matrix);
+    for(int i=0; i<4;i++)
+      for(int j=0;j<4;j++)
+       mCurrentSlicerManager->GetImage()->GetTransform()->GetMatrix()->SetElement(i,j,matrix->GetElement(i,j));
+
+    
     Render();
 }
 //------------------------------------------------------------------------------
