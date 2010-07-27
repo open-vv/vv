@@ -26,11 +26,12 @@ MACRO (WRAP_GGO GGO_SRCS)
 	SET(${GGO_SRCS} ${${GGO_SRCS}} ${CMAKE_CURRENT_BINARY_DIR}/${GGO_BASEFILENAME}_ggo.c)
 	INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})  #For _ggo.h includes
     ENDFOREACH(GGO_FILE)
+    SET_SOURCE_FILES_PROPERTIES(${${GGO_SRCS}} PROPERTIES GENERATED TRUE)
 ENDMACRO (WRAP_GGO)
 
 # Reproduce old mechanism with new macro for ggo files (for the time being)
 FILE(GLOB ALL_GGO_FILES *.ggo)
-WRAP_GGO(ALL_GGO_SRCS ${ALL_GGO_FILES})
+#WRAP_GGO(ALL_GGO_SRCS ${ALL_GGO_FILES})
 #=========================================================
 #Set a reasonable build mode default if the user hasn't set any
 if (NOT CMAKE_BUILD_TYPE)

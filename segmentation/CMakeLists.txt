@@ -4,28 +4,11 @@ INCLUDE(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
 
 #=========================================================
 
-SET( CMAKE_VERBOSE_MAKEFILE off)
+#Add your _ggo files to this list if they are used by vv
+ADD_LIBRARY(clitkSegmentationGgoLib clitkExtractPatient_ggo.c
+clitkExtractLung_ggo.c)
 
 #=========================================================
-
-# WRAP_GGO(clitkSegmentationFilters_GGO_C
-#   clitkFillMask.ggo
-#   clitkConnectedComponentLabeling.ggo
-#   clitkExtractLung.ggo
-#   clitkExtractPatient.ggo
-#   clitkExtractBones.ggo
-#   clitkExtractMediastinum.ggo
-#   clitkExtractLymphStations.ggo
-# )
-
-# SET(clitkSegmentationFilters_SRC
-#   ${clitkSegmentationFilters_GGO_C}
-# )  
-
-# ADD_LIBRARY(clitkSegmentationFilters STATIC ${clitkSegmentationFilters_SRC})
-
-# ADD_EXECUTABLE(clitkTestFilter clitkTestFilter.cxx clitkTestFilter_ggo.c)
-# TARGET_LINK_LIBRARIES(clitkTestFilter clitkCommon ITKIO clitkSegmentationFilters ITKStatistics)
 
 ######################################### Segmentation part
 WRAP_GGO(clitkConnectedComponentLabeling_GGO_C clitkConnectedComponentLabeling.ggo)

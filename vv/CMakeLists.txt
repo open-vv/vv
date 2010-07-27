@@ -74,7 +74,8 @@ SET(vv_SRCS
   vvToolExtractLung.cxx
   vvToolPlastimatch.cxx
 #  vvToolConnectedComponentLabeling.cxx
-  )
+)
+
 #=========================================================
 
 #=========================================================
@@ -210,7 +211,14 @@ ENDIF(WIN32)
 
 LINK_DIRECTORIES(${QT_INCLUDES})
 ADD_EXECUTABLE(vv ${vv_SRCS} vv.cxx ${vv_UI_CXX} ${EXE_ICON})
-TARGET_LINK_LIBRARIES(vv clitkCommon clitkDicomRTStruct clitkFilters clitkSegmentationFilters ${ITK_LIBRARIES} QVTK vtkHybrid)
+ADD_DEPENDENCIES(vv TOOLS_GGOS SEGMENTATION_GGOS)
+TARGET_LINK_LIBRARIES(vv clitkDicomRTStruct 
+#Libs for generic filters with long compilation times
+clitkImageConvertLib 
+clitkImageResampleLib
+#Libs for _ggo.c files
+clitkSegmentationGgoLib clitkToolsGgoLib
+clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
 
 #=========================================================
 

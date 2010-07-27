@@ -61,20 +61,11 @@ INCLUDE_DIRECTORIES(itk filters segmentation registration tools ${PROJECT_BINARY
 
 # Select what is compiled
 ADD_SUBDIRECTORY(common)
-ADD_SUBDIRECTORY(filters)
+add_subdirectory(tools)
 
 # Compilation options
 OPTION(CLITK_EXPERIMENTAL "Enable experimental software and features" OFF)
-
-OPTION(CLITK_BUILD_VV "Build vv the 4D visualizer (requires VTK and QT)" ON)
-IF (CLITK_BUILD_VV)
-  add_subdirectory(vv)
-ENDIF(CLITK_BUILD_VV)
-
 OPTION(CLITK_BUILD_TOOLS "Build command-line tools" OFF)
-IF (CLITK_BUILD_TOOLS)
-  add_subdirectory(tools)
-ENDIF(CLITK_BUILD_TOOLS)
 
 OPTION(CLITK_BUILD_SEGMENTATION "Build segmentation tools" ON)
 IF (CLITK_BUILD_SEGMENTATION)
@@ -85,6 +76,11 @@ OPTION(CLITK_BUILD_REGISTRATION "Build command-line registration tools" OFF)
 IF (CLITK_BUILD_REGISTRATION)
   add_subdirectory(registration)
 ENDIF(CLITK_BUILD_REGISTRATION)
+
+OPTION(CLITK_BUILD_VV "Build vv the 4D visualizer (requires VTK and QT)" ON)
+IF (CLITK_BUILD_VV)
+  add_subdirectory(vv)
+ENDIF(CLITK_BUILD_VV)
 
 #=========================================================
 
