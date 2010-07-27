@@ -83,7 +83,6 @@ IF (CLITK_BUILD_TOOLS)
     ADD_EXECUTABLE(clitkGuerreroVentilation clitkGuerreroVentilation.cxx clitkGuerreroVentilationGenericFilter.cxx ${clitkGuerreroVentilation_GGO_C})
     TARGET_LINK_LIBRARIES(clitkGuerreroVentilation clitkCommon ITKIO)
 
-    WRAP_GGO(clitkImageArithm_GGO_C clitkImageArithm.ggo)
     ADD_EXECUTABLE(clitkImageArithm clitkImageArithm.cxx ${clitkImageArithm_GGO_C})
     TARGET_LINK_LIBRARIES(clitkImageArithm clitkCommon ITKIO )
 
