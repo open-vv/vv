@@ -3,7 +3,7 @@ INCLUDE(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
 #=========================================================
 #Add your ggo files to this list if they are used by vv
 FOREACH(clitkTool clitkAffineTransform clitkBinarizeImage clitkImageArithm
-        clitkMedianImageFilter)
+        clitkMedianImageFilter clitkImageConvert clitkImageResample) 
     WRAP_GGO(${clitkTool}_GGO_C ${clitkTool}.ggo)
     SET(GGO_C_FILES ${GGO_C_FILES} ${${clitkTool}_GGO_C})
 ENDFOREACH(clitkTool)
@@ -24,8 +24,7 @@ IF (CLITK_BUILD_TOOLS)
     ADD_EXECUTABLE(clitkImageInfo clitkImageInfo.cxx ${clitkImageInfo_GGO_C})
     TARGET_LINK_LIBRARIES(clitkImageInfo clitkCommon ITKIO)
 
-    ADD_EXECUTABLE(clitkImageConvert clitkImageConvert.cxx
-            ${clitkImageConvert_GGO_C})
+    ADD_EXECUTABLE(clitkImageConvert clitkImageConvert.cxx ${clitkImageConvert_GGO_C})
     TARGET_LINK_LIBRARIES(clitkImageConvert clitkImageConvertLib clitkCommon ITKIO)
 
     # ADD_EXECUTABLE(clitkImageResample clitkImageResample.cxx
