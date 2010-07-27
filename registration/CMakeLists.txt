@@ -1,3 +1,5 @@
+#ADD_LIBRARY(clitkLBGSB STATIC clitkLBGSBOptimizer.cxx)
+
 ############################## registration algorithms
 
 WRAP_GGO(clitkAffineRegistration_GGO_C clitkAffineRegistration.ggo)
