@@ -1,10 +1,23 @@
 #ADD_LIBRARY(clitkLBGSB STATIC clitkLBGSBOptimizer.cxx)
+#=========================================================
+
+INCLUDE(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
+
+#=========================================================
+
+#Add your ggo files to this list if they are used by vv
+FOREACH(clitkTool clitkAffineRegistration)
+    WRAP_GGO(${clitkTool}_GGO_C ${clitkTool}.ggo)
+    SET(GGO_C_FILES ${GGO_C_FILES} ${${clitkTool}_GGO_C})
+ENDFOREACH(clitkTool)
+ADD_LIBRARY(clitkRegistrationGgoLib ${GGO_C_FILES} clitkAffineRegistrationGenericFilter.cxx clitkLBFGSBOptimizer.cxx clitkGenericAffineTransform.cxx)
+
+#=========================================================
 
 ############################## registration algorithms
-
-WRAP_GGO(clitkAffineRegistration_GGO_C clitkAffineRegistration.ggo)
-ADD_EXECUTABLE(clitkAffineRegistration clitkAffineRegistration.cxx clitkAffineRegistrationGenericFilter.cxx ${clitkAffineRegistration_GGO_C} clitkLBFGSBOptimizer.cxx clitkGenericAffineTransform.cxx)
-TARGET_LINK_LIBRARIES(clitkAffineRegistration clitkCommon ITKIO ITKNumerics ITKStatistics)
+IF(CLITK_BUILD_REGISTRATION)
+ADD_EXECUTABLE(clitkAffineRegistration clitkAffineRegistration.cxx)
+TARGET_LINK_LIBRARIES(clitkAffineRegistration  clitkRegistrationGgoLib clitkCommon ITKIO ITKNumerics ITKStatistics)
 
 WRAP_GGO(clitkDemonsDeformableRegistration_GGO_C clitkDemonsDeformableRegistration.ggo)
 ADD_EXECUTABLE(clitkDemonsDeformableRegistration clitkDemonsDeformableRegistration.cxx ${clitkDemonsDeformableRegistration_GGO_C} clitkDemonsDeformableRegistrationGenericFilter.cxx)
@@ -59,3 +72,5 @@ TARGET_LINK_LIBRARIES(clitkBSplinePyramid  clitkCommon  ITKIO)
 WRAP_GGO(clitkResampleBSplineDeformableTransform_GGO_C clitkResampleBSplineDeformableTransform.ggo)
 ADD_EXECUTABLE(clitkResampleBSplineDeformableTransform  clitkResampleBSplineDeformableTransform.cxx clitkResampleBSplineDeformableTransformGenericFilter.cxx ${clitkResampleBSplineDeformableTransform_GGO_C})
 TARGET_LINK_LIBRARIES(clitkResampleBSplineDeformableTransform clitkCommon ITKIO)
+ENDIF(CLITK_BUILD_REGISTRATION)
+
