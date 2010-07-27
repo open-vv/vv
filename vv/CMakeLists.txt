@@ -218,6 +218,7 @@ clitkImageConvertLib
 clitkImageResampleLib
 #Libs for _ggo.c files
 clitkSegmentationGgoLib clitkToolsGgoLib
+clitkRegistrationGgoLib
 clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
 
 #=========================================================
