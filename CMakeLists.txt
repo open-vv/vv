@@ -62,15 +62,12 @@ INCLUDE_DIRECTORIES(itk filters segmentation registration tools ${PROJECT_BINARY
 # Select what is compiled
 ADD_SUBDIRECTORY(common)
 add_subdirectory(tools)
+add_subdirectory(segmentation)
 
 # Compilation options
 OPTION(CLITK_EXPERIMENTAL "Enable experimental software and features" OFF)
 OPTION(CLITK_BUILD_TOOLS "Build command-line tools" OFF)
-
-OPTION(CLITK_BUILD_SEGMENTATION "Build segmentation tools" ON)
-IF (CLITK_BUILD_SEGMENTATION)
-  add_subdirectory(segmentation)
-ENDIF (CLITK_BUILD_SEGMENTATION)
+OPTION(CLITK_BUILD_SEGMENTATION "Build segmentation tools" OFF)
 
 OPTION(CLITK_BUILD_REGISTRATION "Build command-line registration tools" OFF)
 IF (CLITK_BUILD_REGISTRATION)
