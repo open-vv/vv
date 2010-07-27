@@ -32,9 +32,6 @@ IF (CLITK_BUILD_TOOLS)
     # ${clitkImageResample_GGO_C})
     # TARGET_LINK_LIBRARIES(clitkImageResample clitkImageResampleLib clitkCommon ITKIO )
 
-    ADD_EXECUTABLE(clitkImageConvert clitkImageConvert.cxx clitkImageConvertGenericFilter.cxx ${clitkImageConvert_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkImageConvert clitkCommon ITKIO)
-
     WRAP_GGO(clitkVFResample_GGO_C clitkImageResample.ggo)
     ADD_EXECUTABLE(clitkVFResample clitkVFResample.cxx clitkVFResampleGenericFilter.cxx ${clitkVFResample_GGO_C})
     TARGET_LINK_LIBRARIES(clitkVFResample clitkCommon ITKIO)
