@@ -41,7 +41,7 @@ namespace clitk
 
 //--------------------------------------------------------------------
 BinarizeImageGenericFilter::BinarizeImageGenericFilter():
-  ImageToImageGenericFilter<Self>("Binarize")
+  ImageToImageGenericFilter<Self>("BinarizeImage")
 {
   InitializeImageType<2>();
   InitializeImageType<3>();

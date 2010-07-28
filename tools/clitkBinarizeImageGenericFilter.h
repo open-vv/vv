@@ -16,8 +16,8 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
 
-#ifndef CLITKBINARIZEIMAGEGENERICFILTER_H
-#define CLITKBINARIZEIMAGEGENERICFILTER_H
+#ifndef clitkBinarizeImageGenericFilter_h
+#define clitkBinarizeImageGenericFilter_h
 
 #include "clitkIO.h"
 #include "clitkImageToImageGenericFilter.h"
