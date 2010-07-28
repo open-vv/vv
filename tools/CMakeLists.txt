@@ -14,6 +14,7 @@ ADD_LIBRARY(clitkToolsGgoLib ${GGO_C_FILES})
 #with long compilation times that are used by vv
 ADD_LIBRARY(clitkImageConvertLib clitkImageConvertGenericFilter.cxx)
 ADD_LIBRARY(clitkImageResampleLib clitkImageResampleGenericFilter.cxx)
+ADD_LIBRARY(clitkBinarizeImageLib clitkBinarizeImageGenericFilter.cxx)
 
 IF (CLITK_BUILD_TOOLS)
     WRAP_GGO(clitkDicomInfo_GGO_C clitkDicomInfo.ggo)
@@ -26,6 +27,10 @@ IF (CLITK_BUILD_TOOLS)
 
     ADD_EXECUTABLE(clitkImageConvert clitkImageConvert.cxx ${clitkImageConvert_GGO_C})
     TARGET_LINK_LIBRARIES(clitkImageConvert clitkImageConvertLib clitkCommon ITKIO)
+
+    ADD_EXECUTABLE(clitkBinarizeImage clitkBinarizeImage.cxx
+       ${clitkBinarizeImage_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkBinarizeImage clitkBinarizeImageLib clitkCommon ITKIO)
 
     # ADD_EXECUTABLE(clitkImageResample clitkImageResample.cxx
     # ${clitkImageResample_GGO_C})

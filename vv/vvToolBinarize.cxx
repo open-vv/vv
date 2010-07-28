@@ -73,7 +73,7 @@ vvToolBinarize::vvToolBinarize(vvMainWindowBase * parent, Qt::WindowFlags f)
   mBGSlider->SetText("Background value");
 
   // Main filter
-  mFilter = new clitk::BinarizeImageGenericFilter<args_info_clitkBinarizeImage>;
+  mFilter = new clitk::BinarizeImageGenericFilter;
 
   // Set how many inputs are needed for this tool
   AddInputSelector("Select one image", mFilter);
@@ -322,8 +322,8 @@ void vvToolBinarize::apply()
   GetArgsInfoFromGUI();
 
   // Main filter
-  clitk::BinarizeImageGenericFilter<args_info_clitkBinarizeImage>::Pointer filter =
-    clitk::BinarizeImageGenericFilter<args_info_clitkBinarizeImage>::New();
+  clitk::BinarizeImageGenericFilter::Pointer filter =
+    clitk::BinarizeImageGenericFilter::New();
   filter->SetInputVVImage(mCurrentImage);
   filter->SetArgsInfo(mArgsInfo);
   filter->EnableReadOnDisk(false);

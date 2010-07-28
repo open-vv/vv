@@ -21,14 +21,14 @@
 
 #include "clitkIO.h"
 #include "clitkImageToImageGenericFilter.h"
+#include "clitkBinarizeImage_ggo.h"
 
 //--------------------------------------------------------------------
 namespace clitk 
 {
   
-  template<class args_info_type>
   class ITK_EXPORT BinarizeImageGenericFilter: 
-    public ImageToImageGenericFilter<BinarizeImageGenericFilter<args_info_type> >
+    public ImageToImageGenericFilter<BinarizeImageGenericFilter>
   {
     
   public:
@@ -40,6 +40,7 @@ namespace clitk
     typedef BinarizeImageGenericFilter         Self;
     typedef itk::SmartPointer<Self>            Pointer;
     typedef itk::SmartPointer<const Self>      ConstPointer;
+    typedef args_info_clitkBinarizeImage       args_info_type;
    
     //--------------------------------------------------------------------
     // Method for creation through the object factory
@@ -63,12 +64,6 @@ namespace clitk
   //--------------------------------------------------------------------
     
 } // end namespace clitk
-//--------------------------------------------------------------------
-
-//--------------------------------------------------------------------
-#ifndef ITK_MANUAL_INSTANTIATION
-#include "clitkBinarizeImageGenericFilter.txx"
-#endif
 //--------------------------------------------------------------------
 
 #endif // #define clitkBinarizeImageGenericFilter_h

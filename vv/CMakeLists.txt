@@ -216,6 +216,7 @@ TARGET_LINK_LIBRARIES(vv clitkDicomRTStruct
 #Libs for generic filters with long compilation times
 clitkImageConvertLib 
 clitkImageResampleLib
+clitkBinarizeImageLib
 #Libs for _ggo.c files
 clitkSegmentationGgoLib clitkToolsGgoLib
 clitkRegistrationGgoLib

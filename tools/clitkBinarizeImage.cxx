@@ -29,7 +29,7 @@ int main(int argc, char * argv[])
   CLITK_INIT;
 
   // Filter
-  typedef clitk::BinarizeImageGenericFilter<args_info_clitkBinarizeImage> FilterType;
+  typedef clitk::BinarizeImageGenericFilter FilterType;
   FilterType::Pointer filter = FilterType::New();
 
   filter->SetArgsInfo(args_info);
