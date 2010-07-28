@@ -14,63 +14,63 @@ ADD_LIBRARY(clitkRegistrationGgoLib ${GGO_C_FILES} clitkAffineRegistrationGeneri
 
 #=========================================================
 
-############################## registration algorithms
 IF(CLITK_BUILD_REGISTRATION)
-ADD_EXECUTABLE(clitkAffineRegistration clitkAffineRegistration.cxx)
-TARGET_LINK_LIBRARIES(clitkAffineRegistration  clitkRegistrationGgoLib clitkCommon ITKIO ITKNumerics ITKStatistics)
+    ############################## registration algorithms
+    ADD_EXECUTABLE(clitkAffineRegistration clitkAffineRegistration.cxx)
+    TARGET_LINK_LIBRARIES(clitkAffineRegistration  clitkRegistrationGgoLib clitkCommon ITKIO ITKNumerics ITKStatistics)
 
-WRAP_GGO(clitkDemonsDeformableRegistration_GGO_C clitkDemonsDeformableRegistration.ggo)
-ADD_EXECUTABLE(clitkDemonsDeformableRegistration clitkDemonsDeformableRegistration.cxx ${clitkDemonsDeformableRegistration_GGO_C} clitkDemonsDeformableRegistrationGenericFilter.cxx)
-TARGET_LINK_LIBRARIES(clitkDemonsDeformableRegistration ITKNumerics ITKIO clitkCommon)
+    WRAP_GGO(clitkDemonsDeformableRegistration_GGO_C clitkDemonsDeformableRegistration.ggo)
+    ADD_EXECUTABLE(clitkDemonsDeformableRegistration clitkDemonsDeformableRegistration.cxx ${clitkDemonsDeformableRegistration_GGO_C} clitkDemonsDeformableRegistrationGenericFilter.cxx)
+    TARGET_LINK_LIBRARIES(clitkDemonsDeformableRegistration ITKNumerics ITKIO clitkCommon)
 
-WRAP_GGO(clitkBLUTDIR_GGO_C clitkBLUTDIR.ggo)
-ADD_EXECUTABLE(clitkBLUTDIR  clitkBLUTDIR.cxx clitkBLUTDIRGenericFilter.cxx ${clitkBLUTDIR_GGO_C} clitkLBFGSBOptimizer.cxx )
-TARGET_LINK_LIBRARIES(clitkBLUTDIR clitkCommon ITKIO ITKNumerics ITKStatistics)
+    WRAP_GGO(clitkBLUTDIR_GGO_C clitkBLUTDIR.ggo)
+    ADD_EXECUTABLE(clitkBLUTDIR  clitkBLUTDIR.cxx clitkBLUTDIRGenericFilter.cxx ${clitkBLUTDIR_GGO_C} clitkLBFGSBOptimizer.cxx )
+    TARGET_LINK_LIBRARIES(clitkBLUTDIR clitkCommon ITKIO ITKNumerics ITKStatistics)
 
-WRAP_GGO(clitkShapedBLUTSpatioTemporalDIR_GGO_C clitkShapedBLUTSpatioTemporalDIR.ggo)
-ADD_EXECUTABLE(clitkShapedBLUTSpatioTemporalDIR  clitkShapedBLUTSpatioTemporalDIR.cxx clitkShapedBLUTSpatioTemporalDIRGenericFilter.cxx  ${clitkShapedBLUTSpatioTemporalDIR_GGO_C} clitkLBFGSBOptimizer.cxx)
-TARGET_LINK_LIBRARIES(clitkShapedBLUTSpatioTemporalDIR clitkCommon ITKNumerics ITKStatistics ITKIO)
+    WRAP_GGO(clitkShapedBLUTSpatioTemporalDIR_GGO_C clitkShapedBLUTSpatioTemporalDIR.ggo)
+    ADD_EXECUTABLE(clitkShapedBLUTSpatioTemporalDIR  clitkShapedBLUTSpatioTemporalDIR.cxx clitkShapedBLUTSpatioTemporalDIRGenericFilter.cxx  ${clitkShapedBLUTSpatioTemporalDIR_GGO_C} clitkLBFGSBOptimizer.cxx)
+    TARGET_LINK_LIBRARIES(clitkShapedBLUTSpatioTemporalDIR clitkCommon ITKNumerics ITKStatistics ITKIO)
 
-WRAP_GGO(clitkBSplineDeformableRegistration_GGO_C clitkBSplineDeformableRegistration.ggo)
-ADD_EXECUTABLE(clitkBSplineDeformableRegistration clitkBSplineDeformableRegistration.cxx clitkBSplineDeformableRegistrationGenericFilter.cxx  ${clitkBSplineDeformableRegistration_GGO_C} clitkLBFGSBOptimizer.cxx)
-TARGET_LINK_LIBRARIES(clitkBSplineDeformableRegistration  clitkCommon ITKNumerics ITKStatistics ITKIO)
+    WRAP_GGO(clitkBSplineDeformableRegistration_GGO_C clitkBSplineDeformableRegistration.ggo)
+    ADD_EXECUTABLE(clitkBSplineDeformableRegistration clitkBSplineDeformableRegistration.cxx clitkBSplineDeformableRegistrationGenericFilter.cxx  ${clitkBSplineDeformableRegistration_GGO_C} clitkLBFGSBOptimizer.cxx)
+    TARGET_LINK_LIBRARIES(clitkBSplineDeformableRegistration  clitkCommon ITKNumerics ITKStatistics ITKIO)
 
 
-############################## registration-related tools to process points, bsplines, vf and image pyramids
-WRAP_GGO(clitkConvertPointList_GGO_C clitkConvertPointList.ggo)
-ADD_EXECUTABLE(clitkConvertPointList clitkConvertPointList.cxx  ${clitkConvertPointList_GGO_C})
-TARGET_LINK_LIBRARIES(clitkConvertPointList ITKIO clitkCommon )
+    ############################## registration-related tools to process points, bsplines, vf and image pyramids
+    WRAP_GGO(clitkConvertPointList_GGO_C clitkConvertPointList.ggo)
+    ADD_EXECUTABLE(clitkConvertPointList clitkConvertPointList.cxx  ${clitkConvertPointList_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkConvertPointList ITKIO clitkCommon )
 
-WRAP_GGO(clitkSelectPoints_GGO_C clitkSelectPoints.ggo)
-ADD_EXECUTABLE(clitkSelectPoints clitkSelectPoints.cxx clitkSelectPointsGenericFilter.cxx  ${clitkSelectPoints_GGO_C})
-TARGET_LINK_LIBRARIES(clitkSelectPoints clitkCommon ITKIO)
+    WRAP_GGO(clitkSelectPoints_GGO_C clitkSelectPoints.ggo)
+    ADD_EXECUTABLE(clitkSelectPoints clitkSelectPoints.cxx clitkSelectPointsGenericFilter.cxx  ${clitkSelectPoints_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkSelectPoints clitkCommon ITKIO)
 
-WRAP_GGO(clitkPointTrajectory_GGO_C clitkPointTrajectory.ggo)
-ADD_EXECUTABLE(clitkPointTrajectory  clitkPointTrajectory.cxx clitkPointTrajectoryGenericFilter.cxx  ${clitkPointTrajectory_GGO_C})
-TARGET_LINK_LIBRARIES(clitkPointTrajectory clitkCommon ITKIO)
+    WRAP_GGO(clitkPointTrajectory_GGO_C clitkPointTrajectory.ggo)
+    ADD_EXECUTABLE(clitkPointTrajectory  clitkPointTrajectory.cxx clitkPointTrajectoryGenericFilter.cxx  ${clitkPointTrajectory_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkPointTrajectory clitkCommon ITKIO)
 
-WRAP_GGO(clitkCalculateTRE_GGO_C clitkCalculateTRE.ggo)
-ADD_EXECUTABLE(clitkCalculateTRE clitkCalculateTRE.cxx clitkCalculateTREGenericFilter.cxx ${clitkCalculateTRE_GGO_C})
-TARGET_LINK_LIBRARIES(clitkCalculateTRE clitkCommon ITKIO )
+    WRAP_GGO(clitkCalculateTRE_GGO_C clitkCalculateTRE.ggo)
+    ADD_EXECUTABLE(clitkCalculateTRE clitkCalculateTRE.cxx clitkCalculateTREGenericFilter.cxx ${clitkCalculateTRE_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkCalculateTRE clitkCommon ITKIO )
 
-WRAP_GGO(clitkMatrixTransformToVF_GGO_C clitkMatrixTransformToVF.ggo)
-ADD_EXECUTABLE(clitkMatrixTransformToVF clitkMatrixTransformToVF.cxx clitkMatrixTransformToVFGenericFilter.cxx  ${clitkMatrixTransformToVF_GGO_C})
-TARGET_LINK_LIBRARIES(clitkMatrixTransformToVF ITKIO clitkCommon)
+    WRAP_GGO(clitkMatrixTransformToVF_GGO_C clitkMatrixTransformToVF.ggo)
+    ADD_EXECUTABLE(clitkMatrixTransformToVF clitkMatrixTransformToVF.cxx clitkMatrixTransformToVFGenericFilter.cxx  ${clitkMatrixTransformToVF_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkMatrixTransformToVF ITKIO clitkCommon)
 
-WRAP_GGO(clitkConvertBSplineDeformableTransformToVF_GGO_C clitkConvertBSplineDeformableTransformToVF.ggo)
-ADD_EXECUTABLE(clitkConvertBSplineDeformableTransformToVF  clitkConvertBSplineDeformableTransformToVF.cxx clitkConvertBSplineDeformableTransformToVFGenericFilter.cxx  ${clitkConvertBSplineDeformableTransformToVF_GGO_C})
-TARGET_LINK_LIBRARIES(clitkConvertBSplineDeformableTransformToVF clitkCommon  ITKIO)
+    WRAP_GGO(clitkConvertBSplineDeformableTransformToVF_GGO_C clitkConvertBSplineDeformableTransformToVF.ggo)
+    ADD_EXECUTABLE(clitkConvertBSplineDeformableTransformToVF  clitkConvertBSplineDeformableTransformToVF.cxx clitkConvertBSplineDeformableTransformToVFGenericFilter.cxx  ${clitkConvertBSplineDeformableTransformToVF_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkConvertBSplineDeformableTransformToVF clitkCommon  ITKIO)
 
-WRAP_GGO(clitkMultiResolutionPyramid_GGO_C clitkMultiResolutionPyramid.ggo)
-ADD_EXECUTABLE(clitkMultiResolutionPyramid  clitkMultiResolutionPyramid.cxx clitkMultiResolutionPyramidGenericFilter.cxx ${clitkMultiResolutionPyramid_GGO_C})
-TARGET_LINK_LIBRARIES(clitkMultiResolutionPyramid clitkCommon  ITKIO)
+    WRAP_GGO(clitkMultiResolutionPyramid_GGO_C clitkMultiResolutionPyramid.ggo)
+    ADD_EXECUTABLE(clitkMultiResolutionPyramid  clitkMultiResolutionPyramid.cxx clitkMultiResolutionPyramidGenericFilter.cxx ${clitkMultiResolutionPyramid_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkMultiResolutionPyramid clitkCommon  ITKIO)
 
-WRAP_GGO(clitkBSplinePyramid_GGO_C clitkBSplinePyramid.ggo)
-ADD_EXECUTABLE(clitkBSplinePyramid  clitkBSplinePyramid.cxx clitkBSplinePyramidGenericFilter.cxx ${clitkBSplinePyramid_GGO_C})
-TARGET_LINK_LIBRARIES(clitkBSplinePyramid  clitkCommon  ITKIO)
+    WRAP_GGO(clitkBSplinePyramid_GGO_C clitkBSplinePyramid.ggo)
+    ADD_EXECUTABLE(clitkBSplinePyramid  clitkBSplinePyramid.cxx clitkBSplinePyramidGenericFilter.cxx ${clitkBSplinePyramid_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkBSplinePyramid  clitkCommon  ITKIO)
 
-WRAP_GGO(clitkResampleBSplineDeformableTransform_GGO_C clitkResampleBSplineDeformableTransform.ggo)
-ADD_EXECUTABLE(clitkResampleBSplineDeformableTransform  clitkResampleBSplineDeformableTransform.cxx clitkResampleBSplineDeformableTransformGenericFilter.cxx ${clitkResampleBSplineDeformableTransform_GGO_C})
-TARGET_LINK_LIBRARIES(clitkResampleBSplineDeformableTransform clitkCommon ITKIO)
+    WRAP_GGO(clitkResampleBSplineDeformableTransform_GGO_C clitkResampleBSplineDeformableTransform.ggo)
+    ADD_EXECUTABLE(clitkResampleBSplineDeformableTransform  clitkResampleBSplineDeformableTransform.cxx clitkResampleBSplineDeformableTransformGenericFilter.cxx ${clitkResampleBSplineDeformableTransform_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkResampleBSplineDeformableTransform clitkCommon ITKIO)
 ENDIF(CLITK_BUILD_REGISTRATION)
 
