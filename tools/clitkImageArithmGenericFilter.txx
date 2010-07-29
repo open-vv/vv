@@ -107,20 +107,20 @@ void ImageArithmGenericFilter<args_info_type>::UpdateWithInputImageType()
   IteratorType it(input1, input1->GetLargestPossibleRegion());
 
   // typedef input2
-  typename ImageType::Pointer input2 = this->template GetInput<ImageType>(1);
+  typename ImageType::Pointer input2 = NULL;
   IteratorType it2;
 
-  // Check dimension
-  if (!clitk::HaveSameSizeAndSpacing<ImageType, ImageType>(input1, input2)) {
-    std::cerr << "* ERROR * the images (input and input2) must have the same size & spacing";
-    return;
-  }
 
   if (mIsOperationUseASecondImage) {
-    // Read input2
-    input2 = this->template GetInput<ImageType>(1);
-    // Set input image iterator
-    it2 = IteratorType(input2, input2->GetLargestPossibleRegion());
+      // Read input2
+      input2 = this->template GetInput<ImageType>(1);
+      // Set input image iterator
+      it2 = IteratorType(input2, input2->GetLargestPossibleRegion());
+      // Check dimension
+      if (!clitk::HaveSameSizeAndSpacing<ImageType, ImageType>(input1, input2)) {
+          std::cerr << "* ERROR * the images (input and input2) must have the same size & spacing";
+          return;
+      }
   }
 
   // Check if overwrite and outputisfloat and pixeltype is not float -> do not overwrite
