@@ -64,20 +64,6 @@ namespace clitk {
       m_Verbose=m_ArgsInfo.verbose_flag;
     }
     
-    //  void SetVerbose(const bool v){mVerbose=v;}
-    //     void SetInput(const std::string i)   { mInput = i; }
-    //     void SetOutput(const std::string o)   { mOutput = o; }
-    //     void SetMask(const std::string m) {mMask = m;}
-    //     void SetIsoCenter(const std::vector<double> i) 
-    //     {
-    //       mIsoCenter.resize(3);
-    //       for (unsigned int j=0; j < 3; j++) mIsoCenter[j]=i[j];      
-    //     }
-    //     void SetSourceToScreen(const double s) {mSourceToScreen = s;}
-    //     void SetSourceToAxis(const double s) {mSourceToAxis = s;}
-    //     void SetProjectionAngle(const double a) {mProjectionAngle = a;}
-    //     void SetRigidTransformMatrix(const itk::Matrix<double,4,4> m) {mRigidTransformMatrix=m;}
-    //     void SetEdgePaddingValue(const double m) {mEdgePaddingValue=m;}
 
     //====================================================================
     // Update
@@ -98,20 +84,9 @@ namespace clitk {
     bool m_Verbose;
     std::string m_InputFileName;
     args_info_clitkConeBeamProjectImage m_ArgsInfo;
-    //     std::string mOutput;
-    //     std::string mMask;
-    //     std::vector<double> mIsoCenter;
-    //     double mSourceToScreen;
-    //     double mSourceToAxis;
-    //     double mProjectionAngle;
-    //     itk::Matrix<double,4,4> mRigidTransformMatrix;
-    //     double mEdgePaddingValue;
 
   };
   
 } // end namespace clitk
-#ifndef ITK_MANUAL_INSTANTIATION
-#include "clitkConeBeamProjectImageGenericFilter.txx"
-#endif
   
 #endif //#define CLITKCONEBEAMPROJECTIMAGEGENERICFILTER__H
