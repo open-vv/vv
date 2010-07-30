@@ -187,6 +187,16 @@ namespace clitk
 	}
     }
 
+    /** Set the panelshift. */
+    void SetPanelShift(double shift)
+    {
+      if (m_PanelShift!=shift)
+	{
+	  m_PanelShift=shift;
+	  m_IsInitialized=false;
+	}
+    }
+
     /** Helper method to set the output parameters based on this image */
     void SetOutputParametersFromImage( const OutputImagePointer image );
 
@@ -219,6 +229,7 @@ namespace clitk
     double m_SourceToScreen;
     double m_SourceToAxis;
     double m_ProjectionAngle;
+    double m_PanelShift;
     MatrixType m_RigidTransformMatrix;
     OutputPixelType m_EdgePaddingValue;
 

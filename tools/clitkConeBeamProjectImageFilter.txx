@@ -114,7 +114,7 @@ namespace clitk
     itk::Matrix<double,4,4> centeredRotationMatrix = GetCenteredRotationMatrix3D(rotationParameters,transformedCenter);
     
     // Compose this rotation with the rigid transform matrix
-    itk::Matrix<double,4,4> finalTransform = centeredRotationMatrix * m_RigidTransformMatrix;
+    itk::Matrix<double,4,4> finalTransform = m_RigidTransformMatrix * centeredRotationMatrix ;
     
     // Set the rotation
     itk::Matrix<double,3,3> finalRotation = GetRotationalPartMatrix3D(finalTransform);
@@ -169,7 +169,7 @@ namespace clitk
     // JV -1 seems to correspond better with shearwarp of Simon Rit
     typename  InterpolatorType::InputPointType originOutput;
     originOutput[0] = m_IsoCenter[0]- (m_SourceToScreen - m_SourceToAxis);
-    originOutput[1] = m_IsoCenter[1]-static_cast<double>(sizeOuput[1]-1)*spacingOutput[1]/2.0;
+    originOutput[1] = m_IsoCenter[1]-static_cast<double>(sizeOuput[1]-1)*spacingOutput[1]/2.0 - m_PanelShift;
     originOutput[2] = m_IsoCenter[2]-static_cast<double>(sizeOuput[2]-1)*spacingOutput[2]/2.0; 
     m_Resampler->SetOutputOrigin( originOutput );
     if (m_Verbose)std::cout<<"The origin of the flat panel is at "<< originOutput <<",..."<< std::endl;
