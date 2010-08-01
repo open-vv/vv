@@ -15,6 +15,7 @@ ADD_LIBRARY(clitkToolsGgoLib ${GGO_C_FILES})
 ADD_LIBRARY(clitkImageConvertLib clitkImageConvertGenericFilter.cxx)
 ADD_LIBRARY(clitkImageResampleLib clitkImageResampleGenericFilter.cxx)
 ADD_LIBRARY(clitkBinarizeImageLib clitkBinarizeImageGenericFilter.cxx)
+TARGET_LINK_LIBRARIES(clitkBinarizeImageLib clitkToolsGgoLib)
 
 IF (CLITK_BUILD_TOOLS)
     WRAP_GGO(clitkDicomInfo_GGO_C clitkDicomInfo.ggo)
