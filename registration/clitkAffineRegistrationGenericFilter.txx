@@ -69,7 +69,7 @@ AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>::AffineRegist
 {
   InitializeImageType<2>();
   InitializeImageType<3>();
-  m_Verbose=false;
+  m_Verbose=true;
 }
 //==========================================================================================================//
 //============================================================================================================//
@@ -157,6 +157,7 @@ void AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>::SetArgs
 {
   m_ArgsInfo=a;
   if (m_ArgsInfo.reference_given) AddInputFilename(m_ArgsInfo.reference_arg);
+
   if (m_ArgsInfo.target_given) {
     AddInputFilename(m_ArgsInfo.target_arg);
   }
@@ -201,7 +202,8 @@ void AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>::UpdateW
 
   //Whatever the pixel type, internally we work with an image represented in float
   typedef typename  InputImageType::PixelType  InternalPixelType;
-  typedef itk::Image< InternalPixelType, InputImageType::ImageDimension > InternalImageType;
+  typedef itk::Image< PixelType, InputImageType::ImageDimension > InternalImageType;
+
 
   //Read in the reference/fixed image
 //  typedef itk::ImageFileReader< InternalImageType > ReaderType;
@@ -377,6 +379,7 @@ void AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>::UpdateW
   movingImagePyramid->SetInput(movingImage);
   movingImagePyramid->SetNumberOfLevels(m_ArgsInfo.levels_arg);
   if (m_Verbose) std::cout<<"Creating the image pyramid..."<<std::endl;
+  
   fixedImagePyramid->Update();
   movingImagePyramid->Update();
 
@@ -456,17 +459,19 @@ void AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>::UpdateW
   genericAffineTransform->SetArgsInfo(m_ArgsInfo);
   typedef itk::Transform< double, InputImageType::ImageDimension, InputImageType::ImageDimension > TransformType;
   typename TransformType::Pointer transform = genericAffineTransform->GetTransform();
+   std::cout<<m_ArgsInfo.transform_arg<<std::endl;
 
 
   //=======================================================
   // Interpolator
   //=======================================================
+  std::cout<<"setting Interpolator..."<<std::endl;
   typedef clitk::GenericInterpolator<args_info_clitkAffineRegistration, InternalImageType,TCoordRep > GenericInterpolatorType;
   typename GenericInterpolatorType::Pointer genericInterpolator=GenericInterpolatorType::New();
   genericInterpolator->SetArgsInfo(m_ArgsInfo);
   typedef itk::InterpolateImageFunction< InternalImageType, TCoordRep >  InterpolatorType;
   typename  InterpolatorType::Pointer interpolator=genericInterpolator->GetInterpolatorPointer();
-
+  std::cout<<"end of interpolator"<<std::endl;
 
   //============================================================================
   // Optimizer
@@ -494,6 +499,7 @@ void AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>::UpdateW
   //============================================================================
   // Multiresolution registration
   //============================================================================
+  std::cout<<"start MultiResolution..."<<std::endl;
   typedef itk::MultiResolutionImageRegistrationMethod< InternalImageType,InternalImageType >  RegistrationType;
   typename  RegistrationType::Pointer registration = RegistrationType::New();
   registration->SetFixedImage( fixedImage  );
@@ -554,7 +560,6 @@ void AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>::UpdateW
   for (unsigned int i=0; i<nParam-InputImageType::ImageDimension; i++)      //Rest
     std::cout << " Other parameter " << i << " = " << finalParameters[i];
 
-
   itk::Matrix<double,InputImageType::ImageDimension+1,InputImageType::ImageDimension+1> matrix;
   if (m_ArgsInfo.transform_arg == 3) {
     for (unsigned int i=0; i<InputImageType::ImageDimension; i++) {
@@ -566,11 +571,12 @@ void AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>::UpdateW
     }
   } else {
     matrix = clitk::GetBackwardAffineMatrix<InputImageType::ImageDimension>(finalParameters);
-  }
+   std::cout<<"outside GetBackWardAffineMatrix...."<<std::endl; 
+}
 
   std::cout << " Affine transform matrix =" << std::endl;
   std::cout << matrix <<std::setprecision(6)<< std::endl;
-
+  std::cout << " End of Registration" << std::endl;
   // Write matrix to a file
   if (m_ArgsInfo.matrix_given) {
     std::ofstream mFile;
@@ -582,7 +588,7 @@ void AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>::UpdateW
   //============================================================================
   // Prepare the resampling filter in order to transform the moving image.
   //============================================================================
-  if (m_ArgsInfo.output_given || m_ArgsInfo.checker_after_given || m_ArgsInfo.after_given ) {
+ // if (m_ArgsInfo.output_given || m_ArgsInfo.checker_after_given || m_ArgsInfo.after_given ) {
     transform->SetParameters( finalParameters );
     typedef itk::ResampleImageFilter< InternalImageType,InternalImageType >    ResampleFilterType;
     typename    ResampleFilterType::Pointer resampler = ResampleFilterType::New();
@@ -593,16 +599,20 @@ void AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>::UpdateW
     resampler->SetOutputOrigin(  fixedImage->GetOrigin() );
     resampler->SetOutputSpacing( fixedImage->GetSpacing() );
     resampler->SetDefaultPixelValue( 0 );
-
+    resampler->Update();
     //Output?
-    if (m_ArgsInfo.output_given) {
+   // if (m_ArgsInfo.output_given) {
       //We write an output in the same pixeltype then the input
-      typedef itk::ImageFileWriter< FixedImageType >  WriterType;
+      /*typedef itk::ImageFileWriter< FixedImageType >  WriterType;
       typename WriterType::Pointer outputWriter =  WriterType::New();
       outputWriter->SetFileName(m_ArgsInfo.output_arg );
       outputWriter->SetInput( resampler->GetOutput()   );
-      outputWriter->Update();
-    }
+      outputWriter->Update();*/
+     typedef InternalImageType OutputImageType;
+     typename OutputImageType::Pointer outputImage = resampler->GetOutput();
+     std::cout<<"Writing Output....."<<std::endl;
+     this->template SetNextOutput<OutputImageType>(outputImage);
+  //  }
 
 
     //============================================================================
@@ -671,7 +681,7 @@ void AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>::UpdateW
       differenceAfterWriter->SetInput( differenceAfterFilter->GetOutput()   );
       differenceAfterWriter->Update();
     }
-  }
+//  }
 
   //============================================================================
   // Difference Before?
