@@ -57,7 +57,6 @@
 #include <iostream>
 #include <iomanip>
 
-struct args_info_clitkImageArithm;
 namespace clitk
 {
 
@@ -100,6 +99,5 @@ public:
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "clitkAffineRegistrationGenericFilter.txx"
 #endif
-
 
 #endif //#define CLITKAFFINEREGISTRATIONGENERICFILTER__H
