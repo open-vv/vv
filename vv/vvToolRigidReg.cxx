@@ -55,9 +55,7 @@ vvToolRigidReg::vvToolRigidReg(vvMainWindowBase * parent, Qt::WindowFlags f):
 //    qsize.setWidth(850);
 //    mToolWidget->setFixedSize(qsize);
 
-
   // Set how many inputs are needed for this tool
- // mFilter = new clitk::AffineTransformGenericFilter<args_info_clitkAffineTransform>;
   mFilter = new clitk::AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>;
 
   // Set how many inputs are needed for this tool
@@ -91,83 +89,49 @@ void vvToolRigidReg::reject()
 
 //------------------------------------------------------------------------------
 void vvToolRigidReg::GetArgsInfoFromGUI()
-{
+{   
+  QFont font=QFont("Times New Roman",10);
+  tab2textedit->setTextColor(QColor(255,0,0));
+  tab2textedit->setCurrentFont(font);
+  tab2textedit->update();
   QString str;
-  str.append("Configs Loaded for AutoRegister...Apply Filter...");
+  QString file = QFileDialog::getOpenFileName(
+                    this,
+		    "Choose the Transformation Parameters file",
+                    mMainWindow->GetInputPathName(),
+                    "Text (*.conf *.txt *.rtf *.doc)");
+    if (file.isEmpty())
+    return;
+   QFile Qfile1(file);
+  // ifstream readfile;
+   std::string configfile= file.toStdString();
+   cmdline_parser_clitkAffineRegistration_configfile(const_cast<char*>(configfile.c_str()),&mArgsInfo,1,1,1);
+   mArgsInfo.gradient_flag=1;
+   
+   //Read from File and display it on the TextBox 2
+   ifstream readfile;
+   std::vector<QString> Qstr;
+   readfile.open(configfile.c_str());
+   if (readfile.is_open()) 
+   {
+    while (!readfile.eof())
+      {
+      readfile >> configfile;
+      Qstr.push_back(QString(configfile.c_str()));
+      }
+      readfile.close();
+   }
+    else {
+      cout << "Unable to open file";
+    }
+    for(unsigned int i=0;i<Qstr.size();i++)
+      {
+    str=tab2textedit->toPlainText();
+    str.append(Qstr.at(i));
     tab2textedit->setText(str);
- /* cmdline_parser_clitkAffineRegistration_configfile("/home/bharath/bin/AffineReg.txt",&mArgsInfo,1,1,0);
-    mArgsInfo.reference_arg=new char;
-  mArgsInfo.target_arg=new char;
-  mArgsInfo.output_arg=new char;
-  mArgsInfo.referenceMask_arg=new char;
-  mArgsInfo.targetMask_arg=new char;
-  mArgsInfo.initMatrix_arg=new char;
-  mArgsInfo.matrix_arg=new char;*/
-  mArgsInfo.referenceMask_given=0;
-  mArgsInfo.reference_given=0;
-  mArgsInfo.reference_arg=new char;
-  mArgsInfo.target_given=0;
-  mArgsInfo.target_arg=new char;
-  mArgsInfo.output_given=0;
-  mArgsInfo.output_arg=new char;
-  mArgsInfo.checker_after_given=0;
-  mArgsInfo.checker_before_given=0;
-  mArgsInfo.after_given=0;
-  mArgsInfo.before_given=0;
- // std::string strouput= "/home/bharath/bin/Lung3Doutput.mhd";
-  //mArgsInfo.output_arg=const_cast<char*>(strouput.c_str());
-  mArgsInfo.threads_given=1;
-  mArgsInfo.threads_arg=3;
-  mArgsInfo.normalize_flag=0;
-  DD("GetArgsInfoFromGUI_2");
-  mArgsInfo.blur_arg=0.0;
-  mArgsInfo.referenceMask_arg=new char;
-  mArgsInfo.targetMask_arg=new char;
-  mArgsInfo.targetMask_given=0;
-  mArgsInfo.levels_given=1;
-  mArgsInfo.levels_arg=2;
-  mArgsInfo.moment_flag=1;
-  mArgsInfo.intThreshold_given=0;
-  mArgsInfo.intThreshold_arg=0.0;
-  mArgsInfo.transX_arg=0.0;
-  mArgsInfo.transY_arg=0.0;
-  mArgsInfo.transZ_arg=0.0;
-  mArgsInfo.transform_arg=2;
-  mArgsInfo.gradient_flag=1;
-  mArgsInfo.interp_given=1;
-  mArgsInfo.interp_arg=1;
-  mArgsInfo.interpOrder_given=1;
-  mArgsInfo.interpOrder_arg=3;
-  mArgsInfo.interpSF_given=1;
-  mArgsInfo.interpSF_arg=20;//default
-  mArgsInfo.metric_given=1;
-  mArgsInfo.metric_arg=0;
-  mArgsInfo.samples_arg=1;//default
-  mArgsInfo.stdDev_arg=0.4;
-  mArgsInfo.step_arg=2.0;
-  mArgsInfo.relax_arg=0.7;
-  mArgsInfo.valueTol_arg=0.01;
-  mArgsInfo.stepTol_arg=0.1;
-  mArgsInfo.gradTol_arg=1e-5;
-  mArgsInfo.lineAcc_arg=0.9;
-  mArgsInfo.convFactor_arg=1e+12;
-  mArgsInfo.maxIt_arg=500;
-  mArgsInfo.maxLineIt_arg=50;
-  mArgsInfo.maxEval_arg=500;
-  mArgsInfo.maxCorr_arg=5;
-  mArgsInfo.selectBound_arg=0;
-  mArgsInfo.inc_arg=1.2;
-  mArgsInfo.dec_arg=4;
-  mArgsInfo.optimizer_arg=1;
-  mArgsInfo.initMatrix_given=0;
-  mArgsInfo.initMatrix_arg=new char;
-   mArgsInfo.tWeight_given=1;
-    mArgsInfo.tWeight_arg=1.0;
-  mArgsInfo.rWeight_given=1.0;
-  mArgsInfo.rWeight_arg=50.0;
-  //  std::string str="/home/bharath/bin/matrix.txt";
- // mArgsInfo.initMatrix_arg=const_cast<char*>(str.c_str());
-  mArgsInfo.matrix_given=0;
+    str.append("\n");
+    tab2textedit->setText(str);
+      }
 }
 //------------------------------------------------------------------------------
 
@@ -189,7 +153,7 @@ void vvToolRigidReg::InputIsSelected(std::vector<vvSlicerManager *> & l)
     QMessageBox::information(this, "Warning","Your Reference and Target Images are the same");
   }
   mTwoInputs = true;
-  SetOverlay();
+  SetOverlay(mInput2->GetImage());
   mImageSize=mInput1->GetImage()->GetSize();
   SetRotationCenter();
   SetSliderRanges();
@@ -234,10 +198,10 @@ void vvToolRigidReg::apply()
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void vvToolRigidReg::SetOverlay()
+void vvToolRigidReg::SetOverlay(vvImage::Pointer Image)
 {
     for (int i =0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
-   mCurrentSlicerManager->GetSlicer(i)->SetOverlay(mInput2->GetImage());
+   mCurrentSlicerManager->GetSlicer(i)->SetOverlay(Image);
    mCurrentSlicerManager->GetSlicer(i)->SetActorVisibility("overlay",0,true);
    mCurrentSlicerManager->SetColorMap();
    mCurrentSlicerManager->Render();
@@ -443,12 +407,13 @@ void vvToolRigidReg::AutoRegister()
     vvImage::Pointer output = filter->GetOutputVVImage();
     DD("filter getoutput done...");
     std::ostringstream osstream;
-    osstream << "Registered" << "_ "
-           << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";
-    AddImage(output,osstream.str());
+    //osstream << "Registered" << "_ "
+      //     << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";
+    //AddImage(output,osstream.str());
+     SetOverlay(output);
    
     QApplication::restoreOverrideCursor();
-    close();
+   // close();
 }
 //------------------------------------------------------------------------------
 
@@ -526,7 +491,7 @@ void vvToolRigidReg::SaveFile()
 //------------------------------------------------------------------------------
 void vvToolRigidReg::ReadFile()
 {
-    std::string x;
+   std::string x;
    QString center;
    double * orientations=new double[3];
    double * translations=new double[3];
@@ -583,7 +548,6 @@ void vvToolRigidReg::ReadFile()
     InitializeSliders(rint(translations[0]),rint(translations[1])
     ,rint(translations[2]),rint(orientations[0]),rint(orientations[1]),rint(orientations[2]),true);
     SetTransform(matrix);
-
 }
 //------------------------------------------------------------------------------
 
