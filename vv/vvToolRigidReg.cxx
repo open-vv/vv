@@ -526,7 +526,7 @@ void vvToolRigidReg::SaveFile()
 //------------------------------------------------------------------------------
 void vvToolRigidReg::ReadFile()
 {
-   std::string x;
+    std::string x;
    QString center;
    double * orientations=new double[3];
    double * translations=new double[3];
@@ -534,13 +534,33 @@ void vvToolRigidReg::ReadFile()
    vtkSmartPointer<vtkTransform> transform = mCurrentSlicerManager->GetImage()->GetTransform();
 
    //Open File to read the transformation parameters
-  
+   QString file1 = QFileDialog::getOpenFileName(
+                    this,
+		    "Choose the Transformation Parameters file",
+                    mMainWindow->GetInputPathName(),
+                    "Text (*.mat *.txt *.rtf *.doc)");
+    if (file1.isEmpty())
+    return;
+   QFile Qfile1(file1);
+  // ifstream readfile;
+   std::string transfile= file1.toStdString();
+   std::string filename1(transfile);
+   std::ifstream f1(filename1.c_str());
+   if(f1.is_open())
+   {
+   f1.close();
+   itk::Matrix<double, 4, 4> itkMat = clitk::ReadMatrix3D(transfile);
+   for(int j=0; j<4; j++)
+      for(int i=0; i<4; i++)
+    matrix->SetElement(i,j,itkMat[i][j]);
+   }
+    UpdateTextEditor(matrix,textEdit);
     transform->SetMatrix(matrix);
     transform->GetOrientation(orientations);
     transform->PostMultiply();
 
      //Obtain the Rotation Center , set it to origin
-    Xval->setText(center.setNum(0));		
+    Xval->setText(center.setNum(0));
     Yval->setText(center.setNum(0));
     Zval->setText(center.setNum(0));
 
@@ -563,6 +583,7 @@ void vvToolRigidReg::ReadFile()
     InitializeSliders(rint(translations[0]),rint(translations[1])
     ,rint(translations[2]),rint(orientations[0]),rint(orientations[1]),rint(orientations[2]),true);
     SetTransform(matrix);
+
 }
 //------------------------------------------------------------------------------
 
