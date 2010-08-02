@@ -169,6 +169,7 @@ namespace clitk
     // JV -1 seems to correspond better with shearwarp of Simon Rit
     typename  InterpolatorType::InputPointType originOutput;
     originOutput[0] = m_IsoCenter[0]- (m_SourceToScreen - m_SourceToAxis);
+    DD(m_PanelShift);
     originOutput[1] = m_IsoCenter[1]-static_cast<double>(sizeOuput[1]-1)*spacingOutput[1]/2.0 - m_PanelShift;
     originOutput[2] = m_IsoCenter[2]-static_cast<double>(sizeOuput[2]-1)*spacingOutput[2]/2.0; 
     m_Resampler->SetOutputOrigin( originOutput );
