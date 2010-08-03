@@ -56,7 +56,7 @@ vvToolRigidReg::vvToolRigidReg(vvMainWindowBase * parent, Qt::WindowFlags f):
 //    mToolWidget->setFixedSize(qsize);
 
   // Set how many inputs are needed for this tool
-  mFilter = new clitk::AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>;
+  mFilter = new clitk::AffineRegistrationGenericFilter;
 
   // Set how many inputs are needed for this tool
  AddInputSelector("Select moving image",mFilter);
@@ -396,8 +396,8 @@ void vvToolRigidReg::AutoRegister()
     inputs.push_back(mInput2->GetImage());
     // Check input type
     // Main filter
-    clitk::AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>::Pointer filter =
-    clitk::AffineRegistrationGenericFilter<args_info_clitkAffineRegistration>::New();
+    clitk::AffineRegistrationGenericFilter::Pointer filter =
+    clitk::AffineRegistrationGenericFilter::New();
     filter->SetInputVVImages(inputs);
     filter->SetArgsInfo(mArgsInfo);
     DD("ArgsInfo given in");

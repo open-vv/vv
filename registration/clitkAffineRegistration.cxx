@@ -29,7 +29,7 @@ int main( int argc, char *argv[] )
 
   //===========================================================================
   //Set all the options passed through the commandline
-  typedef clitk::AffineRegistrationGenericFilter<args_info_clitkAffineRegistration> FilterType;
+  typedef clitk::AffineRegistrationGenericFilter FilterType;
   FilterType::Pointer genericFilter = FilterType::New();
   genericFilter->SetArgsInfo(args_info);
   genericFilter->Update();

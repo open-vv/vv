@@ -61,9 +61,8 @@ namespace clitk
 {
 
 //====================================================================
-template<class args_info_clitkAffineRegistration>
 class ITK_EXPORT AffineRegistrationGenericFilter:
-    public ImageToImageGenericFilter<AffineRegistrationGenericFilter<args_info_clitkAffineRegistration> >
+    public ImageToImageGenericFilter<AffineRegistrationGenericFilter>
 {
 public:
 
@@ -95,9 +94,5 @@ public:
   void UpdateWithInputImageType();
 };
 }
-
-#ifndef ITK_MANUAL_INSTANTIATION
-#include "clitkAffineRegistrationGenericFilter.txx"
-#endif
 
 #endif //#define CLITKAFFINEREGISTRATIONGENERICFILTER__H
