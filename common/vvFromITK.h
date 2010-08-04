@@ -80,7 +80,7 @@ template<unsigned int Dim, class PixelType> vvImage::Pointer vvImageFromITK(type
                 return vv_image;
             }
             vtkImageData *image = vtkImageData::New();
-            image->DeepCopy(connector->GetOutput());
+            image->ShallowCopy(connector->GetOutput());
             vv_image->AddImage(image);
         }
         vv_image->SetTimeSpacing(input->GetSpacing()[Dim-1]);
@@ -102,7 +102,7 @@ template<unsigned int Dim, class PixelType> vvImage::Pointer vvImageFromITK(type
             return vv_image;
         }
         vtkImageData *image = vtkImageData::New();
-        image->DeepCopy(connector->GetOutput());
+        image->ShallowCopy(connector->GetOutput());
         vv_image->AddImage(image);
     }
     return vv_image;

@@ -100,8 +100,9 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
         std::cerr << "Error while setting vvImage from ITK (MERGEDWITHTIME)"
                   << " " << err << std::endl;
       }
-      vtkImageData *image = vtkImageData::New();
-      image->DeepCopy(connector->GetOutput());
+      //vtkImageData *image = vtkImageData::New();
+      //image->ShallowCopy(connector->GetOutput());
+      vtkImageData *image = connector->GetOutput();
       mImage->AddImage(image);
     }
   } else {
