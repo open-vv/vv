@@ -39,6 +39,7 @@ namespace clitk {
     void Print(std::ostream & os = std::cout) const;
     bool Read(gdcm::SQItem * item);
     vtkPolyData * GetMesh();
+    vtkPoints * GetPoints() {return mData;}
     
   protected:
     void ComputeMesh();

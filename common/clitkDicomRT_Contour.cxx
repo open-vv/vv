@@ -53,9 +53,13 @@ bool clitk::DicomRT_Contour::Read(gdcm::SQItem * item)
   // Contour type [Contour Geometric Type]
   mType = item->GetEntryValue(0x3006,0x0042);
   // DD(mType);
-  if (mType != "CLOSED_PLANAR ") { ///WARNING to the space after the name ...
-    std::cerr << "Skip this contour : type=" << mType << std::endl;
+  if (mType != "CLOSED_PLANAR " && mType != "POINT ") { ///WARNING to the space after the name ...
+    //std::cerr << "Skip this contour : type=" << mType << std::endl;
     return false;
+  }
+  if (mType == "POINT ") {
+    std::cout << "Warning: POINT type not fully supported. (don't use GetMesh() with this!)"
+      << std::endl;
   }
 
   // Number of points [Number of Contour Points]

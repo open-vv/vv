@@ -56,6 +56,7 @@ namespace clitk {
     void SetForegroundValueLabelImage(double bg);
     
     void SetImage(vvImage * im);
+    DicomRT_Contour* GetContour(int n);
     
   protected:
     void ComputeMesh();

@@ -163,13 +163,15 @@ void vvToolPlastimatch::apply()
   GetOptionsFromGUI();
 
   // Create the command string
-  char *command_string =
+  /*
+  const char *command_string =
     "[STAGE]\n"
     "xform=bspline\n"
     "max_its=30\n"
     "grid_spac=100 100 100\n"
     "res=4 4 2\n"
     ;
+    */
 
   // Prepare the registration
   /*

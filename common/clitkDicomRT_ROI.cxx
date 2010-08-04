@@ -173,7 +173,10 @@ vtkPolyData * clitk::DicomRT_ROI::GetMesh()
   return mMesh;
 }
 //--------------------------------------------------------------------
-
+clitk::DicomRT_Contour * clitk::DicomRT_ROI::GetContour(int n)
+{
+  return mListOfContours[n];
+}
 
 //--------------------------------------------------------------------
 void clitk::DicomRT_ROI::ComputeMesh()
