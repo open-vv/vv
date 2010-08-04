@@ -36,6 +36,7 @@
 #include <QComboBox>
 #include <QCursor>
 
+
 //------------------------------------------------------------------------------
 // Create the tool and automagically (I like this word) insert it in
 // the main window menu.
@@ -54,10 +55,9 @@ vvToolRigidReg::vvToolRigidReg(vvMainWindowBase * parent, Qt::WindowFlags f):
 //    qsize.setHeight(470);
 //    qsize.setWidth(850);
 //    mToolWidget->setFixedSize(qsize);
-
   // Set how many inputs are needed for this tool
   mFilter = new clitk::AffineRegistrationGenericFilter;
-
+  
   // Set how many inputs are needed for this tool
  AddInputSelector("Select moving image",mFilter);
  AddInputSelector("Select fixed image",mFilter);
@@ -90,6 +90,7 @@ void vvToolRigidReg::reject()
 //------------------------------------------------------------------------------
 void vvToolRigidReg::GetArgsInfoFromGUI()
 {   
+  
   QFont font=QFont("Times New Roman",10);
   tab2textedit->setTextColor(QColor(255,0,0));
   tab2textedit->setCurrentFont(font);
@@ -107,6 +108,7 @@ void vvToolRigidReg::GetArgsInfoFromGUI()
    std::string configfile= file.toStdString();
    cmdline_parser_clitkAffineRegistration_configfile(const_cast<char*>(configfile.c_str()),&mArgsInfo,1,1,1);
    mArgsInfo.gradient_flag=1;
+   DD(mArgsInfo.matrix_arg);
    
    //Read from File and display it on the TextBox 2
    ifstream readfile;
@@ -132,6 +134,14 @@ void vvToolRigidReg::GetArgsInfoFromGUI()
     str.append("\n");
     tab2textedit->setText(str);
       }
+      
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvToolRigidReg::InitializeComboBox()
+{
+ 
 }
 //------------------------------------------------------------------------------
 
@@ -144,9 +154,14 @@ void vvToolRigidReg::InputIsSelected(std::vector<vvSlicerManager *> & l)
 
   UpdateTextEditor(mCurrentSlicerManager->GetImage()->GetTransform()->GetMatrix(),textEdit_2);
 
+  DD(*mCurrentSlicerManager->GetImage()->GetTransform()->GetMatrix());
   for(int i =0;i<4;i++)
+  {
     for(int j=0;j<4;j++)
-     mInitialMatrix[i*4+j]=mCurrentSlicerManager->GetImage()->GetTransform()->GetMatrix()->GetElement(i,j);
+    {
+      mInitialMatrix[i*4+j]=mCurrentSlicerManager->GetImage()->GetTransform()->GetMatrix()->GetElement(i,j);
+    }
+  }
 
   if(mInput1->GetFileName()==mInput2->GetFileName())
   {
@@ -186,7 +201,6 @@ void vvToolRigidReg::InputIsSelected(std::vector<vvSlicerManager *> & l)
    
    connect(loadbutton, SIGNAL(pressed()), this, SLOT(ReadFile()));
    connect(savebutton, SIGNAL(pressed()), this, SLOT(SaveFile()));
-
 }
 //------------------------------------------------------------------------------
 
@@ -367,7 +381,7 @@ void vvToolRigidReg::UpdateTransform_sliders()
 			 ztrans_slider->value()*mInput1->GetImage()->GetSpacing()[2],
 			xrot_slider->value(),yrot_slider->value(),zrot_slider->value(),false);
         UpdateTransform(true);
-       // Render();
+        Render();
 }
 //------------------------------------------------------------------------------
 
@@ -378,9 +392,8 @@ void vvToolRigidReg::UpdateTransform_sb()
       ytrans_sb->value(),
       ztrans_sb->value(),
 			xrot_sb->value(),yrot_sb->value(),zrot_sb->value(),false);
-			DD(xtrans_sb->value());
       UpdateTransform(false);
-   //   Render();
+      Render();
 }
 //------------------------------------------------------------------------------
 
@@ -389,7 +402,6 @@ void vvToolRigidReg::AutoRegister()
 { 
     if (!mCurrentSlicerManager) close();
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-  
     std::vector<vvImage::Pointer> inputs;
     // Input
     inputs.push_back(mInput1->GetImage());
@@ -406,14 +418,11 @@ void vvToolRigidReg::AutoRegister()
     DD("I am done...! Updated");
     vvImage::Pointer output = filter->GetOutputVVImage();
     DD("filter getoutput done...");
-    std::ostringstream osstream;
     //osstream << "Registered" << "_ "
       //     << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";
     //AddImage(output,osstream.str());
-     SetOverlay(output);
-   
     QApplication::restoreOverrideCursor();
-   // close();
+  // ReadFile();
 }
 //------------------------------------------------------------------------------
 
@@ -541,6 +550,9 @@ void vvToolRigidReg::ReadFile()
     DD(translations[0]/mInput1->GetImage()->GetSpacing()[0]);
     DD(translations[1]/mInput1->GetImage()->GetSpacing()[1]);
     DD(translations[2]/mInput1->GetImage()->GetSpacing()[2]);
+    DD(mInput1->GetImage()->GetSpacing()[0]);
+    DD(mInput1->GetImage()->GetSpacing()[1]);
+    DD(mInput1->GetImage()->GetSpacing()[2]);
     DD(orientations[0]);
     DD(orientations[1]);
     DD(orientations[2]);
@@ -600,16 +612,17 @@ void vvToolRigidReg::InitializeSliders(double xtrans,double ytrans, double ztran
     ztrans_sb->setSingleStep(mInput1->GetImage()->GetSpacing()[2]);
     ztrans_sb->setValue(ztrans);
     ztrans_sb->blockSignals(false);
+    DD(ytrans);
 
     if(sliders){
     xtrans_slider->blockSignals(true);
-    xtrans_slider->setValue(rint(xtrans));
+    xtrans_slider->setValue(rint(xtrans/mInput1->GetImage()->GetSpacing()[0]));
     xtrans_slider->blockSignals(false);
     ytrans_slider->blockSignals(true);
-    ytrans_slider->setValue(rint(ytrans));
+    ytrans_slider->setValue(rint(ytrans/mInput1->GetImage()->GetSpacing()[1]));
     ytrans_slider->blockSignals(false);
     ztrans_slider->blockSignals(true);
-    ztrans_slider->setValue(rint(ztrans));
+    ztrans_slider->setValue(rint(ztrans/mInput1->GetImage()->GetSpacing()[2]));
     ztrans_slider->blockSignals(false);
     }
     xrot_sb->blockSignals(true);
