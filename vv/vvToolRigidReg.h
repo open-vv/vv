@@ -70,6 +70,7 @@ public slots:
   void SetRotationCenter();
   void SetSliderRanges();
   void InitializeSliders(double xtrans,double ytrans, double ztrans, double xrot, double yrot, double zrot,bool sliders);
+  void InitializeComboBox();
   protected:
   Ui::vvToolRigidReg ui;
   vvSlicerManager * mInput1;
