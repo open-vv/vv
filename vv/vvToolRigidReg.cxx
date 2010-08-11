@@ -57,6 +57,18 @@ vvToolRigidReg::vvToolRigidReg(vvMainWindowBase * parent, Qt::WindowFlags f):
 //    mToolWidget->setFixedSize(qsize);
   // Set how many inputs are needed for this tool
   mFilter = new clitk::AffineRegistrationGenericFilter;
+  cb_transform->hide();
+  cb_interpolator->hide();
+  cb_optimizer->hide();
+  cb_metric->hide();
+  cb_selectoutput->hide();
+  cb_presets->hide();
+  translabel->hide();
+  metriclabel->hide();
+  outputlabel->hide();
+  optimlabel->hide();
+  interpollabel->hide();
+  presetlabel->hide();
   
   // Set how many inputs are needed for this tool
  AddInputSelector("Select moving image",mFilter);
@@ -90,43 +102,502 @@ void vvToolRigidReg::reject()
 //------------------------------------------------------------------------------
 void vvToolRigidReg::GetArgsInfoFromGUI()
 {   
-  
-  QFont font=QFont("Times New Roman",10);
+  QFont font=QFont("Courier",10);
   tab2textedit->setTextColor(QColor(255,0,0));
   tab2textedit->setCurrentFont(font);
   tab2textedit->update();
-  QString str;
+   
   QString file = QFileDialog::getOpenFileName(
                     this,
-		    "Choose the Transformation Parameters file",
+		    "Locate the Config File",
                     mMainWindow->GetInputPathName(),
                     "Text (*.conf *.txt *.rtf *.doc)");
-    if (file.isEmpty())
-    return;
-   QFile Qfile1(file);
-  // ifstream readfile;
-   std::string configfile= file.toStdString();
-   cmdline_parser_clitkAffineRegistration_configfile(const_cast<char*>(configfile.c_str()),&mArgsInfo,1,1,1);
+  
+  DD(file.toStdString());		    
+  if (file.isEmpty())
+  return;
+  
+  QFile Qfile1(file);
+  mConfigFile= file.toStdString();
+  CmdlineParser(1, 1);//1,1 - override, initialize
+  cb_transform->show();
+  cb_metric->show();
+  cb_interpolator->show();
+  cb_optimizer->show();
+  cb_selectoutput->show();
+  translabel->show();
+  metriclabel->show();
+  outputlabel->show();
+  optimlabel->show();
+  interpollabel->show();
+  cb_transform->setCurrentIndex(mArgsInfo.transform_arg);
+  cb_interpolator->setCurrentIndex(mArgsInfo.interp_arg);
+  cb_optimizer->setCurrentIndex(mArgsInfo.optimizer_arg);
+  cb_metric->setCurrentIndex(mArgsInfo.metric_arg);
+  DD(cb_transform->currentIndex());
+  DD(mArgsInfo.transform_arg);
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvToolRigidReg::Presets()
+{
+  mConfigFile="Presets";
+if(cb_presets->currentIndex()==0)
+{
+    mArgsInfo.reference_arg=new char; 	
+    mArgsInfo.reference_given=0;
+    mArgsInfo.target_arg=new char; 	 
+    mArgsInfo.target_given=0;
+    mArgsInfo.output_arg=new char; 	 
+    mArgsInfo.referenceMask_arg=new char; 	 
+    mArgsInfo.targetMask_arg=new char; 	 
+    mArgsInfo.initMatrix_arg=new char; 	 
+    mArgsInfo.matrix_arg=new char;
+    mArgsInfo.referenceMask_given=0; 	 
+    mArgsInfo.reference_given=0; 	 
+    mArgsInfo.reference_arg=new char; 	 
+    mArgsInfo.target_given=0; 	 
+    mArgsInfo.target_arg=new char; 	 
+    mArgsInfo.output_given=0; 	 
+    mArgsInfo.output_arg=new char; 	 
+    mArgsInfo.checker_after_given=0; 	 
+    mArgsInfo.checker_before_given=0; 	 
+    mArgsInfo.after_given=0; 	 
+    mArgsInfo.before_given=0; 	 
+    mArgsInfo.threads_given=1; 	 
+    mArgsInfo.threads_arg=3; 	 
+    mArgsInfo.normalize_flag=0; 	 
+    mArgsInfo.blur_arg=0.0; 	 
+    mArgsInfo.referenceMask_arg=new char; 	 
+    mArgsInfo.targetMask_arg=new char; 	 
+    mArgsInfo.targetMask_given=0; 	 
+    mArgsInfo.levels_given=1; 	 
+    mArgsInfo.levels_arg=2; 	 
+    mArgsInfo.moment_flag=1; 	 
+    mArgsInfo.intThreshold_given=0; 	 
+    mArgsInfo.intThreshold_arg=0.0; 	 
+    mArgsInfo.transX_arg=0.0; 	 
+    mArgsInfo.transY_arg=0.0; 	 
+    mArgsInfo.transZ_arg=0.0; 	 
+    mArgsInfo.transform_arg=2; 	 
+    mArgsInfo.gradient_flag=1; 	 
+    mArgsInfo.interp_given=1; 	 
+    mArgsInfo.interp_arg=1; 	 
+    mArgsInfo.interpOrder_given=1; 	 
+    mArgsInfo.interpOrder_arg=3; 	 
+    mArgsInfo.interpSF_given=1; 	 
+    mArgsInfo.interpSF_arg=20;//default 	 
+    mArgsInfo.metric_given=1; 	 
+    mArgsInfo.metric_arg=0; 	 
+    mArgsInfo.samples_arg=1;//default 	 
+    mArgsInfo.stdDev_arg=0.4; 	 
+    mArgsInfo.step_arg=2.0; 	 
+    mArgsInfo.relax_arg=0.7; 	 
+    mArgsInfo.valueTol_arg=0.01; 	 
+    mArgsInfo.stepTol_arg=0.1; 	 
+    mArgsInfo.gradTol_arg=1e-5; 	 
+    mArgsInfo.lineAcc_arg=0.9; 	 
+    mArgsInfo.convFactor_arg=1e+12; 	 
+    mArgsInfo.maxIt_arg=500; 	 
+    mArgsInfo.maxLineIt_arg=50; 	 
+    mArgsInfo.maxEval_arg=500; 	 
+    mArgsInfo.maxCorr_arg=5; 	 
+    mArgsInfo.selectBound_arg=0; 	 
+    mArgsInfo.inc_arg=1.2; 	 
+    mArgsInfo.dec_arg=4; 	 
+    mArgsInfo.optimizer_arg=1; 	 
+    mArgsInfo.initMatrix_given=0; 	 
+    mArgsInfo.initMatrix_arg=new char; 	 
+    mArgsInfo.tWeight_given=1; 	 
+    mArgsInfo.tWeight_arg=1.0; 	 
+    mArgsInfo.rWeight_given=1.0; 	 
+    mArgsInfo.rWeight_arg=50.0; 	 
+    mArgsInfo.matrix_given=1;
+    mArgsInfo.matrix_arg="/home/bharath/bin/writematrix.txt";
+    UpdateTextEditor2();
+}
+else {
+  QMessageBox::information(this,"Sorry", "Other Presets are not available for the moment!");
+  return;
+ }
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvToolRigidReg::UpdateTextEditor2()
+{
+    QString str1,str2,str3;
+    QColor color;
+    tab2textedit->clear();
+    tab2textedit->setAcceptRichText(true);
+    str2=tab2textedit->toPlainText();
+    tab2textedit->setTextColor(QColor(255,0,0));
+    str2.append(str3.append("threads="+str1.setNum(mArgsInfo.threads_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("reference="+str1.append(mArgsInfo.reference_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("target="+str1.append(mArgsInfo.target_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("matrix="+str1.append(mArgsInfo.matrix_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("interp="+str1.setNum(mArgsInfo.interp_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("transform="+str1.setNum(mArgsInfo.transform_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("transX="+str1.setNum(mArgsInfo.transX_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("transY="+str1.setNum(mArgsInfo.transY_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("transZ="+str1.setNum(mArgsInfo.transZ_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("metric="+str1.setNum(mArgsInfo.metric_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("samples="+str1.setNum(mArgsInfo.samples_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("intThreshold="+str1.setNum(mArgsInfo.intThreshold_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("stdDev="+str1.setNum(mArgsInfo.stdDev_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("blur="+str1.setNum(mArgsInfo.blur_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("optimizer="+str1.setNum(mArgsInfo.optimizer_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("step="+str1.setNum(mArgsInfo.step_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("relax="+str1.setNum(mArgsInfo.relax_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("valueTol="+str1.setNum(mArgsInfo.valueTol_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+    
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("stepTol="+str1.setNum(mArgsInfo.stepTol_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("gradTol="+str1.setNum(mArgsInfo.gradTol_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("lineAcc="+str1.setNum(mArgsInfo.lineAcc_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("convFactor="+str1.setNum(mArgsInfo.convFactor_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("maxIt="+str1.setNum(mArgsInfo.maxIt_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+ 
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("maxLineIt="+str1.setNum(mArgsInfo.maxLineIt_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+    str2=tab2textedit->toPlainText();
+    str2.append(str3.append("maxEval="+str1.setNum(mArgsInfo.maxEval_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+      str2=tab2textedit->toPlainText();
+    str2.append(str3.append("maxCorr="+str1.setNum(mArgsInfo.maxCorr_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+      str2=tab2textedit->toPlainText();
+    str2.append(str3.append("selectBound="+str1.setNum(mArgsInfo.selectBound_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+      str2=tab2textedit->toPlainText();
+    str2.append(str3.append("rWeight="+str1.setNum(mArgsInfo.rWeight_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+      str2=tab2textedit->toPlainText();
+    str2.append(str3.append("tWeight="+str1.setNum(mArgsInfo.tWeight_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+      str2=tab2textedit->toPlainText();
+    str2.append(str3.append("levels="+str1.setNum(mArgsInfo.levels_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+      str2=tab2textedit->toPlainText();
+    str2.append(str3.append("inc="+str1.setNum(mArgsInfo.inc_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+    
+      str2=tab2textedit->toPlainText();
+    str2.append(str3.append("dec="+str1.setNum(mArgsInfo.dec_arg)));
+    tab2textedit->setText(str2);
+    str3.clear();
+    str1.clear();
+
+    str2=tab2textedit->toPlainText();
+    str2.append("\n");
+    tab2textedit->setText(str2);
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvToolRigidReg::TransformSelect()
+{
+   mArgsInfo.transform_arg=cb_transform->currentIndex();
+   UpdateTextEditor2();
+}
+//------------------------------------------------------------------------------
+  
+//------------------------------------------------------------------------------
+void vvToolRigidReg::CmdlineParser(int override, int initialize)
+{
+   //0 opened, 1 not opened fine
+   int opened=cmdline_parser_clitkAffineRegistration_configfile(const_cast<char*>(mConfigFile.c_str()),&mArgsInfo,override,initialize,1);
+   DD(opened);
    mArgsInfo.gradient_flag=1;
-   DD(mArgsInfo.matrix_arg);
-   
-   //Read from File and display it on the TextBox 2
+   QString str;
+   //Read the transformation parameters from the  path in the config file(mArgsInfo.matrix_arg) and display it on the TextBox 2
    ifstream readfile;
    std::vector<QString> Qstr;
-   readfile.open(configfile.c_str());
+   
+   if(!opened){
+   readfile.open(mConfigFile.c_str());
+   }
+   else{
+   QMessageBox::information(this,"Warning","Load the Config File First..");
+   }
    if (readfile.is_open()) 
-   {
+   { 
     while (!readfile.eof())
       {
-      readfile >> configfile;
-      Qstr.push_back(QString(configfile.c_str()));
+      readfile >> mConfigFile;
+      Qstr.push_back(QString(mConfigFile.c_str()));
       }
       readfile.close();
    }
     else {
-      cout << "Unable to open file";
+      QMessageBox::information(this,"Warning","Cannot Open File!");
+      return;
     }
-    for(unsigned int i=0;i<Qstr.size();i++)
+     for(unsigned int i=0;i<Qstr.size()-1;i++)
       {
     str=tab2textedit->toPlainText();
     str.append(Qstr.at(i));
@@ -134,14 +605,60 @@ void vvToolRigidReg::GetArgsInfoFromGUI()
     str.append("\n");
     tab2textedit->setText(str);
       }
-      
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void vvToolRigidReg::InitializeComboBox()
+void vvToolRigidReg::OptimizerSelect()
+{
+ mArgsInfo.optimizer_arg=cb_optimizer->currentIndex();
+  UpdateTextEditor2();
+ 
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvToolRigidReg::InterpolatorSelect()
+{
+ mArgsInfo.interp_arg=cb_interpolator->currentIndex();
+ UpdateTextEditor2();
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvToolRigidReg::MetricSelect()
+{
+ mArgsInfo.metric_arg=cb_metric->currentIndex();
+ UpdateTextEditor2();
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvToolRigidReg::OutputSelect()
 {
  
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvToolRigidReg::SaveTextEdit()
+{
+     DD(mArgsInfo.transform_arg);
+   QString f1 = QFileDialog::getSaveFileName(this, tr("Save Config File"),
+                                              mMainWindow->GetInputPathName(),
+                                              tr("Text (*.mat *.txt *.doc *.rtf)"));
+   QFile file(f1);				      
+   if(file.open(QFile::WriteOnly | QFile::Truncate) & !mConfigFile.empty() ){
+   QTextStream stream( &file );
+   stream << tab2textedit->toPlainText();
+     }
+    else
+     {
+      QMessageBox::information(this,"Warning","Nothing to Save!");
+      return;
+     }
+   tab2textedit->clear();
+   DD(mArgsInfo.transform_arg);
 }
 //------------------------------------------------------------------------------
 
@@ -151,7 +668,6 @@ void vvToolRigidReg::InputIsSelected(std::vector<vvSlicerManager *> & l)
   //inputs
   mInput1 = l[0];
   mInput2 = l[1];
-
   UpdateTextEditor(mCurrentSlicerManager->GetImage()->GetTransform()->GetMatrix(),textEdit_2);
 
   DD(*mCurrentSlicerManager->GetImage()->GetTransform()->GetMatrix());
@@ -199,8 +715,17 @@ void vvToolRigidReg::InputIsSelected(std::vector<vvSlicerManager *> & l)
    connect(yrot_sb, SIGNAL(valueChanged(double)), this, SLOT(UpdateTransform_sb()));
    connect(zrot_sb, SIGNAL(valueChanged(double)), this, SLOT(UpdateTransform_sb()));
    
-   connect(loadbutton, SIGNAL(pressed()), this, SLOT(ReadFile()));
+   connect(loadbutton, SIGNAL(pressed()), this, SLOT(LoadFile()));
    connect(savebutton, SIGNAL(pressed()), this, SLOT(SaveFile()));
+   
+   connect(cb_presets, SIGNAL(activated(int)), this, SLOT(Presets()));
+   connect(cb_transform, SIGNAL(activated(int)), this, SLOT(TransformSelect()));
+   connect(cb_optimizer, SIGNAL(activated(int)), this, SLOT(OptimizerSelect()));
+   connect(cb_interpolator, SIGNAL(activated(int)), this, SLOT(InterpolatorSelect()));
+   connect(cb_metric, SIGNAL(activated(int)), this, SLOT(MetricSelect()));
+   connect(cb_selectoutput, SIGNAL(activated(int)), this, SLOT(OutputSelect()));
+   connect(tab2savebutton, SIGNAL(pressed()), this, SLOT(SaveTextEdit()));
+   
 }
 //------------------------------------------------------------------------------
 
@@ -283,7 +808,7 @@ void vvToolRigidReg::SetTransform(double tX, double tY, double tZ, double aX, do
 //------------------------------------------------------------------------------
 void vvToolRigidReg::SetTransform(vtkMatrix4x4 *matrix)
 {
-    vtkSmartPointer<vtkTransform> transform=vtkSmartPointer<vtkTransform>::New();
+   vtkSmartPointer<vtkTransform> transform=vtkSmartPointer<vtkTransform>::New();
     for(int i=0; i<4;i++)
       for(int j=0;j<4;j++)
     mCurrentSlicerManager->GetImage()->GetTransform()->GetMatrix()->SetElement(i,j,matrix->GetElement(i,j));
@@ -291,13 +816,20 @@ void vvToolRigidReg::SetTransform(vtkMatrix4x4 *matrix)
     Render();
 }
 //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvToolRigidReg::LoadFile()
+{
+  ReadFile(false);
+}
+//------------------------------------------------------------------------------
   
 //------------------------------------------------------------------------------
 void vvToolRigidReg::Render()
 {
-    for (int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
+  for (int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
        mCurrentSlicerManager->GetSlicer(i)->ForceUpdateDisplayExtent();
-      mCurrentSlicerManager->GetSlicer(i)->Render();
+       mCurrentSlicerManager->GetSlicer(i)->Render();
       }
 }
 //------------------------------------------------------------------------------
@@ -305,7 +837,7 @@ void vvToolRigidReg::Render()
 //------------------------------------------------------------------------------
   void vvToolRigidReg::UpdateTextEditor(vtkMatrix4x4 *matrix,QTextEdit* textEdit)
 {
-    QFont font=QFont("Times New Roman",11);
+    QFont font=QFont("Courier",11);
     textEdit->setCurrentFont(font);
     textEdit->update();
 
@@ -401,7 +933,8 @@ void vvToolRigidReg::UpdateTransform_sb()
 void vvToolRigidReg::AutoRegister()
 { 
     if (!mCurrentSlicerManager) close();
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    
+    if(!mConfigFile.empty()){
     std::vector<vvImage::Pointer> inputs;
     // Input
     inputs.push_back(mInput1->GetImage());
@@ -415,21 +948,25 @@ void vvToolRigidReg::AutoRegister()
     DD("ArgsInfo given in");
     filter->EnableReadOnDisk(false);
     filter->Update();
-    DD("I am done...! Updated");
     vvImage::Pointer output = filter->GetOutputVVImage();
-    DD("filter getoutput done...");
     //osstream << "Registered" << "_ "
       //     << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";
     //AddImage(output,osstream.str());
     QApplication::restoreOverrideCursor();
-  // ReadFile();
+    ReadFile(true);
+    }
+    else
+    {
+      QMessageBox::information(this, "Warning","Load the Config File First!...");
+      return;
+    }
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvToolRigidReg::UpdateTransform(bool slider_enabled)
 {
-     vtkSmartPointer<vtkTransform> transform_final=vtkSmartPointer<vtkTransform>::New();
+     vtkSmartPointer<vtkTransform> transform_final=mInput1->GetImage()->GetTransform();
      transform_final->SetMatrix(mInitialMatrix);
      transform_final->PostMultiply();
   //Rotations
@@ -460,7 +997,8 @@ void vvToolRigidReg::UpdateTransform(bool slider_enabled)
     transform_final->Translate(0,ytrans_sb->value(),0);
     transform_final->Translate(0,0,ztrans_sb->value());
     }
-    SetTransform(transform_final->GetMatrix());
+    transform_final->Update();
+    Render();
     UpdateTextEditor(transform_final->GetMatrix(),textEdit);
 }
 //------------------------------------------------------------------------------
@@ -498,15 +1036,17 @@ void vvToolRigidReg::SaveFile()
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void vvToolRigidReg::ReadFile()
+void vvToolRigidReg::ReadFile(bool matrix_given)
 {
    std::string x;
    QString center;
    double * orientations=new double[3];
    double * translations=new double[3];
    vtkMatrix4x4 *matrix=vtkMatrix4x4::New();
+   std::string transfile;
    vtkSmartPointer<vtkTransform> transform = mCurrentSlicerManager->GetImage()->GetTransform();
-
+   if(!matrix_given)
+   {
    //Open File to read the transformation parameters
    QString file1 = QFileDialog::getOpenFileName(
                     this,
@@ -517,7 +1057,13 @@ void vvToolRigidReg::ReadFile()
     return;
    QFile Qfile1(file1);
   // ifstream readfile;
-   std::string transfile= file1.toStdString();
+   transfile= file1.toStdString();
+   }
+   else
+   {
+    transfile=mArgsInfo.matrix_arg;
+    DD(transfile);
+   }
    std::string filename1(transfile);
    std::ifstream f1(filename1.c_str());
    if(f1.is_open())
@@ -526,7 +1072,7 @@ void vvToolRigidReg::ReadFile()
    itk::Matrix<double, 4, 4> itkMat = clitk::ReadMatrix3D(transfile);
    for(int j=0; j<4; j++)
       for(int i=0; i<4; i++)
-    matrix->SetElement(i,j,itkMat[i][j]);
+    matrix->SetElement(i,j,rint(itkMat[i][j]));
    }
     UpdateTextEditor(matrix,textEdit);
     transform->SetMatrix(matrix);
@@ -566,14 +1112,14 @@ void vvToolRigidReg::ReadFile()
 //------------------------------------------------------------------------------
 void vvToolRigidReg::ResetTransform()
 {
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  for(int i=0;i<4;i++)
-    for(int j=0;j<4;j++)
-          matrix->SetElement(i,j,mInitialMatrix[i*4+j]);
-   SetTransform(matrix);
+  vtkSmartPointer<vtkTransform> transform = mCurrentSlicerManager->GetImage()->GetTransform();
+  transform->SetMatrix(mInitialMatrix);
+  transform->Update();
+  
+   Render();
    SetRotationCenter();
    SetSliderRanges();
-   UpdateTextEditor(matrix,textEdit);
+   UpdateTextEditor(transform->GetMatrix(),textEdit);
 }
 //------------------------------------------------------------------------------
 
@@ -612,7 +1158,6 @@ void vvToolRigidReg::InitializeSliders(double xtrans,double ytrans, double ztran
     ztrans_sb->setSingleStep(mInput1->GetImage()->GetSpacing()[2]);
     ztrans_sb->setValue(ztrans);
     ztrans_sb->blockSignals(false);
-    DD(ytrans);
 
     if(sliders){
     xtrans_slider->blockSignals(true);
