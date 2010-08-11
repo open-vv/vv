@@ -296,7 +296,7 @@ void vvImage::UpdateReslice()
 //--------------------------------------------------------------------
 vtkImageData * CopyAndCastToFloatFrom(vtkImageData * input)
 {
-  vtkImageData * p = vtkImageData::New();
+  vtkSmartPointer<vtkImageData>  p = vtkSmartPointer<vtkImageData>::New();
   p->SetExtent(input->GetExtent ()); // Only first ! could not be 4D
   p->SetScalarTypeToFloat();
   p->AllocateScalars();
