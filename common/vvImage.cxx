@@ -234,7 +234,7 @@ const std::vector<vtkImageData*>& vvImage::GetVTKImages()
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
-vtkImageData* vvImage::GetFirstVTKImageData()
+vtkSmartPointer<vtkImageData> vvImage::GetFirstVTKImageData()
 {
   return mVtkImages[0];
 }
