@@ -70,6 +70,7 @@ vvToolRigidReg::vvToolRigidReg(vvMainWindowBase * parent, Qt::WindowFlags f):
   interpollabel->hide();
   presetlabel->hide();
   
+  
   // Set how many inputs are needed for this tool
  AddInputSelector("Select moving image",mFilter);
  AddInputSelector("Select fixed image",mFilter);
@@ -113,29 +114,16 @@ void vvToolRigidReg::GetArgsInfoFromGUI()
                     mMainWindow->GetInputPathName(),
                     "Text (*.conf *.txt *.rtf *.doc)");
   
-  DD(file.toStdString());		    
   if (file.isEmpty())
   return;
   
   QFile Qfile1(file);
   mConfigFile= file.toStdString();
   CmdlineParser(1, 1);//1,1 - override, initialize
-  cb_transform->show();
-  cb_metric->show();
-  cb_interpolator->show();
-  cb_optimizer->show();
-  cb_selectoutput->show();
-  translabel->show();
-  metriclabel->show();
-  outputlabel->show();
-  optimlabel->show();
-  interpollabel->show();
   cb_transform->setCurrentIndex(mArgsInfo.transform_arg);
   cb_interpolator->setCurrentIndex(mArgsInfo.interp_arg);
   cb_optimizer->setCurrentIndex(mArgsInfo.optimizer_arg);
   cb_metric->setCurrentIndex(mArgsInfo.metric_arg);
-  DD(cb_transform->currentIndex());
-  DD(mArgsInfo.transform_arg);
 }
 //------------------------------------------------------------------------------
 
@@ -143,6 +131,7 @@ void vvToolRigidReg::GetArgsInfoFromGUI()
 void vvToolRigidReg::Presets()
 {
   mConfigFile="Presets";
+  std::string matrixfilename;
 if(cb_presets->currentIndex()==0)
 {
     mArgsInfo.reference_arg=new char; 	
@@ -214,7 +203,8 @@ if(cb_presets->currentIndex()==0)
     mArgsInfo.rWeight_given=1.0; 	 
     mArgsInfo.rWeight_arg=50.0; 	 
     mArgsInfo.matrix_given=1;
-    mArgsInfo.matrix_arg="/home/bharath/bin/writematrix.txt";
+    matrixfilename="/home/bharath/bin/writematrix.txt";//put ur path here for retreiving your matrix
+    mArgsInfo.matrix_arg=const_cast<char*>(matrixfilename.c_str()); 
     UpdateTextEditor2();
 }
 else {
@@ -227,6 +217,7 @@ else {
 //------------------------------------------------------------------------------
 void vvToolRigidReg::UpdateTextEditor2()
 {
+  
     QString str1,str2,str3;
     QColor color;
     tab2textedit->clear();
@@ -561,8 +552,13 @@ void vvToolRigidReg::UpdateTextEditor2()
 //------------------------------------------------------------------------------
 void vvToolRigidReg::TransformSelect()
 {
+  if(!mConfigFile.empty()){
    mArgsInfo.transform_arg=cb_transform->currentIndex();
    UpdateTextEditor2();
+  }
+  else{
+    QMessageBox::information(this,"Warning","Load the Config File First!..");
+  }
 }
 //------------------------------------------------------------------------------
   
@@ -611,32 +607,86 @@ void vvToolRigidReg::CmdlineParser(int override, int initialize)
 //------------------------------------------------------------------------------
 void vvToolRigidReg::OptimizerSelect()
 {
- mArgsInfo.optimizer_arg=cb_optimizer->currentIndex();
+  if(!mConfigFile.empty()){
+  mArgsInfo.optimizer_arg=cb_optimizer->currentIndex();
   UpdateTextEditor2();
- 
+   }
+  else{
+    QMessageBox::information(this,"Warning","Load the Config File First!..");
+  }
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvToolRigidReg::InterpolatorSelect()
 {
- mArgsInfo.interp_arg=cb_interpolator->currentIndex();
- UpdateTextEditor2();
+  if(!mConfigFile.empty()){
+  mArgsInfo.interp_arg=cb_interpolator->currentIndex();
+  UpdateTextEditor2();
+   }
+  else{
+    QMessageBox::information(this,"Warning","Load the Config File First!..");
+  }
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvToolRigidReg::MetricSelect()
 {
+  if(!mConfigFile.empty()){
  mArgsInfo.metric_arg=cb_metric->currentIndex();
  UpdateTextEditor2();
+   }
+  else{
+    QMessageBox::information(this,"Warning","Load the Config File First!..");
+  }
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvToolRigidReg::OutputSelect()
 {
- 
+  std::ostringstream osstream;
+  if(!mConfigFile.empty()){
+    if(cb_selectoutput->currentIndex()==0){
+      mArgsInfo.output_given=0;
+      mArgsInfo.checker_after_given=0;
+      mArgsInfo.checker_before_given=0;
+      mArgsInfo.after_given=0;
+      mArgsInfo.before_given=0;
+    }//get transformed output image
+    if(cb_selectoutput->currentIndex()==1){ 
+      mArgsInfo.output_given=0;
+      mArgsInfo.checker_after_given=1;
+      mArgsInfo.checker_before_given=0;
+      mArgsInfo.after_given=0;
+      mArgsInfo.before_given=0;
+    }//get checkered image after reg
+    if(cb_selectoutput->currentIndex()==2){  
+      mArgsInfo.output_given=0;
+      mArgsInfo.checker_after_given=0;
+      mArgsInfo.checker_before_given=1;
+      mArgsInfo.after_given=0;
+      mArgsInfo.before_given=0;
+    }//get checkered  image before reg
+    if(cb_selectoutput->currentIndex()==3){
+      mArgsInfo.output_given=0;
+      mArgsInfo.checker_after_given=0;
+      mArgsInfo.checker_before_given=0;
+      mArgsInfo.after_given=1;
+      mArgsInfo.before_given=0;
+    }//get difference image after reg
+    if(cb_selectoutput->currentIndex()==4){  
+      mArgsInfo.output_given=0;
+      mArgsInfo.checker_after_given=0;
+      mArgsInfo.checker_before_given=0;
+      mArgsInfo.after_given=0;
+      mArgsInfo.before_given=1;
+    }//get difference image before reg
+  }
+  else{
+    QMessageBox::information(this,"Warning","Load the Config File First!..");
+  }
 }
 //------------------------------------------------------------------------------
 
@@ -670,7 +720,6 @@ void vvToolRigidReg::InputIsSelected(std::vector<vvSlicerManager *> & l)
   mInput2 = l[1];
   UpdateTextEditor(mCurrentSlicerManager->GetImage()->GetTransform()->GetMatrix(),textEdit_2);
 
-  DD(*mCurrentSlicerManager->GetImage()->GetTransform()->GetMatrix());
   for(int i =0;i<4;i++)
   {
     for(int j=0;j<4;j++)
@@ -718,6 +767,9 @@ void vvToolRigidReg::InputIsSelected(std::vector<vvSlicerManager *> & l)
    connect(loadbutton, SIGNAL(pressed()), this, SLOT(LoadFile()));
    connect(savebutton, SIGNAL(pressed()), this, SLOT(SaveFile()));
    
+   connect(checkBox_rigid, SIGNAL(clicked(bool)), this, SLOT(CheckRigidReg()));
+   connect(checkBox_deformable, SIGNAL(clicked(bool)), this, SLOT(CheckDeformableReg()));
+   
    connect(cb_presets, SIGNAL(activated(int)), this, SLOT(Presets()));
    connect(cb_transform, SIGNAL(activated(int)), this, SLOT(TransformSelect()));
    connect(cb_optimizer, SIGNAL(activated(int)), this, SLOT(OptimizerSelect()));
@@ -737,6 +789,45 @@ void vvToolRigidReg::apply()
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+void vvToolRigidReg::CheckRigidReg()
+{
+  checkBox_deformable->setChecked(false);
+  cb_transform->show();
+  cb_presets->show();
+  cb_metric->show();
+  cb_interpolator->show();
+  cb_optimizer->show();
+  cb_selectoutput->show();
+  translabel->show();
+  metriclabel->show();
+  outputlabel->show();
+  optimlabel->show();
+  interpollabel->show();
+  presetlabel->show();
+  
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvToolRigidReg::CheckDeformableReg()
+{
+  checkBox_rigid->setChecked(false);
+  presetlabel->hide();
+  cb_transform->show();
+  cb_metric->show();
+  cb_interpolator->show();
+  cb_optimizer->show();
+  cb_selectoutput->show();
+  cb_presets->hide();
+  translabel->show();
+  metriclabel->show();
+  outputlabel->show();
+  optimlabel->show();
+  interpollabel->show();
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 void vvToolRigidReg::SetOverlay(vvImage::Pointer Image)
 {
     for (int i =0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
@@ -752,12 +843,12 @@ void vvToolRigidReg::SetOverlay(vvImage::Pointer Image)
 void vvToolRigidReg::RemoveOverlay()
 {
    for(int i=0;i<mCurrentSlicerManager->NumberOfSlicers();i++)
-	 {
-	   mInput1->RemoveActor("overlay",0);
-	   mInput1->SetColorMap(0);
-	   mInput1->Render();
-	   hide();
-	 }
+  {
+     mInput1->RemoveActor("overlay",0);
+     mInput1->SetColorMap(0);
+     mInput1->Render();
+     hide();
+  }
 }
 //------------------------------------------------------------------------------
 
@@ -945,13 +1036,25 @@ void vvToolRigidReg::AutoRegister()
     clitk::AffineRegistrationGenericFilter::New();
     filter->SetInputVVImages(inputs);
     filter->SetArgsInfo(mArgsInfo);
-    DD("ArgsInfo given in");
     filter->EnableReadOnDisk(false);
     filter->Update();
-    vvImage::Pointer output = filter->GetOutputVVImage();
-    //osstream << "Registered" << "_ "
-      //     << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";
-    //AddImage(output,osstream.str());
+    std::ostringstream osstream;
+    vvImage::Pointer output;
+    output = filter->GetOutputVVImage();
+    SetOverlay(output);
+    
+    if(!cb_selectoutput->currentIndex()==0){
+     std::string outputstring;
+     output = filter->GetOutputVVImages()[1];
+     if(cb_selectoutput->currentIndex()==1){outputstring="Checkered_after_reg";}
+     if(cb_selectoutput->currentIndex()==2){outputstring="Checkered_before_reg";}
+     if(cb_selectoutput->currentIndex()==3){outputstring="Diff_after_reg";}
+     if(cb_selectoutput->currentIndex()==4){outputstring="Diff_before_reg";}
+    osstream << outputstring << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";
+    AddImage(output,osstream.str());
+    filter->DeleteLastOutputImage();
+    }
+    DD(filter->GetOutputVVImages().capacity());
     QApplication::restoreOverrideCursor();
     ReadFile(true);
     }

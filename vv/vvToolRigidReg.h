@@ -80,6 +80,8 @@ public slots:
   void CmdlineParser(int override, int initialize);
   void Presets();
   void UpdateTextEditor2();
+  void CheckRigidReg(); //Deformable or Rigid
+  void CheckDeformableReg();
   protected:
   Ui::vvToolRigidReg ui;
   vvSlicerManager * mInput1;
