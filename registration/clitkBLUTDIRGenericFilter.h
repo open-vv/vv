@@ -41,6 +41,7 @@
 #include "clitkGenericMetric.h"
 #include "clitkBSplineDeformableTransformInitializer.h"
 #include "clitkMultiResolutionPyramidRegionFilter.h"
+#include "clitkImageToImageGenericFilter.h"
 
 // itk include
 #include "itkMultiResolutionImageRegistrationMethod.h"
@@ -65,64 +66,31 @@ namespace clitk
 {
 
 
-  class ITK_EXPORT BLUTDIRGenericFilter : public itk::LightObject
+  class ITK_EXPORT BLUTDIRGenericFilter :public ImageToImageGenericFilter<BLUTDIRGenericFilter>
   {
   public:
     //----------------------------------------
-    // ITK
+    BLUTDIRGenericFilter();
     //----------------------------------------
     typedef BLUTDIRGenericFilter                   Self;
-    typedef itk::LightObject                   Superclass;
     typedef itk::SmartPointer<Self>            Pointer;
     typedef itk::SmartPointer<const Self>      ConstPointer;
+    typedef ImageToImageGenericFilterBase   Superclass;
    
     // Method for creation through the object factory
     itkNewMacro(Self);  
+    
+    void SetArgsInfo(const args_info_clitkBLUTDIR & a);
 
     // Run-time type information (and related methods)
-    itkTypeMacro( BLUTDIRGenericFilter, LightObject );
-
-
-    //----------------------------------------
-    // Typedefs
-    //----------------------------------------
-
-
-    //----------------------------------------
-    // Set & Get
-    //----------------------------------------    
-    void SetArgsInfo(const args_info_clitkBLUTDIR & a)
-    {
-      m_ArgsInfo=a;
-      m_ReferenceFileName=m_ArgsInfo.reference_arg;
-      m_Verbose=m_ArgsInfo.verbose_flag;
-    }
     
-    
-    //----------------------------------------  
-    // Update
-    //----------------------------------------  
-    void Update();
-
-  protected:
-
-    //----------------------------------------  
-    // Constructor & Destructor
-    //----------------------------------------  
-    BLUTDIRGenericFilter();
-    ~BLUTDIRGenericFilter() {};
-
-    
-    //----------------------------------------  
-    // Templated members
-    //----------------------------------------  
-    template <unsigned int Dimension>  void UpdateWithDim(std::string PixelType);
-    template <unsigned int Dimension, class PixelType>  void UpdateWithDimAndPixelType();
+    template<unsigned int Dim>
+    void InitializeImageType();
 
 
-    //----------------------------------------  
-    // Data members
-    //----------------------------------------
+    template<class InputImageType>
+    void UpdateWithInputImageType();
+
     args_info_clitkBLUTDIR m_ArgsInfo;
     bool m_Verbose;
     std::string m_ReferenceFileName;
@@ -132,8 +100,5 @@ namespace clitk
 
 } // end namespace clitk
 
-#ifndef ITK_MANUAL_INSTANTIATION
-#include "clitkBLUTDIRGenericFilter.txx"
-#endif
 
 #endif // #define clitkBLUTDIRGenericFilter_h
