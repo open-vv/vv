@@ -319,4 +319,16 @@ void clitk::ImageToImageGenericFilterBase::MustStop()
 //--------------------------------------------------------------------
 
 
+//--------------------------------------------------------------------
+void clitk::ImageToImageGenericFilterBase::DeleteLastOutputImage()
+{
+  if (m_OutputVVImages.size()>1) {
+   m_OutputVVImages.pop_back();
+  }
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+
 
