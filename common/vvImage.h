@@ -42,7 +42,7 @@ public :
   void SetImage(std::vector<vtkImageData*> images);
   void AddImage(vtkImageData* image);
   const std::vector<vtkImageData*>& GetVTKImages();
-  vtkImageData* GetFirstVTKImageData();
+  vtkSmartPointer<vtkImageData> GetFirstVTKImageData();
   int GetNumberOfDimensions() const;
   int GetNumberOfSpatialDimensions();
   void GetScalarRange(double* range);
