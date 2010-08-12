@@ -95,6 +95,7 @@ namespace clitk {
     
     // Indicate that the filter must stop as soon as possible (if threaded)
     void MustStop();
+    void DeleteLastOutputImage();
     itkSetMacro(StopOnError, bool);
     itkGetConstMacro(StopOnError, bool);
     itkBooleanMacro(StopOnError);    
