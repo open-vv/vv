@@ -32,6 +32,7 @@
 #include "clitkShapedBLUTSpatioTemporalDIR_ggo.h"
 #include "clitkIO.h"
 #include "clitkCommon.h"
+#include "clitkImageCommon.h"
 #include "clitkGenericOptimizer.h"
 #include "clitkGenericMetric.h"
 #include "clitkGenericInterpolator.h"
