@@ -69,7 +69,7 @@ void clitk::ReadImageDimensionAndPixelType(const std::string & filename,
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
-/* Read a dicom header
+// Read a dicom header
 gdcm::File * clitk::readDicomHeader(const std::string & filename,
                                     const bool verbose)
 {
@@ -82,7 +82,7 @@ gdcm::File * clitk::readDicomHeader(const std::string & filename,
   header->Load();
   return header;
 }
-*///--------------------------------------------------------------------
+///--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
 itk::ImageIOBase::Pointer clitk::readImageHeader(const std::string & filename, bool exit_on_error)

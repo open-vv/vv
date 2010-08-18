@@ -26,8 +26,8 @@
 #include "itkImageFileReader.h"
 #include "itkImageSeriesReader.h"
 #include "itkImageFileWriter.h"
-//#include "gdcmFile.h"
-//#include "gdcmFileHelper.h"
+#include "gdcmFile.h"
+#include "gdcmFileHelper.h"
 
 
 namespace clitk {
@@ -81,7 +81,7 @@ namespace clitk {
 
   //--------------------------------------------------------------------
   // Read a dicom header  
-//  gdcm::File * readDicomHeader(const std::string & filename, const bool verbose=false);
+  gdcm::File * readDicomHeader(const std::string & filename, const bool verbose=false);
 
   //--------------------------------------------------------------------
   template<class ImageType>

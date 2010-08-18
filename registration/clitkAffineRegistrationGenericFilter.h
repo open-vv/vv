@@ -22,6 +22,7 @@
 // clitk include
 #include "clitkIO.h"
 #include "clitkCommon.h"
+#include "clitkImageCommon.h"
 #include "clitkAffineRegistration_ggo.h"
 #include "clitkImageArithm_ggo.h"
 #include "clitkCorrelationRatioImageToImageMetric.h"
