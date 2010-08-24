@@ -211,7 +211,7 @@ ENDIF(WIN32)
 
 LINK_DIRECTORIES(${QT_INCLUDES})
 ADD_EXECUTABLE(vv ${vv_SRCS} vv.cxx ${vv_UI_CXX} ${EXE_ICON})
-ADD_DEPENDENCIES(vv TOOLS_GGOS SEGMENTATION_GGOS)
+ADD_DEPENDENCIES(vv clitkToolsGgoLib clitkSegmentationGgoLib)
 TARGET_LINK_LIBRARIES(vv clitkDicomRTStruct 
 #Libs for generic filters with long compilation times
 clitkImageConvertLib 
