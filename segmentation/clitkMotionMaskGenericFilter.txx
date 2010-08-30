@@ -1378,7 +1378,7 @@ namespace clitk
 	output=closeFilter->GetOutput();
 
       }
-    writeImage<InternalImageType>(output,"/home/jef/tmp/mm_double.mhd");
+    //writeImage<InternalImageType>(output,"/home/jef/tmp/mm_double.mhd");
     
     // Extract the upper part
     typedef  itk::CropImageFilter<InternalImageType, InternalImageType> CropImageFilterType;
