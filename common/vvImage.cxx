@@ -58,8 +58,10 @@ vvImage::~vvImage()
 //--------------------------------------------------------------------
 void vvImage::Reset()
 {
-  for (unsigned int i = 0; i < mVtkImages.size(); i++)
+  for (unsigned int i = 0; i < mVtkImages.size(); i++) {  
     mVtkImageReslice[i]->GetInput()->Delete();
+    mVtkImageReslice[i]->Delete();
+  }
 
   mVtkImages.resize(0);
   mVtkImageReslice.resize(0);
