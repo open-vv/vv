@@ -58,10 +58,8 @@ vvImage::~vvImage()
 //--------------------------------------------------------------------
 void vvImage::Reset()
 {
-  for (unsigned int i = 0; i < mVtkImages.size(); i++) {  
+  for (unsigned int i = 0; i < mVtkImages.size(); i++)
     mVtkImageReslice[i]->GetInput()->Delete();
-    mVtkImageReslice[i]->Delete();
-  }
 
   mVtkImages.resize(0);
   mVtkImageReslice.resize(0);
@@ -236,7 +234,7 @@ const std::vector<vtkImageData*>& vvImage::GetVTKImages()
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
-vtkSmartPointer<vtkImageData> vvImage::GetFirstVTKImageData()
+vtkImageData* vvImage::GetFirstVTKImageData()
 {
   return mVtkImages[0];
 }
@@ -298,7 +296,7 @@ void vvImage::UpdateReslice()
 //--------------------------------------------------------------------
 vtkImageData * CopyAndCastToFloatFrom(vtkImageData * input)
 {
-  vtkSmartPointer<vtkImageData>  p = vtkSmartPointer<vtkImageData>::New();
+  vtkImageData * p = vtkImageData::New();
   p->SetExtent(input->GetExtent ()); // Only first ! could not be 4D
   p->SetScalarTypeToFloat();
   p->AllocateScalars();
