@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -20,11 +20,11 @@
 
 /* =================================================
  * @file   clitkMotionMaskGenericFilter.h
- * @author 
- * @date   
- * 
- * @brief 
- * 
+ * @author
+ * @date
+ *
+ * @brief
+ *
  ===================================================*/
 
 
@@ -36,103 +36,103 @@
 #include "clitkSetBackgroundImageFilter.h"
 
 //itk include
-#include "itkLightObject.h"
-#include "itkBinaryThresholdImageFilter.h"
-#include "itkConnectedComponentImageFilter.h"
-#include "itkRelabelComponentImageFilter.h"
-#include "itkThresholdImageFilter.h"
-#include "itkMirrorPadImageFilter.h"
-#include "itkImageMomentsCalculator.h"
-#include "itkResampleImageFilter.h"
-#include "itkNearestNeighborInterpolateImageFunction.h"
-#include "itkGeodesicActiveContourLevelSetImageFilter.h"
-#include "itkSignedDanielssonDistanceMapImageFilter.h"
-#include "itkLabelStatisticsImageFilter.h"
-#include "itkCastImageFilter.h"
-#include "itkCropImageFilter.h"
-#include "itkBinaryMorphologicalClosingImageFilter.h"
-#include "itkBinaryMorphologicalOpeningImageFilter.h"
-#include "itkBinaryBallStructuringElement.h"
-#include "itkImageRegionIteratorWithIndex.h"
-#include "itkApproximateSignedDistanceMapImageFilter.h"
+#include <itkLightObject.h>
+#include <itkBinaryThresholdImageFilter.h>
+#include <itkConnectedComponentImageFilter.h>
+#include <itkRelabelComponentImageFilter.h>
+#include <itkThresholdImageFilter.h>
+#include <itkMirrorPadImageFilter.h>
+#include <itkImageMomentsCalculator.h>
+#include <itkResampleImageFilter.h>
+#include <itkNearestNeighborInterpolateImageFunction.h>
+#include <itkGeodesicActiveContourLevelSetImageFilter.h>
+#include <itkSignedDanielssonDistanceMapImageFilter.h>
+#include <itkLabelStatisticsImageFilter.h>
+#include <itkCastImageFilter.h>
+#include <itkCropImageFilter.h>
+#include <itkBinaryMorphologicalClosingImageFilter.h>
+#include <itkBinaryMorphologicalOpeningImageFilter.h>
+#include <itkBinaryBallStructuringElement.h>
+#include <itkImageRegionIteratorWithIndex.h>
+#include <itkApproximateSignedDistanceMapImageFilter.h>
 
-namespace clitk 
+namespace clitk
 {
-  class ITK_EXPORT MotionMaskGenericFilter : public itk::LightObject
-  {
-  public:
-    //----------------------------------------
-    // ITK
-    //----------------------------------------
-    typedef MotionMaskGenericFilter                   Self;
-    typedef itk::LightObject                   Superclass;
-    typedef itk::SmartPointer<Self>            Pointer;
-    typedef itk::SmartPointer<const Self>      ConstPointer;
-   
-    // Method for creation through the object factory
-    itkNewMacro(Self);  
+class ITK_EXPORT MotionMaskGenericFilter : public itk::LightObject
+{
+public:
+  //----------------------------------------
+  // ITK
+  //----------------------------------------
+  typedef MotionMaskGenericFilter                   Self;
+  typedef itk::LightObject                   Superclass;
+  typedef itk::SmartPointer<Self>            Pointer;
+  typedef itk::SmartPointer<const Self>      ConstPointer;
 
-    // Run-time type information (and related methods)
-    itkTypeMacro( MotionMaskGenericFilter, LightObject );
+  // Method for creation through the object factory
+  itkNewMacro(Self);
 
-    //----------------------------------------   
-    // Typedefs
-    //----------------------------------------   
-    typedef int InternalPixelType;
-   
-   
-    //----------------------------------------
-    // Set & Get
-    //----------------------------------------    
-    void SetArgsInfo(const args_info_clitkMotionMask & a)
-    {
-      m_ArgsInfo=a;
-      m_Verbose=m_ArgsInfo.verbose_flag;
-      m_InputFileName=m_ArgsInfo.input_arg;
-    }
-    
-    
-    //----------------------------------------  
-    // Update
-    //----------------------------------------  
-    void Update();
+  // Run-time type information (and related methods)
+  itkTypeMacro( MotionMaskGenericFilter, LightObject );
 
-  protected:
-
-    //----------------------------------------  
-    // Constructor & Destructor
-    //----------------------------------------  
-    MotionMaskGenericFilter();
-    ~MotionMaskGenericFilter() {};
-
-    
-    //----------------------------------------  
-    // Templated members
-    //----------------------------------------  
-    template <unsigned int Dimension, class PixelType>
-    typename itk::Image<InternalPixelType, Dimension>::Pointer GetAirImage(typename itk::Image<PixelType, Dimension>::Pointer input );
-    template <unsigned int Dimension, class PixelType>
-    typename itk::Image<InternalPixelType, Dimension>::Pointer GetBonesImage(typename itk::Image<PixelType, Dimension>::Pointer input );
-    template <unsigned int Dimension, class PixelType>
-    typename itk::Image<InternalPixelType, Dimension>::Pointer GetLungsImage(typename itk::Image<PixelType, Dimension>::Pointer input );
-    template <unsigned int Dimension, class PixelType>
-    typename itk::Image<InternalPixelType, Dimension>::Pointer Resample(typename itk::Image<InternalPixelType, Dimension>::Pointer input );
-    template <unsigned int Dimension, class PixelType>
-    typename itk::Image<InternalPixelType, Dimension>::Pointer InitializeEllips( typename itk::Vector<double,Dimension> center, typename itk::Image<InternalPixelType, Dimension>::Pointer bones_low);
-    
-
-    template <unsigned int Dimension>  void UpdateWithDim(std::string PixelType);
-    template <unsigned int Dimension, class PixelType>  void UpdateWithDimAndPixelType();
+  //----------------------------------------
+  // Typedefs
+  //----------------------------------------
+  typedef int InternalPixelType;
 
 
-    //----------------------------------------  
-    // Data members
-    //----------------------------------------
-    args_info_clitkMotionMask m_ArgsInfo;
-    bool m_Verbose;
-    std::string m_InputFileName;
+  //----------------------------------------
+  // Set & Get
+  //----------------------------------------
+  void SetArgsInfo(const args_info_clitkMotionMask & a) {
+    m_ArgsInfo=a;
+    m_Verbose=m_ArgsInfo.verbose_flag;
+    m_InputFileName=m_ArgsInfo.input_arg;
+  }
 
-  };
+
+  //----------------------------------------
+  // Update
+  //----------------------------------------
+  void Update();
+
+protected:
+
+  //----------------------------------------
+  // Constructor & Destructor
+  //----------------------------------------
+  MotionMaskGenericFilter();
+  ~MotionMaskGenericFilter() {};
+
+
+  //----------------------------------------
+  // Templated members
+  //----------------------------------------
+  template <unsigned int Dimension, class PixelType>
+  typename itk::Image<InternalPixelType, Dimension>::Pointer GetAirImage(typename itk::Image<PixelType, Dimension>::Pointer input,
+      typename itk::Image<MotionMaskGenericFilter::InternalPixelType, Dimension>::Pointer lungs);
+  template <unsigned int Dimension, class PixelType>
+  typename itk::Image<InternalPixelType, Dimension>::Pointer GetBonesImage(typename itk::Image<PixelType, Dimension>::Pointer input );
+  template <unsigned int Dimension, class PixelType>
+  typename itk::Image<InternalPixelType, Dimension>::Pointer GetLungsImage(typename itk::Image<PixelType, Dimension>::Pointer input );
+  template <unsigned int Dimension, class PixelType>
+  typename itk::Image<InternalPixelType, Dimension>::Pointer Resample(typename itk::Image<InternalPixelType, Dimension>::Pointer input );
+  template <unsigned int Dimension, class PixelType>
+  typename itk::Image<InternalPixelType, Dimension>::Pointer InitializeEllips( typename itk::Vector<double,Dimension> center, typename itk::Image<InternalPixelType, Dimension>::Pointer bones_low);
+
+
+  template <unsigned int Dimension>  void UpdateWithDim(std::string PixelType);
+  template <unsigned int Dimension, class PixelType>  void UpdateWithDimAndPixelType();
+
+
+  //----------------------------------------
+  // Data members
+  //----------------------------------------
+  args_info_clitkMotionMask m_ArgsInfo;
+  bool m_Verbose;
+  std::string m_InputFileName;
+
+};
 
 
 } // end namespace clitk
