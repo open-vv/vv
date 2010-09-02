@@ -277,7 +277,7 @@ namespace clitk
       }
     
     typename OutputImageType::Pointer output = resampler->GetOutput();
-    writeImage<OutputImageType>(output, "/home/jef/tmp/output1.mhd", true);
+    //writeImage<OutputImageType>(output, "/home/jef/tmp/output1.mhd", true);
 
 
     // Matrix Transform
@@ -297,7 +297,7 @@ namespace clitk
 	filter->SetTransform(transform);
 	filter->Update();
 	typename OutputImageType::Pointer output2=filter->GetOutput();
-	writeImage<OutputImageType>(output2, "/home/jef/tmp/output2.mhd", true);
+	//writeImage<OutputImageType>(output2, "/home/jef/tmp/output2.mhd", true);
 
 	// Add 
 	typedef itk::AddImageFilter< OutputImageType, OutputImageType, OutputImageType > AddType;
