@@ -1,5 +1,5 @@
 #File clitkGetSize.ggo
-Package "clitkGetSize"
+package "clitkGetSize"
 version "1.0"
 purpose ""
 

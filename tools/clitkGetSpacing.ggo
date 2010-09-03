@@ -1,5 +1,5 @@
 #File clitkGetSpacing.ggo
-Package "clitkGetSpacing"
+package "clitkGetSpacing"
 version "1.0"
 purpose ""
 

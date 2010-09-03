@@ -2,8 +2,8 @@
 #Author: Jef Vandemeulebroucke <jefvdmb@gmail.com>
 #Date : Tue 13 August 19.35 
 
-Package "clitk"
-Version "Read an Image (short, char or float; 2D or 3D) and a vector field (float, 2D or 3D) and deform the input through backward or forward mapping."
+package "clitk"
+version "Read an Image (short, char or float; 2D or 3D) and a vector field (float, 2D or 3D) and deform the input through backward or forward mapping."
 
 option "config"	  	 	-	"Config file"				  					string  	no
 option "verbose"   	 	v   	"Verbose"				  					flag		off

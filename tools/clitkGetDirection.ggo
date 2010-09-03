@@ -1,5 +1,5 @@
 #File clitkGetDirection.ggo
-Package "clitkGetDirection"
+package "clitkGetDirection"
 version "1.0"
 purpose ""
 

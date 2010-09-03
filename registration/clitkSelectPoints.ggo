@@ -1,5 +1,5 @@
 #File clitkSelectPoints.ggo
-Package "clitkSelectPoints"
+package "clitkSelectPoints"
 version "1.0"
 purpose "Perform a selection of points on the reference and target lists of points, based on criteria applied to the reference list."
 

@@ -1,5 +1,5 @@
 # file clitkDicomRTStructInfo.ggo
-Package "clitk"
+package "clitk"
 version "Read and print DICOM RT Structure set file (contours)"
 
 option "config"	  	 - "Config file"		 string  	no

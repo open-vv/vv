@@ -1,5 +1,5 @@
 #File clitkVFConvert.ggo
-Package "clitkVFConvert"
+package "clitkVFConvert"
 version "1.0"
 purpose "Convert file format"
 

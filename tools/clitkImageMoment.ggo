@@ -1,5 +1,5 @@
 #File clitkImageMoment.ggo
-Package "clitkImageMoment"
+package "clitkImageMoment"
 version "1.0"
 purpose "Calculate the image moment: the center of gravity"
 

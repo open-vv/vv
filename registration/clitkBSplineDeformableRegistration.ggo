@@ -2,8 +2,8 @@
 #Author: Jef Vandemeulebroucke <jefvdmb@gmail.com>
 #Date : Tue 15 July 2008 16.35 
 
-Package "clitk"
-Version "Register 2 images using optimized ITK FFD (high memory requirements) or BLUT FFD. Both implementations are provided, mainly for debugging purposes.."
+package "clitk"
+version "Register 2 images using optimized ITK FFD (high memory requirements) or BLUT FFD. Both implementations are provided, mainly for debugging purposes.."
 
 option "config"	  	-	"Config file"			string  	no
 

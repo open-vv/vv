@@ -1,5 +1,5 @@
 #File clitkSetOrigin.ggo
-Package "clitkSetOrigin"
+package "clitkSetOrigin"
 version "1.0"
 purpose "Set the origin field of a generic image"
 

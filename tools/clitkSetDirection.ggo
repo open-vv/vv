@@ -1,5 +1,5 @@
 #File clitkSetDirection.ggo
-Package "clitkSetDirection"
+package "clitkSetDirection"
 version "1.0"
 purpose ""
 

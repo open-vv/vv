@@ -1,5 +1,5 @@
 #File clitkImageToVectorImage.ggo
-Package "clitkImageToVectorImage"
+package "clitkImageToVectorImage"
 version "1.0"
 purpose "Compose 3 images to 1 vector image"
 

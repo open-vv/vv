@@ -1,5 +1,5 @@
 #File clitkChangeImageOrientation.ggo
-Package "clitkChangeImageOrientation"
+package "clitkChangeImageOrientation"
 version "1.0"
 purpose ""
 

@@ -1,5 +1,5 @@
 #File clitkCombineImage.ggo
-Package "clitkCombineImage"
+package "clitkCombineImage"
 version "1.0"
 purpose ""
 

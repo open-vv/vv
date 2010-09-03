@@ -1,5 +1,5 @@
 #File clitkBSplineCoefficientsToValues.ggo
-Package "clitkBSplineCoefficientsToValues"
+package "clitkBSplineCoefficientsToValues"
 version "1.0"
 purpose ""
 

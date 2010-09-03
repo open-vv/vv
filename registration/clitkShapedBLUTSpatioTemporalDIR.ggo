@@ -2,8 +2,8 @@
 #Author: Jef Vandemeulebroucke <jefvdmb@gmail.com>
 #Date : Tue 15 Jan 2009 10.35 
 
-Package "clitk"
-Version "Deform a volume to match a temporal sequence using a spatio-temporal deformation model. By setting the shape of the model, you modify the temporal constraints applied to the cyclic trajectory model."
+package "clitk"
+version "Deform a volume to match a temporal sequence using a spatio-temporal deformation model. By setting the shape of the model, you modify the temporal constraints applied to the cyclic trajectory model."
 
 option "config"	  	-	"Config file"			string  	no
 

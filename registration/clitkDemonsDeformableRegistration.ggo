@@ -2,8 +2,8 @@
 #Author: Jef Vandemeulebroucke <jefvdmb@gmail.com>
 #Date : Tue 13 Februari 2009 16.35 
 
-Package "clitk"
-Version "Apply Demons registration between (2D or 3D) images..."
+package "clitk"
+version "Apply Demons registration between (2D or 3D) images..."
 
 
 option "config"	  	-	"Config file"			string  	no

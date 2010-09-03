@@ -2,8 +2,8 @@
 #Author: Jef Vandemeulebroucke <jefvdmb@gmail.com>
 #Date : Tue 15 June 16.35 
 
-Package "clitk"
-Version "Read a series a nD images (unnamed inputs) and merge them to a (n+1)D image"
+package "clitk"
+version "Read a series a nD images (unnamed inputs) and merge them to a (n+1)D image"
 
 option "config"	  	 	-	"Config file"				  			string  	no
 option "spacing"    	 	s   	"Spacing for the new dimension"		  			double 		no 	default="1"

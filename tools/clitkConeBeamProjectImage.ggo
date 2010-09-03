@@ -1,6 +1,6 @@
 #File clitkConeBeamProjectImage.ggo
-Package "clitk"
-Version "Project a 3D image with cone-beam geometry"
+package "clitk"
+version "Project a 3D image with cone-beam geometry"
 
 option "config"	  	 	-	"Config file"			  string  	no
 

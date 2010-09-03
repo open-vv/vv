@@ -1,5 +1,5 @@
 #File clitkMatrixTransformToVF.ggo
-Package "clitkMatrixTransformToVF"
+package "clitkMatrixTransformToVF"
 version "1.0"
 purpose "Convert a matrix to a DVF with given properties"
 

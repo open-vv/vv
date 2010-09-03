@@ -1,5 +1,5 @@
 #File clitkBSplinePyramid.ggo
-Package "clitkBSplinePyramid"
+package "clitkBSplinePyramid"
 version "1.0"
 purpose "Down (or Up) sample with a  factor 2 using Bspline pyramids. BSplineDownsampleImageFilter is BUGGED! See the ITK post of jvdmb@hotmail.com."
 

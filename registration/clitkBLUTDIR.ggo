@@ -2,8 +2,8 @@
 #Author: Jef Vandemeulebroucke <jefvdmb@gmail.com>
 #Date : Tue 11 Jan 2009 10.35 
 
-Package "clitk"
-Version "Register 2 images using optimized BLUT FFD..."
+package "clitk"
+version "Register 2 images using optimized BLUT FFD..."
 
 option "config"	  	-	"Config file"			string  	no
 

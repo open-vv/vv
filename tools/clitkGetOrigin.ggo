@@ -1,5 +1,5 @@
 #File clitkGetOrigin.ggo
-Package "clitkGetOrigin"
+package "clitkGetOrigin"
 version "1.0"
 purpose ""
 

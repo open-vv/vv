@@ -1,5 +1,5 @@
 #File clitkVectorImageToImage.ggo
-Package "clitkVectorImageToImage"
+package "clitkVectorImageToImage"
 version "1.0"
 purpose "Extract a component image from a vector image"
 

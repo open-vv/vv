@@ -1,5 +1,5 @@
 #File clitkConvertPointList.ggo
-Package "clitkConvertPointList"
+package "clitkConvertPointList"
 version "1.0"
 purpose "Convert IX point pair lists (generated using the software described in Murphy2008,MICCAI) to a vv point pair lists"
 

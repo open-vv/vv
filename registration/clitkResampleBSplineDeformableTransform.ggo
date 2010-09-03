@@ -1,5 +1,5 @@
 #File clitkResampleBSplineDeformableTransform.ggo
-Package "clitkResampleBSplineDeformableTransform"
+package "clitkResampleBSplineDeformableTransform"
 version "1.0"
 purpose "Resample the B-spline control point grid to given properties. Coefficients are resampled to values with the desired properties and reconverted to coefficients "
 

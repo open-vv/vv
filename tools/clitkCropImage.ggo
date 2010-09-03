@@ -1,5 +1,5 @@
 #File clitkCropImage.ggo
-Package "clitkCropImage"
+package "clitkCropImage"
 version "1.0"
 purpose "Reduce the image size by removing regions at the lower and upper end."
 

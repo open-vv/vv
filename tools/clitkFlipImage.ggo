@@ -1,5 +1,5 @@
 #File clitkFlipImage.ggo
-Package "clitkFlipImage"
+package "clitkFlipImage"
 version "1.0"
 purpose ""
 

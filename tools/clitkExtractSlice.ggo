@@ -1,5 +1,5 @@
 #File clitkExtractSlice.ggo
-Package "clitkExtractSlice"
+package "clitkExtractSlice"
 version "1.0"
 purpose "Extract a slice: will collapse the dimension given by axe, retaining only the index given by slice."
 

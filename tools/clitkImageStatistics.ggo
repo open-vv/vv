@@ -1,5 +1,5 @@
 #File clitkImageStatistics.ggo
-Package "clitkImageStatistics"
+package "clitkImageStatistics"
 version "1.0"
 purpose "Compute statistics on an image, or on part of an image specified by a mask and label(s)"
 

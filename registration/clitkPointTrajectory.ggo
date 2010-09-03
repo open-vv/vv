@@ -1,5 +1,5 @@
 #File clitkPointTrajectory.ggo
-Package "clitkPointTrajectory"
+package "clitkPointTrajectory"
 version "1.0"
 purpose "Compute the cyclic trajectory of a point based input transform. The transform can be given by N lists of (manually identified) landmarks, a 4DDVF or a ST transform. Interpolation is performed between "
 

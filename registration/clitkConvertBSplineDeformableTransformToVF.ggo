@@ -1,5 +1,5 @@
 #File clitkConvertBSplineDeformableTransformToVF.ggo
-Package "clitkConvertBSplineDeformableTransformToVF"
+package "clitkConvertBSplineDeformableTransformToVF"
 version "1.0"
 purpose "Convert a BSpline transform to a DVF with given properties"
 

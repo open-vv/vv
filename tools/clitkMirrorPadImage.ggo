@@ -1,5 +1,5 @@
 #File clitkMirrorPadImage.ggo
-Package "clitkMirrorPadImage"
+package "clitkMirrorPadImage"
 version "1.0"
 purpose ""
 

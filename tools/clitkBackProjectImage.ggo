@@ -2,8 +2,8 @@
 #Author: Jef Vandemeulebroucke <jefvdmb@gmail.com>
 #Date : Tue 24 February 2009 16.35 
 
-Package "clitk"
-Version "Back project a 2D image with cone-beam geometry"
+package "clitk"
+version "Back project a 2D image with cone-beam geometry"
 
 option "config"	  	 	-	"Config file"			  string  	no
 

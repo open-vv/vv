@@ -1,5 +1,5 @@
 #File clitkPermuteAxes.ggo
-Package "clitkPermuteAxes"
+package "clitkPermuteAxes"
 version "1.0"
 purpose ""
 

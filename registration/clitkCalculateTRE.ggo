@@ -1,5 +1,5 @@
 #File clitkCalculateTRE.ggo
-Package "clitkCalculateTRE"
+package "clitkCalculateTRE"
 version "1.0"
 purpose "Calculate TRE: give a reference point list and 1 or more target point lists. In case of the latter, the number of DVF (or the size of the 4th D) given should match the number of lists. Use --shipFirst to skip the first phase of a 4D DVF. General summarizes for all points (mean, SD, max) in magnitude and par component. Tre and warp gives all values for all points. "
 

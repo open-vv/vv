@@ -1,5 +1,5 @@
 # file clitkImageLog.ggo
-Package "clitk"
+package "clitk"
 version "Perform a inverse normalized log on the image"
 
 option "config"	  	 -	"Config file"		  		string  no

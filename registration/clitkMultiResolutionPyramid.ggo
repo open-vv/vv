@@ -1,5 +1,5 @@
 #File clitkMultiResolutionPyramid.ggo
-Package "clitkMultiResolutionPyramid"
+package "clitkMultiResolutionPyramid"
 version "1.0"
 purpose "Compute the multi-resolution (MR) image pyramid. The conventional filter will also modify the image at the original resolution, the recursive not. The spatio-temporal filters leave the last dimension untouched."
 
