@@ -174,7 +174,7 @@ MotionMaskGenericFilter::GetAirImage(typename itk::Image<PixelType, Dimension>::
   if (m_Verbose) std::cout<<"Mirroring the entire image along the CC axis..."<<std::endl;
   mirrorPadImageFilter->Update();
   air=mirrorPadImageFilter->GetOutput();
-  writeImage<InternalImageType>(air,"/home/srit/tmp/air.mhd");
+  //writeImage<InternalImageType>(air,"/home/srit/tmp/air.mhd");
 
   //---------------------------------
   // Pad
