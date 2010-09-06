@@ -441,7 +441,7 @@ void vvMainWindow::OpenVTKContour()
 void vvMainWindow::OpenDCStructContour()
 {
   if (mSlicerManagers.size() > 0) {
-    QString Extensions = "Dicom Files ( *.dcm; RS*)";
+    QString Extensions = "Dicom Files ( *.dcm RS*)";
     Extensions += ";;All Files (*)";
     QString file = QFileDialog::getOpenFileName(this,tr("Merge Images"),mInputPathName,Extensions);
     if (file.isNull())

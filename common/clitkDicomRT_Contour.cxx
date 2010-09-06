@@ -58,7 +58,7 @@ bool clitk::DicomRT_Contour::Read(gdcm::SQItem * item)
     return false;
   }
   if (mType == "POINT ") {
-    std::cout << "Warning: POINT type not fully supported. (don't use GetMesh() with this!)"
+    std::cerr << "Warning: POINT type not fully supported. (don't use GetMesh() with this!)"
       << std::endl;
   }
 
