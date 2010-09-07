@@ -40,6 +40,7 @@ namespace clitk {
     bool Read(gdcm::SQItem * item);
     vtkPolyData * GetMesh();
     vtkPoints * GetPoints() {return mData;}
+    double GetZ() const {return mZ;}
     
   protected:
     void ComputeMesh();
@@ -48,6 +49,8 @@ namespace clitk {
     vtkPoints * mData;
     vtkPolyData * mMesh;
     bool mMeshIsUpToDate;
+    ///Z location of the contour
+    double mZ;
 
   };
   //--------------------------------------------------------------------

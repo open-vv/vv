@@ -25,6 +25,7 @@ clitk::DicomRT_Contour::DicomRT_Contour()
 {
   mMeshIsUpToDate = false;
   mNbOfPoints = 0;
+  mZ = -1;
 }
 //--------------------------------------------------------------------
 
@@ -74,20 +75,19 @@ bool clitk::DicomRT_Contour::Read(gdcm::SQItem * item)
   mData = vtkPoints::New();
   mData->SetDataTypeToDouble();
   mData->SetNumberOfPoints(mNbOfPoints);
-  double z = -1;
   for(unsigned int i=0; i<mNbOfPoints; i++) {
     double p[3];
     p[0] = points[i*3];
     p[1] = points[i*3+1];
     p[2] = points[i*3+2];
     mData->SetPoint(i, p);
-    if (z == -1) z = p[2];
-    if (p[2] != z) {
+    if (mZ == -1) mZ = p[2];
+    if (p[2] != mZ) {
       DD(i);
       DD(p[2]);
-      DD(z);
+      DD(mZ);
       std::cout << "ERROR ! contour not in the same slice" << std::endl;
-      assert(p[2] == z);
+      assert(p[2] == mZ);
     }
   }
 

@@ -17,19 +17,19 @@
 
   =========================================================================*/
 
+#include <iterator>
+#include <algorithm>
 #include "clitkDicomRT_ROI_ConvertToImageFilter.h"
 #include <vtkPolyDataToImageStencil.h>
 #include <vtkSmartPointer.h>
 #include <vtkImageStencil.h>
 #include <vtkLinearExtrusionFilter.h>
-#include <itkVTKImageToImageFilter.h>
 #include "clitkImageCommon.h"
 
 //--------------------------------------------------------------------
 clitk::DicomRT_ROI_ConvertToImageFilter::DicomRT_ROI_ConvertToImageFilter()
 {
   mROI = NULL;
-  mImageInfoIsSet = false;
   mWriteOutput = false;
   mCropMask = true;
 }
@@ -43,6 +43,10 @@ clitk::DicomRT_ROI_ConvertToImageFilter::~DicomRT_ROI_ConvertToImageFilter()
 }
 //--------------------------------------------------------------------
 
+bool clitk::DicomRT_ROI_ConvertToImageFilter::ImageInfoIsSet() const
+{
+  return mSize.size() && mSpacing.size() && mOrigin.size();
+}
 
 //--------------------------------------------------------------------
 void clitk::DicomRT_ROI_ConvertToImageFilter::SetROI(clitk::DicomRT_ROI * roi)
@@ -88,10 +92,23 @@ void clitk::DicomRT_ROI_ConvertToImageFilter::SetImageFilename(std::string f)
     mOrigin[i] = header->GetOrigin(i);
     mSize[i] = header->GetDimensions(i);
   }
-  mImageInfoIsSet = true;
 }
 //--------------------------------------------------------------------
 
+void clitk::DicomRT_ROI_ConvertToImageFilter::SetOutputOrigin(const double* origin)
+{
+  std::copy(origin,origin+3,std::back_inserter(mOrigin));
+}
+//--------------------------------------------------------------------
+void clitk::DicomRT_ROI_ConvertToImageFilter::SetOutputSpacing(const double* spacing)
+{
+  std::copy(spacing,spacing+3,std::back_inserter(mSpacing));
+}
+//--------------------------------------------------------------------
+void clitk::DicomRT_ROI_ConvertToImageFilter::SetOutputSize(const unsigned long* size)
+{
+  std::copy(size,size+3,std::back_inserter(mSize));
+}
 
 //--------------------------------------------------------------------
 void clitk::DicomRT_ROI_ConvertToImageFilter::Update()
@@ -100,7 +117,7 @@ void clitk::DicomRT_ROI_ConvertToImageFilter::Update()
     std::cerr << "Error. No ROI set, please use SetROI." << std::endl;
     exit(0);
   }
-  if (!mImageInfoIsSet) {
+  if (!ImageInfoIsSet()) {
     std::cerr << "Error. Please provide image info (spacing/origin) with SetImageFilename" << std::endl;
     exit(0);
   }
@@ -159,8 +176,7 @@ void clitk::DicomRT_ROI_ConvertToImageFilter::Update()
   // Extrude
   vtkSmartPointer<vtkLinearExtrusionFilter> extrude=vtkSmartPointer<vtkLinearExtrusionFilter>::New();
   extrude->SetInput(mesh);
-  ///We extrude in the -slice_spacing direction to respect the FOCAL convention // ?????????????
-  extrude->SetVector(0, 0, -mSpacing[2]);
+  extrude->SetVector(0, 0, mROI->GetContourSpacing());
 
   // Binarization
   vtkSmartPointer<vtkPolyDataToImageStencil> sts=vtkSmartPointer<vtkPolyDataToImageStencil>::New();
@@ -194,6 +210,8 @@ void clitk::DicomRT_ROI_ConvertToImageFilter::Update()
 //--------------------------------------------------------------------
 vtkImageData * clitk::DicomRT_ROI_ConvertToImageFilter::GetOutput()
 {
+  assert(mBinaryImage);
   return mBinaryImage;
 }
 //--------------------------------------------------------------------
+

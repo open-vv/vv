@@ -57,6 +57,8 @@ namespace clitk {
     
     void SetImage(vvImage * im);
     DicomRT_Contour* GetContour(int n);
+
+    double GetContourSpacing() const {return mZDelta;}
     
   protected:
     void ComputeMesh();
@@ -70,6 +72,8 @@ namespace clitk {
     vvImage::Pointer mImage;
     double mBackgroundValue;
     double mForegroundValue;
+    ///Spacing between two contours
+    double mZDelta;
   };
   //--------------------------------------------------------------------
 

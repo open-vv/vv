@@ -31,6 +31,7 @@ clitk::DicomRT_ROI::DicomRT_ROI()
   mMeshIsUpToDate = false;
   mBackgroundValue = 0;
   mForegroundValue = 1;
+  mZDelta = 0;
 }
 //--------------------------------------------------------------------
 
@@ -147,10 +148,24 @@ void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::SQItem * 
 
   // Read contours [Contour Sequence]
   gdcm::SeqEntry * contours=item->GetSeqEntry(0x3006,0x0040);
+  bool contour_processed=false;
+  bool delta_computed=false;
+  double last_z=0;
   for(gdcm::SQItem* j=contours->GetFirstSQItem(); j!=0; j=contours->GetNextSQItem()) {
     DicomRT_Contour * c = new DicomRT_Contour;
     bool b = c->Read(j);
-    if (b) mListOfContours.push_back(c);
+    if (b) {
+      mListOfContours.push_back(c);
+      if (contour_processed) {
+        double delta=c->GetZ() - last_z;
+        if (delta_computed)
+          assert(mZDelta == delta);
+        else
+          mZDelta = delta;
+      } else
+        contour_processed=true;
+      last_z=c->GetZ();
+    }
   }
 }
 //--------------------------------------------------------------------
