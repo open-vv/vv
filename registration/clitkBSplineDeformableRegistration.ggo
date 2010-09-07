@@ -80,7 +80,7 @@ option "lowerBound"	-	"7: The lower bound"							double 	no	default="0.0"
 option "upperBound"	-	"7: The upper bound"							double 	no	default="0.0"
 
 
-Section "Registration"
+section "Registration"
 
 option "levels"		-       "Number of resolution levels"	 				int	no	default="1"						
 
