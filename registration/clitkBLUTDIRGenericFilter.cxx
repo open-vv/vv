@@ -575,7 +575,10 @@ void BLUTDIRGenericFilter::UpdateWithInputImageType()
     if (movingMask) metric->SetMovingImageMask(movingMask);
 
 #ifdef ITK_USE_OPTIMIZED_REGISTRATION_METHODS
-    if (threadsGiven) metric->SetNumberOfThreads( threads );
+    if (threadsGiven) {
+      metric->SetNumberOfThreads( threads );
+      if (m_Verbose) std::cout<< "Using " << threads << " threads." << std::endl;
+    }
 #else
     if (m_Verbose) std::cout<<"Not setting the number of threads (not compiled with USE_OPTIMIZED_REGISTRATION_METHODS)..."<<std::endl;
 #endif
@@ -602,7 +605,10 @@ void BLUTDIRGenericFilter::UpdateWithInputImageType()
     registration->SetOptimizer(     optimizer     );
     registration->SetInterpolator(  interpolator  );
     registration->SetTransform (transform);
-    if(threadsGiven) registration->SetNumberOfThreads(threads);
+    if(threadsGiven) {
+      registration->SetNumberOfThreads(threads);
+      if (m_Verbose) std::cout<< "Using " << threads << " threads." << std::endl;
+    }
     registration->SetFixedImage(  croppedFixedImage   );
     registration->SetMovingImage(  movingImage   );
     registration->SetFixedImageRegion( metricRegion );
