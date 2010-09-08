@@ -15,16 +15,6 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
-/**
-   -------------------------------------------------
-   * @file   clitkHisImageIO.cxx
-   * @author Simon Rit <simon.rit@gmail.com>
-   * @date   16 Feb 2010
-   *
-   * @brief
-   *
-   *
-   -------------------------------------------------*/
 
 // std include
 #include <iostream>
@@ -36,6 +26,7 @@
 // clitk include
 #include "clitkIO.h"
 #include "clitkImageCommon.h"
+#include "clitkDicomRTDoseIOFactory.h"
 #include "clitkVoxImageIOFactory.h"
 #include "clitkHisImageIOFactory.h"
 #include "clitkVfImageIOFactory.h"
@@ -46,6 +37,7 @@
 // Register factories
 void clitk::RegisterClitkFactories()
 {
+  clitk::DicomRTDoseIOFactory::RegisterOneFactory();
   itk::ImageIOFactory::RegisterBuiltInFactories();
   clitk::VoxImageIOFactory::RegisterOneFactory();
   clitk::VfImageIOFactory::RegisterOneFactory();
