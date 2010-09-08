@@ -51,8 +51,19 @@ clitk::ResampleImageGenericFilter::UpdateWithInputImageType()
   typename OutputImageType::SizeType size;
 
   if (mArgsInfo.like_given) {
-    DD("like");
-    
+    itk::ImageIOBase::Pointer header = clitk::readImageHeader(mArgsInfo.like_arg);
+    if (header) {
+      for(unsigned int i=0; i<dim; i++){
+        spacing[i] = header->GetSpacing(i);
+        size[i] = header->GetDimensions(i);
+      }
+      filter->SetOutputSpacing(spacing);
+      filter->SetOutputSize(size);
+    }
+    else {
+      std::cerr << "*** Warning : I could not read '" << mArgsInfo.like_arg << "' ***" << std::endl;
+      exit(0);
+    }
   }
   else {
     if (mArgsInfo.spacing_given == 1) {
