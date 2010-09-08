@@ -15,7 +15,7 @@ section "I/O"
 
 option "input"		i	"Input image filename"		  string  	yes
 option "output"    	o   	"Output image filename"		  string 	yes
-option "like"    	l   	"Resample like this image"	  string 	no
+#option "like"    	l   	"Resample like this image"	  string 	no
 
 section "Smoothing (curvature anistropic diffusion)"
 
