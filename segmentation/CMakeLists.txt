@@ -28,6 +28,10 @@ IF(CLITK_BUILD_SEGMENTATION)
     ADD_EXECUTABLE(clitkExtractLung clitkExtractLung.cxx ${clitkExtractLung_GGO_C})
     TARGET_LINK_LIBRARIES(clitkExtractLung clitkCommon ITKIO)
 
+    WRAP_GGO(clitkExtractAirwayTreeInfo_GGO_C clitkExtractAirwayTreeInfo.ggo)
+    ADD_EXECUTABLE(clitkExtractAirwayTreeInfo clitkExtractAirwayTreeInfo.cxx ${clitkExtractAirwayTreeInfo_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkExtractAirwayTreeInfo clitkCommon ITKIO)
+
     WRAP_GGO(clitkExtractBones_GGO_C clitkExtractBones.ggo)
     ADD_EXECUTABLE(clitkExtractBones clitkExtractBones.cxx ${clitkExtractBones_GGO_C})
     TARGET_LINK_LIBRARIES(clitkExtractBones clitkCommon ITKIO)

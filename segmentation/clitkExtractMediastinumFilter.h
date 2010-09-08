@@ -30,6 +30,7 @@ namespace clitk {
     - Patient label image
     - Lungs label image
     - Bones label image
+    - Trachea label image
   */
   //--------------------------------------------------------------------
   
@@ -61,12 +62,14 @@ namespace clitk {
     typedef typename ImageType::PixelType    ImagePixelType; 
     typedef typename ImageType::SizeType     ImageSizeType; 
     typedef typename ImageType::IndexType    ImageIndexType; 
+    typedef typename ImageType::PointType    ImagePointType; 
         
     /** Connect inputs */
     void SetInputPatientLabelImage(const TImageType * image, ImagePixelType bg=0);
     void SetInputLungLabelImage(const TImageType * image, ImagePixelType bg=0, 
                                  ImagePixelType fgLeftLung=1, ImagePixelType fgRightLung=2);
     void SetInputBonesLabelImage(const TImageType * image, ImagePixelType bg=0);
+    void SetInputTracheaLabelImage(const TImageType * image, ImagePixelType bg=0);
    
     /** ImageDimension constants */
     itkStaticConstMacro(ImageDimension, unsigned int, TImageType::ImageDimension);
@@ -99,6 +102,10 @@ namespace clitk {
     itkGetConstMacro(ForegroundValueRightLung, ImagePixelType);
     GGO_DefineOption(lungRight, SetForegroundValueRightLung, ImagePixelType);
     
+    itkSetMacro(BackgroundValueTrachea, ImagePixelType);
+    itkGetConstMacro(BackgroundValueTrachea, ImagePixelType);
+    GGO_DefineOption(lungBG, SetBackgroundValueTrachea, ImagePixelType);
+    
     itkSetMacro(IntermediateSpacing, double);
     itkGetConstMacro(IntermediateSpacing, double);
     GGO_DefineOption(spacing, SetIntermediateSpacing, double);
@@ -125,6 +132,7 @@ namespace clitk {
     ImagePixelType m_BackgroundValuePatient;
     ImagePixelType m_BackgroundValueLung;
     ImagePixelType m_BackgroundValueBones;
+    ImagePixelType m_BackgroundValueTrachea;
     ImagePixelType m_ForegroundValueLeftLung;
     ImagePixelType m_ForegroundValueRightLung;
 

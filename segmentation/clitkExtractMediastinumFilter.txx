@@ -24,6 +24,7 @@
 #include "clitkExtractMediastinumFilter.h"
 #include "clitkAddRelativePositionConstraintToLabelImageFilter.h"
 #include "clitkSegmentationUtils.h"
+#include "clitkExtractAirwayTreeInfoFilter.h"
 
 // itk
 #include <deque>
@@ -36,13 +37,13 @@
 #include "RelativePositionPropImageFilter.h"
 
 //--------------------------------------------------------------------
-template <class TImageType>
-clitk::ExtractMediastinumFilter<TImageType>::
+template <class ImageType>
+clitk::ExtractMediastinumFilter<ImageType>::
 ExtractMediastinumFilter():
   clitk::FilterBase(),
-  itk::ImageToImageFilter<TImageType, TImageType>()
+  itk::ImageToImageFilter<ImageType, ImageType>()
 {
-  this->SetNumberOfRequiredInputs(3);
+  this->SetNumberOfRequiredInputs(4);
 
   SetBackgroundValuePatient(0);
   SetBackgroundValueLung(0);
@@ -60,23 +61,25 @@ ExtractMediastinumFilter():
 
 
 //--------------------------------------------------------------------
-template <class TImageType>
+template <class ImageType>
 void 
-clitk::ExtractMediastinumFilter<TImageType>::
-SetInputPatientLabelImage(const TImageType * image, ImagePixelType bg) {
-  this->SetNthInput(0, const_cast<TImageType *>(image));
+clitk::ExtractMediastinumFilter<ImageType>::
+SetInputPatientLabelImage(const ImageType * image, ImagePixelType bg) 
+{
+  this->SetNthInput(0, const_cast<ImageType *>(image));
   m_BackgroundValuePatient = bg;
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-template <class TImageType>
+template <class ImageType>
 void 
-clitk::ExtractMediastinumFilter<TImageType>::
-SetInputLungLabelImage(const TImageType * image, ImagePixelType bg, 
-                       ImagePixelType fgLeft, ImagePixelType fgRight) {
-  this->SetNthInput(1, const_cast<TImageType *>(image));
+clitk::ExtractMediastinumFilter<ImageType>::
+SetInputLungLabelImage(const ImageType * image, ImagePixelType bg, 
+                       ImagePixelType fgLeft, ImagePixelType fgRight) 
+{
+  this->SetNthInput(1, const_cast<ImageType *>(image));
   m_BackgroundValueLung = bg;
   m_ForegroundValueLeftLung = fgLeft;
   m_ForegroundValueRightLung = fgRight;
@@ -85,21 +88,34 @@ SetInputLungLabelImage(const TImageType * image, ImagePixelType bg,
 
 
 //--------------------------------------------------------------------
-template <class TImageType>
+template <class ImageType>
 void 
-clitk::ExtractMediastinumFilter<TImageType>::
-SetInputBonesLabelImage(const TImageType * image, ImagePixelType bg) {
-  this->SetNthInput(2, const_cast<TImageType *>(image));
+clitk::ExtractMediastinumFilter<ImageType>::
+SetInputBonesLabelImage(const ImageType * image, ImagePixelType bg) 
+{
+  this->SetNthInput(2, const_cast<ImageType *>(image));
   m_BackgroundValueBones = bg;
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-template <class TImageType>
+template <class ImageType>
+void 
+clitk::ExtractMediastinumFilter<ImageType>::
+SetInputTracheaLabelImage(const ImageType * image, ImagePixelType bg) 
+{
+  this->SetNthInput(3, const_cast<ImageType *>(image));
+  m_BackgroundValueTrachea = bg;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class ImageType>
 template<class ArgsInfoType>
 void 
-clitk::ExtractMediastinumFilter<TImageType>::
+clitk::ExtractMediastinumFilter<ImageType>::
 SetArgsInfo(ArgsInfoType mArgsInfo)
 {
   SetVerboseOption_GGO(mArgsInfo);
@@ -109,7 +125,7 @@ SetArgsInfo(ArgsInfoType mArgsInfo)
 
   SetBackgroundValuePatient_GGO(mArgsInfo);
   SetBackgroundValueLung_GGO(mArgsInfo);
-  SetBackgroundValueBones_GGO(mArgsInfo);
+  SetBackgroundValueTrachea_GGO(mArgsInfo);
 
   SetForegroundValueLeftLung_GGO(mArgsInfo);
   SetForegroundValueRightLung_GGO(mArgsInfo);
@@ -122,11 +138,11 @@ SetArgsInfo(ArgsInfoType mArgsInfo)
 
 
 //--------------------------------------------------------------------
-template <class TImageType>
+template <class ImageType>
 void 
-clitk::ExtractMediastinumFilter<TImageType>::
+clitk::ExtractMediastinumFilter<ImageType>::
 GenerateOutputInformation() { 
-  ImagePointer input = dynamic_cast<TImageType*>(itk::ProcessObject::GetInput(0));
+  ImagePointer input = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
   ImagePointer outputImage = this->GetOutput(0);
   outputImage->SetRegions(outputImage->GetLargestPossibleRegion());
 }
@@ -134,33 +150,38 @@ GenerateOutputInformation() {
 
 
 //--------------------------------------------------------------------
-template <class TImageType>
+template <class ImageType>
 void 
-clitk::ExtractMediastinumFilter<TImageType>::
-GenerateInputRequestedRegion() {
+clitk::ExtractMediastinumFilter<ImageType>::
+GenerateInputRequestedRegion() 
+{
   // Call default
   Superclass::GenerateInputRequestedRegion();  
   // Get input pointers
-  ImagePointer patient = dynamic_cast<TImageType*>(itk::ProcessObject::GetInput(0));
-  ImagePointer lung    = dynamic_cast<TImageType*>(itk::ProcessObject::GetInput(1));
-  ImagePointer bones   = dynamic_cast<TImageType*>(itk::ProcessObject::GetInput(2));
+  ImagePointer patient = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
+  ImagePointer lung    = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(1));
+  ImagePointer bones   = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(2));
+  ImagePointer trachea = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(3));
     
   patient->SetRequestedRegion(patient->GetLargestPossibleRegion());
   lung->SetRequestedRegion(lung->GetLargestPossibleRegion());
   bones->SetRequestedRegion(bones->GetLargestPossibleRegion());
+  trachea->SetRequestedRegion(trachea->GetLargestPossibleRegion());
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-template <class TImageType>
+template <class ImageType>
 void 
-clitk::ExtractMediastinumFilter<TImageType>::
-GenerateData() {
+clitk::ExtractMediastinumFilter<ImageType>::
+GenerateData() 
+{
   // Get input pointers
-  ImageConstPointer patient = dynamic_cast<const TImageType*>(itk::ProcessObject::GetInput(0));
-  ImageConstPointer lung   = dynamic_cast<const TImageType*>(itk::ProcessObject::GetInput(1));
-  ImageConstPointer bones   = dynamic_cast<const TImageType*>(itk::ProcessObject::GetInput(2));
+  ImageConstPointer patient = dynamic_cast<const ImageType*>(itk::ProcessObject::GetInput(0));
+  ImageConstPointer lung    = dynamic_cast<const ImageType*>(itk::ProcessObject::GetInput(1));
+  ImageConstPointer bones   = dynamic_cast<const ImageType*>(itk::ProcessObject::GetInput(2));
+  ImageConstPointer trachea = dynamic_cast<const ImageType*>(itk::ProcessObject::GetInput(3));
     
   // Get output pointer
   ImagePointer output;
@@ -180,73 +201,135 @@ GenerateData() {
   boolFilter->Update(); 
   output = boolFilter->GetOutput();
 
+  // Auto crop to gain support area
   output = clitk::AutoCrop<ImageType>(output, GetBackgroundValue()); 
-  ////autoCropFilter->GetOutput();  typedef clitk::AutoCropFilter<ImageType> CropFilterType;
-  //typename CropFilterType::Pointer cropFilter = CropFilterType::New();
-  //cropFilter->SetInput(output);
-  //cropFilter->Update();   
-  //output = cropFilter->GetOutput();
-
-  this->template StopCurrentStep<TImageType>(output);
+  this->template StopCurrentStep<ImageType>(output);
 
   // Step 2: LR limits from lung (need separate lung ?)
   StartNewStep("Left/Right limits with lungs");
-  typedef clitk::AddRelativePositionConstraintToLabelImageFilter<TImageType> RelPosFilterType;
+
+  /* // WE DO NOT NEED THE FOLLOWING
+     // Get separate lung images to get only the right and left lung
+     // (label must be '1' because right is greater than left).
+     ImagePointer right_lung = clitk::SetBackground<ImageType, ImageType>(lung, lung, 2, 0);
+     ImagePointer left_lung = clitk::SetBackground<ImageType, ImageType>(lung, lung, 1, 0);
+     writeImage<ImageType>(right_lung, "right.mhd");
+     writeImage<ImageType>(left_lung, "left.mhd");
+  */
+
+  typedef clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType> RelPosFilterType;
   typename RelPosFilterType::Pointer relPosFilter = RelPosFilterType::New();
   relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
   relPosFilter->VerboseStepOff();
   relPosFilter->WriteStepOff();
   relPosFilter->SetInput(output); 
+  DD(output->GetLargestPossibleRegion().GetIndex());
+  //  relPosFilter->SetInputObject(left_lung); 
   relPosFilter->SetInputObject(lung); 
-  relPosFilter->SetOrientationType(RelPosFilterType::LeftTo);
+  relPosFilter->SetOrientationType(RelPosFilterType::LeftTo); // warning left lung is at right ;)
   relPosFilter->SetIntermediateSpacing(GetIntermediateSpacing());
   relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold1());
   relPosFilter->Update();
   output = relPosFilter->GetOutput();
+  DD(output->GetLargestPossibleRegion());
 
   relPosFilter->SetInput(output); 
   relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
   relPosFilter->VerboseStepOff();
   relPosFilter->WriteStepOff();
+  //  relPosFilter->SetInputObject(right_lung);
   relPosFilter->SetInputObject(lung); 
   relPosFilter->SetOrientationType(RelPosFilterType::RightTo);
   relPosFilter->SetIntermediateSpacing(GetIntermediateSpacing());
   relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold1());
   relPosFilter->Update();   
   output = relPosFilter->GetOutput();
-  this->template StopCurrentStep<TImageType>(output);
+  DD(output->GetLargestPossibleRegion());
+  this->template StopCurrentStep<ImageType>(output);
 
   // Step 3: AP limits from bones
   StartNewStep("Ant/Post limits with bones");
+  ImageConstPointer bones_ant;
+  ImageConstPointer bones_post;
+
+  // Find ant-post coordinate of trachea (assume the first point is a
+  // good estimation of the ant-post position of the trachea)
+  typedef clitk::ExtractAirwayTreeInfoFilter<ImageType> AirwayFilter;
+  typename AirwayFilter::Pointer airwayfilter = AirwayFilter::New();
+  airwayfilter->SetInput(trachea);
+  airwayfilter->Update();
+  DD(airwayfilter->GetFirstTracheaPoint());
+  ImagePointType point_trachea = airwayfilter->GetFirstTracheaPoint();
+  ImageIndexType index_trachea;
+  bones->TransformPhysicalPointToIndex(point_trachea, index_trachea);
+  DD(index_trachea);
+  
+  // Split bone image first into two parts (ant and post)
+  typedef itk::RegionOfInterestImageFilter<ImageType, ImageType> CropFilterType;
+  //  typedef itk::ExtractImageFilter<ImageType, ImageType> CropFilterType;
+  typename CropFilterType::Pointer cropFilter = CropFilterType::New();
+  ImageRegionType region = bones->GetLargestPossibleRegion();
+  ImageSizeType size = region.GetSize();
+  DD(size);
+  size[1] =  index_trachea[1]; //size[1]/2.0;
+  DD(size);
+  region.SetSize(size);
+  cropFilter->SetInput(bones);
+  //  cropFilter->SetExtractionRegion(region);
+  cropFilter->SetRegionOfInterest(region);
+  cropFilter->ReleaseDataFlagOff();
+  cropFilter->Update();
+  bones_ant = cropFilter->GetOutput();
+  writeImage<ImageType>(bones_ant, "b_ant.mhd");
+  
+  //  cropFilter->ResetPipeline();// = CropFilterType::New();  
+  cropFilter = CropFilterType::New();  
+  ImageIndexType index = region.GetIndex();
+  size[1] =  bones->GetLargestPossibleRegion().GetSize()[1] - size[1];
+  index[1] = bones->GetLargestPossibleRegion().GetIndex()[1] + size[1]-1;
+  DD(size);
+  region.SetIndex(index);
+  region.SetSize(size);
+  cropFilter->SetInput(bones);
+  //  cropFilter->SetExtractionRegion(region);
+  cropFilter->SetRegionOfInterest(region);
+  cropFilter->ReleaseDataFlagOff();
+  cropFilter->Update();
+  bones_post = cropFilter->GetOutput();
+  writeImage<ImageType>(bones_post, "b_post.mhd");
+
+  // Go ! 
   relPosFilter->SetCurrentStepNumber(0);
   relPosFilter->ResetPipeline();// = RelPosFilterType::New();
   relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
   relPosFilter->VerboseStepOff();
   relPosFilter->WriteStepOff();
   relPosFilter->SetInput(output); 
-  relPosFilter->SetInputObject(bones); 
+  relPosFilter->SetInputObject(bones_post); 
   relPosFilter->SetOrientationType(RelPosFilterType::AntTo);
   relPosFilter->SetIntermediateSpacing(GetIntermediateSpacing());
   relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold2());
   relPosFilter->Update();
+  output = relPosFilter->GetOutput();
+  writeImage<ImageType>(output, "post.mhd");
 
   relPosFilter->SetInput(relPosFilter->GetOutput()); 
   relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
   relPosFilter->VerboseStepOff();
   relPosFilter->WriteStepOff();
-  relPosFilter->SetInputObject(bones); 
+  relPosFilter->SetInput(output); 
+  relPosFilter->SetInputObject(bones_ant); 
   relPosFilter->SetOrientationType(RelPosFilterType::PostTo);
   relPosFilter->SetIntermediateSpacing(GetIntermediateSpacing());
   relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold2());
   relPosFilter->Update();   
   output = relPosFilter->GetOutput();
-  this->template StopCurrentStep<TImageType>(output);
-
+  this->template StopCurrentStep<ImageType>(output);
   // Get CCL
-  output = clitk::Labelize<TImageType>(output, GetBackgroundValue(), true, 100);
-  // output = RemoveLabels<TImageType>(output, BG, param->GetLabelsToRemove());
-  output = clitk::KeepLabels<TImageType>(output, GetBackgroundValue(), 
-                                  GetForegroundValue(), 1, 1, 0);
+  output = clitk::Labelize<ImageType>(output, GetBackgroundValue(), true, 100);
+  // output = RemoveLabels<ImageType>(output, BG, param->GetLabelsToRemove());
+  output = clitk::KeepLabels<ImageType>(output, GetBackgroundValue(), 
+                                        GetForegroundValue(), 1, 1, 0);
 
   output = clitk::AutoCrop<ImageType>(output, GetBackgroundValue()); 
   //  cropFilter = CropFilterType::New();

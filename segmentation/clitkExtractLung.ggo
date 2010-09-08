@@ -30,6 +30,7 @@ option "lastKeep1"   -	"Last label to keep"		          int		no
 
 section "Step 2 : find trachea"
 
+option "skipslices"                  -  "Number of slices to skip before searching seed" int no default="0"
 option "upperThresholdForTrachea"    -	"Initial upper threshold for trachea"  double	no  default="-900"
 option "multiplierForTrachea"	     -	"Multiplier for the region growing"    double	no  default="5"
 option "thresholdStepSizeForTrachea" -	"Threshold step size"	               int      no  default="64"

@@ -95,6 +95,29 @@ namespace clitk {
     itkGetConstMacro(MinimalComponentSize, int);
     GGO_DefineOption(minSize, SetMinimalComponentSize, int);
 
+    // Step 0
+    itkBooleanMacro(InitialSmoothing);
+    itkSetMacro(InitialSmoothing, bool);
+    itkGetMacro(InitialSmoothing, bool);
+    GGO_DefineOption_Flag(smooth, SetInitialSmoothing);
+
+    itkSetMacro(SmoothingConductanceParameter, double);
+    itkGetConstMacro(SmoothingConductanceParameter, double);
+    GGO_DefineOption(cond, SetSmoothingConductanceParameter, double);
+    
+    itkSetMacro(SmoothingNumberOfIterations, int);
+    itkGetConstMacro(SmoothingNumberOfIterations, int);
+    GGO_DefineOption(iter, SetSmoothingNumberOfIterations, int);
+
+    itkSetMacro(SmoothingTimeStep, double);
+    itkGetConstMacro(SmoothingTimeStep, double);
+    GGO_DefineOption(time, SetSmoothingTimeStep, double);
+
+    itkSetMacro(SmoothingUseImageSpacing, bool);
+    itkGetConstMacro(SmoothingUseImageSpacing, bool);
+    itkBooleanMacro(SmoothingUseImageSpacing);
+    GGO_DefineOption_Flag(spacing, SetSmoothingUseImageSpacing);
+
     // Step 1 
     itkSetMacro(UpperThreshold1, InputImagePixelType);
     itkGetMacro(UpperThreshold1, InputImagePixelType);
@@ -141,6 +164,14 @@ namespace clitk {
     itkSetMacro(ForegroundValue, OutputImagePixelType);
     OutputImagePixelType m_BackgroundValue;
     OutputImagePixelType m_ForegroundValue;
+    bool m_AutoCrop;
+
+    // Step 0 : Initial Filtering
+    bool m_InitialSmoothing;
+    double m_SmoothingConductanceParameter;
+    int m_SmoothingNumberOfIterations;
+    double m_SmoothingTimeStep; 
+    bool m_SmoothingUseImageSpacing;
 
     // Step 1
     InputImagePixelType m_UpperThreshold1;
@@ -154,8 +185,6 @@ namespace clitk {
     InputImageSizeType m_Radius2;
     int m_SampleRate2;
     
-    bool m_AutoCrop;
-
     virtual void GenerateOutputInformation();
     virtual void GenerateData();
 
@@ -166,6 +195,7 @@ namespace clitk {
     void RemoveTrachea();
     void BonesSeparation();
     InputImageConstPointer input;
+    InputImagePointer filtered_input;
     OutputImageConstPointer patient;
     InputImagePointer working_input;
     typename InternalImageType::Pointer working_image;  

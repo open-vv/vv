@@ -17,6 +17,15 @@ option "input"		i	"Input image filename"		  string  	yes
 option "output"    	o   	"Output image filename"		  string 	yes
 option "like"    	l   	"Resample like this image"	  string 	no
 
+section "Smoothing (curvature anistropic diffusion)"
+
+option "smooth"			-	"smooth input image"			flag 	 	off
+option "spacing"		-	"Use image spacing"			flag 	 	off
+option "cond"			-	"Conductance parameter" 			double no	default="3.0"
+option "time"			-	"Time step (0.125 for 2D and 0.0625 for 3D)" 	double no	default="0.0625"
+option "iter"			-	"Iterations" 				double no	default="5"
+
+
 section "Initial connected component labelling (CCL)"
 
 option "lower1"			-	"Lower threshold for CCL"			double	no default="100" 

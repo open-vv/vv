@@ -30,6 +30,7 @@
 #include "itkConnectedComponentImageFilter.h"
 #include "itkRelabelComponentImageFilter.h"
 #include "itkNeighborhoodConnectedImageFilter.h"
+#include "itkCurvatureAnisotropicDiffusionImageFilter.h"
 
 //--------------------------------------------------------------------
 template <class TInputImageType, class TOutputImageType>
@@ -42,6 +43,12 @@ ExtractBonesFilter():
   this->SetNumberOfRequiredInputs(1);
   SetBackgroundValue(0); // Must be zero
   SetForegroundValue(1);
+  SetInitialSmoothing(false);
+
+  SetSmoothingConductanceParameter(3.0);
+  SetSmoothingNumberOfIterations(5);
+  SetSmoothingTimeStep(0.0625);
+  SetSmoothingUseImageSpacing(false);
 
   SetMinimalComponentSize(100);
   SetUpperThreshold1(1500);
@@ -81,6 +88,12 @@ SetArgsInfo(ArgsInfoType mArgsInfo)
   SetVerboseStep_GGO(mArgsInfo);
   SetWriteStep_GGO(mArgsInfo);
   SetVerboseWarningOff_GGO(mArgsInfo);
+  
+  SetInitialSmoothing_GGO(mArgsInfo);
+  SetSmoothingConductanceParameter_GGO(mArgsInfo);
+  SetSmoothingNumberOfIterations_GGO(mArgsInfo);
+  SetSmoothingTimeStep_GGO(mArgsInfo);
+  SetSmoothingUseImageSpacing_GGO(mArgsInfo);
 
   SetMinimalComponentSize_GGO(mArgsInfo);
   SetUpperThreshold1_GGO(mArgsInfo);
@@ -117,17 +130,36 @@ GenerateOutputInformation() {
   typedef itk::CastImageFilter<InternalImageType,OutputImageType> CastImageFilterType; 
   typedef itk::ImageFileWriter<OutputImageType> WriterType; 
 
+  //---------------------------------
+  // Smoothing [Optional]
+  //---------------------------------
+  if (GetInitialSmoothing()) {
+    StartNewStep("Initial Smoothing");
+    typedef itk::CurvatureAnisotropicDiffusionImageFilter<InputImageType, InputImageType> FilterType;
+    typename FilterType::Pointer df = FilterType::New(); 
+    df->SetConductanceParameter(GetSmoothingConductanceParameter());
+    df->SetNumberOfIterations(GetSmoothingNumberOfIterations());
+    df->SetTimeStep(GetSmoothingTimeStep());
+    df->SetUseImageSpacing(GetSmoothingUseImageSpacing());
+    df->SetInput(input);
+    df->Update();
+    filtered_input = df->GetOutput();
+    StopCurrentStep<InputImageType>(filtered_input);
+  }
+  else {
+    filtered_input = input;
+  }
+
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   StartNewStep("Initial Labeling");
-
   typename InternalImageType::Pointer firstLabelImage;
     
   //---------------------------------
   // Binarize the image
   //---------------------------------
   typename InputBinarizeFilterType::Pointer binarizeFilter=InputBinarizeFilterType::New();
-  binarizeFilter->SetInput(input);
+  binarizeFilter->SetInput(filtered_input);
   binarizeFilter->SetLowerThreshold(GetLowerThreshold1());
   binarizeFilter->SetUpperThreshold(GetUpperThreshold1());
   binarizeFilter->SetInsideValue(this->GetForegroundValue());
@@ -160,6 +192,7 @@ GenerateOutputInformation() {
   binarizeFilter2->Update();
 
   firstLabelImage = binarizeFilter2->GetOutput();
+  StopCurrentStep<InternalImageType>(firstLabelImage);
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
@@ -179,7 +212,7 @@ GenerateOutputInformation() {
   neighborhoodConnectedImageFilter->SetUpper(GetUpperThreshold2());
   neighborhoodConnectedImageFilter->SetReplaceValue(this->GetForegroundValue());
   neighborhoodConnectedImageFilter->SetRadius(GetRadius2());
-  neighborhoodConnectedImageFilter->SetInput(input);
+  neighborhoodConnectedImageFilter->SetInput(filtered_input);
 
   // Seeds from label image
   typedef itk::ImageRegionIteratorWithIndex<InternalImageType> IteratorType;
@@ -209,7 +242,7 @@ GenerateOutputInformation() {
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
-  StartNewStep("Combine de images");
+  StartNewStep("Combine the images");
   typedef clitk::SetBackgroundImageFilter<InternalImageType, InternalImageType, InternalImageType> 
     SetBackgroundImageFilterType;
   typename SetBackgroundImageFilterType::Pointer setBackgroundFilter=SetBackgroundImageFilterType::New();

@@ -147,6 +147,10 @@ public:
     itkGetConstMacro(UpperThreshold, InputImagePixelType);
     GGO_DefineOption(upper, SetUpperThreshold, InputImagePixelType);
 
+    itkSetMacro(NumberOfSlicesToSkipBeforeSearchingSeed, int);
+    itkGetConstMacro(NumberOfSlicesToSkipBeforeSearchingSeed, int);
+    GGO_DefineOption(skipslices, SetNumberOfSlicesToSkipBeforeSearchingSeed, int);
+    
     itkSetMacro(LowerThreshold, InputImagePixelType);
     itkGetConstMacro(LowerThreshold, InputImagePixelType);
     itkSetMacro(UseLowerThreshold, bool);
@@ -236,6 +240,7 @@ public:
     InputImagePixelType m_ThresholdStepSizeForTrachea;
     double m_MultiplierForTrachea;
     std::vector<InternalIndexType> m_Seeds;
+    int m_NumberOfSlicesToSkipBeforeSearchingSeed;
 
     // Step 3
     int m_NumberOfHistogramBins;
@@ -259,6 +264,12 @@ public:
                             MaskImageIndexType index,
                             MaskImagePixelType label);
         
+
+    bool SearchForTracheaSeed(int skip);
+    void SearchForTrachea();
+    void TracheaRegionGrowing();
+    double ComputeTracheaVolume();
+
   private:
     ExtractLungFilter(const Self&); //purposely not implemented
     void operator=(const Self&); //purposely not implemented
