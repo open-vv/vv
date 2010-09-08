@@ -189,6 +189,7 @@ GenerateData()
   static const unsigned int dim = InputImageType::ImageDimension;
 
   // Set regions and allocate
+  //DD(this->GetOutput()->GetLargestPossibleRegion());
   //this->GetOutput()->SetRegions(m_OutputRegion);
   //this->GetOutput()->Allocate();
   // this->GetOutput()->FillBuffer(m_DefaultPixelValue);
@@ -198,7 +199,7 @@ GenerateData()
   typename FilterType::Pointer filter = FilterType::New();
   filter->GraftOutput(this->GetOutput());
   //     this->GetOutput()->Print(std::cout);
-  //     this->GetOutput()->SetBufferedRegion(this->GetOutput()->GetLargestPossibleRegion());
+  this->GetOutput()->SetBufferedRegion(this->GetOutput()->GetLargestPossibleRegion());
   //     this->GetOutput()->Print(std::cout);
 
   // Print options if needed
