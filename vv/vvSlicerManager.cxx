@@ -1217,6 +1217,8 @@ void vvSlicerManager::SetColorMap(int colormap)
     if (mSlicers[i]->GetFusion() && mSlicers[i]->GetFusionActor()->GetVisibility()) {
       mSlicers[i]->GetFusionActor()->SetOpacity(double(mFusionOpacity)/100);
       mSlicers[i]->GetFusionMapper()->SetLookupTable(fusLUT);
+      mSlicers[i]->GetFusionMapper()->SetWindow(mFusionWindow);
+      mSlicers[i]->GetFusionMapper()->SetLevel(mFusionLevel);
     }
   }
   if (fusLUT)
