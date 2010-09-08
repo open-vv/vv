@@ -70,6 +70,8 @@ namespace clitk {
     typedef typename ImageType::PixelType    PixelType;
     typedef typename ImageType::SpacingType  SpacingType;
     typedef typename ImageType::SizeType     SizeType;
+    typedef typename ImageType::IndexType    IndexType;
+    typedef typename ImageType::PointType    PointType;
     
     /** ImageDimension constants */
     itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);

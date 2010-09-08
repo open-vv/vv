@@ -173,7 +173,7 @@ GenerateData()
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   static const unsigned int dim = ImageType::ImageDimension;
-  StartNewStep("Initial resample and pad");  
+  StartNewStep("Initial resample");  
   // Step 1 : resample
   if (m_ResampleBeforeRelativePositionFilter) {
     typedef clitk::ResampleImageWithOptionsFilter<ImageType> ResampleFilterType;
@@ -181,36 +181,55 @@ GenerateData()
     resampleFilter->SetInput(object);
     resampleFilter->SetOutputIsoSpacing(m_IntermediateSpacing);
     resampleFilter->SetGaussianFilteringEnabled(false);
-    // resampleFilter->SetVerboseOptions(true);
+    //    resampleFilter->SetVerboseOptions(true);
     resampleFilter->Update();
     working_image = resampleFilter->GetOutput();
   }
   else {
     working_image = object;
   }
+  StopCurrentStep<ImageType>(working_image);
 
   // Step 2: object pad to input image -> we want to compute the
   // relative position for each point belonging to the input image
   // domain, so we have to extend (pad) the object image to fit the
   // domain size
   if (!clitk::HaveSameSizeAndSpacing<ImageType, ImageType>(input, working_image)) {
+    StartNewStep("Pad object to image size");  
     typename ImageType::Pointer output = ImageType::New();
     SizeType size;
     for(unsigned int i=0; i<dim; i++) {
       size[i] = lrint((input->GetLargestPossibleRegion().GetSize()[i]*input->GetSpacing()[i])/(double)working_image->GetSpacing()[i]);
     }
+
+    // The index of the input is not necessarily zero, so we have to
+    // take it into account (not done)
     RegionType region;
+    IndexType index = input->GetLargestPossibleRegion().GetIndex();
     region.SetSize(size);
+    for(unsigned int i=0; i<dim; i++) {
+      if (index[i] != 0) {
+        std::cerr << "Index diff from zero : " << index << ". not done yet !" << std::endl;
+        exit(0);
+      }
+    }
     // output->SetLargestPossibleRegion(region);
     output->SetRegions(region);
-    output->SetSpacing(working_image->GetSpacing());
-    output->SetOrigin(input->GetOrigin());
+    output->SetSpacing(working_image->GetSpacing());    
+    PointType origin = input->GetOrigin();
+    for(unsigned int i=0; i<dim; i++) {
+      origin[i] = index[i]*input->GetSpacing()[i] + input->GetOrigin()[i];
+    }
+    output->SetOrigin(origin);
+    //    output->SetOrigin(input->GetOrigin());
+
     output->Allocate();
     output->FillBuffer(m_BackgroundValue);
     typename PadFilterType::Pointer padFilter = PadFilterType::New();
-    typename PadFilterType::InputImageIndexType index;
+    // typename PadFilterType::InputImageIndexType index;
     for(unsigned int i=0; i<dim; i++) {
-      index[i] = lrint((working_image->GetOrigin()[i] - input->GetOrigin()[i])/working_image->GetSpacing()[i]);
+      index[i] = -index[i]*input->GetSpacing()[i]/(double)working_image->GetSpacing()[i]
+    + lrint((working_image->GetOrigin()[i] - input->GetOrigin()[i])/working_image->GetSpacing()[i]);
     }
     padFilter->SetSourceImage(working_image);
     padFilter->SetDestinationImage(output);
@@ -218,13 +237,14 @@ GenerateData()
     padFilter->SetSourceRegion(working_image->GetLargestPossibleRegion());
     padFilter->Update();
     working_image = padFilter->GetOutput();
+    StopCurrentStep<ImageType>(working_image);
   }
   else {
     // DD("[debug] RelPos : same size and spacing : no padding");
   }
   // Keep object image (with resampline and pad)
   object_resampled = working_image;
-  StopCurrentStep<ImageType>(working_image);
+ //  StopCurrentStep<ImageType>(working_image);
 
   // Step 3: compute rel pos in object
   StartNewStep("Relative Position Map");  
