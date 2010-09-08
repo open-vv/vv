@@ -110,9 +110,11 @@ namespace clitk {
     m_Region = m_labeImage->GetLargestPossibleRegion();
     // Sometimes the index is 9223372036854775807 ???
     if (m_Region.GetIndex()[0] > 99999) {
+      std::cerr << "Warning !! BUG int clitkAutoCropFilter ?" << std::endl;
       typename ImageType::IndexType index; 
       index.Fill(0);
       m_Region.SetIndex(index);
+      DD(m_Region);
     }
     output->SetLargestPossibleRegion(m_Region);
     output->SetRequestedRegion(m_Region);
@@ -129,20 +131,19 @@ namespace clitk {
     // Get input pointers
     ImageConstPointer input = dynamic_cast<const ImageType*>(itk::ProcessObject::GetInput(0));
   
-    // Extract the region
+    // Extract the region with RegionOfInterestImageFilter or ExtractImageFilter ? 
+    // The first is when reducing the nb of dimension (index always zero)
+    // The second keep index
 
-    //TO CHANGE WITH EXTRACTIMAGEFILTER ! 
-
-    //    typedef itk::RegionOfInterestImageFilter<ImageType, ImageType> CropFilterType;
-    typedef itk::ExtractImageFilter<ImageType, ImageType> CropFilterType;
+    typedef itk::RegionOfInterestImageFilter<ImageType, ImageType> CropFilterType;
+    //typedef itk::ExtractImageFilter<ImageType, ImageType> CropFilterType;
     m_labeImage->SetRequestedRegion(m_labeImage->GetLargestPossibleRegion());
     typename CropFilterType::Pointer cropFilter = CropFilterType::New();
     cropFilter->SetInput(m_labeImage);
+    cropFilter->SetReleaseDataFlag(this->GetReleaseDataFlag());
 
-    // cropFilter->SetRegionOfInterest(m_Region);
-    cropFilter->SetExtractionRegion(m_Region);
-
-    cropFilter->ReleaseDataFlagOff();
+    cropFilter->SetRegionOfInterest(m_Region);
+    //cropFilter->SetExtractionRegion(m_Region);
 
     // Go ! 
     cropFilter->Update();
