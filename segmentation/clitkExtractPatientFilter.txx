@@ -194,10 +194,10 @@ GenerateOutputInformation() {
   typedef itk::BinaryThresholdImageFilter<InternalImageType, InternalImageType> iBinarizeFilterType;  
   typename iBinarizeFilterType::Pointer binarizeFilter2 = iBinarizeFilterType::New();
   binarizeFilter2->SetInput(working_image);
-  binarizeFilter2->SetLowerThreshold(this->GetForegroundValue());
-  binarizeFilter2->SetUpperThreshold(this->GetForegroundValue());
-  binarizeFilter2 ->SetInsideValue(this->GetBackgroundValue());
-  binarizeFilter2 ->SetOutsideValue(this->GetForegroundValue());
+  binarizeFilter2->SetLowerThreshold(GetFirstKeep());
+  binarizeFilter2->SetUpperThreshold(GetLastKeep());
+  binarizeFilter2 ->SetInsideValue(0);
+  binarizeFilter2 ->SetOutsideValue(1);
   //  binarizeFilter2 ->Update(); // NEEDED ?
 
   typename ConnectFilterType::Pointer connectFilter2 = ConnectFilterType::New();
@@ -231,19 +231,6 @@ GenerateOutputInformation() {
     StopCurrentStep<InternalImageType>(working_image);
   }
 
-  //--------------------------------------------------------------------
-  //--------------------------------------------------------------------
-  StartNewStep("Keep patient's labels");
-  typename iBinarizeFilterType::Pointer binarizeFilter3 = iBinarizeFilterType::New();
-  binarizeFilter3->SetInput(working_image);
-  binarizeFilter3->SetLowerThreshold(GetFirstKeep());
-  binarizeFilter3->SetUpperThreshold(GetLastKeep());
-  binarizeFilter3 ->SetInsideValue(this->GetForegroundValue());
-  binarizeFilter3 ->SetOutsideValue(this->GetBackgroundValue());
-  binarizeFilter3->Update();
-  working_image = binarizeFilter3->GetOutput();
-  StopCurrentStep<InternalImageType>(working_image);
-  
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   // [Optional]
