@@ -27,6 +27,12 @@
 #include "vvMainWindow.h"
 #include "vvConstants.h"
 
+void load_image_first_error()
+{
+  std::cerr << "You need to load an image before adding an overlay!" << std::endl;
+  exit(1);
+}
+
 //------------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
@@ -53,48 +59,52 @@ int main( int argc, char** argv )
 
   window.show();
 
-  std::vector<std::string> filenames;
-  std::vector<std::pair<int ,std::string> > overlays;
-  std::vector<std::pair<int ,std::string> > rois;
-  std::vector<std::pair<int ,std::string> > vector_fields;
+  std::vector<std::string> sequence_filenames;
+  enum {P_NORMAL,P_SEQUENCE};
+  int parse_mode=P_NORMAL;
+  int n_image_loaded=0;
+
   if (argc >1) {
     for (int i = 1; i < argc; i++) {
-      std::string temp = argv[i];
-      if (temp=="--vf") {
-        assert(filenames.size()>=1);
-        vector_fields.push_back(std::make_pair(filenames.size()-1,argv[i+1]));
-        i++; //skip vf name
-      } 
+      std::string current = argv[i];
+      if (!current.compare(0,2,"--")) { //We are parsing an option
+        if (parse_mode == P_SEQUENCE) {//First finish the current sequence
+          window.LoadImages(sequence_filenames,MERGEDWITHTIME);
+          sequence_filenames.clear();
+          parse_mode=P_NORMAL;
+        }
+        if (current=="--vf") {
+          if (!n_image_loaded) load_image_first_error();
+          window.AddField(argv[i+1],n_image_loaded-1);
+          i++; //skip vf name
+        } 
+        else if (current=="--overlay") {
+            if (!n_image_loaded) load_image_first_error();
+            window.AddOverlayImage(n_image_loaded-1,argv[i+1]);
+            i++; //skip overlay name
+          } 
+        else if (current=="--roi") {
+            if (!n_image_loaded) load_image_first_error();
+            window.AddROI(n_image_loaded-1,argv[i+1]);
+            i++; //skip roi name
+          } 
+        else if (current == "--sequence") {
+          n_image_loaded++; //count only one for the sequence
+          parse_mode=P_SEQUENCE; }
+      }
+      else if (parse_mode == P_SEQUENCE)
+        sequence_filenames.push_back(current);
       else {
-	if (temp=="--overlay") {
-	  assert(filenames.size()>=1);
-	  overlays.push_back(std::make_pair(filenames.size()-1,argv[i+1]));
-	  i++; //skip overlay name
-	} 
-	else {
-	  if (temp=="--roi") {
-	    assert(filenames.size()>=1);
-	    rois.push_back(std::make_pair(filenames.size()-1,argv[i+1]));
-	    i++; //skip overlay name
-	  } 
-	  else {
-	    filenames.push_back(temp);
-	  }
-	}
+        DD(current);
+        std::vector<std::string> image; image.push_back(current);
+        window.LoadImages(image,IMAGE);
+        n_image_loaded++;
       }
     }
-    window.LoadImages(filenames,IMAGE);
-    for (std::vector<std::pair<int ,std::string> >::iterator i=overlays.begin();
-         i!=overlays.end(); i++)
-      window.AddOverlayImage((*i).first,(*i).second.c_str());
-    for (std::vector<std::pair<int ,std::string> >::iterator i=vector_fields.begin();
-         i!=vector_fields.end(); i++)
-      window.AddField((*i).second.c_str(), (*i).first);
-    for (std::vector<std::pair<int ,std::string> >::iterator i=rois.begin();
-         i!=rois.end(); i++) {
-      DD((*i).second.c_str());
-      DD((*i).first);
-      // window.AddROI((*i).second.c_str(), (*i).first);
+    if (parse_mode == P_SEQUENCE) {//Finish any current sequence
+      window.LoadImages(sequence_filenames,MERGEDWITHTIME);
+      sequence_filenames.clear();
+      parse_mode=P_NORMAL;
     }
 
   }
