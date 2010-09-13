@@ -116,7 +116,7 @@ IF (CLITK_BUILD_TOOLS)
 
     WRAP_GGO(clitkDicomRTStruct2BinaryImage_GGO_C clitkDicomRTStruct2BinaryImage.ggo)
     ADD_EXECUTABLE(clitkDicomRTStruct2BinaryImage clitkDicomRT_ROI_ConvertToImageFilter.cxx clitkDicomRTStruct2BinaryImage.cxx ${clitkDicomRTStruct2BinaryImage_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkDicomRTStruct2BinaryImage ITKCommon clitkDicomRTStruct clitkCommon ITKIO QVTK)
+    TARGET_LINK_LIBRARIES(clitkDicomRTStruct2BinaryImage ITKCommon clitkDicomRTStruct clitkCommon ITKIO )
 
     WRAP_GGO(clitkImageLog_GGO_C clitkImageLog.ggo)
     ADD_EXECUTABLE(clitkImageLog clitkImageLog.cxx ${clitkImageLog_GGO_C})
