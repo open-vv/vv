@@ -1,22 +1,6 @@
-/*=========================================================================
-  Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
-
-  Authors belong to: 
-  - University of LYON              http://www.universite-lyon.fr/
-  - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
-  - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
-
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.  See the copyright notices for more information.
-
-  It is distributed under dual licence
-
-  - BSD        See included LICENSE.txt file
-  - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-======================================================================-====*/
 #ifndef ITKBSPLINEINTERPOLATEIMAGEFUNCTIONWITHLUT_H
 #define ITKBSPLINEINTERPOLATEIMAGEFUNCTIONWITHLUT_H
+
 /* =========================================================================
                                                                                 
   @file   itkBSplineInterpolateImageFunctionWithLUT.h
@@ -36,7 +20,6 @@
 ========================================================================= */
 
 #include "itkBSplineWeightsCalculator.h"
-//#include "clitkTimer.h"
 #include <itkBSplineInterpolateImageFunction.h>
 
 namespace itk {
@@ -65,7 +48,7 @@ namespace itk {
     itkNewMacro(Self);
     
     /** Setting LUT sampling (one parameters by dimension or a single
-	one for all dim); Default is 10 (for each dim) **/
+	one for all dim); Default is 20 (for each dim) **/
     void SetLUTSamplingFactor(const int& s);
     void SetLUTSamplingFactors(const SizeType& s);
 
@@ -78,9 +61,7 @@ namespace itk {
 
     /** Set the input image.  This must be set by the user. */
     virtual void SetInputImage(const TImageType * inputData);
-    //void SetOutputSpacing(const SpacingType & s);
-    //void SetInputImageIsCoefficient(bool inputIsCoef) { mInputIsCoef = inputIsCoef; }
-
+    
     /** Evaluate the function at a ContinuousIndex position.
 	Overwritten for taking LUT into account */  
     virtual OutputType EvaluateAtContinuousIndex(const ContinuousIndexType & index ) const;
@@ -88,15 +69,6 @@ namespace itk {
     /** Static convenient functions to compute BSpline weights for
 	various order, dimension, sampling ... **/
     static void ComputeBlendingWeights(int dim, int order, int sampling, TCoefficientType * weights);
-
-    /** Timer giving computation time for coefficients computation **/    
-    // const clitk::Timer & GetCoefTimer() const { return mCoefficientTimer; }    
-
-    /** Get estimated error **/
-
-    double GetIntrinsicError() const { return *mIntrinsecError; }
-    long   GetNumberOfError() const { return *mNumberOfError; }
-    double GetIntrinsicErrorMax() const { return *mIntrinsecErrorMax; }
 
   protected:
     BSplineInterpolateImageFunctionWithLUT();
@@ -112,14 +84,6 @@ namespace itk {
     /** Sampling factors for LUT weights **/
     SizeType               mSamplingFactors;
     bool                   mWeightsAreUpToDate;
-    //SpacingType            mOutputSpacing;
-
-    double                 * mIntrinsecError;
-    double                 * mIntrinsecErrorMax;
-    long                   * mNumberOfError;
-
-    //JV add iscoeff, and splineorders
-    // bool     mInputIsCoef;
     SizeType mSplineOrders;
 
     // Filter to compute weights
@@ -130,15 +94,6 @@ namespace itk {
     void UpdateWeightsProperties();
     IndexType GetSampleIndexOfPixelPosition(const ContinuousIndexType & x, IndexType & EvaluateIndex) const;
 
-    // Timing options
-    // clitk::Timer mCoefficientTimer;
-    // clitk::Timer mLUTTimer;
-    bool  mTimerEnabled;
-
-    //JV threadsafety: everything on the stack
-    //std::vector<int> mCorrectedSupportOffset;
-    //std::vector<IndexType> mCorrectedSupportIndex;
-    TCoefficientType * coef;
 
   }; // end class itkBSplineInterpolateImageFunctionWithLUT
 } // end namespace

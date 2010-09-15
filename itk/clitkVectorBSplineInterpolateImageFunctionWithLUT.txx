@@ -42,16 +42,9 @@ VectorBSplineInterpolateImageFunctionWithLUT<TImageType,TCoordRep,TCoefficientTy
 VectorBSplineInterpolateImageFunctionWithLUT():Superclass()
 {
   // Set default values
-  //for(int i=0; i<TImageType::ImageDimension; i++) mOutputSpacing[i] = -1;
   SetLUTSamplingFactor(20);
   SetSplineOrder(3);
   mWeightsAreUpToDate = false;
-  // Following need to be pointer beacause values are updated into
-  // "const" function
-  //   mIntrinsecError  = new double;
-  //   mNumberOfError = new long;
-  //   mIntrinsecErrorMax = new double;
-  //   mInputIsCoef = false;
 }
 
 //====================================================================
@@ -76,16 +69,6 @@ SetLUTSamplingFactors(const SizeType& s)
   mWeightsAreUpToDate = false;
 }
 
-//====================================================================
-
-// //====================================================================
-// template <class TImageType, class TCoordRep, class TCoefficientType>
-// void VectorBSplineInterpolateImageFunctionWithLUT<TImageType,TCoordRep,TCoefficientType>::
-// SetOutputSpacing(const SpacingType & s) {
-//   for(int i=0; i<TImageType::ImageDimension; i++)
-//     mOutputSpacing[i] = s[i];
-//   // mWeightsAreUpToDate = false;
-// }
 //====================================================================
 
 //====================================================================
@@ -140,27 +123,11 @@ template <class TImageType, class TCoordRep, class TCoefficientType>
 void VectorBSplineInterpolateImageFunctionWithLUT<TImageType,TCoordRep,TCoefficientType>::
 SetInputImage(const TImageType * inputData)
 {
-
-  //==============================
-  //   if (!mInputIsCoef)
-  //     {
+  // JV  Call superclass (decomposition filter is executeed each time!)
+  // JV Should call clitkVectorBSplineDecompositionFilterWithOBD to allow different order by dimension
   Superclass::SetInputImage(inputData);
-  //     }
-
-  //==============================
-  //   //JV  Don't call superclass (decomposition filter is executeed each time!)
-  //   else
-  //     {
-  //       this->m_Coefficients = inputData;
-  //       if ( this->m_Coefficients.IsNotNull())
-  // 	{
-  // 	  this->m_DataLength = this->m_Coefficients->GetBufferedRegion().GetSize();
-  // 	}
-
-  //       //Call super-superclass in case more input arrives
-  //       itk::ImageFunction<TImageType, ITK_TYPENAME itk::NumericTraits<typename TImageType::PixelType>::RealType, TCoefficientType>::SetInputImage(inputData);
-  //     }
-
+    
+  // Update the weightproperties
   if (!inputData) return;
   UpdateWeightsProperties();
 
@@ -180,8 +147,6 @@ UpdateWeightsProperties()
       mInputMemoryOffset[l-1]*this->m_Coefficients->GetLargestPossibleRegion().GetSize(l-1);
   }
 
-  //JV Put here?
-  if (!mWeightsAreUpToDate) {
     // Compute mSupportOffset according to input size
     mSupportOffset.resize(mSupportSize);
     mSupportIndex.resize(mSupportSize);
@@ -199,27 +164,16 @@ UpdateWeightsProperties()
           if (static_cast<unsigned int>(mSupportIndex[k+1][l]) == mSupport[l]) {
             mSupportIndex[k+1][l] = 0;
             l++;
-          } else stop = true;
+          }
+        else stop = true;
         }
       }
     }
 
-    //  // Check
-    //   for(unsigned int l=0; l<d; l++) {
-    //     if (mOutputSpacing[l] == -1) {
-    //       std::cerr << "Please use SetOutputSpacing before using BLUT interpolator" << std::endl;
-    //       exit(0);
-    //     }
-    //   }
-
     // Compute BSpline weights if not up to date
-    //if (!mWeightsAreUpToDate)
-    UpdatePrecomputedWeights();
+    if (!mWeightsAreUpToDate)
+      UpdatePrecomputedWeights();
   }
-  // Initialisation
-  //   *mIntrinsecErrorMax = *mIntrinsecError = 0.0;
-  //   *mNumberOfError = 0;
-}
 //====================================================================
 
 //====================================================================
@@ -227,18 +181,10 @@ template <class TImageType, class TCoordRep, class TCoefficientType>
 void VectorBSplineInterpolateImageFunctionWithLUT<TImageType,TCoordRep,TCoefficientType>::
 UpdatePrecomputedWeights()
 {
-  //   mLUTTimer.Reset();
-  //   mLUTTimer.Start();
   mWeightsCalculator.SetSplineOrders(mSplineOrders);
   mWeightsCalculator.SetSamplingFactors(mSamplingFactors);
   mWeightsCalculator.ComputeTensorProducts();
   mWeightsAreUpToDate = true;
-  //DS
-  //   coef = new TCoefficientType[mSupportSize];
-  //     mCorrectedSupportIndex.resize(mSupportSize);
-  //     mCorrectedSupportOffset.resize(mSupportSize);
-  //  mLUTTimer.Stop();
-  //   mLUTTimer.Print("LUT      \t");
 }
 //====================================================================
 
@@ -259,8 +205,6 @@ GetSampleIndexOfPixelPosition(const ContinuousIndexType & x, IndexType & Evaluat
   IndexType index;
 
   for(int l=0; l<TImageType::ImageDimension; l++) {
-    //  bool mChange = false;
-
     // Compute t1 = distance to floor
     TCoefficientType t1 = x[l]- vcl_floor(x[l]);
 
@@ -279,13 +223,6 @@ GetSampleIndexOfPixelPosition(const ContinuousIndexType & x, IndexType & Evaluat
         else if (index[l] == (int) mSamplingFactors[l]/2) EvaluateIndex[l] = EvaluateIndex[l]+1;
       }
     }
-
-    // Statistics (to be removed)
-    /*
-     *mIntrinsecError += fabs(index[l]-t2);
-     (*mNumberOfError)++;
-     if (fabs(index[l]-t2)> *mIntrinsecErrorMax) *mIntrinsecErrorMax = fabs(index[l]-t2);
-    */
 
     // When to close to 1, take the next coefficient for odd order, but
     // only change index for odd
@@ -309,6 +246,8 @@ VectorBSplineInterpolateImageFunctionWithLUT<TImageType,TCoordRep,TCoefficientTy
 EvaluateAtContinuousIndex(const ContinuousIndexType & x) const
 {
 
+    // JV Compute BSpline weights if not up to date! Problem const: pass image as last
+    //  if (!mWeightsAreUpToDate) UpdatePrecomputedWeights();
   // For shorter coding
   static const unsigned int d = TImageType::ImageDimension;
 
@@ -347,20 +286,13 @@ EvaluateAtContinuousIndex(const ContinuousIndexType & x) const
   // Special case for boundary (to be changed ....)
   std::vector<int> correctedSupportOffset;
   if (boundaryCase) {
-    //    return -1000;
-    //std::vector<TCoefficientType> coef(mSupportSize);
-    // DD(EvaluateIndex);
-    //std::vector<int> CorrectedSupportOffset;//(mSupportSize);
     std::vector<IndexType> correctedSupportIndex;//(mSupportSize);
     correctedSupportIndex.resize(mSupportSize);
     correctedSupportOffset.resize(mSupportSize);
     for(unsigned int i=0; i<mSupportSize; i++) {
-      // DD(mSupportIndex[i]);
       for (unsigned int l=0; l<d; l++) {
         long a = mSupportIndex[i][l] + evaluateIndex[l];
         long b = this->m_Coefficients->GetLargestPossibleRegion().GetSize(l);
-        // DD(a);
-        // DD(b);
         long d2 = 2 * b - 2;
         if (a < 0) {
           correctedSupportIndex[i][l] = -a - d2*(-a/d2) - evaluateIndex[l];//mSupportIndex[i][l]-a;
@@ -383,10 +315,6 @@ EvaluateAtContinuousIndex(const ContinuousIndexType & x) const
       // DD(correctedSupportIndex[i]);
       correctedSupportOffset[i] = itk::Index2Offset<TImageType::ImageDimension>(correctedSupportIndex[i], mInputMemoryOffset);
     }
-    // for (unsigned int l=0; l<d; l++) {
-    //       EvaluateIndex[l] = EvaluateIndex[l] + correctedSupportIndex[0][l];
-    //     }
-    // DD(EvaluateIndex);
     psupport = &correctedSupportOffset[0];
   } else {
     psupport = &mSupportOffset[0];
@@ -398,7 +326,7 @@ EvaluateAtContinuousIndex(const ContinuousIndexType & x) const
   const CoefficientImagePixelType * pcoef = &(this->m_Coefficients->GetPixel(evaluateIndex));
 
   // Main loop over BSpline support
-  CoefficientImagePixelType interpolated = 0.0;
+  CoefficientImagePixelType interpolated = itk::NumericTraits<CoefficientImagePixelType>::Zero;;
   for (unsigned int p=0; p<mSupportSize; p++) {
     interpolated += pcoef[*psupport] * (*pweights);
     ++psupport;
@@ -425,7 +353,6 @@ EvaluateWeightsAtContinuousIndex(const ContinuousIndexType&  x,  const TCoeffici
   static const unsigned int d = TImageType::ImageDimension;
 
   // Compute the index of the first interpolation coefficient in the coefficient image
-  //IndexType evaluateIndex;
   long indx;
   for (unsigned int l=0; l<d; l++)  {
     if (mSplineOrders[l] & 1) {  // Use this index calculation for odd splineOrder (like cubic)

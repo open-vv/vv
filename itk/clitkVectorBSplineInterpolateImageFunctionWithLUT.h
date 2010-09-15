@@ -36,7 +36,6 @@
 ========================================================================= */
 
 #include "itkBSplineWeightsCalculator.h"
-//#include "clitkTimer.h"
 #include "clitkVectorBSplineInterpolateImageFunction.h"
 
 namespace clitk {
@@ -69,7 +68,7 @@ namespace clitk {
     itkNewMacro(Self);
     
     /** Setting LUT sampling (one parameters by dimension or a single
-	one for all dim); Default is 10 (for each dim) **/
+	one for all dim); Default is 20 (for each dim) **/
     void SetLUTSamplingFactor(const int& s);
     void SetLUTSamplingFactors(const SizeType& s);
 
@@ -94,15 +93,6 @@ namespace clitk {
 	various order, dimension, sampling ... **/
     static void ComputeBlendingWeights(int dim, int order, int sampling, TCoefficientType * weights);
 
-    /** Timer giving computation time for coefficients computation **/    
-    // const clitk::Timer & GetCoefTimer() const { return mCoefficientTimer; }    
-
-    /** Get estimated error **/
-
-    double GetIntrinsicError() const { return *mIntrinsecError; }
-    long   GetNumberOfError() const { return *mNumberOfError; }
-    double GetIntrinsicErrorMax() const { return *mIntrinsecErrorMax; }
-
   protected:
     VectorBSplineInterpolateImageFunctionWithLUT();
     ~VectorBSplineInterpolateImageFunctionWithLUT(){;}
@@ -117,14 +107,6 @@ namespace clitk {
     /** Sampling factors for LUT weights **/
     SizeType               mSamplingFactors;
     bool                   mWeightsAreUpToDate;
-    //SpacingType            mOutputSpacing;
-
-    double                 * mIntrinsecError;
-    double                 * mIntrinsecErrorMax;
-    long                   * mNumberOfError;
-
-    //JV add iscoeff, and splineorders
-    // bool     mInputIsCoef;
     SizeType mSplineOrders;
 
     // Filter to compute weights
@@ -135,15 +117,6 @@ namespace clitk {
     void UpdateWeightsProperties();
     IndexType GetSampleIndexOfPixelPosition(const ContinuousIndexType & x, IndexType & EvaluateIndex) const;
 
-    // Timing options
-    // clitk::Timer mCoefficientTimer;
-    // clitk::Timer mLUTTimer;
-    bool  mTimerEnabled;
-
-    //JV threadsafety: everything on the stack
-    //std::vector<int> mCorrectedSupportOffset;
-    //std::vector<IndexType> mCorrectedSupportIndex;
-    TCoefficientType * coef;
 
   }; // end class clitkVectorBSplineInterpolateImageFunctionWithLUT
 } // end namespace

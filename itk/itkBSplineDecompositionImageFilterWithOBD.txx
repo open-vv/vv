@@ -34,6 +34,8 @@ BSplineDecompositionImageFilterWithOBD<TInputImage, TOutputImage>
 ::BSplineDecompositionImageFilterWithOBD()
 {
   m_SplineOrder = 0;
+  for(unsigned int i=0; i<ImageDimension; i++) 
+    m_SplineOrders[i]=3;
   int SplineOrder = 3;
   m_Tolerance = 1e-10;   // Need some guidance on this one...what is reasonable?
   m_IteratorDirection = 0;
@@ -124,7 +126,12 @@ void
 BSplineDecompositionImageFilterWithOBD<TInputImage, TOutputImage>
 ::SetSplineOrders(SizeType SplineOrders)
 {
+  if (SplineOrders == m_SplineOrders)
+    {
+    return;
+    }
   m_SplineOrders=SplineOrders;
+  this->Modified();
 }
 
 template <class TInputImage, class TOutputImage>
