@@ -97,6 +97,25 @@ MotionMaskGenericFilter::GetAirImage(typename itk::Image<PixelType, Dimension>::
     if (m_Verbose) std::cout<<"Reading the air feature image..."<<std::endl;
     featureReader->Update();
     air=featureReader->GetOutput();
+
+    //---------------------------------
+    // Pad
+    //---------------------------------
+    if(m_ArgsInfo.pad_flag) {
+      typedef itk::ImageRegionIteratorWithIndex<InternalImageType> IteratorType;
+      IteratorType it(air, air->GetLargestPossibleRegion());
+      typename InternalImageType::IndexType index;
+      while(!it.IsAtEnd()) {
+        index=it.GetIndex();
+        for (unsigned int i=0; i<Dimension; i++){
+          if(index[2]!=0 &&
+             (index[i]==air->GetLargestPossibleRegion().GetIndex()[i]
+              || index[i]==(unsigned int)air->GetLargestPossibleRegion().GetIndex()[i]+ (unsigned int) air->GetLargestPossibleRegion().GetSize()[i]-1))
+            it.Set(1);
+        }
+        ++it;
+      }
+    }
   } else {
     if (m_Verbose) std::cout<<"Extracting the air feature image..."<<std::endl;
     //---------------------------------
@@ -109,12 +128,32 @@ MotionMaskGenericFilter::GetAirImage(typename itk::Image<PixelType, Dimension>::
     if (m_Verbose) std::cout<<"Binarizing the image using thresholds "<<m_ArgsInfo.lowerThresholdAir_arg
                               <<", "<<m_ArgsInfo.upperThresholdAir_arg<<"..."<<std::endl;
     binarizeFilter->Update();
+    air = binarizeFilter->GetOutput();
+
+    //---------------------------------
+    // Pad
+    //---------------------------------
+    if(m_ArgsInfo.pad_flag) {
+      typedef itk::ImageRegionIteratorWithIndex<InternalImageType> IteratorType;
+      IteratorType it(air, air->GetLargestPossibleRegion());
+      typename InternalImageType::IndexType index;
+      while(!it.IsAtEnd()) {
+        index=it.GetIndex();
+        for (unsigned int i=0; i<Dimension; i++){
+          if(index[2]!=0 &&
+             (index[i]==air->GetLargestPossibleRegion().GetIndex()[i]
+              || index[i]==(unsigned int)air->GetLargestPossibleRegion().GetIndex()[i]+ (unsigned int) air->GetLargestPossibleRegion().GetSize()[i]-1))
+            it.Set(binarizeFilter->GetInsideValue());
+        }
+        ++it;
+      }
+    }
 
     //---------------------------------
     // Remove lungs (in place)
     //---------------------------------
     typedef itk::ImageRegionIterator<InternalImageType> IteratorType;
-    IteratorType itAir(binarizeFilter->GetOutput(), binarizeFilter->GetOutput()->GetLargestPossibleRegion());
+    IteratorType itAir(air, binarizeFilter->GetOutput()->GetLargestPossibleRegion());
     IteratorType itLungs(lungs, binarizeFilter->GetOutput()->GetLargestPossibleRegion()); //lungs padded, used air region
     itAir.GoToBegin();
     itLungs.GoToBegin();
@@ -175,23 +214,6 @@ MotionMaskGenericFilter::GetAirImage(typename itk::Image<PixelType, Dimension>::
   mirrorPadImageFilter->Update();
   air=mirrorPadImageFilter->GetOutput();
   //writeImage<InternalImageType>(air,"/home/srit/tmp/air.mhd");
-
-  //---------------------------------
-  // Pad
-  //---------------------------------
-  if(m_ArgsInfo.pad_flag) {
-    typedef itk::ImageRegionIteratorWithIndex<InternalImageType> IteratorType;
-    IteratorType it(air, air->GetLargestPossibleRegion());
-    typename InternalImageType::IndexType index;
-    while(!it.IsAtEnd()) {
-      index=it.GetIndex();
-      for (unsigned int i=0; i<Dimension; i++)
-        if(index[i]==air->GetLargestPossibleRegion().GetIndex()[i]
-            || index[i]==(unsigned int)air->GetLargestPossibleRegion().GetIndex()[i]+ (unsigned int) air->GetLargestPossibleRegion().GetSize()[i]-1)
-          it.Set(0);
-      ++it;
-    }
-  }
 
   return air;
 }
