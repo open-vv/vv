@@ -123,10 +123,10 @@ class vvSlicerManager : public QObject {
   void SetFusionColorMap(int colorMap) {
     mFusionColorMap = colorMap;
   }
-  void SetFusionWindow(int window) {
+  void SetFusionWindow(double window) {
     mFusionWindow = window;
   }
-  void SetFusionLevel(int level) {
+  void SetFusionLevel(double level) {
     mFusionLevel = level;
   }
 
