@@ -107,10 +107,13 @@ MotionMaskGenericFilter::GetAirImage(typename itk::Image<PixelType, Dimension>::
       typename InternalImageType::IndexType index;
       while(!it.IsAtEnd()) {
         index=it.GetIndex();
+
+        //Pad borders of all dimensions but 2 (cranio-caudal)
         for (unsigned int i=0; i<Dimension; i++){
-          if(index[2]!=0 &&
-             (index[i]==air->GetLargestPossibleRegion().GetIndex()[i]
-              || index[i]==(unsigned int)air->GetLargestPossibleRegion().GetIndex()[i]+ (unsigned int) air->GetLargestPossibleRegion().GetSize()[i]-1))
+          if(i==2)
+            continue;
+          if(index[i]==air->GetLargestPossibleRegion().GetIndex()[i]
+              || index[i]==(unsigned int)air->GetLargestPossibleRegion().GetIndex()[i]+ (unsigned int) air->GetLargestPossibleRegion().GetSize()[i]-1)
             it.Set(1);
         }
         ++it;
@@ -139,10 +142,13 @@ MotionMaskGenericFilter::GetAirImage(typename itk::Image<PixelType, Dimension>::
       typename InternalImageType::IndexType index;
       while(!it.IsAtEnd()) {
         index=it.GetIndex();
+
+        //Pad borders of all dimensions but 2 (cranio-caudal)
         for (unsigned int i=0; i<Dimension; i++){
-          if(index[2]!=0 &&
-             (index[i]==air->GetLargestPossibleRegion().GetIndex()[i]
-              || index[i]==(unsigned int)air->GetLargestPossibleRegion().GetIndex()[i]+ (unsigned int) air->GetLargestPossibleRegion().GetSize()[i]-1))
+          if(i==2)
+            continue;
+          if(index[i]==air->GetLargestPossibleRegion().GetIndex()[i]
+              || index[i]==(unsigned int)air->GetLargestPossibleRegion().GetIndex()[i]+ (unsigned int) air->GetLargestPossibleRegion().GetSize()[i]-1)
             it.Set(binarizeFilter->GetInsideValue());
         }
         ++it;
