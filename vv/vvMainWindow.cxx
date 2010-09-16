@@ -1902,9 +1902,10 @@ void vvMainWindow::AddROI(int index, QString file)
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void vvMainWindow::AddFusionImage()
+void vvMainWindow::AddFusionImage(int index, QString file)
 {
-  int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
+  if (index==-1)
+    index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
 
   //check if one fusion image is added
   for (int child = 0; child < DataTree->topLevelItem(index)->childCount(); child++)
@@ -1918,7 +1919,8 @@ void vvMainWindow::AddFusionImage()
 
   QString Extensions = EXTENSIONS;
   Extensions += ";;All Files (*)";
-  QString file = QFileDialog::getOpenFileName(this,tr("Load Fusion image"),mInputPathName,Extensions);
+  if(file.isEmpty())
+    file = QFileDialog::getOpenFileName(this,tr("Load Fusion image"),mInputPathName,Extensions);
   if (!file.isEmpty()) {
     mInputPathName = itksys::SystemTools::GetFilenamePath(file.toStdString()).c_str();
     itk::ImageIOBase::Pointer reader = itk::ImageIOFactory::CreateImageIO(
