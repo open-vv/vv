@@ -426,7 +426,7 @@ p, li { white-space: pre-wrap; }
       <item row="3" column="2">
        <widget class="QDoubleSpinBox" name="windowSpinBox">
         <property name="decimals">
-         <number>1</number>
+         <number>4</number>
         </property>
         <property name="minimum">
          <double>-999999.000000000000000</double>
@@ -452,7 +452,7 @@ p, li { white-space: pre-wrap; }
       <item row="3" column="4">
        <widget class="QDoubleSpinBox" name="levelSpinBox">
         <property name="decimals">
-         <number>1</number>
+         <number>4</number>
         </property>
         <property name="minimum">
          <double>-999999.000000000000000</double>
