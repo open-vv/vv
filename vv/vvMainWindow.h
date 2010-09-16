@@ -48,7 +48,7 @@ class vvMainWindow: public vvMainWindowBase,
   vvSlicerManager * AddImage(vvImage::Pointer image,std::string filename);
   void AddField(QString file,int index);
   void AddOverlayImage(int index, QString filename);
-  void AddFusionImage(int index=-1, QString filename="");
+  void AddFusionImage(int index, QString filename);
   void AddROI(int index, QString filename);
   ///Adds a mesh to a SlicerManager, with optional warping by vector field
   void AddContour(int image_index, vvMesh::Pointer contour, bool propagation);
@@ -133,6 +133,7 @@ public slots:
   void ReloadImage();
   void OpenField();
   void SelectOverlayImage();
+  void SelectFusionImage();
 
   void SetVFProperty(int subsampling,int scale,int lut, int width);
   void SetOverlayProperty(int color);

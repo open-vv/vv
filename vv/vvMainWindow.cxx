@@ -155,7 +155,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(actionAdd_Overlay_to_current_Image,SIGNAL(triggered()), this,SLOT(SelectOverlayImage()));
 
   contextMenu.addAction(actionAdd_fusion_image);
-  connect(actionAdd_fusion_image,SIGNAL(triggered()),this,SLOT(AddFusionImage()));
+  connect(actionAdd_fusion_image,SIGNAL(triggered()),this,SLOT(SelectFusionImage()));
   contextActions.push_back(actionAdd_fusion_image);
 
   // TRIAL DS
@@ -1902,10 +1902,9 @@ void vvMainWindow::AddROI(int index, QString file)
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void vvMainWindow::AddFusionImage(int index, QString file)
+void vvMainWindow::SelectFusionImage()
 {
-  if (index==-1)
-    index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
+  int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
 
   //check if one fusion image is added
   for (int child = 0; child < DataTree->topLevelItem(index)->childCount(); child++)
@@ -1919,76 +1918,81 @@ void vvMainWindow::AddFusionImage(int index, QString file)
 
   QString Extensions = EXTENSIONS;
   Extensions += ";;All Files (*)";
-  if(file.isEmpty())
-    file = QFileDialog::getOpenFileName(this,tr("Load Fusion image"),mInputPathName,Extensions);
-  if (!file.isEmpty()) {
-    mInputPathName = itksys::SystemTools::GetFilenamePath(file.toStdString()).c_str();
-    itk::ImageIOBase::Pointer reader = itk::ImageIOFactory::CreateImageIO(
-                                         file.toStdString().c_str(), itk::ImageIOFactory::ReadMode);
-    reader->SetFileName(file.toStdString().c_str());
-    reader->ReadImageInformation();
-    std::string component = reader->GetComponentTypeAsString(reader->GetComponentType());
-    if (reader) {
-      QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-      vvProgressDialog progress("Opening fusion");
+  QString file = QFileDialog::getOpenFileName(this,tr("Load Fusion image"),mInputPathName,Extensions);
+  if (!file.isEmpty())
+    AddFusionImage(index,file);
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::AddFusionImage(int index, QString file)
+{
+  mInputPathName = itksys::SystemTools::GetFilenamePath(file.toStdString()).c_str();
+  itk::ImageIOBase::Pointer reader = itk::ImageIOFactory::CreateImageIO(
+                                       file.toStdString().c_str(), itk::ImageIOFactory::ReadMode);
+  reader->SetFileName(file.toStdString().c_str());
+  reader->ReadImageInformation();
+  std::string component = reader->GetComponentTypeAsString(reader->GetComponentType());
+  if (reader) {
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    vvProgressDialog progress("Opening fusion");
+    qApp->processEvents();
+
+    std::string filename = itksys::SystemTools::GetFilenameWithoutExtension(file.toStdString()).c_str();
+    if (mSlicerManagers[index]->SetFusion(file.toStdString(),
+                                          reader->GetNumberOfDimensions(), component)) {
+      //create an item in the tree with good settings
+      QTreeWidgetItem *item = new QTreeWidgetItem();
+      item->setData(0,Qt::UserRole,file.toStdString().c_str());
+      item->setData(1,Qt::UserRole,tr("fusion"));
+      item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,filename.c_str());
       qApp->processEvents();
 
-      std::string filename = itksys::SystemTools::GetFilenameWithoutExtension(file.toStdString()).c_str();
-      if (mSlicerManagers[index]->SetFusion(file.toStdString(),
-                                            reader->GetNumberOfDimensions(), component)) {
-        //create an item in the tree with good settings
-        QTreeWidgetItem *item = new QTreeWidgetItem();
-        item->setData(0,Qt::UserRole,file.toStdString().c_str());
-        item->setData(1,Qt::UserRole,tr("fusion"));
-        item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,filename.c_str());
-        qApp->processEvents();
-
-        for (int j = 1; j <= 4; j++) {
-          item->setData(j,Qt::CheckStateRole,DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole));
-          mSlicerManagers[index]->GetSlicer(j-1)->SetActorVisibility("fusion",0,
-              DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole).toInt());
-        }
-
-        //Create the buttons for reload and close
-        qApp->processEvents();
-        QTreePushButton* cButton = new QTreePushButton;
-        cButton->setItem(item);
-        cButton->setColumn(COLUMN_CLOSE_IMAGE);
-        cButton->setToolTip(tr("close image"));
-        cButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/exit.png")));
-        connect(cButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
-                this,SLOT(CloseImage(QTreeWidgetItem*, int)));
-
-        QTreePushButton* rButton = new QTreePushButton;
-        rButton->setItem(item);
-        rButton->setColumn(COLUMN_RELOAD_IMAGE);
-        rButton->setToolTip(tr("reload image"));
-        rButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/rotateright.png")));
-        connect(rButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
-                this,SLOT(ReloadImage(QTreeWidgetItem*, int)));
-
-        DataTree->topLevelItem(index)->setExpanded(1);
-        DataTree->topLevelItem(index)->addChild(item);
-        DataTree->setItemWidget(item, COLUMN_CLOSE_IMAGE, cButton);
-        DataTree->setItemWidget(item, COLUMN_RELOAD_IMAGE, rButton);
-
-        //set the id of the image
-        QString id = DataTree->topLevelItem(index)->data(COLUMN_IMAGE_NAME,Qt::UserRole).toString();
-        item->setData(COLUMN_IMAGE_NAME,Qt::UserRole,id.toStdString().c_str());
-        UpdateTree();
-        qApp->processEvents();
-        ImageInfoChanged();
-        QApplication::restoreOverrideCursor();
-      } else {
-        QApplication::restoreOverrideCursor();
-        QString error = "Cannot import the new image.\n";
-        error += mSlicerManagers[index]->GetLastError().c_str();
-        QMessageBox::information(this,tr("Problem reading image !"),error);
+      for (int j = 1; j <= 4; j++) {
+        item->setData(j,Qt::CheckStateRole,DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole));
+        mSlicerManagers[index]->GetSlicer(j-1)->SetActorVisibility("fusion",0,
+            DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole).toInt());
       }
+
+      //Create the buttons for reload and close
+      qApp->processEvents();
+      QTreePushButton* cButton = new QTreePushButton;
+      cButton->setItem(item);
+      cButton->setColumn(COLUMN_CLOSE_IMAGE);
+      cButton->setToolTip(tr("close image"));
+      cButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/exit.png")));
+      connect(cButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
+              this,SLOT(CloseImage(QTreeWidgetItem*, int)));
+
+      QTreePushButton* rButton = new QTreePushButton;
+      rButton->setItem(item);
+      rButton->setColumn(COLUMN_RELOAD_IMAGE);
+      rButton->setToolTip(tr("reload image"));
+      rButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/rotateright.png")));
+      connect(rButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
+              this,SLOT(ReloadImage(QTreeWidgetItem*, int)));
+
+      DataTree->topLevelItem(index)->setExpanded(1);
+      DataTree->topLevelItem(index)->addChild(item);
+      DataTree->setItemWidget(item, COLUMN_CLOSE_IMAGE, cButton);
+      DataTree->setItemWidget(item, COLUMN_RELOAD_IMAGE, rButton);
+
+      //set the id of the image
+      QString id = DataTree->topLevelItem(index)->data(COLUMN_IMAGE_NAME,Qt::UserRole).toString();
+      item->setData(COLUMN_IMAGE_NAME,Qt::UserRole,id.toStdString().c_str());
+      UpdateTree();
+      qApp->processEvents();
+      ImageInfoChanged();
+      QApplication::restoreOverrideCursor();
     } else {
+      QApplication::restoreOverrideCursor();
       QString error = "Cannot import the new image.\n";
+      error += mSlicerManagers[index]->GetLastError().c_str();
       QMessageBox::information(this,tr("Problem reading image !"),error);
     }
+  } else {
+    QString error = "Cannot import the new image.\n";
+    QMessageBox::information(this,tr("Problem reading image !"),error);
   }
 }
 //------------------------------------------------------------------------------
