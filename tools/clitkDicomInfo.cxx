@@ -43,7 +43,7 @@ int main(int argc, char * argv[])
   for(unsigned int i=0; i<args_info.inputs_num; i++) {
     gdcm::File *header = new gdcm::File();
     header->SetFileName(args_info.inputs[i]);
-    header->SetMaxSizeLoadEntry(16384);
+    header->SetMaxSizeLoadEntry(163840);
     header->Load();
     header->Print();
   }

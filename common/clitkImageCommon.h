@@ -29,7 +29,6 @@
 #include "gdcmFile.h"
 #include "gdcmFileHelper.h"
 
-
 namespace clitk {
   
   //--------------------------------------------------------------------
