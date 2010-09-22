@@ -206,10 +206,10 @@ void BLUTDIRGenericFilter::InitializeImageType()
 
 	  // DS : if we want to skip the last pyramid level, force to only 1 iteration
 	  DD(m_ArgsInfo.skipLastPyramidLevel_flag);
-	  if (m_ArgsInfo.skipLastPyramidLevel_flag) {
+	  if ((currentLevel == numberOfLevels) && (m_ArgsInfo.skipLastPyramidLevel_flag)) {
 	    DD(m_ArgsInfo.maxIt_arg);
-	    std::cout << "I skip the last pyramid level : set max iteration to 1" << std::endl;
-	    m_ArgsInfo.maxIt_arg = 1;
+	    std::cout << "I skip the last pyramid level : set max iteration to 0" << std::endl;
+	    m_ArgsInfo.maxIt_arg = 0;
 	    DD(m_ArgsInfo.maxIt_arg);
 	  }
 
