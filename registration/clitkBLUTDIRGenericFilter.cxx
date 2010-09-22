@@ -113,7 +113,7 @@ void BLUTDIRGenericFilter::InitializeImageType()
     typedef itk::SmartPointer<Self>  Pointer;
     itkNewMacro( Self );
   protected:
-    RegistrationInterfaceCommand() {};
+    RegistrationInterfaceCommand() { };
   public:
 
     // Registration
@@ -204,11 +204,22 @@ void BLUTDIRGenericFilter::InitializeImageType()
 	  m_Initializer->InitializeTransform();
 	  ParametersType* newParameters= new typename TransformType::ParametersType(m_Initializer->GetTransform()->GetNumberOfParameters());
 
+	  // DS : if we want to skip the last pyramid level, force to only 1 iteration
+	  DD(m_ArgsInfo.skipLastPyramidLevel_flag);
+	  if (m_ArgsInfo.skipLastPyramidLevel_flag) {
+	    DD(m_ArgsInfo.maxIt_arg);
+	    std::cout << "I skip the last pyramid level : set max iteration to 1" << std::endl;
+	    m_ArgsInfo.maxIt_arg = 1;
+	    DD(m_ArgsInfo.maxIt_arg);
+	  }
+
 	  // Reinitialize an Optimizer (!= number of parameters)
 	  m_GenericOptimizer = GenericOptimizerType::New();
 	  m_GenericOptimizer->SetArgsInfo(m_ArgsInfo);
 	  m_GenericOptimizer->SetMaximize(m_Maximize);
 	  m_GenericOptimizer->SetNumberOfParameters(m_Initializer->GetTransform()->GetNumberOfParameters());
+
+
 	  typedef itk::SingleValuedNonLinearOptimizer OptimizerType;
 	  OptimizerType::Pointer optimizer = m_GenericOptimizer->GetOptimizerPointer();
 	  optimizer->AddObserver( itk::IterationEvent(), m_CommandIterationUpdate);

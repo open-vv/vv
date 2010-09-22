@@ -82,6 +82,8 @@ option "upperBound"	-	"7: The upper bound"							double 	no	default="0.0"
 
 section "Registration"
 
-option "levels"		-       "Number of resolution levels"	 				int	no	default="1"						
+option "levels"		-       "Number of resolution levels"	 				int	no	default="1"
+option "skipLastPyramidLevel"		-       "Skip full resolution pyramid level"	 	flag	off
 option "intermediate"		-       "Write the coefficient image of the intermediate levels (provide levels filenames)"	 				string	no	multiple						
+
 
