@@ -19,7 +19,9 @@
 #ifndef CLITKEXTRACTLYMPHSTATIONSFILTER_H
 #define CLITKEXTRACTLYMPHSTATIONSFILTER_H
 
+// clitk
 #include "clitkFilterBase.h"
+#include "clitkFilterWithAnatomicalFeatureDatabaseManagement.h"
 
 namespace clitk {
   
@@ -35,8 +37,9 @@ namespace clitk {
   
   template <class TImageType>
   class ITK_EXPORT ExtractLymphStationsFilter: 
-    public clitk::FilterBase, 
-    public itk::ImageToImageFilter<TImageType, TImageType> 
+    public virtual clitk::FilterBase, 
+    public clitk::FilterWithAnatomicalFeatureDatabaseManagement,
+    public itk::ImageToImageFilter<TImageType, TImageType>
   {
 
   public:
@@ -61,6 +64,7 @@ namespace clitk {
     typedef typename ImageType::PixelType    ImagePixelType; 
     typedef typename ImageType::SizeType     ImageSizeType; 
     typedef typename ImageType::IndexType    ImageIndexType; 
+    typedef typename ImageType::PointType    ImagePointType; 
         
     /** Connect inputs */
     void SetInputMediastinumLabelImage(const TImageType * image, ImagePixelType bg=0);
@@ -85,9 +89,10 @@ namespace clitk {
     itkGetConstMacro(BackgroundValue, ImagePixelType);
     itkGetConstMacro(ForegroundValue, ImagePixelType);
 
-    itkSetMacro(CarenaZPositionInMM, double);
-    itkGetConstMacro(CarenaZPositionInMM, double);
-    GGO_DefineOption(carenaZposition, SetCarenaZPositionInMM, double);
+    //itkSetMacro(CarinaZPositionInMM, double);
+    void SetCarinaZPositionInMM(double d) { m_CarinaZPositionInMM = d; Modified(); m_CarinaZPositionInMMIsSet = true; }
+    itkGetConstMacro(CarinaZPositionInMM, double);
+    GGO_DefineOption(carenaZposition, SetCarinaZPositionInMM, double);
 
     itkSetMacro(MiddleLobeBronchusZPositionInMM, double);
     itkGetConstMacro(MiddleLobeBronchusZPositionInMM, double);
@@ -100,9 +105,7 @@ namespace clitk {
     itkSetMacro(FuzzyThreshold1, double);
     itkGetConstMacro(FuzzyThreshold1, double);
     GGO_DefineOption(fuzzy1, SetFuzzyThreshold1, double);
-
-
-
+    
   protected:
     ExtractLymphStationsFilter();
     virtual ~ExtractLymphStationsFilter() {}
@@ -125,7 +128,8 @@ namespace clitk {
     ImagePixelType m_BackgroundValue;
     ImagePixelType m_ForegroundValue;
     
-    double m_CarenaZPositionInMM;
+    double m_CarinaZPositionInMM;
+    bool   m_CarinaZPositionInMMIsSet;
     double m_MiddleLobeBronchusZPositionInMM; 
     double m_IntermediateSpacing;
     double m_FuzzyThreshold1;

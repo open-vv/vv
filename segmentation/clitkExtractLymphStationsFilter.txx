@@ -44,6 +44,7 @@ template <class TImageType>
 clitk::ExtractLymphStationsFilter<TImageType>::
 ExtractLymphStationsFilter():
   clitk::FilterBase(),
+  clitk::FilterWithAnatomicalFeatureDatabaseManagement(),
   itk::ImageToImageFilter<TImageType, TImageType>()
 {
   this->SetNumberOfRequiredInputs(1);
@@ -51,9 +52,9 @@ ExtractLymphStationsFilter():
   SetBackgroundValueTrachea(0);
   SetBackgroundValue(0);
   SetForegroundValue(1);
-
   SetIntermediateSpacing(6);
-  SetFuzzyThreshold1(0.6);
+  SetFuzzyThreshold1(0.6);  
+  m_CarinaZPositionInMMIsSet = false;
 }
 //--------------------------------------------------------------------
 
@@ -64,11 +65,7 @@ void
 clitk::ExtractLymphStationsFilter<TImageType>::
 SetInputMediastinumLabelImage(const TImageType * image, ImagePixelType bg) {
   this->SetNthInput(0, const_cast<TImageType *>(image));
-  m_BackgroundValueMediastinum = bg;
-  SetCarenaZPositionInMM(image->GetOrigin()[2]+image->GetLargestPossibleRegion().GetSize()[2]*image->GetSpacing()[2]);
-  SetMiddleLobeBronchusZPositionInMM(image->GetOrigin()[2]);
-  // DD(m_CarenaZPositionInMM);
-//   DD(m_MiddleLobeBronchusZPositionInMM);
+  SetBackgroundValueMediastinum(bg);
 }
 //--------------------------------------------------------------------
 
@@ -79,7 +76,7 @@ void
 clitk::ExtractLymphStationsFilter<TImageType>::
 SetInputTracheaLabelImage(const TImageType * image, ImagePixelType bg) {
   this->SetNthInput(1, const_cast<TImageType *>(image));
-  m_BackgroundValueTrachea = bg;
+  SetBackgroundValueTrachea(bg);
 }
 //--------------------------------------------------------------------
 
@@ -95,11 +92,12 @@ SetArgsInfo(ArgsInfoType mArgsInfo)
   SetVerboseStep_GGO(mArgsInfo);
   SetWriteStep_GGO(mArgsInfo);
   SetVerboseWarningOff_GGO(mArgsInfo);
-  SetCarenaZPositionInMM_GGO(mArgsInfo);
+  SetAFDBFilename_GGO(mArgsInfo);
+  SetCarinaZPositionInMM_GGO(mArgsInfo);
+  m_CarinaZPositionInMMIsSet = false;
   SetMiddleLobeBronchusZPositionInMM_GGO(mArgsInfo);
   SetIntermediateSpacing_GGO(mArgsInfo);
   SetFuzzyThreshold1_GGO(mArgsInfo);
-  //SetBackgroundValueMediastinum_GGO(mArgsInfo);
 }
 //--------------------------------------------------------------------
 
@@ -114,7 +112,17 @@ GenerateOutputInformation() {
   // Get input
   m_mediastinum = dynamic_cast<const TImageType*>(itk::ProcessObject::GetInput(0));
   m_trachea = dynamic_cast<const TImageType*>(itk::ProcessObject::GetInput(1));
-    
+
+  // Get landmarks information
+  if (!m_CarinaZPositionInMMIsSet) {
+    ImagePointType carina;
+    LoadAFDB();
+    GetAFDB()->GetPoint3D("Carena", carina);
+    DD(carina);
+    m_CarinaZPositionInMM = carina[2];
+  }
+  DD(m_CarinaZPositionInMM);
+
   // ----------------------------------------------------------------
   // ----------------------------------------------------------------
   // Superior limit = carena
@@ -123,10 +131,10 @@ GenerateOutputInformation() {
   ImageRegionType region = m_mediastinum->GetLargestPossibleRegion(); DD(region);
   ImageSizeType size = region.GetSize();
   ImageIndexType index = region.GetIndex();
-  DD(m_CarenaZPositionInMM);
+  DD(m_CarinaZPositionInMM);
   DD(m_MiddleLobeBronchusZPositionInMM);
   index[2] = floor((m_MiddleLobeBronchusZPositionInMM - m_mediastinum->GetOrigin()[2]) / m_mediastinum->GetSpacing()[2]);
-  size[2] = ceil((m_CarenaZPositionInMM-m_MiddleLobeBronchusZPositionInMM) / m_mediastinum->GetSpacing()[2]);
+  size[2] = ceil((m_CarinaZPositionInMM-m_MiddleLobeBronchusZPositionInMM) / m_mediastinum->GetSpacing()[2]);
   region.SetSize(size);
   region.SetIndex(index);
   DD(region);
@@ -227,7 +235,7 @@ GenerateOutputInformation() {
   sliceRelPosFilter->SetInput(m_working_image);
   sliceRelPosFilter->SetInputObject(temp);
   sliceRelPosFilter->SetDirection(2);
-  sliceRelPosFilter->SetFuzzyThreshold(0.5);
+  sliceRelPosFilter->SetFuzzyThreshold(0.6);
   sliceRelPosFilter->SetOrientationType(SliceRelPosFilterType::RelPosFilterType::RightTo);
   sliceRelPosFilter->Update();
   m_working_image = sliceRelPosFilter->GetOutput();
@@ -247,7 +255,7 @@ GenerateOutputInformation() {
   sliceRelPosFilter->SetInput(m_working_image);
   sliceRelPosFilter->SetInputObject(temp);
   sliceRelPosFilter->SetDirection(2);
-  sliceRelPosFilter->SetFuzzyThreshold(0.5);
+  sliceRelPosFilter->SetFuzzyThreshold(0.6);
   sliceRelPosFilter->SetOrientationType(SliceRelPosFilterType::RelPosFilterType::LeftTo);
   sliceRelPosFilter->Update();
   m_working_image = sliceRelPosFilter->GetOutput();

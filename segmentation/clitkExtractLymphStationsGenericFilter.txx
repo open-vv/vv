@@ -81,14 +81,17 @@ void clitk::ExtractLymphStationsGenericFilter<ArgsInfoType>::UpdateWithInputImag
   filter->SetArgsInfo(mArgsInfo);
 
   // Go !
-  filter->Update();
+  // try {
+    filter->Update();
+  // }
+  // catch(std::runtime_error e) {
   
-  // Check if error
-  if (filter->HasError()) {
-    SetLastError(filter->GetLastError());
-    // No output
-    return;
-  }
+  // // Check if error
+  // if (filter->HasError()) {
+  //   SetLastError(filter->GetLastError());
+  //   // No output
+  //   return;
+  // }
 
   // Write/Save results
   typename ImageType::Pointer output = filter->GetOutput();

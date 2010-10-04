@@ -13,6 +13,7 @@ option "verboseWarningOff" -  "Do not display warning"    flag          off
 
 section "I/O"
 
+option "afdb"          a	"Input Anatomical Feature DB"     string  	no
 option "mediastinum"   m	"Input mediastinum mask filename" string  	yes
 option "trachea"       t	"Input trachea mask filename"	  string  	yes
 option "output"        o 	"Output lungs mask filename"      string 	yes
