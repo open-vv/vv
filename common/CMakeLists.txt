@@ -29,6 +29,7 @@ SET(clitkCommon_SRC
   clitkOrientation.cxx
   vvImage.cxx
   clitkImageToImageGenericFilterBase.cxx
+  clitkExceptionObject.cxx
   clitkFilterBase.cxx
 )  
 
