@@ -84,7 +84,6 @@ void clitk::ExtractLungGenericFilter<ArgsInfoType>::UpdateWithInputImageType()
   this->SetFilterBase(filter);
     
   // Set global Options 
-  filter->SetStopOnError(this->GetStopOnError());
   filter->SetArgsInfo(mArgsInfo);
   filter->SetInput(input);
   filter->SetInputPatientMask(patient, mArgsInfo.patientBG_arg);
@@ -92,17 +91,11 @@ void clitk::ExtractLungGenericFilter<ArgsInfoType>::UpdateWithInputImageType()
   // Go !
   filter->Update();
   
-  // Check if error
-  if (filter->HasError()) {
-    SetLastError(filter->GetLastError());
-    // No output
-    return;
-  }
-
   // Write/Save results
   typename OutputImageType::Pointer output = filter->GetOutput();
   this->template SetNextOutput<OutputImageType>(output); 
   this->template SetNextOutput<typename FilterType::MaskImageType>(filter->GetTracheaImage()); 
+  filter->WriteAFDB();
 }
 //--------------------------------------------------------------------
 

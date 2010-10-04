@@ -16,6 +16,7 @@ section "I/O"
 option "input"         i	"Input CT image filename"	  string  	yes
 option "patient"       p	"Input patient mask filename"	  string  	yes
 option "patientBG"   -	"Patient Background"              int           default="0" no
+option "afdb"          a	"Output Anatomical Feature DB (Carina position)"    string  	no
 option "output"        o 	"Output lungs mask filename"      string 	yes
 option "outputTrachea" t 	"Output trachea mask filename"    string 	no
 
