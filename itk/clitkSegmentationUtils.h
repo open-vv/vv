@@ -70,6 +70,14 @@ namespace clitk {
   //--------------------------------------------------------------------
 
 
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  int GetNumberOfConnectedComponentLabels(typename ImageType::Pointer input, 
+                                          typename ImageType::PixelType BG, 
+                                          bool isFullyConnected);
+  //--------------------------------------------------------------------
+
+
   //-------------------------------------------------------------------- 
   template<class TImageType>
   typename TImageType::Pointer

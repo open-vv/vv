@@ -129,6 +129,24 @@ clitk::SetBackground(typename ImageType::ConstPointer input,
 
 //--------------------------------------------------------------------
 template<class ImageType>
+int clitk::GetNumberOfConnectedComponentLabels(typename ImageType::Pointer input, 
+                                               typename ImageType::PixelType BG, 
+                                               bool isFullyConnected) {
+  // Connected Component label 
+  typedef itk::ConnectedComponentImageFilter<ImageType, ImageType> ConnectFilterType;
+  typename ConnectFilterType::Pointer connectFilter = ConnectFilterType::New();
+  connectFilter->SetInput(input);
+  connectFilter->SetBackgroundValue(BG);
+  connectFilter->SetFullyConnected(isFullyConnected);
+  connectFilter->Update();
+  
+  // Return result
+  return connectFilter->GetObjectCount();
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+template<class ImageType>
 typename ImageType::Pointer
 clitk::Labelize(typename ImageType::Pointer input, 
                 typename ImageType::PixelType BG, 
