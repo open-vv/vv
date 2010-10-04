@@ -77,19 +77,11 @@ void clitk::ExtractAirwayTreeInfoGenericFilter<ArgsInfoType>::UpdateWithInputIma
   this->SetFilterBase(filter);
     
   // Set global Options 
-  filter->SetStopOnError(this->GetStopOnError());
   filter->SetArgsInfo(mArgsInfo);
   filter->SetInput(input);
 
   // Go !
   filter->Update();
-  
-  // Check if error
-  if (filter->HasError()) {
-    SetLastError(filter->GetLastError());
-    // No output
-    return;
-  }
 
   // Write/Save results
   typename ImageType::Pointer output = filter->GetOutput();

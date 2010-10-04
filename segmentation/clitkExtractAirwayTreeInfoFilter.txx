@@ -87,7 +87,7 @@ GenerateOutputInformation()
   // Get input pointer
   input   = dynamic_cast<const ImageType*>(itk::ProcessObject::GetInput(0));
 
-  StartNewStepOrStop("Find bronchial bifurcations");
+  StartNewStep("Find bronchial bifurcations");
   // Step 1 : extract skeleton
   // Define the thinning filter
   typedef itk::BinaryThinningImageFilter3D<ImageType, ImageType> ThinningFilterType;
@@ -108,7 +108,7 @@ GenerateOutputInformation()
     --it;
   }
   if (it.IsAtEnd()) {
-    this->SetLastError("ERROR: first point in the skeleton not found ! Abort");
+    throw clitk::ExceptionObject("ERROR: first point in the skeleton not found ! Abort");
     return;
   }
   DD(skeleton->GetLargestPossibleRegion().GetIndex());
@@ -142,7 +142,11 @@ GenerateOutputInformation()
     skeleton->TransformIndexToPhysicalPoint(listOfBifurcations[i].index, p);
     DD(p);
   }
-
+  
+  // The first bifurcation is supposed to be the carina
+  skeleton->TransformIndexToPhysicalPoint(listOfBifurcations[0].index, m_CarinaPoint);
+  DD(listOfBifurcations[0].index);
+  DD(m_CarinaPoint);
 }
 //--------------------------------------------------------------------
 
@@ -153,11 +157,6 @@ void
 clitk::ExtractAirwayTreeInfoFilter<ImageType>::
 GenerateData() 
 {
-  // Do not put some "startnewstep" here, because the object if
-  // modified and the filter's pipeline it do two times. But it is
-  // required to quit if MustStop was set before.
-  if (GetMustStop()) return;
-  
   // If everything goes well, set the output
   this->GraftOutput(skeleton); // not SetNthOutput
 }

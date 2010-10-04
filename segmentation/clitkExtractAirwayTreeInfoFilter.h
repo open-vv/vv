@@ -108,6 +108,7 @@ namespace clitk {
     
     // Get results
     itkGetConstMacro(FirstTracheaPoint, ImagePointType);
+    itkGetConstMacro(CarinaPoint, ImagePointType);
 
   protected:
     ExtractAirwayTreeInfoFilter();
@@ -126,6 +127,7 @@ namespace clitk {
 
     // Results
     ImagePointType m_FirstTracheaPoint;
+    ImagePointType m_CarinaPoint;
     
     virtual void GenerateOutputInformation();
     virtual void GenerateData();
