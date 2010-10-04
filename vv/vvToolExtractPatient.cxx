@@ -74,7 +74,7 @@ void vvToolExtractPatient::Initialize() {
   SetToolMenuName("Extract Patient");
   SetToolIconFilename(":/common/icons/Patient-overlay.png");
   SetToolTip("Extract Patient mask from thorax CT.");
-  //  SetToolExperimental(true);
+  SetToolExperimental(true);
   //  SetToolInMenu("Segmentation");
 }
 //------------------------------------------------------------------------------
@@ -174,7 +174,7 @@ void vvToolExtractPatient::apply()
   //if (mFilter) delete mFilter;
   DD("new filter");
   mFilter = new FilterType;  // needed when thread cancel the filter
-  mFilter->StopOnErrorOff();
+  // mFilter->StopOnErrorOff();
   //  mFilter->SetIOVerbose(true);
   mFilter->AddInputVVImage(mCurrentImage); // CT
 //   mFilter->AddInputVVImage(mPatient); // patient mask
@@ -185,7 +185,11 @@ void vvToolExtractPatient::apply()
   vvThreadedFilter thread;
   connect(&thread, SIGNAL(ThreadInterrupted()), this, SLOT(ThreadInterrupted()));
   thread.SetFilter(mFilter);
+
+  try {
   thread.Update();
+  }
+  catch(std::runtime_error e) {
 
   // Check if the thread has been canceled. In this case, return
   if (m_IsThreadInterrupted) {
@@ -196,10 +200,12 @@ void vvToolExtractPatient::apply()
   disconnect(&thread, SIGNAL(ThreadInterrupted()), this, SLOT(ThreadInterrupted()));
     
   // Check error during filter
-  if (mFilter->HasError()) {
+  // if (mFilter->HasError()) {
     QApplication::restoreOverrideCursor();
-    QMessageBox::information(this,tr("Error"), mFilter->GetLastError().c_str());
+    QMessageBox::information(this,tr("Error"), e.what());//mFilter->GetLastError().c_str());
     return;
+  // }
+
   }
   
   // Get output

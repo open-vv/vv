@@ -60,9 +60,9 @@ void vvThreadedFilter::Update()
   this->setTerminationEnabled(true);
   std::string temp;
   while (this->isRunning()) {
+    // try {
     m_FilterBase = m_Filter->GetFilterBase(); // get filterbase is only set after Update
     if (m_FilterBase != NULL) {
-      //      m_FilterBase->StopOnErrorOff(); // filter can be interrupted
       progress.SetProgress(m_FilterBase->GetCurrentStepNumber(), 
 			   m_FilterBase->GetNumberOfSteps());
       if (temp != m_FilterBase->GetCurrentStepName()) {
@@ -81,7 +81,16 @@ void vvThreadedFilter::Update()
 void vvThreadedFilter::run()
 {
   assert(m_Filter != NULL);
-  m_Filter->Update();
+  try {
+    m_Filter->Update();
+  }
+  catch(clitk::ExceptionObject e) {
+    DD("vvThreadedFilter : exceptionobject handeled");
+    DD(e.what());
+    QApplication::restoreOverrideCursor();
+    QMessageBox::information(new QWidget, tr("Error"), e.what());  
+  }
+  DD("end RUN");
 }
 //------------------------------------------------------------------------------
 
@@ -89,16 +98,11 @@ void vvThreadedFilter::run()
 //------------------------------------------------------------------------------
 void vvThreadedFilter::reject()
 {
-  // First, say the filter it must stop
+  // First, say the filter it must stop as soon as possible. We then
+  // wait that an exception occur in the main thread.
   if (m_FilterBase != NULL) {
-    m_FilterBase->SetMustStop(true);
+    m_FilterBase->Cancel();
   }
-  // Indicate to the user it will stop
-  QApplication::restoreOverrideCursor();
-  QMessageBox::information(new QWidget, tr("Error"), m_FilterBase->GetLastError().c_str());  
-  // Quit the thread (is it needed ?)
-  this->quit();
-  emit ThreadInterrupted();
 }
 //------------------------------------------------------------------------------
 
