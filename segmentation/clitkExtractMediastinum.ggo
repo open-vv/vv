@@ -27,10 +27,11 @@ option "tracheaBG"     -	"Trachea Background"              int           default
 option "output"        o 	"Output lungs mask filename"      string 	yes
 
 section "Step 1 : Left/Right limits with lungs"
-
 option "spacing"     -	"Intermediate resampling spacing"         double no default="6"
-option "fuzzy1"	     -	"Fuzzy relative position threshold"	  double no default="0.6"
+option "fuzzy1"	     -	"Fuzzy relative position threshold"	  double no default="0.4"
 
 section "Step 2 : Ant/Post limits with bones"
-
 option "fuzzy2"	     -	"Fuzzy relative position threshold"	  double no default="0.6"
+
+section "Step 3 : Inf limits with Lung"
+option "fuzzy3"	     -	"Fuzzy relative position threshold"	  double no default="0.2"

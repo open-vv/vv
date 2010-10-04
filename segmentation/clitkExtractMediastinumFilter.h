@@ -118,6 +118,10 @@ namespace clitk {
     itkGetConstMacro(FuzzyThreshold2, double);
     GGO_DefineOption(fuzzy2, SetFuzzyThreshold2, double);
 
+    itkSetMacro(FuzzyThreshold3, double);
+    itkGetConstMacro(FuzzyThreshold3, double);
+    GGO_DefineOption(fuzzy3, SetFuzzyThreshold3, double);
+
   protected:
     ExtractMediastinumFilter();
     virtual ~ExtractMediastinumFilter() {}
@@ -142,6 +146,7 @@ namespace clitk {
     double m_IntermediateSpacing;
     double m_FuzzyThreshold1;
     double m_FuzzyThreshold2;
+    double m_FuzzyThreshold3;
     
   private:
     ExtractMediastinumFilter(const Self&); //purposely not implemented

@@ -88,13 +88,6 @@ void clitk::ExtractMediastinumGenericFilter<ArgsInfoType>::UpdateWithInputImageT
 
   // Go !
   filter->Update();
-  
-  // Check if error
-  if (filter->HasError()) {
-    SetLastError(filter->GetLastError());
-    // No output
-    return;
-  }
 
   // Write/Save results
   typename ImageType::Pointer output = filter->GetOutput();

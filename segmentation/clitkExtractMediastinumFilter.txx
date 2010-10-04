@@ -54,8 +54,9 @@ ExtractMediastinumFilter():
   SetForegroundValue(1);
 
   SetIntermediateSpacing(6);
-  SetFuzzyThreshold1(0.6);
-  SetFuzzyThreshold2(0.7);
+  SetFuzzyThreshold1(0.4);
+  SetFuzzyThreshold2(0.6);
+  SetFuzzyThreshold3(0.2);
 }
 //--------------------------------------------------------------------
 
@@ -133,6 +134,7 @@ SetArgsInfo(ArgsInfoType mArgsInfo)
   SetIntermediateSpacing_GGO(mArgsInfo);
   SetFuzzyThreshold1_GGO(mArgsInfo);
   SetFuzzyThreshold2_GGO(mArgsInfo);
+  SetFuzzyThreshold3_GGO(mArgsInfo);
 }
 //--------------------------------------------------------------------
 
@@ -252,16 +254,19 @@ GenerateData()
   ImageConstPointer bones_ant;
   ImageConstPointer bones_post;
 
-  // Find ant-post coordinate of trachea (assume the first point is a
+  // Find ant-post coordinate of trachea (assume the carena position is a
   // good estimation of the ant-post position of the trachea)
   typedef clitk::ExtractAirwayTreeInfoFilter<ImageType> AirwayFilter;
   typename AirwayFilter::Pointer airwayfilter = AirwayFilter::New();
+  airwayfilter->SetVerboseStep(false);
+  airwayfilter->SetWriteStep(false);
   airwayfilter->SetInput(trachea);
   airwayfilter->Update();
   DD(airwayfilter->GetFirstTracheaPoint());
-  ImagePointType point_trachea = airwayfilter->GetFirstTracheaPoint();
+  ImagePointType point_trachea = airwayfilter->GetCarinaPoint();
   ImageIndexType index_trachea;
   bones->TransformPhysicalPointToIndex(point_trachea, index_trachea);
+  DD(point_trachea);
   DD(index_trachea);
   
   // Split bone image first into two parts (ant and post)
@@ -285,8 +290,8 @@ GenerateData()
   //  cropFilter->ResetPipeline();// = CropFilterType::New();  
   cropFilter = CropFilterType::New();  
   ImageIndexType index = region.GetIndex();
-  size[1] =  bones->GetLargestPossibleRegion().GetSize()[1] - size[1];
   index[1] = bones->GetLargestPossibleRegion().GetIndex()[1] + size[1]-1;
+  size[1] =  bones->GetLargestPossibleRegion().GetSize()[1] - size[1];
   DD(size);
   region.SetIndex(index);
   region.SetSize(size);
@@ -330,6 +335,24 @@ GenerateData()
   // output = RemoveLabels<ImageType>(output, BG, param->GetLabelsToRemove());
   output = clitk::KeepLabels<ImageType>(output, GetBackgroundValue(), 
                                         GetForegroundValue(), 1, 1, 0);
+
+
+  // Step : Lower limits from lung (need separate lung ?)
+  StartNewStep("Lower limits with lungs");
+  relPosFilter = RelPosFilterType::New();
+  relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
+  relPosFilter->VerboseStepOff();
+  relPosFilter->WriteStepOff();
+  relPosFilter->SetInput(output); 
+  DD(output->GetLargestPossibleRegion().GetIndex());
+  //  relPosFilter->SetInputObject(left_lung); 
+  relPosFilter->SetInputObject(lung); 
+  relPosFilter->SetOrientationType(RelPosFilterType::SupTo);
+  relPosFilter->SetIntermediateSpacing(GetIntermediateSpacing());
+  relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold3());
+  relPosFilter->Update();
+  output = relPosFilter->GetOutput();
+  DD(output->GetLargestPossibleRegion());
 
   output = clitk::AutoCrop<ImageType>(output, GetBackgroundValue()); 
   //  cropFilter = CropFilterType::New();
