@@ -14,32 +14,22 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-======================================================================-====*/
+  ======================================================================-====*/
+
 #ifndef CLITKIMAGECOMMON_CXX
 #define CLITKIMAGECOMMON_CXX
-/**
-   ------------------------------------------------=
-   * @file   clitkImageCommon.cxx
-   * @author David Sarrut <david.sarrut@creatis.insa-lyon.fr>
-   * @date   02 Oct 2007 14:30:47
-   *
-   * @brief
-   *
-   *
-   ------------------------------------------------=*/
 
 #include "clitkImageCommon.h"
 
 //--------------------------------------------------------------------
 void clitk::ReadImageDimensionAndPixelType(const std::string & filename,
-    int & dimension,
-    std::string & pixeType)
+                                           int & dimension,
+                                           std::string & pixeType)
 {
   itk::ImageIOBase::Pointer genericReader =
     itk::ImageIOFactory::CreateImageIO(filename.c_str(), itk::ImageIOFactory::ReadMode);
   if (!genericReader) {
-    std::cerr << "Image file format unknown while reading file <" << filename << ">" << std::endl;
-    exit(0);
+    clitkExceptionMacro("Image file format unknown while reading file <" << filename << ">");
   }
   genericReader->SetFileName(filename.c_str());
   genericReader->ReadImageInformation();
@@ -51,14 +41,13 @@ void clitk::ReadImageDimensionAndPixelType(const std::string & filename,
 
 //--------------------------------------------------------------------
 void clitk::ReadImageDimensionAndPixelType(const std::string & filename,
-    int & dimension,
-    std::string & pixeType, int & components)
+                                           int & dimension,
+                                           std::string & pixeType, int & components)
 {
   itk::ImageIOBase::Pointer genericReader =
     itk::ImageIOFactory::CreateImageIO(filename.c_str(), itk::ImageIOFactory::ReadMode);
   if (!genericReader) {
-    std::cerr << "Image file format unknown while reading " << filename << std::endl;
-    exit(0);
+    clitkExceptionMacro("Image file format unknown while reading file <" << filename << ">");
   }
   genericReader->SetFileName(filename.c_str());
   genericReader->ReadImageInformation();
@@ -91,10 +80,8 @@ itk::ImageIOBase::Pointer clitk::readImageHeader(const std::string & filename, b
     itk::ImageIOFactory::CreateImageIO(filename.c_str(), itk::ImageIOFactory::ReadMode);
   if (!reader) {
     if (exit_on_error) { //default behavior for tools who don't handle the problem
-      std::cerr << "Error reading file " << filename << ", exiting immediately" << std::endl;
-      std::exit(-1);
-    } else
-      return NULL;
+      clitkExceptionMacro("Error reading file " << filename << ", exiting immediately");
+    } else return NULL;
   }
   reader->SetFileName(filename);
   reader->ReadImageInformation();

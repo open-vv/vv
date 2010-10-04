@@ -54,9 +54,9 @@ namespace clitk {
     void SetFilterName(std::string & n);
     
     // Error management
-    itkSetMacro(LastError, std::string);
-    itkGetConstMacro(LastError, std::string);
-    bool HasError() { return (GetLastError() != ""); }
+    // itkSetMacro(LastError, std::string);
+    // itkGetConstMacro(LastError, std::string);
+    // bool HasError() { return (GetLastError() != ""); }
 
     // Generic IO
     /// Returns the dimension and pixel type of the *first* input
@@ -94,11 +94,11 @@ namespace clitk {
     FilterBase * GetFilterBase() { return m_FilterBase; }
     
     // Indicate that the filter must stop as soon as possible (if threaded)
-    void MustStop();
+    // void MustStop();
     void DeleteLastOutputImage();
-    itkSetMacro(StopOnError, bool);
-    itkGetConstMacro(StopOnError, bool);
-    itkBooleanMacro(StopOnError);    
+    // itkSetMacro(StopOnError, bool);
+    // itkGetConstMacro(StopOnError, bool);
+    // itkBooleanMacro(StopOnError);    
 
   protected:  
     bool m_ReadOnDisk;
@@ -126,10 +126,10 @@ namespace clitk {
     void SetImageTypeError();
     bool m_FailOnImageTypeError;
     
-    std::string m_LastError;
+    // std::string m_LastError;
     void SetFilterBase(FilterBase * f) { m_FilterBase = f; }
     FilterBase * m_FilterBase;
-    bool m_StopOnError;
+    // bool m_StopOnError;
 
   }; // end class clitk::ImageToImageGenericFilter
 

@@ -22,34 +22,12 @@
 //--------------------------------------------------------------------
 clitk::FilterBase::FilterBase() 
 {
-  SetMustStop(false);
   SetVerboseOption(false);
   SetCurrentStepNumber(0);
   SetCurrentStepBaseId("");
-  StopOnErrorOn();
-  ResetLastError();
   VerboseWarningOffOn(); // OffOn, it's cool no ?
   SetWarning("");
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-void clitk::FilterBase::ResetLastError()
-{
-  m_LastError = "";
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-void clitk::FilterBase::SetLastError(std::string e)
-{
-  m_LastError = e;
-  if (GetStopOnError()) {
-    std::cerr << GetLastError() << std::endl;
-    exit(0);
-  }
+  m_IsCancelled = false;
 }
 //--------------------------------------------------------------------
 
@@ -68,8 +46,10 @@ void clitk::FilterBase::SetWarning(std::string e)
 //--------------------------------------------------------------------
 void clitk::FilterBase::StartNewStep(std::string s) 
 {
-  //m_CurrentStepTimer.Reset();
-  // m_CurrentStepTimer.Start();
+  if (Cancelled()) {
+    throw clitk::ExceptionObject("Filter is canceled.");
+  }
+
   m_CurrentStepNumber++;
   if (GetCurrentStepBaseId() != "") {
     std::ostringstream oss;
@@ -94,33 +74,23 @@ void clitk::FilterBase::StartNewStep(std::string s)
 //--------------------------------------------------------------------
 void clitk::FilterBase::StopCurrentStep() 
 {
-  // m_CurrentStepTimer.Stop();
-  //  m_CurrentStepTimer.Print(std::cout);
-  //  std::ostringstream oss;
-  //oss << " (" << 
-    //  m_CurrentStepName = m_CurrentStepName +"
+  
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-void clitk::FilterBase::SetMustStop(bool b)
+void clitk::FilterBase::Cancel()
 {
-  m_MustStop = b;
-  if (GetMustStop()) {
-    SetLastError("Filter is interrupted.");  
-  }
+  m_IsCancelled = true;
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-bool clitk::FilterBase::GetMustStop()
-{
-  if (m_MustStop) return true;
-  if (HasError()) return true;
-  return false;
-}
+ bool clitk::FilterBase::Cancelled()
+ {
+   return m_IsCancelled;
+ }
 //--------------------------------------------------------------------
-
 

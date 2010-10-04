@@ -17,17 +17,11 @@
 ======================================================================-====*/
 #ifndef CLITKCOMMON_TXX
 #define CLITKCOMMON_TXX
-/**
-   -------------------------------------------------
-   * @file   clitkCommon.txx
-   * @author David Sarrut <david.sarrut@creatis.insa-lyon.fr>
-   * @date   18 May 2006
-   *
-   -------------------------------------------------*/
 
 //-------------------------------------------------------
 // Utility functions for text file parsing (author: joel schaerer)
 
+//--------------------------------------------------------------------
 template<class ElementType>
 ElementType parse_value(std::string str)
 {
@@ -37,7 +31,10 @@ ElementType parse_value(std::string str)
   assert(!parser.fail());
   return value;
 }
+//--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
 template<class ElementType>
 std::vector<ElementType> parse_string(std::string str,char delim)
 {
@@ -49,7 +46,10 @@ std::vector<ElementType> parse_string(std::string str,char delim)
   }
   return result;
 }
+//--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
 template<class ElementType>
 std::vector<std::vector<ElementType> > parse_file(const char* filename,char delim)
 {
@@ -62,6 +62,8 @@ std::vector<std::vector<ElementType> > parse_file(const char* filename,char deli
   }
   return result;
 }
+//--------------------------------------------------------------------
+
 
 //--------------------------------------------------------------------
 // Convert float, double ... to string

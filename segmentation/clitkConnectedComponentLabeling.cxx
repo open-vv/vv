@@ -33,10 +33,10 @@ int main(int argc, char * argv[])
   FilterType::Pointer filter = FilterType::New();
 
   filter->SetArgsInfo(args_info);
-  filter->Update();
-
-  if (filter->HasError()) {
-    std::cout << filter->GetLastError() << std::endl;
+  try {
+    filter->Update();
+  } catch(std::runtime_error e) {
+    std::cout << e.what() << std::endl;
   }
 
   return EXIT_SUCCESS;

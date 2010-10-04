@@ -32,10 +32,11 @@ namespace clitk {
   
   //--------------------------------------------------------------------
   /*
-    Convenient class to manage options from GGO gengetopt) to filter
+    Convenient class to manage options from GGO (gengetopt) to filter
   */
   //--------------------------------------------------------------------
-  class FilterBase {
+  class FilterBase
+  {
 
   public:
     // Standard class typedefs
@@ -90,15 +91,6 @@ namespace clitk {
     template<class OptionType>
     void VerboseOptionV(std::string name, int nb, OptionType * value);
 
-    // Error 
-    void SetLastError(std::string e);
-    void ResetLastError();
-    itkGetConstMacro(LastError, std::string);
-    bool HasError() { return (GetLastError() != ""); }
-    itkSetMacro(StopOnError, bool);
-    itkGetConstMacro(StopOnError, bool);
-    itkBooleanMacro(StopOnError);    
-
     void SetWarning(std::string e);
     itkGetConstMacro(Warning, std::string);
     itkSetMacro(VerboseWarningOff, bool);
@@ -106,10 +98,10 @@ namespace clitk {
     itkBooleanMacro(VerboseWarningOff);
     GGO_DefineOption_Flag(verboseWarningOff, SetVerboseWarningOff);
     
-    // Use this function to stop (when threaded)
-    void SetMustStop(bool b);
-    bool GetMustStop();
-    
+    // Use this function to cancel the filter between step
+    void Cancel();
+    bool Cancelled();
+
   protected:
     FilterBase();
     virtual ~FilterBase() {}    
@@ -125,13 +117,12 @@ namespace clitk {
     int m_NumberOfSteps;
     std::string m_CurrentStepId;
     std::string m_CurrentStepBaseId;
-    std::string m_LastError;
     std::string m_CurrentStepName;
-    bool m_StopOnError;
     std::string m_Warning;
     bool m_VerboseWarningOff;
-    bool m_MustStop;
+    bool m_IsCancelled;
     Timer m_CurrentStepTimer;
+    
 
   private:
     FilterBase(const Self&); //purposely not implemented
@@ -142,8 +133,6 @@ namespace clitk {
 
 } // end namespace clitk
 //--------------------------------------------------------------------
-
-#define StartNewStepOrStop(s) StartNewStep(s); if (GetMustStop()) return;
 
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "clitkFilterBase.txx"

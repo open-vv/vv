@@ -82,13 +82,6 @@ void clitk::ExtractBonesGenericFilter<ArgsInfoType>::UpdateWithInputImageType()
   // Go !
   filter->Update();
   
-  // Check if error
-  if (filter->HasError()) {
-    SetLastError(filter->GetLastError());
-    // No output
-    return;
-  }
-
   // Write/Save results
   typename OutputImageType::Pointer output = filter->GetOutput();
   this->template SetNextOutput<OutputImageType>(output); 

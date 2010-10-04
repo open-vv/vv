@@ -22,6 +22,7 @@
 // clitk include
 #include "clitkConfiguration.h"
 #include "clitkPortability.h"
+#include "clitkExceptionObject.h"
 
 // itk include (include std)
 #include <itkContinuousIndex.h>

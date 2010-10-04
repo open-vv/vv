@@ -240,7 +240,7 @@ void clitk::openFileForReading(std::ifstream & is, const std::string & filename)
 {
   is.open(filename.c_str(), std::ios::in);
   if ( is.fail() ) {
-    itkGenericExceptionMacro(<< "Could not open file (for reading): " << filename);
+    clitkExceptionMacro("Could not open file (for reading): " << filename);
   }
 }
 //--------------------------------------------------------------------
@@ -251,7 +251,7 @@ void clitk::openFileForWriting(std::ofstream & os, const std::string & filename)
 {
   os.open(filename.c_str(), std::ios::out);
   if ( os.fail() ) {
-    itkGenericExceptionMacro(<< "Could not open file (for writing): " << filename);
+    clitkExceptionMacro("Could not open file (for writing): " << filename);
   }
 }
 //--------------------------------------------------------------------
