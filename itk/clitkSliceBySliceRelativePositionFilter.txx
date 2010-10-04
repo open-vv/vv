@@ -138,7 +138,6 @@ GenerateData()
   //--------------------------------------------------------------------
   // Extract input slices
   StartNewStep("Extract input slices");
-  writeImage<ImageType>(input, "beforex.mhd");
   typedef clitk::ExtractSliceFilter<ImageType> ExtractSliceFilterType;
   typename ExtractSliceFilterType::Pointer extractSliceFilter = ExtractSliceFilterType::New();
   extractSliceFilter->SetInput(input);
@@ -147,7 +146,6 @@ GenerateData()
   typedef typename ExtractSliceFilterType::SliceType SliceType;
   std::vector<typename SliceType::Pointer> mInputSlices;
   extractSliceFilter->GetOutputSlices(mInputSlices);
-  DD(mInputSlices.size());
   StopCurrentStep<SliceType>(mInputSlices[0]);
   
   //--------------------------------------------------------------------
@@ -159,7 +157,6 @@ GenerateData()
   extractSliceFilter->Update();
   std::vector<typename SliceType::Pointer> mObjectSlices;
   extractSliceFilter->GetOutputSlices(mObjectSlices);
-  DD(mObjectSlices.size());
   StopCurrentStep<SliceType>(mObjectSlices[0]);
 
   //--------------------------------------------------------------------
