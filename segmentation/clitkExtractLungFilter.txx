@@ -24,7 +24,6 @@
 #include "clitkSetBackgroundImageFilter.h"
 #include "clitkSegmentationUtils.h"
 #include "clitkAutoCropFilter.h"
-#include "clitkExtractSliceFilter.h"
 
 // itk
 #include "itkBinaryThresholdImageFilter.h"
@@ -33,13 +32,14 @@
 #include "itkOtsuThresholdImageFilter.h"
 #include "itkBinaryThinningImageFilter3D.h"
 #include "itkImageIteratorWithIndex.h"
+#include "itkBinaryMorphologicalOpeningImageFilter.h"
+#include "itkBinaryMorphologicalClosingImageFilter.h"
 
 //--------------------------------------------------------------------
 template <class ImageType, class MaskImageType>
 clitk::ExtractLungFilter<ImageType, MaskImageType>::
 ExtractLungFilter():
   clitk::FilterBase(),
-  clitk::FilterWithAnatomicalFeatureDatabaseManagement(),
   itk::ImageToImageFilter<ImageType, MaskImageType>()
 {
   SetNumberOfSteps(10);
@@ -84,8 +84,9 @@ ExtractLungFilter():
   p3->UseLastKeepOff();
   SetLabelizeParameters3(p3);
   
-  // Step 5 : find bronchial bifurcations
-  FindBronchialBifurcationsOn();
+  // Step 5
+  FinalOpenCloseOff();
+  SetFinalOpenCloseRadius(1);
 }
 //--------------------------------------------------------------------
 
@@ -158,7 +159,8 @@ SetArgsInfo(ArgsInfoType mArgsInfo)
   SetRadiusForTrachea_GGO(mArgsInfo);
   SetLabelizeParameters3_GGO(mArgsInfo);
   
-  SetAFDBFilename_GGO(mArgsInfo);
+  SetFinalOpenCloseRadius_GGO(mArgsInfo);
+  SetFinalOpenClose_GGO(mArgsInfo);
 }
 //--------------------------------------------------------------------
 
@@ -170,7 +172,6 @@ clitk::ExtractLungFilter<ImageType, MaskImageType>::
 GenerateOutputInformation() 
 { 
   Superclass::GenerateOutputInformation();
-  //this->GetOutput(0)->SetRequestedRegion(this->GetOutput(0)->GetLargestPossibleRegion());
 
   // Get input pointers
   patient = dynamic_cast<const MaskImageType*>(itk::ProcessObject::GetInput(1));
@@ -337,6 +338,37 @@ GenerateOutputInformation()
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
+  // Final OpenClose
+  if (GetFinalOpenClose()) {
+    StartNewStep("Open/Close"); 
+
+    // Structuring element
+    typedef itk::BinaryBallStructuringElement<InternalPixelType, ImageDimension> KernelType;
+    KernelType structuringElement;
+    structuringElement.SetRadius(GetFinalOpenCloseRadius());
+    structuringElement.CreateStructuringElement();
+	
+    // Open
+    typedef itk::BinaryMorphologicalOpeningImageFilter<InternalImageType, InternalImageType, KernelType> OpenFilterType;
+    typename OpenFilterType::Pointer openFilter = OpenFilterType::New();
+    openFilter->SetInput(working_image);
+    openFilter->SetBackgroundValue(GetBackgroundValue());
+    openFilter->SetForegroundValue(GetForegroundValue());
+    openFilter->SetKernel(structuringElement);
+	
+    // Close
+    typedef itk::BinaryMorphologicalClosingImageFilter<InternalImageType, InternalImageType, KernelType> CloseFilterType;
+    typename CloseFilterType::Pointer closeFilter = CloseFilterType::New();
+    closeFilter->SetInput(openFilter->GetOutput());
+    closeFilter->SetSafeBorder(true);
+    closeFilter->SetForegroundValue(GetForegroundValue());
+    closeFilter->SetKernel(structuringElement);
+    closeFilter->Update();
+    working_image = closeFilter->GetOutput();
+  }
+
+  //--------------------------------------------------------------------
+  //--------------------------------------------------------------------
   StartNewStep("Separate Left/Right lungs");
   // Initial label
   working_image = Labelize<InternalImageType>(working_image, 
@@ -395,125 +427,7 @@ GenerateOutputInformation()
   // Update output info
   this->GetOutput(0)->SetRegions(output->GetLargestPossibleRegion());
 
-  // Try to extract bifurcation in the trachea (bronchi)
-  if (m_Seeds.size() != 0) { // if ==0 ->no trachea found
 
-    if (GetFindBronchialBifurcations()) {
-      StartNewStep("Find bronchial bifurcations");
-      // Step 1 : extract skeleton
-      typedef itk::BinaryThinningImageFilter3D<MaskImageType, MaskImageType> ThinningFilterType;
-      typename ThinningFilterType::Pointer thinningFilter = ThinningFilterType::New();
-      thinningFilter->SetInput(trachea);
-      thinningFilter->Update();
-      typename MaskImageType::Pointer skeleton = thinningFilter->GetOutput();
-
-      // Step 2.1 : find first point for tracking
-      typedef itk::ImageRegionConstIteratorWithIndex<MaskImageType> IteratorType;
-      IteratorType it(skeleton, skeleton->GetLargestPossibleRegion());
-      it.GoToReverseBegin();
-      while ((!it.IsAtEnd()) && (it.Get() == GetBackgroundValue())) { 
-        --it;
-      }
-      if (it.IsAtEnd()) {
-        clitkExceptionMacro("first point in the trachea skeleton not found.");
-      }
-      typename MaskImageType::IndexType index = it.GetIndex();
-    
-      // Step 2.2 : initialize neighborhooditerator
-      typedef itk::NeighborhoodIterator<MaskImageType> NeighborhoodIteratorType;
-      typename NeighborhoodIteratorType::SizeType radius;
-      radius.Fill(1);
-      NeighborhoodIteratorType nit(radius, skeleton, skeleton->GetLargestPossibleRegion());
-    
-      // Find first label number (must be different from BG and FG)
-      typename MaskImageType::PixelType label = GetForegroundValue()+1;
-      while ((label == GetBackgroundValue()) || (label == GetForegroundValue())) { label++; }
-
-      // Track from the first point
-      std::vector<BifurcationType> listOfBifurcations;
-      m_SkeletonTree.set_head(index);
-      TrackFromThisIndex(listOfBifurcations, skeleton, index, label, m_SkeletonTree.begin());
-      DD("end track");
-      DD(listOfBifurcations.size());
-      DD(m_SkeletonTree.size());
-      
-      for(unsigned int i=0; i<listOfBifurcations.size(); i++) {
-        skeleton->TransformIndexToPhysicalPoint(listOfBifurcations[i].index, 
-                                                listOfBifurcations[i].point);
-      }
-
-      // Search for the first slice that separate the bronchus (carena)
-      typedef clitk::ExtractSliceFilter<MaskImageType> ExtractSliceFilterType;
-      typename ExtractSliceFilterType::Pointer extractSliceFilter = ExtractSliceFilterType::New();
-      extractSliceFilter->SetInput(trachea);
-      extractSliceFilter->SetDirection(2);
-      extractSliceFilter->Update();
-      typedef typename ExtractSliceFilterType::SliceType SliceType;
-      std::vector<typename SliceType::Pointer> mInputSlices;
-      extractSliceFilter->GetOutputSlices(mInputSlices);
-      
-      bool stop = false;
-      DD(listOfBifurcations[0].index);
-      DD(listOfBifurcations[1].index);
-      int slice_index = listOfBifurcations[0].index[2]; // first slice from carena in skeleton
-      int i=0;
-      TreeIterator firstIter = m_SkeletonTree.child(listOfBifurcations[1].treeIter, 0);
-      TreeIterator secondIter = m_SkeletonTree.child(listOfBifurcations[1].treeIter, 1);
-      typename SliceType::IndexType in1;
-      typename SliceType::IndexType in2;
-      while (!stop) {
-        DD(slice_index);
-
-	//  Labelize the current slice
-        typename SliceType::Pointer temp = Labelize<SliceType>(mInputSlices[slice_index],
-                                                               GetBackgroundValue(), 
-                                                               true, 
-                                                               GetMinimalComponentSize());
-	// Check the value of the two skeleton points;
-        in1[0] = (*firstIter)[0];
-        in1[1] = (*firstIter)[1];
-	typename SliceType::PixelType v1 = temp->GetPixel(in1);
-	DD(in1);
-	DD((int)v1);
-        in2[0] = (*secondIter)[0];
-        in2[1] = (*secondIter)[1];
-	typename SliceType::PixelType v2 = temp->GetPixel(in2);
-	DD(in2);
-	DD((int)v2);
-
-	// TODO IF NOT FOUND ????
-
-        if (v1 != v2) {
-	  stop = true;
-	}
-	else {
-	  i++;
-	  --slice_index;
-	  ++firstIter;
-	  ++secondIter;
-	}
-      }
-      MaskImageIndexType carena_index;
-      carena_index[0] = lrint(in2[0] + in1[0])/2.0;
-      carena_index[1] = lrint(in2[1] + in1[1])/2.0;
-      carena_index[2] = slice_index;
-      MaskImagePointType carena_position;
-      DD(carena_index);
-      skeleton->TransformIndexToPhysicalPoint(carena_index,
-					      carena_position);
-      DD(carena_position);
-
-      // Set and save Carina position      
-      StartNewStep("Save carina position");
-      // Try to load the DB
-      try {
-        LoadAFDB();
-      } catch (clitk::ExceptionObject e) {
-        // Do nothing if not found, it will be used anyway to write the result
-      }
-      GetAFDB()->SetPoint3D("Carena", carena_position);
-    }
-  }
 }
 //--------------------------------------------------------------------
 
@@ -524,68 +438,8 @@ void
 clitk::ExtractLungFilter<ImageType, MaskImageType>::
 GenerateData() 
 {
-  // If everything goes well, set the output
+  // Set the output
   this->GraftOutput(output); // not SetNthOutput
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-template <class ImageType, class MaskImageType>
-void 
-clitk::ExtractLungFilter<ImageType, MaskImageType>::
-TrackFromThisIndex(std::vector<BifurcationType> & listOfBifurcations, 
-                   MaskImagePointer skeleton, 
-                   MaskImageIndexType index,
-                   MaskImagePixelType label, 
-		   TreeIterator currentNode) 
-{
-  // Create NeighborhoodIterator 
-  typedef itk::NeighborhoodIterator<MaskImageType> NeighborhoodIteratorType;
-  typename NeighborhoodIteratorType::SizeType radius;
-  radius.Fill(1);
-  NeighborhoodIteratorType nit(radius, skeleton, skeleton->GetLargestPossibleRegion());
-      
-  // Track
-  std::vector<typename NeighborhoodIteratorType::IndexType> listOfTrackedPoint;
-  bool stop = false;
-  while (!stop) {
-    nit.SetLocation(index);
-    nit.SetCenterPixel(label);
-    listOfTrackedPoint.clear();
-    for(unsigned int i=0; i<nit.Size(); i++) {
-      if (i != nit.GetCenterNeighborhoodIndex ()) { // Do not observe the current point
-        if (nit.GetPixel(i) == GetForegroundValue()) { // if this is foreground, we continue the tracking
-          listOfTrackedPoint.push_back(nit.GetIndex(i));
-        }
-      }
-    }
-    if (listOfTrackedPoint.size() == 1) {
-      // Add this point to the current path
-      currentNode = m_SkeletonTree.append_child(currentNode, listOfTrackedPoint[0]);
-      index = listOfTrackedPoint[0];
-    }
-    else {
-      if (listOfTrackedPoint.size() == 2) {
-        // m_SkeletonTree->Add(listOfTrackedPoint[0], index); // the parent is 'index'
-        // m_SkeletonTree->Add(listOfTrackedPoint[1], index); // the parent is 'index'
-        BifurcationType bif(index, label, label+1, label+2);
-	bif.treeIter = currentNode;
-        listOfBifurcations.push_back(bif);
-	TreeIterator firstNode = m_SkeletonTree.append_child(currentNode, listOfTrackedPoint[0]);
-        TreeIterator secondNode = m_SkeletonTree.append_child(currentNode, listOfTrackedPoint[1]);
-        TrackFromThisIndex(listOfBifurcations, skeleton, listOfTrackedPoint[0], label+1, firstNode);
-        TrackFromThisIndex(listOfBifurcations, skeleton, listOfTrackedPoint[1], label+2, secondNode);
-      }
-      else {
-        if (listOfTrackedPoint.size() > 2) {
-          clitkExceptionMacro("error while tracking trachea bifurcation. Too much bifurcation points ... ?");
-        }
-        // Else this it the end of the tracking
-      }
-      stop = true;
-    }
-  }
 }
 //--------------------------------------------------------------------
 

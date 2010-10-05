@@ -56,7 +56,7 @@ void clitk::AnatomicalFeatureDatabase::Load()
   // load line by line string/string
   while (!is.fail()) {
     std::string tag;
-    is >> tag; DD(tag);
+    is >> tag; 
     std::string value;
     std::getline(is,value,'\n');
     m_MapOfTag[tag] = value;

@@ -42,19 +42,26 @@ namespace clitk {
     itkTypeMacro(FilterWithAnatomicalFeatureDatabaseManagement, Object);
 
     // Set/Get filename 
+    itkBooleanMacro(AFDBFilenameGivenFlag);
+    itkSetMacro(AFDBFilenameGivenFlag, bool);
+    itkGetConstMacro(AFDBFilenameGivenFlag, bool);
+    GGO_DefineOption_Flag(afdb, SetAFDBFilenameGivenFlag);
+
     itkSetMacro(AFDBFilename, std::string);
     itkGetConstMacro(AFDBFilename, std::string);
-    GGO_DefineOption(afdb, SetAFDBFilename, std::string);
+    GGO_DefineOption_WithTest(afdb, SetAFDBFilename, std::string, AFDBFilenameGivenFlag);
 
     void WriteAFDB();
     void LoadAFDB();
     AnatomicalFeatureDatabase * GetAFDB();
+    void SetAFDB(AnatomicalFeatureDatabase * a) { m_AFDB = a; }
 
   protected:
     FilterWithAnatomicalFeatureDatabaseManagement();
     virtual ~FilterWithAnatomicalFeatureDatabaseManagement() {}    
     
     std::string m_AFDBFilename;
+    bool m_AFDBFilenameGivenFlag;
     clitk::AnatomicalFeatureDatabase * m_AFDB;
 
   private:

@@ -20,6 +20,7 @@
 #define CLITKEXTRACTMEDIASTINUMFILTER_H
 
 #include "clitkFilterBase.h"
+#include "clitkFilterWithAnatomicalFeatureDatabaseManagement.h"
 
 namespace clitk {
   
@@ -36,7 +37,8 @@ namespace clitk {
   
   template <class TImageType>
   class ITK_EXPORT ExtractMediastinumFilter: 
-    public clitk::FilterBase, 
+    public virtual clitk::FilterBase, 
+    public clitk::FilterWithAnatomicalFeatureDatabaseManagement,
     public itk::ImageToImageFilter<TImageType, TImageType> 
   {
 

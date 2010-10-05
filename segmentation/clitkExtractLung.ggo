@@ -15,8 +15,7 @@ section "I/O"
 
 option "input"         i	"Input CT image filename"	  string  	yes
 option "patient"       p	"Input patient mask filename"	  string  	yes
-option "patientBG"   -	"Patient Background"              int           default="0" no
-option "afdb"          a	"Output Anatomical Feature DB (Carina position)"    string  	no
+option "patientBG"     -	"Patient Background"              int           default="0" no
 option "output"        o 	"Output lungs mask filename"      string 	yes
 option "outputTrachea" t 	"Output trachea mask filename"    string 	no
 
@@ -51,3 +50,6 @@ option "remove3"     -	"Labels not to keep in lungs mask (trachea)"    int		no  
 option "firstKeep3"  -	"First label to keep"			  int		no  	default="1"
 option "lastKeep3"   -	"Last label to keep"		          int		no  	default="2"
 
+section "Step 5 : openclose"
+option "openclose"		-  "Final OpenClose"		flag off
+option "opencloseRadius"   	-  "Final OpenClose radius"	int no default="1"

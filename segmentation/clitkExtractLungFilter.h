@@ -24,12 +24,9 @@
 #include "clitkDecomposeAndReconstructImageFilter.h"
 #include "clitkExplosionControlledThresholdConnectedImageFilter.h"
 #include "clitkSegmentationUtils.h"
-#include "clitkFilterWithAnatomicalFeatureDatabaseManagement.h"
-#include "tree.hh"
 
 // itk
 #include "itkStatisticsImageFilter.h"
-#include "itkTreeContainer.h"
 
 namespace clitk {
   
@@ -57,39 +54,10 @@ namespace clitk {
   */
   //--------------------------------------------------------------------
   
-
-  //--------------------------------------------------------------------
-
-class Bifurcation
-{
-public:
-  typedef itk::Index<3> IndexType;
-  typedef itk::Point<double, 3> PointType;
-  typedef double PixelType;
-  Bifurcation(IndexType _index, PixelType _l, PixelType _l1, PixelType _l2) {
-    index = _index;
-    _l = l;
-    _l1 = l1;
-    _l2 = l2;
-  }
-  IndexType index;
-  PointType point;
-  PixelType l;
-  PixelType l1;
-  PixelType l2;
-  typedef itk::Index<3> NodeType;
-  typedef tree<NodeType> TreeType;
-  typedef TreeType::iterator TreeIterator;
-  TreeIterator treeIter;
-};
-  //--------------------------------------------------------------------
-
-
   //--------------------------------------------------------------------
   template <class TImageType, class TMaskImageType>
   class ITK_EXPORT ExtractLungFilter: 
     public virtual clitk::FilterBase, 
-    public clitk::FilterWithAnatomicalFeatureDatabaseManagement,
     public itk::ImageToImageFilter<TImageType, TMaskImageType> 
   {
     
@@ -133,11 +101,6 @@ public:
     typedef typename InternalImageType::IndexType                    InternalIndexType;
     typedef LabelizeParameters<InternalPixelType>                    LabelParamType;
     
-    typedef Bifurcation BifurcationType;
-    typedef MaskImageIndexType NodeType;
-    typedef tree<NodeType> TreeType;
-    typedef typename TreeType::iterator TreeIterator;
-
     /** Connect inputs */
     void SetInput(const ImageType * image);
     void SetInputPatientMask(MaskImageType * mask, MaskImagePixelType BG);
@@ -216,15 +179,15 @@ public:
     itkGetConstMacro(LabelizeParameters3, LabelParamType*);
     GGO_DefineOption_LabelParam(3, SetLabelizeParameters3, LabelParamType);
 
-    // Step 5 options LungSeparation
-    //     itkSetMacro(FinalOpenClose, bool);
-    //     itkGetConstMacro(FinalOpenClose, bool);
-    //     itkBooleanMacro(FinalOpenClose);
+    // Step 5 final openclose
+    itkSetMacro(FinalOpenClose, bool);
+    itkGetConstMacro(FinalOpenClose, bool);
+    itkBooleanMacro(FinalOpenClose);
+    GGO_DefineOption_Flag(openclose, SetFinalOpenClose);
 
-    // Bronchial bifurcations
-    itkSetMacro(FindBronchialBifurcations, bool);
-    itkGetConstMacro(FindBronchialBifurcations, bool);
-    itkBooleanMacro(FindBronchialBifurcations);
+    itkSetMacro(FinalOpenCloseRadius, int);
+    itkGetConstMacro(FinalOpenCloseRadius, int);
+    GGO_DefineOption(opencloseRadius, SetFinalOpenCloseRadius, int);
 
   protected:
     ExtractLungFilter();
@@ -270,21 +233,14 @@ public:
     LabelParamType* m_LabelizeParameters3;
 
     // Step 5
-    //     bool m_FinalOpenClose;    
-    bool m_FindBronchialBifurcations;
-    
+    bool m_FinalOpenClose;    
+    int m_FinalOpenCloseRadius;
+
+    // Main functions
     virtual void GenerateOutputInformation();
     virtual void GenerateData();
-
-    TreeType m_SkeletonTree;
-
-    void TrackFromThisIndex(std::vector<BifurcationType> & listOfBifurcations, 
-                            MaskImagePointer skeleton, 
-                            MaskImageIndexType index,
-                            MaskImagePixelType label, 
-			    TreeIterator currentNode);
-        
-
+    
+    // Functions for trachea extraction
     bool SearchForTracheaSeed(int skip);
     void SearchForTrachea();
     void TracheaRegionGrowing();

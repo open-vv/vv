@@ -23,6 +23,7 @@ option "lungLeft"      -	"Lung Left value"                 int           default
 option "lungRight"     -	"Lung Right value"                int           default="2" no
 option "trachea"       t	"Input trachea mask filename"	  string  	yes
 option "tracheaBG"     -	"Trachea Background"              int           default="0" no
+option "afdb"          a	"Input Anatomical Feature DB"     string  	no
 
 option "output"        o 	"Output lungs mask filename"      string 	yes
 

@@ -28,9 +28,9 @@ IF(CLITK_BUILD_SEGMENTATION)
     ADD_EXECUTABLE(clitkExtractLung clitkExtractLung.cxx  ${clitkExtractLung_GGO_C})
     TARGET_LINK_LIBRARIES(clitkExtractLung clitkSegmentationGgoLib clitkCommon ITKIO)
 
-    WRAP_GGO(clitkExtractAirwayTreeInfo_GGO_C clitkExtractAirwayTreeInfo.ggo)
-    ADD_EXECUTABLE(clitkExtractAirwayTreeInfo clitkExtractAirwayTreeInfo.cxx ${clitkExtractAirwayTreeInfo_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkExtractAirwayTreeInfo clitkCommon ITKIO)
+    WRAP_GGO(clitkExtractAirwaysTreeInfo_GGO_C clitkExtractAirwaysTreeInfo.ggo)
+    ADD_EXECUTABLE(clitkExtractAirwaysTreeInfo clitkExtractAirwaysTreeInfo.cxx ${clitkExtractAirwaysTreeInfo_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkExtractAirwaysTreeInfo clitkSegmentationGgoLib clitkCommon ITKIO)
 
     WRAP_GGO(clitkExtractBones_GGO_C clitkExtractBones.ggo)
     ADD_EXECUTABLE(clitkExtractBones clitkExtractBones.cxx ${clitkExtractBones_GGO_C})
@@ -38,7 +38,7 @@ IF(CLITK_BUILD_SEGMENTATION)
 
     WRAP_GGO(clitkExtractMediastinum_GGO_C clitkExtractMediastinum.ggo)
     ADD_EXECUTABLE(clitkExtractMediastinum clitkExtractMediastinum.cxx ${clitkExtractMediastinum_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkExtractMediastinum clitkCommon ITKIO )
+    TARGET_LINK_LIBRARIES(clitkExtractMediastinum clitkCommon clitkSegmentationGgoLib ITKIO)
 
     WRAP_GGO(clitkExtractLymphStations_GGO_C clitkExtractLymphStations.ggo)
     ADD_EXECUTABLE(clitkExtractLymphStations clitkExtractLymphStations.cxx clitkFilterWithAnatomicalFeatureDatabaseManagement.cxx ${clitkExtractLymphStations_GGO_C})

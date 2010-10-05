@@ -24,10 +24,12 @@
 #include "clitkExtractMediastinumFilter.h"
 #include "clitkAddRelativePositionConstraintToLabelImageFilter.h"
 #include "clitkSegmentationUtils.h"
-#include "clitkExtractAirwayTreeInfoFilter.h"
+#include "clitkExtractAirwaysTreeInfoFilter.h"
+
+// std
+#include <deque>
 
 // itk
-#include <deque>
 #include "itkStatisticsLabelMapFilter.h"
 #include "itkLabelImageToStatisticsLabelMapFilter.h"
 #include "itkRegionOfInterestImageFilter.h"
@@ -41,6 +43,7 @@ template <class ImageType>
 clitk::ExtractMediastinumFilter<ImageType>::
 ExtractMediastinumFilter():
   clitk::FilterBase(),
+  clitk::FilterWithAnatomicalFeatureDatabaseManagement(),
   itk::ImageToImageFilter<ImageType, ImageType>()
 {
   this->SetNumberOfRequiredInputs(4);
@@ -256,17 +259,12 @@ GenerateData()
 
   // Find ant-post coordinate of trachea (assume the carena position is a
   // good estimation of the ant-post position of the trachea)
-  typedef clitk::ExtractAirwayTreeInfoFilter<ImageType> AirwayFilter;
-  typename AirwayFilter::Pointer airwayfilter = AirwayFilter::New();
-  airwayfilter->SetVerboseStep(false);
-  airwayfilter->SetWriteStep(false);
-  airwayfilter->SetInput(trachea);
-  airwayfilter->Update();
-  DD(airwayfilter->GetFirstTracheaPoint());
-  ImagePointType point_trachea = airwayfilter->GetCarinaPoint();
+  ImagePointType carina;
+  LoadAFDB();
+  GetAFDB()->GetPoint3D("Carina", carina);
+  DD(carina);
   ImageIndexType index_trachea;
-  bones->TransformPhysicalPointToIndex(point_trachea, index_trachea);
-  DD(point_trachea);
+  bones->TransformPhysicalPointToIndex(carina, index_trachea);
   DD(index_trachea);
   
   // Split bone image first into two parts (ant and post)

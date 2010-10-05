@@ -117,7 +117,7 @@ GenerateOutputInformation() {
   if (!m_CarinaZPositionInMMIsSet) {
     ImagePointType carina;
     LoadAFDB();
-    GetAFDB()->GetPoint3D("Carena", carina);
+    GetAFDB()->GetPoint3D("Carina", carina);
     DD(carina);
     m_CarinaZPositionInMM = carina[2];
   }
@@ -125,16 +125,16 @@ GenerateOutputInformation() {
 
   // ----------------------------------------------------------------
   // ----------------------------------------------------------------
-  // Superior limit = carena
-  // Inferior limit = origine middle lobe bronchus
-  StartNewStep("Inf/Sup mediastinum limits with carena/bronchus");
+  // Superior limit = carina
+  // Inferior limit = origin right middle lobe bronchus
+  StartNewStep("Inf/Sup mediastinum limits with carina/bronchus");
   ImageRegionType region = m_mediastinum->GetLargestPossibleRegion(); DD(region);
   ImageSizeType size = region.GetSize();
   ImageIndexType index = region.GetIndex();
   DD(m_CarinaZPositionInMM);
   DD(m_MiddleLobeBronchusZPositionInMM);
   index[2] = floor((m_MiddleLobeBronchusZPositionInMM - m_mediastinum->GetOrigin()[2]) / m_mediastinum->GetSpacing()[2]);
-  size[2] = ceil((m_CarinaZPositionInMM-m_MiddleLobeBronchusZPositionInMM) / m_mediastinum->GetSpacing()[2]);
+  size[2] = 1+ceil((m_CarinaZPositionInMM-m_MiddleLobeBronchusZPositionInMM) / m_mediastinum->GetSpacing()[2]); // +1 to 
   region.SetSize(size);
   region.SetIndex(index);
   DD(region);
@@ -152,7 +152,7 @@ GenerateOutputInformation() {
   // ----------------------------------------------------------------
   // ----------------------------------------------------------------
   // Separate trachea in two CCL
-  StartNewStep("Separate trachea under carena");
+  StartNewStep("Separate trachea under carina");
   // DD(region);
   ImageRegionType trachea_region = m_trachea->GetLargestPossibleRegion();
   for(int i=0; i<3; i++) {
