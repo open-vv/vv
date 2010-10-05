@@ -23,7 +23,7 @@ class vvSlicerManager;
 class vvMaximumIntensityProjection
 {
 public:
-    vvMaximumIntensityProjection() {};
+    vvMaximumIntensityProjection(): mDimension(0) {};
     ///Computes the MIP image on the given vvImage
     void Compute(vvSlicerManager*);
     vvImage::Pointer GetOutput() {return mOutputImage;};
@@ -33,6 +33,8 @@ protected:
     template<class PixelType,int Dim> void Update_WithDimAndPixelType(vvImage::Pointer);
     template<class PixelType> void Update_WithPixelType(vvImage::Pointer);
     vvImage::Pointer mOutputImage;
+    //Dimension along which to compute the MIP
+    unsigned int mDimension;
 };
 
 #endif

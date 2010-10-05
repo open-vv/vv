@@ -25,9 +25,12 @@
 #include "vvFromITK.h"
 #include "vvMaximumIntensityProjection.h"
 #include <QMessageBox>
+#include <QInputDialog>
 
 void vvMaximumIntensityProjection::Compute(vvSlicerManager * slicer_manager)
 {
+  mDimension = QInputDialog::getInteger(0, "MIP Axis","Choose the axis along which to perform the MIP",0,0,\
+                                     slicer_manager->GetImage()->GetNumberOfDimensions()-1,1);
 #define TRY_TYPE(TYPE)							\
   if (clitk::IsSameType<TYPE>(image->GetScalarTypeAsITKString())) { this->Update_WithPixelType<TYPE>(image); return; }
   std::string list = clitk::CreateListOfTypes<short>();
@@ -69,7 +72,7 @@ void vvMaximumIntensityProjection::Update_WithDimAndPixelType(vvImage::Pointer i
   typedef itk::Image<PixelType,Dim-1> OutputImageType;
   typedef itk::MaximumProjectionImageFilter<ImageType,OutputImageType> FilterType;
   typename FilterType::Pointer filter = FilterType::New();
-  filter->SetProjectionDimension(Dim-1);
+  filter->SetProjectionDimension(mDimension);
   typename ImageType::ConstPointer input = vvImageToITK<ImageType>(image);
   filter->SetInput(input);
   filter->Update();
