@@ -1,0 +1,23 @@
+#File clitkExtractAirwaysTreeInfos.ggo
+package "clitkExtractAirwaysTreeInfos"
+version "1.0"
+purpose "From trachea binary image, extract skeleton and carena point."
+
+option "config"	        -  "Config file"		  string  	no
+option "imagetypes"     -  "Display allowed image types"  flag          off
+option "verbose"        v  "Verbose"			  flag		off
+option "verboseStep"    -  "Verbose each step"		  flag		off
+option "writeStep"      w  "Write image at each step"	  flag		off
+option "verboseOption"  -  "Display options values"       flag          off
+option "verboseWarningOff" -  "Do not display warning"    flag          off
+
+section "I/O"
+
+option "input"         i	"Input trachea mask image filename"		  string  yes
+option "afdb"          a	"Output Anatomical Feature DB (Carina position)"  string  no
+option "output"	       o	"Output skeleton mask image filename"		  string  yes
+
+section "Main options"
+
+option "writeSkeleton"    - "Write skeleton"                       flag    off
+option "skeletonFilename" - "Skeleton filename"                    string  no
