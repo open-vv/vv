@@ -19,7 +19,7 @@
 #define CLITKIMAGECOMMON_H
 
 // clitk
-#include "clitkCommon.h"
+//#include "clitkCommon.h"
 
 // itk
 #include "itkImage.h"

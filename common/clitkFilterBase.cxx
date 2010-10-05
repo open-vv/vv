@@ -18,6 +18,7 @@
 
 // clitk
 #include "clitkFilterBase.h"
+#include "clitkCommon.h"
 
 //--------------------------------------------------------------------
 clitk::FilterBase::FilterBase() 

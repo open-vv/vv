@@ -20,7 +20,7 @@
 #define CLITKLABELIZEPARAMETERS_H
 
 // clitk
-#include "clitkCommon.h"
+//#include "clitkCommon.h"
 
 // itk
 #include "itkObject.h"

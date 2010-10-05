@@ -20,7 +20,6 @@
 #define CLITKIMAGETOIMAGEGENERICFILTERBASE_H
 
 // clitk 
-#include "clitkCommon.h"
 #include "clitkImageCommon.h"
 #include "clitkCommonGenericFilter.h"
 #include "clitkFilterBase.h"

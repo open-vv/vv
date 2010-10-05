@@ -7,13 +7,26 @@ cd ${vv_dir}/build
 function handle_exit
 {
     rm mem_use 2>>/dev/null
-    killall -s SIGCONT make
-    killall make
-    killall cc1plus
+    #kill -s SIGCONT ${make_pid} $(get_descendance ${make_pid})
+    #sleep 1
+    kill -9 $(get_descendance ${make_pid})
+    kill -9 ${make_pid}
     echo "Terminated, exiting..."
+    sleep 1
     echo
     echo
     exit
+}
+
+function get_descendance
+{
+    children=$(ps --ppid $1 -o pid --no-headers)
+    local desc=""
+    for c in $children
+    do
+        desc="${desc} ${c} $(get_descendance $c)"
+    done
+    echo $desc
 }
 
 trap handle_exit SIGINT
@@ -37,37 +50,44 @@ make_pid=$(jobs -p %nice)
 #watch memory use to avoid crashes
 while ps $make_pid >>/dev/null 
 do
-    if [ x"$(ps aux | grep cc1plus | grep -v grep | wc -l)" != x0 ]
+    descendance=$(get_descendance ${make_pid})
+    #echo ${make_pid} $descendance
+    ps -o vsize --no-headers ${make_pid} ${descendance} > mem_use
+    used_mem=$(awk 'BEGIN {sum=0;} {sum+=$1;} END {print sum;}' mem_use)
+    if (( "$used_mem"> ($available_mem - 300) ))
     then
-        ps ax -o vsize,comm | grep cc1plus | grep -o "\<[0-9]*\>" > mem_use
-        used_mem=$(awk 'BEGIN {sum=0;} {sum+=$1;} END {print sum;}' mem_use)
-        if (( "$used_mem"> ($available_mem - 300) ))
+        touch memory_exhausted_lock
+        echo "Stopping due to exagerated memory use ( $used_mem )"
+        handle_exit
+    elif (( "$used_mem"> ($available_mem/2) ))
+    then
+        if [ x$high_mem != xtrue ]
         then
-            touch memory_exhausted_lock
-            echo "Stopping due to exagerated memory use ( $used_mem )"
-            handle_exit
-        elif (( "$used_mem"> ($available_mem/2) ))
-        then
-            if [ x$high_mem != xtrue ]
-            then
-                echo "Warning, high memory use, not spawning any more compilation jobs... ( $used_mem )"
-                killall -s SIGSTOP make
-                killall -s SIGCONT cc1plus
-                high_mem="true"
-                date_mem=$(date +%s)
-            fi
-            echo mem $used_mem / $available_mem
-        elif [ x$high_mem = xtrue ] && (( $(date +%s) > ( $date_mem + 5 ) ))
-        then
-            echo "Memory use back to normal"
-            high_mem=""
-            killall -s SIGCONT make
+            echo "Warning, high memory use, not spawning any more compilation jobs... ( $used_mem )"
+            #Stop all make commands
+            for pid in ${make_pid} ${descendance}
+            do
+                (ps --no-headers -o command ${pid} | grep make &>/dev/null) && kill -s SIGSTOP ${pid}
+            done
+            high_mem="true"
+            date_mem=$(date +%s)
         fi
-        rm mem_use
+        echo mem $used_mem / $available_mem
+    elif [ x$high_mem = xtrue ] && (( $(date +%s) > ( $date_mem + 5 ) ))
+    then
+        echo "Memory use back to normal"
+        high_mem=""
+        #Restart all make commands
+        for pid in ${make_pid} ${descendance}
+        do
+            (ps --no-headers -o command ${pid} | grep make &>/dev/null) && kill -s SIGCONT ${pid}
+        done
     fi
+    rm mem_use
     sleep 1
 done
 rm memory_exhausted_lock 2>>/dev/null
+echo Waiting for remaining jobs...
 wait
 echo Done!
 echo

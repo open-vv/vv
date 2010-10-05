@@ -20,6 +20,7 @@
 #define CLITKIMAGECOMMON_CXX
 
 #include "clitkImageCommon.h"
+#include "clitkCommon.h"
 
 //--------------------------------------------------------------------
 void clitk::ReadImageDimensionAndPixelType(const std::string & filename,

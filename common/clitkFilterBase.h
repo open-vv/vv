@@ -20,7 +20,7 @@
 #define CLITKFILTERBASE_H
 
 // clitk
-#include "clitkCommon.h"
+//#include "clitkCommon.h"
 #include "clitkTimer.h"
 #include "clitkFilterMacros.txx"
 #include "clitkLabelizeParameters.h"

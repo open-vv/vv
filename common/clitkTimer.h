@@ -27,7 +27,7 @@
 
    ===================================================================*/
 
-#include "clitkCommon.h"
+//#include "clitkCommon.h"
 #include <ctime> 
 #if defined(unix) || defined(__APPLE__)
 #  include <sys/time.h>
