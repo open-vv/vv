@@ -17,7 +17,7 @@
   ======================================================================-====*/
 
 // clitk
-#include "clitkCommon.h"
+#include "clitkDD.h"
 
 // itk include
 #include "itkImage.h"
