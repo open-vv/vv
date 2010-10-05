@@ -37,7 +37,10 @@ const char* clitk::ExceptionObject::what() const throw()
   ::itk::OStringStream message;
   message << "clitk::ERROR in " << m_Filename << " line " << m_LineNumber
           << " : " << std::endl << "\t" << m_Message;
-  return message.str().c_str();
+  char * m = new char[message.str().length()];
+  for(uint i=0; i< message.str().length(); i++)
+    m[i] = message.str().c_str()[i];
+  return m;//essage.str().c_str();
 }
 //--------------------------------------------------------------------
   
