@@ -20,7 +20,7 @@
 #define CLITKCOMMON_H
 
 // clitk include
-#include "clitkConfiguration.h"
+//#include "clitkConfiguration.h"
 #include "clitkPortability.h"
 #include "clitkExceptionObject.h"
 

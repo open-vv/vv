@@ -44,6 +44,7 @@
 #include "vvStructSelector.h"
 #include "vvMeshReader.h"
 #include "vvConstants.h"
+#include "clitkConfiguration.h"
 
 // ITK include
 #include "itkImage.h"

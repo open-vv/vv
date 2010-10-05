@@ -70,7 +70,7 @@ void vvThreadedFilter::Update()
       }
       temp = m_FilterBase->GetCurrentStepName();
     }
-    this->wait(200); // in milisecond
+    this->wait(200); // in miliseconds
     qApp->processEvents();
   }
 }

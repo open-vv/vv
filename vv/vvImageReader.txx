@@ -27,6 +27,7 @@
 #include <vtkTransform.h>
 
 #include "clitkCommon.h"
+#include "clitkConfiguration.h"
 #include "vvFromITK.h"
 #include "vvConstants.h"
 
