@@ -99,7 +99,7 @@ void clitk::Timer::Print(std::ostream & os) const
 //====================================================================
 void clitk::Timer::Print(std::string text, std::ostream & os) const
 {
-  os << text;
+  os << text.c_str();
   Print(os);
 }
 //====================================================================
