@@ -18,6 +18,7 @@
 #ifndef VVQPROGRESSDIALOGITKCOMMAND_CXX
 #define VVQPROGRESSDIALOGITKCOMMAND_CXX
 #include "clitkImageCommon.h"
+#include "clitkPortability.h"
 #include "vvQProgressDialogITKCommand.h"
 
 //====================================================================
