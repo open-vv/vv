@@ -32,14 +32,12 @@
 #include "clitkVFMerge_ggo.h"
 #include "clitkIO.h"
 #include "clitkImageCommon.h"
+#include "clitkCommon.h"
 
 // itk include
-//#include "itkReadTransform.h"
 #include "itkImageFileWriter.h"
 #include <iostream>
 #include "itkImageFileReader.h"
-//#include "itkRawImageIO.h"
-//#include "macro.h"
 
 int main( int argc, char *argv[] )
 {

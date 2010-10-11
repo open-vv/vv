@@ -15,17 +15,19 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
+
 #ifndef __clitkComposeVFGenericFilter_h
 #define __clitkComposeVFGenericFilter_h
-#include "clitkImageCommon.h"
+
+// clitk
+#include "clitkIO.h"
 #include "clitkImageCommon.h"
 #include "clitkComposeVFFilter.h"
 
-//itk include
+//itk 
 #include "itkLightObject.h"
 #include "itkImage.h"
 #include "itkVector.h"
-
 
 namespace clitk
 {

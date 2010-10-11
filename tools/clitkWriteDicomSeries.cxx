@@ -30,7 +30,7 @@
 #include "clitkWriteDicomSeries_ggo.h"
 #include "clitkIO.h"
 #include "clitkWriteDicomSeriesGenericFilter.h"
-
+#include "clitkCommon.h"
 
 //--------------------------------------------------------------------
 int main(int argc, char * argv[])

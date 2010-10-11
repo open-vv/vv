@@ -15,24 +15,13 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
-#ifndef CLITKCOMPOSEVF_CXX
-#define CLITKCOMPOSEVF_CXX
-
-/**
- * @file   clitkComposeVF.cxx
- * @author Jef Vandemeulebroucke <jefvdmb@gmail.com>
- * @date   July 20  10:14:53 2007
- * 
- * @brief  Read in two  VF (ex mhd, vf)compose them using lirear interpolation. 
- * 
- */
 
 // clitk include
 #include "clitkComposeVF_ggo.h"
-#include "clitkIO.h"
-#include "clitkImageCommon.h"
+#include "clitkCommon.h"
 #include "clitkComposeVFGenericFilter.h"
 
+//--------------------------------------------------------------------
 int main( int argc, char *argv[] )
 {
   
@@ -54,5 +43,6 @@ int main( int argc, char *argv[] )
 
   return EXIT_SUCCESS;
 }
-#endif
+//--------------------------------------------------------------------
+
 

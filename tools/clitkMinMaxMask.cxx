@@ -20,6 +20,7 @@
 #include "clitkMinMaxMask_ggo.h"
 #include "clitkIO.h"
 #include "clitkImageCommon.h"
+#include "clitkCommon.h"
 #include "itkConstSliceIterator.h"
 #include "itkImageRegionIteratorWithIndex.h"
 

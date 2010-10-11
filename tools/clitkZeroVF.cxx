@@ -31,6 +31,7 @@
 #include "clitkZeroVF_ggo.h"
 #include "clitkIO.h"
 #include "clitkImageCommon.h"
+#include "clitkCommon.h"
 #include "clitkZeroVFGenericFilter.h"
 
 int main( int argc, char *argv[] )

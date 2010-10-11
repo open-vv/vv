@@ -29,8 +29,8 @@
 // clitk
 #include "clitkAverageTemporalDimension_ggo.h"
 #include "clitkIO.h"
+#include "clitkCommon.h"
 #include "clitkAverageTemporalDimensionGenericFilter.h"
-
 
 //--------------------------------------------------------------------
 int main(int argc, char * argv[])

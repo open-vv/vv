@@ -29,6 +29,7 @@
 #include "clitkImageInfo_ggo.h"
 #include "clitkIO.h"
 #include "clitkImageCommon.h"
+#include "clitkCommon.h"
 
 //====================================================================
 int main(int argc, char * argv[])

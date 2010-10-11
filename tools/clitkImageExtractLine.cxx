@@ -28,6 +28,7 @@
 #include "clitkImageExtractLine_ggo.h"
 #include "clitkIO.h"
 #include "clitkImageCommon.h"
+#include "clitkCommon.h"
 #include <itkLineConstIterator.h>
 
 //--------------------------------------------------------------------

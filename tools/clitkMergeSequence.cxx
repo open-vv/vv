@@ -31,6 +31,7 @@
 #include "clitkMergeSequence_ggo.h"
 #include "clitkIO.h"
 #include "clitkImageCommon.h"
+#include "clitkCommon.h"
 #include "clitkMergeSequenceGenericFilter.h"
 
 int main( int argc, char *argv[] )

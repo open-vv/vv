@@ -29,8 +29,8 @@
 // clitk
 #include "clitkSetBackground_ggo.h"
 #include "clitkIO.h"
+#include "clitkCommon.h"
 #include "clitkSetBackgroundGenericFilter.h"
-
 
 //--------------------------------------------------------------------
 int main(int argc, char * argv[])
