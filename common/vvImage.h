@@ -25,9 +25,7 @@
 
 class vtkImageData;
 class vtkImageReslice;
-class vtkGeneralTransform;
 class vtkTransform;
-class vtkGridTransform;
 
 //------------------------------------------------------------------------------
 class vvImage : public itk::LightObject
@@ -57,8 +55,6 @@ public :
   bool IsScalarTypeInteger();
   bool IsScalarTypeInteger(int t);
   vtkSmartPointer<vtkTransform> GetTransform();
-  vtkSmartPointer<vtkGridTransform> GetGridTransform();
-  void SetTransform(vtkSmartPointer<vtkTransform> transform);
   void SetTimeSpacing(double s) { mTimeSpacing = s; }
   void SetTimeOrigin(double o) { mTimeOrigin = o; }
   void UpdateReslice();
@@ -69,9 +65,7 @@ private:
 
   std::vector<vtkImageData*> mVtkImages;
   std::vector< vtkSmartPointer<vtkImageReslice> > mVtkImageReslice;
-  vtkSmartPointer<vtkGeneralTransform> mGeneralTransform;
   vtkSmartPointer<vtkTransform> mTransform;
-  vtkSmartPointer<vtkGridTransform> mGridTransform;
   double mTimeOrigin;
   double mTimeSpacing;
 };

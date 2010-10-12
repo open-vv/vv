@@ -23,17 +23,13 @@
 #include <vtkImageReslice.h>
 #include <cassert>
 
-#include <vtkGeneralTransform.h>
 #include <vtkTransform.h>
-#include <vtkGridTransform.h>
+
+#define NO_RESLICE 1
 
 //--------------------------------------------------------------------
-vvImage::vvImage():mGeneralTransform(vtkSmartPointer<vtkGeneralTransform>::New()),
-		   mTransform       (vtkSmartPointer<vtkTransform>::New()),
-	           mGridTransform   (vtkSmartPointer<vtkGridTransform>::New())
+vvImage::vvImage():mTransform(vtkSmartPointer<vtkTransform>::New())
 {
-  mGeneralTransform->Concatenate(mTransform);
-  mGeneralTransform->Concatenate(mGridTransform);
   Init();
 }
 //--------------------------------------------------------------------
@@ -59,7 +55,11 @@ vvImage::~vvImage()
 void vvImage::Reset()
 {
   for (unsigned int i = 0; i < mVtkImages.size(); i++)
+#ifdef NO_RESLICE
+    mVtkImages[i]->Delete();
+#else
     mVtkImageReslice[i]->GetInput()->Delete();
+#endif
 
   mVtkImages.resize(0);
   mVtkImageReslice.resize(0);
@@ -81,15 +81,18 @@ void vvImage::SetImage(std::vector< vtkImageData* > images)
 //--------------------------------------------------------------------
 void vvImage::AddImage(vtkImageData* image)
 {
-  mVtkImageReslice.push_back(vtkSmartPointer<vtkImageReslice>::New());
+#ifdef NO_RESLICE
+  mVtkImages.push_back(image);
+  return;
+#endif
 
+  mVtkImageReslice.push_back(vtkSmartPointer<vtkImageReslice>::New());
   mVtkImageReslice.back()->SetInterpolationModeToLinear();
   mVtkImageReslice.back()->AutoCropOutputOn();
   mVtkImageReslice.back()->SetBackgroundColor(-1000,-1000,-1000,1);
-  mVtkImageReslice.back()->SetResliceTransform(mGeneralTransform);
+  mVtkImageReslice.back()->SetResliceTransform(mTransform);
   mVtkImageReslice.back()->SetInput(0, image);
   mVtkImageReslice.back()->Update();
-
   mVtkImages.push_back( mVtkImageReslice.back()->GetOutput(0) );
 }
 //--------------------------------------------------------------------
@@ -272,14 +275,7 @@ bool vvImage::IsScalarTypeInteger(int t)
 //--------------------------------------------------------------------
 vtkSmartPointer<vtkTransform> vvImage::GetTransform()
 {
-  return mTransform;
-}
-//--------------------------------------------------------------------
-
-//--------------------------------------------------------------------
-vtkSmartPointer<vtkGridTransform> vvImage::GetGridTransform()
-{
-  return mGridTransform;
+  return this->mTransform;
 }
 //--------------------------------------------------------------------
 
