@@ -7,6 +7,26 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 #=========================================================
 
+SET(vv_TOOLS
+  vvToolWidgetBase
+#  vvToolWidgetWithStepsBase
+  vvToolMedianFilter
+  vvToolRigidReg
+#  vvToolFoo
+#  vvToolFooWithWidgetBase
+  vvToolCropImage
+  vvToolBinarize
+  vvToolSimpleInputSelectorWidget
+  vvToolInputSelectorWidget
+  vvToolImageArithm
+  vvToolStructureSetManager
+  vvToolResample
+  vvToolExtractPatient
+  vvToolExtractLung
+  # vvToolPlastimatch
+#  vvToolConnectedComponentLabeling
+)
+
 #=========================================================
 # List of vv source files
 SET(vv_SRCS
@@ -48,32 +68,15 @@ SET(vv_SRCS
   vvImageMapToWLColors.cxx
   vvIntensityValueSlider.cxx
   vvThreadedFilter.cxx
-  vvToolManager.cxx
-  vvToolCreatorBase.cxx
-  vvToolWidgetBase.cxx
-#  vvToolWidgetWithStepsBase.cxx
-  vvToolMedianFilter.cxx
-  vvToolRigidReg.cxx
-#  vvToolFoo.cxx
-#  vvToolFooWithWidgetBase.cxx
-  vvToolCropImage.cxx
-  vvToolBinarize.cxx
-  vvToolSimpleInputSelectorWidget.cxx
-  vvToolInputSelectorWidget.cxx
   vvImageContour.cxx
   vvBinaryImageOverlayActor.cxx
-  vvToolImageArithm.cxx
-  vvToolConvert.cxx
-  vvToolStructureSetManager.cxx
   vvStructureSetActor.cxx
   vvROIActor.cxx
-  vvToolResample.cxx
   vvBlendImageActor.cxx
   vvLabelImageLoaderWidget.cxx
-  vvToolExtractPatient.cxx
-  vvToolExtractLung.cxx
-  # vvToolPlastimatch.cxx
-#  vvToolConnectedComponentLabeling.cxx
+  vvToolManager.cxx
+  vvToolCreatorBase.cxx
+  vvToolConvert.cxx
 )
 
 #=========================================================
@@ -101,28 +104,11 @@ QT4_WRAP_CPP(vv_SRCS
   vvStructSelector.h
   vvIntensityValueSlider.h
   vvThreadedFilter.h
-  vvToolCreatorBase.h
-#  vvToolFoo.h
-#  vvToolFooWithWidgetBase.h
-  vvToolMedianFilter.h
-  vvToolRigidReg.h
-  vvToolBinarize.h
-  vvToolSimpleInputSelectorWidget.h
-  vvToolInputSelectorWidget.h
-  vvToolWidgetBase.h
-#  vvToolWidgetWithStepsBase.h
-  vvToolCropImage.h
-  vvToolImageArithm.h
-  vvToolConvert.h
-  vvToolStructureSetManager.h
   vvStructureSetActor.h
   vvROIActor.h
-  vvToolResample.h
   vvLabelImageLoaderWidget.h
-  vvToolExtractPatient.h
-  vvToolExtractLung.h
-  # vvToolPlastimatch.h
-#  vvToolConnectedComponentLabeling.h
+  vvToolCreatorBase.h
+  vvToolConvert.h
   )
 
 QT4_WRAP_UI(vv_UI_CXX 
@@ -141,27 +127,17 @@ QT4_WRAP_UI(vv_UI_CXX
   qt_ui/vvStructSelector.ui
   qt_ui/vvDummyWindow.ui #For testing
   qt_ui/vvIntensityValueSlider.ui
-  qt_ui/vvToolSimpleInputSelectorWidget.ui
-  qt_ui/vvToolInputSelectorWidget.ui
-  qt_ui/vvToolWidgetBase.ui
-#  qt_ui/vvToolWidgetWithStepsBase.ui
-  qt_ui/vvToolMedianFilter.ui
-  qt_ui/vvToolRigidReg.ui
-#  qt_ui/vvToolFoo.ui
-  qt_ui/vvToolCropImage.ui
-  qt_ui/vvToolBinarize.ui
-  qt_ui/vvToolImageArithm.ui
-  qt_ui/vvToolStructureSetManager.ui
-  qt_ui/vvToolResample.ui
   qt_ui/vvLabelImageLoaderWidget.ui
-  qt_ui/vvToolExtractPatient.ui
-  qt_ui/vvToolExtractLung.ui
-  # qt_ui/vvToolPlastimatch.ui
-#  qt_ui/vvToolConnectedComponentLabeling.ui
   )
 
 QT4_ADD_RESOURCES(vv_SRCS vvIcons.qrc)
 
+#Add the autotools
+foreach(tool ${vv_TOOLS})
+    SET(vv_SRCS ${vv_SRCS} ${tool}.cxx)
+    QT4_WRAP_CPP(vv_SRCS ${tool}.h)
+    QT4_WRAP_UI(vv_UI_CXX qt_ui/${tool}.ui)
+endforeach(tool)
 
 # if Windows and Qt was built as a static lib then don't set QT_DLL flag
 SET(QT_STATIC 0)
