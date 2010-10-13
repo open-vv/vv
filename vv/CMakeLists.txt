@@ -7,6 +7,7 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 #=========================================================
 
+#List of vv tools to compile
 SET(vv_TOOLS
   vvToolWidgetBase
 #  vvToolWidgetWithStepsBase
@@ -26,6 +27,8 @@ SET(vv_TOOLS
   # vvToolPlastimatch
 #  vvToolConnectedComponentLabeling
 )
+#dependencies of the tools
+SET(vvToolRigidReg_LIBS clitkAffineRegistrationLib)
 
 #=========================================================
 # List of vv source files
@@ -199,6 +202,10 @@ clitkRegistrationGgoLib
 clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
 
 #=========================================================
+#Add each tool's dependencies
+foreach(tool ${vv_TOOLS})
+    target_link_libraries(vv ${${tool}_LIBS})
+endforeach(tool)
 
 #=========================================================
 # Install options (also used by CPack)

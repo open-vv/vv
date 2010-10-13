@@ -10,14 +10,15 @@ FOREACH(clitkTool clitkAffineRegistration)
     WRAP_GGO(${clitkTool}_GGO_C ${clitkTool}.ggo)
     SET(GGO_C_FILES ${GGO_C_FILES} ${${clitkTool}_GGO_C})
 ENDFOREACH(clitkTool)
-ADD_LIBRARY(clitkRegistrationGgoLib ${GGO_C_FILES} clitkAffineRegistrationGenericFilter.cxx clitkLBFGSBOptimizer.cxx clitkGenericAffineTransform.cxx)
+ADD_LIBRARY(clitkRegistrationGgoLib ${GGO_C_FILES})
+ADD_LIBRARY(clitkAffineRegistrationLib clitkAffineRegistrationGenericFilter.cxx clitkLBFGSBOptimizer.cxx clitkGenericAffineTransform.cxx)
 
 #=========================================================
 
 IF(CLITK_BUILD_REGISTRATION)
     ############################## registration algorithms
     ADD_EXECUTABLE(clitkAffineRegistration clitkAffineRegistration.cxx)
-    TARGET_LINK_LIBRARIES(clitkAffineRegistration  clitkRegistrationGgoLib clitkCommon ITKIO ITKNumerics ITKStatistics)
+    TARGET_LINK_LIBRARIES(clitkAffineRegistration  clitkAffineRegistrationLib clitkRegistrationGgoLib clitkCommon ITKIO ITKNumerics ITKStatistics)
 
     WRAP_GGO(clitkDemonsDeformableRegistration_GGO_C clitkDemonsDeformableRegistration.ggo)
     ADD_EXECUTABLE(clitkDemonsDeformableRegistration clitkDemonsDeformableRegistration.cxx ${clitkDemonsDeformableRegistration_GGO_C} clitkDemonsDeformableRegistrationGenericFilter.cxx)
