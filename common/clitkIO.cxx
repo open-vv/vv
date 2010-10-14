@@ -21,7 +21,7 @@
 #include <fstream>
 
 // itk include
-#include "itkExceptionObject.h"
+#include "itkMacro.h"
 
 // clitk include
 #include "clitkIO.h"
