@@ -199,13 +199,19 @@ clitkBinarizeImageLib
 #Libs for _ggo.c files
 clitkSegmentationGgoLib clitkToolsGgoLib
 clitkRegistrationGgoLib
-clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
+)
 
 #=========================================================
 #Add each tool's dependencies
 foreach(tool ${vv_TOOLS})
     target_link_libraries(vv ${${tool}_LIBS})
 endforeach(tool)
+
+#=========================================================
+#Add Foundation Libraries (this should be after our libraries, since we depend
+#on them)
+TARGET_LINK_LIBRARIES(vv
+clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
 
 #=========================================================
 # Install options (also used by CPack)
