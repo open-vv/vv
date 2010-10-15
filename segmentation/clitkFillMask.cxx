@@ -23,8 +23,8 @@
 // clitk
 #include "clitkFillMask_ggo.h"
 #include "clitkIO.h"
+#include "clitkCommon.h"
 #include "clitkFillMaskGenericFilter.h"
-
 
 //--------------------------------------------------------------------
 int main(int argc, char * argv[]) {
