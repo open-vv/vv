@@ -73,6 +73,7 @@ vtkStandardNewMacro(vvSlicer);
 //------------------------------------------------------------------------------
 vvSlicer::vvSlicer()
 {
+  this->UnInstallPipeline();
   mImage = NULL;
   mCurrentTSlice = 0;
   mUseReducedExtent = false;
@@ -107,22 +108,22 @@ vvSlicer::vvSlicer()
   text += "middle button : grab image\n";
   text += "right button : change windowing\n";
 
-  crossCursor = vtkCursor2D::New();
+  crossCursor = vtkSmartPointer<vtkCursor2D>::New();
   crossCursor->AllOff();
   crossCursor->AxesOn();
   crossCursor->SetTranslationMode(1);
   crossCursor->SetRadius(2);
 
-  pdm = vtkPolyDataMapper2D::New();
+  pdm = vtkSmartPointer<vtkPolyDataMapper2D>::New();
   pdm->SetInput(crossCursor->GetOutput());
 
-  pdmA = vtkActor2D::New();
+  pdmA = vtkSmartPointer<vtkActor2D>::New();
   pdmA->SetMapper(pdm);
   pdmA->GetProperty()->SetColor(255,10,212);
   pdmA->SetVisibility(0);
   pdmA->SetPickable(0);
 
-  ca = vtkCornerAnnotation::New();
+  ca = vtkSmartPointer<vtkCornerAnnotation>::New();
   ca->GetTextProperty()->SetColor(255,10,212);
   ca->SetVisibility(1);
   mFileName = "";
@@ -142,8 +143,8 @@ vvSlicer::vvSlicer()
 
   this->WindowLevel->Delete();
   this->WindowLevel = vvImageMapToWLColors::New();
-  this->InstallPipeline();
 
+  this->InstallPipeline();
 }
 //------------------------------------------------------------------------------
 
@@ -325,11 +326,11 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
     mOverlay = overlay;
 
     if (!mOverlayMapper)
-      mOverlayMapper = vtkImageMapToWindowLevelColors::New();
+      mOverlayMapper = vtkSmartPointer<vtkImageMapToWindowLevelColors>::New();
     mOverlayMapper->SetInput(overlay->GetVTKImages()[0]);
 
     if (!mOverlayActor) {
-      mOverlayActor = vvBlendImageActor::New();
+      mOverlayActor = vtkSmartPointer<vvBlendImageActor>::New();
       mOverlayActor->SetInput(mOverlayMapper->GetOutput());
       mOverlayActor->SetPickable(0);
       mOverlayActor->SetVisibility(false);
@@ -359,11 +360,11 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion)
     mFusion = fusion;
 
     if (!mFusionMapper)
-      mFusionMapper = vtkImageMapToWindowLevelColors::New();
+      mFusionMapper = vtkSmartPointer<vtkImageMapToWindowLevelColors>::New();
     mFusionMapper->SetInput(fusion->GetVTKImages()[0]);
 
     if (!mFusionActor) {
-      mFusionActor = vtkImageActor::New();
+      mFusionActor = vtkSmartPointer<vtkImageActor>::New();
       mFusionActor->SetInput(mFusionMapper->GetOutput());
       mFusionActor->SetPickable(0);
       mFusionActor->SetVisibility(false);
@@ -405,8 +406,8 @@ void vvSlicer::SetVF(vvImage::Pointer vf)
     mVF = vf;
 
     if (!mAAFilter) {
-      mAAFilter=vtkAssignAttribute::New();
-      mVOIFilter = vtkExtractVOI::New();
+      mAAFilter= vtkSmartPointer<vtkAssignAttribute>::New();
+      mVOIFilter = vtkSmartPointer<vtkExtractVOI>::New();
       mVOIFilter->SetSampleRate(mSubSampling,mSubSampling,mSubSampling);
     }
     mVOIFilter->SetInput(vf->GetVTKImages()[0]);
@@ -415,14 +416,14 @@ void vvSlicer::SetVF(vvImage::Pointer vf)
     mAAFilter->Assign(vtkDataSetAttributes::SCALARS, vtkDataSetAttributes::VECTORS, vtkAssignAttribute::POINT_DATA);
 
     if (!mArrow)
-      mArrow = vvGlyphSource::New();
+      mArrow = vtkSmartPointer<vvGlyphSource>::New();
     mArrow->SetGlyphTypeToSpecificArrow();
     mArrow->SetScale(mScale);
     mArrow->FilledOff();
 
     // Glyph the gradient vector (with arrows)
     if (!mGlyphFilter)
-      mGlyphFilter = vvGlyph2D::New();
+      mGlyphFilter = vtkSmartPointer<vvGlyph2D>::New();
     mGlyphFilter->SetInput(mAAFilter->GetOutput());
     mGlyphFilter->SetSource(mArrow->GetOutput());
     mGlyphFilter->ScalingOn();
@@ -432,13 +433,13 @@ void vvSlicer::SetVF(vvImage::Pointer vf)
     mGlyphFilter->SetColorModeToColorByVector();
 
     if (!mVFMapper)
-      mVFMapper = vtkPolyDataMapper::New();
+      mVFMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     //mVFMapper->SetInputConnection(mGlyphFilter->GetOutputPort());
     mVFMapper->SetInput(mGlyphFilter->GetOutput());
     mVFMapper->ImmediateModeRenderingOn();
 
     if (!mVFActor)
-      mVFActor = vtkActor::New();
+      mVFActor = vtkSmartPointer<vtkActor>::New();
     mVFActor->SetMapper(mVFMapper);
     mVFActor->SetPickable(0);
     mVFActor->GetProperty()->SetLineWidth(mVFWidth);
@@ -459,14 +460,14 @@ void vvSlicer::SetLandmarks(vvLandmarks* landmarks)
   if (landmarks) {
 
     if (!mCross)
-      mCross = vtkCursor3D::New();
+      mCross = vtkSmartPointer<vtkCursor3D>::New();
     mCross->SetFocalPoint(0.0,0.0,0.0);
     mCross->SetModelBounds(-10,10,-10,10,-10,10);
     mCross->AllOff();
     mCross->AxesOn();
 
     if (!mLandGlyph)
-      mLandGlyph = vtkGlyph3D::New();
+      mLandGlyph = vtkSmartPointer<vtkGlyph3D>::New();
     mLandGlyph->SetSource(mCross->GetOutput());
     mLandGlyph->SetInput(landmarks->GetOutput());
     //mLandGlyph->SetIndexModeToScalar();
@@ -476,20 +477,20 @@ void vvSlicer::SetLandmarks(vvLandmarks* landmarks)
     mLandGlyph->SetColorModeToColorByScalar();
 
     if (!mClipBox)
-      mClipBox = vtkBox::New();
+      mClipBox = vtkSmartPointer<vtkBox>::New();
     if (!mLandClipper)
-      mLandClipper = vtkClipPolyData::New();
+      mLandClipper = vtkSmartPointer<vtkClipPolyData>::New();
     mLandClipper->InsideOutOn();
     mLandClipper->SetInput(mLandGlyph->GetOutput());
     mLandClipper->SetClipFunction(mClipBox);
 
     if (!mLandMapper)
-      mLandMapper = vtkPolyDataMapper::New();
+      mLandMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     mLandMapper->SetInputConnection(mLandClipper->GetOutputPort());
     //mLandMapper->ScalarVisibilityOff();
 
     if (!mLandActor)
-      mLandActor = vtkActor::New();
+      mLandActor = vtkSmartPointer<vtkActor>::New();
     mLandActor->SetMapper(mLandMapper);
     mLandActor->GetProperty()->SetColor(255,10,212);
     mLandActor->SetPickable(0);
@@ -1179,7 +1180,7 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max)
       std::swap(iLocalExtents[i*2], iLocalExtents[i*2+1]);
   }
 
-  vtkSmartPointer<vtkExtractVOI> voiFilter = vtkExtractVOI::New();
+  vtkSmartPointer<vtkExtractVOI> voiFilter = vtkSmartPointer<vtkExtractVOI>::New();
   voiFilter->SetInput(this->GetInput());
   voiFilter->SetVOI(iLocalExtents);
   voiFilter->Update();
@@ -1189,7 +1190,7 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max)
     return;
   }
 
-  vtkSmartPointer<vtkImageAccumulate> accFilter = vtkImageAccumulate::New();
+  vtkSmartPointer<vtkImageAccumulate> accFilter = vtkSmartPointer<vtkImageAccumulate>::New();
   accFilter->SetInput(voiFilter->GetOutput());
   accFilter->Update();
 
