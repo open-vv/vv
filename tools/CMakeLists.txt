@@ -15,6 +15,8 @@ ADD_LIBRARY(clitkToolsGgoLib ${GGO_C_FILES})
 ADD_LIBRARY(clitkImageConvertLib clitkImageConvertGenericFilter.cxx)
 ADD_LIBRARY(clitkImageResampleLib clitkImageResampleGenericFilter.cxx)
 ADD_LIBRARY(clitkBinarizeImageLib clitkBinarizeImageGenericFilter.cxx)
+ADD_LIBRARY(clitkImageArithmImageLib clitkImageArithmGenericFilter.cxx)
+
 TARGET_LINK_LIBRARIES(clitkBinarizeImageLib clitkToolsGgoLib)
 
 IF (CLITK_BUILD_TOOLS)
@@ -89,7 +91,7 @@ IF (CLITK_BUILD_TOOLS)
     TARGET_LINK_LIBRARIES(clitkGuerreroVentilation clitkCommon ITKIO)
 
     ADD_EXECUTABLE(clitkImageArithm clitkImageArithm.cxx ${clitkImageArithm_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkImageArithm clitkCommon ITKIO )
+    TARGET_LINK_LIBRARIES(clitkImageArithm clitkImageArithmImageLib clitkCommon ITKIO )
 
     WRAP_GGO(clitkUnsharpMask_GGO_C clitkUnsharpMask.ggo)
     ADD_EXECUTABLE(clitkUnsharpMask clitkUnsharpMask.cxx ${clitkUnsharpMask_GGO_C})
