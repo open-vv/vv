@@ -1,7 +1,9 @@
 #!/bin/bash
-vv_dir=$(dirname $(readlink -e $(which $0)))
+temp=$(which "$0")
+temp=$(readlink -e "${temp}")
+vv_dir=$(dirname "${temp}")
 echo clitk3 directory: $vv_dir
-cd ${vv_dir}/build
+cd "${vv_dir}/build"
 
 
 function handle_exit
