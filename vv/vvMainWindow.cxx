@@ -133,18 +133,6 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
 
   contextMenu.addSeparator();
 
-  // QAction* actionCrop_image = contextMenu.addAction(QIcon(QString::fromUtf8(":/common/icons/crop.png")),
-  //                                                   tr("Crop Current Image"));
-  // connect(actionCrop_image,SIGNAL(triggered()),this,SLOT(CropImage()));
-  // contextActions.push_back(actionCrop_image);
-
-  QAction* actionSplit_image = contextMenu.addAction(QIcon(QString::fromUtf8(":/common/icons/cut.png")),
-                               tr("Split Current Image"));
-  connect(actionSplit_image,SIGNAL(triggered()),this,SLOT(SplitImage()));
-  contextActions.push_back(actionSplit_image);
-
-  contextMenu.addSeparator();
-
   contextMenu.addAction(actionAdd_VF_to_current_Image);
   contextActions.push_back(actionAdd_VF_to_current_Image);
 
@@ -916,8 +904,8 @@ void vvMainWindow::CurrentImageChanged(std::string id)
 //------------------------------------------------------------------------------
 void vvMainWindow::ImageInfoChanged()
 {
-  contextActions[7]->setEnabled(1);
   contextActions[6]->setEnabled(1);
+  contextActions[5]->setEnabled(1);
   actionSave_As->setEnabled(1);
   actionAdd_VF_to_current_Image->setEnabled(1);
   actionAdd_fusion_image->setEnabled(1);
@@ -1493,136 +1481,6 @@ void vvMainWindow::ReloadImage(QTreeWidgetItem* item, int column)
 }
 //------------------------------------------------------------------------------
 
-// void vvMainWindow::CropImage()
-// {
-//   int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
-//   vvCropDialog crop(mSlicerManagers,index);
-//   if(crop.exec())
-//     AddImage(crop.GetOutput(),"cropped.mhd");
-// }
-
-//------------------------------------------------------------------------------
-void vvMainWindow::SplitImage()
-{
-  int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
-  int dim = mSlicerManagers[index]->GetDimension();
-  QString warning = "Do you really want to split the ";
-  warning += QString::number(dim) + "D image ";
-  warning += DataTree->selectedItems()[0]->data(COLUMN_IMAGE_NAME,Qt::DisplayRole).toString() + " into ";
-  warning += QString::number(mSlicerManagers[index]->GetSlicer(0)->GetImage()->GetSize()[dim-1]) + " ";
-  warning += QString::number(dim-1) + "D images.";
-  QMessageBox msgBox(QMessageBox::Warning, tr("Split Image"),
-                     warning, 0, this);
-  msgBox.addButton(tr("Split"), QMessageBox::AcceptRole);
-  msgBox.addButton(tr("Cancel"), QMessageBox::RejectRole);
-  if (msgBox.exec() == QMessageBox::AcceptRole) {
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    if (dim > 2) {
-      std::string filename = DataTree->selectedItems()[0]->data(0,Qt::UserRole).toString().toStdString();
-      int numberOfSlice = mSlicerManagers[index]->GetSlicer(0)->GetImage()->GetSize()[dim-1];
-      std::string path = itksys::SystemTools::GetFilenamePath(
-                           filename);
-      path += "/";
-      path += DataTree->selectedItems()[0]->data(COLUMN_IMAGE_NAME,Qt::DisplayRole).toString().toStdString();
-      path += "%03d";
-      path += itksys::SystemTools::GetFilenameLastExtension(
-                filename).c_str();
-
-      typedef itk::NumericSeriesFileNames NameGeneratorType;
-      NameGeneratorType::Pointer nameGenerator = NameGeneratorType::New();
-      nameGenerator->SetSeriesFormat(path.c_str());
-      nameGenerator->SetStartIndex(0);
-      nameGenerator->SetEndIndex(numberOfSlice-1);
-      nameGenerator->SetIncrementIndex(1);
-
-      for (int i = 0; i < numberOfSlice; i++) {
-        vvSlicerManager* imageManager = new vvSlicerManager(4);
-        imageManager->SetExtractedImage(nameGenerator->GetFileNames()[i],
-                                        mSlicerManagers[index]->GetSlicer(0)->GetImage(), i);
-        mSlicerManagers.push_back(imageManager);
-
-        //create an item in the tree with good settings
-        QTreeWidgetItem *item = new QTreeWidgetItem();
-        item->setData(0,Qt::UserRole,nameGenerator->GetFileNames()[i].c_str());
-        std::string fileI = itksys::SystemTools::GetFilenameWithoutLastExtension(
-                              nameGenerator->GetFileNames()[i]).c_str();
-        item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,fileI.c_str());
-        for (int j = 1; j <= 4; j++) {
-          for (int i = 0; i < DataTree->topLevelItemCount(); i++) {
-            DataTree->topLevelItem(i)->setData(j,Qt::CheckStateRole,0);
-          }
-          item->setData(j,Qt::CheckStateRole,2);
-        }
-
-        //Create the buttons for reload and close
-        QTreePushButton* cButton = new QTreePushButton;
-        cButton->setItem(item);
-        cButton->setColumn(COLUMN_CLOSE_IMAGE);
-        cButton->setToolTip(tr("close image"));
-        cButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/exit.png")));
-        connect(cButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
-                this,SLOT(CloseImage(QTreeWidgetItem*, int)));
-
-        QTreePushButton* rButton = new QTreePushButton;
-        rButton->setItem(item);
-        rButton->setColumn(COLUMN_RELOAD_IMAGE);
-        rButton->setToolTip(tr("reload image"));
-        rButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/rotateright.png")));
-        rButton->setEnabled(false);
-        connect(rButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
-                this,SLOT(ReloadImage(QTreeWidgetItem*, int)));
-
-        DataTree->addTopLevelItem(item);
-        DataTree->setItemWidget(item, COLUMN_CLOSE_IMAGE, cButton);
-        DataTree->setItemWidget(item, COLUMN_RELOAD_IMAGE, rButton);
-
-        //set the id of the image
-        QString id = nameGenerator->GetFileNames()[i].c_str() + QString::number(mSlicerManagers.size()-1);
-        item->setData(COLUMN_IMAGE_NAME,Qt::UserRole,id.toStdString().c_str());
-        mSlicerManagers.back()->SetId(id.toStdString());
-        linkPanel->addImage(fileI, id.toStdString());
-        connect(mSlicerManagers.back(),SIGNAL(currentImageChanged(std::string)),
-                this,SLOT(CurrentImageChanged(std::string)));
-        connect(mSlicerManagers.back(),SIGNAL(
-                  UpdatePosition(int, double, double, double, double, double, double, double)),this,
-                SLOT(MousePositionChanged(int,double, double, double, double, double, double, double)));
-        connect(mSlicerManagers.back(),SIGNAL(UpdateVector(int, double, double, double, double)),
-                this, SLOT(VectorChanged(int,double,double,double, double)));
-        connect(mSlicerManagers.back(),SIGNAL(UpdateOverlay(int, double, double)),
-                this, SLOT(OverlayChanged(int,double,double)));
-        connect(mSlicerManagers.back(),SIGNAL(UpdateFusion(int, double)),
-                this, SLOT(FusionChanged(int,double)));
-        connect(mSlicerManagers.back(),SIGNAL(UpdateWindows(int, int, int)),
-                this,SLOT(WindowsChanged(int, int, int)));
-        connect(mSlicerManagers.back(),SIGNAL(WindowLevelChanged(double, double,int, int)),
-                this,SLOT(WindowLevelChanged(double, double, int, int)));
-        connect(mSlicerManagers.back(),SIGNAL(UpdateSlice(int,int)),
-                this,SLOT(UpdateSlice(int,int)));
-        connect(mSlicerManagers.back(),SIGNAL(UpdateTSlice(int, int)),
-                this,SLOT(UpdateTSlice(int, int)));
-        connect(mSlicerManagers.back(),SIGNAL(UpdateSliceRange(int,int,int,int,int)),
-                this,SLOT(UpdateSliceRange(int,int,int,int,int)));
-        connect(mSlicerManagers.back(),SIGNAL(UpdateLinkManager(std::string,int,double,double,double,int)),
-                this,SLOT(UpdateLinkManager(std::string,int,double,double,double,int)));
-        connect(mSlicerManagers.back(), SIGNAL(UpdateLinkedNavigation(std::string,vvSlicerManager*)),
-                this,SLOT(UpdateLinkedNavigation(std::string,vvSlicerManager*)));
-        connect(mSlicerManagers.back(),SIGNAL(LandmarkAdded()),landmarksPanel,SLOT(AddPoint()));
-        UpdateTree();
-        qApp->processEvents();
-        InitSlicers();
-        InitDisplay();
-        qApp->processEvents();
-      }
-      QApplication::restoreOverrideCursor();
-    } else {
-      QApplication::restoreOverrideCursor();
-      QString error = "Cannot split file (dimensions must be greater than 2) ";
-      QMessageBox::information(this,tr("Splitting problem"),error);
-    }
-  }
-}
-//------------------------------------------------------------------------------
-
 //------------------------------------------------------------------------------
 void vvMainWindow::MousePositionChanged(int visibility,double x, double y, double z, double X, double Y, double Z , double value)
 {
@@ -1746,7 +1604,6 @@ void vvMainWindow::ShowContextMenu(QPoint point)
     contextActions[4]->setEnabled(0);
     contextActions[5]->setEnabled(0);
     contextActions[6]->setEnabled(0);
-    contextActions[7]->setEnabled(0);
   } else {
     int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
     contextActions[1]->setEnabled(1);
@@ -1756,7 +1613,6 @@ void vvMainWindow::ShowContextMenu(QPoint point)
     contextActions[3]->setEnabled(1);
     contextActions[5]->setEnabled(1);
     contextActions[6]->setEnabled(1);
-    contextActions[7]->setEnabled(1);
 
     if (mSlicerManagers[index]->GetDimension() < 3)
       contextActions[4]->setEnabled(0);

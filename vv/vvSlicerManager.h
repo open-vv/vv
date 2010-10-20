@@ -60,7 +60,6 @@ class vvSlicerManager : public QObject {
 
   bool SetImage(std::string filename,LoadedImageType type, int n=0);
   void SetImage(vvImage::Pointer image);
-  void SetExtractedImage(std::string filename, vvImage::Pointer image, int slice);
   bool SetImages(std::vector<std::string> filenames, LoadedImageType type, int n=0);
 
   bool SetOverlay(std::string filename, int dim, std::string component);

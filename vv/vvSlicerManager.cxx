@@ -343,35 +343,6 @@ bool vvSlicerManager::SetVF(vvImage::Pointer vf,std::string filename)
 
 
 //----------------------------------------------------------------------------
-void vvSlicerManager::SetExtractedImage(std::string filename,vvImage::Pointer image, int slice)
-{
-  mFileName = filename;
-  mImage = vvImage::New();
-  if (image->GetNumberOfDimensions() == 4) {
-    mImage->AddImage(image->GetVTKImages()[slice]);
-    for ( unsigned int i = 0; i < mSlicers.size(); i++) {
-      mSlicers[i]->SetFileName(vtksys::SystemTools::GetFilenameWithoutLastExtension(filename));
-      mSlicers[i]->SetImage(mImage);
-    }
-  } else {
-    vtkImageClip* clipper = vtkImageClip::New();
-    int extent[6];
-    image->GetVTKImages()[0]->GetWholeExtent(extent);
-    clipper->SetInput(image->GetVTKImages()[0]);
-    clipper->SetOutputWholeExtent(extent[0],extent[1],extent[2],extent[3],slice,slice);
-    clipper->Update();
-    mImage->AddImage(clipper->GetOutput());
-    for ( unsigned int i = 0; i < mSlicers.size(); i++) {
-      mSlicers[i]->SetFileName(vtksys::SystemTools::GetFilenameWithoutLastExtension(filename));
-      mSlicers[i]->SetImage(mImage);
-    }
-    clipper->Delete();
-  }
-}
-//----------------------------------------------------------------------------
-
-
-//----------------------------------------------------------------------------
 vvSlicer* vvSlicerManager::GetSlicer(int i)
 {
   return mSlicers[i];
