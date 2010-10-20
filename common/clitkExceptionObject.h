@@ -19,6 +19,8 @@
 #ifndef CLITKEXCEPTIONOBJECT_H
 #define CLITKEXCEPTIONOBJECT_H
 
+#include <sstream>
+
 // clitk
 #include "clitkCommon.h"
 
@@ -46,7 +48,7 @@ namespace clitk {
   // itkObject
 #define clitkExceptionMacro(x)                                          \
   {                                                                     \
-    ::itk::OStringStream message;                                       \
+    std::ostringstream message;                                       \
     message << x;                                                       \
     ::clitk::ExceptionObject e_(__FILE__, __LINE__, message.str().c_str()); \
     throw e_; /* Explicit naming to work around Intel compiler bug.  */ \
