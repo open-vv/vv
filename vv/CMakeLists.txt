@@ -12,10 +12,10 @@ SET(vv_TOOLS
   vvToolWidgetBase
 #  vvToolWidgetWithStepsBase
   vvToolMedianFilter
-  vvToolRigidReg
+#  vvToolRigidReg
 #  vvToolFoo
 #  vvToolFooWithWidgetBase
-  vvToolCropImage
+#  vvToolCropImage
   vvToolBinarize
   vvToolSimpleInputSelectorWidget
   vvToolInputSelectorWidget
@@ -24,7 +24,7 @@ SET(vv_TOOLS
   vvToolResample
   vvToolExtractPatient
   vvToolExtractLung
-  # vvToolPlastimatch
+#  vvToolPlastimatch
 #  vvToolConnectedComponentLabeling
 )
 #dependencies of the tools
