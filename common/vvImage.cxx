@@ -54,46 +54,10 @@ vvImage::~vvImage()
 //--------------------------------------------------------------------
 void vvImage::Reset()
 {
-  for (unsigned int i = 0; i < mVtkImages.size(); i++)
-#ifdef NO_RESLICE
-    mVtkImages[i]->Delete();
-#else
-    mVtkImageReslice[i]->GetInput()->Delete();
-#endif
-
   mVtkImages.resize(0);
   mVtkImageReslice.resize(0);
 
   Init();
-}
-//--------------------------------------------------------------------
-
-//--------------------------------------------------------------------
-void vvImage::SetImage(std::vector< vtkImageData* > images)
-{
-  Reset();
-  for (unsigned int i = 0; i < images.size(); i++)
-    AddImage(images[i]);
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-void vvImage::AddImage(vtkImageData* image)
-{
-#ifdef NO_RESLICE
-  mVtkImages.push_back(image);
-  return;
-#endif
-
-  mVtkImageReslice.push_back(vtkSmartPointer<vtkImageReslice>::New());
-  mVtkImageReslice.back()->SetInterpolationModeToLinear();
-  mVtkImageReslice.back()->AutoCropOutputOn();
-  mVtkImageReslice.back()->SetBackgroundColor(-1000,-1000,-1000,1);
-  mVtkImageReslice.back()->SetResliceTransform(mTransform);
-  mVtkImageReslice.back()->SetInput(0, image);
-  mVtkImageReslice.back()->Update();
-  mVtkImages.push_back( mVtkImageReslice.back()->GetOutput(0) );
 }
 //--------------------------------------------------------------------
 
@@ -287,19 +251,5 @@ void vvImage::UpdateReslice()
   }
 }
 //--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-vtkImageData * CopyAndCastToFloatFrom(vtkImageData * input)
-{
-  vtkImageData * p = vtkImageData::New();
-  p->SetExtent(input->GetExtent ()); // Only first ! could not be 4D
-  p->SetScalarTypeToFloat();
-  p->AllocateScalars();
-  p->CopyAndCastFrom(input, input->GetExtent());
-  return p;
-}
-//--------------------------------------------------------------------
-
 
 #endif // VVIMAGE_CXX

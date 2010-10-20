@@ -19,6 +19,9 @@
 #ifndef VVTOOLINPUTSELECTORWIDGET_CXX
 #define VVTOOLINPUTSELECTORWIDGET_CXX
 
+// clitk
+#include <clitkImageCommon.h>
+
 // vv
 #include "vvLabelImageLoaderWidget.h"
 #include "vvSlicerManager.h"
@@ -79,51 +82,36 @@ void vvLabelImageLoaderWidget::OpenImage()
                                  "",Extensions); //mMainWindow->GetInputPathName()
   if (filename == "") return; // nothing to do
   
+  itk::ImageIOBase::Pointer header = clitk::readImageHeader(filename.toStdString());
+
   // Open Image
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-  vvImageReader * mReader = new vvImageReader;
-  mReader->SetInputFilename(filename.toStdString());
-  mReader->Update(IMAGE);
-  if (mReader->GetLastError().size() != 0) {
+  if (!header) {
     std::cerr << "Error while reading " << filename.toStdString() << std::endl;
-    QString error = "Cannot open file \n";
-    error += mReader->GetLastError().c_str();
+    QString error = QString("Cannot open file %1\n").arg(filename);
     QMessageBox::information(this,tr("Reading problem"),error);
-    delete mReader;
     return;
   }
   
   // Create output pointer
-  m_Output = vvImage::New();
-
-  // Check type and convert if needed
-  vvImage::Pointer temp = mReader->GetOutput();
-
-  if (temp->GetNumberOfDimensions() != 3) {
+  if (header->GetNumberOfDimensions() != 3) {
     std::cerr << "Error while reading " << filename.toStdString() << std::endl;
     QString error;
     error = QString("Cannot open file %1 because it is not 3D\n").arg(filename);
     QMessageBox::information(this,tr("Reading problem"),error);
-    delete mReader;
     return;
   }
 
-  if (temp->GetScalarTypeAsITKString() != "unsigned_char") {
-    vtkImageData * p = vtkImageData::New();
-    p->SetExtent(temp->GetFirstVTKImageData()->GetExtent ()); // Only first ! could not be 4D
-    p->SetScalarTypeToUnsignedChar();
-    p->AllocateScalars ();
-    p->CopyAndCastFrom(temp->GetFirstVTKImageData(), temp->GetFirstVTKImageData()->GetExtent ());
-    m_Output->AddImage(p);
-    vvImageWriter * writer = new vvImageWriter;
-    writer->SetOutputFileName("a.mhd");
-    writer->SetInput(m_Output);
-    writer->Update();
-  }
-  else {
-    m_Output = temp;
-  }
-  
+  // Convert to unsigned char while reading (if not already)
+  typedef itk::ImageFileReader< itk::Image< unsigned char, 3 > > ReaderType;
+  ReaderType::Pointer reader = ReaderType::New();
+  reader->SetFileName(filename.toStdString());
+  reader->Update();
+
+  // Create vv image
+  m_Output = vvImage::New();
+  m_Output->AddItkImage( reader->GetOutput() );
+
   // Set GUI
   mLabelInputInfo->setText(vtksys::SystemTools::GetFilenameName(filename.toStdString()).c_str());
   QApplication::restoreOverrideCursor();

@@ -21,6 +21,7 @@
 #include <iostream>
 #include <vector>
 #include <itkObjectFactory.h>
+#include <itkProcessObject.h>
 #include <vtkSmartPointer.h>
 
 class vtkImageData;
@@ -33,12 +34,12 @@ class vvImage : public itk::LightObject
 public :
   typedef vvImage Self;
   typedef itk::SmartPointer<Self> Pointer;
+  typedef itk::ProcessObject::Pointer ConverterPointer;
   itkNewMacro(Self);
 
   void Init();
   void Reset();
-  void SetImage(std::vector<vtkImageData*> images);
-  void AddImage(vtkImageData* image);
+  template<class TItkImageType> void AddItkImage(TItkImageType *input);
   const std::vector<vtkImageData*>& GetVTKImages();
   vtkImageData* GetFirstVTKImageData();
   int GetNumberOfDimensions() const;
@@ -63,6 +64,7 @@ private:
   vvImage();
   ~vvImage();
 
+  std::vector< ConverterPointer > mItkToVtkConverters;
   std::vector<vtkImageData*> mVtkImages;
   std::vector< vtkSmartPointer<vtkImageReslice> > mVtkImageReslice;
   vtkSmartPointer<vtkTransform> mTransform;
@@ -71,8 +73,6 @@ private:
 };
 //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-vtkImageData * CopyAndCastToFloatFrom(vtkImageData * p);
-//------------------------------------------------------------------------------
+#include "vvImage.txx"
 
 #endif

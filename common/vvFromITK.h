@@ -23,7 +23,6 @@
 
 // itk
 #include <itkExtractImageFilter.h>
-#include <itkImageToVTKImageFilter.h>
 
 //------------------------------------------------------------------------------
 /**Converts the itk image to vv, handling the 4D problem
@@ -38,31 +37,27 @@ template<unsigned int Dim, class PixelType> vvImage::Pointer vvImageFromITK(type
 
     if (Dim == 4 || time_sequence) //The time sequence case: create a series of VTK images
     {
-        typedef itk::Image< PixelType,  Dim - 1 >    ConnectorImageType;
-        typedef itk::ImageToVTKImageFilter <ConnectorImageType> ConnectorType;
-        typedef itk::ExtractImageFilter<InputImageType,ConnectorImageType> FilterType;
-
-        typename FilterType::Pointer filter = FilterType::New();
-        typename ConnectorType::Pointer connector = ConnectorType::New();
+        typedef itk::Image< PixelType,  Dim - 1 >    ItkImageType;
+        typedef itk::ExtractImageFilter<InputImageType, ItkImageType> FilterType;
 
         //extract the 3D slices and put them in a std::vector<vtkImageData*>
         typename InputImageType::RegionType inputRegion = input->GetLargestPossibleRegion();
         typename InputImageType::SizeType inputSize = inputRegion.GetSize();
-
+        typename InputImageType::IndexType start = inputRegion.GetIndex();
         typename InputImageType::SizeType extractedRegionSize = inputSize;
         typename InputImageType::RegionType extractedRegion;
         extractedRegionSize[Dim - 1] = 0;
         extractedRegion.SetSize(extractedRegionSize);
 
-        filter->SetInput(input);
-        connector->SetInput(filter->GetOutput());
-
-        typename InputImageType::IndexType start = inputRegion.GetIndex();
-
         for (unsigned int i = 0; i < inputSize[Dim - 1]; i++) {
             start[Dim - 1] = i;
             extractedRegion.SetIndex(start);
+
+            typename FilterType::Pointer filter = FilterType::New();
             filter->SetExtractionRegion(extractedRegion);
+            filter->SetInput(input);
+            filter->ReleaseDataFlagOn();
+
             try {
                 filter->Update();
             }
@@ -71,39 +66,14 @@ template<unsigned int Dim, class PixelType> vvImage::Pointer vvImageFromITK(type
                           << " " << err << std::endl;
                 return vv_image;
             }
-            try {
-                connector->Update();
-            }
-            catch ( itk::ExceptionObject & err ) {
-                std::cerr << "Error while setting vvImage from ITK (Dim==4) [Connect phase]"
-                          << " " << err << std::endl;
-                return vv_image;
-            }
-            vtkImageData *image = vtkImageData::New();
-            image->DeepCopy(connector->GetOutput());
-            vv_image->AddImage(image);
+            vv_image->AddItkImage<ItkImageType>(filter->GetOutput());
         }
         vv_image->SetTimeSpacing(input->GetSpacing()[Dim-1]);
-        vv_image->SetTimeOrigin(input->GetOrigin()[Dim-1]);        
+        vv_image->SetTimeOrigin(input->GetOrigin()[Dim-1]);
     }
     else //Dim == 1,2,3 and not time_sequence
     {
-        typedef itk::Image< PixelType,  Dim >    ConnectorImageType;
-        typedef itk::ImageToVTKImageFilter <ConnectorImageType> ConnectorType;
-        typename ConnectorType::Pointer connector = ConnectorType::New();
-        connector->SetInput(input);
-
-        try {
-            connector->Update();
-        }
-        catch ( itk::ExceptionObject & err ) {
-            std::cerr << "Error while setting vvImage from ITK (Dim==3)"
-                      << " " << err << std::endl;
-            return vv_image;
-        }
-        vtkImageData *image = vtkImageData::New();
-        image->DeepCopy(connector->GetOutput());
-        vv_image->AddImage(image);
+        vv_image->AddItkImage<InputImageType>(input);
     }
     return vv_image;
 }

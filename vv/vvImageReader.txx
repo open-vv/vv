@@ -75,14 +75,12 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
     // one at the time to avoid excessive
     // memory use
   {
-    typedef itk::Image< InputPixelType, VImageDimension-1 > InputImageType;
-    typedef itk::ImageFileReader<InputImageType> ReaderType;
-    typename ReaderType::Pointer reader = ReaderType::New();
-    typedef itk::ImageToVTKImageFilter <InputImageType> ConnectorType;
-    typename ConnectorType::Pointer connector = ConnectorType::New();
-    connector->SetInput(reader->GetOutput());
-    mImage=vvImage::New();
-    for (std::vector<std::string>::const_iterator i=mInputFilenames.begin(); i!=mInputFilenames.end(); i++) {
+      mImage=vvImage::New();
+      for (std::vector<std::string>::const_iterator i=mInputFilenames.begin(); i!=mInputFilenames.end(); i++) {
+      typedef itk::Image< InputPixelType, VImageDimension-1 > InputImageType;
+      typedef itk::ImageFileReader<InputImageType> ReaderType;
+      typename ReaderType::Pointer reader = ReaderType::New();
+      reader->ReleaseDataFlagOn();
       std::cout << (*i) << std::endl;
       reader->SetFileName(*i);
       try {
@@ -95,15 +93,7 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
         mLastError = error.str();
         return;
       }
-      try {
-        connector->Update();
-      } catch ( itk::ExceptionObject & err ) {
-        std::cerr << "Error while setting vvImage from ITK (MERGEDWITHTIME)"
-                  << " " << err << std::endl;
-      }
-      vtkImageData *image = vtkImageData::New();
-      image->ShallowCopy(connector->GetOutput());
-      mImage->AddImage(image);
+      mImage->AddItkImage<InputImageType>(reader->GetOutput());
     }
   } else {
     if (mInputFilenames.size() > 1) {
