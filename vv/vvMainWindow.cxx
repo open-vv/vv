@@ -792,7 +792,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType fi
     progress.SetProgress(i,fileSize);
     qApp->processEvents();
 
-    for (int j = 0; j < nSlices[i]; j++) {
+    for (unsigned int j = 0; j < nSlices[i]; j++) {
       //read the image and put it in mSlicerManagers
       vvSlicerManager* imageManager = new vvSlicerManager(4);
       qApp->processEvents();
