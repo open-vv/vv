@@ -146,7 +146,7 @@ void vvSlicerManager::ToggleContourSuperposition()
 
 
 //----------------------------------------------------------------------------
-bool vvSlicerManager::SetImage(std::string filename, LoadedImageType type, int n)
+bool vvSlicerManager::SetImage(std::string filename, LoadedImageType type, int n, unsigned int slice)
 {
   mType = type;
   if (mReader == NULL)
@@ -154,6 +154,7 @@ bool vvSlicerManager::SetImage(std::string filename, LoadedImageType type, int n
   std::vector<std::string> filenames;
   filenames.push_back(filename);
   mReader->SetInputFilenames(filenames);
+  mReader->SetSlice(slice); // Only used for SLICED type
   mReader->Update(type);
 
   SetFilename(filename, n);

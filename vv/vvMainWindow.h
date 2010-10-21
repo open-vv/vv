@@ -72,6 +72,7 @@ public slots:
   void OpenRecentImage();
   void OpenImageWithTime();
   void MergeImages();
+  void SliceImages();
   void MergeImagesWithTime();
   void OpenDicom();
   ///Open a vtkPolyData surface mesh and display it over the current image

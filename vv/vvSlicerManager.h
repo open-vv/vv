@@ -58,7 +58,7 @@ class vvSlicerManager : public QObject {
     return mLastError;
   }
 
-  bool SetImage(std::string filename,LoadedImageType type, int n=0);
+  bool SetImage(std::string filename,LoadedImageType type, int n=0, unsigned int slice=0);
   void SetImage(vvImage::Pointer image);
   bool SetImages(std::vector<std::string> filenames, LoadedImageType type, int n=0);
 

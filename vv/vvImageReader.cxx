@@ -31,6 +31,7 @@ vvImageReader::vvImageReader()
   mInputFilenames.resize(0);
   mLastError = "";
   mType = UNDEFINEDIMAGETYPE;
+  mSlice = 0;
 }
 //------------------------------------------------------------------------------
 

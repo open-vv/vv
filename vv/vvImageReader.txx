@@ -75,13 +75,12 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
     // one at the time to avoid excessive
     // memory use
   {
-      mImage=vvImage::New();
-      for (std::vector<std::string>::const_iterator i=mInputFilenames.begin(); i!=mInputFilenames.end(); i++) {
+    mImage=vvImage::New();
+    for (std::vector<std::string>::const_iterator i=mInputFilenames.begin(); i!=mInputFilenames.end(); i++) {
       typedef itk::Image< InputPixelType, VImageDimension-1 > InputImageType;
       typedef itk::ImageFileReader<InputImageType> ReaderType;
       typename ReaderType::Pointer reader = ReaderType::New();
       reader->ReleaseDataFlagOn();
-      std::cout << (*i) << std::endl;
       reader->SetFileName(*i);
       try {
         reader->Update();
@@ -95,6 +94,40 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
       }
       mImage->AddItkImage<InputImageType>(reader->GetOutput());
     }
+  } else if (mType == SLICED) {
+    mImage=vvImage::New();
+    typedef itk::Image< InputPixelType, VImageDimension > InputImageType;
+    typedef itk::ImageFileReader<InputImageType> ReaderType;
+    typename ReaderType::Pointer reader = ReaderType::New();
+    reader->SetFileName(mInputFilenames[0]);
+    reader->UpdateOutputInformation();
+
+    typedef itk::Image< InputPixelType, VImageDimension-1 > SlicedImageType;
+    typedef itk::ExtractImageFilter<InputImageType, SlicedImageType> FilterType;
+
+    typename InputImageType::RegionType inputRegion = reader->GetOutput()->GetLargestPossibleRegion();
+    typename InputImageType::SizeType inputSize = inputRegion.GetSize();
+    typename InputImageType::IndexType start = inputRegion.GetIndex();
+    typename InputImageType::SizeType extractedRegionSize = inputSize;
+    typename InputImageType::RegionType extractedRegion;
+    extractedRegionSize[VImageDimension - 1] = 0;
+    extractedRegion.SetSize(extractedRegionSize);
+    start[VImageDimension - 1] = mSlice;
+    extractedRegion.SetIndex(start);
+
+    typename FilterType::Pointer filter = FilterType::New();
+    filter->SetExtractionRegion(extractedRegion);
+    filter->SetInput(reader->GetOutput());
+    filter->ReleaseDataFlagOn();
+    try {
+      filter->Update();
+    }
+    catch ( itk::ExceptionObject & err ) {
+      std::cerr << "Error while slicing " << mInputFilenames[0].c_str()
+                << "(slice #" << mSlice << ") " << err << std::endl;
+      return;
+    }
+    mImage->AddItkImage<SlicedImageType>(filter->GetOutput());
   } else {
     if (mInputFilenames.size() > 1) {
       typedef itk::Image< InputPixelType, VImageDimension > InputImageType;

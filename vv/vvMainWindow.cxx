@@ -234,6 +234,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(actionOpen_Dicom_Struct,SIGNAL(triggered()),this,SLOT(OpenDCStructContour()));
   connect(actionOpen_VTK_contour,SIGNAL(triggered()),this,SLOT(OpenVTKContour()));
   connect(actionOpen_Multiple_Images_As_One,SIGNAL(triggered()),this,SLOT(MergeImages()));
+  connect(actionSlice_Image_As_Multiple_Images,SIGNAL(triggered()),this,SLOT(SliceImages()));
   connect(actionOpen_Image_With_Time,SIGNAL(triggered()),this,SLOT(OpenImageWithTime()));
   connect(actionMerge_images_as_n_dim_t, SIGNAL(triggered()), this, SLOT(MergeImagesWithTime()));
   connect(actionSave_As,SIGNAL(triggered()),this,SLOT(SaveAs()));
@@ -301,6 +302,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
     QMenu * rmenu = new QMenu("Recently opened files...");
     rmenu->setIcon(QIcon(QString::fromUtf8(":/common/icons/open.png")));
     menuFile->insertMenu(actionOpen_Image_With_Time,rmenu);
+    menuFile->insertSeparator(actionOpen_Image_With_Time);
     for (std::list<std::string>::iterator i = recent_files.begin(); i!=recent_files.end(); i++) {
       QAction* current=new QAction(QIcon(QString::fromUtf8(":/common/icons/open.png")),
                                    (*i).c_str(),this);
@@ -594,6 +596,22 @@ void vvMainWindow::MergeImages()
 }
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+void vvMainWindow::SliceImages()
+{
+  QString Extensions = EXTENSIONS;
+  Extensions += ";;All Files (*)";
+
+  QStringList files = QFileDialog::getOpenFileNames(this,tr("Slice Images"),mInputPathName,Extensions);
+  if (files.isEmpty())
+    return;
+  mInputPathName = itksys::SystemTools::GetFilenamePath(files[0].toStdString()).c_str();
+  std::vector<std::string> vector;
+  for (int i = 0; i < files.size(); i++)
+    vector.push_back(files[i].toStdString());
+  LoadImages(vector, SLICED);
+}
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvMainWindow::MergeImagesWithTime()
@@ -729,6 +747,32 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType fi
   else
     fileSize = 1;
 
+  // For SLICED, we need the number of slices (ndim and #slices)
+  std::vector<unsigned int> nSlices;
+  nSlices.resize(files.size());
+  std::fill(nSlices.begin(), nSlices.end(), 1);
+  if (filetype == SLICED) {
+    for (int i = 0; i < fileSize; i++) {
+      itk::ImageIOBase::Pointer header = clitk::readImageHeader(files[i]);
+      QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+      if (!header) {
+        nSlices[i] = 0;
+        QString error = "Cannot open file \n";
+        error += files[i].c_str();
+        QMessageBox::information(this,tr("Reading problem"),error);
+        return;
+      }
+      if (header->GetNumberOfDimensions() < 3) {
+        nSlices[i] = 0;
+        QString error = "Dimension problem. Cannot slice \n";
+        error += files[i].c_str();
+        QMessageBox::information(this,tr("Reading problem"),error);
+        return;
+      }
+      nSlices[i] = header->GetDimensions( header->GetNumberOfDimensions()-1 );
+    }
+  }
+  
   //Only add to the list of recently opened files when a single file is opened,
   //to avoid polluting the list of recently opened files
   if (files.size() == 1) {
@@ -748,93 +792,95 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType fi
     progress.SetProgress(i,fileSize);
     qApp->processEvents();
 
-    //read the image and put it in mSlicerManagers
-    vvSlicerManager* imageManager = new vvSlicerManager(4);
-    qApp->processEvents();
-
-    bool SetImageSucceed=false;
-
-    // Change filename if an image with the same already exist
-    int number = GetImageDuplicateFilenameNumber(files[i]);
-
-    if (filetype == IMAGE || filetype == IMAGEWITHTIME)
-      SetImageSucceed = imageManager->SetImage(files[i],filetype, number);
-    else {
-      SetImageSucceed = imageManager->SetImages(files,filetype, number);
-    }
-    if (SetImageSucceed == false) {
-      QApplication::restoreOverrideCursor();
-      QString error = "Cannot open file \n";
-      error += imageManager->GetLastError().c_str();
-      QMessageBox::information(this,tr("Reading problem"),error);
-      delete imageManager;
-    } else {
-      mSlicerManagers.push_back(imageManager);
-
-      //create an item in the tree with good settings
-      QTreeWidgetItem *item = new QTreeWidgetItem();
-      item->setData(0,Qt::UserRole,files[i].c_str());
-      QFileInfo fileinfo(imageManager->GetFileName().c_str()); //Do not show the path
-      item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,fileinfo.fileName());
+    for (int j = 0; j < nSlices[i]; j++) {
+      //read the image and put it in mSlicerManagers
+      vvSlicerManager* imageManager = new vvSlicerManager(4);
       qApp->processEvents();
 
-      //Create the buttons for reload and close
-      qApp->processEvents();
-      QTreePushButton* cButton = new QTreePushButton;
-      cButton->setItem(item);
-      cButton->setColumn(COLUMN_CLOSE_IMAGE);
-      cButton->setToolTip(tr("close image"));
-      cButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/exit.png")));
-      connect(cButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
-              this,SLOT(CloseImage(QTreeWidgetItem*, int)));
+      bool SetImageSucceed=false;
 
-      QTreePushButton* rButton = new QTreePushButton;
-      rButton->setItem(item);
-      rButton->setColumn(COLUMN_RELOAD_IMAGE);
-      rButton->setToolTip(tr("reload image"));
-      rButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/rotateright.png")));
-      connect(rButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
-              this,SLOT(ReloadImage(QTreeWidgetItem*, int)));
+      // Change filename if an image with the same already exist
+      int number = GetImageDuplicateFilenameNumber(files[i] + std::string("_slice"));
 
-      DataTree->addTopLevelItem(item);
-      DataTree->setItemWidget(item, COLUMN_CLOSE_IMAGE, cButton);
-      DataTree->setItemWidget(item, COLUMN_RELOAD_IMAGE, rButton);
+      if (filetype == IMAGE || filetype == IMAGEWITHTIME || filetype == SLICED)
+        SetImageSucceed = imageManager->SetImage(files[i],filetype, number, j);
+      else {
+        SetImageSucceed = imageManager->SetImages(files,filetype, number);
+      }
+      if (SetImageSucceed == false) {
+        QApplication::restoreOverrideCursor();
+        QString error = "Cannot open file \n";
+        error += imageManager->GetLastError().c_str();
+        QMessageBox::information(this,tr("Reading problem"),error);
+        delete imageManager;
+      } else {
+        mSlicerManagers.push_back(imageManager);
 
-      //set the id of the image
-      QString id = files[i].c_str() + QString::number(mSlicerManagers.size()-1);
-      item->setData(COLUMN_IMAGE_NAME,Qt::UserRole,id.toStdString().c_str());
-      mSlicerManagers.back()->SetId(id.toStdString());
+        //create an item in the tree with good settings
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        item->setData(0,Qt::UserRole,files[i].c_str());
+        QFileInfo fileinfo(imageManager->GetFileName().c_str()); //Do not show the path
+        item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,fileinfo.fileName());
+        qApp->processEvents();
 
-      linkPanel->addImage(imageManager->GetFileName(), id.toStdString());
+        //Create the buttons for reload and close
+        qApp->processEvents();
+        QTreePushButton* cButton = new QTreePushButton;
+        cButton->setItem(item);
+        cButton->setColumn(COLUMN_CLOSE_IMAGE);
+        cButton->setToolTip(tr("close image"));
+        cButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/exit.png")));
+        connect(cButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
+                this,SLOT(CloseImage(QTreeWidgetItem*, int)));
 
-      connect(mSlicerManagers.back(), SIGNAL(currentImageChanged(std::string)),
-              this,SLOT(CurrentImageChanged(std::string)));
-      connect(mSlicerManagers.back(), SIGNAL(UpdatePosition(int, double, double, double, double, double, double, double)),
-              this,SLOT(MousePositionChanged(int,double, double, double, double, double, double, double)));
-      connect(mSlicerManagers.back(), SIGNAL(UpdateVector(int, double, double, double, double)),
-              this, SLOT(VectorChanged(int,double,double,double, double)));
-      connect(mSlicerManagers.back(), SIGNAL(UpdateOverlay(int, double, double)),
-              this, SLOT(OverlayChanged(int,double,double)));
-      connect(mSlicerManagers.back(), SIGNAL(UpdateFusion(int, double)),
-              this, SLOT(FusionChanged(int,double)));
-      connect(mSlicerManagers.back(), SIGNAL(UpdateWindows(int, int, int)),
-              this,SLOT(WindowsChanged(int, int, int)));
-      connect(mSlicerManagers.back(), SIGNAL(WindowLevelChanged(double, double,int, int)),
-              this,SLOT(WindowLevelChanged(double, double, int, int)));
-      connect(mSlicerManagers.back(), SIGNAL(UpdateSlice(int,int)),
-              this,SLOT(UpdateSlice(int,int)));
-      connect(mSlicerManagers.back(), SIGNAL(UpdateTSlice(int, int)),
-              this,SLOT(UpdateTSlice(int, int)));
-      connect(mSlicerManagers.back(), SIGNAL(UpdateSliceRange(int,int,int,int,int)),
-              this,SLOT(UpdateSliceRange(int,int,int,int,int)));
-      connect(mSlicerManagers.back(), SIGNAL(UpdateLinkManager(std::string,int,double,double,double,int)),
-              this,SLOT(UpdateLinkManager(std::string,int,double,double,double,int)));
-      connect(mSlicerManagers.back(), SIGNAL(UpdateLinkedNavigation(std::string,vvSlicerManager*)),
-              this,SLOT(UpdateLinkedNavigation(std::string,vvSlicerManager*)));
-      connect(mSlicerManagers.back(), SIGNAL(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)),
-              this,SLOT(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)));
-      connect(mSlicerManagers.back(),SIGNAL(LandmarkAdded()),landmarksPanel,SLOT(AddPoint()));
-      InitSlicers();
+        QTreePushButton* rButton = new QTreePushButton;
+        rButton->setItem(item);
+        rButton->setColumn(COLUMN_RELOAD_IMAGE);
+        rButton->setToolTip(tr("reload image"));
+        rButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/rotateright.png")));
+        connect(rButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
+                this,SLOT(ReloadImage(QTreeWidgetItem*, int)));
+
+        DataTree->addTopLevelItem(item);
+        DataTree->setItemWidget(item, COLUMN_CLOSE_IMAGE, cButton);
+        DataTree->setItemWidget(item, COLUMN_RELOAD_IMAGE, rButton);
+
+        //set the id of the image
+        QString id = files[i].c_str() + QString::number(mSlicerManagers.size()-1);
+        item->setData(COLUMN_IMAGE_NAME,Qt::UserRole,id.toStdString().c_str());
+        mSlicerManagers.back()->SetId(id.toStdString());
+
+        linkPanel->addImage(imageManager->GetFileName(), id.toStdString());
+
+        connect(mSlicerManagers.back(), SIGNAL(currentImageChanged(std::string)),
+                this,SLOT(CurrentImageChanged(std::string)));
+        connect(mSlicerManagers.back(), SIGNAL(UpdatePosition(int, double, double, double, double, double, double, double)),
+                this,SLOT(MousePositionChanged(int,double, double, double, double, double, double, double)));
+        connect(mSlicerManagers.back(), SIGNAL(UpdateVector(int, double, double, double, double)),
+                this, SLOT(VectorChanged(int,double,double,double, double)));
+        connect(mSlicerManagers.back(), SIGNAL(UpdateOverlay(int, double, double)),
+                this, SLOT(OverlayChanged(int,double,double)));
+        connect(mSlicerManagers.back(), SIGNAL(UpdateFusion(int, double)),
+                this, SLOT(FusionChanged(int,double)));
+        connect(mSlicerManagers.back(), SIGNAL(UpdateWindows(int, int, int)),
+                this,SLOT(WindowsChanged(int, int, int)));
+        connect(mSlicerManagers.back(), SIGNAL(WindowLevelChanged(double, double,int, int)),
+                this,SLOT(WindowLevelChanged(double, double, int, int)));
+        connect(mSlicerManagers.back(), SIGNAL(UpdateSlice(int,int)),
+                this,SLOT(UpdateSlice(int,int)));
+        connect(mSlicerManagers.back(), SIGNAL(UpdateTSlice(int, int)),
+                this,SLOT(UpdateTSlice(int, int)));
+        connect(mSlicerManagers.back(), SIGNAL(UpdateSliceRange(int,int,int,int,int)),
+                this,SLOT(UpdateSliceRange(int,int,int,int,int)));
+        connect(mSlicerManagers.back(), SIGNAL(UpdateLinkManager(std::string,int,double,double,double,int)),
+                this,SLOT(UpdateLinkManager(std::string,int,double,double,double,int)));
+        connect(mSlicerManagers.back(), SIGNAL(UpdateLinkedNavigation(std::string,vvSlicerManager*)),
+                this,SLOT(UpdateLinkedNavigation(std::string,vvSlicerManager*)));
+        connect(mSlicerManagers.back(), SIGNAL(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)),
+                this,SLOT(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)));
+        connect(mSlicerManagers.back(),SIGNAL(LandmarkAdded()),landmarksPanel,SLOT(AddPoint()));
+        InitSlicers();
+      }
       numberofsuccesulreads++;
     }
   }

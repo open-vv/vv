@@ -42,12 +42,13 @@ public:
         return mLastError;
     }
 
+    void SetSlice(unsigned int i) { mSlice = i; }
+
     //====================================================================
     // Main function
     void Update();
     void Update(LoadedImageType type);
     void Update(int dim, std::string InputPixelType, LoadedImageType type);
-    //void Extract(int dim, std::string InputPixelType, int slice);
 
 protected:
     void run();
@@ -55,6 +56,7 @@ protected:
     std::vector<std::string> mInputFilenames;
     ///Method used to load the image, see vvConstants.h for definition
     LoadedImageType mType;
+    unsigned int mSlice;
     itk::Command::Pointer mObserver;
 
     std::string mLastError;

@@ -773,9 +773,10 @@
     </property>
     <addaction name="actionLoad_images"/>
     <addaction name="actionOpen_Image_With_Time"/>
-    <addaction name="separator"/>
-    <addaction name="actionOpen_Multiple_Images_As_One"/>
     <addaction name="actionMerge_images_as_n_dim_t"/>
+    <addaction name="separator"/>
+    <addaction name="actionSlice_Image_As_Multiple_Images"/>
+    <addaction name="actionOpen_Multiple_Images_As_One"/>
     <addaction name="separator"/>
     <addaction name="actionOpen_Dicom"/>
     <addaction name="actionOpen_Dicom_Struct"/>
@@ -910,7 +911,16 @@
      <normaloff>:/common/icons/open.png</normaloff>:/common/icons/open.png</iconset>
    </property>
    <property name="text">
-    <string>Open several xD images into a single (x+1) D</string>
+    <string>Merge several xD images into a single (x+1)D image</string>
+   </property>
+  </action>
+  <action name="actionSlice_Image_As_Multiple_Images">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/open.png</normaloff>:/common/icons/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Slice a xD image into several (x-1)D images</string>
    </property>
   </action>
   <action name="actionOpen_one_Image_as_Multiple">
@@ -990,7 +1000,7 @@
      <normaloff>:/common/icons/open.png</normaloff>:/common/icons/open.png</iconset>
    </property>
    <property name="text">
-    <string>Open several xD images into a single xD + t</string>
+    <string>Open several xD images into a single xD+t images</string>
    </property>
   </action>
   <action name="actionAdd_fusion_image">
