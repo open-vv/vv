@@ -269,15 +269,11 @@ void vvToolBinarize::GetArgsInfoFromGUI()
      int good = cmdline_parser_ext(argc, argv, &args_info, &p);
      DD(good);
   */
-
-  mArgsInfo.imagetypes_flag = 0;
-  mArgsInfo.upper_given = 0;
-  mArgsInfo.lower_given = 0;
+  cmdline_parser_clitkBinarizeImage_init(&mArgsInfo); // Initialisation to default
   bool inverseBGandFG = false;
 
   mArgsInfo.lower_given = 1;
   mArgsInfo.lower_arg = mThresholdSlider1->GetValue();
-  // DD(mArgsInfo.lower_arg);
   if (mRadioButtonLowerThan->isChecked()) {
     mArgsInfo.upper_given = 1;
     mArgsInfo.upper_arg = mThresholdSlider2->GetValue();
@@ -304,12 +300,12 @@ void vvToolBinarize::GetArgsInfoFromGUI()
 
   mArgsInfo.verbose_flag = false;
 
-  // Required (even if not used)
-  mArgsInfo.input_given = 0;
-  mArgsInfo.output_given = 0;
+  // // Required (even if not used)
+  // mArgsInfo.input_given = 0;
+  // mArgsInfo.output_given = 0;
 
-  mArgsInfo.input_arg = new char;
-  mArgsInfo.output_arg = new char;
+  // mArgsInfo.input_arg = new char;
+  // mArgsInfo.output_arg = new char;
 }
 //------------------------------------------------------------------------------
 
@@ -326,7 +322,6 @@ void vvToolBinarize::apply()
     clitk::BinarizeImageGenericFilter::New();
   filter->SetInputVVImage(mCurrentImage);
   filter->SetArgsInfo(mArgsInfo);
-  filter->EnableReadOnDisk(false);
   filter->Update();
 
   // Output
