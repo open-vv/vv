@@ -36,7 +36,7 @@ void clitk::ComputeBBFromImageRegion(typename ImageType::Pointer image,
   IndexType lastIndex;
   for(unsigned int i=0; i<image->GetImageDimension(); i++) {
     firstIndex[i] = region.GetIndex()[i];
-    lastIndex[i] = region.GetSize()[i];
+    lastIndex[i] = firstIndex[i]+region.GetSize()[i];
   }
 
   typedef itk::BoundingBox<unsigned long, 
@@ -99,7 +99,11 @@ void clitk::ComputeRegionFromBB(typename ImageType::Pointer image,
   PointType maxs = bb->GetMaximum();
   PointType mins = bb->GetMinimum();
   for(unsigned int i=0; i<ImageType::ImageDimension; i++) {
-    regionSize[i] = floor((maxs[i] - mins[i])/image->GetSpacing()[i]);
+    // DD(maxs[i]);
+    // DD(mins[i]);
+    // DD((maxs[i] - mins[i])/image->GetSpacing()[i]);
+    regionSize[i] = lrint((maxs[i] - mins[i])/image->GetSpacing()[i]);
+    // DD(regionSize[i]);
   }
    
   // Create region
@@ -111,8 +115,9 @@ void clitk::ComputeRegionFromBB(typename ImageType::Pointer image,
 //--------------------------------------------------------------------
 template<class ImageType, class TMaskImageType>
 typename ImageType::Pointer
-clitk::SetBackground(typename ImageType::ConstPointer input, 
-                     typename TMaskImageType::ConstPointer mask, 
+clitk::SetBackground(//typename ImageType::ConstPointer input, 
+                     const ImageType * input, 
+                     const TMaskImageType * mask, 
                      typename TMaskImageType::PixelType maskBG,
                      typename ImageType::PixelType outValue) {
   typedef clitk::SetBackgroundImageFilter<ImageType, TMaskImageType, ImageType> SetBackgroundImageFilterType;
@@ -152,15 +157,18 @@ clitk::Labelize(typename ImageType::Pointer input,
                 typename ImageType::PixelType BG, 
                 bool isFullyConnected, 
                 int minimalComponentSize) {
+  // InternalImageType for storing large number of component
+  typedef itk::Image<int, ImageType::ImageDimension> InternalImageType;
+  
   // Connected Component label 
-  typedef itk::ConnectedComponentImageFilter<ImageType, ImageType> ConnectFilterType;
+  typedef itk::ConnectedComponentImageFilter<ImageType, InternalImageType> ConnectFilterType;
   typename ConnectFilterType::Pointer connectFilter = ConnectFilterType::New();
   connectFilter->SetInput(input);
   connectFilter->SetBackgroundValue(BG);
   connectFilter->SetFullyConnected(isFullyConnected);
   
   // Sort by size and remove too small area.
-  typedef itk::RelabelComponentImageFilter<ImageType, ImageType> RelabelFilterType;
+  typedef itk::RelabelComponentImageFilter<InternalImageType, ImageType> RelabelFilterType;
   typename RelabelFilterType::Pointer relabelFilter = RelabelFilterType::New();
   relabelFilter->InPlaceOn();
   relabelFilter->SetInput(connectFilter->GetOutput());

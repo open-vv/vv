@@ -48,25 +48,10 @@ namespace clitk {
   //--------------------------------------------------------------------
   template<class TInternalImageType, class TMaskInternalImageType>
   typename TInternalImageType::Pointer
-  SetBackground(typename TInternalImageType::ConstPointer input,
-                typename TMaskInternalImageType::ConstPointer mask, 
+  SetBackground(const TInternalImageType * input,
+                const TMaskInternalImageType * mask, 
                 typename TMaskInternalImageType::PixelType maskBG, 
                 typename TInternalImageType::PixelType outValue);
-  //--------------------------------------------------------------------
-
-    
-  //--------------------------------------------------------------------
-  template<class TInternalImageType, class TMaskInternalImageType>
-  typename TInternalImageType::Pointer
-  SetBackground(typename TInternalImageType::Pointer input, 
-                typename TMaskInternalImageType::Pointer mask, 
-                typename TMaskInternalImageType::PixelType maskBG, 
-                typename TInternalImageType::PixelType outValue) {
-    return SetBackground<TInternalImageType, TMaskInternalImageType>
-      (static_cast<typename TInternalImageType::ConstPointer>(input),  
-       static_cast<typename TMaskInternalImageType::ConstPointer>(mask), 
-       maskBG, outValue);
-  }
   //--------------------------------------------------------------------
 
 
