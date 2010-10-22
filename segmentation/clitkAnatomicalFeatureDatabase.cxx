@@ -22,6 +22,8 @@
 // std
 #include <iterator>
 #include <sstream>
+#include <cctype>
+#include <functional>
 
 //--------------------------------------------------------------------
 clitk::AnatomicalFeatureDatabase::AnatomicalFeatureDatabase() 

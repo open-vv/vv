@@ -70,7 +70,7 @@ private:
   vtkSmartPointer<vtkTransform> mTransform;
   double mTimeOrigin;
   double mTimeSpacing;
-  uint mImageDimension;
+  unsigned int mImageDimension;
 };
 //------------------------------------------------------------------------------
 
