@@ -100,7 +100,6 @@ int main( int argc, char** argv )
       else if (parse_mode == P_SEQUENCE)
         sequence_filenames.push_back(current);
       else {
-        DD(current);
         std::vector<std::string> image; image.push_back(current);
         window.LoadImages(image,IMAGE);
         n_image_loaded++;
