@@ -15,7 +15,7 @@ section "I/O"
 
 option "input"		i	"Input image filename"		  string  	yes
 option "output"    	o   	"Output image filename"		  string 	yes
-#option "like"    	l   	"Resample like this image"	  string 	no
+option "afdb"           a	"Output Anatomical Feature DB (Carina position)"  string  no
 
 section "Smoothing (curvature anistropic diffusion)"
 
@@ -40,4 +40,4 @@ option "upper2"		-	"Upper threshold for RG"		double	no 	default="1500"
 option "radius2"	-	"Neighborhood radius"			int	no 	multiple	default="1" 
 option "sampleRate2"	-	"Sample rate of label image for RG: number of voxels to skip between seeds"	int	no 	default="0" 
 
-option "autoCrop"	- 	"Crop final mask to BoundingBox"        flag 	off
+option "noAutoCrop"	- 	"If set : do no crop final mask to BoundingBox"	                        flag 	on

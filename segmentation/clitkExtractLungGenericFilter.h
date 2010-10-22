@@ -19,6 +19,7 @@
 #ifndef CLITKEXTRACTLUNGSGENERICFILTER_H
 #define CLITKEXTRACTLUNGSGENERICFILTER_H
 
+// clitk
 #include "clitkIO.h"
 #include "clitkImageToImageGenericFilter.h"
 #include "clitkExtractLungFilter.h"
@@ -26,7 +27,6 @@
 //--------------------------------------------------------------------
 namespace clitk 
 {
-  
   template<class ArgsInfoType>
   class ITK_EXPORT ExtractLungGenericFilter: 
     public ImageToImageGenericFilter<ExtractLungGenericFilter<ArgsInfoType> >

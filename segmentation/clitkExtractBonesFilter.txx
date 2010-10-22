@@ -33,11 +33,12 @@
 #include "itkCurvatureAnisotropicDiffusionImageFilter.h"
 
 //--------------------------------------------------------------------
-template <class TInputImageType, class TOutputImageType>
-clitk::ExtractBonesFilter<TInputImageType, TOutputImageType>::
+template <class TInputImageType>
+clitk::ExtractBonesFilter<TInputImageType>::
 ExtractBonesFilter():
   clitk::FilterBase(),
-  itk::ImageToImageFilter<TInputImageType, TOutputImageType>()
+  clitk::FilterWithAnatomicalFeatureDatabaseManagement(),
+  itk::ImageToImageFilter<TInputImageType, MaskImageType>()
 {
   // Default global options
   this->SetNumberOfRequiredInputs(1);
@@ -61,15 +62,15 @@ ExtractBonesFilter():
   s.Fill(1);
   SetRadius2(s);
   SetSampleRate2(0);
-  AutoCropOff();
+  AutoCropOn();
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-template <class TInputImageType, class TOutputImageType>
+template <class TInputImageType>
 void 
-clitk::ExtractBonesFilter<TInputImageType, TOutputImageType>::
+clitk::ExtractBonesFilter<TInputImageType>::
 SetInput(const TInputImageType * image) 
 {
   this->SetNthInput(0, const_cast<TInputImageType *>(image));
@@ -78,10 +79,10 @@ SetInput(const TInputImageType * image)
 
 
 //--------------------------------------------------------------------
-template <class TInputImageType, class TOutputImageType>
+template <class TInputImageType>
 template<class ArgsInfoType>
 void 
-clitk::ExtractBonesFilter<TInputImageType, TOutputImageType>::
+clitk::ExtractBonesFilter<TInputImageType>::
 SetArgsInfo(ArgsInfoType mArgsInfo)
 {
   SetVerboseOption_GGO(mArgsInfo);
@@ -89,6 +90,8 @@ SetArgsInfo(ArgsInfoType mArgsInfo)
   SetWriteStep_GGO(mArgsInfo);
   SetVerboseWarningOff_GGO(mArgsInfo);
   
+  SetOutputBonesFilename_GGO(mArgsInfo);
+
   SetInitialSmoothing_GGO(mArgsInfo);
   SetSmoothingConductanceParameter_GGO(mArgsInfo);
   SetSmoothingNumberOfIterations_GGO(mArgsInfo);
@@ -105,21 +108,26 @@ SetArgsInfo(ArgsInfoType mArgsInfo)
   SetRadius2_GGO(mArgsInfo);
   SetSampleRate2_GGO(mArgsInfo);
   SetAutoCrop_GGO(mArgsInfo);
+
+  SetAFDBFilename_GGO(mArgsInfo);
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-template <class TInputImageType, class TOutputImageType>
+template <class TInputImageType>
 void 
-clitk::ExtractBonesFilter<TInputImageType, TOutputImageType>::
+clitk::ExtractBonesFilter<TInputImageType>::
 GenerateOutputInformation() { 
+
   // Get input pointers
   InputImagePointer input   = dynamic_cast<TInputImageType*>(itk::ProcessObject::GetInput(0));
-  //  InputImagePointer input = dynamic_cast<TInputImageType*>(itk::ProcessObject::GetInput(0));
   Superclass::GenerateOutputInformation();
-  OutputImagePointer outputImage = this->GetOutput(0);
+  MaskImagePointer outputImage = this->GetOutput(0);
   outputImage->SetRegions(input->GetLargestPossibleRegion());
+
+  // Read DB
+  LoadAFDB();
 
   // typedefs
   typedef itk::BinaryThresholdImageFilter<InputImageType, InternalImageType> InputBinarizeFilterType;
@@ -127,8 +135,8 @@ GenerateOutputInformation() {
   typedef itk::ConnectedComponentImageFilter<InternalImageType, InternalImageType> ConnectFilterType;
   typedef itk::RelabelComponentImageFilter<InternalImageType, InternalImageType> RelabelFilterType;
   typedef clitk::SetBackgroundImageFilter<InternalImageType,InternalImageType, InternalImageType> SetBackgroundFilterType; 
-  typedef itk::CastImageFilter<InternalImageType,OutputImageType> CastImageFilterType; 
-  typedef itk::ImageFileWriter<OutputImageType> WriterType; 
+  typedef itk::CastImageFilter<InternalImageType,MaskImageType> CastImageFilterType; 
+  typedef itk::ImageFileWriter<MaskImageType> WriterType; 
 
   //---------------------------------
   // Smoothing [Optional]
@@ -274,20 +282,23 @@ GenerateOutputInformation() {
 
 
 //--------------------------------------------------------------------
-template <class TInputImageType, class TOutputImageType>
+template <class TInputImageType>
 void 
-clitk::ExtractBonesFilter<TInputImageType, TOutputImageType>::
+clitk::ExtractBonesFilter<TInputImageType>::
 GenerateData() {
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   // Final Cast 
-  typedef itk::CastImageFilter<InternalImageType, OutputImageType> CastImageFilterType;
+  typedef itk::CastImageFilter<InternalImageType, MaskImageType> CastImageFilterType;
   typename CastImageFilterType::Pointer caster= CastImageFilterType::New();
   caster->SetInput(output);
   caster->Update();
-  //this->SetNthOutput(0, caster->GetOutput());
   this->GraftOutput(caster->GetOutput());
+
+  // Store image filenames into AFDB 
+  GetAFDB()->SetImageFilename("bones", this->GetOutputBonesFilename());  
+  WriteAFDB();
   return;
 }
 //--------------------------------------------------------------------

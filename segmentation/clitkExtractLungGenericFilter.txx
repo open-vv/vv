@@ -54,7 +54,6 @@ void clitk::ExtractLungGenericFilter<ArgsInfoType>::SetArgsInfo(const ArgsInfoTy
   SetIOVerbose(mArgsInfo.verbose_flag);
   if (mArgsInfo.imagetypes_flag) this->PrintAvailableImageTypes();
   if (mArgsInfo.input_given)   AddInputFilename(mArgsInfo.input_arg);
-  if (mArgsInfo.patient_given) AddInputFilename(mArgsInfo.patient_arg);
   if (mArgsInfo.output_given)  AddOutputFilename(mArgsInfo.output_arg);
   if (mArgsInfo.outputTrachea_given)  AddOutputFilename(mArgsInfo.outputTrachea_arg);
 }
@@ -69,15 +68,13 @@ template<class ImageType>
 void clitk::ExtractLungGenericFilter<ArgsInfoType>::UpdateWithInputImageType() 
 { 
   // Mask & output image type
-  typedef itk::Image<uchar, ImageType::ImageDimension> OutputImageType;
   typedef itk::Image<uchar, ImageType::ImageDimension> MaskImageType;
 
   // Reading input
   typename ImageType::Pointer input = this->template GetInput<ImageType>(0);
-  typename MaskImageType::Pointer patient = this->template GetInput<MaskImageType>(1);
 
   // Create filter
-  typedef clitk::ExtractLungFilter<ImageType, MaskImageType> FilterType;
+  typedef clitk::ExtractLungFilter<ImageType> FilterType;
   typename FilterType::Pointer filter = FilterType::New();
 
   // Set the filter (needed for example for threaded monitoring)
@@ -86,14 +83,13 @@ void clitk::ExtractLungGenericFilter<ArgsInfoType>::UpdateWithInputImageType()
   // Set global Options 
   filter->SetArgsInfo(mArgsInfo);
   filter->SetInput(input);
-  filter->SetInputPatientMask(patient, mArgsInfo.patientBG_arg);
 
   // Go !
   filter->Update();
   
   // Write/Save results
-  typename OutputImageType::Pointer output = filter->GetOutput();
-  this->template SetNextOutput<OutputImageType>(output); 
+  typename MaskImageType::Pointer output = filter->GetOutput();
+  this->template SetNextOutput<MaskImageType>(output); 
   this->template SetNextOutput<typename FilterType::MaskImageType>(filter->GetTracheaImage()); 
 }
 //--------------------------------------------------------------------

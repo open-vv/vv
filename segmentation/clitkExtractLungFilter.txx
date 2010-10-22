@@ -24,6 +24,8 @@
 #include "clitkSetBackgroundImageFilter.h"
 #include "clitkSegmentationUtils.h"
 #include "clitkAutoCropFilter.h"
+#include "clitkCropLikeImageFilter.h"
+#include "clitkFillMaskFilter.h"
 
 // itk
 #include "itkBinaryThresholdImageFilter.h"
@@ -36,17 +38,18 @@
 #include "itkBinaryMorphologicalClosingImageFilter.h"
 
 //--------------------------------------------------------------------
-template <class ImageType, class MaskImageType>
-clitk::ExtractLungFilter<ImageType, MaskImageType>::
+template <class ImageType>
+clitk::ExtractLungFilter<ImageType>::
 ExtractLungFilter():
   clitk::FilterBase(),
+  clitk::FilterWithAnatomicalFeatureDatabaseManagement(),
   itk::ImageToImageFilter<ImageType, MaskImageType>()
 {
   SetNumberOfSteps(10);
   m_MaxSeedNumber = 500;
 
   // Default global options
-  this->SetNumberOfRequiredInputs(2);
+  this->SetNumberOfRequiredInputs(1);
   SetPatientMaskBackgroundValue(0);
   SetBackgroundValue(0); // Must be zero
   SetForegroundValue(1);
@@ -85,16 +88,19 @@ ExtractLungFilter():
   SetLabelizeParameters3(p3);
   
   // Step 5
-  FinalOpenCloseOff();
-  SetFinalOpenCloseRadius(1);
+  OpenCloseOff();
+  SetOpenCloseRadius(1);
+  
+  // Step 6
+  FillHolesOn();
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-template <class ImageType, class MaskImageType>
+template <class ImageType>
 void 
-clitk::ExtractLungFilter<ImageType, MaskImageType>::
+clitk::ExtractLungFilter<ImageType>::
 SetInput(const ImageType * image) 
 {
   this->SetNthInput(0, const_cast<ImageType *>(image));
@@ -103,21 +109,9 @@ SetInput(const ImageType * image)
 
 
 //--------------------------------------------------------------------
-template <class ImageType, class MaskImageType>
+template <class ImageType>
 void 
-clitk::ExtractLungFilter<ImageType, MaskImageType>::
-SetInputPatientMask(MaskImageType * image, MaskImagePixelType bg ) 
-{
-  this->SetNthInput(1, const_cast<MaskImageType *>(image));
-  SetPatientMaskBackgroundValue(bg);
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-template <class ImageType, class MaskImageType>
-void 
-clitk::ExtractLungFilter<ImageType, MaskImageType>::
+clitk::ExtractLungFilter<ImageType>::
 AddSeed(InternalIndexType s) 
 { 
   m_Seeds.push_back(s);
@@ -126,16 +120,20 @@ AddSeed(InternalIndexType s)
 
 
 //--------------------------------------------------------------------
-template <class ImageType, class MaskImageType>
+template <class ImageType>
 template<class ArgsInfoType>
 void 
-clitk::ExtractLungFilter<ImageType, MaskImageType>::
+clitk::ExtractLungFilter<ImageType>::
 SetArgsInfo(ArgsInfoType mArgsInfo)
 {
   SetVerboseOption_GGO(mArgsInfo);
   SetVerboseStep_GGO(mArgsInfo);
   SetWriteStep_GGO(mArgsInfo);
   SetVerboseWarningOff_GGO(mArgsInfo);
+
+  SetAFDBFilename_GGO(mArgsInfo);
+  SetOutputLungFilename_GGO(mArgsInfo);
+  SetOutputTracheaFilename_GGO(mArgsInfo);
 
   SetUpperThreshold_GGO(mArgsInfo);
   SetLowerThreshold_GGO(mArgsInfo);
@@ -159,34 +157,46 @@ SetArgsInfo(ArgsInfoType mArgsInfo)
   SetRadiusForTrachea_GGO(mArgsInfo);
   SetLabelizeParameters3_GGO(mArgsInfo);
   
-  SetFinalOpenCloseRadius_GGO(mArgsInfo);
-  SetFinalOpenClose_GGO(mArgsInfo);
+  SetOpenCloseRadius_GGO(mArgsInfo);
+  SetOpenClose_GGO(mArgsInfo);
+  
+  SetFillHoles_GGO(mArgsInfo);
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-template <class ImageType, class MaskImageType>
+template <class ImageType>
 void 
-clitk::ExtractLungFilter<ImageType, MaskImageType>::
+clitk::ExtractLungFilter<ImageType>::
 GenerateOutputInformation() 
 { 
   Superclass::GenerateOutputInformation();
+  
+  // Read DB
+  LoadAFDB();
 
   // Get input pointers
-  patient = dynamic_cast<const MaskImageType*>(itk::ProcessObject::GetInput(1));
   input   = dynamic_cast<const ImageType*>(itk::ProcessObject::GetInput(0));
+  patient = GetAFDB()->template GetImage <MaskImageType>("patient");  
 
-  // Check image
-  if (!HaveSameSizeAndSpacing<ImageType, MaskImageType>(input, patient)) {
-    clitkExceptionMacro("the 'input' and 'patient' masks must have the same size & spacing.");
-  }
-  
+  //--------------------------------------------------------------------
+  //--------------------------------------------------------------------
+  // Crop input like patient image (must have the same spacing)
+  StartNewStep("Crop input image to 'patient' extends");
+  typedef clitk::CropLikeImageFilter<ImageType> CropImageFilter;
+  typename CropImageFilter::Pointer cropFilter = CropImageFilter::New();
+  cropFilter->SetInput(input);
+  cropFilter->SetCropLikeImage(patient);
+  cropFilter->Update();
+  working_input = cropFilter->GetOutput();
+  StopCurrentStep<ImageType>(working_input);
+ 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   StartNewStep("Set background to initial image");
   working_input = SetBackground<ImageType, MaskImageType>
-    (input, patient, GetPatientMaskBackgroundValue(), -1000);
+    (working_input, patient, GetPatientMaskBackgroundValue(), -1000);
   StopCurrentStep<ImageType>(working_input);
 
   //--------------------------------------------------------------------
@@ -313,15 +323,15 @@ GenerateOutputInformation()
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
-  typedef clitk::AutoCropFilter<InternalImageType> CropFilterType;
-  typename CropFilterType::Pointer cropFilter = CropFilterType::New();
+  typedef clitk::AutoCropFilter<InternalImageType> AutoCropFilterType;
+  typename AutoCropFilterType::Pointer autocropFilter = AutoCropFilterType::New();
   if (m_Seeds.size() != 0) { // if ==0 ->no trachea found
-    StartNewStep("Croping trachea");
-    cropFilter->SetInput(trachea_tmp);
-    cropFilter->Update(); // Needed
+    StartNewStep("Cropping trachea");
+    autocropFilter->SetInput(trachea_tmp);
+    autocropFilter->Update(); // Needed
     typedef itk::CastImageFilter<InternalImageType, MaskImageType> CastImageFilterType;
     typename CastImageFilterType::Pointer caster= CastImageFilterType::New();
-    caster->SetInput(cropFilter->GetOutput());
+    caster->SetInput(autocropFilter->GetOutput());
     caster->Update();   
     trachea = caster->GetOutput();
     StopCurrentStep<MaskImageType>(trachea);  
@@ -329,23 +339,23 @@ GenerateOutputInformation()
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
-  StartNewStep("Croping lung");
-  typename CropFilterType::Pointer cropFilter2 = CropFilterType::New(); // Needed to reset pipeline
-  cropFilter2->SetInput(working_image);
-  cropFilter2->Update();   
-  working_image = cropFilter2->GetOutput();
+  StartNewStep("Cropping lung");
+  typename AutoCropFilterType::Pointer autocropFilter2 = AutoCropFilterType::New(); // Needed to reset pipeline
+  autocropFilter2->SetInput(working_image);
+  autocropFilter2->Update();   
+  working_image = autocropFilter2->GetOutput();
   StopCurrentStep<InternalImageType>(working_image);
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   // Final OpenClose
-  if (GetFinalOpenClose()) {
+  if (GetOpenClose()) {
     StartNewStep("Open/Close"); 
 
     // Structuring element
     typedef itk::BinaryBallStructuringElement<InternalPixelType, ImageDimension> KernelType;
     KernelType structuringElement;
-    structuringElement.SetRadius(GetFinalOpenCloseRadius());
+    structuringElement.SetRadius(GetOpenCloseRadius());
     structuringElement.CreateStructuringElement();
 	
     // Open
@@ -365,6 +375,20 @@ GenerateOutputInformation()
     closeFilter->SetKernel(structuringElement);
     closeFilter->Update();
     working_image = closeFilter->GetOutput();
+  }
+
+  //--------------------------------------------------------------------
+  //--------------------------------------------------------------------
+  // Fill Lungs
+  if (GetFillHoles()) {
+    StartNewStep("Fill Holes");
+    /*
+    typename FillMaskFilterType::Pointer fillMaskFilter = FillMaskFilterType::New();
+    fillMaskFilter(working_image);
+    fillMaskFilter->Update();   
+    working_image = fillMaskFilter->GetOutput();
+    StopCurrentStep<InternalImageType>(working_image);
+    */
   }
 
   //--------------------------------------------------------------------
@@ -426,28 +450,30 @@ GenerateOutputInformation()
 
   // Update output info
   this->GetOutput(0)->SetRegions(output->GetLargestPossibleRegion());
-
-
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-template <class ImageType, class MaskImageType>
+template <class ImageType>
 void 
-clitk::ExtractLungFilter<ImageType, MaskImageType>::
+clitk::ExtractLungFilter<ImageType>::
 GenerateData() 
 {
   // Set the output
   this->GraftOutput(output); // not SetNthOutput
+  // Store image filenames into AFDB 
+  GetAFDB()->SetImageFilename("lungs", this->GetOutputLungFilename());  
+  GetAFDB()->SetImageFilename("trachea", this->GetOutputTracheaFilename());  
+  WriteAFDB();
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-template <class ImageType, class MaskImageType>
+template <class ImageType>
 bool 
-clitk::ExtractLungFilter<ImageType, MaskImageType>::
+clitk::ExtractLungFilter<ImageType>::
 SearchForTracheaSeed(int skip)
 {
   if (m_Seeds.size() == 0) { // try to find seed (if not zero, it is given by user)    
@@ -495,9 +521,9 @@ SearchForTracheaSeed(int skip)
 
   
 //--------------------------------------------------------------------
-template <class ImageType, class MaskImageType>
+template <class ImageType>
 void 
-clitk::ExtractLungFilter<ImageType, MaskImageType>::
+clitk::ExtractLungFilter<ImageType>::
 TracheaRegionGrowing()
 {
   // Explosion controlled region growing
@@ -536,9 +562,9 @@ TracheaRegionGrowing()
 
 
 //--------------------------------------------------------------------
-template <class ImageType, class MaskImageType>
+template <class ImageType>
 double 
-clitk::ExtractLungFilter<ImageType, MaskImageType>::
+clitk::ExtractLungFilter<ImageType>::
 ComputeTracheaVolume()
 {
   typedef itk::ImageRegionConstIterator<InternalImageType> IteratorType;
@@ -557,9 +583,9 @@ ComputeTracheaVolume()
 
 
 //--------------------------------------------------------------------
-template <class ImageType, class MaskImageType>
+template <class ImageType>
 void 
-clitk::ExtractLungFilter<ImageType, MaskImageType>::
+clitk::ExtractLungFilter<ImageType>::
 SearchForTrachea()
 {
   // Search for seed among n slices, skip some slices before starting

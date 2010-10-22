@@ -179,11 +179,19 @@ GenerateData()
   extractSliceFilter->GetOutputSlices(mInputSlices);
   DD(mInputSlices.size());
       
+
+  DD("REDO !!!!!!!!!!!!");
+  /**
+     => chercher la bif qui a les plus important sous-arbres
+   **/
+
   bool stop = false;
   int slice_index = listOfBifurcations[0].index[2]; // first slice from carina in skeleton
   int i=0;
   TreeIterator firstIter = m_SkeletonTree.child(listOfBifurcations[0].treeIter, 0);
   TreeIterator secondIter = m_SkeletonTree.child(listOfBifurcations[0].treeIter, 1);
+  DD(firstIter.number_of_children());
+  DD(secondIter.number_of_children());
   typename SliceType::IndexType in1;
   typename SliceType::IndexType in2;
   while (!stop) {
@@ -192,6 +200,8 @@ GenerateData()
 							   GetBackgroundValue(), 
 							   true, 
 							   0); // min component size=0
+    DD(*firstIter);
+    DD(*secondIter);    
     // Check the value of the two skeleton points;
     in1[0] = (*firstIter)[0];
     in1[1] = (*firstIter)[1];
@@ -283,6 +293,9 @@ TrackFromThisIndex(std::vector<BifurcationType> & listOfBifurcations,
       if (listOfTrackedPoint.size() == 2) {
         // m_SkeletonTree->Add(listOfTrackedPoint[0], index); // the parent is 'index'
         // m_SkeletonTree->Add(listOfTrackedPoint[1], index); // the parent is 'index'
+        DD("BifurcationType");
+        DD(listOfTrackedPoint[0]);
+        DD(listOfTrackedPoint[1]);
         BifurcationType bif(index, label, label+1, label+2);
 	bif.treeIter = currentNode;
         listOfBifurcations.push_back(bif);

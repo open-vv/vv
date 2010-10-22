@@ -48,6 +48,25 @@ void clitk::AnatomicalFeatureDatabase::Write()
 
 
 //--------------------------------------------------------------------
+//http://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
+// trim from start
+static inline std::string &ltrim(std::string &s) {
+  s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+  return s;
+}
+// trim from end
+static inline std::string &rtrim(std::string &s) {
+  s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+  return s;
+}
+// trim from both ends
+static inline std::string &trim(std::string &s) {
+  return ltrim(rtrim(s));
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
 void clitk::AnatomicalFeatureDatabase::Load() 
 {
   // open file
@@ -59,6 +78,7 @@ void clitk::AnatomicalFeatureDatabase::Load()
     is >> tag; 
     std::string value;
     std::getline(is,value,'\n');
+    ltrim(value); // remove leading space
     m_MapOfTag[tag] = value;
   }
 }
@@ -95,9 +115,7 @@ void clitk::AnatomicalFeatureDatabase::GetPoint3D(std::string tag, PointType3D &
 
     // parse the string into 3 doubles
     for(int i=0; i<3; i++) {
-      DD(results[i]);
       p[i] = atof(results[i].c_str());
-      DD(p[i]);
     }
 
     /*
@@ -109,12 +127,20 @@ void clitk::AnatomicalFeatureDatabase::GetPoint3D(std::string tag, PointType3D &
     boost::tokenizer<boost::char_separator<char> > tokens(s, sep);
     int i=0;
     BOOST_FOREACH(std::string t, tokens) {
-      std::cout << t << "." << std::endl;
-      p[i] = atof(t.c_str());
-      i++;
+    std::cout << t << "." << std::endl;
+    p[i] = atof(t.c_str());
+    i++;
     }
     */
   }
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void clitk::AnatomicalFeatureDatabase::SetImageFilename(std::string tag, std::string f)
+{
+  m_MapOfTag[tag] = f;
 }
 //--------------------------------------------------------------------
 

@@ -24,6 +24,7 @@
 #include "clitkDecomposeAndReconstructImageFilter.h"
 #include "clitkExplosionControlledThresholdConnectedImageFilter.h"
 #include "clitkSegmentationUtils.h"
+#include "clitkFilterWithAnatomicalFeatureDatabaseManagement.h"
 
 // itk
 #include "itkStatisticsImageFilter.h"
@@ -36,18 +37,21 @@ namespace clitk {
   */
   //--------------------------------------------------------------------
   
-  template <class TInputImageType, class TOutputImageType>
+  template <class TInputImageType>
   class ITK_EXPORT ExtractBonesFilter: 
-    public clitk::FilterBase, 
-    public itk::ImageToImageFilter<TInputImageType, TOutputImageType> 
+    public virtual clitk::FilterBase, 
+    public clitk::FilterWithAnatomicalFeatureDatabaseManagement,
+    public itk::ImageToImageFilter<TInputImageType, 
+                                   itk::Image<uchar, TInputImageType::ImageDimension> > 
   {
     
   public:
     /** Standard class typedefs. */
-    typedef ExtractBonesFilter              Self;
-    typedef itk::ImageToImageFilter<TInputImageType, TOutputImageType> Superclass;
-    typedef itk::SmartPointer<Self>         Pointer;
-    typedef itk::SmartPointer<const Self>   ConstPointer;
+    typedef itk::Image<uchar, TInputImageType::ImageDimension>      MaskImageType;
+    typedef ExtractBonesFilter                                      Self;
+    typedef itk::ImageToImageFilter<TInputImageType, MaskImageType> Superclass;
+    typedef itk::SmartPointer<Self>                                 Pointer;
+    typedef itk::SmartPointer<const Self>                           ConstPointer;
     
     /** Method for creation through the object factory. */
     itkNewMacro(Self);  
@@ -65,13 +69,12 @@ namespace clitk {
     typedef typename InputImageType::SizeType     InputImageSizeType; 
     typedef typename InputImageType::IndexType    InputImageIndexType; 
         
-    typedef TOutputImageType                       OutputImageType;
-    typedef typename OutputImageType::ConstPointer OutputImageConstPointer;
-    typedef typename OutputImageType::Pointer      OutputImagePointer;
-    typedef typename OutputImageType::RegionType   OutputImageRegionType; 
-    typedef typename OutputImageType::PixelType    OutputImagePixelType; 
-    typedef typename OutputImageType::SizeType     OutputImageSizeType; 
-    typedef typename OutputImageType::IndexType    OutputImageIndexType; 
+    typedef typename MaskImageType::ConstPointer MaskImageConstPointer;
+    typedef typename MaskImageType::Pointer      MaskImagePointer;
+    typedef typename MaskImageType::RegionType   MaskImageRegionType; 
+    typedef typename MaskImageType::PixelType    MaskImagePixelType; 
+    typedef typename MaskImageType::SizeType     MaskImageSizeType; 
+    typedef typename MaskImageType::IndexType    MaskImageIndexType; 
 
     itkStaticConstMacro(ImageDimension, unsigned int, InputImageType::ImageDimension);
     typedef int InternalPixelType;
@@ -88,12 +91,17 @@ namespace clitk {
       void SetArgsInfo(ArgsInfoType arg);
 
     // Background / Foreground
-    itkGetConstMacro(BackgroundValue, OutputImagePixelType);
-    itkGetConstMacro(ForegroundValue, OutputImagePixelType);
+    itkGetConstMacro(BackgroundValue, MaskImagePixelType);
+    itkGetConstMacro(ForegroundValue, MaskImagePixelType);
 
     itkSetMacro(MinimalComponentSize, int);
     itkGetConstMacro(MinimalComponentSize, int);
     GGO_DefineOption(minSize, SetMinimalComponentSize, int);
+    
+    // Output filename  (for AFBD)
+    itkSetMacro(OutputBonesFilename, std::string);
+    itkGetMacro(OutputBonesFilename, std::string);
+    GGO_DefineOption(output, SetOutputBonesFilename, std::string);
 
     // Step 0
     itkBooleanMacro(InitialSmoothing);
@@ -153,17 +161,17 @@ namespace clitk {
     itkSetMacro(AutoCrop, bool);
     itkGetConstMacro(AutoCrop, bool);
     itkBooleanMacro(AutoCrop);
-    GGO_DefineOption_Flag(autoCrop, SetAutoCrop);
+    GGO_DefineOption_Flag(noAutoCrop, SetAutoCrop);
 
   protected:
     ExtractBonesFilter();
     virtual ~ExtractBonesFilter() {}
     
     // Global options
-    itkSetMacro(BackgroundValue, OutputImagePixelType);
-    itkSetMacro(ForegroundValue, OutputImagePixelType);
-    OutputImagePixelType m_BackgroundValue;
-    OutputImagePixelType m_ForegroundValue;
+    itkSetMacro(BackgroundValue, MaskImagePixelType);
+    itkSetMacro(ForegroundValue, MaskImagePixelType);
+    MaskImagePixelType m_BackgroundValue;
+    MaskImagePixelType m_ForegroundValue;
     bool m_AutoCrop;
 
     // Step 0 : Initial Filtering
@@ -194,9 +202,10 @@ namespace clitk {
     void ExtractBones();
     void RemoveTrachea();
     void BonesSeparation();
+    std::string m_OutputBonesFilename;
     InputImageConstPointer input;
     InputImagePointer filtered_input;
-    OutputImageConstPointer patient;
+    MaskImageConstPointer patient;
     InputImagePointer working_input;
     typename InternalImageType::Pointer working_image;  
     typename InternalImageType::Pointer trachea;

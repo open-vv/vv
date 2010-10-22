@@ -21,9 +21,11 @@
 
 // clitk
 #include "clitkCommon.h"
+#include "clitkImageCommon.h"
 
 namespace clitk {
   
+
   //--------------------------------------------------------------------
   /*
     Class to store and retreive anatomical feature such as 3D
@@ -34,6 +36,8 @@ namespace clitk {
   public:
     AnatomicalFeatureDatabase();
 
+    typedef std::string TagType;
+
     // Set/Get filename 
     itkSetMacro(Filename, std::string);
     itkGetConstMacro(Filename, std::string);
@@ -42,18 +46,29 @@ namespace clitk {
     void Write();
     void Load();
     
-    // Get landmarks
+    // Set Get landmarks
     typedef itk::Point<double,3> PointType3D;
-    void SetPoint3D(std::string tag, PointType3D & p);
-    void GetPoint3D(std::string tag, PointType3D & p);
+    void SetPoint3D(TagType tag, PointType3D & p);
+    void GetPoint3D(TagType tag, PointType3D & p);
     
+    // Set Get image
+    void SetImageFilename(TagType tag, std::string f);
+    template<class ImageType>
+    typename ImageType::Pointer GetImage(TagType tag);
+    
+    // Set Get Double
+    void SetDouble(TagType tag, double d);
+    double GetDouble(TagType tag);
+
   protected:
     std::string m_Filename;
-    typedef std::map<std::string, std::string> MapTagType;
+    typedef std::map<TagType, std::string> MapTagType;
     MapTagType m_MapOfTag;
 
   }; // end class
   //--------------------------------------------------------------------
+
+  #include "clitkAnatomicalFeatureDatabase.txx" 
 
 } // end namespace clitk
 //--------------------------------------------------------------------

@@ -35,11 +35,12 @@
 #include "itkCastImageFilter.h"
 
 //--------------------------------------------------------------------
-template <class TInputImageType, class TOutputImageType>
-clitk::ExtractPatientFilter<TInputImageType, TOutputImageType>::
+template <class TInputImageType>
+clitk::ExtractPatientFilter<TInputImageType>::
 ExtractPatientFilter():
   clitk::FilterBase(),
-  itk::ImageToImageFilter<TInputImageType, TOutputImageType>()
+  clitk::FilterWithAnatomicalFeatureDatabaseManagement(),
+  itk::ImageToImageFilter<TInputImageType, MaskImageType>()
 {
   this->SetNumberOfRequiredInputs(1);
   SetBackgroundValue(0); // Must be zero
@@ -71,16 +72,16 @@ ExtractPatientFilter():
   SetLastKeep(1);
   
   // Step 4: OpenClose (option)
-  FinalOpenCloseOn();
-  AutoCropOff();
+  FinalOpenCloseOff();
+  AutoCropOn();
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-template <class TInputImageType, class TOutputImageType>
+template <class TInputImageType>
 void 
-clitk::ExtractPatientFilter<TInputImageType, TOutputImageType>::
+clitk::ExtractPatientFilter<TInputImageType>::
 SetInput(const TInputImageType * image) 
 {
   this->SetNthInput(0, const_cast<TInputImageType *>(image));
@@ -89,16 +90,18 @@ SetInput(const TInputImageType * image)
 
 
 //--------------------------------------------------------------------
-template <class TInputImageType, class TOutputImageType>
+template <class TInputImageType>
 template<class ArgsInfoType>
 void 
-clitk::ExtractPatientFilter<TInputImageType, TOutputImageType>::
+clitk::ExtractPatientFilter<TInputImageType>::
 SetArgsInfo(ArgsInfoType arg)
 {
   SetVerboseOption_GGO(arg);
   SetVerboseStep_GGO(arg);
   SetWriteStep_GGO(arg);
   SetVerboseWarningOff_GGO(arg);
+
+  SetOutputPatientFilename_GGO(arg);
 
   SetUpperThreshold_GGO(arg);
   SetLowerThreshold_GGO(arg);
@@ -118,20 +121,22 @@ SetArgsInfo(ArgsInfoType arg)
 
   SetFinalOpenClose_GGO(arg);
   SetAutoCrop_GGO(arg);
+
+  SetAFDBFilename_GGO(arg);
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-template <class TInputImageType, class TOutputImageType>
+template <class TInputImageType>
 void 
-clitk::ExtractPatientFilter<TInputImageType, TOutputImageType>::
+clitk::ExtractPatientFilter<TInputImageType>::
 GenerateOutputInformation() { 
 
   Superclass::GenerateOutputInformation();
   input = dynamic_cast<const TInputImageType*>(itk::ProcessObject::GetInput(0));
 
-  // OutputImagePointer outputImage = this->GetOutput(0);
+  // MaskImagePointer outputImage = this->GetOutput(0);
 //   outputImage->SetRegions(input->GetLargestPossibleRegion());
 
   // Get input pointers
@@ -209,6 +214,10 @@ GenerateOutputInformation() {
   relabelFilter2->SetInput(connectFilter2->GetOutput());
   relabelFilter2->Update();
   working_image = relabelFilter2->GetOutput();
+  
+  // Keep main label
+  working_image = KeepLabels<InternalImageType>
+    (working_image, GetBackgroundValue(), GetForegroundValue(), 1, 1, true);  
   StopCurrentStep<InternalImageType>(working_image);
 
   //--------------------------------------------------------------------
@@ -263,7 +272,7 @@ GenerateOutputInformation() {
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   // Final Cast 
-  typedef itk::CastImageFilter<InternalImageType, OutputImageType> CastImageFilterType;
+  typedef itk::CastImageFilter<InternalImageType, MaskImageType> CastImageFilterType;
   typename CastImageFilterType::Pointer caster= CastImageFilterType::New();
   caster->SetInput(working_image);
   caster->Update();
@@ -274,25 +283,28 @@ GenerateOutputInformation() {
   // [Optional]
   if (GetAutoCrop()) {
   StartNewStep("AutoCrop");
-    typedef clitk::AutoCropFilter<OutputImageType> CropFilterType;
+    typedef clitk::AutoCropFilter<MaskImageType> CropFilterType;
     typename CropFilterType::Pointer cropFilter = CropFilterType::New();
     cropFilter->SetInput(output);
     cropFilter->SetBackgroundValue(GetBackgroundValue());
     cropFilter->Update();   
     output = cropFilter->GetOutput();
-    StopCurrentStep<OutputImageType>(output);
+    StopCurrentStep<MaskImageType>(output);
   }
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-template <class TInputImageType, class TOutputImageType>
+template <class TInputImageType>
 void 
-clitk::ExtractPatientFilter<TInputImageType, TOutputImageType>::
+clitk::ExtractPatientFilter<TInputImageType>::
 GenerateData() {
-  //this->SetNthOutput(0, output); // -> no because redo filter otherwise
+  // Final Graft
   this->GraftOutput(output);
+  // Store image filename into AFDB
+  GetAFDB()->SetImageFilename("patient", this->GetOutputPatientFilename());  
+  WriteAFDB();
 }
 //--------------------------------------------------------------------
   

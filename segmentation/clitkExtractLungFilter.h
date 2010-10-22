@@ -24,6 +24,7 @@
 #include "clitkDecomposeAndReconstructImageFilter.h"
 #include "clitkExplosionControlledThresholdConnectedImageFilter.h"
 #include "clitkSegmentationUtils.h"
+#include "clitkFilterWithAnatomicalFeatureDatabaseManagement.h"
 
 // itk
 #include "itkStatisticsImageFilter.h"
@@ -55,15 +56,17 @@ namespace clitk {
   //--------------------------------------------------------------------
   
   //--------------------------------------------------------------------
-  template <class TImageType, class TMaskImageType>
+  template <class TImageType>
   class ITK_EXPORT ExtractLungFilter: 
     public virtual clitk::FilterBase, 
-    public itk::ImageToImageFilter<TImageType, TMaskImageType> 
+    public clitk::FilterWithAnatomicalFeatureDatabaseManagement,
+    public itk::ImageToImageFilter<TImageType, itk::Image<uchar, TImageType::ImageDimension> > 
   {
     
   public:
     /** Standard class typedefs. */
-    typedef itk::ImageToImageFilter<TImageType, TMaskImageType> Superclass;
+    typedef itk::Image<uchar, TImageType::ImageDimension> MaskImageType;
+    typedef itk::ImageToImageFilter<TImageType, MaskImageType> Superclass;
     typedef ExtractLungFilter              Self;
     typedef itk::SmartPointer<Self>        Pointer;
     typedef itk::SmartPointer<const Self>  ConstPointer;
@@ -85,7 +88,6 @@ namespace clitk {
     typedef typename ImageType::IndexType    InputImageIndexType; 
     typedef typename ImageType::PointType    InputImagePointType; 
         
-    typedef TMaskImageType                       MaskImageType;
     typedef typename MaskImageType::ConstPointer MaskImageConstPointer;
     typedef typename MaskImageType::Pointer      MaskImagePointer;
     typedef typename MaskImageType::RegionType   MaskImageRegionType; 
@@ -103,10 +105,18 @@ namespace clitk {
     
     /** Connect inputs */
     void SetInput(const ImageType * image);
-    void SetInputPatientMask(MaskImageType * mask, MaskImagePixelType BG);
     itkSetMacro(PatientMaskBackgroundValue, MaskImagePixelType);
     itkGetConstMacro(PatientMaskBackgroundValue, MaskImagePixelType);
     GGO_DefineOption(patientBG, SetPatientMaskBackgroundValue, MaskImagePixelType);
+
+    // Output filename  (for AFBD)
+    itkSetMacro(OutputLungFilename, std::string);
+    itkGetMacro(OutputLungFilename, std::string);
+    GGO_DefineOption(output, SetOutputLungFilename, std::string);
+
+    itkSetMacro(OutputTracheaFilename, std::string);
+    itkGetMacro(OutputTracheaFilename, std::string);
+    GGO_DefineOption(outputTrachea, SetOutputTracheaFilename, std::string);
 
     // Set all options at a time
     template<class ArgsInfoType>
@@ -180,14 +190,20 @@ namespace clitk {
     GGO_DefineOption_LabelParam(3, SetLabelizeParameters3, LabelParamType);
 
     // Step 5 final openclose
-    itkSetMacro(FinalOpenClose, bool);
-    itkGetConstMacro(FinalOpenClose, bool);
-    itkBooleanMacro(FinalOpenClose);
-    GGO_DefineOption_Flag(openclose, SetFinalOpenClose);
+    itkSetMacro(OpenClose, bool);
+    itkGetConstMacro(OpenClose, bool);
+    itkBooleanMacro(OpenClose);
+    GGO_DefineOption_Flag(openclose, SetOpenClose);
 
-    itkSetMacro(FinalOpenCloseRadius, int);
-    itkGetConstMacro(FinalOpenCloseRadius, int);
-    GGO_DefineOption(opencloseRadius, SetFinalOpenCloseRadius, int);
+    itkSetMacro(OpenCloseRadius, int);
+    itkGetConstMacro(OpenCloseRadius, int);
+    GGO_DefineOption(opencloseRadius, SetOpenCloseRadius, int);
+    
+    // Step 6 fill holes
+    itkSetMacro(FillHoles, bool);
+    itkGetConstMacro(FillHoles, bool);
+    itkBooleanMacro(FillHoles);
+    GGO_DefineOption_Flag(doNotFillHoles, SetFillHoles);
 
   protected:
     ExtractLungFilter();
@@ -197,6 +213,8 @@ namespace clitk {
     InputImageConstPointer input;
     MaskImageConstPointer patient;
     InputImagePointer working_input;
+    std::string m_OutputLungFilename;
+    std::string m_OutputTracheaFilename;
     typename InternalImageType::Pointer working_image;  
     typename InternalImageType::Pointer trachea_tmp;
     MaskImagePointer trachea;
@@ -233,8 +251,12 @@ namespace clitk {
     LabelParamType* m_LabelizeParameters3;
 
     // Step 5
-    bool m_FinalOpenClose;    
-    int m_FinalOpenCloseRadius;
+    bool m_OpenClose;    
+    int m_OpenCloseRadius;
+
+    // Step 6
+    bool m_FillHoles;    
+    InputImageSizeType m_FillHolesDirections;
 
     // Main functions
     virtual void GenerateOutputInformation();

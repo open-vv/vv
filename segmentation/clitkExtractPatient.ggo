@@ -1,7 +1,7 @@
 #File clitkExtractPatient.ggo
 package "clitkExtractPatient"
 version "1.0"
-purpose "Prefer high resolution input and resample (NN) output at the end (like). Input is binarized using initial thresholds, connected components are labeled (firstLabel). The air label (1) is removed. The remaining is binarized and relabeled, patient should now be the principal label (secondLabel). Two mechanismes are provided to influence the label images. Crop to reduce connectivity (image is restored to original size), eg for SBF. Decomposition through ersion and reconstruction through dilation (slow), eg for Pulmo bellows. Choose which labels to keep from second Label image. Final mask is cleaned by opening and closing."
+purpose "Input is binarized using initial thresholds, connected components are labeled (firstLabel). The air label (1) is removed. The remaining is binarized and relabeled, patient should now be the principal label (secondLabel). Two mechanismes are provided to influence the label images. Crop to reduce connectivity (image is restored to original size), eg for SBF. Decomposition through ersion and reconstruction through dilation (slow), eg for Pulmo bellows. Choose which labels to keep from second Label image. Final mask is cleaned by opening and closing."
 
 option "config"	        -  "Config file"		  string  	no
 option "imagetypes"     -  "Display allowed image types"  flag          off
@@ -13,8 +13,9 @@ option "verboseWarningOff" -  "Do not display warning"    flag          off
 
 section "I/O"
 
-option "input"		i	"Input image filename"		  string  	yes
-option "output"    	o   	"Output image filename"		  string 	yes
+option "input"   i	"Input image filename"		     string  yes
+option "afdb"    a	"Output Anatomical Feature in a DB"  string  no
+option "output"  o  	"Output image filename"		     string  yes
 
 section "Binarize"
 
@@ -47,7 +48,7 @@ option  "remove"  	-		"Labels to remove"			int 	no	multiple
 
 section "Clean-up"
 
-option "openClose"	- 	"Perform morphological opening and closing with unit radius"	flag 	on
-option "autoCrop"	- 	"Crop final mask to BoundingBox"	                        flag 	off
+option "openClose"	- 	"Perform morphological opening and closing with unit radius"	flag 	off
+option "noAutoCrop"	- 	"If set : do no crop final mask to BoundingBox"	                        flag 	on
 
 

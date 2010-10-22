@@ -20,6 +20,7 @@
 #define CLITKEXTRACTPATIENTFILTER_H
 
 #include "clitkFilterBase.h"
+#include "clitkFilterWithAnatomicalFeatureDatabaseManagement.h"
 
 namespace clitk {
   
@@ -42,17 +43,20 @@ namespace clitk {
   */
   //--------------------------------------------------------------------
   
-  template <class TInputImageType, class TOutputImageType>
+  template <class TInputImageType>
   class ITK_EXPORT ExtractPatientFilter: 
-    public clitk::FilterBase, 
-    public itk::ImageToImageFilter<TInputImageType, TOutputImageType> 
+    public virtual clitk::FilterBase, 
+    public clitk::FilterWithAnatomicalFeatureDatabaseManagement,
+    public itk::ImageToImageFilter<TInputImageType, 
+                                   itk::Image<uchar, TInputImageType::ImageDimension> > 
   {
   public:
     /** Standard class typedefs. */
-    typedef ExtractPatientFilter            Self;
-    typedef itk::ImageToImageFilter<TInputImageType, TOutputImageType> Superclass;
-    typedef itk::SmartPointer<Self>         Pointer;
-    typedef itk::SmartPointer<const Self>   ConstPointer;
+    typedef itk::Image<uchar, TInputImageType::ImageDimension>      MaskImageType;
+    typedef ExtractPatientFilter                                    Self;
+    typedef itk::ImageToImageFilter<TInputImageType, MaskImageType> Superclass;
+    typedef itk::SmartPointer<Self>                                 Pointer;
+    typedef itk::SmartPointer<const Self>                           ConstPointer;
     
     /** Method for creation through the object factory. */
     itkNewMacro(Self);
@@ -70,13 +74,12 @@ namespace clitk {
     typedef typename InputImageType::SizeType     InputImageSizeType; 
     typedef typename InputImageType::IndexType    InputImageIndexType; 
         
-    typedef TOutputImageType                       OutputImageType;
-    typedef typename OutputImageType::ConstPointer OutputImageConstPointer;
-    typedef typename OutputImageType::Pointer      OutputImagePointer;
-    typedef typename OutputImageType::RegionType   OutputImageRegionType; 
-    typedef typename OutputImageType::PixelType    OutputImagePixelType; 
-    typedef typename OutputImageType::SizeType     OutputImageSizeType; 
-    typedef typename OutputImageType::IndexType    OutputImageIndexType; 
+    typedef typename MaskImageType::ConstPointer MaskImageConstPointer;
+    typedef typename MaskImageType::Pointer      MaskImagePointer;
+    typedef typename MaskImageType::RegionType   MaskImageRegionType; 
+    typedef typename MaskImageType::PixelType    MaskImagePixelType; 
+    typedef typename MaskImageType::SizeType     MaskImageSizeType; 
+    typedef typename MaskImageType::IndexType    MaskImageIndexType; 
 
     itkStaticConstMacro(ImageDimension, unsigned int, InputImageType::ImageDimension);
     typedef int InternalPixelType;
@@ -85,6 +88,9 @@ namespace clitk {
     
     /** Connect inputs */
     void SetInput(const TInputImageType * image);
+    itkSetMacro(OutputPatientFilename, std::string);
+    itkGetMacro(OutputPatientFilename, std::string);
+    GGO_DefineOption(output, SetOutputPatientFilename, std::string);
 
     // Set all options at a time
     template<class ArgsInfoType>
@@ -157,19 +163,20 @@ namespace clitk {
     itkSetMacro(AutoCrop, bool);
     itkGetConstMacro(AutoCrop, bool);
     itkBooleanMacro(AutoCrop);
-    GGO_DefineOption_Flag(autoCrop, SetAutoCrop);
+    GGO_DefineOption_Flag(noAutoCrop, SetAutoCrop);
 
   protected:
     ExtractPatientFilter();
     virtual ~ExtractPatientFilter() {}
     
-    itkSetMacro(BackgroundValue, OutputImagePixelType);
-    itkSetMacro(ForegroundValue, OutputImagePixelType);
-    itkGetConstMacro(BackgroundValue, OutputImagePixelType);
-    itkGetConstMacro(ForegroundValue, OutputImagePixelType);
-    OutputImagePixelType m_BackgroundValue;
-    OutputImagePixelType m_ForegroundValue;
+    itkSetMacro(BackgroundValue, MaskImagePixelType);
+    itkSetMacro(ForegroundValue, MaskImagePixelType);
+    itkGetConstMacro(BackgroundValue, MaskImagePixelType);
+    itkGetConstMacro(ForegroundValue, MaskImagePixelType);
+    MaskImagePixelType m_BackgroundValue;
+    MaskImagePixelType m_ForegroundValue;
 
+    std::string m_OutputPatientFilename;
     InputImagePixelType m_UpperThreshold;
     InputImagePixelType m_LowerThreshold;
     bool m_UseLowerThreshold;
@@ -190,7 +197,7 @@ namespace clitk {
     virtual void GenerateData();
     
     InputImageConstPointer input;
-    OutputImagePointer output;
+    MaskImagePointer output;
     typename InternalImageType::Pointer working_image;
         
   private:

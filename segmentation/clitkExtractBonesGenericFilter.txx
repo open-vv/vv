@@ -66,13 +66,13 @@ template<class ImageType>
 void clitk::ExtractBonesGenericFilter<ArgsInfoType>::UpdateWithInputImageType() 
 { 
   // Mask & output image type
-  typedef itk::Image<uchar, ImageType::ImageDimension> OutputImageType;
+  typedef itk::Image<uchar, ImageType::ImageDimension> MaskImageType;
 
   // Reading input
   typename ImageType::Pointer input = this->template GetInput<ImageType>(0);
 
   // Create filter
-  typedef clitk::ExtractBonesFilter<ImageType, OutputImageType> FilterType;
+  typedef clitk::ExtractBonesFilter<ImageType> FilterType;
   typename FilterType::Pointer filter = FilterType::New();
     
   // Set global Options 
@@ -83,8 +83,8 @@ void clitk::ExtractBonesGenericFilter<ArgsInfoType>::UpdateWithInputImageType()
   filter->Update();
   
   // Write/Save results
-  typename OutputImageType::Pointer output = filter->GetOutput();
-  this->template SetNextOutput<OutputImageType>(output); 
+  typename MaskImageType::Pointer output = filter->GetOutput();
+  this->template SetNextOutput<MaskImageType>(output); 
 }
 //--------------------------------------------------------------------
 

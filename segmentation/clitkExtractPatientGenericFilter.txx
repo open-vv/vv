@@ -69,7 +69,7 @@ void clitk::ExtractPatientGenericFilter<ArgsInfoType>::UpdateWithInputImageType(
   typename ImageType::Pointer input = this->template GetInput<ImageType>(0);
 
   // Create filter
-  typedef clitk::ExtractPatientFilter<ImageType, OutputImageType> FilterType;
+  typedef clitk::ExtractPatientFilter<ImageType> FilterType;
   typename FilterType::Pointer filter = FilterType::New();
     
   // Set the filter (needed for example for threaded monitoring)
@@ -81,13 +81,6 @@ void clitk::ExtractPatientGenericFilter<ArgsInfoType>::UpdateWithInputImageType(
 
   // Go !
   filter->Update();
-  
-  // // Check if error
-  // if (filter->HasError()) {
-  //   SetLastError(filter->GetLastError());
-  //   // No output
-  //   return;
-  // }
 
   // Write/Save results
   typename OutputImageType::Pointer output = filter->GetOutput();
