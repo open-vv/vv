@@ -7,45 +7,64 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 #=========================================================
 
+#=========================================================
 #List of vv tools to compile
 SET(vv_TOOLS
-  vvToolWidgetBase
-#  vvToolWidgetWithStepsBase
   vvToolMedianFilter
-#  vvToolRigidReg
-#  vvToolFoo
-#  vvToolFooWithWidgetBase
-#  vvToolCropImage
+  vvToolRigidReg ## Very long to compile
+  vvToolCropImage
   vvToolBinarize
-  vvToolSimpleInputSelectorWidget
-  vvToolInputSelectorWidget
   vvToolImageArithm
-  vvToolStructureSetManager
   vvToolResample
   vvToolExtractPatient
   vvToolExtractLung
-#  vvToolPlastimatch
-#  vvToolConnectedComponentLabeling
+  vvToolConvert ## with dummy vvToolConvert.ui
+  
+  ## these ones are for tests (not working)
+  # vvToolFoo
+  # vvToolFooWithWidgetBase
+  # vvToolPlastimatch
+  # vvToolConnectedComponentLabeling  
 )
-#dependencies of the tools
-SET(vvToolRigidReg_LIBS clitkAffineRegistrationLib)
+# dependencies of the tools
+# Future issues : when tool depend on other tools ... how to manage that ?
+SET(vvToolRigidReg_LIBS clitkAffineRegistrationLib clitkRegistrationGgoLib)
+SET(vvToolBinarize_LIBS clitkBinarizeImageLib)
+SET(vvToolResample_LIBS clitkImageResampleLib)
+SET(vvToolConvert_LIBS clitkImageConvertLib)
+SET(vvToolExtractPatient_LIBS clitkSegmentationGgoLib)
+SET(vvToolExtractLung_LIBS clitkSegmentationGgoLib)
+SET(vvToolCropImage_LIBS clitkToolsGgoLib)
 
 #=========================================================
 # List of vv source files
+
+# in COMMON_WITH_UI -> must have .h and .cxx and .ui
+SET(vv_COMMON_WITH_UI
+  vvInfoPanel
+  vvMainWindow 
+  vvLinkPanel 
+  vvOverlayPanel 
+  vvLandmarksPanel 
+  vvProgressDialog 
+  vvSegmentationDialog
+  vvSurfaceViewerDialog
+  vvDeformationDialog
+  vvStructSelector
+  vvIntensityValueSlider
+  vvLabelImageLoaderWidget
+  vvToolWidgetBase  
+  vvToolSimpleInputSelectorWidget
+  vvToolInputSelectorWidget
+  vvToolStructureSetManager
+)
+
+# All others sources
 SET(vv_SRCS
-  vvInfoPanel.cxx
-  vvLinkPanel.cxx
-  vvOverlayPanel.cxx
-  vvLandmarksPanel.cxx
   vvQProgressDialogITKCommand.cxx
   vvQDicomSeriesSelector.cxx
   QTreePushButton.cxx
-  vvSegmentationDialog.cxx
-  vvSurfaceViewerDialog.cxx
   vvMainWindowBase.cxx
-  vvMainWindow.cxx
-  vvProgressDialog.cxx
-  vvDeformationDialog.cxx
   vvImageWarp.cxx
   vvDeformableRegistration.cxx
   vtkVOXImageWriter.cxx
@@ -66,23 +85,17 @@ SET(vv_SRCS
   vvMesh.cxx
   vvMeshActor.cxx
   vvMeshReader.cxx
-  vvStructSelector.cxx
   vvMidPosition.cxx
   vvImageMapToWLColors.cxx
-  vvIntensityValueSlider.cxx
   vvThreadedFilter.cxx
   vvImageContour.cxx
   vvBinaryImageOverlayActor.cxx
   vvStructureSetActor.cxx
   vvROIActor.cxx
   vvBlendImageActor.cxx
-  vvLabelImageLoaderWidget.cxx
   vvToolManager.cxx
   vvToolCreatorBase.cxx
-  vvToolConvert.cxx
 )
-
-#=========================================================
 
 #=========================================================
 # Qt related commands
@@ -90,56 +103,37 @@ FIND_PACKAGE(Qt4 REQUIRED)
 
 QT4_WRAP_CPP(vv_SRCS 
   vvMainWindowBase.h 
-  vvMainWindow.h 
   QTreePushButton.h 
-  vvInfoPanel.h 
-  vvLinkPanel.h 
-  vvOverlayPanel.h 
-  vvLandmarksPanel.h 
   vvDocumentation.h  
   vvHelpDialog.h  
-  vvProgressDialog.h 
   vvQDicomSeriesSelector.h 
-  vvSegmentationDialog.h
-  vvSurfaceViewerDialog.h
-  vvDeformationDialog.h
   vvSlicerManager.h
-  vvStructSelector.h
-  vvIntensityValueSlider.h
   vvThreadedFilter.h
   vvStructureSetActor.h
   vvROIActor.h
-  vvLabelImageLoaderWidget.h
   vvToolCreatorBase.h
-  vvToolConvert.h
   )
 
 QT4_WRAP_UI(vv_UI_CXX 
-  qt_ui/vvMainWindow.ui 
-  qt_ui/vvInfoPanel.ui 
-  qt_ui/vvLinkPanel.ui 
-  qt_ui/vvOverlayPanel.ui 
-  qt_ui/vvLandmarksPanel.ui 
   qt_ui/vvHelpDialog.ui 
   qt_ui/vvDocumentation.ui 
-  qt_ui/vvProgressDialog.ui 
   qt_ui/vvDicomSeriesSelector.ui 
-  qt_ui/vvSegmentationDialog.ui
-  qt_ui/vvSurfaceViewerDialog.ui
-  qt_ui/vvDeformationDialog.ui
-  qt_ui/vvStructSelector.ui
   qt_ui/vvDummyWindow.ui #For testing
-  qt_ui/vvIntensityValueSlider.ui
-  qt_ui/vvLabelImageLoaderWidget.ui
   )
 
 QT4_ADD_RESOURCES(vv_SRCS vvIcons.qrc)
 
-#Add the autotools
-foreach(tool ${vv_TOOLS})
+#Add the autotools and the common files ui
+foreach(tool ${vv_TOOLS} ${vv_COMMON_WITH_UI})
     SET(vv_SRCS ${vv_SRCS} ${tool}.cxx)
     QT4_WRAP_CPP(vv_SRCS ${tool}.h)
     QT4_WRAP_UI(vv_UI_CXX qt_ui/${tool}.ui)
+endforeach(tool)
+
+#Add the common source files
+foreach(tool ${vv_COMMON})
+    SET(vv_SRCS ${vv_SRCS} ${tool}.cxx)
+    QT4_WRAP_CPP(vv_SRCS ${tool}.h)
 endforeach(tool)
 
 # if Windows and Qt was built as a static lib then don't set QT_DLL flag
@@ -191,15 +185,7 @@ ENDIF(WIN32)
 LINK_DIRECTORIES(${QT_INCLUDES})
 ADD_EXECUTABLE(vv ${vv_SRCS} vv.cxx ${vv_UI_CXX} ${EXE_ICON})
 ADD_DEPENDENCIES(vv clitkToolsGgoLib clitkSegmentationGgoLib)
-TARGET_LINK_LIBRARIES(vv clitkDicomRTStruct 
-#Libs for generic filters with long compilation times
-clitkImageConvertLib 
-clitkImageResampleLib
-clitkBinarizeImageLib
-#Libs for _ggo.c files
-clitkSegmentationGgoLib clitkToolsGgoLib
-clitkRegistrationGgoLib
-)
+TARGET_LINK_LIBRARIES(vv clitkDicomRTStruct)
 
 #=========================================================
 #Add each tool's dependencies
