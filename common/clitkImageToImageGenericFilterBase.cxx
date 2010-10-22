@@ -18,6 +18,7 @@
 
 // clitk
 #include "clitkImageToImageGenericFilterBase.h"
+#include "clitkExceptionObject.h"
 
 // itk
 #include <itkImage.h>
@@ -34,6 +35,7 @@ clitk::ImageToImageGenericFilterBase::ImageToImageGenericFilterBase(std::string 
   m_FilterName = n;
   m_FailOnImageTypeError = true;
   m_ReadOnDisk = true;
+  m_WriteOnDisk = true;
   // m_LastError = "";
   // StopOnErrorOn();
   SetFilterBase(NULL);
@@ -45,6 +47,11 @@ clitk::ImageToImageGenericFilterBase::ImageToImageGenericFilterBase(std::string 
 void clitk::ImageToImageGenericFilterBase::SetInputFilenames(const std::vector<std::string> & filenames)
 {
   m_InputFilenames = filenames;
+  // in this case, assume by default that we DO want to write/read on
+  // disk (rather a command line tool, but not a vvTool. Can be
+  // changed with EnableReadOnDisk and EnableWriteOnDisk)
+  EnableReadOnDisk(true);
+  EnableWriteOnDisk(true);
 }
 //--------------------------------------------------------------------
 
@@ -58,11 +65,24 @@ void clitk::ImageToImageGenericFilterBase::EnableReadOnDisk(bool b)
 
 
 //--------------------------------------------------------------------
+void clitk::ImageToImageGenericFilterBase::EnableWriteOnDisk(bool b)
+{
+  m_WriteOnDisk = b;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
 void clitk::ImageToImageGenericFilterBase::SetInputFilename(const std::string & filename)
 {
   std::vector<std::string> f;
   f.push_back(filename);
   SetInputFilenames(f);
+  // in this case, assume by default that we DO want to write/read on
+  // disk (rather a command line tool, but not a vvTool. Can be
+  // changed with EnableReadOnDisk and EnableWriteOnDisk)
+  EnableReadOnDisk(true);
+  EnableWriteOnDisk(true);
 }
 //--------------------------------------------------------------------
 
@@ -71,6 +91,11 @@ void clitk::ImageToImageGenericFilterBase::SetInputFilename(const std::string & 
 void clitk::ImageToImageGenericFilterBase::AddInputFilename(const std::string & filename)
 {
   m_InputFilenames.push_back(filename);
+  // in this case, assume by default that we DO want to write/read on
+  // disk (rather a command line tool, but not a vvTool. Can be
+  // changed with EnableReadOnDisk and EnableWriteOnDisk)
+  EnableReadOnDisk(true);
+  EnableWriteOnDisk(true);
 }
 //--------------------------------------------------------------------
 
@@ -85,7 +110,7 @@ void clitk::ImageToImageGenericFilterBase::SetOutputFilename(const std::string &
 
 
 //--------------------------------------------------------------------
-void clitk::ImageToImageGenericFilterBase::AddOutputFilename(const std::string & filename)
+void clitk::ImageToImageGenericFilterBase::AddOutputFilename(const std::string filename)
 {
   m_OutputFilenames.push_back(filename);
 }
@@ -156,6 +181,11 @@ void clitk::ImageToImageGenericFilterBase::SetInputVVImage (vvImage::Pointer inp
 {
   m_InputVVImages.clear();
   m_InputVVImages.push_back(input);
+  // in this case, assume by default that we do not want to write/read
+  // on disk (not a command line tool, but rather a vvTool. Can be
+  // changed with EnableReadOnDisk and EnableWriteOnDisk)
+  EnableReadOnDisk(false);
+  EnableWriteOnDisk(false);
 }
 //--------------------------------------------------------------------
 
@@ -172,6 +202,11 @@ void clitk::ImageToImageGenericFilterBase::AddInputVVImage (vvImage::Pointer inp
 void clitk::ImageToImageGenericFilterBase::SetInputVVImages (std::vector<vvImage::Pointer> input)
 {
   m_InputVVImages=input;
+  // in this case, assume by default that we do not want to write/read
+  // on disk (not a command line tool, but rather a vvTool. Can be
+  // changed with EnableReadOnDisk and EnableWriteOnDisk)
+  EnableReadOnDisk(false);
+  EnableWriteOnDisk(false);
 }
 //--------------------------------------------------------------------
 
@@ -188,12 +223,14 @@ void clitk::ImageToImageGenericFilterBase::PrintAvailableImageTypes()
 //--------------------------------------------------------------------
 void clitk::ImageToImageGenericFilterBase::ImageTypeError()
 {
-  std::cerr << "**Error** The filter <" << m_FilterName << "> is not available for "
-            << m_Dim << "D images with pixel="
-            << m_PixelTypeName << " and "
-            << m_NbOfComponents << " component." << std::endl;
-  std::cerr << GetAvailableImageTypes();
-  exit(0);
+  std::ostringstream os;
+  os << "**Error** The filter <" << m_FilterName << "> is not available for "
+     << m_Dim << "D images with pixel="
+     << m_PixelTypeName << " and "
+     << m_NbOfComponents << " component." << std::endl;
+  os << GetAvailableImageTypes();
+  clitkExceptionMacro(os.str());
+  //  exit(0);
 }
 //--------------------------------------------------------------------
 
@@ -281,7 +318,7 @@ DEF_SetNextOutput_And_GetInput(double, 4);
 template<class ImageType>
 void clitk::ImageToImageGenericFilterBase::SetNextOutput(typename ImageType::Pointer output)
 {
-  if (m_OutputFilenames.size()) {
+  if (m_WriteOnDisk && m_OutputFilenames.size()) {
     clitk::writeImage<ImageType>(output, m_OutputFilenames.front(), m_IOVerbose);
     m_OutputFilenames.pop_front();
   }

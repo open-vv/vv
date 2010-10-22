@@ -52,11 +52,6 @@ namespace clitk {
     const std::string & GetFilterName();
     void SetFilterName(std::string & n);
     
-    // Error management
-    // itkSetMacro(LastError, std::string);
-    // itkGetConstMacro(LastError, std::string);
-    // bool HasError() { return (GetLastError() != ""); }
-
     // Generic IO
     /// Returns the dimension and pixel type of the *first* input
     void GetInputImageDimensionAndPixelType(unsigned int& dim, std::string& pixeltype,
@@ -66,8 +61,9 @@ namespace clitk {
     void AddInputFilename(const std::string & filename);
     void SetInputFilenames(const std::vector<std::string> & filenames);
     void EnableReadOnDisk(bool b);
+    void EnableWriteOnDisk(bool b);
     void SetOutputFilename(const std::string & filename);
-    void AddOutputFilename(const std::string & filename);
+    void AddOutputFilename(const std::string filename);
     void SetOutputFilenames(const std::vector<std::string> & filenames);
     std::string GetOutputFilename();
     void SetIOVerbose(bool b);
@@ -93,14 +89,11 @@ namespace clitk {
     FilterBase * GetFilterBase() { return m_FilterBase; }
     
     // Indicate that the filter must stop as soon as possible (if threaded)
-    // void MustStop();
     void DeleteLastOutputImage();
-    // itkSetMacro(StopOnError, bool);
-    // itkGetConstMacro(StopOnError, bool);
-    // itkBooleanMacro(StopOnError);    
 
   protected:  
     bool m_ReadOnDisk;
+    bool m_WriteOnDisk;
     /// Call this function to dispatch an output towards the correct sink
     template<class ImageType> 
     void SetNextOutput(typename ImageType::Pointer output);
@@ -111,7 +104,7 @@ namespace clitk {
 
     std::vector<std::string> m_InputFilenames;
     std::list<std::string> m_OutputFilenames;
-
+    
     bool m_IOVerbose;
     unsigned int m_Dim;
     std::string m_PixelTypeName;
