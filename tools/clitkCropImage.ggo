@@ -1,14 +1,30 @@
 #File clitkCropImage.ggo
 package "clitkCropImage"
 version "1.0"
-purpose "Reduce the image size by removing regions at the lower and upper end."
+purpose "Crop an image according to a given extends or AutoCrop with a background value or like another image"
 
-option "config"	  	-	"Config file"			  string  	no
-option "verbose"   	v   	"Verbose"			  flag		off
+option "config"	           -  "Config file"                 string  no
+option "imagetypes"        -  "Display allowed image types" flag    off
+option "verbose"           v  "Verbose"			    flag    off
+option "verboseOption"     -  "Display options values"      flag    off
+option "verboseWarningOff" -  "Do not display warning"      flag    off
+
+section "I/O"
 
 option "input"		i	"Input image filename"		  string  	yes
 option "output"    	o   	"Output image filename"		  string 	yes
-option "boundingBox"   	b   	"Bounding box of the crop region" int 	no 	multiple
+
+section "Used determined crop"
+option "boundingBox"   	b   	"Bounding box of the crop region" int 	no  multiple
 option "lower"    	l   	"Size of the lower crop region"	  int 	no  multiple
 option "upper"    	u   	"Size of the upper crop region"	  int 	no  multiple
 option "origin"    	-   	"Set new origin to zero"	  flag 	off  
+
+section "AutoCrop with BG value"
+option "BG"		-	"Background value in input."      double default="0" no
+
+section "Crop like another image"
+option "like"		-	"Crop like this image (must have the same spacing"   string no
+
+
+

@@ -1,7 +1,8 @@
+
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -16,36 +17,30 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
 
-/* =================================================
- * @file   clitkCropImage.cxx
- * @author 
- * @date   
- * 
- * @brief 
- * 
- ===================================================*/
-
-
 // clitk
 #include "clitkCropImage_ggo.h"
-#include "clitkIO.h"
 #include "clitkCropImageGenericFilter.h"
 
-
 //--------------------------------------------------------------------
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv[])
+{
 
   // Init command line
   GGO(clitkCropImage, args_info);
   CLITK_INIT;
 
   // Filter
-  clitk::CropImageGenericFilter::Pointer genericFilter=clitk::CropImageGenericFilter::New();
-  
-  genericFilter->SetArgsInfo(args_info);
-  genericFilter->Update();
+  typedef clitk::CropImageGenericFilter<args_info_clitkCropImage> FilterType;
+  FilterType::Pointer filter = FilterType::New();
+
+  filter->SetArgsInfo(args_info);
+
+  try {
+    filter->Update();
+  } catch(std::runtime_error e) {
+    std::cout << e.what() << std::endl;
+  }
 
   return EXIT_SUCCESS;
-}// end main
-
+} // This is the end, my friend
 //--------------------------------------------------------------------

@@ -3,7 +3,7 @@ INCLUDE(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
 #=========================================================
 #Add your ggo files to this list if they are used by vv
 FOREACH(clitkTool clitkAffineTransform clitkBinarizeImage clitkImageArithm
-        clitkMedianImageFilter clitkImageConvert clitkImageResample) 
+        clitkMedianImageFilter clitkImageConvert clitkImageResample clitkCropImage) 
     WRAP_GGO(${clitkTool}_GGO_C ${clitkTool}.ggo)
     SET(GGO_C_FILES ${GGO_C_FILES} ${${clitkTool}_GGO_C})
 ENDFOREACH(clitkTool)
@@ -112,9 +112,9 @@ IF (CLITK_BUILD_TOOLS)
     ADD_EXECUTABLE(clitkMinMaxMask clitkMinMaxMask.cxx ${clitkMinMaxMask_GGO_C})
     TARGET_LINK_LIBRARIES(clitkMinMaxMask clitkCommon ITKIO  )
 
-    WRAP_GGO(clitkAutoCrop_GGO_C clitkAutoCrop.ggo)
-    ADD_EXECUTABLE(clitkAutoCrop clitkAutoCrop.cxx ${clitkAutoCrop_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkAutoCrop clitkCommon ITKIO )
+    # WRAP_GGO(clitkAutoCrop_GGO_C clitkAutoCrop.ggo)
+    # ADD_EXECUTABLE(clitkAutoCrop clitkAutoCrop.cxx ${clitkAutoCrop_GGO_C})
+    # TARGET_LINK_LIBRARIES(clitkAutoCrop clitkCommon ITKIO )
 
     WRAP_GGO(clitkDicomRTStruct2BinaryImage_GGO_C clitkDicomRTStruct2BinaryImage.ggo)
     ADD_EXECUTABLE(clitkDicomRTStruct2BinaryImage clitkDicomRT_ROI_ConvertToImageFilter.cxx clitkDicomRTStruct2BinaryImage.cxx ${clitkDicomRTStruct2BinaryImage_GGO_C})
@@ -144,8 +144,8 @@ IF (CLITK_BUILD_TOOLS)
     ADD_EXECUTABLE(clitkBackProjectImage clitkBackProjectImage.cxx clitkBackProjectImageGenericFilter.cxx ${clitkBackProjectImage_GGO_C})
     TARGET_LINK_LIBRARIES(clitkBackProjectImage ITKIO clitkCommon )
 
-    WRAP_GGO(clitkCropImage_GGO_C clitkCropImage.ggo)
-    ADD_EXECUTABLE(clitkCropImage clitkCropImage.cxx clitkCropImageGenericFilter.cxx ${clitkCropImage_GGO_C})
+#    WRAP_GGO(clitkCropImage_GGO_C clitkCropImage.ggo)
+    ADD_EXECUTABLE(clitkCropImage clitkCropImage.cxx ${clitkCropImage_GGO_C})
     TARGET_LINK_LIBRARIES(clitkCropImage clitkCommon ITKIO)
 
 # WRAP_GGO(clitkExtractSlice_GGO_C clitkExtractSlice.ggo)

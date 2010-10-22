@@ -132,8 +132,8 @@ namespace clitk {
     ImageConstPointer input = dynamic_cast<const ImageType*>(itk::ProcessObject::GetInput(0));
   
     // Extract the region with RegionOfInterestImageFilter or ExtractImageFilter ? 
-    // The first is when reducing the nb of dimension (index always zero)
-    // The second keep index
+    // The second is when reducing the nb of dimension (index always zero)
+    // The first keep index
 
     typedef itk::RegionOfInterestImageFilter<ImageType, ImageType> CropFilterType;
     //typedef itk::ExtractImageFilter<ImageType, ImageType> CropFilterType;

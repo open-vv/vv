@@ -16,8 +16,8 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
   ======================================================================-====*/
 
-#ifndef CLITKAUTOCROPFILTER_H
-#define CLITKAUTOCROPFILTER_H
+#ifndef CLITKCROPLIKEIMAGEFILTER_H
+#define CLITKCROPLIKEIMAGEFILTER_H
 
 #include <itkImageToImageFilter.h>
 
@@ -25,56 +25,61 @@ namespace clitk {
   
   //--------------------------------------------------------------------
   /*
-    Perform auto crop on a Label Image (with Background defined)
+    Perform various cropping operation on a image
   */
   //--------------------------------------------------------------------
   
   template <class ImageType>
-  class ITK_EXPORT AutoCropFilter: 
+  class ITK_EXPORT CropLikeImageFilter: 
     public itk::ImageToImageFilter<ImageType, ImageType> {
 
   public:
     /** Standard class typedefs. */
-    typedef AutoCropFilter                                Self;
-    typedef itk::ImageToImageFilter<ImageType, ImageType> Superclass;
-    typedef itk::SmartPointer<Self>                       Pointer;
-    typedef itk::SmartPointer<const Self>                 ConstPointer;
+    typedef CropLikeImageFilter                            Self;
+    typedef itk::ImageToImageFilter<ImageType, ImageType>  Superclass;
+    typedef itk::SmartPointer<Self>                        Pointer;
+    typedef itk::SmartPointer<const Self>                  ConstPointer;
     
     /** Method for creation through the object factory. */
     itkNewMacro(Self);
     
     /** Run-time type information (and related methods). */
-    itkTypeMacro(AutoCropFilter, ImageToImageFilter);
+    itkTypeMacro(CropLikeImageFilter, ImageToImageFilter);
 
     /** Some convenient typedefs. */
     typedef typename ImageType::ConstPointer ImageConstPointer;
     typedef typename ImageType::Pointer      ImagePointer;
-    typedef typename ImageType::PixelType    ImagePixelType;
-    typedef typename ImageType::RegionType   ImageRegionType;
-    typedef long LabelType;
+    typedef typename ImageType::PixelType    PixelType;
+    typedef typename ImageType::RegionType   RegionType;
+    typedef typename ImageType::PointType    PointType;
 
-    /** Connect one of the operands for pixel-wise addition */
-    void SetInput( const ImageType * image);
+    /** Input image to crop */
+    void SetInput(const ImageType * image);
     
-    // LabelImage information (BG)
-    void SetBackgroundValue(ImagePixelType p);
+    /** Image filename for Crop Like */
+    void SetCropLikeFilename(std::string f);
+    void SetCropLikeImage(const itk::ImageBase<ImageType::ImageDimension> * like);
+    void SetCropLikeImage(const itk::ImageBase<ImageType::ImageDimension> * like, int axe);
 
     /** ImageDimension constants */
     itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
     
   protected:
-    AutoCropFilter();
-    virtual ~AutoCropFilter() {}
+    CropLikeImageFilter();
+    virtual ~CropLikeImageFilter() {}
     
     virtual void GenerateOutputInformation();
     virtual void GenerateData();
     
-    ImagePixelType m_BackgroundValue;
-    ImageRegionType m_Region;
-    ImagePointer m_labeImage;
+    RegionType m_Region;
+    std::string m_LikeFilename;
+    bool m_LikeFilenameIsGiven;
+    PointType m_Origin;
+    const itk::ImageBase<ImageDimension> * m_LikeImage;
+    std::vector<bool> m_CropAlongThisDimension;
     
   private:
-    AutoCropFilter(const Self&); //purposely not implemented
+    CropLikeImageFilter(const Self&); //purposely not implemented
     void operator=(const Self&); //purposely not implemented
     
   }; // end class
@@ -84,7 +89,7 @@ namespace clitk {
 //--------------------------------------------------------------------
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "clitkAutoCropFilter.txx"
+#include "clitkCropLikeImageFilter.txx"
 #endif
 
-#endif
+#endif // # CROPLIKEIMAGEFILTER

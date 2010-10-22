@@ -14,139 +14,143 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-======================================================================-====*/
-#ifndef clitkCropImageGenericFilter_txx
-#define clitkCropImageGenericFilter_txx
+  ======================================================================-====*/
 
-/* =================================================
- * @file   clitkCropImageGenericFilter.txx
- * @author 
- * @date   
- * 
- * @brief 
- * 
- ===================================================*/
+#include "clitkImageCommon.h"
 
-
-namespace clitk
+//--------------------------------------------------------------------
+template<class ArgsInfoType>
+clitk::CropImageGenericFilter<ArgsInfoType>::CropImageGenericFilter():
+  ImageToImageGenericFilter<Self>("CropImage") 
 {
+  // Default values
+  cmdline_parser_clitkCropImage_init(&mArgsInfo);
+  //InitializeImageType<2>();
+  InitializeImageType<3>();
+  InitializeImageType<4>();
+}
+//--------------------------------------------------------------------
 
-  //-------------------------------------------------------------------
-  // Update with the number of dimensions
-  //-------------------------------------------------------------------
-  template<unsigned int Dimension>
-  void 
-  CropImageGenericFilter::UpdateWithDim(std::string PixelType, unsigned int Components)
-  {
-     if (m_Verbose) std::cout << "Image was detected to be "<<Dimension<<"D and "<<Components<<" component(s) of "<<  PixelType<<"..."<<std::endl;
 
-    if (Components==1)
-      {
-		if(PixelType == "short"){  
-		  if (m_Verbose) std::cout << "Launching filter in "<< Dimension <<"D and signed short..." << std::endl;
-		  UpdateWithDimAndPixelType<Dimension, signed short>(); 
-		}
-	//    else if(PixelType == "unsigned_short"){  
-	//       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_short..." << std::endl;
-	//       UpdateWithDimAndPixelType<Dimension, unsigned short>(); 
-	//     }
-	
-		else if (PixelType == "unsigned_char"){ 
-		  if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_char..." << std::endl;
-		  UpdateWithDimAndPixelType<Dimension, unsigned char>();
-		}
-	
-	//     else if (PixelType == "char"){ 
-	//       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and signed_char..." << std::endl;
-	//       UpdateWithDimAndPixelType<Dimension, signed char>();
-	//     }
-		else {
-	  if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and float..." << std::endl;
-	  UpdateWithDimAndPixelType<Dimension, float>();
-	  	}
+//--------------------------------------------------------------------
+template<class ArgsInfoType>
+template<unsigned int Dim>
+void clitk::CropImageGenericFilter<ArgsInfoType>::InitializeImageType() 
+{  
+  // ADD_DEFAULT_IMAGE_TYPES(Dim);
+  ADD_IMAGE_TYPE(Dim, uchar);
+  ADD_IMAGE_TYPE(Dim, short);
+  // ADD_IMAGE_TYPE(Dim, uint);
+  //  ADD_IMAGE_TYPE(Dim, ulong);
+  // ADD_IMAGE_TYPE(Dim, int);
+  // ADD_IMAGE_TYPE(Dim, float);
+}
+//--------------------------------------------------------------------
+  
+
+//--------------------------------------------------------------------
+template<class ArgsInfoType>
+void clitk::CropImageGenericFilter<ArgsInfoType>::SetArgsInfo(const ArgsInfoType & a) 
+{
+  mArgsInfo=a;
+  SetIOVerbose(mArgsInfo.verbose_flag);
+  if (mArgsInfo.imagetypes_flag) this->PrintAvailableImageTypes();
+  if (mArgsInfo.input_given)   AddInputFilename(mArgsInfo.input_arg);
+  if (mArgsInfo.output_given)  AddOutputFilename(mArgsInfo.output_arg);
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+// Update with the number of dimensions and the pixeltype
+//--------------------------------------------------------------------
+template<class ArgsInfoType>
+template<class ImageType>
+void clitk::CropImageGenericFilter<ArgsInfoType>::UpdateWithInputImageType() 
+{ 
+  // Reading input
+  typename ImageType::Pointer input = this->template GetInput<ImageType>(0);
+
+  // Check options
+  if (mArgsInfo.BG_given && mArgsInfo.like_given)
+    clitkExceptionMacro("Do not use --BG and --like at the same time");    
+
+  // Prepare output
+  typename ImageType::Pointer output;
+  
+  // ------------------------------------------------
+  if (mArgsInfo.BG_given) { // AutoCrop filter
+    if (mArgsInfo.boundingBox_given) 
+      clitkExceptionMacro("Do not use --BG and --boundingBox at the same time");    
+    if (mArgsInfo.lower_given) 
+      clitkExceptionMacro("Do not use --BG and --lower at the same time");    
+    if (mArgsInfo.upper_given) 
+      clitkExceptionMacro("Do not use --BG and --upper at the same time");    
+    typedef clitk::AutoCropFilter<ImageType> FilterType;
+    typename FilterType::Pointer filter = FilterType::New();
+    filter->SetInput(input);
+    filter->SetBackgroundValue(mArgsInfo.BG_arg);
+    filter->Update();
+    output = filter->GetOutput();
+  }
+  else {
+    // ------------------------------------------------
+    if (mArgsInfo.like_given) { // CropLike filter
+    if (mArgsInfo.boundingBox_given) 
+      clitkExceptionMacro("Do not use --like and --boundingBox at the same time");    
+    if (mArgsInfo.lower_given) 
+      clitkExceptionMacro("Do not use --like and --lower at the same time");    
+    if (mArgsInfo.upper_given) 
+      clitkExceptionMacro("Do not use --like and --upper at the same time");    
+      typedef clitk::CropLikeImageFilter<ImageType> FilterType;
+      typename FilterType::Pointer filter = FilterType::New();
+      filter->SetInput(input);
+      filter->SetCropLikeFilename(mArgsInfo.like_arg);
+      filter->Update();
+      output = filter->GetOutput();
+    }
+    else {
+      // ------------------------------------------------
+      typename ImageType::SizeType lSize;
+      typename ImageType::SizeType uSize;
+      if (mArgsInfo.boundingBox_given) {
+        for(unsigned int i=0; i<ImageType::ImageDimension; i++) {
+          lSize[i] = mArgsInfo.boundingBox_arg[2*i];
+          uSize[i] = input->GetLargestPossibleRegion().GetSize()[i]-mArgsInfo.boundingBox_arg[2*i+1]-1;
+        }
       }
-
-    else if (Components==3)
-      {
-	if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and 3D float (DVF)" << std::endl;
-	UpdateWithDimAndPixelType<Dimension, itk::Vector<float, 3> >();
+      else {
+        if (mArgsInfo.lower_given) {
+          for(unsigned int i=0; i<ImageType::ImageDimension; i++) 
+            lSize[i]=static_cast<unsigned int >(mArgsInfo.lower_arg[i]);
+        }
+        else lSize.Fill(0);
+        if (mArgsInfo.upper_given) {
+          for(unsigned int i=0; i<ImageType::ImageDimension; i++)
+            uSize[i]=static_cast<unsigned int >(mArgsInfo.upper_arg[i]);
+        }
+        else uSize.Fill(0);
       }
-
-    else std::cerr<<"Number of components is "<<Components<<", not supported!"<<std::endl;
+      typedef  itk::CropImageFilter<ImageType, ImageType> CropImageFilterType;
+      typename CropImageFilterType::Pointer filter=CropImageFilterType::New();
+      filter->SetInput(input);
+      filter->SetLowerBoundaryCropSize(lSize);
+      filter->SetUpperBoundaryCropSize(uSize);
+      filter->Update();
+      output = filter->GetOutput();    
+    }
   }
 
-
-  //-------------------------------------------------------------------
-  // Update with the number of dimensions and the pixeltype
-  //-------------------------------------------------------------------
-  template <unsigned int Dimension, class  PixelType> 
-  void 
-  CropImageGenericFilter::UpdateWithDimAndPixelType()
-  {
-
-    // ImageTypes
-    typedef itk::Image<PixelType, Dimension> InputImageType;
-    typedef itk::Image<PixelType, Dimension> OutputImageType;
-    
-    // Read the input
-    typedef itk::ImageFileReader<InputImageType> InputReaderType;
-    typename InputReaderType::Pointer reader = InputReaderType::New();
-    reader->SetFileName( m_InputFileName);
-    reader->Update( );
-    typename InputImageType::Pointer input= reader->GetOutput();
-
-    // Filter
-    typedef  itk::CropImageFilter<InputImageType, OutputImageType> CropImageFilterType;
-    typename CropImageFilterType::Pointer cropFilter=CropImageFilterType::New();
-    cropFilter->SetInput(input);
-    typename InputImageType::SizeType lSize, uSize; 
-
-    if (m_ArgsInfo.boundingBox_given)
-      {
-	for(unsigned int i=0;i<Dimension;i++)
-	  {
-	    lSize[i]=m_ArgsInfo.boundingBox_arg[2*i];
-	    uSize[i]=input->GetLargestPossibleRegion().GetSize()[i]-m_ArgsInfo.boundingBox_arg[2*i+1]-1;
-	  }
-      }
-    else
-      {
-	
-	if (m_ArgsInfo.lower_given)
-	  for(unsigned int i=0;i<Dimension;i++)
-	    lSize[i]=static_cast<unsigned int >(m_ArgsInfo.lower_arg[i]);
-	else lSize.Fill(0);
-	
-	if (m_ArgsInfo.upper_given)
-	  for(unsigned int i=0;i<Dimension;i++)
-	    uSize[i]=static_cast<unsigned int >(m_ArgsInfo.upper_arg[i]);
-	else uSize.Fill(0);
-      }
-    
-    cropFilter->SetLowerBoundaryCropSize(lSize);
-    cropFilter->SetUpperBoundaryCropSize(uSize);
-    cropFilter->Update();
-    typename OutputImageType::Pointer output= cropFilter->GetOutput();
-    
-    // Origin?
-    typename OutputImageType::PointType origin;
+  // Force origin if needed
+  if (mArgsInfo.origin_flag) {
+    typename ImageType::PointType origin;
     origin.Fill(itk::NumericTraits<double>::Zero);
-    if (m_ArgsInfo.origin_flag)
-      {
-	output->SetOrigin(origin);
-	output->Update();
-	if (m_Verbose) std::cout<<"Setting origin to  "<< origin<<"..."<<std::endl;
-      }
-    
-    // Output
-    typedef itk::ImageFileWriter<OutputImageType> WriterType;
-    typename WriterType::Pointer writer = WriterType::New();
-    writer->SetFileName(m_ArgsInfo.output_arg);
-    writer->SetInput(output);
-    writer->Update();
+    output->SetOrigin(origin);
   }
 
+  // Write/Save results
+  this->template SetNextOutput<ImageType>(output); 
+}
+//--------------------------------------------------------------------
 
-}//end clitk
- 
-#endif //#define clitkCropImageGenericFilter_txx
+

@@ -15,102 +15,59 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ======================================================================-====*/
-#ifndef clitkCropImageGenericFilter_h
-#define clitkCropImageGenericFilter_h
 
-/* =================================================
- * @file   clitkCropImageGenericFilter.h
- * @author 
- * @date   
- * 
- * @brief 
- * 
- ===================================================*/
+#ifndef CLITKCROPIMAGEGENERICFILTER_H
+#define CLITKCROPIMAGEGENERICFILTER_H
 
-
-// clitk include
+// clitk 
 #include "clitkIO.h"
-#include "clitkCommon.h"
-#include "clitkImageCommon.h"
-#include "clitkCropImage_ggo.h"
+#include "clitkImageToImageGenericFilter.h"
+#include "clitkCropLikeImageFilter.h"
+#include "clitkAutoCropFilter.h"
 
-//itk include
-#include "itkLightObject.h"
-#include "itkCropImageFilter.h"
+// itk
+#include <itkCropImageFilter.h>
 
+//--------------------------------------------------------------------
 namespace clitk 
 {
 
-
-  class ITK_EXPORT CropImageGenericFilter : public itk::LightObject
+  template<class ArgsInfoType>
+  class ITK_EXPORT CropImageGenericFilter:
+    public ImageToImageGenericFilter<CropImageGenericFilter<ArgsInfoType> >
   {
   public:
-    //----------------------------------------
-    // ITK
-    //----------------------------------------
-    typedef CropImageGenericFilter                   Self;
-    typedef itk::LightObject                   Superclass;
-    typedef itk::SmartPointer<Self>            Pointer;
-    typedef itk::SmartPointer<const Self>      ConstPointer;
+    //--------------------------------------------------------------------
+    CropImageGenericFilter();
+  
+    //--------------------------------------------------------------------
+    typedef CropImageGenericFilter   Self;
+    typedef ImageToImageGenericFilter<CropImageGenericFilter<ArgsInfoType> > Superclass;
+    typedef itk::SmartPointer<Self>       Pointer;
+    typedef itk::SmartPointer<const Self> ConstPointer;
    
-    // Method for creation through the object factory
+    //--------------------------------------------------------------------
     itkNewMacro(Self);  
-
-    // Run-time type information (and related methods)
     itkTypeMacro( CropImageGenericFilter, LightObject );
 
+    //--------------------------------------------------------------------
+    void SetArgsInfo(const ArgsInfoType & a);
 
-    //----------------------------------------
-    // Typedefs
-    //----------------------------------------
-
-
-    //----------------------------------------
-    // Set & Get
-    //----------------------------------------    
-    void SetArgsInfo(const args_info_clitkCropImage & a)
-    {
-      m_ArgsInfo=a;
-      m_Verbose=m_ArgsInfo.verbose_flag;
-      m_InputFileName=m_ArgsInfo.input_arg;
-    }
-    
-    
-    //----------------------------------------  
-    // Update
-    //----------------------------------------  
-    void Update();
+    //--------------------------------------------------------------------
+    // Main function called each time the filter is updated
+    template<class ImageType>  
+    void UpdateWithInputImageType();
 
   protected:
+    template<unsigned int Dim> void InitializeImageType();
+    ArgsInfoType mArgsInfo;
 
-    //----------------------------------------  
-    // Constructor & Destructor
-    //----------------------------------------  
-    CropImageGenericFilter();
-    ~CropImageGenericFilter() {};
-
-    
-    //----------------------------------------  
-    // Templated members
-    //----------------------------------------  
-    template <unsigned int Dimension>  void UpdateWithDim(std::string PixelType, unsigned int Components);
-    template <unsigned int Dimension, class PixelType>  void UpdateWithDimAndPixelType();
-
-
-    //----------------------------------------  
-    // Data members
-    //----------------------------------------
-    args_info_clitkCropImage m_ArgsInfo;
-    bool m_Verbose;
-    std::string m_InputFileName;
-
-  };
-
-
+  };// end class
+  //--------------------------------------------------------------------
 } // end namespace clitk
 
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "clitkCropImageGenericFilter.txx"
 #endif
 
-#endif // #define clitkCropImageGenericFilter_h
+#endif // #define CLITKCROPIMAGEGENERICFILTER_H
