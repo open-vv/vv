@@ -89,7 +89,6 @@ template<class ImageType> typename ImageType::ConstPointer vvImageToITK(vvImage:
       typedef itk::VTKImageToImageFilter <ConnectorImageType> ConnectorType;
       typename ConnectorType::Pointer connector = ConnectorType::New();
       connector->SetInput(vv_image->GetVTKImages()[0]);
-
       connector->Update();
       return connector->GetOutput();
     }
