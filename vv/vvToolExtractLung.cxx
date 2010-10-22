@@ -136,12 +136,12 @@ void vvToolExtractLung::SetGUIFromArgsInfo()
 //------------------------------------------------------------------------------
 void vvToolExtractLung::GetArgsInfoFromGUI() 
 {
-  mArgsInfo->patientBG_arg = mPatientMaskInputWidget->GetBackgroundValue();
+  // mArgsInfo->patientBG_arg = mPatientMaskInputWidget->GetBackgroundValue();
   mArgsInfo->verboseOption_flag = true; // DEBUG. TO CHANGE
   mArgsInfo->verboseStep_flag = true; // DEBUG. TO CHANGE
   mArgsInfo->writeStep_flag = false;
   mArgsInfo->input_given = 0;
-  mArgsInfo->patient_given = 0;
+  // mArgsInfo->patient_given = 0;
   mArgsInfo->output_given = 0;
   mArgsInfo->outputTrachea_given = 0;
   mArgsInfo->remove1_given = 0;

@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolMedianFilter.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/05/18 16:20:57 $
-  Version:   $Revision: 1.4 $
+  Date:      $Date: 2010/10/22 07:38:05 $
+  Version:   $Revision: 1.5 $
   Author :   Bharath Navalpakkam (Bharath.Navalpakkam@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -29,8 +29,7 @@
 #include "vvSlicerManager.h"
 #include "vvSlicer.h"
 #include "vvToolInputSelectorWidget.h"
-#include <clitkMedianImageGenericFilter.h>
-
+#include "clitkMedianImageGenericFilter.h"
 
 //------------------------------------------------------------------------------
 // Create the tool and automagically
@@ -43,17 +42,11 @@ vvToolMedianFilter::vvToolMedianFilter(vvMainWindowBase * parent, Qt::WindowFlag
    vvToolBase<vvToolMedianFilter>(parent),
    Ui::vvToolMedianFilter()
 {
-
   // Setup the UI
-
   Ui_vvToolMedianFilter::setupUi(mToolWidget);
-
   mFilter = new clitk::MedianImageGenericFilter<args_info_clitkMedianImageFilter>;
 
-
-
   // Main filter
-
   // Set how many inputs are needed for this tool
   AddInputSelector("Select one image", mFilter);
 }
