@@ -116,9 +116,9 @@ namespace clitk {
     static const unsigned int Dim = Input1ImageType::ImageDimension;
     for(unsigned int i=0; i<Dim; i++) {
       if (input1->GetSpacing()[i] != input2->GetSpacing()[i]) {
-        itkExceptionMacro(<< "Input 1&2 must have the same spacing. " << std::endl
-                          << "\t input1 =  " << input1->GetSpacing() << std::endl
-                          << "\t input2 =  " << input2->GetSpacing() << std::endl);
+        clitkExceptionMacro("Input 1&2 must have the same spacing. " << std::endl
+                            << "\t input1 =  " << input1->GetSpacing() << std::endl
+                            << "\t input2 =  " << input2->GetSpacing() << std::endl);
       }
       // if (input1->GetLargestPossibleRegion().GetSize()[i] != input2->GetLargestPossibleRegion().GetSize()[i]) {
 //         itkExceptionMacro(<< "Input 1&2 must have the same size. " << std::endl
@@ -154,6 +154,9 @@ namespace clitk {
     }
 
     // Compute intersection bounding box (in physical coordinate) and regions (in pixel coordinate)
+    // DD(input1->GetLargestPossibleRegion());
+    // DD(input2->GetLargestPossibleRegion());
+    // DD(outputImage->GetLargestPossibleRegion());
     typedef itk::BoundingBox<unsigned long, Dim> BBType;
     typename BBType::Pointer bbInput1 = BBType::New();    
     ComputeBBFromImageRegion<Input1ImageType>(input1, input1->GetLargestPossibleRegion(), bbInput1);    
@@ -162,9 +165,15 @@ namespace clitk {
     typename BBType::Pointer bbOutput = BBType::New();    
     ComputeBBFromImageRegion<OutputImageType>(outputImage, outputImage->GetLargestPossibleRegion(), bbOutput);
     
+    // DD(bbInput1);
+    // DD(bbInput2);
+    // DD(bbOutput);
+
     typename BBType::Pointer bb = BBType::New();    
     ComputeBBIntersection<Dim>(bb, bbInput1, bbInput2);
+    // DD(bb);
     ComputeBBIntersection<Dim>(bb, bb, bbOutput);
+    // DD(bb);
  
     ComputeRegionFromBB<Input1ImageType>(input1, bb, input1Region);
     ComputeRegionFromBB<Input2ImageType>(input2, bb, input2Region);
@@ -203,6 +212,9 @@ namespace clitk {
     OutputImagePointer output = this->GetOutput(0);
     
     // Get Region iterators
+    // DD(input1Region);
+    // DD(input2Region);
+    // DD(outputRegion);
     itk::ImageRegionConstIterator<Input1ImageType> it1(input1, input1Region);
     itk::ImageRegionConstIterator<Input2ImageType> it2(input2, input2Region);
     itk::ImageRegionIterator<OutputImageType>      ot (output, outputRegion);
