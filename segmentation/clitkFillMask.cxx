@@ -10,16 +10,6 @@
                                                                              
   ------------------------------------------------------------------------*/
 
-/* =================================================
- * @file   clitkFillMask.cxx
- * @author 
- * @date   
- * 
- * @brief 
- * 
- ===================================================*/
-
-
 // clitk
 #include "clitkFillMask_ggo.h"
 #include "clitkIO.h"
@@ -34,12 +24,17 @@ int main(int argc, char * argv[]) {
   CLITK_INIT;
 
   // Filter
-  clitk::FillMaskGenericFilter::Pointer genericFilter=clitk::FillMaskGenericFilter::New();
+  typedef clitk::FillMaskGenericFilter<args_info_clitkFillMask> FilterType;
+  FilterType::Pointer filter = FilterType::New();
   
-  genericFilter->SetArgsInfo(args_info);
-  genericFilter->Update();
+  filter->SetArgsInfo(args_info);
+  
+  try {
+    filter->Update();
+  } catch(std::runtime_error e) {
+    std::cerr << e.what() << std::endl;
+  }
 
   return EXIT_SUCCESS;
-}// end main
-
+} // This is the end, my friend
 //--------------------------------------------------------------------

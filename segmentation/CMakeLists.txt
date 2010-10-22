@@ -19,11 +19,11 @@ IF(CLITK_BUILD_SEGMENTATION)
     TARGET_LINK_LIBRARIES(clitkConnectedComponentLabeling clitkCommon ITKIO)
 
     WRAP_GGO(clitkFillMask_GGO_C clitkFillMask.ggo)
-    ADD_EXECUTABLE(clitkFillMask clitkFillMask.cxx clitkFillMaskGenericFilter.cxx ${clitkFillMask_GGO_C})
+    ADD_EXECUTABLE(clitkFillMask clitkFillMask.cxx ${clitkFillMask_GGO_C})
     TARGET_LINK_LIBRARIES(clitkFillMask clitkCommon ITKIO)
 
     ADD_EXECUTABLE(clitkExtractPatient clitkExtractPatient.cxx ${clitkExtractPatient_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkExtractPatient clitkCommon ITKIO)
+    TARGET_LINK_LIBRARIES(clitkExtractPatient clitkCommon ITKIO clitkSegmentationGgoLib)
 
     ADD_EXECUTABLE(clitkExtractLung clitkExtractLung.cxx  ${clitkExtractLung_GGO_C})
     TARGET_LINK_LIBRARIES(clitkExtractLung clitkSegmentationGgoLib clitkCommon ITKIO)
@@ -34,7 +34,7 @@ IF(CLITK_BUILD_SEGMENTATION)
 
     WRAP_GGO(clitkExtractBones_GGO_C clitkExtractBones.ggo)
     ADD_EXECUTABLE(clitkExtractBones clitkExtractBones.cxx ${clitkExtractBones_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkExtractBones clitkCommon ITKIO)
+    TARGET_LINK_LIBRARIES(clitkExtractBones clitkCommon ITKIO clitkSegmentationGgoLib)
 
     WRAP_GGO(clitkExtractMediastinum_GGO_C clitkExtractMediastinum.ggo)
     ADD_EXECUTABLE(clitkExtractMediastinum clitkExtractMediastinum.cxx ${clitkExtractMediastinum_GGO_C})
