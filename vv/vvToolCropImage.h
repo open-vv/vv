@@ -17,9 +17,12 @@
 ======================================================================-====*/
 #ifndef VVTOOLCROPIMAGE_H
 #define VVTOOLCROPIMAGE_H
+
+//qt
 #include <QtDesigner/QDesignerExportWidget>
 #include <QDialog>
 
+// vv
 #include "vvToolBase.h"
 #include "vvToolWidgetBase.h"
 #include "vvMainWindowBase.h"
@@ -48,8 +51,8 @@ public slots:
   void sliderYMaxValueChanged(int s);
   void sliderZMinValueChanged(int s);
   void sliderZMaxValueChanged(int s);
-  // void sliderTMinValueChanged(int s);
-  // void sliderTMaxValueChanged(int s);
+  void sliderTMinValueChanged(int s);
+  void sliderTMaxValueChanged(int s);
   void autoCropValueChanged(double v);
 
   //-----------------------------------------------------
