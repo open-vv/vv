@@ -4,6 +4,7 @@
 template<class TItkImageType>
 void vvImage::AddItkImage(TItkImageType *input)
 {
+  mImageDimension = TItkImageType::ImageDimension; 
   typedef itk::ImageToVTKImageFilter <TItkImageType> ConverterType;
   typename ConverterType::Pointer converter = ConverterType::New();
   converter->SetInput(input);

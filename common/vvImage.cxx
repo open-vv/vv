@@ -17,13 +17,20 @@
 ======================================================================-====*/
 #ifndef VVIMAGE_CXX
 #define VVIMAGE_CXX
+
+// vv
 #include "vvImage.h"
+
+// clitk
 #include "clitkCommon.h"
+
+// vtk
 #include <vtkImageData.h>
 #include <vtkImageReslice.h>
-#include <cassert>
-
 #include <vtkTransform.h>
+
+// std
+#include <cassert>
 
 #define NO_RESLICE 1
 
@@ -40,6 +47,7 @@ void vvImage::Init()
 {
   mTimeSpacing = 1;
   mTimeOrigin = 0;
+  mImageDimension = 0;
 }
 //--------------------------------------------------------------------
 
@@ -64,11 +72,12 @@ void vvImage::Reset()
 //--------------------------------------------------------------------
 int vvImage::GetNumberOfSpatialDimensions()
 {
-  int dim=GetNumberOfDimensions();
-  if (IsTimeSequence())
-    return dim-1;
-  else
-    return dim;
+  return mImageDimension;
+  // int dim=GetNumberOfDimensions();
+  //   if (IsTimeSequence())
+  //     return dim+1;
+  //   else
+  //     return dim;
 }
 //--------------------------------------------------------------------
 
@@ -76,14 +85,18 @@ int vvImage::GetNumberOfSpatialDimensions()
 int vvImage::GetNumberOfDimensions() const
 {
   if (mVtkImages.size()) {
-    int dimension = 2;
-    int extent[6];
-    mVtkImages[0]->GetWholeExtent(extent);
-    if (extent[5] - extent[4] >= 1)
-      dimension++;
-    if (mVtkImages.size() > 1)
-      dimension++;
-    return dimension;
+    if (IsTimeSequence())
+      return mImageDimension+1;
+    else
+      return mImageDimension;
+    //   int dimension = 3;
+    //   int extent[6];
+    //   mVtkImages[0]->GetWholeExtent(extent);
+    //   if (extent[5] - extent[4] >= 1)
+    //     dimension++;
+    //   // if (mVtkImages.size() > 1)
+    //   //   dimension++;
+    //   return dimension;
   }
   return 0;
 }
@@ -186,7 +199,7 @@ unsigned long vvImage::GetActualMemorySize()
 
 
 //--------------------------------------------------------------------
-bool vvImage::IsTimeSequence()
+bool vvImage::IsTimeSequence() const
 {
   return mVtkImages.size()>1;
 }

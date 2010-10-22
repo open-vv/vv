@@ -52,7 +52,7 @@ public :
   std::string GetScalarTypeAsITKString();
   int GetNumberOfScalarComponents();
   int GetScalarSize();
-  bool IsTimeSequence();
+  bool IsTimeSequence() const;
   bool IsScalarTypeInteger();
   bool IsScalarTypeInteger(int t);
   vtkSmartPointer<vtkTransform> GetTransform();
@@ -70,6 +70,7 @@ private:
   vtkSmartPointer<vtkTransform> mTransform;
   double mTimeOrigin;
   double mTimeSpacing;
+  uint mImageDimension;
 };
 //------------------------------------------------------------------------------
 
