@@ -320,8 +320,8 @@ GenerateData()
     temp->CopyInformation(input);
     temp->SetRegions(input->GetLargestPossibleRegion()); // Do not forget !!
     temp->Allocate();
-    temp->FillBuffer(m_BackgroundValue);
-    typename PadFilterType::Pointer padFilter2 = PadFilterType::New(); // if yes : redo relpos
+    temp->FillBuffer(m_BackgroundValue); 
+    typename PadFilterType::Pointer padFilter2 = PadFilterType::New();
     padFilter2->SetSourceImage(working_image);
     padFilter2->SetDestinationImage(temp);
     padFilter2->SetDestinationIndex(input->GetLargestPossibleRegion().GetIndex());
@@ -340,8 +340,6 @@ GenerateData()
   StartNewStep("Combine with initial input (boolean And)");
   typedef clitk::BooleanOperatorLabelImageFilter<ImageType> BoolFilterType;
   typename BoolFilterType::Pointer combineFilter = BoolFilterType::New();
-  writeImage<ImageType>(input, "i.mhd");
-  writeImage<ImageType>(working_image, "w.mhd");
   combineFilter->SetBackgroundValue(m_BackgroundValue);
   combineFilter->SetBackgroundValue1(m_BackgroundValue);
   combineFilter->SetBackgroundValue2(m_BackgroundValue);
@@ -352,7 +350,6 @@ GenerateData()
   combineFilter->InPlaceOn();
   combineFilter->Update(); 
   working_image = combineFilter->GetOutput();
-  // writeImage<ImageType>(working_image, "res.mhd");
  
   combineFilter = BoolFilterType::New();
   combineFilter->SetInput1(working_image);
