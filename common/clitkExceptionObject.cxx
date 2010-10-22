@@ -34,7 +34,7 @@ ExceptionObject(const char *file, unsigned int lineNumber, const char *desc):
 //--------------------------------------------------------------------
 const char* clitk::ExceptionObject::what() const throw() 
 {
-  ::itk::OStringStream message;
+  std::ostringstream message;
   message << "clitk::ERROR in " << m_Filename << " line " << m_LineNumber
           << " : " << std::endl << "\t" << m_Message;
   char * m = new char[message.str().length()];
