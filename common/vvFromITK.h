@@ -32,7 +32,6 @@ template<unsigned int Dim, class PixelType> vvImage::Pointer vvImageFromITK(type
 {
     assert(Dim < 5 && Dim > 0); // We don't handle anything higher than 4-dimensional (for the moment :-p)
     vvImage::Pointer vv_image=vvImage::New();
-    vv_image->Init(); //Delete any existing images
     typedef itk::Image< PixelType, Dim > InputImageType;
 
     if (Dim == 4 || time_sequence) //The time sequence case: create a series of VTK images
@@ -41,6 +40,7 @@ template<unsigned int Dim, class PixelType> vvImage::Pointer vvImageFromITK(type
         typedef itk::ExtractImageFilter<InputImageType, ItkImageType> FilterType;
 
         //extract the 3D slices and put them in a std::vector<vtkImageData*>
+        input->UpdateOutputInformation();
         typename InputImageType::RegionType inputRegion = input->GetLargestPossibleRegion();
         typename InputImageType::SizeType inputSize = inputRegion.GetSize();
         typename InputImageType::IndexType start = inputRegion.GetIndex();
@@ -57,15 +57,6 @@ template<unsigned int Dim, class PixelType> vvImage::Pointer vvImageFromITK(type
             filter->SetExtractionRegion(extractedRegion);
             filter->SetInput(input);
             filter->ReleaseDataFlagOn();
-
-            try {
-                filter->Update();
-            }
-            catch ( itk::ExceptionObject & err ) {
-                std::cerr << "Error while setting vvImage from ITK (Dim==4) [Extract phase]"
-                          << " " << err << std::endl;
-                return vv_image;
-            }
             vv_image->AddItkImage<ItkImageType>(filter->GetOutput());
         }
         vv_image->SetTimeSpacing(input->GetSpacing()[Dim-1]);

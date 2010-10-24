@@ -83,7 +83,7 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
       reader->ReleaseDataFlagOn();
       reader->SetFileName(*i);
       try {
-        reader->Update();
+        mImage->AddItkImage<InputImageType>(reader->GetOutput());
       } catch ( itk::ExceptionObject & err ) {
         std::cerr << "Error while reading " << mInputFilenames[0].c_str()
                   << " " << err << std::endl;
@@ -92,7 +92,6 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
         mLastError = error.str();
         return;
       }
-      mImage->AddItkImage<InputImageType>(reader->GetOutput());
     }
   } else if (mType == SLICED) {
     mImage=vvImage::New();
@@ -120,27 +119,26 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
     filter->SetInput(reader->GetOutput());
     filter->ReleaseDataFlagOn();
     try {
-      filter->Update();
+      mImage->AddItkImage<SlicedImageType>(filter->GetOutput());
     }
     catch ( itk::ExceptionObject & err ) {
       std::cerr << "Error while slicing " << mInputFilenames[0].c_str()
                 << "(slice #" << mSlice << ") " << err << std::endl;
       return;
     }
-    mImage->AddItkImage<SlicedImageType>(filter->GetOutput());
   } else {
     if (mInputFilenames.size() > 1) {
       typedef itk::Image< InputPixelType, VImageDimension > InputImageType;
       typedef itk::ImageSeriesReader<InputImageType> ReaderType;
       typename ReaderType::Pointer reader = ReaderType::New();
-      for (std::vector<std::string>::const_iterator i=mInputFilenames.begin(); i!=mInputFilenames.end(); i++)
-        std::cout << (*i) << std::endl;
       reader->SetFileNames(mInputFilenames);
-      //if (mUseAnObserver) {
-      //reader->AddObserver(itk::ProgressEvent(), mObserver);
-      //}
+      reader->ReleaseDataFlagOn();
+
       try {
-        reader->Update();
+        if (mType == IMAGEWITHTIME)
+          mImage=vvImageFromITK<VImageDimension,InputPixelType>(reader->GetOutput(),true);
+        else
+          mImage=vvImageFromITK<VImageDimension,InputPixelType>(reader->GetOutput());
       } catch ( itk::ExceptionObject & err ) {
         std::cerr << "Error while reading image series:" << err << std::endl;
         std::stringstream error;
@@ -148,27 +146,18 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
         mLastError = error.str();
         return;
       }
-
-      // DD(reader->GetOutput()->GetImageDimension());
-      //           DD(reader->GetOutput()->GetNumberOfComponentsPerPixel());
-      //           for(unsigned int i=0; i <reader->GetOutput()->GetImageDimension(); i++) {
-      //             DD(reader->GetOutput()->GetSpacing()[i]);
-      //           }
-
-      if (mType == IMAGEWITHTIME)
-        mImage=vvImageFromITK<VImageDimension,InputPixelType>(reader->GetOutput(),true);
-      else
-        mImage=vvImageFromITK<VImageDimension,InputPixelType>(reader->GetOutput());
     } else {
       typedef itk::Image< InputPixelType, VImageDimension > InputImageType;
       typedef itk::ImageFileReader<InputImageType> ReaderType;
       typename ReaderType::Pointer reader = ReaderType::New();
       reader->SetFileName(mInputFilenames[0]);
-      //if (mUseAnObserver) {
-      //reader->AddObserver(itk::ProgressEvent(), mObserver);
-      //}
+      reader->ReleaseDataFlagOn();
+
       try {
-        reader->Update();
+        if (mType == IMAGEWITHTIME)
+          mImage=vvImageFromITK<VImageDimension,InputPixelType>(reader->GetOutput(),true);
+        else
+          mImage=vvImageFromITK<VImageDimension,InputPixelType>(reader->GetOutput());
       } catch ( itk::ExceptionObject & err ) {
         std::cerr << "Error while reading " << mInputFilenames[0].c_str()
                   << " " << err << std::endl;
@@ -177,19 +166,6 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
         mLastError = error.str();
         return;
       }
-
-      // DD(reader->GetOutput()->GetImageDimension());
-      //           DD(reader->GetOutput()->GetNumberOfComponentsPerPixel());
-      //           for(unsigned int i=0; i <reader->GetOutput()->GetImageDimension(); i++) {
-      //             DD(reader->GetOutput()->GetSpacing()[i]);
-      //             DD(reader->GetOutput()->GetOrigin()[i]);
-      //           }
-
-
-      if (mType == IMAGEWITHTIME)
-        mImage=vvImageFromITK<VImageDimension,InputPixelType>(reader->GetOutput(),true);
-      else
-        mImage=vvImageFromITK<VImageDimension,InputPixelType>(reader->GetOutput());
     }
   }
 }

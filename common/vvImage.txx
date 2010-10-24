@@ -8,14 +8,8 @@ void vvImage::AddItkImage(TItkImageType *input)
   typedef itk::ImageToVTKImageFilter <TItkImageType> ConverterType;
   typename ConverterType::Pointer converter = ConverterType::New();
   converter->SetInput(input);
+  converter->Update();
 
-  try {
-      converter->Update();
-  }
-  catch ( itk::ExceptionObject & err ) {
-      std::cerr << "Error while setting vvImage from ITK"
-                << " " << err << std::endl;
-  }
   mItkToVtkConverters.push_back(dynamic_cast< itk::ProcessObject *>(converter.GetPointer()));
   mVtkImages.push_back(converter->GetOutput());
  

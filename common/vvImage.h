@@ -22,11 +22,12 @@
 #include <vector>
 #include <itkObjectFactory.h>
 #include <itkProcessObject.h>
+
+#include <vtkImageReslice.h>
 #include <vtkSmartPointer.h>
+#include <vtkTransform.h>
 
 class vtkImageData;
-class vtkImageReslice;
-class vtkTransform;
 
 //------------------------------------------------------------------------------
 class vvImage : public itk::LightObject

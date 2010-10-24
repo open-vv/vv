@@ -110,7 +110,16 @@ void vvLabelImageLoaderWidget::OpenImage()
 
   // Create vv image
   m_Output = vvImage::New();
-  m_Output->AddItkImage( reader->GetOutput() );
+  try {
+    m_Output->AddItkImage( reader->GetOutput() );
+  }
+  catch ( itk::ExceptionObject & err ) {
+    std::cerr << "Error while reading " << filename.toStdString() << std::endl;
+    QString error;
+    error = QString("Cannot open file %1\n").arg(filename);
+    QMessageBox::information(this,tr("Reading problem"),error);
+    return;
+  }
 
   // Set GUI
   mLabelInputInfo->setText(vtksys::SystemTools::GetFilenameName(filename.toStdString()).c_str());
