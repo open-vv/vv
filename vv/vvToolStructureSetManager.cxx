@@ -70,7 +70,7 @@ vvToolStructureSetManager::vvToolStructureSetManager(vvMainWindowBase * parent,
   mNumberOfVisibleROI = 0;
   mNumberOfVisibleContourROI = 0;
   mDefaultLUTColor = vtkLookupTable::New();
-  for(unsigned int i=0; i<mDefaultLUTColor->GetNumberOfTableValues(); i++) {
+  for(int i=0; i<mDefaultLUTColor->GetNumberOfTableValues(); i++) {
     double r = (rand()/(RAND_MAX+1.0));
     double v = (rand()/(RAND_MAX+1.0));
     double b = (rand()/(RAND_MAX+1.0));
