@@ -25,7 +25,6 @@
  -------------------------------------------------------------------*/
 
 #include "clitkSplitImageGenericFilter.h"
-#include "clitkSplitImageGenericFilter.txx"
 #include <itkIntensityWindowingImageFilter.h>
 //--------------------------------------------------------------------
 clitk::SplitImageGenericFilter::SplitImageGenericFilter():
