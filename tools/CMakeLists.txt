@@ -227,4 +227,8 @@ IF (CLITK_BUILD_TOOLS)
     WRAP_GGO(clitkValuesToBSplineCoefficients_GGO_C clitkValuesToBSplineCoefficients.ggo)
     ADD_EXECUTABLE(clitkValuesToBSplineCoefficients  clitkValuesToBSplineCoefficients.cxx clitkValuesToBSplineCoefficientsGenericFilter.cxx ${clitkValuesToBSplineCoefficients_GGO_C})
     TARGET_LINK_LIBRARIES(clitkValuesToBSplineCoefficients clitkCommon ITKIO)
+
+    WRAP_GGO(clitkMIP_GGO_C clitkMIP.ggo)
+    ADD_EXECUTABLE(clitkMIP  clitkMIP.cxx clitkMIPGenericFilter.cxx ${clitkMIP_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkMIP clitkCommon ITKIO)
 ENDIF(CLITK_BUILD_TOOLS)
