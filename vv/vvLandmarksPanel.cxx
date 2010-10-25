@@ -124,7 +124,7 @@ void vvLandmarksPanel::SetCurrentLandmarks(vvLandmarks* lm,int time)
   mCurrentLandmarks = lm;
   tableWidget->clearContents();
   tableWidget->setRowCount(mCurrentLandmarks->GetNumberOfPoints());
-  for (int i = 0; i < mCurrentLandmarks->GetNumberOfPoints(); i++)
+  for (unsigned int i = 0; i < mCurrentLandmarks->GetNumberOfPoints(); i++)
     AddPoint(i);
   //if (time > 1)
   //tableWidget->setColumnHidden(4,1);
