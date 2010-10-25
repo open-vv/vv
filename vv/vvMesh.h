@@ -47,12 +47,12 @@ public:
     void AddMesh(vtkPolyData* p);
     ///Removes all meshes in the object
     void RemoveMeshes();
-    unsigned int GetNumberOfMeshes() { return meshes.size(); }
+    unsigned int GetNumberOfMeshes() { return (unsigned int)meshes.size(); }
 
     vtkImageData* GetMask(unsigned int i) const {return masks[i];}
     void AddMask(vtkImageData* im);
     void RemoveMasks();
-    unsigned int GetNumberOfMasks() { return masks.size(); }
+    unsigned int GetNumberOfMasks() { return (unsigned int)masks.size(); }
 
     ///Pretty-print information about the mesh
     void Print() const;

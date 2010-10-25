@@ -97,7 +97,7 @@ public:
     ///Reimplemented from vtkImageViewer2 to add polydata support
     void SetSlice(int s);
     int GetTMax() {
-        return mImage->GetVTKImages().size() - 1;
+        return (unsigned int)mImage->GetVTKImages().size() - 1;
     }
 
     void SetOpacity(double s);

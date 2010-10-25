@@ -149,7 +149,7 @@ void vvSurfaceViewerDialog::PreviousTime()
 {
   mCurrentTime--;
   if (mCurrentTime < 0)
-    mCurrentTime = mReaders.size() - 1;
+    mCurrentTime = (unsigned int) mReaders.size() - 1;
   mMapper->SetInput(mReaders[mCurrentTime]->GetOutput());
   mMapper->Modified();
   renderWidget->GetRenderWindow()->Render();

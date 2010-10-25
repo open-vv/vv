@@ -47,9 +47,7 @@ public :
     float* GetCoordinates(int index);
     double GetPixelValue(int index);
     std::string GetComments(int index);
-    int GetNumberOfPoints() {
-        return mLandmarks.size();
-    }
+    unsigned int GetNumberOfPoints() { return (unsigned int) mLandmarks.size(); }
     //int GetNumberOfSources(){return mText.size();}
 
     vtkPolyData* GetOutput() {

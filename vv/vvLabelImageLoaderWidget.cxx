@@ -114,7 +114,8 @@ void vvLabelImageLoaderWidget::OpenImage()
     m_Output->AddItkImage( reader->GetOutput() );
   }
   catch ( itk::ExceptionObject & err ) {
-    std::cerr << "Error while reading " << filename.toStdString() << std::endl;
+    std::cerr << "Error while reading " << filename.toStdString() << std::endl
+              << "The error is " << err << std::endl;
     QString error;
     error = QString("Cannot open file %1\n").arg(filename);
     QMessageBox::information(this,tr("Reading problem"),error);
