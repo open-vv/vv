@@ -18,6 +18,7 @@ SET(vv_TOOLS
   vvToolResample
   vvToolExtractPatient
   vvToolExtractLung
+  vvToolMIP
   vvToolConvert ## with dummy vvToolConvert.ui
   
   ## these ones are for tests (not working)
@@ -28,6 +29,7 @@ SET(vv_TOOLS
 )
 # dependencies of the tools
 # Future issues : when tool depend on other tools ... how to manage that ?
+#  >> add the relevant $_LIBS variable to the tool that has dependencies?
 SET(vvToolRigidReg_LIBS clitkAffineRegistrationLib clitkRegistrationGgoLib)
 SET(vvToolBinarize_LIBS clitkBinarizeImageLib)
 SET(vvToolResample_LIBS clitkImageResampleLib)
@@ -35,6 +37,7 @@ SET(vvToolConvert_LIBS clitkImageConvertLib)
 SET(vvToolExtractPatient_LIBS clitkSegmentationGgoLib)
 SET(vvToolExtractLung_LIBS clitkSegmentationGgoLib)
 SET(vvToolCropImage_LIBS clitkToolsGgoLib)
+SET(vvToolMIP_LIBS clitkMIPLib clitkToolsGgoLib)
 
 #=========================================================
 # List of vv source files

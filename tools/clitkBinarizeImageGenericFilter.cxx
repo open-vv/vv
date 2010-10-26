@@ -63,8 +63,10 @@ void BinarizeImageGenericFilter::InitializeImageType()
 void BinarizeImageGenericFilter::SetArgsInfo(const args_info_type & a)
 {
   mArgsInfo=a;
-  SetIOVerbose(mArgsInfo.verbose_flag);
-  if (mArgsInfo.imagetypes_flag) this->PrintAvailableImageTypes();
+  if (mArgsInfo.verbose_given)
+    SetIOVerbose(mArgsInfo.verbose_flag);
+  if (mArgsInfo.imagetypes_given && mArgsInfo.imagetypes_flag)
+    this->PrintAvailableImageTypes();
 
   if (mArgsInfo.input_given) {
     SetInputFilename(mArgsInfo.input_arg);
