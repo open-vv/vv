@@ -201,7 +201,6 @@ namespace clitk
           value+=temp[temp.size()/2+1];
           value/=2;
         }
-        value/=size4D[Dimension-1];
         avIt.Set(value);
         ++avIt;
       }
