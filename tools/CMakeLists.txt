@@ -73,6 +73,11 @@ IF (CLITK_BUILD_TOOLS)
     ADD_EXECUTABLE(clitkAverageTemporalDimension clitkAverageTemporalDimension.cxx ${clitkAverageTemporalDimension_GGO_C})
     TARGET_LINK_LIBRARIES(clitkAverageTemporalDimension clitkCommon ITKIO )
 
+    WRAP_GGO(clitkMedianTemporalDimension_GGO_C clitkMedianTemporalDimension.ggo)
+    ADD_EXECUTABLE(clitkMedianTemporalDimension clitkMedianTemporalDimension.cxx
+        ${clitkMedianTemporalDimension_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkMedianTemporalDimension clitkCommon ITKIO )
+
     WRAP_GGO(clitkWarpImage_GGO_C clitkWarpImage.ggo)
     ADD_EXECUTABLE(clitkWarpImage clitkWarpImage.cxx ${clitkWarpImage_GGO_C} clitkWarpImageGenericFilter.cxx)
     TARGET_LINK_LIBRARIES(clitkWarpImage ITKBasicFilters clitkCommon ITKIO)

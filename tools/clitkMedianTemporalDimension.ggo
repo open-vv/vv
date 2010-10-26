@@ -1,0 +1,12 @@
+#File clitkMedianTemporalDimension.ggo
+package "clitkMedianTemporalDimension"
+version "1.0"
+purpose "Average the last dimension to an (n-1)D image. Input is either nD or multiple (n-1)D image or DVF"
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"		i	"Input image filename"		  string  	yes multiple
+option "output"    	o   	"Output image filename"		  string 	yes
+
+
