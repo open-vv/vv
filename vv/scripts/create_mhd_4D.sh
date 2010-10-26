@@ -1,11 +1,11 @@
 #!/bin/sh
 
-###############################################
-# create_mhd_4D 	argument : repertoire #
-###############################################
+#####################################################################
+# create_mhd_4D 	argument : repertoire nom_fichier_de_sortie #
+#####################################################################
 if [ $# -lt 1 ]
 then
-    echo "Usage: create_mhd_4D directory"
+    echo "Usage: create_mhd_4D directory output_file_name"
     exit 1
 fi
 
@@ -20,7 +20,7 @@ cat $orig | sed "s/NDims = .*/NDims = 4/
 		 s/AnatomicalOrientation = .*/AnatomicalOrientation = ????/
 		 /ElementSpacing/ s/.*/& 1/
 		 /DimSize/ s/.*/& $nbph/
-		 s/ElementDataFile = .*/ElementDataFile = LIST/" > CT_4D.mhd
+		 s/ElementDataFile = .*/ElementDataFile = LIST/" > $2
 
-ls -1 *0.raw >> CT_4D.mhd
+ls -1 *0.raw >> $2
 cd ..
