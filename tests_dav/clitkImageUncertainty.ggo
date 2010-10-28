@@ -1,5 +1,5 @@
 # file clitkImageRescaleIntensity.ggo
-Package "clitk"
+package "clitk"
 version "Rescale intensity in the image"
 
 option "config"	  	 	-	"Config file"		  			string  no
