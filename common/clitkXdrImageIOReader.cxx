@@ -683,6 +683,7 @@ int clitk::XdrImageIO::ReadImageInformationWithError()
       }
     }
 
+    float *p = points;
     switch (field) {
     case UNIFORM:
       for (i=0; i<GetNumberOfDimensions(); i++) {
@@ -695,21 +696,19 @@ int clitk::XdrImageIO::ReadImageInformationWithError()
       //Error if fails
       for (i=0; i<GetNumberOfDimensions(); i++) {
         //Compute mean spacing
-        SetSpacing(i,10*(points[GetDimensions(i)-1]-points[0])/(GetDimensions(i)-1));
-        SetOrigin(i,10*points[0]);
+        SetSpacing(i,10*(p[GetDimensions(i)-1]-p[0])/(GetDimensions(i)-1));
+        SetOrigin(i,10*p[0]);
 
         //Test if rectilinear image is actually uniform (tolerance 0.1 mm)
         for (j=0; j<GetDimensions(i)-1; j++) {
-          if (fabs((points[j+1]-points[j])*10-GetSpacing(i))>0.1) {
+          if (fabs((p[j+1]-p[j])*10-GetSpacing(i))>0.1) {
             free(points);
             fclose(fstream);
             return ER_NOT_HANDLED;
           }
         }
-        points += (int)GetDimensions(i);
+        p += (int)GetDimensions(i);
       }
-      for (i=0; i<GetNumberOfDimensions(); i++)
-        points -= GetDimensions(i);
       break;
     case IRREGULAR:
       free(points);
