@@ -24,7 +24,11 @@ TARGET_LINK_LIBRARIES(clitkBinarizeImageLib clitkToolsGgoLib)
 IF (CLITK_BUILD_TOOLS)
     WRAP_GGO(clitkDicomInfo_GGO_C clitkDicomInfo.ggo)
     ADD_EXECUTABLE(clitkDicomInfo clitkDicomInfo.cxx ${clitkDicomInfo_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkDicomInfo clitkCommon ITKIO) 
+    TARGET_LINK_LIBRARIES(clitkDicomInfo clitkCommon ITKIO)
+
+    WRAP_GGO(clitkDicom2Image_GGO_C clitkDicom2Image.ggo)
+    ADD_EXECUTABLE(clitkDicom2Image clitkDicom2Image.cxx ${clitkDicom2Image_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkDicom2Image clitkCommon ITKIO)
 
     WRAP_GGO(clitkImageInfo_GGO_C clitkImageInfo.ggo)
     ADD_EXECUTABLE(clitkImageInfo clitkImageInfo.cxx ${clitkImageInfo_GGO_C})
