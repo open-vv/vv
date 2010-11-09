@@ -19,7 +19,8 @@ do
         {
             name="$(clitkDicomInfo "$i" | grep "$1" | sed "s/.*\[//;s/.$//;s/ /_/g")"
             [ -z "$name" ] && echo "Warning: key not found in file $i" 1>&2 && exit 1 #don't do anything if dicom key not found
-            [ -d "sorted/$name" ] || mkdir "sorted/$name" 2>>/dev/null
+            [ -z `echo $name | grep "/"` ] || name=`echo $name | sed 's/\//\_/'`
+	    [ -d "sorted/$name" ] || mkdir "sorted/$name" 2>>/dev/null
             basename=$(basename "$i")
             cp -l "$i" "sorted/$name/$basename"
         }&
