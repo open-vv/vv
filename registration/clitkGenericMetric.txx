@@ -34,8 +34,10 @@ GenericMetric<args_info_type, FixedImageType, MovingImageType>::GenericMetric()
   m_Maximize=false;
   m_Verbose=false;
   m_FixedImageRegionGiven=false;
+#ifdef ITK_USE_OPTIMISED_REGISTRATION_METHODS
   m_FixedImageSamplesIntensityThreshold=0;
   m_UseFixedImageSamplesIntensityThreshold=false;
+#endif
   m_FixedImageMask=NULL;
 }
 
