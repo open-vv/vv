@@ -11,6 +11,8 @@ FOREACH(clitkTool clitkAffineRegistration)
     SET(GGO_C_FILES ${GGO_C_FILES} ${${clitkTool}_GGO_C})
 ENDFOREACH(clitkTool)
 ADD_LIBRARY(clitkRegistrationGgoLib ${GGO_C_FILES})
+SET_SOURCE_FILES_PROPERTIES(clitkGenericAffineTransform.cxx PROPERTIES
+                            OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/clitkAffineRegistration_ggo.h) 
 ADD_LIBRARY(clitkAffineRegistrationLib clitkAffineRegistrationGenericFilter.cxx clitkLBFGSBOptimizer.cxx clitkGenericAffineTransform.cxx)
 
 #=========================================================
