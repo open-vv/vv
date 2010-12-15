@@ -149,8 +149,10 @@ void clitk::ImageToImageGenericFilterBase::GetInputImageDimensionAndPixelType(un
       pixeltype = m_InputVVImages[0]->GetScalarTypeAsITKString();
       dim = m_InputVVImages[0]->GetNumberOfDimensions();
       components = m_InputVVImages[0]->GetNumberOfScalarComponents();
-    } else
+    } else {
+      clitkExceptionMacro("No input given in this ImageToImageGenericFilter.");
       assert(false); //No input image, shouldn't happen
+    }
   }
   if (m_IOVerbose) {
     std::cout << "Input is " << m_Dim << "D " << m_PixelTypeName << "." << std::endl;
