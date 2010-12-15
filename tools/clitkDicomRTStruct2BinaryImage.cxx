@@ -43,6 +43,9 @@ int main(int argc, char * argv[]) {
   }
   else {
     for(unsigned int i=0; i<s.GetListOfROI().size(); i++) {
+      clitk::DicomRT_ROI_ConvertToImageFilter filter;
+      filter.SetCropMaskEnabled(args_info.crop_flag);
+      filter.SetImageFilename(args_info.image_arg);  // Used to get spacing + origin
       std::string name = s.GetListOfROI()[i]->GetName();
       int num = s.GetListOfROI()[i]->GetROINumber();
       filter.SetROI(s.GetListOfROI()[i]); 
