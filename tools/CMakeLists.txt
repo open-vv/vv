@@ -242,4 +242,9 @@ IF (CLITK_BUILD_TOOLS)
     WRAP_GGO(clitkMIP_GGO_C clitkMIP.ggo)
     ADD_EXECUTABLE(clitkMIP  clitkMIP.cxx clitkMIPGenericFilter.cxx ${clitkMIP_GGO_C})
     TARGET_LINK_LIBRARIES(clitkMIP clitkCommon ITKIO)
+
+    WRAP_GGO(clitkRelativePosition_GGO_C clitkRelativePosition.ggo)
+    ADD_EXECUTABLE(clitkRelativePosition  clitkRelativePosition.cxx ${clitkRelativePosition_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkRelativePosition clitkCommon ITKIO)
+
 ENDIF(CLITK_BUILD_TOOLS)
