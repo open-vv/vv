@@ -27,9 +27,6 @@ clitk::FillMaskFilter<ImageType>::FillMaskFilter():
   // Default global options
   this->SetNumberOfRequiredInputs(1);
   ResetDirections();
-  AddDirection(2);
-  AddDirection(1);
-  AddDirection(0);
 }
 //--------------------------------------------------------------------
 
@@ -108,7 +105,6 @@ GenerateData()
   //---------------------------------------- 
   typename InternalImageType::Pointer output = inputCaster->GetOutput();
   for (unsigned int i=0; i<m_Directions.size();i++) {
-    DD(i);
     //---------------------------------------- 
     // Fill the holes of a mask in 2D
     //----------------------------------------
@@ -196,7 +192,6 @@ GenerateData()
       }
     
     // Join to a 3D image	
-    std::cout<<"Joining the slices..."<<std::endl;
     joinFilter->Update();
     
     // Permute the axes to reset to orientation
@@ -229,17 +224,13 @@ GenerateData()
     output->SetOrigin(input->GetOrigin());
   }
   
-  writeImage<InternalImageType>(output, "toto.mhd");
-  
   // Cast
-  DD("cast");
   typedef itk::CastImageFilter<InternalImageType,ImageType> OutputCastImageFilterType;
   typename OutputCastImageFilterType::Pointer outputCaster =OutputCastImageFilterType::New();
   outputCaster->SetInput(output);
   outputCaster->Update();
   
   // Output
-  DD("Graft");
   this->GraftOutput(outputCaster->GetOutput());
 }
 //--------------------------------------------------------------------

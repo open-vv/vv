@@ -38,6 +38,7 @@ template<unsigned int Dim>
 void clitk::FillMaskGenericFilter<ArgsInfoType>::InitializeImageType() 
 {  
   ADD_IMAGE_TYPE(Dim, uchar);
+  ADD_IMAGE_TYPE(Dim, short);
   // ADD_IMAGE_TYPE(Dim, int);
   // ADD_IMAGE_TYPE(Dim, float);
 }
