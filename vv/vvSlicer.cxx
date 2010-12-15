@@ -648,6 +648,11 @@ void vvSlicer::SetSliceOrientation(int orientation)
   if (range)
     this->Slice = static_cast<int>((range[0] + range[1]) * 0.5);
 
+  // Go to current cursor position
+  // double* cursorPos = GetCursorPosition();
+  // DDV(cursorPos, 3);
+  // SetCurrentPosition(cursorPos[0],cursorPos[1],cursorPos[2],cursorPos[3]);
+
   this->UpdateOrientation();
   this->UpdateDisplayExtent();
 

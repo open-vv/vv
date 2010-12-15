@@ -29,6 +29,7 @@
 
 void vvMaximumIntensityProjection::Compute(vvSlicerManager * slicer_manager)
 {
+  mCurrentSlicerManager = slicer_manager;
   mDimension = QInputDialog::getInteger(0, "MIP Axis","Choose the axis along which to perform the MIP",0,0,\
                                      slicer_manager->GetImage()->GetNumberOfDimensions()-1,1);
 #define TRY_TYPE(TYPE)							\
@@ -77,4 +78,7 @@ void vvMaximumIntensityProjection::Update_WithDimAndPixelType(vvImage::Pointer i
   filter->SetInput(input);
   filter->Update();
   mOutputImage=vvImageFromITK<Dim-1,PixelType>(filter->GetOutput());
+  // std::ostringstream osstream;
+  // osstream << "MIP_" << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";  
+  // AddImage(mOutputImage,osstream.str());
 }

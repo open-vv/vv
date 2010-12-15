@@ -35,6 +35,7 @@ protected:
     vvImage::Pointer mOutputImage;
     //Dimension along which to compute the MIP
     unsigned int mDimension;
+  vvSlicerManager * mCurrentSlicerManager;
 };
 
 #endif

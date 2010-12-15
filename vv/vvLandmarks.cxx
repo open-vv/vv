@@ -14,7 +14,7 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-======================================================================-====*/
+  ======================================================================-====*/
 #include "vvLandmarks.h"
 
 #include <ios>
@@ -68,11 +68,11 @@ void vvLandmarks::AddLandmark(float x,float y,float z,float t,double value)
   mPoints[int(t)]->InsertNextPoint(x,y,z);
 
   /*std::stringstream numberVal;
-  numberVal << (mLandmarks.size()-1);
-  vvLandmarksGlyph *number = vvLandmarksGlyph::New();
-  number->SetText(numberVal.str().c_str());
-  number->BackingOff();
-  mText.push_back(number);*/
+    numberVal << (mLandmarks.size()-1);
+    vvLandmarksGlyph *number = vvLandmarksGlyph::New();
+    number->SetText(numberVal.str().c_str());
+    number->BackingOff();
+    mText.push_back(number);*/
   mIds->InsertNextTuple1(0.55);
   //mIds->InsertTuple1(mLandmarks.size(),mLandmarks.size());
   SetTime(int(t));
@@ -81,7 +81,7 @@ void vvLandmarks::AddLandmark(float x,float y,float z,float t,double value)
 void vvLandmarks::RemoveLastLandmark()
 {
   mPoints[mLandmarks.back().coordinates[3]]->SetNumberOfPoints(
-    mPoints[mLandmarks.back().coordinates[3]]->GetNumberOfPoints()-1);
+                                                               mPoints[mLandmarks.back().coordinates[3]]->GetNumberOfPoints()-1);
   mPolyData->Modified();
   //mText.pop_back();
   mLandmarks.pop_back();
@@ -133,7 +133,6 @@ void vvLandmarks::LoadFile(std::string filename)
       } else
         mFormatVersion=0;
     }
-    DD(mFormatVersion);
     if (stringline.size() > 1) {
       vvLandmark point;
       int previousSpace = 0;
@@ -193,7 +192,7 @@ void vvLandmarks::LoadFile(std::string filename)
       mLandmarks.push_back(point);
       mIds->InsertNextTuple1(0.55);
       mPoints[int(point.coordinates[3])]->InsertNextPoint(
-        point.coordinates[0],point.coordinates[1],point.coordinates[2]);
+                                                          point.coordinates[0],point.coordinates[1],point.coordinates[2]);
     }
   }
   SetTime(0);

@@ -68,14 +68,12 @@ void vvImageReader::UpdateWithDim(std::string InputPixelType)
 template<class InputPixelType, unsigned int VImageDimension>
 void vvImageReader::UpdateWithDimAndInputPixelType()
 {
-
-  //  DD(mType);
-
   if (mType == MERGEDWITHTIME)   // In this case we can load the images
     // one at the time to avoid excessive
     // memory use
   {
     mImage=vvImage::New();
+
     for (std::vector<std::string>::const_iterator i=mInputFilenames.begin(); i!=mInputFilenames.end(); i++) {
       typedef itk::Image< InputPixelType, VImageDimension-1 > InputImageType;
       typedef itk::ImageFileReader<InputImageType> ReaderType;
