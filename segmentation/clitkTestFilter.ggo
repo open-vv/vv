@@ -6,10 +6,10 @@ purpose "Test a filter"
 option "config"	  	-	"Config file"			  string  	no
 option "verbose"   	v   	"Verbose"			  flag		off
 
-option "input1"		i	"Input 1 image filename"	  string  	yes
+option "input1"		i	"Input 1 image filename"	  string  	no
 option "input2"		j	"Input 2 image filename"	  string  	no
 option "input3"		k	"Input 3 image filename"	  string  	no
-option "output"    	o   	"Output image filename"		  string 	yes
+option "output"    	o   	"Output image filename"		  string 	no
 
 option "angle1"    	a   	"First angle (degree)"		  float         default = "0" no
 option "angle2"    	b   	"Second angle (degree)"		  float         default = "0" no

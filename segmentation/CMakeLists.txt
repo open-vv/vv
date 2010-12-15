@@ -38,11 +38,11 @@ IF(CLITK_BUILD_SEGMENTATION)
 
     WRAP_GGO(clitkExtractMediastinum_GGO_C clitkExtractMediastinum.ggo)
     ADD_EXECUTABLE(clitkExtractMediastinum clitkExtractMediastinum.cxx ${clitkExtractMediastinum_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkExtractMediastinum clitkCommon clitkSegmentationGgoLib ITKIO)
+    TARGET_LINK_LIBRARIES(clitkExtractMediastinum clitkCommon clitkSegmentationGgoLib ITKStatistics ITKIO)
 
     WRAP_GGO(clitkExtractLymphStations_GGO_C clitkExtractLymphStations.ggo)
     ADD_EXECUTABLE(clitkExtractLymphStations clitkExtractLymphStations.cxx clitkFilterWithAnatomicalFeatureDatabaseManagement.cxx ${clitkExtractLymphStations_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkExtractLymphStations clitkSegmentationGgoLib clitkCommon ITKIO )
+    TARGET_LINK_LIBRARIES(clitkExtractLymphStations clitkSegmentationGgoLib clitkCommon ITKIO ITKStatistics)
 
     WRAP_GGO(clitkMorphoMath_GGO_C clitkMorphoMath.ggo)
     ADD_EXECUTABLE(clitkMorphoMath clitkMorphoMath.cxx clitkMorphoMathGenericFilter.cxx ${clitkMorphoMath_GGO_C})
@@ -79,4 +79,16 @@ IF(CLITK_BUILD_SEGMENTATION)
     WRAP_GGO(clitkFillImageRegion_GGO_C clitkFillImageRegion.ggo)
     ADD_EXECUTABLE(clitkFillImageRegion clitkFillImageRegion.cxx clitkFillImageRegionGenericFilter.cxx ${clitkFillImageRegion_GGO_C})
     TARGET_LINK_LIBRARIES(clitkFillImageRegion clitkCommon ITKIO)
+
+    WRAP_GGO(clitkTestFilter_GGO_C clitkTestFilter.ggo)
+    ADD_EXECUTABLE(clitkTestFilter clitkTestFilter.cxx ${clitkTestFilter_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkTestFilter clitkSegmentationGgoLib clitkCommon ITKIO)
+
 ENDIF(CLITK_BUILD_SEGMENTATION)
+
+# ADD_EXECUTABLE(ScalarImageMarkovRandomField1 ScalarImageMarkovRandomField1.cxx)
+# TARGET_LINK_LIBRARIES(ScalarImageMarkovRandomField1 clitkCommon ITKIO ITKStatistics)
+# ADD_EXECUTABLE(ScalarImageKmeansClassifier ScalarImageKmeansClassifier.cxx)
+# TARGET_LINK_LIBRARIES(ScalarImageKmeansClassifier clitkCommon ITKIO ITKStatistics)
+
+

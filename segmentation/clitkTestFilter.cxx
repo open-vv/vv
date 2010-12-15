@@ -30,6 +30,8 @@
 #include "clitkExtractPatientFilter.h"
 #include "clitkExtractMediastinumFilter.h"
 
+#include "clitkTestStation7.h"
+
 // ITK ENST
 #include "RelativePositionPropImageFilter.h"
 
@@ -49,7 +51,7 @@ int main(int argc, char * argv[]) {
   InputImageType::Pointer input1;
   InputImageType::Pointer input2;
   InputImageType::Pointer input3;
-  input1 = clitk::readImage<InputImageType>(args_info.input1_arg, true);
+  if (args_info.input1_given) input1 = clitk::readImage<InputImageType>(args_info.input1_arg, true);
   if (args_info.input2_given) input2 = clitk::readImage<InputImageType>(args_info.input2_arg, true);
   if (args_info.input3_given) input3 = clitk::readImage<InputImageType>(args_info.input3_arg, true);
   
@@ -74,7 +76,7 @@ int main(int argc, char * argv[]) {
   
   //--------------------------------------------------------------------
   // Filter test AutoCropLabelImageFilter
-  if (1) {
+  if (0) {
     typedef clitk::AutoCropFilter<InputImageType> FilterType;
     FilterType::Pointer filter = FilterType::New();
     filter->SetInput(input1);
@@ -155,6 +157,7 @@ int main(int argc, char * argv[]) {
   //--------------------------------------------------------------------
   // Filter test ExtractPatientFilter
   if (0) {
+    /*
     typedef itk::Image<char, Dim> OutputImageType;
     typedef clitk::ExtractPatientFilter<InputImageType, OutputImageType> FilterType;
     FilterType::Pointer filter = FilterType::New();
@@ -167,11 +170,13 @@ int main(int argc, char * argv[]) {
     filter->Update();    
     OutputImageType::Pointer output = filter->GetOutput();
     clitk::writeImage<OutputImageType>(output, args_info.output_arg);
+    */
   }
 
   //--------------------------------------------------------------------
   // Filter test ExtractLungsFilter
   if (0) {
+    /*
     typedef itk::Image<PixelType, Dim> OutputImageType; // to change into char
     typedef clitk::ExtractLungFilter<InputImageType, OutputImageType> FilterType;
     FilterType::Pointer filter = FilterType::New();
@@ -188,11 +193,13 @@ int main(int argc, char * argv[]) {
     filter->Update();    
     OutputImageType::Pointer output = filter->GetOutput();
     clitk::writeImage<OutputImageType>(output, args_info.output_arg);
+    */
   }
 
   //--------------------------------------------------------------------
   // Filter test ExtractMediastinumFilter
   if (0) {
+    /*
     typedef clitk::ExtractMediastinumFilter<InputImageType> FilterType;
     FilterType::Pointer filter = FilterType::New();
     filter->SetInputPatientLabelImage(input1);
@@ -203,6 +210,16 @@ int main(int argc, char * argv[]) {
     filter->Update();    
     output = filter->GetOutput();
     clitk::writeImage<InputImageType>(output, args_info.output_arg);
+    */
+  }
+
+  //--------------------------------------------------------------------
+  // Test for auto register sub-task in a segmentation process
+  if (1) {
+    ExtractLymphStation_7 * s7 = new ExtractLymphStation_7;
+    //    s7->SetArgsInfo<args_info_clitkTestFilter>(args_info);
+    // GetParent->SetArgsInfo<>
+    s7->StartSegmentation();
   }
 
   // This is the end my friend
