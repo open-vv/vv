@@ -122,7 +122,6 @@ namespace clitk {
     bool m_IsCancelled;
     Timer m_CurrentStepTimer;
     
-
   private:
     FilterBase(const Self&); //purposely not implemented
     void operator=(const Self&); //purposely not implemented

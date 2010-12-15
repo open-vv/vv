@@ -133,17 +133,16 @@ namespace clitk {
   
     // Extract the region with RegionOfInterestImageFilter or ExtractImageFilter ? 
     // The second is when reducing the nb of dimension (index always zero)
-    // The first keep index
+    // The first keep index. 
+    // OLD : typedef itk::ExtractImageFilter<ImageType, ImageType> CropFilterType;
+    // OLD : cropFilter->SetExtractionRegion(m_Region);
 
     typedef itk::RegionOfInterestImageFilter<ImageType, ImageType> CropFilterType;
-    //typedef itk::ExtractImageFilter<ImageType, ImageType> CropFilterType;
     m_labeImage->SetRequestedRegion(m_labeImage->GetLargestPossibleRegion());
     typename CropFilterType::Pointer cropFilter = CropFilterType::New();
     cropFilter->SetInput(m_labeImage);
     cropFilter->SetReleaseDataFlag(this->GetReleaseDataFlag());
-
     cropFilter->SetRegionOfInterest(m_Region);
-    //cropFilter->SetExtractionRegion(m_Region);
 
     // Go ! 
     cropFilter->Update();
