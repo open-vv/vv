@@ -30,9 +30,7 @@ namespace clitk {
   //--------------------------------------------------------------------
   
   template <class ImageType>
-  class ITK_EXPORT CropLikeImageFilter: 
-    public itk::ImageToImageFilter<ImageType, ImageType> {
-
+  class ITK_EXPORT CropLikeImageFilter: public itk::ImageToImageFilter<ImageType, ImageType> {
   public:
     /** Standard class typedefs. */
     typedef CropLikeImageFilter                            Self;
@@ -52,31 +50,48 @@ namespace clitk {
     typedef typename ImageType::PixelType    PixelType;
     typedef typename ImageType::RegionType   RegionType;
     typedef typename ImageType::PointType    PointType;
+    typedef typename ImageType::IndexType    IndexType;
+    typedef typename ImageType::SizeType     SizeType;
 
-    /** Input image to crop */
-    void SetInput(const ImageType * image);
-    
     /** Image filename for Crop Like */
     void SetCropLikeFilename(std::string f);
     void SetCropLikeImage(const itk::ImageBase<ImageType::ImageDimension> * like);
     void SetCropLikeImage(const itk::ImageBase<ImageType::ImageDimension> * like, int axe);
 
+    // Set Background if 'like' is greater than input
+    itkSetMacro(BackgroundValue, PixelType);
+    itkGetConstMacro(BackgroundValue, PixelType); 
+
     /** ImageDimension constants */
     itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
     
+    //    void Update() { GenerateOutputInformation(); GenerateData(); }
+
   protected:
     CropLikeImageFilter();
     virtual ~CropLikeImageFilter() {}
     
     virtual void GenerateOutputInformation();
     virtual void GenerateData();
+    virtual void GenerateInputRequestedRegion();
     
+    PixelType m_BackgroundValue;
+    RegionType m_OutputRegion;
     RegionType m_Region;
     std::string m_LikeFilename;
     bool m_LikeFilenameIsGiven;
     PointType m_Origin;
     const itk::ImageBase<ImageDimension> * m_LikeImage;
+    //typename ImageType::Pointer m_LikeImage;
     std::vector<bool> m_CropAlongThisDimension;
+    
+    PointType m_StartPoint;         // start point in physical world
+    IndexType m_StartSourceIndex;   // start index in "source" image 
+    IndexType m_StartDestIndex;     // start index in "destination" image 
+    
+    PointType m_StopPoint;         // stop point in physical world
+    IndexType m_StopSourceIndex;   // stop index in "source" image 
+    IndexType m_StopDestIndex;     // stop index in "destination" image 
     
   private:
     CropLikeImageFilter(const Self&); //purposely not implemented

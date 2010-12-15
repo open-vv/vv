@@ -23,8 +23,7 @@
 #include "clitkCommon.h"
 
 // itk
-#include "itkRegionOfInterestImageFilter.h"
-
+#include "itkPasteImageFilter.h"
 
 //--------------------------------------------------------------------
 template <class ImageType>
@@ -33,6 +32,7 @@ CropLikeImageFilter():itk::ImageToImageFilter<ImageType, ImageType>() {
   this->SetNumberOfRequiredInputs(1);
   m_LikeImage = NULL;
   m_LikeFilenameIsGiven = false;
+  this->SetBackgroundValue(0);
   m_CropAlongThisDimension.resize(ImageType::ImageDimension);
   for(uint i=0; i<ImageType::ImageDimension; i++)
     m_CropAlongThisDimension[i] = true;
@@ -81,41 +81,44 @@ SetCropLikeImage(const itk::ImageBase<ImageType::ImageDimension> * like, int axe
 template <class ImageType>
 void 
 clitk::CropLikeImageFilter<ImageType>::
-SetInput(const ImageType * image) {
-  // Process object is not const-correct so the const casting is required.
-  this->SetNthInput(0, const_cast<ImageType *>( image ));
+GenerateInputRequestedRegion() {
+  // Needed because output region can be larger than input
+  ImagePointer input = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
+  input->SetRequestedRegion(input->GetLargestPossibleRegion());
 }
 //--------------------------------------------------------------------
-  
+
 
 //--------------------------------------------------------------------
 template <class ImageType>
 void 
 clitk::CropLikeImageFilter<ImageType>::
 GenerateOutputInformation() {    
+  DD("GenerateOutputInformation");
   // Get input pointers
   ImageConstPointer input = dynamic_cast<const ImageType*>(itk::ProcessObject::GetInput(0));
     
   // Get output pointer
   ImagePointer output = this->GetOutput(0);
-  
+
   // Get input info
   typename ImageType::SizeType likeSize;
   typename ImageType::IndexType likeStart;
   typename ImageType::PointType likeOrigin;  
   typename ImageType::SpacingType likeSpacing;  
-  if (m_LikeImage) {     
+  if (m_LikeImage) {   
     likeSize = m_LikeImage->GetLargestPossibleRegion().GetSize();
     likeStart = m_LikeImage->GetLargestPossibleRegion().GetIndex();
     likeOrigin = m_LikeImage->GetOrigin();
     likeSpacing = m_LikeImage->GetSpacing();
   }
   else {
+    // Only load the header (allows to use 'like' with any image type)
     if (m_LikeFilenameIsGiven) {
       itk::ImageIOBase::Pointer header = readImageHeader(m_LikeFilename);
       for(unsigned int i=0; i<ImageType::ImageDimension; i++) {
-        likeSize[i] = header->GetIORegion().GetSize()[i]; //GetDimensions(i);
-        likeStart[i] = header->GetIORegion().GetIndex()[i];
+        likeSize[i] = header->GetDimensions(i);
+        likeStart[i] = 0;//header->GetIORegion().GetIndex()[i];
         likeOrigin[i] = header->GetOrigin(i);
         likeSpacing[i] = header->GetSpacing(i);
       }
@@ -125,33 +128,77 @@ GenerateOutputInformation() {
     }
   }
 
-  // Compute region
-  typename ImageType::SizeType size;
-  typename ImageType::IndexType start;
+  // Check spacing
   for(unsigned int i=0; i<ImageType::ImageDimension; i++) {
-    double ol;
-    if (m_CropAlongThisDimension[i]) {
-      size[i] = likeSize[i];
-      ol = likeOrigin[i];
-    }
-    else {
-      size[i] = input->GetLargestPossibleRegion().GetSize()[i];
-      ol = input->GetOrigin()[i];
-    }
-    double oi = input->GetOrigin()[i];
-    start[i] = lrint((ol-oi)/input->GetSpacing()[i]);
-    m_Origin[i] = likeOrigin[i];
     if (likeSpacing[i] != input->GetSpacing()[i]) {
       clitkExceptionMacro("Images must have the same spacing, but input's spacing(" << i
                           <<") is " << input->GetSpacing()[i] << " while like's spacing(" << i 
                           << ") is " << likeSpacing[i] << ".");
     }
   }
+  // Define output region 
+  m_OutputRegion.SetIndex(likeStart);
+  m_OutputRegion.SetSize(likeSize);
+  output->SetRegions(m_OutputRegion);
+  output->SetRequestedRegion(m_OutputRegion);
+  output->SetBufferedRegion(m_OutputRegion);
+  output->SetSpacing(likeSpacing);  
+  output->SetOrigin(likeOrigin);
 
-  m_Region.SetSize(size);
-  m_Region.SetIndex(start);
-  output->SetRegions(m_Region);
-  output->SetSpacing(input->GetSpacing());
+  // get startpoint source/dest
+  // for each dim
+  // if source < dest -> start from dest, compute in source
+  // if source > dest -> start from source, compute in dest
+  m_StartDestIndex = output->GetLargestPossibleRegion().GetIndex();
+  m_StartSourceIndex = input->GetLargestPossibleRegion().GetIndex();
+  PointType m_StartPointInSource;
+  PointType m_StartPointInDest;
+  m_StartSourceIndex = input->GetLargestPossibleRegion().GetIndex();
+  input->TransformIndexToPhysicalPoint(m_StartSourceIndex, m_StartPointInSource);
+  m_StartDestIndex = output->GetLargestPossibleRegion().GetIndex();
+  output->TransformIndexToPhysicalPoint(m_StartDestIndex, m_StartPointInDest);
+  IndexType startDestInSource;
+  IndexType startSourceInDest;
+  input->TransformPhysicalPointToIndex(m_StartPointInDest, startDestInSource);
+  output->TransformPhysicalPointToIndex(m_StartPointInSource, startSourceInDest);
+  for(int i=0; i<ImageType::ImageDimension; i++) {
+    if (m_StartPointInSource[i] < m_StartPointInDest[i]) {
+      m_StartSourceIndex[i] = startDestInSource[i];
+    }
+    else {
+      m_StartDestIndex[i] = startSourceInDest[i];
+    }
+  }
+  m_Region.SetIndex(m_StartSourceIndex);
+
+  // Stop index
+  m_StopSourceIndex = input->GetLargestPossibleRegion().GetIndex()+
+    input->GetLargestPossibleRegion().GetSize();
+  m_StopDestIndex = output->GetLargestPossibleRegion().GetIndex()+
+    output->GetLargestPossibleRegion().GetSize();
+  PointType m_StopPointInSource;
+  PointType m_StopPointInDest;
+  input->TransformIndexToPhysicalPoint(m_StopSourceIndex, m_StopPointInSource);
+  output->TransformIndexToPhysicalPoint(m_StopDestIndex, m_StopPointInDest);
+  IndexType stopDestInSource;
+  IndexType stopSourceInDest;
+  input->TransformPhysicalPointToIndex(m_StopPointInDest, stopDestInSource);
+  output->TransformPhysicalPointToIndex(m_StopPointInSource, stopSourceInDest);
+
+  for(int i=0; i<ImageType::ImageDimension; i++) {
+    if (m_StopPointInSource[i] > m_StopPointInDest[i]) {
+      m_StopSourceIndex[i] = stopDestInSource[i];
+    }
+    else {
+      m_StopDestIndex[i] = stopSourceInDest[i];
+    }
+  }
+
+  // Set size to the region we want to paste
+  SizeType s;
+  for(int i=0; i<ImageType::ImageDimension; i++)
+    s[i] = m_StopSourceIndex[i]-m_StartSourceIndex[i];
+  m_Region.SetSize(s);
 }
 //--------------------------------------------------------------------
    
@@ -162,16 +209,24 @@ clitk::CropLikeImageFilter<ImageType>::
 GenerateData() {
   // Get input pointers
   ImageConstPointer input = dynamic_cast<const ImageType*>(itk::ProcessObject::GetInput(0));
+
+  // Get output pointer, fill with Background
+  ImagePointer output = this->GetOutput(0);
+  output->Allocate();
+  output->FillBuffer(GetBackgroundValue());
   
-  typedef itk::RegionOfInterestImageFilter<ImageType, ImageType> CropFilterType;
-  typename CropFilterType::Pointer cropFilter = CropFilterType::New();
-  cropFilter->SetInput(input);
-  cropFilter->SetReleaseDataFlag(this->GetReleaseDataFlag());
-  cropFilter->SetRegionOfInterest(m_Region);
-  cropFilter->Update();
+  // Paste image inside
+  typedef itk::PasteImageFilter<ImageType,ImageType> PasteFilterType;
+  typename PasteFilterType::Pointer pasteFilter = PasteFilterType::New();
+  pasteFilter->SetSourceImage(input);
+  pasteFilter->SetDestinationImage(output);
+  pasteFilter->SetDestinationIndex(m_StartDestIndex);
+  pasteFilter->SetSourceRegion(m_Region);
+  pasteFilter->Update();
 
   // Get (graft) output (SetNthOutput does not fit here because of Origin).
-  this->GraftOutput(cropFilter->GetOutput());
+  //  this->GraftOutput(cropFilter->GetOutput());
+  this->GraftOutput(pasteFilter->GetOutput());
 }
 //--------------------------------------------------------------------
    
