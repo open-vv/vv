@@ -25,6 +25,8 @@ option "BG"		-	"Background value in input."      double default="0" no
 
 section "Crop like another image"
 option "like"		-	"Crop like this image (must have the same spacing"   string no
+option "BGLike"		-	"Background value in output (if like larger)"        double default="0" no
+
 
 
 

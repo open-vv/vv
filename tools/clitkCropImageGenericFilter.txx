@@ -25,7 +25,7 @@ clitk::CropImageGenericFilter<ArgsInfoType>::CropImageGenericFilter():
 {
   // Default values
   cmdline_parser_clitkCropImage_init(&mArgsInfo);
-  //InitializeImageType<2>();
+  InitializeImageType<2>();
   InitializeImageType<3>();
   InitializeImageType<4>();
 }
@@ -106,6 +106,7 @@ void clitk::CropImageGenericFilter<ArgsInfoType>::UpdateWithInputImageType()
       typename FilterType::Pointer filter = FilterType::New();
       filter->SetInput(input);
       filter->SetCropLikeFilename(mArgsInfo.like_arg);
+      filter->SetBackgroundValue(mArgsInfo.BGLike_arg);
       filter->Update();
       output = filter->GetOutput();
     }
