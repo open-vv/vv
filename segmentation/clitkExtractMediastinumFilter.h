@@ -39,12 +39,32 @@ namespace clitk {
   class ITK_EXPORT ExtractMediastinumFilter: 
     public virtual clitk::FilterBase, 
     public clitk::FilterWithAnatomicalFeatureDatabaseManagement,
-    public itk::ImageToImageFilter<TImageType, TImageType> 
+    public itk::ImageToImageFilter<TImageType, itk::Image<uchar, 3> > 
   {
 
   public:
+    /** Some convenient typedefs. */
+    typedef TImageType                       ImageType;
+    typedef typename ImageType::ConstPointer ImageConstPointer;
+    typedef typename ImageType::Pointer      ImagePointer;
+    typedef typename ImageType::RegionType   ImageRegionType; 
+    typedef typename ImageType::PixelType    ImagePixelType; 
+    typedef typename ImageType::SizeType     ImageSizeType; 
+    typedef typename ImageType::IndexType    ImageIndexType; 
+    typedef typename ImageType::PointType    ImagePointType; 
+        
+    /** Some convenient typedefs. */
+    typedef uchar MaskImagePixelType; 
+    typedef itk::Image<MaskImagePixelType, 3>    MaskImageType;
+    typedef typename MaskImageType::ConstPointer MaskImageConstPointer;
+    typedef typename MaskImageType::Pointer      MaskImagePointer;
+    typedef typename MaskImageType::RegionType   MaskImageRegionType; 
+    typedef typename MaskImageType::SizeType     MaskImageSizeType; 
+    typedef typename MaskImageType::IndexType    MaskImageIndexType; 
+    typedef typename MaskImageType::PointType    MaskImagePointType; 
+        
     /** Standard class typedefs. */
-    typedef itk::ImageToImageFilter<TImageType, TImageType> Superclass;
+    typedef itk::ImageToImageFilter<TImageType, MaskImageType> Superclass;
     typedef ExtractMediastinumFilter            Self;
     typedef itk::SmartPointer<Self>             Pointer;
     typedef itk::SmartPointer<const Self>       ConstPointer;
@@ -56,57 +76,52 @@ namespace clitk {
     itkTypeMacro(ExtractMediastinumFilter, InPlaceImageFilter);
     FILTERBASE_INIT;
 
-    /** Some convenient typedefs. */
-    typedef TImageType                       ImageType;
-    typedef typename ImageType::ConstPointer ImageConstPointer;
-    typedef typename ImageType::Pointer      ImagePointer;
-    typedef typename ImageType::RegionType   ImageRegionType; 
-    typedef typename ImageType::PixelType    ImagePixelType; 
-    typedef typename ImageType::SizeType     ImageSizeType; 
-    typedef typename ImageType::IndexType    ImageIndexType; 
-    typedef typename ImageType::PointType    ImagePointType; 
-        
     /** Connect inputs */
-    void SetInputPatientLabelImage(const TImageType * image, ImagePixelType bg=0);
-    void SetInputLungLabelImage(const TImageType * image, ImagePixelType bg=0, 
-                                 ImagePixelType fgLeftLung=1, ImagePixelType fgRightLung=2);
-    void SetInputBonesLabelImage(const TImageType * image, ImagePixelType bg=0);
-    void SetInputTracheaLabelImage(const TImageType * image, ImagePixelType bg=0);
+    void SetInput(const ImageType * image);
+    void SetInputPatientLabelImage(const MaskImageType * image, MaskImagePixelType bg=0);
+    void SetInputLungLabelImage(const MaskImageType * image, MaskImagePixelType bg=0, 
+                                MaskImagePixelType fgLeftLung=1, MaskImagePixelType fgRightLung=2);
+    void SetInputBonesLabelImage(const MaskImageType * image, MaskImagePixelType bg=0);
+    void SetInputTracheaLabelImage(const MaskImageType * image, MaskImagePixelType bg=0);
    
+   // Output filename  (for AFBD)
+    itkSetMacro(OutputMediastinumFilename, std::string);
+    itkGetConstMacro(OutputMediastinumFilename, std::string);
+
     /** ImageDimension constants */
-    itkStaticConstMacro(ImageDimension, unsigned int, TImageType::ImageDimension);
+    itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
 
     // Set all options at a time
     template<class ArgsInfoType>
       void SetArgsInfo(ArgsInfoType arg);
    
     // Background / Foreground
-    itkSetMacro(BackgroundValuePatient, ImagePixelType);
-    itkGetConstMacro(BackgroundValuePatient, ImagePixelType);
-    GGO_DefineOption(patientBG, SetBackgroundValuePatient, ImagePixelType);
+    itkSetMacro(BackgroundValuePatient, MaskImagePixelType);
+    itkGetConstMacro(BackgroundValuePatient, MaskImagePixelType);
+    // GGO_DefineOption(patientBG, SetBackgroundValuePatient, MaskImagePixelType);
     
-    itkSetMacro(BackgroundValueLung, ImagePixelType);
-    itkGetConstMacro(BackgroundValueLung, ImagePixelType);
-    GGO_DefineOption(lungBG, SetBackgroundValueLung, ImagePixelType);
+    itkSetMacro(BackgroundValueLung, MaskImagePixelType);
+    itkGetConstMacro(BackgroundValueLung, MaskImagePixelType);
+    // GGO_DefineOption(lungBG, SetBackgroundValueLung, MaskImagePixelType);
     
-    itkSetMacro(BackgroundValueBones, ImagePixelType);
-    itkGetConstMacro(BackgroundValueBones, ImagePixelType);
-    GGO_DefineOption(bonesBG, SetBackgroundValueBones, ImagePixelType);
+    itkSetMacro(BackgroundValueBones, MaskImagePixelType);
+    itkGetConstMacro(BackgroundValueBones, MaskImagePixelType);
+    // GGO_DefineOption(bonesBG, SetBackgroundValueBones, MaskImagePixelType);
     
-    itkGetConstMacro(BackgroundValue, ImagePixelType);
-    itkGetConstMacro(ForegroundValue, ImagePixelType);
+    itkGetConstMacro(BackgroundValue, MaskImagePixelType);
+    itkGetConstMacro(ForegroundValue, MaskImagePixelType);
 
-    itkSetMacro(ForegroundValueLeftLung, ImagePixelType);
-    itkGetConstMacro(ForegroundValueLeftLung, ImagePixelType);
-    GGO_DefineOption(lungLeft, SetForegroundValueLeftLung, ImagePixelType);
+    itkSetMacro(ForegroundValueLeftLung, MaskImagePixelType);
+    itkGetConstMacro(ForegroundValueLeftLung, MaskImagePixelType);
+    // GGO_DefineOption(lungLeft, SetForegroundValueLeftLung, MaskImagePixelType);
     
-    itkSetMacro(ForegroundValueRightLung, ImagePixelType);
-    itkGetConstMacro(ForegroundValueRightLung, ImagePixelType);
-    GGO_DefineOption(lungRight, SetForegroundValueRightLung, ImagePixelType);
+    itkSetMacro(ForegroundValueRightLung, MaskImagePixelType);
+    itkGetConstMacro(ForegroundValueRightLung, MaskImagePixelType);
+    // GGO_DefineOption(lungRight, SetForegroundValueRightLung, MaskImagePixelType);
     
-    itkSetMacro(BackgroundValueTrachea, ImagePixelType);
-    itkGetConstMacro(BackgroundValueTrachea, ImagePixelType);
-    GGO_DefineOption(lungBG, SetBackgroundValueTrachea, ImagePixelType);
+    itkSetMacro(BackgroundValueTrachea, MaskImagePixelType);
+    itkGetConstMacro(BackgroundValueTrachea, MaskImagePixelType);
+    // GGO_DefineOption(lungBG, SetBackgroundValueTrachea, MaskImagePixelType);
     
     itkSetMacro(IntermediateSpacing, double);
     itkGetConstMacro(IntermediateSpacing, double);
@@ -124,6 +139,23 @@ namespace clitk {
     itkGetConstMacro(FuzzyThreshold3, double);
     GGO_DefineOption(fuzzy3, SetFuzzyThreshold3, double);
 
+    itkSetMacro(DistanceMaxToAnteriorPartOfTheSpine, double);
+    itkGetConstMacro(DistanceMaxToAnteriorPartOfTheSpine, double);
+    GGO_DefineOption(antSpine, SetDistanceMaxToAnteriorPartOfTheSpine, double);
+
+    itkBooleanMacro(UseBones);
+    itkSetMacro(UseBones, bool);
+    itkGetConstMacro(UseBones, bool);
+    GGO_DefineOption_Flag(useBones, SetUseBones);
+
+    itkSetMacro(UpperThreshold, double);
+    itkGetConstMacro(UpperThreshold, double);
+    GGO_DefineOption(upper, SetUpperThreshold, double);
+
+    itkSetMacro(LowerThreshold, double);
+    itkGetConstMacro(LowerThreshold, double);
+    GGO_DefineOption(lower, SetLowerThreshold, double);
+
   protected:
     ExtractMediastinumFilter();
     virtual ~ExtractMediastinumFilter() {}
@@ -132,23 +164,31 @@ namespace clitk {
     virtual void GenerateInputRequestedRegion();
     virtual void GenerateData();
        
-    itkSetMacro(BackgroundValue, ImagePixelType);
-    itkSetMacro(ForegroundValue, ImagePixelType);
+    itkSetMacro(BackgroundValue, MaskImagePixelType);
+    itkSetMacro(ForegroundValue, MaskImagePixelType);
     
-    ImagePixelType m_BackgroundValuePatient;
-    ImagePixelType m_BackgroundValueLung;
-    ImagePixelType m_BackgroundValueBones;
-    ImagePixelType m_BackgroundValueTrachea;
-    ImagePixelType m_ForegroundValueLeftLung;
-    ImagePixelType m_ForegroundValueRightLung;
+    MaskImagePixelType m_BackgroundValuePatient;
+    MaskImagePixelType m_BackgroundValueLung;
+    MaskImagePixelType m_BackgroundValueBones;
+    MaskImagePixelType m_BackgroundValueTrachea;
+    MaskImagePixelType m_ForegroundValueLeftLung;
+    MaskImagePixelType m_ForegroundValueRightLung;
 
-    ImagePixelType m_BackgroundValue;
-    ImagePixelType m_ForegroundValue;
-    
+    MaskImagePixelType m_BackgroundValue;
+    MaskImagePixelType m_ForegroundValue;
+
+    typename MaskImageType::Pointer output;
+
     double m_IntermediateSpacing;
     double m_FuzzyThreshold1;
     double m_FuzzyThreshold2;
     double m_FuzzyThreshold3;
+    double m_DistanceMaxToAnteriorPartOfTheSpine;
+    bool m_UseBones;
+    double m_UpperThreshold;
+    double m_LowerThreshold;
+    
+    std::string m_OutputMediastinumFilename;
     
   private:
     ExtractMediastinumFilter(const Self&); //purposely not implemented

@@ -13,26 +13,23 @@ option "verboseWarningOff" -  "Do not display warning"    flag          off
 
 section "I/O"
 
-option "patient"       p	"Input patient mask filename"	  string  	yes
-option "patientBG"     -	"Patient Background"              int           default="0" no
-option "bones"         b	"Input bones mask filename"	  string  	yes
-option "bonesBG"       -	"Bones Background"                int           default="0" no
-option "lung"          l	"Input lung mask filename"	  string  	yes
-option "lungBG"        -	"Lung Background"                 int           default="0" no
-option "lungLeft"      -	"Lung Left value"                 int           default="1" no
-option "lungRight"     -	"Lung Right value"                int           default="2" no
-option "trachea"       t	"Input trachea mask filename"	  string  	yes
-option "tracheaBG"     -	"Trachea Background"              int           default="0" no
-option "afdb"          a	"Input Anatomical Feature DB"     string  	no
+option "input"     i	"Input CT filename"               string  	yes
+option "afdb"      a	"Input Anatomical Feature DB"     string  	no
+option "useBones"  -    "If set : do use bones mask (when image is not injected)"  flag	off
 
 option "output"        o 	"Output lungs mask filename"      string 	yes
 
 section "Step 1 : Left/Right limits with lungs"
 option "spacing"     -	"Intermediate resampling spacing"         double no default="6"
-option "fuzzy1"	     -	"Fuzzy relative position threshold"	  double no default="0.4"
+option "fuzzy1"	     -	"Fuzzy relative position threshold"	  double no default="0.5"
 
 section "Step 2 : Ant/Post limits with bones"
 option "fuzzy2"	     -	"Fuzzy relative position threshold"	  double no default="0.6"
+option "antSpine"     -	"Distance max to anterior part of the spine in mm"  double no default="10"
 
 section "Step 3 : Inf limits with Lung"
-option "fuzzy3"	     -	"Fuzzy relative position threshold"	  double no default="0.2"
+option "fuzzy3"	     -	"Fuzzy relative position threshold"	  double no default="0.05"
+
+section "Step x : threshold for removing bones and injected parts"
+option "upper"  - "Upper threshold" double no default="150"
+option "lower"  - "Lower threshold" double no default="-200"

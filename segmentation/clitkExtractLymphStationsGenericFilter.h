@@ -37,10 +37,10 @@ namespace clitk
     ExtractLymphStationsGenericFilter();
 
     //--------------------------------------------------------------------
-    typedef ExtractLymphStationsGenericFilter      Self;
     typedef ImageToImageGenericFilter<ExtractLymphStationsGenericFilter<ArgsInfoType> > Superclass;
-    typedef itk::SmartPointer<Self>       Pointer;
-    typedef itk::SmartPointer<const Self> ConstPointer;
+    typedef ExtractLymphStationsGenericFilter Self;
+    typedef itk::SmartPointer<Self>           Pointer;
+    typedef itk::SmartPointer<const Self>     ConstPointer;
 
     //--------------------------------------------------------------------
     itkNewMacro(Self);  
@@ -48,6 +48,8 @@ namespace clitk
 
     //--------------------------------------------------------------------
     void SetArgsInfo(const ArgsInfoType & a);
+    template<class FilterType> 
+      void SetOptionsFromArgsInfoToFilter(FilterType * f) ;
 
     //--------------------------------------------------------------------
     // Main function called each time the filter is updated
@@ -57,6 +59,10 @@ namespace clitk
   protected:
     template<unsigned int Dim> void InitializeImageType();
     ArgsInfoType mArgsInfo;
+    
+  private:
+    ExtractLymphStationsGenericFilter(const Self&); //purposely not implemented
+    void operator=(const Self&); //purposely not implemented
     
   }; // end class
   //--------------------------------------------------------------------

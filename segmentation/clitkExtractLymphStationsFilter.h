@@ -28,10 +28,7 @@ namespace clitk {
   //--------------------------------------------------------------------
   /*
     Try to extract the LymphStations part of a thorax CT.
-    Inputs : 
-    - Patient label image
-    - Lungs label image
-    - Bones label image
+    Need a set of Anatomical Features (AFDB)
   */
   //--------------------------------------------------------------------
   
@@ -39,12 +36,12 @@ namespace clitk {
   class ITK_EXPORT ExtractLymphStationsFilter: 
     public virtual clitk::FilterBase, 
     public clitk::FilterWithAnatomicalFeatureDatabaseManagement,
-    public itk::ImageToImageFilter<TImageType, TImageType>
+    public itk::ImageToImageFilter<TImageType, itk::Image<uchar, 3> >
   {
 
   public:
     /** Standard class typedefs. */
-    typedef itk::ImageToImageFilter<TImageType, TImageType> Superclass;
+    typedef itk::ImageToImageFilter<TImageType, itk::Image<uchar, 3> > Superclass;
     typedef ExtractLymphStationsFilter          Self;
     typedef itk::SmartPointer<Self>             Pointer;
     typedef itk::SmartPointer<const Self>       ConstPointer;
@@ -53,8 +50,7 @@ namespace clitk {
     itkNewMacro(Self);
     
     /** Run-time type information (and related methods). */
-    itkTypeMacro(ExtractLymphStationsFilter, InPlaceImageFilter);
-    FILTERBASE_INIT;
+    itkTypeMacro(ExtractLymphStationsFilter, ImageToImageFilter);
 
     /** Some convenient typedefs. */
     typedef TImageType                       ImageType;
@@ -66,46 +62,33 @@ namespace clitk {
     typedef typename ImageType::IndexType    ImageIndexType; 
     typedef typename ImageType::PointType    ImagePointType; 
         
-    /** Connect inputs */
-    void SetInputMediastinumLabelImage(const TImageType * image, ImagePixelType bg=0);
-    void SetInputTracheaLabelImage(const TImageType * image, ImagePixelType bg=0);
-  
+    typedef uchar MaskImagePixelType;
+    typedef itk::Image<MaskImagePixelType, 3>    MaskImageType;  
+    typedef typename MaskImageType::Pointer      MaskImagePointer;
+    typedef typename MaskImageType::RegionType   MaskImageRegionType; 
+    typedef typename MaskImageType::SizeType     MaskImageSizeType; 
+    typedef typename MaskImageType::IndexType    MaskImageIndexType; 
+    typedef typename MaskImageType::PointType    MaskImagePointType; 
+
     /** ImageDimension constants */
-    itkStaticConstMacro(ImageDimension, unsigned int, TImageType::ImageDimension);
-
-    // Set all options at a time
-    template<class ArgsInfoType>
-      void SetArgsInfo(ArgsInfoType arg);
+    itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
+    FILTERBASE_INIT;
    
-    // Background / Foreground
-    itkSetMacro(BackgroundValueMediastinum, ImagePixelType);
-    itkGetConstMacro(BackgroundValueMediastinum, ImagePixelType);
-    //GGO_DefineOption(MediastinumBG, SetBackgroundValueMediastinum, ImagePixelType);
+    /** Main options (from ggo) */
+    template <class ArgsInfoType>
+    void SetArgsInfo(ArgsInfoType & argsinfo);
+
+    itkGetConstMacro(BackgroundValue, MaskImagePixelType);
+    itkGetConstMacro(ForegroundValue, MaskImagePixelType);
+    itkSetMacro(BackgroundValue, MaskImagePixelType);
+    itkSetMacro(ForegroundValue, MaskImagePixelType);
     
-    itkSetMacro(BackgroundValueTrachea, ImagePixelType);
-    itkGetConstMacro(BackgroundValueTrachea, ImagePixelType);
-    //GGO_DefineOption(TracheaBG, SetBackgroundValueTrachea, ImagePixelType);
+    // Station 7
+    itkSetMacro(FuzzyThreshold, double);
+    itkGetConstMacro(FuzzyThreshold, double);
+    itkSetMacro(Station7Filename, std::string);
+    itkGetConstMacro(Station7Filename, std::string);
 
-    itkGetConstMacro(BackgroundValue, ImagePixelType);
-    itkGetConstMacro(ForegroundValue, ImagePixelType);
-
-    //itkSetMacro(CarinaZPositionInMM, double);
-    void SetCarinaZPositionInMM(double d) { m_CarinaZPositionInMM = d; Modified(); m_CarinaZPositionInMMIsSet = true; }
-    itkGetConstMacro(CarinaZPositionInMM, double);
-    GGO_DefineOption(carenaZposition, SetCarinaZPositionInMM, double);
-
-    itkSetMacro(MiddleLobeBronchusZPositionInMM, double);
-    itkGetConstMacro(MiddleLobeBronchusZPositionInMM, double);
-    GGO_DefineOption(middleLobeBronchusZposition, SetMiddleLobeBronchusZPositionInMM, double);
-
-    itkSetMacro(IntermediateSpacing, double);
-    itkGetConstMacro(IntermediateSpacing, double);
-    GGO_DefineOption(spacing, SetIntermediateSpacing, double);
-
-    itkSetMacro(FuzzyThreshold1, double);
-    itkGetConstMacro(FuzzyThreshold1, double);
-    GGO_DefineOption(fuzzy1, SetFuzzyThreshold1, double);
-    
   protected:
     ExtractLymphStationsFilter();
     virtual ~ExtractLymphStationsFilter() {}
@@ -113,27 +96,35 @@ namespace clitk {
     virtual void GenerateOutputInformation();
     virtual void GenerateInputRequestedRegion();
     virtual void GenerateData();
-       
-    itkSetMacro(BackgroundValue, ImagePixelType);
-    itkSetMacro(ForegroundValue, ImagePixelType);
     
-    ImageConstPointer m_mediastinum;
-    ImageConstPointer m_trachea;
-    ImagePointer m_working_image;
-    ImagePointer m_working_trachea;  
-    ImagePointer m_output;  
-    
-    ImagePixelType m_BackgroundValueMediastinum;
-    ImagePixelType m_BackgroundValueTrachea;
-    ImagePixelType m_BackgroundValue;
-    ImagePixelType m_ForegroundValue;
-    
-    double m_CarinaZPositionInMM;
-    bool   m_CarinaZPositionInMMIsSet;
-    double m_MiddleLobeBronchusZPositionInMM; 
-    double m_IntermediateSpacing;
-    double m_FuzzyThreshold1;
-    
+    ImageConstPointer  m_Input;
+    MaskImagePointer   m_Support;
+    MaskImagePointer   m_Working_Support;
+    MaskImagePointer   m_Output;
+    MaskImagePixelType m_BackgroundValue;
+    MaskImagePixelType m_ForegroundValue;    
+
+    // Common 
+    MaskImagePointer m_Trachea;
+
+    // Station 7
+    void ExtractStation_7();
+    void ExtractStation_7_SI_Limits();
+    void ExtractStation_7_RL_Limits();
+    void ExtractStation_7_Posterior_Limits();       
+    std::string      m_Station7Filename;
+    MaskImagePointer m_working_trachea;
+    double           m_FuzzyThreshold;
+    MaskImagePointer m_LeftBronchus;
+    MaskImagePointer m_RightBronchus;
+    MaskImagePointer m_Station7;
+
+    // Station 4RL
+    void ExtractStation_4RL();
+    void ExtractStation_4RL_SI_Limits();
+    void ExtractStation_4RL_LR_Limits();
+    MaskImagePointer m_Station4RL;
+
   private:
     ExtractLymphStationsFilter(const Self&); //purposely not implemented
     void operator=(const Self&); //purposely not implemented
@@ -146,6 +137,8 @@ namespace clitk {
 
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "clitkExtractLymphStationsFilter.txx"
+#include "clitkExtractLymphStation_7.txx"
+#include "clitkExtractLymphStation_4RL.txx"
 #endif
 
 #endif

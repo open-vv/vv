@@ -14,14 +14,9 @@ option "verboseWarningOff" -  "Do not display warning"    flag          off
 section "I/O"
 
 option "afdb"          a	"Input Anatomical Feature DB"     string  	no
-option "mediastinum"   m	"Input mediastinum mask filename" string  	yes
-option "trachea"       t	"Input trachea mask filename"	  string  	yes
-option "output"        o 	"Output lungs mask filename"      string 	yes
+option "input"         i	"Input filename"                  string  	no
+option "output"        o 	"Output lungs mask filename"      string 	no
 
-option "carenaZposition"   		c	"Sup-Inf position of the carena (in mm, with origin)" double no
-option "middleLobeBronchusZposition"   	b	"Sup-Inf position of the middle lobe bronchus (in mm, with origin)" double no
-option "spacing"     -	"Intermediate resampling spacing"         double no default="6"
-option "fuzzy1"	     -	"Fuzzy relative position threshold"	  double no default="0.6"
 
 
 

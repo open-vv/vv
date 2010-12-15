@@ -53,8 +53,10 @@ namespace clitk {
       _l1 = l1;
       _l2 = l2;
     }
+
     IndexType index;
     PointType point;
+    double weight;
     PixelType l;
     PixelType l1;
     PixelType l2;
@@ -109,7 +111,23 @@ namespace clitk {
     typedef typename InternalImageType::Pointer                      InternalImagePointer;
     typedef typename InternalImageType::IndexType                    InternalIndexType;
     typedef LabelizeParameters<InternalPixelType>                    LabelParamType;
-    
+
+    // Data Structures for trees 
+    struct FullTreeNodeType {
+      ImageIndexType index;
+      ImagePointType point;
+      double weight;
+    };
+    struct StructuralTreeNodeType {
+      ImageIndexType index;
+      ImagePointType point;
+      double weight;
+    };
+    typedef tree<FullTreeNodeType> FullTreeType;
+    typedef tree<StructuralTreeNodeType> StructuralTreeType;
+    FullTreeType mFullSkeletonTree; 
+    StructuralTreeType mStructuralSkeletonTree;
+
     /** Connect inputs */
     void SetInput(const ImageType * image);
 
@@ -148,6 +166,10 @@ namespace clitk {
     virtual void GenerateData();
 
     TreeType m_SkeletonTree;
+    void TrackFromThisIndex2(ImageIndexType index, ImagePointer skeleton, 
+			     ImagePixelType label, 
+			     typename FullTreeType::iterator currentNode, 
+                             typename StructuralTreeType::iterator currentSNode);
     void TrackFromThisIndex(std::vector<BifurcationType> & listOfBifurcations, 
                             ImagePointer skeleton, 
                             ImageIndexType index,

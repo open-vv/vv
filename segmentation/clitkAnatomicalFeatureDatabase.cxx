@@ -98,6 +98,15 @@ void clitk::AnatomicalFeatureDatabase::SetPoint3D(std::string tag, PointType3D &
 
 
 //--------------------------------------------------------------------
+double clitk::AnatomicalFeatureDatabase::GetPoint3D(std::string tag, int dim)
+{
+  PointType3D p;
+  GetPoint3D(tag, p);
+  return p[dim];
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
 void clitk::AnatomicalFeatureDatabase::GetPoint3D(std::string tag, PointType3D & p)
 {
   if (m_MapOfTag.find(tag) == m_MapOfTag.end()) {

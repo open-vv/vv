@@ -23,6 +23,7 @@
 #include "clitkCommon.h"
 #include "clitkExtractMediastinumFilter.h"
 #include "clitkAddRelativePositionConstraintToLabelImageFilter.h"
+#include "clitkSliceBySliceRelativePositionFilter.h"
 #include "clitkSegmentationUtils.h"
 #include "clitkExtractAirwaysTreeInfoFilter.h"
 #include "clitkCropLikeImageFilter.h"
@@ -35,6 +36,7 @@
 #include "itkLabelImageToStatisticsLabelMapFilter.h"
 #include "itkRegionOfInterestImageFilter.h"
 #include "itkBinaryThresholdImageFilter.h"
+#include "itkScalarImageKmeansImageFilter.h"
 
 // itk ENST
 #include "RelativePositionPropImageFilter.h"
@@ -45,9 +47,9 @@ clitk::ExtractMediastinumFilter<ImageType>::
 ExtractMediastinumFilter():
   clitk::FilterBase(),
   clitk::FilterWithAnatomicalFeatureDatabaseManagement(),
-  itk::ImageToImageFilter<ImageType, ImageType>()
+  itk::ImageToImageFilter<ImageType, MaskImageType>()
 {
-  this->SetNumberOfRequiredInputs(4);
+  this->SetNumberOfRequiredInputs(1);
 
   SetBackgroundValuePatient(0);
   SetBackgroundValueLung(0);
@@ -58,9 +60,14 @@ ExtractMediastinumFilter():
   SetForegroundValue(1);
 
   SetIntermediateSpacing(6);
-  SetFuzzyThreshold1(0.4);
+  SetFuzzyThreshold1(0.5);
   SetFuzzyThreshold2(0.6);
-  SetFuzzyThreshold3(0.2);
+  SetFuzzyThreshold3(0.05);
+  
+  SetDistanceMaxToAnteriorPartOfTheSpine(10);
+  SetOutputMediastinumFilename("mediastinum.mhd");
+  
+  UseBonesOff();
 }
 //--------------------------------------------------------------------
 
@@ -69,9 +76,9 @@ ExtractMediastinumFilter():
 template <class ImageType>
 void 
 clitk::ExtractMediastinumFilter<ImageType>::
-SetInputPatientLabelImage(const ImageType * image, ImagePixelType bg) 
+SetInputPatientLabelImage(const MaskImageType * image, MaskImagePixelType bg) 
 {
-  this->SetNthInput(0, const_cast<ImageType *>(image));
+  this->SetNthInput(0, const_cast<MaskImageType *>(image));
   m_BackgroundValuePatient = bg;
 }
 //--------------------------------------------------------------------
@@ -81,10 +88,10 @@ SetInputPatientLabelImage(const ImageType * image, ImagePixelType bg)
 template <class ImageType>
 void 
 clitk::ExtractMediastinumFilter<ImageType>::
-SetInputLungLabelImage(const ImageType * image, ImagePixelType bg, 
-                       ImagePixelType fgLeft, ImagePixelType fgRight) 
+SetInputLungLabelImage(const MaskImageType * image, MaskImagePixelType bg, 
+                       MaskImagePixelType fgLeft, MaskImagePixelType fgRight) 
 {
-  this->SetNthInput(1, const_cast<ImageType *>(image));
+  this->SetNthInput(1, const_cast<MaskImageType *>(image));
   m_BackgroundValueLung = bg;
   m_ForegroundValueLeftLung = fgLeft;
   m_ForegroundValueRightLung = fgRight;
@@ -96,9 +103,9 @@ SetInputLungLabelImage(const ImageType * image, ImagePixelType bg,
 template <class ImageType>
 void 
 clitk::ExtractMediastinumFilter<ImageType>::
-SetInputBonesLabelImage(const ImageType * image, ImagePixelType bg) 
+SetInputBonesLabelImage(const MaskImageType * image, MaskImagePixelType bg) 
 {
-  this->SetNthInput(2, const_cast<ImageType *>(image));
+  this->SetNthInput(2, const_cast<MaskImageType *>(image));
   m_BackgroundValueBones = bg;
 }
 //--------------------------------------------------------------------
@@ -108,9 +115,9 @@ SetInputBonesLabelImage(const ImageType * image, ImagePixelType bg)
 template <class ImageType>
 void 
 clitk::ExtractMediastinumFilter<ImageType>::
-SetInputTracheaLabelImage(const ImageType * image, ImagePixelType bg) 
+SetInputTracheaLabelImage(const MaskImageType * image, MaskImagePixelType bg) 
 {
-  this->SetNthInput(3, const_cast<ImageType *>(image));
+  this->SetNthInput(3, const_cast<MaskImageType *>(image));
   m_BackgroundValueTrachea = bg;
 }
 //--------------------------------------------------------------------
@@ -128,31 +135,17 @@ SetArgsInfo(ArgsInfoType mArgsInfo)
   SetWriteStep_GGO(mArgsInfo);
   SetVerboseWarningOff_GGO(mArgsInfo);
 
-  SetBackgroundValuePatient_GGO(mArgsInfo);
-  SetBackgroundValueLung_GGO(mArgsInfo);
-  SetBackgroundValueTrachea_GGO(mArgsInfo);
-
-  SetForegroundValueLeftLung_GGO(mArgsInfo);
-  SetForegroundValueRightLung_GGO(mArgsInfo);
-
   SetIntermediateSpacing_GGO(mArgsInfo);
   SetFuzzyThreshold1_GGO(mArgsInfo);
   SetFuzzyThreshold2_GGO(mArgsInfo);
   SetFuzzyThreshold3_GGO(mArgsInfo);
 
-  SetAFDBFilename_GGO(mArgsInfo);
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-template <class ImageType>
-void 
-clitk::ExtractMediastinumFilter<ImageType>::
-GenerateOutputInformation() { 
-  ImagePointer input = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
-  ImagePointer outputImage = this->GetOutput(0);
-  outputImage->SetRegions(outputImage->GetLargestPossibleRegion());
+  SetAFDBFilename_GGO(mArgsInfo);  
+  SetDistanceMaxToAnteriorPartOfTheSpine_GGO(mArgsInfo);  
+  SetUseBones_GGO(mArgsInfo);
+  
+  SetLowerThreshold_GGO(mArgsInfo);
+  SetUpperThreshold_GGO(mArgsInfo);
 }
 //--------------------------------------------------------------------
 
@@ -163,20 +156,22 @@ void
 clitk::ExtractMediastinumFilter<ImageType>::
 GenerateInputRequestedRegion() 
 {
-  // Call default
-  Superclass::GenerateInputRequestedRegion();  
+  //DD("GenerateInputRequestedRegion");
+  // Do not call default
+  //  Superclass::GenerateInputRequestedRegion();  
+  //  DD("End GenerateInputRequestedRegion");
+}
 
-  // Get input pointers  
-  LoadAFDB();
-  ImagePointer patient = GetAFDB()->template GetImage <ImageType>("patient");  
-  ImagePointer lung = GetAFDB()->template GetImage <ImageType>("lungs");  
-  ImagePointer bones = GetAFDB()->template GetImage <ImageType>("bones");  
-  ImagePointer trachea = GetAFDB()->template GetImage <ImageType>("trachea");  
-    
-  patient->SetRequestedRegion(patient->GetLargestPossibleRegion());
-  lung->SetRequestedRegion(lung->GetLargestPossibleRegion());
-  bones->SetRequestedRegion(bones->GetLargestPossibleRegion());
-  trachea->SetRequestedRegion(trachea->GetLargestPossibleRegion());
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class ImageType>
+void 
+clitk::ExtractMediastinumFilter<ImageType>::
+SetInput(const ImageType * image) 
+{
+  this->SetNthInput(0, const_cast<ImageType *>(image));
 }
 //--------------------------------------------------------------------
 
@@ -185,69 +180,83 @@ GenerateInputRequestedRegion()
 template <class ImageType>
 void 
 clitk::ExtractMediastinumFilter<ImageType>::
-GenerateData() 
-{
-  // Get input pointers
-  ImagePointer patient = GetAFDB()->template GetImage <ImageType>("patient");  
-  ImagePointer lung = GetAFDB()->template GetImage <ImageType>("lungs");  
-  ImagePointer bones = GetAFDB()->template GetImage <ImageType>("bones");  
-  ImagePointer trachea = GetAFDB()->template GetImage <ImageType>("trachea");  
-    
-  // Get output pointer
-  ImagePointer output;
+GenerateOutputInformation() { 
+  //  DD("GenerateOutputInformation");
+  // Do not call default
+  //  Superclass::GenerateOutputInformation();
 
-  // Step 0: Crop support (patient) to lung extend in RL
+  //--------------------------------------------------------------------
+  // Get input pointers
+  LoadAFDB();
+  ImageConstPointer input = dynamic_cast<const ImageType*>(itk::ProcessObject::GetInput(0));
+  MaskImagePointer patient = GetAFDB()->template GetImage <MaskImageType>("patient");  
+  MaskImagePointer lung = GetAFDB()->template GetImage <MaskImageType>("lungs");  
+  MaskImagePointer bones = GetAFDB()->template GetImage <MaskImageType>("bones");  
+  MaskImagePointer trachea = GetAFDB()->template GetImage <MaskImageType>("trachea");  
+    
+  //--------------------------------------------------------------------
+  // Step 1: Crop support (patient) to lung extend in RL
   StartNewStep("Crop support like lungs along LR");
-  typedef clitk::CropLikeImageFilter<ImageType> CropFilterType;
+  typedef clitk::CropLikeImageFilter<MaskImageType> CropFilterType;
   typename CropFilterType::Pointer cropFilter = CropFilterType::New();
   cropFilter->SetInput(patient);
   cropFilter->SetCropLikeImage(lung, 0);// Indicate that we only crop in X (Left-Right) axe
   cropFilter->Update();
   output = cropFilter->GetOutput();
-  this->template StopCurrentStep<ImageType>(output);
+  this->template StopCurrentStep<MaskImageType>(output);
 
-  // Step 0: Crop support (previous) to bones extend in AP
-  StartNewStep("Crop support like bones along AP");
-  cropFilter = CropFilterType::New();
-  cropFilter->SetInput(output);
-  cropFilter->SetCropLikeImage(bones, 1);// Indicate that we only crop in Y (Ant-Post) axe
-  cropFilter->Update();
-  output = cropFilter->GetOutput();
-  this->template StopCurrentStep<ImageType>(output);
+  //--------------------------------------------------------------------
+  // Step 2: Crop support (previous) to bones extend in AP
+  if (GetUseBones()) {
+    StartNewStep("Crop support like bones along AP");
+    cropFilter = CropFilterType::New();
+    cropFilter->SetInput(output);
+    cropFilter->SetCropLikeImage(bones, 1);// Indicate that we only crop in Y (Ant-Post) axe
+    cropFilter->Update();
+    output = cropFilter->GetOutput();
+    this->template StopCurrentStep<MaskImageType>(output);
+  }
 
-  // Step 1: patient minus lungs, minus bones
-  StartNewStep("Patient contours minus lungs and minus bones");
-  typedef clitk::BooleanOperatorLabelImageFilter<ImageType> BoolFilterType;
+  //--------------------------------------------------------------------
+  // Step 3: patient minus lungs, minus bones, minus trachea
+  StartNewStep("Patient contours minus lungs, bones, trachea");
+  typedef clitk::BooleanOperatorLabelImageFilter<MaskImageType> BoolFilterType;
   typename BoolFilterType::Pointer boolFilter = BoolFilterType::New(); 
   boolFilter->InPlaceOn();
   boolFilter->SetInput1(output);
   boolFilter->SetInput2(lung);    
   boolFilter->SetOperationType(BoolFilterType::AndNot);
   boolFilter->Update();    
+  if (GetUseBones()) {
+    boolFilter->SetInput1(boolFilter->GetOutput());
+    boolFilter->SetInput2(bones);
+    boolFilter->SetOperationType(BoolFilterType::AndNot);
+    boolFilter->Update(); 
+  }
   boolFilter->SetInput1(boolFilter->GetOutput());
-  boolFilter->SetInput2(bones);
+  boolFilter->SetInput2(trachea);
   boolFilter->SetOperationType(BoolFilterType::AndNot);
   boolFilter->Update(); 
   output = boolFilter->GetOutput();
 
   // Auto crop to gain support area
-  output = clitk::AutoCrop<ImageType>(output, GetBackgroundValue()); 
-  this->template StopCurrentStep<ImageType>(output);
+  output = clitk::AutoCrop<MaskImageType>(output, GetBackgroundValue()); 
+  this->template StopCurrentStep<MaskImageType>(output);
 
-  // Step 2: LR limits from lung (need separate lung ?)
+  //--------------------------------------------------------------------
+  // Step 4: LR limits from lung (need separate lung ?)
+  // Get separate lung images to get only the right and left lung
+  // (because RelativePositionPropImageFilter only consider fg=1);
+  // (label must be '1' because right is greater than left).  (WE DO
+  // NOT NEED TO SEPARATE ? )
   StartNewStep("Left/Right limits with lungs");
-
   /*
-  // WE DO NOT NEED THE FOLLOWING ?
-  // Get separate lung images to get only the right and left lung (because RelativePositionPropImageFilter only consider fg=1);
-  // (label must be '1' because right is greater than left).
-  ImagePointer right_lung = clitk::SetBackground<ImageType, ImageType>(lung, lung, 2, 0);
-  ImagePointer left_lung = clitk::SetBackground<ImageType, ImageType>(lung, lung, 1, 0);
-  writeImage<ImageType>(right_lung, "right.mhd");
-  writeImage<ImageType>(left_lung, "left.mhd");
+    ImagePointer right_lung = clitk::SetBackground<MaskImageType, MaskImageType>(lung, lung, 2, 0);
+    ImagePointer left_lung = clitk::SetBackground<MaskImageType, MaskImageType>(lung, lung, 1, 0);
+    writeImage<MaskImageType>(right_lung, "right.mhd");
+    writeImage<MaskImageType>(left_lung, "left.mhd");
   */
-
-  typedef clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType> RelPosFilterType;
+  typedef clitk::AddRelativePositionConstraintToLabelImageFilter<MaskImageType> RelPosFilterType;
   typename RelPosFilterType::Pointer relPosFilter = RelPosFilterType::New();
   relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
   relPosFilter->VerboseStepOff();
@@ -260,7 +269,7 @@ GenerateData()
   relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold1());
   relPosFilter->Update();
   output = relPosFilter->GetOutput();
-  // writeImage<ImageType>(right_lung, "step4-left.mhd");
+  //writeImage<MaskImageType>(right_lung, "step4-left.mhd");
 
   relPosFilter->SetInput(output); 
   relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
@@ -273,118 +282,378 @@ GenerateData()
   relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold1());
   relPosFilter->Update();   
   output = relPosFilter->GetOutput();
-  this->template StopCurrentStep<ImageType>(output);
+  this->template StopCurrentStep<MaskImageType>(output);
 
-  // Step 3: AP limits from bones
-  StartNewStep("Ant/Post limits with bones");
-  ImageConstPointer bones_ant;
-  ImageConstPointer bones_post;
-
-  // Find ant-post coordinate of trachea (assume the carena position is a
-  // good estimation of the ant-post position of the trachea)
-  ImagePointType carina;
-  LoadAFDB();
-  GetAFDB()->GetPoint3D("Carina", carina);
-  DD(carina);
-  ImageIndexType index_trachea;
-  bones->TransformPhysicalPointToIndex(carina, index_trachea);
-  DD(index_trachea);
+  //--------------------------------------------------------------------
+  // Step 5: AP limits from bones
+  // Separate the bones in the ant-post middle
+  MaskImageConstPointer bones_ant;
+  MaskImageConstPointer bones_post;
+  MaskImagePointType middle_AntPost__position;
+  if (GetUseBones()) { 
+    StartNewStep("Ant/Post limits with bones");
+    middle_AntPost__position[0] = middle_AntPost__position[2] = 0;
+    middle_AntPost__position[1] = bones->GetOrigin()[1]+(bones->GetLargestPossibleRegion().GetSize()[1]*bones->GetSpacing()[1])/2.0;
+    MaskImageIndexType index_bones_middle;
+    bones->TransformPhysicalPointToIndex(middle_AntPost__position, index_bones_middle);
   
-  // Split bone image first into two parts (ant and post)
-  typedef itk::RegionOfInterestImageFilter<ImageType, ImageType> ROIFilterType;
-  //  typedef itk::ExtractImageFilter<ImageType, ImageType> ROIFilterType;
-  typename ROIFilterType::Pointer roiFilter = ROIFilterType::New();
-  ImageRegionType region = bones->GetLargestPossibleRegion();
-  ImageSizeType size = region.GetSize();
-  DD(size);
-  size[1] =  index_trachea[1]; //size[1]/2.0;
-  DD(size);
-  region.SetSize(size);
-  roiFilter->SetInput(bones);
-  //  roiFilter->SetExtractionRegion(region);
-  roiFilter->SetRegionOfInterest(region);
-  roiFilter->ReleaseDataFlagOff();
-  roiFilter->Update();
-  bones_ant = roiFilter->GetOutput();
-  writeImage<ImageType>(bones_ant, "b_ant.mhd");
-  
-  //  roiFilter->ResetPipeline();// = ROIFilterType::New();  
-  roiFilter = ROIFilterType::New();  
-  ImageIndexType index = region.GetIndex();
-  index[1] = bones->GetLargestPossibleRegion().GetIndex()[1] + size[1]-1;
-  size[1] =  bones->GetLargestPossibleRegion().GetSize()[1] - size[1];
-  DD(size);
-  region.SetIndex(index);
-  region.SetSize(size);
-  roiFilter->SetInput(bones);
-  //  roiFilter->SetExtractionRegion(region);
-  roiFilter->SetRegionOfInterest(region);
-  roiFilter->ReleaseDataFlagOff();
-  roiFilter->Update();
-  bones_post = roiFilter->GetOutput();
-  writeImage<ImageType>(bones_post, "b_post.mhd");
+    // Split bone image first into two parts (ant and post), and crop
+    // lateraly to get vertebral 
+    typedef itk::RegionOfInterestImageFilter<MaskImageType, MaskImageType> ROIFilterType;
+    //  typedef itk::ExtractImageFilter<MaskImageType, MaskImageType> ROIFilterType;
+    typename ROIFilterType::Pointer roiFilter = ROIFilterType::New();
+    MaskImageRegionType region = bones->GetLargestPossibleRegion();
+    MaskImageSizeType size = region.GetSize();
+    MaskImageIndexType index = region.GetIndex();
+    // ANT part
+    // crop LR to keep 1/4 center part
+    index[0] = size[0]/4+size[0]/8;
+    size[0] = size[0]/4; 
+    // crop AP to keep first (ant) part
+    size[1] =  index_bones_middle[1]; //size[1]/2.0;
+    region.SetSize(size);
+    region.SetIndex(index);
+    roiFilter->SetInput(bones);
+    roiFilter->SetRegionOfInterest(region);
+    roiFilter->ReleaseDataFlagOff();
+    roiFilter->Update();
+    bones_ant = roiFilter->GetOutput();
+    writeImage<MaskImageType>(bones_ant, "b_ant.mhd");
+    // POST part
+    roiFilter = ROIFilterType::New();  
+    index[1] = bones->GetLargestPossibleRegion().GetIndex()[1] + size[1]-1;
+    size[1] =  bones->GetLargestPossibleRegion().GetSize()[1] - size[1];
+    region.SetIndex(index);
+    region.SetSize(size);
+    roiFilter->SetInput(bones);
+    roiFilter->SetRegionOfInterest(region);
+    roiFilter->ReleaseDataFlagOff();
+    roiFilter->Update();
+    bones_post = roiFilter->GetOutput();
+    writeImage<MaskImageType>(bones_post, "b_post.mhd");
 
-  // Go ! 
-  relPosFilter->SetCurrentStepNumber(0);
-  relPosFilter->ResetPipeline();// = RelPosFilterType::New();
-  relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
-  relPosFilter->VerboseStepOff();
-  relPosFilter->WriteStepOff();
-  relPosFilter->SetInput(output); 
-  relPosFilter->SetInputObject(bones_post); 
-  relPosFilter->SetOrientationType(RelPosFilterType::AntTo);
-  relPosFilter->SetIntermediateSpacing(GetIntermediateSpacing());
-  relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold2());
-  relPosFilter->Update();
-  output = relPosFilter->GetOutput();
-  writeImage<ImageType>(output, "post.mhd");
+    // Go ! 
+    relPosFilter->SetCurrentStepNumber(0);
+    relPosFilter->ResetPipeline();// = RelPosFilterType::New();
+    relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
+    relPosFilter->VerboseStepOff();
+    relPosFilter->WriteStepOff();
+    relPosFilter->SetInput(output); 
+    relPosFilter->SetInputObject(bones_post); 
+    relPosFilter->SetOrientationType(RelPosFilterType::AntTo);
+    relPosFilter->SetIntermediateSpacing(GetIntermediateSpacing());
+    relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold2());
+    relPosFilter->Update();
+    output = relPosFilter->GetOutput();
+    writeImage<MaskImageType>(output, "post.mhd");
 
-  relPosFilter->SetInput(relPosFilter->GetOutput()); 
-  relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
-  relPosFilter->VerboseStepOff();
-  relPosFilter->WriteStepOff();
-  relPosFilter->SetInput(output); 
-  relPosFilter->SetInputObject(bones_ant); 
-  relPosFilter->SetOrientationType(RelPosFilterType::PostTo);
-  relPosFilter->SetIntermediateSpacing(GetIntermediateSpacing());
-  relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold2());
-  relPosFilter->Update();   
-  output = relPosFilter->GetOutput();
-  this->template StopCurrentStep<ImageType>(output);
+    relPosFilter->SetInput(relPosFilter->GetOutput()); 
+    relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
+    relPosFilter->VerboseStepOff();
+    relPosFilter->WriteStepOff();
+    relPosFilter->SetInput(output); 
+    relPosFilter->SetInputObject(bones_ant); 
+    relPosFilter->SetOrientationType(RelPosFilterType::PostTo);
+    relPosFilter->SetIntermediateSpacing(GetIntermediateSpacing());
+    relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold2());
+    relPosFilter->Update();   
+    output = relPosFilter->GetOutput();
+    this->template StopCurrentStep<MaskImageType>(output);
+  }
 
-  // Get CCL
+  //--------------------------------------------------------------------
+  // Step 6: Get CCL
   StartNewStep("Keep main connected component");
-  output = clitk::Labelize<ImageType>(output, GetBackgroundValue(), true, 500);
-  // output = RemoveLabels<ImageType>(output, BG, param->GetLabelsToRemove());
-  output = clitk::KeepLabels<ImageType>(output, GetBackgroundValue(), 
-                                        GetForegroundValue(), 1, 1, 0);
-  this->template StopCurrentStep<ImageType>(output);
+  output = clitk::Labelize<MaskImageType>(output, GetBackgroundValue(), false, 500);
+  // output = RemoveLabels<MaskImageType>(output, BG, param->GetLabelsToRemove());
+  output = clitk::KeepLabels<MaskImageType>(output, GetBackgroundValue(), 
+                                            GetForegroundValue(), 1, 1, 0);
+  this->template StopCurrentStep<MaskImageType>(output);
 
-  // Step : Lower limits from lung (need separate lung ?)
-  StartNewStep("Lower limits with lungs");
-  relPosFilter = RelPosFilterType::New();
-  relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
-  relPosFilter->VerboseStepOff();
-  relPosFilter->WriteStepOff();
-  relPosFilter->SetInput(output); 
-  DD(output->GetLargestPossibleRegion().GetIndex());
-  //  relPosFilter->SetInputObject(left_lung); 
-  relPosFilter->SetInputObject(lung); 
-  relPosFilter->SetOrientationType(RelPosFilterType::SupTo);
-  relPosFilter->SetIntermediateSpacing(GetIntermediateSpacing());
-  relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold3());
-  relPosFilter->Update();
-  output = relPosFilter->GetOutput();
-  DD(output->GetLargestPossibleRegion());
+  //--------------------------------------------------------------------
+  // Step 7 : Slice by Slice to optimize posterior part
+  // Warning slice does not necesseraly correspond between 'output' and 'bones'
+  typedef clitk::ExtractSliceFilter<MaskImageType> ExtractSliceFilterType;
+  typename ExtractSliceFilterType::Pointer extractSliceFilter = ExtractSliceFilterType::New();
+  typedef typename ExtractSliceFilterType::SliceType SliceType;
+  std::vector<typename SliceType::Pointer> mSlices;
+  if (GetUseBones()) { 
+    StartNewStep("Rafine posterior part according to vertebral body");
+    extractSliceFilter->SetInput(bones_post);
+    extractSliceFilter->SetDirection(2);
+    extractSliceFilter->Update();
+    std::vector<double> mVertebralAntPositionBySlice;
+    extractSliceFilter->GetOutputSlices(mSlices);
+    for(unsigned int i=0; i<mSlices.size(); i++) {
+      mSlices[i] = Labelize<SliceType>(mSlices[i], 0, true, 10);
+      mSlices[i] = KeepLabels<SliceType>(mSlices[i], 
+                                         GetBackgroundValue(), 
+                                         GetForegroundValue(), 1, 2, true); // keep two first
+      // Find most anterior point (start of the vertebral)
+      typename itk::ImageRegionIteratorWithIndex<SliceType> 
+        iter(mSlices[i], mSlices[i]->GetLargestPossibleRegion());
+      iter.GoToBegin();
+      bool stop = false;
+      while (!stop) {
+        if (iter.Get() != GetBackgroundValue()) 
+          stop = true; // not foreground because we keep two main label
+        ++iter;
+        if (iter.IsAtEnd()) stop = true;
+      }
+      if (!iter.IsAtEnd()) {
+        typename SliceType::PointType p;
+        mSlices[i]->TransformIndexToPhysicalPoint(iter.GetIndex(),p);
+        mVertebralAntPositionBySlice.push_back(p[1]);
+      }
+      else {
+        mVertebralAntPositionBySlice.push_back(bones_post->GetOrigin()[1]+(bones->GetLargestPossibleRegion().GetSize()[1]*bones->GetSpacing()[1]));
+        DD(mVertebralAntPositionBySlice.back());
+        DD("ERROR ?? NO FG in bones here ?");
+      }
+    }
 
-  output = clitk::AutoCrop<ImageType>(output, GetBackgroundValue()); 
-  //  roiFilter = ROIFilterType::New();
-  //roiFilter->SetInput(output);
-  //roiFilter->Update();   
-  //output = roiFilter->GetOutput();
+    // Cut Post position slice by slice
+    {
+      MaskImageRegionType region;
+      MaskImageSizeType size;
+      MaskImageIndexType start;
+      size[2] = 1;
+      start[0] = output->GetLargestPossibleRegion().GetIndex()[0];
+      for(unsigned int i=0; i<mSlices.size(); i++) {
+        // Compute index
+        MaskImagePointType point; 
+        point[0] = 0; 
 
-  // Final Step -> set output
-  this->SetNthOutput(0, output);
+        //TODO 10 mm OPTION
+
+        point[1] = mVertebralAntPositionBySlice[i]+GetDistanceMaxToAnteriorPartOfTheSpine();// ADD ONE CM 
+        point[2] = bones_post->GetOrigin()[2]+(bones_post->GetLargestPossibleRegion().GetIndex()[2]+i)*bones_post->GetSpacing()[2];
+        MaskImageIndexType index;
+        output->TransformPhysicalPointToIndex(point, index);
+        // Compute region
+        start[2] = index[2];
+        start[1] = output->GetLargestPossibleRegion().GetIndex()[1]+index[1];
+        size[0] = output->GetLargestPossibleRegion().GetSize()[0];
+        size[1] = output->GetLargestPossibleRegion().GetSize()[1]-start[1];
+        region.SetSize(size);
+        region.SetIndex(start);
+        // Fill Region
+        if (output->GetLargestPossibleRegion().IsInside(start))  {
+          itk::ImageRegionIteratorWithIndex<MaskImageType> it(output, region);
+          it.GoToBegin();
+          while (!it.IsAtEnd()) {
+            it.Set(GetBackgroundValue());
+            ++it;
+          }
+        }
+      }
+    }
+    this->template StopCurrentStep<MaskImageType>(output);
+  }
+
+  //--------------------------------------------------------------------
+  // Step 8: Trial segmentation KMeans
+  if (0) {
+    StartNewStep("K means");
+    // Take input, crop like current mask
+    typedef CropLikeImageFilter<ImageType> CropLikeFilterType;
+    typename CropLikeFilterType::Pointer cropLikeFilter = CropLikeFilterType::New();
+    cropLikeFilter->SetInput(input);
+    cropLikeFilter->SetCropLikeImage(output);
+    cropLikeFilter->Update();
+    ImagePointer working_input = cropLikeFilter->GetOutput();
+    writeImage<ImageType>(working_input, "crop-input.mhd");
+    // Set bG at -1000
+    working_input = clitk::SetBackground<ImageType, MaskImageType>(working_input, output, GetBackgroundValue(), -1000);
+    writeImage<ImageType>(working_input, "crop-input2.mhd");
+    // Kmeans
+    typedef itk::ScalarImageKmeansImageFilter<ImageType> KMeansFilterType;
+    typename KMeansFilterType::Pointer kmeansFilter = KMeansFilterType::New();
+    kmeansFilter->SetInput(working_input);
+    //  const unsigned int numberOfInitialClasses = 3;
+    // const unsigned int useNonContiguousLabels = 0;
+    kmeansFilter->AddClassWithInitialMean(-1000);
+    kmeansFilter->AddClassWithInitialMean(30);
+    kmeansFilter->AddClassWithInitialMean(-40);  // ==> I want this one
+    DD("Go!");
+    kmeansFilter->Update();
+    DD("End");
+    typename KMeansFilterType::ParametersType estimatedMeans = kmeansFilter->GetFinalMeans();
+    const unsigned int numberOfClasses = estimatedMeans.Size();
+    for ( unsigned int i = 0 ; i < numberOfClasses ; ++i ) {
+      std::cout << "cluster[" << i << "] ";
+      std::cout << "    estimated mean : " << estimatedMeans[i] << std::endl;
+    }
+    MaskImageType::Pointer kmeans = kmeansFilter->GetOutput();
+    kmeans = clitk::SetBackground<MaskImageType, MaskImageType>(kmeans, kmeans, 
+                                                                1, GetBackgroundValue());
+    writeImage<MaskImageType>(kmeans, "kmeans.mhd");
+    // Get final results, and remove from current mask
+    boolFilter = BoolFilterType::New(); 
+    boolFilter->InPlaceOn();
+    boolFilter->SetInput1(output);
+    boolFilter->SetInput2(kmeans);    
+    boolFilter->SetOperationType(BoolFilterType::And);
+    boolFilter->Update();    
+    output = boolFilter->GetOutput();
+    writeImage<MaskImageType>(output, "out-kmean.mhd");
+    this->template StopCurrentStep<MaskImageType>(output);
+
+    // TODO -> FillMASK ?
+    // comment speed ? mask ? 2 class ?
+
+
+    //TODO 
+    // Confidence connected ?
+
+  }
+
+  //--------------------------------------------------------------------
+  // Step 8: Lower limits from lung (need separate lung ?)
+  if (1) {
+    // StartNewStep("Trial : minus segmented struct");
+    // MaskImagePointer heart = GetAFDB()->template GetImage <MaskImageType>("heart");  
+    // boolFilter = BoolFilterType::New(); 
+    // boolFilter->InPlaceOn();
+    // boolFilter->SetInput1(output);
+    // boolFilter->SetInput2(heart);
+    // boolFilter->SetOperationType(BoolFilterType::AndNot);
+    // boolFilter->Update();  
+    //  output = boolFilter->GetOutput(); // not needed because InPlace
+    
+    // Not below the heart
+    // relPosFilter = RelPosFilterType::New();
+    // relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
+    // relPosFilter->VerboseStepOff();
+    // relPosFilter->WriteStepOff();
+    // relPosFilter->SetInput(output); 
+    // relPosFilter->SetInputObject(heart);
+    // relPosFilter->SetOrientationType(RelPosFilterType::SupTo);
+    // relPosFilter->SetIntermediateSpacing(GetIntermediateSpacing());
+    // relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold3());
+    // relPosFilter->Update();
+    // output = relPosFilter->GetOutput();
+  }
+
+  //--------------------------------------------------------------------
+  // Step 8: Lower limits from lung (need separate lung ?)
+  if (0) {
+    StartNewStep("Lower limits with lungs");
+    // TODO BOFFF ????
+    relPosFilter = RelPosFilterType::New();
+    relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
+    relPosFilter->VerboseStepOff();
+    relPosFilter->WriteStepOff();
+    relPosFilter->SetInput(output); 
+    //  relPosFilter->SetInputObject(left_lung); 
+    relPosFilter->SetInputObject(lung); 
+    relPosFilter->SetOrientationType(RelPosFilterType::SupTo);
+    relPosFilter->SetIntermediateSpacing(GetIntermediateSpacing());
+    relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold3());
+    relPosFilter->Update();
+    output = relPosFilter->GetOutput();
+    this->template StopCurrentStep<MaskImageType>(output);
+  }
+
+  //--------------------------------------------------------------------
+  // Step 10: Slice by Slice CCL
+  StartNewStep("Slice by Slice keep only one component");
+  typedef clitk::ExtractSliceFilter<MaskImageType> ExtractSliceFilterType;
+  //  typename ExtractSliceFilterType::Pointer 
+  extractSliceFilter = ExtractSliceFilterType::New();
+  extractSliceFilter->SetInput(output);
+  extractSliceFilter->SetDirection(2);
+  extractSliceFilter->Update();
+  typedef typename ExtractSliceFilterType::SliceType SliceType;
+  //  std::vector<typename SliceType::Pointer> 
+  mSlices.clear();
+  extractSliceFilter->GetOutputSlices(mSlices);
+  for(unsigned int i=0; i<mSlices.size(); i++) {
+    mSlices[i] = Labelize<SliceType>(mSlices[i], 0, true, 100);
+    mSlices[i] = KeepLabels<SliceType>(mSlices[i], 0, 1, 1, 1, true);
+  }
+  typedef itk::JoinSeriesImageFilter<SliceType, MaskImageType> JoinSeriesFilterType;
+  typename JoinSeriesFilterType::Pointer joinFilter = JoinSeriesFilterType::New();
+  joinFilter->SetOrigin(output->GetOrigin()[2]);
+  joinFilter->SetSpacing(output->GetSpacing()[2]);
+  for(unsigned int i=0; i<mSlices.size(); i++) {
+    joinFilter->PushBackInput(mSlices[i]);
+  }
+  joinFilter->Update();
+  output = joinFilter->GetOutput();
+  this->template StopCurrentStep<MaskImageType>(output);
+
+  //--------------------------------------------------------------------
+  // Step 9: Binarize to remove too high HU
+  // --> warning CCL slice by slice must be done before
+  StartNewStep("Remove hypersignal (bones and injected part");
+  // Crop initial ct like current support
+  typedef CropLikeImageFilter<ImageType> CropLikeFilterType;
+  typename CropLikeFilterType::Pointer cropLikeFilter = CropLikeFilterType::New();
+  cropLikeFilter->SetInput(input);
+  cropLikeFilter->SetCropLikeImage(output);
+  cropLikeFilter->Update();
+  ImagePointer working_input = cropLikeFilter->GetOutput();
+  writeImage<ImageType>(working_input, "crop-ct.mhd");
+  // Binarize
+  typedef itk::BinaryThresholdImageFilter<ImageType, MaskImageType> InputBinarizeFilterType; 
+  typename InputBinarizeFilterType::Pointer binarizeFilter=InputBinarizeFilterType::New();
+  binarizeFilter->SetInput(working_input);
+  binarizeFilter->SetLowerThreshold(GetLowerThreshold());
+  binarizeFilter->SetUpperThreshold(GetUpperThreshold());
+  binarizeFilter->SetInsideValue(this->GetBackgroundValue());  // opposite
+  binarizeFilter->SetOutsideValue(this->GetForegroundValue()); // opposite
+  binarizeFilter->Update();
+  MaskImagePointer working_bin = binarizeFilter->GetOutput();
+  writeImage<MaskImageType>(working_bin, "bin.mhd");
+  // Remove from support
+  boolFilter = BoolFilterType::New(); 
+  boolFilter->InPlaceOn();
+  boolFilter->SetInput1(output);
+  boolFilter->SetInput2(working_bin);    
+  boolFilter->SetOperationType(BoolFilterType::AndNot);
+  boolFilter->Update();
+  output = boolFilter->GetOutput();
+  StopCurrentStep<MaskImageType>(output);
+
+  //--------------------------------------------------------------------
+  // Step 10 : AutoCrop
+  StartNewStep("AutoCrop");
+  output = clitk::AutoCrop<MaskImageType>(output, GetBackgroundValue()); 
+  this->template StopCurrentStep<MaskImageType>(output);
+
+  // Bones ? pb with RAM ? FillHoles ?
+
+  // how to do with post part ? spine /lung ?
+  // POST the spine (should be separated from the rest) 
+  /// DO THAT ---->>
+  // histo Y on the whole bones_post (3D) -> result is the Y center on the spine (?)
+  // by slice on bones_post
+  //       find the most ant point in the center
+  //       from this point go to post until out of bones.
+  //       
+
+
+  // End, set the real size
+  this->GetOutput(0)->SetRegions(output->GetLargestPossibleRegion());
+  this->GetOutput(0)->SetLargestPossibleRegion(output->GetLargestPossibleRegion());
+  this->GetOutput(0)->SetRequestedRegion(output->GetLargestPossibleRegion());
+  this->GetOutput(0)->SetBufferedRegion(output->GetLargestPossibleRegion());
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class ImageType>
+void 
+clitk::ExtractMediastinumFilter<ImageType>::
+GenerateData() 
+{
+  DD("GenerateData");
+  this->GraftOutput(output);
+  // Store image filenames into AFDB 
+  GetAFDB()->SetImageFilename("mediastinum", this->GetOutputMediastinumFilename());  
+  WriteAFDB();
 }
 //--------------------------------------------------------------------
   

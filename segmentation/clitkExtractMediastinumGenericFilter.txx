@@ -38,7 +38,7 @@ template<class ArgsInfoType>
 template<unsigned int Dim>
 void clitk::ExtractMediastinumGenericFilter<ArgsInfoType>::InitializeImageType() 
 {  
-  ADD_IMAGE_TYPE(Dim, uchar);
+  ADD_IMAGE_TYPE(Dim, short);
   // ADD_IMAGE_TYPE(Dim, short);
   // ADD_IMAGE_TYPE(Dim, int);
   // ADD_IMAGE_TYPE(Dim, float);
@@ -53,10 +53,11 @@ void clitk::ExtractMediastinumGenericFilter<ArgsInfoType>::SetArgsInfo(const Arg
   mArgsInfo=a;
   SetIOVerbose(mArgsInfo.verbose_flag);
   if (mArgsInfo.imagetypes_flag) this->PrintAvailableImageTypes();
-  if (mArgsInfo.patient_given) AddInputFilename(mArgsInfo.patient_arg);
-  if (mArgsInfo.lung_given) AddInputFilename(mArgsInfo.lung_arg);
-  if (mArgsInfo.bones_given) AddInputFilename(mArgsInfo.bones_arg);
-  if (mArgsInfo.trachea_given) AddInputFilename(mArgsInfo.trachea_arg);
+  if (mArgsInfo.input_given) AddInputFilename(mArgsInfo.input_arg);
+  //if (mArgsInfo.patient_given) AddInputFilename(mArgsInfo.patient_arg);
+  //if (mArgsInfo.lung_given) AddInputFilename(mArgsInfo.lung_arg);
+  //if (mArgsInfo.bones_given) AddInputFilename(mArgsInfo.bones_arg);
+  //if (mArgsInfo.trachea_given) AddInputFilename(mArgsInfo.trachea_arg);
   if (mArgsInfo.output_given)  AddOutputFilename(mArgsInfo.output_arg);
 }
 //--------------------------------------------------------------------
@@ -70,28 +71,30 @@ template<class ImageType>
 void clitk::ExtractMediastinumGenericFilter<ArgsInfoType>::UpdateWithInputImageType() 
 { 
   // Reading input
-  typename ImageType::Pointer patient = this->template GetInput<ImageType>(0);
-  typename ImageType::Pointer lung    = this->template GetInput<ImageType>(1);
-  typename ImageType::Pointer bones   = this->template GetInput<ImageType>(2);
-  typename ImageType::Pointer trachea = this->template GetInput<ImageType>(3);
+  typename ImageType::Pointer input = this->template GetInput<ImageType>(0);
+  // typename ImageType::Pointer patient = this->template GetInput<ImageType>(0);
+  // typename ImageType::Pointer lung    = this->template GetInput<ImageType>(1);
+  // typename ImageType::Pointer bones   = this->template GetInput<ImageType>(2);
+  // typename ImageType::Pointer trachea = this->template GetInput<ImageType>(3);
 
   // Create filter
   typedef clitk::ExtractMediastinumFilter<ImageType> FilterType;
   typename FilterType::Pointer filter = FilterType::New();
     
   // Set global Options 
-  filter->SetInputPatientLabelImage(patient, mArgsInfo.patientBG_arg);
-  filter->SetInputLungLabelImage(lung, mArgsInfo.lungBG_arg, mArgsInfo.lungRight_arg, mArgsInfo.lungLeft_arg);
-  filter->SetInputBonesLabelImage(bones, mArgsInfo.bonesBG_arg);
-  filter->SetInputTracheaLabelImage(trachea, mArgsInfo.tracheaBG_arg);
+  filter->SetInput(input);
+  // filter->SetInputPatientLabelImage(patient, mArgsInfo.patientBG_arg);
+  // filter->SetInputLungLabelImage(lung, mArgsInfo.lungBG_arg, mArgsInfo.lungRight_arg, mArgsInfo.lungLeft_arg);
+  // filter->SetInputBonesLabelImage(bones, mArgsInfo.bonesBG_arg);
+  filter->SetOutputMediastinumFilename(mArgsInfo.output_arg);
   filter->SetArgsInfo(mArgsInfo);
 
   // Go !
   filter->Update();
 
   // Write/Save results
-  typename ImageType::Pointer output = filter->GetOutput();
-  this->template SetNextOutput<ImageType>(output); 
+  typename FilterType::MaskImageType::Pointer output = filter->GetOutput();
+  this->template SetNextOutput<typename FilterType::MaskImageType>(output); 
 }
 //--------------------------------------------------------------------
 

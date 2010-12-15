@@ -40,4 +40,8 @@ option "upper2"		-	"Upper threshold for RG"		double	no 	default="1500"
 option "radius2"	-	"Neighborhood radius"			int	no 	multiple	default="1" 
 option "sampleRate2"	-	"Sample rate of label image for RG: number of voxels to skip between seeds"	int	no 	default="0" 
 
+section "Fill holes"
+option "doNotFillHoles"		-  "Do not fill holes if set"                 flag on
+option "dir"    	        d  "Directions (axes) to perform filling (defaults to 2,1,0)"	int multiple no
+
 option "noAutoCrop"	- 	"If set : do no crop final mask to BoundingBox"	                        flag 	on

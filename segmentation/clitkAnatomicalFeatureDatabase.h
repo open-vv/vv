@@ -50,6 +50,7 @@ namespace clitk {
     typedef itk::Point<double,3> PointType3D;
     void SetPoint3D(TagType tag, PointType3D & p);
     void GetPoint3D(TagType tag, PointType3D & p);
+    double GetPoint3D(std::string tag, int dim);
     
     // Set Get image
     void SetImageFilename(TagType tag, std::string f);

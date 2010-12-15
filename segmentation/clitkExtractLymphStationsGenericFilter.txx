@@ -28,7 +28,7 @@ clitk::ExtractLymphStationsGenericFilter<ArgsInfoType>::ExtractLymphStationsGene
 {
   // Default values
   cmdline_parser_clitkExtractLymphStations_init(&mArgsInfo);
-  InitializeImageType<3>();
+  InitializeImageType<3>(); // Only for 3D images
 }
 //--------------------------------------------------------------------
 
@@ -38,10 +38,7 @@ template<class ArgsInfoType>
 template<unsigned int Dim>
 void clitk::ExtractLymphStationsGenericFilter<ArgsInfoType>::InitializeImageType() 
 {  
-  ADD_IMAGE_TYPE(Dim, uchar);
-  // ADD_IMAGE_TYPE(Dim, short);
-  // ADD_IMAGE_TYPE(Dim, int);
-  // ADD_IMAGE_TYPE(Dim, float);
+  ADD_IMAGE_TYPE(Dim, short); // Can add float later
 }
 //--------------------------------------------------------------------
   
@@ -53,9 +50,23 @@ void clitk::ExtractLymphStationsGenericFilter<ArgsInfoType>::SetArgsInfo(const A
   mArgsInfo=a;
   SetIOVerbose(mArgsInfo.verbose_flag);
   if (mArgsInfo.imagetypes_flag) this->PrintAvailableImageTypes();
-  if (mArgsInfo.mediastinum_given) AddInputFilename(mArgsInfo.mediastinum_arg);
-  if (mArgsInfo.trachea_given) AddInputFilename(mArgsInfo.trachea_arg);
-  if (mArgsInfo.output_given)  AddOutputFilename(mArgsInfo.output_arg);
+  if (mArgsInfo.input_given) AddInputFilename(mArgsInfo.input_arg);
+  if (mArgsInfo.output_given) AddOutputFilename(mArgsInfo.output_arg);
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template<class ArgsInfoType>
+template<class FilterType>
+void 
+clitk::ExtractLymphStationsGenericFilter<ArgsInfoType>::
+SetOptionsFromArgsInfoToFilter(FilterType * f)
+{
+  f->SetVerboseOption(mArgsInfo.verbose_flag);
+  f->SetVerboseStep(mArgsInfo.verboseStep_flag);
+  f->SetWriteStep(mArgsInfo.writeStep_flag);
+  f->SetAFDBFilename(mArgsInfo.afdb_arg);  
 }
 //--------------------------------------------------------------------
 
@@ -68,34 +79,24 @@ template<class ImageType>
 void clitk::ExtractLymphStationsGenericFilter<ArgsInfoType>::UpdateWithInputImageType() 
 { 
   // Reading input
-  typename ImageType::Pointer mediastinum = this->template GetInput<ImageType>(0);
-  typename ImageType::Pointer trachea = this->template GetInput<ImageType>(1);
+  typename ImageType::Pointer input = this->template GetInput<ImageType>(0);
 
   // Create filter
   typedef clitk::ExtractLymphStationsFilter<ImageType> FilterType;
   typename FilterType::Pointer filter = FilterType::New();
     
   // Set global Options 
-  filter->SetInputMediastinumLabelImage(mediastinum, 0); // change 0 with BG 
-  filter->SetInputTracheaLabelImage(trachea, 0); // change 0 with BG 
-  filter->SetArgsInfo(mArgsInfo);
+  filter->SetInput(input);
+  SetOptionsFromArgsInfoToFilter<FilterType>(filter);
 
   // Go !
-  // try {
-    filter->Update();
-  // }
-  // catch(std::runtime_error e) {
-  
-  // // Check if error
-  // if (filter->HasError()) {
-  //   SetLastError(filter->GetLastError());
-  //   // No output
-  //   return;
-  // }
+  filter->Update();
 
   // Write/Save results
-  typename ImageType::Pointer output = filter->GetOutput();
-  this->template SetNextOutput<ImageType>(output); 
+  typedef uchar MaskImagePixelType;
+  typedef itk::Image<MaskImagePixelType, 3> OutputImageType;
+  typename OutputImageType::Pointer output = filter->GetOutput();
+  this->template SetNextOutput<OutputImageType>(output); 
 }
 //--------------------------------------------------------------------
 

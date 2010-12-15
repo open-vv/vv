@@ -108,14 +108,30 @@ void
 clitk::ExtractAirwaysTreeInfoFilter<ImageType>::
 GenerateData() 
 {
-  StartNewStep("Thinning filter (skeleton)");
+
+  // Crop just abov lungs ?
+
+  // read skeleton if already exist
+  bool foundSkeleton = true;
+  try {
+    skeleton = GetAFDB()->template GetImage <ImageType>("skeleton");
+  }
+  catch (clitk::ExceptionObject e) {
+    DD("did not found skeleton");
+    foundSkeleton = false;
+  }
+
   // Extract skeleton
-  typedef itk::BinaryThinningImageFilter3D<ImageType, ImageType> ThinningFilterType;
-  typename ThinningFilterType::Pointer thinningFilter = ThinningFilterType::New();
-  thinningFilter->SetInput(input); // input = trachea
-  thinningFilter->Update();
-  skeleton = thinningFilter->GetOutput();
-  StopCurrentStep<ImageType>(skeleton);
+  if (!foundSkeleton) {
+    StartNewStep("Thinning filter (skeleton)");
+    typedef itk::BinaryThinningImageFilter3D<ImageType, ImageType> ThinningFilterType;
+    typename ThinningFilterType::Pointer thinningFilter = ThinningFilterType::New();
+    thinningFilter->SetInput(input); // input = trachea
+    thinningFilter->Update();
+    skeleton = thinningFilter->GetOutput();
+    StopCurrentStep<ImageType>(skeleton);
+    writeImage<ImageType>(skeleton, "skeleton.mhd");
+  }
 
   // Find first point for tracking
   StartNewStep("Find first point for tracking");
@@ -131,16 +147,18 @@ GenerateData()
   typename ImageType::IndexType index = it.GetIndex();
   DD(index);
 
-  // Initialize neighborhooditerator
-  typedef itk::NeighborhoodIterator<ImageType> NeighborhoodIteratorType;
-  typename NeighborhoodIteratorType::SizeType radius;
-  radius.Fill(1);
-  NeighborhoodIteratorType nit(radius, skeleton, skeleton->GetLargestPossibleRegion());
+  if (0) {
+    // Initialize neighborhooditerator
+    typedef itk::NeighborhoodIterator<ImageType> NeighborhoodIteratorType;
+    typename NeighborhoodIteratorType::SizeType radius;
+    radius.Fill(1);
+    NeighborhoodIteratorType nit(radius, skeleton, skeleton->GetLargestPossibleRegion());
+  }
     
-  // Find first label number (must be different from BG and FG)
+  // Find a label number different from BG and FG
   typename ImageType::PixelType label = GetForegroundValue()+1;
   while ((label == GetBackgroundValue()) || (label == GetForegroundValue())) { label++; }
-  DD(label);
+  DD((int)label);
 
   /*
     Tracking ? 
@@ -151,19 +169,137 @@ GenerateData()
     -> follow at Left
    */
 
-
-  // Track from the first point
+  // NEW Track from the first point
   StartNewStep("Start tracking");
-  std::vector<BifurcationType> listOfBifurcations;
-  m_SkeletonTree.set_head(index);
-  TrackFromThisIndex(listOfBifurcations, skeleton, index, label, m_SkeletonTree.begin());
-  DD("end track");
-      
-  // Convert index into physical point coordinates
-  for(unsigned int i=0; i<listOfBifurcations.size(); i++) {
-    skeleton->TransformIndexToPhysicalPoint(listOfBifurcations[i].index, 
-					    listOfBifurcations[i].point);
+  FullTreeNodeType n;
+  n.index = index;
+  skeleton->TransformIndexToPhysicalPoint(n.index, n.point); // à mettre dans TrackFromThisIndex2
+  mFullSkeletonTree.set_head(n);
+  StructuralTreeNodeType sn;
+  sn.index = index;
+  skeleton->TransformIndexToPhysicalPoint(sn.index, sn.point);
+  mStructuralSkeletonTree.set_head(sn);
+  TrackFromThisIndex2(index, skeleton, label, mFullSkeletonTree.begin(), mStructuralSkeletonTree.begin());
+  StopCurrentStep();
+
+  // Reput FG instead of label in the skeleton image
+  skeleton = clitk::SetBackground<ImageType, ImageType>(skeleton, skeleton, label, GetForegroundValue());        
+
+  // Debug 
+  typename StructuralTreeType::iterator sit = mStructuralSkeletonTree.begin();
+  while (sit != mStructuralSkeletonTree.end()) {
+    DD(sit->point);
+    ++sit;
   }
+
+  // compute weight : n longueurs à chaque bifurfaction.
+  // parcours de FullTreeNodeType, à partir de leaf, remonter de proche en proche la distance eucl. 
+  // par post order
+
+  // Init
+  typename FullTreeType::iterator fit = mFullSkeletonTree.begin();
+  while (fit != mFullSkeletonTree.end()) {
+    fit->weight = 0.0;
+    ++fit;
+  }
+  
+  DD("compute weight");
+  typename FullTreeType::post_order_iterator pit = mFullSkeletonTree.begin_post();
+  while (pit != mFullSkeletonTree.end_post()) {
+    //DD(pit->point);
+    /*
+    if (pit != mFullSkeletonTree.begin()) {
+      typename FullTreeType::iterator parent = mFullSkeletonTree.parent(pit);
+      double d = pit->point.EuclideanDistanceTo(parent->point);
+      // DD(parent->weight);
+      //DD(d);
+      parent->weight += d;
+      if (pit.number_of_children() > 1) {
+	DD(pit.number_of_children());
+	DD(pit->point);
+	DD(pit->weight);
+	DD(parent->weight);
+	DD(mFullSkeletonTree.child(pit, 0)->weight);
+	DD(mFullSkeletonTree.child(pit, 1)->weight);
+      }
+    }
+    */
+    double previous = pit->weight;
+    for(uint i=0; i<pit.number_of_children(); i++) {
+      double d = pit->point.EuclideanDistanceTo(mFullSkeletonTree.child(pit, i)->point);
+      //      pit->weight = pit->weight + mFullSkeletonTree.child(pit, i)->weight + d;
+      if (i==0)
+	pit->weight = pit->weight + mFullSkeletonTree.child(pit, i)->weight + d;
+      if (i>0) {
+	DD(pit.number_of_children());
+	DD(pit->point);
+	DD(pit->weight);
+	DD(mFullSkeletonTree.child(pit, 0)->weight);
+	DD(mFullSkeletonTree.child(pit, 1)->weight);
+	pit->weight = std::max(pit->weight, previous+mFullSkeletonTree.child(pit, i)->weight + d);
+      }
+    }
+    ++pit;
+  }
+
+  DD("end");
+  fit = mFullSkeletonTree.begin();
+  while (fit != mFullSkeletonTree.end()) {
+    std::cout << "p = " << fit->point 
+	      << " " << fit->weight
+	      << " child= " << fit.number_of_children()
+	      << " -> ";
+    for(uint i=0; i<fit.number_of_children(); i++) {
+      std::cout << " " << mFullSkeletonTree.child(fit, i)->weight;
+    }
+    std::cout << std::endl;
+    ++fit;
+  }
+
+  /* Selection criteria ? 
+     - at least 2 child
+     - from top to bottom
+     - equilibr ? 
+   */
+  DD("=========================================");
+  fit = mFullSkeletonTree.begin();
+  while (fit != mFullSkeletonTree.end()) {
+    if (fit.number_of_children() > 1) {
+      std::cout << "ppp = " << fit->point 
+		<< " " << fit->weight << std::endl;
+      for(uint i=1; i<fit.number_of_children(); i++) {
+	double w1 = mFullSkeletonTree.child(fit, i-1)->weight;
+	double w2 = mFullSkeletonTree.child(fit, i)->weight;
+	// if (w1 <= 0.1) break;
+	// if (w2 <= 0.1) break;
+	DD(w1);DD(w2);
+	if (w1>w2) {
+	  double sw=w1;
+	  w1=w2; w2=sw;
+	}
+	DD(w1/w2);
+	if (w1/w2 > 0.7) {
+	  DD("KEEP IT");
+	}
+      }
+    }
+    ++fit;
+  }
+
+
+  if (0) {
+    // Track from the first point
+    StartNewStep("Start tracking OLD");
+    std::vector<BifurcationType> listOfBifurcations;
+    m_SkeletonTree.set_head(index);
+    TrackFromThisIndex(listOfBifurcations, skeleton, index, label, m_SkeletonTree.begin());
+    DD("end track");
+    
+  // Convert index into physical point coordinates
+    for(unsigned int i=0; i<listOfBifurcations.size(); i++) {
+      skeleton->TransformIndexToPhysicalPoint(listOfBifurcations[i].index, 
+                                              listOfBifurcations[i].point);
+    }
 
   // Search for the first slice that separate the bronchus
   // (carina). Labelize slice by slice, stop when the two points of
@@ -183,8 +319,35 @@ GenerateData()
   DD("REDO !!!!!!!!!!!!");
   /**
      => chercher la bif qui a les plus important sous-arbres
+     - iterate sur m_SkeletonTree depth first, remonter au parent, add value = distance
+
+     NONNNNN m_SkeletonTree n'est pas la structure mais l'ensemble avec ts le skeleton
+
+  TreeIterator itt = m_SkeletonTree.begin();
+  while (itt != m_SkeletonTree.end()) {
+    itt->weight = 0.0;
+    ++itt;
+  }
+
+  typename tree<NodeType>::post_order_iterator pit = m_SkeletonTree.begin_post();
+  while (pit != m_SkeletonTree.end_post()) {
+    typename tree<NodeType>::iterator parent = m_SkeletonTree.parent(pit);
+    double d = pit->point.EuclideanDistanceTo(parent);
+    DD(parent.weight);
+    DD(d);
+    parent.weight += d;
+    ++it;
+  }
+
+  itt = m_SkeletonTree.begin();
+  while (itt != m_SkeletonTree.end()) {
+    DD(itt->weight);
+    ++itt;
+  }
    **/
 
+
+  // search for carina
   bool stop = false;
   int slice_index = listOfBifurcations[0].index[2]; // first slice from carina in skeleton
   int i=0;
@@ -240,11 +403,12 @@ GenerateData()
   if (GetVerboseStep()) {
     std::cout << "\t Found carina at " << carina_position << " mm" << std::endl;
   }
-  GetAFDB()->SetPoint3D("Carina", carina_position);
+  GetAFDB()->SetPoint3D("carina", carina_position);
       
   // Write bifurcation (debug)
   for(uint i=0; i<listOfBifurcations.size(); i++) {
     GetAFDB()->SetPoint3D("Bif"+toString(i), listOfBifurcations[i].point);
+  }
   }
 
   // Set the output (skeleton);
@@ -252,6 +416,70 @@ GenerateData()
 }
 //--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
+/**
+   Start from the pixel "index" in the image "skeleton" and track the
+   path from neighbor pixels. Put the tracked path in the tree at the
+   currentNode position. Label is used to mark the FG pixel as already
+   visited. Progress recursively when several neighbors are found.
+ **/
+template <class ImageType>
+void 
+clitk::ExtractAirwaysTreeInfoFilter<ImageType>::
+TrackFromThisIndex2(ImageIndexType index, ImagePointer skeleton, 
+                    ImagePixelType label, 
+		    typename FullTreeType::iterator currentNode, 
+                    typename StructuralTreeType::iterator currentSNode) 
+{
+  // Create NeighborhoodIterator 
+  typedef itk::NeighborhoodIterator<ImageType> NeighborhoodIteratorType;
+  typename NeighborhoodIteratorType::SizeType radius;
+  radius.Fill(1);
+  NeighborhoodIteratorType nit(radius, skeleton, skeleton->GetLargestPossibleRegion());
+  
+  // Track
+  std::vector<typename NeighborhoodIteratorType::IndexType> listOfTrackedPoint;
+  bool stop = false;
+  while (!stop) {
+    nit.SetLocation(index);
+    nit.SetCenterPixel(label);
+    listOfTrackedPoint.clear();
+    for(unsigned int i=0; i<nit.Size(); i++) {
+      if (i != nit.GetCenterNeighborhoodIndex ()) { // Do not observe the current point
+        if (nit.GetPixel(i) == GetForegroundValue()) { 
+	  // if pixel value is FG, we keep this point
+          listOfTrackedPoint.push_back(nit.GetIndex(i));
+        }
+      }
+    }
+    // If only neighbor is found, we keep the point and continue
+    if (listOfTrackedPoint.size() == 1) {
+      FullTreeNodeType n;
+      index = n.index = listOfTrackedPoint[0];
+      skeleton->TransformIndexToPhysicalPoint(n.index, n.point);
+      currentNode = mFullSkeletonTree.append_child(currentNode, n);
+      skeleton->SetPixel(n.index, label); // change label in skeleton image
+    }
+    else {
+      if (listOfTrackedPoint.size() >= 2) {
+	for(uint i=0; i<listOfTrackedPoint.size(); i++) {
+	  FullTreeNodeType n;
+          n.index = listOfTrackedPoint[i];
+	  skeleton->TransformIndexToPhysicalPoint(n.index, n.point);
+          typename FullTreeType::iterator node = mFullSkeletonTree.append_child(currentNode, n);
+	  StructuralTreeNodeType sn;
+          sn.index = listOfTrackedPoint[i];
+	  skeleton->TransformIndexToPhysicalPoint(sn.index, sn.point);
+          typename StructuralTreeType::iterator snode = mStructuralSkeletonTree.append_child(currentSNode, sn);
+	  TrackFromThisIndex2(listOfTrackedPoint[i], skeleton, label, node, snode);
+        }
+      }
+      stop = true; // this it the end of the tracking
+    } // end else
+  } // end while stop
+}
+//--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
 template <class ImageType>

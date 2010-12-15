@@ -190,6 +190,7 @@ GenerateOutputInformation()
   cropFilter->SetCropLikeImage(patient);
   cropFilter->Update();
   working_input = cropFilter->GetOutput();
+  DD(working_input->GetLargestPossibleRegion());
   StopCurrentStep<ImageType>(working_input);
  
   //--------------------------------------------------------------------
@@ -344,6 +345,7 @@ GenerateOutputInformation()
   autocropFilter2->SetInput(working_image);
   autocropFilter2->Update();   
   working_image = autocropFilter2->GetOutput();
+  DD(working_image->GetLargestPossibleRegion());
   StopCurrentStep<InternalImageType>(working_image);
 
   //--------------------------------------------------------------------
@@ -382,13 +384,14 @@ GenerateOutputInformation()
   // Fill Lungs
   if (GetFillHoles()) {
     StartNewStep("Fill Holes");
-    /*
+    typedef clitk::FillMaskFilter<InternalImageType> FillMaskFilterType;
     typename FillMaskFilterType::Pointer fillMaskFilter = FillMaskFilterType::New();
-    fillMaskFilter(working_image);
+    fillMaskFilter->SetInput(working_image);
+    fillMaskFilter->AddDirection(2);
+    //fillMaskFilter->AddDirection(1);
     fillMaskFilter->Update();   
     working_image = fillMaskFilter->GetOutput();
     StopCurrentStep<InternalImageType>(working_image);
-    */
   }
 
   //--------------------------------------------------------------------
@@ -411,13 +414,14 @@ GenerateOutputInformation()
   // Decompose the first label
   static const unsigned int Dim = ImageType::ImageDimension;
   if (initialNumberOfLabels<2) {
+    DD(initialNumberOfLabels);
     // Structuring element radius
     typename ImageType::SizeType radius;
     for (unsigned int i=0;i<Dim;i++) radius[i]=1;
     typedef clitk::DecomposeAndReconstructImageFilter<InternalImageType,InternalImageType> DecomposeAndReconstructFilterType;
     typename DecomposeAndReconstructFilterType::Pointer decomposeAndReconstructFilter=DecomposeAndReconstructFilterType::New();
     decomposeAndReconstructFilter->SetInput(working_image);
-    decomposeAndReconstructFilter->SetVerbose(false);
+    decomposeAndReconstructFilter->SetVerbose(true);
     decomposeAndReconstructFilter->SetRadius(radius);
     decomposeAndReconstructFilter->SetMaximumNumberOfLabels(2);
     decomposeAndReconstructFilter->SetMinimumObjectSize(this->GetMinimalComponentSize());
@@ -534,7 +538,8 @@ TracheaRegionGrowing()
   f->SetLower(-2000);
   f->SetUpper(GetUpperThresholdForTrachea());
   f->SetMinimumLowerThreshold(-2000);
-  f->SetMaximumUpperThreshold(0);
+  //  f->SetMaximumUpperThreshold(0); // MAYBE TO CHANGE ???
+  f->SetMaximumUpperThreshold(-800); // MAYBE TO CHANGE ???
   f->SetAdaptLowerBorder(false);
   f->SetAdaptUpperBorder(true);
   f->SetMinimumSize(5000); 
@@ -542,11 +547,14 @@ TracheaRegionGrowing()
   f->SetMultiplier(GetMultiplierForTrachea());
   f->SetThresholdStepSize(GetThresholdStepSizeForTrachea());
   f->SetMinimumThresholdStepSize(1);
+  f->VerboseOn();
   for(unsigned int i=0; i<m_Seeds.size();i++) {
     f->AddSeed(m_Seeds[i]);
     // DD(m_Seeds[i]);
   }  
   f->Update();
+
+  writeImage<InternalImageType>(f->GetOutput(), "trg.mhd");
 
   // take first (main) connected component
   trachea_tmp = Labelize<InternalImageType>(f->GetOutput(), 

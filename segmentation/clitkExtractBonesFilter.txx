@@ -24,6 +24,7 @@
 #include "clitkSetBackgroundImageFilter.h"
 #include "clitkSegmentationUtils.h"
 #include "clitkAutoCropFilter.h"
+#include "clitkFillMaskFilter.h"
 
 // itk
 #include "itkBinaryThresholdImageFilter.h"
@@ -63,6 +64,7 @@ ExtractBonesFilter():
   SetRadius2(s);
   SetSampleRate2(0);
   AutoCropOn();
+  FillHolesOn();
 }
 //--------------------------------------------------------------------
 
@@ -90,6 +92,7 @@ SetArgsInfo(ArgsInfoType mArgsInfo)
   SetWriteStep_GGO(mArgsInfo);
   SetVerboseWarningOff_GGO(mArgsInfo);
   
+  SetAFDBFilename_GGO(mArgsInfo); 
   SetOutputBonesFilename_GGO(mArgsInfo);
 
   SetInitialSmoothing_GGO(mArgsInfo);
@@ -108,8 +111,7 @@ SetArgsInfo(ArgsInfoType mArgsInfo)
   SetRadius2_GGO(mArgsInfo);
   SetSampleRate2_GGO(mArgsInfo);
   SetAutoCrop_GGO(mArgsInfo);
-
-  SetAFDBFilename_GGO(mArgsInfo);
+  SetFillHoles_GGO(mArgsInfo);
 }
 //--------------------------------------------------------------------
 
@@ -261,6 +263,20 @@ GenerateOutputInformation() {
   setBackgroundFilter->Update();
 
   output = setBackgroundFilter->GetOutput();
+
+  //--------------------------------------------------------------------
+  //--------------------------------------------------------------------
+  // Fill Bones
+  if (GetFillHoles()) {
+    StartNewStep("Fill Holes");
+    typedef clitk::FillMaskFilter<InternalImageType> FillMaskFilterType;
+    typename FillMaskFilterType::Pointer fillMaskFilter = FillMaskFilterType::New();
+    fillMaskFilter->SetInput(output);
+    fillMaskFilter->AddDirection(2);
+    fillMaskFilter->Update();   
+    output = fillMaskFilter->GetOutput();
+    StopCurrentStep<InternalImageType>(output);
+  }
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------

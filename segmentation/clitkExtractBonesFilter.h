@@ -157,7 +157,13 @@ namespace clitk {
     itkGetConstMacro(SampleRate2, int);
     GGO_DefineOption(sampleRate2, SetSampleRate2, int);
 
-    // Final Step
+    // Step fill holes
+    itkSetMacro(FillHoles, bool);
+    itkGetConstMacro(FillHoles, bool);
+    itkBooleanMacro(FillHoles);
+    GGO_DefineOption_Flag(doNotFillHoles, SetFillHoles);
+
+    // Step Auto Crop
     itkSetMacro(AutoCrop, bool);
     itkGetConstMacro(AutoCrop, bool);
     itkBooleanMacro(AutoCrop);
@@ -193,6 +199,10 @@ namespace clitk {
     InputImageSizeType m_Radius2;
     int m_SampleRate2;
     
+    // Step 
+    bool m_FillHoles;    
+    InputImageSizeType m_FillHolesDirections;
+
     virtual void GenerateOutputInformation();
     virtual void GenerateData();
 
