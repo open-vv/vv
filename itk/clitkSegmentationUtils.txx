@@ -18,6 +18,8 @@
 
 // clitk
 #include "clitkSetBackgroundImageFilter.h"
+#include "clitkSliceBySliceRelativePositionFilter.h"
+#include "clitkCropLikeImageFilter.h"
 
 // itk
 #include <itkConnectedComponentImageFilter.h>
@@ -30,7 +32,7 @@ template<class ImageType>
 void clitk::ComputeBBFromImageRegion(typename ImageType::Pointer image, 
                                      typename ImageType::RegionType region,
                                      typename itk::BoundingBox<unsigned long, 
-                                     ImageType::ImageDimension>::Pointer bb) {
+                                                               ImageType::ImageDimension>::Pointer bb) {
   typedef typename ImageType::IndexType IndexType;
   IndexType firstIndex;
   IndexType lastIndex;
@@ -40,7 +42,7 @@ void clitk::ComputeBBFromImageRegion(typename ImageType::Pointer image,
   }
 
   typedef itk::BoundingBox<unsigned long, 
-    ImageType::ImageDimension> BBType;
+                           ImageType::ImageDimension> BBType;
   typedef typename BBType::PointType PointType;
   PointType lastPoint;
   PointType firstPoint;
@@ -153,7 +155,7 @@ int clitk::GetNumberOfConnectedComponentLabels(typename ImageType::Pointer input
 //--------------------------------------------------------------------
 template<class ImageType>
 typename ImageType::Pointer
-clitk::Labelize(typename ImageType::Pointer input, 
+clitk::Labelize(const ImageType * input, 
                 typename ImageType::PixelType BG, 
                 bool isFullyConnected, 
                 int minimalComponentSize) {
@@ -206,7 +208,7 @@ clitk::RemoveLabels(typename ImageType::Pointer input,
 //--------------------------------------------------------------------
 template<class ImageType>
 typename ImageType::Pointer
-clitk::KeepLabels(typename ImageType::Pointer input, 
+clitk::KeepLabels(const ImageType * input, 
                   typename ImageType::PixelType BG, 
                   typename ImageType::PixelType FG, 
                   typename ImageType::PixelType firstKeep, 
@@ -251,40 +253,123 @@ clitk::LabelizeAndSelectLabels(typename ImageType::Pointer input,
 //--------------------------------------------------------------------
 template<class ImageType>
 typename ImageType::Pointer
-clitk::EnlargeImageLike(typename ImageType::Pointer input,
-                        typename ImageType::Pointer like, 
-                        typename ImageType::PixelType backgroundValue) 
+clitk::ResizeImageLike(typename ImageType::Pointer input,
+                       typename ImageType::Pointer like, 
+                       typename ImageType::PixelType backgroundValue) 
 {
-  if (!HaveSameSpacing<ImageType, ImageType>(input, like)) {
-    FATAL("Images must have the same spacing");
-  }
+  typedef clitk::CropLikeImageFilter<ImageType> CropFilterType;
+  typename CropFilterType::Pointer cropFilter = CropFilterType::New();
+  cropFilter->SetInput(input);
+  cropFilter->SetCropLikeImage(like);
+  cropFilter->SetBackgroundValue(backgroundValue);
+  cropFilter->Update();
+  return cropFilter->GetOutput();  
+}
+//--------------------------------------------------------------------
 
-  typename ImageType::Pointer output = ImageType::New();
-  typename ImageType::SizeType size;
-  for(unsigned int i=0; i<ImageType::ImageDimension; i++) {
-    size[i] = lrint((like->GetLargestPossibleRegion().GetSize()[i]*like->GetSpacing()[i])/
-                    (double)like->GetSpacing()[i]);
+
+//--------------------------------------------------------------------
+template<class MaskImageType>
+typename MaskImageType::Pointer
+clitk::SliceBySliceRelativePosition(const MaskImageType * input,
+				    const MaskImageType * object,
+				    int direction, 
+				    double threshold, 
+				    std::string orientation, 
+                                    bool uniqueConnectedComponent, 
+                                    double spacing, 
+				    bool notflag) 
+{
+  typedef clitk::SliceBySliceRelativePositionFilter<MaskImageType> SliceRelPosFilterType;
+  typename SliceRelPosFilterType::Pointer sliceRelPosFilter = SliceRelPosFilterType::New();
+  sliceRelPosFilter->VerboseStepOff();
+  sliceRelPosFilter->WriteStepOff();
+  sliceRelPosFilter->SetInput(input);
+  sliceRelPosFilter->SetInputObject(object);
+  sliceRelPosFilter->SetDirection(direction);
+  sliceRelPosFilter->SetFuzzyThreshold(threshold);
+  sliceRelPosFilter->SetOrientationTypeString(orientation);
+  sliceRelPosFilter->SetResampleBeforeRelativePositionFilter((spacing != -1));
+  sliceRelPosFilter->SetIntermediateSpacing(spacing);
+  sliceRelPosFilter->SetUniqueConnectedComponentBySlice(uniqueConnectedComponent);
+  sliceRelPosFilter->SetNotFlag(notflag);
+  //  sliceRelPosFilter->SetAutoCropFlag(true); ??
+  sliceRelPosFilter->Update();
+  return sliceRelPosFilter->GetOutput();
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+template<class SliceType>
+typename SliceType::PointType 
+clitk::FindExtremaPointInAGivenDirection(const SliceType * input, 
+                                         typename SliceType::PixelType bg, 
+                                         int direction, 
+                                         bool notFlag, 
+                                         typename SliceType::PointType point,
+                                         double distanceMax)
+{
+  /*
+    loop over input pixels, store the index in the fg that is max
+    according to the given direction. 
+  */
+  typedef itk::ImageRegionConstIteratorWithIndex<SliceType> IteratorType;
+  IteratorType iter(input, input->GetLargestPossibleRegion());
+  iter.GoToBegin();
+  typename SliceType::IndexType max = input->GetLargestPossibleRegion().GetIndex();
+  if (notFlag) max = max+input->GetLargestPossibleRegion().GetSize();
+  while (!iter.IsAtEnd()) {
+    if (iter.Get() != bg) {
+      bool test = iter.GetIndex()[direction] >  max[direction];
+      if (notFlag) test = !test;
+      if (test) {
+        typename SliceType::PointType p;
+        input->TransformIndexToPhysicalPoint(iter.GetIndex(), p);
+        if ((distanceMax==0) || (p.EuclideanDistanceTo(point) < distanceMax)) {
+          max = iter.GetIndex();
+        }
+      }
+    }
+    ++iter;
   }
-  // DD(size);
+  typename SliceType::PointType p;
+  input->TransformIndexToPhysicalPoint(max, p);
+  return p;
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+template<class ImageType>
+typename ImageType::Pointer
+clitk::CropImageAlongOneAxis(typename ImageType::Pointer image, 
+                             int dim, double min, double max, 
+                             bool autoCrop,
+                             typename ImageType::PixelType BG) 
+{
+  // Compute region size
   typename ImageType::RegionType region;
+  typename ImageType::SizeType size = image->GetLargestPossibleRegion().GetSize();
+  typename ImageType::PointType p = image->GetOrigin();
+  p[dim] = min;
+  typename ImageType::IndexType start;
+  image->TransformPhysicalPointToIndex(p, start);
+  p[dim] = max;
+  typename ImageType::IndexType end;
+  image->TransformPhysicalPointToIndex(p, end);
+  size[dim] = fabs(end[dim]-start[dim]);
+  region.SetIndex(start);
   region.SetSize(size);
-  output->SetRegions(region);
-  output->SetSpacing(like->GetSpacing());
-  output->SetOrigin(like->GetOrigin());
-  output->Allocate();
-  output->FillBuffer(backgroundValue);
-  typedef itk::PasteImageFilter<ImageType,ImageType> PasteFilterType;
-  typename PasteFilterType::Pointer pasteFilter = PasteFilterType::New();
-  typename PasteFilterType::InputImageIndexType index;
-  for(unsigned int i=0; i<ImageType::ImageDimension; i++) {
-    index[i] = lrint((input->GetOrigin()[i] - like->GetOrigin()[i])/(double)input->GetSpacing()[i]);
+  // Perform Crop
+  typedef itk::RegionOfInterestImageFilter<ImageType, ImageType> CropFilterType;
+  typename CropFilterType::Pointer cropFilter = CropFilterType::New();
+  cropFilter->SetInput(image);
+  cropFilter->SetRegionOfInterest(region);
+  cropFilter->Update();
+  typename ImageType::Pointer result = cropFilter->GetOutput();
+  // Auto Crop
+  if (autoCrop) {
+    result = clitk::AutoCrop<ImageType>(result, BG);
   }
-  // DD(index);
-  pasteFilter->SetSourceImage(input);
-  pasteFilter->SetDestinationImage(output);
-  pasteFilter->SetDestinationIndex(index);
-  pasteFilter->SetSourceRegion(input->GetLargestPossibleRegion());
-  pasteFilter->Update();
-  return pasteFilter->GetOutput();  
+  return result;
 }
 //--------------------------------------------------------------------
