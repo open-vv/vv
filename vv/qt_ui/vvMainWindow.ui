@@ -414,7 +414,7 @@
           <item row="0" column="0">
            <widget class="QTreeWidget" name="DataTree">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -761,7 +761,7 @@
      <x>0</x>
      <y>0</y>
      <width>1008</width>
-     <height>27</height>
+     <height>19</height>
     </rect>
    </property>
    <property name="defaultUp">
