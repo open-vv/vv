@@ -19,6 +19,10 @@
 // clitk
 #include "clitkSegmentationUtils.h"
 #include "clitkExtractSliceFilter.h"
+#include "clitkResampleImageWithOptionsFilter.h"
+
+// itk
+#include <itkJoinSeriesImageFilter.h>
 
 //--------------------------------------------------------------------
 template <class ImageType>
@@ -31,9 +35,11 @@ SliceBySliceRelativePositionFilter():
   SetDirection(2);
   SetObjectBackgroundValue(0);  
   SetFuzzyThreshold(0.6);
-  SetOrientationType(RelPosFilterType::LeftTo);
+  SetOrientationTypeString("Left");
   SetIntermediateSpacing(10);
   ResampleBeforeRelativePositionFilterOff();
+  UniqueConnectedComponentBySliceOff();
+  NotFlagOff();
 }
 //--------------------------------------------------------------------
 
@@ -66,19 +72,6 @@ SetInputObject(const ImageType * image)
 template <class ImageType>
 void 
 clitk::SliceBySliceRelativePositionFilter<ImageType>::
-GenerateOutputInformation() 
-{ 
-  ImagePointer input = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
-  ImagePointer outputImage = this->GetOutput(0);
-  outputImage->SetRegions(input->GetLargestPossibleRegion());
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-template <class ImageType>
-void 
-clitk::SliceBySliceRelativePositionFilter<ImageType>::
 GenerateInputRequestedRegion() 
 {
   // Call default
@@ -91,12 +84,12 @@ GenerateInputRequestedRegion()
 }
 //--------------------------------------------------------------------
 
-  
+
 //--------------------------------------------------------------------
 template <class ImageType>
 void 
 clitk::SliceBySliceRelativePositionFilter<ImageType>::
-GenerateData() 
+GenerateOutputInformation() 
 {
   // Get input pointer
   input = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
@@ -110,7 +103,6 @@ GenerateData()
     StopCurrentStep<ImageType>(m_working_object);
   }
   else {
-    DD("no resampling");
     m_working_object = object;
   }
   
@@ -118,13 +110,12 @@ GenerateData()
   // Pad object to the same size than input
   if (!clitk::HaveSameSizeAndSpacing<ImageType, ImageType>(m_working_object, input)) {
     StartNewStep("Pad object to the same size than input");
-    m_working_object = clitk::EnlargeImageLike<ImageType>(m_working_object, 
+    m_working_object = clitk::ResizeImageLike<ImageType>(m_working_object, 
                                                           input, 
                                                           GetObjectBackgroundValue());
     StopCurrentStep<ImageType>(m_working_object);
   }
   else {
-    DD("no pad");
   }
 
   /*
@@ -152,7 +143,7 @@ GenerateData()
   // Extract object slices
   StartNewStep("Extract object slices");
   extractSliceFilter = ExtractSliceFilterType::New();
-  extractSliceFilter->SetInput(object);
+  extractSliceFilter->SetInput(m_working_object);//object);
   extractSliceFilter->SetDirection(GetDirection());
   extractSliceFilter->Update();
   std::vector<typename SliceType::Pointer> mObjectSlices;
@@ -163,11 +154,7 @@ GenerateData()
   // Perform slice by slice relative position
   StartNewStep("Perform slice by slice relative position");
   for(unsigned int i=0; i<mInputSlices.size(); i++) {
-    // DD(i);
-    //     DD(mInputSlices[i]->GetOrigin());
-    //     writeImage<SliceType>(mInputSlices[i], "inp"+clitk::toString(i)+".mhd");
-
-    // Select main CC in each object slice : this should be the main bronchus
+    // Select main CC in each object slice (required ?)
     mObjectSlices[i] = Labelize<SliceType>(mObjectSlices[i], 0, true, 1);
     mObjectSlices[i] = KeepLabels<SliceType>(mObjectSlices[i], 0, 1, 1, 1, true);
 
@@ -179,53 +166,65 @@ GenerateData()
     relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
     relPosFilter->SetInput(mInputSlices[i]); 
     relPosFilter->SetInputObject(mObjectSlices[i]); 
-    relPosFilter->SetOrientationType(this->GetOrientationType());
+    relPosFilter->SetNotFlag(GetNotFlag());
+    relPosFilter->SetOrientationTypeString(this->GetOrientationTypeString());
     relPosFilter->SetIntermediateSpacing(this->GetIntermediateSpacing());
     relPosFilter->SetResampleBeforeRelativePositionFilter(this->GetResampleBeforeRelativePositionFilter());
     relPosFilter->SetFuzzyThreshold(this->GetFuzzyThreshold());
-    relPosFilter->AutoCropOff(); // important ! because we join the slices after this loop
+    relPosFilter->AutoCropFlagOff(); // important ! because we join the slices after this loop
     relPosFilter->Update();
-    // writeImage<SliceType>(relPosFilter->GetOutput(), "inp-after"+clitk::toString(i)+".mhd");
     mInputSlices[i] = relPosFilter->GetOutput();
+
+    // Select main CC if needed
+    if (GetUniqueConnectedComponentBySlice()) {
+      mInputSlices[i] = Labelize<SliceType>(mInputSlices[i], 0, true, 1);
+      mInputSlices[i] = KeepLabels<SliceType>(mInputSlices[i], 0, 1, 1, 1, true);
+    }
+
   }
-  DD(this->GetIntermediateSpacing());
-  DD(this->GetResampleBeforeRelativePositionFilter());
-  DD("End slice");
 
   typedef itk::JoinSeriesImageFilter<SliceType, ImageType> JoinSeriesFilterType;
   typename JoinSeriesFilterType::Pointer joinFilter = JoinSeriesFilterType::New();
   joinFilter->SetOrigin(input->GetOrigin()[GetDirection()]);
   joinFilter->SetSpacing(input->GetSpacing()[GetDirection()]);
   for(unsigned int i=0; i<mInputSlices.size(); i++) {
-  // DD(mInputSlices[i]->GetLargestPossibleRegion().GetIndex());
-//   DD(mInputSlices[i]->GetLargestPossibleRegion().GetSize());
-//   DD(mInputSlices[i]->GetRequestedRegion().GetIndex());
-//   DD(mInputSlices[i]->GetRequestedRegion().GetSize());
     joinFilter->PushBackInput(mInputSlices[i]);
-    //SetInput(i, mInputSlices[i]);
   }
-  DD("before update");
   joinFilter->Update();
-  DD("after update");
   m_working_input = joinFilter->GetOutput();
-  
-  // Update the origin
-  DD(input->GetSpacing());
-  DD(input->GetOrigin());
-  DD(mInputSlices[0]->GetSpacing());
-  DD(mInputSlices[0]->GetOrigin());
-  DD(m_working_input->GetSpacing());
-  DD(m_working_input->GetOrigin());
-  // typename ImageType::PointType origin = m_working_input->GetOrigin();
-//   origin[GetDirection()] = input->GetOrigin()[GetDirection()];
-//   m_working_input->SetOrigin(origin);
-//   DD(m_working_input->GetOrigin());
   StopCurrentStep<ImageType>(m_working_input);
 
   //--------------------------------------------------------------------
+  // Step 7: autocrop
+  if (GetAutoCropFlag()) {
+    StartNewStep("Final AutoCrop");
+    typedef clitk::AutoCropFilter<ImageType> CropFilterType;
+    typename CropFilterType::Pointer cropFilter = CropFilterType::New();
+    cropFilter->SetInput(m_working_input);
+    cropFilter->ReleaseDataFlagOff();
+    cropFilter->Update();   
+    m_working_input = cropFilter->GetOutput();
+    StopCurrentStep<ImageType>(m_working_input);    
+  }
+
+  // Update output info
+  this->GetOutput(0)->SetRegions(m_working_input->GetLargestPossibleRegion());  
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class ImageType>
+void 
+clitk::SliceBySliceRelativePositionFilter<ImageType>::
+GenerateData() 
+{
+  // Get input pointer
+  //--------------------------------------------------------------------
   //--------------------------------------------------------------------  
   // Final Step -> set output
-  this->SetNthOutput(0, m_working_input);
+  //this->SetNthOutput(0, m_working_input);
+  this->GraftOutput(m_working_input);
   return;
 }
 //--------------------------------------------------------------------

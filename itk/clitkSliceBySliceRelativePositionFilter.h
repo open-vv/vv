@@ -76,15 +76,30 @@ namespace clitk {
     itkGetConstMacro(ObjectBackgroundValue, PixelType);
     itkSetMacro(ObjectBackgroundValue, PixelType);
 
-    itkSetMacro(OrientationType, OrientationTypeEnumeration);
-    itkGetConstMacro(OrientationType, OrientationTypeEnumeration);
+    itkSetMacro(OrientationTypeString, std::string);
+    itkGetConstMacro(OrientationTypeString, std::string);
+
     itkGetConstMacro(ResampleBeforeRelativePositionFilter, bool);
     itkSetMacro(ResampleBeforeRelativePositionFilter, bool);
     itkBooleanMacro(ResampleBeforeRelativePositionFilter);
+
     itkGetConstMacro(IntermediateSpacing, double);
     itkSetMacro(IntermediateSpacing, double);
+
     itkGetConstMacro(FuzzyThreshold, double);
     itkSetMacro(FuzzyThreshold, double);
+
+    itkGetConstMacro(UniqueConnectedComponentBySlice, bool);
+    itkSetMacro(UniqueConnectedComponentBySlice, bool);
+    itkBooleanMacro(UniqueConnectedComponentBySlice);
+
+    itkGetConstMacro(AutoCropFlag, bool);
+    itkSetMacro(AutoCropFlag, bool);
+    itkBooleanMacro(AutoCropFlag);
+
+    itkGetConstMacro(NotFlag, bool);
+    itkSetMacro(NotFlag, bool);
+    itkBooleanMacro(NotFlag);
 
   protected:
     SliceBySliceRelativePositionFilter();
@@ -92,7 +107,8 @@ namespace clitk {
     
     int m_Direction;
     PixelType m_ObjectBackgroundValue;
-    OrientationTypeEnumeration m_OrientationType;
+    // OrientationTypeEnumeration m_OrientationType;
+    std::string m_OrientationTypeString;
     double m_IntermediateSpacing;
     double m_FuzzyThreshold;
     bool m_ResampleBeforeRelativePositionFilter;
@@ -105,6 +121,9 @@ namespace clitk {
     ImagePointer object;
     ImagePointer m_working_input;
     ImagePointer m_working_object;
+    bool m_UniqueConnectedComponentBySlice;
+    bool m_NotFlag;
+    bool m_AutoCropFlag;
 
   private:
     SliceBySliceRelativePositionFilter(const Self&); //purposely not implemented
