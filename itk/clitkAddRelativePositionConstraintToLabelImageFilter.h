@@ -23,7 +23,7 @@
 #include "clitkFilterBase.h"
 
 // itk
-#include "itkPasteImageFilter.h"
+#include <itkPasteImageFilter.h>
 
 // itk ENST
 #include "RelativePositionPropImageFilter.h"
@@ -90,6 +90,8 @@ namespace clitk {
     // Options
     void SetOrientationType(OrientationTypeEnumeration orientation);
     itkGetConstMacro(OrientationType, OrientationTypeEnumeration);
+    void SetOrientationTypeString(std::string s);
+    itkGetConstMacro(OrientationTypeString, std::string);
 
     void SetAngle1(double a);
     void SetAngle2(double a);
@@ -112,15 +114,20 @@ namespace clitk {
     itkGetConstMacro(ObjectBackgroundValue, PixelType);
     itkSetMacro(ObjectBackgroundValue, PixelType);
 
-    itkGetConstMacro(AutoCrop, bool);
-    itkSetMacro(AutoCrop, bool);
-    itkBooleanMacro(AutoCrop);
+    itkGetConstMacro(AutoCropFlag, bool);
+    itkSetMacro(AutoCropFlag, bool);
+    itkBooleanMacro(AutoCropFlag);
+
+    itkGetConstMacro(NotFlag, bool);
+    itkSetMacro(NotFlag, bool);
+    itkBooleanMacro(NotFlag);
 
   protected:
     AddRelativePositionConstraintToLabelImageFilter();
     virtual ~AddRelativePositionConstraintToLabelImageFilter() {}
     
     OrientationTypeEnumeration m_OrientationType;
+    std::string m_OrientationTypeString;
     double m_IntermediateSpacing;
     double m_FuzzyThreshold;
     PixelType m_BackgroundValue;
@@ -128,7 +135,8 @@ namespace clitk {
     double m_Angle1;
     double m_Angle2;
     bool m_ResampleBeforeRelativePositionFilter;
-    bool m_AutoCrop;
+    bool m_AutoCropFlag;
+    bool m_NotFlag;
 
     virtual void GenerateOutputInformation();
     virtual void GenerateInputRequestedRegion();

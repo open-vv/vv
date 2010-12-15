@@ -49,7 +49,8 @@ AddRelativePositionConstraintToLabelImageFilter():
   SetOrientationType(LeftTo);
   ResampleBeforeRelativePositionFilterOn();
   SetIntermediateSpacing(10);
-  AutoCropOn();
+  AutoCropFlagOn();
+  NotFlagOff();
 }
 //--------------------------------------------------------------------
 
@@ -74,6 +75,23 @@ SetInputObject(const ImageType * image)
 {
   // Process object is not const-correct so the const casting is required.
   this->SetNthInput(1, const_cast<ImageType *>(image));
+}
+//--------------------------------------------------------------------
+  
+
+//--------------------------------------------------------------------
+template <class ImageType>
+void 
+clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
+SetOrientationTypeString(std::string t) 
+{
+  SetOrientationType(Angle);
+  if (t[0] == 'L') SetOrientationType(LeftTo);
+  if (t[0] == 'R') SetOrientationType(RightTo);
+  if (t[0] == 'A') SetOrientationType(AntTo);
+  if (t[0] == 'P') SetOrientationType(PostTo);
+  if (t[0] == 'S') SetOrientationType(SupTo);
+  if (t[0] == 'I') SetOrientationType(InfTo);
 }
 //--------------------------------------------------------------------
   
@@ -166,6 +184,18 @@ void
 clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
 GenerateData() 
 {
+  // Print Option
+  /*
+    DD(GetFuzzyThreshold());
+    DD((int)GetBackgroundValue());
+    DD((int)GetObjectBackgroundValue());
+    DD(GetOrientationType());
+    DD(GetResampleBeforeRelativePositionFilter());
+    DD(GetIntermediateSpacing());
+    DD(GetAutoCropFlag());
+    DD(GetNotFlag());
+  */
+
   // Get input pointer
   input = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
   object = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(1));
@@ -308,12 +338,15 @@ GenerateData()
     // resampleFilter->SetVerboseOptions(true);
     resampleFilter->Update();
     working_image = resampleFilter->GetOutput();
-  StopCurrentStep<ImageType>(working_image);
+    StopCurrentStep<ImageType>(working_image);
   }
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   // Pre Step 6: pad if not the same size : it can occur when downsample and upsample
+  // DD(working_image->GetLargestPossibleRegion());
+  // DD(input->GetLargestPossibleRegion());
+  //if (!HaveSameSizeAndSpacing(working_image, input)) {
   if (working_image->GetLargestPossibleRegion() != input->GetLargestPossibleRegion()) {
     StartNewStep("Pad to get the same size than input");
     typename ImageType::Pointer temp = ImageType::New();
@@ -324,6 +357,7 @@ GenerateData()
     typename PadFilterType::Pointer padFilter2 = PadFilterType::New();
     padFilter2->SetSourceImage(working_image);
     padFilter2->SetDestinationImage(temp);
+    // DD(input->GetLargestPossibleRegion().GetIndex());
     padFilter2->SetDestinationIndex(input->GetLargestPossibleRegion().GetIndex());
     padFilter2->SetSourceRegion(working_image->GetLargestPossibleRegion());
     padFilter2->Update();
@@ -346,11 +380,14 @@ GenerateData()
   combineFilter->SetForegroundValue(m_BackgroundValue+1);
   combineFilter->SetInput1(input);
   combineFilter->SetInput2(working_image);
-  combineFilter->SetOperationType(BoolFilterType::And);
+  if (GetNotFlag())
+    combineFilter->SetOperationType(BoolFilterType::AndNot);
+  else
+    combineFilter->SetOperationType(BoolFilterType::And);
   combineFilter->InPlaceOn();
   combineFilter->Update(); 
   working_image = combineFilter->GetOutput();
- 
+
   combineFilter = BoolFilterType::New();
   combineFilter->SetInput1(working_image);
   combineFilter->SetInput2(object);
@@ -364,7 +401,7 @@ GenerateData()
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   // Step 7: autocrop
-  if (GetAutoCrop()) {
+  if (GetAutoCropFlag()) {
     StartNewStep("Final AutoCrop");
     typedef clitk::AutoCropFilter<ImageType> CropFilterType;
     typename CropFilterType::Pointer cropFilter = CropFilterType::New();
@@ -380,6 +417,7 @@ GenerateData()
   
   // Final Step -> set output
   this->SetNthOutput(0, working_image);
+  //  this->GraftOutput(working_image);
   return;
 }
 //--------------------------------------------------------------------
