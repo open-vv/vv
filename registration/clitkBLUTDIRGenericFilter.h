@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -20,11 +20,11 @@
 
 /* =================================================
  * @file   clitkBLUTDIRGenericFilter.h
- * @author 
- * @date   
- * 
- * @brief 
- * 
+ * @author
+ * @date
+ *
+ * @brief
+ *
  ===================================================*/
 
 
@@ -57,14 +57,13 @@
 #include "itkLightObject.h"
 #include "itkImageToImageMetric.h"
 #include "itkInterpolateImageFunction.h"
-#include "itkLabelStatisticsImageFilter.h"
+#include "itkLabelGeometryImageFilter.h"
 #include "itkImageDuplicator.h"
 #include "itkExtractImageFilter.h"
 #include "itkTransformToDeformationFieldSource.h"
 
-namespace clitk 
+namespace clitk
 {
-
 
   class ITK_EXPORT BLUTDIRGenericFilter :public ImageToImageGenericFilter<BLUTDIRGenericFilter>
   {
@@ -76,14 +75,14 @@ namespace clitk
     typedef itk::SmartPointer<Self>            Pointer;
     typedef itk::SmartPointer<const Self>      ConstPointer;
     typedef ImageToImageGenericFilterBase   Superclass;
-   
+
     // Method for creation through the object factory
-    itkNewMacro(Self);  
-    
+    itkNewMacro(Self);
+
     void SetArgsInfo(const args_info_clitkBLUTDIR & a);
 
     // Run-time type information (and related methods)
-    
+
     template<unsigned int Dim>
     void InitializeImageType();
 
@@ -96,7 +95,6 @@ namespace clitk
     std::string m_ReferenceFileName;
 
   };
-
 
 } // end namespace clitk
 
