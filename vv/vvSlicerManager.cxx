@@ -468,6 +468,10 @@ void vvSlicerManager::ToggleInterpolation()
   bool interpolate=!(mSlicers[0]->GetImageActor()->GetInterpolate());
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
     mSlicers[i]->GetImageActor()->SetInterpolate(interpolate);
+    if (mSlicers[i]->GetOverlayActor())
+      mSlicers[i]->GetOverlayActor()->SetInterpolate(interpolate);
+    if (mSlicers[i]->GetFusionActor())
+      mSlicers[i]->GetFusionActor()->SetInterpolate(interpolate);
   }
 }
 //----------------------------------------------------------------------------
