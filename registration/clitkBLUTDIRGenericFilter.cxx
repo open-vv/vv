@@ -340,13 +340,23 @@ namespace clitk
         }
         if (m_Verbose)std::cout <<"Reference image mask was read..." <<std::endl;
 
+        // Resample mask
+        typedef itk::ResampleImageFilter<ImageMaskType, ImageMaskType> ResamplerType;
+        typename ResamplerType::Pointer resampler = ResamplerType::New();
+        typedef itk::NearestNeighborInterpolateImageFunction<ImageMaskType, TCoordRep> InterpolatorType;
+        typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
+        resampler->SetOutputParametersFromImage(fixedImage);
+        resampler->SetInterpolator(interpolator);
+        resampler->SetInput(maskReader->GetOutput());
+        resampler->Update();
+
         // Set the image to the spatialObject
-        fixedMask->SetImage( maskReader->GetOutput() );
+        fixedMask->SetImage(resampler->GetOutput());
 
         // Find the bounding box of the "inside" label
         typedef itk::LabelGeometryImageFilter<ImageMaskType> GeometryImageFilterType;
         typename GeometryImageFilterType::Pointer geometryImageFilter=GeometryImageFilterType::New();
-        geometryImageFilter->SetInput(maskReader->GetOutput());
+        geometryImageFilter->SetInput(resampler->GetOutput());
         geometryImageFilter->Update();
         typename GeometryImageFilterType::BoundingBoxType boundingBox = geometryImageFilter->GetBoundingBox(1);
 
