@@ -127,8 +127,8 @@ namespace clitk
       typedef typename RegistrationType::FixedImageType FixedImageType;
       typedef typename FixedImageType::RegionType RegionType;
       itkStaticConstMacro(ImageDimension, unsigned int,FixedImageType::ImageDimension);
-      typedef clitk::BSplineDeformableTransform<double, ImageDimension, ImageDimension> TransformType;
-      typedef clitk::BSplineDeformableTransformInitializer<TransformType, FixedImageType> InitializerType;
+      typedef clitk::MultipleBSplineDeformableTransform<double, ImageDimension, ImageDimension> TransformType;
+      typedef clitk::MultipleBSplineDeformableTransformInitializer<TransformType, FixedImageType> InitializerType;
       typedef typename InitializerType::CoefficientImageType CoefficientImageType;
       typedef itk::CastImageFilter<CoefficientImageType, CoefficientImageType> CastImageFilterType;
       typedef typename TransformType::ParametersType ParametersType;
@@ -186,14 +186,20 @@ namespace clitk
           registration->SetMetric(metric);
 
           // Get the current coefficient image and make a COPY
-          typename itk::ImageDuplicator<CoefficientImageType>::Pointer caster=itk::ImageDuplicator<CoefficientImageType>::New();
-          caster->SetInputImage(m_Initializer->GetTransform()->GetCoefficientImage());
-          caster->Update();
-          typename CoefficientImageType::Pointer currentCoefficientImage=caster->GetOutput();
+          typename itk::ImageDuplicator<CoefficientImageType>::Pointer caster = itk::ImageDuplicator<CoefficientImageType>::New();
+          std::vector<typename CoefficientImageType::Pointer> currentCoefficientImages = m_Initializer->GetTransform()->GetCoefficientImages();
+          for (unsigned i = 0; i < currentCoefficientImages.size(); ++i)
+          {
+            caster->SetInputImage(currentCoefficientImages[i]);
+            caster->Update();
+            currentCoefficientImages[i] = caster->GetOutput();
+          }
 
+          /*
           // Write the intermediate result?
           if (m_ArgsInfo.intermediate_given>=numberOfLevels)
             writeImage<CoefficientImageType>(currentCoefficientImage, m_ArgsInfo.intermediate_arg[currentLevel-2], m_ArgsInfo.verbose_flag);
+            */
 
           // Set the new transform properties
           m_Initializer->SetImage(registration->GetFixedImagePyramid()->GetOutput(currentLevel-1));
@@ -231,7 +237,7 @@ namespace clitk
 
           // Set the previous transform parameters to the registration
           // if(m_Initializer->m_Parameters!=NULL )delete m_Initializer->m_Parameters;
-          m_Initializer->SetInitialParameters(currentCoefficientImage,*newParameters);
+          m_Initializer->SetInitialParameters(currentCoefficientImages, *newParameters);
           registration->SetInitialTransformParametersOfNextLevel(*newParameters);
         }
       }
@@ -320,43 +326,46 @@ namespace clitk
       // If given, we connect a mask to reference or target
       //============================================================================
       typedef itk::ImageMaskSpatialObject< InputImageType::ImageDimension >   MaskType;
-      typename MaskType::Pointer  fixedMask=NULL;
+      typedef itk::Image< unsigned char, InputImageType::ImageDimension >   ImageLabelType;
+      typename MaskType::Pointer        fixedMask = NULL;
+      typename ImageLabelType::Pointer  labels = NULL;
       if (m_ArgsInfo.referenceMask_given)
       {
-        fixedMask= MaskType::New();
-        typedef itk::Image< unsigned char,InputImageType::ImageDimension >   ImageMaskType;
-        typedef itk::ImageFileReader< ImageMaskType >    MaskReaderType;
-        typename MaskReaderType::Pointer  maskReader = MaskReaderType::New();
-        maskReader->SetFileName(m_ArgsInfo.referenceMask_arg);
+        fixedMask = MaskType::New();
+        labels = ImageLabelType::New();
+        typedef itk::ImageFileReader< ImageLabelType >    LabelReaderType;
+        typename LabelReaderType::Pointer  labelReader = LabelReaderType::New();
+        labelReader->SetFileName(m_ArgsInfo.referenceMask_arg);
         try
         {
-          maskReader->Update();
+          labelReader->Update();
         }
         catch( itk::ExceptionObject & err )
         {
-          std::cerr << "ExceptionObject caught while reading mask !" << std::endl;
+          std::cerr << "ExceptionObject caught while reading mask or labels !" << std::endl;
           std::cerr << err << std::endl;
           return;
         }
         if (m_Verbose)std::cout <<"Reference image mask was read..." <<std::endl;
 
-        // Resample mask
-        typedef itk::ResampleImageFilter<ImageMaskType, ImageMaskType> ResamplerType;
+        // Resample labels
+        typedef itk::ResampleImageFilter<ImageLabelType, ImageLabelType> ResamplerType;
         typename ResamplerType::Pointer resampler = ResamplerType::New();
-        typedef itk::NearestNeighborInterpolateImageFunction<ImageMaskType, TCoordRep> InterpolatorType;
+        typedef itk::NearestNeighborInterpolateImageFunction<ImageLabelType, TCoordRep> InterpolatorType;
         typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
         resampler->SetOutputParametersFromImage(fixedImage);
         resampler->SetInterpolator(interpolator);
-        resampler->SetInput(maskReader->GetOutput());
+        resampler->SetInput(labelReader->GetOutput());
         resampler->Update();
+        labels = resampler->GetOutput();
 
         // Set the image to the spatialObject
-        fixedMask->SetImage(resampler->GetOutput());
+        fixedMask->SetImage(labels);
 
         // Find the bounding box of the "inside" label
-        typedef itk::LabelGeometryImageFilter<ImageMaskType> GeometryImageFilterType;
+        typedef itk::LabelGeometryImageFilter<ImageLabelType> GeometryImageFilterType;
         typename GeometryImageFilterType::Pointer geometryImageFilter=GeometryImageFilterType::New();
-        geometryImageFilter->SetInput(resampler->GetOutput());
+        geometryImageFilter->SetInput(labels);
         geometryImageFilter->Update();
         typename GeometryImageFilterType::BoundingBoxType boundingBox = geometryImageFilter->GetBoundingBox(1);
 
@@ -484,15 +493,15 @@ namespace clitk
       //=======================================================
       // B-LUT FFD Transform
       //=======================================================
-      typedef  clitk::BSplineDeformableTransform<TCoordRep,InputImageType::ImageDimension, SpaceDimension > TransformType;
-      typename TransformType::Pointer transform= TransformType::New();
-      if (fixedMask) transform->SetMask( fixedMask );
-      if (rigidTransform) transform->SetBulkTransform( rigidTransform );
+      typedef  clitk::MultipleBSplineDeformableTransform<TCoordRep,InputImageType::ImageDimension, SpaceDimension > TransformType;
+      typename TransformType::Pointer transform = TransformType::New();
+      if (labels) transform->SetLabels(labels);
+      if (rigidTransform) transform->SetBulkTransform(rigidTransform);
 
       //-------------------------------------------------------------------------
       // The transform initializer
       //-------------------------------------------------------------------------
-      typedef clitk::BSplineDeformableTransformInitializer< TransformType,FixedImageType> InitializerType;
+      typedef clitk::MultipleBSplineDeformableTransformInitializer< TransformType,FixedImageType> InitializerType;
       typename InitializerType::Pointer initializer = InitializerType::New();
       initializer->SetVerbose(m_Verbose);
       initializer->SetImage(fixedImagePyramid->GetOutput(0));
@@ -696,12 +705,24 @@ namespace clitk
       if (m_ArgsInfo.coeff_given)
       {
         typedef typename TransformType::CoefficientImageType CoefficientImageType;
-        typename CoefficientImageType::Pointer coefficientImage =transform->GetCoefficientImage();
+        std::vector<typename CoefficientImageType::Pointer> coefficientImages = transform->GetCoefficientImages();
         typedef itk::ImageFileWriter<CoefficientImageType> CoeffWriterType;
-        typename CoeffWriterType::Pointer coeffWriter=CoeffWriterType::New();
-        coeffWriter->SetInput(coefficientImage);
-        coeffWriter->SetFileName(m_ArgsInfo.coeff_arg);
-        coeffWriter->Update();
+        typename CoeffWriterType::Pointer coeffWriter = CoeffWriterType::New();
+        unsigned nLabels = transform->GetnLabels();
+
+        std::string fname(m_ArgsInfo.coeff_arg);
+        int dotpos = fname.length() - 1;
+        while (dotpos >= 0 && fname[dotpos] != '.')
+          dotpos--;
+
+        for (unsigned i = 0; i < nLabels; ++i)
+        {
+          std::ostringstream osfname;
+          osfname << fname.substr(0, dotpos) << '_' << i << fname.substr(dotpos);
+          coeffWriter->SetInput(coefficientImages[i]);
+          coeffWriter->SetFileName(osfname.str());
+          coeffWriter->Update();
+        }
       }
 
 

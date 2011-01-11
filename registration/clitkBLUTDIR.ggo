@@ -18,7 +18,7 @@ section "Input"
 
 option "reference"		r	"Input reference 3D image (float)"	string 		yes
 option "target"			t	"Input target	 2D image (float)"	string 		yes
-option "referenceMask" 		m 	"Mask to placed over the reference image"		  string	 	no
+option "referenceMask" 		m 	"Mask or labels to placed over the reference image"		  string	 	no
 option "targetMask" 		- 	"Mask to placed over the target image"		  string	 	no
 
 section "Output"

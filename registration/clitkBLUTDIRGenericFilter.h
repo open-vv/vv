@@ -35,11 +35,11 @@
 #include "clitkDifferenceImageFilter.h"
 #include "clitkTransformUtilities.h"
 #include "clitkLBFGSBOptimizer.h"
-#include "clitkBSplineDeformableTransform.h"
+#include "clitkMultipleBSplineDeformableTransform.h"
 #include "clitkGenericOptimizer.h"
 #include "clitkGenericInterpolator.h"
 #include "clitkGenericMetric.h"
-#include "clitkBSplineDeformableTransformInitializer.h"
+#include "clitkMultipleBSplineDeformableTransformInitializer.h"
 #include "clitkMultiResolutionPyramidRegionFilter.h"
 #include "clitkImageToImageGenericFilter.h"
 
