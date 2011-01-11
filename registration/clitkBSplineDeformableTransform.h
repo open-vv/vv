@@ -27,6 +27,9 @@
 
 namespace clitk
 {
+  // Forward declaration needed for friendship
+  template <class TCoordRep, unsigned int NInputDimensions, unsigned int NOutputDimensions>
+  class ITK_EXPORT MultipleBSplineDeformableTransform;
 
   template <
     class TCoordRep = double,               // Data type for scalars, coordinate representation,vectors
@@ -186,7 +189,7 @@ namespace clitk
     void SetBulkTransform(BulkTransformPointer b){m_BulkTransform=b;}
     BulkTransformPointer GetBulkTransform(void) {return m_BulkTransform;}
 
-    //Set mask, inside transform applies, outside zero, real pointer
+    // Set mask, inside transform applies, outside zero, real pointer
     void SetMask(MaskPointer m){m_Mask=m;}
     MaskPointer GetMask(void){return m_Mask;}
     // itkSetConstObjectMacro( Mask, MaskType );
@@ -338,6 +341,7 @@ namespace clitk
     mutable IteratorType m_Iterator[OutputDimension];
     mutable JacobianPixelType m_ZeroVector;
     mutable ContinuousIndexType m_Index;
+    mutable bool m_NeedResetJacobian;
 
     /** Keep a pointer to the input parameters. */
     const ParametersType *  m_InputParametersPointer;
@@ -351,6 +355,14 @@ namespace clitk
     /** Check if a continuous index is inside the valid region. */
     bool InsideValidRegion( const ContinuousIndexType& index ) const;
 
+    // VD Use external data container for JacobianImage
+    unsigned SetJacobianImageData(JacobianPixelType * jacobianDataPointer, unsigned dim);
+
+    // VD Reset Jacobian
+    void ResetJacobian() const;
+
+    // VD Add MultipleBSplineDeformableTransform as friend to facilitate wrapping
+    friend class MultipleBSplineDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>;
 
   }; //class BSplineDeformableTransform
 

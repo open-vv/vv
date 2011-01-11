@@ -86,14 +86,7 @@ namespace clitk
     for (i=0; i <InputDimension;i++)
       {
 	m_Offset[i] = m_SplineOrders[i] / 2;
-	if ( m_SplineOrders[i] % 2 ) 
-	  {
-	    m_SplineOrderOdd[i] = true;
-	  }
-	else
-	  {
-	    m_SplineOrderOdd[i] = false;
-	  }
+        m_SplineOrderOdd[i] = m_SplineOrders[i] % 2;
       }
     m_ValidRegion = m_GridRegion;
 	
@@ -172,7 +165,6 @@ namespace clitk
     m_SupportRegion.SetIndex(m_SupportIndex);
     for (  i = 0; i < OutputDimension; i++ ) 
       m_ZeroVector[i]=itk::NumericTraits<JacobianValueType>::Zero;
-  
   }
     
 
@@ -204,28 +196,20 @@ namespace clitk
   BSplineDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>
   ::SetSplineOrders(const SizeType & splineOrders)
   {
-    if(m_SplineOrders!=splineOrders)
+    if (m_SplineOrders!=splineOrders)
       {
 	m_SplineOrders=splineOrders;
 	
 	//update the interpolation function
 	m_VectorInterpolator->SetSplineOrders(m_SplineOrders);
 	
-	//update the varaibles for computing interpolation
+	//update the variables for computing interpolation
 	for (unsigned int i=0; i <InputDimension;i++)
-	  {
-	    m_SupportSize[i] = m_SplineOrders[i]+1;
-	    m_Offset[i] = m_SplineOrders[i] / 2;
-	    
-	    if ( m_SplineOrders[i] % 2 ) 
-	      {
-		m_SplineOrderOdd[i] = true;
-	      }
-	    else
-	      {
-		m_SplineOrderOdd[i] = false;
-	      }
-	  }
+        {
+          m_SupportSize[i] = m_SplineOrders[i]+1;
+          m_Offset[i] = m_SplineOrders[i] / 2;
+          m_SplineOrderOdd[i] = m_SplineOrders[i] % 2;
+        }
 	this->Modified();
       }
   }
@@ -271,7 +255,6 @@ namespace clitk
   BSplineDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>
   ::GetNumberOfParameters(void) const
   {
-
     // The number of parameters equal OutputDimension * number of
     // of pixels in the grid region.
     return ( static_cast<unsigned int>( OutputDimension ) *
@@ -307,7 +290,7 @@ namespace clitk
 	m_WrappedImage->SetRegions( m_GridRegion );
 	for (unsigned int j=0; j <OutputDimension;j++)
 	  m_JacobianImage[j]->SetRegions( m_GridRegion );
-	
+
 	// Set the valid region
 	// If the grid spans the interval [start, last].
 	// The valid interval for evaluation is [start+offset, last-offset]
@@ -447,7 +430,6 @@ namespace clitk
 			   << "Set them using the SetParameters or SetCoefficientImage method first." );
       }
   }
-
 
   // Set the parameters
   template<class TCoordRep, unsigned int NInputDimensions, unsigned int NOutputDimensions>
@@ -600,6 +582,7 @@ namespace clitk
     JacobianPixelType * jacobianDataPointer = reinterpret_cast<JacobianPixelType *>(this->m_Jacobian.data_block());
     memset(jacobianDataPointer, 0,  OutputDimension*numberOfPixels*sizeof(JacobianPixelType));
     m_LastJacobianIndex = m_ValidRegion.GetIndex();
+    m_NeedResetJacobian = false;
 
     for (unsigned int j=0; j<OutputDimension; j++)
       {
@@ -935,33 +918,9 @@ namespace clitk
     // 	itkExceptionMacro( <<"Cannot compute Jacobian: parameters not set" );
     //       }
 
-  
-    //========================================================
-    // Zero all components of jacobian
-    //========================================================
-    // JV not thread safe (m_LastJacobianIndex), instantiate N transforms
-    // NOTE: for efficiency, we only need to zero out the coefficients
-    // that got fill last time this method was called.
+    if (m_NeedResetJacobian)
+      ResetJacobian();
 
-    unsigned int j=0;
-      
-    //Define the  region for each jacobian image 
-    m_SupportRegion.SetIndex( m_LastJacobianIndex );
-    
-    //Initialize the iterators
-    for ( j = 0; j < OutputDimension; j++ ) 
-      m_Iterator[j] = IteratorType( m_JacobianImage[j], m_SupportRegion);
-    
-    //Set the previously-set to zero 
-    while ( ! (m_Iterator[0]).IsAtEnd() )
-      {
-	for ( j = 0; j < OutputDimension; j++ )
-	  {
-	    m_Iterator[j].Set( m_ZeroVector );
-	    ++(m_Iterator[j]);
-	  }
-      }
-    
     //========================================================
     // For each dimension, copy the weight to the support region
     //========================================================
@@ -989,6 +948,7 @@ namespace clitk
     m_SupportRegion.SetIndex( m_LastJacobianIndex );
 
     //Reset the iterators
+    unsigned int j = 0;
     for ( j = 0; j < OutputDimension; j++ ) 
       m_Iterator[j] = IteratorType( m_JacobianImage[j], m_SupportRegion);
 
@@ -1006,6 +966,7 @@ namespace clitk
 	// go to next coefficient in the support region
 	weights++;
       }
+    m_NeedResetJacobian = true;
 
     // Return the result
     return this->m_Jacobian;
@@ -1037,7 +998,48 @@ namespace clitk
       }
   }
 
+  template<class TCoordRep, unsigned int NInputDimensions, unsigned int NOutputDimensions>
+  unsigned
+  BSplineDeformableTransform<TCoordRep, NInputDimensions,NOutputDimensions>
+  ::SetJacobianImageData(JacobianPixelType * jacobianDataPointer, unsigned dim)
+  {
+    unsigned int numberOfPixels = m_GridRegion.GetNumberOfPixels();
+    m_JacobianImage[dim]->GetPixelContainer()->SetImportPointer(jacobianDataPointer, numberOfPixels);
+    return numberOfPixels;
+  }
 
+  template<class TCoordRep, unsigned int NInputDimensions, unsigned int NOutputDimensions>
+  void
+  BSplineDeformableTransform<TCoordRep, NInputDimensions,NOutputDimensions>
+  ::ResetJacobian() const
+  {
+    //========================================================
+    // Zero all components of jacobian
+    //========================================================
+    // JV not thread safe (m_LastJacobianIndex), instantiate N transforms
+    // NOTE: for efficiency, we only need to zero out the coefficients
+    // that got fill last time this method was called.
+
+    unsigned int j = 0;
+
+    //Define the  region for each jacobian image
+    m_SupportRegion.SetIndex(m_LastJacobianIndex);
+
+    //Initialize the iterators
+    for (j = 0; j < OutputDimension; j++)
+      m_Iterator[j] = IteratorType(m_JacobianImage[j], m_SupportRegion);
+
+    //Set the previously-set to zero
+    while (!(m_Iterator[0]).IsAtEnd())
+      {
+	for (j = 0; j < OutputDimension; j++)
+	  {
+	    m_Iterator[j].Set(m_ZeroVector);
+	    ++(m_Iterator[j]);
+	  }
+      }
+    m_NeedResetJacobian = false;
+  }
 } // namespace
 
 #endif
