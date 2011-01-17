@@ -1020,18 +1020,10 @@ void vvSlicerManager::SetPreset(int preset)
   std::string component_type=mImage->GetScalarTypeAsITKString();
   switch (preset) {
   case 0:
-    if (component_type == "unsigned_char") {
-      window = 255;
-      level = 127;
-    } else if (component_type == "short") {
-      window = 2000;
-      level = 0;
-    } else {
-      double range[2];
-      mImage->GetScalarRange(range);
-      window = range[1] - range[0];
-      level = (range[1] + range[0])* 0.5;
-    }
+    double range[2];
+    mImage->GetScalarRange(range);
+    window = range[1] - range[0];
+    level = (range[1] + range[0])* 0.5;
     break;
   case 1:
     window = 2000;
