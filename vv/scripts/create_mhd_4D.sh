@@ -11,7 +11,7 @@ then
 fi
 
 cd $1
-nbph=`find -iname *0.mhd | wc -l`
+nbph=`ls *0.mhd | wc -l`
 if [ $nbph = 0 ]
 then
     echo "Error: no phase found"
