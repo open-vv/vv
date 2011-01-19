@@ -1,16 +1,22 @@
 #!/bin/sh
 
+
 #####################################################################
 # create_mhd_4D 	argument : repertoire nom_fichier_de_sortie #
 #####################################################################
 if [ $# -lt 1 ]
 then
-    echo "Usage: create_mhd_4D directory output_file_name"
+    echo "Usage: create_mhd_4D.sh directory output_file_name"
     exit 1
 fi
 
 cd $1
-nbph=`ls -l *0.mhd | wc -l`
+nbph=`find -iname *0.mhd | wc -l`
+if [ $nbph = 0 ]
+then
+    echo "Error: no phase found"
+    exit 1
+fi
 orig=`ls -1 *0.mhd | head -n 1`
 
 cat $orig | sed "s/NDims = .*/NDims = 4/
