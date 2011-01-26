@@ -197,6 +197,7 @@ namespace clitk
     typename CoefficientReaderType::Pointer coeffReader = CoefficientReaderType::New();
     std::vector<typename CoefficientImageType::Pointer> coefficientImages;
     unsigned nLabels = m_Transform->GetnLabels();
+    coefficientImages.resize(nLabels);
 
     int dotpos = s.length() - 1;
     while (dotpos >= 0 && s[dotpos] != '.')
@@ -208,7 +209,7 @@ namespace clitk
       osfname << s.substr(0, dotpos) << '_' << i << s.substr(dotpos);
       coeffReader->SetFileName(osfname.str());
       if (m_Verbose)
-        std::cout << "Reading initial coefficients from file: " << osfname << "..." << std::endl;
+        std::cout << "Reading initial coefficients from file: " << osfname.str() << "..." << std::endl;
       coeffReader->Update();
       coefficientImages[i] = coeffReader->GetOutput();
     }
