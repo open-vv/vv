@@ -3,8 +3,7 @@
 //This file is interpreted by cmake, to define macros based on the cmake configuration options
 //
 
-
 #cmakedefine01 CLITK_EXPERIMENTAL
-
+#cmakedefine01 CLITK_MEMORY_INFO
 
 #endif
