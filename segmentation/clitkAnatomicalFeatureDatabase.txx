@@ -23,13 +23,68 @@ typename ImageType::Pointer AnatomicalFeatureDatabase::
 GetImage(std::string tag)
 {
   if (m_MapOfTag.find(tag) == m_MapOfTag.end()) {
+    clitkExceptionMacro("Could not find the tag <" << tag << "> of type 'Image' in the DB ('"
+                        << GetFilename() << "')");
+  }
+  else {
+    typename ImageType::Pointer image;
+    if (m_MapOfImage[tag]) {
+      image = static_cast<ImageType *>(m_MapOfImage[tag]);
+    }
+    else {
+      std::string s = m_MapOfTag[tag];
+      // Read the file
+      image = readImage<ImageType>(s);
+      // I add a reference count because the cache is not a smartpointer
+      image->SetReferenceCount(image->GetReferenceCount()+1);
+      // Insert into the cache 
+      m_MapOfImage[tag] = &(*image); // pointer
+    }
+    return image;
+  }
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template<class ImageType>
+void AnatomicalFeatureDatabase::
+SetImage(TagType tag, std::string f, typename ImageType::Pointer image, bool write)
+{
+  SetImageFilename(tag, f);
+  m_MapOfImage[tag] = &(*image);
+  if (write) {
+    writeImage<ImageType>(image, f);
+  }
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template<class ImageType>
+void AnatomicalFeatureDatabase::
+ReleaseImage(std::string tag)
+{
+  if (m_MapOfTag.find(tag) == m_MapOfTag.end()) {
     clitkExceptionMacro("Could not find the tag <" << tag << "> of type Image Filename in the DB");
   }
   else {
-    std::string s = m_MapOfTag[tag];
-    // Read the file
-    typename ImageType::Pointer image = readImage<ImageType>(s);
-    return image;
+    DD("TODO");
+    exit(0);
+     if (m_MapOfImage[tag]) {
+      DD(m_MapOfImage[tag]->GetReferenceCount());
+      ImageType * image = static_cast<ImageType*>(m_MapOfImage[tag]);
+      image->SetReferenceCount(image->GetReferenceCount()-1);
+      m_MapOfImage.erase(tag);
+      /*
+      DD(image->GetReferenceCount());
+      image->Delete();
+      */
+      //      DD(image->GetReferenceCount());
+    }
+    else {
+      // Do nothing in this case (image not loaded)
+    }
   }
 }
 //--------------------------------------------------------------------

@@ -28,7 +28,7 @@
 //--------------------------------------------------------------------
 clitk::AnatomicalFeatureDatabase::AnatomicalFeatureDatabase() 
 { 
-  SetFilename("noname.afdb"); 
+  SetFilename("default.afdb"); 
 }
 //--------------------------------------------------------------------
 
@@ -71,6 +71,7 @@ static inline std::string &trim(std::string &s) {
 //--------------------------------------------------------------------
 void clitk::AnatomicalFeatureDatabase::Load() 
 {
+  m_MapOfTag.clear();
   // open file
   std::ifstream is;
   openFileForReading(is, GetFilename());
@@ -78,11 +79,14 @@ void clitk::AnatomicalFeatureDatabase::Load()
   while (!is.fail()) {
     std::string tag;
     is >> tag; 
-    std::string value;
-    std::getline(is,value,'\n');
-    ltrim(value); // remove leading space
-    m_MapOfTag[tag] = value;
+    if (tag != "") {
+      std::string value;
+      std::getline(is,value,'\n');
+      ltrim(value); // remove leading space
+      m_MapOfTag[tag] = value;
+    }
   }
+  is.close();
 }
 //--------------------------------------------------------------------
 
@@ -106,6 +110,7 @@ double clitk::AnatomicalFeatureDatabase::GetPoint3D(std::string tag, int dim)
 }
 //--------------------------------------------------------------------
 
+
 //--------------------------------------------------------------------
 void clitk::AnatomicalFeatureDatabase::GetPoint3D(std::string tag, PointType3D & p)
 {
@@ -126,7 +131,13 @@ void clitk::AnatomicalFeatureDatabase::GetPoint3D(std::string tag, PointType3D &
 
     // parse the string into 3 doubles
     for(int i=0; i<3; i++) {
-      p[i] = atof(results[i].c_str());
+
+      if (!clitk::fromString<double>(p[i], results[i].c_str())) {
+        clitkExceptionMacro("Error while reading Point3D, could not convert '" 
+                            << results[i].c_str() << "' into double.");
+      }
+
+        //      p[i] = atof(results[i].c_str());
     }
 
     /*
@@ -154,4 +165,6 @@ void clitk::AnatomicalFeatureDatabase::SetImageFilename(std::string tag, std::st
   m_MapOfTag[tag] = f;
 }
 //--------------------------------------------------------------------
+
+
 

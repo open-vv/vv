@@ -56,6 +56,13 @@ namespace clitk {
     void SetImageFilename(TagType tag, std::string f);
     template<class ImageType>
     typename ImageType::Pointer GetImage(TagType tag);
+    template<class ImageType>
+    void  SetImage(TagType tag, 
+                   std::string f, 
+                   typename ImageType::Pointer image, 
+                   bool write=false);
+    template<class ImageType>
+    void ReleaseImage(TagType tag);
     
     // Set Get Double
     void SetDouble(TagType tag, double d);
@@ -63,8 +70,11 @@ namespace clitk {
 
   protected:
     std::string m_Filename;
+    typedef itk::ImageBase<3> ImageBaseType;
     typedef std::map<TagType, std::string> MapTagType;
+    typedef std::map<TagType, ImageBaseType*> MapTagImageType;
     MapTagType m_MapOfTag;
+    MapTagImageType m_MapOfImage;
 
   }; // end class
   //--------------------------------------------------------------------
