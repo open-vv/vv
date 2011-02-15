@@ -45,12 +45,12 @@ IF(CLITK_BUILD_SEGMENTATION)
     TARGET_LINK_LIBRARIES(clitkExtractLymphStations clitkSegmentationGgoLib clitkCommon ITKIO ITKStatistics)
 
     WRAP_GGO(clitkMorphoMath_GGO_C clitkMorphoMath.ggo)
-    ADD_EXECUTABLE(clitkMorphoMath clitkMorphoMath.cxx clitkMorphoMathGenericFilter.cxx ${clitkMorphoMath_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkMorphoMath ITKIO clitkCommon)
+    ADD_EXECUTABLE(clitkMorphoMath clitkMorphoMath.cxx ${clitkMorphoMath_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkMorphoMath clitkCommon ITKIO)
 
     WRAP_GGO(clitkMorphoReconstruction_GGO_C clitkMorphoReconstruction.ggo)
     ADD_EXECUTABLE(clitkMorphoReconstruction clitkMorphoReconstruction.cxx clitkMorphoReconstructionGenericFilter.cxx ${clitkMorphoReconstruction_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkMorphoReconstruction clitkCommon ITKIO )
+    TARGET_LINK_LIBRARIES(clitkMorphoReconstruction clitkSegmentationGgoLib clitkCommon ITKIO)
 
     WRAP_GGO(clitkCalculateDistanceMap_GGO_C clitkCalculateDistanceMap.ggo)
     ADD_EXECUTABLE(clitkCalculateDistanceMap clitkCalculateDistanceMap.cxx clitkCalculateDistanceMapGenericFilter.cxx ${clitkCalculateDistanceMap_GGO_C})
