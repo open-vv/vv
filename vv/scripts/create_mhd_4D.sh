@@ -6,7 +6,7 @@
 #####################################################################
 if [ $# -lt 1 ]
 then
-    echo "Usage: create_mhd_4D.sh directory output_file_name"
+    echo "Usage: create_mhd_4D.sh directory output_file_name(without path)"
     exit 1
 fi
 
