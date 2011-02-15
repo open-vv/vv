@@ -40,7 +40,7 @@ vvToolManager * vvToolManager::GetInstance()
 //------------------------------------------------------------------------------
 void vvToolManager::AddTool(vvToolCreatorBase * v)
 {
-  std::cout << "Adding the tool <" << v->mToolName.toStdString() << ">." << std::endl;
+  //std::cout << "Adding the tool <" << v->mToolName.toStdString() << ">." << std::endl;
   GetInstance()->mListOfTools.push_back(v);
 }
 //------------------------------------------------------------------------------
