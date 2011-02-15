@@ -56,6 +56,57 @@ void clitk::ExtractPatientGenericFilter<ArgsInfoType>::SetArgsInfo(const ArgsInf
 
 
 //--------------------------------------------------------------------
+template<class ArgsInfoType>
+template<class FilterType>
+void 
+clitk::ExtractPatientGenericFilter<ArgsInfoType>::
+SetOptionsFromArgsInfoToFilter(FilterType * f)
+{
+  f->SetVerboseOptionFlag(mArgsInfo.verbose_flag);
+  f->SetVerboseStepFlag(mArgsInfo.verboseStep_flag);
+  f->SetWriteStepFlag(mArgsInfo.writeStep_flag);
+  f->SetVerboseWarningFlag(!mArgsInfo.verboseWarningOff_flag);
+  f->SetVerboseMemoryFlag(mArgsInfo.verboseMemory_flag);
+
+  f->SetAFDBFilename(mArgsInfo.afdb_arg);  
+  f->SetOutputPatientFilename(mArgsInfo.output_arg);
+
+  f->SetUpperThreshold(mArgsInfo.upper_arg);
+  f->SetLowerThreshold(mArgsInfo.lower_arg);
+
+  f->SetDecomposeAndReconstructDuringFirstStep(mArgsInfo.erode1_flag);
+
+  // Convert to SizeType
+  typename FilterType::InputImageSizeType s;
+  if (mArgsInfo.radius1_given) {
+    ConvertOptionMacro(mArgsInfo.radius1, s, 3, false);
+    f->SetRadius1(s);
+  }
+
+  f->SetMaximumNumberOfLabels1(mArgsInfo.max1_arg);
+  f->SetNumberOfNewLabels1(mArgsInfo.new1_arg);
+
+  f->SetDecomposeAndReconstructDuringSecondStep(mArgsInfo.erode2_flag);
+
+  // Convert to SizeType
+  if (mArgsInfo.radius2_given) {
+    ConvertOptionMacro(mArgsInfo.radius2, s, 3, false);
+    f->SetRadius2(s);
+  }
+
+  f->SetMaximumNumberOfLabels2(mArgsInfo.max2_arg);
+  f->SetNumberOfNewLabels2(mArgsInfo.new2_arg);
+  
+  f->SetFirstKeep(mArgsInfo.firstKeep_arg);
+  f->SetLastKeep(mArgsInfo.lastKeep_arg);
+
+  f->SetFinalOpenClose(mArgsInfo.openClose_flag);
+  f->SetAutoCrop(!mArgsInfo.noAutoCrop_flag);
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
 // Update with the number of dimensions and the pixeltype
 //--------------------------------------------------------------------
 template<class ArgsInfoType>
@@ -76,8 +127,8 @@ void clitk::ExtractPatientGenericFilter<ArgsInfoType>::UpdateWithInputImageType(
   this->SetFilterBase(filter);
     
   // Set global Options 
-  filter->SetArgsInfo(mArgsInfo);
   filter->SetInput(input);
+  SetOptionsFromArgsInfoToFilter<FilterType>(filter);
 
   // Go !
   filter->Update();
