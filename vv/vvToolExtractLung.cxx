@@ -144,7 +144,7 @@ void vvToolExtractLung::GetArgsInfoFromGUI()
   // mArgsInfo->patient_given = 0;
   mArgsInfo->output_given = 0;
   mArgsInfo->outputTrachea_given = 0;
-  mArgsInfo->remove1_given = 0;
+  //  mArgsInfo->remove1_given = 0;
   
   mArgsInfo->upper_arg = mAirUpperThresholdSlider->GetValue();
   mArgsInfo->lower_arg = mAirLowerThresholdSlider->GetValue();
