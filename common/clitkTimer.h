@@ -17,15 +17,6 @@
 ======================================================================-====*/
 #ifndef CLITKTIMER_H
 #define CLITKTIMER_H
-/**
-   ===================================================================
-   * @file   clitkTimer.h
-   * @author David Sarrut <David.Sarrut@creatis.insa-lyon.fr>
-   * @date   18 Jul 2007 16:26:08
-
-   * @brief  
-
-   ===================================================================*/
 
 //#include "clitkCommon.h"
 #include <ctime> 

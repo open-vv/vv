@@ -21,7 +21,8 @@
 
 //--------------------------------------------------------------------
 template<class PixelType>
-typename itk::Image<PixelType,1>::Pointer NewImage1D(int vsize, double vspacing)
+typename itk::Image<PixelType,1>::Pointer 
+NewImage1D(int vsize, double vspacing)
 {
   typedef itk::Image<PixelType,1> ImageType;
   typename ImageType::Pointer g = ImageType::New();
@@ -39,7 +40,8 @@ typename itk::Image<PixelType,1>::Pointer NewImage1D(int vsize, double vspacing)
 
 //--------------------------------------------------------------------
 template<class PixelType>
-typename itk::Image<PixelType,2>::Pointer NewImage2D(int sx, int sy, double dx, double dy)
+typename itk::Image<PixelType,2>::Pointer 
+NewImage2D(int sx, int sy, double dx, double dy)
 {
   typedef itk::Image<PixelType,2> ImageType;
   typename ImageType::Pointer g = ImageType::New();
@@ -57,9 +59,11 @@ typename itk::Image<PixelType,2>::Pointer NewImage2D(int sx, int sy, double dx, 
 }
 //--------------------------------------------------------------------
 
+
 //--------------------------------------------------------------------
 template<class PixelType>
-typename itk::Image<PixelType,3>::Pointer NewImage3D(int sx, int sy, int sz, double dx, double dy, double dz)
+typename itk::Image<PixelType,3>::Pointer 
+NewImage3D(int sx, int sy, int sz, double dx, double dy, double dz)
 {
   typedef itk::Image<PixelType,3> ImageType;
   typename ImageType::Pointer g = ImageType::New();
