@@ -14,85 +14,58 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-======================================================================-====*/
-#ifndef clitkMorphoMathGenericFilter_h
-#define clitkMorphoMathGenericFilter_h
-/**
-   =================================================
-   * @file   clitkMorphoMathGenericFilter.h
-   * @author Jef Vandemeulebroucke <jef@creatis.insa-lyon.fr>
-   * @date   5 May 2009
-   * 
-   * @brief 
-   * 
-   =================================================*/
+  ======================================================================-====*/
+#ifndef CLITKMORPHOMATHGENERICFILTER_H
+#define CLITKMORPHOMATHGENERICFILTER_H
 
 // clitk include
 #include "clitkIO.h"
 #include "clitkImageCommon.h"
+#include "clitkImageToImageGenericFilter.h"
 #include "clitkMorphoMath_ggo.h"
-#include "clitkConditionalBinaryErodeImageFilter.h"
-#include "clitkConditionalBinaryDilateImageFilter.h"
+#include "clitkMorphoMathFilter.h"
 
-// itk include
-#include "itkLightObject.h"
-#include "itkBinaryErodeImageFilter.h"
-#include "itkBinaryDilateImageFilter.h"
-#include "itkBinaryMorphologicalClosingImageFilter.h"
-#include "itkBinaryMorphologicalOpeningImageFilter.h"
-#include "itkBinaryBallStructuringElement.h"
-#include "itkCastImageFilter.h"
-
-namespace clitk {
+//--------------------------------------------------------------------
+namespace clitk
+{
   
-  //====================================================================
-  class MorphoMathGenericFilter: public itk::LightObject
+  template<class ArgsInfoType>
+  class ITK_EXPORT MorphoMathGenericFilter:
+    public clitk::ImageToImageGenericFilter<MorphoMathGenericFilter<ArgsInfoType> >
   {
   public: 
 
-    //================================================
-    typedef MorphoMathGenericFilter        Self;
-    typedef itk::LightObject  Superclass;
-    typedef itk::SmartPointer<Self>        Pointer;
+    typedef MorphoMathGenericFilter<ArgsInfoType> Self;
+    typedef ImageToImageGenericFilter<MorphoMathGenericFilter<ArgsInfoType> > Superclass;
+    typedef itk::SmartPointer<Self>       Pointer;
     typedef itk::SmartPointer<const Self> ConstPointer;
 
-    //================================================
+    //--------------------------------------------------------------------
+    MorphoMathGenericFilter();
     itkNewMacro(Self);  
+    itkTypeMacro(MorphoMathGenericFilter, LightObject);
     
-    //====================================================================
-    // Set methods
-    void SetArgsInfo(const args_info_clitkMorphoMath a)
-    {
-      m_ArgsInfo=a;
-      m_InputFileName=m_ArgsInfo.input_arg;
-      m_Verbose=m_ArgsInfo.verbose_flag;
-    }
+    //--------------------------------------------------------------------   
+    void SetArgsInfo(const ArgsInfoType & a);
+    template<class FilterType> 
+      void SetOptionsFromArgsInfoToFilter(FilterType * f) ;
 
-    //====================================================================
-    // Update
-    virtual void Update();
+    //--------------------------------------------------------------------
+    // Main function called each time the filter is updated
+    template<class ImageType>  
+      void UpdateWithInputImageType();
     
   protected:
-    const char * GetNameOfClass() const { return "MorphoMathGenericFilter"; }
-
-    //====================================================================
-    // Constructor & Destructor
-    MorphoMathGenericFilter();
-    ~MorphoMathGenericFilter(){;}
-    
-    //====================================================================
-    //Protected member functions
-    template <unsigned int Dimension>  void UpdateWithDim(std::string PixelType);
-    template <unsigned int Dimension, class PixelType>  void UpdateWithDimAndPixelType();
-
-  
-    args_info_clitkMorphoMath m_ArgsInfo;
-    bool m_Verbose;
-    std::string m_InputFileName;
-
-  };
+    template<unsigned int Dim> void InitializeImageType();
+    ArgsInfoType mArgsInfo;
+      
+  private:
+    MorphoMathGenericFilter(const Self&); //purposely not implemented
+    void operator=(const Self&); //purposely not implemented
+  }; // end class
   
 } // end namespace clitk
+
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "clitkMorphoMathGenericFilter.txx"
 #endif

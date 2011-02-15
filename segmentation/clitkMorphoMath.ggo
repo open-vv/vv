@@ -5,27 +5,24 @@
 package "clitk"
 version "Perform standard morphological operations"
 
-option "config"	  	 	-	"Config file"			  string  	no
-
-
-section "Run Time"
-
-option "verbose"   	v   	"Verbose"			flag		off
-
+option "config"	    - "Config file"   string  no
+option "verbose"    v "Verbose"	     flag    off
+option "imagetypes" - "Display allowed image types"     flag          off
 
 section "Input"
 
-option "input"		i	"Input grid filename"		  string  	yes
-option "output"    	o  	"Output grid filename"		  string 	yes
+option "input"  i "Input grid filename"  string yes
+option "output" o "Output grid filename" string yes
 
 
 section "Processing Parameters"
 
-option "type"		t	"0=Erode, 1=Dilate, 2=Close (erode(dilate(x))), 3=Open (dilate(erode(x)))"	int		no	default="0"
+option "type"   t "0=Erode, 1=Dilate, 2=Close (erode(dilate(x))), 3=Open (dilate(erode(x))), 4=CondErode, 5=CondDilate"	int	no	default="0"
 option "fg" 	 	-   	"Foreground value"								float		no	default="1"	 	        
 option "bg" 	 	-   	"Background value (0,1,3: filling value)"					float		no	default="0" 	        
 option "bound"  	b   	"0-1: Set borders to foreground/ 2:safe borders "				flag		off 
 option "radius"   	r   	"Use binary ball element with given radius"					int		no	multiple 	default="1"		
+option "radiusInMM"   	m   	"Use binary ball element with given radius in mm (rounded to nearest voxel value)" double		no	multiple 	default="1"
 
-
+option "extend" - "Extend the image size according to radius"     flag          off
 

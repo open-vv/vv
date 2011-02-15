@@ -14,219 +14,112 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-======================================================================-====*/
-#ifndef clitkMorphoMathGenericFilter_txx
-#define clitkMorphoMathGenericFilter_txx
-/**
-   =================================================
-   * @file   clitkMorphoMathGenericFilter.txx
-   * @author Jef Vandemeulebroucke <jef@creatis.insa-lyon.fr>
-   * @date   5 May 2009
-   * 
-   * @brief 
-   * 
-   =================================================*/
+  ======================================================================-====*/
 
+#include "clitkSegmentationUtils.h"
 
-namespace clitk
+//--------------------------------------------------------------------
+template<class ArgsInfoType>
+clitk::MorphoMathGenericFilter<ArgsInfoType>::
+MorphoMathGenericFilter():
+  ImageToImageGenericFilter<MorphoMathGenericFilter<ArgsInfoType> >("MorphMath")
 {
+  // Default values
+  cmdline_parser_clitkMorphoMath_init(&mArgsInfo);
+  InitializeImageType<2>();
+  InitializeImageType<3>();
+  InitializeImageType<4>();
+}
+//--------------------------------------------------------------------
 
 
-  //==============================================================================
-  // Update with the number of dimensions
-  //==============================================================================
-  template<unsigned int Dimension>
-  void 
-  MorphoMathGenericFilter::UpdateWithDim(std::string PixelType)
-  {
-    if(PixelType == "short"){  
-      if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and signed short..." << std::endl;
-      UpdateWithDimAndPixelType<Dimension, signed short>(); 
-    }
-    //    else if(PixelType == "unsigned_short"){  
-    //      if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_short..." << std::endl;
-    //      UpdateWithDimAndPixelType<Dimension, unsigned short>(); 
-    //    }
-    
-    else if (PixelType == "unsigned_char"){ 
-      if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_char..." << std::endl;
-      UpdateWithDimAndPixelType<Dimension, unsigned char>();
-    }
-    
-    //     else if (PixelType == "char"){ 
-    //       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and signed_char..." << std::endl;
-    //       UpdateWithDimAndPixelType<Dimension, signed char>();
-    //     }
-    else {
-      if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and float..." << std::endl;
-      UpdateWithDimAndPixelType<Dimension, float>();
-    }
-  }
-
-
-  //==============================================================================
-  // Update with the pixel type
-  //==============================================================================
-  template <unsigned int Dimension, class  InputPixelType> 
-  void 
-  MorphoMathGenericFilter::UpdateWithDimAndPixelType()
-  {
-   
-    //---------------------------------
-    // Define the images
-    //---------------------------------
-    typedef float InternalPixelType;
-    typedef itk::Image<InputPixelType, Dimension> InputImageType;
-    typedef itk::Image<InternalPixelType, Dimension> InternalImageType;
-    typedef itk::Image<InputPixelType, Dimension> OutputImageType;
-    typedef itk::ImageFileReader<InputImageType> FileReaderType;
-    typename FileReaderType::Pointer fileReader=FileReaderType::New();
-    fileReader->SetFileName(m_InputFileName);
-    typedef itk::CastImageFilter<InputImageType, InternalImageType> InputCastImageFilterType;
-    typename InputCastImageFilterType::Pointer caster = InputCastImageFilterType::New();
-    caster->SetInput(fileReader->GetOutput());
-    caster->Update();
-    typename InternalImageType::Pointer input =caster->GetOutput();
-
-
-    //---------------------------------
-    // Find the type of action
-    //---------------------------------
-    typedef itk::ImageToImageFilter<InternalImageType, InternalImageType> ImageFilterType;
-    typename ImageFilterType::Pointer filter; 
-
-    typedef itk::BinaryBallStructuringElement<InputPixelType,Dimension > KernelType;
-    KernelType structuringElement;
-    typename InternalImageType::SizeType radius;
-    if (m_ArgsInfo.radius_given==Dimension)
-      for (unsigned int i=0;i<Dimension;i++)
-	{radius[i]=m_ArgsInfo.radius_arg[i];}
-    else 
-      for (unsigned int i=0;i<Dimension;i++)
-	radius[i]=m_ArgsInfo.radius_arg[0];
-
-    structuringElement.SetRadius(radius);
-    structuringElement.CreateStructuringElement();
-
-    switch(m_ArgsInfo.type_arg)
-      {
-
-      case 0:
-	{
-	  typedef itk::BinaryErodeImageFilter<InternalImageType, InternalImageType , KernelType> FilterType;
-	  typename FilterType::Pointer m = FilterType::New();
-	  m->SetBackgroundValue(m_ArgsInfo.bg_arg);
-	  m->SetForegroundValue(m_ArgsInfo.fg_arg);
-	  m->SetBoundaryToForeground(m_ArgsInfo.bound_flag);
-          m->SetKernel(structuringElement);
-          
-	  filter=m;
-	  if(m_Verbose) std::cout<<"Using the erode filter..."<<std::endl;
-	  break;
-	}
-
-      case 1:
-	{
-	  typedef itk::BinaryDilateImageFilter<InternalImageType, InternalImageType , KernelType> FilterType;
-	  typename FilterType::Pointer m = FilterType::New();
-	  m->SetBackgroundValue(m_ArgsInfo.bg_arg);
-	  m->SetForegroundValue(m_ArgsInfo.fg_arg);
-	  m->SetBoundaryToForeground(m_ArgsInfo.bound_flag);
-          m->SetKernel(structuringElement);
-
-	  filter=m;
-	  if(m_Verbose) std::cout<<"Using the dilate filter..."<<std::endl;
-	  break;
-	}
-
-      case 2:
-	{
-	  typedef itk::BinaryMorphologicalClosingImageFilter<InternalImageType, InternalImageType , KernelType> FilterType;
-	  typename FilterType::Pointer m = FilterType::New();
-	  m->SetForegroundValue(m_ArgsInfo.fg_arg);
-	  m->SetSafeBorder(m_ArgsInfo.bound_flag);
-	  m->SetKernel(structuringElement);
-
-	  filter=m;
-	  if(m_Verbose) std::cout<<"Using the closing filter..."<<std::endl;
-	  break;
-	}
-
-      case 3:
-	{
-	  typedef itk::BinaryMorphologicalOpeningImageFilter<InternalImageType, InternalImageType , KernelType> FilterType;
-	  typename FilterType::Pointer m = FilterType::New();
-	  m->SetBackgroundValue(m_ArgsInfo.bg_arg);
-	  m->SetForegroundValue(m_ArgsInfo.fg_arg);
-	  m->SetKernel(structuringElement);
-
-	  filter=m;
-	  if(m_Verbose) std::cout<<"Using the opening filter..."<<std::endl;
-	  break;
-	}
-
-      case 4:
-	{
-	  typedef clitk::ConditionalBinaryErodeImageFilter<InternalImageType, InternalImageType , KernelType> FilterType;
-	  typename FilterType::Pointer m = FilterType::New();
-	  m->SetBackgroundValue(m_ArgsInfo.bg_arg);
-	  m->SetForegroundValue(m_ArgsInfo.fg_arg);
-	  m->SetBoundaryToForeground(m_ArgsInfo.bound_flag);
-          m->SetKernel(structuringElement);
-          
-	  filter=m;
-	  if(m_Verbose) std::cout<<"Using the conditional erode filter..."<<std::endl;
-	  break;
-	}
-
-      case 5:
-	{
-	  typedef clitk::ConditionalBinaryDilateImageFilter<InternalImageType, InternalImageType , KernelType> FilterType;
-	  typename FilterType::Pointer m = FilterType::New();
-	  m->SetBackgroundValue(m_ArgsInfo.bg_arg);
-	  m->SetForegroundValue(m_ArgsInfo.fg_arg);
-	  m->SetBoundaryToForeground(m_ArgsInfo.bound_flag);
-          m->SetKernel(structuringElement);
-          
-	  filter=m;
-	  if(m_Verbose) std::cout<<"Using the conditional dilate filter..."<<std::endl;
-	  break;
-	}
-
-      }
+//--------------------------------------------------------------------
+template<class ArgsInfoType>
+template<unsigned int Dim>
+void clitk::MorphoMathGenericFilter<ArgsInfoType>::
+InitializeImageType() 
+{  
+  ADD_DEFAULT_IMAGE_TYPES(Dim);
+  //ADD_IMAGE_TYPE(Dim, short); // 
+}
+//--------------------------------------------------------------------
   
 
-    //---------------------------------
-    // Execute the filter
-    //---------------------------------
-    filter->SetInput(input);
-    
-    try 
-      {
-	filter->Update();
-      }
-    catch( itk::ExceptionObject & err ) 
-      { 
-	std::cerr << "ExceptionObject caught executing the filter!" << std::endl; 
-	std::cerr << err << std::endl; 
-	return;
-      } 
-    
+//--------------------------------------------------------------------
+template<class ArgsInfoType>
+void clitk::MorphoMathGenericFilter<ArgsInfoType>::
+SetArgsInfo(const ArgsInfoType & a) 
+{
+  mArgsInfo=a;
+  SetIOVerbose(mArgsInfo.verbose_flag);
+  if (mArgsInfo.imagetypes_flag) this->PrintAvailableImageTypes();
+  if (mArgsInfo.input_given) AddInputFilename(mArgsInfo.input_arg);
+  if (mArgsInfo.output_given) AddOutputFilename(mArgsInfo.output_arg);
+}
+//--------------------------------------------------------------------
 
-    //---------------------------------
-    // Write the output
-    //---------------------------------
-    typedef itk::CastImageFilter< InternalImageType, OutputImageType > OutputCastImageFilterType;
-    typename OutputCastImageFilterType::Pointer oCaster = OutputCastImageFilterType::New();
-    oCaster->SetInput(filter->GetOutput());
-    typedef itk::ImageFileWriter<OutputImageType> FileWriterType;
-    typename FileWriterType::Pointer writer=FileWriterType::New();
-    writer->SetInput(oCaster->GetOutput());
-    writer->SetFileName(m_ArgsInfo.output_arg);
-    writer->Update();
-   
+
+//--------------------------------------------------------------------
+template<class ArgsInfoType>
+template<class FilterType>
+void clitk::MorphoMathGenericFilter<ArgsInfoType>::
+SetOptionsFromArgsInfoToFilter(FilterType * f) 
+{
+  f->SetVerboseFlag(mArgsInfo.verbose_flag);
+  f->SetExtendSupportFlag(mArgsInfo.extend_flag);
+  f->SetOperationType(mArgsInfo.type_arg);
+  f->SetBackgroundValue(mArgsInfo.bg_arg);
+  f->SetForegroundValue(mArgsInfo.fg_arg);
+  f->SetBoundaryToForegroundFlag(mArgsInfo.bound_flag);
+  if (mArgsInfo.radius_given && mArgsInfo.radiusInMM_given) {
+    clitkExceptionMacro("Please give --radius OR --radiusInMM, not both.");
   }
 
-}//end namespace
- 
-#endif //#define clitkMorphoMathGenericFilter_txx
+  if (mArgsInfo.radiusInMM_given) {
+    typename FilterType::PointType p;
+    if (mArgsInfo.radiusInMM_given) {
+      ConvertOptionMacro(mArgsInfo.radiusInMM, p, FilterType::ImageDimension, false);
+      f->SetRadiusInMM(p);
+    }
+  }
+  else {
+    typename FilterType::SizeType r;
+    if (mArgsInfo.radius_given) {
+      ConvertOptionMacro(mArgsInfo.radius, r, FilterType::ImageDimension, false);
+      f->SetRadius(r);
+    }
+  }
+}
+
+//--------------------------------------------------------------------
+// Update with the number of dimensions and the pixeltype
+//--------------------------------------------------------------------
+template<class ArgsInfoType>
+template<class ImageType>
+void clitk::MorphoMathGenericFilter<ArgsInfoType>::
+UpdateWithInputImageType() 
+{ 
+  // Reading input
+  typename ImageType::Pointer input = this->template GetInput<ImageType>(0);
+
+  // Create filter
+  typedef clitk::MorphoMathFilter<ImageType> FilterType;
+  typename FilterType::Pointer filter = FilterType::New();
+    
+  // Set the filter (needed for example for threaded monitoring)
+  this->SetFilterBase(filter);
+    
+  // Set global Options 
+  filter->SetInput(input);
+  SetOptionsFromArgsInfoToFilter<FilterType>(filter);
+
+  // Go !
+  filter->Update();
+  
+  // Write/Save results
+  typename ImageType::Pointer output = filter->GetOutput();
+  this->template SetNextOutput<ImageType>(output); 
+}
+//--------------------------------------------------------------------
+
+

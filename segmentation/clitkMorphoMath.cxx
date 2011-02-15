@@ -17,36 +17,33 @@
 ======================================================================-====*/
 #ifndef clitkMorphoMath_cxx
 #define clitkMorphoMath_cxx
-/**
-   =================================================
-   * @file   clitkMorphoMath.cxx
-   * @author Jef Vandemeulebroucke <jefvdmb@gmail.com>
-   * @date   5 May 2009
-   * 
-   * @brief  
-   =================================================*/
 
 // clitk include
 #include "clitkMorphoMath_ggo.h"
 #include "clitkMorphoMathGenericFilter.h"
-#include "clitkIO.h"
-#include "clitkImageCommon.h"
 
+//--------------------------------------------------------------------
 int main(int argc, char * argv[]) {
 
-  //Init command line
+  // Init command line
   GGO(clitkMorphoMath,args_info);
   CLITK_INIT;
 
-  //Creation of a generic filter
-  clitk::MorphoMathGenericFilter::Pointer genericFilter = clitk::MorphoMathGenericFilter::New();
+  // Creation of a generic filter
+  typedef clitk::MorphoMathGenericFilter<args_info_clitkMorphoMath> FilterType;
+  FilterType::Pointer filter = FilterType::New();
 
-  //Passing the arguments to the generic filter
-  genericFilter->SetArgsInfo(args_info);
+  // Passing the arguments to the generic filter
+  filter->SetArgsInfo(args_info);
  
-  //update
-  genericFilter->Update();
-  return 0;
-}
+  try {
+    filter->Update();
+  } catch(std::runtime_error e) {
+    std::cout << e.what() << std::endl;
+  }
+
+  return EXIT_SUCCESS;
+} // This is the end, my friend
+//--------------------------------------------------------------------
 
 #endif
