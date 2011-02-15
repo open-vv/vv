@@ -24,7 +24,7 @@ clitk::FilterWithAnatomicalFeatureDatabaseManagement::
 FilterWithAnatomicalFeatureDatabaseManagement() 
 {
   m_AFDB = NULL; 
-  SetAFDBFilename("noname.afdb");
+  SetAFDBFilename("default.afdb");
 }
 //--------------------------------------------------------------------
 
@@ -42,7 +42,12 @@ void clitk::FilterWithAnatomicalFeatureDatabaseManagement::WriteAFDB()
 void clitk::FilterWithAnatomicalFeatureDatabaseManagement::LoadAFDB() 
 {
   GetAFDB()->SetFilename(GetAFDBFilename());
-  GetAFDB()->Load();
+  try {
+    GetAFDB()->Load();
+  } catch (clitk::ExceptionObject e) {
+    std::cout << "Could not read '" << GetAFDBFilename() << "', create one AFDB." << std::endl;
+    GetAFDB();
+  }
 }
 //--------------------------------------------------------------------
 
