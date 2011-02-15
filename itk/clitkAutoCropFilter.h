@@ -58,6 +58,11 @@ namespace clitk {
     
     // LabelImage information (BG)
     void SetBackgroundValue(ImagePixelType p);
+    
+    // Use a border
+    itkSetMacro(UseBorder, bool);
+    itkGetConstMacro(UseBorder, bool);
+    itkBooleanMacro(UseBorder);
 
     /** ImageDimension constants */
     itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
@@ -72,6 +77,7 @@ namespace clitk {
     ImagePixelType m_BackgroundValue;
     ImageRegionType m_Region;
     ImagePointer m_labeImage;
+    bool m_UseBorder;
     
   private:
     AutoCropFilter(const Self&); //purposely not implemented

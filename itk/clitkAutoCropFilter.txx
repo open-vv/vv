@@ -39,6 +39,7 @@ namespace clitk {
   AutoCropFilter():itk::ImageToImageFilter<ImageType, ImageType>() {
     this->SetNumberOfRequiredInputs(1);
     m_BackgroundValue  = 0;
+    UseBorderOn();
   }
   //--------------------------------------------------------------------
 
@@ -95,8 +96,14 @@ namespace clitk {
     typedef itk::AutoCropLabelMapFilter<LabelMapType> AutoCropFilterType;
     typename AutoCropFilterType::Pointer autoCropFilter = AutoCropFilterType::New();
     autoCropFilter->SetInput(imageToLabelFilter->GetOutput());
-    autoCropFilter->ReleaseDataFlagOff(); 
-    
+    //    autoCropFilter->ReleaseDataFlagOff(); 
+    if (GetUseBorder()) {
+      typename ImageType::SizeType s;
+      for(uint i=0; i<ImageType::ImageDimension; i++) s[i] = 1;
+      autoCropFilter->SetCropBorder(s);
+    }
+    autoCropFilter->ReleaseDataFlagOn(); 
+
     // Convert to LabelImage
     typedef itk::LabelMapToLabelImageFilter<LabelMapType, ImageType> MapToImageFilterType;
     typename MapToImageFilterType::Pointer labelToImageFilter = MapToImageFilterType::New();       
@@ -114,8 +121,9 @@ namespace clitk {
       typename ImageType::IndexType index; 
       index.Fill(0);
       m_Region.SetIndex(index);
-      DD(m_Region);
     }
+
+    // Set the region to output
     output->SetLargestPossibleRegion(m_Region);
     output->SetRequestedRegion(m_Region);
     output->SetBufferedRegion(m_Region);
