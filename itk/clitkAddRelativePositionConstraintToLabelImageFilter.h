@@ -88,15 +88,13 @@ namespace clitk {
     void SetInputObject(const ImageType * image);
     
     // Options
-    void SetOrientationType(OrientationTypeEnumeration orientation);
-    itkGetConstMacro(OrientationType, OrientationTypeEnumeration);
-    void SetOrientationTypeString(std::string s);
-    itkGetConstMacro(OrientationTypeString, std::string);
-
-    void SetAngle1(double a);
-    void SetAngle2(double a);
-    itkGetConstMacro(Angle1, double);
-    itkGetConstMacro(Angle2, double);
+    void AddOrientationType(OrientationTypeEnumeration orientation);
+    void AddOrientationTypeString(std::string s);
+    void ClearOrientationType();
+    void AddAngles(double a, double b);
+    int GetNumberOfAngles();
+    std::string GetOrientationTypeString(int i) { return m_OrientationTypeString[i]; }
+    std::vector<std::string> & GetOrientationTypeString() { return m_OrientationTypeString; }
 
     itkGetConstMacro(ResampleBeforeRelativePositionFilter, bool);
     itkSetMacro(ResampleBeforeRelativePositionFilter, bool);
@@ -118,25 +116,35 @@ namespace clitk {
     itkSetMacro(AutoCropFlag, bool);
     itkBooleanMacro(AutoCropFlag);
 
-    itkGetConstMacro(NotFlag, bool);
-    itkSetMacro(NotFlag, bool);
-    itkBooleanMacro(NotFlag);
+    itkGetConstMacro(InverseOrientationFlag, bool);
+    itkSetMacro(InverseOrientationFlag, bool);
+    itkBooleanMacro(InverseOrientationFlag);
+
+    itkGetConstMacro(RemoveObjectFlag, bool);
+    itkSetMacro(RemoveObjectFlag, bool);
+    itkBooleanMacro(RemoveObjectFlag);
+
+    itkGetConstMacro(CombineWithOrFlag, bool);
+    itkSetMacro(CombineWithOrFlag, bool);
+    itkBooleanMacro(CombineWithOrFlag);
 
   protected:
     AddRelativePositionConstraintToLabelImageFilter();
     virtual ~AddRelativePositionConstraintToLabelImageFilter() {}
     
-    OrientationTypeEnumeration m_OrientationType;
-    std::string m_OrientationTypeString;
+    std::vector<OrientationTypeEnumeration> m_OrientationType;
+    std::vector<std::string> m_OrientationTypeString;
     double m_IntermediateSpacing;
     double m_FuzzyThreshold;
     PixelType m_BackgroundValue;
     PixelType m_ObjectBackgroundValue;
-    double m_Angle1;
-    double m_Angle2;
+    std::vector<double> m_Angle1;
+    std::vector<double> m_Angle2;
     bool m_ResampleBeforeRelativePositionFilter;
     bool m_AutoCropFlag;
-    bool m_NotFlag;
+    bool m_InverseOrientationFlag;
+    bool m_RemoveObjectFlag;
+    bool m_CombineWithOrFlag;
 
     virtual void GenerateOutputInformation();
     virtual void GenerateInputRequestedRegion();

@@ -25,12 +25,14 @@
 
 // itk
 #include <deque>
-#include "itkStatisticsLabelMapFilter.h"
-#include "itkLabelImageToStatisticsLabelMapFilter.h"
-#include "itkRegionOfInterestImageFilter.h"
-#include "itkBinaryThresholdImageFilter.h"
-#include "itkBinaryErodeImageFilter.h"
-#include "itkBinaryBallStructuringElement.h"
+#include <itkStatisticsLabelMapFilter.h>
+#include <itkLabelImageToStatisticsLabelMapFilter.h>
+#include <itkRegionOfInterestImageFilter.h>
+#include <itkBinaryThresholdImageFilter.h>
+#include <itkBinaryErodeImageFilter.h>
+#include <itkBinaryBallStructuringElement.h>
+#include <itkAddImageFilter.h>
+#include <itkDivideByConstantImageFilter.h>
 
 // itk [Bloch et al] 
 #include "RelativePositionPropImageFilter.h"
@@ -46,11 +48,13 @@ AddRelativePositionConstraintToLabelImageFilter():
   SetFuzzyThreshold(0.6);
   SetBackgroundValue(0);
   SetObjectBackgroundValue(0);
-  SetOrientationType(LeftTo);
+  ClearOrientationType();
   ResampleBeforeRelativePositionFilterOn();
   SetIntermediateSpacing(10);
   AutoCropFlagOn();
-  NotFlagOff();
+  InverseOrientationFlagOff();
+  RemoveObjectFlagOn();
+  CombineWithOrFlagOff();
 }
 //--------------------------------------------------------------------
 
@@ -83,15 +87,43 @@ SetInputObject(const ImageType * image)
 template <class ImageType>
 void 
 clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
-SetOrientationTypeString(std::string t) 
+ClearOrientationType() 
 {
-  SetOrientationType(Angle);
-  if (t[0] == 'L') SetOrientationType(LeftTo);
-  if (t[0] == 'R') SetOrientationType(RightTo);
-  if (t[0] == 'A') SetOrientationType(AntTo);
-  if (t[0] == 'P') SetOrientationType(PostTo);
-  if (t[0] == 'S') SetOrientationType(SupTo);
-  if (t[0] == 'I') SetOrientationType(InfTo);
+  m_OrientationTypeString.clear();
+  m_OrientationType.clear();
+  m_Angle1.clear();
+  m_Angle2.clear();
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class ImageType>
+int
+clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
+GetNumberOfAngles()
+{
+  return m_OrientationType.size();
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class ImageType>
+void 
+clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
+AddOrientationTypeString(std::string t) 
+{
+  m_OrientationTypeString.push_back(t);
+  switch (t[0]) {
+  case 'L' : AddOrientationType(LeftTo); break;
+  case 'R' : AddOrientationType(RightTo);break;
+  case 'A' : AddOrientationType(AntTo);break;
+  case 'P' : AddOrientationType(PostTo);break;
+  case 'S' : AddOrientationType(SupTo);break;
+  case 'I' : AddOrientationType(InfTo);break;
+  default: clitkExceptionMacro("Error, you must provide L,R or A,P or S,I");
+  }
 }
 //--------------------------------------------------------------------
   
@@ -130,10 +162,11 @@ GenerateInputRequestedRegion()
 template <class ImageType>
 void 
 clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
-SetAngle1(double a) 
+AddAngles(double a, double b) 
 {
-  SetOrientationType(Angle);
-  m_Angle1 = a;
+  AddOrientationTypeString("Angle");
+  m_Angle1.push_back(a);
+  m_Angle2.push_back(b);
 }
 //--------------------------------------------------------------------
 
@@ -142,29 +175,35 @@ SetAngle1(double a)
 template <class ImageType>
 void 
 clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
-SetAngle2(double a) 
+AddOrientationType(OrientationTypeEnumeration orientation) 
 {
-  SetOrientationType(Angle);
-  m_Angle2 = a;
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-template <class ImageType>
-void 
-clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
-SetOrientationType(OrientationTypeEnumeration orientation) 
-{
-  m_OrientationType = orientation;
-  switch (m_OrientationType) {
-  case LeftTo:   m_Angle1 = clitk::deg2rad(0);   m_Angle2 = clitk::deg2rad(0);   break;
-  case RightTo:  m_Angle1 = clitk::deg2rad(180); m_Angle2 = clitk::deg2rad(0);   break;
-  case AntTo:    m_Angle1 = clitk::deg2rad(90);  m_Angle2 = clitk::deg2rad(0);   break;
-  case PostTo:   m_Angle1 = clitk::deg2rad(-90); m_Angle2 = clitk::deg2rad(0);   break;
-  case InfTo:    m_Angle1 = clitk::deg2rad(0);   m_Angle2 = clitk::deg2rad(90);  break;
-  case SupTo:    m_Angle1 = clitk::deg2rad(0);   m_Angle2 = clitk::deg2rad(-90); break;
-  case Angle:  break;      
+  m_OrientationType.push_back(orientation);
+  switch (orientation) {
+  case LeftTo:   
+    m_Angle1.push_back(clitk::deg2rad(0));   
+    m_Angle2.push_back(clitk::deg2rad(0));
+    break;
+  case RightTo:  
+    m_Angle1.push_back(clitk::deg2rad(180)); 
+    m_Angle2.push_back(clitk::deg2rad(0));
+    break;
+  case AntTo:
+    m_Angle1.push_back(clitk::deg2rad(90));
+    m_Angle2.push_back(clitk::deg2rad(0));
+    break;
+  case PostTo:
+    m_Angle1.push_back(clitk::deg2rad(-90)); 
+    m_Angle2.push_back(clitk::deg2rad(0));
+    break;
+  case InfTo:    
+    m_Angle1.push_back(clitk::deg2rad(0));   
+    m_Angle2.push_back(clitk::deg2rad(90));
+    break;
+  case SupTo:    
+    m_Angle1.push_back(clitk::deg2rad(0));   
+    m_Angle2.push_back(clitk::deg2rad(-90));
+    break;
+  case Angle:  break;
   }
   /*         A1   A2
              Left      0    0
@@ -184,17 +223,9 @@ void
 clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
 GenerateData() 
 {
-  // Print Option
-  /*
-    DD(GetFuzzyThreshold());
-    DD((int)GetBackgroundValue());
-    DD((int)GetObjectBackgroundValue());
-    DD(GetOrientationType());
-    DD(GetResampleBeforeRelativePositionFilter());
-    DD(GetIntermediateSpacing());
-    DD(GetAutoCropFlag());
-    DD(GetNotFlag());
-  */
+  if (GetNumberOfAngles() <1) {
+    clitkExceptionMacro("Add at least one orientation type");
+  }  
 
   // Get input pointer
   input = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
@@ -229,7 +260,8 @@ GenerateData()
     typename ImageType::Pointer output = ImageType::New();
     SizeType size;
     for(unsigned int i=0; i<dim; i++) {
-      size[i] = lrint((input->GetLargestPossibleRegion().GetSize()[i]*input->GetSpacing()[i])/(double)working_image->GetSpacing()[i]);
+      size[i] = lrint((input->GetLargestPossibleRegion().GetSize()[i]*
+                       input->GetSpacing()[i])/(double)working_image->GetSpacing()[i]);
     }
 
     // The index of the input is not necessarily zero, so we have to
@@ -259,7 +291,7 @@ GenerateData()
     // typename PadFilterType::InputImageIndexType index;
     for(unsigned int i=0; i<dim; i++) {
       index[i] = -index[i]*input->GetSpacing()[i]/(double)working_image->GetSpacing()[i]
-    + lrint((working_image->GetOrigin()[i] - input->GetOrigin()[i])/working_image->GetSpacing()[i]);
+        + lrint((working_image->GetOrigin()[i] - input->GetOrigin()[i])/working_image->GetSpacing()[i]);
     }
     padFilter->SetSourceImage(working_image);
     padFilter->SetDestinationImage(output);
@@ -274,21 +306,56 @@ GenerateData()
   }
   // Keep object image (with resampline and pad)
   object_resampled = working_image;
- //  StopCurrentStep<ImageType>(working_image);
+  //  StopCurrentStep<ImageType>(working_image);
 
   // Step 3: compute rel pos in object
   StartNewStep("Relative Position Map");  
   typedef itk::RelativePositionPropImageFilter<ImageType, FloatImageType> RelPosFilterType;
-  typename RelPosFilterType::Pointer relPosFilter = RelPosFilterType::New();
-  relPosFilter->SetInput(working_image);
-  relPosFilter->SetAlpha1(m_Angle1); // xy plane
-  relPosFilter->SetAlpha2(m_Angle2);
-  relPosFilter->SetK1(M_PI/2.0); // Opening parameter, default = pi/2
-  relPosFilter->SetFast(true);
-  relPosFilter->SetRadius(1); // seems sufficient in this cas
-  // relPosFilter->SetVerboseProgress(true);
-  relPosFilter->Update();
-  relPos = relPosFilter->GetOutput();
+  typename RelPosFilterType::Pointer relPosFilter;
+
+  typename FloatImageType::Pointer m_FuzzyMap;
+  for(int i=0; i<GetNumberOfAngles(); i++) {
+    // Compute fuzzy map
+    relPosFilter = RelPosFilterType::New();
+    relPosFilter->SetInput(working_image);
+    relPosFilter->SetAlpha1(m_Angle1[i]); // xy plane
+    relPosFilter->SetAlpha2(m_Angle2[i]);
+    relPosFilter->SetK1(M_PI/2.0); // Opening parameter, default = pi/2
+    relPosFilter->SetFast(true);
+    relPosFilter->SetRadius(1); // seems sufficient in this case
+    // relPosFilter->SetVerboseProgress(true);
+    relPosFilter->Update();
+    relPos = relPosFilter->GetOutput();
+
+    if (GetNumberOfAngles() != 1) {
+      // Creation of the first m_FuzzyMap
+      if (i==0) {
+        m_FuzzyMap = clitk::NewImageLike<FloatImageType>(relPos, true);
+        m_FuzzyMap->FillBuffer(0.0);
+      }
+      
+      // Add to current fuzzy map
+      typedef itk::AddImageFilter<FloatImageType, FloatImageType, FloatImageType> AddImageFilter;
+      typename AddImageFilter::Pointer addFilter = AddImageFilter::New();
+      addFilter->SetInput1(m_FuzzyMap);
+      addFilter->SetInput2(relPos);
+      addFilter->Update();
+      m_FuzzyMap = addFilter->GetOutput();
+    }
+    else m_FuzzyMap = relPos;
+  }
+
+  // Divide by the number of relpos
+  if (GetNumberOfAngles() != 1) {
+    typedef itk::DivideByConstantImageFilter<FloatImageType, float, FloatImageType> DivideFilter;
+    typename DivideFilter::Pointer divideFilter = DivideFilter::New();
+    divideFilter->SetInput(m_FuzzyMap);
+    divideFilter->SetConstant(GetNumberOfAngles());
+    divideFilter->Update();
+    m_FuzzyMap = divideFilter->GetOutput();
+  }
+
+  relPos = m_FuzzyMap;
   StopCurrentStep<FloatImageType>(relPos);
                
   //--------------------------------------------------------------------
@@ -344,8 +411,6 @@ GenerateData()
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   // Pre Step 6: pad if not the same size : it can occur when downsample and upsample
-  // DD(working_image->GetLargestPossibleRegion());
-  // DD(input->GetLargestPossibleRegion());
   //if (!HaveSameSizeAndSpacing(working_image, input)) {
   if (working_image->GetLargestPossibleRegion() != input->GetLargestPossibleRegion()) {
     StartNewStep("Pad to get the same size than input");
@@ -380,22 +445,47 @@ GenerateData()
   combineFilter->SetForegroundValue(m_BackgroundValue+1);
   combineFilter->SetInput1(input);
   combineFilter->SetInput2(working_image);
-  if (GetNotFlag())
+  if (GetInverseOrientationFlag())
     combineFilter->SetOperationType(BoolFilterType::AndNot);
-  else
+  else {
+    if (GetCombineWithOrFlag())
+      combineFilter->SetOperationType(BoolFilterType::Or);
+    else
+      combineFilter->SetOperationType(BoolFilterType::And);
+  }
+  combineFilter->InPlaceOff(); // Do not modify initial input (!)
+  combineFilter->Update(); 
+  working_image = combineFilter->GetOutput();
+
+  // Remove (if needed the object from the support)
+  if (GetRemoveObjectFlag()) {
+    combineFilter = BoolFilterType::New();
+    combineFilter->SetInput1(working_image);
+    combineFilter->SetInput2(object);
+    combineFilter->SetOperationType(BoolFilterType::AndNot);
+    combineFilter->InPlaceOn();
+    combineFilter->Update(); 
+    working_image = combineFilter->GetOutput();
+  }
+  // In the other case, we must *add* the initial object to keep it
+  // but not more than the initial support
+  else { 
+    combineFilter = BoolFilterType::New();
+    combineFilter->SetInput1(working_image);
+    combineFilter->SetInput2(object);
+    combineFilter->SetOperationType(BoolFilterType::Or);
+    combineFilter->InPlaceOn();
+    combineFilter->Update(); 
+    working_image = combineFilter->GetOutput(); // not needed because InPlaceOn ?
+    combineFilter = BoolFilterType::New();
+    combineFilter->SetInput1(working_image);
+    combineFilter->SetInput2(input);
     combineFilter->SetOperationType(BoolFilterType::And);
-  combineFilter->InPlaceOn();
-  combineFilter->Update(); 
-  working_image = combineFilter->GetOutput();
+    combineFilter->InPlaceOn();
+    combineFilter->Update(); 
+    working_image = combineFilter->GetOutput();
+  }
 
-  combineFilter = BoolFilterType::New();
-  combineFilter->SetInput1(working_image);
-  combineFilter->SetInput2(object);
-  combineFilter->SetOperationType(BoolFilterType::AndNot);
-  combineFilter->InPlaceOn();
-  combineFilter->Update(); 
-
-  working_image = combineFilter->GetOutput();
   StopCurrentStep<ImageType>(working_image);
 
   //--------------------------------------------------------------------
@@ -418,7 +508,6 @@ GenerateData()
   // Final Step -> set output
   this->SetNthOutput(0, working_image);
   //  this->GraftOutput(working_image);
-  return;
 }
 //--------------------------------------------------------------------
 
