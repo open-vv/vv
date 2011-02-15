@@ -16,8 +16,8 @@ SET(vv_TOOLS
   vvToolBinarize
   vvToolImageArithm
   vvToolResample
-  vvToolExtractPatient
-  vvToolExtractLung
+#  vvToolExtractPatient
+#  vvToolExtractLung
   vvToolMIP
   vvToolConvert ## with dummy vvToolConvert.ui
   
