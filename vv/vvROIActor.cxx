@@ -88,7 +88,7 @@ void vvROIActor::UpdateImage()
     mImageContour[i]->HideActors();
     delete mImageContour[i];
   }
-  Initialize();
+  Initialize(mIsVisible);
   Update(); // No Render
 }
 //------------------------------------------------------------------------------
@@ -143,7 +143,7 @@ bool vvROIActor::IsContourVisible() {
 
 
 //------------------------------------------------------------------------------
-void vvROIActor::Initialize() {
+void vvROIActor::Initialize(bool IsVisible) {
   if (mROI->GetImage()) {
     mImageContour.clear();
     mOverlayActors.clear();
@@ -157,6 +157,7 @@ void vvROIActor::Initialize() {
       mImageContour[i]->SetColor(mContourColor[0], mContourColor[1], mContourColor[2]);
       mImageContour[i]->SetLineWidth(mContourWidth);
       mImageContour[i]->SetPreserveMemoryModeEnabled(true);
+      //mImageContour[i]->SetPreserveMemoryModeEnabled(false); // SEG FAULT !!!
       mImageContour[i]->SetSlicer(mSlicerManager->GetSlicer(i));
       mImageContour[i]->HideActors();
       
@@ -176,7 +177,7 @@ void vvROIActor::Initialize() {
                                   mROI->GetDisplayColor()[2]);
       mOverlayActors[i]->SetOpacity(mOpacity);
       mOverlayActors[i]->SetSlicer(mSlicerManager->GetSlicer(i));
-      mOverlayActors[i]->Initialize();
+      mOverlayActors[i]->Initialize(IsVisible);
     }
 
     connect(mSlicerManager,SIGNAL(UpdateSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
@@ -271,7 +272,6 @@ double vvROIActor::GetOpacity()
 //------------------------------------------------------------------------------
 void vvROIActor::SetSelected(bool b)
 {
-  DD(" Not used yet");
   mIsSelected = b;
   if (b) {
     for(int i=0; i<mSlicerManager->NumberOfSlicers(); i++) {

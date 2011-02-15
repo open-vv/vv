@@ -38,7 +38,7 @@ class vvROIActor: public QObject {
   clitk::DicomRT_ROI * GetROI() { return mROI; }
   void SetSlicerManager(vvSlicerManager * s);
   void Update();
-  void Initialize();
+  void Initialize(bool IsVisible=true);
   void SetVisible(bool b);
   void SetContourVisible(bool b);
   bool IsVisible();

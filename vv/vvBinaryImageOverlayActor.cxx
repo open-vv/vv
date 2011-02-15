@@ -77,7 +77,7 @@ void vvBinaryImageOverlayActor::SetSlicer(vvSlicer * slicer)
 
 
 //------------------------------------------------------------------------------
-void vvBinaryImageOverlayActor::Initialize()
+void vvBinaryImageOverlayActor::Initialize(bool IsVisible)
 {
   if (!mSlicer) {
     std::cerr << "ERROR. Please use setSlicer before setSlicer in vvBinaryImageOverlayActor." << std::endl;
@@ -94,11 +94,8 @@ void vvBinaryImageOverlayActor::Initialize()
     vtkImageMapToRGBA * mOverlayMapper = vtkImageMapToRGBA::New();
     mOverlayMapper->SetInput(mImage->GetVTKImages()[0]); // DS TODO : to change if it is 4D !!!
 
-    // DD("change to nb of intensity");
     double range[2];
     mImage->GetVTKImages()[0]->GetScalarRange(range);
-    // DD(range[0]);
-//     DD(range[1]);
     int n = range[1]-range[0]+1;
     mColorLUT->SetRange(range[0],range[1]);
     mColorLUT->SetNumberOfTableValues(n);
@@ -123,7 +120,7 @@ void vvBinaryImageOverlayActor::Initialize()
     vtkImageActor * mOverlayActor = vtkImageActor::New();
     mOverlayActor->SetInput(mOverlayMapper->GetOutput());
     mOverlayActor->SetPickable(0);
-    mOverlayActor->SetVisibility(true);
+    mOverlayActor->SetVisibility(IsVisible);
     //mOverlayActor->SetOpacity(1.0);
 
     mMapperList.push_back(mOverlayMapper);
@@ -179,8 +176,6 @@ void vvBinaryImageOverlayActor::SetOpacity(double d)
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::SetImage(vvImage::Pointer image, double bg, bool modeBG)
 {
-  //  DD("vvBinaryImageOverlayActor::SetImage");
-  //DD(modeBG);
   mImage = image;
   if (modeBG) {
     mBackgroundValue = bg;
@@ -282,9 +277,6 @@ void vvBinaryImageOverlayActor::ComputeExtent(int orientation,
 					      int * inExtent,
 					      int * outExtent)
 {
-  //  std::cout << "InExtent = " << inExtent[0] << " " << inExtent[1] << " " << inExtent[2] << " "
-  //	    << inExtent[3] << " " << inExtent[4] << " " << inExtent[5] << std::endl;
-  //  DD(orientation);
   switch (orientation) {
   case vtkImageViewer2::SLICE_ORIENTATION_XY:
     for(int i=0; i<4; i++) outExtent[i] = inExtent[i];
@@ -300,8 +292,6 @@ void vvBinaryImageOverlayActor::ComputeExtent(int orientation,
     outExtent[0] = outExtent[1] = slice;
     break;
   }
-  // std::cout << "OutExtent = " << outExtent[0] << " " << outExtent[1] << " " << outExtent[2] << " "
-  // 	    << outExtent[3] << " " << outExtent[4] << " " << outExtent[5] << std::endl;
 }
 //------------------------------------------------------------------------------
 

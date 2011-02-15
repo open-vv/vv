@@ -40,7 +40,7 @@ class vvBinaryImageOverlayActor
   void SetColor(double r, double g, double b);
   void SetOpacity(double d);
   void SetImage(vvImage::Pointer image, double bg, bool modeBG=true);
-  void Initialize();
+  void Initialize(bool IsVisible=true);
   void UpdateColor();
   void UpdateSlice(int slicer, int slice);
   void HideActors();
