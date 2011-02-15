@@ -29,6 +29,7 @@
 #include "vtkPointData.h"
 #include "clitkCommon.h"
 
+//--------------------------------------------------------------------
 vvLandmarks::vvLandmarks(int size)
 {
   mLandmarks.resize(0);
@@ -41,7 +42,10 @@ vvLandmarks::vvLandmarks(int size)
   mPolyData = vtkPolyData::New();
   mIds = vtkFloatArray::New();
 }
+//--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
 vvLandmarks::~vvLandmarks()
 {
   for (unsigned int i = 0; i < mPoints.size(); i++) {
@@ -55,7 +59,10 @@ vvLandmarks::~vvLandmarks()
   if (mPolyData)
     mPolyData->Delete();
 }
+//--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
 void vvLandmarks::AddLandmark(float x,float y,float z,float t,double value)
 {
   vvLandmark point;
@@ -77,7 +84,10 @@ void vvLandmarks::AddLandmark(float x,float y,float z,float t,double value)
   //mIds->InsertTuple1(mLandmarks.size(),mLandmarks.size());
   SetTime(int(t));
 }
+//--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
 void vvLandmarks::RemoveLastLandmark()
 {
   mPoints[mLandmarks.back().coordinates[3]]->SetNumberOfPoints(
@@ -87,27 +97,42 @@ void vvLandmarks::RemoveLastLandmark()
   mLandmarks.pop_back();
   mIds->RemoveLastTuple();
 }
+//--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
 void vvLandmarks::ChangeComments(int index, std::string comments)
 {
   mLandmarks[index].comments = comments;
 }
+//--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
 double vvLandmarks::GetPixelValue(int index)
 {
   return mLandmarks[index].pixel_value;
 }
+//--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
 float* vvLandmarks::GetCoordinates(int index)
 {
   return mLandmarks[index].coordinates;
 }
+//--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
 std::string vvLandmarks::GetComments(int index)
 {
   return mLandmarks[index].comments;
 }
+//--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
 void vvLandmarks::LoadFile(std::string filename)
 {
   std::ifstream fp(filename.c_str(), std::ios::in|std::ios::binary);
@@ -122,6 +147,7 @@ void vvLandmarks::LoadFile(std::string filename)
     mPoints[i]->SetNumberOfPoints(0);
   bool first_line=true;
   while (fp.getline(line,255)) {
+    //    DD(line);
     std::string stringline = line;
     if (first_line) {
       first_line=false;
@@ -152,6 +178,7 @@ void vvLandmarks::LoadFile(std::string filename)
         continue;
       }
       point.coordinates[0] = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
+      //      DD(point.coordinates[0]);
       previousSpace = space;
       space = stringline.find(" ", previousSpace+1);
       if (space < -1 || space > (int)stringline.size()) {
@@ -159,6 +186,7 @@ void vvLandmarks::LoadFile(std::string filename)
         continue;
       }
       point.coordinates[1] = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
+      //      DD(point.coordinates[1]);
       previousSpace = space;
       space = stringline.find(" ", previousSpace+1);
       if (space < -1 || space > (int)stringline.size()) {
@@ -181,6 +209,7 @@ void vvLandmarks::LoadFile(std::string filename)
           continue;
         }
         point.pixel_value = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
+        //        DD(point.pixel_value);
       } else {
         point.pixel_value=0.; //Not in file
         point.coordinates[3]=0.;
@@ -188,7 +217,10 @@ void vvLandmarks::LoadFile(std::string filename)
       previousSpace = space;
       //this is the maximum size of comments
       space = (stringline.find("\n", previousSpace+1) < 254 ? stringline.find("\n", previousSpace+1) : 254);
-      point.comments = stringline.substr(previousSpace,space - (previousSpace)).c_str();
+      if (previousSpace != -1) {
+        point.comments = stringline.substr(previousSpace,space - (previousSpace)).c_str();
+      }
+      //      DD(point.comments);
       mLandmarks.push_back(point);
       mIds->InsertNextTuple1(0.55);
       mPoints[int(point.coordinates[3])]->InsertNextPoint(
@@ -197,13 +229,19 @@ void vvLandmarks::LoadFile(std::string filename)
   }
   SetTime(0);
 }
+//--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
 bool vvLandmarks::ErrorMsg(int num,const char * text)
 {
   std::cerr << "error when loading point " << num << " at " << text << std::endl;
   return false;
 }
+//--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
 void vvLandmarks::SaveFile(std::string filename)
 {
   std::string fileContent = "LANDMARKS1\n"; //File format version identification
@@ -231,7 +269,10 @@ void vvLandmarks::SaveFile(std::string filename)
   fp << fileContent.c_str()<< std::endl;
   fp.close();
 }
+//--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
 void vvLandmarks::SetTime(int time)
 {
   if (time >= 0 && time <= ((int)mPoints.size() -1)) {
@@ -241,7 +282,10 @@ void vvLandmarks::SetTime(int time)
     mPolyData->Update();
   }
 }
+//--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
 std::string vvLandmarks::replace_dots(std::string input)
 {
   ///Replaces the dots used in the file with the decimal separator in use on the platform
@@ -253,3 +297,4 @@ std::string vvLandmarks::replace_dots(std::string input)
   }
   return input;
 }
+//--------------------------------------------------------------------
