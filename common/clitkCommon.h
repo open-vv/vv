@@ -30,7 +30,17 @@
 #include <itkImageRegionConstIterator.h>
 #include <itkImageRegionIterator.h>
 
+// std include
 #include <fstream>
+
+// Include for "rusage"
+#include <ctime> 
+#if defined(unix) || defined(__APPLE__)
+#  include <sys/time.h>
+#  include <sys/resource.h>
+#elif defined(WIN32)
+#  include <windows.h>
+#endif
 
 //--------------------------------------------------------------------
 namespace clitk {
@@ -71,6 +81,9 @@ namespace clitk {
   template<class T> std::string toStringVector(const T * t, const int n);
   template<class T> std::string toStringVector(const T & t, const int n);
   template<class T> std::string toStringVector(const std::vector<T> & t);
+  template <class T> bool fromString(T& t, 
+                                     const std::string& s, 
+                                     std::ios_base& (*f)(std::ios_base&)=std::dec);
 
   //--------------------------------------------------------------------
   // Display a progress %
@@ -192,6 +205,9 @@ namespace clitk {
   //--------------------------------------------------------------------
   template<class ImageType>
   void CloneImage(const typename ImageType::Pointer & input, typename ImageType::Pointer & output);
+
+  //--------------------------------------------------------------------
+  void PrintMemoryUsed();
 
 #include "clitkCommon.txx"
 

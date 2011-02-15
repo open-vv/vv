@@ -19,10 +19,14 @@
 #ifndef CLITKCOMMON_CXX
 #define CLITKCOMMON_CXX
 
+// clitk include 
 #include "clitkCommon.h"
+
+// std include 
 #include <fstream>
 #include <iomanip>
 #include <sstream>
+#include <cerrno>
 
 //------------------------------------------------------------------
 // skip line which begin with a sharp '#'
@@ -240,7 +244,9 @@ void clitk::openFileForReading(std::ifstream & is, const std::string & filename)
 {
   is.open(filename.c_str(), std::ios::in);
   if ( is.fail() ) {
-    clitkExceptionMacro("Could not open file (for reading): " << filename);
+    clitkExceptionMacro("Could not open file for reading: " 
+                        << filename << ". Error is : <" 
+                        << strerror(errno) << ">");
   }
 }
 //--------------------------------------------------------------------
@@ -251,7 +257,9 @@ void clitk::openFileForWriting(std::ofstream & os, const std::string & filename)
 {
   os.open(filename.c_str(), std::ios::out);
   if ( os.fail() ) {
-    clitkExceptionMacro("Could not open file (for writing): " << filename);
+    clitkExceptionMacro("Could not open file for writing: " 
+                        << filename << ". Error is : <" 
+                        << strerror(errno) << ">");
   }
 }
 //--------------------------------------------------------------------
@@ -304,6 +312,21 @@ void clitk::readDoubleFromFile(const std::string & filename, std::vector<double>
     is >> d;
     if (is) list.push_back(d);
   }
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void clitk::PrintMemoryUsed()
+{
+#if defined(unix) || defined(__APPLE__)
+  rusage usage;  
+  getrusage(RUSAGE_SELF, &usage);
+  DD(usage.ru_maxrss);        /* maximum resident set size */ 
+  // DD(usage.ru_ixrss);         /* integral shared memory size */
+  // DD(usage.ru_idrss);         /* integral unshared data size */
+  // DD(usage.ru_isrss);         /* integral unshared stack size */
+#endif
 }
 //--------------------------------------------------------------------
 
