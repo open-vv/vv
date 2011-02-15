@@ -17,12 +17,13 @@
   ======================================================================-====*/
 
 #include "clitkImageCommon.h"
+#include "clitkMemoryUsage.h"
 
 //--------------------------------------------------------------------
 template<class OptionType>
 void clitk::FilterBase::VerboseOption(std::string name, OptionType value) 
 {
-  if (!this->GetVerboseOption()) return;
+  if (!this->GetVerboseOptionFlag()) return;
   std::cout << "Set option '" << name << "' = " << value << std::endl;
 }
 //--------------------------------------------------------------------
@@ -32,7 +33,7 @@ void clitk::FilterBase::VerboseOption(std::string name, OptionType value)
 template<class OptionType>
 void clitk::FilterBase::VerboseOption(std::string name, int nb, OptionType value) 
 {
-  if (!this->GetVerboseOption()) return;
+  if (!this->GetVerboseOptionFlag()) return;
   if (nb==0) std::cout << "Set option '" << name << "' not given" << std::endl;
   else {
     std::cout << "Set option '" << name << "' = " << value << std::endl;
@@ -45,7 +46,7 @@ void clitk::FilterBase::VerboseOption(std::string name, int nb, OptionType value
 template<class OptionType>
 void clitk::FilterBase::VerboseOptionV(std::string name, int nb, OptionType * value) 
 {
-  if (!this->GetVerboseOption()) return;
+  if (!this->GetVerboseOptionFlag()) return;
   if (nb==0) std::cout << "Set option '" << name << "' not given" << std::endl;
   else {
     std::cout << "Set option '" << name << "'[" << nb << "] ";
@@ -61,11 +62,12 @@ template<class TInternalImageType>
 void clitk::FilterBase::StopCurrentStep(typename TInternalImageType::Pointer p) 
 {
   StopCurrentStep();
-  if (m_WriteStep) {
+  if (m_WriteStepFlag) {
     std::ostringstream name;
     name << "step-" << GetCurrentStepId() << ".mhd";
     clitk::writeImage<TInternalImageType>(p, name.str());
   }
+  clitk::PrintMemory(GetVerboseMemoryFlag(), "End of step"); 
 }
 //--------------------------------------------------------------------
 

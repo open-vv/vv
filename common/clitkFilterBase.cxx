@@ -23,11 +23,14 @@
 //--------------------------------------------------------------------
 clitk::FilterBase::FilterBase() 
 {
-  SetVerboseOption(false);
+  SetVerboseOptionFlag(false);
   SetCurrentStepNumber(0);
   SetCurrentStepBaseId("");
-  VerboseWarningOffOn(); // OffOn, it's cool no ?
+  VerboseWarningFlagOn();
+  VerboseWarningFlagOff();
+  VerboseMemoryFlagOff();
   SetWarning("");
+  VerboseWarningFlagOn();
   m_IsCancelled = false;
 }
 //--------------------------------------------------------------------
@@ -37,7 +40,7 @@ clitk::FilterBase::FilterBase()
 void clitk::FilterBase::SetWarning(std::string e)
 {
   m_Warning = e;
-  if (!GetVerboseWarningOff()) {
+  if (GetVerboseWarningFlag()) {
     std::cout << GetWarning() << std::endl;
   }
 }
@@ -64,7 +67,7 @@ void clitk::FilterBase::StartNewStep(std::string s)
   }
 
   m_CurrentStepName = "Step "+GetCurrentStepId()+" -- "+s;
-  if (m_VerboseStep) {
+  if (GetVerboseStepFlag()) {
     std::cout << m_CurrentStepName << std::endl;
     //"Step " << GetCurrentStepId() << " -- " << s << std::endl;
   }
@@ -89,9 +92,28 @@ void clitk::FilterBase::Cancel()
 
 
 //--------------------------------------------------------------------
- bool clitk::FilterBase::Cancelled()
- {
-   return m_IsCancelled;
- }
+bool clitk::FilterBase::Cancelled()
+{
+  return m_IsCancelled;
+}
 //--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
+void clitk::FilterBase::StartSubStep() {
+  m_SubstepNumbers.push_back(GetCurrentStepNumber());
+  m_SubstepID.push_back(GetCurrentStepId());
+  SetCurrentStepBaseId(GetCurrentStepId());
+  SetCurrentStepNumber(0);;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void clitk::FilterBase::StopSubStep() {
+  int s = m_SubstepNumbers.back();
+  m_SubstepNumbers.pop_back();
+  SetCurrentStepNumber(s);
+  SetCurrentStepBaseId(m_SubstepID.back());
+  m_SubstepID.pop_back();
+}

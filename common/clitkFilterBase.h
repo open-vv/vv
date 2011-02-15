@@ -55,23 +55,30 @@ namespace clitk {
     virtual bool GetDebug() const { return Superclass::GetDebug(); }
 
     // Verbose options management
-    itkSetMacro(VerboseOption, bool);
-    itkGetConstMacro(VerboseOption, bool);
-    itkBooleanMacro(VerboseOption);
-    GGO_DefineOption_Flag(verboseOption, SetVerboseOption);
+    itkSetMacro(VerboseFlag, bool);
+    itkGetConstMacro(VerboseFlag, bool);
+    itkBooleanMacro(VerboseFlag);
+
+    // Verbose Options
+    itkSetMacro(VerboseOptionFlag, bool);
+    itkGetConstMacro(VerboseOptionFlag, bool);
+    itkBooleanMacro(VerboseOptionFlag);
+
+    // Verbose Memory
+    itkSetMacro(VerboseMemoryFlag, bool);
+    itkGetConstMacro(VerboseMemoryFlag, bool);
+    itkBooleanMacro(VerboseMemoryFlag);
 
     // Steps management
     itkSetMacro(NumberOfSteps, int);
     itkGetConstMacro(NumberOfSteps, int);
-    itkSetMacro(VerboseStep, bool);
-    itkGetConstMacro(VerboseStep, bool);
-    itkBooleanMacro(VerboseStep);
-    GGO_DefineOption_Flag(verboseStep, SetVerboseStep);
+    itkSetMacro(VerboseStepFlag, bool);
+    itkGetConstMacro(VerboseStepFlag, bool);
+    itkBooleanMacro(VerboseStepFlag);
 
-    itkSetMacro(WriteStep, bool);
-    itkGetConstMacro(WriteStep, bool);
-    itkBooleanMacro(WriteStep);
-    GGO_DefineOption_Flag(writeStep, SetWriteStep);
+    itkSetMacro(WriteStepFlag, bool);
+    itkGetConstMacro(WriteStepFlag, bool);
+    itkBooleanMacro(WriteStepFlag);
 
     itkSetMacro(CurrentStepNumber, int);
     itkGetConstMacro(CurrentStepNumber, int);
@@ -81,7 +88,10 @@ namespace clitk {
     itkGetConstMacro(CurrentStepBaseId, std::string);
     itkSetMacro(CurrentStepName, std::string);
     itkGetConstMacro(CurrentStepName, std::string);
-
+    
+    void StartSubStep();
+    void StopSubStep();
+    
     // Convenient function for verbose option
     template<class OptionType>
     void VerboseOption(std::string name, OptionType value);    
@@ -92,10 +102,9 @@ namespace clitk {
 
     void SetWarning(std::string e);
     itkGetConstMacro(Warning, std::string);
-    itkSetMacro(VerboseWarningOff, bool);
-    itkGetConstMacro(VerboseWarningOff, bool);
-    itkBooleanMacro(VerboseWarningOff);
-    GGO_DefineOption_Flag(verboseWarningOff, SetVerboseWarningOff);
+    itkSetMacro(VerboseWarningFlag, bool);
+    itkGetConstMacro(VerboseWarningFlag, bool);
+    itkBooleanMacro(VerboseWarningFlag);
     
     // Use this function to cancel the filter between step
     void Cancel();
@@ -109,19 +118,24 @@ namespace clitk {
     void StopCurrentStep(typename TInternalImageType::Pointer p);
     void StopCurrentStep();
 
-    bool m_VerboseOption;  
-    bool m_VerboseStep;
-    bool m_WriteStep;
+    bool m_VerboseFlag;  
+    bool m_VerboseOptionFlag;  
+    bool m_VerboseStepFlag;
+    bool m_VerboseMemoryFlag;
+    bool m_WriteStepFlag;
     int m_CurrentStepNumber;
     int m_NumberOfSteps;
     std::string m_CurrentStepId;
     std::string m_CurrentStepBaseId;
     std::string m_CurrentStepName;
     std::string m_Warning;
-    bool m_VerboseWarningOff;
+    bool m_VerboseWarningFlag;
     bool m_IsCancelled;
     Timer m_CurrentStepTimer;
-    
+
+    std::vector<int> m_SubstepNumbers;
+    std::vector<std::string> m_SubstepID;
+	
   private:
     FilterBase(const Self&); //purposely not implemented
     void operator=(const Self&); //purposely not implemented
