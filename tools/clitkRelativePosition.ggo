@@ -8,7 +8,7 @@ option "config"	  	-	"Config file"			  string  	no
 option "verbose"   	v   	"Verbose"			  flag		off
 option "verboseStep"    -       "Verbose each step"		  flag		off
 option "writeStep"      w       "Write image at each step"	  flag		off
-option "verboseOption"  -       "Display options values"          flag          off
+option "verboseOptions" -       "Display options values"          flag          off
 option "imagetypes"     -       "Display allowed image types"     flag          off
 
 section "Input/Output"
@@ -17,19 +17,19 @@ option "object"		j	"Input mask object filename"	  string  	yes
 option "output"    	o   	"Output image filename"		  string 	yes
 
 section "Main options"
-option "orientation"   	r   	"L R A P I S (LeftRightAntPostInfSup)"          string no 	default="L"
+option "orientation"   	r   	"L R A P I S (LeftRightAntPostInfSup)"          string no multiple 	default="L"
 option "angle1"   	a   	"Angle 1 (deg)"		           double  	no 	default="0"
 option "angle2"   	b   	"Angle 2 (deg)"		           double  	no 	default="0"
 option "spacing"   	s   	"Resample before (faster)"         double  	no
 option "threshold"   	t   	"Fuzzy threshold"                  double  	no default="0.6"
-option "not"            n       "Not flag : inverse of the orientation"     flag   off
+option "inverse"        n       "Not flag : inverse of the orientation"     flag   off
+option "doNotRemoveObject"  -   "if flag is on, do not remove the object"   flag   off
 option "noAutoCrop"     c       "No auto crop at the end if set"            flag   off
+option "combineWithOr"  -       "Combine relpos map and support with OR"    flag   off
 
 section "Slice by slice processing"
 option "sliceBySlice"   -       "Slice by slice relative position"          flag   off
 option "direction"   	d   	"If SbS, indicate the slice direction"      int    no default="2"
+option "uniqueCCL"      u       "Keep only one CC in each slice"            flag   off
    
-
-
-
 

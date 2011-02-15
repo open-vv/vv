@@ -65,12 +65,12 @@ template<class FilterType>
 void clitk::RelativePositionGenericFilter<ArgsInfoType>::
 SetOptionsFromArgsInfoToFilter(FilterType * f) 
 {
-  f->SetVerboseOption(mArgsInfo.verbose_flag);
-  f->SetVerboseStep(mArgsInfo.verboseStep_flag);
-  f->SetWriteStep(mArgsInfo.writeStep_flag);
+  f->SetVerboseOptionFlag(mArgsInfo.verboseOptions_flag);
+  f->SetVerboseStepFlag(mArgsInfo.verboseStep_flag);
+  f->SetWriteStepFlag(mArgsInfo.writeStep_flag);
 
-  if (mArgsInfo.orientation_given) {
-    f->SetOrientationTypeString(mArgsInfo.orientation_arg);
+  for(uint i=0; i<mArgsInfo.orientation_given; i++) {
+    f->AddOrientationTypeString(mArgsInfo.orientation_arg[i]);
   }
   
   if (mArgsInfo.spacing_given) {
@@ -79,8 +79,10 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   }
 
   f->SetFuzzyThreshold(mArgsInfo.threshold_arg);
-  f->SetNotFlag(mArgsInfo.not_flag);
+  f->SetRemoveObjectFlag(!mArgsInfo.doNotRemoveObject_flag);
   f->SetAutoCropFlag(!mArgsInfo.noAutoCrop_flag);
+  f->SetCombineWithOrFlag(mArgsInfo.combineWithOr_flag);
+  f->SetInverseOrientationFlag(mArgsInfo.inverse_flag);
 }
 
 //--------------------------------------------------------------------
@@ -107,7 +109,10 @@ UpdateWithInputImageType()
     filter->SetInput(input);
     filter->SetInputObject(object);
     SetOptionsFromArgsInfoToFilter<FilterType>(filter);
-    filter->SetDirection(mArgsInfo.direction_arg); // only for SliceBySliceRelativePositionFilter
+
+    // Set options only for SliceBySliceRelativePositionFilter
+    filter->SetDirection(mArgsInfo.direction_arg);
+    filter->SetUniqueConnectedComponentBySlice(mArgsInfo.uniqueCCL_flag);
     
     // Go !
     filter->Update();
@@ -127,8 +132,8 @@ UpdateWithInputImageType()
     // Set global Options 
     filter->SetInput(input);
     filter->SetInputObject(object);
-    filter->SetAngle1(mArgsInfo.angle1_arg);// only for this filter
-    filter->SetAngle2(mArgsInfo.angle2_arg);
+    if (mArgsInfo.angle1_given && mArgsInfo.angle2_given)
+      filter->AddAngles(mArgsInfo.angle1_arg, mArgsInfo.angle2_arg);
     SetOptionsFromArgsInfoToFilter<FilterType>(filter);
    
     // Go !
