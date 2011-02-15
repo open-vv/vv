@@ -18,16 +18,6 @@
 #ifndef clitkDecomposeAndReconstructImageFilter_txx
 #define clitkDecomposeAndReconstructImageFilter_txx
 
-/* =================================================
- * @file   clitkDecomposeAndReconstructImageFilter.txx
- * @author 
- * @date   
- * 
- * @brief 
- * 
- ===================================================*/
-
-
 namespace clitk
 {
 

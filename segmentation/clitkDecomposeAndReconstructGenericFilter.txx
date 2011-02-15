@@ -18,16 +18,6 @@
 #ifndef clitkDecomposeAndReconstructGenericFilter_txx
 #define clitkDecomposeAndReconstructGenericFilter_txx
 
-/* =================================================
- * @file   clitkDecomposeAndReconstructGenericFilter.txx
- * @author 
- * @date   
- * 
- * @brief 
- * 
- ===================================================*/
-
-
 namespace clitk
 {
 
