@@ -47,7 +47,13 @@ namespace clitk
     itkTypeMacro(ExtractMediastinumGenericFilter, LightObject);
 
     //--------------------------------------------------------------------
+    // Options for the GenericFilter
     void SetArgsInfo(const ArgsInfoType & a);
+    
+    //--------------------------------------------------------------------
+    // Options for the Filter
+    template<class FilterType> 
+    void SetOptionsFromArgsInfoToFilter(FilterType * f) ;
 
     //--------------------------------------------------------------------
     // Main function called each time the filter is updated

@@ -24,6 +24,7 @@
 #include "clitkSetBackgroundImageFilter.h"
 #include "clitkDecomposeAndReconstructImageFilter.h"
 #include "clitkAutoCropFilter.h"
+#include "clitkMemoryUsage.h"
 
 // itk
 #include "itkBinaryThresholdImageFilter.h"
@@ -91,47 +92,11 @@ SetInput(const TInputImageType * image)
 
 //--------------------------------------------------------------------
 template <class TInputImageType>
-template<class ArgsInfoType>
-void 
-clitk::ExtractPatientFilter<TInputImageType>::
-SetArgsInfo(ArgsInfoType arg)
-{
-  SetVerboseOption_GGO(arg);
-  SetVerboseStep_GGO(arg);
-  SetWriteStep_GGO(arg);
-  SetVerboseWarningOff_GGO(arg);
-
-  SetOutputPatientFilename_GGO(arg);
-
-  SetUpperThreshold_GGO(arg);
-  SetLowerThreshold_GGO(arg);
-
-  SetDecomposeAndReconstructDuringFirstStep_GGO(arg);
-  SetRadius1_GGO(arg);
-  SetMaximumNumberOfLabels1_GGO(arg);
-  SetNumberOfNewLabels1_GGO(arg);
-
-  SetDecomposeAndReconstructDuringSecondStep_GGO(arg);
-  SetRadius2_GGO(arg);
-  SetMaximumNumberOfLabels2_GGO(arg);
-  SetNumberOfNewLabels2_GGO(arg);
-  
-  SetFirstKeep_GGO(arg);
-  SetLastKeep_GGO(arg);
-
-  SetFinalOpenClose_GGO(arg);
-  SetAutoCrop_GGO(arg);
-
-  SetAFDBFilename_GGO(arg);
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-template <class TInputImageType>
 void 
 clitk::ExtractPatientFilter<TInputImageType>::
 GenerateOutputInformation() { 
+
+  clitk::PrintMemory(GetVerboseMemoryFlag(), "Initial memory"); // OK
 
   Superclass::GenerateOutputInformation();
   input = dynamic_cast<const TInputImageType*>(itk::ProcessObject::GetInput(0));
@@ -303,7 +268,7 @@ GenerateData() {
   // Final Graft
   this->GraftOutput(output);
   // Store image filename into AFDB
-  GetAFDB()->SetImageFilename("patient", this->GetOutputPatientFilename());  
+  GetAFDB()->SetImageFilename("Patient", this->GetOutputPatientFilename());  
   WriteAFDB();
 }
 //--------------------------------------------------------------------

@@ -63,10 +63,47 @@ void
 clitk::ExtractLymphStationsGenericFilter<ArgsInfoType>::
 SetOptionsFromArgsInfoToFilter(FilterType * f)
 {
-  f->SetVerboseOption(mArgsInfo.verbose_flag);
-  f->SetVerboseStep(mArgsInfo.verboseStep_flag);
-  f->SetWriteStep(mArgsInfo.writeStep_flag);
+  f->SetVerboseOptionFlag(mArgsInfo.verbose_flag);
+  f->SetVerboseStepFlag(mArgsInfo.verboseStep_flag);
+  f->SetWriteStepFlag(mArgsInfo.writeStep_flag);
+  f->SetVerboseMemoryFlag(mArgsInfo.verboseMemory_flag);
   f->SetAFDBFilename(mArgsInfo.afdb_arg);  
+  f->SetDistanceMaxToAnteriorPartOfTheSpine(mArgsInfo.maxAntSpine_arg);
+  f->SetFuzzyThresholdForS8(mArgsInfo.fuzzyThresholdForS8_arg);
+
+  // Check multiple options for radius dilatation
+  /*
+    typename FilterType::MaskImagePointType p;
+    SetMultipleOptionMacro(mArgsInfo, esophagusDilatation, 3, p);
+    default ? = set before
+    exception if fail
+   */
+  typename FilterType::MaskImagePointType p;
+  p[0] = 7; p[1] = 5; p[2] = 0; // default value
+  if (mArgsInfo.esophagusDilatationForAnt_given == 3) {
+    for(uint i=0; i<3; i++)
+      p[i] = mArgsInfo.esophagusDilatationForAnt_arg[i];
+  }
+  else {
+    if (mArgsInfo.esophagusDilatationForAnt_given == 1) {
+      for(uint i=0; i<3; i++)
+        p[i] = mArgsInfo.esophagusDilatationForAnt_arg[0];
+    }
+  }
+  f->SetEsophagusDiltationForAnt(p);
+  
+  p[0] = 5; p[1] = 10; p[2] = 1; // default value
+  if (mArgsInfo.esophagusDilatationForRight_given == 3) {
+    for(uint i=0; i<3; i++)
+      p[i] = mArgsInfo.esophagusDilatationForRight_arg[i];
+  }
+  else {
+    if (mArgsInfo.esophagusDilatationForRight_given == 1) {
+      for(uint i=0; i<3; i++)
+        p[i] = mArgsInfo.esophagusDilatationForRight_arg[0];
+    }
+  }
+  f->SetEsophagusDiltationForRight(p);  
 }
 //--------------------------------------------------------------------
 

@@ -60,6 +60,22 @@ void clitk::ExtractAirwaysTreeInfoGenericFilter<ArgsInfoType>::SetArgsInfo(const
 
 
 //--------------------------------------------------------------------
+template<class ArgsInfoType>
+template<class FilterType>
+void clitk::ExtractAirwaysTreeInfoGenericFilter<ArgsInfoType>::
+SetOptionsFromArgsInfoToFilter(FilterType * f) 
+{
+  f->SetVerboseOptionFlag(mArgsInfo.verboseOption_flag);
+  f->SetVerboseStepFlag(mArgsInfo.verboseStep_flag);
+  f->SetWriteStepFlag(mArgsInfo.writeStep_flag);
+  f->SetVerboseWarningFlag(!mArgsInfo.verboseWarningOff_flag);
+  if (mArgsInfo.afdb_given)
+    f->SetAFDBFilename(mArgsInfo.afdb_arg);
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
 // Update with the number of dimensions and the pixeltype
 //--------------------------------------------------------------------
 template<class ArgsInfoType>
@@ -77,8 +93,8 @@ void clitk::ExtractAirwaysTreeInfoGenericFilter<ArgsInfoType>::UpdateWithInputIm
   this->SetFilterBase(filter);
     
   // Set global Options 
-  filter->SetArgsInfo(mArgsInfo);
   filter->SetInput(input);
+  SetOptionsFromArgsInfoToFilter<FilterType>(filter);
 
   // Go !
   filter->Update();

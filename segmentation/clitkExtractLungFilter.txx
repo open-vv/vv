@@ -26,6 +26,7 @@
 #include "clitkAutoCropFilter.h"
 #include "clitkCropLikeImageFilter.h"
 #include "clitkFillMaskFilter.h"
+#include "clitkMemoryUsage.h"
 
 // itk
 #include "itkBinaryThresholdImageFilter.h"
@@ -54,6 +55,7 @@ ExtractLungFilter():
   SetBackgroundValue(0); // Must be zero
   SetForegroundValue(1);
   SetMinimalComponentSize(100);
+  VerboseRegionGrowingFlagOff();
 
   // Step 1 default values
   SetUpperThreshold(-300);
@@ -70,6 +72,7 @@ ExtractLungFilter():
   SetMultiplierForTrachea(5);
   SetThresholdStepSizeForTrachea(64);
   SetNumberOfSlicesToSkipBeforeSearchingSeed(0);
+  TracheaVolumeMustBeCheckedFlagOn();
   
   // Step 3 default values
   SetNumberOfHistogramBins(500);
@@ -88,11 +91,11 @@ ExtractLungFilter():
   SetLabelizeParameters3(p3);
   
   // Step 5
-  OpenCloseOff();
+  OpenCloseFlagOff();
   SetOpenCloseRadius(1);
   
   // Step 6
-  FillHolesOn();
+  FillHolesFlagOn();
 }
 //--------------------------------------------------------------------
 
@@ -121,56 +124,11 @@ AddSeed(InternalIndexType s)
 
 //--------------------------------------------------------------------
 template <class ImageType>
-template<class ArgsInfoType>
-void 
-clitk::ExtractLungFilter<ImageType>::
-SetArgsInfo(ArgsInfoType mArgsInfo)
-{
-  SetVerboseOption_GGO(mArgsInfo);
-  SetVerboseStep_GGO(mArgsInfo);
-  SetWriteStep_GGO(mArgsInfo);
-  SetVerboseWarningOff_GGO(mArgsInfo);
-
-  SetAFDBFilename_GGO(mArgsInfo);
-  SetOutputLungFilename_GGO(mArgsInfo);
-  SetOutputTracheaFilename_GGO(mArgsInfo);
-
-  SetUpperThreshold_GGO(mArgsInfo);
-  SetLowerThreshold_GGO(mArgsInfo);
-  SetNumberOfSlicesToSkipBeforeSearchingSeed_GGO(mArgsInfo);
-  SetLabelizeParameters1_GGO(mArgsInfo);
-  if (!mArgsInfo.remove1_given) {
-    GetLabelizeParameters1()->AddLabelToRemove(2); 
-    if (GetVerboseOption()) VerboseOption("remove1", 2);
-  }
-
-  SetUpperThresholdForTrachea_GGO(mArgsInfo);
-  SetMultiplierForTrachea_GGO(mArgsInfo);
-  SetThresholdStepSizeForTrachea_GGO(mArgsInfo);
-  AddSeed_GGO(mArgsInfo);
-
-  SetMinimalComponentSize_GGO(mArgsInfo);
-  
-  SetNumberOfHistogramBins_GGO(mArgsInfo);
-  SetLabelizeParameters2_GGO(mArgsInfo);
-
-  SetRadiusForTrachea_GGO(mArgsInfo);
-  SetLabelizeParameters3_GGO(mArgsInfo);
-  
-  SetOpenCloseRadius_GGO(mArgsInfo);
-  SetOpenClose_GGO(mArgsInfo);
-  
-  SetFillHoles_GGO(mArgsInfo);
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-template <class ImageType>
 void 
 clitk::ExtractLungFilter<ImageType>::
 GenerateOutputInformation() 
 { 
+  clitk::PrintMemory(GetVerboseMemoryFlag(), "Initial memory"); // OK
   Superclass::GenerateOutputInformation();
   
   // Read DB
@@ -178,27 +136,41 @@ GenerateOutputInformation()
 
   // Get input pointers
   input   = dynamic_cast<const ImageType*>(itk::ProcessObject::GetInput(0));
-  patient = GetAFDB()->template GetImage <MaskImageType>("patient");  
+  patient = GetAFDB()->template GetImage <MaskImageType>("Patient");  
+  PrintMemory(GetVerboseMemoryFlag(), "After reading patient"); // OK
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   // Crop input like patient image (must have the same spacing)
-  StartNewStep("Crop input image to 'patient' extends");
+  // It copy the input if the same are the same
+  StartNewStep("Copy and crop input image to 'patient' extends");
   typedef clitk::CropLikeImageFilter<ImageType> CropImageFilter;
   typename CropImageFilter::Pointer cropFilter = CropImageFilter::New();
+  // cropFilter->ReleaseDataFlagOn(); // NO=seg fault !!
   cropFilter->SetInput(input);
   cropFilter->SetCropLikeImage(patient);
   cropFilter->Update();
   working_input = cropFilter->GetOutput();
-  DD(working_input->GetLargestPossibleRegion());
+  //  cropFilter->Delete(); // NO !!!! if yes, sg fault, Cropfilter is buggy !??
   StopCurrentStep<ImageType>(working_input);
- 
+  PrintMemory(GetVerboseMemoryFlag(), "After crop"); // OK, slightly more than a copy of input
+
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   StartNewStep("Set background to initial image");
   working_input = SetBackground<ImageType, MaskImageType>
-    (working_input, patient, GetPatientMaskBackgroundValue(), -1000);
+    (working_input, patient, GetPatientMaskBackgroundValue(), -1000, true);
   StopCurrentStep<ImageType>(working_input);
+  PrintMemory(GetVerboseMemoryFlag(), "After set bg"); // OK, additional mem = 0
+
+  /*
+  // We do not need patient mask anymore, release memory 
+  GetAFDB()->template ReleaseImage<MaskImageType>("Patient");
+  DD(patient->GetReferenceCount());
+  PrintMemory(GetVerboseMemoryFlag(), "After delete patient"); // OK, additional mem = 0
+  patient->Delete();
+  PrintMemory(GetVerboseMemoryFlag(), "After delete patient"); // OK, additional mem = 0
+  */
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
@@ -210,33 +182,41 @@ GenerateOutputInformation()
     }
   }
   // Threshold to get air
-  typedef itk::BinaryThresholdImageFilter<ImageType, InternalImageType> InputBinarizeFilterType; 
-  typename InputBinarizeFilterType::Pointer binarizeFilter=InputBinarizeFilterType::New();
+  typedef itk::BinaryThresholdImageFilter<ImageType, MaskImageType> InputBinarizeFilterType; 
+  typename InputBinarizeFilterType::Pointer binarizeFilter = InputBinarizeFilterType::New();
   binarizeFilter->SetInput(working_input);
   if (m_UseLowerThreshold) binarizeFilter->SetLowerThreshold(m_LowerThreshold);
+  // binarizeFilter->CanRunInPlace() is false
   binarizeFilter->SetUpperThreshold(m_UpperThreshold);
-  binarizeFilter ->SetInsideValue(this->GetForegroundValue());
-  binarizeFilter ->SetOutsideValue(this->GetBackgroundValue());
+  binarizeFilter->SetInsideValue(this->GetForegroundValue());
+  binarizeFilter->SetOutsideValue(this->GetBackgroundValue());
   binarizeFilter->Update();
-  working_image = binarizeFilter->GetOutput();
-  
+  working_mask = binarizeFilter->GetOutput();
+  PrintMemory(GetVerboseMemoryFlag(), "After Binarizefilter"); // OK, additional mem is one mask image
+
   // Labelize and keep right labels
-  working_image = Labelize<InternalImageType>(working_image, GetBackgroundValue(), true, GetMinimalComponentSize());
+  working_mask = 
+    Labelize<MaskImageType>
+    (working_mask, GetBackgroundValue(), true, GetMinimalComponentSize());
+  PrintMemory(GetVerboseMemoryFlag(), "After Labelize"); // BUG ? additional mem around 1 time the input ? 
+  
+  working_mask = RemoveLabels<MaskImageType>
+    (working_mask, GetBackgroundValue(), GetLabelizeParameters1()->GetLabelsToRemove());
+  PrintMemory(GetVerboseMemoryFlag(), "After RemoveLabels"); // OK additional mem = 0
 
-  working_image = RemoveLabels<InternalImageType>
-    (working_image, GetBackgroundValue(), GetLabelizeParameters1()->GetLabelsToRemove());
-
-  typename InternalImageType::Pointer air = KeepLabels<InternalImageType>
-    (working_image, 
+  working_mask = KeepLabels<MaskImageType>
+    (working_mask, 
      GetBackgroundValue(), 
      GetForegroundValue(), 
      GetLabelizeParameters1()->GetFirstKeep(), 
      GetLabelizeParameters1()->GetLastKeep(), 
      GetLabelizeParameters1()->GetUseLastKeep());
+  PrintMemory(GetVerboseMemoryFlag(), "After KeepLabels to create the 'air'");
  
   // Set Air to BG
-  working_input = SetBackground<ImageType, InternalImageType>
-    (working_input, air, this->GetForegroundValue(), this->GetBackgroundValue());
+  working_input = SetBackground<ImageType, MaskImageType>
+    (working_input, working_mask, this->GetForegroundValue(), this->GetBackgroundValue(), true);
+  PrintMemory(GetVerboseMemoryFlag(), "After SetBackground");
 
   // End
   StopCurrentStep<ImageType>(working_input);
@@ -245,29 +225,31 @@ GenerateOutputInformation()
   //--------------------------------------------------------------------
   StartNewStep("Search for the trachea");
   SearchForTrachea();
+  PrintMemory(GetVerboseMemoryFlag(), "After SearchForTrachea");
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   StartNewStep("Extract the lung with Otsu filter");
   // Automated Otsu thresholding and relabeling
-  typedef itk::OtsuThresholdImageFilter<ImageType,InternalImageType> OtsuThresholdImageFilterType;
+  typedef itk::OtsuThresholdImageFilter<ImageType,MaskImageType> OtsuThresholdImageFilterType;
   typename OtsuThresholdImageFilterType::Pointer otsuFilter=OtsuThresholdImageFilterType::New();
   otsuFilter->SetInput(working_input);
   otsuFilter->SetNumberOfHistogramBins(GetNumberOfHistogramBins());
   otsuFilter->SetInsideValue(this->GetForegroundValue());
   otsuFilter->SetOutsideValue(this->GetBackgroundValue());
   otsuFilter->Update();
-  working_image =  otsuFilter->GetOutput();
+  working_mask =  otsuFilter->GetOutput();
 
   // Set output
-  StopCurrentStep<InternalImageType>(working_image);
+  StopCurrentStep<MaskImageType>(working_mask);
+  PrintMemory(GetVerboseMemoryFlag(), "After Otsufilter");
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   StartNewStep("Select labels");
   // Keep right labels
-  working_image = LabelizeAndSelectLabels<InternalImageType>
-    (working_image, 
+  working_mask = LabelizeAndSelectLabels<MaskImageType>
+    (working_mask, 
      GetBackgroundValue(), 
      GetForegroundValue(), 
      false, 
@@ -275,15 +257,17 @@ GenerateOutputInformation()
      GetLabelizeParameters2());
 
   // Set output
-  StopCurrentStep<InternalImageType>(working_image);
+  StopCurrentStep<MaskImageType>(working_mask);
+  PrintMemory(GetVerboseMemoryFlag(), "After LabelizeAndSelectLabels");
   
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   if (m_Seeds.size() != 0) { // if ==0 ->no trachea found
     StartNewStep("Remove the trachea");
     // Set the trachea
-    working_image = SetBackground<InternalImageType, InternalImageType>
-      (working_image, trachea_tmp, 1, -1);
+    working_mask = SetBackground<MaskImageType, MaskImageType>
+      (working_mask, trachea, 1, -1, true);
+    PrintMemory(GetVerboseMemoryFlag(), "After SetBackground");
   
     // Dilate the trachea 
     static const unsigned int Dim = ImageType::ImageDimension;
@@ -291,27 +275,28 @@ GenerateOutputInformation()
     KernelType structuringElement;
     structuringElement.SetRadius(GetRadiusForTrachea());
     structuringElement.CreateStructuringElement();
-    typedef clitk::ConditionalBinaryDilateImageFilter<InternalImageType, InternalImageType, KernelType> ConditionalBinaryDilateImageFilterType;
+    typedef clitk::ConditionalBinaryDilateImageFilter<MaskImageType, MaskImageType, KernelType> ConditionalBinaryDilateImageFilterType;
     typename ConditionalBinaryDilateImageFilterType::Pointer dilateFilter = ConditionalBinaryDilateImageFilterType::New();
     dilateFilter->SetBoundaryToForeground(false);
     dilateFilter->SetKernel(structuringElement);
     dilateFilter->SetBackgroundValue (1);
     dilateFilter->SetForegroundValue (-1);
-    dilateFilter->SetInput (working_image);
+    dilateFilter->SetInput (working_mask);
     dilateFilter->Update();
-    working_image = dilateFilter->GetOutput();  
+    working_mask = dilateFilter->GetOutput();  
+    PrintMemory(GetVerboseMemoryFlag(), "After dilate");
     
     // Set trachea with dilatation
-    trachea_tmp = SetBackground<InternalImageType, InternalImageType>
-      (trachea_tmp, working_image, -1, this->GetForegroundValue()); 
+    trachea = SetBackground<MaskImageType, MaskImageType>
+      (trachea, working_mask, -1, this->GetForegroundValue(), true); 
 
     // Remove the trachea
-    working_image = SetBackground<InternalImageType, InternalImageType>
-      (working_image, working_image, -1, this->GetBackgroundValue());  
+    working_mask = SetBackground<MaskImageType, MaskImageType>
+      (working_mask, working_mask, -1, this->GetBackgroundValue(), true);  
     
     // Label
-    working_image = LabelizeAndSelectLabels<InternalImageType>
-      (working_image, 
+    working_mask = LabelizeAndSelectLabels<MaskImageType>
+      (working_mask, 
        GetBackgroundValue(), 
        GetForegroundValue(), 
        false, 
@@ -319,41 +304,33 @@ GenerateOutputInformation()
        GetLabelizeParameters3());
     
     // Set output
-    StopCurrentStep<InternalImageType>(working_image);
+    StopCurrentStep<MaskImageType>(working_mask);
   }
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
-  typedef clitk::AutoCropFilter<InternalImageType> AutoCropFilterType;
-  typename AutoCropFilterType::Pointer autocropFilter = AutoCropFilterType::New();
+  PrintMemory(GetVerboseMemoryFlag(), "before autocropfilter");
   if (m_Seeds.size() != 0) { // if ==0 ->no trachea found
-    StartNewStep("Cropping trachea");
-    autocropFilter->SetInput(trachea_tmp);
-    autocropFilter->Update(); // Needed
-    typedef itk::CastImageFilter<InternalImageType, MaskImageType> CastImageFilterType;
-    typename CastImageFilterType::Pointer caster= CastImageFilterType::New();
-    caster->SetInput(autocropFilter->GetOutput());
-    caster->Update();   
-    trachea = caster->GetOutput();
+    trachea = clitk::AutoCrop<MaskImageType>(trachea, GetBackgroundValue());
     StopCurrentStep<MaskImageType>(trachea);  
+    PrintMemory(GetVerboseMemoryFlag(), "after delete trachea");
   }
+  PrintMemory(GetVerboseMemoryFlag(), "after delete trachea");
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   StartNewStep("Cropping lung");
-  typename AutoCropFilterType::Pointer autocropFilter2 = AutoCropFilterType::New(); // Needed to reset pipeline
-  autocropFilter2->SetInput(working_image);
-  autocropFilter2->Update();   
-  working_image = autocropFilter2->GetOutput();
-  DD(working_image->GetLargestPossibleRegion());
-  StopCurrentStep<InternalImageType>(working_image);
+  PrintMemory(GetVerboseMemoryFlag(), "Before Autocropfilter");
+  working_mask = clitk::AutoCrop<MaskImageType>(working_mask, GetBackgroundValue());
+  StopCurrentStep<MaskImageType>(working_mask);
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   // Final OpenClose
-  if (GetOpenClose()) {
+  if (GetOpenCloseFlag()) {
     StartNewStep("Open/Close"); 
-
+    PrintMemory(GetVerboseMemoryFlag(), "Before OpenClose");
+  
     // Structuring element
     typedef itk::BinaryBallStructuringElement<InternalPixelType, ImageDimension> KernelType;
     KernelType structuringElement;
@@ -361,66 +338,72 @@ GenerateOutputInformation()
     structuringElement.CreateStructuringElement();
 	
     // Open
-    typedef itk::BinaryMorphologicalOpeningImageFilter<InternalImageType, InternalImageType, KernelType> OpenFilterType;
+    typedef itk::BinaryMorphologicalOpeningImageFilter<MaskImageType, InternalImageType, KernelType> OpenFilterType;
     typename OpenFilterType::Pointer openFilter = OpenFilterType::New();
-    openFilter->SetInput(working_image);
+    openFilter->SetInput(working_mask);
     openFilter->SetBackgroundValue(GetBackgroundValue());
     openFilter->SetForegroundValue(GetForegroundValue());
     openFilter->SetKernel(structuringElement);
 	
     // Close
-    typedef itk::BinaryMorphologicalClosingImageFilter<InternalImageType, InternalImageType, KernelType> CloseFilterType;
+    typedef itk::BinaryMorphologicalClosingImageFilter<MaskImageType, MaskImageType, KernelType> CloseFilterType;
     typename CloseFilterType::Pointer closeFilter = CloseFilterType::New();
     closeFilter->SetInput(openFilter->GetOutput());
     closeFilter->SetSafeBorder(true);
     closeFilter->SetForegroundValue(GetForegroundValue());
     closeFilter->SetKernel(structuringElement);
     closeFilter->Update();
-    working_image = closeFilter->GetOutput();
+    working_mask = closeFilter->GetOutput();
   }
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   // Fill Lungs
-  if (GetFillHoles()) {
+  if (GetFillHolesFlag()) {
     StartNewStep("Fill Holes");
-    typedef clitk::FillMaskFilter<InternalImageType> FillMaskFilterType;
+    PrintMemory(GetVerboseMemoryFlag(), "Before Fill Holes");
+    typedef clitk::FillMaskFilter<MaskImageType> FillMaskFilterType;
     typename FillMaskFilterType::Pointer fillMaskFilter = FillMaskFilterType::New();
-    fillMaskFilter->SetInput(working_image);
+    fillMaskFilter->SetInput(working_mask);
     fillMaskFilter->AddDirection(2);
     //fillMaskFilter->AddDirection(1);
     fillMaskFilter->Update();   
-    working_image = fillMaskFilter->GetOutput();
-    StopCurrentStep<InternalImageType>(working_image);
+    working_mask = fillMaskFilter->GetOutput();
+    StopCurrentStep<MaskImageType>(working_mask);
   }
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
   StartNewStep("Separate Left/Right lungs");
+    PrintMemory(GetVerboseMemoryFlag(), "Before Separate");
   // Initial label
-  working_image = Labelize<InternalImageType>(working_image, 
-                                              GetBackgroundValue(), 
-                                              false, 
-                                              GetMinimalComponentSize());
+  working_mask = Labelize<MaskImageType>(working_mask, 
+                                         GetBackgroundValue(), 
+                                         false, 
+                                         GetMinimalComponentSize());
+
+  PrintMemory(GetVerboseMemoryFlag(), "After Labelize");
 
   // Count the labels
-  typedef itk::StatisticsImageFilter<InternalImageType> StatisticsImageFilterType;
+  typedef itk::StatisticsImageFilter<MaskImageType> StatisticsImageFilterType;
   typename StatisticsImageFilterType::Pointer statisticsImageFilter=StatisticsImageFilterType::New();
-  statisticsImageFilter->SetInput(working_image);
+  statisticsImageFilter->SetInput(working_mask);
   statisticsImageFilter->Update();
   unsigned int initialNumberOfLabels = statisticsImageFilter->GetMaximum();
-  working_image = statisticsImageFilter->GetOutput();	
+  working_mask = statisticsImageFilter->GetOutput();	
+  
+  DD(initialNumberOfLabels);
+  PrintMemory(GetVerboseMemoryFlag(), "After count label");
  
   // Decompose the first label
   static const unsigned int Dim = ImageType::ImageDimension;
   if (initialNumberOfLabels<2) {
-    DD(initialNumberOfLabels);
     // Structuring element radius
     typename ImageType::SizeType radius;
     for (unsigned int i=0;i<Dim;i++) radius[i]=1;
-    typedef clitk::DecomposeAndReconstructImageFilter<InternalImageType,InternalImageType> DecomposeAndReconstructFilterType;
+    typedef clitk::DecomposeAndReconstructImageFilter<MaskImageType,MaskImageType> DecomposeAndReconstructFilterType;
     typename DecomposeAndReconstructFilterType::Pointer decomposeAndReconstructFilter=DecomposeAndReconstructFilterType::New();
-    decomposeAndReconstructFilter->SetInput(working_image);
+    decomposeAndReconstructFilter->SetInput(working_mask);
     decomposeAndReconstructFilter->SetVerbose(true);
     decomposeAndReconstructFilter->SetRadius(radius);
     decomposeAndReconstructFilter->SetMaximumNumberOfLabels(2);
@@ -431,29 +414,37 @@ GenerateOutputInformation()
     decomposeAndReconstructFilter->SetFullyConnected(true);
     decomposeAndReconstructFilter->SetNumberOfNewLabels(1);
     decomposeAndReconstructFilter->Update();
-    working_image = decomposeAndReconstructFilter->GetOutput();      
+    working_mask = decomposeAndReconstructFilter->GetOutput();      
   }
+  PrintMemory(GetVerboseMemoryFlag(), "After decomposeAndReconstructFilter");
 
   // Retain labels ('1' is largset lung, so right. '2' is left)
-  typedef itk::ThresholdImageFilter<InternalImageType> ThresholdImageFilterType;
+  typedef itk::ThresholdImageFilter<MaskImageType> ThresholdImageFilterType;
   typename ThresholdImageFilterType::Pointer thresholdFilter = ThresholdImageFilterType::New();
-  thresholdFilter->SetInput(working_image);
+  thresholdFilter->SetInput(working_mask);
   thresholdFilter->ThresholdAbove(2);
   thresholdFilter->SetOutsideValue(this->GetBackgroundValue());
   thresholdFilter->Update();
-  working_image = thresholdFilter->GetOutput();
-  StopCurrentStep<InternalImageType> (working_image);
-  
-  // Final Cast 
-  StartNewStep("Cast the lung mask"); 
-  typedef itk::CastImageFilter<InternalImageType, MaskImageType> CastImageFilterType;
-  typename CastImageFilterType::Pointer caster= CastImageFilterType::New();
-  caster->SetInput(working_image);
-  caster->Update();
-  output = caster->GetOutput();
+  working_mask = thresholdFilter->GetOutput();
+  StopCurrentStep<MaskImageType> (working_mask);
+  PrintMemory(GetVerboseMemoryFlag(), "After Thresholdfilter");
 
   // Update output info
-  this->GetOutput(0)->SetRegions(output->GetLargestPossibleRegion());
+  //  output = working_mask;
+  //this->GetOutput(0)->SetRegions(output->GetLargestPossibleRegion());
+
+  //  this->GetOutput(0)->SetRegions(working_mask->GetLargestPossibleRegion());
+
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class TImageType>
+void 
+clitk::ExtractLungFilter<TImageType>::
+GenerateInputRequestedRegion() {
+  //  DD("GenerateInputRequestedRegion (nothing?)");
 }
 //--------------------------------------------------------------------
 
@@ -465,10 +456,11 @@ clitk::ExtractLungFilter<ImageType>::
 GenerateData() 
 {
   // Set the output
-  this->GraftOutput(output); // not SetNthOutput
+  //  this->GraftOutput(output); // not SetNthOutput
+  this->GraftOutput(working_mask); // not SetNthOutput
   // Store image filenames into AFDB 
-  GetAFDB()->SetImageFilename("lungs", this->GetOutputLungFilename());  
-  GetAFDB()->SetImageFilename("trachea", this->GetOutputTracheaFilename());  
+  GetAFDB()->SetImageFilename("Lungs", this->GetOutputLungFilename());  
+  GetAFDB()->SetImageFilename("Trachea", this->GetOutputTracheaFilename());  
   WriteAFDB();
 }
 //--------------------------------------------------------------------
@@ -507,7 +499,7 @@ SearchForTracheaSeed(int skip)
       // if we do not found : restart
       stop = (m_Seeds.size() != 0);
       if (!stop) {
-	if (GetVerboseStep()) {
+	if (GetVerboseStepFlag()) {
 	  std::cout << "\t No seed found this time. I skip some slices and restart." << std::endl;
 	}
         if (skip > 0.5 * working_input->GetLargestPossibleRegion().GetSize()[2]) {
@@ -516,6 +508,10 @@ SearchForTracheaSeed(int skip)
           stop = true;
         }
         skip += 5;
+      }
+      else {
+        // DD(m_Seeds[0]);
+        // DD(m_Seeds.size());
       }
     }
   }
@@ -531,10 +527,10 @@ clitk::ExtractLungFilter<ImageType>::
 TracheaRegionGrowing()
 {
   // Explosion controlled region growing
-  typedef clitk::ExplosionControlledThresholdConnectedImageFilter<ImageType, InternalImageType> ImageFilterType;
+  PrintMemory(GetVerboseMemoryFlag(), "Before ExplosionControlledThresholdConnectedImageFilter");
+  typedef clitk::ExplosionControlledThresholdConnectedImageFilter<ImageType, MaskImageType> ImageFilterType;
   typename ImageFilterType::Pointer f= ImageFilterType::New();
   f->SetInput(working_input);
-  f->SetVerbose(false);
   f->SetLower(-2000);
   f->SetUpper(GetUpperThresholdForTrachea());
   f->SetMinimumLowerThreshold(-2000);
@@ -547,24 +543,25 @@ TracheaRegionGrowing()
   f->SetMultiplier(GetMultiplierForTrachea());
   f->SetThresholdStepSize(GetThresholdStepSizeForTrachea());
   f->SetMinimumThresholdStepSize(1);
-  f->VerboseOn();
+  f->SetVerbose(GetVerboseRegionGrowingFlag());
   for(unsigned int i=0; i<m_Seeds.size();i++) {
     f->AddSeed(m_Seeds[i]);
     // DD(m_Seeds[i]);
   }  
   f->Update();
-
-  writeImage<InternalImageType>(f->GetOutput(), "trg.mhd");
-
+  PrintMemory(GetVerboseMemoryFlag(), "After RG update");
+  
   // take first (main) connected component
-  trachea_tmp = Labelize<InternalImageType>(f->GetOutput(), 
-					    GetBackgroundValue(), 
-					    true, 
-					    GetMinimalComponentSize());
-  trachea_tmp = KeepLabels<InternalImageType>(trachea_tmp, 
+  trachea = Labelize<MaskImageType>(f->GetOutput(), 
+                                    GetBackgroundValue(), 
+                                    true, 
+                                    1000);//GetMinimalComponentSize());
+  PrintMemory(GetVerboseMemoryFlag(), "After Labelize");
+  trachea = KeepLabels<MaskImageType>(trachea, 
 					      GetBackgroundValue(), 
 					      GetForegroundValue(), 
 					      1, 1, false);
+  PrintMemory(GetVerboseMemoryFlag(), "After KeepLabels");
 }
 //--------------------------------------------------------------------
 
@@ -576,7 +573,7 @@ clitk::ExtractLungFilter<ImageType>::
 ComputeTracheaVolume()
 {
   typedef itk::ImageRegionConstIterator<InternalImageType> IteratorType;
-  IteratorType iter(trachea_tmp, trachea_tmp->GetLargestPossibleRegion());
+  IteratorType iter(trachea, trachea->GetLargestPossibleRegion());
   iter.GoToBegin();
   double volume = 0.0;
   while (!iter.IsAtEnd()) {
@@ -584,7 +581,7 @@ ComputeTracheaVolume()
     ++iter;
   }
   
-  double voxelsize = trachea_tmp->GetSpacing()[0]*trachea_tmp->GetSpacing()[1]*trachea_tmp->GetSpacing()[2];
+  double voxelsize = trachea->GetSpacing()[0]*trachea->GetSpacing()[1]*trachea->GetSpacing()[2];
   return volume*voxelsize;
 }
 //--------------------------------------------------------------------
@@ -611,30 +608,38 @@ SearchForTrachea()
     if (stop) {
       TracheaRegionGrowing();
       volume = ComputeTracheaVolume()/1000; // assume mm3, so divide by 1000 to get cc
-      if ((volume > 10) && (volume < 55 )) { // it is ok
-        // Typical volume 22.59 cm 3 (± 7.69 cm 3 ) [ Leader 2004 ]
-	if (GetVerboseStep()) {
-	  std::cout << "\t Found trachea with volume " << volume << " cc." << std::endl;
-	}
-        stop = true; 
+      if (GetWriteStepFlag()) {
+        writeImage<MaskImageType>(trachea, "step-trachea-"+toString(skip)+".mhd");
+      }
+      if (GetTracheaVolumeMustBeCheckedFlag()) {
+        if ((volume > 10) && (volume < 65 )) { // depend on image size ...
+          // Typical volume 22.59 cm 3 (± 7.69 cm 3 ) [ Leader 2004 ]
+          if (GetVerboseStepFlag()) {
+            std::cout << "\t Found trachea with volume " << volume << " cc." << std::endl;
+          }
+          stop = true; 
+        }
+        else {
+          if (GetVerboseStepFlag()) {
+            std::cout << "\t The volume of the trachea (" << volume 
+                      << " cc) seems not correct. I skip some slices (" << skip << ") and restart to find seeds." 
+                      << std::endl;
+          }
+          skip += 5;
+          stop = false;
+          // empty the list of seed
+          m_Seeds.clear();
+        }
       }
       else {
-	if (GetVerboseStep()) {
-	  std::cout << "\t The volume of the trachea (" << volume 
-		    << " cc) seems not correct. I skip some slices (" << skip << ") and restart to find seeds." 
-		    << std::endl;
-	}
-        skip += 5;
-        stop = false;
-	// empty the list of seed
-	m_Seeds.clear();
+        stop = true;
       }
     }
   }
 
   if (volume != 0.0) {
     // Set output
-    StopCurrentStep<InternalImageType>(trachea_tmp);
+    StopCurrentStep<MaskImageType>(trachea);
   }
   else { // Trachea not found
     this->SetWarning("* WARNING * No seed found for trachea.");

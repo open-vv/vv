@@ -64,22 +64,6 @@ SetInput(const ImageType * image)
 
 //--------------------------------------------------------------------
 template <class ImageType>
-template<class ArgsInfoType>
-void 
-clitk::ExtractAirwaysTreeInfoFilter<ImageType>::
-SetArgsInfo(ArgsInfoType mArgsInfo)
-{
-  SetVerboseOption_GGO(mArgsInfo);
-  SetVerboseStep_GGO(mArgsInfo);
-  SetWriteStep_GGO(mArgsInfo);
-  SetVerboseWarningOff_GGO(mArgsInfo);
-  SetAFDBFilename_GGO(mArgsInfo);
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-template <class ImageType>
 void 
 clitk::ExtractAirwaysTreeInfoFilter<ImageType>::
 GenerateOutputInformation() 
@@ -183,7 +167,7 @@ GenerateData()
   StopCurrentStep();
 
   // Reput FG instead of label in the skeleton image
-  skeleton = clitk::SetBackground<ImageType, ImageType>(skeleton, skeleton, label, GetForegroundValue());        
+  skeleton = clitk::SetBackground<ImageType, ImageType>(skeleton, skeleton, label, GetForegroundValue(), true);        
 
   // Debug 
   typename StructuralTreeType::iterator sit = mStructuralSkeletonTree.begin();
@@ -400,7 +384,7 @@ GenerateData()
 					  carina_position);
 
   // Set and save Carina position      
-  if (GetVerboseStep()) {
+  if (GetVerboseStepFlag()) {
     std::cout << "\t Found carina at " << carina_position << " mm" << std::endl;
   }
   GetAFDB()->SetPoint3D("carina", carina_position);

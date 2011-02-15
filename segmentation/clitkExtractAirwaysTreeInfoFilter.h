@@ -131,10 +131,6 @@ namespace clitk {
     /** Connect inputs */
     void SetInput(const ImageType * image);
 
-    // Set all options at a time
-    template<class ArgsInfoType>
-      void SetArgsInfo(ArgsInfoType arg);
-
     // Background / Foreground
     itkGetConstMacro(BackgroundValue, ImagePixelType);
     itkGetConstMacro(ForegroundValue, ImagePixelType);

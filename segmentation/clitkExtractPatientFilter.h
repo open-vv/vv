@@ -90,80 +90,61 @@ namespace clitk {
     void SetInput(const TInputImageType * image);
     itkSetMacro(OutputPatientFilename, std::string);
     itkGetMacro(OutputPatientFilename, std::string);
-    GGO_DefineOption(output, SetOutputPatientFilename, std::string);
-
-    // Set all options at a time
-    template<class ArgsInfoType>
-      void SetArgsInfo(ArgsInfoType arg);
 
     // Step 1
     itkSetMacro(UpperThreshold, InputImagePixelType);
     itkGetMacro(UpperThreshold, InputImagePixelType);
-    GGO_DefineOption(upper, SetUpperThreshold, InputImagePixelType);
 
     itkSetMacro(LowerThreshold, InputImagePixelType);
     itkGetMacro(LowerThreshold, InputImagePixelType);
     itkSetMacro(UseLowerThreshold, bool);    
     itkGetConstMacro(UseLowerThreshold, bool);    
     itkBooleanMacro(UseLowerThreshold);
-    GGO_DefineOption_WithTest(lower, SetLowerThreshold, InputImagePixelType, UseLowerThreshold);
 
     // Step 2
     itkSetMacro(DecomposeAndReconstructDuringFirstStep, bool);
     itkGetConstMacro(DecomposeAndReconstructDuringFirstStep, bool);
     itkBooleanMacro(DecomposeAndReconstructDuringFirstStep);
-    GGO_DefineOption_Flag(erode1, SetDecomposeAndReconstructDuringFirstStep);
 
     itkSetMacro(Radius1, InternalImageSizeType);
     itkGetConstMacro(Radius1, InternalImageSizeType);
-    GGO_DefineOption_Vector(radius1, SetRadius1, InternalImageSizeType, ImageDimension, true);
 
     itkSetMacro(MaximumNumberOfLabels1, int);
     itkGetConstMacro(MaximumNumberOfLabels1, int);
-    GGO_DefineOption(max1, SetMaximumNumberOfLabels1, int);
 
     itkSetMacro(NumberOfNewLabels1, int);
     itkGetConstMacro(NumberOfNewLabels1, int);
-    GGO_DefineOption(new1, SetNumberOfNewLabels1, int);
 
     // Step 2
     itkSetMacro(DecomposeAndReconstructDuringSecondStep, bool);
     itkGetConstMacro(DecomposeAndReconstructDuringSecondStep, bool);
     itkBooleanMacro(DecomposeAndReconstructDuringSecondStep);
-    GGO_DefineOption_Flag(erode2, SetDecomposeAndReconstructDuringSecondStep);
 
     itkSetMacro(Radius2, InternalImageSizeType);
     itkGetConstMacro(Radius2, InternalImageSizeType);
-    GGO_DefineOption_Vector(radius2, SetRadius2, InternalImageSizeType, ImageDimension, true)
 
     itkSetMacro(MaximumNumberOfLabels2, int);
     itkGetConstMacro(MaximumNumberOfLabels2, int);
-    GGO_DefineOption(max2, SetMaximumNumberOfLabels2, int);
 
     itkSetMacro(NumberOfNewLabels2, int);
     itkGetConstMacro(NumberOfNewLabels2, int);
-    GGO_DefineOption(new2, SetNumberOfNewLabels2, int);
 
     // Step 3
     itkSetMacro(FirstKeep, int);
     itkGetConstMacro(FirstKeep, int);
-    GGO_DefineOption(firstKeep, SetFirstKeep, int);
 
     itkSetMacro(LastKeep, int);
     itkGetConstMacro(LastKeep, int);
-    GGO_DefineOption(lastKeep, SetLastKeep, int);
 
     // Step 4
     itkSetMacro(FinalOpenClose, bool);
     itkGetConstMacro(FinalOpenClose, bool);
     itkBooleanMacro(FinalOpenClose);
-    GGO_DefineOption_Flag(openClose, SetFinalOpenClose);
 
     // Step 4
     itkSetMacro(AutoCrop, bool);
     itkGetConstMacro(AutoCrop, bool);
     itkBooleanMacro(AutoCrop);
-    GGO_DefineOption_Flag(noAutoCrop, SetAutoCrop);
 
   protected:
     ExtractPatientFilter();

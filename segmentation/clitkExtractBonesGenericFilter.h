@@ -48,6 +48,8 @@ namespace clitk
 
     //--------------------------------------------------------------------
     void SetArgsInfo(const ArgsInfoType & a);
+    template<class FilterType>
+    void SetOptionsFromArgsInfoToFilter(FilterType * f);
 
     //--------------------------------------------------------------------
     // Main function called each time the filter is updated

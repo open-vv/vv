@@ -23,7 +23,6 @@
 //--------------------------------------------------------------------
 int main(int argc, char * argv[])
 {
-
   // Init command line
   GGO(clitkExtractAirwaysTreeInfo, args_info);
   CLITK_INIT;

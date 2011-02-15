@@ -10,6 +10,7 @@ option "verboseStep"    -  "Verbose each step"		  flag		off
 option "writeStep"      w  "Write image at each step"	  flag		off
 option "verboseOption"  -  "Display options values"       flag          off
 option "verboseWarningOff" -  "Do not display warning"    flag          off
+option "verboseMemory"  -  "Display memory usage"         flag          off
 
 section "I/O"
 
@@ -17,7 +18,10 @@ option "afdb"          a	"Input Anatomical Feature DB"     string  	no
 option "input"         i	"Input filename"                  string  	no
 option "output"        o 	"Output lungs mask filename"      string 	no
 
-
-
+section "Options for Station 8"
+option "maxAntSpine" - "Distance max to anterior part of the spine in mm"  double no default="10"
+option "esophagusDilatationForAnt" - "Dilatation of esophagus, in mm, for 'anterior' limits (default=15,2,1)" double no multiple
+option "esophagusDilatationForRight" - "Dilatation of esophagus, in mm, for 'right' limits (default=5,10,1)" double no multiple
+option "fuzzyThresholdForS8" - "Threshold for 'Post' to dilated Esophagus" double default="0.5" no 
 
 

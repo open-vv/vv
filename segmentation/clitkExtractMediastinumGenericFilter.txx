@@ -23,7 +23,8 @@
   
 //--------------------------------------------------------------------
 template<class ArgsInfoType>
-clitk::ExtractMediastinumGenericFilter<ArgsInfoType>::ExtractMediastinumGenericFilter():
+clitk::ExtractMediastinumGenericFilter<ArgsInfoType>::
+ExtractMediastinumGenericFilter():
   ImageToImageGenericFilter<Self>("ExtractMediastinum") 
 {
   // Default values
@@ -36,29 +37,51 @@ clitk::ExtractMediastinumGenericFilter<ArgsInfoType>::ExtractMediastinumGenericF
 //--------------------------------------------------------------------
 template<class ArgsInfoType>
 template<unsigned int Dim>
-void clitk::ExtractMediastinumGenericFilter<ArgsInfoType>::InitializeImageType() 
+void 
+clitk::ExtractMediastinumGenericFilter<ArgsInfoType>::
+InitializeImageType() 
 {  
   ADD_IMAGE_TYPE(Dim, short);
-  // ADD_IMAGE_TYPE(Dim, short);
-  // ADD_IMAGE_TYPE(Dim, int);
-  // ADD_IMAGE_TYPE(Dim, float);
 }
 //--------------------------------------------------------------------
   
 
 //--------------------------------------------------------------------
 template<class ArgsInfoType>
-void clitk::ExtractMediastinumGenericFilter<ArgsInfoType>::SetArgsInfo(const ArgsInfoType & a) 
+void 
+clitk::ExtractMediastinumGenericFilter<ArgsInfoType>::
+SetArgsInfo(const ArgsInfoType & a) 
 {
   mArgsInfo=a;
   SetIOVerbose(mArgsInfo.verbose_flag);
   if (mArgsInfo.imagetypes_flag) this->PrintAvailableImageTypes();
   if (mArgsInfo.input_given) AddInputFilename(mArgsInfo.input_arg);
-  //if (mArgsInfo.patient_given) AddInputFilename(mArgsInfo.patient_arg);
-  //if (mArgsInfo.lung_given) AddInputFilename(mArgsInfo.lung_arg);
-  //if (mArgsInfo.bones_given) AddInputFilename(mArgsInfo.bones_arg);
-  //if (mArgsInfo.trachea_given) AddInputFilename(mArgsInfo.trachea_arg);
   if (mArgsInfo.output_given)  AddOutputFilename(mArgsInfo.output_arg);
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template<class ArgsInfoType>
+template<class FilterType>
+void 
+clitk::ExtractMediastinumGenericFilter<ArgsInfoType>::
+SetOptionsFromArgsInfoToFilter(FilterType * f)
+{
+  f->SetVerboseOptionFlag(mArgsInfo.verbose_flag);
+  f->SetVerboseStepFlag(mArgsInfo.verboseStep_flag);
+  f->SetWriteStepFlag(mArgsInfo.writeStep_flag);
+  f->SetAFDBFilename(mArgsInfo.afdb_arg);  
+  f->SetOutputMediastinumFilename(mArgsInfo.output_arg);
+  f->SetVerboseMemoryFlag(mArgsInfo.verboseMemory_flag);
+
+  f->SetUseBones(mArgsInfo.useBones_flag);
+  f->SetIntermediateSpacing(mArgsInfo.spacing_arg);
+  f->SetFuzzyThreshold1(mArgsInfo.fuzzy1_arg);
+  f->SetFuzzyThreshold2(mArgsInfo.fuzzy2_arg);
+  f->SetFuzzyThreshold3(mArgsInfo.fuzzy3_arg);
+  f->SetUpperThreshold(mArgsInfo.upper_arg);
+  f->SetLowerThreshold(mArgsInfo.lower_arg);
 }
 //--------------------------------------------------------------------
 
@@ -72,10 +95,6 @@ void clitk::ExtractMediastinumGenericFilter<ArgsInfoType>::UpdateWithInputImageT
 { 
   // Reading input
   typename ImageType::Pointer input = this->template GetInput<ImageType>(0);
-  // typename ImageType::Pointer patient = this->template GetInput<ImageType>(0);
-  // typename ImageType::Pointer lung    = this->template GetInput<ImageType>(1);
-  // typename ImageType::Pointer bones   = this->template GetInput<ImageType>(2);
-  // typename ImageType::Pointer trachea = this->template GetInput<ImageType>(3);
 
   // Create filter
   typedef clitk::ExtractMediastinumFilter<ImageType> FilterType;
@@ -83,11 +102,7 @@ void clitk::ExtractMediastinumGenericFilter<ArgsInfoType>::UpdateWithInputImageT
     
   // Set global Options 
   filter->SetInput(input);
-  // filter->SetInputPatientLabelImage(patient, mArgsInfo.patientBG_arg);
-  // filter->SetInputLungLabelImage(lung, mArgsInfo.lungBG_arg, mArgsInfo.lungRight_arg, mArgsInfo.lungLeft_arg);
-  // filter->SetInputBonesLabelImage(bones, mArgsInfo.bonesBG_arg);
-  filter->SetOutputMediastinumFilename(mArgsInfo.output_arg);
-  filter->SetArgsInfo(mArgsInfo);
+  SetOptionsFromArgsInfoToFilter<FilterType>(filter);
 
   // Go !
   filter->Update();

@@ -61,6 +61,57 @@ void clitk::ExtractLungGenericFilter<ArgsInfoType>::SetArgsInfo(const ArgsInfoTy
 
 
 //--------------------------------------------------------------------
+template<class ArgsInfoType>
+template<class FilterType>
+void clitk::ExtractLungGenericFilter<ArgsInfoType>::
+SetOptionsFromArgsInfoToFilter(FilterType * f) 
+{
+  //f->SetVerboseFlag(mArgsInfo.verbose_flag);
+  f->SetVerboseOptionFlag(mArgsInfo.verboseOption_flag);
+  f->SetVerboseStepFlag(mArgsInfo.verboseStep_flag);
+  f->SetWriteStepFlag(mArgsInfo.writeStep_flag);
+  f->SetVerboseWarningFlag(!mArgsInfo.verboseWarningOff_flag);
+  f->SetVerboseMemoryFlag(mArgsInfo.verboseMemory_flag);
+
+  if (mArgsInfo.afdb_given)
+    f->SetAFDBFilename(mArgsInfo.afdb_arg);
+  f->SetOutputLungFilename(mArgsInfo.output_arg);
+  f->SetOutputTracheaFilename(mArgsInfo.outputTrachea_arg);
+  
+  f->SetUpperThreshold(mArgsInfo.upper_arg);
+  f->SetLowerThreshold(mArgsInfo.lower_arg);
+  
+  f->SetNumberOfSlicesToSkipBeforeSearchingSeed(mArgsInfo.skipslices_arg);
+
+  f->SetTracheaVolumeMustBeCheckedFlag(!mArgsInfo.doNotCheckTracheaVolume_flag);
+  f->SetVerboseRegionGrowingFlag(mArgsInfo.verboseRG_flag);
+
+  f->SetUpperThresholdForTrachea(mArgsInfo.upperThresholdForTrachea_arg);
+  f->SetMultiplierForTrachea(mArgsInfo.multiplierForTrachea_arg);
+  f->SetThresholdStepSizeForTrachea(mArgsInfo.thresholdStepSizeForTrachea_arg);
+
+  typename FilterType::InputImageIndexType s;
+  if (mArgsInfo.seed_given) {
+    ConvertOptionMacro(mArgsInfo.seed, s, 3, false);
+  f->AddSeed(s);
+  }
+
+  f->SetMinimalComponentSize(mArgsInfo.minSize_arg);
+  f->SetNumberOfHistogramBins(mArgsInfo.bins_arg);
+  f->SetRadiusForTrachea(mArgsInfo.radius_arg);
+  
+  f->SetOpenCloseFlag(mArgsInfo.openclose_flag);
+  f->SetOpenCloseRadius(mArgsInfo.opencloseRadius_arg);
+  
+  if (mArgsInfo.doNotFillHoles_given)
+    f->SetFillHolesFlag(false);
+  else
+    f->SetFillHolesFlag(true);
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
 // Update with the number of dimensions and the pixeltype
 //--------------------------------------------------------------------
 template<class ArgsInfoType>
@@ -81,8 +132,8 @@ void clitk::ExtractLungGenericFilter<ArgsInfoType>::UpdateWithInputImageType()
   this->SetFilterBase(filter);
     
   // Set global Options 
-  filter->SetArgsInfo(mArgsInfo);
   filter->SetInput(input);
+  SetOptionsFromArgsInfoToFilter<FilterType>(filter);
 
   // Go !
   filter->Update();

@@ -91,70 +91,49 @@ namespace clitk {
     /** ImageDimension constants */
     itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
 
-    // Set all options at a time
-    template<class ArgsInfoType>
-      void SetArgsInfo(ArgsInfoType arg);
-   
     // Background / Foreground
     itkSetMacro(BackgroundValuePatient, MaskImagePixelType);
     itkGetConstMacro(BackgroundValuePatient, MaskImagePixelType);
-    // GGO_DefineOption(patientBG, SetBackgroundValuePatient, MaskImagePixelType);
     
     itkSetMacro(BackgroundValueLung, MaskImagePixelType);
     itkGetConstMacro(BackgroundValueLung, MaskImagePixelType);
-    // GGO_DefineOption(lungBG, SetBackgroundValueLung, MaskImagePixelType);
     
     itkSetMacro(BackgroundValueBones, MaskImagePixelType);
     itkGetConstMacro(BackgroundValueBones, MaskImagePixelType);
-    // GGO_DefineOption(bonesBG, SetBackgroundValueBones, MaskImagePixelType);
     
     itkGetConstMacro(BackgroundValue, MaskImagePixelType);
     itkGetConstMacro(ForegroundValue, MaskImagePixelType);
 
     itkSetMacro(ForegroundValueLeftLung, MaskImagePixelType);
     itkGetConstMacro(ForegroundValueLeftLung, MaskImagePixelType);
-    // GGO_DefineOption(lungLeft, SetForegroundValueLeftLung, MaskImagePixelType);
     
     itkSetMacro(ForegroundValueRightLung, MaskImagePixelType);
     itkGetConstMacro(ForegroundValueRightLung, MaskImagePixelType);
-    // GGO_DefineOption(lungRight, SetForegroundValueRightLung, MaskImagePixelType);
     
     itkSetMacro(BackgroundValueTrachea, MaskImagePixelType);
     itkGetConstMacro(BackgroundValueTrachea, MaskImagePixelType);
-    // GGO_DefineOption(lungBG, SetBackgroundValueTrachea, MaskImagePixelType);
     
     itkSetMacro(IntermediateSpacing, double);
     itkGetConstMacro(IntermediateSpacing, double);
-    GGO_DefineOption(spacing, SetIntermediateSpacing, double);
 
     itkSetMacro(FuzzyThreshold1, double);
     itkGetConstMacro(FuzzyThreshold1, double);
-    GGO_DefineOption(fuzzy1, SetFuzzyThreshold1, double);
 
     itkSetMacro(FuzzyThreshold2, double);
     itkGetConstMacro(FuzzyThreshold2, double);
-    GGO_DefineOption(fuzzy2, SetFuzzyThreshold2, double);
 
     itkSetMacro(FuzzyThreshold3, double);
     itkGetConstMacro(FuzzyThreshold3, double);
-    GGO_DefineOption(fuzzy3, SetFuzzyThreshold3, double);
-
-    itkSetMacro(DistanceMaxToAnteriorPartOfTheSpine, double);
-    itkGetConstMacro(DistanceMaxToAnteriorPartOfTheSpine, double);
-    GGO_DefineOption(antSpine, SetDistanceMaxToAnteriorPartOfTheSpine, double);
 
     itkBooleanMacro(UseBones);
     itkSetMacro(UseBones, bool);
     itkGetConstMacro(UseBones, bool);
-    GGO_DefineOption_Flag(useBones, SetUseBones);
 
     itkSetMacro(UpperThreshold, double);
     itkGetConstMacro(UpperThreshold, double);
-    GGO_DefineOption(upper, SetUpperThreshold, double);
 
     itkSetMacro(LowerThreshold, double);
     itkGetConstMacro(LowerThreshold, double);
-    GGO_DefineOption(lower, SetLowerThreshold, double);
 
   protected:
     ExtractMediastinumFilter();
@@ -183,8 +162,7 @@ namespace clitk {
     double m_FuzzyThreshold1;
     double m_FuzzyThreshold2;
     double m_FuzzyThreshold3;
-    double m_DistanceMaxToAnteriorPartOfTheSpine;
-    bool m_UseBones;
+    bool   m_UseBones;
     double m_UpperThreshold;
     double m_LowerThreshold;
     

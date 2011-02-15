@@ -80,41 +80,6 @@ SetInput(const TInputImageType * image)
 //--------------------------------------------------------------------
 
 
-//--------------------------------------------------------------------
-template <class TInputImageType>
-template<class ArgsInfoType>
-void 
-clitk::ExtractBonesFilter<TInputImageType>::
-SetArgsInfo(ArgsInfoType mArgsInfo)
-{
-  SetVerboseOption_GGO(mArgsInfo);
-  SetVerboseStep_GGO(mArgsInfo);
-  SetWriteStep_GGO(mArgsInfo);
-  SetVerboseWarningOff_GGO(mArgsInfo);
-  
-  SetAFDBFilename_GGO(mArgsInfo); 
-  SetOutputBonesFilename_GGO(mArgsInfo);
-
-  SetInitialSmoothing_GGO(mArgsInfo);
-  SetSmoothingConductanceParameter_GGO(mArgsInfo);
-  SetSmoothingNumberOfIterations_GGO(mArgsInfo);
-  SetSmoothingTimeStep_GGO(mArgsInfo);
-  SetSmoothingUseImageSpacing_GGO(mArgsInfo);
-
-  SetMinimalComponentSize_GGO(mArgsInfo);
-  SetUpperThreshold1_GGO(mArgsInfo);
-  SetLowerThreshold1_GGO(mArgsInfo);
-  SetFullConnectivity_GGO(mArgsInfo);
-
-  SetUpperThreshold2_GGO(mArgsInfo);
-  SetLowerThreshold2_GGO(mArgsInfo);
-  SetRadius2_GGO(mArgsInfo);
-  SetSampleRate2_GGO(mArgsInfo);
-  SetAutoCrop_GGO(mArgsInfo);
-  SetFillHoles_GGO(mArgsInfo);
-}
-//--------------------------------------------------------------------
-
 
 //--------------------------------------------------------------------
 template <class TInputImageType>
@@ -313,7 +278,7 @@ GenerateData() {
   this->GraftOutput(caster->GetOutput());
 
   // Store image filenames into AFDB 
-  GetAFDB()->SetImageFilename("bones", this->GetOutputBonesFilename());  
+  GetAFDB()->SetImageFilename("Bones", this->GetOutputBonesFilename());  
   WriteAFDB();
   return;
 }

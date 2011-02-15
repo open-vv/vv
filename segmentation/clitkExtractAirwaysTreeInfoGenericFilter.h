@@ -47,6 +47,8 @@ namespace clitk
     itkTypeMacro(ExtractAirwaysTreeInfoGenericFilter, LightObject);
 
     //--------------------------------------------------------------------
+    template<class FilterType>
+      void SetOptionsFromArgsInfoToFilter(FilterType * f);
     void SetArgsInfo(const ArgsInfoType & a);
 
     //--------------------------------------------------------------------

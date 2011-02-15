@@ -97,7 +97,8 @@ namespace clitk {
     typedef typename MaskImageType::PointType    MaskImagePointType; 
 
     itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
-    typedef int InternalPixelType;
+    //    typedef int InternalPixelType;
+    typedef uchar InternalPixelType;
     typedef itk::Image<InternalPixelType, ImageType::ImageDimension> InternalImageType;
     typedef typename InternalImageType::Pointer                      InternalImagePointer;
     typedef typename InternalImageType::IndexType                    InternalIndexType;
@@ -107,20 +108,13 @@ namespace clitk {
     void SetInput(const ImageType * image);
     itkSetMacro(PatientMaskBackgroundValue, MaskImagePixelType);
     itkGetConstMacro(PatientMaskBackgroundValue, MaskImagePixelType);
-    GGO_DefineOption(patientBG, SetPatientMaskBackgroundValue, MaskImagePixelType);
 
     // Output filename  (for AFBD)
     itkSetMacro(OutputLungFilename, std::string);
     itkGetMacro(OutputLungFilename, std::string);
-    GGO_DefineOption(output, SetOutputLungFilename, std::string);
 
     itkSetMacro(OutputTracheaFilename, std::string);
     itkGetMacro(OutputTracheaFilename, std::string);
-    GGO_DefineOption(outputTrachea, SetOutputTracheaFilename, std::string);
-
-    // Set all options at a time
-    template<class ArgsInfoType>
-      void SetArgsInfo(ArgsInfoType arg);
 
     // Get output (only availabe after update !)
     typename MaskImageType::Pointer GetTracheaImage() { return trachea; }
@@ -132,78 +126,70 @@ namespace clitk {
     // For common segmentation processes
     itkSetMacro(MinimalComponentSize, int);
     itkGetConstMacro(MinimalComponentSize, int);
-    GGO_DefineOption(minSize, SetMinimalComponentSize, int);
 
     // Step 1 options RemoveAir
     itkSetMacro(UpperThreshold, InputImagePixelType);
     itkGetConstMacro(UpperThreshold, InputImagePixelType);
-    GGO_DefineOption(upper, SetUpperThreshold, InputImagePixelType);
 
     itkSetMacro(NumberOfSlicesToSkipBeforeSearchingSeed, int);
     itkGetConstMacro(NumberOfSlicesToSkipBeforeSearchingSeed, int);
-    GGO_DefineOption(skipslices, SetNumberOfSlicesToSkipBeforeSearchingSeed, int);
     
     itkSetMacro(LowerThreshold, InputImagePixelType);
     itkGetConstMacro(LowerThreshold, InputImagePixelType);
     itkSetMacro(UseLowerThreshold, bool);
     itkGetConstMacro(UseLowerThreshold, bool);
     itkBooleanMacro(UseLowerThreshold);
-    GGO_DefineOption_WithTest(lower, SetLowerThreshold, InputImagePixelType, UseLowerThreshold);
 
     void SetLabelizeParameters1(LabelParamType * a) { m_LabelizeParameters1 = a; }
     itkGetConstMacro(LabelizeParameters1, LabelParamType*);
-    GGO_DefineOption_LabelParam(1, SetLabelizeParameters1, LabelParamType);
 
     // Step 2 options FindTrachea
     itkSetMacro(UpperThresholdForTrachea, InputImagePixelType);
     itkGetConstMacro(UpperThresholdForTrachea, InputImagePixelType);
-    GGO_DefineOption(upperThresholdForTrachea, SetUpperThresholdForTrachea, InputImagePixelType);
 
     itkSetMacro(MultiplierForTrachea, double);
     itkGetConstMacro(MultiplierForTrachea, double);
-    GGO_DefineOption(multiplierForTrachea, SetMultiplierForTrachea, double);
 
     itkSetMacro(ThresholdStepSizeForTrachea, InputImagePixelType);
     itkGetConstMacro(ThresholdStepSizeForTrachea, InputImagePixelType);
-    GGO_DefineOption(thresholdStepSizeForTrachea, SetThresholdStepSizeForTrachea, InputImagePixelType);
 
     void AddSeed(InternalIndexType s);
     std::vector<InternalIndexType> & GetSeeds() { return  m_Seeds; }
-    GGO_DefineOption_Vector(seed, AddSeed, InternalIndexType, ImageType::ImageDimension, true);
+
+    itkSetMacro(TracheaVolumeMustBeCheckedFlag, bool);
+    itkGetConstMacro(TracheaVolumeMustBeCheckedFlag, bool);
+    itkBooleanMacro(TracheaVolumeMustBeCheckedFlag);    
+
+    itkSetMacro(VerboseRegionGrowingFlag, bool);
+    itkGetConstMacro(VerboseRegionGrowingFlag, bool);
+    itkBooleanMacro(VerboseRegionGrowingFlag);    
 
     // Step 3 options ExtractLung
     itkSetMacro(NumberOfHistogramBins, int);
     itkGetConstMacro(NumberOfHistogramBins, int);
-    GGO_DefineOption(bins, SetNumberOfHistogramBins, int);
 
     void SetLabelizeParameters2(LabelParamType* a) { m_LabelizeParameters2 = a; }
     itkGetConstMacro(LabelizeParameters2, LabelParamType*);
-    GGO_DefineOption_LabelParam(2, SetLabelizeParameters2, LabelParamType);
 
     // Step 4 options RemoveTrachea
     itkSetMacro(RadiusForTrachea, int);
     itkGetConstMacro(RadiusForTrachea, int);
-    GGO_DefineOption(radius, SetRadiusForTrachea, int);
     
     void SetLabelizeParameters3(LabelParamType * a) { m_LabelizeParameters3 = a; }
     itkGetConstMacro(LabelizeParameters3, LabelParamType*);
-    GGO_DefineOption_LabelParam(3, SetLabelizeParameters3, LabelParamType);
 
     // Step 5 final openclose
-    itkSetMacro(OpenClose, bool);
-    itkGetConstMacro(OpenClose, bool);
-    itkBooleanMacro(OpenClose);
-    GGO_DefineOption_Flag(openclose, SetOpenClose);
+    itkSetMacro(OpenCloseFlag, bool);
+    itkGetConstMacro(OpenCloseFlag, bool);
+    itkBooleanMacro(OpenCloseFlag);
 
     itkSetMacro(OpenCloseRadius, int);
     itkGetConstMacro(OpenCloseRadius, int);
-    GGO_DefineOption(opencloseRadius, SetOpenCloseRadius, int);
     
     // Step 6 fill holes
-    itkSetMacro(FillHoles, bool);
-    itkGetConstMacro(FillHoles, bool);
-    itkBooleanMacro(FillHoles);
-    GGO_DefineOption_Flag(doNotFillHoles, SetFillHoles);
+    itkSetMacro(FillHolesFlag, bool);
+    itkGetConstMacro(FillHolesFlag, bool);
+    itkBooleanMacro(FillHolesFlag);
 
   protected:
     ExtractLungFilter();
@@ -211,14 +197,12 @@ namespace clitk {
 
     // Main members
     InputImageConstPointer input;
-    MaskImageConstPointer patient;
+    MaskImagePointer patient;
     InputImagePointer working_input;
     std::string m_OutputLungFilename;
     std::string m_OutputTracheaFilename;
-    typename InternalImageType::Pointer working_image;  
-    typename InternalImageType::Pointer trachea_tmp;
+    MaskImagePointer working_mask;  
     MaskImagePointer trachea;
-    MaskImagePointer output;
     unsigned int m_MaxSeedNumber;
 
     // Global options
@@ -241,6 +225,8 @@ namespace clitk {
     double m_MultiplierForTrachea;
     std::vector<InternalIndexType> m_Seeds;
     int m_NumberOfSlicesToSkipBeforeSearchingSeed;
+    bool m_TracheaVolumeMustBeCheckedFlag;
+    bool m_VerboseRegionGrowingFlag;
 
     // Step 3
     int m_NumberOfHistogramBins;
@@ -251,15 +237,16 @@ namespace clitk {
     LabelParamType* m_LabelizeParameters3;
 
     // Step 5
-    bool m_OpenClose;    
+    bool m_OpenCloseFlag;    
     int m_OpenCloseRadius;
 
     // Step 6
-    bool m_FillHoles;    
+    bool m_FillHolesFlag;    
     InputImageSizeType m_FillHolesDirections;
 
     // Main functions
     virtual void GenerateOutputInformation();
+    virtual void GenerateInputRequestedRegion();
     virtual void GenerateData();
     
     // Functions for trachea extraction

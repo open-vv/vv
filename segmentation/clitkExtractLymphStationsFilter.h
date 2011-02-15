@@ -70,19 +70,27 @@ namespace clitk {
     typedef typename MaskImageType::IndexType    MaskImageIndexType; 
     typedef typename MaskImageType::PointType    MaskImagePointType; 
 
+    typedef itk::Image<MaskImagePixelType, 2>    MaskSliceType;
+
     /** ImageDimension constants */
     itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
     FILTERBASE_INIT;
    
-    /** Main options (from ggo) */
-    template <class ArgsInfoType>
-    void SetArgsInfo(ArgsInfoType & argsinfo);
-
     itkGetConstMacro(BackgroundValue, MaskImagePixelType);
     itkGetConstMacro(ForegroundValue, MaskImagePixelType);
     itkSetMacro(BackgroundValue, MaskImagePixelType);
     itkSetMacro(ForegroundValue, MaskImagePixelType);
-    
+
+    // Station 8
+    itkSetMacro(DistanceMaxToAnteriorPartOfTheSpine, double);
+    itkGetConstMacro(DistanceMaxToAnteriorPartOfTheSpine, double);
+    itkSetMacro(EsophagusDiltationForAnt, MaskImagePointType);
+    itkGetConstMacro(EsophagusDiltationForAnt, MaskImagePointType);
+    itkSetMacro(EsophagusDiltationForRight, MaskImagePointType);
+    itkGetConstMacro(EsophagusDiltationForRight, MaskImagePointType);
+    itkSetMacro(FuzzyThresholdForS8, double);
+    itkGetConstMacro(FuzzyThresholdForS8, double);
+
     // Station 7
     itkSetMacro(FuzzyThreshold, double);
     itkGetConstMacro(FuzzyThreshold, double);
@@ -98,32 +106,58 @@ namespace clitk {
     virtual void GenerateData();
     
     ImageConstPointer  m_Input;
-    MaskImagePointer   m_Support;
+    MaskImagePointer   m_Mediastinum;
     MaskImagePointer   m_Working_Support;
-    MaskImagePointer   m_Output;
+    std::map<std::string, MaskImagePointer> m_ListOfStations;
     MaskImagePixelType m_BackgroundValue;
     MaskImagePixelType m_ForegroundValue;    
 
-    // Common 
-    MaskImagePointer m_Trachea;
-
+    // Station 8
+    double m_DistanceMaxToAnteriorPartOfTheSpine;
+    double m_DiaphragmInferiorLimit;
+    double m_CarinaZ;
+    double m_OriginOfRightMiddleLobeBronchusZ;
+    double m_FuzzyThresholdForS8;
+    MaskImagePointType m_EsophagusDiltationForAnt;
+    MaskImagePointType m_EsophagusDiltationForRight;
+    MaskImagePointer EnlargeEsophagusDilatationRadiusInferiorly(MaskImagePointer & eso);
+    void ExtractStation_8();
+    void ExtractStation_8_SI_Limits();
+    void ExtractStation_8_AP_Limits();
+    void ExtractStation_8_LR_Limits();
+ 
     // Station 7
     void ExtractStation_7();
     void ExtractStation_7_SI_Limits();
     void ExtractStation_7_RL_Limits();
-    void ExtractStation_7_Posterior_Limits();       
+    void ExtractStation_7_Posterior_Limits();   
     std::string      m_Station7Filename;
     MaskImagePointer m_working_trachea;
     double           m_FuzzyThreshold;
     MaskImagePointer m_LeftBronchus;
     MaskImagePointer m_RightBronchus;
     MaskImagePointer m_Station7;
+    typedef std::vector<MaskImageType::PointType> ListOfPointsType;
+    ListOfPointsType  m_RightMostInLeftBronchus;
+    ListOfPointsType  m_AntMostInLeftBronchus;
+    ListOfPointsType  m_PostMostInLeftBronchus;
+    ListOfPointsType  m_LeftMostInRightBronchus;
+    ListOfPointsType  m_AntMostInRightBronchus;
+    ListOfPointsType  m_PostMostInRightBronchus;
 
+    void FindExtremaPointsInBronchus(MaskImagePointer input, 
+				     int direction,
+				     double distance_max_from_center_point, 
+				     ListOfPointsType & LR, 
+				     ListOfPointsType & Ant, 
+				     ListOfPointsType & Post);
     // Station 4RL
     void ExtractStation_4RL();
     void ExtractStation_4RL_SI_Limits();
     void ExtractStation_4RL_LR_Limits();
-    MaskImagePointer m_Station4RL;
+    void ExtractStation_4RL_AP_Limits();
+    MaskImagePointer m_RightSupport;
+    MaskImagePointer m_LeftSupport;
 
   private:
     ExtractLymphStationsFilter(const Self&); //purposely not implemented
@@ -137,6 +171,7 @@ namespace clitk {
 
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "clitkExtractLymphStationsFilter.txx"
+#include "clitkExtractLymphStation_8.txx"
 #include "clitkExtractLymphStation_7.txx"
 #include "clitkExtractLymphStation_4RL.txx"
 #endif

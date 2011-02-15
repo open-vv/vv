@@ -33,7 +33,8 @@ namespace clitk {
   
   //--------------------------------------------------------------------
   /*
-    Extract bony anatomy through thresholding and connected component labelling.
+    Extract bony anatomy through thresholding and connected component
+    labelling.
   */
   //--------------------------------------------------------------------
   
@@ -86,88 +87,68 @@ namespace clitk {
     /** Connect inputs */
     void SetInput(const InputImageType * image);
  
-    // Set all options at a time
-    template<class ArgsInfoType>
-      void SetArgsInfo(ArgsInfoType arg);
-
     // Background / Foreground
     itkGetConstMacro(BackgroundValue, MaskImagePixelType);
     itkGetConstMacro(ForegroundValue, MaskImagePixelType);
 
     itkSetMacro(MinimalComponentSize, int);
     itkGetConstMacro(MinimalComponentSize, int);
-    GGO_DefineOption(minSize, SetMinimalComponentSize, int);
     
     // Output filename  (for AFBD)
     itkSetMacro(OutputBonesFilename, std::string);
     itkGetMacro(OutputBonesFilename, std::string);
-    GGO_DefineOption(output, SetOutputBonesFilename, std::string);
 
     // Step 0
     itkBooleanMacro(InitialSmoothing);
     itkSetMacro(InitialSmoothing, bool);
     itkGetMacro(InitialSmoothing, bool);
-    GGO_DefineOption_Flag(smooth, SetInitialSmoothing);
 
     itkSetMacro(SmoothingConductanceParameter, double);
     itkGetConstMacro(SmoothingConductanceParameter, double);
-    GGO_DefineOption(cond, SetSmoothingConductanceParameter, double);
     
     itkSetMacro(SmoothingNumberOfIterations, int);
     itkGetConstMacro(SmoothingNumberOfIterations, int);
-    GGO_DefineOption(iter, SetSmoothingNumberOfIterations, int);
 
     itkSetMacro(SmoothingTimeStep, double);
     itkGetConstMacro(SmoothingTimeStep, double);
-    GGO_DefineOption(time, SetSmoothingTimeStep, double);
 
     itkSetMacro(SmoothingUseImageSpacing, bool);
     itkGetConstMacro(SmoothingUseImageSpacing, bool);
     itkBooleanMacro(SmoothingUseImageSpacing);
-    GGO_DefineOption_Flag(spacing, SetSmoothingUseImageSpacing);
 
     // Step 1 
     itkSetMacro(UpperThreshold1, InputImagePixelType);
     itkGetMacro(UpperThreshold1, InputImagePixelType);
-    GGO_DefineOption(upper1, SetUpperThreshold1, InputImagePixelType);
 
     itkSetMacro(LowerThreshold1, InputImagePixelType);
     itkGetMacro(LowerThreshold1, InputImagePixelType);
-    GGO_DefineOption(lower1, SetLowerThreshold1, InputImagePixelType);
 
     itkSetMacro(FullConnectivity, bool);
     itkGetConstMacro(FullConnectivity, bool);
     itkBooleanMacro(FullConnectivity);
-    GGO_DefineOption_Flag(full, SetFullConnectivity);
 
     // Step 2 
     itkSetMacro(UpperThreshold2, InputImagePixelType);
     itkGetMacro(UpperThreshold2, InputImagePixelType);
-    GGO_DefineOption(upper2, SetUpperThreshold2, InputImagePixelType);
 
     itkSetMacro(LowerThreshold2, InputImagePixelType);
     itkGetMacro(LowerThreshold2, InputImagePixelType);
-    GGO_DefineOption(lower2, SetLowerThreshold2, InputImagePixelType);
 
     itkSetMacro(Radius2, InputImageSizeType);
     itkGetConstMacro(Radius2, InputImageSizeType);
-    GGO_DefineOption_Vector(radius2, SetRadius2, InputImageSizeType, ImageDimension, true);
 
     itkSetMacro(SampleRate2, int);
     itkGetConstMacro(SampleRate2, int);
-    GGO_DefineOption(sampleRate2, SetSampleRate2, int);
 
     // Step fill holes
     itkSetMacro(FillHoles, bool);
     itkGetConstMacro(FillHoles, bool);
     itkBooleanMacro(FillHoles);
-    GGO_DefineOption_Flag(doNotFillHoles, SetFillHoles);
 
     // Step Auto Crop
     itkSetMacro(AutoCrop, bool);
     itkGetConstMacro(AutoCrop, bool);
     itkBooleanMacro(AutoCrop);
-    GGO_DefineOption_Flag(noAutoCrop, SetAutoCrop);
 
   protected:
     ExtractBonesFilter();

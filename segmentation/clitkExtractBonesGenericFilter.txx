@@ -59,6 +59,50 @@ void clitk::ExtractBonesGenericFilter<ArgsInfoType>::SetArgsInfo(const ArgsInfoT
 
 
 //--------------------------------------------------------------------
+template<class ArgsInfoType>
+template<class FilterType>
+void clitk::ExtractBonesGenericFilter<ArgsInfoType>::
+SetOptionsFromArgsInfoToFilter(FilterType * f) 
+{
+  f->SetVerboseOptionFlag(mArgsInfo.verboseOption_flag);
+  f->SetVerboseStepFlag(mArgsInfo.verboseStep_flag);
+  f->SetWriteStepFlag(mArgsInfo.writeStep_flag);
+  f->SetVerboseWarningFlag(!mArgsInfo.verboseWarningOff_flag);
+  f->SetVerboseMemoryFlag(mArgsInfo.verboseMemory_flag);
+
+  if (mArgsInfo.afdb_given)
+    f->SetAFDBFilename(mArgsInfo.afdb_arg);
+
+  f->SetOutputBonesFilename(mArgsInfo.output_arg);
+
+  f->SetInitialSmoothing(mArgsInfo.smooth_flag);
+  f->SetSmoothingConductanceParameter(mArgsInfo.cond_arg);
+  f->SetSmoothingNumberOfIterations(mArgsInfo.iter_arg);
+  f->SetSmoothingTimeStep(mArgsInfo.time_arg);
+  f->SetSmoothingUseImageSpacing(mArgsInfo.spacing_flag);
+
+  f->SetMinimalComponentSize(mArgsInfo.minSize_arg);
+  f->SetUpperThreshold1(mArgsInfo.upper1_arg);
+  f->SetLowerThreshold1(mArgsInfo.lower1_arg);
+  f->SetFullConnectivity(mArgsInfo.full_flag);
+
+  f->SetUpperThreshold2(mArgsInfo.upper2_arg);
+  f->SetLowerThreshold2(mArgsInfo.lower2_arg);
+
+  typename FilterType::InputImageSizeType s;
+  if (mArgsInfo.radius2_given) {
+    ConvertOptionMacro(mArgsInfo.radius2, s, 3, false);
+    f->SetRadius2(s);
+  }
+
+  f->SetSampleRate2(mArgsInfo.sampleRate2_arg);
+  f->SetAutoCrop(!mArgsInfo.noAutoCrop_flag);
+  f->SetFillHoles(!mArgsInfo.doNotFillHoles_flag);
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
 // Update with the number of dimensions and the pixeltype
 //--------------------------------------------------------------------
 template<class ArgsInfoType>
@@ -76,8 +120,8 @@ void clitk::ExtractBonesGenericFilter<ArgsInfoType>::UpdateWithInputImageType()
   typename FilterType::Pointer filter = FilterType::New();
     
   // Set global Options 
-  filter->SetArgsInfo(mArgsInfo);
   filter->SetInput(input);
+  SetOptionsFromArgsInfoToFilter<FilterType>(filter);
 
   // Go !
   filter->Update();
