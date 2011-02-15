@@ -73,6 +73,7 @@ OPTION(CLITK_EXPERIMENTAL "Enable experimental software and features" OFF)
 OPTION(CLITK_BUILD_TOOLS "Build command-line tools" OFF)
 OPTION(CLITK_BUILD_SEGMENTATION "Build command-line segmentation tools" OFF)
 OPTION(CLITK_BUILD_REGISTRATION "Build command-line registration tools" OFF)
+OPTION(CLITK_MEMORY_INFO "Enable memory information" OFF)
 
 OPTION(CLITK_BUILD_VV "Build vv the 4D visualizer (requires VTK and QT)" ON)
 IF (CLITK_BUILD_VV)
