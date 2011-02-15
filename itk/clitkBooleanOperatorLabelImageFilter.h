@@ -81,7 +81,8 @@ namespace clitk {
     // Set type of operation
     typedef enum {
       And = 0, 
-      AndNot = 1
+      AndNot = 1, 
+      Or = 2
     } OperationTypeEnumeration;
     itkGetMacro(OperationType, OperationTypeEnumeration);
     itkSetMacro(OperationType, OperationTypeEnumeration);
@@ -105,7 +106,8 @@ namespace clitk {
     virtual void GenerateInputRequestedRegion();
     virtual void GenerateData();
     
-    virtual void ReleaseInputs() { } // Do not release date to keep input in memory and continue ...    
+    // Do not release date to keep input in memory and continue ... 
+    virtual void ReleaseInputs() { } 
     
     Input1ImagePixelType mBackgroundValue1;
     Input2ImagePixelType mBackgroundValue2;
@@ -120,6 +122,7 @@ namespace clitk {
     
     template<class Iter1, class Iter2> void LoopAndNot(Iter1 it1, Iter1 it2, Iter2 ot);
     template<class Iter1, class Iter2> void LoopAnd(Iter1 it1, Iter1 it2, Iter2 ot);
+    template<class Iter1, class Iter2> void LoopOr(Iter1 it1, Iter1 it2, Iter2 ot);
     
   private:
     BooleanOperatorLabelImageFilter(const Self&); //purposely not implemented

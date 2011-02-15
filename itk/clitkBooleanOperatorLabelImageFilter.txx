@@ -154,9 +154,6 @@ namespace clitk {
     }
 
     // Compute intersection bounding box (in physical coordinate) and regions (in pixel coordinate)
-    // DD(input1->GetLargestPossibleRegion());
-    // DD(input2->GetLargestPossibleRegion());
-    // DD(outputImage->GetLargestPossibleRegion());
     typedef itk::BoundingBox<unsigned long, Dim> BBType;
     typename BBType::Pointer bbInput1 = BBType::New();    
     ComputeBBFromImageRegion<Input1ImageType>(input1, input1->GetLargestPossibleRegion(), bbInput1);    
@@ -165,20 +162,13 @@ namespace clitk {
     typename BBType::Pointer bbOutput = BBType::New();    
     ComputeBBFromImageRegion<OutputImageType>(outputImage, outputImage->GetLargestPossibleRegion(), bbOutput);
     
-    // DD(bbInput1);
-    // DD(bbInput2);
-    // DD(bbOutput);
-
     typename BBType::Pointer bb = BBType::New();    
     ComputeBBIntersection<Dim>(bb, bbInput1, bbInput2);
-    // DD(bb);
     ComputeBBIntersection<Dim>(bb, bb, bbOutput);
-    // DD(bb);
  
     ComputeRegionFromBB<Input1ImageType>(input1, bb, input1Region);
     ComputeRegionFromBB<Input2ImageType>(input2, bb, input2Region);
     ComputeRegionFromBB<OutputImageType>(outputImage, bb, outputRegion);
-
   }
   //--------------------------------------------------------------------
 
@@ -212,9 +202,6 @@ namespace clitk {
     OutputImagePointer output = this->GetOutput(0);
     
     // Get Region iterators
-    // DD(input1Region);
-    // DD(input2Region);
-    // DD(outputRegion);
     itk::ImageRegionConstIterator<Input1ImageType> it1(input1, input1Region);
     itk::ImageRegionConstIterator<Input2ImageType> it2(input2, input2Region);
     itk::ImageRegionIterator<OutputImageType>      ot (output, outputRegion);
@@ -225,6 +212,7 @@ namespace clitk {
     switch (m_OperationType) {
     case AndNot: LoopAndNot(it1, it2, ot);  break;
     case And: LoopAnd(it1, it2, ot);  break;
+    case Or: LoopOr(it1, it2, ot);  break;
     }
   }
   //--------------------------------------------------------------------
@@ -245,7 +233,8 @@ namespace clitk {
 
   //--------------------------------------------------------------------
   LOOP_BEGIN(LoopAndNot)
-  if ((it1.Get() != mBackgroundValue1) && (it2.Get() == mBackgroundValue2)) { ot.Set(mForegroundValue); }
+  if ((it1.Get() != mBackgroundValue1) && (it2.Get() == mBackgroundValue2)) 
+    { ot.Set(mForegroundValue); }
   else { ot.Set(mBackgroundValue); }
   LOOP_END
   //--------------------------------------------------------------------
@@ -253,7 +242,17 @@ namespace clitk {
  
   //--------------------------------------------------------------------
   LOOP_BEGIN(LoopAnd)
-  if ((it1.Get() != mBackgroundValue1) && (it2.Get() != mBackgroundValue2)) { ot.Set(mForegroundValue); }
+  if ((it1.Get() != mBackgroundValue1) && (it2.Get() != mBackgroundValue2)) 
+    { ot.Set(mForegroundValue); }
+  else { ot.Set(mBackgroundValue); }
+  LOOP_END
+  //--------------------------------------------------------------------
+
+ 
+  //--------------------------------------------------------------------
+  LOOP_BEGIN(LoopOr)
+  if ((it1.Get() != mBackgroundValue1) || (it2.Get() != mBackgroundValue2)) 
+    { ot.Set(mForegroundValue); }
   else { ot.Set(mBackgroundValue); }
   LOOP_END
   //--------------------------------------------------------------------
