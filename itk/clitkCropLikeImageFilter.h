@@ -64,8 +64,6 @@ namespace clitk {
 
     /** ImageDimension constants */
     itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
-    
-    //    void Update() { GenerateOutputInformation(); GenerateData(); }
 
   protected:
     CropLikeImageFilter();
@@ -82,7 +80,6 @@ namespace clitk {
     bool m_LikeFilenameIsGiven;
     PointType m_Origin;
     const itk::ImageBase<ImageDimension> * m_LikeImage;
-    //typename ImageType::Pointer m_LikeImage;
     std::vector<bool> m_CropAlongThisDimension;
     
     PointType m_StartPoint;         // start point in physical world

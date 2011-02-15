@@ -93,8 +93,7 @@ GenerateInputRequestedRegion() {
 template <class ImageType>
 void 
 clitk::CropLikeImageFilter<ImageType>::
-GenerateOutputInformation() {    
-  DD("GenerateOutputInformation");
+GenerateOutputInformation() {   
   // Get input pointers
   ImageConstPointer input = dynamic_cast<const ImageType*>(itk::ProcessObject::GetInput(0));
     
@@ -132,8 +131,8 @@ GenerateOutputInformation() {
   for(unsigned int i=0; i<ImageType::ImageDimension; i++) {
     if (likeSpacing[i] != input->GetSpacing()[i]) {
       clitkExceptionMacro("Images must have the same spacing, but input's spacing(" << i
-                          <<") is " << input->GetSpacing()[i] << " while like's spacing(" << i 
-                          << ") is " << likeSpacing[i] << ".");
+                          <<") is " << input->GetSpacing()[i] << " while the spacing(" << i 
+                          << ") of 'like' is " << likeSpacing[i] << ".");
     }
   }
   // Define output region 
@@ -144,6 +143,7 @@ GenerateOutputInformation() {
   output->SetBufferedRegion(m_OutputRegion);
   output->SetSpacing(likeSpacing);  
   output->SetOrigin(likeOrigin);
+  output->Allocate(); // Needed ?
 
   // get startpoint source/dest
   // for each dim
@@ -199,6 +199,7 @@ GenerateOutputInformation() {
   for(int i=0; i<ImageType::ImageDimension; i++)
     s[i] = m_StopSourceIndex[i]-m_StartSourceIndex[i];
   m_Region.SetSize(s);
+
 }
 //--------------------------------------------------------------------
    
@@ -212,12 +213,14 @@ GenerateData() {
 
   // Get output pointer, fill with Background
   ImagePointer output = this->GetOutput(0);
-  output->Allocate();
+  
   output->FillBuffer(GetBackgroundValue());
   
   // Paste image inside
   typedef itk::PasteImageFilter<ImageType,ImageType> PasteFilterType;
   typename PasteFilterType::Pointer pasteFilter = PasteFilterType::New();
+  //pasteFilter->ReleaseDataFlagOn(); // change nothing ?
+  //  pasteFilter->InPlaceOn(); // makt it seg fault
   pasteFilter->SetSourceImage(input);
   pasteFilter->SetDestinationImage(output);
   pasteFilter->SetDestinationIndex(m_StartDestIndex);
@@ -225,7 +228,6 @@ GenerateData() {
   pasteFilter->Update();
 
   // Get (graft) output (SetNthOutput does not fit here because of Origin).
-  //  this->GraftOutput(cropFilter->GetOutput());
   this->GraftOutput(pasteFilter->GetOutput());
 }
 //--------------------------------------------------------------------
