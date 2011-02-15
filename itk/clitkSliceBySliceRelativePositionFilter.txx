@@ -28,18 +28,10 @@
 template <class ImageType>
 clitk::SliceBySliceRelativePositionFilter<ImageType>::
 SliceBySliceRelativePositionFilter():
-  clitk::FilterBase(),
-  itk::ImageToImageFilter<ImageType, ImageType>()
+  clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>()
 {
-  this->SetNumberOfRequiredInputs(2);
   SetDirection(2);
-  SetObjectBackgroundValue(0);  
-  SetFuzzyThreshold(0.6);
-  SetOrientationTypeString("Left");
-  SetIntermediateSpacing(10);
-  ResampleBeforeRelativePositionFilterOff();
   UniqueConnectedComponentBySliceOff();
-  NotFlagOff();
 }
 //--------------------------------------------------------------------
 
@@ -72,6 +64,27 @@ SetInputObject(const ImageType * image)
 template <class ImageType>
 void 
 clitk::SliceBySliceRelativePositionFilter<ImageType>::
+PrintOptions() 
+{
+  DD(this->GetDirection());
+  DD((int)this->GetObjectBackgroundValue());
+  DDV(this->GetOrientationTypeString(), (uint)this->GetNumberOfAngles());
+  DD(this->GetResampleBeforeRelativePositionFilter());
+  DD(this->GetIntermediateSpacing());
+  DD(this->GetFuzzyThreshold());
+  DD(this->GetUniqueConnectedComponentBySlice());
+  DD(this->GetAutoCropFlag());
+  DD(this->GetInverseOrientationFlag());
+  DD(this->GetRemoveObjectFlag());
+  DD(this->GetCombineWithOrFlag());
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class ImageType>
+void 
+clitk::SliceBySliceRelativePositionFilter<ImageType>::
 GenerateInputRequestedRegion() 
 {
   // Call default
@@ -91,6 +104,10 @@ void
 clitk::SliceBySliceRelativePositionFilter<ImageType>::
 GenerateOutputInformation() 
 {
+  if (this->GetVerboseOptionFlag()) {
+    PrintOptions();
+  }
+
   // Get input pointer
   input = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
   object = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(1));
@@ -98,9 +115,9 @@ GenerateOutputInformation()
   //--------------------------------------------------------------------
   // Resample object to the same spacing than input
   if (!clitk::HaveSameSpacing<ImageType, ImageType>(object, input)) {
-    StartNewStep("Resample object to the same spacing than input");
+    this->StartNewStep("Resample object to the same spacing than input");
     m_working_object = clitk::ResampleImageSpacing<ImageType>(object, input->GetSpacing());
-    StopCurrentStep<ImageType>(m_working_object);
+    this->template StopCurrentStep<ImageType>(m_working_object);
   }
   else {
     m_working_object = object;
@@ -109,11 +126,11 @@ GenerateOutputInformation()
   //--------------------------------------------------------------------
   // Pad object to the same size than input
   if (!clitk::HaveSameSizeAndSpacing<ImageType, ImageType>(m_working_object, input)) {
-    StartNewStep("Pad object to the same size than input");
+    this->StartNewStep("Pad object to the same size than input");
     m_working_object = clitk::ResizeImageLike<ImageType>(m_working_object, 
                                                           input, 
-                                                          GetObjectBackgroundValue());
-    StopCurrentStep<ImageType>(m_working_object);
+                                                          this->GetObjectBackgroundValue());
+    this->template StopCurrentStep<ImageType>(m_working_object);
   }
   else {
   }
@@ -128,7 +145,7 @@ GenerateOutputInformation()
 
   //--------------------------------------------------------------------
   // Extract input slices
-  StartNewStep("Extract input slices");
+  this->StartNewStep("Extract input slices");
   typedef clitk::ExtractSliceFilter<ImageType> ExtractSliceFilterType;
   typename ExtractSliceFilterType::Pointer extractSliceFilter = ExtractSliceFilterType::New();
   extractSliceFilter->SetInput(input);
@@ -137,22 +154,22 @@ GenerateOutputInformation()
   typedef typename ExtractSliceFilterType::SliceType SliceType;
   std::vector<typename SliceType::Pointer> mInputSlices;
   extractSliceFilter->GetOutputSlices(mInputSlices);
-  StopCurrentStep<SliceType>(mInputSlices[0]);
+  this->template StopCurrentStep<SliceType>(mInputSlices[0]);
   
   //--------------------------------------------------------------------
   // Extract object slices
-  StartNewStep("Extract object slices");
+  this->StartNewStep("Extract object slices");
   extractSliceFilter = ExtractSliceFilterType::New();
   extractSliceFilter->SetInput(m_working_object);//object);
   extractSliceFilter->SetDirection(GetDirection());
   extractSliceFilter->Update();
   std::vector<typename SliceType::Pointer> mObjectSlices;
   extractSliceFilter->GetOutputSlices(mObjectSlices);
-  StopCurrentStep<SliceType>(mObjectSlices[0]);
+  this->template StopCurrentStep<SliceType>(mObjectSlices[0]);
 
   //--------------------------------------------------------------------
   // Perform slice by slice relative position
-  StartNewStep("Perform slice by slice relative position");
+  this->StartNewStep("Perform slice by slice relative position");
   for(unsigned int i=0; i<mInputSlices.size(); i++) {
     // Select main CC in each object slice (required ?)
     mObjectSlices[i] = Labelize<SliceType>(mObjectSlices[i], 0, true, 1);
@@ -161,17 +178,23 @@ GenerateOutputInformation()
     // Relative position
     typedef clitk::AddRelativePositionConstraintToLabelImageFilter<SliceType> RelPosFilterType;
     typename RelPosFilterType::Pointer relPosFilter = RelPosFilterType::New();
-    relPosFilter->VerboseStepOff();
-    relPosFilter->WriteStepOff();
+    relPosFilter->VerboseStepFlagOff();
+    relPosFilter->WriteStepFlagOff();
     relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
+    relPosFilter->SetBackgroundValue(this->GetBackgroundValue());
     relPosFilter->SetInput(mInputSlices[i]); 
     relPosFilter->SetInputObject(mObjectSlices[i]); 
-    relPosFilter->SetNotFlag(GetNotFlag());
-    relPosFilter->SetOrientationTypeString(this->GetOrientationTypeString());
+    relPosFilter->SetRemoveObjectFlag(this->GetRemoveObjectFlag());
+    for(int j=0; j<this->GetNumberOfAngles(); j++) {
+      relPosFilter->AddOrientationTypeString(this->GetOrientationTypeString(j));
+    }
+    relPosFilter->SetInverseOrientationFlag(this->GetInverseOrientationFlag());
+    //relPosFilter->SetOrientationType(this->GetOrientationType());
     relPosFilter->SetIntermediateSpacing(this->GetIntermediateSpacing());
     relPosFilter->SetResampleBeforeRelativePositionFilter(this->GetResampleBeforeRelativePositionFilter());
     relPosFilter->SetFuzzyThreshold(this->GetFuzzyThreshold());
     relPosFilter->AutoCropFlagOff(); // important ! because we join the slices after this loop
+    relPosFilter->SetCombineWithOrFlag(this->GetCombineWithOrFlag()); 
     relPosFilter->Update();
     mInputSlices[i] = relPosFilter->GetOutput();
 
@@ -183,28 +206,21 @@ GenerateOutputInformation()
 
   }
 
-  typedef itk::JoinSeriesImageFilter<SliceType, ImageType> JoinSeriesFilterType;
-  typename JoinSeriesFilterType::Pointer joinFilter = JoinSeriesFilterType::New();
-  joinFilter->SetOrigin(input->GetOrigin()[GetDirection()]);
-  joinFilter->SetSpacing(input->GetSpacing()[GetDirection()]);
-  for(unsigned int i=0; i<mInputSlices.size(); i++) {
-    joinFilter->PushBackInput(mInputSlices[i]);
-  }
-  joinFilter->Update();
-  m_working_input = joinFilter->GetOutput();
-  StopCurrentStep<ImageType>(m_working_input);
+  // Join the slices
+  m_working_input = clitk::JoinSlices<ImageType>(mInputSlices, input, GetDirection());
+  this->template StopCurrentStep<ImageType>(m_working_input);
 
   //--------------------------------------------------------------------
   // Step 7: autocrop
-  if (GetAutoCropFlag()) {
-    StartNewStep("Final AutoCrop");
+  if (this->GetAutoCropFlag()) {
+    this->StartNewStep("Final AutoCrop");
     typedef clitk::AutoCropFilter<ImageType> CropFilterType;
     typename CropFilterType::Pointer cropFilter = CropFilterType::New();
     cropFilter->SetInput(m_working_input);
     cropFilter->ReleaseDataFlagOff();
     cropFilter->Update();   
     m_working_input = cropFilter->GetOutput();
-    StopCurrentStep<ImageType>(m_working_input);    
+    this->template StopCurrentStep<ImageType>(m_working_input);    
   }
 
   // Update output info

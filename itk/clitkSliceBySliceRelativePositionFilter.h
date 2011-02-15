@@ -33,13 +33,12 @@ namespace clitk {
   
   template <class ImageType>
   class ITK_EXPORT SliceBySliceRelativePositionFilter:
-    public clitk::FilterBase, 
-    public itk::ImageToImageFilter<ImageType, ImageType> 
+    public AddRelativePositionConstraintToLabelImageFilter<ImageType>
   {
 
   public:
     /** Standard class typedefs. */
-    typedef itk::ImageToImageFilter<ImageType, ImageType>   Superclass;
+    typedef AddRelativePositionConstraintToLabelImageFilter<ImageType>   Superclass;
     typedef SliceBySliceRelativePositionFilter              Self;
     typedef itk::SmartPointer<Self>                         Pointer;
     typedef itk::SmartPointer<const Self>                   ConstPointer;
@@ -69,49 +68,57 @@ namespace clitk {
     /** Input : initial image and object */
     void SetInput(const ImageType * image);
     void SetInputObject(const ImageType * image);
-    
+
     // Options
+    void PrintOptions();
     itkGetConstMacro(Direction, int);
     itkSetMacro(Direction, int);
-    itkGetConstMacro(ObjectBackgroundValue, PixelType);
-    itkSetMacro(ObjectBackgroundValue, PixelType);
+    // itkGetConstMacro(ObjectBackgroundValue, PixelType);
+    // itkSetMacro(ObjectBackgroundValue, PixelType);
 
-    itkSetMacro(OrientationTypeString, std::string);
-    itkGetConstMacro(OrientationTypeString, std::string);
+    // itkSetMacro(OrientationTypeString, std::string);
+    // itkGetConstMacro(OrientationTypeString, std::string);
 
-    itkGetConstMacro(ResampleBeforeRelativePositionFilter, bool);
-    itkSetMacro(ResampleBeforeRelativePositionFilter, bool);
-    itkBooleanMacro(ResampleBeforeRelativePositionFilter);
+    // itkGetConstMacro(ResampleBeforeRelativePositionFilter, bool);
+    // itkSetMacro(ResampleBeforeRelativePositionFilter, bool);
+    // itkBooleanMacro(ResampleBeforeRelativePositionFilter);
 
-    itkGetConstMacro(IntermediateSpacing, double);
-    itkSetMacro(IntermediateSpacing, double);
+    // itkGetConstMacro(IntermediateSpacing, double);
+    // itkSetMacro(IntermediateSpacing, double);
 
-    itkGetConstMacro(FuzzyThreshold, double);
-    itkSetMacro(FuzzyThreshold, double);
+    // itkGetConstMacro(FuzzyThreshold, double);
+    // itkSetMacro(FuzzyThreshold, double);
 
     itkGetConstMacro(UniqueConnectedComponentBySlice, bool);
     itkSetMacro(UniqueConnectedComponentBySlice, bool);
     itkBooleanMacro(UniqueConnectedComponentBySlice);
 
-    itkGetConstMacro(AutoCropFlag, bool);
-    itkSetMacro(AutoCropFlag, bool);
-    itkBooleanMacro(AutoCropFlag);
+    // itkGetConstMacro(AutoCropFlag, bool);
+    // itkSetMacro(AutoCropFlag, bool);
+    // itkBooleanMacro(AutoCropFlag);
 
-    itkGetConstMacro(NotFlag, bool);
-    itkSetMacro(NotFlag, bool);
-    itkBooleanMacro(NotFlag);
+    // itkGetConstMacro(InverseOrientationFlag, bool);
+    // itkSetMacro(InverseOrientationFlag, bool);
+    // itkBooleanMacro(InverseOrientationFlag);
+
+    // itkGetConstMacro(RemoveObjectFlag, bool);
+    // itkSetMacro(RemoveObjectFlag, bool);
+    // itkBooleanMacro(RemoveObjectFlag);
+
+    // itkGetConstMacro(CombineWithOrFlag, bool);
+    // itkSetMacro(CombineWithOrFlag, bool);
+    // itkBooleanMacro(CombineWithOrFlag);
 
   protected:
     SliceBySliceRelativePositionFilter();
     virtual ~SliceBySliceRelativePositionFilter() {}
     
-    int m_Direction;
-    PixelType m_ObjectBackgroundValue;
+    // PixelType m_ObjectBackgroundValue;
     // OrientationTypeEnumeration m_OrientationType;
-    std::string m_OrientationTypeString;
-    double m_IntermediateSpacing;
-    double m_FuzzyThreshold;
-    bool m_ResampleBeforeRelativePositionFilter;
+    // std::string m_OrientationTypeString;
+    // double m_IntermediateSpacing;
+    // double m_FuzzyThreshold;
+    // bool m_ResampleBeforeRelativePositionFilter;
 
     virtual void GenerateOutputInformation();
     virtual void GenerateInputRequestedRegion();
@@ -121,9 +128,12 @@ namespace clitk {
     ImagePointer object;
     ImagePointer m_working_input;
     ImagePointer m_working_object;
-    bool m_UniqueConnectedComponentBySlice;
-    bool m_NotFlag;
-    bool m_AutoCropFlag;
+    bool         m_UniqueConnectedComponentBySlice;
+    int          m_Direction;
+    // bool m_InverseOrientationFlag;
+    // bool m_RemoveObjectFlag;
+    // bool m_AutoCropFlag;
+    // bool m_CombineWithOrFlag;
 
   private:
     SliceBySliceRelativePositionFilter(const Self&); //purposely not implemented
