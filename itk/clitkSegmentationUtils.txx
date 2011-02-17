@@ -31,6 +31,7 @@
 #include <itkBinaryBallStructuringElement.h>
 #include <itkBinaryDilateImageFilter.h>
 #include <itkConstantPadImageFilter.h>
+#include <itkImageSliceIteratorWithIndex.h>
 
 //--------------------------------------------------------------------
 template<class ImageType>
@@ -669,3 +670,76 @@ void clitk::ConvertOption(std::string optionName, uint given,
 //--------------------------------------------------------------------
 
 
+//--------------------------------------------------------------------
+/*
+  http://www.gamedev.net/community/forums/topic.asp?topic_id=542870
+  Assuming the points are (Ax,Ay) (Bx,By) and (Cx,Cy), you need to compute:
+  (Bx - Ax) * (Cy - Ay) - (By - Ay) * (Cx - Ax)
+  This will equal zero if the point C is on the line formed by
+  points A and B, and will have a different sign depending on the
+  side. Which side this is depends on the orientation of your (x,y)
+  coordinates, but you can plug test values for A,B and C into this
+  formula to determine whether negative values are to the left or to
+  the right.
+  => to accelerate, start with formula, when change sign -> stop and fill
+*/
+template<class ImageType>
+void 
+clitk::SliceBySliceSetBackgroundFromLineSeparation(typename ImageType::Pointer input, 
+                                                   std::vector<typename ImageType::PointType> & lA, 
+                                                   std::vector<typename ImageType::PointType> & lB, 
+                                                   typename ImageType::PixelType BG, 
+                                                   int mainDirection, 
+                                                   double offsetToKeep)
+{
+  
+  typedef itk::ImageSliceIteratorWithIndex<ImageType> SliceIteratorType;
+  SliceIteratorType siter = SliceIteratorType(input, 
+                                              input->GetLargestPossibleRegion());
+  siter.SetFirstDirection(0);
+  siter.SetSecondDirection(1);
+  siter.GoToBegin();
+  uint i=0;
+  typename ImageType::PointType A;
+  typename ImageType::PointType B;
+  typename ImageType::PointType C;
+  assert(lA.size() == B.size());
+  //  DD(lA.size());
+  //DD(input->GetLargestPossibleRegion().GetSize());
+  while ((i<lA.size()) && (!siter.IsAtEnd())) {
+    // Check that the current slice correspond to the current point
+    input->TransformIndexToPhysicalPoint(siter.GetIndex(), C);
+    if (C[2] != lA[i][2]) {
+      // DD(C);
+      // DD(lA[i]);
+    }
+    else {
+      // Define A,B,C points
+      A = lA[i];
+      B = lB[i];
+      C = A;
+      C[mainDirection] += offsetToKeep; // I know I must keep this point
+      double s = (B[0] - A[0]) * (C[1] - A[1]) - (B[1] - A[1]) * (C[0] - A[0]);
+      bool isPositive = s<0;
+      while (!siter.IsAtEndOfSlice()) {
+        while (!siter.IsAtEndOfLine()) {
+          // Very slow, I know ... but image should be very small
+          input->TransformIndexToPhysicalPoint(siter.GetIndex(), C);
+          double s = (B[0] - A[0]) * (C[1] - A[1]) - (B[1] - A[1]) * (C[0] - A[0]);
+          if (s == 0) siter.Set(BG); // on the line, we decide to remove
+          if (isPositive) {
+            if (s > 0) siter.Set(BG);
+          }
+          else {
+            if (s < 0) siter.Set(BG); 
+          }
+          ++siter;
+        }
+        siter.NextLine();
+      }
+      ++i;
+    }
+    siter.NextSlice();
+  }
+}                                                   
+//--------------------------------------------------------------------

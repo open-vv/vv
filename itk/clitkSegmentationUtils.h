@@ -284,6 +284,18 @@ namespace clitk {
                      uint dim, bool required);
 #define ConvertOptionMacro(OPTIONNAME, VAR, DIM, REQUIRED)         \
   ConvertOption(#OPTIONNAME, OPTIONNAME##_given, OPTIONNAME##_arg, VAR, DIM, REQUIRED);
+  //--------------------------------------------------------------------
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  void 
+  SliceBySliceSetBackgroundFromLineSeparation(typename ImageType::Pointer input, 
+                                              std::vector<typename ImageType::PointType> & lA, 
+                                              std::vector<typename ImageType::PointType> & lB, 
+                                              typename ImageType::PixelType BG, 
+                                              int mainDirection, 
+                                              double offsetToKeep);
+  
 
 }
 
