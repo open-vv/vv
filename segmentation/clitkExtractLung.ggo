@@ -5,6 +5,7 @@ purpose "Segment lungs in CT image. Need 'patient' mask."
 
 option "config"	        -  "Config file"		  string  	no
 option "imagetypes"     -  "Display allowed image types"  flag          off
+
 option "verbose"        v  "Verbose"			  flag		off
 option "verboseStep"    -  "Verbose each step"		  flag		off
 option "writeStep"      w  "Write image at each step"	  flag		off
@@ -34,7 +35,7 @@ option "skipslices"                  -  "Number of slices to skip before searchi
 option "upperThresholdForTrachea"    -	"Initial upper threshold for trachea"  double	no  default="-900"
 option "multiplierForTrachea"	     -	"Multiplier for the region growing"    double	no  default="5"
 option "thresholdStepSizeForTrachea" -	"Threshold step size"	               int      no  default="64"
-option "seed"                        -	"Index of the trachea seed point"      int	no  multiple
+option "seed"                        -	"Index of the trachea seed point (in pixel, not in mm)"      int	no  multiple
 option "doNotCheckTracheaVolume"     -  "If set, do not check the trachea volume" flag off
 option "verboseRG"                   -  "Verbose RegionGrowing"   flag off
 

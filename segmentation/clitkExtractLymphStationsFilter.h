@@ -123,8 +123,10 @@ namespace clitk {
     MaskImagePointer EnlargeEsophagusDilatationRadiusInferiorly(MaskImagePointer & eso);
     void ExtractStation_8();
     void ExtractStation_8_SI_Limits();
-    void ExtractStation_8_AP_Limits();
+    void ExtractStation_8_Post_Limits();
+    void ExtractStation_8_Ant_Limits();
     void ExtractStation_8_LR_Limits();
+    void ExtractStation_8_LR_Limits_old();
  
     // Station 7
     void ExtractStation_7();

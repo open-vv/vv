@@ -162,7 +162,9 @@ ExtractStation_8() {
   else m_Working_Support = m_Mediastinum;
 
   ExtractStation_8_SI_Limits();
-  ExtractStation_8_AP_Limits();
+  ExtractStation_8_Post_Limits();
+  ExtractStation_8_Ant_Limits();
+  ExtractStation_8_LR_Limits();
   // ExtractStation_8_LR_Limits();
 }
 //--------------------------------------------------------------------
