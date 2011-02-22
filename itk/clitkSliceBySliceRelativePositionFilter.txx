@@ -32,6 +32,7 @@ SliceBySliceRelativePositionFilter():
 {
   SetDirection(2);
   UniqueConnectedComponentBySliceOff();
+  SetIgnoreEmptySliceObject(false);
 }
 //--------------------------------------------------------------------
 
@@ -128,8 +129,8 @@ GenerateOutputInformation()
   if (!clitk::HaveSameSizeAndSpacing<ImageType, ImageType>(m_working_object, input)) {
     this->StartNewStep("Pad object to the same size than input");
     m_working_object = clitk::ResizeImageLike<ImageType>(m_working_object, 
-                                                          input, 
-                                                          this->GetObjectBackgroundValue());
+                                                         input, 
+                                                         this->GetObjectBackgroundValue());
     this->template StopCurrentStep<ImageType>(m_working_object);
   }
   else {
@@ -172,38 +173,41 @@ GenerateOutputInformation()
   this->StartNewStep("Perform slice by slice relative position");
   for(unsigned int i=0; i<mInputSlices.size(); i++) {
     // Select main CC in each object slice (required ?)
-    mObjectSlices[i] = Labelize<SliceType>(mObjectSlices[i], 0, true, 1);
-    mObjectSlices[i] = KeepLabels<SliceType>(mObjectSlices[i], 0, 1, 1, 1, true);
+    int nb=0;
+    mObjectSlices[i] = LabelizeAndCountNumberOfObjects<SliceType>(mObjectSlices[i], 0, true, 1, nb);
+    if ((!GetIgnoreEmptySliceObject()) || (nb!=0)) {
+      mObjectSlices[i] = KeepLabels<SliceType>(mObjectSlices[i], 0, 1, 1, 1, true);
 
-    // Relative position
-    typedef clitk::AddRelativePositionConstraintToLabelImageFilter<SliceType> RelPosFilterType;
-    typename RelPosFilterType::Pointer relPosFilter = RelPosFilterType::New();
-    relPosFilter->VerboseStepFlagOff();
-    relPosFilter->WriteStepFlagOff();
-    relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
-    relPosFilter->SetBackgroundValue(this->GetBackgroundValue());
-    relPosFilter->SetInput(mInputSlices[i]); 
-    relPosFilter->SetInputObject(mObjectSlices[i]); 
-    relPosFilter->SetRemoveObjectFlag(this->GetRemoveObjectFlag());
-    for(int j=0; j<this->GetNumberOfAngles(); j++) {
-      relPosFilter->AddOrientationTypeString(this->GetOrientationTypeString(j));
+      // Relative position
+      typedef clitk::AddRelativePositionConstraintToLabelImageFilter<SliceType> RelPosFilterType;
+      typename RelPosFilterType::Pointer relPosFilter = RelPosFilterType::New();
+      relPosFilter->VerboseStepFlagOff();
+      relPosFilter->WriteStepFlagOff();
+      relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
+      relPosFilter->SetBackgroundValue(this->GetBackgroundValue());
+      relPosFilter->SetInput(mInputSlices[i]); 
+      relPosFilter->SetInputObject(mObjectSlices[i]); 
+      relPosFilter->SetRemoveObjectFlag(this->GetRemoveObjectFlag());
+      for(int j=0; j<this->GetNumberOfAngles(); j++) {
+        relPosFilter->AddOrientationTypeString(this->GetOrientationTypeString(j));
+      }
+      relPosFilter->SetInverseOrientationFlag(this->GetInverseOrientationFlag());
+      //relPosFilter->SetOrientationType(this->GetOrientationType());
+      relPosFilter->SetIntermediateSpacing(this->GetIntermediateSpacing());
+      relPosFilter->SetResampleBeforeRelativePositionFilter(this->GetResampleBeforeRelativePositionFilter());
+      relPosFilter->SetFuzzyThreshold(this->GetFuzzyThreshold());
+      relPosFilter->AutoCropFlagOff(); // important ! because we join the slices after this loop
+      relPosFilter->SetCombineWithOrFlag(this->GetCombineWithOrFlag()); 
+      relPosFilter->Update();
+      mInputSlices[i] = relPosFilter->GetOutput();
+
+      // Select main CC if needed
+      if (GetUniqueConnectedComponentBySlice()) {
+        mInputSlices[i] = Labelize<SliceType>(mInputSlices[i], 0, true, 1);
+        mInputSlices[i] = KeepLabels<SliceType>(mInputSlices[i], 0, 1, 1, 1, true);
+      }
+
     }
-    relPosFilter->SetInverseOrientationFlag(this->GetInverseOrientationFlag());
-    //relPosFilter->SetOrientationType(this->GetOrientationType());
-    relPosFilter->SetIntermediateSpacing(this->GetIntermediateSpacing());
-    relPosFilter->SetResampleBeforeRelativePositionFilter(this->GetResampleBeforeRelativePositionFilter());
-    relPosFilter->SetFuzzyThreshold(this->GetFuzzyThreshold());
-    relPosFilter->AutoCropFlagOff(); // important ! because we join the slices after this loop
-    relPosFilter->SetCombineWithOrFlag(this->GetCombineWithOrFlag()); 
-    relPosFilter->Update();
-    mInputSlices[i] = relPosFilter->GetOutput();
-
-    // Select main CC if needed
-    if (GetUniqueConnectedComponentBySlice()) {
-      mInputSlices[i] = Labelize<SliceType>(mInputSlices[i], 0, true, 1);
-      mInputSlices[i] = KeepLabels<SliceType>(mInputSlices[i], 0, 1, 1, 1, true);
-    }
-
   }
 
   // Join the slices

@@ -73,53 +73,19 @@ namespace clitk {
     void PrintOptions();
     itkGetConstMacro(Direction, int);
     itkSetMacro(Direction, int);
-    // itkGetConstMacro(ObjectBackgroundValue, PixelType);
-    // itkSetMacro(ObjectBackgroundValue, PixelType);
-
-    // itkSetMacro(OrientationTypeString, std::string);
-    // itkGetConstMacro(OrientationTypeString, std::string);
-
-    // itkGetConstMacro(ResampleBeforeRelativePositionFilter, bool);
-    // itkSetMacro(ResampleBeforeRelativePositionFilter, bool);
-    // itkBooleanMacro(ResampleBeforeRelativePositionFilter);
-
-    // itkGetConstMacro(IntermediateSpacing, double);
-    // itkSetMacro(IntermediateSpacing, double);
-
-    // itkGetConstMacro(FuzzyThreshold, double);
-    // itkSetMacro(FuzzyThreshold, double);
 
     itkGetConstMacro(UniqueConnectedComponentBySlice, bool);
     itkSetMacro(UniqueConnectedComponentBySlice, bool);
     itkBooleanMacro(UniqueConnectedComponentBySlice);
 
-    // itkGetConstMacro(AutoCropFlag, bool);
-    // itkSetMacro(AutoCropFlag, bool);
-    // itkBooleanMacro(AutoCropFlag);
-
-    // itkGetConstMacro(InverseOrientationFlag, bool);
-    // itkSetMacro(InverseOrientationFlag, bool);
-    // itkBooleanMacro(InverseOrientationFlag);
-
-    // itkGetConstMacro(RemoveObjectFlag, bool);
-    // itkSetMacro(RemoveObjectFlag, bool);
-    // itkBooleanMacro(RemoveObjectFlag);
-
-    // itkGetConstMacro(CombineWithOrFlag, bool);
-    // itkSetMacro(CombineWithOrFlag, bool);
-    // itkBooleanMacro(CombineWithOrFlag);
+    itkGetConstMacro(IgnoreEmptySliceObject, bool);
+    itkSetMacro(IgnoreEmptySliceObject, bool);
+    itkBooleanMacro(IgnoreEmptySliceObject);
 
   protected:
     SliceBySliceRelativePositionFilter();
     virtual ~SliceBySliceRelativePositionFilter() {}
     
-    // PixelType m_ObjectBackgroundValue;
-    // OrientationTypeEnumeration m_OrientationType;
-    // std::string m_OrientationTypeString;
-    // double m_IntermediateSpacing;
-    // double m_FuzzyThreshold;
-    // bool m_ResampleBeforeRelativePositionFilter;
-
     virtual void GenerateOutputInformation();
     virtual void GenerateInputRequestedRegion();
     virtual void GenerateData();
@@ -130,10 +96,7 @@ namespace clitk {
     ImagePointer m_working_object;
     bool         m_UniqueConnectedComponentBySlice;
     int          m_Direction;
-    // bool m_InverseOrientationFlag;
-    // bool m_RemoveObjectFlag;
-    // bool m_AutoCropFlag;
-    // bool m_CombineWithOrFlag;
+    bool         m_IgnoreEmptySliceObject;
 
   private:
     SliceBySliceRelativePositionFilter(const Self&); //purposely not implemented
