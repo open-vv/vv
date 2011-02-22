@@ -52,14 +52,9 @@ ExtractLymphStationsFilter():
   SetBackgroundValue(0);
   SetForegroundValue(1);
 
-  // Station 8
-  SetDistanceMaxToAnteriorPartOfTheSpine(10);
-  MaskImagePointType p;
-  p[0] = 15; p[1] = 2; p[2] = 1;
-  SetEsophagusDiltationForAnt(p);
-  p[0] = 5; p[1] = 10; p[2] = 1;
-  SetEsophagusDiltationForRight(p);
-  SetFuzzyThresholdForS8(0.5);
+  // Default values
+  ExtractStation_8_SetDefaultValues();
+  ExtractStation_3P_SetDefaultValues();
 
   // Station 7
   SetFuzzyThreshold(0.5);
@@ -84,14 +79,13 @@ GenerateOutputInformation() {
   ExtractStation_8();
   StopSubStep();
 
-  // Compute some interesting points in trachea
-  // ( ALTERNATIVE -> SKELETON ANALYSIS ? 
-  //    Pb : not sufficient for mostXX points ... ) 
+  DD(GetCurrentStepNumber());
 
-  /* ==> todo (but why ???)
-     ComputeTracheaCentroidsAboveCarina();
-     ComputeBronchusExtremaPointsBelowCarina();
-  */
+  // Extract Station3P
+  StartNewStep("Station 3P");
+  StartSubStep(); 
+  ExtractStation_3P();
+  StopSubStep();
 
   if (0) { // temporary suppress
     // Extract Station7
@@ -149,23 +143,91 @@ GenerateData() {
 
 //--------------------------------------------------------------------
 template <class TImageType>
+bool 
+clitk::ExtractLymphStationsFilter<TImageType>::
+CheckForStation(std::string station) 
+{
+  // Compute Station name
+  std::string s = "Station"+station;
+  
+
+  // Check if station already exist in DB
+  bool found = false;
+  if (GetAFDB()->TagExist(s)) {
+    m_ListOfStations[station] = GetAFDB()->template GetImage<MaskImageType>(s);
+    found = true;
+  }
+
+  // Define the starting support 
+  if (found && GetComputeStation("8")) {
+    std::cout << "Station " << station << " already exists, but re-computation forced." << std::endl;
+  }
+  if (!found || GetComputeStation("8")) {
+    m_Working_Support = m_Mediastinum = GetAFDB()->template GetImage<MaskImageType>("Mediastinum", true);
+    return true;
+  }
+  else {
+    std::cout << "Station " << station << " found. I used it" << std::endl;
+    return false;
+  }
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class TImageType>
+bool
+clitk::ExtractLymphStationsFilter<TImageType>::
+GetComputeStation(std::string station) 
+{
+  return (m_ComputeStationMap.find(station) != m_ComputeStationMap.end());
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class TImageType>
+void
+clitk::ExtractLymphStationsFilter<TImageType>::
+AddComputeStation(std::string station) 
+{
+  m_ComputeStationMap[station] = true;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class TImageType>
 void 
 clitk::ExtractLymphStationsFilter<TImageType>::
-ExtractStation_8() {
-
-  // Check if m_ListOfStations["8"] exist. If yes -> use it as initial
-  // support instead of m_Mediastinum
-  if (m_ListOfStations["8"]) {
-    DD("Station 8 support already exist -> use it");
-    m_Working_Support = m_ListOfStations["8"];
+ExtractStation_8() 
+{
+  if (CheckForStation("8")) {
+    ExtractStation_8_SI_Limits();
+    ExtractStation_8_Post_Limits();
+    ExtractStation_8_Ant_Limits();
+    ExtractStation_8_LR_Limits();
+    // Store image filenames into AFDB 
+    writeImage<MaskImageType>(m_ListOfStations["8"], "seg/Station8.mhd");
+    GetAFDB()->SetImageFilename("Station8", "seg/Station8.mhd");  
+    WriteAFDB();
   }
-  else m_Working_Support = m_Mediastinum;
+}
+//--------------------------------------------------------------------
 
-  ExtractStation_8_SI_Limits();
-  ExtractStation_8_Post_Limits();
-  ExtractStation_8_Ant_Limits();
-  ExtractStation_8_LR_Limits();
-  // ExtractStation_8_LR_Limits();
+
+//--------------------------------------------------------------------
+template <class TImageType>
+void 
+clitk::ExtractLymphStationsFilter<TImageType>::
+ExtractStation_3P()
+{
+  if (CheckForStation("3P")) {
+    ExtractStation_3P_SI_Limits();
+    // Store image filenames into AFDB 
+    writeImage<MaskImageType>(m_ListOfStations["3P"], "seg/Station3P.mhd");
+    GetAFDB()->SetImageFilename("Station3P", "seg/Station3P.mhd");  
+  }
 }
 //--------------------------------------------------------------------
 
@@ -199,6 +261,9 @@ ExtractStation_4RL() {
   ExtractStation_4RL_LR_Limits();
   ExtractStation_4RL_AP_Limits();
 }
+//--------------------------------------------------------------------
+
+
 //--------------------------------------------------------------------
 
 

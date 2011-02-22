@@ -53,6 +53,7 @@ namespace clitk {
 
     void WriteAFDB();
     void LoadAFDB();
+
     AnatomicalFeatureDatabase * GetAFDB();
     void SetAFDB(AnatomicalFeatureDatabase * a) { m_AFDB = a; }
 

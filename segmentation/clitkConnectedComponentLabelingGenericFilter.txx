@@ -21,6 +21,7 @@
 
 // clitk
 #include "clitkImageCommon.h"
+#include "clitkSegmentationUtils.h"
 
 // itk
 #include "itkConnectedComponentImageFilter.h"
@@ -78,42 +79,57 @@ void clitk::ConnectedComponentLabelingGenericFilter<ArgsInfoType>::UpdateWithInp
 
   // Output image type
   typedef itk::Image<int, ImageType::ImageDimension> OutputImageType;
+  PrintMemory(true, "initial");
 
-  // Create CCL filter
-  DD("CCL");
-  typedef itk::ConnectedComponentImageFilter<ImageType, OutputImageType> ConnectFilterType;
-  typename ConnectFilterType::Pointer connectFilter = ConnectFilterType::New();
-  connectFilter->SetInput(input);
-  connectFilter->SetBackgroundValue(mArgsInfo.inputBG_arg);
-  connectFilter->SetFullyConnected(mArgsInfo.full_flag);
-
-  // TODO SetBackgroud to zero forr relabel ?
-
-
-  // Sort by size and remove too small area.
-  typedef itk::RelabelComponentImageFilter<OutputImageType, OutputImageType> RelabelFilterType;
-  typename RelabelFilterType::Pointer relabelFilter = RelabelFilterType::New();
-  //  relabelFilter->InPlaceOn();
-  relabelFilter->SetInput(connectFilter->GetOutput());
-  relabelFilter->SetMinimumObjectSize(mArgsInfo.minSize_arg);
-  relabelFilter->Update();
-
-  DD(mArgsInfo.inputBG_arg);
-  DD(mArgsInfo.full_flag);
-  DD(mArgsInfo.minSize_arg);
-  
-  // Set information
-  const std::vector<typename RelabelFilterType::ObjectSizeType> & a = relabelFilter->GetSizeOfObjectsInPixels();
-  m_SizeOfObjectsInPixels.resize(a.size());
-  for(unsigned int i=0; i<a.size(); i++) m_SizeOfObjectsInPixels[i] = a[i];
-  m_SizeOfObjectsInPhysicalUnits = relabelFilter->GetSizeOfObjectsInPhysicalUnits();
-  m_OriginalNumberOfObjects = relabelFilter->GetOriginalNumberOfObjects();
-  DD(m_OriginalNumberOfObjects);
-  DD(m_SizeOfObjectsInPhysicalUnits.size());
+  typename OutputImageType::Pointer output;
+  {
+    typename OutputImageType::Pointer temp;
+    {
+      // Create CCL filter
+      typedef itk::ConnectedComponentImageFilter<ImageType, OutputImageType> ConnectFilterType;
+      typename ConnectFilterType::Pointer connectFilter = ConnectFilterType::New();
+      // connectFilter->ReleaseDataFlagOn(); // release earlier
+      connectFilter->SetInput(input);
+      connectFilter->SetBackgroundValue(mArgsInfo.inputBG_arg);
+      connectFilter->SetFullyConnected(mArgsInfo.full_flag);
+      //          connectFilter->SetNumberOfThreads(8);
+      connectFilter->Update();
+      temp = connectFilter->GetOutput();
+      PrintMemory(true, "after udpate");
+    }
+    PrintMemory(true, "after CCL block");
+    DD(input->GetReferenceCount());
+    DD(temp->GetReferenceCount());
+    
+    // Sort by size and remove too small area.
+    typedef itk::RelabelComponentImageFilter<OutputImageType, OutputImageType> RelabelFilterType;
+    typename RelabelFilterType::Pointer relabelFilter = RelabelFilterType::New();
+    //    relabelFilter->SetInput(connectFilter->GetOutput());
+    relabelFilter->SetInput(temp);
+    relabelFilter->SetMinimumObjectSize(mArgsInfo.minSize_arg);
+    relabelFilter->Update();
+    
+    DD(mArgsInfo.inputBG_arg);
+    DD(mArgsInfo.full_flag);
+    DD(mArgsInfo.minSize_arg);
+    
+    // Set information
+    const std::vector<typename RelabelFilterType::ObjectSizeType> & a 
+      = relabelFilter->GetSizeOfObjectsInPixels();
+    m_SizeOfObjectsInPixels.resize(a.size());
+    for(unsigned int i=0; i<a.size(); i++) m_SizeOfObjectsInPixels[i] = a[i];
+    m_SizeOfObjectsInPhysicalUnits = relabelFilter->GetSizeOfObjectsInPhysicalUnits();
+    m_OriginalNumberOfObjects = relabelFilter->GetOriginalNumberOfObjects();
+    DD(m_OriginalNumberOfObjects);
+    DD(m_SizeOfObjectsInPhysicalUnits.size());
+    
+    output = relabelFilter->GetOutput();
+  }
+  PrintMemory(true, "after block");
 
   // Write/Save results
-  typename OutputImageType::Pointer output = relabelFilter->GetOutput();
   this->template SetNextOutput<OutputImageType>(output); 
+  PrintMemory(true, "end filter ");
 }
 //--------------------------------------------------------------------
 

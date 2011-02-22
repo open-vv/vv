@@ -104,6 +104,9 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
     }
   }
   f->SetEsophagusDiltationForRight(p);  
+  
+  for(uint i=0; i<mArgsInfo.station_given; i++)
+    f->AddComputeStation(mArgsInfo.station_arg[i]);
 }
 //--------------------------------------------------------------------
 

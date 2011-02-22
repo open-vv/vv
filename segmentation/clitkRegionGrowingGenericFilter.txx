@@ -18,16 +18,6 @@
 #ifndef clitkRegionGrowingGenericFilter_txx
 #define clitkRegionGrowingGenericFilter_txx
 
-/* =================================================
- * @file   clitkRegionGrowingGenericFilter.txx
- * @author 
- * @date   
- * 
- * @brief 
- * 
- ===================================================*/
-
-
 namespace clitk
 {
 

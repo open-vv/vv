@@ -114,46 +114,29 @@ double clitk::AnatomicalFeatureDatabase::GetPoint3D(std::string tag, int dim)
 //--------------------------------------------------------------------
 void clitk::AnatomicalFeatureDatabase::GetPoint3D(std::string tag, PointType3D & p)
 {
-  if (m_MapOfTag.find(tag) == m_MapOfTag.end()) {
+  if (!TagExist(tag)) {
     clitkExceptionMacro("Could not find the tag <" << tag << "> of type Point3D in the DB");
+    return;
   }
-  else {
-    std::string s = m_MapOfTag[tag];
+
+  std::string s = m_MapOfTag[tag];
     
-    // construct a stream from the string
-    std::stringstream strstr(s);
+  // construct a stream from the string
+  std::stringstream strstr(s);
 
-    // use stream iterators to copy the stream to the vector as
-    // whitespace separated strings
-    std::istream_iterator<std::string> it(strstr);
-    std::istream_iterator<std::string> end;
-    std::vector<std::string> results(it, end);
+  // use stream iterators to copy the stream to the vector as
+  // whitespace separated strings
+  std::istream_iterator<std::string> it(strstr);
+  std::istream_iterator<std::string> end;
+  std::vector<std::string> results(it, end);
 
-    // parse the string into 3 doubles
-    for(int i=0; i<3; i++) {
+  // parse the string into 3 doubles
+  for(int i=0; i<3; i++) {
 
-      if (!clitk::fromString<double>(p[i], results[i].c_str())) {
-        clitkExceptionMacro("Error while reading Point3D, could not convert '" 
-                            << results[i].c_str() << "' into double.");
-      }
-
-        //      p[i] = atof(results[i].c_str());
+    if (!clitk::fromString<double>(p[i], results[i].c_str())) {
+      clitkExceptionMacro("Error while reading Point3D, could not convert '" 
+                          << results[i].c_str() << "' into double.");
     }
-
-    /*
-    // boost 
-    #include <boost/foreach.hpp>
-    #include <boost/tokenizer.hpp>
-    // parse the string into 3 doubles
-    boost::char_separator<char> sep(", ");
-    boost::tokenizer<boost::char_separator<char> > tokens(s, sep);
-    int i=0;
-    BOOST_FOREACH(std::string t, tokens) {
-    std::cout << t << "." << std::endl;
-    p[i] = atof(t.c_str());
-    i++;
-    }
-    */
   }
 }
 //--------------------------------------------------------------------
@@ -167,4 +150,33 @@ void clitk::AnatomicalFeatureDatabase::SetImageFilename(std::string tag, std::st
 //--------------------------------------------------------------------
 
 
+//--------------------------------------------------------------------
+bool clitk::AnatomicalFeatureDatabase::TagExist(std::string tag)
+{
+  return (m_MapOfTag.find(tag) != m_MapOfTag.end());
+}
+//--------------------------------------------------------------------
 
+//-------------------------------------------------------------------- 
+void clitk::AnatomicalFeatureDatabase::SetDouble(std::string tag, double value)
+{
+  m_MapOfTag[tag] = clitk::toString(value);
+}
+//-------------------------------------------------------------------- 
+
+//-------------------------------------------------------------------- 
+double clitk::AnatomicalFeatureDatabase::GetDouble(std::string tag)
+{
+  if (!TagExist(tag)) {
+    clitkExceptionMacro("Could not find the tag <" << tag << "> of type Double in the DB");
+    return -1;
+  }
+
+  double a;
+  if (!clitk::fromString<double>(a, m_MapOfTag[tag])) {
+    clitkExceptionMacro("Error while reading Double (tag='" << tag << "'), could not convert '" 
+                        << m_MapOfTag[tag] << "' into double.");
+  }
+  return a;  
+}
+//-------------------------------------------------------------------- 

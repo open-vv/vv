@@ -6,6 +6,22 @@
 template <class ImageType>
 void 
 clitk::ExtractLymphStationsFilter<ImageType>::
+ExtractStation_8_SetDefaultValues()
+{
+  SetDistanceMaxToAnteriorPartOfTheSpine(10);
+  MaskImagePointType p;
+  p[0] = 15; p[1] = 2; p[2] = 1;
+  SetEsophagusDiltationForAnt(p);
+  p[0] = 5; p[1] = 10; p[2] = 1;
+  SetEsophagusDiltationForRight(p);
+  SetFuzzyThresholdForS8(0.5);
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+template <class ImageType>
+void 
+clitk::ExtractLymphStationsFilter<ImageType>::
 ExtractStation_8_SI_Limits() 
 {
   /*
@@ -29,18 +45,17 @@ ExtractStation_8_SI_Limits()
 
   // Get Carina Z position
   MaskImagePointer Carina = GetAFDB()->template GetImage<MaskImageType>("Carina");
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after read Carina"); 
+
+  // CHANGE TO -> OriginOfRightMiddleLobeBronchus ???
+
   std::vector<MaskImagePointType> centroids;
   clitk::ComputeCentroids<MaskImageType>(Carina, GetBackgroundValue(), centroids);
-  DD(centroids[1]);
   m_CarinaZ = centroids[1][2];
-  DD(m_CarinaZ);
   // add one slice to include carina ?
   m_CarinaZ += m_Mediastinum->GetSpacing()[2];
-  DD(m_CarinaZ);
   // We dont need Carina structure from now
   Carina->Delete();
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after delete Carina"); 
+  GetAFDB()->SetDouble("CarinaZ", m_CarinaZ);
   
   // Get left lower lobe bronchus (L), take the upper border
   // Get right bronchus intermedius (RML), take the lower border
@@ -55,10 +70,10 @@ ExtractStation_8_SI_Limits()
   MaskImagePointer Lungs = GetAFDB()->template GetImage<MaskImageType>("Lungs");
   // It should be already croped, so I took the origin and add 10mm above 
   m_DiaphragmInferiorLimit = Lungs->GetOrigin()[2]+10;
-  DD(m_DiaphragmInferiorLimit);
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after read Lung");  
-  Lungs->Delete(); // we don't need it, release memory
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after release Lung");  
+  //  Lungs->Delete(); // we don't need it, release memory -> it we want to release, also free in AFDB
+  clitk::PrintMemory(GetVerboseMemoryFlag(), "after reading lungs");
+  GetAFDB()->template ReleaseImage<MaskImageType>("Lungs");
+  clitk::PrintMemory(GetVerboseMemoryFlag(), "after release lungs");
 
   /* Crop support :
      Superior limit = carina
@@ -228,12 +243,10 @@ ExtractStation_8_Ant_Limits()
   // Ant limit from carina (start) to end of S7 = originRMLB
   // Get Trachea
   MaskImagePointer Trachea = GetAFDB()->template GetImage<MaskImageType>("Trachea");
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after read Trachea");
  
   MaskImagePointer m_Working_Trachea = 
     clitk::CropImageAbove<MaskImageType>(Trachea, 2, m_CarinaZ, true, // AutoCrop
                                          GetBackgroundValue());
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after crop");
 
   // Seprate into two main bronchi
   MaskImagePointer LeftBronchus;
@@ -241,7 +254,6 @@ ExtractStation_8_Ant_Limits()
 
   // Labelize and consider the two first (main) labels
   m_Working_Trachea = Labelize<MaskImageType>(m_Working_Trachea, 0, true, 1);
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after labelize");
 
   // Carina position must at the first slice that separate the two
   // main bronchus (not superiorly). We thus first check that the
@@ -297,21 +309,13 @@ ExtractStation_8_Ant_Limits()
   
   MaskImagePointer OriginOfRightMiddleLobeBronchus = 
     GetAFDB()->template GetImage<MaskImageType>("OriginOfRightMiddleLobeBronchus");
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after read OriginOfRightMiddleLobeBronchus"); 
   std::vector<MaskImagePointType> centroids;
   clitk::ComputeCentroids<MaskImageType>(OriginOfRightMiddleLobeBronchus, GetBackgroundValue(), centroids);
-  DD(centroids.size());
-  DD(centroids[0]); // BG
-  DD(centroids[1]);
   m_OriginOfRightMiddleLobeBronchusZ = centroids[1][2];
-  DD(m_OriginOfRightMiddleLobeBronchusZ);
   // add one slice to include carina ?
   m_OriginOfRightMiddleLobeBronchusZ += LeftBronchus->GetSpacing()[2];
-  DD(m_OriginOfRightMiddleLobeBronchusZ);
-  DD(OriginOfRightMiddleLobeBronchus->GetReferenceCount());
   // We dont need Carina structure from now
   OriginOfRightMiddleLobeBronchus->Delete();
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after delete OriginOfRightMiddleLobeBronchus"); 
 
   LeftBronchus = 
     clitk::CropImageBelow<MaskImageType>(LeftBronchus, 2, 
@@ -359,8 +363,6 @@ ExtractStation_8_Ant_Limits()
                                                                     GetBackgroundValue(), 1, 10); 
   writeImage<MaskImageType>(m_Working_Support, "after.mhd");
 
-HERE
-
   // Keep main 3D CCL :
   m_Working_Support = Labelize<MaskImageType>(m_Working_Support, 0, false, 10);
   m_Working_Support = KeepLabels<MaskImageType>(m_Working_Support, 
@@ -384,7 +386,7 @@ ExtractStation_8_LR_Limits()
 {
 
   //--------------------------------------------------------------------
-  StartNewStep("[Station8] Left and Right limits arround esophagus (below Carina)");
+  StartNewStep("[Station8] Ant part (not post to Esophagus)");
   /*
     Consider Esophagus, dilate it and remove ant part. It remains part
     on L & R, than can be partly removed by cutting what remains at
@@ -394,6 +396,24 @@ ExtractStation_8_LR_Limits()
   // Get Esophagus
   MaskImagePointer Esophagus = GetAFDB()->template GetImage<MaskImageType>("Esophagus");
   clitk::PrintMemory(GetVerboseMemoryFlag(), "after read Esophagus");
+
+  // In images from the original article, Atlas – UM, the oesophagus
+  //was included in nodal stations 3p and 8.  Having said that, in the
+  //description for station 8, it indicates that “the delineation of
+  //station 8 is limited to the soft tissues surrounding the
+  //oesophagus”.  In the recent article, The IASLC Lung Cancer Staging
+  //Project (J Thorac Oncol 4:5, 568-77), the images drawn by
+  //Dr. Aletta Frasier exclude this structure.  From an oncological
+  //prospective, the oesophagus should be excluded from these nodal
+  //stations.
+  typedef clitk::BooleanOperatorLabelImageFilter<MaskImageType> BoolFilterType;
+  typename BoolFilterType::Pointer boolFilter = BoolFilterType::New(); 
+  boolFilter->InPlaceOn();
+  boolFilter->SetInput1(m_Working_Support);
+  boolFilter->SetInput2(Esophagus);    
+  boolFilter->SetOperationType(BoolFilterType::AndNot);
+  boolFilter->Update();    
+  m_Working_Support = boolFilter->GetOutput();
 
   // Crop Esophagus : keep only below the OriginOfRightMiddleLobeBronchusZ
   Esophagus = 
@@ -409,10 +429,18 @@ ExtractStation_8_LR_Limits()
                                            radiusInMM, 
                                            GetBackgroundValue(), 
                                            GetForegroundValue(), true);
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after dilate Esophagus");
   writeImage<MaskImageType>(Esophagus, "enlarged-eso.mhd");
 
-  // Remove Anterior part according to this dilatated esophagus
+  // Remove Anterior part according to this dilatated esophagus. Note:
+  // because we crop Esophagus with ORML, the support will also be
+  // croped in the same way. Here it is a desired feature. If we dont
+  // want, use SetIgnoreEmptySliceObject(true)
+
+  // In the new IASCL definition, it is not clear if sup limits is
+  //  around carina or On the right, it is “the lower border of the
+  //  bronchus intermedius”, indicated on the image set as a point
+  //  (“lower border of the bronchus intermedius”)
+
   typedef clitk::SliceBySliceRelativePositionFilter<MaskImageType> RelPosFilterType;
   typename RelPosFilterType::Pointer relPosFilter = RelPosFilterType::New();
   relPosFilter->VerboseStepFlagOff();
@@ -425,63 +453,43 @@ ExtractStation_8_LR_Limits()
   relPosFilter->SetIntermediateSpacing(3);
   relPosFilter->ResampleBeforeRelativePositionFilterOn();
   relPosFilter->SetFuzzyThreshold(GetFuzzyThresholdForS8());
-  relPosFilter->RemoveObjectFlagOff();
+  relPosFilter->RemoveObjectFlagOff(); // Do not exclude here because it is dilated
   relPosFilter->Update();
   m_Working_Support = relPosFilter->GetOutput();
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after SbS Rel pos Post");
 
   // AutoCrop (OR SbS ?)
   m_Working_Support = clitk::AutoCrop<MaskImageType>(m_Working_Support, GetBackgroundValue()); 
 
-  writeImage<MaskImageType>(m_Working_Support, "step1.4.1.mhd");
-
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after autocrop");
+  StopCurrentStep<MaskImageType>(m_Working_Support);
+  //--------------------------------------------------------------------
+  StartNewStep("[Station8] Left and Right limits arround esophagus (below Carina)");
 
   // Estract slices for current support for slice by slice processing
   std::vector<typename MaskSliceType::Pointer> slices;
   clitk::ExtractSlices<MaskImageType>(m_Working_Support, 2, slices);
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after support slices");
   
   // Estract slices of Esophagus (resize like support before to have the same set of slices)
   MaskImagePointer EsophagusForSlice = clitk::ResizeImageLike<MaskImageType>(Esophagus, m_Working_Support, GetBackgroundValue());
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after Eso resize");
   std::vector<typename MaskSliceType::Pointer> eso_slices;
   clitk::ExtractSlices<MaskImageType>(EsophagusForSlice, 2, eso_slices);
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after Eso slices");
 
   // Estract slices of Vertebral (resize like support before to have the same set of slices)
   MaskImagePointer VertebralBody = GetAFDB()->template GetImage<MaskImageType>("VertebralBody");
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after Read VertebralBody");
   VertebralBody = clitk::ResizeImageLike<MaskImageType>(VertebralBody, m_Working_Support, GetBackgroundValue());
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after VertebralBody Resize");
   std::vector<typename MaskSliceType::Pointer> vert_slices;
   clitk::ExtractSlices<MaskImageType>(VertebralBody, 2, vert_slices);
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after VertebralBody slices");
 
   // Estract slices of Aorta (resize like support before to have the same set of slices)
   MaskImagePointer Aorta = GetAFDB()->template GetImage<MaskImageType>("Aorta");
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after Read Aorta");
   Aorta = clitk::ResizeImageLike<MaskImageType>(Aorta, m_Working_Support, GetBackgroundValue());
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after Aorta Resize");
   std::vector<typename MaskSliceType::Pointer> aorta_slices;
   clitk::ExtractSlices<MaskImageType>(Aorta, 2, aorta_slices);
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after Aorta slices");
 
   // Extract slices of Mediastinum (resize like support before to have the same set of slices)
   m_Mediastinum = GetAFDB()->template GetImage<MaskImageType>("Mediastinum");
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after read Mediastinum");
   m_Mediastinum = clitk::ResizeImageLike<MaskImageType>(m_Mediastinum, m_Working_Support, GetBackgroundValue());
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after resize Mediastinum");
   std::vector<typename MaskSliceType::Pointer> mediast_slices;
   clitk::ExtractSlices<MaskImageType>(m_Mediastinum, 2, mediast_slices);
-  clitk::PrintMemory(GetVerboseMemoryFlag(), "after Mediastinum slices");
-
-  writeImage<MaskImageType>(EsophagusForSlice, "slices_eso.mhd");
-  writeImage<MaskImageType>(VertebralBody, "slices_vert.mhd");
-  writeImage<MaskImageType>(Aorta, "slices_aorta.mhd");
-  writeImage<MaskImageType>(m_Mediastinum, "slices_medias.mhd");
-  writeImage<MaskImageType>(m_Working_Support, "slices_support.mhd");
-
 
   // List of points
   std::vector<MaskImagePointType> p_RightMostAnt;
@@ -516,17 +524,6 @@ ExtractStation_8_LR_Limits()
     // Right is at left on screen, coordinate decrease
     // Left is at right on screen, coordinate increase
     
-    // Find right limit of Esophagus and Aorta
-    clitk::FindExtremaPointInAGivenDirection<MaskSliceType>(eso_slices[i], GetBackgroundValue(), 0, true, sp_maxRight_Eso);
-    clitk::FindExtremaPointInAGivenDirection<MaskSliceType>(aorta_slices[i], GetBackgroundValue(), 0, true, sp_maxRight_Aorta);
-    clitk::PointsUtils<MaskImageType>::Convert2DTo3D(sp_maxRight_Eso, EsophagusForSlice, i, p);
-    clitk::PointsUtils<MaskImageType>::Convert2DTo3D(sp_maxRight_Aorta, Aorta, i, pp);
-    pp[0] -= 2; // Add a margin of 2 mm to include the 'wall'
-    p_AllPoints.push_back(p);
-    p_AllPoints.push_back(pp);
-    if (p[0]<pp[0]) p_RightMostAnt.push_back(p); // Insert point most at right
-    else p_RightMostAnt.push_back(pp);
-
     // Find limit of Vertebral -> only at most Post part of current
     // slice support.  First found most ant point in VertebralBody
     typedef MaskSliceType SliceType;
@@ -537,7 +534,6 @@ ExtractStation_8_LR_Limits()
       // the VertebralBody is not delineated enough inferiorly ... in
       // those cases, we consider the first found slice.
       std::cerr << "No foreground pixels in this VertebralBody slices !?? I try with the previous/next slice" << std::endl;
-      DD(i);
       int j=i++;
       bool found = false;
       while (!found) {
@@ -545,7 +541,6 @@ ExtractStation_8_LR_Limits()
         //clitkExceptionMacro("No foreground pixels in this VertebralBody slices ??");
         j++;
       }
-      DD(j);        
     }
     p_slice_ant[1] += GetDistanceMaxToAnteriorPartOfTheSpine(); // Consider offset
     
@@ -584,6 +579,7 @@ ExtractStation_8_LR_Limits()
     else { // in that case, we are probably below the diaphragm, so we
            // add aribtrarly few mm
       sp_maxRight_Vertebra[0] -= 2; // Leave 2 mm around the VertebralBody 
+      clitk::PointsUtils<MaskImageType>::Convert2DTo3D(sp_maxRight_Vertebra, m_Mediastinum, i, p);
     }
     p_RightMostPost.push_back(p);
     p_AllPoints.push_back(p);
@@ -602,9 +598,30 @@ ExtractStation_8_LR_Limits()
     else { // in that case, we are probably below the diaphragm, so we
            // add aribtrarly few mm
       sp_maxLeft_Vertebra[0] += 2; // Leave 2 mm around the VertebralBody 
+      clitk::PointsUtils<MaskImageType>::Convert2DTo3D(sp_maxLeft_Vertebra, m_Mediastinum, i, p);
     }
     p_LeftMostPost.push_back(p);
     p_AllPoints.push_back(p);
+
+    // Find right limit of Esophagus and Aorta
+    clitk::FindExtremaPointInAGivenDirection<MaskSliceType>(eso_slices[i], GetBackgroundValue(), 0, true, sp_maxRight_Eso);
+    bool f = clitk::FindExtremaPointInAGivenDirection<MaskSliceType>(aorta_slices[i], GetBackgroundValue(), 0, true, sp_maxRight_Aorta);
+    clitk::PointsUtils<MaskImageType>::Convert2DTo3D(sp_maxRight_Eso, EsophagusForSlice, i, p);
+    clitk::PointsUtils<MaskImageType>::Convert2DTo3D(sp_maxRight_Aorta, Aorta, i, pp);
+    pp[0] -= 2; // Add a margin of 2 mm to include the Aorta 'wall'
+    p_AllPoints.push_back(p);
+    if (f) {
+      p_AllPoints.push_back(pp);
+      MaskImagePointType A = p_RightMostPost.back();
+      MaskImagePointType B = p;
+      MaskImagePointType C = pp;
+      double s = (B[0] - A[0]) * (C[1] - A[1]) - (B[1] - A[1]) * (C[0] - A[0]);
+      if (s>0) p_RightMostAnt.push_back(p);
+      else p_RightMostAnt.push_back(pp);
+    }
+    else { 
+      p_RightMostAnt.push_back(p); 
+    }
 
     // --------------------------------------------------------------------------
     // Find the limit on the Left: most left point between Eso and
@@ -612,14 +629,23 @@ ExtractStation_8_LR_Limits()
     
     // Find left limit of Esophagus
     clitk::FindExtremaPointInAGivenDirection<MaskSliceType>(eso_slices[i], GetBackgroundValue(), 0, false, sp_maxLeft_Eso);
-    clitk::FindExtremaPointInAGivenDirection<MaskSliceType>(aorta_slices[i], GetBackgroundValue(), 0, false, sp_maxLeft_Aorta);
+    f = clitk::FindExtremaPointInAGivenDirection<MaskSliceType>(aorta_slices[i], GetBackgroundValue(), 0, false, sp_maxLeft_Aorta);
     clitk::PointsUtils<MaskImageType>::Convert2DTo3D(sp_maxLeft_Eso, EsophagusForSlice, i, p);
     clitk::PointsUtils<MaskImageType>::Convert2DTo3D(sp_maxLeft_Aorta, Aorta, i, pp);
     p_AllPoints.push_back(p);
     pp[0] += 2; // Add a margin of 2 mm to include the 'wall'
-    p_AllPoints.push_back(pp);
-    if (p[0]>pp[0]) p_LeftMostAnt.push_back(p); // Insert point most at right
-    else p_LeftMostAnt.push_back(pp);
+    if (f) { // not below Aorta
+      p_AllPoints.push_back(pp);
+      MaskImagePointType A = p_LeftMostPost.back();
+      MaskImagePointType B = p;
+      MaskImagePointType C = pp;
+      double s = (B[0] - A[0]) * (C[1] - A[1]) - (B[1] - A[1]) * (C[0] - A[0]);
+      if (s<0) p_LeftMostAnt.push_back(p); // Insert point most at Left
+      else p_LeftMostAnt.push_back(pp);
+    }
+    else {
+      p_LeftMostAnt.push_back(p);
+    }
   } // End of slice loop
   
   clitk::WriteListOfLandmarks<MaskImageType>(p_AllPoints, "LR-Eso-Vert.txt");
@@ -632,7 +658,8 @@ ExtractStation_8_LR_Limits()
   clitk::SliceBySliceSetBackgroundFromLineSeparation<MaskImageType>(m_Working_Support, 
                                                                     p_LeftMostAnt, p_LeftMostPost,
                                                                     GetBackgroundValue(), 0, -10);
-  // DEBUG
+  // END
+  StopCurrentStep<MaskImageType>(m_Working_Support);
   m_ListOfStations["8"] = m_Working_Support;
   return;
 }

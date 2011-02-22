@@ -96,6 +96,9 @@ namespace clitk {
     itkGetConstMacro(FuzzyThreshold, double);
     itkSetMacro(Station7Filename, std::string);
     itkGetConstMacro(Station7Filename, std::string);
+    
+    bool GetComputeStation(std::string s);
+    void AddComputeStation(std::string station) ;
 
   protected:
     ExtractLymphStationsFilter();
@@ -110,7 +113,10 @@ namespace clitk {
     MaskImagePointer   m_Working_Support;
     std::map<std::string, MaskImagePointer> m_ListOfStations;
     MaskImagePixelType m_BackgroundValue;
-    MaskImagePixelType m_ForegroundValue;    
+    MaskImagePixelType m_ForegroundValue;
+    std::map<std::string, bool> m_ComputeStationMap;
+
+    bool CheckForStation(std::string station);
 
     // Station 8
     double m_DistanceMaxToAnteriorPartOfTheSpine;
@@ -122,11 +128,17 @@ namespace clitk {
     MaskImagePointType m_EsophagusDiltationForRight;
     MaskImagePointer EnlargeEsophagusDilatationRadiusInferiorly(MaskImagePointer & eso);
     void ExtractStation_8();
+    void ExtractStation_8_SetDefaultValues();
     void ExtractStation_8_SI_Limits();
     void ExtractStation_8_Post_Limits();
     void ExtractStation_8_Ant_Limits();
     void ExtractStation_8_LR_Limits();
     void ExtractStation_8_LR_Limits_old();
+    
+    // Station 3P
+    void ExtractStation_3P();
+    void ExtractStation_3P_SetDefaultValues();
+    void ExtractStation_3P_SI_Limits();
  
     // Station 7
     void ExtractStation_7();
@@ -174,6 +186,7 @@ namespace clitk {
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "clitkExtractLymphStationsFilter.txx"
 #include "clitkExtractLymphStation_8.txx"
+#include "clitkExtractLymphStation_3P.txx"
 #include "clitkExtractLymphStation_7.txx"
 #include "clitkExtractLymphStation_4RL.txx"
 #endif

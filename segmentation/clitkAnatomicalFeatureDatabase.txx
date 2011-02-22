@@ -20,7 +20,7 @@
 //--------------------------------------------------------------------
 template<class ImageType>
 typename ImageType::Pointer AnatomicalFeatureDatabase::
-GetImage(std::string tag)
+GetImage(std::string tag, bool reload)
 {
   if (m_MapOfTag.find(tag) == m_MapOfTag.end()) {
     clitkExceptionMacro("Could not find the tag <" << tag << "> of type 'Image' in the DB ('"
@@ -28,7 +28,7 @@ GetImage(std::string tag)
   }
   else {
     typename ImageType::Pointer image;
-    if (m_MapOfImage[tag]) {
+    if ((!reload) && (m_MapOfImage[tag])) {
       image = static_cast<ImageType *>(m_MapOfImage[tag]);
     }
     else {
@@ -37,7 +37,8 @@ GetImage(std::string tag)
       image = readImage<ImageType>(s);
       // I add a reference count because the cache is not a smartpointer
       image->SetReferenceCount(image->GetReferenceCount()+1);
-      // Insert into the cache 
+      // Insert into the cache
+      m_MapOfImage.erase(tag); 
       m_MapOfImage[tag] = &(*image); // pointer
     }
     return image;
@@ -69,22 +70,10 @@ ReleaseImage(std::string tag)
     clitkExceptionMacro("Could not find the tag <" << tag << "> of type Image Filename in the DB");
   }
   else {
-    DD("TODO");
-    exit(0);
-     if (m_MapOfImage[tag]) {
-      DD(m_MapOfImage[tag]->GetReferenceCount());
-      ImageType * image = static_cast<ImageType*>(m_MapOfImage[tag]);
-      image->SetReferenceCount(image->GetReferenceCount()-1);
-      m_MapOfImage.erase(tag);
-      /*
-      DD(image->GetReferenceCount());
-      image->Delete();
-      */
-      //      DD(image->GetReferenceCount());
-    }
-    else {
-      // Do nothing in this case (image not loaded)
-    }
+    typename ImageType::Pointer image = GetImage<ImageType>(tag);
+    DD(image->GetReferenceCount());
+    image->SetReferenceCount(image->GetReferenceCount()-1);
+    m_MapOfImage.erase(tag);
   }
 }
 //--------------------------------------------------------------------
