@@ -114,6 +114,8 @@ void clitk::FilterBase::StopSubStep() {
   int s = m_SubstepNumbers.back();
   m_SubstepNumbers.pop_back();
   SetCurrentStepNumber(s);
-  SetCurrentStepBaseId(m_SubstepID.back());
   m_SubstepID.pop_back();
+  if (m_SubstepID.size() != 0) {
+    SetCurrentStepBaseId(m_SubstepID.back());  }
+  else SetCurrentStepBaseId("");
 }
