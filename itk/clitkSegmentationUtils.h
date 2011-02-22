@@ -74,6 +74,13 @@ namespace clitk {
            typename TImageType::PixelType BG, 
            bool isFullyConnected, 
            int minimalComponentSize);
+  template<class TImageType>
+  typename TImageType::Pointer
+  LabelizeAndCountNumberOfObjects(const TImageType * input, 
+                                  typename TImageType::PixelType BG, 
+                                  bool isFullyConnected, 
+                                  int minimalComponentSize, 
+                                  int & nb);
   //--------------------------------------------------------------------
 
 

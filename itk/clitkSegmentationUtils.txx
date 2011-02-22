@@ -192,11 +192,59 @@ clitk::Labelize(const ImageType * input,
   relabelFilter->SetMinimumObjectSize(minimalComponentSize);
   relabelFilter->Update();
 
+  // DD(relabelFilter->GetNumberOfObjects());
+  // DD(relabelFilter->GetOriginalNumberOfObjects());
+  // DD(relabelFilter->GetSizeOfObjectsInPhysicalUnits()[0]);
+
   // Return result
   typename ImageType::Pointer output = relabelFilter->GetOutput();
   return output;
 }
 //--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+/*
+  Warning : in this cas, we consider outputType like inputType, not
+  InternalImageType. Be sure it fits.
+ */
+template<class ImageType>
+typename ImageType::Pointer
+clitk::LabelizeAndCountNumberOfObjects(const ImageType * input, 
+                                       typename ImageType::PixelType BG, 
+                                       bool isFullyConnected, 
+                                       int minimalComponentSize, 
+                                       int & nb) {
+  // InternalImageType for storing large number of component
+  typedef itk::Image<int, ImageType::ImageDimension> InternalImageType;
+  
+  // Connected Component label 
+  typedef itk::ConnectedComponentImageFilter<ImageType, InternalImageType> ConnectFilterType;
+  typename ConnectFilterType::Pointer connectFilter = ConnectFilterType::New();
+  //  connectFilter->ReleaseDataFlagOn(); 
+  connectFilter->SetInput(input);
+  connectFilter->SetBackgroundValue(BG);
+  connectFilter->SetFullyConnected(isFullyConnected);
+  
+  // Sort by size and remove too small area.
+  typedef itk::RelabelComponentImageFilter<InternalImageType, ImageType> RelabelFilterType;
+  typename RelabelFilterType::Pointer relabelFilter = RelabelFilterType::New();
+  //  relabelFilter->ReleaseDataFlagOn(); // if yes, fail when ExplosionControlledThresholdConnectedImageFilter ???
+  relabelFilter->SetInput(connectFilter->GetOutput());
+  relabelFilter->SetMinimumObjectSize(minimalComponentSize);
+  relabelFilter->Update();
+
+  nb = relabelFilter->GetNumberOfObjects();
+  // DD(relabelFilter->GetNumberOfObjects());
+  // DD(relabelFilter->GetOriginalNumberOfObjects());
+  // DD(relabelFilter->GetSizeOfObjectsInPhysicalUnits()[0]);
+
+  // Return result
+  typename ImageType::Pointer output = relabelFilter->GetOutput();
+  return output;
+}
+//--------------------------------------------------------------------
+
 
 
 //--------------------------------------------------------------------
@@ -699,14 +747,11 @@ clitk::SliceBySliceSetBackgroundFromLineSeparation(typename ImageType::Pointer i
   siter.SetFirstDirection(0);
   siter.SetSecondDirection(1);
   siter.GoToBegin();
-  uint i=0;
+  int i=0;
   typename ImageType::PointType A;
   typename ImageType::PointType B;
   typename ImageType::PointType C;
-  assert(lA.size() == B.size());
-  //  DD(lA.size());
-  //DD(input->GetLargestPossibleRegion().GetSize());
-  while ((i<lA.size()) && (!siter.IsAtEnd())) {
+  while (!siter.IsAtEnd()) {
     // Check that the current slice correspond to the current point
     input->TransformIndexToPhysicalPoint(siter.GetIndex(), C);
     if (C[2] != lA[i][2]) {
