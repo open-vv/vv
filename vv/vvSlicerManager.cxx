@@ -1030,8 +1030,8 @@ void vvSlicerManager::SetPreset(int preset)
     level = 0;
     break;
   case 2:
-    window = 350;
-    level = 60;
+    window = 400;
+    level = 20;
     break;
   case 3:
     window = 1500;
