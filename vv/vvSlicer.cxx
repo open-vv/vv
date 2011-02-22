@@ -704,7 +704,7 @@ void vvSlicer::UpdateDisplayExtent()
   switch (this->SliceOrientation) {
   case vtkImageViewer2::SLICE_ORIENTATION_XY:
     this->ImageActor->SetDisplayExtent(
-      w_ext[0], w_ext[1], w_ext[2], w_ext[3], this->Slice, this->Slice);
+                                       w_ext[0], w_ext[1], w_ext[2], w_ext[3], this->Slice, this->Slice);
     if (mVF && mVFActor->GetVisibility()) {
       int vfExtent[6];
       ComputeVFDisplayedExtent(w_ext[0], w_ext[1], w_ext[2], w_ext[3], this->Slice, this->Slice,vfExtent);
@@ -747,16 +747,21 @@ void vvSlicer::UpdateDisplayExtent()
         mClipBox->SetBounds(bounds);
         UpdateLandmarks();
       }
+      // DD(mLandActor->GetPosition()[2]);
+      // DD(Renderer->GetActiveCamera()->GetPosition()[2]);
+      mLandActor->SetPosition(0,0,-1.5);
+      /*
       if (Renderer->GetActiveCamera()->GetPosition()[2] > this->Slice)
         mLandActor->SetPosition(0,0,1.5);
       else
         mLandActor->SetPosition(0,0,-1.5);
+      */
     }
     break;
 
   case vtkImageViewer2::SLICE_ORIENTATION_XZ:
     this->ImageActor->SetDisplayExtent(
-      w_ext[0], w_ext[1], this->Slice, this->Slice, w_ext[4], w_ext[5]);
+                                       w_ext[0], w_ext[1], this->Slice, this->Slice, w_ext[4], w_ext[5]);
     if (mVF && mVFActor->GetVisibility()) {
       int vfExtent[6];
       ComputeVFDisplayedExtent(w_ext[0], w_ext[1], this->Slice, this->Slice, w_ext[4], w_ext[5],vfExtent);
@@ -799,6 +804,8 @@ void vvSlicer::UpdateDisplayExtent()
         mClipBox->SetBounds(bounds);
         UpdateLandmarks();
       }
+      //      DD(mLandActor->GetPosition()[1]);
+      //DD(Renderer->GetActiveCamera()->GetPosition()[1]);
       if (Renderer->GetActiveCamera()->GetPosition()[1] > this->Slice)
         mLandActor->SetPosition(0,1.5,0);
       else
@@ -808,7 +815,7 @@ void vvSlicer::UpdateDisplayExtent()
 
   case vtkImageViewer2::SLICE_ORIENTATION_YZ:
     this->ImageActor->SetDisplayExtent(
-      this->Slice, this->Slice, w_ext[2], w_ext[3], w_ext[4], w_ext[5]);
+                                       this->Slice, this->Slice, w_ext[2], w_ext[3], w_ext[4], w_ext[5]);
     if (mVF && mVFActor->GetVisibility()) {
       int vfExtent[6];
       ComputeVFDisplayedExtent(this->Slice, this->Slice, w_ext[2], w_ext[3], w_ext[4], w_ext[5],vfExtent);
@@ -851,6 +858,8 @@ void vvSlicer::UpdateDisplayExtent()
         mClipBox->SetBounds(bounds);
         UpdateLandmarks();
       }
+      //      DD(mLandActor->GetPosition()[1]);
+      //      DD(Renderer->GetActiveCamera()->GetPosition()[1]);
       if (Renderer->GetActiveCamera()->GetPosition()[0] > this->Slice)
         mLandActor->SetPosition(1.5,0,0);
       else
@@ -877,7 +886,7 @@ void vvSlicer::UpdateDisplayExtent()
         double avg_spacing =
           ((double)spacing[0] + (double)spacing[1] + (double)spacing[2]) / 3.0;
         cam->SetClippingRange(
-          range - avg_spacing * 3.0, range + avg_spacing * 3.0);
+                              range - avg_spacing * 3.0, range + avg_spacing * 3.0);
       }
     }
   }
@@ -890,17 +899,17 @@ void vvSlicer::ComputeVFDisplayedExtent(int x1,int x2,int y1,int y2,int z1,int z
 {
   vtkImageData* image=this->GetInput();
   vfExtent[0] = (( image->GetOrigin()[0] + x1*image->GetSpacing()[0] ) - mVF->GetOrigin()[0]) /
-                mVF->GetSpacing()[0];
+    mVF->GetSpacing()[0];
   vfExtent[1] = (( image->GetOrigin()[0] + x2*image->GetSpacing()[0] ) - mVF->GetOrigin()[0]) /
-                mVF->GetSpacing()[0];
+    mVF->GetSpacing()[0];
   vfExtent[2] = (( image->GetOrigin()[1] + y1*image->GetSpacing()[1] ) - mVF->GetOrigin()[1]) /
-                mVF->GetSpacing()[1];
+    mVF->GetSpacing()[1];
   vfExtent[3] = (( image->GetOrigin()[1] + y2*image->GetSpacing()[1] ) - mVF->GetOrigin()[1]) /
-                mVF->GetSpacing()[1];
+    mVF->GetSpacing()[1];
   vfExtent[4] = (( image->GetOrigin()[2] + z1*image->GetSpacing()[2] ) - mVF->GetOrigin()[2]) /
-                mVF->GetSpacing()[2];
+    mVF->GetSpacing()[2];
   vfExtent[5] = (( image->GetOrigin()[2] + z2*image->GetSpacing()[2] ) - mVF->GetOrigin()[2]) /
-                mVF->GetSpacing()[2];
+    mVF->GetSpacing()[2];
 
   ClipDisplayedExtent(vfExtent,mVOIFilter->GetInput()->GetWholeExtent());
 }
@@ -912,17 +921,17 @@ void vvSlicer::ComputeOverlayDisplayedExtent(int x1,int x2,int y1,int y2,int z1,
 {
   vtkImageData* image=this->GetInput();
   overExtent[0] = (( image->GetOrigin()[0] + x1*image->GetSpacing()[0] ) - mOverlay->GetOrigin()[0]) /
-                  mOverlay->GetSpacing()[0];
+    mOverlay->GetSpacing()[0];
   overExtent[1] = (( image->GetOrigin()[0] + x2*image->GetSpacing()[0] ) - mOverlay->GetOrigin()[0]) /
-                  mOverlay->GetSpacing()[0];
+    mOverlay->GetSpacing()[0];
   overExtent[2] = (( image->GetOrigin()[1] + y1*image->GetSpacing()[1] ) - mOverlay->GetOrigin()[1]) /
-                  mOverlay->GetSpacing()[1];
+    mOverlay->GetSpacing()[1];
   overExtent[3] = (( image->GetOrigin()[1] + y2*image->GetSpacing()[1] ) - mOverlay->GetOrigin()[1]) /
-                  mOverlay->GetSpacing()[1];
+    mOverlay->GetSpacing()[1];
   overExtent[4] = (( image->GetOrigin()[2] + z1*image->GetSpacing()[2] ) - mOverlay->GetOrigin()[2]) /
-                  mOverlay->GetSpacing()[2];
+    mOverlay->GetSpacing()[2];
   overExtent[5] = (( image->GetOrigin()[2] + z2*image->GetSpacing()[2] ) - mOverlay->GetOrigin()[2]) /
-                  mOverlay->GetSpacing()[2];
+    mOverlay->GetSpacing()[2];
   ClipDisplayedExtent(overExtent, mOverlayMapper->GetInput()->GetWholeExtent());
 }
 //----------------------------------------------------------------------------
@@ -933,17 +942,17 @@ void vvSlicer::ComputeFusionDisplayedExtent(int x1,int x2,int y1,int y2,int z1,i
 {
   vtkImageData* image=this->GetInput();
   fusExtent[0] = (( image->GetOrigin()[0] + x1*image->GetSpacing()[0] ) - mFusion->GetOrigin()[0]) /
-                 mFusion->GetSpacing()[0];
+    mFusion->GetSpacing()[0];
   fusExtent[1] = (( image->GetOrigin()[0] + x2*image->GetSpacing()[0] ) - mFusion->GetOrigin()[0]) /
-                 mFusion->GetSpacing()[0];
+    mFusion->GetSpacing()[0];
   fusExtent[2] = (( image->GetOrigin()[1] + y1*image->GetSpacing()[1] ) - mFusion->GetOrigin()[1]) /
-                 mFusion->GetSpacing()[1];
+    mFusion->GetSpacing()[1];
   fusExtent[3] = (( image->GetOrigin()[1] + y2*image->GetSpacing()[1] ) - mFusion->GetOrigin()[1]) /
-                 mFusion->GetSpacing()[1];
+    mFusion->GetSpacing()[1];
   fusExtent[4] = (( image->GetOrigin()[2] + z1*image->GetSpacing()[2] ) - mFusion->GetOrigin()[2]) /
-                 mFusion->GetSpacing()[2];
+    mFusion->GetSpacing()[2];
   fusExtent[5] = (( image->GetOrigin()[2] + z2*image->GetSpacing()[2] ) - mFusion->GetOrigin()[2]) /
-                 mFusion->GetSpacing()[2];
+    mFusion->GetSpacing()[2];
   ClipDisplayedExtent(fusExtent, mFusionMapper->GetInput()->GetWholeExtent());
 }
 //----------------------------------------------------------------------------
@@ -1207,8 +1216,6 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max)
 //----------------------------------------------------------------------------
 void vvSlicer::Render()
 {
-  //  DD("vvSlicer::Render");
-  // DD(SliceOrientation);
   if (this->GetWindowLevel()->GetLookupTable() && !this->mOverlay && !this->mFusion) {
     legend->SetLookupTable(this->GetWindowLevel()->GetLookupTable());
     legend->SetVisibility(1);
@@ -1267,16 +1274,16 @@ void vvSlicer::Render()
       pixel3 << (int)Z;
       temps << mCurrentTSlice;
       double value = this->GetInput()->GetScalarComponentAsDouble(lrint(X),
-                     lrint(Y),
-                     lrint(Z),0);
+                                                                  lrint(Y),
+                                                                  lrint(Z),0);
 
       std::stringstream val;
       val << value;
       worldPos += "data value : " + val.str();
       worldPos += "\n mm : " + world1.str() + " " + world2.str() + " " +
-                  world3.str() + " " + temps.str();
+        world3.str() + " " + temps.str();
       worldPos += "\n pixel : " + pixel1.str() + " " + pixel2.str() + " " +
-                  pixel3.str() + " " + temps.str();
+        pixel3.str() + " " + temps.str();
     }
     ca->SetText(1,worldPos.c_str());
   }
@@ -1345,8 +1352,6 @@ void vvSlicer::SetSlice(int slice)
   SetContourSlice();
   this->Modified();
   this->UpdateDisplayExtent();
-
-  //  DD("SetSlice de slicer = Render");
 
   // Seems to work without this line
   //  this->Render();
