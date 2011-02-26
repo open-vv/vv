@@ -33,12 +33,14 @@
 #include <itkConstantPadImageFilter.h>
 #include <itkImageSliceIteratorWithIndex.h>
 
+namespace clitk {
+
 //--------------------------------------------------------------------
 template<class ImageType>
-void clitk::ComputeBBFromImageRegion(typename ImageType::Pointer image, 
-                                     typename ImageType::RegionType region,
-                                     typename itk::BoundingBox<unsigned long, 
-                                                               ImageType::ImageDimension>::Pointer bb) {
+void ComputeBBFromImageRegion(typename ImageType::Pointer image, 
+                              typename ImageType::RegionType region,
+                              typename itk::BoundingBox<unsigned long, 
+                              ImageType::ImageDimension>::Pointer bb) {
   typedef typename ImageType::IndexType IndexType;
   IndexType firstIndex;
   IndexType lastIndex;
@@ -63,9 +65,9 @@ void clitk::ComputeBBFromImageRegion(typename ImageType::Pointer image,
 
 //--------------------------------------------------------------------
 template<int Dimension>
-void clitk::ComputeBBIntersection(typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbo, 
-                                  typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbi1, 
-                                  typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbi2) {
+void ComputeBBIntersection(typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbo, 
+                           typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbi1, 
+                           typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbi2) {
 
   typedef itk::BoundingBox<unsigned long, Dimension> BBType;
   typedef typename BBType::PointType PointType;
@@ -87,10 +89,10 @@ void clitk::ComputeBBIntersection(typename itk::BoundingBox<unsigned long, Dimen
 
 //--------------------------------------------------------------------
 template<class ImageType>
-void clitk::ComputeRegionFromBB(typename ImageType::Pointer image, 
-                                const typename itk::BoundingBox<unsigned long, 
-                                ImageType::ImageDimension>::Pointer bb, 
-                                typename ImageType::RegionType & region) {
+void ComputeRegionFromBB(typename ImageType::Pointer image, 
+                         const typename itk::BoundingBox<unsigned long, 
+                         ImageType::ImageDimension>::Pointer bb, 
+                         typename ImageType::RegionType & region) {
   // Types
   typedef typename ImageType::IndexType  IndexType;
   typedef typename ImageType::PointType  PointType;
@@ -123,12 +125,12 @@ void clitk::ComputeRegionFromBB(typename ImageType::Pointer image,
 //--------------------------------------------------------------------
 template<class ImageType, class TMaskImageType>
 typename ImageType::Pointer
-clitk::SetBackground(const ImageType * input, 
-                     const TMaskImageType * mask, 
-                     typename TMaskImageType::PixelType maskBG,
-                     typename ImageType::PixelType outValue, 
-                     bool inPlace) {
-  typedef clitk::SetBackgroundImageFilter<ImageType, TMaskImageType, ImageType> 
+SetBackground(const ImageType * input, 
+              const TMaskImageType * mask, 
+              typename TMaskImageType::PixelType maskBG,
+              typename ImageType::PixelType outValue, 
+              bool inPlace) {
+  typedef SetBackgroundImageFilter<ImageType, TMaskImageType, ImageType> 
     SetBackgroundImageFilterType;
   typename SetBackgroundImageFilterType::Pointer setBackgroundFilter 
     = SetBackgroundImageFilterType::New();
@@ -146,9 +148,9 @@ clitk::SetBackground(const ImageType * input,
 
 //--------------------------------------------------------------------
 template<class ImageType>
-int clitk::GetNumberOfConnectedComponentLabels(typename ImageType::Pointer input, 
-                                               typename ImageType::PixelType BG, 
-                                               bool isFullyConnected) {
+int GetNumberOfConnectedComponentLabels(typename ImageType::Pointer input, 
+                                        typename ImageType::PixelType BG, 
+                                        bool isFullyConnected) {
   // Connected Component label 
   typedef itk::ConnectedComponentImageFilter<ImageType, ImageType> ConnectFilterType;
   typename ConnectFilterType::Pointer connectFilter = ConnectFilterType::New();
@@ -169,10 +171,10 @@ int clitk::GetNumberOfConnectedComponentLabels(typename ImageType::Pointer input
  */
 template<class ImageType>
 typename ImageType::Pointer
-clitk::Labelize(const ImageType * input, 
-                typename ImageType::PixelType BG, 
-                bool isFullyConnected, 
-                int minimalComponentSize) {
+Labelize(const ImageType * input, 
+         typename ImageType::PixelType BG, 
+         bool isFullyConnected, 
+         int minimalComponentSize) {
   // InternalImageType for storing large number of component
   typedef itk::Image<int, ImageType::ImageDimension> InternalImageType;
   
@@ -210,11 +212,11 @@ clitk::Labelize(const ImageType * input,
  */
 template<class ImageType>
 typename ImageType::Pointer
-clitk::LabelizeAndCountNumberOfObjects(const ImageType * input, 
-                                       typename ImageType::PixelType BG, 
-                                       bool isFullyConnected, 
-                                       int minimalComponentSize, 
-                                       int & nb) {
+LabelizeAndCountNumberOfObjects(const ImageType * input, 
+                                typename ImageType::PixelType BG, 
+                                bool isFullyConnected, 
+                                int minimalComponentSize, 
+                                int & nb) {
   // InternalImageType for storing large number of component
   typedef itk::Image<int, ImageType::ImageDimension> InternalImageType;
   
@@ -250,12 +252,12 @@ clitk::LabelizeAndCountNumberOfObjects(const ImageType * input,
 //--------------------------------------------------------------------
 template<class ImageType>
 typename ImageType::Pointer
-clitk::RemoveLabels(typename ImageType::Pointer input, 
-                    typename ImageType::PixelType BG,
-                    std::vector<typename ImageType::PixelType> & labelsToRemove) {
+RemoveLabels(typename ImageType::Pointer input, 
+             typename ImageType::PixelType BG,
+             std::vector<typename ImageType::PixelType> & labelsToRemove) {
   typename ImageType::Pointer working_image = input;
   for (unsigned int i=0; i <labelsToRemove.size(); i++) {
-    typedef clitk::SetBackgroundImageFilter<ImageType, ImageType> SetBackgroundImageFilterType;
+    typedef SetBackgroundImageFilter<ImageType, ImageType> SetBackgroundImageFilterType;
     typename SetBackgroundImageFilterType::Pointer setBackgroundFilter = SetBackgroundImageFilterType::New();
     setBackgroundFilter->SetInput(input);
     setBackgroundFilter->SetInput2(input);
@@ -272,12 +274,12 @@ clitk::RemoveLabels(typename ImageType::Pointer input,
 //--------------------------------------------------------------------
 template<class ImageType>
 typename ImageType::Pointer
-clitk::KeepLabels(const ImageType * input, 
-                  typename ImageType::PixelType BG, 
-                  typename ImageType::PixelType FG, 
-                  typename ImageType::PixelType firstKeep, 
-                  typename ImageType::PixelType lastKeep, 
-                  bool useLastKeep) {
+KeepLabels(const ImageType * input, 
+           typename ImageType::PixelType BG, 
+           typename ImageType::PixelType FG, 
+           typename ImageType::PixelType firstKeep, 
+           typename ImageType::PixelType lastKeep, 
+           bool useLastKeep) {
   typedef itk::BinaryThresholdImageFilter<ImageType, ImageType> BinarizeFilterType; 
   typename BinarizeFilterType::Pointer binarizeFilter = BinarizeFilterType::New();
   binarizeFilter->SetInput(input);
@@ -294,12 +296,12 @@ clitk::KeepLabels(const ImageType * input,
 //--------------------------------------------------------------------
 template<class ImageType>
 typename ImageType::Pointer
-clitk::LabelizeAndSelectLabels(typename ImageType::Pointer input,
-                               typename ImageType::PixelType BG, 
-                               typename ImageType::PixelType FG, 
-                               bool isFullyConnected,
-                               int minimalComponentSize,
-                               LabelizeParameters<typename ImageType::PixelType> * param)
+LabelizeAndSelectLabels(typename ImageType::Pointer input,
+                        typename ImageType::PixelType BG, 
+                        typename ImageType::PixelType FG, 
+                        bool isFullyConnected,
+                        int minimalComponentSize,
+                        LabelizeParameters<typename ImageType::PixelType> * param)
 {
   typename ImageType::Pointer working_image;
   working_image = Labelize<ImageType>(input, BG, isFullyConnected, minimalComponentSize);
@@ -317,11 +319,11 @@ clitk::LabelizeAndSelectLabels(typename ImageType::Pointer input,
 //--------------------------------------------------------------------
 template<class ImageType>
 typename ImageType::Pointer
-clitk::ResizeImageLike(typename ImageType::Pointer input,
-                       typename ImageType::Pointer like, 
-                       typename ImageType::PixelType backgroundValue) 
+ResizeImageLike(typename ImageType::Pointer input,
+                typename ImageType::Pointer like, 
+                typename ImageType::PixelType backgroundValue) 
 {
-  typedef clitk::CropLikeImageFilter<ImageType> CropFilterType;
+  typedef CropLikeImageFilter<ImageType> CropFilterType;
   typename CropFilterType::Pointer cropFilter = CropFilterType::New();
   cropFilter->SetInput(input);
   cropFilter->SetCropLikeImage(like);
@@ -335,16 +337,16 @@ clitk::ResizeImageLike(typename ImageType::Pointer input,
 //--------------------------------------------------------------------
 template<class MaskImageType>
 typename MaskImageType::Pointer
-clitk::SliceBySliceRelativePosition(const MaskImageType * input,
-				    const MaskImageType * object,
-				    int direction, 
-				    double threshold, 
-				    std::string orientation, 
-                                    bool uniqueConnectedComponent, 
-                                    double spacing, 
-				    bool inverseflag) 
+SliceBySliceRelativePosition(const MaskImageType * input,
+                             const MaskImageType * object,
+                             int direction, 
+                             double threshold, 
+                             std::string orientation, 
+                             bool uniqueConnectedComponent, 
+                             double spacing, 
+                             bool inverseflag) 
 {
-  typedef clitk::SliceBySliceRelativePositionFilter<MaskImageType> SliceRelPosFilterType;
+  typedef SliceBySliceRelativePositionFilter<MaskImageType> SliceRelPosFilterType;
   typename SliceRelPosFilterType::Pointer sliceRelPosFilter = SliceRelPosFilterType::New();
   sliceRelPosFilter->VerboseStepFlagOff();
   sliceRelPosFilter->WriteStepFlagOff();
@@ -366,26 +368,26 @@ clitk::SliceBySliceRelativePosition(const MaskImageType * input,
 //--------------------------------------------------------------------
 template<class ImageType>
 bool
-clitk::FindExtremaPointInAGivenDirection(const ImageType * input, 
-                                         typename ImageType::PixelType bg, 
-                                         int direction, bool opposite, 
-                                         typename ImageType::PointType & point)
+FindExtremaPointInAGivenDirection(const ImageType * input, 
+                                  typename ImageType::PixelType bg, 
+                                  int direction, bool opposite, 
+                                  typename ImageType::PointType & point)
 {
   typename ImageType::PointType dummy;
-  return clitk::FindExtremaPointInAGivenDirection(input, bg, direction, 
-                                                  opposite, dummy, 0, point);
+  return FindExtremaPointInAGivenDirection(input, bg, direction, 
+                                           opposite, dummy, 0, point);
 }
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
 template<class ImageType>
 bool
-clitk::FindExtremaPointInAGivenDirection(const ImageType * input, 
-                                         typename ImageType::PixelType bg, 
-                                         int direction, bool opposite, 
-                                         typename ImageType::PointType refpoint,
-                                         double distanceMax, 
-                                         typename ImageType::PointType & point)
+FindExtremaPointInAGivenDirection(const ImageType * input, 
+                                  typename ImageType::PixelType bg, 
+                                  int direction, bool opposite, 
+                                  typename ImageType::PointType refpoint,
+                                  double distanceMax, 
+                                  typename ImageType::PointType & point)
 {
   /*
     loop over input pixels, store the index in the fg that is max
@@ -422,15 +424,15 @@ clitk::FindExtremaPointInAGivenDirection(const ImageType * input,
 //--------------------------------------------------------------------
 template<class ImageType>
 typename ImageType::Pointer
-clitk::CropImageAbove(typename ImageType::Pointer image, 
-                      int dim, double min, 
-                      bool autoCrop,
-                      typename ImageType::PixelType BG) 
+CropImageAbove(typename ImageType::Pointer image, 
+               int dim, double min, 
+               bool autoCrop,
+               typename ImageType::PixelType BG) 
 {
-  return clitk::CropImageAlongOneAxis<ImageType>(image, dim, 
-                                                 image->GetOrigin()[dim], 
-                                                 min,
-                                                 autoCrop, BG);
+  return CropImageAlongOneAxis<ImageType>(image, dim, 
+                                          image->GetOrigin()[dim], 
+                                          min,
+                                          autoCrop, BG);
 }
 //--------------------------------------------------------------------
 
@@ -438,15 +440,15 @@ clitk::CropImageAbove(typename ImageType::Pointer image,
 //--------------------------------------------------------------------
 template<class ImageType>
 typename ImageType::Pointer
-clitk::CropImageBelow(typename ImageType::Pointer image, 
-                      int dim, double max, 
-                      bool autoCrop,
-                      typename ImageType::PixelType BG) 
+CropImageBelow(typename ImageType::Pointer image, 
+               int dim, double max, 
+               bool autoCrop,
+               typename ImageType::PixelType BG) 
 {
   typename ImageType::PointType p;
   image->TransformIndexToPhysicalPoint(image->GetLargestPossibleRegion().GetIndex()+
                                        image->GetLargestPossibleRegion().GetSize(), p);
-  return clitk::CropImageAlongOneAxis<ImageType>(image, dim, max, p[dim], autoCrop, BG);
+  return CropImageAlongOneAxis<ImageType>(image, dim, max, p[dim], autoCrop, BG);
 }
 //--------------------------------------------------------------------
 
@@ -454,10 +456,10 @@ clitk::CropImageBelow(typename ImageType::Pointer image,
 //--------------------------------------------------------------------
 template<class ImageType>
 typename ImageType::Pointer
-clitk::CropImageAlongOneAxis(typename ImageType::Pointer image, 
-                             int dim, double min, double max, 
-                             bool autoCrop,
-                             typename ImageType::PixelType BG) 
+CropImageAlongOneAxis(typename ImageType::Pointer image, 
+                      int dim, double min, double max, 
+                      bool autoCrop,
+                      typename ImageType::PixelType BG) 
 {
   // Compute region size
   typename ImageType::RegionType region;
@@ -483,7 +485,7 @@ clitk::CropImageAlongOneAxis(typename ImageType::Pointer image,
   
   // Auto Crop
   if (autoCrop) {
-    result = clitk::AutoCrop<ImageType>(result, BG);
+    result = AutoCrop<ImageType>(result, BG);
   }
   return result;
 }
@@ -493,7 +495,7 @@ clitk::CropImageAlongOneAxis(typename ImageType::Pointer image,
 //--------------------------------------------------------------------
 template<class ImageType>
 void
-clitk::ComputeCentroids(typename ImageType::Pointer image, 
+ComputeCentroids(typename ImageType::Pointer image, 
                         typename ImageType::PixelType BG, 
                         std::vector<typename ImageType::PointType> & centroids) 
 {
@@ -524,12 +526,12 @@ clitk::ComputeCentroids(typename ImageType::Pointer image,
 //--------------------------------------------------------------------
 template<class ImageType>
 void
-clitk::ExtractSlices(typename ImageType::Pointer image, 
-		     int direction, 
-		     std::vector<typename itk::Image<typename ImageType::PixelType, 
-		     ImageType::ImageDimension-1>::Pointer > & slices) 
+ExtractSlices(typename ImageType::Pointer image, 
+              int direction, 
+              std::vector<typename itk::Image<typename ImageType::PixelType, 
+              ImageType::ImageDimension-1>::Pointer > & slices) 
 {
-  typedef clitk::ExtractSliceFilter<ImageType> ExtractSliceFilterType;
+  typedef ExtractSliceFilter<ImageType> ExtractSliceFilterType;
   typedef typename ExtractSliceFilterType::SliceType SliceType;
   typename ExtractSliceFilterType::Pointer 
     extractSliceFilter = ExtractSliceFilterType::New();
@@ -544,10 +546,10 @@ clitk::ExtractSlices(typename ImageType::Pointer image,
 //--------------------------------------------------------------------
 template<class ImageType>
 typename ImageType::Pointer
-clitk::JoinSlices(std::vector<typename itk::Image<typename ImageType::PixelType, 
-		  ImageType::ImageDimension-1>::Pointer > & slices, 
-		  typename ImageType::Pointer input, 
-		  int direction) {
+JoinSlices(std::vector<typename itk::Image<typename ImageType::PixelType, 
+           ImageType::ImageDimension-1>::Pointer > & slices, 
+           typename ImageType::Pointer input, 
+           int direction) {
   typedef typename itk::Image<typename ImageType::PixelType, ImageType::ImageDimension-1> SliceType;
   typedef itk::JoinSeriesImageFilter<SliceType, ImageType> JoinSeriesFilterType;
   typename JoinSeriesFilterType::Pointer joinFilter = JoinSeriesFilterType::New();
@@ -565,10 +567,10 @@ clitk::JoinSlices(std::vector<typename itk::Image<typename ImageType::PixelType,
 //--------------------------------------------------------------------
 template<class ImageType>
 void
-clitk::PointsUtils<ImageType>::Convert2DTo3D(const PointType2D & p, 
-                                             ImagePointer image, 
-                                             const int slice, 
-                                             PointType3D & p3D)  
+PointsUtils<ImageType>::Convert2DTo3D(const PointType2D & p, 
+                                      ImagePointer image, 
+                                      const int slice, 
+                                      PointType3D & p3D)  
 {
   p3D[0] = p[0]; 
   p3D[1] = p[1];
@@ -581,9 +583,9 @@ clitk::PointsUtils<ImageType>::Convert2DTo3D(const PointType2D & p,
 //--------------------------------------------------------------------
 template<class ImageType>
 void 
-clitk::PointsUtils<ImageType>::Convert2DTo3DList(const MapPoint2DType & map, 
-                                                 ImagePointer image, 
-                                                 VectorPoint3DType & list)
+PointsUtils<ImageType>::Convert2DTo3DList(const MapPoint2DType & map, 
+                                          ImagePointer image, 
+                                          VectorPoint3DType & list)
 {
   typename MapPoint2DType::const_iterator iter = map.begin();
   while (iter != map.end()) {
@@ -598,8 +600,8 @@ clitk::PointsUtils<ImageType>::Convert2DTo3DList(const MapPoint2DType & map,
 //--------------------------------------------------------------------
 template<class ImageType>
 void 
-clitk::WriteListOfLandmarks(std::vector<typename ImageType::PointType> points, 
-                            std::string filename)
+WriteListOfLandmarks(std::vector<typename ImageType::PointType> points, 
+                     std::string filename)
 {
   std::ofstream os; 
   openFileForWriting(os, filename); 
@@ -617,16 +619,16 @@ clitk::WriteListOfLandmarks(std::vector<typename ImageType::PointType> points,
 //--------------------------------------------------------------------
 template<class ImageType>
 typename ImageType::Pointer 
-clitk::Dilate(typename ImageType::Pointer image, 
-              double radiusInMM,               
-              typename ImageType::PixelType BG,
-              typename ImageType::PixelType FG,  
-              bool extendSupport)
+Dilate(typename ImageType::Pointer image, 
+       double radiusInMM,               
+       typename ImageType::PixelType BG,
+       typename ImageType::PixelType FG,  
+       bool extendSupport)
 {
   typename ImageType::SizeType r;
   for(uint i=0; i<ImageType::ImageDimension; i++) 
     r[i] = (uint)lrint(radiusInMM/image->GetSpacing()[i]);
-  return clitk::Dilate<ImageType>(image, r, BG, FG, extendSupport);
+  return Dilate<ImageType>(image, r, BG, FG, extendSupport);
 }
 //--------------------------------------------------------------------
 
@@ -634,16 +636,16 @@ clitk::Dilate(typename ImageType::Pointer image,
 //--------------------------------------------------------------------
 template<class ImageType>
 typename ImageType::Pointer 
-clitk::Dilate(typename ImageType::Pointer image, 
-              typename ImageType::PointType radiusInMM, 
-              typename ImageType::PixelType BG, 
-              typename ImageType::PixelType FG, 
-              bool extendSupport)
+Dilate(typename ImageType::Pointer image, 
+       typename ImageType::PointType radiusInMM, 
+       typename ImageType::PixelType BG, 
+       typename ImageType::PixelType FG, 
+       bool extendSupport)
 {
   typename ImageType::SizeType r;
   for(uint i=0; i<ImageType::ImageDimension; i++) 
     r[i] = (uint)lrint(radiusInMM[i]/image->GetSpacing()[i]);
-  return clitk::Dilate<ImageType>(image, r, BG, FG, extendSupport);
+  return Dilate<ImageType>(image, r, BG, FG, extendSupport);
 }
 //--------------------------------------------------------------------
 
@@ -651,11 +653,11 @@ clitk::Dilate(typename ImageType::Pointer image,
 //--------------------------------------------------------------------
 template<class ImageType>
 typename ImageType::Pointer 
-clitk::Dilate(typename ImageType::Pointer image, 
-              typename ImageType::SizeType radius, 
-              typename ImageType::PixelType BG, 
-              typename ImageType::PixelType FG, 
-              bool extendSupport)
+Dilate(typename ImageType::Pointer image, 
+       typename ImageType::SizeType radius, 
+       typename ImageType::PixelType BG, 
+       typename ImageType::PixelType FG, 
+       bool extendSupport)
 {
   // Create kernel for dilatation
   typedef itk::BinaryBallStructuringElement<typename ImageType::PixelType, 
@@ -695,9 +697,9 @@ clitk::Dilate(typename ImageType::Pointer image,
 
 //--------------------------------------------------------------------
 template<class ValueType, class VectorType>
-void clitk::ConvertOption(std::string optionName, uint given, 
-                          ValueType * values, VectorType & p, 
-                          uint dim, bool required) 
+void ConvertOption(std::string optionName, uint given, 
+                   ValueType * values, VectorType & p, 
+                   uint dim, bool required) 
 {
   if (required && (given == 0)) {
     clitkExceptionMacro("The option --" << optionName << " must be set and have 1 or " 
@@ -733,12 +735,12 @@ void clitk::ConvertOption(std::string optionName, uint given,
 */
 template<class ImageType>
 void 
-clitk::SliceBySliceSetBackgroundFromLineSeparation(typename ImageType::Pointer input, 
-                                                   std::vector<typename ImageType::PointType> & lA, 
-                                                   std::vector<typename ImageType::PointType> & lB, 
-                                                   typename ImageType::PixelType BG, 
-                                                   int mainDirection, 
-                                                   double offsetToKeep)
+SliceBySliceSetBackgroundFromLineSeparation(typename ImageType::Pointer input, 
+                                            std::vector<typename ImageType::PointType> & lA, 
+                                            std::vector<typename ImageType::PointType> & lB, 
+                                            typename ImageType::PixelType BG, 
+                                            int mainDirection, 
+                                            double offsetToKeep)
 {
   
   typedef itk::ImageSliceIteratorWithIndex<ImageType> SliceIteratorType;
@@ -788,3 +790,4 @@ clitk::SliceBySliceSetBackgroundFromLineSeparation(typename ImageType::Pointer i
   }
 }                                                   
 //--------------------------------------------------------------------
+}
