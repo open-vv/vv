@@ -268,6 +268,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(colorMapComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(UpdateColorMap()));
   connect(presetComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(UpdateWindowLevel()));
   connect(inverseButton,SIGNAL(clicked()),this,SLOT(SwitchWindowLevel()));
+  connect(applyWindowLevelToAllButton,SIGNAL(clicked()),this,SLOT(ApplyWindowLevelToAllImages()));
 
 
   connect(this,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(ShowContextMenu(QPoint)));
@@ -1613,6 +1614,20 @@ void vvMainWindow::SwitchWindowLevel()
   presetComboBox->setCurrentIndex(6);
   windowSpinBox->setValue(-window);
   UpdateWindowLevel();
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::ApplyWindowLevelToAllImages()
+{
+  for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
+    if (mSlicerManagers[i] == NULL)
+      continue;
+    mSlicerManagers[i]->SetColorWindow(windowSpinBox->value());
+    mSlicerManagers[i]->SetColorLevel(levelSpinBox->value());
+    mSlicerManagers[i]->SetPreset(6);
+    mSlicerManagers[i]->Render();
+  }
 }
 //------------------------------------------------------------------------------
 

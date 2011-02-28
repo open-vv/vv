@@ -67,7 +67,7 @@
        <property name="spacing">
         <number>2</number>
        </property>
-       <item row="0" column="16">
+       <item row="0" column="17">
         <spacer>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -325,7 +325,7 @@
          </item>
         </widget>
        </item>
-       <item row="0" column="18">
+       <item row="0" column="19">
         <widget class="QPushButton" name="viewButton">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -351,7 +351,7 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="17">
+       <item row="0" column="18">
         <widget class="Line" name="line_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -375,6 +375,25 @@
         <widget class="QLabel" name="frameRateLabel">
          <property name="text">
           <string>Speed : </string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="16">
+        <widget class="QPushButton" name="applyWindowLevelToAllButton">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>24</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Apply windowing to all images</string>
+         </property>
+         <property name="text">
+          <string>All</string>
          </property>
         </widget>
        </item>

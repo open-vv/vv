@@ -104,6 +104,7 @@ public slots:
   void UpdateColorMap();
   void UpdateWindowLevel();
   void SwitchWindowLevel();
+  void ApplyWindowLevelToAllImages();
   void UpdateLinkManager(std::string id, int slicer, double x, double y, double z, int temps);
   void UpdateLinkedNavigation(std::string id, vvSlicerManager *sm);
   void AddLink(QString image1,QString image2);
