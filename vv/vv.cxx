@@ -60,9 +60,10 @@ int main( int argc, char** argv )
   window.show();
 
   std::vector<std::string> sequence_filenames;
-  enum {P_NORMAL,P_SEQUENCE};
+  enum {P_NORMAL,P_SEQUENCE,P_WINDOW,P_LEVEL};
   int parse_mode=P_NORMAL;
   int n_image_loaded=0;
+  std::string win(""), lev("");
 
   if (argc >1) {
     for (int i = 1; i < argc; i++) {
@@ -77,40 +78,51 @@ int main( int argc, char** argv )
           if (!n_image_loaded) load_image_first_error();
           window.AddField(argv[i+1],n_image_loaded-1);
           i++; //skip vf name
-        } 
-        else if (current=="--overlay") {
-            if (!n_image_loaded) load_image_first_error();
-            window.AddOverlayImage(n_image_loaded-1,argv[i+1]);
-            i++; //skip overlay name
-          } 
-        else if (current=="--roi") {
-            if (!n_image_loaded) load_image_first_error();
-            window.AddROI(n_image_loaded-1,argv[i+1]);
-            i++; //skip roi name
-          }
-        else if (current=="--fusion") {
-            if (!n_image_loaded) load_image_first_error();
-            window.AddFusionImage(n_image_loaded-1,argv[i+1]);
-            i++; //skip fusion name
-          }
-        else if (current == "--sequence") {
+        } else if (current=="--overlay") {
+          if (!n_image_loaded) load_image_first_error();
+          window.AddOverlayImage(n_image_loaded-1,argv[i+1]);
+          i++; //skip overlay name
+        } else if (current=="--roi") {
+          if (!n_image_loaded) load_image_first_error();
+          window.AddROI(n_image_loaded-1,argv[i+1]);
+          i++; //skip roi name
+        } else if (current=="--fusion") {
+          if (!n_image_loaded) load_image_first_error();
+          window.AddFusionImage(n_image_loaded-1,argv[i+1]);
+          i++; //skip fusion name
+        } else if (current == "--sequence") {
           n_image_loaded++; //count only one for the sequence
-          parse_mode=P_SEQUENCE; }
-      }
-      else if (parse_mode == P_SEQUENCE)
+          parse_mode=P_SEQUENCE;
+        } else if (current == "--window") {
+          parse_mode=P_WINDOW;
+        } else if (current == "--level") {
+          parse_mode=P_LEVEL;
+        }
+      } else if (parse_mode == P_SEQUENCE) {
         sequence_filenames.push_back(current);
-      else {
-        std::vector<std::string> image; image.push_back(current);
+      } else if (parse_mode == P_WINDOW) {
+        win=current;
+        parse_mode=P_NORMAL;
+      } else if (parse_mode == P_LEVEL) {
+        lev=current;
+        parse_mode=P_NORMAL;
+      } else {
+        std::vector<std::string> image;
+        image.push_back(current);
         window.LoadImages(image,IMAGE);
         n_image_loaded++;
       }
     }
-    if (parse_mode == P_SEQUENCE) {//Finish any current sequence
+    if (parse_mode == P_SEQUENCE) { //Finish any current sequence
       window.LoadImages(sequence_filenames,MERGEDWITHTIME);
       sequence_filenames.clear();
       parse_mode=P_NORMAL;
     }
+  }
 
+  if(win!="" && lev!="") {
+    window.WindowLevelChanged(atof(win.c_str()), atof(lev.c_str()), 6, 0);
+    window.ApplyWindowLevelToAllImages();
   }
 
   return app.exec();
