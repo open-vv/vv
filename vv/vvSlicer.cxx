@@ -290,28 +290,24 @@ void vvSlicer::SetImage(vvImage::Pointer image)
 {
   if (image->GetVTKImages().size()) {
     mImage = image;
-    this->Superclass::SetInput(image->GetVTKImages()[0]);
+    this->Superclass::SetInput(image->GetTransformedVTKImages()[0]);
 
-    // Prevent crash when reload -> change slice if outside extent
     int extent[6];
     this->GetInput()->GetWholeExtent(extent);
-    if (SliceOrientation == 0) {
-      if (Slice >= extent[1]) {
-        Slice = (extent[1]-extent[0])/2.0;
-      }
-    }
-    if (SliceOrientation == 1) {
-      if (Slice >= extent[3]) {
-        Slice = (extent[3]-extent[2])/2.0;
-      }
-    }
-    if (SliceOrientation == 2) {
-      if (Slice >= extent[5]) {
-        Slice = (extent[5]-extent[4])/2.0;
-      }
+
+    // Prevent crash when reload -> change slice if outside extent
+    if (Slice < extent[SliceOrientation*2] || Slice>=extent[SliceOrientation*2+1]) {
+      Slice = (extent[SliceOrientation*2+1]-extent[SliceOrientation*2])/2.0;
     }
 
+    // Make sure that the required part image has been computed
+    extent[SliceOrientation*2] = Slice;
+    extent[SliceOrientation*2+1] = Slice;
+    image->GetTransformedVTKImages()[0]->SetUpdateExtent(extent);
+    image->GetTransformedVTKImages()[0]->Update();
+
     this->UpdateDisplayExtent();
+
     mCurrentTSlice = 0;
     ca->SetText(0,mFileName.c_str());
   }
@@ -327,7 +323,7 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
 
     if (!mOverlayMapper)
       mOverlayMapper = vtkSmartPointer<vtkImageMapToWindowLevelColors>::New();
-    mOverlayMapper->SetInput(overlay->GetVTKImages()[0]);
+    mOverlayMapper->SetInput(overlay->GetTransformedVTKImages()[0]);
 
     if (!mOverlayActor) {
       mOverlayActor = vtkSmartPointer<vvBlendImageActor>::New();
@@ -361,7 +357,7 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion)
 
     if (!mFusionMapper)
       mFusionMapper = vtkSmartPointer<vtkImageMapToWindowLevelColors>::New();
-    mFusionMapper->SetInput(fusion->GetVTKImages()[0]);
+    mFusionMapper->SetInput(fusion->GetTransformedVTKImages()[0]);
 
     if (!mFusionActor) {
       mFusionActor = vtkSmartPointer<vtkImageActor>::New();
@@ -410,7 +406,7 @@ void vvSlicer::SetVF(vvImage::Pointer vf)
       mVOIFilter = vtkSmartPointer<vtkExtractVOI>::New();
       mVOIFilter->SetSampleRate(mSubSampling,mSubSampling,mSubSampling);
     }
-    mVOIFilter->SetInput(vf->GetVTKImages()[0]);
+    mVOIFilter->SetInput(vf->GetTransformedVTKImages()[0]);
     mAAFilter->SetInput(mVOIFilter->GetOutput());
     ///This tells VTK to use the scalar (pixel) data of the image to draw the little arrows
     mAAFilter->Assign(vtkDataSetAttributes::SCALARS, vtkDataSetAttributes::VECTORS, vtkAssignAttribute::POINT_DATA);
@@ -596,18 +592,18 @@ void vvSlicer::SetTSlice(int t)
   if (mCurrentTSlice == t) return;
 
   mCurrentTSlice = t;
-  this->SetInput(mImage->GetVTKImages()[t]);
+  this->SetInput(mImage->GetTransformedVTKImages()[t]);
   if (mVF && mVFActor->GetVisibility()) {
     if (mVF->GetVTKImages().size() > (unsigned int)mCurrentTSlice)
-      mVOIFilter->SetInput(mVF->GetVTKImages()[mCurrentTSlice]);
+      mVOIFilter->SetInput(mVF->GetTransformedVTKImages()[mCurrentTSlice]);
   }
   if (mOverlay && mOverlayActor->GetVisibility()) {
-    if (mOverlay->GetVTKImages().size() > (unsigned int)mCurrentTSlice)
-      mOverlayMapper->SetInput(mOverlay->GetVTKImages()[mCurrentTSlice]);
+    if (mOverlay->GetTransformedVTKImages().size() > (unsigned int)mCurrentTSlice)
+      mOverlayMapper->SetInput(mOverlay->GetTransformedVTKImages()[mCurrentTSlice]);
   }
   if (mFusion && mFusionActor->GetVisibility()) {
     if (mFusion->GetVTKImages().size() > (unsigned int)mCurrentTSlice)
-      mFusionMapper->SetInput(mFusion->GetVTKImages()[mCurrentTSlice]);
+      mFusionMapper->SetInput(mFusion->GetTransformedVTKImages()[mCurrentTSlice]);
   }
   if (mSurfaceCutActors.size() > 0)
     for (std::vector<vvMeshActor*>::iterator i=mSurfaceCutActors.begin();
@@ -1265,17 +1261,20 @@ void vvSlicer::Render()
         Y <= this->GetInput()->GetWholeExtent()[3] &&
         Z >= this->GetInput()->GetWholeExtent()[4] &&
         Z <= this->GetInput()->GetWholeExtent()[5]) {
+      int ix = lrint(X);
+      int iy = lrint(Y);
+      int iz = lrint(Z);
       std::stringstream pixel1;
       std::stringstream pixel2;
       std::stringstream pixel3;
       std::stringstream temps;
-      pixel1 << (int)X;
-      pixel2 << (int)Y;
-      pixel3 << (int)Z;
+      pixel1 << ix;
+      pixel2 << iy;
+      pixel3 << iz;
       temps << mCurrentTSlice;
-      double value = this->GetInput()->GetScalarComponentAsDouble(lrint(X),
-                                                                  lrint(Y),
-                                                                  lrint(Z),0);
+      this->GetInput()->SetUpdateExtent(ix, ix, iy, iy, iz, iz);
+      this->GetInput()->Update();
+      double value = this->GetInput()->GetScalarComponentAsDouble(ix, iy, iz, 0);
 
       std::stringstream val;
       val << value;
@@ -1290,6 +1289,8 @@ void vvSlicer::Render()
   if (mOverlay && mOverlayActor->GetVisibility()) {
     mOverlayMapper->SetWindow(this->GetColorWindow());
     mOverlayMapper->SetLevel(this->GetColorLevel());
+    mOverlayMapper->GetOutput()->SetUpdateExtent(mOverlayActor->GetDisplayExtent());
+    mOverlayMapper->GetOutput()->Update();
     mOverlayMapper->Update();
   }
   if (mLandMapper)
