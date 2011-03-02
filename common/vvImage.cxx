@@ -32,8 +32,6 @@
 // std
 #include <cassert>
 
-#define NO_RESLICE 1
-
 //--------------------------------------------------------------------
 vvImage::vvImage():mTransform(vtkSmartPointer<vtkTransform>::New())
 {
@@ -63,6 +61,7 @@ vvImage::~vvImage()
 void vvImage::Reset()
 {
   mVtkImages.resize(0);
+  mTransformedVtkImages.resize(0);
   mVtkImageReslice.resize(0);
 
   Init();
@@ -73,11 +72,6 @@ void vvImage::Reset()
 int vvImage::GetNumberOfSpatialDimensions()
 {
   return mImageDimension;
-  // int dim=GetNumberOfDimensions();
-  //   if (IsTimeSequence())
-  //     return dim+1;
-  //   else
-  //     return dim;
 }
 //--------------------------------------------------------------------
 
@@ -89,14 +83,6 @@ int vvImage::GetNumberOfDimensions() const
       return mImageDimension+1;
     else
       return mImageDimension;
-    //   int dimension = 3;
-    //   int extent[6];
-    //   mVtkImages[0]->GetWholeExtent(extent);
-    //   if (extent[5] - extent[4] >= 1)
-    //     dimension++;
-    //   // if (mVtkImages.size() > 1)
-    //   //   dimension++;
-    //   return dimension;
   }
   return 0;
 }
@@ -210,6 +196,13 @@ bool vvImage::IsTimeSequence() const
 const std::vector<vtkImageData*>& vvImage::GetVTKImages()
 {
   return mVtkImages;
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+const std::vector<vtkImageData*>& vvImage::GetTransformedVTKImages()
+{
+  return mTransformedVtkImages;
 }
 //--------------------------------------------------------------------
 

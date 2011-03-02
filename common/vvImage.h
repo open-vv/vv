@@ -42,6 +42,7 @@ public :
   void Reset();
   template<class TItkImageType> void AddItkImage(TItkImageType *input);
   const std::vector<vtkImageData*>& GetVTKImages();
+  const std::vector<vtkImageData*>& GetTransformedVTKImages();
   vtkImageData* GetFirstVTKImageData();
   int GetNumberOfDimensions() const;
   int GetNumberOfSpatialDimensions();
@@ -67,8 +68,11 @@ private:
 
   std::vector< ConverterPointer > mItkToVtkConverters;
   std::vector<vtkImageData*> mVtkImages;
+
   std::vector< vtkSmartPointer<vtkImageReslice> > mVtkImageReslice;
   vtkSmartPointer<vtkTransform> mTransform;
+  std::vector<vtkImageData*> mTransformedVtkImages;
+
   double mTimeOrigin;
   double mTimeSpacing;
   unsigned int mImageDimension;
