@@ -56,7 +56,6 @@ vvToolRigidReg::vvToolRigidReg(vvMainWindowBase * parent, Qt::WindowFlags f):
 //    qsize.setWidth(850);
 //    mToolWidget->setFixedSize(qsize);
   // Set how many inputs are needed for this tool
-  mFilter = new clitk::AffineRegistrationGenericFilter;
   cb_transform->hide();
   cb_interpolator->hide();
   cb_optimizer->hide();
@@ -72,8 +71,8 @@ vvToolRigidReg::vvToolRigidReg(vvMainWindowBase * parent, Qt::WindowFlags f):
   
   
   // Set how many inputs are needed for this tool
- AddInputSelector("Select moving image",mFilter);
- AddInputSelector("Select fixed image",mFilter);
+  AddInputSelector("Select moving image");
+  AddInputSelector("Select fixed image");
 }
 //------------------------------------------------------------------------------
 
@@ -892,7 +891,9 @@ void vvToolRigidReg::SetTransform(double tX, double tY, double tZ, double aX, do
   }
   //Translations
   if (tX!=0||tY!=0||tZ!=0)
-    transform->Translate(tX*mInput1->GetImage()->GetSpacing()[0],tY*mInput1->GetImage()->GetSpacing()[1],tZ*mInput1->GetImage()->GetSpacing()[2]);
+    transform->Translate(tX*mInput1->GetImage()->GetSpacing()[0],
+                         tY*mInput1->GetImage()->GetSpacing()[1],
+                         tZ*mInput1->GetImage()->GetSpacing()[2]);
 }
 //------------------------------------------------------------------------------
 
