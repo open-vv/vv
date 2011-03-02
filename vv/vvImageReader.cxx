@@ -150,7 +150,6 @@ void vvImageReader::ReadNkiImageTransform()
         mImage->GetTransform()->GetMatrix()->SetElement(i,3,10*mImage->GetTransform()->GetMatrix()->GetElement(i,3));
 
       mImage->GetTransform()->Inverse();
-      mImage->UpdateReslice();
     }
   }
 }
@@ -170,7 +169,6 @@ void vvImageReader::ReadMatImageTransform()
     for(int j=0; j<4; j++)
       for(int i=0; i<4; i++)
         mImage->GetTransform()->GetMatrix()->SetElement(j,i,itkMat[j][i]);
-    mImage->UpdateReslice();
   }
 }
 //------------------------------------------------------------------------------
