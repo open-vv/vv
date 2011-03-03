@@ -246,7 +246,7 @@ GenerateOutputInformation() {
   relPosFilter->SetInput(output); 
   relPosFilter->SetInputObject(left_lung); 
   //  relPosFilter->SetInputObject(lung); 
-  relPosFilter->AddOrientationType(RelPosFilterType::LeftTo); // warning left lung is at right ;)
+  relPosFilter->AddOrientationType(RelPosFilterType::AtRightTo); // warning left lung is at right ;)
   relPosFilter->SetIntermediateSpacing(GetIntermediateSpacing());
   relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold1());
   relPosFilter->Update();
@@ -261,7 +261,7 @@ GenerateOutputInformation() {
   relPosFilter->SetInput(output); 
   relPosFilter->SetInputObject(right_lung);
   //relPosFilter->SetInputObject(lung); 
-  relPosFilter->AddOrientationType(RelPosFilterType::RightTo);
+  relPosFilter->AddOrientationType(RelPosFilterType::AtLeftTo);
   relPosFilter->SetIntermediateSpacing(GetIntermediateSpacing());
   relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold1());
   relPosFilter->Update();   
@@ -414,7 +414,7 @@ GenerateOutputInformation() {
 
   //--------------------------------------------------------------------
   // Step 8: Lower limits from lung (need separate lung ?)
-  if (1) {
+  if (0) {
     // StartNewStep("Trial : minus segmented struct");
     // MaskImagePointer heart = GetAFDB()->template GetImage <MaskImageType>("heart");  
     // boolFilter = BoolFilterType::New(); 

@@ -392,7 +392,6 @@ GenerateOutputInformation()
   unsigned int initialNumberOfLabels = statisticsImageFilter->GetMaximum();
   working_mask = statisticsImageFilter->GetOutput();	
   
-  DD(initialNumberOfLabels);
   PrintMemory(GetVerboseMemoryFlag(), "After count label");
  
   // Decompose the first label
@@ -404,7 +403,7 @@ GenerateOutputInformation()
     typedef clitk::DecomposeAndReconstructImageFilter<MaskImageType,MaskImageType> DecomposeAndReconstructFilterType;
     typename DecomposeAndReconstructFilterType::Pointer decomposeAndReconstructFilter=DecomposeAndReconstructFilterType::New();
     decomposeAndReconstructFilter->SetInput(working_mask);
-    decomposeAndReconstructFilter->SetVerbose(true);
+    decomposeAndReconstructFilter->SetVerbose(false);
     decomposeAndReconstructFilter->SetRadius(radius);
     decomposeAndReconstructFilter->SetMaximumNumberOfLabels(2);
     decomposeAndReconstructFilter->SetMinimumObjectSize(this->GetMinimalComponentSize());

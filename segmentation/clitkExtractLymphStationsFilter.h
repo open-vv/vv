@@ -71,6 +71,7 @@ namespace clitk {
     typedef typename MaskImageType::PointType    MaskImagePointType; 
 
     typedef itk::Image<MaskImagePixelType, 2>    MaskSliceType;
+    typedef typename MaskSliceType::Pointer      MaskSlicePointer;
 
     /** ImageDimension constants */
     itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
@@ -90,6 +91,9 @@ namespace clitk {
     itkGetConstMacro(EsophagusDiltationForRight, MaskImagePointType);
     itkSetMacro(FuzzyThresholdForS8, double);
     itkGetConstMacro(FuzzyThresholdForS8, double);
+
+    itkSetMacro(InjectedThresholdForS8, double);
+    itkGetConstMacro(InjectedThresholdForS8, double);
 
     // Station 7
     itkSetMacro(FuzzyThreshold, double);
@@ -124,6 +128,8 @@ namespace clitk {
     double m_CarinaZ;
     double m_OriginOfRightMiddleLobeBronchusZ;
     double m_FuzzyThresholdForS8;
+    double m_InjectedThresholdForS8;
+    MaskImagePointer m_Esophagus;
     MaskImagePointType m_EsophagusDiltationForAnt;
     MaskImagePointType m_EsophagusDiltationForRight;
     MaskImagePointer EnlargeEsophagusDilatationRadiusInferiorly(MaskImagePointer & eso);
@@ -131,15 +137,27 @@ namespace clitk {
     void ExtractStation_8_SetDefaultValues();
     void ExtractStation_8_SI_Limits();
     void ExtractStation_8_Post_Limits();
-    void ExtractStation_8_Ant_Limits();
+    void ExtractStation_8_Ant_Sup_Limits();
+    void ExtractStation_8_Ant_Inf_Limits();
+    void ExtractStation_8_Ant_Injected_Limits();
+    void ExtractStation_8_LR_1_Limits();
+    void ExtractStation_8_LR_2_Limits();
+    void ExtractStation_8_Single_CCL_Limits();
     void ExtractStation_8_LR_Limits();
+    void ExtractStation_8_Remove_Structures();
     void ExtractStation_8_LR_Limits_old();
+    void ExtractStation_8_LR_Limits_old2();
     
     // Station 3P
     void ExtractStation_3P();
     void ExtractStation_3P_SetDefaultValues();
     void ExtractStation_3P_SI_Limits();
- 
+    void ExtractStation_3P_Remove_Structures();
+    void ExtractStation_3P_Ant_Limits();
+    void ExtractStation_3P_Post_Limits();
+    void ExtractStation_3P_LR_sup_Limits();
+    void ExtractStation_3P_LR_inf_Limits();
+
     // Station 7
     void ExtractStation_7();
     void ExtractStation_7_SI_Limits();

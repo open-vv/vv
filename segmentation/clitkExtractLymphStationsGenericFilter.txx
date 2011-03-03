@@ -70,6 +70,7 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   f->SetAFDBFilename(mArgsInfo.afdb_arg);  
   f->SetDistanceMaxToAnteriorPartOfTheSpine(mArgsInfo.maxAntSpine_arg);
   f->SetFuzzyThresholdForS8(mArgsInfo.fuzzyThresholdForS8_arg);
+  f->SetInjectedThresholdForS8(mArgsInfo.injectedThresholdForS8_arg);
 
   // Check multiple options for radius dilatation
   /*

@@ -71,7 +71,6 @@ ReleaseImage(std::string tag)
   }
   else {
     typename ImageType::Pointer image = GetImage<ImageType>(tag);
-    DD(image->GetReferenceCount());
     image->SetReferenceCount(image->GetReferenceCount()-1);
     m_MapOfImage.erase(tag);
   }

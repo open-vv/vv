@@ -79,8 +79,6 @@ GenerateOutputInformation() {
   ExtractStation_8();
   StopSubStep();
 
-  DD(GetCurrentStepNumber());
-
   // Extract Station3P
   StartNewStep("Station 3P");
   StartSubStep(); 
@@ -123,7 +121,7 @@ template <class TImageType>
 void 
 clitk::ExtractLymphStationsFilter<TImageType>::
 GenerateInputRequestedRegion() {
-  DD("GenerateInputRequestedRegion (nothing?)");
+  //DD("GenerateInputRequestedRegion (nothing?)");
 }
 //--------------------------------------------------------------------
 
@@ -159,10 +157,10 @@ CheckForStation(std::string station)
   }
 
   // Define the starting support 
-  if (found && GetComputeStation("8")) {
+  if (found && GetComputeStation(station)) {
     std::cout << "Station " << station << " already exists, but re-computation forced." << std::endl;
   }
-  if (!found || GetComputeStation("8")) {
+  if (!found || GetComputeStation(station)) {
     m_Working_Support = m_Mediastinum = GetAFDB()->template GetImage<MaskImageType>("Mediastinum", true);
     return true;
   }
@@ -205,8 +203,14 @@ ExtractStation_8()
   if (CheckForStation("8")) {
     ExtractStation_8_SI_Limits();
     ExtractStation_8_Post_Limits();
-    ExtractStation_8_Ant_Limits();
+    ExtractStation_8_Ant_Sup_Limits();
+    ExtractStation_8_Ant_Inf_Limits();
+    ExtractStation_8_LR_1_Limits();
+    ExtractStation_8_LR_2_Limits();
     ExtractStation_8_LR_Limits();
+    ExtractStation_8_Ant_Injected_Limits();
+    ExtractStation_8_Single_CCL_Limits();
+    ExtractStation_8_Remove_Structures();
     // Store image filenames into AFDB 
     writeImage<MaskImageType>(m_ListOfStations["8"], "seg/Station8.mhd");
     GetAFDB()->SetImageFilename("Station8", "seg/Station8.mhd");  
@@ -224,9 +228,15 @@ ExtractStation_3P()
 {
   if (CheckForStation("3P")) {
     ExtractStation_3P_SI_Limits();
+    ExtractStation_3P_Remove_Structures();
+    ExtractStation_3P_Ant_Limits();
+    ExtractStation_3P_Post_Limits();
+    ExtractStation_3P_LR_sup_Limits();
+    ExtractStation_3P_LR_inf_Limits();
     // Store image filenames into AFDB 
     writeImage<MaskImageType>(m_ListOfStations["3P"], "seg/Station3P.mhd");
-    GetAFDB()->SetImageFilename("Station3P", "seg/Station3P.mhd");  
+    GetAFDB()->SetImageFilename("Station3P", "seg/Station3P.mhd"); 
+    WriteAFDB(); 
   }
 }
 //--------------------------------------------------------------------
@@ -267,73 +277,5 @@ ExtractStation_4RL() {
 //--------------------------------------------------------------------
 
 
-//--------------------------------------------------------------------
-template <class TImageType>
-void 
-clitk::ExtractLymphStationsFilter<TImageType>::
-FindExtremaPointsInBronchus(MaskImagePointer input, 
-			    int direction,
-			    double distance_max_from_center_point, 
-			    ListOfPointsType & LR, 
-			    ListOfPointsType & Ant, 
-			    ListOfPointsType & Post)
-{
-
-  // Other solution ==> with auto bounding box ! (but pb to prevent to
-  // be too distant from the center point
-
-  // Extract slices
-  std::vector<typename MaskSliceType::Pointer> slices;
-  clitk::ExtractSlices<MaskImageType>(input, 2, slices);
-  
-  // Loop on slices
-  bool found;
-  for(uint i=0; i<slices.size(); i++) {
-    /*
-    // Keep main CCL
-    slices[i] = Labelize<MaskSliceType>(slices[i], 0, true, 10);
-    slices[i] = KeepLabels<MaskSliceType>(slices[i], 
-					  GetBackgroundValue(), 
-					  GetForegroundValue(), 1, 1, true);
-    */
-
-    // ------- Find rightmost or leftmost point  ------- 
-    MaskSliceType::PointType LRMost;
-    found = 
-      clitk::FindExtremaPointInAGivenDirection<MaskSliceType>(slices[i], 
-                                                              GetBackgroundValue(), 
-                                                              0, // axis XY
-                                                              (direction==0?false:true),  // right or left according to direction
-                                                              LRMost);
-    // ------- Find postmost point  ------- 
-    MaskSliceType::PointType postMost;
-    found = 
-      clitk::FindExtremaPointInAGivenDirection<MaskSliceType>(slices[i], 
-                                                              GetBackgroundValue(), 
-                                                              1, false, LRMost, 
-                                                              distance_max_from_center_point, 
-                                                              postMost);
-    // ------- Find antmost point  ------- 
-    MaskSliceType::PointType antMost;
-    found = 
-      clitk::FindExtremaPointInAGivenDirection<MaskSliceType>(slices[i], 
-                                                              GetBackgroundValue(), 
-                                                              1, true, LRMost, 
-                                                              distance_max_from_center_point, 
-                                                              antMost);
-    // Only add point if found
-    if (found)  {
-      // ------- Convert 2D to 3D points --------
-      MaskImageType::PointType p;
-      clitk::PointsUtils<MaskImageType>::Convert2DTo3D(LRMost, input, i, p);
-      LR.push_back(p); 
-      clitk::PointsUtils<MaskImageType>::Convert2DTo3D(antMost, input, i, p);
-      Ant.push_back(p);
-      clitk::PointsUtils<MaskImageType>::Convert2DTo3D(postMost, input, i, p);
-      Post.push_back(p);
-    }
-  }
-} 
-//--------------------------------------------------------------------
 
 #endif //#define CLITKBOOLEANOPERATORLABELIMAGEFILTER_TXX

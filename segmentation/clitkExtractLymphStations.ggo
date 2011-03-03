@@ -24,5 +24,5 @@ option "maxAntSpine" - "Distance max to anterior part of the spine in mm"  doubl
 option "esophagusDilatationForAnt" - "Dilatation of esophagus, in mm, for 'anterior' limits (default=15,2,1)" double no multiple
 option "esophagusDilatationForRight" - "Dilatation of esophagus, in mm, for 'right' limits (default=5,10,1)" double no multiple
 option "fuzzyThresholdForS8" - "Threshold for 'Post' to dilated Esophagus" double default="0.5" no 
-
+option "injectedThresholdForS8" - "Threshold injected areas in the ct" double default="150" no 
 
