@@ -33,8 +33,8 @@ vvImageContour::vvImageContour()
   mTSlice = -1;
   mSlice = 0;
   mHiddenImageIsUsed = false;
-  mDisplayModeIsPreserveMemory = false;
-  SetPreserveMemoryModeEnabled(false);
+  mDisplayModeIsPreserveMemory = true;
+  SetPreserveMemoryModeEnabled(true);
 }
 //------------------------------------------------------------------------------
 
@@ -86,6 +86,7 @@ void vvImageContour::SetPreserveMemoryModeEnabled(bool b) {
   if (mDisplayModeIsPreserveMemory == b) return;
   mDisplayModeIsPreserveMemory = b;
   if (!b) {
+    clitkExceptionMacro("TODO : not implemented yet");
     HideActors();
     InitializeCacheMode();
   }
