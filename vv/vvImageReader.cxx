@@ -166,9 +166,16 @@ void vvImageReader::ReadMatImageTransform()
     f.close();
     
     itk::Matrix<double, 4, 4> itkMat = clitk::ReadMatrix3D(filename);
+    
+    vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+    transform->Identity();
     for(int j=0; j<4; j++)
       for(int i=0; i<4; i++)
-        mImage->GetTransform()->GetMatrix()->SetElement(j,i,itkMat[j][i]);
+        transform->GetMatrix()->SetElement(j,i,itkMat[j][i]);
+
+    mImage->GetTransform()->PostMultiply();
+    mImage->GetTransform()->Concatenate(transform->GetMatrix());
+    mImage->GetTransform()->Update();
   }
 }
 //------------------------------------------------------------------------------
