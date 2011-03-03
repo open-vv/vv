@@ -27,7 +27,7 @@ void clitk::PrintMemory(bool verbose, std::string s)
     static double previous=0;
     double mem = GetMemoryUsageInMb();
     if (s != "") std::cout << "==> " << s << ": ";
-    std::cout << mem << "Mb (" << mem-previous << "Mb)" << std::endl;
+    std::cout << mem << "MB (" << mem-previous << "MB)" << std::endl;
     previous = mem;
     //DD(stat[i].proc_resident/1000/1000);
     //DD(stat[i].pid);
@@ -46,7 +46,7 @@ double clitk::GetMemoryUsageInMb()
   // Search the current pid in the list of processes
   while (stat[i].pid != getpid()) i++;
   // Display total memory size 
-  double mem = stat[i].proc_size/1000/1000; // in Mb
+  double mem = stat[i].proc_resident/1024/1024; // in Mb
   return mem;
 #endif
   }
