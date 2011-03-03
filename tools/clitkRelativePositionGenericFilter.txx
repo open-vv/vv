@@ -74,7 +74,7 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   }
   
   if (mArgsInfo.spacing_given) {
-    f->ResampleBeforeRelativePositionFilterOn();
+    f->IntermediateSpacingFlagOn();
     f->SetIntermediateSpacing(mArgsInfo.spacing_arg);
   }
 
