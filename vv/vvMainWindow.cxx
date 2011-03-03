@@ -330,8 +330,8 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
 //------------------------------------------------------------------------------
 void vvMainWindow::UpdateMemoryUsage()
 {
-  clitk::PrintMemory(true);
-  ImageInfoChanged();
+  //  clitk::PrintMemory(true);
+  infoPanel->setMemoryInMb(QString::number(clitk::GetMemoryUsageInMb())+" Mb");
 }
 //------------------------------------------------------------------------------
 
