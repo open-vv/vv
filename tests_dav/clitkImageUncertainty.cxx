@@ -3,8 +3,8 @@
   Program:   clitk
   Module:    $RCSfile: clitkImageUncertainty.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/03/09 15:45:20 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2011/03/03 15:03:30 $
+  Version:   $Revision: 1.3 $
                                                                                 
   Copyright (c) CREATIS (Centre de Recherche et d'Applications en Traitement de
   l'Image). All rights reserved. See Doc/License.txt or
@@ -33,10 +33,13 @@
 // clitk include
 #include "clitkImageUncertainty_ggo.h"
 #include "clitkImageCommon.h"
+#include "clitkCommon.h"
 
 // itk include
 #include "itkImageRegionConstIterator.h"
 #include "itkImageRegionIterator.h"
+
+#include <cmath> // for isfinite
 
 //====================================================================
 int main(int argc, char * argv[]) {
@@ -75,8 +78,9 @@ int main(int argc, char * argv[]) {
   while ( !pi.IsAtEnd() ) {  
 	double squared = pii.Get();
 	double mean = pi.Get();
-	po.Set( sqrt((NumberOfEvents*squared - mean*mean) / 
-				 ((NumberOfEvents-1)*(mean*mean)) ) );
+	double uncert = sqrt((NumberOfEvents*squared - mean*mean) / ((NumberOfEvents-1)*(mean*mean)));
+	if (!std::isnormal(uncert)) uncert = 1.;
+	po.Set(uncert);
 	++pi;
 	++pii;
 	++po;
