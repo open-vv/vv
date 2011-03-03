@@ -317,6 +317,21 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
 
   if (!CLITK_EXPERIMENTAL)
     menuExperimental->menuAction()->setVisible(false);
+
+
+  QTimer * timerMemory = new QTimer(this);
+  //timerMemory->setInterval(5);
+  connect(timerMemory, SIGNAL(timeout()), this, SLOT(UpdateMemoryUsage()));
+  timerMemory->start(5000);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvMainWindow::UpdateMemoryUsage()
+{
+  clitk::PrintMemory(true);
+  ImageInfoChanged();
 }
 //------------------------------------------------------------------------------
 
@@ -1076,6 +1091,9 @@ void vvMainWindow::ImageInfoChanged()
     infoPanel->setSpacing(GetVectorDoubleAsString(inputSpacing));
     infoPanel->setNPixel(QString::number(NPixel)+" ("+inputSizeInBytes+")");
 
+    infoPanel->setMemoryInMb(QString::number(clitk::GetMemoryUsageInMb())+" Mb");
+
+
     landmarksPanel->SetCurrentLandmarks(mSlicerManagers[index]->GetLandmarks(),
                                         mSlicerManagers[index]->GetSlicer(0)->GetImage()->GetVTKImages().size());
     landmarksPanel->SetCurrentPath(mInputPathName.toStdString());
@@ -1496,6 +1514,7 @@ void vvMainWindow::CloseImage(QTreeWidgetItem* item, int column)
       InitDisplay();
     }
   }
+  ImageInfoChanged();
 }
 //------------------------------------------------------------------------------
 
@@ -2739,6 +2758,7 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
   qApp->processEvents();
   
   // End
+  ImageInfoChanged();
   return slicer_manager;
 }
 //------------------------------------------------------------------------------

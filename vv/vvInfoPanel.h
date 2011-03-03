@@ -14,7 +14,7 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-======================================================================-====*/
+  ======================================================================-====*/
 #ifndef vvInfoPanel_h
 #define vvInfoPanel_h
 #include <iostream>
@@ -24,23 +24,24 @@
 
 class vvInfoPanel : public QWidget, private Ui::vvInfoPanel
 {
-    Q_OBJECT
+  Q_OBJECT
 
-public:
-    vvInfoPanel(QWidget * parent=0):QWidget(parent) {
-        setupUi(this);
-    }
-    ~vvInfoPanel() {}
+  public:
+  vvInfoPanel(QWidget * parent=0):QWidget(parent) {
+    setupUi(this);
+  }
+  ~vvInfoPanel() {}
 
-    void setFileName(QString text);
-    void setSizeMM(QString text);
-    void setOrigin(QString text);
-    void setSpacing(QString text);
-    void setNPixel(QString text);
-    void setDimension(QString text);
-    void setSizePixel(QString text);
-    void setCurrentInfo(int visibility, double x, double y, double z, double X, double Y, double Z, double value);
-    void setViews(int window, int view, int slice);
+  void setFileName(QString text);
+  void setSizeMM(QString text);
+  void setOrigin(QString text);
+  void setSpacing(QString text);
+  void setNPixel(QString text);
+  void setDimension(QString text);
+  void setSizePixel(QString text);
+  void setCurrentInfo(int visibility, double x, double y, double z, double X, double Y, double Z, double value);
+  void setViews(int window, int view, int slice);
+  void setMemoryInMb(QString text);
 
 public slots:
 

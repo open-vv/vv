@@ -26,6 +26,7 @@
 #include "vvToolManager.h"
 #include "vvConstants.h"
 #include "vvMesh.h"
+#include "clitkMemoryUsage.h"
 
 class vvSlicerManager;
 class vvHelpDialog;
@@ -146,6 +147,7 @@ public slots:
     mFrameRate = rate;
   }
   void UpdateRenderWindows();
+  void UpdateMemoryUsage();
 
 private:
 

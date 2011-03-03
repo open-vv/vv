@@ -14,12 +14,14 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-======================================================================-====*/
+  ======================================================================-====*/
 #include <QtGui>
 #include <Qt>
 
 #include "vvInfoPanel.h"
+#include "clitkMemoryUsage.h"
 
+//------------------------------------------------------------------------------
 void vvInfoPanel::setFileName(QString text)
 {
   if (text.size() > 30)
@@ -27,37 +29,58 @@ void vvInfoPanel::setFileName(QString text)
   else
     imageLabel->setText(text);
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvInfoPanel::setDimension(QString text)
 {
   dimensionLabel->setText(text);
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvInfoPanel::setSizeMM(QString text)
 {
   sizeMMLabel->setText(text);
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvInfoPanel::setNPixel(QString text)
 {
   nPixelLabel->setText(text);
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvInfoPanel::setSizePixel(QString text)
 {
   sizePixelLabel->setText(text);
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvInfoPanel::setOrigin(QString text)
 {
   originLabel->setText(text);
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvInfoPanel::setSpacing(QString text)
 {
   spacingLabel->setText(text);
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvInfoPanel::setCurrentInfo(int visibility, double x, double y, double z, double X, double Y, double Z, double value)
 {
   QString world = "";
@@ -78,8 +101,10 @@ void vvInfoPanel::setCurrentInfo(int visibility, double x, double y, double z, d
   pixelPosLabel->setText(mouse);
   valueLabel->setText(val);
 }
+//------------------------------------------------------------------------------
 
 
+//------------------------------------------------------------------------------
 void vvInfoPanel::setViews(int window, int view, int slice)
 {
   QString viewString;
@@ -125,3 +150,13 @@ void vvInfoPanel::setViews(int window, int view, int slice)
   }
   }
 }
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvInfoPanel::setMemoryInMb(QString text)
+{
+  memoryUsageLabel->setText("Memory usage: "+text);
+}
+//------------------------------------------------------------------------------
+
