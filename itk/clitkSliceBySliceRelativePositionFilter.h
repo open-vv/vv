@@ -78,9 +78,9 @@ namespace clitk {
     itkSetMacro(UniqueConnectedComponentBySlice, bool);
     itkBooleanMacro(UniqueConnectedComponentBySlice);
 
-    itkGetConstMacro(IgnoreEmptySliceObject, bool);
-    itkSetMacro(IgnoreEmptySliceObject, bool);
-    itkBooleanMacro(IgnoreEmptySliceObject);
+    itkGetConstMacro(IgnoreEmptySliceObjectFlag, bool);
+    itkSetMacro(IgnoreEmptySliceObjectFlag, bool);
+    itkBooleanMacro(IgnoreEmptySliceObjectFlag);
 
   protected:
     SliceBySliceRelativePositionFilter();
@@ -96,7 +96,7 @@ namespace clitk {
     ImagePointer m_working_object;
     bool         m_UniqueConnectedComponentBySlice;
     int          m_Direction;
-    bool         m_IgnoreEmptySliceObject;
+    bool         m_IgnoreEmptySliceObjectFlag;
 
   private:
     SliceBySliceRelativePositionFilter(const Self&); //purposely not implemented

@@ -32,7 +32,8 @@ SliceBySliceRelativePositionFilter():
 {
   SetDirection(2);
   UniqueConnectedComponentBySliceOff();
-  SetIgnoreEmptySliceObject(false);
+  SetIgnoreEmptySliceObjectFlag(false);
+  this->SetCombineWithOrFlag(false);
 }
 //--------------------------------------------------------------------
 
@@ -70,7 +71,7 @@ PrintOptions()
   DD(this->GetDirection());
   DD((int)this->GetObjectBackgroundValue());
   DDV(this->GetOrientationTypeString(), (uint)this->GetNumberOfAngles());
-  DD(this->GetResampleBeforeRelativePositionFilter());
+  DD(this->GetIntermediateSpacingFlag());
   DD(this->GetIntermediateSpacing());
   DD(this->GetFuzzyThreshold());
   DD(this->GetUniqueConnectedComponentBySlice());
@@ -175,15 +176,15 @@ GenerateOutputInformation()
     // Select main CC in each object slice (required ?)
     int nb=0;
     mObjectSlices[i] = LabelizeAndCountNumberOfObjects<SliceType>(mObjectSlices[i], 0, true, 1, nb);
-    if ((!GetIgnoreEmptySliceObject()) || (nb!=0)) {
+    if ((!GetIgnoreEmptySliceObjectFlag()) || (nb!=0)) {
       mObjectSlices[i] = KeepLabels<SliceType>(mObjectSlices[i], 0, 1, 1, 1, true);
 
       // Relative position
       typedef clitk::AddRelativePositionConstraintToLabelImageFilter<SliceType> RelPosFilterType;
       typename RelPosFilterType::Pointer relPosFilter = RelPosFilterType::New();
+
       relPosFilter->VerboseStepFlagOff();
       relPosFilter->WriteStepFlagOff();
-      relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId());
       relPosFilter->SetBackgroundValue(this->GetBackgroundValue());
       relPosFilter->SetInput(mInputSlices[i]); 
       relPosFilter->SetInputObject(mObjectSlices[i]); 
@@ -194,7 +195,7 @@ GenerateOutputInformation()
       relPosFilter->SetInverseOrientationFlag(this->GetInverseOrientationFlag());
       //relPosFilter->SetOrientationType(this->GetOrientationType());
       relPosFilter->SetIntermediateSpacing(this->GetIntermediateSpacing());
-      relPosFilter->SetResampleBeforeRelativePositionFilter(this->GetResampleBeforeRelativePositionFilter());
+      relPosFilter->SetIntermediateSpacingFlag(this->GetIntermediateSpacingFlag());
       relPosFilter->SetFuzzyThreshold(this->GetFuzzyThreshold());
       relPosFilter->AutoCropFlagOff(); // important ! because we join the slices after this loop
       relPosFilter->SetCombineWithOrFlag(this->GetCombineWithOrFlag()); 
