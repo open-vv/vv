@@ -73,13 +73,17 @@ void vvLandmarks::AddLandmark(float x,float y,float z,float t,double value)
   point.pixel_value=value;
   mLandmarks.push_back(point);
   mPoints[int(t)]->InsertNextPoint(x,y,z);
+  
+  std::stringstream numberVal;
+  numberVal << (mLandmarks.size()-1);
+  /*
+  vvLandmarksGlyph *number = vvLandmarksGlyph::New();
+  number->SetText(numberVal.str().c_str());
+  number->BackingOff();
+  DD(numberVal.str().c_str());
+  mText.push_back(number);
+  */
 
-  /*std::stringstream numberVal;
-    numberVal << (mLandmarks.size()-1);
-    vvLandmarksGlyph *number = vvLandmarksGlyph::New();
-    number->SetText(numberVal.str().c_str());
-    number->BackingOff();
-    mText.push_back(number);*/
   mIds->InsertNextTuple1(0.55);
   //mIds->InsertTuple1(mLandmarks.size(),mLandmarks.size());
   SetTime(int(t));
@@ -93,7 +97,7 @@ void vvLandmarks::RemoveLastLandmark()
   mPoints[mLandmarks.back().coordinates[3]]->SetNumberOfPoints(
                                                                mPoints[mLandmarks.back().coordinates[3]]->GetNumberOfPoints()-1);
   mPolyData->Modified();
-  //mText.pop_back();
+  //  mText.pop_back();
   mLandmarks.pop_back();
   mIds->RemoveLastTuple();
 }
