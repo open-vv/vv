@@ -110,6 +110,7 @@ GenerateOutputInformation() {
     likeStart = m_LikeImage->GetLargestPossibleRegion().GetIndex();
     likeOrigin = m_LikeImage->GetOrigin();
     likeSpacing = m_LikeImage->GetSpacing();
+    output->CopyInformation(m_LikeImage);
   }
   else {
     // Only load the header (allows to use 'like' with any image type)
