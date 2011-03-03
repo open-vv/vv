@@ -1197,6 +1197,18 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max)
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
+double vvSlicer::GetScalarComponentAsDouble(vtkImageData *image, int X, double Y, double Z, int &ix, int &iy, int &iz, int component)
+{
+  ix = lrint(X);
+  iy = lrint(Y);
+  iz = lrint(Z);
+  image->SetUpdateExtent(ix, ix, iy, iy, iz, iz);
+  image->Update();
+  return image->GetScalarComponentAsDouble(ix, iy, iz, component);
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
 void vvSlicer::Render()
 {
   if (this->GetWindowLevel()->GetLookupTable() && !this->mOverlay && !this->mFusion) {
@@ -1248,9 +1260,9 @@ void vvSlicer::Render()
         Y <= this->GetInput()->GetWholeExtent()[3] &&
         Z >= this->GetInput()->GetWholeExtent()[4] &&
         Z <= this->GetInput()->GetWholeExtent()[5]) {
-      int ix = lrint(X);
-      int iy = lrint(Y);
-      int iz = lrint(Z);
+      int ix, iy, iz;
+      double value = this->GetScalarComponentAsDouble(this->GetInput(), X, Y, Z, ix, iy, iz);
+
       std::stringstream pixel1;
       std::stringstream pixel2;
       std::stringstream pixel3;
@@ -1259,9 +1271,6 @@ void vvSlicer::Render()
       pixel2 << iy;
       pixel3 << iz;
       temps << mCurrentTSlice;
-      this->GetInput()->SetUpdateExtent(ix, ix, iy, iy, iz, iz);
-      this->GetInput()->Update();
-      double value = this->GetInput()->GetScalarComponentAsDouble(ix, iy, iz, 0);
 
       std::stringstream val;
       val << value;
