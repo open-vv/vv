@@ -31,6 +31,7 @@
 namespace clitk {
 
   void PrintMemory(bool verbose=true, std::string s="") ;
+  double GetMemoryUsageInMb() ;
 
 }  // end namespace
 //--------------------------------------------------------------------
