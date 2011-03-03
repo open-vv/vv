@@ -14,5 +14,6 @@ option "upper"    	u   	"Upper intensity (default=max), fg is lower than this va
 
 option "fg"    		-   	"Foreground (FG) or 'inside' value"	 	  double 	no	default="1"
 option "bg"    		-   	"Background (BG) or 'ouside' value"	 	  double 	no	default="0"
-option "mode" 		-   	"Use FG and/or BG values (if FG, the BG is replaced by the input image values)"	values="FG","BG","both"  default="both" required
+option "mode" 		-   	"Use FG and/or BG values (if FG, the BG is replaced by the input image values)"	values="FG","BG","both"  default="both"
+
 
