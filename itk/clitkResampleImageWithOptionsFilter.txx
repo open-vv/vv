@@ -55,6 +55,7 @@ ResampleImageWithOptionsFilter():itk::ImageToImageFilter<InputImageType, OutputI
     m_GaussianSigma[i] = -1;
   }
   m_VerboseOptions = false;
+  SetDefaultPixelValue(0);
 }
 //--------------------------------------------------------------------
 
@@ -121,12 +122,13 @@ GenerateOutputInformation()
   if (m_OutputIsoSpacing != -1) { // apply isoSpacing
     for(unsigned int i=0; i<dim; i++) {
       m_OutputSpacing[i] = m_OutputIsoSpacing;
-      m_OutputSize[i] = (int)lrint(inputSize[i]*inputSpacing[i]/m_OutputSpacing[i]);
+      // I use ceil to be sure not to miss a slice
+      m_OutputSize[i] = (int)ceil(inputSize[i]*inputSpacing[i]/m_OutputSpacing[i]);
     }
   } else {
     if (m_OutputSpacing[0] != -1) { // apply spacing, compute size
       for(unsigned int i=0; i<dim; i++) {
-        m_OutputSize[i] = (int)lrint(inputSize[i]*inputSpacing[i]/m_OutputSpacing[i]);
+        m_OutputSize[i] = (int)ceil(inputSize[i]*inputSpacing[i]/m_OutputSpacing[i]);
       }
     } else {
       if (m_OutputSize[0] != 0) { // apply size, compute spacing
@@ -155,6 +157,7 @@ GenerateOutputInformation()
   outputImage->CopyInformation(input);
   outputImage->SetLargestPossibleRegion(m_OutputRegion);
   outputImage->SetSpacing(m_OutputSpacing);
+  outputImage->FillBuffer(GetDefaultPixelValue());
 
   // Init Gaussian sigma
   if (m_GaussianSigma[0] != -1) { // Gaussian filter set by user
@@ -188,19 +191,11 @@ GenerateData()
   InputImagePointer input = dynamic_cast<InputImageType*>(itk::ProcessObject::GetInput(0));
   static const unsigned int dim = InputImageType::ImageDimension;
 
-  // Set regions and allocate
-  //DD(this->GetOutput()->GetLargestPossibleRegion());
-  //this->GetOutput()->SetRegions(m_OutputRegion);
-  //this->GetOutput()->Allocate();
-  // this->GetOutput()->FillBuffer(m_DefaultPixelValue);
-
   // Create main Resample Image Filter
   typedef itk::ResampleImageFilter<InputImageType,OutputImageType> FilterType;
   typename FilterType::Pointer filter = FilterType::New();
   filter->GraftOutput(this->GetOutput());
-  //     this->GetOutput()->Print(std::cout);
   this->GetOutput()->SetBufferedRegion(this->GetOutput()->GetLargestPossibleRegion());
-  //     this->GetOutput()->Print(std::cout);
 
   // Print options if needed
   if (m_VerboseOptions) {

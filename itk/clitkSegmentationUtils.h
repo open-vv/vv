@@ -27,11 +27,17 @@
 // itk
 #include <itkBoundingBox.h>
 
+/*
+  According to 
+  http://answerpot.com/showthread.php?357451-Itk::SmartPointer%20-%20problem%20making%20code%20const-correct
+  it is better to take raw pointer as argument instead of SmartPointer.
+*/
+
 namespace clitk {
 
   //--------------------------------------------------------------------
   template<class ImageType>
-  void ComputeBBFromImageRegion(typename ImageType::Pointer image, 
+  void ComputeBBFromImageRegion(const ImageType * image, 
                                 typename ImageType::RegionType region,
                                 typename itk::BoundingBox<unsigned long, 
                                                           ImageType::ImageDimension>::Pointer bb);
@@ -44,9 +50,9 @@ namespace clitk {
 
   //--------------------------------------------------------------------
   template<class ImageType>
-  void ComputeRegionFromBB(typename ImageType::Pointer image, 
+  void ComputeRegionFromBB(const ImageType * image, 
                            const typename itk::BoundingBox<unsigned long, 
-                           ImageType::ImageDimension>::Pointer bb, 
+                                                           ImageType::ImageDimension>::Pointer bb, 
                            typename ImageType::RegionType & region);
   //--------------------------------------------------------------------
   template<class TInternalImageType, class TMaskInternalImageType>
@@ -61,7 +67,7 @@ namespace clitk {
 
   //--------------------------------------------------------------------
   template<class ImageType>
-  int GetNumberOfConnectedComponentLabels(typename ImageType::Pointer input, 
+  int GetNumberOfConnectedComponentLabels(const ImageType * input, 
                                           typename ImageType::PixelType BG, 
                                           bool isFullyConnected);
   //--------------------------------------------------------------------
@@ -70,10 +76,8 @@ namespace clitk {
   //-------------------------------------------------------------------- 
   template<class TImageType>
   typename TImageType::Pointer
-  Labelize(const TImageType * input, 
-           typename TImageType::PixelType BG, 
-           bool isFullyConnected, 
-           int minimalComponentSize);
+  Labelize(const TImageType * input, typename TImageType::PixelType BG, 
+           bool isFullyConnected, int minimalComponentSize);
   template<class TImageType>
   typename TImageType::Pointer
   LabelizeAndCountNumberOfObjects(const TImageType * input, 
@@ -87,7 +91,7 @@ namespace clitk {
   //--------------------------------------------------------------------
   template<class ImageType>
   typename ImageType::Pointer
-  RemoveLabels(typename ImageType::Pointer input, 
+  RemoveLabels(const ImageType * input, 
                typename ImageType::PixelType BG, 
                std::vector<typename ImageType::PixelType> & labelsToRemove);
   //--------------------------------------------------------------------
@@ -96,7 +100,7 @@ namespace clitk {
   //--------------------------------------------------------------------
   template<class ImageType>
   typename ImageType::Pointer
-  AutoCrop(typename ImageType::Pointer input, 
+  AutoCrop(const ImageType * input, 
            typename ImageType::PixelType BG) {
     typedef clitk::AutoCropFilter<ImageType> AutoCropFilterType;
     typename AutoCropFilterType::Pointer autoCropFilter = AutoCropFilterType::New();
@@ -123,7 +127,7 @@ namespace clitk {
   //--------------------------------------------------------------------
   template<class TImageType>
   typename TImageType::Pointer
-  LabelizeAndSelectLabels(typename TImageType::Pointer input,
+  LabelizeAndSelectLabels(const TImageType * input,
                           typename TImageType::PixelType BG, 
                           typename TImageType::PixelType FG, 
                           bool isFullyConnected,
@@ -133,8 +137,8 @@ namespace clitk {
   //--------------------------------------------------------------------
   template<class ImageType>
   typename ImageType::Pointer
-  ResizeImageLike(typename ImageType::Pointer input,
-                  typename ImageType::Pointer like, 
+  ResizeImageLike(const ImageType * input,
+                  const itk::ImageBase<ImageType::ImageDimension> * like, 
                   typename ImageType::PixelType BG);
 
 
@@ -180,21 +184,19 @@ namespace clitk {
   //--------------------------------------------------------------------
   template<class ImageType>
   typename ImageType::Pointer
-  CropImageAlongOneAxis(typename ImageType::Pointer image, 
+  CropImageAlongOneAxis(const ImageType * image, 
                         int dim, double min, double max, 
                         bool autoCrop = false,
                         typename ImageType::PixelType BG=0);
   template<class ImageType>
   typename ImageType::Pointer
-  CropImageAbove(typename ImageType::Pointer image, 
-                 int dim, double min, 
-                 bool autoCrop = false,
+  CropImageAbove(const ImageType * image, 
+                 int dim, double min, bool autoCrop = false,
                  typename ImageType::PixelType BG=0);
   template<class ImageType>
   typename ImageType::Pointer
-  CropImageBelow(typename ImageType::Pointer image, 
-                 int dim, double max,
-                 bool autoCrop = false,
+  CropImageBelow(const ImageType * image, 
+                 int dim, double max,bool autoCrop = false,
                  typename ImageType::PixelType BG=0);
   //--------------------------------------------------------------------
 
@@ -202,7 +204,7 @@ namespace clitk {
   //--------------------------------------------------------------------
   template<class ImageType>
   void
-  ComputeCentroids(typename ImageType::Pointer image, 
+  ComputeCentroids(const ImageType * image, 
                    typename ImageType::PixelType BG, 
                    std::vector<typename ImageType::PointType> & centroids);
   //--------------------------------------------------------------------
@@ -211,10 +213,9 @@ namespace clitk {
   //--------------------------------------------------------------------
   template<class ImageType>
   void
-  ExtractSlices(typename ImageType::Pointer image, 
-		int dim, 
+  ExtractSlices(const ImageType * image, int dim, 
 		std::vector< typename itk::Image<typename ImageType::PixelType, 
-		ImageType::ImageDimension-1>::Pointer > & slices);
+                                                 ImageType::ImageDimension-1>::Pointer > & slices);
   //--------------------------------------------------------------------
 
 
@@ -222,9 +223,8 @@ namespace clitk {
   template<class ImageType>
   typename ImageType::Pointer
   JoinSlices(std::vector<typename itk::Image<typename ImageType::PixelType, 
-	     ImageType::ImageDimension-1>::Pointer > & slices, 
-	     typename ImageType::Pointer input, 
-	     int dim);
+                                             ImageType::ImageDimension-1>::Pointer > & slices, 
+	     const ImageType * input, int dim);
   //--------------------------------------------------------------------
 
 
@@ -234,21 +234,23 @@ namespace clitk {
   class PointsUtils
   {
     typedef typename ImageType::PointType PointType3D;
+    typedef typename ImageType::IndexType IndexType3D;
     typedef typename ImageType::PixelType PixelType;
     typedef typename ImageType::Pointer ImagePointer;
     typedef typename ImageType::ConstPointer ImageConstPointer;
     typedef itk::Image<PixelType, 2> SliceType;
     typedef typename SliceType::PointType PointType2D;
+    typedef typename SliceType::IndexType IndexType2D;
     
     typedef std::map<int, PointType2D> MapPoint2DType;
     typedef std::vector<PointType3D> VectorPoint3DType;
   public:
     static void Convert2DTo3D(const PointType2D & p2D, 
-                              ImagePointer image, 
+                              const ImageType * image, 
                               const int slice, 
                               PointType3D & p3D);
     static void Convert2DTo3DList(const MapPoint2DType & map, 
-                                  ImagePointer image, 
+                                  const ImageType * image, 
                                   VectorPoint3DType & list);
   };
 
@@ -263,25 +265,22 @@ namespace clitk {
   //--------------------------------------------------------------------
   template<class ImageType>
   typename ImageType::Pointer
-  Dilate(typename ImageType::Pointer image, 
-              double radiusInMM,               
-              typename ImageType::PixelType BG, 
-              typename ImageType::PixelType FG, 
-              bool extendSupport);
+  Dilate(const ImageType * image, double radiusInMM,               
+         typename ImageType::PixelType BG, 
+         typename ImageType::PixelType FG, 
+         bool extendSupport);
   template<class ImageType>
   typename ImageType::Pointer
-  Dilate(typename ImageType::Pointer image, 
-              typename ImageType::SizeType radius, 
-              typename ImageType::PixelType BG, 
-              typename ImageType::PixelType FG, 
-              bool extendSupport);
+  Dilate(const ImageType * image, typename ImageType::SizeType radius, 
+         typename ImageType::PixelType BG, 
+         typename ImageType::PixelType FG, 
+         bool extendSupport);
   template<class ImageType>
   typename ImageType::Pointer  
-  Dilate(typename ImageType::Pointer image, 
-              typename ImageType::PointType radiusInMM, 
-              typename ImageType::PixelType BG, 
-              typename ImageType::PixelType FG, 
-              bool extendSupport);
+  Dilate(const ImageType * image, typename ImageType::PointType radiusInMM, 
+         typename ImageType::PixelType BG, 
+         typename ImageType::PixelType FG, 
+         bool extendSupport);
   //--------------------------------------------------------------------
 
   //--------------------------------------------------------------------
@@ -289,20 +288,65 @@ namespace clitk {
   void ConvertOption(std::string optionName, uint given, 
                      ValueType * values, VectorType & p, 
                      uint dim, bool required);
-#define ConvertOptionMacro(OPTIONNAME, VAR, DIM, REQUIRED)         \
+#define ConvertOptionMacro(OPTIONNAME, VAR, DIM, REQUIRED)              \
   ConvertOption(#OPTIONNAME, OPTIONNAME##_given, OPTIONNAME##_arg, VAR, DIM, REQUIRED);
   //--------------------------------------------------------------------
 
   //--------------------------------------------------------------------
   template<class ImageType>
   void 
-  SliceBySliceSetBackgroundFromLineSeparation(typename ImageType::Pointer input, 
+  SliceBySliceSetBackgroundFromLineSeparation(ImageType * input, 
                                               std::vector<typename ImageType::PointType> & lA, 
                                               std::vector<typename ImageType::PointType> & lB, 
                                               typename ImageType::PixelType BG, 
                                               int mainDirection, 
                                               double offsetToKeep);
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  void AndNot(ImageType * input, 
+              const ImageType * object, 
+              typename ImageType::PixelType BG=0);
+  //--------------------------------------------------------------------
+ 
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::Pointer
+  Binarize(const ImageType * input, 
+           typename ImageType::PixelType lower, 
+           typename ImageType::PixelType upper, 
+           typename ImageType::PixelType BG=0,
+           typename ImageType::PixelType FG=1);
+  //--------------------------------------------------------------------
+ 
   
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  void
+  GetMinMaxPointPosition(const ImageType * input, 
+                         typename ImageType::PointType & min,
+                         typename ImageType::PointType & max);
+  //--------------------------------------------------------------------
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::PointType
+  FindExtremaPointInAGivenLine(const ImageType * input, 
+                               int dimension, bool inverse, 
+                               typename ImageType::PointType p, 
+                               typename ImageType::PixelType BG, 
+                               double distanceMax);
+  //--------------------------------------------------------------------
+
+  
+  //--------------------------------------------------------------------
+  template<class PointType>
+  bool
+  IsOnTheSameLineSide(PointType C, PointType A, PointType B, PointType like);
+  //--------------------------------------------------------------------
 
 }
 
