@@ -189,6 +189,7 @@ class vvSlicerManager : public QObject {
   void PrevImage(int slicer);
   void LeftButtonReleaseEvent(int slicer);
   void VerticalSliderHasChanged(int slicer, int slice);
+  double GetScalarComponentAsDouble(vtkImageData *image, double X, double Y, double Z, int component=0);
 
 signals :
   void currentImageChanged(std::string id);

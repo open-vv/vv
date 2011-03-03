@@ -856,10 +856,8 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
       Y <= mSlicers[slicer]->GetInput()->GetWholeExtent()[3] &&
       Z >= mSlicers[slicer]->GetInput()->GetWholeExtent()[4] &&
       Z <= mSlicers[slicer]->GetInput()->GetWholeExtent()[5]) {
-    value = mSlicers[slicer]->GetInput()->GetScalarComponentAsDouble(
-                                                                     (int)floor(X),
-                                                                     (int)floor(Y),
-                                                                     (int)floor(Z),0);
+    value = this->GetScalarComponentAsDouble(mSlicers[slicer]->GetInput(), X, Y, Z);
+
     if (mSlicers[slicer]->GetVFActor() && mSlicers[slicer]->GetVFActor()->GetVisibility()) {
       displayVec = 1;
       unsigned int currentTime = mSlicers[slicer]->GetTSlice();
@@ -874,9 +872,9 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
         double Xvf = (x - vf->GetOrigin()[0])/ vf->GetSpacing()[0];
         double Yvf = (y - vf->GetOrigin()[1])/ vf->GetSpacing()[1];
         double Zvf = (z - vf->GetOrigin()[2])/ vf->GetSpacing()[2];
-        xVec = vf->GetScalarComponentAsDouble( (int)floor(Xvf), (int)floor(Yvf), (int)floor(Zvf),0);
-        yVec = vf->GetScalarComponentAsDouble( (int)floor(Xvf), (int)floor(Yvf), (int)floor(Zvf),1);
-        zVec = vf->GetScalarComponentAsDouble( (int)floor(Xvf), (int)floor(Yvf), (int)floor(Zvf),2);
+        xVec = this->GetScalarComponentAsDouble( vf, Xvf, Yvf, Zvf, 0);
+        yVec = this->GetScalarComponentAsDouble( vf, Xvf, Yvf, Zvf, 1);
+        zVec = this->GetScalarComponentAsDouble( vf, Xvf, Yvf, Zvf, 2);
         valueVec = sqrt(xVec*xVec + yVec*yVec + zVec*zVec);
       }
     }
@@ -894,11 +892,7 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
           Yover <= mSlicers[slicer]->GetOverlayMapper()->GetInput()->GetWholeExtent()[3] &&
           Zover >= mSlicers[slicer]->GetOverlayMapper()->GetInput()->GetWholeExtent()[4] &&
           Zover <= mSlicers[slicer]->GetOverlayMapper()->GetInput()->GetWholeExtent()[5]) {
-        valueOver = static_cast<vtkImageData*>(mSlicers[slicer]->GetOverlayMapper()->GetInput())->
-          GetScalarComponentAsDouble(
-                                     (int)floor(Xover),
-                                     (int)floor(Yover),
-                                     (int)floor(Zover),0);
+        valueOver = this->GetScalarComponentAsDouble(static_cast<vtkImageData*>(mSlicers[slicer]->GetOverlayMapper()->GetInput()), Xover, Yover, Zover);
       }
     }
     if (mSlicers[slicer]->GetFusionActor() && mSlicers[slicer]->GetFusionActor()->GetVisibility()) {
@@ -915,11 +909,7 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
           Yfus <= mSlicers[slicer]->GetFusionMapper()->GetInput()->GetWholeExtent()[3] &&
           Zfus >= mSlicers[slicer]->GetFusionMapper()->GetInput()->GetWholeExtent()[4] &&
           Zfus <= mSlicers[slicer]->GetFusionMapper()->GetInput()->GetWholeExtent()[5]) {
-        valueFus = static_cast<vtkImageData*>(mSlicers[slicer]->GetFusionMapper()->GetInput())->
-          GetScalarComponentAsDouble(
-                                     (int)floor(Xfus),
-                                     (int)floor(Yfus),
-                                     (int)floor(Zfus),0);
+        valueFus = this->GetScalarComponentAsDouble(static_cast<vtkImageData*>(mSlicers[slicer]->GetFusionMapper()->GetInput()), Xfus, Yfus, Zfus);
       }
     }
     emit UpdatePosition(mSlicers[slicer]->GetCursorVisibility(),
@@ -1206,10 +1196,7 @@ void vvSlicerManager::AddLandmark(float x,float y,float z,float t)
       y_index <= mSlicers[0]->GetInput()->GetWholeExtent()[3] &&
       z_index >= mSlicers[0]->GetInput()->GetWholeExtent()[4] &&
       z_index <= mSlicers[0]->GetInput()->GetWholeExtent()[5]) {
-    double value = mSlicers[0]->GetInput()->GetScalarComponentAsDouble(
-                                                                       (int)x_index,
-                                                                       (int)y_index,
-                                                                       (int)z_index,0);
+    double value = this->GetScalarComponentAsDouble(mSlicers[0]->GetInput(), x_index, y_index, z_index);
     this->GetLandmarks()->AddLandmark(x,y,z,t,value);
     emit LandmarkAdded();
   }
@@ -1223,7 +1210,6 @@ void vvSlicerManager::PrevImage(int slicer)
 }
 //----------------------------------------------------------------------------
 
-
 //----------------------------------------------------------------------------
 void vvSlicerManager::NextImage(int slicer)
 {
@@ -1231,11 +1217,18 @@ void vvSlicerManager::NextImage(int slicer)
 }
 //----------------------------------------------------------------------------
 
-
 //----------------------------------------------------------------------------
 void vvSlicerManager::VerticalSliderHasChanged(int slicer, int slice)
 {
   emit AVerticalSliderHasChanged(slicer, slice);
 }
 
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+double vvSlicerManager::GetScalarComponentAsDouble(vtkImageData *image, double X, double Y, double Z, int component)
+{
+  int ix, iy, iz;
+  return mSlicers[0]->GetScalarComponentAsDouble(image, X, Y, Z, ix, iy, iz, component);
+}
 //----------------------------------------------------------------------------
