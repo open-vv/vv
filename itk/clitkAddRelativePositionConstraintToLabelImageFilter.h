@@ -78,7 +78,7 @@ namespace clitk {
     typedef itk::Image<float, ImageDimension> FloatImageType;
 
     /** Orientation types */
-    typedef enum { RightTo = 0, LeftTo = 1,
+    typedef enum { AtRightTo = 0, AtLeftTo = 1,
                    AntTo = 2,   PostTo = 3, 
                    InfTo = 4,   SupTo = 5, Angle = 6
     } OrientationTypeEnumeration;
@@ -96,9 +96,9 @@ namespace clitk {
     std::string GetOrientationTypeString(int i) { return m_OrientationTypeString[i]; }
     std::vector<std::string> & GetOrientationTypeString() { return m_OrientationTypeString; }
 
-    itkGetConstMacro(ResampleBeforeRelativePositionFilter, bool);
-    itkSetMacro(ResampleBeforeRelativePositionFilter, bool);
-    itkBooleanMacro(ResampleBeforeRelativePositionFilter);
+    itkGetConstMacro(IntermediateSpacingFlag, bool);
+    itkSetMacro(IntermediateSpacingFlag, bool);
+    itkBooleanMacro(IntermediateSpacingFlag);
 
     itkGetConstMacro(IntermediateSpacing, double);
     itkSetMacro(IntermediateSpacing, double);
@@ -140,7 +140,7 @@ namespace clitk {
     PixelType m_ObjectBackgroundValue;
     std::vector<double> m_Angle1;
     std::vector<double> m_Angle2;
-    bool m_ResampleBeforeRelativePositionFilter;
+    bool m_IntermediateSpacingFlag;
     bool m_AutoCropFlag;
     bool m_InverseOrientationFlag;
     bool m_RemoveObjectFlag;
@@ -150,7 +150,7 @@ namespace clitk {
     virtual void GenerateInputRequestedRegion();
     virtual void GenerateData();
 
-    typedef itk::PasteImageFilter<ImageType,ImageType> PadFilterType;
+    typedef itk::PasteImageFilter<ImageType,ImageType> PasteFilterType;
     typename ImageType::Pointer working_image;
     typename ImageType::Pointer object_resampled;
     typename FloatImageType::Pointer relPos;
