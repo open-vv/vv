@@ -322,7 +322,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   QTimer * timerMemory = new QTimer(this);
   //timerMemory->setInterval(5);
   connect(timerMemory, SIGNAL(timeout()), this, SLOT(UpdateMemoryUsage()));
-  timerMemory->start(5000);
+  timerMemory->start(2000);
 }
 //------------------------------------------------------------------------------
 
@@ -331,7 +331,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
 void vvMainWindow::UpdateMemoryUsage()
 {
   //  clitk::PrintMemory(true);
-  infoPanel->setMemoryInMb(QString::number(clitk::GetMemoryUsageInMb())+" Mb");
+  infoPanel->setMemoryInMb(QString::number(clitk::GetMemoryUsageInMb())+" MiB");
 }
 //------------------------------------------------------------------------------
 
@@ -1090,9 +1090,6 @@ void vvMainWindow::ImageInfoChanged()
     infoPanel->setOrigin(GetVectorDoubleAsString(origin));
     infoPanel->setSpacing(GetVectorDoubleAsString(inputSpacing));
     infoPanel->setNPixel(QString::number(NPixel)+" ("+inputSizeInBytes+")");
-
-    infoPanel->setMemoryInMb(QString::number(clitk::GetMemoryUsageInMb())+" Mb");
-
 
     landmarksPanel->SetCurrentLandmarks(mSlicerManagers[index]->GetLandmarks(),
                                         mSlicerManagers[index]->GetSlicer(0)->GetImage()->GetVTKImages().size());
