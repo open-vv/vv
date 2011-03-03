@@ -829,7 +829,7 @@ void vvToolRigidReg::CheckDeformableReg()
 //------------------------------------------------------------------------------
 void vvToolRigidReg::SetOverlay(vvImage::Pointer Image)
 {
-    for (int i =0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
+    for (int i =0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
    mCurrentSlicerManager->GetSlicer(i)->SetOverlay(Image);
    mCurrentSlicerManager->GetSlicer(i)->SetActorVisibility("overlay",0,true);
    mCurrentSlicerManager->SetColorMap();
@@ -841,7 +841,7 @@ void vvToolRigidReg::SetOverlay(vvImage::Pointer Image)
 //------------------------------------------------------------------------------
 void vvToolRigidReg::RemoveOverlay()
 {
-   for(int i=0;i<mCurrentSlicerManager->NumberOfSlicers();i++)
+   for(int i=0;i<mCurrentSlicerManager->GetNumberOfSlicers();i++)
   {
      mInput1->RemoveActor("overlay",0);
      mInput1->SetColorMap(0);
@@ -919,7 +919,7 @@ void vvToolRigidReg::LoadFile()
 //------------------------------------------------------------------------------
 void vvToolRigidReg::Render()
 {
-  for (int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
+  for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
        mCurrentSlicerManager->GetSlicer(i)->ForceUpdateDisplayExtent();
        mCurrentSlicerManager->GetSlicer(i)->Render();
       }

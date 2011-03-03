@@ -743,8 +743,6 @@ void vvSlicer::UpdateDisplayExtent()
         mClipBox->SetBounds(bounds);
         UpdateLandmarks();
       }
-      // DD(mLandActor->GetPosition()[2]);
-      // DD(Renderer->GetActiveCamera()->GetPosition()[2]);
       mLandActor->SetPosition(0,0,-1.5);
       /*
       if (Renderer->GetActiveCamera()->GetPosition()[2] > this->Slice)
@@ -800,8 +798,6 @@ void vvSlicer::UpdateDisplayExtent()
         mClipBox->SetBounds(bounds);
         UpdateLandmarks();
       }
-      //      DD(mLandActor->GetPosition()[1]);
-      //DD(Renderer->GetActiveCamera()->GetPosition()[1]);
       if (Renderer->GetActiveCamera()->GetPosition()[1] > this->Slice)
         mLandActor->SetPosition(0,1.5,0);
       else
@@ -854,8 +850,6 @@ void vvSlicer::UpdateDisplayExtent()
         mClipBox->SetBounds(bounds);
         UpdateLandmarks();
       }
-      //      DD(mLandActor->GetPosition()[1]);
-      //      DD(Renderer->GetActiveCamera()->GetPosition()[1]);
       if (Renderer->GetActiveCamera()->GetPosition()[0] > this->Slice)
         mLandActor->SetPosition(1.5,0,0);
       else
@@ -1387,8 +1381,6 @@ void vvSlicer::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 //----------------------------------------------------------------------------
-
-
 
 
 

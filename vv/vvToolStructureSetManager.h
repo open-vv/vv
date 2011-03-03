@@ -47,7 +47,7 @@ class vvToolStructureSetManager:
   void AddRoiInTreeWidget(clitk::DicomRT_ROI * roi, QTreeWidget * w);
 
   static vvToolStructureSetManager * AddImage(vvSlicerManager * m, std::string name, vvImage::Pointer image, double BG, bool modeBG=true);    
-  void AddImage(vvImage::Pointer image, std::string filename, double BG, bool modeBG=true);
+  void AddImage(vvImage * image, std::string filename, double BG, bool modeBG=true);
   void UpdateImage();
 
 public slots:
@@ -76,7 +76,7 @@ protected:
   bool mIsAllVisibleEnabled;
   int mNumberOfVisibleROI;
   int mNumberOfVisibleContourROI;
-  std::vector<clitk::DicomRT_StructureSet*>        mStructureSetsList;
+  std::vector<clitk::DicomRT_StructureSet* >       mStructureSetsList;
   std::vector<vvStructureSetActor *>               mStructureSetActorsList;
   std::map<int, QTreeWidgetItem *>                 mMapStructureSetIndexToTreeWidget;
   std::map<clitk::DicomRT_ROI*, QTreeWidgetItem *> mMapROIToTreeWidget;

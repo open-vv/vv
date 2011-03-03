@@ -87,7 +87,7 @@ class vvSlicerManager : public QObject {
   void SetSlicerWindow(int i, vtkRenderWindow* RW);
   void SetInteractorStyleNavigator(int i,vtkInteractorStyle* style);
 
-  int NumberOfSlicers()        { return mSlicers.size(); }
+  int GetNumberOfSlicers()        { return mSlicers.size(); }
   vvImage::Pointer GetImage()  { return mImage; }
   vvImage::Pointer GetVF()     { return mVF; }
   int GetType()                { return mType; }

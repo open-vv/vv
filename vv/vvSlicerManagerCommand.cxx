@@ -85,7 +85,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
 
 
     if (event == vtkCommand::StartPickEvent && VisibleInWindow == -1) {
-      for (int i = 0; i < this->SM->NumberOfSlicers(); i++) {
+      for (int i = 0; i < this->SM->GetNumberOfSlicers(); i++) {
         if (this->SM->GetSlicer(i)->GetCursorVisibility()) {
           this->SM->GetSlicer(i)->SetCursorVisibility(0);
           this->SM->GetSlicer(i)->Render();
@@ -189,7 +189,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
           return;
         }
         if (KeyPress == "x") {
-          for(int i=0; i<SM->NumberOfSlicers(); i++) {
+          for(int i=0; i<SM->GetNumberOfSlicers(); i++) {
             SM->RemoveActor("overlay",0);
             SM->SetColorMap(0);
             SM->Render();

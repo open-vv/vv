@@ -191,7 +191,7 @@ void vvToolCropImage::sliderTMaxValueChanged(int s) {
 //------------------------------------------------------------------------------
 void vvToolCropImage::UpdateExtent()
 {
-  for(int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
+  for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
     mCurrentSlicerManager->GetSlicer(i)->SetReducedExtent(mReducedExtent);
     mCurrentSlicerManager->GetSlicer(i)->ForceUpdateDisplayExtent();
     mCurrentSlicerManager->GetSlicer(i)->Render();
@@ -229,7 +229,7 @@ void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer)
   mInitialExtent = new int[mExtentSize];
   mReducedExtent = mCurrentSlicerManager->GetImage()->GetFirstVTKImageData()->GetWholeExtent();
   for(int i=0; i<mExtentSize; i++) mInitialExtent[i] = mReducedExtent[i];
-  for(int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
+  for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
     mCurrentSlicerManager->GetSlicer(i)->EnableReducedExtent(true);
   }
 
@@ -338,7 +338,7 @@ void vvToolCropImage::apply()
   // filter to retrieve the correct image size
   for(int i=0; i<mExtentSize; i++) {
     mReducedExtent[i] = mInitialExtent[i];
-    DD(mArgsInfo.boundingBox_arg[i]);
+    // DD(mArgsInfo.boundingBox_arg[i]);
   }
   UpdateExtent();
 
@@ -352,7 +352,7 @@ void vvToolCropImage::apply()
     filter->Update();
   }
   catch(clitk::ExceptionObject & e) {
-    DD(e.what());
+    // DD(e.what());
     QApplication::restoreOverrideCursor();
     close();
   }

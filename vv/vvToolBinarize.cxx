@@ -211,7 +211,7 @@ void vvToolBinarize::InputIsSelected(vvSlicerManager * m)
   mBGSlider->SetSingleStep(1);
 
   // VTK objects for interactive display
-  for(int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
+  for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
     mImageContour.push_back(new vvImageContour);
     mImageContour[i]->SetSlicer(mCurrentSlicerManager->GetSlicer(i));
     mImageContour[i]->SetColor(1.0, 0.0, 0.0);
@@ -235,7 +235,7 @@ void vvToolBinarize::InputIsSelected(vvSlicerManager * m)
 //------------------------------------------------------------------------------
 // void vvToolBinarize::LeftButtonReleaseEvent(int slicer) {
 //   DD("LeftButtonReleaseEvent");
-//   for(int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
+//   for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
 //     if (i == slicer);
 //     mCurrentSlicerManager->GetSlicer(i)->GetRenderWindow()->Render();
 //   }
@@ -342,7 +342,7 @@ void vvToolBinarize::valueChangedT2(double v)
   if (mRadioButtonLowerThan->isChecked()) {
     mThresholdSlider1->SetMaximum(v);
     if (!mInteractiveDisplayIsEnabled) return;
-    for(int i=0;i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
+    for(int i=0;i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
       mImageContourLower[i]->Update(v);
     }
     mCurrentSlicerManager->Render();
@@ -359,7 +359,7 @@ void vvToolBinarize::valueChangedT1(double v)
   mThresholdSlider2->SetMinimum(v);
   //  int m1 = (int)lrint(v);
   if (!mInteractiveDisplayIsEnabled) return;
-  for(int i=0;i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
+  for(int i=0;i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
     mImageContour[i]->Update(v);
   }
   mCurrentSlicerManager->Render();

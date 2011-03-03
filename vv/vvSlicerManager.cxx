@@ -112,7 +112,6 @@ void vvSlicerManager::SetFilename(std::string filename, int number)
   mFileName = filename;
   mFileName = vtksys::SystemTools::GetFilenameName(mFileName);
   mBaseFileName = vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(mFileName));
-  //  DD(mBaseFileName);
   mBaseFileNameNumber = number;
 
   for(unsigned int i=0; i<mSlicers.size(); i++) {
@@ -160,7 +159,6 @@ bool vvSlicerManager::SetImage(std::string filename, LoadedImageType type, int n
   SetFilename(filename, n);
   //  mFileName = vtksys::SystemTools::GetFilenameName(mFileName);
   //mBaseFileName = vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(mFileName));
-  //  DD(mBaseFileName);
   //mBaseFileNameNumber = n;
 
   if (mReader->GetLastError().size() == 0) {
@@ -168,14 +166,12 @@ bool vvSlicerManager::SetImage(std::string filename, LoadedImageType type, int n
     for ( unsigned int i = 0; i < mSlicers.size(); i++) {
       mSlicers[i]->SetFileName(vtksys::SystemTools::GetFilenameWithoutLastExtension(filename));
       mSlicers[i]->SetImage(mReader->GetOutput());
-      //          DD(mSlicers[i]->GetFileName());
     }
   } else {
     mLastError = mReader->GetLastError();
     return false;
   }
   // if (n!=0) {
-  //   //    DD(mFileName);
   //   mFileName.append("_"+clitk::toString(n));
   // }
   return true;
@@ -214,7 +210,6 @@ bool vvSlicerManager::SetImages(std::vector<std::string> filenames,LoadedImageTy
   mReader->Update(type);
 
   mBaseFileName = vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(mFileName));
-  //  DD(mBaseFileName);
   mBaseFileNameNumber = n;
 
   if (mReader->GetLastError().size() == 0) {
@@ -228,9 +223,7 @@ bool vvSlicerManager::SetImages(std::vector<std::string> filenames,LoadedImageTy
     return false;
   }
   if (n!=0) {
-    //    DD(mFileName);
     mFileName.append("_"+clitk::toString(n));
-    //    DD(mFileName);
   }
   return true;
 }
@@ -320,10 +313,6 @@ bool vvSlicerManager::SetVF(vvImage::Pointer vf,std::string filename)
     return false;
   }
   if (vf->GetNumberOfDimensions() == 4) {
-    // DD(vf->GetSpacing()[3]);
-    //     DD(mImage->GetSpacing()[3]);
-    //     DD(vf->GetOrigin()[3]);
-    //     DD(mImage->GetOrigin()[3]);
     if (vf->GetSpacing()[3] != mImage->GetSpacing()[3]) {
       mLastError = "Sorry, vector field time spacing cannot be different from time spacing of the reference image.";
       return false;
@@ -442,9 +431,6 @@ void vvSlicerManager::SetNextTSlice(int originating_slicer)
   t++;
   if (t > mSlicers[0]->GetTMax())
     t = 0;
-  // DD("SetNextTSlice");
-  //   DD(originating_slicer);
-  //   DD(t);
   emit UpdateTSlice(originating_slicer,t);
 }
 //----------------------------------------------------------------------------
@@ -536,10 +522,6 @@ void vvSlicerManager::SetOpacity(int i, double factor)
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateViews(int current,int slicer)
 {
-  // DD("UpdateViews");
-  //   DD(current);
-  //   DD(slicer);
-
   double x = (mSlicers[slicer]->GetCurrentPosition()[0] - mSlicers[slicer]->GetInput()->GetOrigin()[0])
     /mSlicers[slicer]->GetInput()->GetSpacing()[0];
   double y = (mSlicers[slicer]->GetCurrentPosition()[1] - mSlicers[slicer]->GetInput()->GetOrigin()[1])
@@ -617,8 +599,6 @@ void vvSlicerManager::UpdateViews(int current,int slicer)
             mSlicers[i]->SetSlice((int)floor(x));
           break;
         }
-        // DD("UpdateViews::");
-        // DD(i);
         UpdateSlice(i);
         UpdateTSlice(i);
       }
@@ -743,9 +723,7 @@ double vvSlicerManager::GetColorLevel()
 //----------------------------------------------------------------------------
 void vvSlicerManager::Render()
 {
-  // DD("vvSlicerManager::Render");
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
-    //  DD(i);
     mSlicers[i]->Render();
   }
 }
@@ -813,6 +791,16 @@ void vvSlicerManager::ReloadVF()
 //----------------------------------------------------------------------------
 void vvSlicerManager::RemoveActor(const std::string& actor_type, int overlay_index)
 {
+  if (actor_type =="overlay") {
+    delete mOverlayReader;
+    mOverlayReader = NULL;
+  }
+
+  if (actor_type =="fusion") {
+    delete mFusionReader;
+    mFusionReader = NULL;
+  }
+
   for (unsigned int i = 0; i < mSlicers.size(); i++) {
     mSlicers[i]->RemoveActor(actor_type,overlay_index);
   }
@@ -830,7 +818,10 @@ void vvSlicerManager::RemoveActor(const std::string& actor_type, int overlay_ind
 //----------------------------------------------------------------------------
 void vvSlicerManager::RemoveActors()
 {
-  ///This method leaks a few objects. See RemoveActor for what a correct implementation would look like
+  ///This method leaks a few objects. See RemoveActor for what a
+  ///correct implementation would look like
+  //DS -> probably due to the reader (now released in the
+  //RemoveActor() function. (I hope)
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
     mSlicers[i]->SetDisplayMode(0);
     mSlicers[i]->GetRenderer()->RemoveActor(mSlicers[i]->GetImageActor());
@@ -966,9 +957,6 @@ void vvSlicerManager::UpdateWindowLevel()
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateSlice(int slicer)
 {
-  // DD("vvSlicerManager::UpdateSlice emit UpdateSlice");
-  //   DD(slicer);
-  //   DD(mSlicers[slicer]->GetSlice());
   if (mPreviousSlice[slicer] == mSlicers[slicer]->GetSlice()) {
     //DD("============= NOTHING");
     return;
@@ -983,10 +971,6 @@ void vvSlicerManager::UpdateSlice(int slicer)
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateTSlice(int slicer)
 {
-  // DD("vvSlicerManager::UpdateTSlice emit UpdateTSlice");
-  //   DD(slicer);
-  //   DD(mSlicers[slicer]->GetTSlice());
-  //   DD(mSlicers[slicer]->GetSlice());
   if (mPreviousSlice[slicer] == mSlicers[slicer]->GetSlice()) {
     if (mPreviousTSlice[slicer] == mSlicers[slicer]->GetTSlice()) {
       //      DD("************** NOTHING ***********");

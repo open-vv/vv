@@ -147,7 +147,7 @@ void vvROIActor::Initialize(bool IsVisible) {
   if (mROI->GetImage()) {
     mImageContour.clear();
     mOverlayActors.clear();
-    for(int i=0; i<mSlicerManager->NumberOfSlicers(); i++) {
+    for(int i=0; i<mSlicerManager->GetNumberOfSlicers(); i++) {
       mImageContour.push_back(new vvImageContour);
       mImageContour[i]->SetSlicer(mSlicerManager->GetSlicer(i));
       mImageContour[i]->SetImage(mROI->GetImage());
@@ -191,7 +191,7 @@ void vvROIActor::Initialize(bool IsVisible) {
 //------------------------------------------------------------------------------
 void vvROIActor::Update()
 {
-  for(int i=0; i<mSlicerManager->NumberOfSlicers(); i++) {
+  for(int i=0; i<mSlicerManager->GetNumberOfSlicers(); i++) {
     UpdateSlice(i, mSlicerManager->GetSlicer(i)->GetSlice());
   }
 }
@@ -274,12 +274,12 @@ void vvROIActor::SetSelected(bool b)
 {
   mIsSelected = b;
   if (b) {
-    for(int i=0; i<mSlicerManager->NumberOfSlicers(); i++) {
+    for(int i=0; i<mSlicerManager->GetNumberOfSlicers(); i++) {
       mImageContour[i]->SetLineWidth(3.0);
       mImageContour[i]->ShowActors();
     }
   } else {
-    for(int i=0; i<mSlicerManager->NumberOfSlicers(); i++) {
+    for(int i=0; i<mSlicerManager->GetNumberOfSlicers(); i++) {
       mImageContour[i]->HideActors();
     }
   }

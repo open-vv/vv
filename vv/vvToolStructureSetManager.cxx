@@ -100,6 +100,13 @@ vvToolStructureSetManager::vvToolStructureSetManager(vvMainWindowBase * parent,
 vvToolStructureSetManager::~vvToolStructureSetManager()
 {
   m_NumberOfTool--;
+  // DD(mStructureSetsList.size());
+  // DD(mStructureSetActorsList.size());
+  for(uint i=0; i<mStructureSetsList.size();i++) {
+    //    DD(i);
+    delete mStructureSetsList[i];
+    delete mStructureSetActorsList[i];
+  }
 }
 //------------------------------------------------------------------------------
 
@@ -201,7 +208,9 @@ void vvToolStructureSetManager::UpdateStructureSetInTreeWidget(int index, clitk:
 //------------------------------------------------------------------------------
 int vvToolStructureSetManager::AddStructureSet(clitk::DicomRT_StructureSet * mStructureSet) {
   // Create actor for this SS
-  vvStructureSetActor * mStructureSetActor = new vvStructureSetActor;
+
+  vvStructureSetActor * mStructureSetActor =  new vvStructureSetActor;
+  
   mStructureSetActor->SetStructureSet(mStructureSet);
   mStructureSetActor->SetSlicerManager(mCurrentSlicerManager);
   // Insert in lists and get index
@@ -260,6 +269,7 @@ void vvToolStructureSetManager::OpenBinaryImage()
     }
     vvImage::Pointer binaryImage = mReader->GetOutput();
     AddImage(binaryImage, filename[i].toStdString(), mBackgroundValueSpinBox->value());
+    delete mReader;
   }
   UpdateImage();
 }
@@ -275,7 +285,7 @@ void vvToolStructureSetManager::UpdateImage()
   for(unsigned int i=0; i<mLoadedROIIndex.size(); i++) {
     mCurrentStructureSetActor->GetROIActor(mLoadedROIIndex[i])->Update();
   }
-  for(int i=0; i<mCurrentSlicerManager->NumberOfSlicers(); i++) {
+  for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
     mCurrentSlicerManager->GetSlicer(i)->Render();
   }  
 }
@@ -283,7 +293,8 @@ void vvToolStructureSetManager::UpdateImage()
 
 
 //------------------------------------------------------------------------------
-void vvToolStructureSetManager::AddImage(vvImage::Pointer binaryImage, std::string filename, double BG, bool m_modeBG) 
+void vvToolStructureSetManager::AddImage(vvImage * binaryImage, std::string filename, 
+                                         double BG, bool m_modeBG) 
 {
   // Check current structure set
   int index;
