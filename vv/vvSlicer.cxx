@@ -1062,14 +1062,7 @@ void vvSlicer::SetRenderWindow(int orientation, vtkRenderWindow * rw)
 //----------------------------------------------------------------------------
 void vvSlicer::ResetCamera()
 {
-  if (this->GetInput()) {
-    double* input_bounds=this->GetInput()->GetBounds();
-    double bmax=input_bounds[1]-input_bounds[0];
-    if (bmax < input_bounds[3]-input_bounds[2]) bmax=input_bounds[3]-input_bounds[2];
-    if (bmax < input_bounds[5]-input_bounds[4]) bmax=input_bounds[5]-input_bounds[4];
-    this->GetRenderer()->ResetCamera();
-    this->GetRenderer()->GetActiveCamera()->SetParallelScale(bmax/2);
-  }
+  this->GetRenderer()->ResetCamera();
 }
 //----------------------------------------------------------------------------
 
