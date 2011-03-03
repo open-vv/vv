@@ -226,18 +226,12 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
           return;
         }
         if (KeyPress == "Up") {
-	  //          DD("------------ up");
           this->SM->GetSlicer(VisibleInWindow)->SetSlice(this->SM->GetSlicer(VisibleInWindow)->GetSlice()+1);
-          //DD("------------ after set slice");
-          this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
-          //DD("------------ after UpdateInfoOnCursorPosition");
           this->SM->UpdateSlice(VisibleInWindow);
-          //DD("------------ after updateslice");
         }
         if (KeyPress == "Down") {
           this->SM->GetSlicer(VisibleInWindow)->SetSlice(this->SM->GetSlicer(VisibleInWindow)->GetSlice()-1);
           this->SM->UpdateSlice(VisibleInWindow);
-          this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
         }
         if (KeyPress == "space") {
           newLandmark = true;
@@ -251,19 +245,16 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
           this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetText(2,"Sagital\n<slice>");
           this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(0);
           this->SM->UpdateSliceRange(VisibleInWindow);
-          this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
         }
         if (KeyPress == "F3") {
           this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetText(2,"Coronal\n<slice>");
           this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(1);
           this->SM->UpdateSliceRange(VisibleInWindow);
-          this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
         }
         if (KeyPress == "F4") {
           this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetText(2,"Axial\n<slice>");
           this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(2);
           this->SM->UpdateSliceRange(VisibleInWindow);
-          this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
         }
 
       }
@@ -313,7 +304,6 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
       if (event == vtkCommand::MouseWheelForwardEvent && !isi->GetInteractor()->GetControlKey()) {
         this->SM->GetSlicer(VisibleInWindow)->SetSlice(this->SM->GetSlicer(VisibleInWindow)->GetSlice()+1);
         this->SM->UpdateSlice(VisibleInWindow);
-        this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
       } else if (event == vtkCommand::MouseWheelForwardEvent && isi->GetInteractor()->GetControlKey()) {
         double factor = 2;
         this->Dolly(pow((double)1.1, factor),isi->GetInteractor());
@@ -321,7 +311,6 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
       } else if (event == vtkCommand::MouseWheelBackwardEvent && !isi->GetInteractor()->GetControlKey()) {
         this->SM->GetSlicer(VisibleInWindow)->SetSlice(this->SM->GetSlicer(VisibleInWindow)->GetSlice()-1);
         this->SM->UpdateSlice(VisibleInWindow);
-        this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
       } else if (event == vtkCommand::MouseWheelBackwardEvent && isi->GetInteractor()->GetControlKey()) {
         double factor = -2;
         this->Dolly(pow((double)1.1, factor),isi->GetInteractor());
