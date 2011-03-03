@@ -4,6 +4,7 @@
 template<class TItkImageType>
 void vvImage::AddItkImage(TItkImageType *input)
 {
+  // Convert from ITK object to VTK object
   mImageDimension = TItkImageType::ImageDimension; 
   typedef itk::ImageToVTKImageFilter <TItkImageType> ConverterType;
   typename ConverterType::Pointer converter = ConverterType::New();
@@ -11,7 +12,14 @@ void vvImage::AddItkImage(TItkImageType *input)
   converter->SetInput(input);
   converter->Update();
   mVtkImages.push_back( converter->GetOutput() );
- 
+  
+  // Account for direction in transform. The offset is already accounted for
+  // in the VTK image coordinates, no need to put it in the transform.
+  for(unsigned int j=0; j<input->GetImageDimension(); j++)
+    for(unsigned int i=0; i<input->GetImageDimension(); i++)
+      mTransform->GetMatrix()->SetElement(i,j, input->GetDirection()[i][j]);
+
+  // Create the corresponding transformed image
   mVtkImageReslice.push_back(vtkSmartPointer<vtkImageReslice>::New());
   mVtkImageReslice.back()->SetInterpolationModeToLinear();
   mVtkImageReslice.back()->AutoCropOutputOn();
