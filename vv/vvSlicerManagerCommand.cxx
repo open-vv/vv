@@ -204,6 +204,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
         if (KeyPress == "r" || KeyPress=="R") {
           this->SM->GetSlicer(VisibleInWindow)->ResetCamera();
           this->SM->GetSlicer(VisibleInWindow)->Render();
+          this->SM->UpdateLinkedNavigation( this->SM->GetSlicer(VisibleInWindow) );
           return;
         }
         if (KeyPress == "g") {
