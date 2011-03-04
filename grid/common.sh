@@ -27,9 +27,26 @@ test "${answer}" == "n" && return 1
 check_user "${prompt}"
 }
 
+# checks if the lfn file exists
 function file_exists {
 lfnfile="${1:?"provide lfn to file"}"
 lfc-ls ${lfnfile} 2>&1 > /dev/null
+}
+
+# upload file to grid storage element
+# source can be a relative or an absolute path to the source file 
+# dest must be the lfn to the target **file** (not the directory) 
+# if dest already exists, it prompts the user for overwritting
+function upload_file {
+sourcefile=${1:?"provide source file"}
+destlfn=${2:?"provide destination file lfn"}
+sourcefile="$(readlink -f "${sourcefile}")" # convert to absolute path
+test -f "${sourcefile}" || error "can't find ${sourcefile}"
+file_exists ${destlfn} && ( \
+	check_user "${destlfn} already exists. overwrite it?" || return 2 && \
+	lcg-del -a "lfn:${destlfn}" || error "failed to delete ${destlfn}" \
+) && \
+lcg-cr -v -d ccsrm02.in2p3.fr -l "lfn:${destlfn}" "file:${sourcefile}" 
 }
 
 
