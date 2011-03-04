@@ -14,4 +14,6 @@ echo "releasename=${releasename}"
 echo "lfnrelease=${lfnrelease}"
 check_user || exit 2
 
-lcg-cr -v -d ccsrm02.in2p3.fr -l "lfn:${lfnrelease}${releasename}" "file:${releasearchive}"
+target="${lfnrelease}${releasename}"
+file_exists ${target} && ( check_user "${target} already exists. overwrite it?" || return 0 )
+lcg-cr -v -d ccsrm02.in2p3.fr -l "lfn:${target}" "file:${releasearchive}"
