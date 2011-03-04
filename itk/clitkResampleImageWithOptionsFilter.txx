@@ -157,7 +157,6 @@ GenerateOutputInformation()
   outputImage->CopyInformation(input);
   outputImage->SetLargestPossibleRegion(m_OutputRegion);
   outputImage->SetSpacing(m_OutputSpacing);
-  outputImage->FillBuffer(GetDefaultPixelValue());
 
   // Init Gaussian sigma
   if (m_GaussianSigma[0] != -1) { // Gaussian filter set by user
