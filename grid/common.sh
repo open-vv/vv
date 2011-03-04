@@ -27,6 +27,12 @@ test "${answer}" == "n" && return 1
 check_user "${prompt}"
 }
 
+function file_exists {
+lfnfile="${1:?"provide lfn to file"}"
+lfc-ls ${lfnfile} 2>&1 > /dev/null
+}
+
+
 # common path used
 lfnbase="/grid/biomed/creatis/fgate/"
 lfnrelease="${lfnbase}releases/"
