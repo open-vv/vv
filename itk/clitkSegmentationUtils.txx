@@ -831,8 +831,8 @@ namespace clitk {
   Binarize(const ImageType * input, 
            typename ImageType::PixelType lower, 
            typename ImageType::PixelType upper, 
-           typename ImageType::PixelType BG=0,
-           typename ImageType::PixelType FG=1) 
+           typename ImageType::PixelType BG,
+           typename ImageType::PixelType FG) 
   {
     typedef itk::BinaryThresholdImageFilter<ImageType, ImageType> BinaryThresholdFilterType;
     typename BinaryThresholdFilterType::Pointer binarizeFilter = BinaryThresholdFilterType::New();
