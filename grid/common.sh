@@ -42,10 +42,11 @@ sourcefile=${1:?"provide source file"}
 destlfn=${2:?"provide destination file lfn"}
 sourcefile="$(readlink -f "${sourcefile}")" # convert to absolute path
 test -f "${sourcefile}" || error "can't find ${sourcefile}"
-file_exists ${destlfn} && ( \
-	check_user "${destlfn} already exists. overwrite it?" || return 2 && \
-	lcg-del -a "lfn:${destlfn}" || error "failed to delete ${destlfn}" \
-) && \
+echo "uploading ${sourcefile} to ${destlfn}"
+file_exists "${destlfn}" \
+	&& check_user "${destlfn} already exists. overwrite it?" \
+	&& lcg-del -a "lfn:${destlfn}" \
+	|| return 2
 lcg-cr -v -d ccsrm02.in2p3.fr -l "lfn:${destlfn}" "file:${sourcefile}" 
 }
 
@@ -53,7 +54,7 @@ lcg-cr -v -d ccsrm02.in2p3.fr -l "lfn:${destlfn}" "file:${sourcefile}"
 # common path used
 lfnbase="/grid/biomed/creatis/fgate/"
 lfnrelease="${lfnbase}releases/"
-lfnworkflow="${lfnbase}"
+lfnworkflow="${lfnbase}workflow/"
 lfngasw="${lfnbase}gasw/"
 lfnscript="${lfnbase}bin/"
 
