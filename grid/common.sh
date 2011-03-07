@@ -43,10 +43,11 @@ destlfn=${2:?"provide destination file lfn"}
 sourcefile="$(readlink -f "${sourcefile}")" # convert to absolute path
 test -f "${sourcefile}" || error "can't find ${sourcefile}"
 echo "uploading ${sourcefile} to ${destlfn}"
-file_exists "${destlfn}" \
-	&& check_user "${destlfn} already exists. overwrite it?" \
-	&& lcg-del -a "lfn:${destlfn}" \
-	|| return 2
+if file_exists "${destlfn}"; then
+	check_user "${destlfn} already exists. overwrite it?" || exit 2
+	lcg-del -a "lfn:${destlfn}"
+fi
+echo "lets roll"
 lcg-cr -v -d ccsrm02.in2p3.fr -l "lfn:${destlfn}" "file:${sourcefile}" 
 }
 
