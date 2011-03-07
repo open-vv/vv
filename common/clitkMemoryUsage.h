@@ -22,6 +22,11 @@
 // clitk include
 #include "clitkConfiguration.h"
 
+// statgrab include
+#if CLITK_MEMORY_INFO == 1
+#include <statgrab.h>
+#endif
+
 //--------------------------------------------------------------------
 namespace clitk {
 
