@@ -37,9 +37,9 @@ template<class ArgsInfoType>
 template<unsigned int Dim>
 void clitk::CropImageGenericFilter<ArgsInfoType>::InitializeImageType() 
 {  
-  // ADD_DEFAULT_IMAGE_TYPES(Dim);
-  ADD_IMAGE_TYPE(Dim, uchar);
-  ADD_IMAGE_TYPE(Dim, short);
+  ADD_DEFAULT_IMAGE_TYPES(Dim);
+  //ADD_IMAGE_TYPE(Dim, uchar);
+  //ADD_IMAGE_TYPE(Dim, short);
   // ADD_IMAGE_TYPE(Dim, uint);
   //  ADD_IMAGE_TYPE(Dim, ulong);
   // ADD_IMAGE_TYPE(Dim, int);
