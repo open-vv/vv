@@ -17,6 +17,9 @@
 ======================================================================-====*/
 #include <utility>
 #include <cassert>
+#include <ctime>
+#include <string>
+#include <ostream>
 #include <QApplication>
 #include <QPixmap>
 #include <QSplashScreen>
@@ -27,10 +30,33 @@
 #include "vvMainWindow.h"
 #include "vvConstants.h"
 
+#include <vtkFileOutputWindow.h>
+#include <vtkSmartPointer.h>
+#include <itkFileOutputWindow.h>
+#include <itkSmartPointer.h>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include  <errno.h> 
+
 void load_image_first_error()
 {
   std::cerr << "You need to load an image before adding an overlay!" << std::endl;
   exit(1);
+}
+
+std::string create_timed_string()
+{
+  time_t t;
+  time(&t);
+  
+  struct tm* pt = localtime(&t);
+  
+  const int size = 64;
+  char st[size];
+  strftime(st, size, "%Y%m%d-%H%M%S", pt);
+  
+  return st;
 }
 
 //------------------------------------------------------------------------------
@@ -97,7 +123,23 @@ int main( int argc, char** argv )
           parse_mode=P_WINDOW;
         } else if (current == "--level") {
           parse_mode=P_LEVEL;
-        }
+        } else if (current == "--log") {
+	  std::string log_dir = "/tmp/vv-log";
+	  int err = mkdir(log_dir.c_str(), S_IRWXU | S_IRUSR | S_IWUSR | S_IRWXG | S_IRGRP | S_IWGRP | S_IRWXO | S_IROTH | S_IWOTH); 
+	  if (err && errno != EEXIST)
+	    std::cout << "Error creating log directory with errno " << errno << std::endl;
+
+	  std::string log_file = log_dir + "/" + create_timed_string() + ".log";
+	  vtkSmartPointer<vtkFileOutputWindow> vtk_log = vtkFileOutputWindow::New();
+	  vtk_log->SetFileName(log_file.c_str());
+	  vtk_log->FlushOn();
+	  vtkOutputWindow::SetInstance(vtk_log);
+	  
+	  itk::SmartPointer<itk::FileOutputWindow> itk_log = itk::FileOutputWindow::New();
+	  itk_log->SetFileName(log_file.c_str());
+	  itk_log->FlushOn();
+	  itk::OutputWindow::SetInstance(itk_log);
+	}
       } else if (parse_mode == P_SEQUENCE) {
         sequence_filenames.push_back(current);
       } else if (parse_mode == P_WINDOW) {
