@@ -45,9 +45,9 @@ vvImageContour::~vvImageContour()
   for (unsigned int i = 0; i < mSlicer->GetImage()->GetVTKImages().size(); i++) {
     mSlicer->GetRenderer()->RemoveActor(mSquaresActorList[i]);
   }
-  mSquaresActorList.clear();
-  mSquaresList.clear();
-  mClipperList.clear();
+ mSquaresActorList.clear();
+ mSquaresList.clear();
+ mClipperList.clear();
 }
 //------------------------------------------------------------------------------
 
@@ -57,9 +57,9 @@ void vvImageContour::SetSlicer(vvSlicer * slicer) {
   mSlicer = slicer;  
   // Create an actor for each time slice
   for (unsigned int numImage = 0; numImage < mSlicer->GetImage()->GetVTKImages().size(); numImage++) {
-    vtkImageClip * mClipper = vtkImageClip::New();
-    vtkMarchingSquares * mSquares = vtkMarchingSquares::New();
-    vtkActor * mSquaresActor = vtkActor::New();
+    vtkImageClip * mClipper;// = vtkImageClip::New();
+    vtkMarchingSquares * mSquares;// = vtkMarchingSquares::New();
+    vtkActor * mSquaresActor;// = vtkActor::New();
     CreateNewActor(&mSquaresActor, &mSquares, &mClipper, numImage);
     mSquaresActorList.push_back(mSquaresActor);
     mSquaresList.push_back(mSquares);
@@ -70,7 +70,7 @@ void vvImageContour::SetSlicer(vvSlicer * slicer) {
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::SetImage(vvImage::Pointer image) {
+void vvImageContour::SetImage(vvImage * image) {
   for (unsigned int numImage = 0; numImage < image->GetVTKImages().size(); numImage++) {
     mClipperList[numImage]->SetInput(image->GetVTKImages()[numImage]);
   }
@@ -197,6 +197,7 @@ void vvImageContour::UpdateWithPreserveMemoryMode() {
 
 //------------------------------------------------------------------------------
 void vvImageContour::InitializeCacheMode() {
+clitkExceptionMacro("TODO : not implemented yet");
   mPreviousSlice = mPreviousOrientation = 0;
   int dim = mSlicer->GetImage()->GetNumberOfDimensions();
 
@@ -232,6 +233,8 @@ int vvImageContour::ComputeCurrentOrientation() {
 
 //------------------------------------------------------------------------------
 void vvImageContour::UpdateWithFastCacheMode() {
+clitkExceptionMacro("TODO : not implemented yet");
+
   // Compute orientation
   int orientation = ComputeCurrentOrientation();
 
@@ -263,10 +266,10 @@ void vvImageContour::CreateNewActor(vtkActor ** actor,
                                     vtkMarchingSquares ** squares, 
                                     vtkImageClip ** clipper, 
                                     int numImage) {
-  vtkActor * mSquaresActor = (*actor = vtkActor::New());
-  vtkImageClip * mClipper = (*clipper = vtkImageClip::New());
-  vtkMarchingSquares * mSquares = (*squares = vtkMarchingSquares::New());
-  vtkPolyDataMapper * mSquaresMapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkActor> mSquaresActor = (*actor = vtkSmartPointer<vtkActor>::New());
+  vtkSmartPointer<vtkImageClip> mClipper = (*clipper = vtkSmartPointer<vtkImageClip>::New());
+  vtkSmartPointer<vtkMarchingSquares> mSquares = (*squares = vtkSmartPointer<vtkMarchingSquares>::New());
+  vtkSmartPointer<vtkPolyDataMapper> mSquaresMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
 
   if (mHiddenImageIsUsed)
     mClipper->SetInput(mHiddenImage->GetVTKImages()[0]);

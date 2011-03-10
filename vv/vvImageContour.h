@@ -40,7 +40,7 @@ class vvImageContour
   void ShowActors();
   void SetColor(double r, double g, double b);
   void SetLineWidth(double w);
-  void SetImage(vvImage::Pointer image);
+  void SetImage(vvImage * image);
   void SetPreserveMemoryModeEnabled(bool b);
 
  protected:
@@ -51,13 +51,13 @@ class vvImageContour
   int mPreviousTSlice;
   double mPreviousValue;
   bool mHiddenImageIsUsed;
-  vvImage::Pointer mHiddenImage;
+  vvImage * mHiddenImage;
   bool mDisplayModeIsPreserveMemory;
 
   // For preserveMemory mode
-  std::vector<vtkImageClip*> mClipperList;
-  std::vector<vtkMarchingSquares*> mSquaresList;
-  std::vector<vtkActor*> mSquaresActorList;
+  std::vector<vtkSmartPointer<vtkImageClip> > mClipperList;
+  std::vector<vtkSmartPointer<vtkMarchingSquares> > mSquaresList;
+  std::vector<vtkSmartPointer<vtkActor> > mSquaresActorList;
 
   // For fast cache mode
   int mPreviousSlice;
@@ -70,7 +70,8 @@ class vvImageContour
   void UpdateWithFastCacheMode();
   void CreateNewActor(vtkActor ** actor, 
 		      vtkMarchingSquares ** squares, 
-		      vtkImageClip ** clipper, int numImage);
+                      vtkImageClip ** clipper, 
+                      int numImage);
   void UpdateActor(vtkActor * actor, 
 		   vtkMarchingSquares * squares,
 		   vtkImageClip * clipper, 

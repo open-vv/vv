@@ -38,7 +38,7 @@ vvBinaryImageOverlayActor::vvBinaryImageOverlayActor()
   mAlpha = 0.6;
   mImage = 0;
   mSlicer = 0;
-  mColorLUT = vtkLookupTable::New();
+  mColorLUT = vtkSmartPointer<vtkLookupTable>::New();
   mForegroundValue = 1;
   mBackgroundValue = 0;
   m_modeBG = true;
@@ -52,8 +52,8 @@ vvBinaryImageOverlayActor::~vvBinaryImageOverlayActor()
   for (unsigned int i = 0; i < mSlicer->GetImage()->GetVTKImages().size(); i++) {
     mSlicer->GetRenderer()->RemoveActor(mImageActorList[i]);
   }
-  mImageActorList.clear();
   mMapperList.clear();
+  mImageActorList.clear();
 }
 //------------------------------------------------------------------------------
 
@@ -91,7 +91,7 @@ void vvBinaryImageOverlayActor::Initialize(bool IsVisible)
   // Create an actor for each time slice
   for (unsigned int numImage = 0; numImage < mSlicer->GetImage()->GetVTKImages().size(); numImage++) {
     // how many intensity ?
-    vtkImageMapToRGBA * mOverlayMapper = vtkImageMapToRGBA::New();
+    vtkSmartPointer<vtkImageMapToRGBA> mOverlayMapper = vtkSmartPointer<vtkImageMapToRGBA>::New();
     mOverlayMapper->SetInput(mImage->GetVTKImages()[0]); // DS TODO : to change if it is 4D !!!
 
     double range[2];
@@ -117,7 +117,7 @@ void vvBinaryImageOverlayActor::Initialize(bool IsVisible)
 
     mOverlayMapper->SetLookupTable(mColorLUT);
 
-    vtkImageActor * mOverlayActor = vtkImageActor::New();
+    vtkSmartPointer<vtkImageActor> mOverlayActor = vtkSmartPointer<vtkImageActor>::New();
     mOverlayActor->SetInput(mOverlayMapper->GetOutput());
     mOverlayActor->SetPickable(0);
     mOverlayActor->SetVisibility(IsVisible);
@@ -174,7 +174,7 @@ void vvBinaryImageOverlayActor::SetOpacity(double d)
 
 
 //------------------------------------------------------------------------------
-void vvBinaryImageOverlayActor::SetImage(vvImage::Pointer image, double bg, bool modeBG)
+void vvBinaryImageOverlayActor::SetImage(vvImage * image, double bg, bool modeBG)
 {
   mImage = image;
   if (modeBG) {
