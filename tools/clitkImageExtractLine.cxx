@@ -22,6 +22,10 @@
    * @file   clitkImageExtractLine.cxx
    * @author David Sarrut <David.Sarrut@creatis.insa-lyon.fr>
    * @date   23 Feb 2008 08:37:53
+   * @modified by Loïc Grevillot <Loic.Grevillot@creatis.insa-lyon.fr>
+   * @date   10 March 2011
+      * Option -I added, in order to integrate plans perpendicular to a line
+   
    -------------------------------------------------*/
 
 // clitk include
@@ -43,6 +47,7 @@ int main(int argc, char * argv[])
   typedef float PixelType;
   const unsigned int Dimension=3;
   typedef itk::Image<PixelType, Dimension> ImageType;
+  typedef itk::Size<Dimension> SizeType;
 
   // Check options
   if (args_info.firstIndex_given != Dimension) {
@@ -75,16 +80,104 @@ int main(int argc, char * argv[])
   length = sqrt(length);
 
   // Loop
+//   std::vector<double> depth;
+//   std::vector<double> values;
+//   itk::LineConstIterator<ImageType> iter(input, firstIndex, lastIndex);
+//   iter.GoToBegin();
+//   while (!iter.IsAtEnd()) {
+//     values.push_back(iter.Get());
+//     ++iter;
+//   }
+//   double step = length/values.size();
+
   std::vector<double> depth;
   std::vector<double> values;
   itk::LineConstIterator<ImageType> iter(input, firstIndex, lastIndex);
-  iter.GoToBegin();
-  while (!iter.IsAtEnd()) {
-    values.push_back(iter.Get());
-    ++iter;
+  int direction=0;
+  
+  // args_info.integral_arg=0, so, it does not compute the integral
+  if (args_info.integral_arg==0){
+    iter.GoToBegin();
+    while (!iter.IsAtEnd()) {
+      values.push_back(iter.Get());
+      ++iter;
+    }
   }
+  // args_info.integral_arg=1, so, it computes the integral
+  else if (lastIndex[0]-firstIndex[0]==0 && lastIndex[1]-firstIndex[1]==0 && lastIndex[2]-firstIndex[2]>0)
+    direction=1;
+  else if (lastIndex[0]-firstIndex[0]==0 && lastIndex[1]-firstIndex[1]>0 && lastIndex[2]-firstIndex[2]==0)
+    direction=2;
+  else if (lastIndex[0]-firstIndex[0]>0 && lastIndex[1]-firstIndex[1]==0 && lastIndex[2]-firstIndex[2]==0)
+    direction=3;
+  else{
+    //std::cout<<lastIndex[0]-firstIndex[0]<<"  "<<lastIndex[1]-firstIndex[1]<<"  "<<lastIndex[3]-firstIndex[3]<<std::endl;
+    std::cout<<"Index are not defined along a straight along x or y or z axis."<<std::endl;
+    std::cout<<"The line cannot be extracted."<<std::endl;
+    exit(0);
+  }
+  
+  if (args_info.integral_arg!=0){
+    SizeType dim;
+    dim=input->GetLargestPossibleRegion().GetSize();
+    DD(dim);
+    DD(direction);
+    
+    int a=0, b=0, c=0;
+    
+    if (direction==2){
+      a=0;
+      b=1;
+      c=2;
+    }
+    if (direction==1){
+      a=0;
+      b=2;
+      c=1;
+    }    
+    if (direction==3){
+      a=2;
+      b=0;
+      c=1;
+    } 
+    
+    double val[dim[b]];
+      for (int i=0; i<dim[b]; i++)
+	val[i]=0;
+      
+    int k;
+    for (int i=0; i<dim[a]; i++){
+      for (int j=0; j<dim[c]; j++){
+  //      std::cout<<"i "<<i<<"  j "<<j<<std::endl;
+	k=0;
+	firstIndex[a]=i;
+	firstIndex[c]=j;
+	lastIndex[a]=i;
+	lastIndex[c]=j;
+  //      std::cout<<"A"<<std::endl;
+	itk::LineConstIterator<ImageType> iter(input, firstIndex, lastIndex);
+	iter.GoToBegin();
+  //      std::cout<<"B"<<std::endl;
+	val[k]+=iter.Get();
+	k++;
+  //      std::cout<<"C"<<std::endl;
+	while (!iter.IsAtEnd()) {
+  //	std::cout<<"D "<<k<<std::endl;
+	  val[k]+=iter.Get();
+	  ++iter;
+	  k++;
+	}
+      }
+    }
+  
+    for (unsigned int i=0; i<dim[b]; i++){
+      values.push_back(val[i]);
+    }
+  }
+  
   double step = length/values.size();
-
+  DD(values.size());
+  
   // If isocenter is used
   double isoDistance = 0.0;
   if (args_info.isocenter_given) { // isoCenter is in mm
