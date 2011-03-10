@@ -67,9 +67,11 @@ namespace clitk
     itkTypeMacro( CalculateTREGenericFilter, LightObject );
 
 
-    //----------------------------------------
+    //-----------------------------
     // Typedefs
-    //----------------------------------------
+    //-----------------------------
+    typedef double ValueType;
+    typedef std::vector<ValueType> MeasureListType;
 
 
     //----------------------------------------
@@ -79,7 +81,6 @@ namespace clitk
     {
       m_ArgsInfo=a;
       m_Verbose=m_ArgsInfo.verbose_flag;
-      m_InputFileName=m_ArgsInfo.vf_arg[0];
     }
     
     
@@ -101,9 +102,12 @@ namespace clitk
     // Templated members
     //----------------------------------------  
     template <unsigned int Dimension,unsigned int Components> void ReadVectorFields(void);
-    template <unsigned int Dimension,unsigned int Components> void ProcessVectorFields(std::vector< typename itk::Image<itk::Vector<float, Components>, Dimension>::Pointer > dvfs, char** filenames);
-    template <unsigned int Dimension> void UpdateWithDim( std::vector<typename itk::Image<itk::Vector<float, Dimension>, Dimension>::Pointer > dvfs,  std::vector<std::string> filenames);
-    
+    template <unsigned int Dimension,unsigned int Components> void ProcessVectorFields(std::vector< typename itk::Image<itk::Vector<double, Components>, Dimension>::Pointer > dvfs, char** filenames);
+    template <unsigned int Dimension> void UpdateDVFWithDim( std::vector<typename itk::Image<itk::Vector<ValueType, Dimension>, Dimension>::Pointer > dvfs,  std::vector<std::string> filenames);
+    template <unsigned int Dimension,unsigned int Components> void ReadCoefficientImages(void);
+    template <unsigned int Dimension,unsigned int Components> void ProcessCoefficientImages(std::vector< typename itk::Image<itk::Vector<double, Components>, Dimension>::Pointer > dvfs, char** filenames);
+    template <unsigned int Dimension> void UpdateCoeffsWithDim( std::vector<typename itk::Image<itk::Vector<ValueType, Dimension>, Dimension>::Pointer > dvfs,  std::vector<std::string> filenames);
+    template<unsigned int Dimension> void BuildPointLists(std::vector<std::string>& filenames);
 
     //----------------------------------------  
     // Data members
@@ -111,11 +115,14 @@ namespace clitk
     args_info_clitkCalculateTRE m_ArgsInfo;
     bool m_Verbose;
     std::string m_InputFileName;
+    unsigned int m_NumberOfFields;
+    unsigned int m_NumberOfLists;
+    unsigned int m_NumberOfPoints;
 
   };
 
 
-} // end namespace clitk
+} // end namespace clitk 
 
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "clitkCalculateTREGenericFilter.txx"

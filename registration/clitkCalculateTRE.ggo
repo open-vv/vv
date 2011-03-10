@@ -11,7 +11,8 @@ section "Input"
 
 option "ref"   		-   	"List of points in reference"	 	string		yes 			
 option "input"		i	"Lists of points in targets"	  	string  	multiple 	yes
-option "vf"    		-   	"Input deformation fields"	  	string 		multiple	yes
+option "vf"    		-   	"Input deformation fields"	  	string 		multiple	no
+option "coeff"          -       "Input coefficient images"              string          multiple        no
 option "skip"		-	"Skip a phase of a 4D DVF"		int		no	
 
 section "Interpolation"
