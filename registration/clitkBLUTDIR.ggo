@@ -25,6 +25,7 @@ section "Output"
 
 option "vf"			-	"Result DVF"				string 		yes
 option "coeff"			-	"Result coefficient images"		string 		no 	
+option "coeffEveryN"		-	"Result coefficient images at every N iterations (requires --coeff and --verbose)"		int		no		default="20"
 option "output"			o	"Deformed target image"			string 		yes
 option "before"			-	"Difference image before (but after rigid transform)"		string 		no
 option "after"			-	"Difference image after "		string 		no

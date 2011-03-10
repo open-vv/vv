@@ -28,6 +28,7 @@ It is distributed under dual licence
  ===================================================*/
 
 #include "clitkBLUTDIRGenericFilter.h"
+#include "clitkBLUTDIRCommandIterationUpdateDVF.h"
 
 namespace clitk
 {
@@ -78,7 +79,7 @@ namespace clitk
   {
     InitializeImageType<2>();
     InitializeImageType<3>();
-    m_Verbose=true;
+    m_Verbose=false;
   }
 
   //=========================================================================//
@@ -93,6 +94,8 @@ namespace clitk
     }
 
     if (m_ArgsInfo.output_given) SetOutputFilename(m_ArgsInfo.output_arg);
+    
+    if (m_ArgsInfo.verbose_given) m_Verbose=true;
   }
 
   //=========================================================================//
@@ -273,6 +276,8 @@ namespace clitk
   template<class InputImageType>
     void BLUTDIRGenericFilter::UpdateWithInputImageType()
     {
+      if (m_Verbose) std::cout << "BLUTDIRGenericFilter::UpdateWithInputImageType()" << std::endl;
+      
       //=============================================================================
       //Input
       //=============================================================================
@@ -667,6 +672,17 @@ namespace clitk
         command->SetMaximize(genericMetric->GetMaximize());
         command->SetMetricRegion(metricRegion);
         registration->AddObserver( itk::IterationEvent(), command );
+
+        if (m_ArgsInfo.coeff_given)
+        {
+          std::cout << std::endl << "Output coefficient images every " << m_ArgsInfo.coeffEveryN_arg << " iterations." << std::endl;
+          typedef CommandIterationUpdateDVF<FixedImageType, OptimizerType, TransformType> DVFCommandType;
+          typename DVFCommandType::Pointer observerdvf = DVFCommandType::New();
+          observerdvf->SetFixedImage(fixedImage);
+          observerdvf->SetTransform(transform);
+          observerdvf->SetArgsInfo(m_ArgsInfo);
+          optimizer->AddObserver( itk::IterationEvent(), observerdvf );
+        }
       }
 
 
