@@ -100,13 +100,19 @@ vvToolStructureSetManager::vvToolStructureSetManager(vvMainWindowBase * parent,
 vvToolStructureSetManager::~vvToolStructureSetManager()
 {
   m_NumberOfTool--;
-  // DD(mStructureSetsList.size());
-  // DD(mStructureSetActorsList.size());
-  for(uint i=0; i<mStructureSetsList.size();i++) {
-    //    DD(i);
-    delete mStructureSetsList[i];
-    delete mStructureSetActorsList[i];
+  mStructureSetActorsList.clear();
+  mMapROIToTreeWidget.clear();
+
+  /*
+  for(uint i=0; i<mStructureSetsList[0]->GetListOfROI().size();i++) {
+    DD(i);
+    DD(mStructureSetsList[0]->GetROI(i)->GetImage()->GetReferenceCount());
+    //    mStructureSetsList[0]->GetROI(i)->GetImage()->Delete();
   }
+  */
+
+  mStructureSetsList.clear();
+  mOpenedBinaryImage.clear();
 }
 //------------------------------------------------------------------------------
 
@@ -115,10 +121,10 @@ vvToolStructureSetManager::~vvToolStructureSetManager()
 // STATIC
 void vvToolStructureSetManager::Initialize() {
   SetToolName("ROIManager");
-  SetToolMenuName("Display ROI");
+  SetToolMenuName("Display ROI (binary image)");
   SetToolIconFilename(":/common/icons/tool-roi.png");
-  SetToolTip("Display ROI from label image.");
-  SetToolExperimental(true);
+  SetToolTip("Display ROI from a binary image.");
+  SetToolExperimental(false);
 }
 //------------------------------------------------------------------------------
 
@@ -269,6 +275,7 @@ void vvToolStructureSetManager::OpenBinaryImage()
     }
     vvImage::Pointer binaryImage = mReader->GetOutput();
     AddImage(binaryImage, filename[i].toStdString(), mBackgroundValueSpinBox->value());
+    mOpenedBinaryImage.push_back(binaryImage);
     delete mReader;
   }
   UpdateImage();
@@ -370,7 +377,6 @@ bool vvToolStructureSetManager::close()
 //------------------------------------------------------------------------------
 void vvToolStructureSetManager::closeEvent(QCloseEvent *event) 
 {
-  // DD("vvToolStructureSetManager::closeEvent()");
   std::vector<vvSlicerManager*>::iterator iter = std::find(mListOfInputs.begin(), mListOfInputs.end(), mCurrentSlicerManager);
   if (iter != mListOfInputs.end()) mListOfInputs.erase(iter);
   
@@ -382,7 +388,6 @@ void vvToolStructureSetManager::closeEvent(QCloseEvent *event)
   if (mCurrentSlicerManager != 0) mCurrentSlicerManager->Render();
   if (mCurrentStructureSetActor) {
     for(int i=0; i<mCurrentStructureSetActor->GetNumberOfROIs(); i++) {
-      // DD(i);
       mCurrentStructureSetActor->GetROIList()[i]->SetVisible(false);
       mCurrentStructureSetActor->GetROIList()[i]->SetContourVisible(false);
       delete mCurrentStructureSetActor->GetROIList()[i];
@@ -594,11 +599,7 @@ void vvToolStructureSetManager::ReloadCurrentROI() {
     QMessageBox::information(mMainWindowBase, tr("Sorry, error. Could not reload"), mReader->GetLastError().c_str());
     return;
   }
-  //  delete mCurrentROI->GetImage();
-  // DD(mCurrentROI->GetImage()->GetFirstVTKImageData()->GetDataReleased());
-  //   DD(mCurrentROI->GetImage()->GetFirstVTKImageData()->GetReferenceCount());
   mCurrentROI->GetImage()->GetFirstVTKImageData()->ReleaseData();
-  // DD(mCurrentROI->GetImage()->GetFirstVTKImageData()->GetDataReleased());
   mCurrentROI->SetImage(mReader->GetOutput());
   
   // Update visu"
