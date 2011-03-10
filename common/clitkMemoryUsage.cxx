@@ -48,6 +48,8 @@ double clitk::GetMemoryUsageInMb()
   // Display total memory size 
   double mem = stat[i].proc_resident/1024/1024; // in Mb
   return mem;
+#else
+  return 0.0;
 #endif
   }
 
