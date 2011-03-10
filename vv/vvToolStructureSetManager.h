@@ -82,6 +82,7 @@ protected:
   std::map<clitk::DicomRT_ROI*, QTreeWidgetItem *> mMapROIToTreeWidget;
   std::map<QTreeWidgetItem *, clitk::DicomRT_ROI*> mMapTreeWidgetToROI;
   std::vector<int> mLoadedROIIndex;
+  std::vector<vvImage::Pointer> mOpenedBinaryImage;
  
   void setCurrentSelectedROI(clitk::DicomRT_ROI * roi);
   void UpdateAllROIStatus();
