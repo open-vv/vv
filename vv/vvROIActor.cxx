@@ -51,6 +51,8 @@ vvROIActor::vvROIActor()
 //------------------------------------------------------------------------------
 vvROIActor::~vvROIActor()
 {
+  for(uint i= 0; i<mImageContour.size(); i++) delete mImageContour[i];
+  for(uint i= 0; i<mOverlayActors.size(); i++) delete mOverlayActors[i];
 }
 //------------------------------------------------------------------------------
 
@@ -148,6 +150,7 @@ void vvROIActor::Initialize(bool IsVisible) {
     mImageContour.clear();
     mOverlayActors.clear();
     for(int i=0; i<mSlicerManager->GetNumberOfSlicers(); i++) {
+
       mImageContour.push_back(new vvImageContour);
       mImageContour[i]->SetSlicer(mSlicerManager->GetSlicer(i));
       mImageContour[i]->SetImage(mROI->GetImage());
