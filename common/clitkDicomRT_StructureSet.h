@@ -46,7 +46,7 @@ namespace clitk {
     const std::string & GetDate() const;
     const std::string & GetTime() const;
 
-    int AddBinaryImageAsNewROI(vvImage::Pointer i, std::string name);
+    int AddBinaryImageAsNewROI(vvImage * i, std::string name);
     
   protected:
     std::string mStudyID;

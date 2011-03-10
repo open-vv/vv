@@ -39,7 +39,7 @@ clitk::DicomRT_ROI::DicomRT_ROI()
 //--------------------------------------------------------------------
 clitk::DicomRT_ROI::~DicomRT_ROI()
 {
-
+  mImage->Delete();
 }
 //--------------------------------------------------------------------
 
@@ -208,7 +208,7 @@ void clitk::DicomRT_ROI::ComputeMesh()
 
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI::SetFromBinaryImage(vvImage::Pointer image, int n,
+void clitk::DicomRT_ROI::SetFromBinaryImage(vvImage * image, int n,
 					    std::string name,
 					    std::vector<double> color, 
 					    std::string filename)
@@ -234,7 +234,7 @@ void clitk::DicomRT_ROI::SetFromBinaryImage(vvImage::Pointer image, int n,
 
 
 //--------------------------------------------------------------------
-const vvImage::Pointer clitk::DicomRT_ROI::GetImage() const
+vvImage * clitk::DicomRT_ROI::GetImage() const
 {
   return mImage;
 }

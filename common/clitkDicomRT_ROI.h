@@ -34,7 +34,7 @@ namespace clitk {
 
     void Print(std::ostream & os = std::cout) const;
     void Read(std::map<int, std::string> & rois, gdcm::SQItem * item);
-    void SetFromBinaryImage(vvImage::Pointer image, int n, 
+    void SetFromBinaryImage(vvImage * image, int n, 
 			    std::string name, 
 			    std::vector<double> color, 
 			    std::string filename);
@@ -44,7 +44,7 @@ namespace clitk {
     const std::string & GetFilename() const;
     const std::vector<double> & GetDisplayColor() const;
     vtkPolyData * GetMesh();
-    const vvImage::Pointer GetImage() const;
+    vvImage * GetImage() const;
 
     void SetDisplayColor(double r, double v, double b);
     std::vector<double> & GetDisplayColor() { return mColor; }
@@ -69,7 +69,7 @@ namespace clitk {
     std::vector<DicomRT_Contour*> mListOfContours;
     vtkPolyData * mMesh;
     bool mMeshIsUpToDate;
-    vvImage::Pointer mImage;
+    vvImage * mImage;
     double mBackgroundValue;
     double mForegroundValue;
     ///Spacing between two contours

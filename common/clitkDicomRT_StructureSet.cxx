@@ -37,7 +37,9 @@ clitk::DicomRT_StructureSet::DicomRT_StructureSet()
 //--------------------------------------------------------------------
 clitk::DicomRT_StructureSet::~DicomRT_StructureSet()
 {
-
+  for(uint i=0; i<mListOfROI.size(); i++) {
+    delete mListOfROI[i];
+  }
 }
 //--------------------------------------------------------------------
 
@@ -211,7 +213,7 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename)
 
 
 //--------------------------------------------------------------------
-int clitk::DicomRT_StructureSet::AddBinaryImageAsNewROI(vvImage::Pointer im, std::string n)
+int clitk::DicomRT_StructureSet::AddBinaryImageAsNewROI(vvImage * im, std::string n)
 {
   //DD("AddBinaryImageAsNewROI");
   // Search max ROI number
