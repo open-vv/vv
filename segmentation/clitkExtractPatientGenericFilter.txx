@@ -68,7 +68,9 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   f->SetVerboseWarningFlag(!mArgsInfo.verboseWarningOff_flag);
   f->SetVerboseMemoryFlag(mArgsInfo.verboseMemory_flag);
 
-  f->SetAFDBFilename(mArgsInfo.afdb_arg);  
+  if (mArgsInfo.afdb_given)
+    f->SetAFDBFilename(mArgsInfo.afdb_arg);  
+  
   f->SetOutputPatientFilename(mArgsInfo.output_arg);
 
   f->SetUpperThreshold(mArgsInfo.upper_arg);

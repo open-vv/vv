@@ -45,4 +45,4 @@ section "Fill holes"
 option "doNotFillHoles"		-  "Do not fill holes if set"                 flag on
 option "dir"    	        d  "Directions (axes) to perform filling (defaults to 2,1,0)"	int multiple no
 
-option "noAutoCrop"	- 	"If set : do no crop final mask to BoundingBox"	                        flag 	on
+option "noAutoCrop"	- 	"If set : do no crop final mask to BoundingBox"	                        flag 	off

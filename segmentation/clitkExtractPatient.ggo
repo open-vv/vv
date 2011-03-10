@@ -50,6 +50,6 @@ option  "remove"  	-		"Labels to remove"			int 	no	multiple
 section "Clean-up"
 
 option "openClose"	- 	"Perform morphological opening and closing with unit radius"	flag 	off
-option "noAutoCrop"	- 	"If set : do no crop final mask to BoundingBox"	                        flag 	on
+option "noAutoCrop"	- 	"If set : do no crop final mask to BoundingBox"	                        flag 	off
 
 
