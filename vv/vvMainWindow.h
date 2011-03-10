@@ -28,12 +28,16 @@
 #include "vvMesh.h"
 #include "clitkMemoryUsage.h"
 
+#include "vtkSmartPointer.h"
+
+
 class vvSlicerManager;
 class vvHelpDialog;
 class vvDocumentation;
 class vtkRenderWindowInteractor;
 class vtkImageData;
 class vtkRenderer;
+class vtkMatrix4x4;
 class vvDicomSeriesSelector;
 
 //------------------------------------------------------------------------------
@@ -173,6 +177,7 @@ private:
   QString GetSizeInBytes(unsigned long size);
   QString GetVectorDoubleAsString(std::vector<double> vectorDouble);
   QString GetVectorIntAsString(std::vector<int> vectorInt);
+  QString Get4x4MatrixDoubleAsString(vtkSmartPointer<vtkMatrix4x4> matrix);
   int GetSlicerIndexFromItem(QTreeWidgetItem* item);
   QTreeWidgetItem* GetItemFromSlicerManager(vvSlicerManager* sm);
   void SaveScreenshot(vtkImageData* image);

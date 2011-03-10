@@ -67,9 +67,13 @@
 #include "vtkPNMWriter.h"
 #include "vtkPNGWriter.h"
 #include "vtkJPEGWriter.h"
+#include "vtkMatrix4x4.h"
+#include "vtkTransform.h"
 
 // Standard includes
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 
 #define COLUMN_TREE 0
 #define COLUMN_UL_VIEW 1
@@ -996,6 +1000,7 @@ void vvMainWindow::ImageInfoChanged()
     std::vector<double> inputSpacing;
     std::vector<int> inputSize;
     std::vector<double> sizeMM;
+    vtkSmartPointer<vtkMatrix4x4> transformation;
     int dimension=0;
     QString pixelType;
     QString inputSizeInBytes;
@@ -1029,6 +1034,7 @@ void vvMainWindow::ImageInfoChanged()
         sizeMM[i] = inputSize[i]*inputSpacing[i];
         NPixel *= inputSize[i];
       }
+      transformation = imageSelected->GetTransform()->GetMatrix();
       inputSizeInBytes = GetSizeInBytes(imageSelected->GetActualMemorySize()*1000);
     } else if (DataTree->selectedItems()[0]->data(1,Qt::UserRole).toString() == "vector") {
       vvImage::Pointer imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetVF();
@@ -1090,6 +1096,7 @@ void vvMainWindow::ImageInfoChanged()
     infoPanel->setOrigin(GetVectorDoubleAsString(origin));
     infoPanel->setSpacing(GetVectorDoubleAsString(inputSpacing));
     infoPanel->setNPixel(QString::number(NPixel)+" ("+inputSizeInBytes+")");
+    infoPanel->setTransformation(Get4x4MatrixDoubleAsString(transformation));
 
     landmarksPanel->SetCurrentLandmarks(mSlicerManagers[index]->GetLandmarks(),
                                         mSlicerManagers[index]->GetSlicer(0)->GetImage()->GetVTKImages().size());
@@ -1236,6 +1243,29 @@ QString vvMainWindow::GetSizeInBytes(unsigned long size)
     result += QString::number(size);
     result += "kb";//)";
   }
+  return result;
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+QString vvMainWindow::Get4x4MatrixDoubleAsString(vtkSmartPointer<vtkMatrix4x4> matrix)
+{
+  std::ostringstream strmatrix;
+  
+  for (unsigned int i = 0; i < 4; i++) {
+    for (unsigned int j = 0; j < 4; j++) {
+      strmatrix.flags(ios::showpos);
+      strmatrix.width(10);
+      strmatrix.precision(3);
+      strmatrix.setf(ios::fixed,ios::floatfield);
+      strmatrix.fill(' ');
+      strmatrix << std::left << matrix->GetElement(i, j);
+      //strmatrix.width(10);
+      strmatrix << " ";
+    }
+    strmatrix << std::endl;
+  }
+  QString result = strmatrix.str().c_str();
   return result;
 }
 //------------------------------------------------------------------------------

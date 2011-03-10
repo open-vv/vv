@@ -22,6 +22,13 @@
 #include "clitkMemoryUsage.h"
 
 //------------------------------------------------------------------------------
+void vvInfoPanel::setTransformation(QString text)
+{
+  transformationLabel->setText(text);
+}
+
+//------------------------------------------------------------------------------
+
 void vvInfoPanel::setFileName(QString text)
 {
   if (text.size() > 30)
@@ -106,7 +113,7 @@ void vvInfoPanel::setCurrentInfo(int visibility, double x, double y, double z, d
 
 //------------------------------------------------------------------------------
 void vvInfoPanel::setViews(int window, int view, int slice)
-{
+{/*
   QString viewString;
   switch (view) {
   case 0: {
@@ -148,7 +155,7 @@ void vvInfoPanel::setViews(int window, int view, int slice)
     DRLabel->setText(text);
     break;
   }
-  }
+  }*/
 }
 //------------------------------------------------------------------------------
 
