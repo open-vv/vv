@@ -163,7 +163,7 @@ void vvInfoPanel::setViews(int window, int view, int slice)
 //------------------------------------------------------------------------------
 void vvInfoPanel::setMemoryInMb(QString text)
 {
-  memoryUsageLabel->setText("Memory usage: "+text);
+  memoryUsageLabel->setText("<font color=\"blue\">Memory usage :</font> "+text);
 }
 //------------------------------------------------------------------------------
 
