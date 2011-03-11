@@ -335,7 +335,8 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
 void vvMainWindow::UpdateMemoryUsage()
 {
   //  clitk::PrintMemory(true);
-  infoPanel->setMemoryInMb(QString::number(clitk::GetMemoryUsageInMb())+" MiB");
+  if (clitk::GetMemoryUsageInMb() == 0) infoPanel->setMemoryInMb("NA");
+  else infoPanel->setMemoryInMb(QString::number(clitk::GetMemoryUsageInMb())+" MiB");
 }
 //------------------------------------------------------------------------------
 
