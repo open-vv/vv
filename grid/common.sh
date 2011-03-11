@@ -44,7 +44,7 @@ sourcefile="$(readlink -f "${sourcefile}")" # convert to absolute path
 test -f "${sourcefile}" || error "can't find ${sourcefile}"
 echo "uploading ${sourcefile} to ${destlfn}"
 if file_exists "${destlfn}"; then
-	check_user "${destlfn} already exists. overwrite it?" || exit 2
+	check_user "${destlfn} already exists. overwrite it?" || return 2
 	lcg-del -a "lfn:${destlfn}"
 fi
 echo "lets roll"
