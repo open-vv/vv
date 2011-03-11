@@ -918,8 +918,6 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType fi
     // Try to guess default WindowLevel
     double range[2];
     mSlicerManagers.back()->GetImage()->GetFirstVTKImageData()->GetScalarRange(range);
-    // DD(range[0]);
-    //   DD(range[1]);
     if ((range[0] == 0) && (range[1] == 1)) {
       presetComboBox->setCurrentIndex(5);// binary
     } else {
@@ -947,9 +945,6 @@ void vvMainWindow::UpdateTree()
 //------------------------------------------------------------------------------
 void vvMainWindow::CurrentImageChanged(std::string id)
 {
-  // DD("CurrentImageChanged");
-//   DD(id);
-//   DD(mCurrentSelectedImageId);
   if (id == mCurrentSelectedImageId) return; // Do nothing
   int selected = 0;
   for (int i = 0; i < DataTree->topLevelItemCount(); i++) {
@@ -963,7 +958,6 @@ void vvMainWindow::CurrentImageChanged(std::string id)
 
   }
   DataTree->topLevelItem(selected)->setSelected(1);
-  // DD(mSlicerManagers[selected]->GetFileName());
   mCurrentSelectedImageId = id;
   emit SelectedImageHasChanged(mSlicerManagers[selected]);
 }
@@ -1113,8 +1107,6 @@ void vvMainWindow::ImageInfoChanged()
     }
     windowSpinBox->setValue(mSlicerManagers[index]->GetColorWindow());
     levelSpinBox->setValue(mSlicerManagers[index]->GetColorLevel());
-    // DD(mSlicerManagers[index]->GetColorMap());
-    // DD(mSlicerManagers[index]->GetPreset());
     presetComboBox->setCurrentIndex(mSlicerManagers[index]->GetPreset());
     colorMapComboBox->setCurrentIndex(mSlicerManagers[index]->GetColorMap());
 
@@ -1640,6 +1632,8 @@ void vvMainWindow::UpdateWindowLevel()
     mSlicerManagers[index]->SetColorLevel(levelSpinBox->value());
     mSlicerManagers[index]->SetPreset(presetComboBox->currentIndex());
     mSlicerManagers[index]->Render();
+    windowSpinBox->setValue(mSlicerManagers[index]->GetColorWindow());
+    levelSpinBox->setValue(mSlicerManagers[index]->GetColorLevel());
   }
 }
 //------------------------------------------------------------------------------
@@ -1844,7 +1838,6 @@ void vvMainWindow::AddOverlayImage(int index, QString file)
 //------------------------------------------------------------------------------
 void vvMainWindow::AddROI(int index, QString file)
 {
-  DD("AddImageAndROI");
   /*
   // Get slice manager
 
@@ -2230,7 +2223,6 @@ void vvMainWindow::AddLink(QString image1,QString image2)
 //------------------------------------------------------------------------------
 void vvMainWindow::RemoveLink(QString image1,QString image2)
 {
-  // DD("vvMainWindow:RemoveLink");
   for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
     if (image1.toStdString() == mSlicerManagers[i]->GetId()) {
       mSlicerManagers[i]->RemoveLink(image2.toStdString());
@@ -2365,8 +2357,6 @@ void vvMainWindow::NEVerticalSliderChanged()
 void vvMainWindow::SOVerticalSliderChanged()
 {
   static int value=-1;
-  // DD(value);
-//   DD(SOVerticalSlider->value());
   if (value == SOVerticalSlider->value()) return;
   else value = SOVerticalSlider->value();
   //int value = SOVerticalSlider->value();
