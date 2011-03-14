@@ -45,10 +45,10 @@ test -f "${sourcefile}" || error "can't find ${sourcefile}"
 echo "uploading ${sourcefile} to ${destlfn}"
 if file_exists "${destlfn}"; then
 	check_user "${destlfn} already exists. overwrite it?" || return 2
-	lcg-del -a "lfn:${destlfn}"
+	lcg-del -a "lfn:${destlfn}" || error "lcg-del error"
 fi
 echo "lets roll"
-lcg-cr -v -d ccsrm02.in2p3.fr -l "lfn:${destlfn}" "file:${sourcefile}" 
+lcg-cr -v -d ccsrm02.in2p3.fr -l "lfn:${destlfn}" "file:${sourcefile}" || error "lcg-cr error"
 }
 
 
