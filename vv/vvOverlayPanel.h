@@ -52,12 +52,12 @@ public slots:
     void setVFProperty();
     void setOverlayProperty();
     void setFusionProperty();
+    void VFColorChangeRequest();
 
 signals:
-    void VFPropertyUpdated(int subsampling, int scale, int log, int width);
+    void VFPropertyUpdated(int subsampling, int scale, int log, int width, double r, double g, double b);
     void OverlayPropertyUpdated(int color);
     void FusionPropertyUpdated(int opacity, int colormap, double window, double level);
-
 }; // end class vvOverlayPanel
 //====================================================================
 

@@ -169,6 +169,16 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QToolButton" name="vfColorButton">
+           <property name="styleSheet">
+            <string>
+              background-color: rgb(0, 255, 0);
+              border: 0px;
+            </string>
+           </property>
+         </widget>
+        </item>
        </layout>
       </item>
       <item>

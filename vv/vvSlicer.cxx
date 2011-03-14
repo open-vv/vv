@@ -91,6 +91,9 @@ vvSlicer::vvSlicer()
   mScale = 1;
   mVFLog = 0;
   mVFWidth = 1;
+  mVFColor[0] = 0;
+  mVFColor[1] = 1;
+  mVFColor[2] = 0;
 
   std::string text = "F1 = sagital; F2 = coronal; F3 = axial\n";
   text += "F5 = horizontal flip; F6 = vertical flip\n\n";
@@ -428,11 +431,20 @@ void vvSlicer::SetVF(vvImage::Pointer vf)
     mGlyphFilter->SetVectorModeToUseVector();
     mGlyphFilter->SetColorModeToColorByVector();
 
+    if (!mVFColorLUT)
+      mVFColorLUT = vtkSmartPointer<vtkLookupTable>::New();
+
+    double mVFColorHSV[3];
+    vtkMath::RGBToHSV(mVFColor, mVFColorHSV);
+    mVFColorLUT->SetHueRange(mVFColorHSV[0], mVFColorHSV[0]);
+    mVFColorLUT->SetSaturationRange(mVFColorHSV[1],mVFColorHSV[1]);
+    mVFColorLUT->SetValueRange(mVFColorHSV[2], mVFColorHSV[2]);
+
     if (!mVFMapper)
       mVFMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    //mVFMapper->SetInputConnection(mGlyphFilter->GetOutputPort());
     mVFMapper->SetInput(mGlyphFilter->GetOutput());
     mVFMapper->ImmediateModeRenderingOn();
+    mVFMapper->SetLookupTable(mVFColorLUT);
 
     if (!mVFActor)
       mVFActor = vtkSmartPointer<vtkActor>::New();
@@ -1391,7 +1403,19 @@ void vvSlicer::PrintSelf(ostream& os, vtkIndent indent)
 }
 //----------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------
+void vvSlicer::SetVFColor(double r, double g, double b)
+{
+  double mVFColorHSV[3];
+  mVFColor[0] = r;
+  mVFColor[1] = g;
+  mVFColor[2] = b;
 
+  vtkMath::RGBToHSV(mVFColor, mVFColorHSV);
+  mVFColorLUT->SetHueRange(mVFColorHSV[0], mVFColorHSV[0]);
+  mVFColorLUT->SetSaturationRange(mVFColorHSV[1],mVFColorHSV[1]);
+  mVFColorLUT->SetValueRange(mVFColorHSV[2], mVFColorHSV[2]);
 
-
+  this->Render();
+}  
 

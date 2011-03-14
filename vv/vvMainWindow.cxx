@@ -279,7 +279,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
 
   connect(linkPanel,SIGNAL(addLink(QString,QString)),this,SLOT(AddLink(QString,QString)));
   connect(linkPanel,SIGNAL(removeLink(QString,QString)),this,SLOT(RemoveLink(QString,QString)));
-  connect(overlayPanel,SIGNAL(VFPropertyUpdated(int,int,int,int)),this,SLOT(SetVFProperty(int,int,int,int)));
+  connect(overlayPanel,SIGNAL(VFPropertyUpdated(int,int,int,int,double,double,double)),this,SLOT(SetVFProperty(int,int,int,int,double,double,double)));
   connect(overlayPanel,SIGNAL(OverlayPropertyUpdated(int)),this,SLOT(SetOverlayProperty(int)));
   connect(overlayPanel,SIGNAL(FusionPropertyUpdated(int,int,double,double)),
           this,SLOT(SetFusionProperty(int,int,double,double)));
@@ -2087,7 +2087,7 @@ void vvMainWindow::AddField(QString file,int index)
 
 
 //------------------------------------------------------------------------------
-void vvMainWindow::SetVFProperty(int subsampling, int scale, int log, int width)
+void vvMainWindow::SetVFProperty(int subsampling, int scale, int log, int width, double r, double g, double b)
 {
   int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
   if (mSlicerManagers[index]->GetSlicer(0)->GetVF()) {
@@ -2095,6 +2095,7 @@ void vvMainWindow::SetVFProperty(int subsampling, int scale, int log, int width)
       mSlicerManagers[index]->GetSlicer(i)->SetVFSubSampling(subsampling);
       mSlicerManagers[index]->GetSlicer(i)->SetVFScale(scale);
       mSlicerManagers[index]->GetSlicer(i)->SetVFWidth(width);
+      mSlicerManagers[index]->GetSlicer(i)->SetVFColor(r,g,b);
       if (log > 0)
         mSlicerManagers[index]->GetSlicer(i)->SetVFLog(1);
       else

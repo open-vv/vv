@@ -22,6 +22,7 @@
 #include <QtGui>
 #include <Qt>
 #include "QTreePushButton.h"
+#include <QColorDialog>
 
 #include <vtksys/SystemTools.hxx>
 
@@ -41,6 +42,7 @@ vvOverlayPanel::vvOverlayPanel(QWidget * parent):QWidget(parent)
   connect(scaleSpinBox,SIGNAL(editingFinished()),this,SLOT(setVFProperty()));
   connect(lutCheckBox,SIGNAL(clicked()),this,SLOT(setVFProperty()));
   connect(vfWidthSpinBox,SIGNAL(editingFinished()),this,SLOT(setVFProperty()));
+  connect(vfColorButton,SIGNAL(clicked()),this,SLOT(VFColorChangeRequest()));
   connect(colorHorizontalSlider,SIGNAL(valueChanged(int)),this,SLOT(setOverlayProperty()));
   connect(opacityHorizontalSlider,SIGNAL(valueChanged(int)),this,SLOT(setFusionProperty()));
   connect(fusionColorMapComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setFusionProperty()));
@@ -90,10 +92,12 @@ void vvOverlayPanel::getVFName(QString name)
 
 void vvOverlayPanel::setVFProperty()
 {
+  QColor color(vfColorButton->palette().color(QPalette::Background));
   emit VFPropertyUpdated(subSamplingSpinBox->value(),
                          scaleSpinBox->value(),
                          lutCheckBox->checkState(),
-                         vfWidthSpinBox->value());
+                         vfWidthSpinBox->value(),
+                         color.redF(), color.greenF(), color.blueF());
 }
 
 void vvOverlayPanel::getCurrentVectorInfo(int visibility, double x,double y,double z, double value)
@@ -197,6 +201,15 @@ void vvOverlayPanel::getCurrentFusionInfo(int visibility,double value)
     fusionValue += QString::number(value,'f',1);
   }
   valueFusionnedLabel->setText(fusionValue);
+}
+
+void vvOverlayPanel::VFColorChangeRequest()
+{
+  QColor color(vfColorButton->palette().color(QPalette::Background));
+  color = QColorDialog::getColor(color, this, "Choose the new color of the vector field");
+  //vfColorButton->palette().setColor(QPalette::Background, color); SR: Not working?
+  vfColorButton->setStyleSheet("* { background-color: " + color.name() + "; border: 0px }");
+  this->setVFProperty();
 }
 
 #endif /* end #define _vvOverlayPanel_CXX */

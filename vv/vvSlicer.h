@@ -27,6 +27,7 @@
 
 #include <vtkSmartPointer.h>
 #include <vtkImageViewer2.h>
+#include <vtkColor.h>
 
 class vtkActor;
 class vtkActor2D;
@@ -168,6 +169,11 @@ public:
   int GetOrientation();
   int * GetExtent();
 
+  double* GetVFColor() {
+    return mVFColor;
+  }
+  void SetVFColor(double r, double g, double b);
+
 protected:
   vvSlicer();
   ~vvSlicer();
@@ -193,6 +199,7 @@ protected:
   vtkSmartPointer<vtkExtractVOI> mVOIFilter;
   vtkSmartPointer<vvGlyph2D> mGlyphFilter;
   vtkSmartPointer<vtkPolyDataMapper> mVFMapper;
+  vtkSmartPointer<vtkLookupTable> mVFColorLUT;
   vtkSmartPointer<vtkActor> mVFActor;
   vtkSmartPointer<vtkGlyph3D> mLandGlyph;
   vtkSmartPointer<vtkCursor3D> mCross;
@@ -210,6 +217,7 @@ protected:
   int mScale;
   int mVFLog;
   int mVFWidth;
+  double mVFColor[3];
   bool mUseReducedExtent;
   int * mReducedExtent;
   int * mInitialExtent;
