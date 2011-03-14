@@ -25,6 +25,7 @@
 #include <QSplashScreen>
 #include <QTimer>
 #include <QDesktopWidget>
+#include <QDir>
 
 #include "clitkIO.h"
 #include "vvMainWindow.h"
@@ -34,6 +35,7 @@
 #include <vtkSmartPointer.h>
 #include <itkFileOutputWindow.h>
 #include <itkSmartPointer.h>
+#include <itksys/SystemTools.hxx>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -124,10 +126,15 @@ int main( int argc, char** argv )
         } else if (current == "--level") {
           parse_mode=P_LEVEL;
         } else if (current == "--log") {
-	  std::string log_dir = "/tmp/vv-log";
-	  int err = mkdir(log_dir.c_str(), S_IRWXU | S_IRUSR | S_IWUSR | S_IRWXG | S_IRGRP | S_IWGRP | S_IRWXO | S_IROTH | S_IWOTH); 
-	  if (err && errno != EEXIST)
-	    std::cout << "Error creating log directory with errno " << errno << std::endl;
+          std::string log_dir = QDir::tempPath().toStdString() + std::string("/vv-log");
+
+          if(itksys::SystemTools::FileExists(log_dir.c_str()) &&
+             !itksys::SystemTools::FileIsDirectory(log_dir.c_str())) {
+            itkGenericExceptionMacro(<< "Error creating log directory, file exists and is not a directory.");
+          }
+          else if(!itksys::SystemTools::MakeDirectory(log_dir.c_str())) {
+            itkGenericExceptionMacro(<< "Error creating log directory.");
+          }
 
 	  std::string log_file = log_dir + "/" + create_timed_string() + ".log";
 	  vtkSmartPointer<vtkFileOutputWindow> vtk_log = vtkFileOutputWindow::New();
@@ -139,7 +146,7 @@ int main( int argc, char** argv )
 	  itk_log->SetFileName(log_file.c_str());
 	  itk_log->FlushOn();
 	  itk::OutputWindow::SetInstance(itk_log);
-	}
+        }
       } else if (parse_mode == P_SEQUENCE) {
         sequence_filenames.push_back(current);
       } else if (parse_mode == P_WINDOW) {
