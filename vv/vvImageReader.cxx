@@ -173,8 +173,27 @@ void vvImageReader::ReadMatImageTransform()
       for(int i=0; i<4; i++)
         matrix->SetElement(j,i,itkMat[j][i]);
 
+    // RP: 14/03/2011
+    //  For some reason, the transformation matrix given in the MHD
+    // file is inverted wrt the transformation given in the MAT file.
+    // We don't really know where the inversion takes place inside
+    // VTK or ITK. For what we could see in VV, the transformation
+    // given in the MHD file seems "more correct" than that given in 
+    // the MAT file. For this reason, we invert the matrix read from
+    // the MAT file before concatenating it to the current transformation.
+    // Still, it would be nice to find out what happens exactly between
+    // VTK and ITK...
+    //
+    vtkSmartPointer<vtkMatrix4x4> inv_matrix = vtkSmartPointer<vtkMatrix4x4>::New();
+    if (matrix->Determinant() == 0)
+    {
+      vtkGenericWarningMacro("Matrix in " << filename.c_str() << " cannot be inverted (determinant = 0)");
+    }
+    else
+      matrix->Invert(*matrix, *inv_matrix);
+    
     mImage->GetTransform()->PostMultiply();
-    mImage->GetTransform()->Concatenate(matrix);
+    mImage->GetTransform()->Concatenate(inv_matrix);
     mImage->GetTransform()->Update();
   }
 }
