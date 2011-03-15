@@ -793,7 +793,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType fi
       nSlices[i] = header->GetDimensions( header->GetNumberOfDimensions()-1 );
     }
   }
-  
+
   //Only add to the list of recently opened files when a single file is opened,
   //to avoid polluting the list of recently opened files
   if (files.size() == 1) {
@@ -1014,8 +1014,9 @@ void vvMainWindow::ImageInfoChanged()
     //read image header
     int NPixel = 1;
 
+    vvImage::Pointer imageSelected;
     if (DataTree->topLevelItem(index) == DataTree->selectedItems()[0]) {
-      vvImage::Pointer imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetImage();
+      imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetImage();
       dimension = imageSelected->GetNumberOfDimensions();
       origin.resize(dimension);
       inputSpacing.resize(dimension);
@@ -1029,10 +1030,9 @@ void vvMainWindow::ImageInfoChanged()
         sizeMM[i] = inputSize[i]*inputSpacing[i];
         NPixel *= inputSize[i];
       }
-      transformation = imageSelected->GetTransform()->GetMatrix();
       inputSizeInBytes = GetSizeInBytes(imageSelected->GetActualMemorySize()*1000);
     } else if (DataTree->selectedItems()[0]->data(1,Qt::UserRole).toString() == "vector") {
-      vvImage::Pointer imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetVF();
+      imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetVF();
       dimension = imageSelected->GetNumberOfDimensions();
       origin.resize(dimension);
       inputSpacing.resize(dimension);
@@ -1048,7 +1048,7 @@ void vvMainWindow::ImageInfoChanged()
       }
       inputSizeInBytes = GetSizeInBytes(imageSelected->GetActualMemorySize()*1000);
     } else if (DataTree->selectedItems()[0]->data(1,Qt::UserRole).toString() == "overlay") {
-      vvImage::Pointer imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetOverlay();
+      imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetOverlay();
       dimension = imageSelected->GetNumberOfDimensions();
       origin.resize(dimension);
       inputSpacing.resize(dimension);
@@ -1064,7 +1064,7 @@ void vvMainWindow::ImageInfoChanged()
       }
       inputSizeInBytes = GetSizeInBytes(imageSelected->GetActualMemorySize()*1000);
     } else if (DataTree->selectedItems()[0]->data(1,Qt::UserRole).toString() == "fusion") {
-      vvImage::Pointer imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetFusion();
+      imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetFusion();
       dimension = imageSelected->GetNumberOfDimensions();
       origin.resize(dimension);
       inputSpacing.resize(dimension);
@@ -1080,6 +1080,8 @@ void vvMainWindow::ImageInfoChanged()
       }
       inputSizeInBytes = GetSizeInBytes(imageSelected->GetActualMemorySize()*1000);
     }
+
+    transformation = imageSelected->GetTransform()->GetMatrix();
 
     QString dim = QString::number(dimension) + " (";
     dim += pixelType + ")";
@@ -1244,7 +1246,7 @@ QString vvMainWindow::GetSizeInBytes(unsigned long size)
 QString vvMainWindow::Get4x4MatrixDoubleAsString(vtkSmartPointer<vtkMatrix4x4> matrix)
 {
   std::ostringstream strmatrix;
-  
+
   for (unsigned int i = 0; i < 4; i++) {
     for (unsigned int j = 0; j < 4; j++) {
       strmatrix.flags(ios::showpos);
@@ -1858,7 +1860,7 @@ void vvMainWindow::AddROI(int index, QString file)
 
   // Create roi in new tool
   vvToolStructureSetManager::AddImage(mCurrentSlicerManager, roi);
-*/
+  */
 }
 //------------------------------------------------------------------------------
 
@@ -2684,7 +2686,7 @@ int vvMainWindow::GetImageDuplicateFilenameNumber(std::string filename)
   for(unsigned int l=0; l<mSlicerManagers.size(); l++) {
     vvSlicerManager * v = mSlicerManagers[l];
     if (v->GetBaseFileName() ==
-	vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(filename))) {
+        vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(filename))) {
       number = std::max(number, v->GetBaseFileNameNumber()+1);
     }
   }
@@ -2775,7 +2777,7 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
   ShowLastImage();
   InitDisplay();
   qApp->processEvents();
-  
+
   // End
   ImageInfoChanged();
   return slicer_manager;
