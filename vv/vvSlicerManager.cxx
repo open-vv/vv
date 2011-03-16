@@ -691,12 +691,14 @@ void vvSlicerManager::UpdateLinkedNavigation(vvSlicer *slicer, bool bPropagate)
 
     camera->SetFocalPoint(focal);
     camera->SetPosition(position);
-
-    if(bPropagate)
-      for (std::list<std::string>::const_iterator i = mLinkedId.begin(); i != mLinkedId.end(); i++)
-        emit UpdateLinkedNavigation(*i, this);
+  
+    mSlicers[i]->ForceUpdateDisplayExtent();
   }
+  
   Render();
+  if(bPropagate)
+    for (std::list<std::string>::const_iterator i = mLinkedId.begin(); i != mLinkedId.end(); i++)
+      emit UpdateLinkedNavigation(*i, this);
 }
 //----------------------------------------------------------------------------
 
