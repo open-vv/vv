@@ -692,6 +692,7 @@ void vvSlicerManager::UpdateLinkedNavigation(vvSlicer *slicer, bool bPropagate)
     camera->SetFocalPoint(focal);
     camera->SetPosition(position);
   
+    //Fix for bug #243
     mSlicers[i]->ForceUpdateDisplayExtent();
   }
   
