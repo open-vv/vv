@@ -149,8 +149,8 @@ void vvOverlayPanel::getCurrentOverlayInfo(int visibility,double valueOver, doub
   QString diffValue = "<b>Pixel difference : </b>";
   if (visibility) {
     refValue += QString::number(valueRef);
-    overlayValue += QString::number(valueOver,'f',1);
-    diffValue += QString::number(valueRef - valueOver,'f',1);
+    overlayValue += QString::number(valueOver);
+    diffValue += QString::number(valueRef - valueOver);
   }
   refValueLabel->setText(refValue);
   valueLabel->setText(overlayValue);
