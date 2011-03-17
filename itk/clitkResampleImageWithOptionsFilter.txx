@@ -122,13 +122,16 @@ GenerateOutputInformation()
   if (m_OutputIsoSpacing != -1) { // apply isoSpacing
     for(unsigned int i=0; i<dim; i++) {
       m_OutputSpacing[i] = m_OutputIsoSpacing;
-      // I use ceil to be sure not to miss a slice
-      m_OutputSize[i] = (int)ceil(inputSize[i]*inputSpacing[i]/m_OutputSpacing[i]);
+      // floor() is used to intentionally reduce the number of slices 
+      // because, from a clinical point of view, it's better to 
+      // remove data than to add data that privously didn't exist.
+      m_OutputSize[i] = (int)floor(inputSize[i]*inputSpacing[i]/m_OutputSpacing[i]);
     }
   } else {
     if (m_OutputSpacing[0] != -1) { // apply spacing, compute size
       for(unsigned int i=0; i<dim; i++) {
-        m_OutputSize[i] = (int)ceil(inputSize[i]*inputSpacing[i]/m_OutputSpacing[i]);
+	// see comment above for the use of floor()
+	m_OutputSize[i] = (int)floor(inputSize[i]*inputSpacing[i]/m_OutputSpacing[i]);
       }
     } else {
       if (m_OutputSize[0] != 0) { // apply size, compute spacing
