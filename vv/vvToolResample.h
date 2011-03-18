@@ -20,8 +20,8 @@
 #define _VVTOOLRESAMPLE_H
 
 // clitk
-#include "clitkImageResampleGenericFilter.h"
-//#include "clitkResampleImageGenericFilter.h"
+//#include "clitkImageResampleGenericFilter.h"
+#include "clitkResampleImageGenericFilter.h"
 
 // vv
 #include "ui_vvToolResample.h"
@@ -70,8 +70,8 @@ public slots:
 protected:
   Ui::vvToolResample ui;
   vvImage::Pointer mOutput;
-  clitk::ImageResampleGenericFilter::Pointer mFilter;
-  //clitk::ResampleImageGenericFilter::Pointer mFilter;
+  //clitk::ImageResampleGenericFilter::Pointer mFilter;
+  clitk::ResampleImageGenericFilter::Pointer mFilter;
 
   vvSlicerManager* mCurrentSlicerManager;
   vvImage::Pointer mCurrentImage;

@@ -24,10 +24,19 @@
 // qt
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QThread>
 
 #define COLUMN_IMAGE_NAME 7
 
 ADD_TOOL(vvToolResample);
+
+
+#define SetArgOptionString(OPTION, VALUE)          \
+  {                                                \
+    OPTION##_given = VALUE.size();                 \
+    OPTION##_arg = new char[VALUE.size()];         \
+    strcpy(OPTION##_arg, VALUE.c_str());           \
+  }
 
 //------------------------------------------------------------------------------
 vvToolResample::vvToolResample(vvMainWindowBase * parent, Qt::WindowFlags f):
@@ -37,8 +46,8 @@ vvToolResample::vvToolResample(vvMainWindowBase * parent, Qt::WindowFlags f):
 {
   Ui_vvToolResample::setupUi(mToolWidget);
 
-  //  mFilter = clitk::ResampleImageGenericFilter::New();
-  mFilter = clitk::ImageResampleGenericFilter::New();
+  mFilter = clitk::ResampleImageGenericFilter::New();
+  //mFilter = clitk::ImageResampleGenericFilter::New();
   mLastError ="";
 
   mInputFileFormat = "";
@@ -461,30 +470,69 @@ void vvToolResample::apply()
   if (mDimension > 2) sigma.push_back(zGaussianLineEdit->text().toDouble());
   if (mDimension == 4) sigma.push_back(0.01); //FIXME Don't filter along the temporal direction
 
-  /*
-  // Build ArgsInfo
-  typename clitk::ResampleImageGenericFilter::ArgsInfoType mArgsInfo;
+   // Build ArgsInfo
+  clitk::ResampleImageGenericFilter::ArgsInfoType mArgsInfo;
+
+  // Initialisation to default
+  cmdline_parser_clitkResampleImage_init(&mArgsInfo);
+  mArgsInfo.input_given = 0;
+  mArgsInfo.output_given = 0;
+  
+  // Size and spacing options
   mArgsInfo.size_given = mDimension;
-  mArgsInfo.size_arg = mDimension;
+  mArgsInfo.spacing_given = mDimension;
+  mArgsInfo.size_arg = new int[mDimension];
+  mArgsInfo.spacing_arg = new float[mDimension];
   for(int i=0; i<mDimension; i++) {
-    mArgsInfo.size = mOutputSize;
-  */
-
-  mFilter->SetOutputSize(mOutputSize);
-  mFilter->SetOutputSpacing(mOutputSpacing);
-  mFilter->SetInterpolationName(interpolationComboBox->currentText().toLower().toStdString());
-
-  if (interpolationComboBox->currentText() == "BSpline")
-    mFilter->SetBSplineOrder(bSplineOrderSpinBox->value());
-  else if (interpolationComboBox->currentText() == "Blut (faster BSpline)") {
-    mFilter->SetInterpolationName("blut");
-    mFilter->SetBSplineOrder(bSplineOrderSpinBox->value());
-    mFilter->SetBLUTSampling(bLUTSpinBox->value());
+    mArgsInfo.size_arg[i] = mOutputSize[i];
+    mArgsInfo.spacing_arg[i] = mOutputSpacing[i];
   }
-  if (gaussianFilterCheckBox->isChecked())
-    mFilter->SetGaussianSigma(sigma);
-  //  mFilter->SetOutputFileName(OutputFileName.toStdString());
-  mFilter->SetDefaultPixelValue(defaultPixelValueLineEdit->text().toDouble());
+  
+  if (sizeRadioButton->isChecked() || 
+      scaleSizeRadioButton->isChecked() || 
+      isoSizeRadioButton->isChecked()) {
+    mArgsInfo.spacing_given=0;
+  }
+  if (spacingRadioButton->isChecked() || 
+      scaleSpacingRadioButton->isChecked() || 
+      isoSpacingRadioButton->isChecked()) {
+    mArgsInfo.size_given=0;
+  }
+ 
+  // Interpolation options
+  std::string interp = interpolationComboBox->currentText().toLower().toStdString();
+  if (interp == "nn") SetArgOptionString(mArgsInfo.interp, std::string("nn"));
+  if (interp == "linear") SetArgOptionString(mArgsInfo.interp, std::string("linear"));
+  if (interp == "bspline") SetArgOptionString(mArgsInfo.interp, std::string("bspline"));
+  if (interp == "blut (faster bspline)") SetArgOptionString(mArgsInfo.interp, std::string("blut"));
+  if (interp == "windowed sinc") SetArgOptionString(mArgsInfo.interp, std::string("windowed sinc"));
+
+  if (interp == "bspline") {
+    mArgsInfo.order_arg = bSplineOrderSpinBox->value();
+  }
+  else {
+    if (interp == "blut (faster bspline)")  {
+      mArgsInfo.order_arg = bSplineOrderSpinBox->value();
+      mArgsInfo.sampling_arg = bLUTSpinBox->value();
+    }
+  }
+  
+  // Gauss
+  if (gaussianFilterCheckBox->isChecked()) {
+    mArgsInfo.gauss_given = mDimension;
+    mArgsInfo.gauss_arg = new float[mDimension];
+    for(int i=0; i<mDimension; i++) {
+      mArgsInfo.gauss_arg[i] = sigma[i];
+    }
+  }
+  mArgsInfo.default_arg = defaultPixelValueLineEdit->text().toDouble();
+
+  // Thread
+  mArgsInfo.thread_arg = QThread::idealThreadCount();
+  mArgsInfo.thread_given = 1;
+
+  // Set options to filter
+  mFilter->SetArgsInfo(mArgsInfo);
   mFilter->SetInputVVImage(mCurrentImage);
 
   // Go !
