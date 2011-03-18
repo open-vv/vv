@@ -249,6 +249,7 @@ vtkSmartPointer<vtkTransform> vvImage::GetTransform()
 }
 //--------------------------------------------------------------------
 
+
 //--------------------------------------------------------------------
 void vvImage::UpdateReslice()
 {
@@ -257,5 +258,19 @@ void vvImage::UpdateReslice()
   }
 }
 //--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+bool vvImage::HaveSameSizeAndSpacingThan(vvImage * other)
+{
+  bool same = true;
+  for(int i=0; i<GetNumberOfDimensions(); i++) {
+    if ( GetSize()[i] != other->GetSize()[i]) same = false;
+    if ( GetSpacing()[i] != other->GetSpacing()[i]) same = false;
+  }
+  return same;
+}
+//--------------------------------------------------------------------
+
 
 #endif // VVIMAGE_CXX

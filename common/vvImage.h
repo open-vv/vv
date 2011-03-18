@@ -61,6 +61,7 @@ public :
   void SetTimeSpacing(double s) { mTimeSpacing = s; }
   void SetTimeOrigin(double o) { mTimeOrigin = o; }
   void UpdateReslice();
+  bool HaveSameSizeAndSpacingThan(vvImage * other);
 
 private:
   vvImage();
