@@ -1,5 +1,5 @@
 #File clitkImageResample.ggo
-package "clitkImageResample"
+package "clitkResampleImage"
 version "2.0"
 purpose "Resample an image. You can specify the interpolation, you can apply a Gaussian filter before (automated if downsample)."
 
