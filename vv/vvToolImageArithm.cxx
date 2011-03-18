@@ -82,7 +82,6 @@ void vvToolImageArithm::InputIsSelected(vvSlicerManager * l)
 {
   mInput1 = l;
   mTwoInputs = false;
-  // DD("Single input");
   mGroupBoxTwoInputs->setEnabled(false);
   mGroupBoxOneInput->setEnabled(true);
 }
@@ -92,7 +91,6 @@ void vvToolImageArithm::InputIsSelected(vvSlicerManager * l)
 //------------------------------------------------------------------------------
 void vvToolImageArithm::GetArgsInfoFromGUI()
 {
-  //  DD("GetArgsInfoFromGUI");
   mArgsInfo.input1_given = false;
   if (mTwoInputs) {
     mArgsInfo.input2_given = true;
@@ -148,14 +146,22 @@ void vvToolImageArithm::apply()
       std::cerr << "Input1 = " << inputs[0]->GetScalarTypeAsITKString() << std::endl;
       std::cerr << "Input2 = " << inputs[1]->GetScalarTypeAsITKString() << std::endl;
       QApplication::restoreOverrideCursor();
-      QMessageBox::information(this, "Wrong image type","Sorry, could not perform operation. Please select inputs with same pixe type.");
+      QMessageBox::information(this, "Wrong image type","Sorry, could not perform operation. Please select inputs with same pixel type.");
+      close();
+      return;
+    }
+    
+    // Check size
+    if (!mInput1->GetImage()->HaveSameSizeAndSpacingThan(mInput2->GetImage())) {
+      std::cerr << "Sorry inputs should have the same size and spacing." << std::endl;
+      QApplication::restoreOverrideCursor();
+      QMessageBox::information(this, "Wrong images size","Sorry, could not perform operation. Please select inputs with same size and spacing.");
       close();
       return;
     }
   } else {
     // Input
     inputs.push_back(mInput1->GetImage());
-    DD("Single input");
   }
 
   // Main filter
