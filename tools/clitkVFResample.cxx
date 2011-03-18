@@ -17,15 +17,9 @@
 ======================================================================-====*/
 #ifndef CLITKVFRESAMPLE_CXX
 #define CLITKVFRESAMPLE_CXX
-/**
-   ------------------------------------------------=
-   * @file   clitkVFResample.cxx
-   * @author David Sarrut <David.Sarrut@creatis.insa-lyon.fr>
-   * @date   23 Feb 2008 08:37:53
-   ------------------------------------------------=*/
 
 // clitk
-#include "clitkImageResample_ggo.h"
+#include "clitkVFResample_ggo.h"
 #include "clitkIO.h"
 #include "clitkVFResampleGenericFilter.h"
 
@@ -34,7 +28,7 @@ int main(int argc, char * argv[])
 {
 
   // Init command line
-  GGO(clitkImageResample, args_info);
+  GGO(clitkVFResample, args_info);
   CLITK_INIT;
 
   // Read input image header to check image dimension
