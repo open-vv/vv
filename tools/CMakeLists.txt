@@ -3,8 +3,7 @@ INCLUDE(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
 #=========================================================
 #Add your ggo files to this list if they are used by vv
 FOREACH(clitkTool clitkAffineTransform clitkBinarizeImage clitkImageArithm
-        clitkMedianImageFilter clitkImageConvert clitkImageResample clitkCropImage
-        clitkMIP)
+        clitkMedianImageFilter clitkImageConvert clitkCropImage clitkMIP)
     WRAP_GGO(${clitkTool}_GGO_C ${clitkTool}.ggo)
     SET(GGO_C_FILES ${GGO_C_FILES} ${${clitkTool}_GGO_C})
 ENDFOREACH(clitkTool)
@@ -14,7 +13,6 @@ ADD_LIBRARY(clitkToolsGgoLib ${GGO_C_FILES})
 #the libraries avoid recompilation for vv, and should be used for generic filters
 #with long compilation times that are used by vv
 ADD_LIBRARY(clitkImageConvertLib clitkImageConvertGenericFilter.cxx)
-ADD_LIBRARY(clitkImageResampleLib clitkImageResampleGenericFilter.cxx)
 ADD_LIBRARY(clitkBinarizeImageLib clitkBinarizeImageGenericFilter.cxx)
 ADD_LIBRARY(clitkImageArithmImageLib clitkImageArithmGenericFilter.cxx)
 ADD_LIBRARY(clitkMIPLib clitkMIPGenericFilter.cxx)
@@ -41,11 +39,7 @@ IF (CLITK_BUILD_TOOLS)
        ${clitkBinarizeImage_GGO_C})
     TARGET_LINK_LIBRARIES(clitkBinarizeImage clitkBinarizeImageLib clitkCommon ITKIO)
 
-    # ADD_EXECUTABLE(clitkImageResample clitkImageResample.cxx
-    # ${clitkImageResample_GGO_C})
-    # TARGET_LINK_LIBRARIES(clitkImageResample clitkImageResampleLib clitkCommon ITKIO )
-
-    WRAP_GGO(clitkVFResample_GGO_C clitkImageResample.ggo)
+    WRAP_GGO(clitkVFResample_GGO_C clitkVFResample.ggo)
     ADD_EXECUTABLE(clitkVFResample clitkVFResample.cxx clitkVFResampleGenericFilter.cxx ${clitkVFResample_GGO_C})
     TARGET_LINK_LIBRARIES(clitkVFResample clitkCommon ITKIO)
 
@@ -155,14 +149,13 @@ IF (CLITK_BUILD_TOOLS)
     ADD_EXECUTABLE(clitkBackProjectImage clitkBackProjectImage.cxx clitkBackProjectImageGenericFilter.cxx ${clitkBackProjectImage_GGO_C})
     TARGET_LINK_LIBRARIES(clitkBackProjectImage ITKIO clitkCommon )
 
-#    WRAP_GGO(clitkCropImage_GGO_C clitkCropImage.ggo)
     ADD_EXECUTABLE(clitkCropImage clitkCropImage.cxx ${clitkCropImage_GGO_C})
     TARGET_LINK_LIBRARIES(clitkCropImage clitkCommon ITKIO)
 
-# WRAP_GGO(clitkExtractSlice_GGO_C clitkExtractSlice.ggo)
-# ADD_EXECUTABLE(clitkExtractSlice clitkExtractSlice.cxx clitkExtractSliceGenericFilter.cxx ${clitkExtractSlice_GGO_C})
-# TARGET_LINK_LIBRARIES(clitkExtractSlice clitkCommon ITKIO)
-
+    # WRAP_GGO(clitkExtractSlice_GGO_C clitkExtractSlice.ggo)
+    # ADD_EXECUTABLE(clitkExtractSlice clitkExtractSlice.cxx clitkExtractSliceGenericFilter.cxx ${clitkExtractSlice_GGO_C})
+    # TARGET_LINK_LIBRARIES(clitkExtractSlice clitkCommon ITKIO)
+    
     WRAP_GGO(clitkFlipImage_GGO_C clitkFlipImage.ggo)
     ADD_EXECUTABLE(clitkFlipImage clitkFlipImage.cxx clitkFlipImageGenericFilter.cxx ${clitkFlipImage_GGO_C})
     TARGET_LINK_LIBRARIES(clitkFlipImage clitkCommon ITKIO)
@@ -239,7 +232,6 @@ IF (CLITK_BUILD_TOOLS)
     ADD_EXECUTABLE(clitkValuesToBSplineCoefficients  clitkValuesToBSplineCoefficients.cxx clitkValuesToBSplineCoefficientsGenericFilter.cxx ${clitkValuesToBSplineCoefficients_GGO_C})
     TARGET_LINK_LIBRARIES(clitkValuesToBSplineCoefficients clitkCommon ITKIO)
 
-    WRAP_GGO(clitkMIP_GGO_C clitkMIP.ggo)
     ADD_EXECUTABLE(clitkMIP  clitkMIP.cxx clitkMIPGenericFilter.cxx ${clitkMIP_GGO_C})
     TARGET_LINK_LIBRARIES(clitkMIP clitkCommon ITKIO)
 
