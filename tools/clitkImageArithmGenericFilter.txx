@@ -229,7 +229,6 @@ void  ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it1, Iter2 it
     }
     break;
   case 5: // Absolute difference
-      DD("AbsoluteDifff");
     while (!ito.IsAtEnd()) {
       ito.Set(PixelTypeDownCast<double, PixelType>(fabs((double)it2.Get()-(double)it1.Get())));
       ++it1;
