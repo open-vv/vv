@@ -3,7 +3,7 @@ INCLUDE(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
 #=========================================================
 #Add your ggo files to this list if they are used by vv
 FOREACH(clitkTool clitkAffineTransform clitkBinarizeImage clitkImageArithm
-        clitkMedianImageFilter clitkImageConvert clitkCropImage clitkMIP)
+        clitkMedianImageFilter clitkImageConvert clitkCropImage clitkResampleImage clitkMIP)
     WRAP_GGO(${clitkTool}_GGO_C ${clitkTool}.ggo)
     SET(GGO_C_FILES ${GGO_C_FILES} ${${clitkTool}_GGO_C})
 ENDFOREACH(clitkTool)
@@ -15,6 +15,7 @@ ADD_LIBRARY(clitkToolsGgoLib ${GGO_C_FILES})
 ADD_LIBRARY(clitkImageConvertLib clitkImageConvertGenericFilter.cxx)
 ADD_LIBRARY(clitkBinarizeImageLib clitkBinarizeImageGenericFilter.cxx)
 ADD_LIBRARY(clitkImageArithmImageLib clitkImageArithmGenericFilter.cxx)
+ADD_LIBRARY(clitkResampleImageLib clitkResampleImageGenericFilter.cxx)
 ADD_LIBRARY(clitkMIPLib clitkMIPGenericFilter.cxx)
 
 TARGET_LINK_LIBRARIES(clitkBinarizeImageLib clitkToolsGgoLib)
@@ -109,9 +110,9 @@ IF (CLITK_BUILD_TOOLS)
     ADD_EXECUTABLE(clitkMedianImageFilter clitkMedianImageFilter.cxx ${clitkMedianImageFilter_GGO_C})
     TARGET_LINK_LIBRARIES(clitkMedianImageFilter clitkCommon ITKIO ITKBasicFilters )
 
-    WRAP_GGO(clitkResampleImage_GGO_C clitkResampleImage.ggo)
-    ADD_EXECUTABLE(clitkResampleImage clitkResampleImage.cxx clitkResampleImageGenericFilter.cxx ${clitkResampleImage_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkResampleImage clitkCommon ITKIO)
+    #WRAP_GGO(clitkResampleImage_GGO_C clitkResampleImage.ggo)
+    ADD_EXECUTABLE(clitkResampleImage clitkResampleImage.cxx ${clitkResampleImage_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkResampleImage clitkResampleImageLib clitkCommon ITKIO)
 
     WRAP_GGO(clitkMinMaxMask_GGO_C clitkMinMaxMask.ggo)
     ADD_EXECUTABLE(clitkMinMaxMask clitkMinMaxMask.cxx ${clitkMinMaxMask_GGO_C})
