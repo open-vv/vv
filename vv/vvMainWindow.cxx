@@ -828,7 +828,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType fi
       else {
         SetImageSucceed = imageManager->SetImages(files,filetype, number);
       }
-      if (SetImageSucceed == false) {
+      if (!SetImageSucceed) {
         QApplication::restoreOverrideCursor();
         QString error = "Cannot open file \n";
         error += imageManager->GetLastError().c_str();
@@ -902,8 +902,8 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType fi
                 this,SLOT(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)));
         connect(mSlicerManagers.back(),SIGNAL(LandmarkAdded()),landmarksPanel,SLOT(AddPoint()));
         InitSlicers();
+        numberofsuccesulreads++;
       }
-      numberofsuccesulreads++;
     }
   }
   if (numberofsuccesulreads) {
