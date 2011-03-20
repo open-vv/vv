@@ -352,7 +352,7 @@ void vvToolCropImage::apply()
     filter->Update();
   }
   catch(clitk::ExceptionObject & e) {
-    // DD(e.what());
+    DD(e.what());
     QApplication::restoreOverrideCursor();
     close();
   }
