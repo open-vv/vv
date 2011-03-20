@@ -1220,7 +1220,7 @@ double vvSlicer::GetScalarComponentAsDouble(vtkImageData *image, int X, double Y
       iy > image->GetWholeExtent()[3] ||
       iz < image->GetWholeExtent()[4] ||
       iz > image->GetWholeExtent()[5] )
-    return sqrt(-1);
+    return sqrt(-1.);
 
   image->SetUpdateExtent(ix, ix, iy, iy, iz, iz);
   image->Update();
