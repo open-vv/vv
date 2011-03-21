@@ -58,6 +58,13 @@ void vvLinkPanel::addImage(std::string name, std::string id)
 
 
 //------------------------------------------------------------------------------
+bool vvLinkPanel::isLinkAll()
+{
+  return mLinkAll;
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 void vvLinkPanel::removeImage(int index)
 {
   std::string idRemoved = image1Ids[index];
@@ -129,6 +136,7 @@ void vvLinkPanel::UpdateComboBox2(int index)
 //------------------------------------------------------------------------------
 void vvLinkPanel::linkAll()
 {
+  mLinkAll = true;
   //First remove all links
   while (linkTableWidget->rowCount())
     removeLink(1,1);
@@ -140,6 +148,7 @@ void vvLinkPanel::linkAll()
     for (int i=0; i< count-j; i++)
       addLink();
   }
+  mLinkAll = false;
 }
 //------------------------------------------------------------------------------
 

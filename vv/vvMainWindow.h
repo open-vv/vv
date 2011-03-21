@@ -84,6 +84,7 @@ public slots:
   void OpenVTKContour();
   void SaveAs();
   void CurrentImageChanged(std::string id);
+  void CurrentPickedImageChanged(std::string id);
   void ImageInfoChanged();
   void ShowHelpDialog();
   void ShowDocumentation();
@@ -191,6 +192,8 @@ private:
   int mFrameRate;
   
   std::string mCurrentSelectedImageId;
+  std::string mCurrentPickedImageId;
+  unsigned int mCurrentPickedImageIndex;
 
   // vvMainWindowToolInfo * mCurrentToolInfo;
   // std::vector<vvToolCreatorBase*> mListOfRunningTool;
@@ -198,7 +201,7 @@ private:
   static vvMainWindow * mSingleton;
 
   int mCurrentTime;
-
+  
 };
 
 #include "vvMainWindow.txx"

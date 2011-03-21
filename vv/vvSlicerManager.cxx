@@ -940,6 +940,13 @@ void vvSlicerManager::Activated()
 
 
 //----------------------------------------------------------------------------
+void vvSlicerManager::Picked()
+{
+  emit currentPickedImageChanged(mId);
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
 void vvSlicerManager::UpdateWindowLevel()
 {
   emit WindowLevelChanged(mSlicers[0]->GetColorWindow(),mSlicers[0]->GetColorLevel(),mPreset,mColorMap);

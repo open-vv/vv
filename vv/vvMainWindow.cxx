@@ -109,6 +109,8 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   mMainWidget = this;
   mCurrentTime = -1;
   mCurrentSelectedImageId = "";
+  mCurrentPickedImageId = "";
+  mCurrentPickedImageIndex = 0;
 
   //Init the contextMenu
   this->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -327,6 +329,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   //timerMemory->setInterval(5);
   connect(timerMemory, SIGNAL(timeout()), this, SLOT(UpdateMemoryUsage()));
   timerMemory->start(2000);
+  
 }
 //------------------------------------------------------------------------------
 
@@ -876,6 +879,8 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType fi
 
         connect(mSlicerManagers.back(), SIGNAL(currentImageChanged(std::string)),
                 this,SLOT(CurrentImageChanged(std::string)));
+	connect(mSlicerManagers.back(), SIGNAL(currentPickedImageChanged(std::string)),
+		this, SLOT(CurrentPickedImageChanged(std::string)));
         connect(mSlicerManagers.back(), SIGNAL(UpdatePosition(int, double, double, double, double, double, double, double)),
                 this,SLOT(MousePositionChanged(int,double, double, double, double, double, double, double)));
         connect(mSlicerManagers.back(), SIGNAL(UpdateVector(int, double, double, double, double)),
@@ -960,6 +965,27 @@ void vvMainWindow::CurrentImageChanged(std::string id)
   DataTree->topLevelItem(selected)->setSelected(1);
   mCurrentSelectedImageId = id;
   emit SelectedImageHasChanged(mSlicerManagers[selected]);
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::CurrentPickedImageChanged(std::string id)
+{
+  if (id == mCurrentPickedImageId) return; // Do nothing
+  int selected = 0;
+  for (int i = 0; i < DataTree->topLevelItemCount(); i++) {
+    if (DataTree->topLevelItem(i)->data(COLUMN_IMAGE_NAME,Qt::UserRole).toString().toStdString() == id) {
+      selected = i;
+    } else {
+      DataTree->topLevelItem(i)->setSelected(0);
+    }
+    for (int child = 0; child < DataTree->topLevelItem(i)->childCount(); child++)
+      DataTree->topLevelItem(i)->child(child)->setSelected(0);
+
+  }
+  DataTree->topLevelItem(selected)->setSelected(1);
+  mCurrentPickedImageId = id;
+  mCurrentPickedImageIndex = selected;
 }
 //------------------------------------------------------------------------------
 
@@ -1081,8 +1107,6 @@ void vvMainWindow::ImageInfoChanged()
       inputSizeInBytes = GetSizeInBytes(imageSelected->GetActualMemorySize()*1000);
     }
 
-    transformation = imageSelected->GetTransform()->GetMatrix();
-
     QString dim = QString::number(dimension) + " (";
     dim += pixelType + ")";
 
@@ -1093,6 +1117,7 @@ void vvMainWindow::ImageInfoChanged()
     infoPanel->setOrigin(GetVectorDoubleAsString(origin));
     infoPanel->setSpacing(GetVectorDoubleAsString(inputSpacing));
     infoPanel->setNPixel(QString::number(NPixel)+" ("+inputSizeInBytes+")");
+    transformation = imageSelected->GetTransform()->GetMatrix();
     infoPanel->setTransformation(Get4x4MatrixDoubleAsString(transformation));
 
     landmarksPanel->SetCurrentLandmarks(mSlicerManagers[index]->GetLandmarks(),
@@ -2211,15 +2236,29 @@ void vvMainWindow::SaveAs()
 //------------------------------------------------------------------------------
 void vvMainWindow::AddLink(QString image1,QString image2)
 {
+  unsigned int sm1 = 0;
+  unsigned int sm2 = 0;
+  
   for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
     if (image1.toStdString() == mSlicerManagers[i]->GetId()) {
       mSlicerManagers[i]->AddLink(image2.toStdString());
+      sm1 = i;
     }
     if (image2.toStdString() == mSlicerManagers[i]->GetId()) {
       mSlicerManagers[i]->AddLink(image1.toStdString());
+      sm2 = i;
     }
   }
+
+  if (linkPanel->isLinkAll())	{
+    emit UpdateLinkedNavigation(mSlicerManagers[sm1]->GetId(), mSlicerManagers[mCurrentPickedImageIndex]);
+    emit UpdateLinkedNavigation(mSlicerManagers[sm2]->GetId(), mSlicerManagers[mCurrentPickedImageIndex]);
+  }
+  else {
+    emit UpdateLinkedNavigation(mSlicerManagers[sm2]->GetId(), mSlicerManagers[sm1]);
+  }
 }
+
 //------------------------------------------------------------------------------
 
 
@@ -2746,6 +2785,8 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
 
   connect(mSlicerManagers.back(), SIGNAL(currentImageChanged(std::string)),
           this, SLOT(CurrentImageChanged(std::string)));
+  connect(mSlicerManagers.back(), SIGNAL(currentPickedImageChanged(std::string)),
+          this, SLOT(CurrentPickedImageChanged(std::string)));
   connect(mSlicerManagers.back(), SIGNAL(UpdatePosition(int, double, double, double, double, double, double, double)),
           this, SLOT(MousePositionChanged(int,double, double, double, double, double, double, double)));
   connect(mSlicerManagers.back(), SIGNAL(UpdateVector(int, double, double, double, double)),

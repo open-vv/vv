@@ -176,6 +176,7 @@ class vvSlicerManager : public QObject {
   void ReloadVF();
 
   void Activated();
+  void Picked();
   void UpdateInfoOnCursorPosition(int slicer);
   void UpdateWindowLevel();
   void UpdateSlice(int slicer);
@@ -193,6 +194,7 @@ class vvSlicerManager : public QObject {
 
 signals :
   void currentImageChanged(std::string id);
+  void currentPickedImageChanged(std::string id);
   void UpdatePosition(int visibility,double x, double y, double z, double X, double Y, double Z, double value);
   void UpdateVector(int display, double x, double y, double z, double value);
   void UpdateOverlay(int display, double valueOver, double valueRef);

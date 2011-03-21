@@ -35,6 +35,7 @@ public:
 
     void addImage(std::string name, std::string id);
     void removeImage(int i);
+    bool isLinkAll();
 
 public slots :
     void UpdateComboBox2(int i);
@@ -52,6 +53,8 @@ private:
     std::vector<std::string> imageNames;
     std::vector<std::string> image1Ids;
     std::vector<std::string> image2Ids;
+    
+    bool mLinkAll;
 
 }; // end class vvLinkPanel
 //====================================================================
