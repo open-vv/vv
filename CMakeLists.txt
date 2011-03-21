@@ -21,8 +21,7 @@ FIND_PACKAGE(ITK)
 IF(ITK_FOUND)
   INCLUDE("${ITK_USE_FILE}")
 ELSE(ITK_FOUND)
-  MESSAGE(FATAL_ERROR
-          "Cannot build without ITK.  Please set ITK_DIR.")
+  MESSAGE(FATAL_ERROR "Cannot build without ITK.  Please set ITK_DIR.")
 ENDIF(ITK_FOUND)
 #=========================================================
 
@@ -42,6 +41,14 @@ FIND_PATH(CLITK_GENGETOPT gengetopt)
 IF (CLITK_GENGETOPT STREQUAL "CLITK_GENGETOPT-NOTFOUND")
   MESSAGE("gengetopt not found, please install it (see http://www.gnu.org/software/gengetopt/gengetopt.html)")
 ENDIF (CLITK_GENGETOPT STREQUAL "CLITK_GENGETOPT-NOTFOUND")
+#=========================================================
+
+#=========================================================
+# Find libstatgrab is installed, add clitkMemoryUsage.cxx in the library
+FIND_PROGRAM(LIBSTATGRAB NAMES statgrab PATHS)
+IF (${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
+  MESSAGE("Install libstatgrab (http://www.i-scream.org/libstatgrab/) for memory usage information")
+ENDIF (${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")  
 #=========================================================
 
 #=========================================================
@@ -73,7 +80,6 @@ OPTION(CLITK_EXPERIMENTAL "Enable experimental software and features" OFF)
 OPTION(CLITK_BUILD_TOOLS "Build command-line tools" OFF)
 OPTION(CLITK_BUILD_SEGMENTATION "Build command-line segmentation tools" OFF)
 OPTION(CLITK_BUILD_REGISTRATION "Build command-line registration tools" OFF)
-OPTION(CLITK_MEMORY_INFO "Enable memory information" OFF)
 
 OPTION(CLITK_BUILD_VV "Build vv the 4D visualizer (requires VTK and QT)" ON)
 IF (CLITK_BUILD_VV)

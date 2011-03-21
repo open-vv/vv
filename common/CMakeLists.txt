@@ -37,15 +37,9 @@ SET(clitkCommon_SRC
 ### Declare clitkCommon library
 ADD_LIBRARY(clitkCommon STATIC ${clitkCommon_SRC})
 
-### if LIBSTATGRAB is installed, add clitkMemoryUsage.cxx in the library
-IF(CLITK_MEMORY_INFO)
-  FIND_PROGRAM(LIBSTATGRAB NAMES statgrab PATHS)
-  IF (${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
-    MESSAGE( FATAL_ERROR "libstatgrab NOT FOUND -> please install http://www.i-scream.org/libstatgrab/")
-  ELSE (${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
-    TARGET_LINK_LIBRARIES(clitkCommon statgrab)
-  ENDIF (${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")  
-ENDIF(CLITK_MEMORY_INFO)
+IF(NOT ${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
+  TARGET_LINK_LIBRARIES(clitkCommon statgrab)
+ENDIF(NOT ${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
 
 TARGET_LINK_LIBRARIES(clitkCommon vtkCommon vtkImaging vtkHybrid ITKBasicFilters)
 
