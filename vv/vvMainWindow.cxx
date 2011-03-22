@@ -38,7 +38,6 @@
 #include "vvDeformationDialog.h"
 #include "vvImageWarp.h"
 #include "vvUtils.h"
-#include "vvMaximumIntensityProjection.h"
 #include "vvMidPosition.h"
 #include "vvMesh.h"
 #include "vvStructSelector.h"
@@ -231,7 +230,6 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(SEHorizontalSlider,SIGNAL(valueChanged(int)),this,SLOT(SEHorizontalSliderMoved()));
 
   //connect everything
-  connect(actionMaximum_Intensity_Projection,SIGNAL(triggered()),this,SLOT(ComputeMIP()));
   connect(actionCompute_mid_position_image,SIGNAL(triggered()),this,SLOT(ComputeMidPosition()));
   connect(actionDeformable_Registration,SIGNAL(triggered()),this,SLOT(ComputeDeformableRegistration()));
   connect(actionWarp_image_with_vector_field,SIGNAL(triggered()),this,SLOT(WarpImage()));
@@ -340,19 +338,6 @@ void vvMainWindow::UpdateMemoryUsage()
   //  clitk::PrintMemory(true);
   if (clitk::GetMemoryUsageInMb() == 0) infoPanel->setMemoryInMb("NA");
   else infoPanel->setMemoryInMb(QString::number(clitk::GetMemoryUsageInMb())+" MiB");
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-void vvMainWindow::ComputeMIP()
-{
-  vvMaximumIntensityProjection mip;
-  vvSlicerManager* selected_slicer = mSlicerManagers[GetSlicerIndexFromItem(DataTree->selectedItems()[0])];
-  QFileInfo info(selected_slicer->GetFileName().c_str());
-  mip.Compute(selected_slicer);
-  if (!mip.error)
-    AddImage(mip.GetOutput(),info.path().toStdString()+"/"+info.completeBaseName().toStdString()+"_mip.mhd");
 }
 //------------------------------------------------------------------------------
 
@@ -2750,7 +2735,7 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
   //create an item in the tree with good settings
   QTreeWidgetItem *item = new QTreeWidgetItem();
   item->setData(0,Qt::UserRole,slicer_manager->GetFileName().c_str());//files[i].c_str());
-  item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,filename.c_str());
+  item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,slicer_manager->GetFileName().c_str());//filename.c_str());
   qApp->processEvents();
 
   for (int j = 1; j <= 4; j++) item->setData(j,Qt::CheckStateRole,1);
@@ -2781,7 +2766,8 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
   item->setData(COLUMN_IMAGE_NAME,Qt::UserRole,id.toStdString().c_str());
   mSlicerManagers.back()->SetId(id.toStdString());
 
-  linkPanel->addImage(filename, id.toStdString());
+  linkPanel->addImage(slicer_manager->GetFileName().c_str()// filename
+                      , id.toStdString());
 
   connect(mSlicerManagers.back(), SIGNAL(currentImageChanged(std::string)),
           this, SLOT(CurrentImageChanged(std::string)));

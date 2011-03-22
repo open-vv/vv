@@ -68,8 +68,6 @@ class vvMainWindow: public vvMainWindowBase,
 public slots:
   ///Allows the user to open and select various surfaces contained in a dicom-struct file
   void OpenDCStructContour();
-  ///Computes the MIP of the currently selected image and displays it
-  void ComputeMIP();
   ///Computes the midposition image of a 4D sequence with a VF and displays it
   void ComputeMidPosition();
   void OpenImages();

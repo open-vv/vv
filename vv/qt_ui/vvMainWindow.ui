@@ -828,12 +828,6 @@
     <addaction name="actionSouth_West_Window"/>
     <addaction name="actionSouth_East_Window"/>
    </widget>
-   <widget class="QMenu" name="menuTools">
-    <property name="title">
-     <string>Tools</string>
-    </property>
-    <addaction name="actionMaximum_Intensity_Projection"/>
-   </widget>
    <widget class="QMenu" name="menuExperimental">
     <property name="title">
      <string>Experimental</string>
@@ -843,6 +837,11 @@
     <addaction name="actionSegmentation"/>
     <addaction name="actionWarp_image_with_vector_field"/>
     <addaction name="actionCompute_mid_position_image"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuOverlay"/>
