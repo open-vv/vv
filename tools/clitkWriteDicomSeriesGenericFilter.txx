@@ -161,12 +161,11 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   volumeReader->Update();
   
   typename InputImageType::Pointer input = volumeReader->GetOutput();
-  if (input->GetSpacing() != reader->GetOutput()->GetSpacing())
-  {
-    // resampling is carried out on the fly if resolution between 
+  if ((!m_ArgsInfo.useSizeAsReference_flag && (input->GetSpacing() != reader->GetOutput()->GetSpacing())) || 
+      (m_ArgsInfo.useSizeAsReference_flag && (input->GetLargestPossibleRegion().GetSize() != reader->GetOutput()->GetLargestPossibleRegion().GetSize()))) {
+        
+    // resampling is carried out on the fly if resolution or size between 
     // the input mhd and input dicom series is different
-    if (m_Verbose)
-      std::cout << "Warning: The image spacing differs between the MHD file and the input dicom series. Performing resampling with default options (for advanced options, use clitkResampleImage)." << std::endl;
     
     // Filter
     typedef clitk::ResampleImageWithOptionsFilter<InputImageType, InputImageType> ResampleImageFilterType;
@@ -175,12 +174,28 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     filter->SetVerboseOptions(m_Verbose);
     filter->SetGaussianFilteringEnabled(false);
     filter->SetDefaultPixelValue(0);
-    filter->SetOutputSpacing(reader->GetOutput()->GetSpacing());
-    const SizeType& input_size = reader->GetOutput()->GetLargestPossibleRegion().GetSize();
-    SizeType output_size;
-    for (unsigned int i = 0; i < Dimension; i++)
-      output_size[i] = input_size[i];
-    filter->SetOutputSize(output_size);
+    
+    if (!m_ArgsInfo.useSizeAsReference_flag) {
+      filter->SetOutputSpacing(reader->GetOutput()->GetSpacing());
+      if (m_Verbose) {
+        std::cout << "Warning: The image spacing differs between the MHD file and the input dicom series. Performing resampling with default options using spacing as reference (for advanced options, use clitkResampleImage)." << std::endl;
+        std::cout << "MHD -> " << input->GetSpacing() << std::endl;
+        std::cout << "dicom -> " << reader->GetOutput()->GetSpacing() << std::endl;
+      }
+    }
+    else {
+      const SizeType& dicom_size = reader->GetOutput()->GetLargestPossibleRegion().GetSize();
+      SizeType output_size;
+      for (unsigned int i = 0; i < Dimension; i++)
+        output_size[i] = dicom_size[i];
+      filter->SetOutputSize(output_size);
+      if (m_Verbose) {
+          std::cout << "Warning: The image size differs between the MHD file and the input dicom series. Performing resampling with default options using size as reference (for advanced options, use clitkResampleImage)." << std::endl;
+          std::cout << "MHD -> " << input->GetLargestPossibleRegion().GetSize() << std::endl;
+          std::cout << "dicom -> " << reader->GetOutput()->GetLargestPossibleRegion().GetSize() << std::endl;
+      }
+    }
+
     filter->Update();
     input = filter->GetOutput();
   }
@@ -193,8 +208,7 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   //	in verbose mode
   const RegionType volumeRegion = input->GetLargestPossibleRegion();
   const SizeType& volumeSize = volumeRegion.GetSize();
-  if (Dimension == 3 && volumeSize[2] < numberOfFilenames)
-  {
+  if (Dimension == 3 && volumeSize[2] < numberOfFilenames) {
     if (m_Verbose)
       std::cout << "Warning: The number of files in " << m_ArgsInfo.inputDir_arg << " (" << filenames_in.size() << " files) is greater than the number of slices in MHD (" << volumeSize[2] << " slices). Using only " << volumeSize[2] << " files." << std::endl;
     

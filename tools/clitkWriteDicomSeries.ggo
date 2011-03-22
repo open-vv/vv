@@ -12,3 +12,4 @@ option "outputDir"    	o   	"Output dicom directory"	  string  	yes
 option "key"    	k   	"Keys of tags to modify"	  string  	no multiple default="0008|103e"
 option "tag"		t   	"Tags values"	 		 string  	no multiple default="MIDPOSITION"
 option "midP"		m	"Modify tags using defaults, for  MidPosition"	flag 	off
+option "useSizeAsReference"		s	"Use the size of the dicom image as reference for an occasional resampling"	flag	off
