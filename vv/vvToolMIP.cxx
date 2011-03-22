@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolMIP.cxx,v $
   Language:  C++
-  Date:      $Date: 2010/10/26 12:37:58 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2011/03/22 15:50:39 $
+  Version:   $Revision: 1.2 $
   Author :   Bharath Navalpakkam (Bharath.Navalpakkam@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -68,9 +68,9 @@ void vvToolMIP::Initialize()
 {
   SetToolName("MIP");
   SetToolMenuName("Maximum Intensity Projection");
-  SetToolIconFilename(":common/icons/ducky.png");
+  SetToolIconFilename(":common/icons/mip.png");
   SetToolTip("Compute the maximum intensity projection of an image.");
-  SetToolExperimental(true);
+  SetToolExperimental(false);
 }
 //------------------------------------------------------------------------------
 
@@ -98,6 +98,11 @@ void vvToolMIP::apply()
 void vvToolMIP::InputIsSelected(vvSlicerManager *m)
 {
   mCurrentSlicerManager =m;
+  if (m->GetDimension() <3) {
+    QMessageBox::information(this, "Wrong image dimension","Sorry, only work with 3D or 4D images.");
+    close();
+    return;
+  }
   this->dimensionSpinBox->setMaximum(m->GetDimension()-1);
 }
 
