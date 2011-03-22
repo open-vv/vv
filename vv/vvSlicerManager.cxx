@@ -114,13 +114,16 @@ void vvSlicerManager::SetFilename(std::string filename, int number)
   mBaseFileName = vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(mFileName));
   mBaseFileNameNumber = number;
 
-  for(unsigned int i=0; i<mSlicers.size(); i++) {
-    mSlicers[i]->SetFileName(vtksys::SystemTools::GetFilenameWithoutLastExtension(filename));
-  }
-  
+  mFileName = mBaseFileName;
   if (number != 0) {
     mFileName.append("_"+clitk::toString(number));
   }
+  mFileName.append(vtksys::SystemTools::GetFilenameLastExtension(filename));
+
+  for(unsigned int i=0; i<mSlicers.size(); i++) {
+    mSlicers[i]->SetFileName(mFileName);//vtksys::SystemTools::GetFilenameWithoutLastExtension(filename));
+  }
+  
 }
 //------------------------------------------------------------------------------
 
