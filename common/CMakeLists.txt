@@ -41,7 +41,7 @@ IF(NOT ${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
   TARGET_LINK_LIBRARIES(clitkCommon statgrab)
 ENDIF(NOT ${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
 
-TARGET_LINK_LIBRARIES(clitkCommon vtkCommon vtkImaging vtkHybrid ITKBasicFilters)
+TARGET_LINK_LIBRARIES(clitkCommon vtkCommon vtkImaging ITKBasicFilters)
 
 ADD_LIBRARY(clitkDicomRTStruct STATIC
   clitkDicomRT_Contour.cxx
@@ -49,6 +49,8 @@ ADD_LIBRARY(clitkDicomRTStruct STATIC
   clitkDicomRT_StructureSet.cxx
   clitkDicomRT_ROI_ConvertToImageFilter.cxx
 )
+
+TARGET_LINK_LIBRARIES(clitkDicomRTStruct vtkHybrid) 
 
 #ADD_LIBRARY(clitkCommonShared SHARED ${clitkCommon_SRC})
 #SET_TARGET_PROPERTIES(clitkCommonShared PROPERTIES COMPILE_FLAGS -fPIC)
