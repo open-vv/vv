@@ -84,7 +84,7 @@ SET(vv_SRCS
   vvSlicerManager.cxx
   vvSlicerManagerCommand.cxx
   vvUtils.cxx
-  vvMaximumIntensityProjection.cxx
+#  vvMaximumIntensityProjection.cxx
   vvMesh.cxx
   vvMeshActor.cxx
   vvMeshReader.cxx
