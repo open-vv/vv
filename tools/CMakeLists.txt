@@ -96,6 +96,10 @@ IF (CLITK_BUILD_TOOLS)
     ADD_EXECUTABLE(clitkGuerreroVentilation clitkGuerreroVentilation.cxx clitkGuerreroVentilationGenericFilter.cxx ${clitkGuerreroVentilation_GGO_C})
     TARGET_LINK_LIBRARIES(clitkGuerreroVentilation clitkCommon ITKIO)
 
+    WRAP_GGO(clitkGammaIndex_GGO_C clitkGammaIndex.ggo)
+    ADD_EXECUTABLE(clitkGammaIndex clitkGammaIndex.cxx ${clitkGammaIndex_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkGammaIndex ITKBasicFilters ITKCommon ITKIO)
+
     ADD_EXECUTABLE(clitkImageArithm clitkImageArithm.cxx ${clitkImageArithm_GGO_C})
     TARGET_LINK_LIBRARIES(clitkImageArithm clitkImageArithmImageLib clitkCommon ITKIO )
 
