@@ -8,7 +8,7 @@ using std::endl;
 #include <itkShiftScaleImageFilter.h>
 #include <itkImageConstIteratorWithIndex.h>
 #include <itkChangeInformationImageFilter.h>
-#include <itkSignedDanielssonDistanceMapImageFilter.h>
+#include <itkSignedMaurerDistanceMapImageFilter.h>
 
 #include "clitkGammaIndex_ggo.h"
 
@@ -24,7 +24,7 @@ typedef itk::ChangeInformationImageFilter<Image> Scaler;
 
 typedef itk::Image<unsigned char,image_dim+1> ImageBin;
 typedef itk::Image<float,image_dim+1> ImageMap;
-typedef itk::SignedDanielssonDistanceMapImageFilter<ImageBin,ImageMap> Mapper;
+typedef itk::SignedMaurerDistanceMapImageFilter<ImageBin,ImageMap> Mapper;
 
 template <typename ImageType>
 void SaveImage(const ImageType *image, const std::string &filename) {
@@ -295,6 +295,7 @@ int main(int argc,char * argv[])
   // compute distance map
   Mapper::Pointer mapper = Mapper::New();
   mapper->InsideIsPositiveOn();
+  mapper->SquaredDistanceOff();
   mapper->UseImageSpacingOn();
   mapper->SetInput(image_bin);
   mapper->Update();
