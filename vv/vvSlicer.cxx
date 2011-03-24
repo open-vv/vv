@@ -268,6 +268,22 @@ bool vvSlicer::GetCursorVisibility()
 
 
 //------------------------------------------------------------------------------
+void vvSlicer::SetCornerAnnotationVisibility(bool s)
+{
+  ca->SetVisibility(s);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+bool vvSlicer::GetCornerAnnotationVisibility()
+{
+  return ca->GetVisibility();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 vvSlicer::~vvSlicer()
 {
   for (std::vector<vvMeshActor*>::iterator i=mSurfaceCutActors.begin();
