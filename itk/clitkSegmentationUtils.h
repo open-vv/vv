@@ -152,7 +152,8 @@ namespace clitk {
 			       std::string orientation, 
                                bool uniqueConnectedComponent=false, 
                                double spacing=-1, 
-			       bool notflag=false);
+                               bool autocropflag=true, 
+                               bool singleObjectCCL=true);
 
   //--------------------------------------------------------------------
   // In a binary image, search for the point belonging to the FG that

@@ -33,6 +33,9 @@ SliceBySliceRelativePositionFilter():
   SetDirection(2);
   UniqueConnectedComponentBySliceOff();
   SetIgnoreEmptySliceObjectFlag(false);
+  UseASingleObjectConnectedComponentBySliceFlagOn();
+  this->VerboseStepFlagOff();
+  this->WriteStepFlagOff();
   this->SetCombineWithOrFlag(false);
 }
 //--------------------------------------------------------------------
@@ -173,11 +176,16 @@ GenerateOutputInformation()
   // Perform slice by slice relative position
   this->StartNewStep("Perform slice by slice relative position");
   for(unsigned int i=0; i<mInputSlices.size(); i++) {
-    // Select main CC in each object slice (required ?)
+    
+    // Count the number of CCL (allow to ignore empty slice)
     int nb=0;
     mObjectSlices[i] = LabelizeAndCountNumberOfObjects<SliceType>(mObjectSlices[i], 0, true, 1, nb);
     if ((!GetIgnoreEmptySliceObjectFlag()) || (nb!=0)) {
-      mObjectSlices[i] = KeepLabels<SliceType>(mObjectSlices[i], 0, 1, 1, 1, true);
+
+      // Select or not a single CCL ?
+      if (GetUseASingleObjectConnectedComponentBySliceFlag()) {
+        mObjectSlices[i] = KeepLabels<SliceType>(mObjectSlices[i], 0, 1, 1, 1, true);
+      }
 
       // Relative position
       typedef clitk::AddRelativePositionConstraintToLabelImageFilter<SliceType> RelPosFilterType;

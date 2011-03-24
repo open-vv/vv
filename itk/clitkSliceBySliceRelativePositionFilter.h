@@ -82,6 +82,10 @@ namespace clitk {
     itkSetMacro(IgnoreEmptySliceObjectFlag, bool);
     itkBooleanMacro(IgnoreEmptySliceObjectFlag);
 
+    itkGetConstMacro(UseASingleObjectConnectedComponentBySliceFlag, bool);
+    itkSetMacro(UseASingleObjectConnectedComponentBySliceFlag, bool);
+    itkBooleanMacro(UseASingleObjectConnectedComponentBySliceFlag);
+
   protected:
     SliceBySliceRelativePositionFilter();
     virtual ~SliceBySliceRelativePositionFilter() {}
@@ -97,6 +101,7 @@ namespace clitk {
     bool         m_UniqueConnectedComponentBySlice;
     int          m_Direction;
     bool         m_IgnoreEmptySliceObjectFlag;
+    bool         m_UseASingleObjectConnectedComponentBySliceFlag;
 
   private:
     SliceBySliceRelativePositionFilter(const Self&); //purposely not implemented

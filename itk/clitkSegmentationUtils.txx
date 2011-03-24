@@ -297,7 +297,8 @@ namespace clitk {
   {
     typename ImageType::Pointer working_image;
     working_image = Labelize<ImageType>(input, BG, isFullyConnected, minimalComponentSize);
-    working_image = RemoveLabels<ImageType>(working_image, BG, param->GetLabelsToRemove());
+    if (param->GetLabelsToRemove().size() != 0)
+      working_image = RemoveLabels<ImageType>(working_image, BG, param->GetLabelsToRemove());
     working_image = KeepLabels<ImageType>(working_image, 
                                           BG, FG, 
                                           param->GetFirstKeep(), 
@@ -336,7 +337,8 @@ namespace clitk {
                                std::string orientation, 
                                bool uniqueConnectedComponent, 
                                double spacing, 
-                               bool inverseflag) 
+                               bool autocropFlag, 
+                               bool singleObjectCCL) 
   {
     typedef SliceBySliceRelativePositionFilter<MaskImageType> SliceRelPosFilterType;
     typename SliceRelPosFilterType::Pointer sliceRelPosFilter = SliceRelPosFilterType::New();
@@ -350,8 +352,10 @@ namespace clitk {
     sliceRelPosFilter->SetIntermediateSpacingFlag((spacing != -1));
     sliceRelPosFilter->SetIntermediateSpacing(spacing);
     sliceRelPosFilter->SetUniqueConnectedComponentBySlice(uniqueConnectedComponent);
-    sliceRelPosFilter->SetInverseOrientationFlag(inverseflag);
-    //  sliceRelPosFilter->SetAutoCropFlag(true); ??
+    sliceRelPosFilter->SetUseASingleObjectConnectedComponentBySliceFlag(singleObjectCCL);
+    //    sliceRelPosFilter->SetInverseOrientationFlag(inverseflag); 
+    sliceRelPosFilter->SetAutoCropFlag(autocropFlag); 
+    sliceRelPosFilter->IgnoreEmptySliceObjectFlagOn();
     sliceRelPosFilter->Update();
     return sliceRelPosFilter->GetOutput();
   }
