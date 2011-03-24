@@ -72,7 +72,7 @@ protected:
   int mCurrentStructureSetIndex;
   clitk::DicomRT_ROI * mCurrentROI;
   vvROIActor * mCurrentROIActor;
-  vtkLookupTable * mDefaultLUTColor;
+  vtkSmartPointer<vtkLookupTable> mDefaultLUTColor;
   bool mIsAllVisibleEnabled;
   int mNumberOfVisibleROI;
   int mNumberOfVisibleContourROI;
