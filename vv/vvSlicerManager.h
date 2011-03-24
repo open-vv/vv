@@ -154,7 +154,7 @@ class vvSlicerManager : public QObject {
     return mFusionLevel;
   }
 
-  void SetCursorVisibility(int s);
+  void SetCursorAndCornerAnnotationVisibility(int s);
   void UpdateViews(int current, int slicer);
   void UpdateLinked(int slicer);
   void UpdateLinkedNavigation(vvSlicer *slicer, bool bPropagate=false);

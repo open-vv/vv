@@ -143,8 +143,12 @@ public:
 
   void UpdateCursorPosition();
   void SetCursorVisibility(bool s);
+
   bool GetCursorVisibility();
   void SetCursorColor(int r,int g, int b);
+
+  void SetCornerAnnotationVisibility(bool s);
+  bool GetCornerAnnotationVisibility();
 
   void GetExtremasAroundMousePointer(double & min, double & max);
 

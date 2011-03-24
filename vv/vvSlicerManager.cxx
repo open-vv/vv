@@ -505,14 +505,14 @@ void vvSlicerManager::SetColorLevel(double s)
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void vvSlicerManager::SetCursorVisibility(int s)
+void vvSlicerManager::SetCursorAndCornerAnnotationVisibility(int s)
 {
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
     mSlicers[i]->SetCursorVisibility(s);
+    mSlicers[i]->SetCornerAnnotationVisibility(s);
   }
 }
 //----------------------------------------------------------------------------
-
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetOpacity(int i, double factor)

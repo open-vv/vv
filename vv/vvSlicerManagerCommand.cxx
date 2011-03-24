@@ -88,6 +88,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
       for (int i = 0; i < this->SM->GetNumberOfSlicers(); i++) {
         if (this->SM->GetSlicer(i)->GetCursorVisibility()) {
           this->SM->GetSlicer(i)->SetCursorVisibility(0);
+          this->SM->GetSlicer(i)->SetCornerAnnotationVisibility(0);
           this->SM->GetSlicer(i)->Render();
         }
       }
@@ -184,7 +185,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
           return;
         }
         if (KeyPress == "h") {
-          this->SM->SetCursorVisibility(0);
+          this->SM->SetCursorAndCornerAnnotationVisibility(0);
           this->SM->Render();
           return;
         }
