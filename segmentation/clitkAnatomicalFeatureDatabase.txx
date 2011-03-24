@@ -54,6 +54,8 @@ SetImage(TagType tag, std::string f, typename ImageType::Pointer image, bool wri
 {
   SetImageFilename(tag, f);
   m_MapOfImage[tag] = &(*image);
+  // I add a reference count because the cache is not a smartpointer
+  image->SetReferenceCount(image->GetReferenceCount()+1);
   if (write) {
     writeImage<ImageType>(image, f);
   }
