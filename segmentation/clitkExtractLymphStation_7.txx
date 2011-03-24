@@ -3,30 +3,83 @@
 template <class TImageType>
 void 
 clitk::ExtractLymphStationsFilter<TImageType>::
+ExtractStation_7_SetDefaultValues()
+{
+  SetFuzzyThresholdForS7("Bronchi", 0.1);
+  SetFuzzyThresholdForS7("LeftSuperiorPulmonaryVein", 0.3);
+  SetFuzzyThresholdForS7("RightSuperiorPulmonaryVein", 0.2);
+  SetFuzzyThresholdForS7("RightPulmonaryArtery", 0.3);
+  SetFuzzyThresholdForS7("LeftPulmonaryArtery", 0.5);
+  SetFuzzyThresholdForS7("SVC", 0.2);
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+template <class TImageType>
+void 
+clitk::ExtractLymphStationsFilter<TImageType>::
+SetFuzzyThresholdForS7(std::string tag, double value)
+{
+  m_FuzzyThresholdForS7[tag] = value;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class TImageType>
+double 
+clitk::ExtractLymphStationsFilter<TImageType>::
+GetFuzzyThresholdForS7(std::string tag)
+{
+  if (m_FuzzyThresholdForS7.find(tag) != m_FuzzyThresholdForS7.end()) {
+    return m_FuzzyThresholdForS7[tag]; 
+  }
+  else {
+    clitkExceptionMacro("Could not find options "+tag+" in the m_FuzzyThresholdForS7 list");
+  }
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class TImageType>
+void 
+clitk::ExtractLymphStationsFilter<TImageType>::
 ExtractStation_7_SI_Limits() 
 {
+  StartNewStep("[Station7] Inf/Sup mediastinum limits with carina/LLLBronchus");
   // Get Inputs
   MaskImagePointer Trachea = GetAFDB()->template GetImage <MaskImageType>("Trachea");  
-  double m_CarinaZ = GetAFDB()->GetPoint3D("Carina", 2);
-  DD(m_CarinaZ);
-  double m_OriginOfRightMiddleLobeBronchusZ = GetAFDB()->GetPoint3D("OriginOfRightMiddleLobeBronchus", 2);
-  DD(m_OriginOfRightMiddleLobeBronchusZ);
+  
+  // We suppoe that CarinaZ was already computed (S8)
+  double m_CarinaZ = GetAFDB()->GetDouble("CarinaZ");
+  
+  //  double m_OriginOfRightMiddleLobeBronchusZ = GetAFDB()->GetPoint3D("OriginOfRightMiddleLobeBronchus", 2);
+  // DD(m_OriginOfRightMiddleLobeBronchusZ);
+  MaskImagePointer UpperBorderOfLLLBronchus = GetAFDB()->template GetImage<MaskImageType>("UpperBorderOfLLLBronchus");
 
-  /* Crop support :
-     Superior limit = carina
-     Inferior limit = origin right middle lobe bronchus */
-  StartNewStep("[Station7] Inf/Sup mediastinum limits with carina/bronchus");
+  // Search most inf point (WHY ? IS IT THE RIGHT STRUCTURE ??)
+  MaskImagePointType ps = UpperBorderOfLLLBronchus->GetOrigin(); // initialise to avoid warning 
+  clitk::FindExtremaPointInAGivenDirection<MaskImageType>(UpperBorderOfLLLBronchus, GetBackgroundValue(), 2, true, ps);
+  double m_UpperBorderOfLLLBronchusZ = ps[2];
+
+  /*
+  std::vector<MaskImagePointType> centroids;
+  clitk::ComputeCentroids<MaskImageType>(UpperBorderOfLLLBronchus, GetBackgroundValue(), centroids);
+  double m_UpperBorderOfLLLBronchusZ = centroids[1][2];
+  DD(m_UpperBorderOfLLLBronchusZ)
+  */
+
+  /* Crop support */
   m_Working_Support = 
     clitk::CropImageAlongOneAxis<MaskImageType>(m_Working_Support, 2, 
-                                                m_OriginOfRightMiddleLobeBronchusZ, 
+                                                m_UpperBorderOfLLLBronchusZ, 
                                                 m_CarinaZ, true,
                                                 GetBackgroundValue());
-  /* Crop trachea
-     Superior limit = carina
-     Inferior limit = origin right middle lobe bronchus*/
-  m_working_trachea = 
+  /* Crop trachea */
+  m_Working_Trachea = 
     clitk::CropImageAlongOneAxis<MaskImageType>(Trachea, 2, 
-                                                m_OriginOfRightMiddleLobeBronchusZ, 
+                                                m_UpperBorderOfLLLBronchusZ, 
                                                 m_CarinaZ, true,
                                                 GetBackgroundValue());
 
@@ -43,98 +96,190 @@ clitk::ExtractLymphStationsFilter<TImageType>::
 ExtractStation_7_RL_Limits() 
 {
   // ----------------------------------------------------------------
-  // Separate trachea in two CCL
-  StartNewStep("[Station7] Separate trachea under carina");
+  StartNewStep("[Station7] Limits with bronchus : RightTo the left bronchus");  
 
-  // Labelize and consider two main labels
-  m_working_trachea = Labelize<MaskImageType>(m_working_trachea, 0, true, 1);
+  // First consider bronchus and keep the main CCL by slice
+  m_RightBronchus = GetAFDB()->template GetImage <MaskImageType>("RightBronchus");
+  m_LeftBronchus = GetAFDB()->template GetImage <MaskImageType>("LeftBronchus");
 
-  // Carina position must at the first slice that separate the two
-  // main bronchus (not superiorly) Check that upper slice is composed
-  // of at least two labels
-  typedef itk::ImageSliceIteratorWithIndex<MaskImageType> SliceIteratorType;
-  SliceIteratorType iter(m_working_trachea, m_working_trachea->GetLargestPossibleRegion());
-  iter.SetFirstDirection(0);
-  iter.SetSecondDirection(1);
-  iter.GoToReverseBegin(); // Start from the end (because image is IS not SI)
-  int maxLabel=0;
-  while (!iter.IsAtReverseEndOfSlice()) {
-    while (!iter.IsAtReverseEndOfLine()) {    
-      if (iter.Get() > maxLabel) maxLabel = iter.Get();
-      --iter;
-    }
-    iter.PreviousLine();
+  // Extract slices, Label, compute centroid, keep most central connected component
+  std::vector<MaskSlicePointer> slices_leftbronchus;
+  std::vector<MaskSlicePointer> slices_rightbronchus;
+  clitk::ExtractSlices<MaskImageType>(m_LeftBronchus, 2, slices_leftbronchus);
+  clitk::ExtractSlices<MaskImageType>(m_RightBronchus, 2, slices_rightbronchus);
+  
+  // Loop on slices
+  for(uint i=0; i<slices_leftbronchus.size(); i++) {
+    slices_leftbronchus[i] = Labelize<MaskSliceType>(slices_leftbronchus[i], 0, false, 10);
+    std::vector<typename MaskSliceType::PointType> c;
+    clitk::ComputeCentroids<MaskSliceType>(slices_leftbronchus[i], GetBackgroundValue(), c);
+    if (c.size() > 1) {
+      double most_at_left = c[1][0];
+      int most_at_left_index=1;
+      for(uint j=1; j<c.size(); j++) {
+        if (c[j][0] < most_at_left) {
+          most_at_left = c[j][0];
+          most_at_left_index = j;
+        }
+      }
+      // Put all other CCL to Background
+      slices_leftbronchus[i] = 
+        clitk::Binarize<MaskSliceType>(slices_leftbronchus[i], most_at_left_index, 
+                                       most_at_left_index, GetBackgroundValue(), GetForegroundValue());
+    } // end c.size
   }
-  if (maxLabel < 2) {
-    clitkExceptionMacro("First slice form Carina does not seems to seperate the two main bronchus. Abort");
+  
+  for(uint i=0; i<slices_rightbronchus.size(); i++) {
+    slices_rightbronchus[i] = Labelize<MaskSliceType>(slices_rightbronchus[i], 0, false, 10);
+    std::vector<typename MaskSliceType::PointType> c;
+    clitk::ComputeCentroids<MaskSliceType>(slices_rightbronchus[i], GetBackgroundValue(), c);
+    if (c.size() > 1) {
+      double most_at_right = c[1][0];
+      int most_at_right_index=1;
+      for(uint j=1; j<c.size(); j++) {
+        if (c[j][0] > most_at_right) {
+          most_at_right = c[j][0];
+          most_at_right_index = j;
+        }
+      }
+      // Put all other CCL to Background
+      slices_rightbronchus[i] = 
+        clitk::Binarize<MaskSliceType>(slices_rightbronchus[i], most_at_right_index, 
+                                       most_at_right_index, GetBackgroundValue(), GetForegroundValue());
+    } // end c.size
+  }
+  
+  // Joint slices
+  m_LeftBronchus = clitk::JoinSlices<MaskImageType>(slices_leftbronchus, m_LeftBronchus, 2);
+  m_RightBronchus = clitk::JoinSlices<MaskImageType>(slices_rightbronchus, m_RightBronchus, 2);
+
+  writeImage<MaskImageType>(m_LeftBronchus, "step-left.mhd");
+  writeImage<MaskImageType>(m_RightBronchus, "step-right.mhd");
+
+  m_Working_Support = 
+    clitk::SliceBySliceRelativePosition<MaskImageType>(m_Working_Support, m_LeftBronchus, 2, 
+                                                       GetFuzzyThresholdForS7("Bronchi"), "RightTo", 
+                                                       false, 3, false);
+  StopCurrentStep<MaskImageType>(m_Working_Support);
+
+
+  // ----------------------------------------------------------------
+  StartNewStep("[Station7] Limits with bronchus : LeftTo the right bronchus");
+  m_Working_Support = 
+    clitk::SliceBySliceRelativePosition<MaskImageType>(m_Working_Support, m_RightBronchus, 2, 
+                                                       GetFuzzyThresholdForS7("Bronchi"), "LeftTo", 
+                                                       false, 3, false); 
+  StopCurrentStep<MaskImageType>(m_Working_Support);
+
+
+  // ----------------------------------------------------------------
+  StartNewStep("[Station7] Limits with LeftSuperiorPulmonaryVein");
+  try {
+    MaskImagePointer LeftSuperiorPulmonaryVein = GetAFDB()->template GetImage<MaskImageType>("LeftSuperiorPulmonaryVein");
+    typedef SliceBySliceRelativePositionFilter<MaskImageType> SliceRelPosFilterType;
+    typename SliceRelPosFilterType::Pointer sliceRelPosFilter = SliceRelPosFilterType::New();
+    sliceRelPosFilter->SetInput(m_Working_Support);
+    sliceRelPosFilter->SetInputObject(LeftSuperiorPulmonaryVein);
+    sliceRelPosFilter->SetDirection(2);
+    sliceRelPosFilter->SetFuzzyThreshold(GetFuzzyThresholdForS7("LeftSuperiorPulmonaryVein"));
+    sliceRelPosFilter->AddOrientationTypeString("NotLeftTo");
+    sliceRelPosFilter->AddOrientationTypeString("NotAntTo");
+    sliceRelPosFilter->SetIntermediateSpacingFlag(true);
+    sliceRelPosFilter->SetIntermediateSpacing(3);
+    sliceRelPosFilter->SetUniqueConnectedComponentBySlice(false);
+    sliceRelPosFilter->SetAutoCropFlag(false); 
+    sliceRelPosFilter->IgnoreEmptySliceObjectFlagOn();
+    sliceRelPosFilter->Update();
+    m_Working_Support = sliceRelPosFilter->GetOutput();
+    StopCurrentStep<MaskImageType>(m_Working_Support);
+  }
+  catch (clitk::ExceptionObject e) {
+    std::cout << "Not LeftSuperiorPulmonaryVein, skip" << std::endl;
   }
 
-  // Compute 3D centroids of both parts to identify the left from the
-  // right bronchus
-  std::vector<ImagePointType> c;
-  clitk::ComputeCentroids<MaskImageType>(m_working_trachea, GetBackgroundValue(), c);
-  ImagePointType C1 = c[1];
-  ImagePointType C2 = c[2];
+  // ----------------------------------------------------------------
+  StartNewStep("[Station7] Limits with RightSuperiorPulmonaryVein");
+  try {
+    MaskImagePointer RightSuperiorPulmonaryVein = GetAFDB()->template GetImage<MaskImageType>("RightSuperiorPulmonaryVein");
+    typedef SliceBySliceRelativePositionFilter<MaskImageType> SliceRelPosFilterType;
+    typename SliceRelPosFilterType::Pointer sliceRelPosFilter = SliceRelPosFilterType::New();
+    sliceRelPosFilter->SetInput(m_Working_Support);
+    sliceRelPosFilter->SetInputObject(RightSuperiorPulmonaryVein);
+    sliceRelPosFilter->SetDirection(2);
+    sliceRelPosFilter->SetFuzzyThreshold(GetFuzzyThresholdForS7("RightSuperiorPulmonaryVein"));
+    sliceRelPosFilter->AddOrientationTypeString("NotRightTo");
+    sliceRelPosFilter->AddOrientationTypeString("NotAntTo");
+    sliceRelPosFilter->AddOrientationTypeString("NotPostTo");
+    sliceRelPosFilter->SetIntermediateSpacingFlag(true);
+    sliceRelPosFilter->SetIntermediateSpacing(3);
+    sliceRelPosFilter->SetUniqueConnectedComponentBySlice(false);
+    sliceRelPosFilter->SetAutoCropFlag(false); 
+    sliceRelPosFilter->IgnoreEmptySliceObjectFlagOn();
+    sliceRelPosFilter->Update();
+    m_Working_Support = sliceRelPosFilter->GetOutput();
+    StopCurrentStep<MaskImageType>(m_Working_Support);
+  }
+  catch (clitk::ExceptionObject e) {
+    std::cout << "Not RightSuperiorPulmonaryVein, skip" << std::endl;
+  }
 
-  ImagePixelType leftLabel;
-  ImagePixelType rightLabel;  
-  if (C1[0] < C2[0]) { leftLabel = 1; rightLabel = 2; }
-  else { leftLabel = 2; rightLabel = 1; }
+  // ----------------------------------------------------------------
+  StartNewStep("[Station7] Limits with RightPulmonaryArtery");
+  MaskImagePointer RightPulmonaryArtery = GetAFDB()->template GetImage<MaskImageType>("RightPulmonaryArtery");
+  typedef SliceBySliceRelativePositionFilter<MaskImageType> SliceRelPosFilterType;
+  typename SliceRelPosFilterType::Pointer sliceRelPosFilter = SliceRelPosFilterType::New();
+  sliceRelPosFilter->SetInput(m_Working_Support);
+  sliceRelPosFilter->SetInputObject(RightPulmonaryArtery);
+  sliceRelPosFilter->SetDirection(2);
+  sliceRelPosFilter->SetFuzzyThreshold(GetFuzzyThresholdForS7("RightPulmonaryArtery"));
+  sliceRelPosFilter->AddOrientationTypeString("NotAntTo");
+  sliceRelPosFilter->SetIntermediateSpacingFlag(true);
+  sliceRelPosFilter->SetIntermediateSpacing(3);
+  sliceRelPosFilter->SetUniqueConnectedComponentBySlice(false);
+  sliceRelPosFilter->SetAutoCropFlag(false); 
+  sliceRelPosFilter->IgnoreEmptySliceObjectFlagOn();
+  sliceRelPosFilter->Update();
+  m_Working_Support = sliceRelPosFilter->GetOutput();
+  StopCurrentStep<MaskImageType>(m_Working_Support);
 
-  StopCurrentStep<MaskImageType>(m_working_trachea);
+  // ----------------------------------------------------------------
+  StartNewStep("[Station7] Limits with LeftPulmonaryArtery");
+  MaskImagePointer LeftPulmonaryArtery = GetAFDB()->template GetImage<MaskImageType>("LeftPulmonaryArtery");
+  sliceRelPosFilter = SliceRelPosFilterType::New();
+  sliceRelPosFilter->SetInput(m_Working_Support);
+  sliceRelPosFilter->SetInputObject(LeftPulmonaryArtery);
+  sliceRelPosFilter->SetDirection(2);
+  sliceRelPosFilter->SetFuzzyThreshold(GetFuzzyThresholdForS7("LeftPulmonaryArtery"));
+  sliceRelPosFilter->AddOrientationTypeString("NotAntTo");
+  sliceRelPosFilter->SetIntermediateSpacingFlag(true);
+  sliceRelPosFilter->SetIntermediateSpacing(3);
+  sliceRelPosFilter->SetUniqueConnectedComponentBySlice(false);
+  sliceRelPosFilter->SetAutoCropFlag(false); 
+  sliceRelPosFilter->IgnoreEmptySliceObjectFlagOn();
+  sliceRelPosFilter->Update();
+  m_Working_Support = sliceRelPosFilter->GetOutput();
+  StopCurrentStep<MaskImageType>(m_Working_Support);
 
-  //-----------------------------------------------------
-  // Select LeftLabel (set one label to Backgroundvalue)
-  m_LeftBronchus = 
-    SetBackground<MaskImageType, MaskImageType>(m_working_trachea, m_working_trachea, 
-                                                rightLabel, GetBackgroundValue(), false);
-  m_RightBronchus  = 
-    SetBackground<MaskImageType, MaskImageType>(m_working_trachea, m_working_trachea, 
-                                                leftLabel, GetBackgroundValue(), false);
-
-  StartNewStep("[Station7] Limits with bronchus (slice by slice) : RightTo left bronchus");  
-  m_Working_Support = 
-    clitk::SliceBySliceRelativePosition<MaskImageType>(m_Working_Support, 
-						       m_LeftBronchus, 2, 
-                                                       GetFuzzyThreshold(), "RightTo", 
-                                                       true, 4);
-
-  StartNewStep("[Station7] Limits with bronchus (slice by slice) : LeftTo right bronchus");  
-  m_Working_Support = 
-    clitk::SliceBySliceRelativePosition<MaskImageType>(m_Working_Support, 
-						       m_RightBronchus, 
-						       2, GetFuzzyThreshold(), "LeftTo", 
-                                                       true, 4);
-
-  StartNewStep("[Station7] Limits with bronchus (slice by slice) : not AntTo left bronchus");  
-  m_Working_Support = 
-    clitk::SliceBySliceRelativePosition<MaskImageType>(m_Working_Support, 
-						       m_LeftBronchus, 
-						       2, GetFuzzyThreshold(), "AntTo", 
-                                                       true, 4, true); // NOT
-
-  StartNewStep("[Station7] Limits with bronchus (slice by slice) : not AntTo right bronchus");  
-  m_Working_Support = 
-    clitk::SliceBySliceRelativePosition<MaskImageType>(m_Working_Support, 
-						       m_RightBronchus, 
-						       2, GetFuzzyThreshold(), "AntTo", 
-                                                       true, 4, true);
-
-  StartNewStep("[Station7] Limits with bronchus (slice by slice) : not PostTo left bronchus");  
-  m_Working_Support = 
-    clitk::SliceBySliceRelativePosition<MaskImageType>(m_Working_Support, 
-						       m_LeftBronchus, 
-						       2, GetFuzzyThreshold(), "PostTo", 
-                                                       true, 4, true);
-
-  StartNewStep("[Station7] Limits with bronchus (slice by slice) : not PostTo right bronchus");  
-  m_Working_Support = 
-    clitk::SliceBySliceRelativePosition<MaskImageType>(m_Working_Support, 
-						       m_RightBronchus, 
-						       2, GetFuzzyThreshold(), "PostTo", 
-                                                       true, 4, true);
-  m_Station7 = m_Working_Support;
-  StopCurrentStep<MaskImageType>(m_Station7);
+  StartNewStep("[Station7] Limits with SVC");
+  MaskImagePointer SVC = GetAFDB()->template GetImage<MaskImageType>("SVC");
+  sliceRelPosFilter = SliceRelPosFilterType::New();
+  sliceRelPosFilter->SetInput(m_Working_Support);
+  sliceRelPosFilter->SetInputObject(SVC);
+  sliceRelPosFilter->SetDirection(2);
+  sliceRelPosFilter->SetFuzzyThreshold(GetFuzzyThresholdForS7("SVC"));
+  sliceRelPosFilter->AddOrientationTypeString("NotRightTo");
+  sliceRelPosFilter->AddOrientationTypeString("NotAntTo");
+  sliceRelPosFilter->SetIntermediateSpacingFlag(true);
+  sliceRelPosFilter->SetIntermediateSpacing(3);
+  sliceRelPosFilter->SetUniqueConnectedComponentBySlice(false);
+  sliceRelPosFilter->SetAutoCropFlag(true); 
+  sliceRelPosFilter->IgnoreEmptySliceObjectFlagOn();
+  sliceRelPosFilter->Update();
+  m_Working_Support = sliceRelPosFilter->GetOutput();
+  StopCurrentStep<MaskImageType>(m_Working_Support);
+  
+  // End
+  m_ListOfStations["7"] = m_Working_Support;
 }
 //--------------------------------------------------------------------
 
@@ -145,20 +290,31 @@ void
 clitk::ExtractLymphStationsFilter<TImageType>::
 ExtractStation_7_Posterior_Limits() 
 {
-  StartNewStep("[Station7] Posterior limits -> must be AntTo post wall of the bronchi");  
+  StartNewStep("[Station7] Posterior limits -> must be AntTo post wall of the bronchi (OLD CLASSIF)");  
 
   // Search for points that are the most left/post/ant and most
   // right/post/ant of the left and right bronchus
 
   // extract, loop slices, label/keep, find extrema x 3
-  FindExtremaPointsInBronchus(m_LeftBronchus, 0, 15,
-			      m_RightMostInLeftBronchus, 
-			      m_AntMostInLeftBronchus, 
-			      m_PostMostInLeftBronchus);
-  FindExtremaPointsInBronchus(m_RightBronchus, 1, 15,
-			      m_LeftMostInRightBronchus, 
-			      m_AntMostInRightBronchus, 
-			      m_PostMostInRightBronchus);
+  /*  FindExtremaPointsInBronchus(m_LeftBronchus, 0, 15, m_RightMostInLeftBronchus, 
+			      m_AntMostInLeftBronchus, m_PostMostInLeftBronchus);
+  FindExtremaPointsInBronchus(m_RightBronchus, 1, 15, m_LeftMostInRightBronchus, 
+			      m_AntMostInRightBronchus, m_PostMostInRightBronchus);
+  */
+  
+  // First cut bronchus to the correct sup/inf support 
+  MaskImagePointer RightBronchus = clitk::ResizeImageLike<MaskImageType>(m_RightBronchus, m_Working_Support, GetBackgroundValue());
+  MaskImagePointer LeftBronchus = clitk::ResizeImageLike<MaskImageType>(m_LeftBronchus, m_Working_Support, GetBackgroundValue());
+
+  // Find extrema points
+  FindExtremaPointsInBronchus(RightBronchus, 0, 10, m_LeftMostInRightBronchus, 
+			      m_AntMostInRightBronchus, m_PostMostInRightBronchus);
+
+  FindExtremaPointsInBronchus(LeftBronchus, 1, 10, m_RightMostInLeftBronchus, 
+			      m_AntMostInLeftBronchus, m_PostMostInLeftBronchus);
+
+
+
   // DEBUG
   std::ofstream osrl; openFileForWriting(osrl, "osrl.txt"); osrl << "LANDMARKS1" << std::endl;
   std::ofstream osal; openFileForWriting(osal, "osal.txt"); osal << "LANDMARKS1" << std::endl;
@@ -174,7 +330,9 @@ ExtractStation_7_Posterior_Limits()
 	 << " " << m_AntMostInLeftBronchus[i][2] << " 0 0 " << std::endl;
     ospl << i << " " << m_PostMostInLeftBronchus[i][0] << " " << m_PostMostInLeftBronchus[i][1] 
 	 << " " << m_PostMostInLeftBronchus[i][2] << " 0 0 " << std::endl;
+  }
 
+  for(uint i=0; i<m_LeftMostInRightBronchus.size(); i++) {
     osrr << i << " " << m_LeftMostInRightBronchus[i][0] << " " << m_LeftMostInRightBronchus[i][1] 
 	 << " " << m_LeftMostInRightBronchus[i][2] << " 0 0 " << std::endl;
     osar << i << " " << m_AntMostInRightBronchus[i][0] << " " << m_AntMostInRightBronchus[i][1] 
@@ -185,75 +343,47 @@ ExtractStation_7_Posterior_Limits()
   osrl.close();
   osal.close();
   ospl.close();
+  osrr.close();
+  osar.close();
+  ospr.close();
 
-  // Now uses these points to limit, slice by slice 
-  // http://www.gamedev.net/community/forums/topic.asp?topic_id=542870
-  /*
-    Assuming the points are (Ax,Ay) (Bx,By) and (Cx,Cy), you need to compute:
-    (Bx - Ax) * (Cy - Ay) - (By - Ay) * (Cx - Ax)
-    This will equal zero if the point C is on the line formed by
-    points A and B, and will have a different sign depending on the
-    side. Which side this is depends on the orientation of your (x,y)
-    coordinates, but you can plug test values for A,B and C into this
-    formula to determine whether negative values are to the left or to
-    the right.
-    => to accelerate, start with formula, when change sign -> stop and fill
-  */
-  typedef itk::ImageSliceIteratorWithIndex<MaskImageType> SliceIteratorType;
-  SliceIteratorType iter = SliceIteratorType(m_Working_Support, 
-                                             m_Working_Support->GetLargestPossibleRegion());
-  iter.SetFirstDirection(0);
-  iter.SetSecondDirection(1);
-  iter.GoToBegin();
-  int i=0;
-  MaskImageType::PointType A;
-  MaskImageType::PointType B;
-  MaskImageType::PointType C;
-  while (!iter.IsAtEnd()) {
-    A = m_PostMostInLeftBronchus[i];
-    B = m_PostMostInRightBronchus[i];
-    C = A;
-    C[1] -= 10; // I know I must keep this point
-    double s = (B[0] - A[0]) * (C[1] - A[1]) - (B[1] - A[1]) * (C[0] - A[0]);
-    bool isPositive = s<0;
-    while (!iter.IsAtEndOfSlice()) {
-      while (!iter.IsAtEndOfLine()) {
-        // Very slow, I know ... but image should be very small
-        m_Working_Support->TransformIndexToPhysicalPoint(iter.GetIndex(), C);
-        double s = (B[0] - A[0]) * (C[1] - A[1]) - (B[1] - A[1]) * (C[0] - A[0]);
-        if (s == 0) iter.Set(2);
-        if (isPositive) {
-          if (s > 0) iter.Set(GetBackgroundValue());
-        }
-        else {
-          if (s < 0) iter.Set(GetBackgroundValue());
-        }
-        ++iter;
-      }
-      iter.NextLine();
-    }
-    iter.NextSlice();
-    ++i;
-  }
+  clitk::SliceBySliceSetBackgroundFromLineSeparation<MaskImageType>(m_Working_Support, 
+                                                                    m_PostMostInRightBronchus,
+                                                                    m_PostMostInLeftBronchus,
+                                                                    GetBackgroundValue(), 1, -10);
+  // If needed -> can do the same with AntMost.
 
-  //-----------------------------------------------------
-  // StartNewStep("[Station7] Anterior limits");  
- 
-
-  // MISSING FROM NOW 
-  
-  // Station 4R, Station 4L, the right pulmonary artery, and/or the
-  // left superior pulmonary vein
-
-
-  //-----------------------------------------------------
-  //-----------------------------------------------------
-  // ALSO SUBSTRACT ARTERY/VEIN (initially in the support)
-
-
-  // Set output
-  m_Station7 = m_Working_Support;
+  // End
+  StopCurrentStep<MaskImageType>(m_Working_Support);
+  m_ListOfStations["7"] = m_Working_Support;
 }
 //--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+template <class ImageType>
+void 
+clitk::ExtractLymphStationsFilter<ImageType>::
+ExtractStation_7_Remove_Structures()
+{
+
+  //--------------------------------------------------------------------
+  StartNewStep("[Station7] remove some structures");
+
+  Remove_Structures("AzygousVein");
+  Remove_Structures("Aorta");
+  Remove_Structures("Esophagus");
+  Remove_Structures("RightPulmonaryArtery");
+  Remove_Structures("LeftPulmonaryArtery");
+  Remove_Structures("LeftSuperiorPulmonaryVein");
+  Remove_Structures("PulmonaryTrunk");
+  Remove_Structures("VertebralBody");
+
+  // END
+  StopCurrentStep<MaskImageType>(m_Working_Support);
+  m_ListOfStations["7"] = m_Working_Support;
+  return;
+}
+//--------------------------------------------------------------------
+
 
 

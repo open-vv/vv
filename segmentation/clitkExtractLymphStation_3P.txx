@@ -65,23 +65,13 @@ ExtractStation_3P_Remove_Structures()
 
   StartNewStep("[Station 3P] Remove some structures.");
 
-  MaskImagePointer Aorta = GetAFDB()->template GetImage<MaskImageType>("Aorta");
-  clitk::AndNot<MaskImageType>(m_Working_Support, Aorta, GetBackgroundValue());
-
-  MaskImagePointer VertebralBody = GetAFDB()->template GetImage<MaskImageType>("VertebralBody");
-  clitk::AndNot<MaskImageType>(m_Working_Support, VertebralBody);
-
-  MaskImagePointer SubclavianArtery = GetAFDB()->template GetImage<MaskImageType>("SubclavianArtery");
-  clitk::AndNot<MaskImageType>(m_Working_Support, SubclavianArtery);
-
-  MaskImagePointer Esophagus = GetAFDB()->template GetImage<MaskImageType>("Esophagus");
-  clitk::AndNot<MaskImageType>(m_Working_Support, Esophagus);
-
-  MaskImagePointer AzygousVein = GetAFDB()->template GetImage<MaskImageType>("AzygousVein");
-  clitk::AndNot<MaskImageType>(m_Working_Support, AzygousVein);
-
-  MaskImagePointer Thyroid = GetAFDB()->template GetImage<MaskImageType>("Thyroid");
-  clitk::AndNot<MaskImageType>(m_Working_Support, Thyroid);
+  Remove_Structures("Aorta");
+  Remove_Structures("VertebralBody");
+  Remove_Structures("SubclavianArtery");
+  Remove_Structures("Esophagus");
+  Remove_Structures("Azygousvein");
+  Remove_Structures("Thyroid");
+  Remove_Structures("VertebralArtery");
 
   StopCurrentStep<MaskImageType>(m_Working_Support);
   m_ListOfStations["3P"] = m_Working_Support;
@@ -434,6 +424,29 @@ ExtractStation_3P_LR_sup_Limits()
 template <class ImageType>
 void 
 clitk::ExtractLymphStationsFilter<ImageType>::
+ExtractStation_3P_LR_sup_Limits_2() 
+{
+  /*
+    Use VertebralArtery to limit.
+    
+
+  StartNewStep("[Station 3P] Left/Right limits with VertebralArtery");
+
+  // Load structures
+  MaskImagePointer VertebralArtery = GetAFDB()->template GetImage<MaskImageType>("VertebralArtery");
+
+  clitk::AndNot<MaskImageType>(m_Working_Support, VertebralArtery);
+
+  StopCurrentStep<MaskImageType>(m_Working_Support);
+  m_ListOfStations["3P"] = m_Working_Support;
+  */
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+template <class ImageType>
+void 
+clitk::ExtractLymphStationsFilter<ImageType>::
 ExtractStation_3P_LR_inf_Limits() 
 {
   /*
@@ -444,10 +457,11 @@ ExtractStation_3P_LR_inf_Limits()
 
     inf : not Right to Azygousvein    
   */
-  StartNewStep("[Station 3P] Left/Right limits (inferior part) ");
+  StartNewStep("[Station 3P] Left/Right limits (inferior part) with Azygousvein and Aorta");
 
   // Load structures
   MaskImagePointer AzygousVein = GetAFDB()->template GetImage<MaskImageType>("AzygousVein");
+  MaskImagePointer Aorta = GetAFDB()->template GetImage<MaskImageType>("Aorta");
 
   typedef clitk::AddRelativePositionConstraintToLabelImageFilter<MaskImageType> RelPosFilterType;
   typename RelPosFilterType::Pointer relPosFilter = RelPosFilterType::New();
@@ -464,6 +478,19 @@ ExtractStation_3P_LR_inf_Limits()
   relPosFilter->AutoCropFlagOn();
   relPosFilter->Update();
   m_Working_Support = relPosFilter->GetOutput();
+
+  writeImage<MaskImageType>(m_Working_Support, "before-L-aorta.mhd");
+  relPosFilter->SetInput(m_Working_Support); 
+  relPosFilter->SetInputObject(Aorta); 
+  relPosFilter->AddOrientationTypeString("L");
+  relPosFilter->SetInverseOrientationFlag(true);
+  //      relPosFilter->SetIntermediateSpacing(3);
+  relPosFilter->SetIntermediateSpacingFlag(false);
+  relPosFilter->SetFuzzyThreshold(0.7);
+  relPosFilter->AutoCropFlagOn();
+  relPosFilter->Update();
+  m_Working_Support = relPosFilter->GetOutput();
+  writeImage<MaskImageType>(m_Working_Support, "after-L-aorta.mhd");
 
   StopCurrentStep<MaskImageType>(m_Working_Support);
   m_ListOfStations["3P"] = m_Working_Support;

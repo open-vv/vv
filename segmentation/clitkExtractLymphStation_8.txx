@@ -462,8 +462,8 @@ ExtractStation_8_Ant_Inf_Limits()
   relPosFilter->WriteStepFlagOff();
   relPosFilter->SetInput(m_Working_Support);
   relPosFilter->SetInputObject(m_Esophagus);
-  relPosFilter->AddOrientationTypeString("P");
-  relPosFilter->InverseOrientationFlagOff();
+  relPosFilter->AddOrientationTypeString("PostTo");
+  //  relPosFilter->InverseOrientationFlagOff();
   relPosFilter->SetDirection(2); // Z axis
   relPosFilter->UniqueConnectedComponentBySliceOff();
   relPosFilter->SetIntermediateSpacing(3);
@@ -635,7 +635,7 @@ clitk::ExtractLymphStationsFilter<ImageType>::
 ExtractStation_8_Single_CCL_Limits() 
 {
   //--------------------------------------------------------------------
-  StartNewStep("[Station8] Single CCL");
+  StartNewStep("[Station8 or 3P] Slice by slice, keep a single CCL (the closest to VertebralBody)");
 
   // Consider slices
   std::vector<typename MaskSliceType::Pointer> slices;
@@ -654,15 +654,11 @@ ExtractStation_8_Single_CCL_Limits()
     std::vector<typename MaskSliceType::PointType> c;
     clitk::ComputeCentroids<MaskSliceType>(slices[i], GetBackgroundValue(), centroids);
     clitk::ComputeCentroids<MaskSliceType>(slices_vb[i], GetBackgroundValue(), c);
-    // DD(c.size());
-    // DD(centroids.size());
     if ((c.size() > 1) && (centroids.size() > 1)) {
       // keep the one which is the closer to vertebralbody centroid
       double distance=1000000;
       int index=0;
-      //      DD(c[1]);
       for(uint j=1; j<centroids.size(); j++) {
-        // DD(centroids[j]);
         double d = centroids[j].EuclideanDistanceTo(c[1]);
         if (d<distance) {
           distance = d;
@@ -852,7 +848,6 @@ ExtractStation_8_LR_Limits_old2()
     std::vector<typename MaskSliceType::PointType> c;
     clitk::ComputeCentroids<MaskSliceType>(eso_slices[i], GetBackgroundValue(), c);
     if (c.size() >1) {
-      // DD(c[1]);
       eso_slices[i] = 
         clitk::CropImageAbove<MaskSliceType>(eso_slices[i], 1, c[1][1], false, GetBackgroundValue());
       eso_slices[i] = 
@@ -1041,7 +1036,6 @@ ExtractStation_8_LR_Limits()
         j++;
       }
     }
-    // DD(j);
     sp_MostAntVertebralBody[1] += GetDistanceMaxToAnteriorPartOfTheSpine(); // Consider offset
 
     // Crop the vertebralbody below this most post line
@@ -1065,8 +1059,6 @@ ExtractStation_8_LR_Limits()
     clitk::PointsUtils<MaskImageType>::Convert2DTo3D(sp_MostLeftVertebralBody, VertebralBody, i, p);
     p_MostLeftVertebralBody.push_back(p);
 
-    // DD(p_MostLeftVertebralBody.back());
-
     /* -------------------------------------------------------------------------------------
        Find most Left point in Esophagus
      */
@@ -1082,14 +1074,12 @@ ExtractStation_8_LR_Limits()
       //   p_MostLeftEsophagus.push_back(p);
       //   sp_MostLeftEsophagus = sp_temp; // Retrieve previous 2D position
       //   found = true;
-      //   DD(p);
       // }
     }
     else {
       clitk::PointsUtils<MaskImageType>::Convert2DTo3D(sp_MostLeftEsophagus, EsophagusForSlice, i, p);
       p_MostLeftEsophagus.push_back(p);
       // sp_temp = sp_MostLeftEsophagus; // Store previous 2D position
-      // // DD(p_MostLeftEsophagus.back());
     }
       
     /* -------------------------------------------------------------------------------------
@@ -1141,11 +1131,8 @@ ExtractStation_8_Remove_Structures()
   //--------------------------------------------------------------------
   StartNewStep("[Station8] remove some structures");
 
-  MaskImagePointer Aorta = GetAFDB()->template GetImage<MaskImageType>("Aorta");
-  clitk::AndNot<MaskImageType>(m_Working_Support, Aorta, GetBackgroundValue());
-
-  MaskImagePointer Esophagus = GetAFDB()->template GetImage<MaskImageType>("Esophagus");
-  clitk::AndNot<MaskImageType>(m_Working_Support, Esophagus, GetBackgroundValue());
+  Remove_Structures("Aorta");
+  Remove_Structures("Esophagus");
 
   // END
   StopCurrentStep<MaskImageType>(m_Working_Support);
@@ -1243,8 +1230,8 @@ ExtractStation_8_LR_Limits_old()
   relPosFilter->WriteStepFlagOff();
   relPosFilter->SetInput(m_Working_Support);
   relPosFilter->SetInputObject(Esophagus);
-  relPosFilter->AddOrientationTypeString("L");
-  relPosFilter->InverseOrientationFlagOn(); // Not Left to
+  relPosFilter->AddOrientationTypeString("NotLeftTo");
+  //  relPosFilter->InverseOrientationFlagOn(); // Not Left to
   relPosFilter->SetDirection(2); // Z axis
   relPosFilter->UniqueConnectedComponentBySliceOff(); // important
   relPosFilter->SetIntermediateSpacing(4);

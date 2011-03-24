@@ -16,9 +16,9 @@ option "verboseMemory"  -  "Display memory usage"         flag          off
 section "I/O"
 
 option "input"         i	"Input CT image filename"	  string  	yes
-option "afdb"          a	"Output Anatomical Feature DB (Carina position)"  string  no
-option "output"        o 	"Output lungs mask filename"      string 	yes
-option "outputTrachea" t 	"Output trachea mask filename"    string 	no
+option "afdb"          a	"Output Anatomical Feature DB (Carina position)"  string  no default="default.afdb"
+option "output"        o 	"Output lungs mask filename"      string 	no default="lung.mhd"
+option "outputTrachea" t 	"Output trachea mask filename"    string 	no default="trachea.mhd"
 
 section "Step 1 : Air remove"
 

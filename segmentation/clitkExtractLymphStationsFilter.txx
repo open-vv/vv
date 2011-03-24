@@ -55,10 +55,8 @@ ExtractLymphStationsFilter():
   // Default values
   ExtractStation_8_SetDefaultValues();
   ExtractStation_3P_SetDefaultValues();
-
-  // Station 7
-  SetFuzzyThreshold(0.5);
-  SetStation7Filename("station7.mhd");
+  ExtractStation_3A_SetDefaultValues();
+  ExtractStation_7_SetDefaultValues();
 }
 //--------------------------------------------------------------------
 
@@ -85,13 +83,19 @@ GenerateOutputInformation() {
   ExtractStation_3P();
   StopSubStep();
 
-  if (0) { // temporary suppress
-    // Extract Station7
-    StartNewStep("Station 7");
-    StartSubStep();
-    ExtractStation_7();
-    StopSubStep();
+  // Extract Station3A
+  StartNewStep("Station 3A");
+  StartSubStep(); 
+  ExtractStation_3A();
+  StopSubStep();
 
+  // Extract Station7
+  StartNewStep("Station 7");
+  StartSubStep();
+  ExtractStation_7();
+  StopSubStep();
+
+  if (0) { // temporary suppress
     // Extract Station4RL
     StartNewStep("Station 4RL");
     StartSubStep();
@@ -131,8 +135,6 @@ template <class TImageType>
 void 
 clitk::ExtractLymphStationsFilter<TImageType>::
 GenerateData() {
-  DD("GenerateData, graft output");
-
   // Final Step -> graft output (if SetNthOutput => redo)
   this->GraftOutput(m_ListOfStations["8"]);
 }
@@ -228,11 +230,13 @@ ExtractStation_3P()
 {
   if (CheckForStation("3P")) {
     ExtractStation_3P_SI_Limits();
-    ExtractStation_3P_Remove_Structures();
     ExtractStation_3P_Ant_Limits();
     ExtractStation_3P_Post_Limits();
     ExtractStation_3P_LR_sup_Limits();
+    //    ExtractStation_3P_LR_sup_Limits_2();
     ExtractStation_3P_LR_inf_Limits();
+    ExtractStation_8_Single_CCL_Limits(); // YES 8 !
+    ExtractStation_3P_Remove_Structures(); // after CCL
     // Store image filenames into AFDB 
     writeImage<MaskImageType>(m_ListOfStations["3P"], "seg/Station3P.mhd");
     GetAFDB()->SetImageFilename("Station3P", "seg/Station3P.mhd"); 
@@ -247,14 +251,35 @@ template <class TImageType>
 void 
 clitk::ExtractLymphStationsFilter<TImageType>::
 ExtractStation_7() {
-  if (m_ListOfStations["7"]) {
-    DD("Station 7 support already exist -> use it");
-    m_Working_Support = m_ListOfStations["7"];
-  }
-  else m_Working_Support = m_Mediastinum;
+  if (CheckForStation("7")) {
   ExtractStation_7_SI_Limits();
   ExtractStation_7_RL_Limits();
   ExtractStation_7_Posterior_Limits();
+  //  ExtractStation_8_Single_CCL_Limits(); // Yes the same than 8
+  ExtractStation_7_Remove_Structures();
+  // Store image filenames into AFDB 
+  writeImage<MaskImageType>(m_ListOfStations["7"], "seg/Station7.mhd");
+  GetAFDB()->SetImageFilename("Station7", "seg/Station7.mhd");  
+  WriteAFDB();
+  }
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class TImageType>
+void 
+clitk::ExtractLymphStationsFilter<TImageType>::
+ExtractStation_3A()
+{
+  if (CheckForStation("3A")) {
+    ExtractStation_3A_SI_Limits();
+    ExtractStation_3A_Ant_Limits();
+    // Store image filenames into AFDB 
+    writeImage<MaskImageType>(m_ListOfStations["3A"], "seg/Station3A.mhd");
+    GetAFDB()->SetImageFilename("Station3A", "seg/Station3A.mhd"); 
+    WriteAFDB(); 
+  }
 }
 //--------------------------------------------------------------------
 
@@ -264,6 +289,8 @@ template <class TImageType>
 void 
 clitk::ExtractLymphStationsFilter<TImageType>::
 ExtractStation_4RL() {
+  DD("TODO");
+  exit(0);
   /*
     WARNING ONLY 4R FIRST !!! (not same inf limits)
   */    
@@ -274,6 +301,21 @@ ExtractStation_4RL() {
 //--------------------------------------------------------------------
 
 
+//--------------------------------------------------------------------
+template <class ImageType>
+void 
+clitk::ExtractLymphStationsFilter<ImageType>::
+Remove_Structures(std::string s)
+{
+  try {
+    StartNewStep("[Station7] Remove "+s);  
+    MaskImagePointer Structure = GetAFDB()->template GetImage<MaskImageType>(s);
+    clitk::AndNot<MaskImageType>(m_Working_Support, Structure, GetBackgroundValue());
+  }
+  catch(clitk::ExceptionObject e) {
+    std::cout << s << " not found, skip." << std::endl;
+  }
+}
 //--------------------------------------------------------------------
 
 

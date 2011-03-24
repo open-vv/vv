@@ -96,11 +96,10 @@ namespace clitk {
     itkGetConstMacro(InjectedThresholdForS8, double);
 
     // Station 7
-    itkSetMacro(FuzzyThreshold, double);
-    itkGetConstMacro(FuzzyThreshold, double);
-    itkSetMacro(Station7Filename, std::string);
-    itkGetConstMacro(Station7Filename, std::string);
-    
+    void SetFuzzyThresholdForS7(std::string tag, double value);
+    double GetFuzzyThresholdForS7(std::string tag);
+
+    // All stations
     bool GetComputeStation(std::string s);
     void AddComputeStation(std::string station) ;
 
@@ -121,6 +120,7 @@ namespace clitk {
     std::map<std::string, bool> m_ComputeStationMap;
 
     bool CheckForStation(std::string station);
+    void Remove_Structures(std::string s);
 
     // Station 8
     double m_DistanceMaxToAnteriorPartOfTheSpine;
@@ -156,19 +156,26 @@ namespace clitk {
     void ExtractStation_3P_Ant_Limits();
     void ExtractStation_3P_Post_Limits();
     void ExtractStation_3P_LR_sup_Limits();
+    void ExtractStation_3P_LR_sup_Limits_2();
     void ExtractStation_3P_LR_inf_Limits();
+
+    // Station 3A
+    void ExtractStation_3A();
+    void ExtractStation_3A_SetDefaultValues();
+    void ExtractStation_3A_SI_Limits();
+    void ExtractStation_3A_Ant_Limits();
 
     // Station 7
     void ExtractStation_7();
+    void ExtractStation_7_SetDefaultValues();
     void ExtractStation_7_SI_Limits();
     void ExtractStation_7_RL_Limits();
     void ExtractStation_7_Posterior_Limits();   
-    std::string      m_Station7Filename;
-    MaskImagePointer m_working_trachea;
-    double           m_FuzzyThreshold;
+    void ExtractStation_7_Remove_Structures();
+    MaskImagePointer m_Working_Trachea;
+    std::map<std::string, double> m_FuzzyThresholdForS7;
     MaskImagePointer m_LeftBronchus;
     MaskImagePointer m_RightBronchus;
-    MaskImagePointer m_Station7;
     typedef std::vector<MaskImageType::PointType> ListOfPointsType;
     ListOfPointsType  m_RightMostInLeftBronchus;
     ListOfPointsType  m_AntMostInLeftBronchus;
@@ -205,6 +212,7 @@ namespace clitk {
 #include "clitkExtractLymphStationsFilter.txx"
 #include "clitkExtractLymphStation_8.txx"
 #include "clitkExtractLymphStation_3P.txx"
+#include "clitkExtractLymphStation_3A.txx"
 #include "clitkExtractLymphStation_7.txx"
 #include "clitkExtractLymphStation_4RL.txx"
 #endif

@@ -108,6 +108,14 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   
   for(uint i=0; i<mArgsInfo.station_given; i++)
     f->AddComputeStation(mArgsInfo.station_arg[i]);
+
+  // Station 7
+  f->SetFuzzyThresholdForS7("Bronchi", mArgsInfo.tS7_Bronchi_arg);
+  f->SetFuzzyThresholdForS7("LeftSuperiorPulmonaryVein", mArgsInfo.tS7_LeftSuperiorPulmonaryVein_arg);
+  f->SetFuzzyThresholdForS7("RightSuperiorPulmonaryVein", mArgsInfo.tS7_RightSuperiorPulmonaryVein_arg);
+  f->SetFuzzyThresholdForS7("RightPulmonaryArtery", mArgsInfo.tS7_RightPulmonaryArtery_arg);
+  f->SetFuzzyThresholdForS7("LeftPulmonaryArtery", mArgsInfo.tS7_LeftPulmonaryArtery_arg);
+  f->SetFuzzyThresholdForS7("SVC", mArgsInfo.tS7_SVC_arg);
 }
 //--------------------------------------------------------------------
 
