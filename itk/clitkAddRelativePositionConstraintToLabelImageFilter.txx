@@ -55,6 +55,8 @@ AddRelativePositionConstraintToLabelImageFilter():
   InverseOrientationFlagOff();
   RemoveObjectFlagOn();
   CombineWithOrFlagOff();
+  VerboseStepFlagOff();
+  WriteStepFlagOff();
 }
 //--------------------------------------------------------------------
 
@@ -122,7 +124,14 @@ AddOrientationTypeString(std::string t)
   case 'P' : AddOrientationType(PostTo);break;
   case 'S' : AddOrientationType(SupTo);break;
   case 'I' : AddOrientationType(InfTo);break;
-  default: clitkExceptionMacro("Error, you must provide L,R or A,P or S,I");
+  case 'N': 
+    if (t == "NotLeftTo") { AddOrientationType(AtLeftTo); InverseOrientationFlagOn(); break; }
+    if (t == "NotRightTo") { AddOrientationType(AtRightTo); InverseOrientationFlagOn(); break; }
+    if (t == "NotAntTo") { AddOrientationType(AntTo); InverseOrientationFlagOn(); break; }
+    if (t == "NotPostTo") { AddOrientationType(PostTo); InverseOrientationFlagOn(); break; }
+    if (t == "NotSupTo") { AddOrientationType(SupTo); InverseOrientationFlagOn(); break; }
+    if (t == "NotInfTo") { AddOrientationType(InfTo); InverseOrientationFlagOn(); break; }
+  default: clitkExceptionMacro("Error, you must provide L,R or A,P or S,I (or NotLeftTo, NotRightTo etc)");
   }
 }
 //--------------------------------------------------------------------
@@ -425,7 +434,6 @@ GenerateData()
     typename PasteFilterType::Pointer padFilter2 = PasteFilterType::New();
     padFilter2->SetSourceImage(working_image);
     padFilter2->SetDestinationImage(temp);
-    // DD(input->GetLargestPossibleRegion().GetIndex());
     padFilter2->SetDestinationIndex(input->GetLargestPossibleRegion().GetIndex());
     padFilter2->SetSourceRegion(working_image->GetLargestPossibleRegion());
     padFilter2->Update();
