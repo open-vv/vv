@@ -100,8 +100,6 @@ namespace clitk {
   }; // end class VFResampleGenericFilter
   //--------------------------------------------------------------------
     
-#include "clitkVFResampleGenericFilter.txx"
-
 } // end namespace
 //--------------------------------------------------------------------
     

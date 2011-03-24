@@ -17,15 +17,6 @@
 ======================================================================-====*/
 #ifndef CLITKVFRESAMPLEGENERICFILTER_CXX
 #define CLITKVFRESAMPLEGENERICFILTER_CXX
-/**
- -------------------------------------------------------------------
- * @file   clitkVFResampleGenericFilter.cxx
- * @author David Sarrut <David.Sarrut@creatis.insa-lyon.fr>
- * @date   23 Feb 2008 08:37:53
-
- * @brief
-
- -------------------------------------------------------------------*/
 
 #include "clitkVFResampleGenericFilter.h"
 
@@ -35,7 +26,7 @@ clitk::VFResampleGenericFilter::VFResampleGenericFilter():
 {
   InitializeImageType<2>();
   InitializeImageType<3>();
-  InitializeImageType<4>();
+  //  InitializeImageType<4>();
   mApplyGaussianFilterBefore = false;
   mDefaultPixelValue = 0.0;
   mInterpolatorName = "NN";
@@ -48,7 +39,9 @@ clitk::VFResampleGenericFilter::VFResampleGenericFilter():
 template<unsigned int Dim>
 void clitk::VFResampleGenericFilter::InitializeImageType()
 {
-  ADD_IMAGE_TYPE(Dim, float);
+  //typedef itk::Vector<float,Dim> v3f;
+  //ADD_IMAGE_TYPE(Dim, v3f);
+  ADD_VEC_IMAGE_TYPE(Dim, Dim, float)
 }
 //--------------------------------------------------------------------
 
@@ -75,7 +68,8 @@ template<unsigned int Dim, class PixelType, unsigned int DimCompo>
 void clitk::VFResampleGenericFilter::Update_WithDimAndPixelTypeAndComponent()
 {
   // Reading input
-  typedef itk::Vector<PixelType, DimCompo> DisplacementType;
+  //  typedef itk::Vector<PixelType, DimCompo> DisplacementType;
+  typedef PixelType DisplacementType;
   typedef itk::Image< DisplacementType, Dim > ImageType;
 
   typename ImageType::Pointer input = clitk::readImage<ImageType>(m_InputFilenames, m_IOVerbose);
