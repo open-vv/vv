@@ -195,7 +195,7 @@ clitk::DicomRT_Contour * clitk::DicomRT_ROI::GetContour(int n)
 //--------------------------------------------------------------------
 void clitk::DicomRT_ROI::ComputeMesh()
 {
-  vtkAppendPolyData * append = vtkAppendPolyData::New();
+  vtkSmartPointer<vtkAppendPolyData> append = vtkSmartPointer<vtkAppendPolyData>::New();
   for(unsigned int i=0; i<mListOfContours.size(); i++) {
     append->AddInput(mListOfContours[i]->GetMesh());
   }

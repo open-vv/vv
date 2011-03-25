@@ -21,11 +21,11 @@
 #define CLITKDICOMRT_CONTOUR_H
 
 #include "clitkCommon.h" 
-#include "clitkDicomRT_Contour.h"
 #include <gdcm.h>
 #include <gdcmSQItem.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
+#include <vtkSmartPointer.h>
 
 namespace clitk {
 
@@ -47,8 +47,9 @@ protected:
   void ComputeMesh();
   unsigned int mNbOfPoints;
   std::string mType;
-  vtkPoints * mData;
-  vtkPolyData * mMesh;
+  vtkSmartPointer<vtkPoints> mData;
+  vtkSmartPointer<vtkPolyData> mMesh;
+  vtkSmartPointer<vtkPoints> mPoints;
   bool mMeshIsUpToDate;
   ///Z location of the contour
   double mZ;

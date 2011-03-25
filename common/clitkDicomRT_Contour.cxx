@@ -72,7 +72,7 @@ bool clitk::DicomRT_Contour::Read(gdcm::SQItem * item)
   assert(points.size() == static_cast<unsigned int>(mNbOfPoints)*3);
 
   // Organize values
-  mData = vtkPoints::New();
+  mData = vtkSmartPointer<vtkPoints>::New();
   mData->SetDataTypeToDouble();
   mData->SetNumberOfPoints(mNbOfPoints);
   for(unsigned int i=0; i<mNbOfPoints; i++) {
@@ -111,9 +111,10 @@ vtkPolyData * clitk::DicomRT_Contour::GetMesh()
 void clitk::DicomRT_Contour::ComputeMesh()
 {
 //  DD("ComputeMesh Contour");
-  mMesh = vtkPolyData::New();
+  mMesh = vtkSmartPointer<vtkPolyData>::New();
   mMesh->Allocate(); //for cell structures
-  mMesh->SetPoints(vtkPoints::New());
+  mPoints = vtkSmartPointer<vtkPoints>::New();
+  mMesh->SetPoints(mPoints);
   vtkIdType ids[2];
   for (unsigned int idx=0 ; idx<mNbOfPoints ; idx++) {
     mMesh->GetPoints()->InsertNextPoint(mData->GetPoint(idx)[0],

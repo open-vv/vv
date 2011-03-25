@@ -156,7 +156,7 @@ void clitk::DicomRT_ROI_ConvertToImageFilter::Update()
   }
 
   // Create new output image
-  mBinaryImage = vtkImageData::New();
+  mBinaryImage = vtkSmartPointer<vtkImageData>::New();
   mBinaryImage->SetScalarTypeToUnsignedChar();
   mBinaryImage->SetOrigin(&origin[0]);
   mBinaryImage->SetSpacing(&mSpacing[0]);

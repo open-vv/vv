@@ -56,7 +56,7 @@ namespace clitk {
     std::vector<double> mOrigin;
     std::vector<unsigned long> mSize;
     clitk::DicomRT_ROI * mROI;
-    vtkImageData * mBinaryImage;
+    vtkSmartPointer<vtkImageData> mBinaryImage;
   };
   //--------------------------------------------------------------------
 
