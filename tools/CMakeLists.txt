@@ -244,4 +244,8 @@ IF (CLITK_BUILD_TOOLS)
     ADD_EXECUTABLE(clitkRelativePosition  clitkRelativePosition.cxx ${clitkRelativePosition_GGO_C})
     TARGET_LINK_LIBRARIES(clitkRelativePosition clitkCommon ITKIO)
 
+    WRAP_GGO(clitkTransformLandmarks_GGO_C clitkTransformLandmarks.ggo)
+    ADD_EXECUTABLE(clitkTransformLandmarks clitkTransformLandmarks.cxx ${clitkTransformLandmarks_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkTransformLandmarks clitkCommon ITKIO)
+
 ENDIF(CLITK_BUILD_TOOLS)
