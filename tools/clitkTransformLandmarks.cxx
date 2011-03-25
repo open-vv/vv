@@ -12,13 +12,14 @@ typedef std::vector<PointType> PointArrayType;
 
 void read_points(const std::string& fileName, PointArrayType& points);
 void transform_points(const PointArrayType& input, const MatrixType& matrix, PointArrayType& output);
-void write_points(const PointArrayType& points);
+void write_points(const std::string& fileName, const PointArrayType& points);
 
 bool verbose = false;
 
 int main(int argc, char** argv)
 {
   GGO(clitkTransformLandmarks, args_info);
+  verbose = args_info.verbose_flag;
 
   PointArrayType inputPoints;
   read_points(args_info.input_arg, inputPoints);
@@ -28,7 +29,7 @@ int main(int argc, char** argv)
   PointArrayType outputPoints;
   transform_points(inputPoints, matrix, outputPoints);
   
-  write_points(outputPoints);
+  write_points(args_info.output_arg, outputPoints);
   return 0;
 }
 
@@ -74,9 +75,11 @@ void transform_points(const PointArrayType& input, const MatrixType& matrix, Poi
   }
 }
 
-void write_points(const PointArrayType& points) 
+void write_points(const std::string& fileName, const PointArrayType& points) 
 {
-  std::cout << "LANDMARKS1" << std::endl;
+  std::ofstream landmarksFile(fileName.c_str());
+  
+  landmarksFile << "LANDMARKS1" << std::endl;
   for (size_t i = 0; i < points.size(); i++)
-    std::cout << i << " " << points[i][0] << " " << points[i][1] << " " << points[i][2] << " " << "0" << " " << std::endl;
+    landmarksFile << i << " " << points[i][0] << " " << points[i][1] << " " << points[i][2] << " " << "0" << " " << std::endl;
 }

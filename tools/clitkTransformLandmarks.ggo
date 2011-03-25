@@ -8,5 +8,6 @@ option "verbose"    v     "Verbose"       flag    off
 
 option "input"    i "Input landmarks filename"      string    yes
 option "matrix"   m "Input 4x4 matrix filename ('.mat' file)"      string    yes
+option "output"   o "Output landmarks filename"      string    yes
 
 
