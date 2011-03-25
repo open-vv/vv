@@ -58,7 +58,7 @@ public slots:
   void UpdateImage();
 
  protected:
-  clitk::DicomRT_ROI * mROI;
+  clitk::DicomRT_ROI::Pointer mROI;
   vvSlicerManager * mSlicerManager;
   std::vector<vvImageContour *> mImageContour;
   std::vector<vvBinaryImageOverlayActor *> mOverlayActors;

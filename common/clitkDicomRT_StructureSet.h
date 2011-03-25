@@ -26,42 +26,46 @@
 
 namespace clitk {
 
-  //--------------------------------------------------------------------
-  class DicomRT_StructureSet {
-    
-  public:
-    DicomRT_StructureSet();
-    ~DicomRT_StructureSet();
+//--------------------------------------------------------------------
+class DicomRT_StructureSet : public itk::LightObject{
+  
+public:
+  typedef DicomRT_StructureSet Self;
+  typedef itk::SmartPointer<Self> Pointer;
+  itkNewMacro(Self);
 
-    void Print(std::ostream & os = std::cout) const;
-    void Read(const std::string & filename);
+  void Print(std::ostream & os = std::cout) const;
+  void Read(const std::string & filename);
 
-    const std::vector<clitk::DicomRT_ROI*> & GetListOfROI() const;
-    clitk::DicomRT_ROI * GetROI(int n);
-    const std::string & GetStudyID() const;
-    const std::string & GetStudyTime() const;
-    const std::string & GetStudyDate() const;
-    const std::string & GetLabel() const;
-    const std::string & GetName() const;
-    const std::string & GetDate() const;
-    const std::string & GetTime() const;
+  const std::vector<DicomRT_ROI::Pointer> & GetListOfROI() const;
+  clitk::DicomRT_ROI * GetROI(int n);
+  const std::string & GetStudyID() const;
+  const std::string & GetStudyTime() const;
+  const std::string & GetStudyDate() const;
+  const std::string & GetLabel() const;
+  const std::string & GetName() const;
+  const std::string & GetDate() const;
+  const std::string & GetTime() const;
 
-    int AddBinaryImageAsNewROI(vvImage * i, std::string name);
-    
-  protected:
-    std::string mStudyID;
-    std::string mStudyTime;
-    std::string mStudyDate;
-    std::string mLabel;
-    std::string mName;
-    std::string mDate;
-    std::string mTime;
-    std::map<int, std::string> mMapOfROIName;
-    std::map<int, int> mMapOfROIIndex;
-    std::vector<clitk::DicomRT_ROI*> mListOfROI;
+  int AddBinaryImageAsNewROI(vvImage * i, std::string name);
+  
+protected:
+  std::string mStudyID;
+  std::string mStudyTime;
+  std::string mStudyDate;
+  std::string mLabel;
+  std::string mName;
+  std::string mDate;
+  std::string mTime;
+  std::map<int, std::string> mMapOfROIName;
+  std::map<int, int> mMapOfROIIndex;
+  std::vector<clitk::DicomRT_ROI::Pointer> mListOfROI;
 
-  };
-  //--------------------------------------------------------------------
+private:
+  DicomRT_StructureSet();
+  ~DicomRT_StructureSet();
+};
+//--------------------------------------------------------------------
 
 } // end namespace clitk
 #endif // CLITKDICOMRT_STRUCTURESET_H

@@ -67,20 +67,20 @@ public slots:
 
 protected:
   Ui::vvToolStructureSetManager ui;
-  clitk::DicomRT_StructureSet * mCurrentStructureSet;
+  clitk::DicomRT_StructureSet* mCurrentStructureSet;
   vvStructureSetActor * mCurrentStructureSetActor;
   int mCurrentStructureSetIndex;
-  clitk::DicomRT_ROI * mCurrentROI;
+  clitk::DicomRT_ROI::Pointer mCurrentROI;
   vvROIActor * mCurrentROIActor;
   vtkSmartPointer<vtkLookupTable> mDefaultLUTColor;
   bool mIsAllVisibleEnabled;
   int mNumberOfVisibleROI;
   int mNumberOfVisibleContourROI;
-  std::vector<clitk::DicomRT_StructureSet* >       mStructureSetsList;
+  std::vector<clitk::DicomRT_StructureSet::Pointer >       mStructureSetsList;
   std::vector<vvStructureSetActor *>               mStructureSetActorsList;
   std::map<int, QTreeWidgetItem *>                 mMapStructureSetIndexToTreeWidget;
-  std::map<clitk::DicomRT_ROI*, QTreeWidgetItem *> mMapROIToTreeWidget;
-  std::map<QTreeWidgetItem *, clitk::DicomRT_ROI*> mMapTreeWidgetToROI;
+  std::map<clitk::DicomRT_ROI::Pointer, QTreeWidgetItem *> mMapROIToTreeWidget;
+  std::map<QTreeWidgetItem *, clitk::DicomRT_ROI::Pointer> mMapTreeWidgetToROI;
   std::vector<int> mLoadedROIIndex;
   std::vector<vvImage::Pointer> mOpenedBinaryImage;
  

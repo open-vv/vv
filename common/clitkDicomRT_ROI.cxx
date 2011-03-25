@@ -39,7 +39,6 @@ clitk::DicomRT_ROI::DicomRT_ROI()
 //--------------------------------------------------------------------
 clitk::DicomRT_ROI::~DicomRT_ROI()
 {
-  mImage->Delete();
 }
 //--------------------------------------------------------------------
 
@@ -152,7 +151,7 @@ void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::SQItem * 
   bool delta_computed=false;
   double last_z=0;
   for(gdcm::SQItem* j=contours->GetFirstSQItem(); j!=0; j=contours->GetNextSQItem()) {
-    DicomRT_Contour * c = new DicomRT_Contour;
+    DicomRT_Contour::Pointer c = DicomRT_Contour::New();
     bool b = c->Read(j);
     if (b) {
       mListOfContours.push_back(c);

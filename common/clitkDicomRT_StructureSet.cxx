@@ -37,9 +37,6 @@ clitk::DicomRT_StructureSet::DicomRT_StructureSet()
 //--------------------------------------------------------------------
 clitk::DicomRT_StructureSet::~DicomRT_StructureSet()
 {
-  for(uint i=0; i<mListOfROI.size(); i++) {
-    delete mListOfROI[i];
-  }
 }
 //--------------------------------------------------------------------
 
@@ -101,7 +98,7 @@ const std::string & clitk::DicomRT_StructureSet::GetTime() const
 
 
 //--------------------------------------------------------------------
-const std::vector<clitk::DicomRT_ROI*> & clitk::DicomRT_StructureSet::GetListOfROI() const
+const std::vector<clitk::DicomRT_ROI::Pointer> & clitk::DicomRT_StructureSet::GetListOfROI() const
 {
   return mListOfROI;
 }
@@ -201,7 +198,7 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename)
   assert(roi_contour_seq); // TODO error message
   int n=0;
   for (gdcm::SQItem* r=roi_contour_seq->GetFirstSQItem(); r!=0; r=roi_contour_seq->GetNextSQItem()) {
-    DicomRT_ROI * roi = new DicomRT_ROI;
+    DicomRT_ROI::Pointer roi = DicomRT_ROI::New();
     roi->Read(mMapOfROIName, r);
     mListOfROI.push_back(roi);
     mMapOfROIIndex[roi->GetROINumber()] = n;
@@ -240,7 +237,7 @@ int clitk::DicomRT_StructureSet::AddBinaryImageAsNewROI(vvImage * im, std::strin
   color.push_back(0);
 
   // Create ROI
-  DicomRT_ROI * roi = new DicomRT_ROI;
+  DicomRT_ROI::Pointer roi = DicomRT_ROI::New();
   roi->SetFromBinaryImage(im, max, oss.str(), color, n);
   mListOfROI.push_back(roi);
   mMapOfROIIndex[mListOfROI.size()-1] = max;

@@ -29,31 +29,35 @@
 
 namespace clitk {
 
-  //--------------------------------------------------------------------
-  class DicomRT_Contour {
-    
-  public:
-    DicomRT_Contour();
-    ~DicomRT_Contour();
+//--------------------------------------------------------------------
+class DicomRT_Contour : public itk::LightObject{
+  
+public:
+  typedef DicomRT_Contour Self;
+  typedef itk::SmartPointer<Self> Pointer;
+  itkNewMacro(Self);
 
-    void Print(std::ostream & os = std::cout) const;
-    bool Read(gdcm::SQItem * item);
-    vtkPolyData * GetMesh();
-    vtkPoints * GetPoints() {return mData;}
-    double GetZ() const {return mZ;}
-    
-  protected:
-    void ComputeMesh();
-    unsigned int mNbOfPoints;
-    std::string mType;
-    vtkPoints * mData;
-    vtkPolyData * mMesh;
-    bool mMeshIsUpToDate;
-    ///Z location of the contour
-    double mZ;
+  void Print(std::ostream & os = std::cout) const;
+  bool Read(gdcm::SQItem * item);
+  vtkPolyData * GetMesh();
+  vtkPoints * GetPoints() {return mData;}
+  double GetZ() const {return mZ;}
+  
+protected:
+  void ComputeMesh();
+  unsigned int mNbOfPoints;
+  std::string mType;
+  vtkPoints * mData;
+  vtkPolyData * mMesh;
+  bool mMeshIsUpToDate;
+  ///Z location of the contour
+  double mZ;
 
-  };
-  //--------------------------------------------------------------------
+private:
+  DicomRT_Contour();
+  ~DicomRT_Contour();
+};
+//--------------------------------------------------------------------
 
 
 

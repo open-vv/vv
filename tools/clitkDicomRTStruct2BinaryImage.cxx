@@ -28,27 +28,27 @@ int main(int argc, char * argv[]) {
   GGO(clitkDicomRTStruct2BinaryImage, args_info);
 
   // Read and display information
-  clitk::DicomRT_StructureSet s;
-  s.Read(args_info.input_arg);
-  // s.Print(std::cout);
+  clitk::DicomRT_StructureSet::Pointer s = clitk::DicomRT_StructureSet::New();
+  s->Read(args_info.input_arg);
+  // s->Print(std::cout);
   
   // New filter to convert to binary image
   clitk::DicomRT_ROI_ConvertToImageFilter filter;
   filter.SetCropMaskEnabled(args_info.crop_flag);
   filter.SetImageFilename(args_info.image_arg);  // Used to get spacing + origin
   if (args_info.roi_arg != -1) {
-    filter.SetROI(s.GetROI(args_info.roi_arg)); 
+    filter.SetROI(s->GetROI(args_info.roi_arg)); 
     filter.SetOutputImageFilename(args_info.output_arg);
   filter.Update();  
   }
   else {
-    for(unsigned int i=0; i<s.GetListOfROI().size(); i++) {
+    for(unsigned int i=0; i<s->GetListOfROI().size(); i++) {
       clitk::DicomRT_ROI_ConvertToImageFilter filter;
       filter.SetCropMaskEnabled(args_info.crop_flag);
       filter.SetImageFilename(args_info.image_arg);  // Used to get spacing + origin
-      std::string name = s.GetListOfROI()[i]->GetName();
-      int num = s.GetListOfROI()[i]->GetROINumber();
-      filter.SetROI(s.GetListOfROI()[i]); 
+      std::string name = s->GetListOfROI()[i]->GetName();
+      int num = s->GetListOfROI()[i]->GetROINumber();
+      filter.SetROI(s->GetListOfROI()[i]); 
       name.erase(remove_if(name.begin(), name.end(), isspace), name.end());
       std::string n = std::string(args_info.output_arg).append
         (clitk::toString(num)).append
@@ -56,7 +56,7 @@ int main(int argc, char * argv[]) {
         (name).append
         (".mhd");
       if (args_info.verbose_flag) {
-        std::cout << i << " " << s.GetListOfROI()[i]->GetName() << " num=" << num << " : " << n << std::endl;
+        std::cout << i << " " << s->GetListOfROI()[i]->GetName() << " num=" << num << " : " << n << std::endl;
       }
       filter.SetOutputImageFilename(n);
       filter.Update();  
