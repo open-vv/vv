@@ -200,7 +200,9 @@ void clitk::DicomRT_ROI::ComputeMesh()
     append->AddInput(mListOfContours[i]->GetMesh());
   }
   append->Update();
-  mMesh = append->GetOutput();
+ 
+  mMesh = vtkSmartPointer<vtkPolyData>::New();
+  mMesh->DeepCopy(append->GetOutput());
   mMeshIsUpToDate = true;
 }
 //--------------------------------------------------------------------

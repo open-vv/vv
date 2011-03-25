@@ -69,7 +69,7 @@ protected:
   int mNumber;
   std::vector<double> mColor;
   std::vector<DicomRT_Contour::Pointer> mListOfContours;
-  vtkPolyData * mMesh;
+  vtkSmartPointer<vtkPolyData> mMesh;
   bool mMeshIsUpToDate;
   vvImage::Pointer mImage;
   double mBackgroundValue;
