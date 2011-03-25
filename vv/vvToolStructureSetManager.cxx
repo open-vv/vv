@@ -101,12 +101,12 @@ vvToolStructureSetManager::~vvToolStructureSetManager()
 {
   m_NumberOfTool--;
 
+  std::map<clitk::DicomRT_ROI::Pointer, QTreeWidgetItem *>::iterator it;
+  for (it = mMapROIToTreeWidget.begin(); it!=mMapROIToTreeWidget.end(); it++)
+    delete it->second;
   for(unsigned int i=0; i< mStructureSetActorsList.size(); i++)
     delete mStructureSetActorsList[i];
 
-  for (std::map<clitk::DicomRT_ROI::Pointer, QTreeWidgetItem *>::iterator it = mMapROIToTreeWidget.begin();
-       it!=mMapROIToTreeWidget.end(); it++)
-    delete it->second;
 }
 //------------------------------------------------------------------------------
 
