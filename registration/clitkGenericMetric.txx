@@ -20,7 +20,8 @@
 #define __clitkGenericMetric_txx
 
 #include "clitkGenericMetric.h"
-
+#include <itkImageMaskSpatialObject.h>
+#include <ctime>
 
 namespace clitk
 {
@@ -255,9 +256,18 @@ GenericMetric<args_info_type,FixedImageType, MovingImageType>::GetMetricPointer(
   }
 
 
+  typedef itk::ImageMaskSpatialObject<itkGetStaticConstMacro(FixedImageDimension)> ImageMaskSpatialObjectType;
+  typename ImageMaskSpatialObjectType::ConstPointer mask = dynamic_cast<const ImageMaskSpatialObjectType*>(m_FixedImageMask.GetPointer());
+  
+  typedef typename ImageMaskSpatialObjectType::RegionType ImageMaskRegionType;
+  ImageMaskRegionType mask_region = mask->GetAxisAlignedBoundingBoxRegion();
+  
   // Common properties
-  if( m_FixedImageMask.IsNotNull() )  m_Metric->SetFixedImageMask(m_FixedImageMask);
+  if( m_FixedImageMask.IsNotNull() )  
+    m_Metric->SetFixedImageMask(m_FixedImageMask);
+  
   m_Metric->SetFixedImageRegion(m_FixedImageRegion);
+  //m_Metric->SetFixedImageRegion(mask_region);
 
 
 #ifdef ITK_USE_OPTIMIZED_REGISTRATION_METHODS
@@ -290,6 +300,7 @@ GenericMetric<args_info_type,FixedImageType, MovingImageType>::GetMetricPointer(
 
     // Calculate the number
     const unsigned int totalNumberOfPixels = m_FixedImageRegion.GetNumberOfPixels();
+    //const unsigned int totalNumberOfPixels = mask_region.GetNumberOfPixels();
     const unsigned int numberOfDemandedPixels =  static_cast< unsigned int >( (double) totalNumberOfPixels *m_ArgsInfo.samples_arg );
 
     // --------------------------------------------------
@@ -300,6 +311,7 @@ GenericMetric<args_info_type,FixedImageType, MovingImageType>::GetMetricPointer(
       // Set up a region interator within the user specified fixed image region.
       typedef ImageRegionConstIteratorWithIndex<FixedImageType> RegionIterator;
       RegionIterator regionIter( m_FixedImage, m_FixedImageRegion );
+      //RegionIterator regionIter( m_FixedImage, mask_region );
 
       // go over the whole region
       regionIter.GoToBegin();
@@ -341,40 +353,70 @@ GenericMetric<args_info_type,FixedImageType, MovingImageType>::GetMetricPointer(
 
       // Set up a random interator within the user specified fixed image region.
       typedef ImageRandomConstIteratorWithIndex<FixedImageType> RandomIterator;
+      
+      
       RandomIterator randIter( m_FixedImage, m_FixedImageRegion );
+      //RandomIterator randIter( m_FixedImage, mask_region );
+      
+      if (m_Verbose) std::cout << "Search region " << m_FixedImageRegion << std::endl;
+      if (m_Verbose) std::cout << "Mask search region " << mask_region << std::endl;
 
       // Randomly sample the image
-      randIter.SetNumberOfSamples( numberOfDemandedPixels * 1000 );
-      randIter.GoToBegin();
-      while( (!randIter.IsAtEnd()) && (numberOfValidPixels<=numberOfDemandedPixels)  ) {
-        // Get sampled index
-        index = randIter.GetIndex();
+      short att = 1;
+      short natts = 5;
+      while (att <= natts) {
+        if (m_Verbose) std::cout << "Attempt " << att << std::endl;
+          
+        int count_out = 0;
+        int count_not_thres = 0;
+        clock_t c = clock();
+        randIter.ReinitializeSeed(c);
+        randIter.SetNumberOfSamples( numberOfDemandedPixels * 1000 );
+        randIter.GoToBegin();
+        //int cnt = 0;
+        while( (!randIter.IsAtEnd()) && (numberOfValidPixels<=numberOfDemandedPixels)  ) {
+          // Get sampled index
+          index = randIter.GetIndex();
+          //if (m_Verbose) std::cout << "testing pixel " << index << std::endl;
 
-        // Mask?
-        if( m_FixedImageMask.IsNotNull() ) {
+          // Mask?
+          if( m_FixedImageMask.IsNotNull() ) {
 
-          // Check if the Index is inside the mask, translate index to point
-          m_FixedImage->TransformIndexToPhysicalPoint( index, inputPoint );
+            // Check if the Index is inside the mask, translate index to point
+            m_FixedImage->TransformIndexToPhysicalPoint( index, inputPoint );
 
-          // If not inside the mask, ignore the point
-          if( !m_FixedImageMask->IsInside( inputPoint ) ) {
-            ++randIter; // jump to next pixel
+            // If not inside the mask, ignore the point
+            if( !m_FixedImageMask->IsInside( inputPoint ) ) {
+              ++randIter; // jump to next pixel
+              //if (m_Verbose) std::cout << "not inside " << inputPoint << std::endl;
+              count_out++;
+              continue;
+            }
+
+          }
+
+          // Intensity?
+          if( m_UseFixedImageSamplesIntensityThreshold &&
+              randIter.Get() < m_FixedImageSamplesIntensityThreshold ) {
+            ++randIter;
+              //if (m_Verbose) std::cout << "not in threshold" << std::endl;
+              count_not_thres++;
             continue;
           }
 
-        }
-
-        // Intensity?
-        if( m_UseFixedImageSamplesIntensityThreshold &&
-            randIter.Get() < m_FixedImageSamplesIntensityThreshold ) {
+          // Add point to the numbers
+          fiic.push_back(index);
+          ++numberOfValidPixels;
           ++randIter;
-          continue;
         }
-
-        // Add point to the numbers
-        fiic.push_back(index);
-        ++numberOfValidPixels;
-        ++randIter;
+        
+        if (m_Verbose) std::cout << "points outside = " << count_out << std::endl;
+        if (m_Verbose) std::cout << "points not in threshold = " << count_not_thres << std::endl;
+          
+        if (fiic.size())
+           break;
+        
+        att++;
       }
     }
 
