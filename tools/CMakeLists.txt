@@ -98,7 +98,7 @@ IF (CLITK_BUILD_TOOLS)
 
     WRAP_GGO(clitkGammaIndex_GGO_C clitkGammaIndex.ggo)
     ADD_EXECUTABLE(clitkGammaIndex clitkGammaIndex.cxx ${clitkGammaIndex_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkGammaIndex ITKBasicFilters ITKCommon ITKIO)
+    TARGET_LINK_LIBRARIES(clitkGammaIndex vtkCommon vtkFiltering vtkGraphics vtkIO vtkImaging)
 
     ADD_EXECUTABLE(clitkImageArithm clitkImageArithm.cxx ${clitkImageArithm_GGO_C})
     TARGET_LINK_LIBRARIES(clitkImageArithm clitkImageArithmImageLib clitkCommon ITKIO )
