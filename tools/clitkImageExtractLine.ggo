@@ -10,7 +10,8 @@ option "verbose"   	v   	"Verbose"			  flag		off
 
 option "firstIndex"	f	"First index value (in voxels)"	  int yes multiple
 option "lastIndex"	l	"Last index value (in voxels"	  int yes multiple
-option "integral"	I	"Integrate the image along the line"	int 	no	default = "0"
+option "integral"	I	"Integrate the image along a line"	int 	no	default = "0"
+option "integralAxis"	a	"Set the image integration axis"	int 	no	default = "0"
 
 option "mm"		m	"Last/first index are in mm"	  flag off
 

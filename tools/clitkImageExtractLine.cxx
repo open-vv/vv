@@ -104,75 +104,71 @@ int main(int argc, char * argv[])
     }
   }
   // args_info.integral_arg=1, so, it computes the integral
-  else if (lastIndex[0]-firstIndex[0]==0 && lastIndex[1]-firstIndex[1]==0 && lastIndex[2]-firstIndex[2]>0)
-    direction=1;
-  else if (lastIndex[0]-firstIndex[0]==0 && lastIndex[1]-firstIndex[1]>0 && lastIndex[2]-firstIndex[2]==0)
-    direction=2;
-  else if (lastIndex[0]-firstIndex[0]>0 && lastIndex[1]-firstIndex[1]==0 && lastIndex[2]-firstIndex[2]==0)
-    direction=3;
-  else{
-    //std::cout<<lastIndex[0]-firstIndex[0]<<"  "<<lastIndex[1]-firstIndex[1]<<"  "<<lastIndex[3]-firstIndex[3]<<std::endl;
-    std::cout<<"Index are not defined along a straight along x or y or z axis."<<std::endl;
-    std::cout<<"The line cannot be extracted."<<std::endl;
-    exit(0);
-  }
-  
   if (args_info.integral_arg!=0){
-    SizeType dim;
-    dim=input->GetLargestPossibleRegion().GetSize();
-    DD(dim);
-    DD(direction);
-    
     int a=0, b=0, c=0;
-    
-    if (direction==2){
-      a=0;
-      b=1;
-      c=2;
+    if (args_info.integralAxis_arg==0){
+	a=1;
+	b=0;
+	c=2;
     }
-    if (direction==1){
-      a=0;
-      b=2;
-      c=1;
-    }    
-    if (direction==3){
-      a=2;
-      b=0;
-      c=1;
-    } 
-    
-    double val[dim[b]];
-      for (int i=0; i<dim[b]; i++)
-	val[i]=0;
+    else if (args_info.integralAxis_arg==1){
+	a=0;
+	b=1;
+	c=2;
+    }
+    else if (args_info.integralAxis_arg==2){
+	a=2;
+	b=0;
+	c=1;
+    }
+    else {std::cout<<"Wrong axis"<<std::endl;
+      exit(0);
+    }
+  
+  length=(lastIndex[b]-firstIndex[b])*spacing[b];
+  
+  std::cout<<"The line is extracted along axis "<<args_info.integralAxis_arg<<std::endl;
+  std::cout<<"The line is integrated between "<<args_info.firstIndex_arg[a]<<" and "<<args_info.lastIndex_arg[a]<<" along axis "<<a<<std::endl;
+  std::cout<<"The line is integrated between "<<args_info.firstIndex_arg[c]<<" and "<<args_info.lastIndex_arg[c]<<" along axis "<<c<<std::endl;
+  
+      SizeType dim;
+      dim=input->GetLargestPossibleRegion().GetSize();
+      DD(dim);
+      DD(direction);
       
-    int k;
-    for (int i=0; i<dim[a]; i++){
-      for (int j=0; j<dim[c]; j++){
-  //      std::cout<<"i "<<i<<"  j "<<j<<std::endl;
-	k=0;
-	firstIndex[a]=i;
-	firstIndex[c]=j;
-	lastIndex[a]=i;
-	lastIndex[c]=j;
-  //      std::cout<<"A"<<std::endl;
-	itk::LineConstIterator<ImageType> iter(input, firstIndex, lastIndex);
-	iter.GoToBegin();
-  //      std::cout<<"B"<<std::endl;
-	val[k]+=iter.Get();
-	k++;
-  //      std::cout<<"C"<<std::endl;
-	while (!iter.IsAtEnd()) {
-  //	std::cout<<"D "<<k<<std::endl;
+      double val[dim[b]];
+	for (int i=0; i<dim[b]; i++)
+	  val[i]=0;
+	
+      int k;
+	
+      for (int i=args_info.firstIndex_arg[a]; i<args_info.lastIndex_arg[a]; i++){
+	for (int j=args_info.firstIndex_arg[c]; j<args_info.lastIndex_arg[c]; j++){
+    //      std::cout<<"i "<<i<<"  j "<<j<<std::endl;
+	  k=0;
+	  firstIndex[a]=i;
+	  firstIndex[c]=j;
+	  lastIndex[a]=i;
+	  lastIndex[c]=j;
+    //      std::cout<<"A"<<std::endl;
+	  itk::LineConstIterator<ImageType> iter(input, firstIndex, lastIndex);
+	  iter.GoToBegin();
+    //      std::cout<<"B"<<std::endl;
 	  val[k]+=iter.Get();
-	  ++iter;
 	  k++;
+    //      std::cout<<"C"<<std::endl;
+	  while (!iter.IsAtEnd()) {
+    //	std::cout<<"D "<<k<<std::endl;
+	    val[k]+=iter.Get();
+	    ++iter;
+	    k++;
+	  }
 	}
       }
-    }
   
-    for (unsigned int i=0; i<dim[b]; i++){
-      values.push_back(val[i]);
-    }
+      for (unsigned int i=0; i<dim[b]; i++){
+	values.push_back(val[i]);
+      }
   }
   
   double step = length/values.size();
