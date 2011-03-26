@@ -221,11 +221,11 @@ namespace clitk {
 
 
   //--------------------------------------------------------------------
-  template<class ImageType>
-  typename ImageType::Pointer
-  JoinSlices(std::vector<typename itk::Image<typename ImageType::PixelType, 
-                                             ImageType::ImageDimension-1>::Pointer > & slices, 
-	     const ImageType * input, int dim);
+  //template<class ImageType>
+  //typename ImageType::Pointer
+  //JoinSlices(std::vector<typename itk::Image<typename ImageType::PixelType, 
+  //                                           ImageType::ImageDimension-1>::Pointer > & slices, 
+	 //    const ImageType * input, int dim);
   //--------------------------------------------------------------------
 
 
