@@ -240,7 +240,7 @@ namespace itk
 	evaluateIndex[l] = indx;
       }
       else { // Use this index calculation for even splineOrder
-	if (mSplineOrders[l] == 0) evaluateIndex[l] = (long)rint(x[l]);
+	if (mSplineOrders[l] == 0) evaluateIndex[l] = Math::Round(x[l]);
 	else {
 	  indx = (long)vcl_floor((x[l]+ 0.5)) - mSplineOrders[l] / 2; //this->m_SplineOrder / 2;
 	  evaluateIndex[l] = indx;
