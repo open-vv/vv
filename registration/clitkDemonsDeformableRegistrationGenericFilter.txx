@@ -358,7 +358,7 @@ namespace clitk
 	else
 	  nIterations[i]=m_ArgsInfo.maxIter_arg[0];
       }
-    multiResolutionFilter->SetNumberOfIterations( &(nIterations) );
+    multiResolutionFilter->SetNumberOfIterations( &(nIterations[0]) );
     if(m_Verbose) {
       std::cout<<"Setting the number of iterations to: "<<nIterations[0];
       for (unsigned int i=1; i<nLevels; i++)
@@ -369,7 +369,7 @@ namespace clitk
     //------------------------------------
     //Set the max RMS error for the field update
     //------------------------------------
-    itk::Array<double> maxRMSError[nLevels];
+    itk::Array<double> maxRMSError(nLevels);
     for (unsigned int i=0 ; i<nLevels; i++)
       {
 	if (m_ArgsInfo.maxRMSError_given==nLevels)	
