@@ -190,7 +190,7 @@ namespace itk
     
 	// Compute index in precomputed weights table
 	TCoefficientType t2 = mSamplingFactors[l]*t1;
-	index[l] = (IndexValueType)lrint(t2);
+	index[l] = (IndexValueType)Math::Round(t2);
 
 	// For even order : test if too close to 0.5 (but lower). In this
 	// case : take the next coefficient
