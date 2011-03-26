@@ -348,7 +348,7 @@ namespace clitk
     //------------------------------------
     //Set the number of iterations
     //------------------------------------
-    itk::Array<unsigned int> nIterations(nLevels);
+    std::vector<unsigned int> nIterations(nLevels);
     for (unsigned int i=0 ; i<nLevels; i++)
       {
 	if (m_ArgsInfo.maxIter_given==nLevels)
@@ -358,7 +358,7 @@ namespace clitk
 	else
 	  nIterations[i]=m_ArgsInfo.maxIter_arg[0];
       }
-    multiResolutionFilter->SetNumberOfIterations( nIterations );
+    multiResolutionFilter->SetNumberOfIterations( &(nIterations) );
     if(m_Verbose) {
       std::cout<<"Setting the number of iterations to: "<<nIterations[0];
       for (unsigned int i=1; i<nLevels; i++)
