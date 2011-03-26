@@ -348,7 +348,7 @@ namespace clitk
     //------------------------------------
     //Set the number of iterations
     //------------------------------------
-    unsigned int nIterations[nLevels];
+    itk::Array<unsigned int> nIterations(nLevels);
     for (unsigned int i=0 ; i<nLevels; i++)
       {
 	if (m_ArgsInfo.maxIter_given==nLevels)
@@ -369,7 +369,7 @@ namespace clitk
     //------------------------------------
     //Set the max RMS error for the field update
     //------------------------------------
-    double maxRMSError[nLevels];
+    itk::Array<double> maxRMSError[nLevels];
     for (unsigned int i=0 ; i<nLevels; i++)
       {
 	if (m_ArgsInfo.maxRMSError_given==nLevels)	
@@ -387,7 +387,7 @@ namespace clitk
     //------------------------------------
     //Get the stop criterion
     //------------------------------------
-    int stop[nLevels];
+    itk::Array<int> stop(nLevels);
     for (unsigned int i=0; i<nLevels; i++)
       if (m_ArgsInfo.stop_given==nLevels)
 	stop[i]=m_ArgsInfo.stop_arg[i];

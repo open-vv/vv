@@ -136,7 +136,7 @@ int main(int argc, char * argv[])
       DD(dim);
       DD(direction);
       
-      double val[dim[b]];
+      std::vector<double> val(dim[b]);
 	for (int i=0; i<dim[b]; i++)
 	  val[i]=0;
 	
