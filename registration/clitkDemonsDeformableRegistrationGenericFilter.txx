@@ -369,7 +369,7 @@ namespace clitk
     //------------------------------------
     //Set the max RMS error for the field update
     //------------------------------------
-    itk::Array<double> maxRMSError(nLevels);
+    std::vector<double> maxRMSError(nLevels);
     for (unsigned int i=0 ; i<nLevels; i++)
       {
 	if (m_ArgsInfo.maxRMSError_given==nLevels)	
@@ -387,7 +387,7 @@ namespace clitk
     //------------------------------------
     //Get the stop criterion
     //------------------------------------
-    itk::Array<int> stop(nLevels);
+    std::vector<int> stop(nLevels);
     for (unsigned int i=0; i<nLevels; i++)
       if (m_ArgsInfo.stop_given==nLevels)
 	stop[i]=m_ArgsInfo.stop_arg[i];
@@ -442,7 +442,7 @@ namespace clitk
     typename CommandResolutionLevelUpdate<MultiResolutionRegistrationFilterType>::Pointer levelObserver = 
       CommandResolutionLevelUpdate<MultiResolutionRegistrationFilterType>::New();
     multiResolutionFilter->AddObserver( itk::IterationEvent(), levelObserver );
-    levelObserver->SetMaxRMSError(maxRMSError);
+    levelObserver->SetMaxRMSError(&(maxRMSError[0]));
     levelObserver->SetMaxStep(m_ArgsInfo.maxStep_arg);
     levelObserver->SetSD(sd);
     levelObserver->SetScaleStep(m_ArgsInfo.scaleStep_flag);
@@ -464,7 +464,7 @@ namespace clitk
 	m->SetIntensityDifferenceThreshold( m_ArgsInfo.intThreshold_arg);
 	m->SetUseMovingImageGradient( m_ArgsInfo.movGrad_flag);
 	typename CommandIterationUpdate<DemonsFilterType, FixedImageType, MovingImageType>::Pointer observer = CommandIterationUpdate<DemonsFilterType, FixedImageType, MovingImageType>::New();
-	observer->SetStop(stop);
+	observer->SetStop(&(stop[0]));
 	observer->SetLevelObserver(levelObserver);
 	m->AddObserver( itk::IterationEvent(), observer );
 	if (m_Verbose)  std::cout<<"Using the demons registration filter..."<<std::endl;
@@ -480,7 +480,7 @@ namespace clitk
 	//Set Parameters for this filter
 	m->SetIntensityDifferenceThreshold( m_ArgsInfo.intThreshold_arg);
 	typename CommandIterationUpdate<DemonsFilterType, FixedImageType, MovingImageType>::Pointer observer = CommandIterationUpdate<DemonsFilterType, FixedImageType, MovingImageType>::New();
-	observer->SetStop(stop);
+	observer->SetStop(&(stop[0]));
 	observer->SetLevelObserver(levelObserver);
 	m->AddObserver( itk::IterationEvent(), observer );
 	if (m_Verbose) std::cout<<"Using the symmetric forces demons registration filter..."<<std::endl;
@@ -498,7 +498,7 @@ namespace clitk
 	m->SetMaximumUpdateStepLength( m_ArgsInfo.maxStep_arg);
 	m->SetUseGradientType(grad);
 	typename CommandIterationUpdate<DemonsFilterType, FixedImageType, MovingImageType>::Pointer observer = CommandIterationUpdate<DemonsFilterType, FixedImageType, MovingImageType>::New();
-	observer->SetStop(stop);
+	observer->SetStop(&(stop[0]));
 	observer->SetLevelObserver(levelObserver);
 	m->AddObserver( itk::IterationEvent(), observer );
   	if (m_Verbose) std::cout<<"Using the fast symmetric forces demons registration filter..."<<std::endl;
@@ -516,7 +516,7 @@ namespace clitk
 	m->SetUseFirstOrderExp(m_ArgsInfo.firstOrder_flag);
 	m->SetUseGradientType(grad);
 	typename CommandIterationUpdate<DemonsFilterType, FixedImageType, MovingImageType>::Pointer observer = CommandIterationUpdate<DemonsFilterType, FixedImageType, MovingImageType>::New();
-	observer->SetStop(stop);
+	observer->SetStop(&(stop[0]));
 	observer->SetLevelObserver(levelObserver);
 	m->AddObserver( itk::IterationEvent(), observer );
 	if (m_Verbose) std::cout<<"Using the diffeomorphic demons registration filter..."<<std::endl;
