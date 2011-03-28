@@ -17,8 +17,10 @@
 ======================================================================-====*/
 #ifndef vvImageWriter_TXX
 #define vvImageWriter_TXX
+
 #include <itkImageFileWriter.h>
 #include "vvToITK.h"
+#include "clitkDD.h"
 
 //====================================================================
 template<unsigned int VImageDimension>
