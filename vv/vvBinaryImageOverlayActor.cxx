@@ -52,8 +52,6 @@ vvBinaryImageOverlayActor::~vvBinaryImageOverlayActor()
   for (unsigned int i = 0; i < mSlicer->GetImage()->GetVTKImages().size(); i++) {
     mSlicer->GetRenderer()->RemoveActor(mImageActorList[i]);
   }
-  mMapperList.clear();
-  mImageActorList.clear();
 }
 //------------------------------------------------------------------------------
 
