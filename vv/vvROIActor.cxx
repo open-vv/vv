@@ -18,9 +18,7 @@
 
 // vv
 #include "vvROIActor.h"
-#include "vvImageContour.h"
 #include "vvSlicerManager.h"
-#include "vvBinaryImageOverlayActor.h"
 
 // vtk
 #include <vtkImageActor.h>
@@ -35,8 +33,6 @@
 //------------------------------------------------------------------------------
 vvROIActor::vvROIActor()
 {
-  mImageContour.clear();
-  mOverlayActors.clear();
   mIsVisible = true;
   mIsContourVisible = false;
   mOpacity = 0.7;
@@ -51,8 +47,6 @@ vvROIActor::vvROIActor()
 //------------------------------------------------------------------------------
 vvROIActor::~vvROIActor()
 {
-  for(uint i= 0; i<mImageContour.size(); i++) delete mImageContour[i];
-  for(uint i= 0; i<mOverlayActors.size(); i++) delete mOverlayActors[i];
 }
 //------------------------------------------------------------------------------
 
@@ -82,14 +76,8 @@ void vvROIActor::SetSlicerManager(vvSlicerManager * s) {
 //------------------------------------------------------------------------------
 void vvROIActor::UpdateImage()
 {
-  for(unsigned int i= 0; i<mOverlayActors.size(); i++) {
-    mOverlayActors[i]->HideActors();
-    delete mOverlayActors[i];
-  }
-  for(unsigned int i= 0; i<mImageContour.size(); i++) {
-    mImageContour[i]->HideActors();
-    delete mImageContour[i];
-  }
+  mOverlayActors.clear();
+  mImageContour.clear();
   Initialize(mIsVisible);
   Update(); // No Render
 }
@@ -151,7 +139,7 @@ void vvROIActor::Initialize(bool IsVisible) {
     mOverlayActors.clear();
     for(int i=0; i<mSlicerManager->GetNumberOfSlicers(); i++) {
 
-      mImageContour.push_back(new vvImageContour);
+      mImageContour.push_back(vvImageContour::New());
       mImageContour[i]->SetSlicer(mSlicerManager->GetSlicer(i));
       mImageContour[i]->SetImage(mROI->GetImage());
       mContourColor[0] = mROI->GetDisplayColor()[0];
@@ -164,7 +152,7 @@ void vvROIActor::Initialize(bool IsVisible) {
       mImageContour[i]->SetSlicer(mSlicerManager->GetSlicer(i));
       mImageContour[i]->HideActors();
       
-      mOverlayActors.push_back(new vvBinaryImageOverlayActor);
+      mOverlayActors.push_back(vvBinaryImageOverlayActor::New());
 
       // BG or FG
       if (m_modeBG) {

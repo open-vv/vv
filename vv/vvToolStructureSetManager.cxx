@@ -99,14 +99,8 @@ vvToolStructureSetManager::vvToolStructureSetManager(vvMainWindowBase * parent,
 //------------------------------------------------------------------------------
 vvToolStructureSetManager::~vvToolStructureSetManager()
 {
+  disconnect(mTree, SIGNAL(itemSelectionChanged()), this, SLOT(SelectedItemChangedInTree()));
   m_NumberOfTool--;
-
-  std::map<clitk::DicomRT_ROI::Pointer, QTreeWidgetItem *>::iterator it;
-  for (it = mMapROIToTreeWidget.begin(); it!=mMapROIToTreeWidget.end(); it++)
-    delete it->second;
-  for(unsigned int i=0; i< mStructureSetActorsList.size(); i++)
-    delete mStructureSetActorsList[i];
-
 }
 //------------------------------------------------------------------------------
 
@@ -179,7 +173,8 @@ void vvToolStructureSetManager::Open(int type) {
 
 //------------------------------------------------------------------------------
 void vvToolStructureSetManager::AddRoiInTreeWidget(clitk::DicomRT_ROI * roi, QTreeWidget * ww) {
-  QTreeWidgetItem * w = new QTreeWidgetItem(ww);
+  mTreeWidgetList.push_back(QSharedPointer<QTreeWidgetItem>(new QTreeWidgetItem(ww)));
+  QTreeWidgetItem * w = mTreeWidgetList.back().data();
   w->setText(0, QString("%1").arg(roi->GetROINumber()));
   w->setText(1, QString("%1").arg(roi->GetName().c_str()));
   QBrush brush(QColor(roi->GetDisplayColor()[0]*255, roi->GetDisplayColor()[1]*255, roi->GetDisplayColor()[2]*255));
@@ -209,7 +204,7 @@ void vvToolStructureSetManager::UpdateStructureSetInTreeWidget(int index, clitk:
 int vvToolStructureSetManager::AddStructureSet(clitk::DicomRT_StructureSet * mStructureSet) {
   // Create actor for this SS
 
-  vvStructureSetActor * mStructureSetActor =  new vvStructureSetActor;
+  QSharedPointer<vvStructureSetActor> mStructureSetActor(new vvStructureSetActor);
   
   mStructureSetActor->SetStructureSet(mStructureSet);
   mStructureSetActor->SetSlicerManager(mCurrentSlicerManager);
@@ -239,7 +234,7 @@ void vvToolStructureSetManager::OpenBinaryImage()
     index = mCurrentStructureSetIndex;
   }
   mCurrentStructureSet = mStructureSetsList[index];
-  mCurrentStructureSetActor = mStructureSetActorsList[index];
+  mCurrentStructureSetActor = mStructureSetActorsList[index].data();
   mCurrentStructureSetIndex = index;
   // Open images
   QString Extensions = "Images files ( *.mhd *.hdr *.his)";
@@ -252,21 +247,21 @@ void vvToolStructureSetManager::OpenBinaryImage()
   for(int i=0; i<filename.size(); i++) {
     // Open Image
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    vvImageReader mReader;
+    vvImageReader::Pointer reader = vvImageReader::New();
     std::vector<std::string> filenames;
     filenames.push_back(filename[i].toStdString());
-    mReader.SetInputFilenames(filenames);
-    mReader.Update(IMAGE);
+    reader->SetInputFilenames(filenames);
+    reader->Update(IMAGE);
     QApplication::restoreOverrideCursor();
 
-    if (mReader.GetLastError().size() != 0) {
+    if (reader->GetLastError().size() != 0) {
       std::cerr << "Error while reading " << filename[i].toStdString() << std::endl;
       QString error = "Cannot open file \n";
-      error += mReader.GetLastError().c_str();
+      error += reader->GetLastError().c_str();
       QMessageBox::information(this,tr("Reading problem"),error);
       return;
     }
-    vvImage::Pointer binaryImage = mReader.GetOutput();
+    vvImage::Pointer binaryImage = reader->GetOutput();
     AddImage(binaryImage, filename[i].toStdString(), mBackgroundValueSpinBox->value());
     mOpenedBinaryImage.push_back(binaryImage);
   }
@@ -309,7 +304,7 @@ void vvToolStructureSetManager::AddImage(vvImage * binaryImage, std::string file
     index = mCurrentStructureSetIndex;
   }
   mCurrentStructureSet = mStructureSetsList[index];
-  mCurrentStructureSetActor = mStructureSetActorsList[index];
+  mCurrentStructureSetActor = mStructureSetActorsList[index].data();
   mCurrentStructureSetIndex = index;
 
   // Check Dimension
@@ -584,15 +579,15 @@ void vvToolStructureSetManager::ChangeContourWidth(int n) {
 //------------------------------------------------------------------------------
 void vvToolStructureSetManager::ReloadCurrentROI() {
   // Reload image
-  vvImageReader mReader;
-  mReader.SetInputFilename(mCurrentROI->GetFilename());
-  mReader.Update(IMAGE);
-  if (mReader.GetLastError() != "") {
-    QMessageBox::information(mMainWindowBase, tr("Sorry, error. Could not reload"), mReader.GetLastError().c_str());
+  vvImageReader::Pointer reader = vvImageReader::New();
+  reader->SetInputFilename(mCurrentROI->GetFilename());
+  reader->Update(IMAGE);
+  if (reader->GetLastError() != "") {
+    QMessageBox::information(mMainWindowBase, tr("Sorry, error. Could not reload"), reader->GetLastError().c_str());
     return;
   }
   mCurrentROI->GetImage()->GetFirstVTKImageData()->ReleaseData();
-  mCurrentROI->SetImage(mReader.GetOutput());
+  mCurrentROI->SetImage(reader->GetOutput());
   
   // Update visu"
   mCurrentROIActor->UpdateImage();

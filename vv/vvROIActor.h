@@ -19,12 +19,12 @@
 #ifndef VVROIACTOR_H
 #define VVROIACTOR_H
 
+#include "vvBinaryImageOverlayActor.h"
+#include "vvImageContour.h"
 #include "clitkDicomRT_ROI.h"
 #include <QObject>
 
 class vvSlicerManager;
-class vvImageContour;
-class vvBinaryImageOverlayActor;
 class vtkActor;
 
 //------------------------------------------------------------------------------
@@ -60,8 +60,8 @@ public slots:
  protected:
   clitk::DicomRT_ROI::Pointer mROI;
   vvSlicerManager * mSlicerManager;
-  std::vector<vvImageContour *> mImageContour;
-  std::vector<vvBinaryImageOverlayActor *> mOverlayActors;
+  std::vector<vvImageContour::Pointer> mImageContour;
+  std::vector< vvBinaryImageOverlayActor::Pointer > mOverlayActors;
   
   bool mIsVisible;
   bool mIsContourVisible;

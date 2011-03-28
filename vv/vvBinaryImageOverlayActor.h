@@ -29,12 +29,13 @@ class vtkImageMapToRGBA;
 class vtkImageActor;
 
 //------------------------------------------------------------------------------
-class vvBinaryImageOverlayActor
+class vvBinaryImageOverlayActor : public itk::LightObject
 {
   //  Q_OBJECT
  public:
-  vvBinaryImageOverlayActor();
-  ~vvBinaryImageOverlayActor();
+  typedef vvBinaryImageOverlayActor Self;
+  typedef itk::SmartPointer<Self> Pointer;
+  itkNewMacro(Self);
 
   void SetSlicer(vvSlicer * slicer);
   void SetColor(double r, double g, double b);
@@ -77,6 +78,10 @@ class vvBinaryImageOverlayActor
 					 vtkImageActor * actor, 
 					 double position);
 
+private:
+  vvBinaryImageOverlayActor();
+  ~vvBinaryImageOverlayActor();
+    
 }; // end class vvBinaryImageOverlayActor
 //------------------------------------------------------------------------------
 

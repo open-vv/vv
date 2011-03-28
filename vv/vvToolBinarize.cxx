@@ -212,10 +212,10 @@ void vvToolBinarize::InputIsSelected(vvSlicerManager * m)
 
   // VTK objects for interactive display
   for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
-    mImageContour.push_back(new vvImageContour);
+    mImageContour.push_back(vvImageContour::New());
     mImageContour[i]->SetSlicer(mCurrentSlicerManager->GetSlicer(i));
     mImageContour[i]->SetColor(1.0, 0.0, 0.0);
-    mImageContourLower.push_back(new vvImageContour);
+    mImageContourLower.push_back(vvImageContour::New());
     mImageContourLower[i]->SetSlicer(mCurrentSlicerManager->GetSlicer(i));
     mImageContourLower[i]->SetColor(0.0, 0.0, 1.0);
   }

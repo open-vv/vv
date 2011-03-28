@@ -61,8 +61,8 @@ class vvToolBinarize:
   virtual void closeEvent(QCloseEvent *event);
   Ui::vvToolBinarize ui;
   args_info_clitkBinarizeImage mArgsInfo;
-  std::vector<vvImageContour*> mImageContour;
-  std::vector<vvImageContour*> mImageContourLower;
+  std::vector<vvImageContour::Pointer> mImageContour;
+  std::vector<vvImageContour::Pointer> mImageContourLower;
   bool mInteractiveDisplayIsEnabled;
 
 }; // end class vvToolBinarize

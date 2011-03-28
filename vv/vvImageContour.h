@@ -27,12 +27,13 @@ class vtkActor;
 class vvImage;
 
 //------------------------------------------------------------------------------
-class vvImageContour
+class vvImageContour: public itk::LightObject
 {
   //  Q_OBJECT
- public:
-  vvImageContour();
-  ~vvImageContour();
+public:
+  typedef vvImageContour Self;
+  typedef itk::SmartPointer<Self> Pointer;
+  itkNewMacro(Self);
 
   void SetSlicer(vvSlicer * slicer);
   void Update(double value);
@@ -43,7 +44,7 @@ class vvImageContour
   void SetImage(vvImage * image);
   void SetPreserveMemoryModeEnabled(bool b);
 
- protected:
+protected:
   vvSlicer * mSlicer;
   int mSlice;
   int mTSlice;
@@ -55,9 +56,10 @@ class vvImageContour
   bool mDisplayModeIsPreserveMemory;
 
   // For preserveMemory mode
+  std::vector<vtkSmartPointer<vtkActor> > mSquaresActorList;
   std::vector<vtkSmartPointer<vtkImageClip> > mClipperList;
   std::vector<vtkSmartPointer<vtkMarchingSquares> > mSquaresList;
-  std::vector<vtkSmartPointer<vtkActor> > mSquaresActorList;
+  std::vector<vtkSmartPointer<vtkPolyDataMapper> > mSquaresMapperList;
 
   // For fast cache mode
   int mPreviousSlice;
@@ -68,17 +70,15 @@ class vvImageContour
   void InitializeCacheMode();
   void UpdateWithPreserveMemoryMode();
   void UpdateWithFastCacheMode();
-  void CreateNewActor(vtkActor ** actor, 
-		      vtkMarchingSquares ** squares, 
-                      vtkImageClip ** clipper, 
-                      int numImage);
-  void UpdateActor(vtkActor * actor, 
-		   vtkMarchingSquares * squares,
-		   vtkImageClip * clipper, 
-		   double threshold, int orientation, int slice);
+  void CreateNewActor(int numImage);
+  void UpdateActor(vtkActor * actor, vtkMarchingSquares * squares, vtkImageClip * clipper,
+                   double threshold, int orientation, int slice);
   void CreateActor(int orientation, int slice);
   int ComputeCurrentOrientation();
-  
+
+private:
+  vvImageContour();
+  ~vvImageContour();
 }; // end class vvImageContour
 //------------------------------------------------------------------------------
 

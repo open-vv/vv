@@ -40,6 +40,8 @@ class vtkPolyData;
 #include "clitkCommon.h"
 #include "vvImage.h"
 #include "vvMesh.h"
+#include "vvImageReader.h"
+
 class vvSlicer;
 class vvInteractorStyleNavigator;
 class vvImageReader;
@@ -213,12 +215,12 @@ signals :
 
 protected:
   std::vector<vvSlicer*> mSlicers;
-  vvImageReader* mReader;
-  vvImageReader* mOverlayReader;
-  vvImageReader* mFusionReader;
+  vvImageReader::Pointer mReader;
+  vvImageReader::Pointer mOverlayReader;
+  vvImageReader::Pointer mFusionReader;
+  vvImageReader::Pointer mVectorReader;
   vvImage::Pointer mImage;
   vvImage::Pointer mVF;
-  vvImageReader* mVectorReader;
   int mColorMap;
   int mOverlayColor;
 

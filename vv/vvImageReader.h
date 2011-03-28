@@ -25,63 +25,66 @@
 #include "vvImage.h"
 #include "vvConstants.h"
 
-class vvImageReader : public QThread {
+class vvImageReader : public itk::LightObject, public QThread {
 
 public:
-    vvImageReader();
-    ~vvImageReader();
+  typedef vvImageReader Self;
+  typedef itk::SmartPointer<Self> Pointer;
+  itkNewMacro(Self);
 
-    void SetInputFilename(const std::string & filename);
-    void SetInputFilenames(const std::vector<std::string> & filenames);
+  void SetInputFilename(const std::string & filename);
+  void SetInputFilenames(const std::vector<std::string> & filenames);
 
-    vvImage::Pointer GetOutput() {
-        return mImage;
-    }
+  vvImage::Pointer GetOutput() {
+      return mImage;
+  }
 
-    std::string GetLastError() {
-        return mLastError;
-    }
+  std::string GetLastError() {
+      return mLastError;
+  }
 
-    void SetSlice(unsigned int i) { mSlice = i; }
+  void SetSlice(unsigned int i) { mSlice = i; }
 
-    //====================================================================
-    // Main function
-    void Update();
-    void Update(LoadedImageType type);
-    void Update(int dim, std::string InputPixelType, LoadedImageType type);
+  //====================================================================
+  // Main function
+  void Update();
+  void Update(LoadedImageType type);
+  void Update(int dim, std::string InputPixelType, LoadedImageType type);
 
 protected:
-    void run();
-    //====================================================================
-    std::vector<std::string> mInputFilenames;
-    ///Method used to load the image, see vvConstants.h for definition
-    LoadedImageType mType;
-    unsigned int mSlice;
-    itk::Command::Pointer mObserver;
+  void run();
+  //====================================================================
+  std::vector<std::string> mInputFilenames;
+  ///Method used to load the image, see vvConstants.h for definition
+  LoadedImageType mType;
+  unsigned int mSlice;
+  itk::Command::Pointer mObserver;
 
-    std::string mLastError;
+  std::string mLastError;
 
-    //====================================================================
-    template<unsigned int VImageDimension>
-    void UpdateWithDim(std::string inputPixelType);
+  //====================================================================
+  template<unsigned int VImageDimension>
+  void UpdateWithDim(std::string inputPixelType);
 
-    //====================================================================
-    /*template<unsigned int VImageDimension>
-    void ExtractWithDim(std::string inputPixelType, int slice);*/
+  //====================================================================
+  /*template<unsigned int VImageDimension>
+  void ExtractWithDim(std::string inputPixelType, int slice);*/
 
-    //====================================================================
-    template<class InputPixelType, unsigned int VImageDimension>
-    void UpdateWithDimAndInputPixelType();
-    ///Input dimension and pixel type
-    int mDim;
-    std::string mInputPixelType;
+  //====================================================================
+  template<class InputPixelType, unsigned int VImageDimension>
+  void UpdateWithDimAndInputPixelType();
+  ///Input dimension and pixel type
+  int mDim;
+  std::string mInputPixelType;
 
-    //====================================================================
-    void ReadNkiImageTransform();
-    void ReadMatImageTransform();
+  //====================================================================
+  void ReadNkiImageTransform();
+  void ReadMatImageTransform();
 private:
-    vvImage::Pointer mImage;
+  vvImageReader();
+  ~vvImageReader();
 
+  vvImage::Pointer mImage;
 }; // end class vvImageReader
 
 #endif /* end #define CLITKvvImageReader_H */

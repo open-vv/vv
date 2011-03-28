@@ -22,8 +22,6 @@
 #include "vvSlicerManagerCommand.h"
 #include "vvInteractorStyleNavigator.h"
 #include "vvLandmarks.h"
-#include "vvImageReader.h"
-#include "vvImageReader.h"
 #include "vvMesh.h"
 #include "vvImageMapToWLColors.h"
 #include "vvBlendImageActor.h"
@@ -88,18 +86,6 @@ vvSlicerManager::~vvSlicerManager()
     if (mSlicers[i] != NULL)
       mSlicers[i]->Delete();
   }
-  if (mReader) {
-    delete mReader;
-  }
-  if (mVectorReader) {
-    delete mVectorReader;
-  }
-  if (mOverlayReader) {
-    delete mOverlayReader;
-  }
-  if (mFusionReader) {
-    delete mFusionReader;
-  }
   if (mLandmarks)
     delete mLandmarks;
 }
@@ -151,8 +137,8 @@ void vvSlicerManager::ToggleContourSuperposition()
 bool vvSlicerManager::SetImage(std::string filename, LoadedImageType type, int n, unsigned int slice)
 {
   mType = type;
-  if (mReader == NULL)
-    mReader = new vvImageReader;
+  if (mReader.IsNull())
+    mReader = vvImageReader::New();
   std::vector<std::string> filenames;
   filenames.push_back(filename);
   mReader->SetInputFilenames(filenames);
@@ -207,8 +193,8 @@ bool vvSlicerManager::SetImages(std::vector<std::string> filenames,LoadedImageTy
 
   mFileName = vtksys::SystemTools::GetFilenameName(mFileName);
   mFileName = fileWithoutExtension + vtksys::SystemTools::GetFilenameExtension(filenames[0]);
-  if (mReader == NULL)
-    mReader = new vvImageReader;
+  if (mReader.IsNull())
+    mReader = vvImageReader::New();
   mReader->SetInputFilenames(filenames);
   mReader->Update(type);
 
@@ -242,8 +228,8 @@ bool vvSlicerManager::SetOverlay(std::string filename,int dim, std::string compo
     mLastError = " Overlay dimension cannot be greater then reference image!";
     return false;
   }
-  if (mOverlayReader == NULL)
-    mOverlayReader = new vvImageReader;
+  if (mOverlayReader.IsNull())
+    mOverlayReader = vvImageReader::New();
   std::vector<std::string> filenames;
   filenames.push_back(filename);
   mOverlayReader->SetInputFilenames(filenames);
@@ -270,8 +256,8 @@ bool vvSlicerManager::SetFusion(std::string filename,int dim, std::string compon
     mLastError = " Overlay dimension cannot be greater then reference image!";
     return false;
   }
-  if (mFusionReader == NULL)
-    mFusionReader = new vvImageReader;
+  if (mFusionReader.IsNull())
+    mFusionReader = vvImageReader::New();
   std::vector<std::string> filenames;
   filenames.push_back(filename);
   mFusionReader->SetInputFilenames(filenames);
@@ -295,8 +281,8 @@ bool vvSlicerManager::SetFusion(std::string filename,int dim, std::string compon
 //----------------------------------------------------------------------------
 bool vvSlicerManager::SetVF(std::string filename)
 {
-  if (mVectorReader == NULL)
-    mVectorReader = new vvImageReader;
+  if (mVectorReader.IsNull())
+    mVectorReader = vvImageReader::New();
   mVectorReader->SetInputFilename(filename);
   mVectorReader->Update(VECTORFIELD);
   if (mVectorReader->GetLastError().size() != 0) {
@@ -797,25 +783,18 @@ void vvSlicerManager::ReloadVF()
 //----------------------------------------------------------------------------
 void vvSlicerManager::RemoveActor(const std::string& actor_type, int overlay_index)
 {
-  if (actor_type =="overlay") {
-    delete mOverlayReader;
+  if (actor_type =="overlay")
     mOverlayReader = NULL;
-  }
 
-  if (actor_type =="fusion") {
-    delete mFusionReader;
+  if (actor_type =="fusion")
     mFusionReader = NULL;
-  }
 
-  for (unsigned int i = 0; i < mSlicers.size(); i++) {
+  for (unsigned int i = 0; i < mSlicers.size(); i++)
     mSlicers[i]->RemoveActor(actor_type,overlay_index);
-  }
+
   if (actor_type=="vector") {
     mVF=NULL;
-    if (mVectorReader) {
-      delete mVectorReader;
-      mVectorReader=NULL;
-    }
+    mVectorReader=NULL;
   }
 }
 //----------------------------------------------------------------------------

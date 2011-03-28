@@ -76,9 +76,9 @@ protected:
   bool mIsAllVisibleEnabled;
   int mNumberOfVisibleROI;
   int mNumberOfVisibleContourROI;
-  std::vector<clitk::DicomRT_StructureSet::Pointer >       mStructureSetsList;
-  std::vector<vvStructureSetActor *>               mStructureSetActorsList;
-  std::map<int, QTreeWidgetItem *>                 mMapStructureSetIndexToTreeWidget;
+  std::vector<clitk::DicomRT_StructureSet::Pointer > mStructureSetsList;
+  std::vector< QSharedPointer<vvStructureSetActor> > mStructureSetActorsList;
+  std::vector< QSharedPointer<QTreeWidgetItem> > mTreeWidgetList;
   std::map<clitk::DicomRT_ROI::Pointer, QTreeWidgetItem *> mMapROIToTreeWidget;
   std::map<QTreeWidgetItem *, clitk::DicomRT_ROI::Pointer> mMapTreeWidgetToROI;
   std::vector<int> mLoadedROIIndex;

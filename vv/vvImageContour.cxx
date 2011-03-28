@@ -45,9 +45,6 @@ vvImageContour::~vvImageContour()
   for (unsigned int i = 0; i < mSlicer->GetImage()->GetVTKImages().size(); i++) {
     mSlicer->GetRenderer()->RemoveActor(mSquaresActorList[i]);
   }
- mSquaresActorList.clear();
- mSquaresList.clear();
- mClipperList.clear();
 }
 //------------------------------------------------------------------------------
 
@@ -57,13 +54,7 @@ void vvImageContour::SetSlicer(vvSlicer * slicer) {
   mSlicer = slicer;  
   // Create an actor for each time slice
   for (unsigned int numImage = 0; numImage < mSlicer->GetImage()->GetVTKImages().size(); numImage++) {
-    vtkImageClip * mClipper;// = vtkImageClip::New();
-    vtkMarchingSquares * mSquares;// = vtkMarchingSquares::New();
-    vtkActor * mSquaresActor;// = vtkActor::New();
-    CreateNewActor(&mSquaresActor, &mSquares, &mClipper, numImage);
-    mSquaresActorList.push_back(mSquaresActor);
-    mSquaresList.push_back(mSquares);
-    mClipperList.push_back(mClipper);
+    CreateNewActor(numImage);
   }
 }
 //------------------------------------------------------------------------------
@@ -186,7 +177,7 @@ void vvImageContour::UpdateWithPreserveMemoryMode() {
   int orientation = ComputeCurrentOrientation();
 
   UpdateActor(mSquaresActor, mSquares, mClipper, mValue, orientation, mSlice);
-  mSquaresActorList[mTSlice]->VisibilityOn();
+  //mSquaresActorList[mTSlice]->VisibilityOn();
 
   if (mPreviousTslice != mTSlice) {
     if (mPreviousTslice != -1) mSquaresActorList[mPreviousTslice]->VisibilityOff();
@@ -244,13 +235,11 @@ clitkExceptionMacro("TODO : not implemented yet");
   if (actor != NULL) {
     mListOfCachedContourActors[orientation][mSlice]->VisibilityOn();
   } else {
-    vtkImageClip * mClipper;
-    vtkMarchingSquares * mSquares;
-    vtkActor * mSquaresActor;
-    CreateNewActor(&mSquaresActor, &mSquares, &mClipper, 0);
-    UpdateActor(mSquaresActor, mSquares, mClipper, mValue, orientation, mSlice);
-    mListOfCachedContourActors[orientation][mSlice] = mSquaresActor;
-    mSquaresActor->VisibilityOn();
+    CreateNewActor(0);
+    //SR: commented out, this code is never reached anyway
+    //UpdateActor(mSquaresActor, mSquares, mClipper, mValue, orientation, mSlice);
+    //mListOfCachedContourActors[orientation][mSlice] = mSquaresActor;
+    //mSquaresActor->VisibilityOn();
   }
 
   if (mListOfCachedContourActors[mPreviousOrientation][mPreviousSlice] != NULL)
@@ -262,27 +251,29 @@ clitkExceptionMacro("TODO : not implemented yet");
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::CreateNewActor(vtkActor ** actor, 
-                                    vtkMarchingSquares ** squares, 
-                                    vtkImageClip ** clipper, 
-                                    int numImage) {
-  vtkSmartPointer<vtkActor> mSquaresActor = (*actor = vtkSmartPointer<vtkActor>::New());
-  vtkSmartPointer<vtkImageClip> mClipper = (*clipper = vtkSmartPointer<vtkImageClip>::New());
-  vtkSmartPointer<vtkMarchingSquares> mSquares = (*squares = vtkSmartPointer<vtkMarchingSquares>::New());
-  vtkSmartPointer<vtkPolyDataMapper> mSquaresMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+void vvImageContour::CreateNewActor(int numImage) {
+  vtkSmartPointer<vtkActor> squaresActor = vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkImageClip> clipper = vtkSmartPointer<vtkImageClip>::New();
+  vtkSmartPointer<vtkMarchingSquares> squares = vtkSmartPointer<vtkMarchingSquares>::New();
+  vtkSmartPointer<vtkPolyDataMapper> squaresMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
 
   if (mHiddenImageIsUsed)
-    mClipper->SetInput(mHiddenImage->GetVTKImages()[0]);
+    clipper->SetInput(mHiddenImage->GetVTKImages()[0]);
   else
-    mClipper->SetInput(mSlicer->GetImage()->GetVTKImages()[numImage]);
-  mSquares->SetInput(mClipper->GetOutput());
-  mSquaresMapper->SetInput(mSquares->GetOutput());
-  mSquaresMapper->ScalarVisibilityOff();
-  mSquaresActor->SetMapper(mSquaresMapper);
-  mSquaresActor->GetProperty()->SetColor(1.0,0,0);
-  mSquaresActor->SetPickable(0);
-  mSquaresActor->VisibilityOff();
-  mSlicer->GetRenderer()->AddActor(mSquaresActor);
+    clipper->SetInput(mSlicer->GetImage()->GetVTKImages()[numImage]);
+  squares->SetInput(clipper->GetOutput());
+  squaresMapper->SetInput(squares->GetOutput());
+  squaresMapper->ScalarVisibilityOff();
+  squaresActor->SetMapper(squaresMapper);
+  squaresActor->GetProperty()->SetColor(1.0,0,0);
+  squaresActor->SetPickable(0);
+  squaresActor->VisibilityOff();
+  mSlicer->GetRenderer()->AddActor(squaresActor);
+
+  mSquaresActorList.push_back(squaresActor);
+  mClipperList.push_back(clipper);
+  mSquaresList.push_back(squares);
+  mSquaresMapperList.push_back(squaresMapper);
 }
 //------------------------------------------------------------------------------
 
@@ -333,7 +324,7 @@ void vvImageContour::UpdateActor(vtkActor * actor,
   clipper->SetOutputWholeExtent(extent2[0],extent2[1],extent2[2],
                                 extent2[3],extent2[4],extent2[5]);
 
-  if (mHiddenImage) delete extent2;
+  if (mHiddenImageIsUsed) delete extent2;
 
   // Move the actor to be visible
   switch (orientation)  {

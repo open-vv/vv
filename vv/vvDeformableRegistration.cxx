@@ -180,10 +180,10 @@ void vvDeformableRegistration::run()
     std::system(("rm " + output_filename).c_str());
     return;
   }
-  vvImageReader reader;
-  reader.SetInputFilename(output_filename);
-  reader.Update(VECTORFIELD);
+  vvImageReader::Pointer reader = vvImageReader::New();
+  reader->SetInputFilename(output_filename);
+  reader->Update(VECTORFIELD);
   finish=clock();
   DD((finish - start)/static_cast<double>(CLOCKS_PER_SEC));
-  mOutput=reader.GetOutput();
+  mOutput = reader->GetOutput();
 }
