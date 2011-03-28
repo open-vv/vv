@@ -388,7 +388,7 @@ namespace clitk {
     /*
       loop over input pixels, store the index in the fg that is max
       according to the given direction. 
-    */
+    */    
     typedef itk::ImageRegionConstIteratorWithIndex<ImageType> IteratorType;
     IteratorType iter(input, input->GetLargestPossibleRegion());
     iter.GoToBegin();
@@ -898,6 +898,61 @@ namespace clitk {
     if (negative && (s<=0)) return true;
     if (!negative && (s>=0)) return true;
     return false;
+  }
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  /* Consider an input object, for each slice, find the extrema
+     position according to a given direction and build a line segment
+     passing throught this point in a given direction.  Output is a
+     vector of line (from point A to B), for each slice;
+   */
+  template<class ImageType>
+  void 
+  SliceBySliceBuildLineSegmentAccordingToExtremaPosition(const ImageType * input, 
+                                                         typename ImageType::PixelType BG, 
+                                                         int sliceDimension, 
+                                                         int extremaDirection, 
+                                                         bool extremaOppositeFlag, 
+                                                         int lineDirection,
+                                                         double margin,
+                                                         std::vector<typename ImageType::PointType> & A, 
+                                                         std::vector<typename ImageType::PointType> & B)
+  {
+    // Type of a slice
+    typedef typename itk::Image<typename ImageType::PixelType, ImageType::ImageDimension-1> SliceType;
+    
+    // Build the list of slices
+    std::vector<typename SliceType::Pointer> slices;
+    clitk::ExtractSlices<ImageType>(input, sliceDimension, slices);
+
+    // Build the list of 2D points
+    std::map<int, typename SliceType::PointType> position2D;
+    for(uint i=0; i<slices.size(); i++) {
+      typename SliceType::PointType p;
+      bool found = 
+        clitk::FindExtremaPointInAGivenDirection<SliceType>(slices[i], BG, 
+                                                            extremaDirection, extremaOppositeFlag, p);
+      if (found) {
+        position2D[i] = p;
+      }    
+    }
+    
+    // Convert 2D points in slice into 3D points
+    clitk::PointsUtils<ImageType>::Convert2DTo3DList(position2D, input, A);
+    
+    // Create additional point just right to the previous ones, on the
+    // given lineDirection, in order to create a horizontal/vertical line.
+    for(uint i=0; i<A.size(); i++) {
+      typename ImageType::PointType p = A[i];
+      p[lineDirection] += 10;
+      B.push_back(p);
+      // Margins ?
+      A[i][1] += margin;
+      B[i][1] += margin;
+    }
+
   }
   //--------------------------------------------------------------------
 

@@ -362,6 +362,22 @@ namespace clitk {
   IsOnTheSameLineSide(PointType C, PointType A, PointType B, PointType like);
   //--------------------------------------------------------------------
 
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  void 
+  SliceBySliceBuildLineSegmentAccordingToExtremaPosition(const ImageType * input, 
+                                                         typename ImageType::PixelType BG, 
+                                                         int sliceDimension, 
+                                                         int extremaDirection, 
+                                                         bool extremaOppositeFlag, 
+                                                         int lineDirection,
+                                                         double margin,
+                                                         std::vector<typename ImageType::PointType> & A, 
+                                                         std::vector<typename ImageType::PointType> & B);  
+  //--------------------------------------------------------------------
+
+
 }
 
 #include "clitkSegmentationUtils.txx"
