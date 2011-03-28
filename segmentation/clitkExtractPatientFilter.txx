@@ -25,6 +25,7 @@
 #include "clitkDecomposeAndReconstructImageFilter.h"
 #include "clitkAutoCropFilter.h"
 #include "clitkMemoryUsage.h"
+#include "clitkSegmentationUtils.h"
 
 // itk
 #include "itkBinaryThresholdImageFilter.h"

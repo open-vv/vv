@@ -26,6 +26,7 @@
 
 // itk
 #include <itkBoundingBox.h>
+#include <itkJoinSeriesImageFilter.h>
 
 /*
   According to 
@@ -221,11 +222,23 @@ namespace clitk {
 
 
   //--------------------------------------------------------------------
-  //template<class ImageType>
-  //typename ImageType::Pointer
-  //JoinSlices(std::vector<typename itk::Image<typename ImageType::PixelType, 
-  //                                           ImageType::ImageDimension-1>::Pointer > & slices, 
-	 //    const ImageType * input, int dim);
+  template<class ImageType>
+  typename ImageType::Pointer
+  JoinSlices(std::vector<typename itk::Image<typename ImageType::PixelType, 
+                                             ImageType::ImageDimension-1>::Pointer > & slices, 
+             const ImageType * input, 
+             int direction) {
+    typedef typename itk::Image<typename ImageType::PixelType, ImageType::ImageDimension-1> SliceType;
+    typedef itk::JoinSeriesImageFilter<SliceType, ImageType> JoinSeriesFilterType;
+    typename JoinSeriesFilterType::Pointer joinFilter = JoinSeriesFilterType::New();
+    joinFilter->SetOrigin(input->GetOrigin()[direction]);
+    joinFilter->SetSpacing(input->GetSpacing()[direction]);
+    for(unsigned int i=0; i<slices.size(); i++) {
+      joinFilter->PushBackInput(slices[i]);
+    }
+    joinFilter->Update();
+    return joinFilter->GetOutput();
+  }
   //--------------------------------------------------------------------
 
 
