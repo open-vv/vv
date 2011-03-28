@@ -21,7 +21,6 @@
 
 // clitk
 #include "clitkCommon.h"
-#include "clitkSegmentationUtils.h"
 
 // itk
 #include "itkAutoCropLabelMapFilter.h"
