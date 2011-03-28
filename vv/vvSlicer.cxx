@@ -915,19 +915,18 @@ void vvSlicer::UpdateDisplayExtent()
 //----------------------------------------------------------------------------
 void vvSlicer::ComputeVFDisplayedExtent(int x1,int x2,int y1,int y2,int z1,int z2,int vfExtent[6])
 {
-  vtkImageData* image=this->GetInput();
-  vfExtent[0] = (( image->GetOrigin()[0] + x1*image->GetSpacing()[0] ) - mVF->GetOrigin()[0]) /
-    mVF->GetSpacing()[0];
-  vfExtent[1] = (( image->GetOrigin()[0] + x2*image->GetSpacing()[0] ) - mVF->GetOrigin()[0]) /
-    mVF->GetSpacing()[0];
-  vfExtent[2] = (( image->GetOrigin()[1] + y1*image->GetSpacing()[1] ) - mVF->GetOrigin()[1]) /
-    mVF->GetSpacing()[1];
-  vfExtent[3] = (( image->GetOrigin()[1] + y2*image->GetSpacing()[1] ) - mVF->GetOrigin()[1]) /
-    mVF->GetSpacing()[1];
-  vfExtent[4] = (( image->GetOrigin()[2] + z1*image->GetSpacing()[2] ) - mVF->GetOrigin()[2]) /
-    mVF->GetSpacing()[2];
-  vfExtent[5] = (( image->GetOrigin()[2] + z2*image->GetSpacing()[2] ) - mVF->GetOrigin()[2]) /
-    mVF->GetSpacing()[2];
+  vtkImageData* image = this->GetInput();
+  vfExtent[0] = image->GetOrigin()[0] + x1*image->GetSpacing()[0];
+  vfExtent[1] = image->GetOrigin()[0] + x2*image->GetSpacing()[0];
+  vfExtent[2] = image->GetOrigin()[1] + y1*image->GetSpacing()[1];
+  vfExtent[3] = image->GetOrigin()[1] + y2*image->GetSpacing()[1];
+  vfExtent[4] = image->GetOrigin()[2] + z1*image->GetSpacing()[2];
+  vfExtent[5] = image->GetOrigin()[2] + z2*image->GetSpacing()[2];
+  
+  vtkImageData* vf = mVF->GetTransformedVTKImages()[0];
+  vf->UpdateInformation();
+  for(unsigned int i=0; i<6; i++)
+    vfExtent[i] = (vfExtent[i]- vf->GetOrigin()[i/2]) / vf->GetSpacing()[i/2];  
 
   ClipDisplayedExtent(vfExtent,mVOIFilter->GetInput()->GetWholeExtent());
 }
@@ -937,19 +936,19 @@ void vvSlicer::ComputeVFDisplayedExtent(int x1,int x2,int y1,int y2,int z1,int z
 //----------------------------------------------------------------------------
 void vvSlicer::ComputeOverlayDisplayedExtent(int x1,int x2,int y1,int y2,int z1,int z2,int overExtent[6])
 {
-  vtkImageData* image=this->GetInput();
-  overExtent[0] = (( image->GetOrigin()[0] + x1*image->GetSpacing()[0] ) - mOverlay->GetOrigin()[0]) /
-    mOverlay->GetSpacing()[0];
-  overExtent[1] = (( image->GetOrigin()[0] + x2*image->GetSpacing()[0] ) - mOverlay->GetOrigin()[0]) /
-    mOverlay->GetSpacing()[0];
-  overExtent[2] = (( image->GetOrigin()[1] + y1*image->GetSpacing()[1] ) - mOverlay->GetOrigin()[1]) /
-    mOverlay->GetSpacing()[1];
-  overExtent[3] = (( image->GetOrigin()[1] + y2*image->GetSpacing()[1] ) - mOverlay->GetOrigin()[1]) /
-    mOverlay->GetSpacing()[1];
-  overExtent[4] = (( image->GetOrigin()[2] + z1*image->GetSpacing()[2] ) - mOverlay->GetOrigin()[2]) /
-    mOverlay->GetSpacing()[2];
-  overExtent[5] = (( image->GetOrigin()[2] + z2*image->GetSpacing()[2] ) - mOverlay->GetOrigin()[2]) /
-    mOverlay->GetSpacing()[2];
+  vtkImageData* image = this->GetInput();
+  overExtent[0] = image->GetOrigin()[0] + x1*image->GetSpacing()[0];
+  overExtent[1] = image->GetOrigin()[0] + x2*image->GetSpacing()[0];
+  overExtent[2] = image->GetOrigin()[1] + y1*image->GetSpacing()[1];
+  overExtent[3] = image->GetOrigin()[1] + y2*image->GetSpacing()[1];
+  overExtent[4] = image->GetOrigin()[2] + z1*image->GetSpacing()[2];
+  overExtent[5] = image->GetOrigin()[2] + z2*image->GetSpacing()[2];
+  
+  vtkImageData* overlay = mOverlay->GetTransformedVTKImages()[0];
+  overlay->UpdateInformation();
+  for(unsigned int i=0; i<6; i++)
+    overExtent[i] = (overExtent[i]- overlay->GetOrigin()[i/2]) / overlay->GetSpacing()[i/2];  
+
   ClipDisplayedExtent(overExtent, mOverlayMapper->GetInput()->GetWholeExtent());
 }
 //----------------------------------------------------------------------------
@@ -958,19 +957,19 @@ void vvSlicer::ComputeOverlayDisplayedExtent(int x1,int x2,int y1,int y2,int z1,
 //----------------------------------------------------------------------------
 void vvSlicer::ComputeFusionDisplayedExtent(int x1,int x2,int y1,int y2,int z1,int z2,int fusExtent[6])
 {
-  vtkImageData* image=this->GetInput();
-  fusExtent[0] = (( image->GetOrigin()[0] + x1*image->GetSpacing()[0] ) - mFusion->GetOrigin()[0]) /
-    mFusion->GetSpacing()[0];
-  fusExtent[1] = (( image->GetOrigin()[0] + x2*image->GetSpacing()[0] ) - mFusion->GetOrigin()[0]) /
-    mFusion->GetSpacing()[0];
-  fusExtent[2] = (( image->GetOrigin()[1] + y1*image->GetSpacing()[1] ) - mFusion->GetOrigin()[1]) /
-    mFusion->GetSpacing()[1];
-  fusExtent[3] = (( image->GetOrigin()[1] + y2*image->GetSpacing()[1] ) - mFusion->GetOrigin()[1]) /
-    mFusion->GetSpacing()[1];
-  fusExtent[4] = (( image->GetOrigin()[2] + z1*image->GetSpacing()[2] ) - mFusion->GetOrigin()[2]) /
-    mFusion->GetSpacing()[2];
-  fusExtent[5] = (( image->GetOrigin()[2] + z2*image->GetSpacing()[2] ) - mFusion->GetOrigin()[2]) /
-    mFusion->GetSpacing()[2];
+  vtkImageData* image = this->GetInput();
+  fusExtent[0] = image->GetOrigin()[0] + x1*image->GetSpacing()[0];
+  fusExtent[1] = image->GetOrigin()[0] + x2*image->GetSpacing()[0];
+  fusExtent[2] = image->GetOrigin()[1] + y1*image->GetSpacing()[1];
+  fusExtent[3] = image->GetOrigin()[1] + y2*image->GetSpacing()[1];
+  fusExtent[4] = image->GetOrigin()[2] + z1*image->GetSpacing()[2];
+  fusExtent[5] = image->GetOrigin()[2] + z2*image->GetSpacing()[2];
+  
+  vtkImageData* fusion = mFusion->GetTransformedVTKImages()[0];
+  fusion->UpdateInformation();
+  for(unsigned int i=0; i<6; i++)
+    fusExtent[i] = (fusExtent[i]- fusion->GetOrigin()[i/2]) / fusion->GetSpacing()[i/2];  
+
   ClipDisplayedExtent(fusExtent, mFusionMapper->GetInput()->GetWholeExtent());
 }
 //----------------------------------------------------------------------------
