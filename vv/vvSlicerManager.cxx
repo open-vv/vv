@@ -60,19 +60,12 @@ vvSlicerManager::vvSlicerManager(int numberOfSlicers)
   mFusionWindow = 1000;
   mFusionLevel = 1000;
 
-  mReader = NULL;
-  mImage = NULL;
-  mVF=NULL;
-  mVectorReader = NULL;
-  mOverlayReader = NULL;
-  mFusionReader = NULL;
   mLandmarks = NULL;
   mLinkedId.resize(0);
 
-  for ( int i = 0; i < numberOfSlicers; i++) {
-    vvSlicer *slicer = vvSlicer::New();
-    mSlicers.push_back(slicer);
-  }
+  for ( int i = 0; i < numberOfSlicers; i++)
+    mSlicers.push_back(vtkSmartPointer<vvSlicer>::New());
+
   mPreviousSlice.resize(numberOfSlicers);
   mPreviousTSlice.resize(numberOfSlicers);
 }
@@ -82,10 +75,6 @@ vvSlicerManager::vvSlicerManager(int numberOfSlicers)
 //----------------------------------------------------------------------------
 vvSlicerManager::~vvSlicerManager()
 {
-  for ( unsigned int i = 0; i < mSlicers.size(); i++) {
-    if (mSlicers[i] != NULL)
-      mSlicers[i]->Delete();
-  }
   if (mLandmarks)
     delete mLandmarks;
 }

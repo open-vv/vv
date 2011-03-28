@@ -214,7 +214,7 @@ signals :
   void AVerticalSliderHasChanged(int slicer, int slice);
 
 protected:
-  std::vector<vvSlicer*> mSlicers;
+  std::vector< vtkSmartPointer<vvSlicer> > mSlicers;
   vvImageReader::Pointer mReader;
   vvImageReader::Pointer mOverlayReader;
   vvImageReader::Pointer mFusionReader;
