@@ -363,6 +363,14 @@ void clitk::ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it, Ite
       ++ito;
     }
     break;
+  case 10: // exp
+    static const double c = std::pow(2,16);
+    while (!it.IsAtEnd()) {
+      ito.Set(PixelTypeDownCast<double, PixelType>((c - (double)it.Get())/mScalar));
+      ++it;
+      ++ito;
+    }
+    break;
   default: // error ?
     std::cerr << "ERROR : the operation number (" << mTypeOfOperation << ") is not known." << std::endl;
     exit(-1);
