@@ -24,6 +24,9 @@
 // itk include
 #include <itkImageIOBase.h>
 #include <gdcmFile.h>
+#if GDCM_MAJOR_VERSION == 2
+  #include <gdcmImageReader.h>
+#endif
 
 // std include
 #include <fstream>
@@ -44,7 +47,9 @@ public:
 
   DicomRTDoseIO():Superclass() {
     mustWriteHeader = false;
+#if GDCM_MAJOR_VERSION < 2
     m_GdcmFile=NULL;
+#endif
   }
 
   /** Method for creation through the object factory. */
@@ -72,7 +77,11 @@ protected:
   bool mustWriteHeader;
   int m_HeaderSize;
   std::ofstream file;
+#if GDCM_MAJOR_VERSION == 2
+  gdcm::ImageReader m_GdcmImageReader;
+#else
   gdcm::File *m_GdcmFile;
+#endif
   float m_DoseScaling;
 }; // end class DicomRTDoseIO
 

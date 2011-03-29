@@ -27,7 +27,11 @@
 #include "itkImageSeriesReader.h"
 #include "itkImageFileWriter.h"
 #include "gdcmFile.h"
-#include "gdcmFileHelper.h"
+#if GDCM_MAJOR_VERSION == 2
+  #include "gdcmReader.h"
+#else
+  #include "gdcmFileHelper.h"
+#endif
 
 namespace clitk {
   

@@ -63,6 +63,13 @@ void clitk::ReadImageDimensionAndPixelType(const std::string & filename,
 gdcm::File * clitk::readDicomHeader(const std::string & filename,
                                     const bool verbose)
 {
+#if GDCM_MAJOR_VERSION == 2
+  gdcm::Reader hreader;
+  hreader.SetFileName(filename.c_str());
+  hreader.Read();
+  gdcm::SmartPointer<gdcm::File> p = hreader.GetFile();
+  return p;
+#else
   if (verbose) {
     std::cout << "Reading DICOM <" << filename << ">" << std::endl;
   }
@@ -71,6 +78,7 @@ gdcm::File * clitk::readDicomHeader(const std::string & filename,
   header->SetMaxSizeLoadEntry(16384); // required ?
   header->Load();
   return header;
+#endif
 }
 ///--------------------------------------------------------------------
 

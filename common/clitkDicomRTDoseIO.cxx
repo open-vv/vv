@@ -21,7 +21,12 @@
 #include "clitkCommon.h"
 
 // itk include
-#include <gdcmFileHelper.h>
+#if GDCM_MAJOR_VERSION == 2
+  #include <gdcmReader.h>
+  #include <gdcmAttribute.h>
+#else
+  #include <gdcmFileHelper.h>
+#endif
 
 #define GFOV_SPACING_TOL (1e-1)
 
@@ -29,67 +34,119 @@
 // Read Image Information
 void clitk::DicomRTDoseIO::ReadImageInformation()
 {
+#if GDCM_MAJOR_VERSION < 2
   if(m_GdcmFile)
     delete m_GdcmFile;
   m_GdcmFile = new gdcm::File;
+#endif
 
-  int i, rc;
+  int i;
   std::string tmp;
   float ipp[3];
   int dim[3];
   float spacing[3];
-  float *gfov;    /* gfov = GridFrameOffsetVector */
+  double *gfov;    /* gfov = GridFrameOffsetVector */
   int gfov_len;
+#if GDCM_MAJOR_VERSION < 2
   const char *gfov_str;
+  int rc;
+#endif
 
+#if GDCM_MAJOR_VERSION == 2
+  m_GdcmImageReader.SetFileName(m_FileName.c_str());
+  m_GdcmImageReader.Read();
+  gdcm::File* m_GdcmFile = &m_GdcmImageReader.GetFile();
+#else
   m_GdcmFile->SetMaxSizeLoadEntry (0xffff);
   m_GdcmFile->SetFileName (m_FileName.c_str());
   m_GdcmFile->SetLoadMode (0);
   m_GdcmFile->Load();
+#endif
 
   /* Modality -- better be RTSTRUCT */
+#if GDCM_MAJOR_VERSION == 2
+  gdcm::DataSet &ds = m_GdcmFile->GetDataSet();
+
+  gdcm::Attribute<0x8,0x60> at1;
+  at1.SetFromDataSet(ds);
+  tmp = at1.GetValue();
+#else
   tmp = m_GdcmFile->GetEntryValue (0x0008, 0x0060);
+#endif
   if (strncmp (tmp.c_str(), "RTDOSE", strlen("RTDOSE"))) {
     itkExceptionMacro(<< "Error.  Input file not RTDOSE: " << m_FileName);
   }
 
   /* ImagePositionPatient */
+#if GDCM_MAJOR_VERSION == 2
+  gdcm::Attribute<0x20,0x32> at2;
+  at2.SetFromDataSet(ds);
+  ipp[0] = at2.GetValue(0);
+  ipp[1] = at2.GetValue(1);
+  ipp[2] = at2.GetValue(2);
+#else
   tmp = m_GdcmFile->GetEntryValue (0x0020, 0x0032);
   rc = sscanf (tmp.c_str(), "%f\\%f\\%f", &ipp[0], &ipp[1], &ipp[2]);
   if (rc != 3) {
     itkExceptionMacro(<< "Error parsing RTDOSE ipp.");
   }
+#endif
 
   /* Rows */
+#if GDCM_MAJOR_VERSION == 2
+  gdcm::Attribute<0x28,0x10> at3;
+  at3.SetFromDataSet(ds);
+  dim[1] = at3.GetValue();
+#else
   tmp = m_GdcmFile->GetEntryValue (0x0028, 0x0010);
   rc = sscanf (tmp.c_str(), "%d", &dim[1]);
   if (rc != 1) {
     itkExceptionMacro(<< "Error parsing RTDOSE rows.");
   }
+#endif
 
   /* Columns */
+#if GDCM_MAJOR_VERSION == 2
+  gdcm::Attribute<0x28,0x11> at4;
+  at4.SetFromDataSet(ds);
+  dim[0] = at4.GetValue();
+#else
   tmp = m_GdcmFile->GetEntryValue (0x0028, 0x0011);
   rc = sscanf (tmp.c_str(), "%d", &dim[0]);
   if (rc != 1) {
     itkExceptionMacro(<< "Error parsing RTDOSE columns.");
   }
+#endif
 
   /* PixelSpacing */
+#if GDCM_MAJOR_VERSION == 2
+  gdcm::Attribute<0x28,0x30> at5;
+  at5.SetFromDataSet(ds);
+  spacing[0] = at5.GetValue(0);
+  spacing[1] = at5.GetValue(1);
+#else
   tmp = m_GdcmFile->GetEntryValue (0x0028, 0x0030);
   rc = sscanf (tmp.c_str(), "%g\\%g", &spacing[0], &spacing[1]);
-
   if (rc != 2) {
     itkExceptionMacro(<< "Error parsing RTDOSE pixel spacing.");
   }
+#endif
 
   /* GridFrameOffsetVector */
+#if GDCM_MAJOR_VERSION == 2
+  gdcm::Attribute<0x3004,0x000C> at6;
+  const gdcm::DataElement& de6 = ds.GetDataElement( at6.GetTag() );
+  at6.SetFromDataElement(de6);
+  gfov = (double*) at6.GetValues();
+  gfov_len = at6.GetNumberOfValues();
+#else
   tmp = m_GdcmFile->GetEntryValue (0x3004, 0x000C);
   gfov = 0;
   gfov_len = 0;
   gfov_str = tmp.c_str();
   while (1) {
     int len;
-    gfov = (float*) realloc (gfov, (gfov_len + 1) * sizeof(float));
+    gfov = (double*) realloc (gfov, (gfov_len + 1) * sizeof(double));
     rc = sscanf (gfov_str, "%g%n", &gfov[gfov_len], &len);
     if (rc != 1) {
       break;
@@ -100,6 +157,8 @@ void clitk::DicomRTDoseIO::ReadImageInformation()
       gfov_str ++;
     }
   }
+#endif
+
   dim[2] = gfov_len;
   if (gfov_len == 0) {
     itkExceptionMacro(<< "Error parsing RTDOSE gfov.");
@@ -122,7 +181,7 @@ void clitk::DicomRTDoseIO::ReadImageInformation()
     if (i == 1) {
       spacing[2] = gfov[1] - gfov[0];
     } else {
-      float sp = gfov[i] - gfov[i-1];
+      double sp = gfov[i] - gfov[i-1];
       if (fabs(sp - spacing[2]) > GFOV_SPACING_TOL) {
         itkExceptionMacro(<< "Error RTDOSE grid has irregular spacing:"
                           << sp << " vs " << spacing[2]);
@@ -130,12 +189,20 @@ void clitk::DicomRTDoseIO::ReadImageInformation()
     }
   }
 
+#if GDCM_MAJOR_VERSION < 2
   free (gfov);
+#endif
 
   /* DoseGridScaling */
+#if GDCM_MAJOR_VERSION == 2
+  gdcm::Attribute<0x3004,0x000E> at7 = { 1. } ;
+  at7.SetFromDataSet(ds);
+  m_DoseScaling = at7.GetValue();
+#else
   m_DoseScaling = 1.0;
   tmp = m_GdcmFile->GetEntryValue (0x3004, 0x000E);
   rc = sscanf (tmp.c_str(), "%f", &m_DoseScaling);
+#endif
   /* If element doesn't exist, scaling is 1.0 */
 
   // set dimension values
@@ -157,6 +224,17 @@ void clitk::DicomRTDoseIO::ReadImageInformation()
 // Read Image Information
 bool clitk::DicomRTDoseIO::CanReadFile(const char* FileNameToRead)
 {
+#if GDCM_MAJOR_VERSION == 2
+  gdcm::Reader creader;
+  creader.SetFileName(FileNameToRead);
+  if (!creader.Read())
+    return false;
+
+  gdcm::DataSet &ds = creader.GetFile().GetDataSet();
+  gdcm::Attribute<0x8,0x60> at1;
+  at1.SetFromDataSet(ds);
+  std::string tmp = at1.GetValue();
+#else
   // opening dicom input file
   gdcm::File dcmFile;
   dcmFile.SetFileName(FileNameToRead);
@@ -170,6 +248,7 @@ bool clitk::DicomRTDoseIO::CanReadFile(const char* FileNameToRead)
 
   /* Modality -- better be RTDOSE */
   std::string tmp = dcmFile.GetEntryValue (0x0008, 0x0060);
+#endif
   if (!strncmp (tmp.c_str(), "RTDOSE", strlen("RTDOSE"))) {
     return true;
   }
@@ -191,13 +270,17 @@ clitk::DicomRTDoseIO::dose_copy_raw (float *img_out, T *img_in, int nvox, float 
 // Read Image Content
 void clitk::DicomRTDoseIO::Read(void * buffer)
 {
-  float *img = (float*) buffer;
-
   unsigned long npix = 1;
   for(unsigned int i=0; i<GetNumberOfDimensions(); i++)
     npix *= GetDimensions(i);
 
   /* PixelData */
+#if GDCM_MAJOR_VERSION == 2
+  gdcm::Image &i = m_GdcmImageReader.GetImage();
+  i.GetBuffer((char*)buffer);
+#else
+  float *img = (float*) buffer;
+
   gdcm::FileHelper m_GdcmFile_helper (m_GdcmFile);
 
   //size_t image_data_size = m_GdcmFile_helper.GetImageDataSize();
@@ -211,6 +294,8 @@ void clitk::DicomRTDoseIO::Read(void * buffer)
     itkExceptionMacro(<< "Error RTDOSE not type 16U and 32U (type="
                       << m_GdcmFile->GetPixelType().c_str() << ")");
   }
+  delete m_GdcmFile;
+#endif
 
   /* GCS FIX: Do I need to do something about endian-ness? */
 
@@ -221,8 +306,6 @@ void clitk::DicomRTDoseIO::Read(void * buffer)
 //   for (i = 0; i < vol->npix; i++) {
   //img[i] = image_data[i] * m_DoseScaling;
 //   }
-
-  delete m_GdcmFile;
 }
 
 //--------------------------------------------------------------------
