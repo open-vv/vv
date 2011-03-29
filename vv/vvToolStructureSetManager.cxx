@@ -261,10 +261,10 @@ void vvToolStructureSetManager::OpenBinaryImage()
       return;
     }
     vvImage::Pointer binaryImage = reader->GetOutput();
-    //AddImage(binaryImage, filename[i].toStdString(), mBackgroundValueSpinBox->value());
+    AddImage(binaryImage, filename[i].toStdString(), mBackgroundValueSpinBox->value());
     mOpenedBinaryImage.push_back(binaryImage);
   }
-DD(mOpenedBinaryImage.back()->GetOrigin()[0]);
+
   UpdateImage();
 }
 //------------------------------------------------------------------------------
