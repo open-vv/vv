@@ -99,7 +99,6 @@ vvToolStructureSetManager::vvToolStructureSetManager(vvMainWindowBase * parent,
 //------------------------------------------------------------------------------
 vvToolStructureSetManager::~vvToolStructureSetManager()
 {
-  disconnect(mTree, SIGNAL(itemSelectionChanged()), this, SLOT(SelectedItemChangedInTree()));
   m_NumberOfTool--;
 }
 //------------------------------------------------------------------------------
@@ -262,9 +261,10 @@ void vvToolStructureSetManager::OpenBinaryImage()
       return;
     }
     vvImage::Pointer binaryImage = reader->GetOutput();
-    AddImage(binaryImage, filename[i].toStdString(), mBackgroundValueSpinBox->value());
+    //AddImage(binaryImage, filename[i].toStdString(), mBackgroundValueSpinBox->value());
     mOpenedBinaryImage.push_back(binaryImage);
   }
+DD(mOpenedBinaryImage.back()->GetOrigin()[0]);
   UpdateImage();
 }
 //------------------------------------------------------------------------------
@@ -372,14 +372,8 @@ void vvToolStructureSetManager::closeEvent(QCloseEvent *event)
 
   mCheckBoxShowAll->setCheckState(Qt::Unchecked);
   mContourCheckBoxShowAll->setCheckState(Qt::Unchecked);
-  if (mCurrentSlicerManager != 0) mCurrentSlicerManager->Render();
-  if (mCurrentStructureSetActor) {
-    for(int i=0; i<mCurrentStructureSetActor->GetNumberOfROIs(); i++) {
-      mCurrentStructureSetActor->GetROIList()[i]->SetVisible(false);
-      mCurrentStructureSetActor->GetROIList()[i]->SetContourVisible(false);
-      delete mCurrentStructureSetActor->GetROIList()[i];
-    }
-  }
+  if (mCurrentSlicerManager != 0)
+    mCurrentSlicerManager->Render();
 
   if (!isWindow()) {
     if (m_NumberOfTool == 1) {

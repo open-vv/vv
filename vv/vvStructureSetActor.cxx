@@ -44,7 +44,7 @@ int vvStructureSetActor::GetNumberOfROIs()
 
 
 //------------------------------------------------------------------------------
-std::vector<vvROIActor*> & vvStructureSetActor::GetROIList() 
+std::vector< QSharedPointer<vvROIActor> > & vvStructureSetActor::GetROIList() 
 { 
   return mROIActors; 
 }
@@ -74,7 +74,7 @@ vvROIActor * vvStructureSetActor::GetROIActor(int n)
     std::cerr << "No ROI number " << n << std::endl;
     return NULL;
   }
-  return mROIActors[mMapROIIndex[n]];
+  return mROIActors[mMapROIIndex[n]].data();
 }
 //------------------------------------------------------------------------------
 
@@ -91,15 +91,15 @@ void vvStructureSetActor::CreateNewROIActor(int n, bool modeBG)
 
   // If already exist : delete it
   int old = -1;
-  if (mMapROIIndex.find(n) != mMapROIIndex.end()) {
-    delete mROIActors[mMapROIIndex[n]];
+  if (mMapROIIndex.find(n) != mMapROIIndex.end())
     old = mMapROIIndex[n];
-  }
 
   // Add ROI Actors
-  vvROIActor * actor = new vvROIActor;
-  if (old == -1) mROIActors.push_back(actor);
-  else mROIActors[old] = actor;
+  QSharedPointer<vvROIActor> actor = QSharedPointer<vvROIActor>(new vvROIActor);
+  if (old == -1)
+    mROIActors.push_back(actor);
+  else
+    mROIActors[old] = actor;
   actor->SetBGMode(modeBG);
   actor->SetROI(roi);
   actor->SetSlicerManager(mSlicerManager);

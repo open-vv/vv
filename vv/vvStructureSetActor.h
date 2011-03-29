@@ -21,6 +21,7 @@
 
 #include "clitkDicomRT_StructureSet.h"
 #include <QObject>
+#include <QSharedPointer>
 
 class vvSlicerManager;
 class vvROIActor;
@@ -37,12 +38,12 @@ class vvStructureSetActor: public QObject {
   void CreateNewROIActor(int n, bool modeBG=true);
   vvROIActor* GetROIActor(int n);
   int GetNumberOfROIs();
-  std::vector<vvROIActor*> & GetROIList();
+  std::vector< QSharedPointer<vvROIActor> > & GetROIList();
   
  protected:
   clitk::DicomRT_StructureSet * mStructureSet;
   vvSlicerManager * mSlicerManager;
-  std::vector<vvROIActor*> mROIActors;
+  std::vector< QSharedPointer<vvROIActor> > mROIActors;
   std::map<int, int> mMapROIIndex;
 
 }; // end class vvStructureSetActor
