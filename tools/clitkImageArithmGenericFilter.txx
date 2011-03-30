@@ -364,9 +364,8 @@ void clitk::ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it, Ite
     }
     break;
   case 10: // exp
-    static const double c = std::pow(2,16);
     while (!it.IsAtEnd()) {
-      ito.Set(PixelTypeDownCast<double, PixelType>((c - (double)it.Get())/mScalar));
+      ito.Set(PixelTypeDownCast<double, PixelType>((0x10000 - (double)it.Get())/mScalar));
       ++it;
       ++ito;
     }
