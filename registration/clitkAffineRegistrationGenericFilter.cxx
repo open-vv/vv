@@ -176,8 +176,10 @@ void AffineRegistrationGenericFilter::UpdateWithInputImageType()
 //typedef typename InputImageType::ImageDimension Dimension;
 
 
+#ifdef ITK_USE_OPTIMIZED_REGISTRATION_METHODS
   bool threadsGiven=m_ArgsInfo.threads_given;
   int threads=m_ArgsInfo.threads_arg;
+#endif
 
   //Coordinate Representation
   typedef double TCoordRep;
