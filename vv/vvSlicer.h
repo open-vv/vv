@@ -27,7 +27,6 @@
 
 #include <vtkSmartPointer.h>
 #include <vtkImageViewer2.h>
-#include <vtkColor.h>
 
 class vtkActor;
 class vtkActor2D;
