@@ -167,11 +167,11 @@ INCLUDE_DIRECTORIES(
 
 #=========================================================
 #support for parallel deformable registration with OpenMP
-IF(NOT __APPLE__)
+IF(NOT APPLE)
 IF(CMAKE_COMPILER_IS_GNUCC)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 ENDIF(CMAKE_COMPILER_IS_GNUCC)
-ENDIF(NOT __APPLE__)
+ENDIF(NOT APPLE)
 #=========================================================
 
 #=========================================================
