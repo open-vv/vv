@@ -80,10 +80,6 @@ IF(CLITK_BUILD_SEGMENTATION)
     ADD_EXECUTABLE(clitkFillImageRegion clitkFillImageRegion.cxx clitkFillImageRegionGenericFilter.cxx ${clitkFillImageRegion_GGO_C})
     TARGET_LINK_LIBRARIES(clitkFillImageRegion clitkCommon ITKIO)
 
-    WRAP_GGO(clitkTestFilter_GGO_C clitkTestFilter.ggo)
-    ADD_EXECUTABLE(clitkTestFilter clitkTestFilter.cxx ${clitkTestFilter_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkTestFilter clitkSegmentationGgoLib clitkCommon ITKIO)
-
 ENDIF(CLITK_BUILD_SEGMENTATION)
 
 # ADD_EXECUTABLE(ScalarImageMarkovRandomField1 ScalarImageMarkovRandomField1.cxx)
