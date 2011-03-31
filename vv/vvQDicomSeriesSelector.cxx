@@ -20,7 +20,13 @@
 #include <itkGDCMImageIO.h>
 #include <itkGDCMSeriesFileNames.h>
 #include <gdcmFile.h>
+#if GDCM_MAJOR_VERSION == 2
+#include <gdcmImageReader.h>
+#include <gdcmDataSetHelper.h>
+#include <gdcmStringFilter.h>
+#else
 #include <gdcmDocEntry.h>
+#endif
 
 #include "vvQDicomSeriesSelector.h"
 //#include "vvUserConfig.h"
@@ -129,6 +135,12 @@ void vvDicomSeriesSelector::SearchButtonRelease()
       mListOfSeriesFilenames[seriesUID[i]] = filenames;
 
       // store first header
+#if GDCM_MAJOR_VERSION == 2
+      gdcm::ImageReader reader;
+      reader.SetFileName( (*filenames)[0].c_str() );
+      reader.Read();
+      mDicomHeader[seriesUID[i]] = &reader.GetFile();
+#else
       gdcm::File *header = new gdcm::File();
       header->SetFileName((*filenames)[0]);
       header->SetMaxSizeLoadEntry(16384);
@@ -167,6 +179,7 @@ void vvDicomSeriesSelector::SearchButtonRelease()
 
 
       mDicomHeader[seriesUID[i]] = header;
+#endif
 
       // new item
       QListWidgetItem *newItem = new QListWidgetItem;
@@ -216,6 +229,32 @@ void vvDicomSeriesSelector::itemDetailsSelectionChanged()
 
       QString l;
       gdcm::File * header = mDicomHeader[mCurrentSerie];
+#if GDCM_MAJOR_VERSION == 2
+      gdcm::StringFilter sf;
+      sf.SetFile( *header );
+      gdcm::DataSet &ds = header->GetDataSet();
+      gdcm::DataSet::ConstIterator it = ds.Begin();
+      for (; it != ds.End(); ++it )
+        {
+        const gdcm::DataElement & ref = *it;
+        const gdcm::Tag &         tag = ref.GetTag();
+        gdcm::VR vr = gdcm::DataSetHelper::ComputeVR(*header, ds, tag);
+        if ( vr & ( gdcm::VR::OB | gdcm::VR::OF | gdcm::VR::OW | gdcm::VR::SQ | gdcm::VR::UN ) )
+          {
+          // What is the behavior for binary stuff ?
+          }
+        else /* if ( vr & gdcm::VR::VRASCII ) */
+          {
+          if ( tag.IsPublic() )
+            {
+            std::pair<std::string, std::string> p = sf.ToStringPair(tag);
+            l += QString("%1 : %2\n")
+              .arg( p.first.c_str() )
+              .arg( p.second.c_str() );
+            }
+          }
+        }
+#else
       gdcm::DocEntry * e = header->GetFirstEntry();
       while (e) {
         if (e->GetName() != "gdcm::Unknown") {
@@ -225,6 +264,7 @@ void vvDicomSeriesSelector::itemDetailsSelectionChanged()
         }
         e = header->GetNextEntry();
       }
+#endif
 
       mDicomDetails[(*mFilenames)[i]] = l.toStdString();
     }
@@ -237,6 +277,9 @@ void vvDicomSeriesSelector::itemDetailsSelectionChanged()
 QString vvDicomSeriesSelector::MakeDicomInfo(std::string & s, gdcm::File *header)
 {
   QString n = QString("%1").arg(mListOfSeriesFilenames[s]->size());
+#if GDCM_MAJOR_VERSION == 2
+  QString ss;
+#else
   QString size = QString("%1x%2x%3")
                  .arg(header->GetXSize())
                  .arg(header->GetYSize())
@@ -262,6 +305,7 @@ QString vvDicomSeriesSelector::MakeDicomInfo(std::string & s, gdcm::File *header
     AddInfo(        "Origin : ", origin.toStdString())+
     AddInfo(header, "Pixel size : ", 0x0028,0x0100)+
     AddInfo(        "Pixel type : ", header->GetPixelType());
+#endif
   return ss;
 }
 //====================================================================
@@ -269,7 +313,15 @@ QString vvDicomSeriesSelector::MakeDicomInfo(std::string & s, gdcm::File *header
 //====================================================================
 QString vvDicomSeriesSelector::AddInfo(gdcm::File *header, QString n, uint16_t group, uint16_t elem)
 {
+#if GDCM_MAJOR_VERSION == 2
+  gdcm::StringFilter sf;
+  sf.SetFile( *header );
+  gdcm::Tag t( group, elem );
+  std::string s = sf.ToString( t );
+  return AddInfo(n.toStdString(), s);
+#else
   return AddInfo(n.toStdString(), header->GetEntryValue(group, elem));
+#endif
 }
 //====================================================================
 
@@ -285,6 +337,8 @@ QString vvDicomSeriesSelector::AddInfo(std::string n, std::string m)
 //====================================================================
 void vvDicomSeriesSelector::AddSerieToTheTable(int i, std::vector<std::string> & filenames)
 {
+#if GDCM_MAJOR_VERSION == 2
+#else
   gdcm::File *header = new gdcm::File();
   header->SetFileName(filenames[0]);
   header->SetMaxSizeLoadEntry(16384);
@@ -303,6 +357,7 @@ void vvDicomSeriesSelector::AddSerieToTheTable(int i, std::vector<std::string> &
   DD(ui.mTableWidget->rowCount());
   ui.mTableWidget->setItem(i, 0, newItem);
   */
+#endif
 }
 //====================================================================
 

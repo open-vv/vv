@@ -21,8 +21,12 @@
 #define CLITKDICOMRT_CONTOUR_H
 
 #include "clitkCommon.h" 
+#include <gdcmFile.h>
+#if GDCM_MAJOR_VERSION == 2
+#else
 #include <gdcm.h>
 #include <gdcmSQItem.h>
+#endif
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
@@ -38,7 +42,10 @@ public:
   itkNewMacro(Self);
 
   void Print(std::ostream & os = std::cout) const;
+#if GDCM_MAJOR_VERSION == 2
+#else
   bool Read(gdcm::SQItem * item);
+#endif
   vtkPolyData * GetMesh();
   vtkPoints * GetPoints() {return mData;}
   double GetZ() const {return mZ;}

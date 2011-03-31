@@ -19,8 +19,12 @@
 
 #include <QApplication>
 
+#include <gdcmFile.h>
+#if GDCM_MAJOR_VERSION == 2
+#else
 #include <gdcm.h>
 #include <gdcmSQItem.h>
+#endif
 
 #include <vtkSmartPointer.h>
 #include <vtkAppendPolyData.h>
@@ -80,6 +84,9 @@ void vvMeshReader::run()
 std::vector<std::pair<int,std::string> > vvMeshReader::GetROINames()
 {
   assert(filename!="");
+  std::vector<std::pair<int, std::string> > roi_names;
+#if GDCM_MAJOR_VERSION == 2
+#else
   gdcm::File reader;
   reader.SetFileName(filename.c_str());
   reader.SetMaxSizeLoadEntry(16384);
@@ -87,23 +94,25 @@ std::vector<std::pair<int,std::string> > vvMeshReader::GetROINames()
 
   gdcm::SeqEntry * roi_info=reader.GetSeqEntry(0x3006,0x0020);
   assert(roi_info);
-  std::vector<std::pair<int, std::string> > roi_names;
   // DD("ici");
   //int n=0;
   for (gdcm::SQItem* i=roi_info->GetFirstSQItem(); i!=0; i=roi_info->GetNextSQItem())
     if (i->GetEntryValue(0x3006,0x0022)!= gdcm::GDCM_UNFOUND)
       roi_names.push_back(make_pair(atoi(i->GetEntryValue(0x3006,0x0022).c_str()),i->GetEntryValue(0x3006,0x0026)));
+#endif
   return roi_names;
 }
 
 std::vector<vvMesh::Pointer> vvMeshReader::readSelectedContours()
 {
+  std::vector<vvMesh::Pointer> result;
+#if GDCM_MAJOR_VERSION == 2
+#else
   gdcm::File reader;
   reader.SetFileName(filename.c_str());
   reader.SetMaxSizeLoadEntry(16384);
   reader.Load();
 
-  std::vector<vvMesh::Pointer> result;
   gdcm::SeqEntry * rois=reader.GetSeqEntry(0x3006,0x0039);
   ///We need to iterate both on the contours themselves, and on the contour info
   gdcm::SeqEntry * roi_info=reader.GetSeqEntry(0x3006,0x0020);
@@ -160,6 +169,7 @@ std::vector<vvMesh::Pointer> vvMeshReader::readSelectedContours()
     }
     k=roi_info->GetNextSQItem(); //increment the second loop variable
   }
+#endif
   return result;
 }
 

@@ -129,6 +129,8 @@ double clitk::DicomRT_ROI::GetForegroundValueLabelImage() const
 
 
 //--------------------------------------------------------------------
+#if GDCM_MAJOR_VERSION == 2
+#else
 void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::SQItem * item)
 {
 
@@ -167,6 +169,7 @@ void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::SQItem * 
     }
   }
 }
+#endif
 //--------------------------------------------------------------------
 
 

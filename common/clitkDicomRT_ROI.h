@@ -35,7 +35,10 @@ public:
   itkNewMacro(Self);
 
   void Print(std::ostream & os = std::cout) const;
+#if GDCM_MAJOR_VERSION == 2
+#else
   void Read(std::map<int, std::string> & rois, gdcm::SQItem * item);
+#endif
   void SetFromBinaryImage(vvImage * image, int n, 
         std::string name, 
         std::vector<double> color, 

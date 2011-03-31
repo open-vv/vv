@@ -48,6 +48,8 @@ void clitk::DicomRT_Contour::Print(std::ostream & os) const
 
 
 //--------------------------------------------------------------------
+#if GDCM_MAJOR_VERSION == 2
+#else
 bool clitk::DicomRT_Contour::Read(gdcm::SQItem * item)
 {
 
@@ -93,6 +95,7 @@ bool clitk::DicomRT_Contour::Read(gdcm::SQItem * item)
 
   return true;
 }
+#endif
 //--------------------------------------------------------------------
 
 

@@ -22,6 +22,10 @@
 
 // itk include
 #if GDCM_MAJOR_VERSION == 2
+// IMPLEMENTATION NOTE:
+// The following has been done without the use of vtkGDCMImageReader which directly
+// handle RTDOSE image. Another approach would have been to use gdcm::ImageReader
+// which also properly recognize RTDOSE
   #include <gdcmReader.h>
   #include <gdcmAttribute.h>
 #else
@@ -278,6 +282,9 @@ void clitk::DicomRTDoseIO::Read(void * buffer)
 #if GDCM_MAJOR_VERSION == 2
   gdcm::Image &i = m_GdcmImageReader.GetImage();
   i.GetBuffer((char*)buffer);
+  // WARNING: GetBuffer return the pixel values as stored on disk not the real pixel value
+  // we still need to multiply by m_DoseScaling
+  // An alternate solution would be to use vtkGDCMImageReader...
 #else
   float *img = (float*) buffer;
 

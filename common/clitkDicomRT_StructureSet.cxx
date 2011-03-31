@@ -19,6 +19,10 @@
 
 #include "clitkDicomRT_StructureSet.h"
 #include <vtksys/SystemTools.hxx>
+#include "gdcmFile.h"
+#if GDCM_MAJOR_VERSION == 2
+#include "vtkGDCMPolyDataReader.h"
+#endif
 
 //--------------------------------------------------------------------
 clitk::DicomRT_StructureSet::DicomRT_StructureSet()
@@ -140,6 +144,10 @@ void clitk::DicomRT_StructureSet::Print(std::ostream & os) const
 void clitk::DicomRT_StructureSet::Read(const std::string & filename)
 {
   // Open DICOM
+#if GDCM_MAJOR_VERSION == 2
+  vtkGDCMPolyDataReader * reader = vtkGDCMPolyDataReader::New();
+  reader->SetFileName( filename.c_str() );
+#else
   gdcm::File reader;
   reader.SetFileName(filename.c_str());
   reader.SetMaxSizeLoadEntry(16384); // Needed ...
@@ -205,6 +213,7 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename)
     n++;
   }
 
+#endif
 }
 //--------------------------------------------------------------------
 
