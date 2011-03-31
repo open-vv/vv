@@ -87,7 +87,6 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
     if (event == vtkCommand::StartPickEvent && VisibleInWindow == -1) {
       for (int i = 0; i < this->SM->GetNumberOfSlicers(); i++) {
         if (this->SM->GetSlicer(i)->GetCursorVisibility()) {
-          this->SM->GetSlicer(i)->SetCursorVisibility(0);
           this->SM->GetSlicer(i)->SetCornerAnnotationVisibility(0);
           this->SM->GetSlicer(i)->Render();
         }

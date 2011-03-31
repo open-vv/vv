@@ -1265,33 +1265,6 @@ void vvSlicer::Render()
     double X = (mCurrent[0] - this->GetInput()->GetOrigin()[0])/this->GetInput()->GetSpacing()[0];
     double Y = (mCurrent[1] - this->GetInput()->GetOrigin()[1])/this->GetInput()->GetSpacing()[1];
     double Z = (mCurrent[2] - this->GetInput()->GetOrigin()[2])/this->GetInput()->GetSpacing()[2];
-
-    if (pdmA->GetVisibility()) {
-      double x = mCursor[0];
-      double y = mCursor[1];
-      double z = mCursor[2];
-      double xCursor = (x - this->GetInput()->GetOrigin()[0])/this->GetInput()->GetSpacing()[0];
-      double yCursor = (y - this->GetInput()->GetOrigin()[1])/this->GetInput()->GetSpacing()[1];
-      double zCursor = (z - this->GetInput()->GetOrigin()[2])/this->GetInput()->GetSpacing()[2];
-
-      if (xCursor >= this->GetImageActor()->GetDisplayExtent()[0] &&
-          xCursor < this->GetImageActor()->GetDisplayExtent()[1]+1 &&
-          yCursor >= this->GetImageActor()->GetDisplayExtent()[2] &&
-          yCursor < this->GetImageActor()->GetDisplayExtent()[3]+1 &&
-          zCursor >= this->GetImageActor()->GetDisplayExtent()[4] &&
-          zCursor < this->GetImageActor()->GetDisplayExtent()[5]+1 ) {
-        vtkRenderer * renderer = this->Renderer;
-
-        renderer->WorldToView(x,y,z);
-        renderer->ViewToNormalizedViewport(x,y,z);
-        renderer->NormalizedViewportToViewport(x,y);
-        renderer->ViewportToNormalizedDisplay(x,y);
-        renderer->NormalizedDisplayToDisplay(x,y);
-        crossCursor->SetFocalPoint(x,y,z);
-      } else
-        crossCursor->SetFocalPoint(-1,-1,z);
-    }
-
     if (X >= this->GetInput()->GetWholeExtent()[0] &&
         X <= this->GetInput()->GetWholeExtent()[1] &&
         Y >= this->GetInput()->GetWholeExtent()[2] &&
@@ -1320,6 +1293,34 @@ void vvSlicer::Render()
     }
     ca->SetText(1,worldPos.c_str());
   }
+
+  if (pdmA->GetVisibility()) {
+    double x = mCursor[0];
+    double y = mCursor[1];
+    double z = mCursor[2];
+    double xCursor = (x - this->GetInput()->GetOrigin()[0])/this->GetInput()->GetSpacing()[0];
+    double yCursor = (y - this->GetInput()->GetOrigin()[1])/this->GetInput()->GetSpacing()[1];
+    double zCursor = (z - this->GetInput()->GetOrigin()[2])/this->GetInput()->GetSpacing()[2];
+
+    if (xCursor >= this->GetImageActor()->GetDisplayExtent()[0] &&
+        xCursor < this->GetImageActor()->GetDisplayExtent()[1]+1 &&
+        yCursor >= this->GetImageActor()->GetDisplayExtent()[2] &&
+        yCursor < this->GetImageActor()->GetDisplayExtent()[3]+1 &&
+        zCursor >= this->GetImageActor()->GetDisplayExtent()[4] &&
+        zCursor < this->GetImageActor()->GetDisplayExtent()[5]+1 ) {
+      vtkRenderer * renderer = this->Renderer;
+
+      renderer->WorldToView(x,y,z);
+      renderer->ViewToNormalizedViewport(x,y,z);
+      renderer->NormalizedViewportToViewport(x,y);
+      renderer->ViewportToNormalizedDisplay(x,y);
+      renderer->NormalizedDisplayToDisplay(x,y);
+      crossCursor->SetFocalPoint(x,y,z);
+    } else
+      crossCursor->SetFocalPoint(-1,-1,z);
+  }
+
+
   if (mOverlay && mOverlayActor->GetVisibility()) {
     mOverlayMapper->SetWindow(this->GetColorWindow());
     mOverlayMapper->SetLevel(this->GetColorLevel());
@@ -1329,7 +1330,7 @@ void vvSlicer::Render()
   }
   if (mLandMapper)
     UpdateLandmarks();
-  //this->Superclass::Render();
+
   this->GetRenderWindow()->Render();
 }
 //----------------------------------------------------------------------------
