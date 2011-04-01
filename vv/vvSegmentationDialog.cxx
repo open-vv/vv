@@ -546,7 +546,7 @@ void vvSegmentationDialog::Save()
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
         vvProgressDialog progress("Saving "+fileName.toStdString());
         qApp->processEvents();
-        vvImageWriter *writer = new vvImageWriter;
+        vvImageWriter::Pointer writer = vvImageWriter::New();
         writer->SetOutputFileName(fileName.toStdString());
         writer->SetInput(mManager->GetSlicer(0)->GetImage());
         writer->Update(dimension,"unsigned_char");
