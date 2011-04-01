@@ -24,12 +24,12 @@
 #include "itkCommand.h"
 #include "vvImage.h"
 
-class vvImageWriter {
+class vvImageWriter : public itk::LightObject {
 
 public:
-  // constructor
-  vvImageWriter();
-  ~vvImageWriter();
+  typedef vvImageWriter Self;
+  typedef itk::SmartPointer<Self> Pointer;
+  itkNewMacro(Self);
 
   void SetOutputFileName(std::string filename);
   void SetObserver(itk::Command::Pointer o) {
@@ -56,6 +56,10 @@ public:
   void Update(int dim, std::string OutputPixelType);
 
 protected:
+  // constructor
+  vvImageWriter();
+  ~vvImageWriter();
+
   //====================================================================
   std::string mOutputFilename;
   itk::Command::Pointer mObserver;

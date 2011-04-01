@@ -2193,7 +2193,7 @@ void vvMainWindow::SaveAs()
       std::string action = "Saving";
       vvProgressDialog progress("Saving "+fileName.toStdString());
       qApp->processEvents();
-      vvImageWriter *writer = new vvImageWriter;
+      vvImageWriter::Pointer writer = vvImageWriter::New();
       writer->SetOutputFileName(fileName.toStdString());
       writer->SetInput(mSlicerManagers[index]->GetImage());
       writer->Update();
