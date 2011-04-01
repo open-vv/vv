@@ -1265,12 +1265,22 @@ void vvSlicer::Render()
     double X = (mCurrent[0] - this->GetInput()->GetOrigin()[0])/this->GetInput()->GetSpacing()[0];
     double Y = (mCurrent[1] - this->GetInput()->GetOrigin()[1])/this->GetInput()->GetSpacing()[1];
     double Z = (mCurrent[2] - this->GetInput()->GetOrigin()[2])/this->GetInput()->GetSpacing()[2];
+    
+//     if (X < this->GetInput()->GetWholeExtent()[0]) X = this->GetInput()->GetWholeExtent()[0];
+//     else if (X > this->GetInput()->GetWholeExtent()[1]) X = this->GetInput()->GetWholeExtent()[1]; 
+//     if (Y < this->GetInput()->GetWholeExtent()[2]) Y = this->GetInput()->GetWholeExtent()[2];
+//     else if (Y > this->GetInput()->GetWholeExtent()[3]) Y = this->GetInput()->GetWholeExtent()[3]; 
+//     if (Z < this->GetInput()->GetWholeExtent()[4]) Z = this->GetInput()->GetWholeExtent()[4];
+//     else if (Z > this->GetInput()->GetWholeExtent()[5]) Z = this->GetInput()->GetWholeExtent()[5]; 
+
     if (X >= this->GetInput()->GetWholeExtent()[0] &&
         X <= this->GetInput()->GetWholeExtent()[1] &&
         Y >= this->GetInput()->GetWholeExtent()[2] &&
         Y <= this->GetInput()->GetWholeExtent()[3] &&
         Z >= this->GetInput()->GetWholeExtent()[4] &&
         Z <= this->GetInput()->GetWholeExtent()[5]) {
+
+      
       int ix, iy, iz;
       double value = this->GetScalarComponentAsDouble(this->GetInput(), X, Y, Z, ix, iy, iz);
 
@@ -1390,7 +1400,7 @@ void vvSlicer::SetSlice(int slice)
   this->UpdateDisplayExtent();
 
   // Seems to work without this line
-  //  this->Render();
+  //this->Render();
 }
 //----------------------------------------------------------------------------
 

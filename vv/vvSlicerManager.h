@@ -168,6 +168,10 @@ class vvSlicerManager : public QObject {
   void RemoveLink(std::string oldId) {
     mLinkedId.remove(oldId); 
   }
+  
+  bool IsLinked() {
+    return mLinkedId.size() > 0;
+  }
 
   ///Remove the actor defined by its type and index (example: 3rd contour)
   void RemoveActor(const std::string& actor_type, int overlay_index);
@@ -207,7 +211,7 @@ signals :
   void UpdateSliceRange(int slice, int min, int max, int tmin, int tmax);
   void WindowLevelChanged(double window, double level, int preset, int colormap);
   void UpdateLinkManager(std::string, int slicer, double x, double y, double z, int temps);
-  void UpdateLinkedNavigation(std::string, vvSlicerManager*);
+  void UpdateLinkedNavigation(std::string, vvSlicerManager*, vvSlicer*);
   void LandmarkAdded();
   void ChangeImageWithIndexOffset(vvSlicerManager *sm, int slicer, int offset);
   void LeftButtonReleaseSignal(int slicer);

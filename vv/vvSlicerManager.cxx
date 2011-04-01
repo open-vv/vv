@@ -518,26 +518,21 @@ void vvSlicerManager::UpdateViews(int current,int slicer)
 
     switch (mSlicers[slicer]->GetSliceOrientation()) {
     case vtkImageViewer2::SLICE_ORIENTATION_XY:
-      if (mSlicers[slicer]->GetSlice() == (int)floor(z))
-        mSlicers[slicer]->Render();
-      else
+      if (mSlicers[slicer]->GetSlice() != (int)floor(z))
         mSlicers[slicer]->SetSlice((int)floor(z));
       break;
 
     case vtkImageViewer2::SLICE_ORIENTATION_XZ:
-      if (mSlicers[slicer]->GetSlice() == (int)floor(y))
-        mSlicers[slicer]->Render();
-      else
+      if (mSlicers[slicer]->GetSlice() != (int)floor(y))
         mSlicers[slicer]->SetSlice((int)floor(y));
       break;
 
     case vtkImageViewer2::SLICE_ORIENTATION_YZ:
-      if (mSlicers[slicer]->GetSlice() == (int)floor(x))
-        mSlicers[slicer]->Render();
-      else
+      if (mSlicers[slicer]->GetSlice() != (int)floor(x))
         mSlicers[slicer]->SetSlice((int)floor(x));
       break;
     }
+    mSlicers[slicer]->Render();
 
     for ( unsigned int i = 0; i < mSlicers.size(); i++) {
       if (i != (unsigned int)slicer && mSlicers[i]->GetImageActor()->GetVisibility()
@@ -557,26 +552,23 @@ void vvSlicerManager::UpdateViews(int current,int slicer)
         }
         switch (mSlicers[i]->GetSliceOrientation()) {
         case vtkImageViewer2::SLICE_ORIENTATION_XY:
-          if (mSlicers[i]->GetSlice() == (int)floor(z))
-            mSlicers[i]->Render();
-          else
+          if (mSlicers[i]->GetSlice() != (int)floor(z))
             mSlicers[i]->SetSlice((int)floor(z));
           break;
 
         case vtkImageViewer2::SLICE_ORIENTATION_XZ:
-          if (mSlicers[i]->GetSlice() == (int)floor(y))
-            mSlicers[i]->Render();
-          else
+          if (mSlicers[i]->GetSlice() != (int)floor(y))
             mSlicers[i]->SetSlice((int)floor(y));
           break;
 
         case vtkImageViewer2::SLICE_ORIENTATION_YZ:
-          if (mSlicers[i]->GetSlice() == (int)floor(x))
-            mSlicers[i]->Render();
-          else
+          if (mSlicers[i]->GetSlice() != (int)floor(x))
             mSlicers[i]->SetSlice((int)floor(x));
           break;
         }
+        
+        mSlicers[i]->Render();
+        
         UpdateSlice(i);
         UpdateTSlice(i);
       }
@@ -612,29 +604,29 @@ void vvSlicerManager::UpdateLinked(int slicer)
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void vvSlicerManager::UpdateLinkedNavigation(vvSlicer *slicer, bool bPropagate)
+void vvSlicerManager::UpdateLinkedNavigation(vvSlicer *refSlicer, bool bPropagate)
 {
+  vtkCamera *refCam = refSlicer->GetRenderer()->GetActiveCamera();
+  double refPosition[3], refFocal[3];
+  refCam->GetPosition(refPosition);
+  refCam->GetFocalPoint(refFocal);
+  
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
-    vtkCamera *camera = mSlicers[i]     ->GetRenderer()->GetActiveCamera();
-    vtkCamera *refCam = slicer->GetRenderer()->GetActiveCamera();
+    vtkCamera *camera = mSlicers[i]->GetRenderer()->GetActiveCamera();
     camera->SetParallelScale(refCam->GetParallelScale());
 
     double position[3], focal[3];
     camera->GetPosition(position);
     camera->GetFocalPoint(focal);
 
-    double refPosition[3], refFocal[3];
-    refCam->GetPosition(refPosition);
-    refCam->GetFocalPoint(refFocal);
-
-    if(slicer->GetSliceOrientation()==mSlicers[i]->GetSliceOrientation()) {
+    if(refSlicer->GetSliceOrientation()==mSlicers[i]->GetSliceOrientation()) {
       for(int i=0; i<3; i++) {
         position[i] = refPosition[i];
         focal[i]    = refFocal[i];
       }
     }
 
-    if(slicer->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_XY) {
+    if(refSlicer->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_XY) {
       if(mSlicers[i]->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_XZ) {
         position[0] = refPosition[0];
         focal[0]    = refFocal[0];
@@ -645,7 +637,7 @@ void vvSlicerManager::UpdateLinkedNavigation(vvSlicer *slicer, bool bPropagate)
       }
     }
 
-    if(slicer->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_XZ) {
+    if(refSlicer->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_XZ) {
       if(mSlicers[i]->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_YZ) {
         position[2] = refPosition[2];
         focal[2]    = refFocal[2];
@@ -656,7 +648,7 @@ void vvSlicerManager::UpdateLinkedNavigation(vvSlicer *slicer, bool bPropagate)
       }
     }
 
-    if(slicer->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_YZ) {
+    if(refSlicer->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_YZ) {
       if(mSlicers[i]->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_XY) {
         position[1] = refPosition[1];
         focal[1]    = refFocal[1];
@@ -677,7 +669,7 @@ void vvSlicerManager::UpdateLinkedNavigation(vvSlicer *slicer, bool bPropagate)
   Render();
   if(bPropagate)
     for (std::list<std::string>::const_iterator i = mLinkedId.begin(); i != mLinkedId.end(); i++)
-      emit UpdateLinkedNavigation(*i, this);
+      emit UpdateLinkedNavigation(*i, this, refSlicer);
 }
 //----------------------------------------------------------------------------
 

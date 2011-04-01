@@ -886,8 +886,8 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType fi
                 this,SLOT(UpdateSliceRange(int,int,int,int,int)));
         connect(mSlicerManagers.back(), SIGNAL(UpdateLinkManager(std::string,int,double,double,double,int)),
                 this,SLOT(UpdateLinkManager(std::string,int,double,double,double,int)));
-        connect(mSlicerManagers.back(), SIGNAL(UpdateLinkedNavigation(std::string,vvSlicerManager*)),
-                this,SLOT(UpdateLinkedNavigation(std::string,vvSlicerManager*)));
+        connect(mSlicerManagers.back(), SIGNAL(UpdateLinkedNavigation(std::string,vvSlicerManager*,vvSlicer*)),
+                this,SLOT(UpdateLinkedNavigation(std::string,vvSlicerManager*,vvSlicer*)));
         connect(mSlicerManagers.back(), SIGNAL(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)),
                 this,SLOT(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)));
         connect(mSlicerManagers.back(),SIGNAL(LandmarkAdded()),landmarksPanel,SLOT(AddPoint()));
@@ -1699,11 +1699,11 @@ void vvMainWindow::UpdateLinkManager(std::string id, int slicer, double x, doubl
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void vvMainWindow::UpdateLinkedNavigation(std::string id, vvSlicerManager * sm)
+void vvMainWindow::UpdateLinkedNavigation(std::string id, vvSlicerManager * sm, vvSlicer* refSlicer)
 {
   for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
     if (id == mSlicerManagers[i]->GetId()) {
-      mSlicerManagers[i]->UpdateLinkedNavigation(sm->GetSlicer(0));
+      mSlicerManagers[i]->UpdateLinkedNavigation(refSlicer);
     }
   }
 }
@@ -2236,11 +2236,11 @@ void vvMainWindow::AddLink(QString image1,QString image2)
   }
 
   if (linkPanel->isLinkAll())	{
-    emit UpdateLinkedNavigation(mSlicerManagers[sm1]->GetId(), mSlicerManagers[mCurrentPickedImageIndex]);
-    emit UpdateLinkedNavigation(mSlicerManagers[sm2]->GetId(), mSlicerManagers[mCurrentPickedImageIndex]);
+    emit UpdateLinkedNavigation(mSlicerManagers[sm1]->GetId(), mSlicerManagers[mCurrentPickedImageIndex], mSlicerManagers[mCurrentPickedImageIndex]->GetSlicer(0));
+    emit UpdateLinkedNavigation(mSlicerManagers[sm2]->GetId(), mSlicerManagers[mCurrentPickedImageIndex], mSlicerManagers[mCurrentPickedImageIndex]->GetSlicer(0));
   }
   else {
-    emit UpdateLinkedNavigation(mSlicerManagers[sm2]->GetId(), mSlicerManagers[sm1]);
+    emit UpdateLinkedNavigation(mSlicerManagers[sm2]->GetId(), mSlicerManagers[sm1], mSlicerManagers[sm1]->GetSlicer(0));
   }
 }
 
@@ -2793,8 +2793,8 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
           this,SLOT(UpdateSliceRange(int,int,int,int,int)));
   connect(mSlicerManagers.back(), SIGNAL(UpdateLinkManager(std::string,int,double,double,double,int)),
           this,SLOT(UpdateLinkManager(std::string,int,double,double,double,int)));
-  connect(mSlicerManagers.back(), SIGNAL(UpdateLinkedNavigation(std::string,vvSlicerManager*)),
-          this,SLOT(UpdateLinkedNavigation(std::string,vvSlicerManager*)));
+  connect(mSlicerManagers.back(), SIGNAL(UpdateLinkedNavigation(std::string,vvSlicerManager*,vvSlicer*)),
+          this,SLOT(UpdateLinkedNavigation(std::string,vvSlicerManager*,vvSlicer*)));
   connect(mSlicerManagers.back(), SIGNAL(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)),
           this,SLOT(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)));
   connect(mSlicerManagers.back(), SIGNAL(LandmarkAdded()),landmarksPanel,SLOT(AddPoint()));

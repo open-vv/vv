@@ -86,7 +86,8 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
 
     if (event == vtkCommand::StartPickEvent && VisibleInWindow == -1) {
       for (int i = 0; i < this->SM->GetNumberOfSlicers(); i++) {
-        if (this->SM->GetSlicer(i)->GetCursorVisibility()) {
+        if (this->SM->GetSlicer(i)->GetCursorVisibility() && !this->SM->IsLinked()) {
+          this->SM->GetSlicer(i)->SetCursorVisibility(0);
           this->SM->GetSlicer(i)->SetCornerAnnotationVisibility(0);
           this->SM->GetSlicer(i)->Render();
         }
@@ -184,6 +185,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
           return;
         }
         if (KeyPress == "h") {
+          std::cout << "KeyPress == \"h\"\n";
           this->SM->SetCursorAndCornerAnnotationVisibility(0);
           this->SM->Render();
           return;
@@ -292,18 +294,17 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
       }
 
       if (event == vtkCommand::EndInteractionEvent) {
-	this->SM->Picked();
+        this->SM->Picked();
         this->SM->UpdateLinkedNavigation(this->SM->GetSlicer(VisibleInWindow),true);
         return;
       }
     }
     if (VisibleInWindow > -1) {
       this->SM->Activated();
-      //if(!this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->GetVisibility())
-      this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetVisibility(1);
+      this->SM->GetSlicer(VisibleInWindow)->SetCornerAnnotationVisibility(1);
 
       if (event == vtkCommand::MouseWheelForwardEvent && !isi->GetInteractor()->GetControlKey()) {
-	this->SM->Picked();
+        this->SM->Picked();
         this->SM->GetSlicer(VisibleInWindow)->SetSlice(this->SM->GetSlicer(VisibleInWindow)->GetSlice()+1);
         this->SM->UpdateSlice(VisibleInWindow);
       } else if (event == vtkCommand::MouseWheelForwardEvent && isi->GetInteractor()->GetControlKey()) {
@@ -311,7 +312,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
         this->Dolly(pow((double)1.1, factor),isi->GetInteractor());
         Execute(caller, vtkCommand::EndInteractionEvent, NULL);
       } else if (event == vtkCommand::MouseWheelBackwardEvent && !isi->GetInteractor()->GetControlKey()) {
-	this->SM->Picked();
+        this->SM->Picked();
         this->SM->GetSlicer(VisibleInWindow)->SetSlice(this->SM->GetSlicer(VisibleInWindow)->GetSlice()-1);
         this->SM->UpdateSlice(VisibleInWindow);
       } else if (event == vtkCommand::MouseWheelBackwardEvent && isi->GetInteractor()->GetControlKey()) {
@@ -363,7 +364,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
         this->SM->Render();
       }
       if (event == vtkCommand::PickEvent || event == vtkCommand::StartPickEvent) {
-	this->SM->Picked();
+        this->SM->Picked();
         this->SM->UpdateViews(1,VisibleInWindow);
         this->SM->UpdateLinked(VisibleInWindow);
         this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
@@ -376,7 +377,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
     }
 
     if (event == vtkCommand::WindowLevelEvent && mStartSlicer > -1) {
-      this->SM->GetSlicer(mStartSlicer)->GetAnnotation()->SetVisibility(1);
+      this->SM->GetSlicer(mStartSlicer)->SetCornerAnnotationVisibility(1);
       // Adjust the window level here
       int *size = isi->GetInteractor()->GetRenderWindow()->GetSize();
       double window = this->InitialWindow;
