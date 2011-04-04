@@ -21,6 +21,11 @@
 #include <vtkSmartPointer.h>
 #include <vtkAppendPolyData.h>
 
+#if GDCM_MAJOR_VERSION == 2
+#include "gdcmAttribute.h"
+#include "gdcmItem.h"
+#endif
+
 //--------------------------------------------------------------------
 clitk::DicomRT_ROI::DicomRT_ROI()
 {
@@ -130,6 +135,65 @@ double clitk::DicomRT_ROI::GetForegroundValueLabelImage() const
 
 //--------------------------------------------------------------------
 #if GDCM_MAJOR_VERSION == 2
+void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::Item const & item)
+{
+  const gdcm::DataSet& nestedds = item.GetNestedDataSet();
+
+  gdcm::Attribute<0x3006,0x0084> referencedroinumber;
+  referencedroinumber.SetFromDataSet( nestedds );
+  // Change number if needed
+
+  // TODO
+
+  // ROI number [Referenced ROI Number]
+  mNumber = referencedroinumber.GetValue();
+
+  // Retrieve ROI Name
+  mName = rois[mNumber];
+
+  // ROI Color [ROI Display Color]
+  gdcm::Attribute<0x3006,0x002a> color = {};
+  color.SetFromDataSet( nestedds );
+  assert( color.GetNumberOfValues() == 3 );
+  mColor[0] = color.GetValue(0);
+  mColor[1] = color.GetValue(1);
+  mColor[2] = color.GetValue(2);
+
+  // Read contours [Contour Sequence]
+  gdcm::Tag tcsq(0x3006,0x0040);
+  if( !nestedds.FindDataElement( tcsq ) )
+    {
+    }
+  const gdcm::DataElement& csq = nestedds.GetDataElement( tcsq );
+  gdcm::SmartPointer<gdcm::SequenceOfItems> sqi2 = csq.GetValueAsSQ();
+  if( !sqi2 || !sqi2->GetNumberOfItems() )
+    {
+    }
+  unsigned int nitems = sqi2->GetNumberOfItems();
+
+  bool contour_processed=false;
+  bool delta_computed=false;
+  double last_z=0;
+  for(unsigned int i = 0; i < nitems; ++i)
+    {
+    const gdcm::Item & j = sqi2->GetItem(i+1); // Item start at #1
+    DicomRT_Contour::Pointer c = DicomRT_Contour::New();
+    bool b = c->Read(j);
+    if (b) {
+      mListOfContours.push_back(c);
+      if (contour_processed) {
+        double delta=c->GetZ() - last_z;
+        if (delta_computed)
+          assert(mZDelta == delta);
+        else
+          mZDelta = delta;
+      } else
+        contour_processed=true;
+      last_z=c->GetZ();
+    }
+  }
+
+}
 #else
 void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::SQItem * item)
 {

@@ -43,6 +43,7 @@ public:
 
   void Print(std::ostream & os = std::cout) const;
 #if GDCM_MAJOR_VERSION == 2
+  bool Read(gdcm::Item const & item);
 #else
   bool Read(gdcm::SQItem * item);
 #endif

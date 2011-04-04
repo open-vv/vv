@@ -36,6 +36,7 @@ public:
 
   void Print(std::ostream & os = std::cout) const;
 #if GDCM_MAJOR_VERSION == 2
+  void Read(std::map<int, std::string> & rois, gdcm::Item const & item);
 #else
   void Read(std::map<int, std::string> & rois, gdcm::SQItem * item);
 #endif

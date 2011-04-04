@@ -20,6 +20,11 @@
 #include "clitkDicomRT_Contour.h"
 #include <vtkCellArray.h>
 
+#if GDCM_MAJOR_VERSION == 2
+#include "gdcmAttribute.h"
+#include "gdcmItem.h"
+#endif
+
 //--------------------------------------------------------------------
 clitk::DicomRT_Contour::DicomRT_Contour()
 {
@@ -49,6 +54,61 @@ void clitk::DicomRT_Contour::Print(std::ostream & os) const
 
 //--------------------------------------------------------------------
 #if GDCM_MAJOR_VERSION == 2
+bool clitk::DicomRT_Contour::Read(gdcm::Item const & item)
+{
+  const gdcm::DataSet& nestedds2 = item.GetNestedDataSet();
+
+  // Contour type [Contour Geometric Type]
+  gdcm::Attribute<0x3006,0x0042> contgeotype;
+  contgeotype.SetFromDataSet( nestedds2 );
+
+  if (contgeotype.GetValue() != "CLOSED_PLANAR " && contgeotype.GetValue() != "POINT ") { ///WARNING to the space after the name ...
+    //std::cerr << "Skip this contour : type=" << mType << std::endl;
+    return false;
+  }
+  if (contgeotype.GetValue() == "POINT ") {
+    std::cerr << "Warning: POINT type not fully supported. (don't use GetMesh() with this!)"
+      << std::endl;
+  }
+
+  gdcm::Attribute<0x3006,0x0046> numcontpoints;
+  numcontpoints.SetFromDataSet( nestedds2 );
+  // Number of points [Number of Contour Points]
+  mNbOfPoints = numcontpoints.GetValue();
+  // DD(mNbOfPoints);
+
+  gdcm::Attribute<0x3006,0x0050> at;
+  gdcm::Tag tcontourdata(0x3006,0x0050);
+  const gdcm::DataElement & contourdata = nestedds2.GetDataElement( tcontourdata );
+  at.SetFromDataElement( contourdata );
+  const double* points = at.GetValues();
+  unsigned int npts = at.GetNumberOfValues() / 3;
+
+  assert(at.GetNumberOfValues() == static_cast<unsigned int>(mNbOfPoints)*3);
+
+  // Organize values
+  mData = vtkSmartPointer<vtkPoints>::New();
+  mData->SetDataTypeToDouble();
+  mData->SetNumberOfPoints(mNbOfPoints);
+  for(unsigned int i=0; i<mNbOfPoints; i++) {
+    double p[3];
+    p[0] = points[i*3];
+    p[1] = points[i*3+1];
+    p[2] = points[i*3+2];
+    mData->SetPoint(i, p);
+    if (mZ == -1) mZ = p[2];
+    if (p[2] != mZ) {
+      DD(i);
+      DD(p[2]);
+      DD(mZ);
+      std::cout << "ERROR ! contour not in the same slice" << std::endl;
+      assert(p[2] == mZ);
+    }
+  }
+
+  return true;
+
+}
 #else
 bool clitk::DicomRT_Contour::Read(gdcm::SQItem * item)
 {
