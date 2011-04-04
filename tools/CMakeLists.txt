@@ -16,6 +16,8 @@ ADD_LIBRARY(clitkImageConvertLib clitkImageConvertGenericFilter.cxx)
 ADD_LIBRARY(clitkBinarizeImageLib clitkBinarizeImageGenericFilter.cxx)
 ADD_LIBRARY(clitkImageArithmImageLib clitkImageArithmGenericFilter.cxx)
 ADD_LIBRARY(clitkResampleImageLib clitkResampleImageGenericFilter.cxx)
+SET_SOURCE_FILES_PROPERTIES(clitkResampleImageGenericFilter.cxx PROPERTIES
+                            OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/clitkResampleImage_ggo.h) 
 ADD_LIBRARY(clitkMIPLib clitkMIPGenericFilter.cxx)
 
 TARGET_LINK_LIBRARIES(clitkBinarizeImageLib clitkToolsGgoLib)
