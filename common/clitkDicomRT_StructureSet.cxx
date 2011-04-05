@@ -21,7 +21,8 @@
 #include <vtksys/SystemTools.hxx>
 #include "gdcmFile.h"
 #if GDCM_MAJOR_VERSION == 2
-#include "vtkGDCMPolyDataReader.h"
+#include "gdcmReader.h"
+#include "gdcmAttribute.h"
 #endif
 
 //--------------------------------------------------------------------
@@ -145,8 +146,107 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename)
 {
   // Open DICOM
 #if GDCM_MAJOR_VERSION == 2
-  vtkGDCMPolyDataReader * reader = vtkGDCMPolyDataReader::New();
-  reader->SetFileName( filename.c_str() );
+  gdcm::Reader reader;
+  reader.SetFileName(filename.c_str());
+  reader.Read();
+
+  const gdcm::File & file = reader.GetFile();
+  const gdcm::DataSet & ds = file.GetDataSet();
+
+  // Check file type
+  //Verify if the file is a RT-Structure-Set dicom file
+  gdcm::MediaStorage ms;
+  ms.SetFromFile(file);
+  if( ms != gdcm::MediaStorage::RTStructureSetStorage )
+    {
+    std::cerr << "Error. the file " << filename
+              << " is not a Dicom Struct ? (must have a SOP Class UID [0008|0016] = 1.2.840.10008.5.1.4.1.1.481.3 ==> [RT Structure Set Storage])"
+              << std::endl;
+    exit(0);
+    }
+
+  gdcm::Attribute<0x8,0x60> modality;
+  modality.SetFromDataSet( ds );
+  if( modality.GetValue() != "RTSTRUCT" )
+    {
+    std::cerr << "Error. the file " << filename
+              << " is not a Dicom Struct ? (must have 0x0008,0x0060 = RTSTRUCT [RT Structure Set Storage])"
+              << std::endl;
+    exit(0);
+    }
+
+  // Read global info
+  gdcm::Attribute<0x20,0x10> studyid;
+  studyid.SetFromDataSet( ds );
+  gdcm::Attribute<0x8,0x20> studytime;
+  studytime.SetFromDataSet( ds );
+  gdcm::Attribute<0x8,0x30> studydate;
+  studydate.SetFromDataSet( ds );
+  gdcm::Attribute<0x3006,0x02> label;
+  label.SetFromDataSet( ds );
+  gdcm::Attribute<0x3006,0x04> atname;
+  atname.SetFromDataSet( ds );
+  gdcm::Attribute<0x3006,0x09> time;
+  time.SetFromDataSet( ds );
+
+  mStudyID   = studyid.GetValue();
+  mStudyTime = studytime.GetValue();
+  mStudyDate = studydate.GetValue();
+  mLabel     = label.GetValue();
+  mName      = atname.GetValue();
+  mTime      = time.GetValue();
+
+  //----------------------------------
+  // Read all ROI Names and number
+  // 0x3006,0x0020 = [ Structure Set ROI Sequence ]
+  gdcm::Tag tssroisq(0x3006,0x0020);
+  const gdcm::DataElement &ssroisq = ds.GetDataElement( tssroisq );
+  gdcm::SmartPointer<gdcm::SequenceOfItems> roi_seq = ssroisq.GetValueAsSQ();
+  assert(roi_seq); // TODO error message
+  for(unsigned int ridx = 0; ridx < roi_seq->GetNumberOfItems(); ++ridx)
+    {
+    gdcm::Item & item = roi_seq->GetItem( ridx + 1); // Item starts at 1
+    const gdcm::DataSet& nestedds = item.GetNestedDataSet();
+
+    gdcm::Attribute<0x3006,0x26> roiname;
+    roiname.SetFromDataSet( nestedds );
+    std::string name = roiname.GetValue();      // 0x3006,0x0026 = [ROI Name]
+    gdcm::Attribute<0x3006,0x0022> roinumber;
+    roinumber.SetFromDataSet( nestedds );
+    int nb = roinumber.GetValue();  // 0x3006,0x0022 = [ROI Number]
+    // Change number if needed
+
+    //TODO
+
+    // Check if such a number already exist
+    if (mMapOfROIName.find(nb) != mMapOfROIName.end()) {
+      std::cerr << "WARNING. A Roi already exist with the number "
+        << nb << ". I replace." << std::endl;
+    }
+    // Add in map
+    mMapOfROIName[nb] = name;
+    }
+  // DD(mMapOfROIName.size());
+
+  //----------------------------------
+  // Read all ROI
+  // 0x3006,0x0039 = [ ROI Contour Sequence ]
+  gdcm::Tag troicsq(0x3006,0x0039);
+  const gdcm::DataElement &roicsq = ds.GetDataElement( troicsq );
+  gdcm::SmartPointer<gdcm::SequenceOfItems> roi_contour_seq = roicsq.GetValueAsSQ();
+  assert(roi_contour_seq); // TODO error message
+  int n=0;
+  for(unsigned int ridx = 0; ridx < roi_contour_seq->GetNumberOfItems(); ++ridx)
+    {
+    gdcm::Item & item = roi_contour_seq->GetItem( ridx + 1); // Item starts at 1
+
+    DicomRT_ROI::Pointer roi = DicomRT_ROI::New();
+    roi->Read(mMapOfROIName, item);
+    mListOfROI.push_back(roi);
+    mMapOfROIIndex[roi->GetROINumber()] = n;
+    n++;
+    }
+
 #else
   gdcm::File reader;
   reader.SetFileName(filename.c_str());
