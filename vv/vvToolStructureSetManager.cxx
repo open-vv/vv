@@ -41,6 +41,7 @@ ADD_TOOL(vvToolStructureSetManager);
 int vvToolStructureSetManager::m_NumberOfTool = 0;
 std::vector<vvSlicerManager*> vvToolStructureSetManager::mListOfInputs;
 std::map<vvSlicerManager*, vvToolStructureSetManager*> vvToolStructureSetManager::mListOfOpenTool;
+bool vvToolStructureSetManager::mDestroyed = false;
 
 //------------------------------------------------------------------------------
 vvToolStructureSetManager::vvToolStructureSetManager(vvMainWindowBase * parent, 
@@ -99,7 +100,9 @@ vvToolStructureSetManager::vvToolStructureSetManager(vvMainWindowBase * parent,
 //------------------------------------------------------------------------------
 vvToolStructureSetManager::~vvToolStructureSetManager()
 {
+  //std::cout << "vvToolStructureSetManager::~vvToolStructureSetManager()" << std::endl;
   m_NumberOfTool--;
+  mDestroyed=true;
 }
 //------------------------------------------------------------------------------
 
@@ -119,6 +122,8 @@ void vvToolStructureSetManager::Initialize() {
 //------------------------------------------------------------------------------
 void vvToolStructureSetManager::InputIsSelected(vvSlicerManager *m)
 {
+  //std::cout << "vvToolStructureSetManager::InputIsSelected()" << std::endl;
+  
   //int mTabNumber = parent->GetTab()->addTab(this, "");
   //  this->setFixedWidth(120);
   //this->setPreferedHeight(441);  
@@ -356,6 +361,7 @@ void vvToolStructureSetManager::apply()
 //------------------------------------------------------------------------------
 bool vvToolStructureSetManager::close()
 {
+  //std::cout << "vvToolStructureSetManager::close()" << std::endl;
   return vvToolWidgetBase::close();
 }
 //------------------------------------------------------------------------------
@@ -364,6 +370,9 @@ bool vvToolStructureSetManager::close()
 //------------------------------------------------------------------------------
 void vvToolStructureSetManager::closeEvent(QCloseEvent *event) 
 {
+  //std::cout << "vvToolStructureSetManager::closeEvent()" << std::endl;
+  disconnect(mTree, SIGNAL(itemSelectionChanged()));
+
   std::vector<vvSlicerManager*>::iterator iter = std::find(mListOfInputs.begin(), mListOfInputs.end(), mCurrentSlicerManager);
   if (iter != mListOfInputs.end()) mListOfInputs.erase(iter);
   
@@ -393,6 +402,17 @@ void vvToolStructureSetManager::closeEvent(QCloseEvent *event)
 
 //------------------------------------------------------------------------------
 void vvToolStructureSetManager::SelectedItemChangedInTree() {
+  
+  // ATTENTION:
+  //  RP - 05/04/2011
+  //  Horrible solution for the problem of triggering this event
+  // after the window has been closed and the object instance 
+  // has been destroyed. I couldn't find the place where the
+  // window is destroyed, though.
+  //
+  if (mDestroyed)
+    return;
+  
   // Search which roi is selected
   QList<QTreeWidgetItem *> l = mTree->selectedItems();
   if (l.size() == 0) {
@@ -402,6 +422,8 @@ void vvToolStructureSetManager::SelectedItemChangedInTree() {
     return;
   }
   QTreeWidgetItem * w = l[0];
+  //std::cout << "selected item -> " << w->text(1).toStdString() << std::endl;
+  //std::cout << "m_NumberOfTool -> " << m_NumberOfTool << std::endl;
   if (mMapTreeWidgetToROI.find(w) == mMapTreeWidgetToROI.end()) {
     mCurrentROIActor = NULL;
     mCurrentROI = NULL;

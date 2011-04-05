@@ -93,6 +93,7 @@ protected:
   virtual void CheckInputList(std::vector<vvSlicerManager*> & l, int & index);
   static std::vector<vvSlicerManager*> mListOfInputs;
   static std::map<vvSlicerManager*, vvToolStructureSetManager*> mListOfOpenTool;
+  static bool mDestroyed;
   static int m_NumberOfTool;
   bool MustOpenDialogWhenCreated;
  
