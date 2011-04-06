@@ -18,7 +18,6 @@
 ======================================================================-====*/
 
 // clitk
-#include "clitkCropImage_ggo.h"
 #include "clitkCropImageGenericFilter.h"
 
 //--------------------------------------------------------------------
@@ -30,7 +29,7 @@ int main(int argc, char * argv[])
   CLITK_INIT;
 
   // Filter
-  typedef clitk::CropImageGenericFilter<args_info_clitkCropImage> FilterType;
+  typedef clitk::CropImageGenericFilter FilterType;
   FilterType::Pointer filter = FilterType::New();
 
   filter->SetArgsInfo(args_info);

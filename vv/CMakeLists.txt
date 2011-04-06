@@ -16,7 +16,7 @@ SET(vv_TOOLS
   vvToolBinarize
   vvToolImageArithm
   vvToolResample
-#  vvToolExtractPatient
+#   vvToolExtractPatient
 #  vvToolExtractLung
   vvToolMIP
   vvToolConvert ## with dummy vvToolConvert.ui
@@ -30,14 +30,14 @@ SET(vv_TOOLS
 # dependencies of the tools
 # Future issues : when tool depend on other tools ... how to manage that ?
 #  >> add the relevant $_LIBS variable to the tool that has dependencies?
-SET(vvToolRigidReg_LIBS clitkAffineRegistrationLib clitkRegistrationGgoLib)
+SET(vvToolRigidReg_LIBS clitkAffineRegistrationLib)
 SET(vvToolBinarize_LIBS clitkBinarizeImageLib)
 SET(vvToolResample_LIBS clitkResampleImageLib)
 SET(vvToolConvert_LIBS clitkImageConvertLib)
 SET(vvToolExtractPatient_LIBS clitkSegmentationGgoLib)
 SET(vvToolExtractLung_LIBS clitkSegmentationGgoLib)
-SET(vvToolCropImage_LIBS clitkToolsGgoLib)
-SET(vvToolMIP_LIBS clitkMIPLib clitkToolsGgoLib)
+SET(vvToolCropImage_LIBS clitkCropImageLib)
+SET(vvToolMIP_LIBS clitkMIPLib)
 
 #=========================================================
 # List of vv source files
@@ -187,7 +187,7 @@ ENDIF(WIN32)
 
 LINK_DIRECTORIES(${QT_LIBRARY_DIR})
 ADD_EXECUTABLE(vv ${vv_SRCS} vv.cxx ${vv_UI_CXX} ${EXE_ICON})
-ADD_DEPENDENCIES(vv clitkToolsGgoLib clitkSegmentationGgoLib)
+ADD_DEPENDENCIES(vv clitkSegmentationGgoLib)
 TARGET_LINK_LIBRARIES(vv clitkDicomRTStruct)
 
 #=========================================================

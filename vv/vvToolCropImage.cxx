@@ -310,7 +310,7 @@ void vvToolCropImage::apply()
 
   // Typedef 
   typedef args_info_clitkCropImage ArgsInfoType;
-  typedef clitk::CropImageGenericFilter<ArgsInfoType> CropFilterType;
+  typedef clitk::CropImageGenericFilter CropFilterType;
   
   // Get options
   ArgsInfoType mArgsInfo;

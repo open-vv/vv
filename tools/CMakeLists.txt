@@ -1,26 +1,25 @@
 #=========================================================
 INCLUDE(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
 #=========================================================
-#Add your ggo files to this list if they are used by vv
-FOREACH(clitkTool clitkAffineTransform clitkBinarizeImage clitkImageArithm
-        clitkMedianImageFilter clitkImageConvert clitkCropImage clitkResampleImage clitkMIP)
-    WRAP_GGO(${clitkTool}_GGO_C ${clitkTool}.ggo)
-    SET(GGO_C_FILES ${GGO_C_FILES} ${${clitkTool}_GGO_C})
-ENDFOREACH(clitkTool)
-ADD_LIBRARY(clitkToolsGgoLib ${GGO_C_FILES})
 
-#=========================================================
-#the libraries avoid recompilation for vv, and should be used for generic filters
-#with long compilation times that are used by vv
-ADD_LIBRARY(clitkImageConvertLib clitkImageConvertGenericFilter.cxx)
-ADD_LIBRARY(clitkBinarizeImageLib clitkBinarizeImageGenericFilter.cxx)
-ADD_LIBRARY(clitkImageArithmImageLib clitkImageArithmGenericFilter.cxx)
-ADD_LIBRARY(clitkResampleImageLib clitkResampleImageGenericFilter.cxx)
-SET_SOURCE_FILES_PROPERTIES(clitkResampleImageGenericFilter.cxx PROPERTIES
-                            OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/clitkResampleImage_ggo.h) 
-ADD_LIBRARY(clitkMIPLib clitkMIPGenericFilter.cxx)
+# Add Libraries used in vv and clitk to avoid recompilation
+WRAP_GGO(clitkCropImage_GGO_C clitkCropImage.ggo)
+ADD_LIBRARY(clitkCropImageLib clitkCropImageGenericFilter.cxx ${clitkCropImage_GGO_C})
 
-TARGET_LINK_LIBRARIES(clitkBinarizeImageLib clitkToolsGgoLib)
+WRAP_GGO(clitkImageConvert_GGO_C clitkImageConvert.ggo)
+ADD_LIBRARY(clitkImageConvertLib clitkImageConvertGenericFilter.cxx ${clitkImageConvert_GGO_C})
+
+WRAP_GGO(clitkBinarizeImage_GGO_C clitkBinarizeImage.ggo)
+ADD_LIBRARY(clitkBinarizeImageLib clitkBinarizeImageGenericFilter.cxx ${clitkBinarizeImage_GGO_C})
+
+WRAP_GGO(clitkImageArithm_GGO_C clitkImageArithm.ggo)
+ADD_LIBRARY(clitkImageArithmImageLib clitkImageArithmGenericFilter.cxx ${clitkImageArithm_GGO_C})
+
+WRAP_GGO(clitkResampleImage_GGO_C clitkResampleImage.ggo)
+ADD_LIBRARY(clitkResampleImageLib clitkResampleImageGenericFilter.cxx ${clitkResampleImage_GGO_C})
+
+WRAP_GGO(clitkMIP_GGO_C clitkMIP.ggo)
+ADD_LIBRARY(clitkMIPLib clitkMIPGenericFilter.cxx ${clitkMIP_GGO_C})
 
 IF (CLITK_BUILD_TOOLS)
     WRAP_GGO(clitkDicomInfo_GGO_C clitkDicomInfo.ggo)
@@ -35,11 +34,10 @@ IF (CLITK_BUILD_TOOLS)
     ADD_EXECUTABLE(clitkImageInfo clitkImageInfo.cxx ${clitkImageInfo_GGO_C})
     TARGET_LINK_LIBRARIES(clitkImageInfo clitkCommon ITKIO)
 
-    ADD_EXECUTABLE(clitkImageConvert clitkImageConvert.cxx ${clitkImageConvert_GGO_C})
+    ADD_EXECUTABLE(clitkImageConvert clitkImageConvert.cxx)
     TARGET_LINK_LIBRARIES(clitkImageConvert clitkImageConvertLib clitkCommon ITKIO)
 
-    ADD_EXECUTABLE(clitkBinarizeImage clitkBinarizeImage.cxx
-       ${clitkBinarizeImage_GGO_C})
+    ADD_EXECUTABLE(clitkBinarizeImage clitkBinarizeImage.cxx)
     TARGET_LINK_LIBRARIES(clitkBinarizeImage clitkBinarizeImageLib clitkCommon ITKIO)
 
     WRAP_GGO(clitkVFResample_GGO_C clitkVFResample.ggo)
@@ -87,6 +85,7 @@ IF (CLITK_BUILD_TOOLS)
     ADD_EXECUTABLE(clitkInvertVF clitkInvertVF.cxx ${clitkInvertVF_GGO_C})
     TARGET_LINK_LIBRARIES(clitkInvertVF clitkCommon ITKIO )
 
+    WRAP_GGO(clitkAffineTransform_GGO_C clitkAffineTransform.ggo)
     ADD_EXECUTABLE(clitkAffineTransform clitkAffineTransform.cxx ${clitkAffineTransform_GGO_C})
     TARGET_LINK_LIBRARIES(clitkAffineTransform clitkCommon ITKIO )
 
@@ -102,7 +101,7 @@ IF (CLITK_BUILD_TOOLS)
     ADD_EXECUTABLE(clitkGammaIndex clitkGammaIndex.cxx ${clitkGammaIndex_GGO_C})
     TARGET_LINK_LIBRARIES(clitkGammaIndex vtkCommon vtkFiltering vtkGraphics vtkIO vtkImaging)
 
-    ADD_EXECUTABLE(clitkImageArithm clitkImageArithm.cxx ${clitkImageArithm_GGO_C})
+    ADD_EXECUTABLE(clitkImageArithm clitkImageArithm.cxx)
     TARGET_LINK_LIBRARIES(clitkImageArithm clitkImageArithmImageLib clitkCommon ITKIO )
 
     WRAP_GGO(clitkUnsharpMask_GGO_C clitkUnsharpMask.ggo)
@@ -113,11 +112,11 @@ IF (CLITK_BUILD_TOOLS)
     ADD_EXECUTABLE(clitkFooImage clitkFooImage.cxx ${clitkFooImage_GGO_C})
     TARGET_LINK_LIBRARIES(clitkFooImage clitkCommon ITKIO ) 
 
+    WRAP_GGO(clitkMedianImageFilter_GGO_C clitkMedianImageFilter.ggo)
     ADD_EXECUTABLE(clitkMedianImageFilter clitkMedianImageFilter.cxx ${clitkMedianImageFilter_GGO_C})
     TARGET_LINK_LIBRARIES(clitkMedianImageFilter clitkCommon ITKIO ITKBasicFilters )
 
-    #WRAP_GGO(clitkResampleImage_GGO_C clitkResampleImage.ggo)
-    ADD_EXECUTABLE(clitkResampleImage clitkResampleImage.cxx ${clitkResampleImage_GGO_C})
+    ADD_EXECUTABLE(clitkResampleImage clitkResampleImage.cxx)
     TARGET_LINK_LIBRARIES(clitkResampleImage clitkResampleImageLib clitkCommon ITKIO)
 
     WRAP_GGO(clitkMinMaxMask_GGO_C clitkMinMaxMask.ggo)
@@ -157,7 +156,7 @@ IF (CLITK_BUILD_TOOLS)
     TARGET_LINK_LIBRARIES(clitkBackProjectImage ITKIO clitkCommon )
 
     ADD_EXECUTABLE(clitkCropImage clitkCropImage.cxx ${clitkCropImage_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkCropImage clitkCommon ITKIO)
+    TARGET_LINK_LIBRARIES(clitkCropImage clitkCropImageLib clitkCommon ITKIO)
 
     # WRAP_GGO(clitkExtractSlice_GGO_C clitkExtractSlice.ggo)
     # ADD_EXECUTABLE(clitkExtractSlice clitkExtractSlice.cxx clitkExtractSliceGenericFilter.cxx ${clitkExtractSlice_GGO_C})
@@ -239,8 +238,8 @@ IF (CLITK_BUILD_TOOLS)
     ADD_EXECUTABLE(clitkValuesToBSplineCoefficients  clitkValuesToBSplineCoefficients.cxx clitkValuesToBSplineCoefficientsGenericFilter.cxx ${clitkValuesToBSplineCoefficients_GGO_C})
     TARGET_LINK_LIBRARIES(clitkValuesToBSplineCoefficients clitkCommon ITKIO)
 
-    ADD_EXECUTABLE(clitkMIP  clitkMIP.cxx clitkMIPGenericFilter.cxx ${clitkMIP_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkMIP clitkCommon ITKIO)
+    ADD_EXECUTABLE(clitkMIP clitkMIP.cxx clitkMIPGenericFilter.cxx)
+    TARGET_LINK_LIBRARIES(clitkMIP clitkMIPLib clitkCommon ITKIO)
 
     WRAP_GGO(clitkRelativePosition_GGO_C clitkRelativePosition.ggo)
     ADD_EXECUTABLE(clitkRelativePosition  clitkRelativePosition.cxx ${clitkRelativePosition_GGO_C})

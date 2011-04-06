@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -19,48 +19,49 @@
 #ifndef CLITKCROPIMAGEGENERICFILTER_H
 #define CLITKCROPIMAGEGENERICFILTER_H
 
-// clitk 
+// clitk
 #include "clitkIO.h"
 #include "clitkImageToImageGenericFilter.h"
 #include "clitkCropLikeImageFilter.h"
 #include "clitkAutoCropFilter.h"
+#include "clitkCropImage_ggo.h"
 
 // itk
 #include <itkCropImageFilter.h>
 
 //--------------------------------------------------------------------
-namespace clitk 
+namespace clitk
 {
 
-  template<class ArgsInfoType>
   class ITK_EXPORT CropImageGenericFilter:
-    public ImageToImageGenericFilter<CropImageGenericFilter<ArgsInfoType> >
+    public ImageToImageGenericFilter<CropImageGenericFilter>
   {
   public:
     //--------------------------------------------------------------------
     CropImageGenericFilter();
-  
+
     //--------------------------------------------------------------------
     typedef CropImageGenericFilter   Self;
-    typedef ImageToImageGenericFilter<CropImageGenericFilter<ArgsInfoType> > Superclass;
+    typedef ImageToImageGenericFilter<CropImageGenericFilter> Superclass;
     typedef itk::SmartPointer<Self>       Pointer;
     typedef itk::SmartPointer<const Self> ConstPointer;
-   
+    typedef args_info_clitkCropImage       args_info_type;
+
     //--------------------------------------------------------------------
-    itkNewMacro(Self);  
+    itkNewMacro(Self);
     itkTypeMacro( CropImageGenericFilter, LightObject );
 
     //--------------------------------------------------------------------
-    void SetArgsInfo(const ArgsInfoType & a);
+    void SetArgsInfo(const args_info_type& a);
 
     //--------------------------------------------------------------------
     // Main function called each time the filter is updated
-    template<class ImageType>  
+    template<class ImageType>
     void UpdateWithInputImageType();
 
   protected:
     template<unsigned int Dim> void InitializeImageType();
-    ArgsInfoType mArgsInfo;
+    args_info_type mArgsInfo;
 
   };// end class
   //--------------------------------------------------------------------

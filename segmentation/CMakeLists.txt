@@ -4,12 +4,15 @@ INCLUDE(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
 
 #=========================================================
 
-#Add your ggo files to this list if they are used by vv
+# Add Libraries used in vv and clitk to avoid recompilation
 FOREACH(clitkTool clitkExtractLung clitkExtractPatient)
     WRAP_GGO(${clitkTool}_GGO_C ${clitkTool}.ggo)
     SET(GGO_C_FILES ${GGO_C_FILES} ${${clitkTool}_GGO_C})
 ENDFOREACH(clitkTool)
-ADD_LIBRARY(clitkSegmentationGgoLib clitkFilterWithAnatomicalFeatureDatabaseManagement.cxx clitkAnatomicalFeatureDatabase.cxx ${GGO_C_FILES})
+ADD_LIBRARY(clitkSegmentationGgoLib
+            clitkFilterWithAnatomicalFeatureDatabaseManagement.cxx
+            clitkAnatomicalFeatureDatabase.cxx
+            ${GGO_C_FILES})
 
 #=========================================================
 
