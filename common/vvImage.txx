@@ -4,6 +4,10 @@
 template<class TItkImageType>
 void vvImage::AddItkImage(TItkImageType *input)
 {
+  // Update input before conversion to enable exceptions thrown by the ITK pipeline.
+  // Otherwise, vtkImageImport catches the exception for us.
+  input->Update();
+
   // Convert from ITK object to VTK object
   mImageDimension = TItkImageType::ImageDimension; 
   typedef itk::ImageToVTKImageFilter <TItkImageType> ConverterType;
