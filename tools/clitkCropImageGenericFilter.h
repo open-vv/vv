@@ -67,8 +67,4 @@ namespace clitk
   //--------------------------------------------------------------------
 } // end namespace clitk
 
-#ifndef ITK_MANUAL_INSTANTIATION
-#include "clitkCropImageGenericFilter.txx"
-#endif
-
 #endif // #define CLITKCROPIMAGEGENERICFILTER_H
