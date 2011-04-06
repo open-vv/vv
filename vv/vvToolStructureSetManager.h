@@ -26,6 +26,8 @@
 #include "ui_vvToolStructureSetManager.h"
 #include "vvROIActor.h"
 
+#include <QSharedPointer>
+
 class vvStructureSetActor;
 
 //------------------------------------------------------------------------------
