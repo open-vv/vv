@@ -46,28 +46,29 @@
 #include "clitkConfiguration.h"
 
 // ITK include
-#include "itkImage.h"
-#include "itkImageFileReader.h"
-#include "itkByteSwapper.h"
-#include "itkCommand.h"
-#include "itkNumericSeriesFileNames.h"
+#include <itkImage.h>
+#include <itkImageFileReader.h>
+#include <itkByteSwapper.h>
+#include <itkCommand.h>
+#include <itkNumericSeriesFileNames.h>
 
 // VTK include
-#include "vtkImageData.h"
-#include "vtkImageActor.h"
-#include "vtkCornerAnnotation.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderer.h"
-#include "vtkRendererCollection.h"
-#include "vtkWindowToImageFilter.h"
-#include "vtkBMPWriter.h"
-#include "vtkTIFFWriter.h"
-#include "vtkPNMWriter.h"
-#include "vtkPNGWriter.h"
-#include "vtkJPEGWriter.h"
-#include "vtkMatrix4x4.h"
-#include "vtkTransform.h"
+#include <vtkImageData.h>
+#include <vtkImageActor.h>
+#include <vtkCornerAnnotation.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
+#include <vtkRendererCollection.h>
+#include <vtkWindowToImageFilter.h>
+#include <vtkBMPWriter.h>
+#include <vtkTIFFWriter.h>
+#include <vtkPNMWriter.h>
+#include <vtkPNGWriter.h>
+#include <vtkJPEGWriter.h>
+#include <vtkMPEG2Writer.h>
+#include <vtkMatrix4x4.h>
+#include <vtkTransform.h>
 
 // Standard includes
 #include <iostream>
@@ -2505,11 +2506,7 @@ void vvMainWindow::UpdateSliceRange(int slicer, int min, int max, int tmin, int 
 //------------------------------------------------------------------------------
 void vvMainWindow::SaveNOScreenshot()
 {
-  vtkWindowToImageFilter *w2i = vtkWindowToImageFilter::New();
-  w2i->SetInput(NOViewWidget->GetRenderWindow());
-  w2i->Update();
-  SaveScreenshot(w2i->GetOutput());
-  w2i->Delete();
+  SaveScreenshot(NOViewWidget);
 }
 //------------------------------------------------------------------------------
 
@@ -2517,11 +2514,7 @@ void vvMainWindow::SaveNOScreenshot()
 //------------------------------------------------------------------------------
 void vvMainWindow::SaveNEScreenshot()
 {
-  vtkWindowToImageFilter *w2i = vtkWindowToImageFilter::New();
-  w2i->SetInput(NEViewWidget->GetRenderWindow());
-  w2i->Update();
-  SaveScreenshot(w2i->GetOutput());
-  w2i->Delete();
+  SaveScreenshot(NEViewWidget);
 }
 //------------------------------------------------------------------------------
 
@@ -2529,11 +2522,7 @@ void vvMainWindow::SaveNEScreenshot()
 //------------------------------------------------------------------------------
 void vvMainWindow::SaveSOScreenshot()
 {
-  vtkWindowToImageFilter *w2i = vtkWindowToImageFilter::New();
-  w2i->SetInput(SOViewWidget->GetRenderWindow());
-  w2i->Update();
-  SaveScreenshot(w2i->GetOutput());
-  w2i->Delete();
+  SaveScreenshot(SOViewWidget);
 }
 //------------------------------------------------------------------------------
 
@@ -2541,29 +2530,35 @@ void vvMainWindow::SaveSOScreenshot()
 //------------------------------------------------------------------------------
 void vvMainWindow::SaveSEScreenshot()
 {
-  vtkWindowToImageFilter *w2i = vtkWindowToImageFilter::New();
-  w2i->SetInput(SEViewWidget->GetRenderWindow());
-  w2i->Update();
-  SaveScreenshot(w2i->GetOutput());
-  w2i->Delete();
+  SaveScreenshot(SEViewWidget);
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvMainWindow::SaveScreenshot(vtkImageData* image)
+void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 {
   QString Extensions = "Images( *.png);;";
   Extensions += "Images( *.jpg);;";
   Extensions += "Images( *.bmp);;";
   Extensions += "Images( *.tif);;";
   Extensions += "Images( *.ppm)";
+#ifdef VTK_USE_MPEG2_ENCODER
+  Extensions += "Images( *.mpg)";
+#endif
+
+  int smIndex=GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
   QString fileName = QFileDialog::getSaveFileName(this,
                      tr("Save As"),
-                     itksys::SystemTools::GetFilenamePath(
-                       mSlicerManagers[0]->GetFileName()).c_str(),
+                     itksys::SystemTools::GetFilenamePath(mSlicerManagers[smIndex]->GetFileName()).c_str(),
                      Extensions);
+
   if (!fileName.isEmpty()) {
+    vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
+    w2i->SetInput(widget->GetRenderWindow());
+    w2i->Update();
+    vtkImageData *image = w2i->GetOutput();
+
     const char *ext = fileName.toStdString().c_str() + strlen(fileName.toStdString().c_str()) - 4;
     if (!strcmp(ext, ".bmp")) {
       vtkBMPWriter *bmp = vtkBMPWriter::New();
@@ -2595,11 +2590,31 @@ void vvMainWindow::SaveScreenshot(vtkImageData* image)
       jpg->SetFileName(fileName.toStdString().c_str());
       jpg->Write();
       jpg->Delete();
+#ifdef VTK_USE_MPEG2_ENCODER
+    } else if (!strcmp(ext, ".mpg")) {
+      vtkMPEG2Writer *mpg = vtkMPEG2Writer::New();
+      mpg->SetInput(image);
+      mpg->SetFileName(fileName.toStdString().c_str());
+      mpg->Start();
+
+      vvImage * vvImg = mSlicerManagers[smIndex]->GetImage();
+      int nSlice = vvImg->GetVTKImages().size();
+      for(int i=0; i<nSlice; i++)
+      {
+        mSlicerManagers[smIndex]->SetNextTSlice(0);
+        vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
+        w2i->SetInput(widget->GetRenderWindow());
+        w2i->Update();
+        mpg->SetInput(w2i->GetOutput());
+        mpg->Write();
+      }
+      mpg->End();
+      mpg->Delete();
+#endif
     } else {
       QMessageBox::information(this,tr("Problem saving screenshot !"),tr("Cannot save image.\nPlease set a file extension !!!"));
     }
   }
-
 }
 //------------------------------------------------------------------------------
 

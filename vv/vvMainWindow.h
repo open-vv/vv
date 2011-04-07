@@ -180,7 +180,7 @@ private:
   QString Get4x4MatrixDoubleAsString(vtkSmartPointer<vtkMatrix4x4> matrix);
   int GetSlicerIndexFromItem(QTreeWidgetItem* item);
   QTreeWidgetItem* GetItemFromSlicerManager(vvSlicerManager* sm);
-  void SaveScreenshot(vtkImageData* image);
+  void SaveScreenshot(QVTKWidget *widget);
   int GetImageDuplicateFilenameNumber(std::string filename);
 
   QMenu contextMenu;
