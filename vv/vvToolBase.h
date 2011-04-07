@@ -27,6 +27,8 @@ template<class ToolType>
 class vvToolBase : public vvToolBaseBase {
 public:
   vvToolBase(vvMainWindowBase * m);
+  virtual ~vvToolBase() {};
+  
   static void Initialize();  // can't be virtual, must be overwritten
 
   static void SetToolName(QString n) { vvToolCreator<ToolType>::GetInstance()->mToolName = n; }

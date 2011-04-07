@@ -23,6 +23,9 @@
 
 //------------------------------------------------------------------------------
 class vvToolBaseBase {
+public:
+  virtual ~vvToolBaseBase() {};
+  
 protected:
   vvMainWindowBase * mMainWindowBase;
 };

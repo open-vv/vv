@@ -39,7 +39,7 @@ class vvToolStructureSetManager:
   Q_OBJECT
   public:
   vvToolStructureSetManager(vvMainWindowBase* parent=0, Qt::WindowFlags f=0, vvSlicerManager * c = NULL);
-  ~vvToolStructureSetManager();
+  virtual ~vvToolStructureSetManager();
 
   static void Initialize();
   virtual void InputIsSelected(vvSlicerManager *m);
@@ -95,7 +95,6 @@ protected:
   virtual void CheckInputList(std::vector<vvSlicerManager*> & l, int & index);
   static std::vector<vvSlicerManager*> mListOfInputs;
   static std::map<vvSlicerManager*, vvToolStructureSetManager*> mListOfOpenTool;
-  static bool mDestroyed;
   static int m_NumberOfTool;
   bool MustOpenDialogWhenCreated;
  

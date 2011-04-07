@@ -37,7 +37,7 @@ class vvToolWidgetBase:
   public:
 
   vvToolWidgetBase(vvMainWindowBase * parent=0, Qt::WindowFlags f=Qt::Dialog, bool initialize=true); // default is a dialog
-  ~vvToolWidgetBase();
+  virtual ~vvToolWidgetBase();
 
   virtual void InputIsSelected(vvSlicerManager *m);
   virtual void InputIsSelected(std::vector<vvSlicerManager*> & l);
