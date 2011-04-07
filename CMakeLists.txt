@@ -11,9 +11,6 @@ PROJECT(clitk)
 #=========================================================
 INCLUDE(cmake/common.cmake)
 #=========================================================
-#Support for the CTest dashboard testing system
-INCLUDE(CTest)
-#=========================================================
 
 #=========================================================
 # Find ITK (required)
@@ -78,6 +75,7 @@ add_subdirectory(tools)
 add_subdirectory(segmentation)
 add_subdirectory(registration)
 
+
 # Compilation options
 OPTION(CLITK_EXPERIMENTAL "Enable experimental software and features" OFF)
 OPTION(CLITK_BUILD_TOOLS "Build command-line tools" OFF)
@@ -88,6 +86,16 @@ OPTION(CLITK_BUILD_VV "Build vv the 4D visualizer (requires VTK and QT)" ON)
 IF (CLITK_BUILD_VV)
   add_subdirectory(vv)
 ENDIF(CLITK_BUILD_VV)
+
+
+#=========================================================
+#Support for the CTest dashboard testing system
+INCLUDE(CTest)
+#=========================================================
+add_subdirectory(tests)
+add_subdirectory(tests/tools)
+#=========================================================
+
 
 #=========================================================
 
