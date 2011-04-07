@@ -66,6 +66,7 @@
 #include <vtkPNMWriter.h>
 #include <vtkPNGWriter.h>
 #include <vtkJPEGWriter.h>
+#include <vtkFFMPEGWriter.h>
 #include <vtkMPEG2Writer.h>
 #include <vtkMatrix4x4.h>
 #include <vtkTransform.h>
@@ -2543,6 +2544,9 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
   Extensions += "Images( *.bmp);;";
   Extensions += "Images( *.tif);;";
   Extensions += "Images( *.ppm)";
+#ifdef VTK_USE_FFMPEG_ENCODER
+  Extensions += "Images( *.avi)";
+#endif
 #ifdef VTK_USE_MPEG2_ENCODER
   Extensions += "Images( *.mpg)";
 #endif
@@ -2590,6 +2594,29 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
       jpg->SetFileName(fileName.toStdString().c_str());
       jpg->Write();
       jpg->Delete();
+#ifdef VTK_USE_FFMPEG_ENCODER
+    } else if (!strcmp(ext, ".avi")) {
+      vtkFFMPEGWriter *mpg = vtkFFMPEGWriter::New();
+      mpg->SetInput(image);
+      mpg->SetFileName(fileName.toStdString().c_str());
+      mpg->SetQuality(2);
+      mpg->SetRate(5);
+      mpg->Start();
+
+      vvImage * vvImg = mSlicerManagers[smIndex]->GetImage();
+      int nSlice = vvImg->GetVTKImages().size();
+      for(int i=0; i<nSlice; i++)
+      {
+        mSlicerManagers[smIndex]->SetNextTSlice(0);
+        vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
+        w2i->SetInput(widget->GetRenderWindow());
+        w2i->Update();
+        mpg->SetInput(w2i->GetOutput());
+        mpg->Write();
+      }
+      mpg->End();
+      mpg->Delete();
+#endif
 #ifdef VTK_USE_MPEG2_ENCODER
     } else if (!strcmp(ext, ".mpg")) {
       vtkMPEG2Writer *mpg = vtkMPEG2Writer::New();
