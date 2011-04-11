@@ -24,7 +24,7 @@
 #include "ui_vvMainWindow.h"
 #include "vvMainWindowBase.h"
 #include "vvToolManager.h"
-#include "vvConstants.h"
+#include "vvImageReader.h"
 #include "vvMesh.h"
 #include "clitkMemoryUsage.h"
 
@@ -50,7 +50,7 @@ class vvMainWindow: public vvMainWindowBase,
   public:
   vvMainWindow();
   ~vvMainWindow();
-  void LoadImages(std::vector<std::string> filenames, LoadedImageType type);
+  void LoadImages(std::vector<std::string> filenames, vvImageReader::LoadedImageType type);
   vvSlicerManager * AddImage(vvImage::Pointer image,std::string filename);
   void AddField(QString file,int index);
   void AddOverlayImage(int index, QString filename);

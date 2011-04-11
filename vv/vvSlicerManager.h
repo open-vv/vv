@@ -36,7 +36,6 @@ class vtkRenderWindow;
 class vtkPolyData;
 
 // VV
-#include "vvConstants.h"
 #include "clitkCommon.h"
 #include "vvImage.h"
 #include "vvMesh.h"
@@ -60,9 +59,9 @@ class vvSlicerManager : public QObject {
     return mLastError;
   }
 
-  bool SetImage(std::string filename,LoadedImageType type, int n=0, unsigned int slice=0);
+  bool SetImage(std::string filename, vvImageReader::LoadedImageType type, int n=0, unsigned int slice=0);
   void SetImage(vvImage::Pointer image);
-  bool SetImages(std::vector<std::string> filenames, LoadedImageType type, int n=0);
+  bool SetImages(std::vector<std::string> filenames, vvImageReader::LoadedImageType type, int n=0);
 
   bool SetOverlay(std::string filename, int dim, std::string component);
   bool SetFusion(std::string filename, int dim, std::string component);
@@ -234,7 +233,7 @@ protected:
   double mFusionLevel;
 
   int mPreset;
-  LoadedImageType mType;
+  vvImageReader::LoadedImageType mType;
   std::string mVFComponent;
   std::string mOverlayComponent;
   std::string mFusionComponent;

@@ -73,10 +73,6 @@ SET(vv_SRCS
   vtkVOXImageWriter.cxx
   vvInteractorStyleNavigator.cxx
   vvSlicer.cxx
-  vvImageReader.cxx
-  vvImageReader.txx
-  vvImageWriter.cxx
-  vvImageWriter.txx
   vvLandmarks.cxx
   vvLandmarksGlyph.cxx
   vvGlyphSource.cxx

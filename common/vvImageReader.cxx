@@ -18,7 +18,6 @@
 #ifndef VVIMAGEREADER_CXX
 #define VVIMAGEREADER_CXX
 
-#include <QApplication>
 #include <itkImageFileReader.h>
 #include "vvImageReader.h"
 #include "vvImageReader.txx"
@@ -74,18 +73,7 @@ void vvImageReader::Update(int dim,std::string inputPixelType, LoadedImageType t
   mType = type;
   mDim = dim;
   mInputPixelType=inputPixelType;
-  this->start(); //Start heavy read operation in a separate thread
-  while (this->isRunning()) {
-    qApp->processEvents();
-    this->wait(50);
-  }
-}
-//------------------------------------------------------------------------------
 
-
-//------------------------------------------------------------------------------
-void vvImageReader::run()
-{
   switch(mDim)     {
   case 2:
     UpdateWithDim<2>(mInputPixelType);

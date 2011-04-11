@@ -261,7 +261,7 @@ void vvToolStructureSetManager::OpenBinaryImage()
     std::vector<std::string> filenames;
     filenames.push_back(filename[i].toStdString());
     reader->SetInputFilenames(filenames);
-    reader->Update(IMAGE);
+    reader->Update(vvImageReader::IMAGE);
     QApplication::restoreOverrideCursor();
 
     if (reader->GetLastError().size() != 0) {
@@ -593,7 +593,7 @@ void vvToolStructureSetManager::ReloadCurrentROI() {
   // Reload image
   vvImageReader::Pointer reader = vvImageReader::New();
   reader->SetInputFilename(mCurrentROI->GetFilename());
-  reader->Update(IMAGE);
+  reader->Update(vvImageReader::IMAGE);
   if (reader->GetLastError() != "") {
     QMessageBox::information(mMainWindowBase, tr("Sorry, error. Could not reload"), reader->GetLastError().c_str());
     return;

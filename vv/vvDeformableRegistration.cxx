@@ -182,7 +182,7 @@ void vvDeformableRegistration::run()
   }
   vvImageReader::Pointer reader = vvImageReader::New();
   reader->SetInputFilename(output_filename);
-  reader->Update(VECTORFIELD);
+  reader->Update(vvImageReader::VECTORFIELD);
   finish=clock();
   DD((finish - start)/static_cast<double>(CLOCKS_PER_SEC));
   mOutput = reader->GetOutput();

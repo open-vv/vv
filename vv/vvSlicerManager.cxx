@@ -50,7 +50,7 @@ vvSlicerManager::vvSlicerManager(int numberOfSlicers)
   mFusionName = "";
   mVFId = "";
   mLastError = "";
-  mType = UNDEFINEDIMAGETYPE;
+  mType = vvImageReader::UNDEFINEDIMAGETYPE;
   mColorMap = 0;
   mPreset = 0;
   mOverlayColor = 130;
@@ -123,7 +123,7 @@ void vvSlicerManager::ToggleContourSuperposition()
 
 
 //----------------------------------------------------------------------------
-bool vvSlicerManager::SetImage(std::string filename, LoadedImageType type, int n, unsigned int slice)
+bool vvSlicerManager::SetImage(std::string filename, vvImageReader::LoadedImageType type, int n, unsigned int slice)
 {
   mType = type;
   if (mReader.IsNull())
@@ -169,15 +169,15 @@ void vvSlicerManager::SetImage(vvImage::Pointer image)
 
 
 //----------------------------------------------------------------------------
-bool vvSlicerManager::SetImages(std::vector<std::string> filenames,LoadedImageType type, int n)
+bool vvSlicerManager::SetImages(std::vector<std::string> filenames, vvImageReader::LoadedImageType type, int n)
 {
   mType = type;
   std::string fileWithoutExtension = vtksys::SystemTools::GetFilenameWithoutExtension(filenames[0]);
-  if (type == DICOM)
+  if (type == vvImageReader::DICOM)
     fileWithoutExtension += "_dicom";
-  else if (type == MERGED)
+  else if (type == vvImageReader::MERGED)
     fileWithoutExtension += "_merged";
-  else if (type == MERGEDWITHTIME)
+  else if (type == vvImageReader::MERGEDWITHTIME)
     fileWithoutExtension += "_merged_wt";
 
   mFileName = vtksys::SystemTools::GetFilenameName(mFileName);
@@ -273,7 +273,7 @@ bool vvSlicerManager::SetVF(std::string filename)
   if (mVectorReader.IsNull())
     mVectorReader = vvImageReader::New();
   mVectorReader->SetInputFilename(filename);
-  mVectorReader->Update(VECTORFIELD);
+  mVectorReader->Update(vvImageReader::VECTORFIELD);
   if (mVectorReader->GetLastError().size() != 0) {
     mLastError = mVectorReader->GetLastError();
     return false;
@@ -751,7 +751,7 @@ void vvSlicerManager::ReloadOverlay()
 //----------------------------------------------------------------------------
 void vvSlicerManager::ReloadVF()
 {
-  mVectorReader->Update(VECTORFIELD); //deletes the old images through the VF::Init() function
+  mVectorReader->Update(vvImageReader::VECTORFIELD); //deletes the old images through the VF::Init() function
   mVF=mVectorReader->GetOutput();
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
     mSlicers[i]->SetVF(mVF);

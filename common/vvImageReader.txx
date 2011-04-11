@@ -29,8 +29,6 @@
 #include "clitkCommon.h"
 #include "clitkConfiguration.h"
 #include "vvFromITK.h"
-#include "vvConstants.h"
-
 //----------------------------------------------------------------------------
 template<unsigned int VImageDimension>
 void vvImageReader::UpdateWithDim(std::string InputPixelType)

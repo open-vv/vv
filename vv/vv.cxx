@@ -30,8 +30,6 @@
 
 #include "clitkIO.h"
 #include "vvMainWindow.h"
-#include "vvConstants.h"
-
 #include <vtkFileOutputWindow.h>
 #include <vtkSmartPointer.h>
 #include <itkFileOutputWindow.h>
@@ -99,7 +97,7 @@ int main( int argc, char** argv )
       std::string current = argv[i];
       if (!current.compare(0,2,"--")) { //We are parsing an option
         if (parse_mode == P_SEQUENCE) {//First finish the current sequence
-          window.LoadImages(sequence_filenames,MERGEDWITHTIME);
+          window.LoadImages(sequence_filenames, vvImageReader::MERGEDWITHTIME);
           sequence_filenames.clear();
           parse_mode=P_NORMAL;
         }
@@ -161,12 +159,12 @@ int main( int argc, char** argv )
       } else {
         std::vector<std::string> image;
         image.push_back(current);
-        window.LoadImages(image,IMAGE);
+        window.LoadImages(image, vvImageReader::IMAGE);
         n_image_loaded++;
       }
     }
     if (parse_mode == P_SEQUENCE) { //Finish any current sequence
-      window.LoadImages(sequence_filenames,MERGEDWITHTIME);
+      window.LoadImages(sequence_filenames, vvImageReader::MERGEDWITHTIME);
       sequence_filenames.clear();
       parse_mode=P_NORMAL;
     }

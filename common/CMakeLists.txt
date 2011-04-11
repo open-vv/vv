@@ -27,12 +27,14 @@ SET(clitkCommon_SRC
   clitkDicomRTDoseIO.cxx
   clitkDicomRTDoseIOFactory.cxx
   clitkOrientation.cxx
-  vvImage.cxx
   clitkImageToImageGenericFilterBase.cxx
   clitkExceptionObject.cxx
   clitkFilterBase.cxx
   clitkMemoryUsage.cxx
-)  
+  vvImage.cxx
+  vvImageReader.cxx
+  vvImageWriter.cxx
+)
 
 ### Declare clitkCommon library
 ADD_LIBRARY(clitkCommon STATIC ${clitkCommon_SRC})

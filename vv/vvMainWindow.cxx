@@ -42,7 +42,6 @@
 #include "vvMesh.h"
 #include "vvStructSelector.h"
 #include "vvMeshReader.h"
-#include "vvConstants.h"
 #include "clitkConfiguration.h"
 
 // ITK include
@@ -603,7 +602,7 @@ void vvMainWindow::MergeImages()
     }
   }
   if (vector.size() > 0)
-    LoadImages(vector, MERGED);
+    LoadImages(vector, vvImageReader::MERGED);
 }
 //------------------------------------------------------------------------------
 
@@ -620,7 +619,7 @@ void vvMainWindow::SliceImages()
   std::vector<std::string> vector;
   for (int i = 0; i < files.size(); i++)
     vector.push_back(files[i].toStdString());
-  LoadImages(vector, SLICED);
+  LoadImages(vector, vvImageReader::SLICED);
 }
 //------------------------------------------------------------------------------
 
@@ -682,7 +681,7 @@ void vvMainWindow::MergeImagesWithTime()
   }
   sort(vector.begin(),vector.end());
   if (vector.size() > 1)
-    LoadImages(vector, MERGEDWITHTIME);
+    LoadImages(vector, vvImageReader::MERGEDWITHTIME);
   else
     QMessageBox::warning(this,tr("Reading problem"),"You need to select at least two images to merge images with time.\nIf you only want to open one image, please use the \"Open Image\" function.");
 }
@@ -697,7 +696,7 @@ void vvMainWindow::OpenDicom()
   std::cout << "dicomSeriesSelector " << std::endl;
   if (dicomSeriesSelector->exec() == QDialog::Accepted) {
     files = *(dicomSeriesSelector->GetFilenames());
-    LoadImages(files,DICOM);
+    LoadImages(files, vvImageReader::DICOM);
   }
 }
 //------------------------------------------------------------------------------
@@ -715,7 +714,7 @@ void vvMainWindow::OpenImages()
   std::vector<std::string> vector;
   for (int i = 0; i < files.size(); i++)
     vector.push_back(files[i].toStdString());
-  LoadImages(vector, IMAGE);
+  LoadImages(vector, vvImageReader::IMAGE);
 }
 //------------------------------------------------------------------------------
 void vvMainWindow::OpenRecentImage()
@@ -724,7 +723,7 @@ void vvMainWindow::OpenRecentImage()
   std::vector<std::string> images;
   images.push_back(caller->text().toStdString());
   mInputPathName = itksys::SystemTools::GetFilenamePath(images[0]).c_str();
-  LoadImages(images,IMAGE);
+  LoadImages(images, vvImageReader::IMAGE);
 }
 //------------------------------------------------------------------------------
 
@@ -743,17 +742,17 @@ void vvMainWindow::OpenImageWithTime()
   for (int i = 0; i < files.size(); i++) {
     vector.push_back(files[i].toStdString());
   }
-  LoadImages(vector, IMAGEWITHTIME);
+  LoadImages(vector, vvImageReader::IMAGEWITHTIME);
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType filetype)
+void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::LoadedImageType filetype)
 {
   //Separate the way to open images and dicoms
   int fileSize;
-  if (filetype == IMAGE || filetype == IMAGEWITHTIME)
+  if (filetype == vvImageReader::IMAGE || filetype == vvImageReader::IMAGEWITHTIME)
     fileSize = files.size();
   else
     fileSize = 1;
@@ -762,7 +761,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType fi
   std::vector<unsigned int> nSlices;
   nSlices.resize(files.size());
   std::fill(nSlices.begin(), nSlices.end(), 1);
-  if (filetype == SLICED) {
+  if (filetype == vvImageReader::SLICED) {
     for (int i = 0; i < fileSize; i++) {
       itk::ImageIOBase::Pointer header = clitk::readImageHeader(files[i]);
       QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -813,7 +812,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, LoadedImageType fi
       // Change filename if an image with the same already exist
       int number = GetImageDuplicateFilenameNumber(files[i] + std::string("_slice"));
 
-      if (filetype == IMAGE || filetype == IMAGEWITHTIME || filetype == SLICED)
+      if (filetype == vvImageReader::IMAGE || filetype == vvImageReader::IMAGEWITHTIME || filetype == vvImageReader::SLICED)
         SetImageSucceed = imageManager->SetImage(files[i],filetype, number, j);
       else {
         SetImageSucceed = imageManager->SetImages(files,filetype, number);
@@ -1461,12 +1460,12 @@ void vvMainWindow::DisplaySliders(int slicer, int window)
   bool showVertical = false;
   if (mSlicerManagers[slicer]->GetSlicer(window)->GetImage()->GetNumberOfDimensions() > 3
       || (mSlicerManagers[slicer]->GetSlicer(window)->GetImage()->GetNumberOfDimensions() > 2
-          && mSlicerManagers[slicer]->GetType() != IMAGEWITHTIME
-          && mSlicerManagers[slicer]->GetType() != MERGEDWITHTIME))
+          && mSlicerManagers[slicer]->GetType() != vvImageReader::IMAGEWITHTIME
+          && mSlicerManagers[slicer]->GetType() != vvImageReader::MERGEDWITHTIME))
     showVertical = true;
   if (mSlicerManagers[slicer]->GetSlicer(window)->GetImage()->GetNumberOfDimensions() > 3
-      || mSlicerManagers[slicer]->GetType() == IMAGEWITHTIME
-      || mSlicerManagers[slicer]->GetType() == MERGEDWITHTIME)
+      || mSlicerManagers[slicer]->GetType() == vvImageReader::IMAGEWITHTIME
+      || mSlicerManagers[slicer]->GetType() == vvImageReader::MERGEDWITHTIME)
     showHorizontal = true;
 
   if (showVertical)

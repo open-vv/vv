@@ -19,15 +19,25 @@
 #define vvImageReader_H
 #include <string>
 #include <vector>
-#include <QThread>
 
 #include "itkCommand.h"
 #include "vvImage.h"
-#include "vvConstants.h"
 
-class vvImageReader : public itk::LightObject, public QThread {
+class vvImageReader : public itk::LightObject {
 
 public:
+  //Image types
+  typedef enum _IMAGETYPE {
+  IMAGE = 20,
+  DICOM,
+  MERGED,
+  SLICED,
+  IMAGEWITHTIME,
+  MERGEDWITHTIME,
+  VECTORFIELD,
+  UNDEFINEDIMAGETYPE
+  } LoadedImageType;
+
   typedef vvImageReader Self;
   typedef itk::SmartPointer<Self> Pointer;
   itkNewMacro(Self);
@@ -52,7 +62,6 @@ public:
   void Update(int dim, std::string InputPixelType, LoadedImageType type);
 
 protected:
-  void run();
   //====================================================================
   std::vector<std::string> mInputFilenames;
   ///Method used to load the image, see vvConstants.h for definition
