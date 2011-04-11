@@ -249,4 +249,9 @@ IF (CLITK_BUILD_TOOLS)
     ADD_EXECUTABLE(clitkTransformLandmarks clitkTransformLandmarks.cxx ${clitkTransformLandmarks_GGO_C})
     TARGET_LINK_LIBRARIES(clitkTransformLandmarks clitkCommon ITKIO)
 
+    WRAP_GGO(clitkLineProfile_GGO_C clitkLineProfile.ggo)
+    ADD_EXECUTABLE(clitkLineProfile clitkLineProfile.cxx clitkLineProfileGenericFilter.cxx ${clitkLineProfile_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkLineProfile clitkCommon ITKIO)
+
 ENDIF(CLITK_BUILD_TOOLS)
+
