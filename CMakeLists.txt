@@ -93,7 +93,7 @@ OPTION(CLITK_BUILD_REGISTRATION "Build command-line registration tools" OFF)
 
 OPTION(CLITK_BUILD_VV "Build vv the 4D visualizer (requires VTK and QT)" ON)
 IF (CLITK_BUILD_VV)
-  add_subdirectory(vv)
+  ADD_SUBDIRECTORY(vv)
 ENDIF(CLITK_BUILD_VV)
 
 
@@ -101,8 +101,9 @@ ENDIF(CLITK_BUILD_VV)
 #Support for the CTest dashboard testing system
 INCLUDE(CTest)
 #=========================================================
-add_subdirectory(tests)
-add_subdirectory(tests/tools)
+IF (BUILD_TESTING)
+  ADD_SUBDIRECTORY(tests)
+ENDIF(BUILD_TESTING)
 #=========================================================
 
 

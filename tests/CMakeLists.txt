@@ -1,17 +1,20 @@
-# Add test apps and test executions to this part
-# Test apps are compiled as any other app in the
-# project. Test executions are run using "make test"
-#
+# Tests are organized to mirror the clitk directory tree. 
+# Eacho subdirectory has its own CMakeLists.txt with the compiling directives
+
 IF (BUILD_TESTING)
 
-  # clitkImageInfo
-  ADD_EXECUTABLE(clitkImageInfoTest tools/clitkImageInfoTest.cxx)
-  TARGET_LINK_LIBRARIES(clitkImageInfoTest ITKIO)
-  ADD_TEST(NAME clitkImageInfoTest COMMAND clitkImageInfoTest)
+  set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/tests/bin)
 
-  # clitkWriteDicomSeries
-  ADD_EXECUTABLE(clitkWriteDicomSeriesTest tools/clitkWriteDicomSeriesTest.cxx)
-  TARGET_LINK_LIBRARIES(clitkWriteDicomSeriesTest ITKIO)
-  ADD_TEST(NAME clitkWriteDicomSeriesTest COMMAND clitkWriteDicomSeriesTest)
+  FIND_PATH(CLITK_DATA_PATH data)
+  IF (CLITK_DATA_PATH STREQUAL "CLITK_DATA_PATH-NOTFOUND")
+    MESSAGE(FATAL_ERROR "Data path must be given when tests are enabled.")
+  ENDIF (CLITK_DATA_PATH STREQUAL "CLITK_DATA_PATH-NOTFOUND")
+
+  ADD_DEFINITIONS(-DCLITK_DATA_PATH='"${CLITK_DATA_PATH}"')
+
+  ADD_SUBDIRECTORY(tools)
+  #ADD_SUBDIRECTORY(segmentation)
+  #ADD_SUBDIRECTORY(registration)
+  #ADD_SUBDIRECTORY(common)
 
 ENDIF(BUILD_TESTING)

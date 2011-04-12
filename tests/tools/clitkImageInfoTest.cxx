@@ -3,28 +3,31 @@
 
 #include <iostream>
 #include <sstream>
-#include <cassert>
+#include <string>
 
 #include <itksys/SystemTools.hxx>
+
 
 const size_t NUMTESTS=2;
 
 // test files
 const char mhd_files[NUMTESTS][128] = {
-  "data/4d/mhd/00.mhd",
-  "data/4d/mhd/bh.mhd"
+  CLITK_DATA_PATH"/4d/mhd/00.mhd",
+  CLITK_DATA_PATH"/4d/mhd/bh.mhd"
 };
 
 // pre-written validation files. the idea
 // is that the output generated from the test
 // files match the verification files
 const char validation_files[NUMTESTS][128] = {
-  "data/tools/clitkImageInfoTestValidate3D.out",
-  "data/tools/clitkImageInfoTestValidate4D.out"
+  CLITK_DATA_PATH"/tools/clitkImageInfoTestValidate3D.out",
+  CLITK_DATA_PATH"/tools/clitkImageInfoTestValidate4D.out"
 };
 
 int main(int argc, char** argv)
 {
+  system("pwd");
+  
   bool failed = false;
   for (size_t i = 0; i < NUMTESTS; i++) {
     std::ostringstream cmd_line;

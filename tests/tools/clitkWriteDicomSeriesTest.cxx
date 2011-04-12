@@ -10,11 +10,11 @@
 const size_t NUMTESTS=1;
 
 const char mhd_files[NUMTESTS][128] = {
-  "data/3d/mhd/CT_UNTAGGED2MM_0.mhd"
+  CLITK_DATA_PATH"/3d/mhd/CT_UNTAGGED2MM_0.mhd"
 };
 
 const char dcm_dirs[NUMTESTS][128] = {
-  "data/3d/dcm/1.2.840.113704.1.111.5556.1240990904.26"
+  CLITK_DATA_PATH"/3d/dcm/1.2.840.113704.1.111.5556.1240990904.26"
 };
 
 int main(int argc, char** argv)
