@@ -52,6 +52,15 @@ ENDIF (${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
 #=========================================================
 
 #=========================================================
+# If the user choose to build documentation, then search for Doxygen executables.
+OPTION(BUILD_DOXYGEN "Build Doxygen Documentation" OFF)
+IF(BUILD_DOXYGEN)
+  FIND_PACKAGE(Doxygen)
+  ADD_SUBDIRECTORY(Doxygen)
+ENDIF(BUILD_DOXYGEN)
+#=========================================================
+
+#=========================================================
 # Building in the source tree is forbidden
 IF(PROJECT_BINARY_DIR STREQUAL ${PROJECT_SOURCE_DIR})
   MESSAGE(FATAL_ERROR "Building in the source tree is not allowed ! Quit; remove the file 'CMakeCache.txt' and the folder 'CMakeFiles' an
