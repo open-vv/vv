@@ -710,7 +710,6 @@ int vvSlicer::GetOrientation()
 }
 //----------------------------------------------------------------------------
 
-
 //----------------------------------------------------------------------------
 void vvSlicer::UpdateDisplayExtent()
 {
@@ -719,175 +718,80 @@ void vvSlicer::UpdateDisplayExtent()
     return;
   }
   input->UpdateInformation();
-  int *w_ext;// = input->GetWholeExtent();
 
-  if (mUseReducedExtent) {
-    w_ext = mReducedExtent;
-  } else w_ext = input->GetWholeExtent();
+  // Local copy of extent
+  int w_ext[6];
+  for(unsigned int i=0; i<6; i++){
+    if (mUseReducedExtent)
+      w_ext[i] = mReducedExtent[i];
+    else  
+      w_ext[i] = input->GetWholeExtent()[i];
+  }
 
-  switch (this->SliceOrientation) {
-  case vtkImageViewer2::SLICE_ORIENTATION_XY:
-    this->ImageActor->SetDisplayExtent(
-                                       w_ext[0], w_ext[1], w_ext[2], w_ext[3], this->Slice, this->Slice);
-    if (mVF && mVFActor->GetVisibility()) {
-      int vfExtent[6];
-      ComputeVFDisplayedExtent(w_ext[0], w_ext[1], w_ext[2], w_ext[3], this->Slice, this->Slice,vfExtent);
-      mVOIFilter->SetVOI(vfExtent);
-      mGlyphFilter->SetOrientation(1,1,0);
-      mVFMapper->Update();
-      // put the vector field between the image and the camera
-      if (Renderer->GetActiveCamera()->GetPosition()[2] > this->Slice)
-        mVFActor->SetPosition(0,0,ImageActor->GetBounds()[5]+2);
-      else
-        mVFActor->SetPosition(0,0,ImageActor->GetBounds()[4]-2);
-    }
-    if (mOverlay && mOverlayActor->GetVisibility()) {
-      int overExtent[6];
-      ComputeOverlayDisplayedExtent(w_ext[0], w_ext[1], w_ext[2], w_ext[3], this->Slice, this->Slice,overExtent);
-      mOverlayActor->SetDisplayExtent(overExtent);
-      if (Renderer->GetActiveCamera()->GetPosition()[2] > this->Slice)
-        mOverlayActor->SetPosition(0,0,1);
-      else
-        mOverlayActor->SetPosition(0,0,-1);
-    }
-    if (mFusion && mFusionActor->GetVisibility()) {
-      int fusExtent[6];
-      ComputeFusionDisplayedExtent(w_ext[0], w_ext[1], w_ext[2], w_ext[3], this->Slice, this->Slice,fusExtent);
-      mFusionActor->SetDisplayExtent(fusExtent);
-      if (Renderer->GetActiveCamera()->GetPosition()[2] > this->Slice)
-        mFusionActor->SetPosition(0,0,1.5);
-      else
-        mFusionActor->SetPosition(0,0,-1.5);
-    }
-    if (mLandActor) {
-      if (mClipBox) {
-        double bounds [6];
-        bounds[0] = ImageActor->GetBounds()[0];
-        bounds[1] = ImageActor->GetBounds()[1];
-        bounds[2] = ImageActor->GetBounds()[2];
-        bounds[3] = ImageActor->GetBounds()[3];
-        bounds[4] = ImageActor->GetBounds()[4]-fabs(0.5/this->GetInput()->GetSpacing()[2]);
-        bounds[5] = ImageActor->GetBounds()[5]+fabs(0.5/this->GetInput()->GetSpacing()[2]);
-        mClipBox->SetBounds(bounds);
-        UpdateLandmarks();
-      }
-      mLandActor->SetPosition(0,0,-1.5);
-      /*
-      if (Renderer->GetActiveCamera()->GetPosition()[2] > this->Slice)
-        mLandActor->SetPosition(0,0,1.5);
-      else
-        mLandActor->SetPosition(0,0,-1.5);
-      */
-    }
-    break;
+  // Set slice value
+  w_ext[ this->SliceOrientation*2   ] = this->Slice;
+  w_ext[ this->SliceOrientation*2+1 ] = this->Slice;
+  
+  // Image actor
+  this->ImageActor->SetDisplayExtent(w_ext);
+  
+  // Position vector
+  double position[3] = {0.,0.,0.};
+  double positionInc = (Renderer->GetActiveCamera()->GetPosition()[this->SliceOrientation] > this->Slice)?10:-10;
+  position[this->SliceOrientation] += positionInc;
+  
+  // Overlay image actor
+  if (mOverlay && mOverlayActor->GetVisibility()) {
+    int overExtent[6];
+    mOverlay->GetTransformedVTKImages()[0]->UpdateInformation();
+    this->ConvertImageToImageDisplayExtent(input, w_ext, mOverlay->GetTransformedVTKImages()[0], overExtent);
+    ClipDisplayedExtent(overExtent, mOverlayMapper->GetInput()->GetWholeExtent());
+    mOverlayActor->SetDisplayExtent( overExtent );
+    mOverlayActor->SetPosition(position);
+  }
+  position[this->SliceOrientation] += positionInc;
 
-  case vtkImageViewer2::SLICE_ORIENTATION_XZ:
-    this->ImageActor->SetDisplayExtent(
-                                       w_ext[0], w_ext[1], this->Slice, this->Slice, w_ext[4], w_ext[5]);
-    if (mVF && mVFActor->GetVisibility()) {
-      int vfExtent[6];
-      ComputeVFDisplayedExtent(w_ext[0], w_ext[1], this->Slice, this->Slice, w_ext[4], w_ext[5],vfExtent);
-      mVOIFilter->SetVOI(vfExtent);
-      mGlyphFilter->SetOrientation(1,0,1);
-      mVFMapper->Update();
-      // put the vector field between the image aSpacingnd the camera
-      if (Renderer->GetActiveCamera()->GetPosition()[1] > this->Slice)
-        mVFActor->SetPosition(0,ImageActor->GetBounds()[3]+2,0);
-      else
-        mVFActor->SetPosition(0,ImageActor->GetBounds()[2]-2,0);
-    }
-    if (mOverlay && mOverlayActor->GetVisibility()) {
-      int overExtent[6];
-      ComputeOverlayDisplayedExtent(w_ext[0], w_ext[1], this->Slice, this->Slice, w_ext[4], w_ext[5],overExtent);
-      mOverlayActor->SetDisplayExtent(overExtent);
-      if (Renderer->GetActiveCamera()->GetPosition()[1] > this->Slice)
-        mOverlayActor->SetPosition(0,1,0);
-      else
-        mOverlayActor->SetPosition(0,-1,0);
-    }
-    if (mFusion && mFusionActor->GetVisibility()) {
-      int fusExtent[6];
-      ComputeFusionDisplayedExtent(w_ext[0], w_ext[1], this->Slice, this->Slice, w_ext[4], w_ext[5],fusExtent);
-      mFusionActor->SetDisplayExtent(fusExtent);
-      if (Renderer->GetActiveCamera()->GetPosition()[1] > this->Slice)
-        mFusionActor->SetPosition(0,1.5,0);
-      else
-        mFusionActor->SetPosition(0,-1.5,0);
-    }
-    if (mLandActor) {
-      if (mClipBox) {
-        double bounds [6];
-        bounds[0] = ImageActor->GetBounds()[0];
-        bounds[1] = ImageActor->GetBounds()[1];
-        bounds[2] = ImageActor->GetBounds()[2]-fabs(0.5/this->GetInput()->GetSpacing()[1]);
-        bounds[3] = ImageActor->GetBounds()[3]+fabs(0.5/this->GetInput()->GetSpacing()[1]);
-        bounds[4] = ImageActor->GetBounds()[4];
-        bounds[5] = ImageActor->GetBounds()[5];
-        mClipBox->SetBounds(bounds);
-        UpdateLandmarks();
-      }
-      if (Renderer->GetActiveCamera()->GetPosition()[1] > this->Slice)
-        mLandActor->SetPosition(0,1.5,0);
-      else
-        mLandActor->SetPosition(0,-1.5,0);
-    }
-    break;
+  // Fusion image actor
+  if (mFusion && mFusionActor->GetVisibility()) {
+    int fusExtent[6];
+    mFusion->GetTransformedVTKImages()[0]->UpdateInformation();
+    this->ConvertImageToImageDisplayExtent(input, w_ext, mFusion->GetTransformedVTKImages()[0], fusExtent);
+    ClipDisplayedExtent(fusExtent, mFusionMapper->GetInput()->GetWholeExtent());
+    mFusionActor->SetDisplayExtent(fusExtent);
+    mFusionActor->SetPosition(position);
+  }
+  position[this->SliceOrientation] += positionInc;
 
-  case vtkImageViewer2::SLICE_ORIENTATION_YZ:
-    this->ImageActor->SetDisplayExtent(
-                                       this->Slice, this->Slice, w_ext[2], w_ext[3], w_ext[4], w_ext[5]);
-    if (mVF && mVFActor->GetVisibility()) {
-      int vfExtent[6];
-      ComputeVFDisplayedExtent(this->Slice, this->Slice, w_ext[2], w_ext[3], w_ext[4], w_ext[5],vfExtent);
-      mVOIFilter->SetVOI(vfExtent);
-      mGlyphFilter->SetOrientation(0,1,1);
-      mVFMapper->Update();
-      // put the vector field between the image and the camera
-      if (Renderer->GetActiveCamera()->GetPosition()[0] > this->Slice)
-        mVFActor->SetPosition(ImageActor->GetBounds()[1]+2,0,0);
-      else
-        mVFActor->SetPosition(ImageActor->GetBounds()[0]-2,0,0);
+  // Vector field actor
+  if (mVF && mVFActor->GetVisibility()) {
+    int vfExtent[6];
+    mVF->GetTransformedVTKImages()[0]->UpdateInformation();
+    this->ConvertImageToImageDisplayExtent(input, w_ext, mVF->GetTransformedVTKImages()[0], vfExtent);
+    ClipDisplayedExtent(vfExtent, mVOIFilter->GetInput()->GetWholeExtent());
+    mVOIFilter->SetVOI(vfExtent);
+    int orientation[3] = {1,1,1};
+    orientation[this->SliceOrientation] = 0;
+    mGlyphFilter->SetOrientation(orientation[0], orientation[1], orientation[2]);
+    mVFMapper->Update();
+    mVFActor->SetPosition(position);
+  }
+  position[this->SliceOrientation] += positionInc;
+
+  // Landmarks actor
+  if (mLandActor) {
+    if (mClipBox) {
+      double bounds [6];
+      for(unsigned int i=0; i<6; i++)
+        bounds[i] = ImageActor->GetBounds()[i];
+      bounds[ this->SliceOrientation*2   ] = ImageActor->GetBounds()[ this->SliceOrientation*2  ]-fabs(0.5/this->GetInput()->GetSpacing()[this->SliceOrientation]);
+      bounds[ this->SliceOrientation*2+1 ] = ImageActor->GetBounds()[ this->SliceOrientation*2+1 ]+fabs(0.5/this->GetInput()->GetSpacing()[this->SliceOrientation]);
+      mClipBox->SetBounds(bounds);
+      UpdateLandmarks();
     }
-    if (mOverlay && mOverlayActor->GetVisibility()) {
-      int overExtent[6];
-      ComputeOverlayDisplayedExtent(this->Slice, this->Slice, w_ext[2], w_ext[3], w_ext[4], w_ext[5],overExtent);
-      mOverlayActor->SetDisplayExtent(overExtent);
-      if (Renderer->GetActiveCamera()->GetPosition()[0] > this->Slice)
-        mOverlayActor->SetPosition(1,0,0);
-      else
-        mOverlayActor->SetPosition(-1,0,0);
-    }
-    if (mFusion && mFusionActor->GetVisibility()) {
-      int fusExtent[6];
-      ComputeFusionDisplayedExtent(this->Slice, this->Slice, w_ext[2], w_ext[3], w_ext[4], w_ext[5],fusExtent);
-      mFusionActor->SetDisplayExtent(fusExtent);
-      if (Renderer->GetActiveCamera()->GetPosition()[0] > this->Slice)
-        mFusionActor->SetPosition(1.5,0,0);
-      else
-        mFusionActor->SetPosition(-1.5,0,0);
-    }
-    if (mLandActor) {
-      if (mClipBox) {
-        double bounds [6];
-        bounds[0] = ImageActor->GetBounds()[0]-fabs(0.5/this->GetInput()->GetSpacing()[0]);
-        bounds[1] = ImageActor->GetBounds()[1]+fabs(0.5/this->GetInput()->GetSpacing()[0]);
-        bounds[2] = ImageActor->GetBounds()[2];
-        bounds[3] = ImageActor->GetBounds()[3];
-        bounds[4] = ImageActor->GetBounds()[4];
-        bounds[5] = ImageActor->GetBounds()[5];
-        mClipBox->SetBounds(bounds);
-        UpdateLandmarks();
-      }
-      if (Renderer->GetActiveCamera()->GetPosition()[0] > this->Slice)
-        mLandActor->SetPosition(1.5,0,0);
-      else
-        mLandActor->SetPosition(-1.5,0,0);
-    }
-    break;
+    mLandActor->SetPosition(position);
   }
 
   // Figure out the correct clipping range
-
   if (this->Renderer) {
     if (this->InteractorStyle &&
         this->InteractorStyle->GetAutoAdjustCameraClippingRange()) {
@@ -903,80 +807,30 @@ void vvSlicer::UpdateDisplayExtent()
         double *spacing = input->GetSpacing();
         double avg_spacing =
           ((double)spacing[0] + (double)spacing[1] + (double)spacing[2]) / 3.0;
-        cam->SetClippingRange(
-                              range - avg_spacing * 3.0, range + avg_spacing * 3.0);
+        cam->SetClippingRange(range - avg_spacing * 3.0, range + avg_spacing * 3.0);
       }
     }
   }
 }
 //----------------------------------------------------------------------------
 
-
 //----------------------------------------------------------------------------
-void vvSlicer::ComputeVFDisplayedExtent(int x1,int x2,int y1,int y2,int z1,int z2,int vfExtent[6])
+void vvSlicer::ConvertImageToImageDisplayExtent(vtkImageData *sourceImage, const int sourceExtent[6],
+                                                vtkImageData *targetImage, int targetExtent[6])
 {
-  double dVfExtent[6];
-  vtkImageData* image = this->GetInput();
-  dVfExtent[0] = image->GetOrigin()[0] + x1*image->GetSpacing()[0];
-  dVfExtent[1] = image->GetOrigin()[0] + x2*image->GetSpacing()[0];
-  dVfExtent[2] = image->GetOrigin()[1] + y1*image->GetSpacing()[1];
-  dVfExtent[3] = image->GetOrigin()[1] + y2*image->GetSpacing()[1];
-  dVfExtent[4] = image->GetOrigin()[2] + z1*image->GetSpacing()[2];
-  dVfExtent[5] = image->GetOrigin()[2] + z2*image->GetSpacing()[2];
-  
-  vtkImageData* vf = mVF->GetTransformedVTKImages()[0];
-  vf->UpdateInformation();
-  for(unsigned int i=0; i<6; i++)
-    vfExtent[i] = itk::Math::Round((dVfExtent[i]- vf->GetOrigin()[i/2]) / vf->GetSpacing()[i/2]);
+  double dExtents[6];
+  for(unsigned int i=0; i<6; i++) {
+    // From source voxel coordinates to world coordinates
+    dExtents[i] = sourceImage->GetOrigin()[i/2] + sourceImage->GetSpacing()[i/2] * sourceExtent[i];
 
-  ClipDisplayedExtent(vfExtent,mVOIFilter->GetInput()->GetWholeExtent());
+    // From world coordinates to floating point target voxel coordinates
+    dExtents[i] = (dExtents[i]- targetImage->GetOrigin()[i/2]) / targetImage->GetSpacing()[i/2];
+    
+    // Round to nearest
+    targetExtent[i] = itk::Math::Round(dExtents[i]);
+  }
 }
 //----------------------------------------------------------------------------
-
-
-//----------------------------------------------------------------------------
-void vvSlicer::ComputeOverlayDisplayedExtent(int x1,int x2,int y1,int y2,int z1,int z2,int overExtent[6])
-{
-  double dOverExtent[6];
-  vtkImageData* image = this->GetInput();
-  dOverExtent[0] = image->GetOrigin()[0] + x1*image->GetSpacing()[0];
-  dOverExtent[1] = image->GetOrigin()[0] + x2*image->GetSpacing()[0];
-  dOverExtent[2] = image->GetOrigin()[1] + y1*image->GetSpacing()[1];
-  dOverExtent[3] = image->GetOrigin()[1] + y2*image->GetSpacing()[1];
-  dOverExtent[4] = image->GetOrigin()[2] + z1*image->GetSpacing()[2];
-  dOverExtent[5] = image->GetOrigin()[2] + z2*image->GetSpacing()[2];
-  
-  vtkImageData* overlay = mOverlay->GetTransformedVTKImages()[0];
-  overlay->UpdateInformation();
-  for(unsigned int i=0; i<6; i++)
-    overExtent[i] = itk::Math::Round((dOverExtent[i]- overlay->GetOrigin()[i/2]) / overlay->GetSpacing()[i/2]);
-
-  ClipDisplayedExtent(overExtent, mOverlayMapper->GetInput()->GetWholeExtent());
-}
-//----------------------------------------------------------------------------
-
-
-//----------------------------------------------------------------------------
-void vvSlicer::ComputeFusionDisplayedExtent(int x1,int x2,int y1,int y2,int z1,int z2,int fusExtent[6])
-{
-  double dFusExtent[6];
-  vtkImageData* image = this->GetInput();
-  dFusExtent[0] = image->GetOrigin()[0] + x1*image->GetSpacing()[0];
-  dFusExtent[1] = image->GetOrigin()[0] + x2*image->GetSpacing()[0];
-  dFusExtent[2] = image->GetOrigin()[1] + y1*image->GetSpacing()[1];
-  dFusExtent[3] = image->GetOrigin()[1] + y2*image->GetSpacing()[1];
-  dFusExtent[4] = image->GetOrigin()[2] + z1*image->GetSpacing()[2];
-  dFusExtent[5] = image->GetOrigin()[2] + z2*image->GetSpacing()[2];
-  
-  vtkImageData* fusion = mFusion->GetTransformedVTKImages()[0];
-  fusion->UpdateInformation();
-  for(unsigned int i=0; i<6; i++)
-    fusExtent[i] = itk::Math::Round((dFusExtent[i]- fusion->GetOrigin()[i/2]) / fusion->GetSpacing()[i/2]);
-
-  ClipDisplayedExtent(fusExtent, mFusionMapper->GetInput()->GetWholeExtent());
-}
-//----------------------------------------------------------------------------
-
 
 //----------------------------------------------------------------------------
 void vvSlicer::ClipDisplayedExtent(int extent[6], int refExtent[6])

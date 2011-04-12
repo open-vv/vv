@@ -228,9 +228,8 @@ protected:
 private:
   void UpdateOrientation();
   void UpdateDisplayExtent();
-  void ComputeVFDisplayedExtent(int x1,int x2,int y1,int y2,int z1,int z2,int extent[6]);
-  void ComputeOverlayDisplayedExtent(int x1,int x2,int y1,int y2,int z1,int z2,int overExtent[6]);
-  void ComputeFusionDisplayedExtent(int x1,int x2,int y1,int y2,int z1,int z2,int overExtent[6]);
+  void ConvertImageToImageDisplayExtent(vtkImageData *sourceImage, const int sourceExtent[6],
+                                        vtkImageData *targetImage, int targetExtent[6]);
   ///Sets the surfaces to be cut on the image slice: update the vtkCutter
   void SetContourSlice();
 
