@@ -17,7 +17,7 @@ void vvImage::AddItkImage(TItkImageType *input)
   converter->Update();
   mVtkImages.push_back( converter->GetOutput() );
   
- // Account for direction in transform. The offset is already accounted for
+  // Account for direction in transform. The offset is already accounted for
   // in the VTK image coordinates, no need to put it in the transform.
   vtkSmartPointer<vtkMatrix4x4> matrix = vtkSmartPointer<vtkMatrix4x4>::New();
   matrix->Identity();
@@ -25,16 +25,6 @@ void vvImage::AddItkImage(TItkImageType *input)
     for(unsigned int i=0; i<input->GetImageDimension(); i++)
       (*matrix)[i][j] = input->GetDirection()[i][j];
   mTransform->SetMatrix(matrix);
-
-  // Create the corresponding transformed image
-  mVtkImageReslice.push_back(vtkSmartPointer<vtkImageReslice>::New());
-  mVtkImageReslice.back()->SetInterpolationModeToLinear();
-  mVtkImageReslice.back()->AutoCropOutputOn();
-  mVtkImageReslice.back()->SetBackgroundColor(-1000,-1000,-1000,1);
-  mVtkImageReslice.back()->SetResliceTransform(mTransform);
-  mVtkImageReslice.back()->SetInput(0, converter->GetOutput());
-  mVtkImageReslice.back()->UpdateInformation();
-  mTransformedVtkImages.push_back( mVtkImageReslice.back()->GetOutput(0) );
 }
 //--------------------------------------------------------------------
 

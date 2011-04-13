@@ -23,7 +23,6 @@
 #include <itkObjectFactory.h>
 #include <itkProcessObject.h>
 
-#include <vtkImageReslice.h>
 #include <vtkSmartPointer.h>
 #include <vtkTransform.h>
 
@@ -42,7 +41,6 @@ public :
   void Reset();
   template<class TItkImageType> void AddItkImage(TItkImageType *input);
   const std::vector<vtkImageData*>& GetVTKImages();
-  const std::vector<vtkImageData*>& GetTransformedVTKImages();
   vtkImageData* GetFirstVTKImageData();
   int GetNumberOfDimensions() const;
   int GetNumberOfSpatialDimensions();
@@ -60,7 +58,6 @@ public :
   vtkSmartPointer<vtkTransform> GetTransform();
   void SetTimeSpacing(double s) { mTimeSpacing = s; }
   void SetTimeOrigin(double o) { mTimeOrigin = o; }
-  void UpdateReslice();
   bool HaveSameSizeAndSpacingThan(vvImage * other);
 
 private:
@@ -69,10 +66,7 @@ private:
 
   std::vector< ConverterPointer > mItkToVtkConverters;
   std::vector<vtkImageData*> mVtkImages;
-
-  std::vector< vtkSmartPointer<vtkImageReslice> > mVtkImageReslice;
   vtkSmartPointer<vtkTransform> mTransform;
-  std::vector<vtkImageData*> mTransformedVtkImages;
 
   double mTimeOrigin;
   double mTimeSpacing;

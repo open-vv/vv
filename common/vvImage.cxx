@@ -26,7 +26,6 @@
 
 // vtk
 #include <vtkImageData.h>
-#include <vtkImageReslice.h>
 #include <vtkTransform.h>
 
 // std
@@ -52,7 +51,6 @@ void vvImage::Init()
 //--------------------------------------------------------------------
 vvImage::~vvImage()
 {
-  //  DD("vvImage got deleted!");
   Reset();
 }
 //--------------------------------------------------------------------
@@ -60,10 +58,7 @@ vvImage::~vvImage()
 //--------------------------------------------------------------------
 void vvImage::Reset()
 {
-  mVtkImages.resize(0);
-  mTransformedVtkImages.resize(0);
-  mVtkImageReslice.resize(0);
-
+  mVtkImages.clear();
   Init();
 }
 //--------------------------------------------------------------------
@@ -200,13 +195,6 @@ const std::vector<vtkImageData*>& vvImage::GetVTKImages()
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
-const std::vector<vtkImageData*>& vvImage::GetTransformedVTKImages()
-{
-  return mTransformedVtkImages;
-}
-//--------------------------------------------------------------------
-
-//--------------------------------------------------------------------
 vtkImageData* vvImage::GetFirstVTKImageData()
 {
   return mVtkImages[0];
@@ -239,23 +227,12 @@ bool vvImage::IsScalarTypeInteger(int t)
     return false;
   }
 }
-
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
 vtkSmartPointer<vtkTransform> vvImage::GetTransform()
 {
   return this->mTransform;
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-void vvImage::UpdateReslice()
-{
-  for (unsigned int i=0; i<mVtkImageReslice.size(); i++) {
-    mVtkImageReslice[i]->Update();
-  }
 }
 //--------------------------------------------------------------------
 
