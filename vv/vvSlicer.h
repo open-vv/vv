@@ -27,6 +27,7 @@
 
 #include <vtkSmartPointer.h>
 #include <vtkImageViewer2.h>
+#include <vtkImageReslice.h>
 
 class vtkActor;
 class vtkActor2D;
@@ -93,6 +94,7 @@ public:
   void SetLandmarks(vvLandmarks* landmarks);
   void SetTSlice(int t);
   void SetSliceOrientation(int orientation);
+  void AdjustResliceToSliceOrientation(vtkImageReslice *reslice);
   int GetTSlice();
   ///Reimplemented from vtkImageViewer2 to add polydata support
   void SetSlice(int s);
@@ -189,8 +191,11 @@ protected:
 
   vvLandmarks* mLandmarks;
 
+  vtkSmartPointer<vtkImageReslice> mImageReslice;
+  vtkSmartPointer<vtkImageReslice> mOverlayReslice;
   vtkSmartPointer<vtkImageMapToWindowLevelColors> mOverlayMapper;
   vtkSmartPointer<vvBlendImageActor> mOverlayActor;
+  vtkSmartPointer<vtkImageReslice> mFusionReslice;
   vtkSmartPointer<vtkImageMapToWindowLevelColors> mFusionMapper;
   vtkSmartPointer<vtkImageActor> mFusionActor;
   vtkSmartPointer<vtkCornerAnnotation> ca;

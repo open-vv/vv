@@ -309,7 +309,18 @@ void vvSlicer::SetImage(vvImage::Pointer image)
 {
   if (image->GetVTKImages().size()) {
     mImage = image;
-    this->Superclass::SetInput(image->GetTransformedVTKImages()[0]);
+
+    if (!mImageReslice) {
+      mImageReslice = vtkSmartPointer<vtkImageReslice>::New();
+      mImageReslice->SetInterpolationModeToLinear();
+      mImageReslice->AutoCropOutputOn();
+      mImageReslice->SetBackgroundColor(-1000,-1000,-1000,1);
+    }
+    mImageReslice->SetResliceTransform(mImage->GetTransform());
+    mImageReslice->SetInput(0, mImage->GetFirstVTKImageData());
+    mImageReslice->UpdateInformation();
+
+    this->Superclass::SetInput(mImageReslice->GetOutput());
 
     int extent[6];
     this->GetInput()->GetWholeExtent(extent);
@@ -322,8 +333,8 @@ void vvSlicer::SetImage(vvImage::Pointer image)
     // Make sure that the required part image has been computed
     extent[SliceOrientation*2] = Slice;
     extent[SliceOrientation*2+1] = Slice;
-    image->GetTransformedVTKImages()[0]->SetUpdateExtent(extent);
-    image->GetTransformedVTKImages()[0]->Update();
+    mImageReslice->GetOutput()->SetUpdateExtent(extent);
+    mImageReslice->GetOutput()->Update();
 
     this->UpdateDisplayExtent();
 
@@ -339,10 +350,19 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
 {
   if (overlay->GetVTKImages().size()) {
     mOverlay = overlay;
+    
+    if (!mOverlayReslice) {
+      mOverlayReslice = vtkSmartPointer<vtkImageReslice>::New();
+      mOverlayReslice->SetInterpolationModeToLinear();
+      mOverlayReslice->AutoCropOutputOn();
+      mOverlayReslice->SetBackgroundColor(-1000,-1000,-1000,1);
+    }
+    mOverlayReslice->SetResliceTransform(mOverlay->GetTransform());
+    mOverlayReslice->SetInput(0, mOverlay->GetFirstVTKImageData());
 
     if (!mOverlayMapper)
       mOverlayMapper = vtkSmartPointer<vtkImageMapToWindowLevelColors>::New();
-    mOverlayMapper->SetInput(overlay->GetTransformedVTKImages()[0]);
+    mOverlayMapper->SetInput(mOverlayReslice->GetOutput());
 
     if (!mOverlayActor) {
       mOverlayActor = vtkSmartPointer<vvBlendImageActor>::New();
@@ -350,7 +370,6 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
       mOverlayActor->SetPickable(0);
       mOverlayActor->SetVisibility(false);
       mOverlayActor->SetOpacity(0.5);
-      this->UpdateDisplayExtent();
     }
 
     //stupid but necessary : the Overlay need to be rendered before fusion
@@ -361,8 +380,9 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
     } else
       this->GetRenderer()->AddActor(mOverlayActor);
 
-    //Synchronize slice
-    SetTSlice(mCurrentTSlice);
+    //Synchronize orientation and slice
+    this->SetSliceOrientation(this->SliceOrientation);
+    this->SetTSlice(mCurrentTSlice);
   }
 }
 //------------------------------------------------------------------------------
@@ -374,9 +394,18 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion)
   if (fusion->GetVTKImages().size()) {
     mFusion = fusion;
 
+    if (!mFusionReslice) {
+      mFusionReslice = vtkSmartPointer<vtkImageReslice>::New();
+      mFusionReslice->SetInterpolationModeToLinear();
+      mFusionReslice->AutoCropOutputOn();
+      mFusionReslice->SetBackgroundColor(-1000,-1000,-1000,1);
+    }
+    mFusionReslice->SetResliceTransform(mFusion->GetTransform());
+    mFusionReslice->SetInput(0, mFusion->GetFirstVTKImageData());
+
     if (!mFusionMapper)
       mFusionMapper = vtkSmartPointer<vtkImageMapToWindowLevelColors>::New();
-    mFusionMapper->SetInput(fusion->GetTransformedVTKImages()[0]);
+    mFusionMapper->SetInput(mFusionReslice->GetOutput());
 
     if (!mFusionActor) {
       mFusionActor = vtkSmartPointer<vtkImageActor>::New();
@@ -384,12 +413,12 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion)
       mFusionActor->SetPickable(0);
       mFusionActor->SetVisibility(false);
       mFusionActor->SetOpacity(0.7);
-      this->UpdateDisplayExtent();
       this->GetRenderer()->AddActor(mFusionActor);
     }
 
-    //Synchronize slice
-    SetTSlice(mCurrentTSlice);
+    //Synchronize orientation and slice
+    this->SetSliceOrientation(this->SliceOrientation);
+    this->SetTSlice(mCurrentTSlice);
   }
 }
 //------------------------------------------------------------------------------
@@ -425,7 +454,7 @@ void vvSlicer::SetVF(vvImage::Pointer vf)
       mVOIFilter = vtkSmartPointer<vtkExtractVOI>::New();
       mVOIFilter->SetSampleRate(mSubSampling,mSubSampling,mSubSampling);
     }
-    mVOIFilter->SetInput(vf->GetTransformedVTKImages()[0]);
+    mVOIFilter->SetInput(vf->GetFirstVTKImageData());
     mAAFilter->SetInput(mVOIFilter->GetOutput());
     ///This tells VTK to use the scalar (pixel) data of the image to draw the little arrows
     mAAFilter->Assign(vtkDataSetAttributes::SCALARS, vtkDataSetAttributes::VECTORS, vtkAssignAttribute::POINT_DATA);
@@ -620,18 +649,18 @@ void vvSlicer::SetTSlice(int t)
   if (mCurrentTSlice == t) return;
 
   mCurrentTSlice = t;
-  this->SetInput(mImage->GetTransformedVTKImages()[t]);
+  mImageReslice->SetInput( mImage->GetVTKImages()[mCurrentTSlice] );
   if (mVF && mVFActor->GetVisibility()) {
     if (mVF->GetVTKImages().size() > (unsigned int)mCurrentTSlice)
-      mVOIFilter->SetInput(mVF->GetTransformedVTKImages()[mCurrentTSlice]);
+      mVOIFilter->SetInput(mVF->GetVTKImages()[mCurrentTSlice]);
   }
   if (mOverlay && mOverlayActor->GetVisibility()) {
-    if (mOverlay->GetTransformedVTKImages().size() > (unsigned int)mCurrentTSlice)
-      mOverlayMapper->SetInput(mOverlay->GetTransformedVTKImages()[mCurrentTSlice]);
+    if (mOverlay->GetVTKImages().size() > (unsigned int)mCurrentTSlice)
+      mOverlayReslice->SetInput( mOverlay->GetVTKImages()[mCurrentTSlice] );
   }
   if (mFusion && mFusionActor->GetVisibility()) {
     if (mFusion->GetVTKImages().size() > (unsigned int)mCurrentTSlice)
-      mFusionMapper->SetInput(mFusion->GetTransformedVTKImages()[mCurrentTSlice]);
+      mFusionReslice->SetInput( mFusion->GetVTKImages()[mCurrentTSlice]);
   }
   if (mSurfaceCutActors.size() > 0)
     for (std::vector<vvMeshActor*>::iterator i=mSurfaceCutActors.begin();
@@ -649,7 +678,6 @@ int vvSlicer::GetTSlice()
 }
 //------------------------------------------------------------------------------
 
-
 //------------------------------------------------------------------------------
 void vvSlicer::SetSliceOrientation(int orientation)
 {
@@ -657,15 +685,21 @@ void vvSlicer::SetSliceOrientation(int orientation)
   int extent[6];
   this->GetInput()->GetWholeExtent(extent);
   if (extent[5]-extent[4] <= 2)
-    orientation=2;
+    orientation = vtkImageViewer2::SLICE_ORIENTATION_XY;
 
   if (orientation < vtkImageViewer2::SLICE_ORIENTATION_YZ ||
       orientation > vtkImageViewer2::SLICE_ORIENTATION_XY) {
     vtkErrorMacro("Error - invalid slice orientation " << orientation);
     return;
   }
-
+  
   this->SliceOrientation = orientation;
+
+  if(mFusion)
+    AdjustResliceToSliceOrientation(mFusionReslice);
+
+  if(mOverlay)
+    AdjustResliceToSliceOrientation(mOverlayReslice);
 
   // Update the viewer
   int *range = this->GetSliceRange();
@@ -690,6 +724,41 @@ void vvSlicer::SetSliceOrientation(int orientation)
 }
 //----------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// This function ensures that we sample the slices of a vtkImageReslice filter
+// in the direction of the slicer (SliceOrientation) similarly as mImageReslice.
+// In other words, we change the grid of the reslice in the same way as the grid
+// of the displayed image in the slicing direction.
+void vvSlicer::AdjustResliceToSliceOrientation(vtkImageReslice *reslice)
+{
+  // Reset autocrop
+  double origin[3] = {VTK_DOUBLE_MAX, VTK_DOUBLE_MAX, VTK_DOUBLE_MAX};
+  double spacing[3] = {VTK_DOUBLE_MAX, VTK_DOUBLE_MAX, VTK_DOUBLE_MAX};
+  reslice->SetOutputOrigin(origin);
+  reslice->SetOutputSpacing(spacing);
+  reslice->GetOutput()->UpdateInformation();
+  reslice->GetOutput()->GetOrigin(origin);
+  reslice->GetOutput()->GetSpacing(spacing);
+
+  // Use similar spacing as the image in the direction SliceOrientation
+  spacing[this->SliceOrientation] = mImageReslice->GetOutput()->GetSpacing()[this->SliceOrientation];
+
+  // Modify origin to be on the image grid in the direction SliceOrientation in 3 steps
+  // Step 1: from world coordinates to image coordinates
+  origin[this->SliceOrientation] -= mImageReslice->GetOutput()->GetOrigin()[this->SliceOrientation];
+  origin[this->SliceOrientation] /= mImageReslice->GetOutput()->GetSpacing()[this->SliceOrientation];
+  // Step 2: round to superior grid positionInc
+  origin[this->SliceOrientation] = itk::Math::Ceil(origin[this->SliceOrientation]);
+  // Step 3: back to world coordinates
+  origin[this->SliceOrientation] *= mImageReslice->GetOutput()->GetSpacing()[this->SliceOrientation];
+  origin[this->SliceOrientation] += mImageReslice->GetOutput()->GetOrigin()[this->SliceOrientation];
+
+  // Set new spacing and origin
+  reslice->SetOutputOrigin(origin);
+  reslice->SetOutputSpacing(spacing);
+  reslice->UpdateInformation();
+}
+//------------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 int * vvSlicer::GetExtent()
@@ -743,8 +812,8 @@ void vvSlicer::UpdateDisplayExtent()
   // Overlay image actor
   if (mOverlay && mOverlayActor->GetVisibility()) {
     int overExtent[6];
-    mOverlay->GetTransformedVTKImages()[0]->UpdateInformation();
-    this->ConvertImageToImageDisplayExtent(input, w_ext, mOverlay->GetTransformedVTKImages()[0], overExtent);
+    mOverlayReslice->GetOutput()->UpdateInformation();
+    this->ConvertImageToImageDisplayExtent(input, w_ext, mOverlayReslice->GetOutput(), overExtent);
     ClipDisplayedExtent(overExtent, mOverlayMapper->GetInput()->GetWholeExtent());
     mOverlayActor->SetDisplayExtent( overExtent );
     mOverlayActor->SetPosition(position);
@@ -754,8 +823,8 @@ void vvSlicer::UpdateDisplayExtent()
   // Fusion image actor
   if (mFusion && mFusionActor->GetVisibility()) {
     int fusExtent[6];
-    mFusion->GetTransformedVTKImages()[0]->UpdateInformation();
-    this->ConvertImageToImageDisplayExtent(input, w_ext, mFusion->GetTransformedVTKImages()[0], fusExtent);
+    mFusionReslice->GetOutput()->UpdateInformation();
+    this->ConvertImageToImageDisplayExtent(input, w_ext, mFusionReslice->GetOutput(), fusExtent);
     ClipDisplayedExtent(fusExtent, mFusionMapper->GetInput()->GetWholeExtent());
     mFusionActor->SetDisplayExtent(fusExtent);
     mFusionActor->SetPosition(position);
@@ -765,8 +834,8 @@ void vvSlicer::UpdateDisplayExtent()
   // Vector field actor
   if (mVF && mVFActor->GetVisibility()) {
     int vfExtent[6];
-    mVF->GetTransformedVTKImages()[0]->UpdateInformation();
-    this->ConvertImageToImageDisplayExtent(input, w_ext, mVF->GetTransformedVTKImages()[0], vfExtent);
+    mVF->GetVTKImages()[0]->UpdateInformation();
+    this->ConvertImageToImageDisplayExtent(input, w_ext, mVF->GetVTKImages()[0], vfExtent);
     ClipDisplayedExtent(vfExtent, mVOIFilter->GetInput()->GetWholeExtent());
     mVOIFilter->SetVOI(vfExtent);
     int orientation[3] = {1,1,1};
