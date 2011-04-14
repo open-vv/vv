@@ -17,6 +17,7 @@
 ======================================================================-====*/
 #ifndef clitkBSplineCoefficientsToValuesGenericFilter_txx
 #define clitkBSplineCoefficientsToValuesGenericFilter_txx
+#include <itkAffineTransform.h>
 
 /* =================================================
  * @file   clitkBSplineCoefficientsToValuesGenericFilter.txx
