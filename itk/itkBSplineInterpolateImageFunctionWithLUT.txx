@@ -17,6 +17,7 @@
 ======================================================================-====*/
 #ifndef _ITKINTERPOLATEIMAGEFUNCTIONWITHLUT_TXX
 #define _ITKINTERPOLATEIMAGEFUNCTIONWITHLUT_TXX
+#include <itkMath.h>
 
 namespace itk
 {
@@ -190,7 +191,7 @@ namespace itk
     
 	// Compute index in precomputed weights table
 	TCoefficientType t2 = mSamplingFactors[l]*t1;
-	index[l] = (IndexValueType)Math::Round(t2);
+	index[l] = (IndexValueType)Math::Round<TCoefficientType>(t2);
 
 	// For even order : test if too close to 0.5 (but lower). In this
 	// case : take the next coefficient
@@ -240,7 +241,7 @@ namespace itk
 	evaluateIndex[l] = indx;
       }
       else { // Use this index calculation for even splineOrder
-	if (mSplineOrders[l] == 0) evaluateIndex[l] = Math::Round(x[l]);
+	if (mSplineOrders[l] == 0) evaluateIndex[l] = Math::Round<typename ContinuousIndexType::ValueType>(x[l]);
 	else {
 	  indx = (long)vcl_floor((x[l]+ 0.5)) - mSplineOrders[l] / 2; //this->m_SplineOrder / 2;
 	  evaluateIndex[l] = indx;

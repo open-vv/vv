@@ -748,7 +748,7 @@ void vvSlicer::AdjustResliceToSliceOrientation(vtkImageReslice *reslice)
   origin[this->SliceOrientation] -= mImageReslice->GetOutput()->GetOrigin()[this->SliceOrientation];
   origin[this->SliceOrientation] /= mImageReslice->GetOutput()->GetSpacing()[this->SliceOrientation];
   // Step 2: round to superior grid positionInc
-  origin[this->SliceOrientation] = itk::Math::Ceil(origin[this->SliceOrientation]);
+  origin[this->SliceOrientation] = itk::Math::Ceil<double>(origin[this->SliceOrientation]);
   // Step 3: back to world coordinates
   origin[this->SliceOrientation] *= mImageReslice->GetOutput()->GetSpacing()[this->SliceOrientation];
   origin[this->SliceOrientation] += mImageReslice->GetOutput()->GetOrigin()[this->SliceOrientation];
@@ -896,7 +896,7 @@ void vvSlicer::ConvertImageToImageDisplayExtent(vtkImageData *sourceImage, const
     dExtents[i] = (dExtents[i]- targetImage->GetOrigin()[i/2]) / targetImage->GetSpacing()[i/2];
     
     // Round to nearest
-    targetExtent[i] = itk::Math::Round(dExtents[i]);
+    targetExtent[i] = itk::Math::Round<double>(dExtents[i]);
   }
 }
 //----------------------------------------------------------------------------
