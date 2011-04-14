@@ -677,7 +677,11 @@ namespace clitk
 	  {
 	    BSplineTransformPointer bsplineTransform=dynamic_cast<BSplineTransformPointer>(registration->GetTransform());
 	    typedef  itk::Image<TCoordRep, ImageDimension> CoefficientImageType;
+#if ITK_VERSION_MAJOR > 3
+            typename BSplineTransformType::CoefficientImageArray coefficientImages = bsplineTransform->GetCoefficientImage();
+#else
 	    typename CoefficientImageType::Pointer *coefficientImages =bsplineTransform->GetCoefficientImage();
+#endif
 	    typedef itk::ImageFileWriter<CoefficientImageType> CoeffWriterType;
 	    for (unsigned int i=0;i<SpaceDimension; i ++)
 	      {
