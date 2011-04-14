@@ -38,7 +38,9 @@
 void clitk::RegisterClitkFactories()
 {
   clitk::DicomRTDoseIOFactory::RegisterOneFactory();
+#if ITK_VERSION_MAJOR <= 3
   itk::ImageIOFactory::RegisterBuiltInFactories();
+#endif
   clitk::VoxImageIOFactory::RegisterOneFactory();
   clitk::VfImageIOFactory::RegisterOneFactory();
   clitk::HisImageIOFactory::RegisterOneFactory();
