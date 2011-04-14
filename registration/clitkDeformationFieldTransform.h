@@ -59,7 +59,62 @@ namespace clitk
     void SetDeformationField (typename DeformationFieldType::Pointer p){m_DeformationField=p; m_Interpolator->SetInputImage(m_DeformationField);}
     void SetInterpolator (typename InterpolatorType::Pointer i){ m_Interpolator=i; m_Interpolator->SetInputImage(m_DeformationField);}
     OutputPointType TransformPoint(const InputPointType  &point ) const;
-   
+
+    // Methods needed to inherit from an itk::Transform which should not be used
+    // in this class
+    /** Type of the input parameters. */
+    typedef typename Superclass::ParametersType        ParametersType;
+    typedef typename Superclass::ParametersValueType   ParametersValueType;
+
+    /** Type of the Jacobian matrix. */
+    typedef typename Superclass::JacobianType		JacobianType;
+
+    /** Standard vector type for this class. */
+    typedef typename Superclass::InputVectorType InputVectorType;
+    typedef typename Superclass::OutputVectorType OutputVectorType;
+
+    /** Standard covariant vector type for this class */
+    typedef typename Superclass::InputCovariantVectorType	InputCovariantVectorType;
+    typedef typename Superclass::OutputCovariantVectorType	OutputCovariantVectorType;
+
+    /** Standard vnl_vector type for this class. */
+    typedef typename Superclass::InputVnlVectorType	InputVnlVectorType;
+    typedef typename Superclass::OutputVnlVectorType	OutputVnlVectorType;
+
+    void SetParameters(const ParametersType&)
+    {
+      itkExceptionMacro( << "DeformationFieldTransform doesn't declare SetParameters" );
+    }
+
+    void SetFixedParameters(const ParametersType&)
+    {
+      itkExceptionMacro( << "DeformationFieldTransform doesn't declare SetFixedParameters" );
+    }
+
+    virtual OutputVectorType TransformVector(const InputVectorType &) const
+    {
+      itkExceptionMacro(<< "Method not applicable for deformable transform." );
+      return OutputVectorType();
+    }
+
+    virtual OutputVnlVectorType TransformVector(const InputVnlVectorType &) const
+    {
+      itkExceptionMacro(<< "Method not applicable for deformable transform. ");
+      return OutputVnlVectorType();
+    }
+
+    virtual OutputCovariantVectorType TransformCovariantVector(const InputCovariantVectorType &) const
+    {
+      itkExceptionMacro(<< "Method not applicable for deformable transfrom. ");
+      return OutputCovariantVectorType();
+    }
+
+    virtual const JacobianType& GetJacobian(const InputPointType  &point ) const
+    {
+      itkExceptionMacro( << "DeformationFieldTransform doesn't declare GetJacobian" );
+      return this->m_Jacobian;
+    }
+
   protected:
     DeformationFieldTransform();
     ~DeformationFieldTransform(){;}
