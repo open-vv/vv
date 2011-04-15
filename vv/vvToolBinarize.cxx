@@ -55,7 +55,6 @@ vvToolBinarize::vvToolBinarize(vvMainWindowBase * parent, Qt::WindowFlags f)
    vvToolBase<vvToolBinarize>(parent),
    Ui::vvToolBinarize()
 {
-  DD("Const binarize");
   // GUI Initialization
   Ui_vvToolBinarize::setupUi(mToolWidget);
   mInteractiveDisplayIsEnabled = mCheckBoxInteractiveDisplay->isChecked();
@@ -73,7 +72,7 @@ vvToolBinarize::vvToolBinarize(vvMainWindowBase * parent, Qt::WindowFlags f)
   mBGSlider->SetText("Background value");
 
   // Main filter
-  mFilter = new clitk::BinarizeImageGenericFilter;
+  mFilter = clitk::BinarizeImageGenericFilter::New();
 
   // Set how many inputs are needed for this tool
   AddInputSelector("Select one image", mFilter);
@@ -228,6 +227,8 @@ void vvToolBinarize::InputIsSelected(vvSlicerManager * m)
   connect(mCurrentSlicerManager,SIGNAL(UpdateTSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
 
   //  connect(mCurrentSlicerManager, SIGNAL(LeftButtonReleaseSignal(int)), SLOT(LeftButtonReleaseEvent(int)));
+  
+  InteractiveDisplayToggled(mInteractiveDisplayIsEnabled);
 }
 //------------------------------------------------------------------------------
 
