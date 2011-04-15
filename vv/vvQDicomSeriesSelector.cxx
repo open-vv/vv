@@ -24,6 +24,7 @@
 #include <gdcmImageReader.h>
 #include <gdcmDataSetHelper.h>
 #include <gdcmStringFilter.h>
+#include <gdcmImageHelper.h>
 #else
 #include <gdcmDocEntry.h>
 #endif
@@ -203,6 +204,7 @@ void vvDicomSeriesSelector::itemSelectionChanged()
   if (mDicomInfo[mCurrentSerie] == "") {
     // 	QString m;
     // 	m = QString("Patient : <font color=\"blue\">%1</font><br>").arg(mDicomHeader[s]->GetEntryValue(0x0010,0x0010).c_str()); // Patient's name
+    DD(mCurrentSerie)
     mDicomInfo[mCurrentSerie] = MakeDicomInfo(mCurrentSerie, mDicomHeader[mCurrentSerie]);
   }
   ui.mDicomInfoPanel->setText(mDicomInfo[mCurrentSerie]);
@@ -278,7 +280,36 @@ QString vvDicomSeriesSelector::MakeDicomInfo(std::string & s, gdcm::File *header
 {
   QString n = QString("%1").arg(mListOfSeriesFilenames[s]->size());
 #if GDCM_MAJOR_VERSION == 2
-  QString ss;
+  const gdcm::File &f = *header;
+  std::vector<double> thespacing = gdcm::ImageHelper::GetSpacingValue(f);
+  std::vector<double> theorigin = gdcm::ImageHelper::GetOriginValue(f);
+
+  QString size = QString("%1x%2x%3")
+                 .arg(0)
+                 .arg(0)
+                 .arg(0);
+  QString spacing = QString("%1x%2x%3")
+                    .arg(thespacing[0])
+                    .arg(thespacing[1])
+                    .arg(thespacing[2]);
+  QString origin = QString("%1x%2x%3")
+                   .arg(theorigin[0])
+                   .arg(theorigin[1])
+                   .arg(theorigin[2]);
+
+  QString ss =
+    //AddInfo(        "Serie ID   : ", s)+
+    AddInfo(header, "Patient : ", 0x0010,0x0010)+
+    AddInfo(        "Folder : ", QFileInfo((*mFilenames)[0].c_str()).canonicalPath().toStdString())+
+    AddInfo(header, "Series Description : ", 0x0008,0x103e)+
+    AddInfo(header, "Modality : ", 0x0008,0x0060)+
+    AddInfo(header, "# images : ", 0x0020,0x0013)+
+    AddInfo(        "# files : ", n.toStdString())+
+    AddInfo(        "Size : ", size.toStdString())+
+    AddInfo(        "Spacing : ", spacing.toStdString())+
+    AddInfo(        "Origin : ", origin.toStdString())+
+    AddInfo(header, "Pixel size : ", 0x0028,0x0100)+
+    AddInfo(        "Pixel type : ", 0);
 #else
   QString size = QString("%1x%2x%3")
                  .arg(header->GetXSize())

@@ -21,9 +21,12 @@
 
 #include <gdcmFile.h>
 #if GDCM_MAJOR_VERSION == 2
+  #include <gdcmReader.h>
+  #include <gdcmTag.h>
+  #include <gdcmAttribute.h>
 #else
-#include <gdcm.h>
-#include <gdcmSQItem.h>
+  #include <gdcm.h>
+  #include <gdcmSQItem.h>
 #endif
 
 #include <vtkSmartPointer.h>
@@ -86,6 +89,33 @@ std::vector<std::pair<int,std::string> > vvMeshReader::GetROINames()
   assert(filename!="");
   std::vector<std::pair<int, std::string> > roi_names;
 #if GDCM_MAJOR_VERSION == 2
+  // duplicate code from  clitk::DicomRT_StructureSet::Read
+  gdcm::Reader reader;
+  reader.SetFileName( filename.c_str() );
+  reader.Read();
+
+  const gdcm::DataSet &ds = reader.GetFile().GetDataSet();
+
+  gdcm::Tag tssroisq(0x3006,0x0020);
+  const gdcm::DataElement &ssroisq = ds.GetDataElement( tssroisq );
+  gdcm::SmartPointer<gdcm::SequenceOfItems> roi_seq = ssroisq.GetValueAsSQ();
+  assert(roi_seq); // TODO error message
+  for(unsigned int ridx = 0; ridx < roi_seq->GetNumberOfItems(); ++ridx)
+    {
+    gdcm::Item & item = roi_seq->GetItem( ridx + 1); // Item starts at 1
+    const gdcm::DataSet& nestedds = item.GetNestedDataSet();
+    if( nestedds.FindDataElement( gdcm::Tag(0x3006,0x22) ) )
+      {
+      gdcm::Attribute<0x3006,0x26> roiname;
+      roiname.SetFromDataSet( nestedds );
+      std::string name = roiname.GetValue();      // 0x3006,0x0026 = [ROI Name]
+      gdcm::Attribute<0x3006,0x0022> roinumber;
+      roinumber.SetFromDataSet( nestedds );
+      int nb = roinumber.GetValue();  // 0x3006,0x0022 = [ROI Number]
+
+      roi_names.push_back(make_pair(nb,name));
+      }
+    }
 #else
   gdcm::File reader;
   reader.SetFileName(filename.c_str());
