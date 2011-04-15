@@ -3,8 +3,8 @@
   Program:   vv
   Module:    $RCSfile: vvToolMIP.cxx,v $
   Language:  C++
-  Date:      $Date: 2011/03/22 15:50:39 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2011/04/15 08:29:21 $
+  Version:   $Revision: 1.3 $
   Author :   Bharath Navalpakkam (Bharath.Navalpakkam@creatis.insa-lyon.fr)
 
   Copyright (C) 2010
@@ -61,7 +61,6 @@ vvToolMIP::vvToolMIP(vvMainWindowBase * parent, Qt::WindowFlags f)
 //------------------------------------------------------------------------------
 vvToolMIP::~vvToolMIP()
 {
-  delete mFilter;
 }
 //------------------------------------------------------------------------------
 void vvToolMIP::Initialize()
@@ -83,7 +82,7 @@ void vvToolMIP::apply()
   cmdline_parser_clitkMIP_init(&args_info);
   args_info.dimension_arg=this->dimensionSpinBox->value();
   args_info.dimension_given=true;
-  clitk::MIPGenericFilter* filter= dynamic_cast<clitk::MIPGenericFilter*>(mFilter);
+  clitk::MIPGenericFilter* filter= dynamic_cast<clitk::MIPGenericFilter*>(mFilter.GetPointer());
   filter->SetArgsInfo(args_info);
   filter->SetInputVVImage(mCurrentImage);
   filter->Update();

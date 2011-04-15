@@ -60,7 +60,7 @@ protected:
   virtual void Initialization();
   void InitializeInputs();
   Ui::vvToolWidgetBase ui;
-  clitk::ImageToImageGenericFilterBase * mFilter;
+  clitk::ImageToImageGenericFilterBase::Pointer mFilter;
   vvMainWindowBase * mMainWindow;
   std::vector<vvSlicerManager*> mSlicerManagersCompatible;
   vvSlicerManager * mCurrentSlicerManager;

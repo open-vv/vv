@@ -32,10 +32,6 @@ namespace clitk
   {
     
   public:
-
-    //--------------------------------------------------------------------
-    BinarizeImageGenericFilter();
-
     //--------------------------------------------------------------------
     typedef BinarizeImageGenericFilter         Self;
     typedef itk::SmartPointer<Self>            Pointer;
@@ -57,6 +53,7 @@ namespace clitk
     void UpdateWithInputImageType();
 
   protected:
+    BinarizeImageGenericFilter();
     template<unsigned int Dim> void InitializeImageType();
     args_info_type mArgsInfo;
     
