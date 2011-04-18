@@ -21,6 +21,9 @@ ADD_LIBRARY(clitkResampleImageLib clitkResampleImageGenericFilter.cxx ${clitkRes
 WRAP_GGO(clitkMIP_GGO_C clitkMIP.ggo)
 ADD_LIBRARY(clitkMIPLib clitkMIPGenericFilter.cxx ${clitkMIP_GGO_C})
 
+WRAP_GGO(clitkMedianImageFilter_GGO_C clitkMedianImageFilter.ggo)
+ADD_LIBRARY(clitkMedianImageFilterLib clitkMedianImageGenericFilter.cxx ${clitkMedianImageFilter_GGO_C})
+
 IF (CLITK_BUILD_TOOLS)
     WRAP_GGO(clitkDicomInfo_GGO_C clitkDicomInfo.ggo)
     ADD_EXECUTABLE(clitkDicomInfo clitkDicomInfo.cxx ${clitkDicomInfo_GGO_C})

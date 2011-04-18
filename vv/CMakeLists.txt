@@ -38,6 +38,8 @@ SET(vvToolExtractPatient_LIBS clitkSegmentationGgoLib)
 SET(vvToolExtractLung_LIBS clitkSegmentationGgoLib)
 SET(vvToolCropImage_LIBS clitkCropImageLib)
 SET(vvToolMIP_LIBS clitkMIPLib)
+SET(vvToolMedianFilter_LIBS clitkMedianImageFilterLib)
+SET(vvToolImageArithm_LIBS clitkImageArithmImageLib)
 
 #=========================================================
 # List of vv source files
