@@ -3,7 +3,7 @@
 
   Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
-  - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
+  - Léon Bérard cancer center       http://www.centreleonberard.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
 
   This software is distributed WITHOUT ANY WARRANTY; without even
@@ -14,7 +14,7 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-======================================================================-====*/
+===========================================================================**/
 #include <utility>
 #include <cassert>
 #include <ctime>
@@ -69,7 +69,7 @@ int main( int argc, char** argv )
   Q_INIT_RESOURCE(vvIcons);
   //QPixmap pixmap(":/splashscreen.PNG");
   QSplashScreen *splash = new QSplashScreen(QPixmap(QString::fromUtf8(":/new/prefix1/splashscreen.PNG")));
-  /*splash->showMessage("VV 1.0 developped by Léon Bérard c`ancer center http://oncora1.lyon.fnclcc.fr and CREATIS-LRMN http://www.creatis.insa-lyon.fr",(Qt::AlignRight | Qt::AlignBottom));*/
+  /*splash->showMessage("VV 1.0 developped by Léon Bérard c`ancer center http://www.centreleonberard.fr and CREATIS-LRMN http://www.creatis.insa-lyon.fr",(Qt::AlignRight | Qt::AlignBottom));*/
   //  splash->show();
   QTimer::singleShot(2000, splash, SLOT(close()));
   while (!splash->isHidden())
