@@ -54,7 +54,9 @@ template<unsigned int Dim, class PixelType> vvImage::Pointer vvImageFromITK(type
             extractedRegion.SetIndex(start);
 
             typename FilterType::Pointer filter = FilterType::New();
+#if ITK_VERSION_MAJOR == 4
             filter->SetDirectionCollapseToSubmatrix();
+#endif
             filter->SetExtractionRegion(extractedRegion);
             filter->SetInput(input);
             filter->ReleaseDataFlagOn();
