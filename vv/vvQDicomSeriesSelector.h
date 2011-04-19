@@ -48,8 +48,12 @@ protected:
     QString mPreviousPath;
     QString mFoldername;
     void AddSerieToTheTable(int i, std::vector<std::string> & filenames);
+#if GDCM_MAJOR_VERSION == 2
+    QString MakeDicomInfo(std::string & s, const gdcm::Reader& header);
+#else
     QString MakeDicomInfo(std::string & s, gdcm::File *header);
-    QString AddInfo(gdcm::File *header, QString n, unsigned short group, unsigned short elem);
+#endif
+    QString AddInfo(const gdcm::File *header, QString n, unsigned short group, unsigned short elem);
     QString AddInfo(std::string n, std::string m);
 
 private:
@@ -58,7 +62,11 @@ private:
     std::map<std::string, std::vector<std::string>* > mListOfSeriesFilenames;
     std::vector<std::string> * mFilenames;
     std::map<std::string, QString> mDicomInfo;
+#if GDCM_MAJOR_VERSION == 2
+    std::map<std::string, gdcm::Reader> mDicomHeader;
+#else
     std::map<std::string, gdcm::File*> mDicomHeader;
+#endif
     std::map<std::string, std::string> mDicomDetails;
 };
 

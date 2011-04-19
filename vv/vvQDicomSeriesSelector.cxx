@@ -137,10 +137,8 @@ void vvDicomSeriesSelector::SearchButtonRelease()
 
       // store first header
 #if GDCM_MAJOR_VERSION == 2
-      gdcm::ImageReader reader;
-      reader.SetFileName( (*filenames)[0].c_str() );
-      reader.Read();
-      mDicomHeader[seriesUID[i]] = &reader.GetFile();
+      mDicomHeader[seriesUID[i]].SetFileName( (*filenames)[0].c_str() );
+      mDicomHeader[seriesUID[i]].Read();
 #else
       gdcm::File *header = new gdcm::File();
       header->SetFileName((*filenames)[0]);
@@ -204,7 +202,7 @@ void vvDicomSeriesSelector::itemSelectionChanged()
   if (mDicomInfo[mCurrentSerie] == "") {
     // 	QString m;
     // 	m = QString("Patient : <font color=\"blue\">%1</font><br>").arg(mDicomHeader[s]->GetEntryValue(0x0010,0x0010).c_str()); // Patient's name
-    DD(mCurrentSerie)
+
     mDicomInfo[mCurrentSerie] = MakeDicomInfo(mCurrentSerie, mDicomHeader[mCurrentSerie]);
   }
   ui.mDicomInfoPanel->setText(mDicomInfo[mCurrentSerie]);
@@ -227,20 +225,20 @@ void vvDicomSeriesSelector::itemDetailsSelectionChanged()
   if (i<mFilenames->size()) {
     if (mDicomDetails[(*mFilenames)[i]] == "") {
       std::ostringstream s;
-      mDicomHeader[mCurrentSerie]->Print(s);
+      mDicomHeader[mCurrentSerie].GetFile().Print(s);
 
       QString l;
-      gdcm::File * header = mDicomHeader[mCurrentSerie];
 #if GDCM_MAJOR_VERSION == 2
+      const gdcm::File& header = mDicomHeader[mCurrentSerie].GetFile();
       gdcm::StringFilter sf;
-      sf.SetFile( *header );
-      gdcm::DataSet &ds = header->GetDataSet();
+      sf.SetFile( header );
+      const gdcm::DataSet &ds = header.GetDataSet();
       gdcm::DataSet::ConstIterator it = ds.Begin();
       for (; it != ds.End(); ++it )
         {
         const gdcm::DataElement & ref = *it;
         const gdcm::Tag &         tag = ref.GetTag();
-        gdcm::VR vr = gdcm::DataSetHelper::ComputeVR(*header, ds, tag);
+        gdcm::VR vr = gdcm::DataSetHelper::ComputeVR(header, ds, tag);
         if ( vr & ( gdcm::VR::OB | gdcm::VR::OF | gdcm::VR::OW | gdcm::VR::SQ | gdcm::VR::UN ) )
           {
           // What is the behavior for binary stuff ?
@@ -257,6 +255,7 @@ void vvDicomSeriesSelector::itemDetailsSelectionChanged()
           }
         }
 #else
+      gdcm::File * header = mDicomHeader[mCurrentSerie];
       gdcm::DocEntry * e = header->GetFirstEntry();
       while (e) {
         if (e->GetName() != "gdcm::Unknown") {
@@ -276,11 +275,11 @@ void vvDicomSeriesSelector::itemDetailsSelectionChanged()
 //====================================================================
 
 //====================================================================
-QString vvDicomSeriesSelector::MakeDicomInfo(std::string & s, gdcm::File *header)
+#if GDCM_MAJOR_VERSION == 2
+QString vvDicomSeriesSelector::MakeDicomInfo(std::string & s, const gdcm::Reader& header)
 {
   QString n = QString("%1").arg(mListOfSeriesFilenames[s]->size());
-#if GDCM_MAJOR_VERSION == 2
-  const gdcm::File &f = *header;
+  const gdcm::File &f = header.GetFile();
   std::vector<double> thespacing = gdcm::ImageHelper::GetSpacingValue(f);
   std::vector<double> theorigin = gdcm::ImageHelper::GetOriginValue(f);
 
@@ -299,18 +298,23 @@ QString vvDicomSeriesSelector::MakeDicomInfo(std::string & s, gdcm::File *header
 
   QString ss =
     //AddInfo(        "Serie ID   : ", s)+
-    AddInfo(header, "Patient : ", 0x0010,0x0010)+
+    AddInfo(&header.GetFile(), "Patient : ", 0x0010,0x0010)+
     AddInfo(        "Folder : ", QFileInfo((*mFilenames)[0].c_str()).canonicalPath().toStdString())+
-    AddInfo(header, "Series Description : ", 0x0008,0x103e)+
-    AddInfo(header, "Modality : ", 0x0008,0x0060)+
-    AddInfo(header, "# images : ", 0x0020,0x0013)+
+    AddInfo(&header.GetFile(), "Series Description : ", 0x0008,0x103e)+
+    AddInfo(&header.GetFile(), "Modality : ", 0x0008,0x0060)+
+    AddInfo(&header.GetFile(), "# images : ", 0x0020,0x0013)+
     AddInfo(        "# files : ", n.toStdString())+
     AddInfo(        "Size : ", size.toStdString())+
     AddInfo(        "Spacing : ", spacing.toStdString())+
     AddInfo(        "Origin : ", origin.toStdString())+
-    AddInfo(header, "Pixel size : ", 0x0028,0x0100)+
-    AddInfo(        "Pixel type : ", 0);
+    AddInfo(&header.GetFile(), "Pixel size : ", 0x0028,0x0100)+
+    AddInfo(        "Pixel type : ", "");
+  return ss;
+}
 #else
+QString vvDicomSeriesSelector::MakeDicomInfo(std::string & s, gdcm::File *header)
+{
+  QString n = QString("%1").arg(mListOfSeriesFilenames[s]->size());
   QString size = QString("%1x%2x%3")
                  .arg(header->GetXSize())
                  .arg(header->GetYSize())
@@ -336,13 +340,13 @@ QString vvDicomSeriesSelector::MakeDicomInfo(std::string & s, gdcm::File *header
     AddInfo(        "Origin : ", origin.toStdString())+
     AddInfo(header, "Pixel size : ", 0x0028,0x0100)+
     AddInfo(        "Pixel type : ", header->GetPixelType());
-#endif
   return ss;
 }
+#endif
 //====================================================================
 
 //====================================================================
-QString vvDicomSeriesSelector::AddInfo(gdcm::File *header, QString n, uint16_t group, uint16_t elem)
+QString vvDicomSeriesSelector::AddInfo(const gdcm::File *header, QString n, uint16_t group, uint16_t elem)
 {
 #if GDCM_MAJOR_VERSION == 2
   gdcm::StringFilter sf;
