@@ -22,6 +22,12 @@
 #include "clitkImageCommon.h"
 #include "vvImageReader.h"
 #include "vvImageWriter.h"
+#include <gdcmFile.h>
+#if GDCM_MAJOR_VERSION == 2
+  #include <gdcmImageHelper.h>
+  #include <gdcmAttribute.h>
+  #include <gdcmReader.h>
+#endif
 
 //====================================================================
 int main(int argc, char * argv[])
@@ -48,13 +54,33 @@ int main(int argc, char * argv[])
   std::vector<double> sliceLocations;
   for(unsigned int i=0; i<args_info.inputs_num; i++) {
     //std::cout << "Reading <" << input_files[i] << std::endl;
-    gdcm::File * header = clitk::readDicomHeader(input_files[i]);
-    sliceLocations.push_back(header->GetZOrigin());
-    if (header->GetPixelSize() != 2) {
+#if GDCM_MAJOR_VERSION == 2
+    gdcm::Reader hreader;
+    hreader.SetFileName(input_files[i].c_str());
+    hreader.Read();
+    std::vector<double> theorigin = gdcm::ImageHelper::GetOriginValue(hreader.GetFile());
+    sliceLocations.push_back(theorigin[2]);
+    gdcm::Attribute<0x28, 0x100> pixel_size;
+    gdcm::DataSet& ds = hreader.GetFile().GetDataSet();
+    pixel_size.SetFromDataSet(ds);
+    if (pixel_size.GetValue() != 16)
+    {
       std::cerr << "Pixel type 2 bytes ! " << std::endl;
       std::cerr << "In file " << input_files[i] << std::endl;
       exit(0);
     }
+#else
+  gdcm::File *header = new gdcm::File();
+  header->SetFileName(input_files[i]);
+  header->SetMaxSizeLoadEntry(16384); // required ?
+  header->Load();
+  sliceLocations.push_back(header->GetZOrigin());
+  if (header->GetPixelSize() != 2) {
+    std::cerr << "Pixel type 2 bytes ! " << std::endl;
+    std::cerr << "In file " << input_files[i] << std::endl;
+    exit(0);
+  }
+#endif
   }
 
   //===========================================

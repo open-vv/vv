@@ -26,12 +26,6 @@
 #include "itkImageFileReader.h"
 #include "itkImageSeriesReader.h"
 #include "itkImageFileWriter.h"
-#include "gdcmFile.h"
-#if GDCM_MAJOR_VERSION == 2
-  #include "gdcmReader.h"
-#else
-  #include "gdcmFileHelper.h"
-#endif
 
 namespace clitk {
   
@@ -81,10 +75,6 @@ namespace clitk {
   //--------------------------------------------------------------------
   // Determine pixetype, dimension and number of pixel components  of an image file
   void ReadImageDimensionAndPixelType(const std::string & filename, int & dimension, std::string & pixeType, int & components);
-
-  //--------------------------------------------------------------------
-  // Read a dicom header  
-  gdcm::File * readDicomHeader(const std::string & filename, const bool verbose=false);
 
   //--------------------------------------------------------------------
   template<class ImageType>
