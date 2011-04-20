@@ -225,10 +225,10 @@ void vvDicomSeriesSelector::itemDetailsSelectionChanged()
   if (i<mFilenames->size()) {
     if (mDicomDetails[(*mFilenames)[i]] == "") {
       std::ostringstream s;
-      mDicomHeader[mCurrentSerie].GetFile().Print(s);
-
       QString l;
+
 #if GDCM_MAJOR_VERSION == 2
+      mDicomHeader[mCurrentSerie].GetFile().Print(s);
       const gdcm::File& header = mDicomHeader[mCurrentSerie].GetFile();
       gdcm::StringFilter sf;
       sf.SetFile( header );
@@ -255,6 +255,7 @@ void vvDicomSeriesSelector::itemDetailsSelectionChanged()
           }
         }
 #else
+      mDicomHeader[mCurrentSerie]->Print(s);
       gdcm::File * header = mDicomHeader[mCurrentSerie];
       gdcm::DocEntry * e = header->GetFirstEntry();
       while (e) {
@@ -355,7 +356,7 @@ QString vvDicomSeriesSelector::AddInfo(const gdcm::File *header, QString n, uint
   std::string s = sf.ToString( t );
   return AddInfo(n.toStdString(), s);
 #else
-  return AddInfo(n.toStdString(), header->GetEntryValue(group, elem));
+  return AddInfo(n.toStdString(), const_cast<gdcm::File*>(header)->GetEntryValue(group, elem));
 #endif
 }
 //====================================================================
