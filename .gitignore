@@ -12,3 +12,4 @@ CMakeCache.txt
 *.directory
 build/*
 */.vimrc
+_*
