@@ -15,3 +15,6 @@ build/*
 _*
 #*#
 notes.org
+build-release
+build-debug
+segmentation/clitkTestFilter*
