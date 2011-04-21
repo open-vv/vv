@@ -846,23 +846,19 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
     }
     if (mSlicers[slicer]->GetOverlayActor() && mSlicers[slicer]->GetOverlayActor()->GetVisibility()) {
       displayOver = 1;
-      double Xover = (x - mSlicers[slicer]->GetOverlay()->GetOrigin()[0])
-        /mSlicers[slicer]->GetOverlay()->GetSpacing()[0];
-      double Yover = (y - mSlicers[slicer]->GetOverlay()->GetOrigin()[1])
-        /mSlicers[slicer]->GetOverlay()->GetSpacing()[1];
-      double Zover = (z - mSlicers[slicer]->GetOverlay()->GetOrigin()[2])
-        /mSlicers[slicer]->GetOverlay()->GetSpacing()[2];
-      valueOver = this->GetScalarComponentAsDouble(static_cast<vtkImageData*>(mSlicers[slicer]->GetOverlayMapper()->GetInput()), Xover, Yover, Zover);
+      vtkImageData *overlay = dynamic_cast<vtkImageData*>(mSlicers[slicer]->GetOverlayMapper()->GetInput());
+      double Xover = (x - overlay->GetOrigin()[0]) / overlay->GetSpacing()[0];
+      double Yover = (y - overlay->GetOrigin()[1]) / overlay->GetSpacing()[1];
+      double Zover = (z - overlay->GetOrigin()[2]) / overlay->GetSpacing()[2];
+      valueOver = this->GetScalarComponentAsDouble(overlay, Xover, Yover, Zover);
     }
     if (mSlicers[slicer]->GetFusionActor() && mSlicers[slicer]->GetFusionActor()->GetVisibility()) {
       displayFus = 1;
-      double Xfus = (x - mSlicers[slicer]->GetFusion()->GetOrigin()[0])
-        /mSlicers[slicer]->GetFusion()->GetSpacing()[0];
-      double Yfus = (y - mSlicers[slicer]->GetFusion()->GetOrigin()[1])
-        /mSlicers[slicer]->GetFusion()->GetSpacing()[1];
-      double Zfus = (z - mSlicers[slicer]->GetFusion()->GetOrigin()[2])
-        /mSlicers[slicer]->GetFusion()->GetSpacing()[2];
-      valueFus = this->GetScalarComponentAsDouble(static_cast<vtkImageData*>(mSlicers[slicer]->GetFusionMapper()->GetInput()), Xfus, Yfus, Zfus);
+      vtkImageData *fusion = dynamic_cast<vtkImageData*>(mSlicers[slicer]->GetFusionMapper()->GetInput());
+      double Xover = (x - fusion->GetOrigin()[0]) / fusion->GetSpacing()[0];
+      double Yover = (y - fusion->GetOrigin()[1]) / fusion->GetSpacing()[1];
+      double Zover = (z - fusion->GetOrigin()[2]) / fusion->GetSpacing()[2];
+      valueFus = this->GetScalarComponentAsDouble(fusion, Xover, Yover, Zover);
     }
     emit UpdatePosition(mSlicers[slicer]->GetCursorVisibility(),
                         x,y,z,X,Y,Z,value);
