@@ -3,7 +3,7 @@
 
   Authors belong to: 
   - University of LYON              http://www.universite-lyon.fr/
-  - Léon Bérard cancer center       http://www.centreleonberard.fr
+  - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
 
   This software is distributed WITHOUT ANY WARRANTY; without even
@@ -14,7 +14,7 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-  ===========================================================================**/
+  ======================================================================-====*/
 
 #ifndef CLITKSLICEBYSLICERELATIVEPOSITIONFILTER_H
 #define CLITKSLICEBYSLICERELATIVEPOSITIONFILTER_H
@@ -86,6 +86,17 @@ namespace clitk {
     itkSetMacro(UseASingleObjectConnectedComponentBySliceFlag, bool);
     itkBooleanMacro(UseASingleObjectConnectedComponentBySliceFlag);
 
+    itkGetConstMacro(CCLSelectionFlag, bool);
+    itkSetMacro(CCLSelectionFlag, bool);
+    itkBooleanMacro(CCLSelectionFlag);
+    itkGetConstMacro(CCLSelectionDimension, int);
+    itkSetMacro(CCLSelectionDimension, int);
+    itkGetConstMacro(CCLSelectionDirection, int);
+    itkSetMacro(CCLSelectionDirection, int);
+    itkGetConstMacro(CCLSelectionIgnoreSingleCCLFlag, bool);
+    itkSetMacro(CCLSelectionIgnoreSingleCCLFlag, bool);
+    itkBooleanMacro(CCLSelectionIgnoreSingleCCLFlag);
+
   protected:
     SliceBySliceRelativePositionFilter();
     virtual ~SliceBySliceRelativePositionFilter() {}
@@ -102,6 +113,10 @@ namespace clitk {
     int          m_Direction;
     bool         m_IgnoreEmptySliceObjectFlag;
     bool         m_UseASingleObjectConnectedComponentBySliceFlag;
+    bool         m_CCLSelectionFlag;
+    int          m_CCLSelectionDimension;
+    int          m_CCLSelectionDirection;
+    bool         m_CCLSelectionIgnoreSingleCCLFlag;
 
   private:
     SliceBySliceRelativePositionFilter(const Self&); //purposely not implemented

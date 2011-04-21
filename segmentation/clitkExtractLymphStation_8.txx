@@ -1,20 +1,3 @@
-/*=========================================================================
-  Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
-
-  Authors belong to:
-  - University of LYON              http://www.universite-lyon.fr/
-  - Léon Bérard cancer center       http://www.centreleonberard.fr
-  - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
-
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.  See the copyright notices for more information.
-
-  It is distributed under dual licence
-
-  - BSD        See included LICENSE.txt file
-  - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-===========================================================================*/
 
 #include <itkBinaryDilateImageFilter.h>
 #include <itkMirrorPadImageFilter.h>
@@ -31,7 +14,7 @@ ExtractStation_8_SetDefaultValues()
   SetEsophagusDiltationForAnt(p);
   p[0] = 5; p[1] = 10; p[2] = 1;
   SetEsophagusDiltationForRight(p);
-  SetFuzzyThresholdForS8(0.5);
+  SetFuzzyThreshold("8", "Esophagus", 0.5);
   SetInjectedThresholdForS8(150);
 }
 //--------------------------------------------------------------------
@@ -180,9 +163,9 @@ ExtractStation_8_Post_Limits()
 
   // Convert 2D points in slice into 3D points
   std::vector<MaskImagePointType> vertebralAntPositions;
-  clitk::PointsUtils<MaskImageType>::Convert2DTo3DList(vertebralAntPositionBySlice, 
-                                                       VertebralBody, 
-                                                       vertebralAntPositions);
+  clitk::PointsUtils<MaskImageType>::Convert2DMapTo3DList(vertebralAntPositionBySlice, 
+                                                          VertebralBody, 
+                                                          vertebralAntPositions);
 
   // DEBUG : write list of points
   clitk::WriteListOfLandmarks<MaskImageType>(vertebralAntPositions, 
@@ -485,7 +468,7 @@ ExtractStation_8_Ant_Inf_Limits()
   relPosFilter->UniqueConnectedComponentBySliceOff();
   relPosFilter->SetIntermediateSpacing(3);
   relPosFilter->IntermediateSpacingFlagOn();
-  relPosFilter->SetFuzzyThreshold(GetFuzzyThresholdForS8());
+  relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold("8", "Esophagus"));
   relPosFilter->RemoveObjectFlagOff(); // Do not exclude here because it is dilated
   relPosFilter->CombineWithOrFlagOff(); // NO !
   relPosFilter->IgnoreEmptySliceObjectFlagOn();
@@ -1148,8 +1131,8 @@ ExtractStation_8_Remove_Structures()
   //--------------------------------------------------------------------
   StartNewStep("[Station8] remove some structures");
 
-  Remove_Structures("Aorta");
-  Remove_Structures("Esophagus");
+  Remove_Structures("8", "Aorta");
+  Remove_Structures("8", "Esophagus");
 
   // END
   StopCurrentStep<MaskImageType>(m_Working_Support);

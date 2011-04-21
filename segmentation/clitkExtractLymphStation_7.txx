@@ -1,20 +1,3 @@
-/*=========================================================================
-  Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
-
-  Authors belong to:
-  - University of LYON              http://www.universite-lyon.fr/
-  - Léon Bérard cancer center       http://www.centreleonberard.fr
-  - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
-
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.  See the copyright notices for more information.
-
-  It is distributed under dual licence
-
-  - BSD        See included LICENSE.txt file
-  - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-===========================================================================*/
 
 //--------------------------------------------------------------------
 template <class TImageType>
@@ -22,38 +5,12 @@ void
 clitk::ExtractLymphStationsFilter<TImageType>::
 ExtractStation_7_SetDefaultValues()
 {
-  SetFuzzyThresholdForS7("Bronchi", 0.1);
-  SetFuzzyThresholdForS7("LeftSuperiorPulmonaryVein", 0.3);
-  SetFuzzyThresholdForS7("RightSuperiorPulmonaryVein", 0.2);
-  SetFuzzyThresholdForS7("RightPulmonaryArtery", 0.3);
-  SetFuzzyThresholdForS7("LeftPulmonaryArtery", 0.5);
-  SetFuzzyThresholdForS7("SVC", 0.2);
-}
-//--------------------------------------------------------------------
-
-//--------------------------------------------------------------------
-template <class TImageType>
-void 
-clitk::ExtractLymphStationsFilter<TImageType>::
-SetFuzzyThresholdForS7(std::string tag, double value)
-{
-  m_FuzzyThresholdForS7[tag] = value;
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-template <class TImageType>
-double 
-clitk::ExtractLymphStationsFilter<TImageType>::
-GetFuzzyThresholdForS7(std::string tag)
-{
-  if (m_FuzzyThresholdForS7.find(tag) != m_FuzzyThresholdForS7.end()) {
-    return m_FuzzyThresholdForS7[tag]; 
-  }
-  else {
-    clitkExceptionMacro("Could not find options "+tag+" in the m_FuzzyThresholdForS7 list");
-  }
+  SetFuzzyThreshold("7", "Bronchi", 0.1);
+  SetFuzzyThreshold("7", "LeftSuperiorPulmonaryVein", 0.3);
+  SetFuzzyThreshold("7", "RightSuperiorPulmonaryVein", 0.2);
+  SetFuzzyThreshold("7", "RightPulmonaryArtery", 0.3);
+  SetFuzzyThreshold("7", "LeftPulmonaryArtery", 0.5);
+  SetFuzzyThreshold("7", "SVC", 0.2);
 }
 //--------------------------------------------------------------------
 
@@ -175,7 +132,7 @@ ExtractStation_7_RL_Limits()
 
   m_Working_Support = 
     clitk::SliceBySliceRelativePosition<MaskImageType>(m_Working_Support, m_LeftBronchus, 2, 
-                                                       GetFuzzyThresholdForS7("Bronchi"), "RightTo", 
+                                                       GetFuzzyThreshold("7", "Bronchi"), "RightTo", 
                                                        false, 3, false);
   StopCurrentStep<MaskImageType>(m_Working_Support);
 
@@ -184,7 +141,7 @@ ExtractStation_7_RL_Limits()
   StartNewStep("[Station7] Limits with bronchus : LeftTo the right bronchus");
   m_Working_Support = 
     clitk::SliceBySliceRelativePosition<MaskImageType>(m_Working_Support, m_RightBronchus, 2, 
-                                                       GetFuzzyThresholdForS7("Bronchi"), "LeftTo", 
+                                                       GetFuzzyThreshold("7", "Bronchi"), "LeftTo", 
                                                        false, 3, false); 
   StopCurrentStep<MaskImageType>(m_Working_Support);
 
@@ -198,7 +155,7 @@ ExtractStation_7_RL_Limits()
     sliceRelPosFilter->SetInput(m_Working_Support);
     sliceRelPosFilter->SetInputObject(LeftSuperiorPulmonaryVein);
     sliceRelPosFilter->SetDirection(2);
-    sliceRelPosFilter->SetFuzzyThreshold(GetFuzzyThresholdForS7("LeftSuperiorPulmonaryVein"));
+    sliceRelPosFilter->SetFuzzyThreshold(GetFuzzyThreshold("7", "LeftSuperiorPulmonaryVein"));
     sliceRelPosFilter->AddOrientationTypeString("NotLeftTo");
     sliceRelPosFilter->AddOrientationTypeString("NotAntTo");
     sliceRelPosFilter->SetIntermediateSpacingFlag(true);
@@ -223,7 +180,7 @@ ExtractStation_7_RL_Limits()
     sliceRelPosFilter->SetInput(m_Working_Support);
     sliceRelPosFilter->SetInputObject(RightSuperiorPulmonaryVein);
     sliceRelPosFilter->SetDirection(2);
-    sliceRelPosFilter->SetFuzzyThreshold(GetFuzzyThresholdForS7("RightSuperiorPulmonaryVein"));
+    sliceRelPosFilter->SetFuzzyThreshold(GetFuzzyThreshold("7", "RightSuperiorPulmonaryVein"));
     sliceRelPosFilter->AddOrientationTypeString("NotRightTo");
     sliceRelPosFilter->AddOrientationTypeString("NotAntTo");
     sliceRelPosFilter->AddOrientationTypeString("NotPostTo");
@@ -248,7 +205,7 @@ ExtractStation_7_RL_Limits()
   sliceRelPosFilter->SetInput(m_Working_Support);
   sliceRelPosFilter->SetInputObject(RightPulmonaryArtery);
   sliceRelPosFilter->SetDirection(2);
-  sliceRelPosFilter->SetFuzzyThreshold(GetFuzzyThresholdForS7("RightPulmonaryArtery"));
+  sliceRelPosFilter->SetFuzzyThreshold(GetFuzzyThreshold("7", "RightPulmonaryArtery"));
   sliceRelPosFilter->AddOrientationTypeString("NotAntTo");
   sliceRelPosFilter->SetIntermediateSpacingFlag(true);
   sliceRelPosFilter->SetIntermediateSpacing(3);
@@ -266,7 +223,7 @@ ExtractStation_7_RL_Limits()
   sliceRelPosFilter->SetInput(m_Working_Support);
   sliceRelPosFilter->SetInputObject(LeftPulmonaryArtery);
   sliceRelPosFilter->SetDirection(2);
-  sliceRelPosFilter->SetFuzzyThreshold(GetFuzzyThresholdForS7("LeftPulmonaryArtery"));
+  sliceRelPosFilter->SetFuzzyThreshold(GetFuzzyThreshold("7", "LeftPulmonaryArtery"));
   sliceRelPosFilter->AddOrientationTypeString("NotAntTo");
   sliceRelPosFilter->SetIntermediateSpacingFlag(true);
   sliceRelPosFilter->SetIntermediateSpacing(3);
@@ -283,7 +240,7 @@ ExtractStation_7_RL_Limits()
   sliceRelPosFilter->SetInput(m_Working_Support);
   sliceRelPosFilter->SetInputObject(SVC);
   sliceRelPosFilter->SetDirection(2);
-  sliceRelPosFilter->SetFuzzyThreshold(GetFuzzyThresholdForS7("SVC"));
+  sliceRelPosFilter->SetFuzzyThreshold(GetFuzzyThreshold("7", "SVC"));
   sliceRelPosFilter->AddOrientationTypeString("NotRightTo");
   sliceRelPosFilter->AddOrientationTypeString("NotAntTo");
   sliceRelPosFilter->SetIntermediateSpacingFlag(true);
@@ -386,14 +343,14 @@ ExtractStation_7_Remove_Structures()
   //--------------------------------------------------------------------
   StartNewStep("[Station7] remove some structures");
 
-  Remove_Structures("AzygousVein");
-  Remove_Structures("Aorta");
-  Remove_Structures("Esophagus");
-  Remove_Structures("RightPulmonaryArtery");
-  Remove_Structures("LeftPulmonaryArtery");
-  Remove_Structures("LeftSuperiorPulmonaryVein");
-  Remove_Structures("PulmonaryTrunk");
-  Remove_Structures("VertebralBody");
+  Remove_Structures("7", "AzygousVein");
+  Remove_Structures("7", "Aorta");
+  Remove_Structures("7", "Esophagus");
+  Remove_Structures("7", "RightPulmonaryArtery");
+  Remove_Structures("7", "LeftPulmonaryArtery");
+  Remove_Structures("7", "LeftSuperiorPulmonaryVein");
+  Remove_Structures("7", "PulmonaryTrunk");
+  Remove_Structures("7", "VertebralBody");
 
   // END
   StopCurrentStep<MaskImageType>(m_Working_Support);

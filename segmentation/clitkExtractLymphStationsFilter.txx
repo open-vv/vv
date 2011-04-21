@@ -3,7 +3,7 @@
 
   Authors belong to: 
   - University of LYON              http://www.universite-lyon.fr/
-  - Léon Bérard cancer center       http://www.centreleonberard.fr
+  - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
 
   This software is distributed WITHOUT ANY WARRANTY; without even
@@ -14,7 +14,7 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-  ===========================================================================**/
+  ======================================================================-====*/
 
 #ifndef CLITKEXTRACTLYMPHSTATIONSFILTER_TXX
 #define CLITKEXTRACTLYMPHSTATIONSFILTER_TXX
@@ -55,6 +55,7 @@ ExtractLymphStationsFilter():
   // Default values
   ExtractStation_8_SetDefaultValues();
   ExtractStation_3P_SetDefaultValues();
+  ExtractStation_2RL_SetDefaultValues();
   ExtractStation_3A_SetDefaultValues();
   ExtractStation_7_SetDefaultValues();
 }
@@ -83,6 +84,12 @@ GenerateOutputInformation() {
   ExtractStation_3P();
   StopSubStep();
 
+  // Extract Station2RL
+  StartNewStep("Station 2RL");
+  StartSubStep(); 
+  ExtractStation_2RL();
+  StopSubStep();
+
   // Extract Station3A
   StartNewStep("Station 3A");
   StartSubStep(); 
@@ -102,20 +109,6 @@ GenerateOutputInformation() {
     //ExtractStation_4RL();
     StopSubStep();
   }
-
-
-  //
-  //  typedef clitk::BooleanOperatorLabelImageFilter<MaskImageType> BFilter;
-  //BFilter::Pointer merge = BFilter::New();  
-  // writeImage<MaskImageType>(m_Output, "ouput.mhd");
-  //writeImage<MaskImageType>(m_Working_Support, "ws.mhd");
-  /*merge->SetInput1(m_Station7);
-    merge->SetInput2(m_Station4RL); // support
-    merge->SetOperationType(BFilter::AndNot); CHANGE OPERATOR
-    merge->SetForegroundValue(4);
-    merge->Update();
-    m_Output = merge->GetOutput();
-  */
 }
 //--------------------------------------------------------------------
 
@@ -275,9 +268,36 @@ ExtractStation_3A()
   if (CheckForStation("3A")) {
     ExtractStation_3A_SI_Limits();
     ExtractStation_3A_Ant_Limits();
+    ExtractStation_3A_Post_Limits();
     // Store image filenames into AFDB 
     writeImage<MaskImageType>(m_ListOfStations["3A"], "seg/Station3A.mhd");
     GetAFDB()->SetImageFilename("Station3A", "seg/Station3A.mhd"); 
+    WriteAFDB(); 
+  }
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class TImageType>
+void 
+clitk::ExtractLymphStationsFilter<TImageType>::
+ExtractStation_2RL()
+{
+  if (CheckForStation("2RL")) {
+    ExtractStation_2RL_SI_Limits();
+    ExtractStation_2RL_Post_Limits();
+    ExtractStation_2RL_Ant_Limits2();
+    ExtractStation_2RL_Ant_Limits(); 
+    ExtractStation_2RL_LR_Limits(); 
+    ExtractStation_2RL_Remove_Structures(); 
+    ExtractStation_2RL_SeparateRL(); 
+    
+    // Store image filenames into AFDB 
+    writeImage<MaskImageType>(m_ListOfStations["2R"], "seg/Station2R.mhd");
+    writeImage<MaskImageType>(m_ListOfStations["2L"], "seg/Station2L.mhd");
+    GetAFDB()->SetImageFilename("Station2R", "seg/Station2R.mhd"); 
+    GetAFDB()->SetImageFilename("Station2L", "seg/Station2L.mhd"); 
     WriteAFDB(); 
   }
 }
@@ -305,10 +325,10 @@ ExtractStation_4RL() {
 template <class ImageType>
 void 
 clitk::ExtractLymphStationsFilter<ImageType>::
-Remove_Structures(std::string s)
+Remove_Structures(std::string station, std::string s)
 {
   try {
-    StartNewStep("[Station7] Remove "+s);  
+    StartNewStep("[Station"+station+"] Remove "+s);  
     MaskImagePointer Structure = GetAFDB()->template GetImage<MaskImageType>(s);
     clitk::AndNot<MaskImageType>(m_Working_Support, Structure, GetBackgroundValue());
   }
@@ -317,6 +337,39 @@ Remove_Structures(std::string s)
   }
 }
 //--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class TImageType>
+void 
+clitk::ExtractLymphStationsFilter<TImageType>::
+SetFuzzyThreshold(std::string station, std::string tag, double value)
+{
+  m_FuzzyThreshold[station][tag] = value;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class TImageType>
+double 
+clitk::ExtractLymphStationsFilter<TImageType>::
+GetFuzzyThreshold(std::string station, std::string tag)
+{
+  if (m_FuzzyThreshold.find(station) == m_FuzzyThreshold.end()) {
+    clitkExceptionMacro("Could not find options for station "+station+" in the list (while searching for tag "+tag+").");
+    return 0.0;
+  }
+
+  if (m_FuzzyThreshold[station].find(tag) == m_FuzzyThreshold[station].end()) {
+    clitkExceptionMacro("Could not find options "+tag+" in the list of FuzzyThreshold for station "+station+".");
+    return 0.0;
+  }
+  
+  return m_FuzzyThreshold[station][tag]; 
+}
+//--------------------------------------------------------------------
+
 
 
 

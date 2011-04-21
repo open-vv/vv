@@ -13,3 +13,8 @@ CMakeCache.txt
 build/*
 */.vimrc
 _*
+#*#
+notes.org
+build-release
+build-debug
+segmentation/clitkTestFilter*

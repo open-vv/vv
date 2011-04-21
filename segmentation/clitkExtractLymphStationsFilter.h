@@ -3,7 +3,7 @@
 
   Authors belong to: 
   - University of LYON              http://www.universite-lyon.fr/
-  - Léon Bérard cancer center       http://www.centreleonberard.fr
+  - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
 
   This software is distributed WITHOUT ANY WARRANTY; without even
@@ -14,7 +14,7 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-  ===========================================================================**/
+  ======================================================================-====*/
 
 #ifndef CLITKEXTRACTLYMPHSTATIONSFILTER_H
 #define CLITKEXTRACTLYMPHSTATIONSFILTER_H
@@ -22,6 +22,9 @@
 // clitk
 #include "clitkFilterBase.h"
 #include "clitkFilterWithAnatomicalFeatureDatabaseManagement.h"
+
+// vtk
+#include <vtkPolyData.h>
 
 namespace clitk {
   
@@ -72,6 +75,7 @@ namespace clitk {
 
     typedef itk::Image<MaskImagePixelType, 2>    MaskSliceType;
     typedef typename MaskSliceType::Pointer      MaskSlicePointer;
+    typedef typename MaskSliceType::PointType    MaskSlicePointType;
 
     /** ImageDimension constants */
     itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
@@ -89,19 +93,16 @@ namespace clitk {
     itkGetConstMacro(EsophagusDiltationForAnt, MaskImagePointType);
     itkSetMacro(EsophagusDiltationForRight, MaskImagePointType);
     itkGetConstMacro(EsophagusDiltationForRight, MaskImagePointType);
-    itkSetMacro(FuzzyThresholdForS8, double);
-    itkGetConstMacro(FuzzyThresholdForS8, double);
-
     itkSetMacro(InjectedThresholdForS8, double);
     itkGetConstMacro(InjectedThresholdForS8, double);
 
     // Station 7
-    void SetFuzzyThresholdForS7(std::string tag, double value);
-    double GetFuzzyThresholdForS7(std::string tag);
 
     // All stations
     bool GetComputeStation(std::string s);
     void AddComputeStation(std::string station) ;
+    void SetFuzzyThreshold(std::string station, std::string tag, double value);
+    double GetFuzzyThreshold(std::string station, std::string tag);
 
   protected:
     ExtractLymphStationsFilter();
@@ -120,14 +121,17 @@ namespace clitk {
     std::map<std::string, bool> m_ComputeStationMap;
 
     bool CheckForStation(std::string station);
-    void Remove_Structures(std::string s);
+    void Remove_Structures(std::string station, std::string s);
+
+    // Global parameters
+    typedef std::map<std::string, double> FuzzyThresholdByStructureType;
+    std::map<std::string, FuzzyThresholdByStructureType> m_FuzzyThreshold;    
 
     // Station 8
     double m_DistanceMaxToAnteriorPartOfTheSpine;
     double m_DiaphragmInferiorLimit;
     double m_CarinaZ;
     double m_OriginOfRightMiddleLobeBronchusZ;
-    double m_FuzzyThresholdForS8;
     double m_InjectedThresholdForS8;
     MaskImagePointer m_Esophagus;
     MaskImagePointType m_EsophagusDiltationForAnt;
@@ -159,11 +163,24 @@ namespace clitk {
     void ExtractStation_3P_LR_sup_Limits_2();
     void ExtractStation_3P_LR_inf_Limits();
 
+    // Station 2RL
+    void ExtractStation_2RL();
+    void ExtractStation_2RL_SetDefaultValues();
+    void ExtractStation_2RL_SI_Limits();
+    void ExtractStation_2RL_Ant_Limits();
+    void ExtractStation_2RL_Ant_Limits2();
+    void ExtractStation_2RL_Post_Limits();
+    void ExtractStation_2RL_LR_Limits();
+    void ExtractStation_2RL_Remove_Structures();
+    void ExtractStation_2RL_SeparateRL();
+    vtkSmartPointer<vtkPolyData> Build3DMeshFrom2DContour(const std::vector<ImagePointType> & points);
+
     // Station 3A
     void ExtractStation_3A();
     void ExtractStation_3A_SetDefaultValues();
     void ExtractStation_3A_SI_Limits();
     void ExtractStation_3A_Ant_Limits();
+    void ExtractStation_3A_Post_Limits();
 
     // Station 7
     void ExtractStation_7();
@@ -173,7 +190,6 @@ namespace clitk {
     void ExtractStation_7_Posterior_Limits();   
     void ExtractStation_7_Remove_Structures();
     MaskImagePointer m_Working_Trachea;
-    std::map<std::string, double> m_FuzzyThresholdForS7;
     MaskImagePointer m_LeftBronchus;
     MaskImagePointer m_RightBronchus;
     typedef std::vector<MaskImageType::PointType> ListOfPointsType;
@@ -212,6 +228,7 @@ namespace clitk {
 #include "clitkExtractLymphStationsFilter.txx"
 #include "clitkExtractLymphStation_8.txx"
 #include "clitkExtractLymphStation_3P.txx"
+#include "clitkExtractLymphStation_2RL.txx"
 #include "clitkExtractLymphStation_3A.txx"
 #include "clitkExtractLymphStation_7.txx"
 #include "clitkExtractLymphStation_4RL.txx"

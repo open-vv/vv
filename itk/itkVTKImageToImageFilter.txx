@@ -3,7 +3,7 @@
 
   Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
-  - Léon Bérard cancer center       http://www.centreleonberard.fr
+  - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
 
   This software is distributed WITHOUT ANY WARRANTY; without even
@@ -14,7 +14,7 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-===========================================================================**/
+======================================================================-====*/
 #ifndef _itkVTKImageToImageFilter_txx
 #define _itkVTKImageToImageFilter_txx
 #include "itkVTKImageToImageFilter.h"
@@ -86,7 +86,8 @@ VTKImageToImageFilter<TOutputImage>
  * Get an itk::Image as output
  */
 template <class TOutputImage>
-const typename VTKImageToImageFilter<TOutputImage>::OutputImageType *
+//const 
+typename VTKImageToImageFilter<TOutputImage>::OutputImageType *
 VTKImageToImageFilter<TOutputImage>
 ::GetOutput() const
 {
