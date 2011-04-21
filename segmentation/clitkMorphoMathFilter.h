@@ -98,6 +98,7 @@ namespace clitk {
 
     itkGetConstMacro(Radius, SizeType);
     void SetRadius(SizeType & r);
+    void SetRadius(int r);
 
     itkGetConstMacro(BoundaryToForegroundFlag, bool);
     itkSetMacro(BoundaryToForegroundFlag, bool);

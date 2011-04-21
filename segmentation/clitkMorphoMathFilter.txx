@@ -70,6 +70,18 @@ SetRadius(SizeType & p)
 //--------------------------------------------------------------------
 template<class ImageType>
 void clitk::MorphoMathFilter<ImageType>::
+SetRadius(int r)
+{
+  for(uint i=0; i<ImageType::ImageDimension; i++)
+    m_Radius[i] = r;
+  SetRadius(m_Radius);
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template<class ImageType>
+void clitk::MorphoMathFilter<ImageType>::
 SetOperationType(int type)
 {
   switch (type) {
