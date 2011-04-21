@@ -256,16 +256,16 @@ GenericMetric<args_info_type,FixedImageType, MovingImageType>::GetMetricPointer(
   }
 
 
-  typedef itk::ImageMaskSpatialObject<itkGetStaticConstMacro(FixedImageDimension)> ImageMaskSpatialObjectType;
-  typename ImageMaskSpatialObjectType::ConstPointer mask = dynamic_cast<const ImageMaskSpatialObjectType*>(m_FixedImageMask.GetPointer());
-  
-  typedef typename ImageMaskSpatialObjectType::RegionType ImageMaskRegionType;
-  ImageMaskRegionType mask_region = mask->GetAxisAlignedBoundingBoxRegion();
-  
+  //typedef itk::ImageMaskSpatialObject<itkGetStaticConstMacro(FixedImageDimension)> ImageMaskSpatialObjectType;
+  //typename ImageMaskSpatialObjectType::ConstPointer mask = dynamic_cast<const ImageMaskSpatialObjectType*>(m_FixedImageMask.GetPointer());
+
+  //typedef typename ImageMaskSpatialObjectType::RegionType ImageMaskRegionType;
+  //ImageMaskRegionType mask_region = mask->GetAxisAlignedBoundingBoxRegion();
+
   // Common properties
-  if( m_FixedImageMask.IsNotNull() )  
+  if( m_FixedImageMask.IsNotNull() )
     m_Metric->SetFixedImageMask(m_FixedImageMask);
-  
+
   m_Metric->SetFixedImageRegion(m_FixedImageRegion);
   //m_Metric->SetFixedImageRegion(mask_region);
 
@@ -359,7 +359,7 @@ GenericMetric<args_info_type,FixedImageType, MovingImageType>::GetMetricPointer(
       //RandomIterator randIter( m_FixedImage, mask_region );
       
       if (m_Verbose) std::cout << "Search region " << m_FixedImageRegion << std::endl;
-      if (m_Verbose) std::cout << "Mask search region " << mask_region << std::endl;
+      //if (m_Verbose) std::cout << "Mask search region " << mask_region << std::endl;
 
       // Randomly sample the image
       short att = 1;
