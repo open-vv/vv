@@ -3,7 +3,7 @@
 
   Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
-  - Léon Bérard cancer center       http://www.centreleonberard.fr
+  - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
 
   This software is distributed WITHOUT ANY WARRANTY; without even
@@ -14,7 +14,7 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-  ===========================================================================**/
+  ======================================================================-====*/
 
 #include "vvSlicerManager.h"
 #include "vvSlicer.h"
@@ -852,14 +852,7 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
         /mSlicers[slicer]->GetOverlay()->GetSpacing()[1];
       double Zover = (z - mSlicers[slicer]->GetOverlay()->GetOrigin()[2])
         /mSlicers[slicer]->GetOverlay()->GetSpacing()[2];
-      if (Xover >= mSlicers[slicer]->GetOverlayMapper()->GetInput()->GetWholeExtent()[0] &&
-          Xover <= mSlicers[slicer]->GetOverlayMapper()->GetInput()->GetWholeExtent()[1] &&
-          Yover >= mSlicers[slicer]->GetOverlayMapper()->GetInput()->GetWholeExtent()[2] &&
-          Yover <= mSlicers[slicer]->GetOverlayMapper()->GetInput()->GetWholeExtent()[3] &&
-          Zover >= mSlicers[slicer]->GetOverlayMapper()->GetInput()->GetWholeExtent()[4] &&
-          Zover <= mSlicers[slicer]->GetOverlayMapper()->GetInput()->GetWholeExtent()[5]) {
-        valueOver = this->GetScalarComponentAsDouble(static_cast<vtkImageData*>(mSlicers[slicer]->GetOverlayMapper()->GetInput()), Xover, Yover, Zover);
-      }
+      valueOver = this->GetScalarComponentAsDouble(static_cast<vtkImageData*>(mSlicers[slicer]->GetOverlayMapper()->GetInput()), Xover, Yover, Zover);
     }
     if (mSlicers[slicer]->GetFusionActor() && mSlicers[slicer]->GetFusionActor()->GetVisibility()) {
       displayFus = 1;
@@ -869,14 +862,7 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
         /mSlicers[slicer]->GetFusion()->GetSpacing()[1];
       double Zfus = (z - mSlicers[slicer]->GetFusion()->GetOrigin()[2])
         /mSlicers[slicer]->GetFusion()->GetSpacing()[2];
-      if (Xfus >= mSlicers[slicer]->GetFusionMapper()->GetInput()->GetWholeExtent()[0] &&
-          Xfus <= mSlicers[slicer]->GetFusionMapper()->GetInput()->GetWholeExtent()[1] &&
-          Yfus >= mSlicers[slicer]->GetFusionMapper()->GetInput()->GetWholeExtent()[2] &&
-          Yfus <= mSlicers[slicer]->GetFusionMapper()->GetInput()->GetWholeExtent()[3] &&
-          Zfus >= mSlicers[slicer]->GetFusionMapper()->GetInput()->GetWholeExtent()[4] &&
-          Zfus <= mSlicers[slicer]->GetFusionMapper()->GetInput()->GetWholeExtent()[5]) {
-        valueFus = this->GetScalarComponentAsDouble(static_cast<vtkImageData*>(mSlicers[slicer]->GetFusionMapper()->GetInput()), Xfus, Yfus, Zfus);
-      }
+      valueFus = this->GetScalarComponentAsDouble(static_cast<vtkImageData*>(mSlicers[slicer]->GetFusionMapper()->GetInput()), Xfus, Yfus, Zfus);
     }
     emit UpdatePosition(mSlicers[slicer]->GetCursorVisibility(),
                         x,y,z,X,Y,Z,value);
