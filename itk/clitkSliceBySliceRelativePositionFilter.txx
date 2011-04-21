@@ -3,7 +3,7 @@
 
   Authors belong to: 
   - University of LYON              http://www.universite-lyon.fr/
-  - Léon Bérard cancer center       http://www.centreleonberard.fr
+  - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
 
   This software is distributed WITHOUT ANY WARRANTY; without even
@@ -14,7 +14,7 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-  ===========================================================================**/
+  ======================================================================-====*/
 
 // clitk
 #include "clitkSegmentationUtils.h"
@@ -37,6 +37,10 @@ SliceBySliceRelativePositionFilter():
   this->VerboseStepFlagOff();
   this->WriteStepFlagOff();
   this->SetCombineWithOrFlag(false);
+  CCLSelectionFlagOn();
+  SetCCLSelectionDimension(0);
+  SetCCLSelectionDirection(1);
+  CCLSelectionIgnoreSingleCCLFlagOff();
 }
 //--------------------------------------------------------------------
 
@@ -187,6 +191,39 @@ GenerateOutputInformation()
         mObjectSlices[i] = KeepLabels<SliceType>(mObjectSlices[i], 0, 1, 1, 1, true);
       }
 
+      // Select a single according to a position if more than one CCL
+      if (GetCCLSelectionFlag()) {
+        // if several CCL, choose the most extrema according a direction, 
+        // if not -> should we consider this slice ? 
+        if (nb<2) {
+          if (GetCCLSelectionIgnoreSingleCCLFlag()) {
+            mObjectSlices[i] = SetBackground<SliceType, SliceType>(mObjectSlices[i], mObjectSlices[i], 
+                                                                   1, this->GetBackgroundValue(), 
+                                                                   true);
+          }
+        }
+        int dim = GetCCLSelectionDimension();
+        int direction = GetCCLSelectionDirection();
+        std::vector<typename SliceType::PointType> centroids;
+        ComputeCentroids<SliceType>(mObjectSlices[i], this->GetBackgroundValue(), centroids);
+        uint index=1;
+        for(uint j=1; j<centroids.size(); j++) {
+          if (direction == 1) {
+            if (centroids[j][dim] > centroids[index][dim]) index = j;
+          }
+          else {
+            if (centroids[j][dim] < centroids[index][dim]) index = j;
+          }
+        }
+        for(uint v=1; v<centroids.size(); v++) {
+          if (v != index) {
+            mObjectSlices[i] = SetBackground<SliceType, SliceType>(mObjectSlices[i], mObjectSlices[i], 
+                                                                   (char)v, this->GetBackgroundValue(), 
+                                                                   true);
+          }
+        }
+      }
+
       // Relative position
       typedef clitk::AddRelativePositionConstraintToLabelImageFilter<SliceType> RelPosFilterType;
       typename RelPosFilterType::Pointer relPosFilter = RelPosFilterType::New();
@@ -216,6 +253,15 @@ GenerateOutputInformation()
         mInputSlices[i] = KeepLabels<SliceType>(mInputSlices[i], 0, 1, 1, 1, true);
       }
 
+      /*
+      // Select unique CC according to the most in a given direction
+      if (GetUniqueConnectedComponentBySliceAccordingToADirection()) {
+        int nb;
+        mInputSlices[i] = LabelizeAndCountNumberOfObjects<SliceType>(mInputSlices[i], 0, true, 1, nb);
+        std::vector<typename ImageType::PointType> & centroids;
+        ComputeCentroids
+        }
+      */
     }
   }
 

@@ -14,7 +14,7 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-  ===========================================================================**/
+  ======================================================================-====*/
 
 // clitk
 #include "clitkSetBackgroundImageFilter.h"
@@ -519,6 +519,47 @@ namespace clitk {
   //--------------------------------------------------------------------
   template<class ImageType>
   void
+  ComputeCentroids2(const ImageType * image, 
+                   typename ImageType::PixelType BG, 
+                   std::vector<typename ImageType::PointType> & centroids) 
+  {
+    typedef long LabelType;
+    static const unsigned int Dim = ImageType::ImageDimension;
+    typedef itk::ShapeLabelObject< LabelType, Dim > LabelObjectType;
+    typedef itk::LabelMap< LabelObjectType > LabelMapType;
+    typedef itk::LabelImageToLabelMapFilter<ImageType, LabelMapType> ImageToMapFilterType;
+    typename ImageToMapFilterType::Pointer imageToLabelFilter = ImageToMapFilterType::New(); 
+    typedef itk::ShapeLabelMapFilter<LabelMapType, ImageType> ShapeFilterType; 
+    typename ShapeFilterType::Pointer statFilter = ShapeFilterType::New();
+    imageToLabelFilter->SetBackgroundValue(BG);
+    imageToLabelFilter->SetInput(image);
+    statFilter->SetInput(imageToLabelFilter->GetOutput());
+    statFilter->Update();
+    typename LabelMapType::Pointer labelMap = statFilter->GetOutput();
+
+    centroids.clear();
+    typename ImageType::PointType dummy;
+    centroids.push_back(dummy); // label 0 -> no centroid, use dummy point
+    for(uint i=1; i<labelMap->GetNumberOfLabelObjects()+1; i++) {
+      centroids.push_back(labelMap->GetLabelObject(i)->GetCentroid());
+    } 
+    
+    for(uint i=1; i<labelMap->GetNumberOfLabelObjects()+1; i++) {
+      DD(labelMap->GetLabelObject(i)->GetBinaryPrincipalAxes());
+      DD(labelMap->GetLabelObject(i)->GetBinaryFlatness());
+      DD(labelMap->GetLabelObject(i)->GetRoundness ());      
+
+      // search for the point on the boundary alog PA
+
+    }
+
+  }
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  void
   ExtractSlices(const ImageType * image, int direction, 
                 std::vector<typename itk::Image<typename ImageType::PixelType, 
                                                 ImageType::ImageDimension-1>::Pointer > & slices) 
@@ -558,7 +599,7 @@ namespace clitk {
   //--------------------------------------------------------------------
   template<class ImageType>
   void 
-  PointsUtils<ImageType>::Convert2DTo3DList(const MapPoint2DType & map, 
+  PointsUtils<ImageType>::Convert2DMapTo3DList(const MapPoint2DType & map, 
                                             const ImageType * image, 
                                             VectorPoint3DType & list)
   {
@@ -571,6 +612,24 @@ namespace clitk {
     }
   }
   //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  void 
+  PointsUtils<ImageType>::Convert2DListTo3DList(const VectorPoint2DType & p2D, 
+                                                int slice,
+                                                const ImageType * image, 
+                                                VectorPoint3DType & list) 
+  {
+    for(uint i=0; i<p2D.size(); i++) {
+      PointType3D p;
+      Convert2DTo3D(p2D[i], image, slice, p);
+      list.push_back(p);
+    }
+  }
+  //--------------------------------------------------------------------
+
 
   //--------------------------------------------------------------------
   template<class ImageType>
@@ -940,7 +999,7 @@ namespace clitk {
     }
     
     // Convert 2D points in slice into 3D points
-    clitk::PointsUtils<ImageType>::Convert2DTo3DList(position2D, input, A);
+    clitk::PointsUtils<ImageType>::Convert2DMapTo3DList(position2D, input, A);
     
     // Create additional point just right to the previous ones, on the
     // given lineDirection, in order to create a horizontal/vertical line.

@@ -3,7 +3,7 @@
 
   Authors belong to: 
   - University of LYON              http://www.universite-lyon.fr/
-  - Léon Bérard cancer center       http://www.centreleonberard.fr
+  - Léon Bérard cancer center       http://oncora1.lyon.fnclcc.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
 
   This software is distributed WITHOUT ANY WARRANTY; without even
@@ -14,7 +14,7 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-  ===========================================================================**/
+  ======================================================================-====*/
 
 #ifndef CLITKSEGMENTATIONUTILS_H
 #define CLITKSEGMENTATIONUTILS_H
@@ -209,6 +209,11 @@ namespace clitk {
   ComputeCentroids(const ImageType * image, 
                    typename ImageType::PixelType BG, 
                    std::vector<typename ImageType::PointType> & centroids);
+  template<class ImageType>
+  void
+  ComputeCentroids2(const ImageType * image, 
+                   typename ImageType::PixelType BG, 
+                   std::vector<typename ImageType::PointType> & centroids);
   //--------------------------------------------------------------------
 
 
@@ -258,14 +263,20 @@ namespace clitk {
     
     typedef std::map<int, PointType2D> MapPoint2DType;
     typedef std::vector<PointType3D> VectorPoint3DType;
+    typedef std::vector<PointType2D> VectorPoint2DType;
+
   public:
     static void Convert2DTo3D(const PointType2D & p2D, 
                               const ImageType * image, 
                               const int slice, 
                               PointType3D & p3D);
-    static void Convert2DTo3DList(const MapPoint2DType & map, 
+    static void Convert2DMapTo3DList(const MapPoint2DType & map, 
                                   const ImageType * image, 
                                   VectorPoint3DType & list);
+    static void Convert2DListTo3DList(const VectorPoint2DType & p, 
+                                      int slice,
+                                      const ImageType * image, 
+                                      VectorPoint3DType & list);
   };
 
   //--------------------------------------------------------------------

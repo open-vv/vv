@@ -17,28 +17,22 @@
 ======================================================================-====*/
 
 // clitk
-#include "clitkExtractLymphStations_ggo.h"
-#include "clitkExtractLymphStationsGenericFilter.h"
+#include "clitkCommon.h"
 
 //--------------------------------------------------------------------
 int main(int argc, char * argv[])
 {
-
-  // Init command line
-  GGO(clitkExtractLymphStations, args_info);
-  CLITK_INIT;
-
-  // Filter
-  typedef clitk::ExtractLymphStationsGenericFilter<args_info_clitkExtractLymphStations> FilterType;
-  FilterType::Pointer filter = FilterType::New();
-
-  filter->SetArgsInfo(args_info);
+  // Typedef
+  typedef uchar MaskImagePixelType; 
+  typedef short ImagePixelType;
+  typedef itk::Image<ImagePixelType, 3> ImageType;
+  typedef itk::Image<MaskImagePixelType, 3> MaskImageType;
   
-  try {
-    filter->Update();
-  } catch(std::runtime_error e) {
-    std::cout << e.what() << std::endl;
-  }
+  // Input
+  
+  
+
+
 
   return EXIT_SUCCESS;
 } // This is the end, my friend

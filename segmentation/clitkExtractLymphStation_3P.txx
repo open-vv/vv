@@ -1,23 +1,3 @@
-/*=========================================================================
-  Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
-
-  Authors belong to:
-  - University of LYON              http://www.universite-lyon.fr/
-  - Léon Bérard cancer center       http://www.centreleonberard.fr
-  - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
-
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.  See the copyright notices for more information.
-
-  It is distributed under dual licence
-
-  - BSD        See included LICENSE.txt file
-  - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-===========================================================================*/
-
-#include <itkBinaryDilateImageFilter.h>
-#include <itkMirrorPadImageFilter.h>
 
 //--------------------------------------------------------------------
 template <class ImageType>
@@ -82,13 +62,13 @@ ExtractStation_3P_Remove_Structures()
 
   StartNewStep("[Station 3P] Remove some structures.");
 
-  Remove_Structures("Aorta");
-  Remove_Structures("VertebralBody");
-  Remove_Structures("SubclavianArtery");
-  Remove_Structures("Esophagus");
-  Remove_Structures("Azygousvein");
-  Remove_Structures("Thyroid");
-  Remove_Structures("VertebralArtery");
+  Remove_Structures("3P", "Aorta");
+  Remove_Structures("3P", "VertebralBody");
+  Remove_Structures("3P", "SubclavianArtery");
+  Remove_Structures("3P", "Esophagus");
+  Remove_Structures("3P", "Azygousvein");
+  Remove_Structures("3P", "Thyroid");
+  Remove_Structures("3P", "VertebralArtery");
 
   StopCurrentStep<MaskImageType>(m_Working_Support);
   m_ListOfStations["3P"] = m_Working_Support;
