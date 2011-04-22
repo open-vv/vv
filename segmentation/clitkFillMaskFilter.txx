@@ -141,6 +141,9 @@ GenerateData()
         start2D[m_Directions[i]]=sliceIndex;
         desiredRegion.SetIndex( start2D );
         extractFilter->SetExtractionRegion( desiredRegion );
+#if ITK_VERSION_MAJOR == 4
+        extractFilter->SetDirectionCollapseToSubmatrix();
+#endif
         extractFilter->Update( );
         typename ImageSliceType::Pointer slice= extractFilter->GetOutput();
         
