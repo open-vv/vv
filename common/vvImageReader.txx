@@ -23,6 +23,7 @@
 #include <itkImageFileReader.h>
 #include <itkImageSeriesReader.h>
 #include <itkImageToVTKImageFilter.h>
+#include <itkAnalyzeImageIO.h>
 
 #include <vtkTransform.h>
 
@@ -66,6 +67,8 @@ void vvImageReader::UpdateWithDim(std::string InputPixelType)
 template<class InputPixelType, unsigned int VImageDimension>
 void vvImageReader::UpdateWithDimAndInputPixelType()
 {
+  itk::AnalyzeImageIO *analyzeImageIO;
+
   if (mType == MERGEDWITHTIME)   // In this case we can load the images
     // one at the time to avoid excessive
     // memory use
@@ -88,6 +91,7 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
         mLastError = error.str();
         return;
       }
+      analyzeImageIO = dynamic_cast<itk::AnalyzeImageIO*>( reader->GetImageIO() );
     }
   } else if (mType == SLICED) {
     mImage=vvImage::New();
@@ -116,12 +120,12 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
     filter->ReleaseDataFlagOn();
     try {
       mImage->AddItkImage<SlicedImageType>(filter->GetOutput());
-    }
-    catch ( itk::ExceptionObject & err ) {
+    } catch ( itk::ExceptionObject & err ) {
       std::cerr << "Error while slicing " << mInputFilenames[0].c_str()
                 << "(slice #" << mSlice << ") " << err << std::endl;
       return;
     }
+    analyzeImageIO = dynamic_cast<itk::AnalyzeImageIO*>( reader->GetImageIO() );
   } else {
     if (mInputFilenames.size() > 1) {
       typedef itk::Image< InputPixelType, VImageDimension > InputImageType;
@@ -162,6 +166,19 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
         mLastError = error.str();
         return;
       }
+      analyzeImageIO = dynamic_cast<itk::AnalyzeImageIO*>( reader->GetImageIO() );
+    }
+  }
+
+  // For unknown analyze orientations, we set identity
+  if(analyzeImageIO) {
+    const double m[16] = {1.,0.,0.,0.,0.,0.,1.,0.,0.,-1.,0.,0.,0.,0.,0.,1.};
+    int i;
+    for(i=0; m[i]==mImage->GetTransform()->GetMatrix()->GetElement(i%4, i/4) && i<16; i++);
+    if(i==16) {
+      itkWarningMacro(<< "Analyze image file format detected with unknown orientation."
+                      << "Forcing identity orientation, use other file format if not ok.");
+      mImage->GetTransform()->Identity();
     }
   }
 }
