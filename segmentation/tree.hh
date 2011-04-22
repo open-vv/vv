@@ -90,7 +90,7 @@ class tree {
 
       /// Base class for iterators, only pointers stored, no traversal logic.
 #ifdef __SGI_STL_PORT
-		class iterator_base : public stlport::bidirectional_iterator<T, ptrdiff_t> {
+		class iterator_base : public stlport::bidirectional_iterator<T, std::ptrdiff_t> {
 #else
 		class iterator_base {
 #endif
@@ -99,7 +99,7 @@ class tree {
 				typedef T*                              pointer;
 				typedef T&                              reference;
 				typedef size_t                          size_type;
-				typedef ptrdiff_t                       difference_type;
+				typedef std::ptrdiff_t                       difference_type;
 				typedef std::bidirectional_iterator_tag iterator_category;
 
 				iterator_base();
