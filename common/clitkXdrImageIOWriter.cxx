@@ -34,7 +34,7 @@
 #if !defined(unix) && !defined(__APPLE__)
 //#define _read  readfix
 #endif
-#define AVSINT ptrdiff_t
+#define AVSINT std::ptrdiff_t
 #define AVS_ERROR
 #define AVS_OK
 
