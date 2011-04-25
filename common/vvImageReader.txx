@@ -172,11 +172,14 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
 
   // For unknown analyze orientations, we set identity
   if(analyzeImageIO) {
-    const double m[16] = {1.,0.,0.,0.,0.,0.,1.,0.,0.,-1.,0.,0.,0.,0.,0.,1.};
+    const double m[16] = {1.,0.,0.,0.,
+                          0.,0.,1.,0.,
+                          0.,-1.,0.,0.,
+                          0.,0.,0.,1.};
     int i;
-    for(i=0; m[i]==mImage->GetTransform()->GetMatrix()->GetElement(i%4, i/4) && i<16; i++);
+    for(i=0; i<16 && m[i]==mImage->GetTransform()->GetMatrix()->GetElement(i%4, i/4); i++);
     if(i==16) {
-      itkWarningMacro(<< "Analyze image file format detected with unknown orientation."
+      itkWarningMacro(<< "Analyze image file format detected with unknown orientation. "
                       << "Forcing identity orientation, use other file format if not ok.");
       mImage->GetTransform()->Identity();
     }
