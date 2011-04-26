@@ -107,7 +107,7 @@ public:
   void SetDisplayMode(bool i);
   void FlipHorizontalView();
   void FlipVerticalView();
-  static double GetScalarComponentAsDouble(vtkImageData *image, int X, double Y, double Z, int &ix, int &iy, int &iz, int component=0);
+  static double GetScalarComponentAsDouble(vtkImageData *image, double X, double Y, double Z, int &ix, int &iy, int &iz, int component=0);
   void Render();
   ///Sets the camera to fit the image in the window
   void ResetCamera();

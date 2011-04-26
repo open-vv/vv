@@ -1150,7 +1150,7 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max)
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-double vvSlicer::GetScalarComponentAsDouble(vtkImageData *image, int X, double Y, double Z, int &ix, int &iy, int &iz, int component)
+double vvSlicer::GetScalarComponentAsDouble(vtkImageData *image, double X, double Y, double Z, int &ix, int &iy, int &iz, int component)
 {
   ix = lrint(X);
   iy = lrint(Y);
@@ -1178,13 +1178,7 @@ void vvSlicer::Render()
   } else legend->SetVisibility(0);
 
   if (ca->GetVisibility()) {
-    std::string worldPos = "";
-    std::stringstream world1;
-    std::stringstream world2;
-    std::stringstream world3;
-    world1 << (int)mCurrent[0];
-    world2 << (int)mCurrent[1];
-    world3 << (int)mCurrent[2];
+    std::stringstream worldPos;
     double X = (mCurrent[0] - this->GetInput()->GetOrigin()[0])/this->GetInput()->GetSpacing()[0];
     double Y = (mCurrent[1] - this->GetInput()->GetOrigin()[1])/this->GetInput()->GetSpacing()[1];
     double Z = (mCurrent[2] - this->GetInput()->GetOrigin()[2])/this->GetInput()->GetSpacing()[2];
@@ -1207,24 +1201,19 @@ void vvSlicer::Render()
       int ix, iy, iz;
       double value = this->GetScalarComponentAsDouble(this->GetInput(), X, Y, Z, ix, iy, iz);
 
-      std::stringstream pixel1;
-      std::stringstream pixel2;
-      std::stringstream pixel3;
-      std::stringstream temps;
-      pixel1 << ix;
-      pixel2 << iy;
-      pixel3 << iz;
-      temps << mCurrentTSlice;
-
-      std::stringstream val;
-      val << value;
-      worldPos += "data value : " + val.str();
-      worldPos += "\n mm : " + world1.str() + " " + world2.str() + " " +
-        world3.str() + " " + temps.str();
-      worldPos += "\n pixel : " + pixel1.str() + " " + pixel2.str() + " " +
-        pixel3.str() + " " + temps.str();
+      worldPos << "data value : " << value << std::endl;
+      worldPos << "mm : " << lrint(mCurrent[0]) << ' '
+                          << lrint(mCurrent[1]) << ' '
+                          << lrint(mCurrent[2]) << ' '
+                          << mCurrentTSlice
+                          << std::endl;
+      worldPos << "pixel : " << ix << ' '
+                             << iy << ' '
+                             << iz << ' '
+                             << mCurrentTSlice
+                             << std::endl;
     }
-    ca->SetText(1,worldPos.c_str());
+    ca->SetText(1,worldPos.str().c_str());
   }
 
   if (pdmA->GetVisibility()) {
