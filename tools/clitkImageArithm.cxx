@@ -27,6 +27,7 @@
 // clitk include
 #include "clitkImageArithm_ggo.h"
 #include "clitkImageArithmGenericFilter.h"
+#include "clitkIO.h"
 
 //--------------------------------------------------------------------
 int main(int argc, char * argv[])
@@ -34,6 +35,7 @@ int main(int argc, char * argv[])
 
   // Init command line
   GGO(clitkImageArithm, args_info);
+  CLITK_INIT;
 
   // Creation of a generic filter
   typedef clitk::ImageArithmGenericFilter<args_info_clitkImageArithm> FilterType;
