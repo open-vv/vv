@@ -67,14 +67,14 @@
 #include <vtkImageAccumulate.h>
 #include <vtkImageReslice.h>
 
-template <class T, unsigned int dim>
-void print_vector(const char* pmsg, T* pvec)
-{
-  std::cout << pmsg << ": ";
-  for (unsigned int i = 0; i < dim; i++)
-    std::cout << pvec[i] << " ";
-  std::cout << std::endl;
-}
+// template <class T, unsigned int dim>
+// void print_vector(const char* pmsg, T* pvec)
+// {
+//   std::cout << pmsg << ": ";
+//   for (unsigned int i = 0; i < dim; i++)
+//     std::cout << pvec[i] << " ";
+//   std::cout << std::endl;
+// }
 
 
 vtkCxxRevisionMacro(vvSlicer, "DummyRevision");
@@ -839,9 +839,9 @@ void vvSlicer::UpdateDisplayExtent()
   double position[3] = {0, 0, 0};
   position[this->SliceOrientation] = image_bounds[this->SliceOrientation*2]; 
 
-  print_vector<double, 6>("camera", camera);
-  print_vector<double, 6>("image_bounds", image_bounds);
-  print_vector<double, 3>("position", position);
+  //print_vector<double, 6>("camera", camera);
+  //print_vector<double, 6>("image_bounds", image_bounds);
+  //print_vector<double, 3>("position", position);
 
   // find where to place the VF actor. to deal with
   // z-buffer issues, the VF is placed right in front of the image,
