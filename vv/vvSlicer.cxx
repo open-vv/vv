@@ -67,6 +67,16 @@
 #include <vtkImageAccumulate.h>
 #include <vtkImageReslice.h>
 
+template <class T, unsigned int dim>
+void print_vector(const char* pmsg, T* pvec)
+{
+  std::cout << pmsg << ": ";
+  for (unsigned int i = 0; i < dim; i++)
+    std::cout << pvec[i] << " ";
+  std::cout << std::endl;
+}
+
+
 vtkCxxRevisionMacro(vvSlicer, "DummyRevision");
 vtkStandardNewMacro(vvSlicer);
 
@@ -779,6 +789,7 @@ int vvSlicer::GetOrientation()
 }
 //----------------------------------------------------------------------------
 
+
 //----------------------------------------------------------------------------
 void vvSlicer::UpdateDisplayExtent()
 {
@@ -804,11 +815,6 @@ void vvSlicer::UpdateDisplayExtent()
   // Image actor
   this->ImageActor->SetDisplayExtent(w_ext);
   
-  // Position vector
-  double position[3] = {0.,0.,0.};
-  double positionInc = (Renderer->GetActiveCamera()->GetPosition()[this->SliceOrientation] > this->Slice)?10:-10;
-  position[this->SliceOrientation] += positionInc;
-  
   // Overlay image actor
   if (mOverlay && mOverlayActor->GetVisibility()) {
     int overExtent[6];
@@ -816,9 +822,7 @@ void vvSlicer::UpdateDisplayExtent()
     this->ConvertImageToImageDisplayExtent(input, w_ext, mOverlayReslice->GetOutput(), overExtent);
     ClipDisplayedExtent(overExtent, mOverlayMapper->GetInput()->GetWholeExtent());
     mOverlayActor->SetDisplayExtent( overExtent );
-    mOverlayActor->SetPosition(position);
   }
-  position[this->SliceOrientation] += positionInc;
 
   // Fusion image actor
   if (mFusion && mFusionActor->GetVisibility()) {
@@ -827,11 +831,26 @@ void vvSlicer::UpdateDisplayExtent()
     this->ConvertImageToImageDisplayExtent(input, w_ext, mFusionReslice->GetOutput(), fusExtent);
     ClipDisplayedExtent(fusExtent, mFusionMapper->GetInput()->GetWholeExtent());
     mFusionActor->SetDisplayExtent(fusExtent);
-    mFusionActor->SetPosition(position);
   }
-  position[this->SliceOrientation] += positionInc;
 
   // Vector field actor
+  double* camera = Renderer->GetActiveCamera()->GetPosition();
+  double* image_bounds = ImageActor->GetBounds();
+  double position[3] = {0, 0, 0};
+  position[this->SliceOrientation] = image_bounds[this->SliceOrientation*2]; 
+
+  print_vector<double, 6>("camera", camera);
+  print_vector<double, 6>("image_bounds", image_bounds);
+  print_vector<double, 3>("position", position);
+
+  // find where to place the VF actor. to deal with
+  // z-buffer issues, the VF is placed right in front of the image,
+  // subject to a small offset. the position actually depends on the
+  // the location of the camera relative to the image. 
+  double offset = 1;
+  if (camera[this->SliceOrientation] < image_bounds[this->SliceOrientation*2])
+    offset = -1;
+  
   if (mVF && mVFActor->GetVisibility()) {
     int vfExtent[6];
     mVF->GetVTKImages()[0]->UpdateInformation();
@@ -842,21 +861,24 @@ void vvSlicer::UpdateDisplayExtent()
     orientation[this->SliceOrientation] = 0;
     mGlyphFilter->SetOrientation(orientation[0], orientation[1], orientation[2]);
     mVFMapper->Update();
+
+    position[this->SliceOrientation] += offset;
     mVFActor->SetPosition(position);
   }
-  position[this->SliceOrientation] += positionInc;
-
+  
   // Landmarks actor
   if (mLandActor) {
     if (mClipBox) {
       double bounds [6];
       for(unsigned int i=0; i<6; i++)
         bounds[i] = ImageActor->GetBounds()[i];
-      bounds[ this->SliceOrientation*2   ] = ImageActor->GetBounds()[ this->SliceOrientation*2  ]-fabs(0.5/this->GetInput()->GetSpacing()[this->SliceOrientation]);
-      bounds[ this->SliceOrientation*2+1 ] = ImageActor->GetBounds()[ this->SliceOrientation*2+1 ]+fabs(0.5/this->GetInput()->GetSpacing()[this->SliceOrientation]);
+      bounds[ this->SliceOrientation*2   ] = ImageActor->GetBounds()[ this->SliceOrientation*2  ]-fabs(this->GetInput()->GetSpacing()[this->SliceOrientation]);
+      bounds[ this->SliceOrientation*2+1 ] = ImageActor->GetBounds()[ this->SliceOrientation*2+1 ]+fabs(this->GetInput()->GetSpacing()[this->SliceOrientation]);
       mClipBox->SetBounds(bounds);
       UpdateLandmarks();
     }
+    
+    position[this->SliceOrientation] = offset;
     mLandActor->SetPosition(position);
   }
 
@@ -880,6 +902,7 @@ void vvSlicer::UpdateDisplayExtent()
       }
     }
   }
+  
 }
 //----------------------------------------------------------------------------
 
