@@ -118,6 +118,9 @@ GenerateData() {
     m_index[GetDirection()] = start + i;
     m_region.SetIndex(m_index);
     extract->SetExtractionRegion(m_region);
+#if ITK_VERSION_MAJOR == 4
+    extract->SetDirectionCollapseToSubmatrix();
+#endif
     extract->Update();
     SetNthOutput(i, extract->GetOutput());
   }
