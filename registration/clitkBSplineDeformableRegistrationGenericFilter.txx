@@ -479,6 +479,7 @@ namespace clitk
 	typename RegionType::SizeType   gridBorderSize;
 	typename RegionType::SizeType   totalGridSize;
 
+#if 0
 	//Set the number of control points
 	for(unsigned int r=0; r<ImageDimension; r++)  gridSizeOnImage[r]=m_ArgsInfo.control_arg[r];
 	if (m_Verbose) std::cout<<"Setting the number of internal control points "<<gridSizeOnImage<<"..."<<std::endl;
@@ -551,6 +552,121 @@ namespace clitk
 
 	// Pass
 	transform=bsplineTransform;
+#else
+	// Spacing
+	typedef typename BSplineTransformType::SpacingType SpacingType;
+	SpacingType fixedImageSpacing, chosenSpacing, adaptedSpacing;
+	fixedImageSpacing = fixedImage->GetSpacing();
+
+	// Only spacing given: adjust if necessary
+	if (m_ArgsInfo.spacing_given && !m_ArgsInfo.control_given)
+	  {
+	    for(unsigned int r=0; r<ImageDimension; r++) 
+	      {
+		chosenSpacing[r]= m_ArgsInfo.spacing_arg[r];
+		gridSizeOnImage[r] = ceil( (double) transformRegion.GetSize()[r] / ( round(chosenSpacing[r]/fixedImageSpacing[r]) ) );
+		adaptedSpacing[r]= ( round(chosenSpacing[r]/fixedImageSpacing[r]) *fixedImageSpacing[r] ) ;
+	      }
+	    if (m_Verbose) std::cout<<"The chosen control point spacing "<<chosenSpacing<<"..."<<std::endl;
+	    if (m_Verbose) std::cout<<"The control points spacing was adapted to "<<adaptedSpacing<<"..."<<std::endl; 
+	    if (m_Verbose) std::cout<<"The number of (internal) control points is "<<gridSizeOnImage<<"..."<<std::endl; 
+	  }
+
+	// Only number of CP given: adjust if necessary
+	else if (m_ArgsInfo.control_given && !m_ArgsInfo.spacing_given)
+	  {
+	    for(unsigned int r=0; r<ImageDimension; r++) 
+	      {
+		gridSizeOnImage[r]= m_ArgsInfo.control_arg[r];
+		chosenSpacing[r]=fixedImageSpacing[r]*( (double)(transformRegion.GetSize()[r])  / 
+							(double)(gridSizeOnImage[r]) );
+		adaptedSpacing[r]= fixedImageSpacing[r]* ceil( (double)(transformRegion.GetSize()[r] - 1)  / 
+							       (double)(gridSizeOnImage[r] - 1) );
+	      }
+	    if (m_Verbose) std::cout<<"The chosen control point spacing "<<chosenSpacing<<"..."<<std::endl;
+	    if (m_Verbose) std::cout<<"The control points spacing was adapted to "<<adaptedSpacing<<"..."<<std::endl; 
+	    if (m_Verbose) std::cout<<"The number of (internal) control points is "<<gridSizeOnImage<<"..."<<std::endl; 
+	  }
+	
+	// Spacing and number of CP given: no adjustment adjust, just warnings
+	else if (m_ArgsInfo.control_given && m_ArgsInfo.spacing_given)
+	  {
+	    for(unsigned int r=0; r<ImageDimension; r++) 
+	      {
+		adaptedSpacing[r]= m_ArgsInfo.spacing_arg[r];
+		gridSizeOnImage[r] =  m_ArgsInfo.control_arg[r];
+		if (gridSizeOnImage[r]*adaptedSpacing[r]< transformRegion.GetSize()[r]*fixedImageSpacing[r]) 
+		  {
+		    std::cout<<"WARNING: Specified control point region ("<<gridSizeOnImage[r]*adaptedSpacing[r]
+			     <<"mm) does not cover the transform region ("<< transformRegion.GetSize()[r]*fixedImageSpacing[r]
+			     <<"mm) for dimension "<<r<<"!" <<std::endl
+			     <<"Specify only --spacing or --control for automatic adjustment..."<<std::endl;
+		  }
+		if (  fmod(adaptedSpacing[r], fixedImageSpacing[r]) ) 
+		  {
+		    std::cout<<"WARNING: Specified control point spacing for dimension "<<r
+			     <<" does not allow exact representation of BLUT FFD!"<<std::endl
+			     <<"Spacing ratio is non-integer: "<<adaptedSpacing[r]/ fixedImageSpacing[r]<<std::endl
+			     <<"Specify only --spacing or --control for automatic adjustment..."<<std::endl;  
+		  }
+	      }
+	    if (m_Verbose) std::cout<<"The control points spacing was set to "<<adaptedSpacing<<"..."<<std::endl; 
+	    if (m_Verbose) std::cout<<"The number of (internal) control points spacing is "<<gridSizeOnImage<<"..."<<std::endl; 
+	  }
+
+	//JV  border size should depend on spline order
+	for(unsigned int r=0; r<ImageDimension; r++) gridBorderSize[r]=splineOrders[r]; // Border for spline order = 3 ( 1 lower, 2 upper )
+	totalGridSize = gridSizeOnImage + gridBorderSize;
+	bsplineRegion.SetSize( totalGridSize );
+	if (m_Verbose) std::cout<<"The total control point grid size was set to "<<totalGridSize<<"..."<<std::endl;
+
+	// Direction
+	typename FixedImageType::DirectionType gridDirection = fixedImage->GetDirection();
+	SpacingType gridOriginOffset = gridDirection * adaptedSpacing;
+
+	// Origin: 1 CP border for spatial dimensions 
+	typedef typename BSplineTransformType::OriginType OriginType;
+	OriginType gridOrigin = transformRegionOrigin - gridOriginOffset;
+	if (m_Verbose) std::cout<<"The control point grid origin was set to "<<gridOrigin<<"..."<<std::endl;
+
+	// Set
+	bsplineTransform->SetGridSpacing( adaptedSpacing );
+	bsplineTransform->SetGridOrigin( gridOrigin );
+	bsplineTransform->SetGridRegion( bsplineRegion );
+	bsplineTransform->SetGridDirection( gridDirection );
+
+	//Bulk transform
+	//if (m_Verbose) std::cout<<"Setting rigid transform..."<<std::endl;
+	//bsplineTransform->SetBulkTransform( rigidTransform );
+
+	//Vector BSpline interpolator
+	//bsplineTransform->SetOutputSpacing(fixedImage->GetSpacing());
+
+	// Initial parameters
+	if (m_ArgsInfo.init_given)
+	  {
+	    typedef itk::ImageFileReader<typename BSplineTransformType::ImageType> CoefficientReaderType;
+	    typename BSplineTransformType::ImageType::Pointer coeffImages[SpaceDimension];
+	    for(unsigned int i=0; i<SpaceDimension; i++)
+	      {
+		typename CoefficientReaderType::Pointer coeffReader=CoefficientReaderType::New();
+		coeffReader->SetFileName(m_ArgsInfo.init_arg[i]);
+		coeffReader->Update();
+		coeffImages[i]=coeffReader->GetOutput();
+	      }
+	    bsplineTransform->SetCoefficientImage(coeffImages);
+	  }
+	else
+	  {
+	    const unsigned int numberOfParameters =    bsplineTransform->GetNumberOfParameters();
+	    parameters=ParametersType( numberOfParameters );
+	    parameters.Fill( 0.0 );
+	    bsplineTransform->SetParameters( parameters );
+	  }
+
+	// Pass
+	transform=bsplineTransform;
+#endif
 
       }
   
@@ -571,10 +687,11 @@ namespace clitk
     typedef clitk::GenericMetric<args_info_clitkBSplineDeformableRegistration, FixedImageType,MovingImageType > GenericMetricType;
     typename GenericMetricType::Pointer genericMetric=GenericMetricType::New();
     genericMetric->SetArgsInfo(m_ArgsInfo);
+    genericMetric->SetFixedImage(fixedImage);
+    if (spatialObjectMask) genericMetric->SetFixedImageMask( spatialObjectMask );
     genericMetric->SetFixedImageRegion(metricRegion);
     typedef itk::ImageToImageMetric< FixedImageType, MovingImageType >  MetricType;
     typename  MetricType::Pointer metric=genericMetric->GetMetricPointer();
-    if (spatialObjectMask) metric->SetFixedImageMask( spatialObjectMask );
 
 #ifdef ITK_USE_OPTIMIZED_REGISTRATION_METHODS
     if (threadsGiven) metric->SetNumberOfThreads( threads );
