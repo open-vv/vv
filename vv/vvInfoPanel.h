@@ -27,9 +27,7 @@ class vvInfoPanel : public QWidget, private Ui::vvInfoPanel
   Q_OBJECT
 
 public:
-    vvInfoPanel(QWidget * parent=0):QWidget(parent) {
-        setupUi(this);
-    }
+    vvInfoPanel(QWidget * parent=0);
     ~vvInfoPanel() {}
 
     void setTransformation(QString text);

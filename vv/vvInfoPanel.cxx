@@ -20,6 +20,17 @@
 
 #include "vvInfoPanel.h"
 #include "clitkMemoryUsage.h"
+#include "clitkConfiguration.h"
+
+//------------------------------------------------------------------------------
+vvInfoPanel::vvInfoPanel(QWidget * parent):QWidget(parent)
+{
+  setupUi(this);
+#if CLITK_MEMORY_INFO==0
+  memoryUsageLabel->hide();
+#endif
+}
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvInfoPanel::setTransformation(QString text)

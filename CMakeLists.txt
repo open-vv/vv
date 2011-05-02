@@ -44,7 +44,7 @@ ENDIF (CLITK_GENGETOPT STREQUAL "CLITK_GENGETOPT-NOTFOUND")
 # Find libstatgrab is installed, add clitkMemoryUsage.cxx in the library
 FIND_LIBRARY(LIBSTATGRAB NAMES statgrab PATHS)
 IF (${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
-  MESSAGE("Install libstatgrab (http://www.i-scream.org/libstatgrab/) for memory usage information")
+#  MESSAGE("Install libstatgrab (http://www.i-scream.org/libstatgrab/) for memory usage information")
   SET(CLITK_MEMORY_INFO OFF)
 ELSE (${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
   SET(CLITK_MEMORY_INFO ON)
