@@ -192,14 +192,14 @@ namespace clitk {
                         typename ImageType::PixelType BG=0);
   template<class ImageType>
   typename ImageType::Pointer
-  CropImageAbove(const ImageType * image, 
-                 int dim, double min, bool autoCrop = false,
-                 typename ImageType::PixelType BG=0);
+  CropImageRemoveGreaterThan(const ImageType * image, 
+                             int dim, double min, bool autoCrop = false,
+                             typename ImageType::PixelType BG=0);
   template<class ImageType>
   typename ImageType::Pointer
-  CropImageBelow(const ImageType * image, 
-                 int dim, double max,bool autoCrop = false,
-                 typename ImageType::PixelType BG=0);
+  CropImageRemoveLowerThan(const ImageType * image, 
+                           int dim, double max,bool autoCrop = false,
+                           typename ImageType::PixelType BG=0);
   //--------------------------------------------------------------------
 
 
