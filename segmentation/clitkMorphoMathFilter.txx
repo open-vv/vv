@@ -30,6 +30,7 @@ clitk::MorphoMathFilter<ImageType>::MorphoMathFilter():
   p.Fill(1);
   SetRadius(p);
   SetBoundaryToForegroundFlag(false);
+  VerboseFlagOff();
 }
 //--------------------------------------------------------------------
 
@@ -288,7 +289,9 @@ GenerateData()
   typename OutputCastImageFilterType::Pointer oCaster = OutputCastImageFilterType::New();
   oCaster->SetInput(filter->GetOutput());
   oCaster->Update();
+
   this->SetNthOutput(0, oCaster->GetOutput());
+  //this->GraftOutput(oCaster->GetOutput()); // NO
 }
 //--------------------------------------------------------------------
 
