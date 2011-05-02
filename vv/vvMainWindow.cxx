@@ -86,7 +86,7 @@
 #define COLUMN_RELOAD_IMAGE 6
 #define COLUMN_IMAGE_NAME 7
 
-#define EXTENSIONS "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.hdr *.vox *.his *.xdr *.SCAN )"
+#define EXTENSIONS "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN )"
 
 /*Data Tree values
   0,Qt::UserRole full filename
