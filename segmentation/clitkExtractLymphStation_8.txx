@@ -241,7 +241,7 @@ ExtractStation_8_Ant_Sup_Limits()
   MaskImagePointer Trachea = GetAFDB()->template GetImage<MaskImageType>("Trachea");
  
   MaskImagePointer m_Working_Trachea = 
-    clitk::CropImageAbove<MaskImageType>(Trachea, 2, m_CarinaZ, true, // AutoCrop
+    clitk::CropImageRemoveGreaterThan<MaskImageType>(Trachea, 2, m_CarinaZ, true, // AutoCrop
                                          GetBackgroundValue());
 
   // Seprate into two main bronchi
@@ -322,12 +322,12 @@ ExtractStation_8_Ant_Sup_Limits()
   OriginOfRightMiddleLobeBronchus->Delete();
 
   RightBronchus = 
-    clitk::CropImageBelow<MaskImageType>(RightBronchus, 2, 
+    clitk::CropImageRemoveLowerThan<MaskImageType>(RightBronchus, 2, 
                                          m_OriginOfRightMiddleLobeBronchusZ, 
                                          true, // AutoCrop
                                          GetBackgroundValue());
   LeftBronchus = 
-    clitk::CropImageBelow<MaskImageType>(LeftBronchus, 2, 
+    clitk::CropImageRemoveLowerThan<MaskImageType>(LeftBronchus, 2, 
                                          m_OriginOfRightMiddleLobeBronchusZ, 
                                          true, // AutoCrop
                                          GetBackgroundValue());
@@ -431,7 +431,7 @@ ExtractStation_8_Ant_Inf_Limits()
 
   // Crop Esophagus : keep only below the OriginOfRightMiddleLobeBronchusZ
   m_Esophagus = 
-    clitk::CropImageAbove<MaskImageType>(m_Esophagus, 2, 
+    clitk::CropImageRemoveGreaterThan<MaskImageType>(m_Esophagus, 2, 
                                          m_OriginOfRightMiddleLobeBronchusZ, 
                                          true, // AutoCrop
                                          GetBackgroundValue());
@@ -849,7 +849,7 @@ ExtractStation_8_LR_Limits_old2()
     clitk::ComputeCentroids<MaskSliceType>(eso_slices[i], GetBackgroundValue(), c);
     if (c.size() >1) {
       eso_slices[i] = 
-        clitk::CropImageAbove<MaskSliceType>(eso_slices[i], 1, c[1][1], false, GetBackgroundValue());
+        clitk::CropImageRemoveGreaterThan<MaskSliceType>(eso_slices[i], 1, c[1][1], false, GetBackgroundValue());
       eso_slices[i] = 
         clitk::ResizeImageLike<MaskSliceType>(eso_slices[i], aorta_slices[i], GetBackgroundValue());
       // writeImage<MaskSliceType>(eso_slices[i], "eso-slice-"+toString(i)+".mhd");
@@ -1040,7 +1040,7 @@ ExtractStation_8_LR_Limits()
 
     // Crop the vertebralbody below this most post line
     vert_slices[j] = 
-      clitk::CropImageAbove<MaskSliceType>(vert_slices[j], 1, sp_MostAntVertebralBody[1], false, GetBackgroundValue());
+      clitk::CropImageRemoveGreaterThan<MaskSliceType>(vert_slices[j], 1, sp_MostAntVertebralBody[1], false, GetBackgroundValue());
     vert_slices[j] = 
       clitk::ResizeImageLike<MaskSliceType>(vert_slices[j], aorta_slices[i], GetBackgroundValue());
     //    writeImage<MaskSliceType>(vert_slices[i], "vert-slice-"+toString(i)+".mhd");
@@ -1161,7 +1161,7 @@ EnlargeEsophagusDilatationRadiusInferiorly(MaskImagePointer & Esophagus)
     clitk::FindExtremaPointInAGivenDirection<MaskImageType>(Esophagus, GetBackgroundValue(), 2, true, pt);
     DD(pt);
     Esophagus = 
-      clitk::CropImageBelow<MaskImageType>(Esophagus, 2, 
+      clitk::CropImageRemoveLowerThan<MaskImageType>(Esophagus, 2, 
                                            pt[2], 
                                            false, // AutoCrop
                                            GetBackgroundValue());
