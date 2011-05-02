@@ -1,0 +1,21 @@
+#File clitkExtractMediastinalVessels.ggo
+package "clitkExtractMediastinalVessels"
+version "1.0"
+purpose "Extract MediastinalVessels"
+
+option "config"	        -  "Config file"		  string  	no
+option "imagetypes"     -  "Display allowed image types"  flag          off
+option "verbose"        v  "Verbose"			  flag		off
+option "verboseStep"    -  "Verbose each step"		  flag		off
+option "writeStep"      w  "Write image at each step"	  flag		off
+option "verboseOption"  -  "Display options values"       flag          off
+option "verboseWarningOff" -  "Do not display warning"    flag          off
+option "verboseMemory"  -  "Display memory usage"         flag          off
+
+section "I/O"
+
+option "afdb"          a	"Input Anatomical Feature DB"     string  	yes
+option "input"         i	"Input CT filename"               string  	yes
+option "output"        o 	"Output folder"                   string 	yes
+
+option "threshold"     t 	"Initial threshold"               double default="140" no
