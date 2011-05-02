@@ -5,6 +5,8 @@
 *_ggo.*
 *~
 /
+/.gitignore
+/notes.org~
 CMakeCache.txt
 CMakeFiles
 CVS
