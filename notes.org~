@@ -1,12 +1,27 @@
 
 * GIT emacs command
 C-x v d 
-.gitignore -> contains ignored files
+.gitignore -> contains ignored files (recursive)
 commit (local)
 push (repository)
 pull
 
+gitk for GUI
+meld / kdiff3
+
+git status
+git add (-> index)
+git commit (->local commit)
+git pull (fetch + merge)
+git push
+
+COMMIT : C-x g c f
+(git-commit-file &optional AMEND)
+
 * Test in temp
 git clone http://www.creatis.insa-lyon.fr/~dsarrut/clitk3.pub.git clitk3
 need itk4 (git) ?
+
+
+* git merge cvs
 
