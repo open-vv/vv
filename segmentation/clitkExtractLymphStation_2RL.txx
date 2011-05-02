@@ -218,7 +218,7 @@ ExtractStation_2RL_Ant_Limits()
   double TopOfBrachioCephalicTrunkZ=p[2] + BrachioCephalicTrunk->GetSpacing()[2]; // Add one slice
 
   // Remove CommonCarotidArtery below this point
-  CommonCarotidArtery = clitk::CropImageBelow<MaskImageType>(CommonCarotidArtery, 2, TopOfBrachioCephalicTrunkZ, true, GetBackgroundValue());  
+  CommonCarotidArtery = clitk::CropImageRemoveLowerThan<MaskImageType>(CommonCarotidArtery, 2, TopOfBrachioCephalicTrunkZ, true, GetBackgroundValue());  
 
   // Find most Ant points
   std::vector<MaskImagePointType> ccaAntPositionA;
