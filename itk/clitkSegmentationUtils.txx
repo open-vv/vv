@@ -420,7 +420,7 @@ namespace clitk {
   //--------------------------------------------------------------------
   template<class ImageType>
   typename ImageType::Pointer
-  CropImageAbove(const ImageType * image, 
+  CropImageRemoveGreaterThan(const ImageType * image, 
                  int dim, double min, bool autoCrop,
                  typename ImageType::PixelType BG) 
   {
@@ -435,7 +435,7 @@ namespace clitk {
   //--------------------------------------------------------------------
   template<class ImageType>
   typename ImageType::Pointer
-  CropImageBelow(const ImageType * image, 
+  CropImageRemoveLowerThan(const ImageType * image, 
                  int dim, double max, bool autoCrop,
                  typename ImageType::PixelType BG) 
   {
@@ -508,9 +508,12 @@ namespace clitk {
 
     centroids.clear();
     typename ImageType::PointType dummy;
-    centroids.push_back(dummy); // label 0 -> no centroid, use dummy point
-    for(uint i=1; i<labelMap->GetNumberOfLabelObjects()+1; i++) {
-      centroids.push_back(labelMap->GetLabelObject(i)->GetCentroid());
+    centroids.push_back(dummy); // label 0 -> no centroid, use dummy point for BG 
+    //DS FIXME (not useful ! to change ..)
+    DD(labelMap->GetNumberOfLabelObjects());
+    for(uint i=0; i<labelMap->GetNumberOfLabelObjects(); i++) {
+      int label = labelMap->GetLabels()[i];
+      centroids.push_back(labelMap->GetLabelObject(label)->GetCentroid());
     } 
   }
   //--------------------------------------------------------------------
@@ -879,6 +882,7 @@ namespace clitk {
     typedef itk::BinaryThresholdImageFilter<ImageType, ImageType> BinaryThresholdFilterType;
     typename BinaryThresholdFilterType::Pointer binarizeFilter = BinaryThresholdFilterType::New();
     binarizeFilter->SetInput(input);
+    binarizeFilter->InPlaceOff();
     binarizeFilter->SetLowerThreshold(lower);
     binarizeFilter->SetUpperThreshold(upper);
     binarizeFilter->SetInsideValue(FG);
