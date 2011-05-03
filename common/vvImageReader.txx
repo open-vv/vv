@@ -67,7 +67,7 @@ void vvImageReader::UpdateWithDim(std::string InputPixelType)
 template<class InputPixelType, unsigned int VImageDimension>
 void vvImageReader::UpdateWithDimAndInputPixelType()
 {
-  itk::AnalyzeImageIO *analyzeImageIO;
+  itk::AnalyzeImageIO *analyzeImageIO = NULL;
 
   if (mType == MERGEDWITHTIME)   // In this case we can load the images
     // one at the time to avoid excessive
