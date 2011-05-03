@@ -137,6 +137,7 @@ void vvToolStructureSetManager::InputIsSelected(vvSlicerManager *m)
   if (mCurrentImage->GetNumberOfDimensions() != 3) {
     QMessageBox::information(this,tr("Sorry only 3D yet"), tr("Sorry only 3D yet"));
     close();
+    return;
   }
   // Hide selector
   HideInputSelector(); // splitter
