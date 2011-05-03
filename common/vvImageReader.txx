@@ -139,7 +139,12 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
 
       try {
         if (mType == IMAGEWITHTIME)
-          mImage=vvImageFromITK<VImageDimension,InputPixelType>(reader->GetOutput(),true);
+        {
+          std::cerr << "We should never come here:" << std::endl
+            << "  Calling vvImageReader with multiple images and IMAGEWITHTIME is undefined." << std::endl
+            << "  You are probably looking for MERGEDWITHTIME Type." << std::endl;
+          return;
+        }
         else
           mImage=vvImageFromITK<VImageDimension,InputPixelType>(reader->GetOutput());
       } catch ( itk::ExceptionObject & err ) {
