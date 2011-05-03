@@ -30,47 +30,52 @@
  * even if its dim is < 4. */
 
 template<unsigned int Dim, class PixelType>
+static inline void ReadTimeSequence (vvImage::Pointer& vv_image, typename itk::Image<PixelType,Dim>::Pointer input, bool time_sequence=false)
+{
+  typedef itk::Image< PixelType, Dim > InputImageType;
+  typedef itk::Image< PixelType,  Dim - 1 >    ItkImageType;
+  typedef itk::ExtractImageFilter<InputImageType, ItkImageType> FilterType;
+
+  //extract the 3D slices and put them in a std::vector<vtkImageData*>
+  input->UpdateOutputInformation();
+  typename InputImageType::RegionType inputRegion = input->GetLargestPossibleRegion();
+  typename InputImageType::SizeType inputSize = inputRegion.GetSize();
+  typename InputImageType::IndexType start = inputRegion.GetIndex();
+  typename InputImageType::SizeType extractedRegionSize = inputSize;
+  typename InputImageType::RegionType extractedRegion;
+  extractedRegionSize[Dim - 1] = 0;
+  extractedRegion.SetSize(extractedRegionSize);
+
+  for (unsigned int i = 0; i < inputSize[Dim - 1]; i++) {
+    start[Dim - 1] = i;
+    extractedRegion.SetIndex(start);
+
+    typename FilterType::Pointer filter = FilterType::New();
+#if ITK_VERSION_MAJOR == 4
+    filter->SetDirectionCollapseToSubmatrix();
+#endif
+    filter->SetExtractionRegion(extractedRegion);
+    filter->SetInput(input);
+    filter->ReleaseDataFlagOn();
+    vv_image->AddItkImage<ItkImageType>(filter->GetOutput());
+  }
+  vv_image->SetTimeSpacing(input->GetSpacing()[Dim-1]);
+  vv_image->SetTimeOrigin(input->GetOrigin()[Dim-1]);
+}
+
+template<unsigned int Dim, class PixelType>
 struct vvImageFromITK_Impl
 {
   static vvImage::Pointer Do (typename itk::Image<PixelType,Dim>::Pointer input, bool time_sequence=false)
   {
     vvImage::Pointer vv_image=vvImage::New();
     typedef itk::Image< PixelType, Dim > InputImageType;
+
     if (time_sequence) //The time sequence case: create a series of VTK images
-    {
-      typedef itk::Image< PixelType,  Dim - 1 >    ItkImageType;
-      typedef itk::ExtractImageFilter<InputImageType, ItkImageType> FilterType;
-
-      //extract the 3D slices and put them in a std::vector<vtkImageData*>
-      input->UpdateOutputInformation();
-      typename InputImageType::RegionType inputRegion = input->GetLargestPossibleRegion();
-      typename InputImageType::SizeType inputSize = inputRegion.GetSize();
-      typename InputImageType::IndexType start = inputRegion.GetIndex();
-      typename InputImageType::SizeType extractedRegionSize = inputSize;
-      typename InputImageType::RegionType extractedRegion;
-      extractedRegionSize[Dim - 1] = 0;
-      extractedRegion.SetSize(extractedRegionSize);
-
-      for (unsigned int i = 0; i < inputSize[Dim - 1]; i++) {
-        start[Dim - 1] = i;
-        extractedRegion.SetIndex(start);
-
-        typename FilterType::Pointer filter = FilterType::New();
-#if ITK_VERSION_MAJOR == 4
-        filter->SetDirectionCollapseToSubmatrix();
-#endif
-        filter->SetExtractionRegion(extractedRegion);
-        filter->SetInput(input);
-        filter->ReleaseDataFlagOn();
-        vv_image->AddItkImage<ItkImageType>(filter->GetOutput());
-      }
-      vv_image->SetTimeSpacing(input->GetSpacing()[Dim-1]);
-      vv_image->SetTimeOrigin(input->GetOrigin()[Dim-1]);
-    }
+      ReadTimeSequence<Dim,PixelType>(vv_image, input, time_sequence);
     else //Dim == 1,2,3 and not time_sequence
-    {
-        vv_image->AddItkImage<InputImageType>(input);
-    }
+      vv_image->AddItkImage<InputImageType>(input);
+
     return vv_image;
   }
 };
@@ -80,37 +85,8 @@ struct vvImageFromITK_Impl<4u, PixelType>
 {
   static vvImage::Pointer Do (typename itk::Image<PixelType,4u>::Pointer input, bool time_sequence=false)
   {
-    vvImage::Pointer vv_image=vvImage::New();
-    typedef itk::Image< PixelType, 4 > InputImageType;
-
-    typedef itk::Image< PixelType, 3 >    ItkImageType;
-    typedef itk::ExtractImageFilter<InputImageType, ItkImageType> FilterType;
-
-    //extract the 3D slices and put them in a std::vector<vtkImageData*>
-    input->UpdateOutputInformation();
-    typename InputImageType::RegionType inputRegion = input->GetLargestPossibleRegion();
-    typename InputImageType::SizeType inputSize = inputRegion.GetSize();
-    typename InputImageType::IndexType start = inputRegion.GetIndex();
-    typename InputImageType::SizeType extractedRegionSize = inputSize;
-    typename InputImageType::RegionType extractedRegion;
-    extractedRegionSize[3] = 0;
-    extractedRegion.SetSize(extractedRegionSize);
-
-    for (unsigned int i = 0; i < inputSize[3]; i++) {
-      start[3] = i;
-      extractedRegion.SetIndex(start);
-
-      typename FilterType::Pointer filter = FilterType::New();
-#if ITK_VERSION_MAJOR == 4
-      filter->SetDirectionCollapseToSubmatrix();
-#endif
-      filter->SetExtractionRegion(extractedRegion);
-      filter->SetInput(input);
-      filter->ReleaseDataFlagOn();
-      vv_image->AddItkImage<ItkImageType>(filter->GetOutput());
-    }
-    vv_image->SetTimeSpacing(input->GetSpacing()[3]);
-    vv_image->SetTimeOrigin(input->GetOrigin()[3]);
+    vvImage::Pointer vv_image = vvImage::New();
+    ReadTimeSequence<4u,PixelType>(vv_image, input, time_sequence);
     return vv_image;
   }
 };
