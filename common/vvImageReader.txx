@@ -67,7 +67,7 @@ void vvImageReader::UpdateWithDim(std::string InputPixelType)
 template<class InputPixelType, unsigned int VImageDimension>
 void vvImageReader::UpdateWithDimAndInputPixelType()
 {
-  itk::AnalyzeImageIO *analyzeImageIO;
+  itk::AnalyzeImageIO *analyzeImageIO = NULL;
 
   if (mType == MERGEDWITHTIME)   // In this case we can load the images
     // one at the time to avoid excessive
@@ -118,6 +118,9 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
     filter->SetExtractionRegion(extractedRegion);
     filter->SetInput(reader->GetOutput());
     filter->ReleaseDataFlagOn();
+#if ITK_VERSION_MAJOR == 4
+    filter->SetDirectionCollapseToSubmatrix();
+#endif
     try {
       mImage->AddItkImage<SlicedImageType>(filter->GetOutput());
     } catch ( itk::ExceptionObject & err ) {

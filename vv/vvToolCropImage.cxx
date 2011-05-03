@@ -360,7 +360,7 @@ void vvToolCropImage::apply()
   // Retrieve result and display it
   vvImage::Pointer output = filter->GetOutputVVImage();
   std::ostringstream osstream;
-  osstream << "Croped_" << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";
+  osstream << "Cropped_" << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";
   AddImage(output,osstream.str());
 
   // End
