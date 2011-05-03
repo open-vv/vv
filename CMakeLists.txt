@@ -99,11 +99,12 @@ ENDIF(CLITK_BUILD_VV)
 
 #=========================================================
 #Support for the CTest dashboard testing system
-INCLUDE(CTest)
+OPTION(CLITK_BUILD_TESTING "Build the testing tree" OFF)
 #=========================================================
-IF (BUILD_TESTING)
+IF (CLITK_BUILD_TESTING)
+  ENABLE_TESTING()
   ADD_SUBDIRECTORY(tests)
-ENDIF(BUILD_TESTING)
+ENDIF(CLITK_BUILD_TESTING)
 #=========================================================
 
 

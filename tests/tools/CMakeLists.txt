@@ -2,7 +2,7 @@
 # Test apps are compiled as any other app in the
 # project. Test executions are run using "make test"
 #
-IF(BUILD_TESTING)
+IF(CLITK_BUILD_TESTING)
 
   # clitkImageInfo
   ADD_EXECUTABLE(clitkImageInfoTest clitkImageInfoTest.cxx)
@@ -14,4 +14,4 @@ IF(BUILD_TESTING)
   TARGET_LINK_LIBRARIES(clitkWriteDicomSeriesTest ITKIO)
   ADD_TEST(NAME clitkWriteDicomSeriesTest COMMAND clitkWriteDicomSeriesTest)
 
-ENDIF(BUILD_TESTING)
+ENDIF(CLITK_BUILD_TESTING)
