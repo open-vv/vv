@@ -13,6 +13,14 @@ INCLUDE(cmake/common.cmake)
 #=========================================================
 
 #=========================================================
+#Support for the CTest dashboard testing system
+OPTION(BUILD_TESTING "Build the testing tree" OFF)
+IF (BUILD_TESTING)
+  INCLUDE(CTest)
+ENDIF(BUILD_TESTING)
+#=========================================================
+
+#=========================================================
 # Find ITK (required)
 FIND_PACKAGE(ITK)
 IF(ITK_FOUND)
@@ -96,16 +104,6 @@ IF (CLITK_BUILD_VV)
   ADD_SUBDIRECTORY(vv)
 ENDIF(CLITK_BUILD_VV)
 
-
-#=========================================================
-#Support for the CTest dashboard testing system
-OPTION(CLITK_BUILD_TESTING "Build the testing tree" OFF)
-#=========================================================
-IF (CLITK_BUILD_TESTING)
-  ENABLE_TESTING()
-  ADD_SUBDIRECTORY(tests)
-ENDIF(CLITK_BUILD_TESTING)
-#=========================================================
 
 #=========================================================
 
