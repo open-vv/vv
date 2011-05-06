@@ -328,7 +328,10 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   
   
   vvRegisterForm* registerForm = new vvRegisterForm(QUrl("http://localhost/vvregister/write.php"));
-  registerForm->show();
+  if(registerForm->canPush()){
+      registerForm->show();
+      registerForm->acquitPushed();//too bad if there is not internet connection anymore.
+  }
   
 }
 //------------------------------------------------------------------------------

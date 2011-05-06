@@ -18,19 +18,27 @@
 #include <sstream>
 #include <algorithm>
 #include <QDir>
-#include <QSettings>
 #include "clitkCommon.h"
 #include "vvUtils.h"
 
 const std::string vv_user_file=".vv_settings.txt";
+const std::string recentFileList="recentFiles";
 typedef std::list<std::string> FileListType;
 
-static QSettings settings(QDir::homePath()+QString::fromStdString("/"+vv_user_file), QSettings::NativeFormat);
+QString getVVSettingsPath(){
+  return QDir::homePath()+QString::fromStdString("/"+vv_user_file);
+}
+
+QSettings::Format getSettingsOptionFormat(){
+  return QSettings::NativeFormat;
+}
+
 ///Returns the last images opened by the user
 FileListType GetRecentlyOpenedImages()
 {
+  QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
   FileListType result;
-  settings.beginGroup("recentFiles");
+  settings.beginGroup(QString::fromStdString(recentFileList));
     QStringList keys = settings.childKeys();
     for(int i=0; i<keys.size(); i++){
       std::string value=settings.value(QString::fromStdString (keys[i].toStdString())).toString().toStdString();
@@ -43,6 +51,7 @@ FileListType GetRecentlyOpenedImages()
 ///Adds an image to the list of recently opened images
 void AddToRecentlyOpenedImages(std::string filename)
 {
+  QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
   FileListType file_list = GetRecentlyOpenedImages();
   
   FileListType::iterator i = std::find(file_list.begin(),file_list.end(),filename);
@@ -52,11 +61,12 @@ void AddToRecentlyOpenedImages(std::string filename)
     file_list.pop_back();
   file_list.push_front(filename);
   
-  settings.beginGroup("recentFiles");
-  int index=0;
-  for (FileListType::iterator j = file_list.begin() ; j != file_list.end() ; j++){
-    QString s=QString(index++);
-    settings.setValue(s, QString::fromStdString ( *j ));
-  }
+  settings.beginGroup(QString::fromStdString(recentFileList));
+    int index=0;
+    for (FileListType::iterator j = file_list.begin() ; j != file_list.end() ; j++){
+      QString s=QString(index++);
+      settings.setValue(s, QString::fromStdString ( *j ));
+    }
   settings.endGroup();
 }
+

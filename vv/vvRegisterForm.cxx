@@ -19,9 +19,12 @@
 
 #include "vvRegisterForm.h"
 #include <QNetworkRequest>
+#include <QSettings>
+#include <QDir>
 #include <iostream>
 #include "common/globals.h"
 #include "vvCommon.h"
+#include "vvUtils.h"
 
 vvRegisterForm::vvRegisterForm(QUrl url):url(url) { 
   manager = new QNetworkAccessManager(this);
@@ -29,7 +32,6 @@ vvRegisterForm::vvRegisterForm(QUrl url):url(url) {
 }
 
 void vvRegisterForm::sendData(){
- if(canPush()){
   QUrl url2(url);
   url2.addQueryItem("name", firstName->text().toUtf8());
   url2.addQueryItem("lastName", lastName->text().toUtf8());
@@ -37,17 +39,17 @@ void vvRegisterForm::sendData(){
   url2.addQueryItem("group", group->text().toUtf8());
   url2.addQueryItem("os", QString::fromUtf8(OS_NAME));
   url2.addQueryItem("vvVersion", QString::fromUtf8(VV_VERSION));
-  manager->get(QNetworkRequest(url2));//make pushed in callback?
-  acquitPushed();
- }
+  manager->get(QNetworkRequest(url2));
 }
 void vvRegisterForm::accept(){
- sendData();
- QDialog::accept();
+  sendData();
+  QDialog::accept();
 }
 bool vvRegisterForm::canPush(){
- return true; 
+  QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
+  return settings.value("vvVersion").toString().toStdString()<VV_VERSION;
 }
 void vvRegisterForm::acquitPushed(){
-  
+  QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
+  settings.setValue("vvVersion", VV_VERSION);
 }
