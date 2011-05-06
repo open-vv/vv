@@ -152,7 +152,12 @@ public slots:
   }
   void UpdateRenderWindows();
   void UpdateMemoryUsage();
-
+  
+protected:
+  
+  void createRecentlyOpenedFilesMenu();
+  void updateRecentlyOpenedFilesMenu(const std::list<std::string> &files);
+  
 private:
 
   //variables
@@ -184,6 +189,7 @@ private:
   int GetImageDuplicateFilenameNumber(std::string filename);
 
   QMenu contextMenu;
+  QMenu* recentlyOpenedFilesMenu;
   //QMenu *AddSubImageMenu;
   std::vector<QAction*> contextActions;
   std::vector<QSlider*> horizontalSliders;

@@ -308,17 +308,10 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
 
   //Recently opened files
   std::list<std::string> recent_files = GetRecentlyOpenedImages();
+  recentlyOpenedFilesMenu=NULL;
   if ( !recent_files.empty() ) {
-    QMenu * rmenu = new QMenu("Recently opened files...");
-    rmenu->setIcon(QIcon(QString::fromUtf8(":/common/icons/open.png")));
-    menuFile->insertMenu(actionOpen_Image_With_Time,rmenu);
-    menuFile->insertSeparator(actionOpen_Image_With_Time);
-    for (std::list<std::string>::iterator i = recent_files.begin(); i!=recent_files.end(); i++) {
-      QAction* current=new QAction(QIcon(QString::fromUtf8(":/common/icons/open.png")),
-                                   (*i).c_str(),this);
-      rmenu->addAction(current);
-      connect(current,SIGNAL(triggered()),this,SLOT(OpenRecentImage()));
-    }
+    createRecentlyOpenedFilesMenu();
+    updateRecentlyOpenedFilesMenu(recent_files);
   }
 
   // Adding all new tools (insertion in the menu)
@@ -347,6 +340,35 @@ void vvMainWindow::UpdateMemoryUsage()
   //  clitk::PrintMemory(true);
   if (clitk::GetMemoryUsageInMb() == 0) infoPanel->setMemoryInMb("NA");
   else infoPanel->setMemoryInMb(QString::number(clitk::GetMemoryUsageInMb())+" MiB");
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvMainWindow::createRecentlyOpenedFilesMenu()
+{
+    recentlyOpenedFilesMenu = new QMenu("Recently opened files...");
+    recentlyOpenedFilesMenu->setIcon(QIcon(QString::fromUtf8(":/common/icons/open.png")));
+    menuFile->insertMenu(actionOpen_Image_With_Time,recentlyOpenedFilesMenu);
+    menuFile->insertSeparator(actionOpen_Image_With_Time);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+
+void vvMainWindow::updateRecentlyOpenedFilesMenu(const std::list<std::string> &recent_files)
+{
+  if(recentlyOpenedFilesMenu==NULL){
+    createRecentlyOpenedFilesMenu();
+  }else{
+    recentlyOpenedFilesMenu->clear();
+  }
+  for (std::list<std::string>::const_iterator i = recent_files.begin(); i!=recent_files.end(); i++) {
+    QAction* current=new QAction(QIcon(QString::fromUtf8(":/common/icons/open.png")), i->c_str(),this);
+    recentlyOpenedFilesMenu->addAction(current);
+    connect(current,SIGNAL(triggered()),this,SLOT(OpenRecentImage()));
+  }
 }
 //------------------------------------------------------------------------------
 
@@ -796,6 +818,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
   if (files.size() == 1) {
     QFileInfo finfo=tr(files[0].c_str());
     AddToRecentlyOpenedImages(finfo.absoluteFilePath().toStdString());
+    updateRecentlyOpenedFilesMenu(GetRecentlyOpenedImages());
   }
   //init the progress events
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
