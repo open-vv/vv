@@ -32,6 +32,7 @@
 #include <itkBinaryDilateImageFilter.h>
 #include <itkConstantPadImageFilter.h>
 #include <itkImageSliceIteratorWithIndex.h>
+#include <itkBinaryMorphologicalOpeningImageFilter.h>
 
 namespace clitk {
 
@@ -731,6 +732,34 @@ namespace clitk {
 
 
   //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::Pointer 
+  Opening(const ImageType * image, typename ImageType::SizeType radius,
+         typename ImageType::PixelType BG,
+         typename ImageType::PixelType FG)
+  {
+    // Kernel 
+    typedef itk::BinaryBallStructuringElement<typename ImageType::PixelType, 
+                                              ImageType::ImageDimension> KernelType;    
+    KernelType structuringElement;
+    structuringElement.SetRadius(radius);
+    structuringElement.CreateStructuringElement();
+    
+    // Filter
+    typedef itk::BinaryMorphologicalOpeningImageFilter<ImageType, ImageType , KernelType> OpeningFilterType;
+    typename OpeningFilterType::Pointer open = OpeningFilterType::New();
+    open->SetInput(image);
+    open->SetBackgroundValue(BG);
+    open->SetForegroundValue(FG);
+    open->SetKernel(structuringElement);
+    open->Update();
+    return open->GetOutput();
+  }
+  //--------------------------------------------------------------------
+
+
+
+  //--------------------------------------------------------------------
   template<class ValueType, class VectorType>
   void ConvertOption(std::string optionName, uint given, 
                      ValueType * values, VectorType & p, 
@@ -1016,6 +1045,38 @@ namespace clitk {
       B[i][1] += margin;
     }
 
+  }
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::Pointer
+  SliceBySliceKeepMainCCL(const ImageType * input, 
+                          typename ImageType::PixelType BG,
+                          typename ImageType::PixelType FG)  {
+    
+    // Extract slices
+    const int d = ImageType::ImageDimension-1;
+    typedef typename itk::Image<typename ImageType::PixelType, d> SliceType;
+    std::vector<typename SliceType::Pointer> slices;
+    clitk::ExtractSlices<ImageType>(input, d, slices);
+    DD(slices.size());
+    
+    // Labelize and keep the main one
+    std::vector<typename SliceType::Pointer> o;
+    for(uint i=0; i<slices.size(); i++) {
+      DD(i);
+      o.push_back(clitk::Labelize<SliceType>(slices[i], BG, false, 1));
+      o[i] = clitk::KeepLabels<SliceType>(o[i], BG, FG, 1, 1, true);
+    }
+    
+    // Join slices
+    DD("join");
+    typename ImageType::Pointer output;
+    output = clitk::JoinSlices<ImageType>(o, input, d);
+    DD("return");
+    return output;
   }
   //--------------------------------------------------------------------
 

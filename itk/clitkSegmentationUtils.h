@@ -308,6 +308,15 @@ namespace clitk {
          bool extendSupport);
   //--------------------------------------------------------------------
 
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::Pointer 
+  Opening(const ImageType * image, typename ImageType::SizeType radius,
+          typename ImageType::PixelType BG, typename ImageType::PixelType FG);
+  //--------------------------------------------------------------------
+
+
   //--------------------------------------------------------------------
   template<class ValueType, class VectorType>
   void ConvertOption(std::string optionName, uint given, 
@@ -388,6 +397,15 @@ namespace clitk {
                                                          std::vector<typename ImageType::PointType> & B);  
   //--------------------------------------------------------------------
 
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::Pointer
+  SliceBySliceKeepMainCCL(const ImageType * input, 
+                          typename ImageType::PixelType BG,
+                          typename ImageType::PixelType FG);
+  //--------------------------------------------------------------------
+  
 
 }
 
