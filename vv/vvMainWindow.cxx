@@ -21,10 +21,12 @@
 #include <QInputDialog>
 #include <QTimer>
 #include "QTreePushButton.h"
+#include <QUrl>
 
 // VV include
 #include "vvMainWindow.h"
 #include "vvHelpDialog.h"
+#include "vvRegisterForm.h"
 #include "vvDocumentation.h"
 #include "vvProgressDialog.h"
 #include "vvQDicomSeriesSelector.h"
@@ -330,6 +332,10 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   //timerMemory->setInterval(5);
   connect(timerMemory, SIGNAL(timeout()), this, SLOT(UpdateMemoryUsage()));
   timerMemory->start(2000);
+  
+  
+  vvRegisterForm* registerForm = new vvRegisterForm(QUrl("http://localhost/vvregister/write.php"));
+  registerForm->show();
   
 }
 //------------------------------------------------------------------------------

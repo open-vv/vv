@@ -7,6 +7,7 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 #=========================================================
 
+
 #=========================================================
 #List of vv tools to compile
 SET(vv_TOOLS
@@ -62,6 +63,7 @@ SET(vv_COMMON_WITH_UI
   vvToolSimpleInputSelectorWidget
   vvToolInputSelectorWidget
   vvToolStructureSetManager
+  vvRegisterForm
 )
 
 # All others sources
@@ -113,10 +115,12 @@ QT4_WRAP_CPP(vv_SRCS
   vvStructureSetActor.h
   vvROIActor.h
   vvToolCreatorBase.h
+  vvRegisterForm.h
   )
 
 QT4_WRAP_UI(vv_UI_CXX 
   qt_ui/vvHelpDialog.ui 
+  qt_ui/vvRegisterForm.ui 
   qt_ui/vvDocumentation.ui 
   qt_ui/vvDicomSeriesSelector.ui 
   qt_ui/vvDummyWindow.ui #For testing
@@ -255,4 +259,10 @@ ELSE(WIN32)
   SET(CPACK_SOURCE_GENERATOR "TGZ") 
 ENDIF(WIN32)
 INCLUDE(CPack)
+#=========================================================
+#=========================================================
+configure_file (
+ vvCommon.h.in
+ vvCommon.h
+)
 #=========================================================
