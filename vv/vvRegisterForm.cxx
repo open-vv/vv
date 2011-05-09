@@ -19,14 +19,12 @@
 
 #include "vvRegisterForm.h"
 #include <QNetworkRequest>
-#include <QSettings>
 #include <QDir>
-#include <iostream>
 #include "common/globals.h"
 #include "vvCommon.h"
 #include "vvUtils.h"
 
-vvRegisterForm::vvRegisterForm(QUrl url):url(url) { 
+vvRegisterForm::vvRegisterForm(QUrl url):url(url), settings(getVVSettingsPath(), getSettingsOptionFormat()){ 
   manager = new QNetworkAccessManager(this);
   setupUi(this);
 }
@@ -37,23 +35,32 @@ void vvRegisterForm::sendData(){
   url2.addQueryItem("lastName", lastName->text().toUtf8());
   url2.addQueryItem("email", email->text().toUtf8());
   url2.addQueryItem("group", group->text().toUtf8());
-  url2.addQueryItem("os", QString::fromUtf8(OS_NAME));
-  url2.addQueryItem("vvVersion", QString::fromUtf8(VV_VERSION));
+  url2.addQueryItem("os", osName->text().toUtf8());
+  url2.addQueryItem("vvVersion", VV_VERSION);
   manager->get(QNetworkRequest(url2));
 }
 void vvRegisterForm::accept(){
   sendData();
+  settings.setValue("name", firstName->text().toUtf8());
+  settings.setValue("lastName", lastName->text().toUtf8());
+  settings.setValue("email", email->text().toUtf8());
+  settings.setValue("group", group->text().toUtf8());
+  settings.setValue("os", osName->text().toUtf8());
   QDialog::accept();
 }
 bool vvRegisterForm::canPush(){
-  QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
+  ///maybe we show this dialog only for new major release, not for any patches?
   return settings.value("vvVersion").toString().toStdString()<VV_VERSION;
 }
 void vvRegisterForm::acquitPushed(){
-  QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
   settings.setValue("vvVersion", VV_VERSION);
 }
 void vvRegisterForm::show(){
+ firstName->setText(settings.value("name").toString());
+ lastName->setText(settings.value("lastName").toString()); 
+ email->setText(settings.value("email").toString()); 
+ group->setText(settings.value("group").toString()); 
+  
  osName->setText(QString::fromStdString(OS_NAME));
  QDialog::show();
 }

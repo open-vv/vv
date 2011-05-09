@@ -22,6 +22,7 @@
 #include <QTimer>
 #include "QTreePushButton.h"
 #include <QUrl>
+#include <QSettings>
 
 // VV include
 #include "vvMainWindow.h"
@@ -329,11 +330,11 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
 //------------------------------------------------------------------------------
 
 void vvMainWindow::show(){
- vvMainWindowBase::show();
+  vvMainWindowBase::show();
   vvRegisterForm* registerForm = new vvRegisterForm(QUrl("http://localhost/vvregister/write.php"));
   if(registerForm->canPush()){
-      registerForm->show();
-      registerForm->acquitPushed();//too bad if there is not internet connection anymore.
+    registerForm->show();
+    registerForm->acquitPushed();//too bad if there is not internet connection anymore.
   }
 }
 //------------------------------------------------------------------------------

@@ -20,6 +20,7 @@
 
 #include "ui_vvRegisterForm.h"
 #include <QUrl>
+#include <QSettings>
 #include <QNetworkAccessManager>
 class vvRegisterForm : public QDialog, private Ui::vvRegisterForm
 {
@@ -29,7 +30,6 @@ public:
     vvRegisterForm(QUrl url);
     void sendData();
     ~vvRegisterForm() {}
-    //return true only if first time
     virtual bool canPush();
     virtual void acquitPushed();
 public slots:
@@ -37,6 +37,7 @@ public slots:
   virtual void show();
 protected:
   QUrl url;
+  QSettings settings;
   QNetworkAccessManager* manager;
 };
 
