@@ -325,18 +325,17 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   //timerMemory->setInterval(5);
   connect(timerMemory, SIGNAL(timeout()), this, SLOT(UpdateMemoryUsage()));
   timerMemory->start(2000);
-  
-  
+}
+//------------------------------------------------------------------------------
+
+void vvMainWindow::show(){
+ vvMainWindowBase::show();
   vvRegisterForm* registerForm = new vvRegisterForm(QUrl("http://localhost/vvregister/write.php"));
   if(registerForm->canPush()){
       registerForm->show();
       registerForm->acquitPushed();//too bad if there is not internet connection anymore.
   }
-  
 }
-//------------------------------------------------------------------------------
-
-
 //------------------------------------------------------------------------------
 void vvMainWindow::UpdateMemoryUsage()
 {

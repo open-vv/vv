@@ -152,6 +152,7 @@ public slots:
   }
   void UpdateRenderWindows();
   void UpdateMemoryUsage();
+  void show();
   
 protected:
   
