@@ -34,6 +34,7 @@ public:
     virtual void acquitPushed();
 public slots:
   virtual void accept();
+  virtual void show();
 protected:
   QUrl url;
   QNetworkAccessManager* manager;

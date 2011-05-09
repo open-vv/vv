@@ -53,3 +53,7 @@ void vvRegisterForm::acquitPushed(){
   QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
   settings.setValue("vvVersion", VV_VERSION);
 }
+void vvRegisterForm::show(){
+ osName->setText(QString::fromStdString(OS_NAME));
+ QDialog::show();
+}
