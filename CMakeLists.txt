@@ -16,7 +16,9 @@ INCLUDE(cmake/common.cmake)
 #Support for the CTest dashboard testing system
 OPTION(BUILD_TESTING "Build the testing tree" OFF)
 IF (BUILD_TESTING)
+  OPTION(CLITK_BUILD_TESTING "Test ITK" ON)
   INCLUDE(CTest)
+  ADD_SUBDIRECTORY(tests)
 ENDIF(BUILD_TESTING)
 #=========================================================
 
