@@ -24,7 +24,7 @@
 #include "vvCommon.h"
 #include "vvUtils.h"
 
-vvRegisterForm::vvRegisterForm(QUrl url):url(url), settings(getVVSettingsPath(), getSettingsOptionFormat()){ 
+vvRegisterForm::vvRegisterForm(QUrl url, QString path, QSettings::Format format):url(url), settings(path, format){ 
   manager = new QNetworkAccessManager(this);
   setupUi(this);
 }

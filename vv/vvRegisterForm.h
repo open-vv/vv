@@ -27,7 +27,7 @@ class vvRegisterForm : public QDialog, private Ui::vvRegisterForm
     Q_OBJECT
 
 public:
-    vvRegisterForm(QUrl url);
+    vvRegisterForm(QUrl url, QString path, QSettings::Format format);
     void sendData();
     ~vvRegisterForm() {}
     virtual bool canPush();
