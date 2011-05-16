@@ -30,6 +30,9 @@
 #include "vtkProperty.h"
 #include "vtkInteractorStyle.h"
 
+#include "clitkCommon.h"
+#include "clitkMeshViewer_ggo.h"
+
 #include <string>
 #include <iostream>
 #include <vector>
@@ -39,7 +42,7 @@ typedef vtkSmartPointer<vtkPolyDataMapper> MapperType;
 typedef vtkSmartPointer<vtkActor> ActorType;
 
 
-void run(int argc, char** argv);
+long run(const args_info_clitkMeshViewer& argsInfo);
 
 // Adapted from vtkAnimationCue example...
 class CueAnimator
@@ -200,30 +203,34 @@ public:
 
 int main(int argc, char** argv)
 {
-  if (argc == 0)
-    std::cout << "Usage: clitkMeshViewer FILE1 FILE2 ... [--animate]" << std::endl;
+  GGO(clitkMeshViewer, args_info);
 
-  run(argc, argv);
-  
-  return EXIT_SUCCESS;
+  return run(args_info);
 }
 
-void run(int argc, char** argv)
+long run(const args_info_clitkMeshViewer& argsInfo)
 {
   std::vector<ObjReaderType> objs;
   std::vector<MapperType> mappers;
   std::vector<ActorType> actors;
   
-  int nfiles = argc;
-  std::string animate = argv[argc-1];
-  if (animate == "--animate")
-    nfiles = argc-1;
+  bool verbose = argsInfo.verbose_flag;
+
+  int nfiles = argsInfo.inputs_num;
+  if (nfiles == 0)
+  {
+    std::cout << "At leas one mesh (.OBJ) file must be given. See clitkMeshViewer -h." << std::endl;
+    return -1;
+  }
+  
+  if (verbose) 
+    std::cout << nfiles << " file(s) to be loaded..." << std::endl;
   
   vtkSmartPointer<vtkRenderer> aRenderer = vtkRenderer::New();
-  for (int i = 1; i < nfiles; i++) {    
-    std::string file = argv[i];
-    
-    //std::cout << "Reading " << file << std::endl;
+  for (int i = 0; i < nfiles; i++) {    
+    std::string file = argsInfo.inputs[i];
+    if (verbose)
+      std::cout << "Reading " << file << std::endl;
     
     vtkSmartPointer<vtkOBJReader> preader = vtkOBJReader::New();
     preader->SetFileName(file.c_str());
@@ -268,10 +275,11 @@ void run(int argc, char** argv)
   vtkSmartPointer<vtkWindowObserver> window_observer;
   CueAnimator animator(actors);
   
-  double fps = 4;
-  animator.SetFps(fps);
+  bool animate = argsInfo.animate_flag;
+  if (animate) {
+    double fps = argsInfo.fps_arg;
+    animator.SetFps(fps);
 
-  if (animate == "--animate") {
     // Create an Animation Scene
     scene=vtkAnimationScene::New();
     scene->SetModeToRealTime();
@@ -304,6 +312,7 @@ void run(int argc, char** argv)
   }
 
   iren->Start(); 
+  return 0;
 }
 
 
