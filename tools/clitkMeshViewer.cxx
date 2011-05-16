@@ -45,7 +45,11 @@ void run(int argc, char** argv);
 class CueAnimator
 {
 public:
-  CueAnimator(std::vector<ActorType>& rActors) : m_Fps(1), m_LastTick(0), m_CurrentActor(0), m_rActors(rActors) {
+  CueAnimator(std::vector<ActorType>& rActors) : m_Fps(1), m_CurrentActor(0), m_rActors(rActors) {
+    m_rActors[0]->SetVisibility(1);
+    for (unsigned int i = 1; i < m_rActors.size(); i++) {
+      m_rActors[i]->SetVisibility(0);
+    }
   }
   
   ~CueAnimator() {
@@ -58,45 +62,37 @@ public:
   void StartCue(vtkAnimationCue::AnimationCueInfo *vtkNotUsed(info),
                 vtkRenderer *ren)
     {
-      std::cout << "StartCue" << std::endl;
-      m_LastTick = 0;
-      m_rActors[0]->SetVisibility(1);
-      
-      for (unsigned int i = 1; i < m_rActors.size(); i++) {
-        m_rActors[i]->SetVisibility(0);
-      }
-
+      //std::cout << "StartCue" << std::endl;
     }
   
   void Tick(vtkAnimationCue::AnimationCueInfo *info,
             vtkRenderer *ren)
     {
-      std::cout << "Tick AT:" << info->AnimationTime << " DT:" << info->DeltaTime << " CT:" << info->ClockTime << std::endl;
-      if (info->AnimationTime - m_LastTick < 1/m_Fps)
-        return;
-      
-      m_LastTick = info->AnimationTime;
+      //std::cout << "Tick AT:" << info->AnimationTime << " DT:" << info->DeltaTime << " CT:" << info->ClockTime << std::endl;
       
       m_rActors[m_CurrentActor]->SetVisibility(0);
       
-      ++m_CurrentActor;
-      m_CurrentActor %= m_rActors.size();
-
+      int step = round(m_Fps * info->AnimationTime);
+      int actor = step % m_rActors.size();
+      
+      //if (actor != m_CurrentActor) std::cout << "Showing frame: " << m_CurrentActor << std::endl;
+      m_CurrentActor = actor;
       m_rActors[m_CurrentActor]->SetVisibility(1);
       
       ren->Render();
     }
   
-  void EndCue(vtkAnimationCue::AnimationCueInfo *vtkNotUsed(info),
+  void EndCue(vtkAnimationCue::AnimationCueInfo *info,
               vtkRenderer *ren)
     {
-      std::cout << "EndCue" << std::endl;
+      //std::cout << "EndCue" << std::endl;
     }
   
 protected:
   
   double m_Fps;
-  double m_LastTick;
+  clock_t m_LastTick;
+  double m_TotalTicks;
   int m_CurrentActor;
   std::vector<ActorType>& m_rActors;
 };
@@ -162,13 +158,13 @@ public:
                        void *calldata)
     {
       vtkRenderWindowInteractor *isi = dynamic_cast<vtkRenderWindowInteractor *>(caller);
-      std::cout << "Execute" << std::endl;
+      //std::cout << "Execute" << std::endl;
       switch (event)
       {
         case vtkCommand::KeyPressEvent:
         {
           std::string key = isi->GetKeySym();
-          std::cout << key[0] << std::endl;
+          //std::cout << key[0] << std::endl;
           switch (key[0])
           {
             case 'P':
@@ -205,7 +201,7 @@ public:
 int main(int argc, char** argv)
 {
   if (argc == 0)
-    std::cout << "Usage: clitkMeshViewer FILE1 FILE2 ..." << std::endl;
+    std::cout << "Usage: clitkMeshViewer FILE1 FILE2 ... [--animate]" << std::endl;
 
   run(argc, argv);
   
@@ -227,7 +223,7 @@ void run(int argc, char** argv)
   for (int i = 1; i < nfiles; i++) {    
     std::string file = argv[i];
     
-    std::cout << "Reading " << file << std::endl;
+    //std::cout << "Reading " << file << std::endl;
     
     vtkSmartPointer<vtkOBJReader> preader = vtkOBJReader::New();
     preader->SetFileName(file.c_str());
@@ -272,7 +268,7 @@ void run(int argc, char** argv)
   vtkSmartPointer<vtkWindowObserver> window_observer;
   CueAnimator animator(actors);
   
-  double fps = 5;
+  double fps = 4;
   animator.SetFps(fps);
 
   if (animate == "--animate") {
