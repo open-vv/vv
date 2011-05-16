@@ -1,0 +1,11 @@
+#File clitkMeshViewer.ggo
+package "clitkMeshViewer"
+version "1.0"
+purpose "Visualize a set of meshes"
+usage "clitkMeshViewer FILE1 FILE2 ... [OPTIONS]"
+
+option "config"   - "Config file"   string  no
+option "verbose"  v     "Verbose"   flag  off
+
+option "animate"    - "Enable animation mode (type p/m to start/stop animation)"  flag  off
+option "fps"	 - "Set the animation's frame rate (in fps)"	double	default="4.0"	no

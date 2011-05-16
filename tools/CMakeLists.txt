@@ -262,7 +262,8 @@ IF (CLITK_BUILD_TOOLS)
     ADD_EXECUTABLE(clitkBinaryImageToMesh clitkBinaryImageToMesh.cxx ${clitkBinaryImageToMesh_GGO_C})
     TARGET_LINK_LIBRARIES(clitkBinaryImageToMesh ${ITK_LIBRARIES} vtkCommon vtkRendering)
 
-    ADD_EXECUTABLE(clitkMeshViewer clitkMeshViewer.cxx)
+    WRAP_GGO(clitkMeshViewer_GGO_C clitkMeshViewer.ggo)
+    ADD_EXECUTABLE(clitkMeshViewer clitkMeshViewer.cxx ${clitkMeshViewer_GGO_C})
     TARGET_LINK_LIBRARIES(clitkMeshViewer vtkCommon vtkRendering)
   ENDIF(CLITK_EXPERIMENTAL)
 
