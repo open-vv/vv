@@ -1,17 +1,14 @@
-# Add test apps and test executions to this part
-# Test apps are compiled as any other app in the
-# project. Test executions are run using "make test"
-#
-IF(CLITK_BUILD_TESTING)
+include_directories(
+  ${PROJECT_SOURCE_DIR}/common
+  ${PROJECT_SOURCE_DIR}/tools
+  ${GTEST_DIR}/include
+)
 
-  # clitkImageInfo
-  ADD_EXECUTABLE(clitkImageInfoTest clitkImageInfoTest.cxx)
-  TARGET_LINK_LIBRARIES(clitkImageInfoTest ITKIO)
-  ADD_TEST(NAME clitkImageInfoTest COMMAND clitkImageInfoTest)
+FILE(GLOB srcs *.cxx)
+ADD_EXECUTABLE(toolsTest ${srcs})
+ADD_DEFINITIONS(-DTOOLS_PATH=\"${PROJECT_BINARY_DIR}/bin/\")
+target_link_libraries(toolsTest vvLib ${vvExternalLibs} gtest)
 
-  # clitkWriteDicomSeries
-  ADD_EXECUTABLE(clitkWriteDicomSeriesTest clitkWriteDicomSeriesTest.cxx)
-  TARGET_LINK_LIBRARIES(clitkWriteDicomSeriesTest ITKIO)
-  ADD_TEST(NAME clitkWriteDicomSeriesTest COMMAND clitkWriteDicomSeriesTest)
-
-ENDIF(CLITK_BUILD_TESTING)
+# Add all tests found in the source code, calling the executable to run them
+add_google_tests ( ${EXECUTABLE_OUTPUT_PATH}/toolsTest ${srcs})
+SET(BUILDNAME ${BUILDNAME}_tools CACHE INTERNAL DOCSTRING)

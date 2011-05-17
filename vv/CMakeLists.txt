@@ -134,13 +134,11 @@ foreach(tool ${vv_TOOLS} ${vv_COMMON_WITH_UI})
     QT4_WRAP_CPP(vv_SRCS ${tool}.h)
     QT4_WRAP_UI(vv_UI_CXX qt_ui/${tool}.ui)
 endforeach(tool)
-
 #Add the common source files
 foreach(tool ${vv_COMMON})
     SET(vv_SRCS ${vv_SRCS} ${tool}.cxx)
     QT4_WRAP_CPP(vv_SRCS ${tool}.h)
 endforeach(tool)
-
 # if Windows and Qt was built as a static lib then don't set QT_DLL flag
 SET(QT_STATIC 0)
 IF (WIN32)
@@ -188,22 +186,25 @@ IF(WIN32)
 ENDIF(WIN32)
 
 LINK_DIRECTORIES(${QT_LIBRARY_DIR})
-ADD_EXECUTABLE(vv ${vv_SRCS} vv.cxx ${vv_UI_CXX} ${EXE_ICON})
-ADD_DEPENDENCIES(vv clitkSegmentationGgoLib)
-TARGET_LINK_LIBRARIES(vv clitkDicomRTStruct)
-
 #=========================================================
 #Add each tool's dependencies
 foreach(tool ${vv_TOOLS})
-    target_link_libraries(vv ${${tool}_LIBS})
+  SET(toolLibs ${toolLibs} ${${tool}_LIBS})
 endforeach(tool)
-
 #=========================================================
 #Add Foundation Libraries (this should be after our libraries, since we depend
 #on them)
-TARGET_LINK_LIBRARIES(vv
-clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
+SET(foundationLibraries clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
 
+#=========================================================
+#Create binary and libs for tests
+SET(vvExternalLibs clitkSegmentationGgoLib clitkDicomRTStruct ${toolLibs} ${foundationLibraries} CACHE INTERNAL DOCSTRING)
+ADD_EXECUTABLE(vv ${vv_SRCS} vv.cxx ${vv_UI_CXX} ${EXE_ICON})
+ADD_DEPENDENCIES(vv clitkSegmentationGgoLib)
+IF(BUILD_TESTING)
+  target_link_libraries(vv ${vvExternalLibs})
+  add_library(vvLib ${vv_SRCS} vv.cxx ${vv_UI_CXX} ${EXE_ICON})
+ENDIF(BUILD_TESTING)
 #=========================================================
 # Install options (also used by CPack)
 IF(UNIX AND NOT APPLE)
@@ -261,8 +262,5 @@ ENDIF(WIN32)
 INCLUDE(CPack)
 #=========================================================
 #=========================================================
-configure_file (
- vvCommon.h.in
- vvCommon.h
-)
+configure_file(vvCommon.h.in vvCommon.h)
 #=========================================================
