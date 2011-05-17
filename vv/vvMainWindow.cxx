@@ -331,7 +331,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
 
 void vvMainWindow::show(){
   vvMainWindowBase::show();
-  vvRegisterForm* registerForm = new vvRegisterForm(QUrl("http://localhost/vvregister/write.php"), getVVSettingsPath(), getSettingsOptionFormat());
+  vvRegisterForm* registerForm = new vvRegisterForm(QUrl("http://www.creatis.insa-lyon.fr/~dsarrut/vvregister/write.php"), getVVSettingsPath(), getSettingsOptionFormat());
   if(registerForm->canPush()){
     registerForm->show();
     registerForm->acquitPushed();//too bad if there is not internet connection anymore.
