@@ -30,7 +30,7 @@ QString getVVSettingsPath(){
 }
 
 QSettings::Format getSettingsOptionFormat(){
-  return QSettings::NativeFormat;
+  return QSettings::IniFormat;
 }
 
 ///Returns the last images opened by the user
