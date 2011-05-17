@@ -80,11 +80,18 @@ namespace itk
    *   
    *   This filter is implemented using the propagation algorithm
    */
- 
+
+#if ITK_VERSION_MAJOR == 4
+  template <class TInputImage, class TOutputImage, class TtNorm=Functor::Minimum<
+                                                     typename TOutputImage::PixelType,
+                                                     typename TOutputImage::PixelType,
+                                                     typename TOutputImage::PixelType>  >
+#else
   template <class TInputImage, class TOutputImage, class TtNorm=Function::Minimum<
                                                      typename TOutputImage::PixelType,
                                                      typename TOutputImage::PixelType,
                                                      typename TOutputImage::PixelType>  >
+#endif
   class ITK_EXPORT RelativePositionPropImageFilter :
     public ImageToImageFilter< TInputImage, TOutputImage > 
   {

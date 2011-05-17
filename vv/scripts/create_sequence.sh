@@ -12,4 +12,4 @@ do
     find "$i" -iname "*.dcm" | clitkDicom2Image --focal_origin -o "$filename" --std_input
 done
 
-create_mhd_4D.sh . "CT_4D.mhd"
+create_mhd_4D.sh .
