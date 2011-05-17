@@ -201,10 +201,9 @@ SET(foundationLibraries clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
 SET(vvExternalLibs clitkSegmentationGgoLib clitkDicomRTStruct ${toolLibs} ${foundationLibraries} CACHE INTERNAL DOCSTRING)
 ADD_EXECUTABLE(vv ${vv_SRCS} vv.cxx ${vv_UI_CXX} ${EXE_ICON})
 ADD_DEPENDENCIES(vv clitkSegmentationGgoLib)
-IF(BUILD_TESTING)
-  target_link_libraries(vv ${vvExternalLibs})
-  add_library(vvLib ${vv_SRCS} vv.cxx ${vv_UI_CXX} ${EXE_ICON})
-ENDIF(BUILD_TESTING)
+target_link_libraries(vv ${vvExternalLibs})
+add_library(vvLib ${vv_SRCS} vv.cxx ${vv_UI_CXX} ${EXE_ICON})
+
 #=========================================================
 # Install options (also used by CPack)
 IF(UNIX AND NOT APPLE)
