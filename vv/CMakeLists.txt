@@ -181,10 +181,6 @@ INCLUDE_DIRECTORIES(
   ../segmentation
   )
 
-IF(WIN32)
-  SET(EXE_ICON vvIcon.rc)
-ENDIF(WIN32)
-
 LINK_DIRECTORIES(${QT_LIBRARY_DIR})
 #=========================================================
 #Add each tool's dependencies
@@ -203,7 +199,12 @@ SET(vvExternalLibs clitkSegmentationGgoLib clitkDicomRTStruct ${toolLibs} ${foun
 ADD_LIBRARY(vvLib ${vv_SRCS} ${vv_UI_CXX})
 TARGET_LINK_LIBRARIES(vvLib ${vvExternalLibs})
 
-ADD_EXECUTABLE(vv vv.cxx ${EXE_ICON})
+IF(WIN32)
+  ADD_EXECUTABLE(vv WIN32 vv.cxx vvIcon.rc)
+ELSE(WIN32)
+  ADD_EXECUTABLE(vv vv.cxx)
+ENDIF(WIN32)
+
 TARGET_LINK_LIBRARIES(vv vvLib)
 
 

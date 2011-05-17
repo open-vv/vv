@@ -38,7 +38,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include  <errno.h>
+#include <errno.h>
 
 void load_image_first_error()
 {
@@ -61,8 +61,16 @@ std::string create_timed_string()
 }
 
 //------------------------------------------------------------------------------
+#ifdef _WIN32
+int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR lpCmdLine, int nShowCmd)
+{
+  int argc = __argc;
+  char **argv = __argv;
+#else
 int main( int argc, char** argv )
 {
+#endif
+
   CLITK_INIT;
 
   QApplication app( argc, argv );
@@ -129,9 +137,11 @@ int main( int argc, char** argv )
 
           if(itksys::SystemTools::FileExists(log_dir.c_str()) &&
               !itksys::SystemTools::FileIsDirectory(log_dir.c_str())) {
-            itkGenericExceptionMacro(<< "Error creating log directory, file exists and is not a directory.");
+            std::cerr << "Error creating log directory, file exists and is not a directory." << std::endl;
+            exit(1);
           } else if(!itksys::SystemTools::MakeDirectory(log_dir.c_str())) {
-            itkGenericExceptionMacro(<< "Error creating log directory.");
+            std::cerr << "Error creating log directory." << std::endl;
+            exit(1);
           }
 
           std::string log_file = log_dir + "/" + create_timed_string() + ".log";
