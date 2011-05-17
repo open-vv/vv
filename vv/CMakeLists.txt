@@ -198,11 +198,14 @@ SET(foundationLibraries clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
 
 #=========================================================
 #Create binary and libs for tests
-SET(vvExternalLibs clitkSegmentationGgoLib clitkDicomRTStruct ${toolLibs} ${foundationLibraries} CACHE INTERNAL DOCSTRING)
-ADD_EXECUTABLE(vv ${vv_SRCS} vv.cxx ${vv_UI_CXX} ${EXE_ICON})
-ADD_DEPENDENCIES(vv clitkSegmentationGgoLib)
-target_link_libraries(vv ${vvExternalLibs})
-add_library(vvLib ${vv_SRCS} vv.cxx ${vv_UI_CXX} ${EXE_ICON})
+SET(vvExternalLibs clitkSegmentationGgoLib clitkDicomRTStruct ${toolLibs} ${foundationLibraries})
+
+ADD_LIBRARY(vvLib ${vv_SRCS} ${vv_UI_CXX})
+TARGET_LINK_LIBRARIES(vvLib ${vvExternalLibs})
+
+ADD_EXECUTABLE(vv vv.cxx ${EXE_ICON})
+TARGET_LINK_LIBRARIES(vv vvLib)
+
 
 #=========================================================
 # Install options (also used by CPack)
