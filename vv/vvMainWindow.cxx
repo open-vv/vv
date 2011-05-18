@@ -1262,6 +1262,17 @@ void vvMainWindow::ChangeViewMode()
     DataTree->setColumnHidden(4,0);
   }
   UpdateRenderWindows();
+  /*
+  ** I don't know why but for both resized QVTKWidget we also need to render
+  ** the associated Slicer to redraw crosses.
+  */
+  for (unsigned int i = 0; i < mSlicerManagers.size(); i++)
+  {
+    if (DataTree->topLevelItem(i)->data(COLUMN_UL_VIEW,Qt::CheckStateRole).toInt() > 1)
+      mSlicerManagers[i]->GetSlicer(0)->Render();
+    if (DataTree->topLevelItem(i)->data(COLUMN_DL_VIEW,Qt::CheckStateRole).toInt() > 1)
+      mSlicerManagers[i]->GetSlicer(2)->Render();
+  }
 }
 //------------------------------------------------------------------------------
 
