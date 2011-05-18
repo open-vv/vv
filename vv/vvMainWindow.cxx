@@ -1227,23 +1227,18 @@ void vvMainWindow::ShowHelpDialog()
 //------------------------------------------------------------------------------
 void vvMainWindow::ChangeViewMode()
 {
-  QListIterator<int> it0(splitter_3->sizes());
-  QListIterator<int> it1(splitter_3->sizes());
-  int max0 = 0;
-  int max1 = 1;
-  while (it0.hasNext()) {
-    max0 += it0.next();
-  }
-  while (it1.hasNext()) {
-    max1 += it1.next();
+  QListIterator<int> it(splitter_3->sizes());
+  int max_size = 0;
+  while (it.hasNext()) {
+    max_size += it.next();
   }
   QList<int> size0;
   QList<int> size1;
   if (viewMode == 1) {
     viewMode = 0;
-    size0.push_back(max0);
+    size0.push_back(max_size);
     size0.push_back(0);
-    size1.push_back(max1);
+    size1.push_back(max_size + 1);
     size1.push_back(0);
     splitter_3->setSizes(size0);
     OSplitter->setSizes(size1);
@@ -1252,10 +1247,10 @@ void vvMainWindow::ChangeViewMode()
     DataTree->setColumnHidden(4,1);
   } else {
     viewMode = 1;
-    size0.push_back(int(max0/2));
-    size0.push_back(int(max0/2));
-    size1.push_back(int(max1/2));
-    size1.push_back(int(max1/2));
+    size0.push_back(max_size / 2);
+    size0.push_back(max_size / 2);
+    size1.push_back((max_size + 1) / 2);
+    size1.push_back((max_size + 1) / 2);
     splitter_3->setSizes(size0);
     OSplitter->setSizes(size1);
     DataTree->setColumnHidden(2,0);
