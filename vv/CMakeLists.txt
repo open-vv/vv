@@ -7,6 +7,7 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 #=========================================================
 
+
 #=========================================================
 #List of vv tools to compile
 SET(vv_TOOLS
@@ -62,6 +63,7 @@ SET(vv_COMMON_WITH_UI
   vvToolSimpleInputSelectorWidget
   vvToolInputSelectorWidget
   vvToolStructureSetManager
+  vvRegisterForm
 )
 
 # All others sources
@@ -113,10 +115,12 @@ QT4_WRAP_CPP(vv_SRCS
   vvStructureSetActor.h
   vvROIActor.h
   vvToolCreatorBase.h
+  vvRegisterForm.h
   )
 
 QT4_WRAP_UI(vv_UI_CXX 
   qt_ui/vvHelpDialog.ui 
+  qt_ui/vvRegisterForm.ui 
   qt_ui/vvDocumentation.ui 
   qt_ui/vvDicomSeriesSelector.ui 
   qt_ui/vvDummyWindow.ui #For testing
@@ -130,13 +134,11 @@ foreach(tool ${vv_TOOLS} ${vv_COMMON_WITH_UI})
     QT4_WRAP_CPP(vv_SRCS ${tool}.h)
     QT4_WRAP_UI(vv_UI_CXX qt_ui/${tool}.ui)
 endforeach(tool)
-
 #Add the common source files
 foreach(tool ${vv_COMMON})
     SET(vv_SRCS ${vv_SRCS} ${tool}.cxx)
     QT4_WRAP_CPP(vv_SRCS ${tool}.h)
 endforeach(tool)
-
 # if Windows and Qt was built as a static lib then don't set QT_DLL flag
 SET(QT_STATIC 0)
 IF (WIN32)
@@ -179,26 +181,32 @@ INCLUDE_DIRECTORIES(
   ../segmentation
   )
 
-IF(WIN32)
-  SET(EXE_ICON vvIcon.rc)
-ENDIF(WIN32)
-
 LINK_DIRECTORIES(${QT_LIBRARY_DIR})
-ADD_EXECUTABLE(vv ${vv_SRCS} vv.cxx ${vv_UI_CXX} ${EXE_ICON})
-ADD_DEPENDENCIES(vv clitkSegmentationGgoLib)
-TARGET_LINK_LIBRARIES(vv clitkDicomRTStruct)
-
 #=========================================================
 #Add each tool's dependencies
 foreach(tool ${vv_TOOLS})
-    target_link_libraries(vv ${${tool}_LIBS})
+  SET(toolLibs ${toolLibs} ${${tool}_LIBS})
 endforeach(tool)
-
 #=========================================================
 #Add Foundation Libraries (this should be after our libraries, since we depend
 #on them)
-TARGET_LINK_LIBRARIES(vv
-clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
+SET(foundationLibraries clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
+
+#=========================================================
+#Create binary and libs for tests
+SET(vvExternalLibs clitkSegmentationGgoLib clitkDicomRTStruct ${toolLibs} ${foundationLibraries})
+
+ADD_LIBRARY(vvLib ${vv_SRCS} ${vv_UI_CXX})
+TARGET_LINK_LIBRARIES(vvLib ${vvExternalLibs})
+
+IF(WIN32)
+  ADD_EXECUTABLE(vv WIN32 vv.cxx vvIcon.rc)
+ELSE(WIN32)
+  ADD_EXECUTABLE(vv vv.cxx)
+ENDIF(WIN32)
+
+TARGET_LINK_LIBRARIES(vv vvLib)
+
 
 #=========================================================
 # Install options (also used by CPack)
@@ -255,4 +263,7 @@ ELSE(WIN32)
   SET(CPACK_SOURCE_GENERATOR "TGZ") 
 ENDIF(WIN32)
 INCLUDE(CPack)
+#=========================================================
+#=========================================================
+configure_file(vvCommon.h.in vvCommon.h)
 #=========================================================

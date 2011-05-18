@@ -1,22 +1,37 @@
-# Tests are organized to mirror the clitk directory tree. 
-# Eacho subdirectory has its own CMakeLists.txt with the compiling directives
+macro(ADD_GOOGLE_TESTS executable)
+  foreach ( source ${ARGN} )
+    file(READ "${source}" contents)
+    string(REGEX MATCHALL "TEST_?F?\\(([A-Za-z_0-9 ,]+)\\)" found_tests ${contents})
+    foreach(hit ${found_tests})
+      string(REGEX REPLACE ".*\\(([A-Za-z_0-9]+)[, ]*([A-Za-z_0-9]+)\\).*" "\\1.\\2" test_name ${hit})
+      add_test(${test_name} ${executable} --gtest_filter=${test_name})
+    endforeach(hit)
+  endforeach()
+endmacro()
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/tests/bin)
+SET(BUILDNAME ${CMAKE_SYSTEM_NAME}${CMAKE_OSX_ARCHITECTURES} CACHE INTERNAL DOCSTRING)
+SET(CLITK_DATA_PATH ${PROJECT_BINARY_DIR}/tests/data/ CACHE STRING "dataTest path")
+#todo  test if data test path exists
 
-IF (CLITK_BUILD_TESTING)
+ADD_DEFINITIONS(-DCLITK_DATA_PATH=\"${CLITK_DATA_PATH}\")
 
-  set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/tests/bin)
+add_library(gtest UNKNOWN IMPORTED)
+set(GTEST_DIR ${ITK_DIR}/../gtest/ CACHE STRING "gtestDir")
+#if windows gtestLibName=gtest.dll else libgtest.a
+set(gtestLibName libgtest.a)
+set(GTEST_LIB ${GTEST_DIR}/build/${gtestLibName})
+#message(gtestlib name = ${GTEST_LIB})
+set_property(TARGET gtest PROPERTY IMPORTED_LOCATION "${GTEST_LIB}")
+include_directories(${GTEST_DIR}/include/)
 
-  # default data path is searched in the project source tree
-  FIND_PATH(CLITK_DATA_PATH data PATHS ${PROJECT_SOURCE_DIR})
-  IF (CLITK_DATA_PATH STREQUAL "CLITK_DATA_PATH-NOTFOUND" OR CLITK_DATA_PATH STREQUAL "")
-    MESSAGE("Data path must be given when tests are enabled.")
-  ENDIF (CLITK_DATA_PATH STREQUAL "CLITK_DATA_PATH-NOTFOUND" OR CLITK_DATA_PATH STREQUAL "")
-
-  set(CLITK_DATA_PATH ${CLITK_DATA_PATH}/data)
-  ADD_DEFINITIONS(-DCLITK_DATA_PATH='"${CLITK_DATA_PATH}"')
-
+IF(CLITK_BUILD_TOOLS)
   ADD_SUBDIRECTORY(tools)
-  #ADD_SUBDIRECTORY(segmentation)
-  #ADD_SUBDIRECTORY(registration)
-  #ADD_SUBDIRECTORY(common)
+ENDIF()
+IF(CLITK_BUILD_VV)
+  ADD_SUBDIRECTORY(vv)
+ENDIF()
+#   ADD_SUBDIRECTORY(segmentation)
+#   ADD_SUBDIRECTORY(registration)
+#   ADD_SUBDIRECTORY(common)
 
-ENDIF(CLITK_BUILD_TESTING)
+

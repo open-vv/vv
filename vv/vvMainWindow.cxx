@@ -21,10 +21,13 @@
 #include <QInputDialog>
 #include <QTimer>
 #include "QTreePushButton.h"
+#include <QUrl>
+#include <QSettings>
 
 // VV include
 #include "vvMainWindow.h"
 #include "vvHelpDialog.h"
+#include "vvRegisterForm.h"
 #include "vvDocumentation.h"
 #include "vvProgressDialog.h"
 #include "vvQDicomSeriesSelector.h"
@@ -249,6 +252,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(actionAdd_VF_to_current_Image,SIGNAL(triggered()),this,SLOT(OpenField()));
   connect(actionNavigation_Help,SIGNAL(triggered()),this,SLOT(ShowHelpDialog()));
   connect(actionDocumentation,SIGNAL(triggered()),this,SLOT(ShowDocumentation()));
+  connect(actionRegister_vv,SIGNAL(triggered()),this,SLOT(PopupRegisterForm()));
 
   ///////////////////////////////////////////////
   connect(actionSegmentation,SIGNAL(triggered()),this,SLOT(SegmentationOnCurrentImage()));
@@ -306,17 +310,10 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
 
   //Recently opened files
   std::list<std::string> recent_files = GetRecentlyOpenedImages();
+  recentlyOpenedFilesMenu=NULL;
   if ( !recent_files.empty() ) {
-    QMenu * rmenu = new QMenu("Recently opened files...");
-    rmenu->setIcon(QIcon(QString::fromUtf8(":/common/icons/open.png")));
-    menuFile->insertMenu(actionOpen_Image_With_Time,rmenu);
-    menuFile->insertSeparator(actionOpen_Image_With_Time);
-    for (std::list<std::string>::iterator i = recent_files.begin(); i!=recent_files.end(); i++) {
-      QAction* current=new QAction(QIcon(QString::fromUtf8(":/common/icons/open.png")),
-                                   (*i).c_str(),this);
-      rmenu->addAction(current);
-      connect(current,SIGNAL(triggered()),this,SLOT(OpenRecentImage()));
-    }
+    createRecentlyOpenedFilesMenu();
+    updateRecentlyOpenedFilesMenu(recent_files);
   }
 
   // Adding all new tools (insertion in the menu)
@@ -330,17 +327,48 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   //timerMemory->setInterval(5);
   connect(timerMemory, SIGNAL(timeout()), this, SLOT(UpdateMemoryUsage()));
   timerMemory->start(2000);
-  
 }
 //------------------------------------------------------------------------------
 
-
+void vvMainWindow::show(){
+  vvMainWindowBase::show();
+  PopupRegisterForm(true);
+}
 //------------------------------------------------------------------------------
 void vvMainWindow::UpdateMemoryUsage()
 {
   //  clitk::PrintMemory(true);
   if (clitk::GetMemoryUsageInMb() == 0) infoPanel->setMemoryInMb("NA");
   else infoPanel->setMemoryInMb(QString::number(clitk::GetMemoryUsageInMb())+" MiB");
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvMainWindow::createRecentlyOpenedFilesMenu()
+{
+    recentlyOpenedFilesMenu = new QMenu("Recently opened files...");
+    recentlyOpenedFilesMenu->setIcon(QIcon(QString::fromUtf8(":/common/icons/open.png")));
+    menuFile->insertMenu(actionOpen_Image_With_Time,recentlyOpenedFilesMenu);
+    menuFile->insertSeparator(actionOpen_Image_With_Time);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+
+void vvMainWindow::updateRecentlyOpenedFilesMenu(const std::list<std::string> &recent_files)
+{
+  if(recentlyOpenedFilesMenu==NULL){
+    createRecentlyOpenedFilesMenu();
+  }else{
+    recentlyOpenedFilesMenu->clear();
+  }
+  for (std::list<std::string>::const_iterator i = recent_files.begin(); i!=recent_files.end(); i++) {
+    QAction* current=new QAction(QIcon(QString::fromUtf8(":/common/icons/open.png")), i->c_str(),this);
+    recentlyOpenedFilesMenu->addAction(current);
+    connect(current,SIGNAL(triggered()),this,SLOT(OpenRecentImage()));
+  }
 }
 //------------------------------------------------------------------------------
 
@@ -790,6 +818,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
   if (files.size() == 1) {
     QFileInfo finfo=tr(files[0].c_str());
     AddToRecentlyOpenedImages(finfo.absoluteFilePath().toStdString());
+    updateRecentlyOpenedFilesMenu(GetRecentlyOpenedImages());
   }
   //init the progress events
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -1186,6 +1215,23 @@ void vvMainWindow::ShowDocumentation()
   documentation->show();
 }
 //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::PopupRegisterForm(bool checkCanPush)
+{
+  vvRegisterForm* registerForm = new vvRegisterForm(QUrl("http://www.creatis.insa-lyon.fr/~dsarrut/vvregister/write.php"), getVVSettingsPath(), getSettingsOptionFormat());
+  if(!checkCanPush){
+    registerForm->show();
+  }else{
+    if(registerForm->canPush()){
+      registerForm->show();
+      registerForm->acquitPushed();//too bad if there is not internet connection anymore.
+    }
+  }
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 void vvMainWindow::ShowHelpDialog()
 {
   help_dialog->show();
@@ -1195,41 +1241,27 @@ void vvMainWindow::ShowHelpDialog()
 //------------------------------------------------------------------------------
 void vvMainWindow::ChangeViewMode()
 {
-  QListIterator<int> it0(splitter_3->sizes());
-  QListIterator<int> it1(splitter_3->sizes());
-  int max0 = 0;
-  int max1 = 1;
-  while (it0.hasNext()) {
-    max0 += it0.next();
-  }
-  while (it1.hasNext()) {
-    max1 += it1.next();
-  }
-  QList<int> size0;
-  QList<int> size1;
+  QList<int> size;
   if (viewMode == 1) {
     viewMode = 0;
-    size0.push_back(max0);
-    size0.push_back(0);
-    size1.push_back(max1);
-    size1.push_back(0);
-    splitter_3->setSizes(size0);
-    OSplitter->setSizes(size1);
+    size.push_back(1);
+    size.push_back(0);
+    splitter_3->setSizes(size);
+    OSplitter->setSizes(size);
     DataTree->setColumnHidden(2,1);
     DataTree->setColumnHidden(3,1);
     DataTree->setColumnHidden(4,1);
   } else {
     viewMode = 1;
-    size0.push_back(int(max0/2));
-    size0.push_back(int(max0/2));
-    size1.push_back(int(max1/2));
-    size1.push_back(int(max1/2));
-    splitter_3->setSizes(size0);
-    OSplitter->setSizes(size1);
+    size.push_back(1);
+    size.push_back(1);
+    splitter_3->setSizes(size);
+    OSplitter->setSizes(size);
     DataTree->setColumnHidden(2,0);
     DataTree->setColumnHidden(3,0);
     DataTree->setColumnHidden(4,0);
   }
+  UpdateRenderWindows();
 }
 //------------------------------------------------------------------------------
 

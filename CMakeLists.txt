@@ -1,7 +1,7 @@
 #=========================================================
 # CLITK = Command Line ITK
-cmake_minimum_required(VERSION 2.4)
-cmake_policy(VERSION 2.4)
+cmake_minimum_required(VERSION 2.8)
+cmake_policy(VERSION 2.8)
 if(COMMAND cmake_policy)
     cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
@@ -10,6 +10,15 @@ PROJECT(clitk)
 
 #=========================================================
 INCLUDE(cmake/common.cmake)
+#=========================================================
+
+#=========================================================
+#Support for the CTest dashboard testing system
+OPTION(BUILD_TESTING "Build the testing tree" OFF)
+IF (BUILD_TESTING)
+  OPTION(CLITK_BUILD_TESTING "Test ITK" ON)
+  INCLUDE(CTest)
+ENDIF(BUILD_TESTING)
 #=========================================================
 
 #=========================================================
@@ -80,9 +89,9 @@ INCLUDE_DIRECTORIES(itk filters segmentation registration tools ${PROJECT_BINARY
 
 # Select what is compiled
 ADD_SUBDIRECTORY(common)
-add_subdirectory(tools)
-add_subdirectory(segmentation)
-add_subdirectory(registration)
+ADD_SUBDIRECTORY(tools)
+ADD_SUBDIRECTORY(segmentation)
+ADD_SUBDIRECTORY(registration)
 
 
 # Compilation options
@@ -98,15 +107,7 @@ ENDIF(CLITK_BUILD_VV)
 
 
 #=========================================================
-#Support for the CTest dashboard testing system
-OPTION(CLITK_BUILD_TESTING "Build the testing tree" OFF)
-#=========================================================
-IF (CLITK_BUILD_TESTING)
-  ENABLE_TESTING()
+# Build test when vv has been compiled
+IF(BUILD_TESTING)
   ADD_SUBDIRECTORY(tests)
-ENDIF(CLITK_BUILD_TESTING)
-#=========================================================
-
-
-#=========================================================
-
+ENDIF(BUILD_TESTING)

@@ -38,7 +38,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include  <errno.h>
+#include <errno.h>
 
 void load_image_first_error()
 {
@@ -61,19 +61,20 @@ std::string create_timed_string()
 }
 
 //------------------------------------------------------------------------------
+#ifdef _WIN32
+int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR lpCmdLine, int nShowCmd)
+{
+  int argc = __argc;
+  char **argv = __argv;
+#else
 int main( int argc, char** argv )
 {
+#endif
+
   CLITK_INIT;
 
   QApplication app( argc, argv );
   Q_INIT_RESOURCE(vvIcons);
-  //QPixmap pixmap(":/splashscreen.PNG");
-  QSplashScreen *splash = new QSplashScreen(QPixmap(QString::fromUtf8(":/new/prefix1/splashscreen.PNG")));
-  /*splash->showMessage("VV 1.0 developped by Léon Bérard c`ancer center http://www.centreleonberard.fr and CREATIS-LRMN http://www.creatis.insa-lyon.fr",(Qt::AlignRight | Qt::AlignBottom));*/
-  //  splash->show();
-  QTimer::singleShot(2000, splash, SLOT(close()));
-  while (!splash->isHidden())
-    app.processEvents();
 
   vvMainWindow window;
 
@@ -129,9 +130,11 @@ int main( int argc, char** argv )
 
           if(itksys::SystemTools::FileExists(log_dir.c_str()) &&
               !itksys::SystemTools::FileIsDirectory(log_dir.c_str())) {
-            itkGenericExceptionMacro(<< "Error creating log directory, file exists and is not a directory.");
+            std::cerr << "Error creating log directory, file exists and is not a directory." << std::endl;
+            exit(1);
           } else if(!itksys::SystemTools::MakeDirectory(log_dir.c_str())) {
-            itkGenericExceptionMacro(<< "Error creating log directory.");
+            std::cerr << "Error creating log directory." << std::endl;
+            exit(1);
           }
 
           std::string log_file = log_dir + "/" + create_timed_string() + ".log";

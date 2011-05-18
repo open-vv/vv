@@ -27,7 +27,6 @@
 #include "itkImageRegion.h"
 #include "itkSpatialObject.h"
 #include "itkPasteImageFilter.h"
-#include "itkMultiplyByConstantImageFilter.h"
 
 namespace clitk
 {

@@ -15,22 +15,30 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
-#ifndef vvXXX_h
-#define vvXXX_h
-#include <list>
-#include <string>
+#ifndef vvRegisterForm_h
+#define vvRegisterForm_h
+
+#include "ui_vvRegisterForm.h"
+#include <QUrl>
 #include <QSettings>
+#include <QNetworkAccessManager>
+class vvRegisterForm : public QDialog, private Ui::vvRegisterForm
+{
+    Q_OBJECT
 
-///Returns the last images opened by the user
-std::list<std::string> GetRecentlyOpenedImages();
-
-///Adds an image to the list of recently opened images
-void AddToRecentlyOpenedImages(std::string filename);
-
-///path to user settings
-QString getVVSettingsPath();
-
-///by default nativeFormat
-QSettings::Format getSettingsOptionFormat();
+public:
+    vvRegisterForm(QUrl url, QString path, QSettings::Format format);
+    void sendData();
+    ~vvRegisterForm() {}
+    virtual bool canPush();
+    virtual void acquitPushed();
+public slots:
+  virtual void accept();
+  virtual void show();
+protected:
+  QUrl url;
+  QSettings settings;
+  QNetworkAccessManager* manager;
+};
 
 #endif
