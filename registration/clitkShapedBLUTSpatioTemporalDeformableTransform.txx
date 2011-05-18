@@ -1037,7 +1037,6 @@ namespace clitk
     typedef itk::PasteImageFilter<CoefficientImageType, CoefficientImageType, CoefficientImageType> PasteImageFilterType;
     typedef clitk::ExtractImageFilter<CoefficientImageType, CoefficientImageType> ExtractImageFilterType;
     typedef clitk::LinearCombinationImageFilter<CoefficientImageType, CoefficientImageType> LinearCombinationFilterType;
-    typedef itk::MultiplyByConstantImageFilter<CoefficientImageType, double, CoefficientImageType> MultiplicationFilterType;
 
     // Regions
     typename   CoefficientImageType::RegionType sourceRegion=m_PaddedCoefficientImage->GetLargestPossibleRegion();

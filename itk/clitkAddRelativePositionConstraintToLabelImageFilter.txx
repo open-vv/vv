@@ -32,7 +32,11 @@
 #include <itkBinaryErodeImageFilter.h>
 #include <itkBinaryBallStructuringElement.h>
 #include <itkAddImageFilter.h>
-#include <itkDivideByConstantImageFilter.h>
+#if ITK_VERSION_MAJOR >= 4
+  #include <itkDivideImageFilter.h>
+#else
+  #include <itkDivideByConstantImageFilter.h>
+#endif
 
 // itk [Bloch et al] 
 #include "RelativePositionPropImageFilter.h"
@@ -359,10 +363,16 @@ GenerateData()
 
   // Divide by the number of relpos
   if (GetNumberOfAngles() != 1) {
+#if ITK_VERSION_MAJOR >= 4
+    typedef itk::DivideImageFilter<FloatImageType, FloatImageType, FloatImageType> DivideFilter;
+    typename DivideFilter::Pointer divideFilter = DivideFilter::New();
+    divideFilter->SetConstant2(GetNumberOfAngles());
+#else
     typedef itk::DivideByConstantImageFilter<FloatImageType, float, FloatImageType> DivideFilter;
     typename DivideFilter::Pointer divideFilter = DivideFilter::New();
-    divideFilter->SetInput(m_FuzzyMap);
     divideFilter->SetConstant(GetNumberOfAngles());
+#endif
+    divideFilter->SetInput(m_FuzzyMap);
     divideFilter->Update();
     m_FuzzyMap = divideFilter->GetOutput();
   }
