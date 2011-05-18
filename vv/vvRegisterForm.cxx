@@ -20,6 +20,7 @@
 #include "vvRegisterForm.h"
 #include <QNetworkRequest>
 #include <QDir>
+#include <QPalette>
 #include "common/globals.h"
 #include "vvCommon.h"
 #include "vvUtils.h"
@@ -27,6 +28,7 @@
 vvRegisterForm::vvRegisterForm(QUrl url, QString path, QSettings::Format format):url(url), settings(path, format){ 
   manager = new QNetworkAccessManager(this);
   setupUi(this);
+  textBrowser->viewport()->setAutoFillBackground(false);
 }
 
 void vvRegisterForm::sendData(){
