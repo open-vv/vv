@@ -811,6 +811,7 @@
     </property>
     <addaction name="actionNavigation_Help"/>
     <addaction name="actionDocumentation"/>
+    <addaction name="actionRegister_vv"/>
    </widget>
    <widget class="QMenu" name="menuOverlay">
     <property name="title">
@@ -1099,6 +1100,11 @@
   <action name="actionExperimental">
    <property name="text">
     <string>Experimental...</string>
+   </property>
+  </action>
+  <action name="actionRegister_vv">
+   <property name="text">
+    <string>Register vv</string>
    </property>
   </action>
  </widget>

@@ -20,7 +20,7 @@ set(GTEST_DIR ${ITK_DIR}/../gtest/ CACHE STRING "gtestDir")
 #if windows gtestLibName=gtest.dll else libgtest.a
 set(gtestLibName libgtest.a)
 set(GTEST_LIB ${GTEST_DIR}/build/${gtestLibName})
-message(gtestlib name = ${GTEST_LIB})
+#message(gtestlib name = ${GTEST_LIB})
 set_property(TARGET gtest PROPERTY IMPORTED_LOCATION "${GTEST_LIB}")
 include_directories(${GTEST_DIR}/include/)
 

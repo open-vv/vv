@@ -252,6 +252,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(actionAdd_VF_to_current_Image,SIGNAL(triggered()),this,SLOT(OpenField()));
   connect(actionNavigation_Help,SIGNAL(triggered()),this,SLOT(ShowHelpDialog()));
   connect(actionDocumentation,SIGNAL(triggered()),this,SLOT(ShowDocumentation()));
+  connect(actionRegister_vv,SIGNAL(triggered()),this,SLOT(PopupRegisterForm()));
 
   ///////////////////////////////////////////////
   connect(actionSegmentation,SIGNAL(triggered()),this,SLOT(SegmentationOnCurrentImage()));
@@ -331,11 +332,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
 
 void vvMainWindow::show(){
   vvMainWindowBase::show();
-  vvRegisterForm* registerForm = new vvRegisterForm(QUrl("http://www.creatis.insa-lyon.fr/~dsarrut/vvregister/write.php"), getVVSettingsPath(), getSettingsOptionFormat());
-  if(registerForm->canPush()){
-    registerForm->show();
-    registerForm->acquitPushed();//too bad if there is not internet connection anymore.
-  }
+  PopupRegisterForm(true);
 }
 //------------------------------------------------------------------------------
 void vvMainWindow::UpdateMemoryUsage()
@@ -1217,6 +1214,23 @@ void vvMainWindow::ShowDocumentation()
 {
   documentation->show();
 }
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::PopupRegisterForm(bool checkCanPush)
+{
+  vvRegisterForm* registerForm = new vvRegisterForm(QUrl("http://www.creatis.insa-lyon.fr/~dsarrut/vvregister/write.php"), getVVSettingsPath(), getSettingsOptionFormat());
+  if(!checkCanPush){
+    registerForm->show();
+  }else{
+    if(registerForm->canPush()){
+      registerForm->show();
+      registerForm->acquitPushed();//too bad if there is not internet connection anymore.
+    }
+  }
+}
+//------------------------------------------------------------------------------
+
 //------------------------------------------------------------------------------
 void vvMainWindow::ShowHelpDialog()
 {

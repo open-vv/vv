@@ -87,6 +87,7 @@ public slots:
   void ImageInfoChanged();
   void ShowHelpDialog();
   void ShowDocumentation();
+  void PopupRegisterForm(bool checkCanPush=false);
   void ComputeDeformableRegistration();
   void WarpImage();
   void ChangeViewMode();

@@ -15,7 +15,7 @@ include_directories(
 
 FILE(GLOB srcs *.cxx)
 ADD_EXECUTABLE(vvTest ${srcs})
-target_link_libraries(vvTest vvLib ${vvExternalLibs} gtest)
+target_link_libraries(vvTest vvLib gtest)
 
 # Add all tests found in the source code, calling the executable to run them
 add_google_tests ( ${EXECUTABLE_OUTPUT_PATH}/vvTest ${srcs})
