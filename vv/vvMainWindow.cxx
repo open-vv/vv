@@ -1241,36 +1241,27 @@ void vvMainWindow::ShowHelpDialog()
 //------------------------------------------------------------------------------
 void vvMainWindow::ChangeViewMode()
 {
-  QListIterator<int> it(splitter_3->sizes());
-  int max_size = 0;
-  while (it.hasNext()) {
-    max_size += it.next();
-  }
-  QList<int> size0;
-  QList<int> size1;
+  QList<int> size;
   if (viewMode == 1) {
     viewMode = 0;
-    size0.push_back(max_size);
-    size0.push_back(0);
-    size1.push_back(max_size + 1);
-    size1.push_back(0);
-    splitter_3->setSizes(size0);
-    OSplitter->setSizes(size1);
+    size.push_back(1);
+    size.push_back(0);
+    splitter_3->setSizes(size);
+    OSplitter->setSizes(size);
     DataTree->setColumnHidden(2,1);
     DataTree->setColumnHidden(3,1);
     DataTree->setColumnHidden(4,1);
   } else {
     viewMode = 1;
-    size0.push_back(max_size / 2);
-    size0.push_back(max_size / 2);
-    size1.push_back((max_size + 1) / 2);
-    size1.push_back((max_size + 1) / 2);
-    splitter_3->setSizes(size0);
-    OSplitter->setSizes(size1);
+    size.push_back(1);
+    size.push_back(1);
+    splitter_3->setSizes(size);
+    OSplitter->setSizes(size);
     DataTree->setColumnHidden(2,0);
     DataTree->setColumnHidden(3,0);
     DataTree->setColumnHidden(4,0);
   }
+  UpdateRenderWindows();
 }
 //------------------------------------------------------------------------------
 
