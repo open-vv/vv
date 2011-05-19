@@ -115,12 +115,10 @@ QT4_WRAP_CPP(vv_SRCS
   vvStructureSetActor.h
   vvROIActor.h
   vvToolCreatorBase.h
-  vvRegisterForm.h
   )
 
 QT4_WRAP_UI(vv_UI_CXX 
   qt_ui/vvHelpDialog.ui 
-  qt_ui/vvRegisterForm.ui 
   qt_ui/vvDocumentation.ui 
   qt_ui/vvDicomSeriesSelector.ui 
   qt_ui/vvDummyWindow.ui #For testing
