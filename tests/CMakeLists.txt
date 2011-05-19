@@ -1,3 +1,6 @@
+cmake_policy(SET CMP0005 NEW)
+
+
 macro(ADD_GOOGLE_TESTS executable)
   foreach ( source ${ARGN} )
     file(READ "${source}" contents)
