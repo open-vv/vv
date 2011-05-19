@@ -22,23 +22,22 @@
 #include "gtest/gtest.h"
 #include "stdio.h"
 #include <itksys/SystemTools.hxx>
-static inline void compare(std::string mhd, std::string ref){
+static inline void compare(std::string mhd, std::string refMhd, std::string refRaw){
   std::ostringstream cmd_line;
-  cmd_line << TOOLS_PATH<<"clitkImageInfo " << mhd << " > clitkImageInfoTest.out";
+  ASSERT_TRUE(itksys::SystemTools::FileExists(mhd.c_str(), true));
+  ASSERT_TRUE(itksys::SystemTools::FileExists(refMhd.c_str(), true));
+  ASSERT_TRUE(itksys::SystemTools::FileExists(refRaw.c_str(), true));
+  cmd_line << TOOLS_PATH<<"clitkAffineTransform -i " << mhd << " -o "<<"out.mhd >/dev/null";
   system(cmd_line.str().c_str());
-  
-  EXPECT_FALSE( itksys::SystemTools::FilesDiffer("clitkImageInfoTest.out", ref.c_str()) );
-  remove("clitkImageInfoTest.out");
+  EXPECT_TRUE(itksys::SystemTools::FileExists("out.mhd", true));
+  EXPECT_FALSE( itksys::SystemTools::FilesDiffer("out.mhd", refMhd.c_str())  );
+  EXPECT_FALSE( itksys::SystemTools::FilesDiffer("out.raw", refRaw.c_str())  );
+  remove("out.mhd");
+  remove("out.raw");
 }
-TEST(clitkImageInfoTest, main){
+TEST(clitkAffineTransformTest, main){
   std::string mhd1=std::string(CLITK_DATA_PATH)+"Deformation4D.mhd";
-  ASSERT_TRUE(itksys::SystemTools::FileExists(mhd1.c_str(), true));
-  
-  std::string mhd2=std::string(CLITK_DATA_PATH)+"Lung3D.mhd";
-  ASSERT_TRUE(itksys::SystemTools::FileExists(mhd2.c_str(), true));
-  
-  mhd1+=" "+mhd2;
-  std::string ref1=std::string(CLITK_DATA_PATH)+"clitkImageInfoTestRef.out";
-  ASSERT_TRUE(itksys::SystemTools::FileExists(ref1.c_str(), true));
-  compare(mhd1, ref1);
+  std::string refMhd1=std::string(CLITK_DATA_PATH)+"Deformation4DRef.mhd";
+  std::string refRaw1=std::string(CLITK_DATA_PATH)+"Deformation4DRef.raw";
+  compare(mhd1, refMhd1, refRaw1);
 }
