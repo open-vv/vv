@@ -39,6 +39,7 @@ void vvRegisterForm::sendData(){
   url2.addQueryItem("group", group->text().toUtf8());
   url2.addQueryItem("os", osName->text().toUtf8());
   url2.addQueryItem("vvVersion", VV_VERSION);
+  url2.addQueryItem("architecture", ARCHITECTURE);
   manager->get(QNetworkRequest(url2));
 }
 void vvRegisterForm::accept(){

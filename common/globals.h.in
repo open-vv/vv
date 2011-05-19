@@ -1,2 +1,3 @@
 #define OS_NAME "@CMAKE_SYSTEM@"
+#define ARCHITECTURE "@CMAKE_SYSTEM_PROCESSOR@"
                               
