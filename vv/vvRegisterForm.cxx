@@ -21,7 +21,7 @@
 #include <QNetworkRequest>
 #include <QDir>
 #include <QPalette>
-#include "common/globals.h"
+#include "clitkConfiguration.h"
 #include "vvConfiguration.h"
 #include "vvUtils.h"
 
