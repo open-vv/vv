@@ -30,6 +30,7 @@
 
 #include "clitkIO.h"
 #include "vvMainWindow.h"
+#include "vvToolsList.h"
 #include <vtkFileOutputWindow.h>
 #include <vtkSmartPointer.h>
 #include <itkFileOutputWindow.h>

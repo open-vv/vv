@@ -128,17 +128,28 @@ QT4_WRAP_UI(vv_UI_CXX
 
 QT4_ADD_RESOURCES(vv_SRCS vvIcons.qrc)
 
-#Add the autotools and the common files ui
+# Add the autotools in the header vvToolsList.h for initialization of the dummy
+# variables in vv.cxx for the tools contained in vvLib
+file(REMOVE ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h)
+foreach(tool ${vv_TOOLS})
+    FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h "#include \"${tool}.h\"\n")
+    FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h "extern const vvToolCreator<${tool}> *dummy${tool};\n")
+    FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h "const vvToolCreator<${tool}> *dummy${tool}2 = dummy${tool};\n\n")
+endforeach(tool)
+
+# Add the autotools and the common files ui
 foreach(tool ${vv_TOOLS} ${vv_COMMON_WITH_UI})
     SET(vv_SRCS ${vv_SRCS} ${tool}.cxx)
     QT4_WRAP_CPP(vv_SRCS ${tool}.h)
     QT4_WRAP_UI(vv_UI_CXX qt_ui/${tool}.ui)
 endforeach(tool)
-#Add the common source files
+
+# Add the common source files
 foreach(tool ${vv_COMMON})
     SET(vv_SRCS ${vv_SRCS} ${tool}.cxx)
     QT4_WRAP_CPP(vv_SRCS ${tool}.h)
 endforeach(tool)
+
 # if Windows and Qt was built as a static lib then don't set QT_DLL flag
 SET(QT_STATIC 0)
 IF (WIN32)
@@ -265,5 +276,5 @@ ENDIF(WIN32)
 INCLUDE(CPack)
 #=========================================================
 #=========================================================
-configure_file(vvCommon.h.in vvCommon.h)
+configure_file(vvConfiguration.h.in vvConfiguration.h)
 #=========================================================
