@@ -276,5 +276,5 @@ ENDIF(WIN32)
 INCLUDE(CPack)
 #=========================================================
 #=========================================================
-configure_file(vvCommon.h.in vvCommon.h)
+configure_file(vvConfiguration.h.in vvConfiguration.h)
 #=========================================================

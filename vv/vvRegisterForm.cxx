@@ -22,7 +22,7 @@
 #include <QDir>
 #include <QPalette>
 #include "common/globals.h"
-#include "vvCommon.h"
+#include "vvConfiguration.h"
 #include "vvUtils.h"
 
 vvRegisterForm::vvRegisterForm(QUrl url, QString path, QSettings::Format format):url(url), settings(path, format){ 
