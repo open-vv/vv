@@ -41,7 +41,8 @@ void clitk::skipComment(std::istream & is)
     is >> c;
     if (is.eof()) return;
   }
-  is.unget();
+  if (!(is.fail()) || c != '\n')
+    is.unget();
 } ////
 //------------------------------------------------------------------
 
