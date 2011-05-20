@@ -37,7 +37,7 @@ void vvRegisterForm::sendData(){
   url2.addQueryItem("lastName", lastName->text().toUtf8());
   url2.addQueryItem("email", email->text().toUtf8());
   url2.addQueryItem("group", group->text().toUtf8());
-  url2.addQueryItem("os", osName->text().toUtf8());
+  url2.addQueryItem("os", OS_NAME);
   url2.addQueryItem("vvVersion", VV_VERSION);
   url2.addQueryItem("architecture", ARCHITECTURE);
   url2.addQueryItem("adressing", QString::number(sizeof(char*)*8)+"-bit");
@@ -66,7 +66,8 @@ void vvRegisterForm::show(){
  lastName->setText(settings.value("lastName").toString()); 
  email->setText(settings.value("email").toString()); 
  group->setText(settings.value("group").toString()); 
-  
- osName->setText(QString::fromStdString(OS_NAME));
+ osName->setText(QString::fromStdString(OS_NAME) + ", " +
+                 ARCHITECTURE + ", " +
+                 QString::number(sizeof(char*)*8)+"-bit");
  QDialog::show();
 }
