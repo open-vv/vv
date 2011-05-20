@@ -12,11 +12,15 @@
 #include "clitkCommon.h"
 #include <string> 
 #include "TROOT.h"
+#include "TPluginManager.h"
 #include "TFile.h"
 #include "TFileMerger.h"
 
 //-----------------------------------------------------------------------------
 int main(int argc, char * argv[]) {
+
+  gROOT->GetPluginManager()->AddHandler("TVirtualStreamerInfo", "*",
+      "TStreamerInfo", "RIO", "TStreamerInfo()");
 
   // init command line
   GGO(clitkMergeRootFiles, args_info);
