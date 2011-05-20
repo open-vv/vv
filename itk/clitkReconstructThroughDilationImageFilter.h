@@ -84,6 +84,7 @@ namespace clitk
     itkSetMacro( Verbose, bool);
     itkGetConstReferenceMacro( Verbose, bool);
     void SetRadius ( const SizeType& s){ m_Radius=s; this->Modified();}
+    void SetRadius(const int r) { for(uint i=0; i<InputImageDimension; i++) m_Radius[i] = r; SetRadius(m_Radius); }
     SizeType GetRadius(void){return m_Radius;}
     itkSetMacro( ErosionPaddingValue, OutputPixelType);
     itkGetConstMacro( ErosionPaddingValue, OutputPixelType)
