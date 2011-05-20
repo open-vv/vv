@@ -1,3 +1,6 @@
+cmake_policy(SET CMP0005 NEW)
+
+
 macro(ADD_GOOGLE_TESTS executable)
   foreach ( source ${ARGN} )
     file(READ "${source}" contents)
@@ -10,9 +13,8 @@ macro(ADD_GOOGLE_TESTS executable)
 endmacro()
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/tests/bin)
 SET(BUILDNAME ${CMAKE_SYSTEM_NAME}${CMAKE_OSX_ARCHITECTURES} CACHE INTERNAL DOCSTRING)
-SET(CLITK_DATA_PATH ${PROJECT_BINARY_DIR}/tests/data/ CACHE STRING "dataTest path")
+SET(CLITK_DATA_PATH ${PROJECT_SOURCE_DIR}/tests/data/ CACHE STRING "dataTest path")
 #todo  test if data test path exists
-
 ADD_DEFINITIONS(-DCLITK_DATA_PATH=\"${CLITK_DATA_PATH}\")
 
 add_library(gtest UNKNOWN IMPORTED)

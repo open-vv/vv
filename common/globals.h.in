@@ -1,2 +1,0 @@
-#define OS_NAME "@CMAKE_SYSTEM@"
-                              

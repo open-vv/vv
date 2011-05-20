@@ -16,16 +16,9 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
 
-#ifndef clitk_configuration_h
-#define clitk_configuration_h
-//This file is interpreted by cmake, to define macros based on the cmake configuration options
-//
+#ifndef vv_configuration_h
+#define vv_configuration_h
 
-#cmakedefine01 CLITK_EXPERIMENTAL
-#cmakedefine01 CLITK_MEMORY_INFO
-
-// Global environment variables
-#define OS_NAME "@CMAKE_SYSTEM@"
-#define ARCHITECTURE "@CMAKE_SYSTEM_PROCESSOR@"
+#define VV_VERSION "v@CPACK_PACKAGE_VERSION_MAJOR@.@CPACK_PACKAGE_VERSION_MINOR@.@CPACK_PACKAGE_VERSION_PATCH@"
 
 #endif

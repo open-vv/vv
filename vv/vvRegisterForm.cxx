@@ -21,8 +21,8 @@
 #include <QNetworkRequest>
 #include <QDir>
 #include <QPalette>
-#include "common/globals.h"
-#include "vvCommon.h"
+#include "clitkConfiguration.h"
+#include "vvConfiguration.h"
 #include "vvUtils.h"
 
 vvRegisterForm::vvRegisterForm(QUrl url, QString path, QSettings::Format format):url(url), settings(path, format){ 
@@ -39,6 +39,9 @@ void vvRegisterForm::sendData(){
   url2.addQueryItem("group", group->text().toUtf8());
   url2.addQueryItem("os", osName->text().toUtf8());
   url2.addQueryItem("vvVersion", VV_VERSION);
+  url2.addQueryItem("architecture", ARCHITECTURE);
+  url2.addQueryItem("compilationDate", QString(__DATE__) + ", " + QString(__TIME__) );
+
   manager->get(QNetworkRequest(url2));
 }
 void vvRegisterForm::accept(){
