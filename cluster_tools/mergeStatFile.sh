@@ -18,7 +18,7 @@ RESULT=$6
 
 test -f ${IN1} && test -f ${IN2} || usage
 
-TMP=`mktemp ./temp-XXXXXXX`
+TMP="$(mktemp)"
 echo "merging stat file"
 for PARAM in `awk '$1 == "#" {print $2}' ${IN1}`
 do
