@@ -11,6 +11,7 @@ define('OS_LENGTH', 20);
 define('VV_VERSION_LENGTH', 30);
 define('COUNTRY_LENGTH', 30); 
 define('ARCHITECTURE_LENGTH',10);
+define('ADRESSING_LENGTH',10);
 define('COMPILATION_DATE_LENGTH', 30); 
 function ensureString($var, $length){
   $var = str_replace("\n", '',$var);
@@ -30,6 +31,7 @@ $data['vvVersion']= ensureString($_GET['vvVersion'], VV_VERSION_LENGTH);
 $data['time']	  = date("F j, Y, g:i a");
 $data['geoloc']	  = ensureString(file_get_contents('http://api.hostip.info/country.php?ip='.$_SERVER['REMOTE_ADDR']), COUNTRY_LENGTH);
 $data['architecture'] = ensureString($_GET['architecture'], ARCHITECTURE_LENGTH);
+$data['adressing'] = ensureString($_GET['adressing'], ADRESSING_LENGTH);
 $data['compilationDate'] = ensureString($_GET['compilationDate'], COMPILATION_DATE_LENGTH);
 writeLine($file, $data);
 fclose();

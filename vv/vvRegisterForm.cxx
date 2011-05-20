@@ -40,6 +40,7 @@ void vvRegisterForm::sendData(){
   url2.addQueryItem("os", osName->text().toUtf8());
   url2.addQueryItem("vvVersion", VV_VERSION);
   url2.addQueryItem("architecture", ARCHITECTURE);
+  url2.addQueryItem("adressing", QString::number(sizeof(char*)*8)+"-bit");
   url2.addQueryItem("compilationDate", QString(__DATE__) + ", " + QString(__TIME__) );
 
   manager->get(QNetworkRequest(url2));
