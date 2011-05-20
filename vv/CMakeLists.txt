@@ -19,6 +19,7 @@ SET(vv_TOOLS
   vvToolResample
 #   vvToolExtractPatient
 #  vvToolExtractLung
+  vvToolStructureSetManager
   vvToolMIP
   vvToolConvert ## with dummy vvToolConvert.ui
   
@@ -62,7 +63,6 @@ SET(vv_COMMON_WITH_UI
   vvToolWidgetBase  
   vvToolSimpleInputSelectorWidget
   vvToolInputSelectorWidget
-  vvToolStructureSetManager
   vvRegisterForm
 )
 
