@@ -84,10 +84,10 @@ vvToolCropImage::~vvToolCropImage()
 //------------------------------------------------------------------------------
 void vvToolCropImage::closeEvent(QCloseEvent *event)
 {
-  // Reset extends
-  for(int i=0; i<mExtentSize; i++) mReducedExtent[i] = mInitialExtent[i];
   if(mCurrentSlicerManager){
-    UpdateExtent();
+    // Reset extends
+    for(int i=0; i<mExtentSize; i++) mReducedExtent[i] = mInitialExtent[i];
+      UpdateExtent();
   }
   event->accept();
 }
@@ -117,6 +117,7 @@ void vvToolCropImage::sliderXMinValueChanged(int s)
 {
   xmaxSlider->setMinimum(xminSlider->value());
   mReducedExtent[0] = xminSlider->value();
+  std::cout<<"new value "<<mReducedExtent[0]<<std::endl;
   UpdateExtent();
 }
 //------------------------------------------------------------------------------
