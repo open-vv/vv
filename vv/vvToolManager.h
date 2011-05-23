@@ -40,6 +40,9 @@ public:
   /// Called in MainWindow, insert all tools into the menu
   static void InsertToolsInMenu(vvMainWindowBase * m);
   
+  /// Called in MainWindow, make the tools enabled/disabled
+  static void EnableToolsInMenu(vvMainWindowBase * m, bool enable);
+
 protected:
 
   /// Singleton object pointer

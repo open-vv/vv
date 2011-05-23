@@ -318,6 +318,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
 
   // Adding all new tools (insertion in the menu)
   vvToolManager::GetInstance()->InsertToolsInMenu(this);
+  vvToolManager::GetInstance()->EnableToolsInMenu(this, false);
 
   if (!CLITK_EXPERIMENTAL)
     menuExperimental->menuAction()->setVisible(false);
@@ -329,7 +330,6 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   timerMemory->start(2000);
 }
 //------------------------------------------------------------------------------
-
 void vvMainWindow::show(){
   vvMainWindowBase::show();
   PopupRegisterForm(true);
@@ -1018,6 +1018,7 @@ void vvMainWindow::ImageInfoChanged()
   actionNorth_West_Window->setEnabled(1);
   actionSouth_East_Window->setEnabled(1);
   actionSouth_West_Window->setEnabled(1);
+  vvToolManager::GetInstance()->EnableToolsInMenu(this, true);
   inverseButton->setEnabled(1);
 
   goToCursorPushButton->setEnabled(1);
