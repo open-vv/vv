@@ -2317,8 +2317,8 @@ void vvMainWindow::ChangeImageWithIndexOffset(vvSlicerManager *sm, int slicer, i
   index = (index+offset) % mSlicerManagers.size();
 
   QTreeWidgetItem* item = GetItemFromSlicerManager(mSlicerManagers[index]);
-  //CurrentImageChanged(mSlicerManagers[index]->GetId()); //select new image
   item->setData(slicer+1,Qt::CheckStateRole,2);         //change checkbox
+  CurrentImageChanged(mSlicerManagers[index]->GetId()); //select new image
   DisplayChanged(item,slicer+1);
 }
 //------------------------------------------------------------------------------
