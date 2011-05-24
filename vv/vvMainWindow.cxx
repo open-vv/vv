@@ -70,7 +70,7 @@
 #include <vtkJPEGWriter.h>
 #include <vtkFFMPEGWriter.h>
 #ifdef VTK_USE_MPEG2_ENCODER
-  #include <vtkMPEG2Writer.h>
+#  include <vtkMPEG2Writer.h>
 #endif
 #include <vtkMatrix4x4.h>
 #include <vtkTransform.h>
@@ -330,7 +330,8 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   timerMemory->start(2000);
 }
 //------------------------------------------------------------------------------
-void vvMainWindow::show(){
+void vvMainWindow::show()
+{
   vvMainWindowBase::show();
   PopupRegisterForm(true);
 }
@@ -347,10 +348,10 @@ void vvMainWindow::UpdateMemoryUsage()
 //------------------------------------------------------------------------------
 void vvMainWindow::createRecentlyOpenedFilesMenu()
 {
-    recentlyOpenedFilesMenu = new QMenu("Recently opened files...");
-    recentlyOpenedFilesMenu->setIcon(QIcon(QString::fromUtf8(":/common/icons/open.png")));
-    menuFile->insertMenu(actionOpen_Image_With_Time,recentlyOpenedFilesMenu);
-    menuFile->insertSeparator(actionOpen_Image_With_Time);
+  recentlyOpenedFilesMenu = new QMenu("Recently opened files...");
+  recentlyOpenedFilesMenu->setIcon(QIcon(QString::fromUtf8(":/common/icons/open.png")));
+  menuFile->insertMenu(actionOpen_Image_With_Time,recentlyOpenedFilesMenu);
+  menuFile->insertSeparator(actionOpen_Image_With_Time);
 }
 //------------------------------------------------------------------------------
 
@@ -359,9 +360,9 @@ void vvMainWindow::createRecentlyOpenedFilesMenu()
 
 void vvMainWindow::updateRecentlyOpenedFilesMenu(const std::list<std::string> &recent_files)
 {
-  if(recentlyOpenedFilesMenu==NULL){
+  if(recentlyOpenedFilesMenu==NULL) {
     createRecentlyOpenedFilesMenu();
-  }else{
+  } else {
     recentlyOpenedFilesMenu->clear();
   }
   for (std::list<std::string>::const_iterator i = recent_files.begin(); i!=recent_files.end(); i++) {
@@ -896,8 +897,8 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
 
         connect(mSlicerManagers.back(), SIGNAL(currentImageChanged(std::string)),
                 this,SLOT(CurrentImageChanged(std::string)));
-	connect(mSlicerManagers.back(), SIGNAL(currentPickedImageChanged(std::string)),
-		this, SLOT(CurrentPickedImageChanged(std::string)));
+        connect(mSlicerManagers.back(), SIGNAL(currentPickedImageChanged(std::string)),
+                this, SLOT(CurrentPickedImageChanged(std::string)));
         connect(mSlicerManagers.back(), SIGNAL(UpdatePosition(int, double, double, double, double, double, double, double)),
                 this,SLOT(MousePositionChanged(int,double, double, double, double, double, double, double)));
         connect(mSlicerManagers.back(), SIGNAL(UpdateVector(int, double, double, double, double)),
@@ -1221,10 +1222,10 @@ void vvMainWindow::ShowDocumentation()
 void vvMainWindow::PopupRegisterForm(bool checkCanPush)
 {
   vvRegisterForm* registerForm = new vvRegisterForm(QUrl("http://www.creatis.insa-lyon.fr/~dsarrut/vvregister/write.php"), getVVSettingsPath(), getSettingsOptionFormat());
-  if(!checkCanPush){
+  if(!checkCanPush) {
     registerForm->show();
-  }else{
-    if(registerForm->canPush()){
+  } else {
+    if(registerForm->canPush()) {
       registerForm->show();
       registerForm->acquitPushed();//too bad if there is not internet connection anymore.
     }
@@ -1267,8 +1268,7 @@ void vvMainWindow::ChangeViewMode()
   ** I don't know why but for both resized QVTKWidget we also need to render
   ** the associated Slicer to redraw crosses.
   */
-  for (unsigned int i = 0; i < mSlicerManagers.size(); i++)
-  {
+  for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
     if (DataTree->topLevelItem(i)->data(COLUMN_UL_VIEW,Qt::CheckStateRole).toInt() > 1)
       mSlicerManagers[i]->GetSlicer(0)->Render();
     if (DataTree->topLevelItem(i)->data(COLUMN_DL_VIEW,Qt::CheckStateRole).toInt() > 1)
@@ -1402,6 +1402,7 @@ void vvMainWindow::DisplayChanged(QTreeWidgetItem *clicked_item, int column)
           }
         } else { //We don't allow simply desactivating a slicer
           clicked_item->setData(column,Qt::CheckStateRole,2);
+          DisplayChanged(clicked_item, column);
           return;
         }
       }
@@ -2270,7 +2271,7 @@ void vvMainWindow::AddLink(QString image1,QString image2)
 {
   unsigned int sm1 = 0;
   unsigned int sm2 = 0;
-  
+
   for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
     if (image1.toStdString() == mSlicerManagers[i]->GetId()) {
       mSlicerManagers[i]->AddLink(image2.toStdString());
@@ -2285,8 +2286,7 @@ void vvMainWindow::AddLink(QString image1,QString image2)
   if (linkPanel->isLinkAll())	{
     emit UpdateLinkedNavigation(mSlicerManagers[sm1]->GetId(), mSlicerManagers[mCurrentPickedImageIndex], mSlicerManagers[mCurrentPickedImageIndex]->GetSlicer(0));
     emit UpdateLinkedNavigation(mSlicerManagers[sm2]->GetId(), mSlicerManagers[mCurrentPickedImageIndex], mSlicerManagers[mCurrentPickedImageIndex]->GetSlicer(0));
-  }
-  else {
+  } else {
     emit UpdateLinkedNavigation(mSlicerManagers[sm2]->GetId(), mSlicerManagers[sm1], mSlicerManagers[sm1]->GetSlicer(0));
   }
 }
@@ -2650,8 +2650,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 
       vvImage * vvImg = mSlicerManagers[smIndex]->GetImage();
       int nSlice = vvImg->GetVTKImages().size();
-      for(int i=0; i<nSlice; i++)
-      {
+      for(int i=0; i<nSlice; i++) {
         mSlicerManagers[smIndex]->SetNextTSlice(0);
         vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
         w2i->SetInput(widget->GetRenderWindow());
@@ -2671,8 +2670,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 
       vvImage * vvImg = mSlicerManagers[smIndex]->GetImage();
       int nSlice = vvImg->GetVTKImages().size();
-      for(int i=0; i<nSlice; i++)
-      {
+      for(int i=0; i<nSlice; i++) {
         mSlicerManagers[smIndex]->SetNextTSlice(0);
         vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
         w2i->SetInput(widget->GetRenderWindow());
