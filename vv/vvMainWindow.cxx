@@ -68,7 +68,9 @@
 #include <vtkPNMWriter.h>
 #include <vtkPNGWriter.h>
 #include <vtkJPEGWriter.h>
-#include <vtkFFMPEGWriter.h>
+#ifdef VTK_USE_FFMPEG_ENCODER
+#  include <vtkFFMPEGWriter.h>
+#endif
 #ifdef VTK_USE_MPEG2_ENCODER
 #  include <vtkMPEG2Writer.h>
 #endif
