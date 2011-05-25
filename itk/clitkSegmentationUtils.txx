@@ -511,7 +511,6 @@ namespace clitk {
     typename ImageType::PointType dummy;
     centroids.push_back(dummy); // label 0 -> no centroid, use dummy point for BG 
     //DS FIXME (not useful ! to change ..)
-    DD(labelMap->GetNumberOfLabelObjects());
     for(uint i=0; i<labelMap->GetNumberOfLabelObjects(); i++) {
       int label = labelMap->GetLabels()[i];
       centroids.push_back(labelMap->GetLabelObject(label)->GetCentroid());
@@ -1061,21 +1060,17 @@ namespace clitk {
     typedef typename itk::Image<typename ImageType::PixelType, d> SliceType;
     std::vector<typename SliceType::Pointer> slices;
     clitk::ExtractSlices<ImageType>(input, d, slices);
-    DD(slices.size());
     
     // Labelize and keep the main one
     std::vector<typename SliceType::Pointer> o;
     for(uint i=0; i<slices.size(); i++) {
-      DD(i);
       o.push_back(clitk::Labelize<SliceType>(slices[i], BG, false, 1));
       o[i] = clitk::KeepLabels<SliceType>(o[i], BG, FG, 1, 1, true);
     }
     
     // Join slices
-    DD("join");
     typename ImageType::Pointer output;
     output = clitk::JoinSlices<ImageType>(o, input, d);
-    DD("return");
     return output;
   }
   //--------------------------------------------------------------------
