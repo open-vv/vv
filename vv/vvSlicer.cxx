@@ -337,7 +337,7 @@ void vvSlicer::SetImage(vvImage::Pointer image)
 
     // Prevent crash when reload -> change slice if outside extent
     if (Slice < extent[SliceOrientation*2] || Slice>=extent[SliceOrientation*2+1]) {
-      Slice = (extent[SliceOrientation*2+1]-extent[SliceOrientation*2])/2.0;
+      Slice = (extent[SliceOrientation*2+1]+extent[SliceOrientation*2])/2.0;
     }
 
     // Make sure that the required part image has been computed
