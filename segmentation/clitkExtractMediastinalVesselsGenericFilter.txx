@@ -51,7 +51,6 @@ void clitk::ExtractMediastinalVesselsGenericFilter<ArgsInfoType>::SetArgsInfo(co
   SetIOVerbose(mArgsInfo.verbose_flag);
   if (mArgsInfo.imagetypes_flag) this->PrintAvailableImageTypes();
   if (mArgsInfo.input_given) AddInputFilename(mArgsInfo.input_arg);
-  if (mArgsInfo.output_given) AddOutputFilename(mArgsInfo.output_arg);
 }
 //--------------------------------------------------------------------
 
@@ -68,9 +67,24 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   f->SetWriteStepFlag(mArgsInfo.writeStep_flag);
   f->SetVerboseMemoryFlag(mArgsInfo.verboseMemory_flag);
   f->SetAFDBFilename(mArgsInfo.afdb_arg);  
-  f->SetOutputFolder(mArgsInfo.output_arg);
 
-  f->SetThreshold(mArgsInfo.threshold_arg);
+  f->SetThresholdHigh(mArgsInfo.thresholdHigh_arg);
+  f->SetThresholdLow(mArgsInfo.thresholdLow_arg);
+  f->SetErosionRadius(mArgsInfo.erode_arg);
+  f->SetDilatationRadius(mArgsInfo.dilate_arg);
+  
+  f->SetMaxDistancePostToCarina(mArgsInfo.maxPost_arg);
+  f->SetMaxDistanceAntToCarina(mArgsInfo.maxAnt_arg);
+  f->SetMaxDistanceLeftToCarina(mArgsInfo.maxLeft_arg);
+  f->SetMaxDistanceRightToCarina(mArgsInfo.maxRight_arg);
+  
+  f->SetSoughtVesselSeedName(mArgsInfo.seed_arg);
+  f->SetSoughtVesselName(mArgsInfo.name_arg);
+  f->SetMaxNumberOfFoundBifurcation(mArgsInfo.bif_arg);
+  
+  // Output filename
+  this->AddOutputFilename(mArgsInfo.output_arg);
+  f->SetOutputFilename(mArgsInfo.output_arg);
 }
 //--------------------------------------------------------------------
 
