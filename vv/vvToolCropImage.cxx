@@ -86,7 +86,9 @@ void vvToolCropImage::closeEvent(QCloseEvent *event)
 {
   // Reset extends
   for(int i=0; i<mExtentSize; i++) mReducedExtent[i] = mInitialExtent[i];
-  UpdateExtent();
+  if(mCurrentSlicerManager){
+    UpdateExtent();
+  }
   event->accept();
 }
 //------------------------------------------------------------------------------

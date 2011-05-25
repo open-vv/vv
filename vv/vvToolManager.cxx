@@ -19,7 +19,7 @@
 #include "vvToolManager.h"
 #include "vvToolCreatorBase.h"
 #include "vvMainWindowBase.h"
-
+#include <QAction>
 //------------------------------------------------------------------------------
 /// Unique static instance
 vvToolManager* vvToolManager::mSingleton=0;
@@ -55,3 +55,13 @@ void vvToolManager::InsertToolsInMenu(vvMainWindowBase * m)
 }
 //------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
+void vvToolManager::EnableToolsInMenu(vvMainWindowBase * m, bool enable){
+  std::vector<vvToolCreatorBase *>::iterator it;
+  for(it=GetInstance()->mListOfTools.begin(); it!=GetInstance()->mListOfTools.end(); ++it){
+    if((*it)->mAction){
+      (*it)->mAction->setEnabled(enable);
+    }
+  }
+}
