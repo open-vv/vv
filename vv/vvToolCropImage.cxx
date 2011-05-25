@@ -30,6 +30,7 @@
 #include <QCursor>
 #include <QApplication>
 #include <QMessageBox>
+#include <QSignalMapper>
 
 // vtk
 #include <vtkImageClip.h>
@@ -43,12 +44,13 @@
 ADD_TOOL(vvToolCropImage);
 //------------------------------------------------------------------------------
 
-
+//same order of int* returned by VtkImageData::WholeExtent
+enum sliderId {xmin, xmax, ymin, ymax, zmin, zmax, tmin, tmax};
 //------------------------------------------------------------------------------
 vvToolCropImage::vvToolCropImage(vvMainWindowBase * parent, Qt::WindowFlags f):
   vvToolWidgetBase(parent, f),
   vvToolBase<vvToolCropImage>(parent),
-  Ui::vvToolCropImage()
+  Ui::vvToolCropImage(),mSliders(8)
 {
 
   // GUI Initialization
@@ -69,6 +71,15 @@ vvToolCropImage::vvToolCropImage(vvMainWindowBase * parent, Qt::WindowFlags f):
 
   // Set how many inputs are needed for this tool
   AddInputSelector("Select one image");
+  
+  mSliders[xmin]=xminSlider;
+  mSliders[xmax]=xmaxSlider;
+  mSliders[ymin]=yminSlider;
+  mSliders[ymax]=ymaxSlider;
+  mSliders[zmin]=zminSlider;
+  mSliders[zmax]=zmaxSlider;
+  mSliders[tmin]=tminSlider;
+  mSliders[tmax]=tmaxSlider;
 }
 //------------------------------------------------------------------------------
 
@@ -113,79 +124,15 @@ void vvToolCropImage::reject()
 
 
 //------------------------------------------------------------------------------
-void vvToolCropImage::sliderXMinValueChanged(int s)
+void vvToolCropImage::sliderValueChanged(int dim)
 {
-  xmaxSlider->setMinimum(xminSlider->value());
-  mReducedExtent[0] = xminSlider->value();
-  std::cout<<"new value "<<mReducedExtent[0]<<std::endl;
-  UpdateExtent();
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-void vvToolCropImage::sliderXMaxValueChanged(int s)
-{
-  xminSlider->setMaximum(xmaxSlider->value());
-  mReducedExtent[1] = xmaxSlider->value();
-  UpdateExtent();
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-void vvToolCropImage::sliderYMinValueChanged(int s)
-{
-  ymaxSlider->setMinimum(yminSlider->value());
-  mReducedExtent[2] = yminSlider->value();
-  UpdateExtent();
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-void vvToolCropImage::sliderYMaxValueChanged(int s)
-{
-  yminSlider->setMaximum(ymaxSlider->value());
-  mReducedExtent[3] = ymaxSlider->value();
-  UpdateExtent();
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-void vvToolCropImage::sliderZMinValueChanged(int s)
-{
-  zmaxSlider->setMinimum(zminSlider->value());
-  mReducedExtent[4] = zminSlider->value();
-  UpdateExtent();
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-void vvToolCropImage::sliderZMaxValueChanged(int s)
-{
-  zminSlider->setMaximum(zmaxSlider->value());
-  mReducedExtent[5] = zmaxSlider->value();
-  UpdateExtent();
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-void vvToolCropImage::sliderTMinValueChanged(int s) {
-  tmaxSlider->setMinimum(tminSlider->value());
-  mReducedExtent[6] = tminSlider->value();
-  UpdateExtent();
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-void vvToolCropImage::sliderTMaxValueChanged(int s) {
-  tminSlider->setMaximum(tmaxSlider->value());
-  mReducedExtent[7] = tmaxSlider->value();
+  int dimMin = dim;
+  if(dim%2==0){//case we are minimum
+    mSliders[dim+1]->setMinimum(mSliders[dim]->value());
+  }else {
+    mSliders[--dimMin]->setMaximum(mSliders[dim]->value());
+  }
+  mReducedExtent[dim] = mSliders[dim]->value() + mInitialExtent[dimMin];
   UpdateExtent();
 }
 //------------------------------------------------------------------------------
@@ -206,7 +153,6 @@ void vvToolCropImage::UpdateExtent()
 //------------------------------------------------------------------------------
 void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer)
 {
-
   // Change interface according to number of dimension
   mExtentSize = 2*slicer->GetDimension();
    if (slicer->GetDimension()<4) {
@@ -238,26 +184,11 @@ void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer)
 
   // Set initial sliders values
   std::vector<int> imsize = mCurrentSlicerManager->GetImage()->GetSize();
-  xminSlider->setMaximum(imsize[0]-1);
-  xmaxSlider->setMaximum(imsize[0]-1);
-  xmaxSlider->setValue(imsize[0]-1);
-
-  yminSlider->setMaximum(imsize[1]-1);
-  ymaxSlider->setMaximum(imsize[1]-1);
-  ymaxSlider->setValue(imsize[1]-1);
-
-  if (slicer->GetDimension() >2) {
-    zminSlider->setMaximum(imsize[2]-1);
-    zmaxSlider->setMaximum(imsize[2]-1);
-    zmaxSlider->setValue(imsize[2]-1);
+  for(int dim=0; dim<slicer->GetDimension() && dim<3; ++dim){
+    mSliders[dim*2]->setMaximum(imsize[dim]-1);
+    mSliders[dim*2+1]->setMaximum(imsize[dim]-1);
+    mSliders[dim*2+1]->setValue(imsize[dim]-1);
   }
-
-  if (slicer->GetDimension() >3) {
-    tminSlider->setMaximum(imsize[3]-1);
-    tmaxSlider->setMaximum(imsize[3]-1);
-    tmaxSlider->setValue(imsize[3]-1);
-  }
-
   spin_xmin->setMaximum(imsize[0]-1);
   spin_xmax->setMaximum(imsize[0]-1);
   spin_xmax->setValue(imsize[0]-1);
@@ -278,15 +209,15 @@ void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer)
     spin_tmax->setValue(imsize[3]-1);
   }
 
-  // Connect
-  connect(xminSlider, SIGNAL(valueChanged(int)), this, SLOT(sliderXMinValueChanged(int)));
-  connect(xmaxSlider, SIGNAL(valueChanged(int)), this, SLOT(sliderXMaxValueChanged(int)));
-  connect(yminSlider, SIGNAL(valueChanged(int)), this, SLOT(sliderYMinValueChanged(int)));
-  connect(ymaxSlider, SIGNAL(valueChanged(int)), this, SLOT(sliderYMaxValueChanged(int)));
-  connect(zminSlider, SIGNAL(valueChanged(int)), this, SLOT(sliderZMinValueChanged(int)));
-  connect(zmaxSlider, SIGNAL(valueChanged(int)), this, SLOT(sliderZMaxValueChanged(int)));
-  connect(tminSlider, SIGNAL(valueChanged(int)), this, SLOT(sliderTMinValueChanged(int)));
-  connect(tmaxSlider, SIGNAL(valueChanged(int)), this, SLOT(sliderTMaxValueChanged(int)));
+  QSignalMapper* signalMapper = new QSignalMapper(this);
+  connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(sliderValueChanged(int)));
+  for(unsigned int i=0; i<mSliders.size(); ++i){
+    signalMapper->setMapping(mSliders[i], i);
+    connect(mSliders[i], SIGNAL(valueChanged(int)), signalMapper, SLOT(map()));
+  }
+  
+  
+  
 
   //  connect(mCurrentSlicerManager,SIGNAL(UpdateSlice(int,int)),this,SLOT(UpdateExtent()));
   //connect(mCurrentSlicerManager,SIGNAL(UpdateTSlice(int,int)),this,SLOT(UpdateExtent()));
@@ -321,30 +252,22 @@ void vvToolCropImage::apply()
   int n = mCurrentSlicerManager->GetDimension()*2;  // 2D and 3D only
   mArgsInfo.boundingBox_given = n;
   mArgsInfo.boundingBox_arg = new int[n];
-  mArgsInfo.boundingBox_arg[0] = xminSlider->value();
-  mArgsInfo.boundingBox_arg[1] = xmaxSlider->value();
-  mArgsInfo.boundingBox_arg[2] = yminSlider->value();
-  mArgsInfo.boundingBox_arg[3] = ymaxSlider->value();
-  if (n>3) { // 3D
-    mArgsInfo.boundingBox_arg[4] = zminSlider->value();
-    mArgsInfo.boundingBox_arg[5] = zmaxSlider->value();
+  
+  for(int dim=0; dim<mCurrentSlicerManager->GetDimension() && dim<3; ++dim){
+    mArgsInfo.boundingBox_arg[dim*2] = mSliders[dim*2]->value();
+    mArgsInfo.boundingBox_arg[dim*2+1] = mSliders[dim*2+1]->value();
   }
-
   if (n>6) { // 4D
-    // mArgsInfo.boundingBox_arg[6] = tminSlider->value();
-    // mArgsInfo.boundingBox_arg[7] = tmaxSlider->value();
     mArgsInfo.boundingBox_arg[6] = 0;
     mArgsInfo.boundingBox_arg[7] = mCurrentImage->GetSize()[3]-1;
   }
-
   // We MUST reset initial extend to input image before using the
   // filter to retrieve the correct image size
   for(int i=0; i<mExtentSize; i++) {
     mReducedExtent[i] = mInitialExtent[i];
-    // DD(mArgsInfo.boundingBox_arg[i]);
   }
+  
   UpdateExtent();
-
   // Main filter
   CropFilterType::Pointer filter = CropFilterType::New();
   filter->SetInputVVImage(mCurrentImage);
@@ -359,48 +282,14 @@ void vvToolCropImage::apply()
     QApplication::restoreOverrideCursor();
     close();
   }
-
+  std::ostringstream croppedImageName;
+  croppedImageName << "Cropped_" << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";
   // Retrieve result and display it
   vvImage::Pointer output = filter->GetOutputVVImage();
-  std::ostringstream osstream;
-  osstream << "Cropped_" << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";
-  AddImage(output,osstream.str());
-
+  AddImage(output,croppedImageName.str());
   // End
   QApplication::restoreOverrideCursor();
   close();
-
-  /** 
-      // OLD approach with VTK
-
-  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-  vvImage::Pointer mResult=vvImage::New();
-  vvImage::Pointer image= mCurrentSlicerManager->GetImage();
-  for (std::vector<vtkImageData*>::const_iterator i=image->GetVTKImages().begin();
-       i!=image->GetVTKImages().end(); i++) {
-    vtkSmartPointer<vtkImageClip> filter=vtkSmartPointer<vtkImageClip>::New();
-    ///Vtk is very weird, you need to "translate the extent" to get the correct origin
-    //http://markmail.org/message/vndc2tr6kcabiakp#query:vtkImageClip%20origin+page:1+mid:6na7y57floutklvz+state:results
-    vtkSmartPointer<vtkImageTranslateExtent> translate=vtkSmartPointer<vtkImageTranslateExtent>::New();
-    filter->SetInput(*i);
-    filter->SetOutputWholeExtent(xminSlider->value(),xmaxSlider->value(),
-                                 yminSlider->value(),ymaxSlider->value(),
-                                 zminSlider->value(),zmaxSlider->value());
-    translate->SetTranslation(-xminSlider->value(),-yminSlider->value(),-zminSlider->value());
-    translate->SetInput(filter->GetOutput());
-    filter->ClipDataOn(); //Really create a cropped copy of the image
-    translate->Update();
-    vtkImageData* output=vtkImageData::New();
-    output->ShallowCopy(translate->GetOutput());
-    mResult->AddImage(output);
-  }
-  QApplication::restoreOverrideCursor();
-  std::ostringstream osstream;
-  osstream << "Crop_" << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";
-  AddImage(mResult, osstream.str());
-  close();
-
-  **/
 }
 //------------------------------------------------------------------------------
 
