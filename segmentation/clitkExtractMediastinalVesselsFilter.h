@@ -88,11 +88,42 @@ namespace clitk {
     itkGetConstMacro(TemporaryForegroundValue, MaskImagePixelType);
     itkSetMacro(TemporaryForegroundValue, MaskImagePixelType);
 
-    itkGetConstMacro(OutputFolder, std::string);
-    itkSetMacro(OutputFolder, std::string);
+    itkGetConstMacro(ThresholdHigh, ImagePixelType);
+    itkSetMacro(ThresholdHigh, ImagePixelType);
 
-    itkGetConstMacro(Threshold, ImagePixelType);
-    itkSetMacro(Threshold, ImagePixelType);
+    itkGetConstMacro(ThresholdLow, ImagePixelType);
+    itkSetMacro(ThresholdLow, ImagePixelType);
+
+    itkGetConstMacro(ErosionRadius, int);
+    itkSetMacro(ErosionRadius, int);
+
+    itkGetConstMacro(DilatationRadius, int);
+    itkSetMacro(DilatationRadius, int);
+
+    itkGetConstMacro(MaxDistancePostToCarina, double);
+    itkSetMacro(MaxDistancePostToCarina, double);
+    itkGetConstMacro(MaxDistanceAntToCarina, double);
+    itkSetMacro(MaxDistanceAntToCarina, double);
+    itkGetConstMacro(MaxDistanceLeftToCarina, double);
+    itkSetMacro(MaxDistanceLeftToCarina, double);
+    itkGetConstMacro(MaxDistanceRightToCarina, double);
+    itkSetMacro(MaxDistanceRightToCarina, double);
+
+    itkSetMacro(DebugFlag, bool);
+    itkGetConstMacro(DebugFlag, bool);
+    itkBooleanMacro(DebugFlag);
+
+    itkSetMacro(SoughtVesselSeedName, std::string);
+    itkGetConstMacro(SoughtVesselSeedName, std::string);
+
+    itkSetMacro(SoughtVesselName, std::string);
+    itkGetConstMacro(SoughtVesselName, std::string);
+
+    itkSetMacro(OutputFilename, std::string);
+    itkGetConstMacro(OutputFilename, std::string);
+
+    itkSetMacro(MaxNumberOfFoundBifurcation, int);
+    itkGetConstMacro(MaxNumberOfFoundBifurcation, int);
 
   protected:
     ExtractMediastinalVesselsFilter();
@@ -102,7 +133,7 @@ namespace clitk {
     virtual void GenerateInputRequestedRegion();
     virtual void GenerateData();
     
-    std::string        m_OutputFolder;
+    bool               m_DebugFlag;
     ImagePointer       m_Input;
     MaskImagePointer   m_Working_Support;
     MaskImagePointer   m_Mediastinum;
@@ -110,12 +141,26 @@ namespace clitk {
     MaskImagePixelType m_BackgroundValue;
     MaskImagePixelType m_ForegroundValue;
     MaskImagePixelType m_TemporaryForegroundValue;
-    ImagePixelType     m_Threshold;
+    ImagePixelType     m_ThresholdHigh;
+    ImagePixelType     m_ThresholdLow;
+    int                m_ErosionRadius;
+    int                m_DilatationRadius;
+    double             m_MaxDistancePostToCarina;
+    double             m_MaxDistanceAntToCarina;
+    double             m_MaxDistanceLeftToCarina;
+    double             m_MaxDistanceRightToCarina;
+    int                m_MaxNumberOfFoundBifurcation;
 
     std::vector<MaskSlicePointer> m_slice_recon;
+    std::vector<MaskSlicePointer> m_slice_recon2;
     
-    void CropSupInf();
-    //void SearchBrachioCephalicArtery(int & BCA_first_slice, LabelType & BCA_first_label);
+    // Resulting structures
+    MaskImageType::Pointer m_SoughtVessel;
+    std::string m_SoughtVesselSeedName;
+    std::string m_SoughtVesselName;
+    std::string m_OutputFilename;
+    
+    void CropInputImage();
     void TrackBifurcationFromPoint(MaskImagePointer & recon, 
                                    std::vector<MaskSlicePointer> & slices_recon, 
                                    MaskImagePointType BCA_p, 
