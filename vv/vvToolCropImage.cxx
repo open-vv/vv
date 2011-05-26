@@ -55,12 +55,6 @@ vvToolCropImage::vvToolCropImage(vvMainWindowBase * parent, Qt::WindowFlags f):
 
   // GUI Initialization
   Ui_vvToolCropImage::setupUi(mToolWidget);
-  // mTLabel2->setHidden(false);
-  // tminSlider->setHidden(false);
-  // tmaxSlider->setHidden(false);
-  // spin_tmin->setHidden(false);
-  // spin_tmax->setHidden(false);
-  // mLabelTimeCropping->setHidden(false);
   mTLabel1->setHidden(true);
   mTLabel2->setHidden(true);
   tminSlider->setHidden(true);
@@ -80,6 +74,10 @@ vvToolCropImage::vvToolCropImage(vvMainWindowBase * parent, Qt::WindowFlags f):
   mSliders[zmax]=zmaxSlider;
   mSliders[tmin]=tminSlider;
   mSliders[tmax]=tmaxSlider;
+  
+  // Record initial extend
+  mReducedExtent = new int[6];
+  mInitialExtent = new int[6];
 }
 //------------------------------------------------------------------------------
 
@@ -87,7 +85,8 @@ vvToolCropImage::vvToolCropImage(vvMainWindowBase * parent, Qt::WindowFlags f):
 //------------------------------------------------------------------------------
 vvToolCropImage::~vvToolCropImage()
 {
-
+  delete [] mReducedExtent;
+  delete [] mInitialExtent;
 }
 //------------------------------------------------------------------------------
 
@@ -96,11 +95,13 @@ vvToolCropImage::~vvToolCropImage()
 void vvToolCropImage::closeEvent(QCloseEvent *event)
 {
   if(mCurrentSlicerManager){
-    // Reset extends
-    for(int i=0; i<mExtentSize; i++) mReducedExtent[i] = mInitialExtent[i];
-      UpdateExtent();
+//     Reset extends
+    for(int i=0; i<mExtentSize; i++){
+      mReducedExtent[i] = mInitialExtent[i];
+    }
+    UpdateExtent();
   }
-  event->accept();
+  vvToolWidgetBase::closeEvent(event);
 }
 //------------------------------------------------------------------------------
 
@@ -173,16 +174,17 @@ void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer)
     spin_zmax->setHidden(true);
   }
 
-  // Record initial extend
-  mReducedExtent = new int[mExtentSize];
-  mInitialExtent = new int[mExtentSize];
-  mReducedExtent = mCurrentSlicerManager->GetImage()->GetFirstVTKImageData()->GetWholeExtent();
-  for(int i=0; i<mExtentSize; i++) mInitialExtent[i] = mReducedExtent[i];
+  int *a = mCurrentImage->GetFirstVTKImageData()->GetWholeExtent();
+  for(int i=0; i<6; i++){
+    mInitialExtent[i] = a[i];
+    mReducedExtent[i] = a[i];
+  }
   for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
     mCurrentSlicerManager->GetSlicer(i)->EnableReducedExtent(true);
+    mCurrentSlicerManager->GetSlicer(i)->SetReducedExtent(mInitialExtent);
   }
 
-  // Set initial sliders values
+//   Set initial sliders values
   std::vector<int> imsize = mCurrentSlicerManager->GetImage()->GetSize();
   for(int dim=0; dim<slicer->GetDimension() && dim<3; ++dim){
     mSliders[dim*2]->setMaximum(imsize[dim]-1);
@@ -215,14 +217,6 @@ void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer)
     signalMapper->setMapping(mSliders[i], i);
     connect(mSliders[i], SIGNAL(valueChanged(int)), signalMapper, SLOT(map()));
   }
-  
-  
-  
-
-  //  connect(mCurrentSlicerManager,SIGNAL(UpdateSlice(int,int)),this,SLOT(UpdateExtent()));
-  //connect(mCurrentSlicerManager,SIGNAL(UpdateTSlice(int,int)),this,SLOT(UpdateExtent()));
-
-  //  connect(mIntensitySlider, SIGNAL(valueChanged(double)), this, SLOT(autoCropValueChanged(double)));
   UpdateExtent();
 }
 //------------------------------------------------------------------------------

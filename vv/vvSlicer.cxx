@@ -67,24 +67,17 @@
 #include <vtkImageAccumulate.h>
 #include <vtkImageReslice.h>
 
-// template <class T, unsigned int dim>
-// void print_vector(const char* pmsg, T* pvec)
-// {
-//   std::cout << pmsg << ": ";
-//   for (unsigned int i = 0; i < dim; i++)
-//     std::cout << pvec[i] << " ";
-//   std::cout << std::endl;
-// }
-
-
 vtkCxxRevisionMacro(vvSlicer, "DummyRevision");
 vtkStandardNewMacro(vvSlicer);
-
+static void copyExtent(int* in, int* to){
+ for(int i=0; i<6; ++i) to[i]=in[i]; 
+}
 //------------------------------------------------------------------------------
 vvSlicer::vvSlicer()
 {
   this->UnInstallPipeline();
   mImage = NULL;
+  mReducedExtent = new int[6];
   mCurrentTSlice = 0;
   mUseReducedExtent = false;
 
@@ -221,7 +214,7 @@ void vvSlicer::EnableReducedExtent(bool b)
 //------------------------------------------------------------------------------
 void vvSlicer::SetReducedExtent(int * ext)
 {
-  mReducedExtent = ext;
+  copyExtent(ext, mReducedExtent);
 }
 //------------------------------------------------------------------------------
 
@@ -299,6 +292,7 @@ vvSlicer::~vvSlicer()
   for (std::vector<vvMeshActor*>::iterator i=mSurfaceCutActors.begin();
        i!=mSurfaceCutActors.end(); i++)
     delete (*i);
+  delete [] mReducedExtent;
 }
 //------------------------------------------------------------------------------
 
@@ -771,8 +765,7 @@ void vvSlicer::AdjustResliceToSliceOrientation(vtkImageReslice *reslice)
 //------------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-int * vvSlicer::GetExtent()
-{
+int * vvSlicer::GetExtent(){
   int *w_ext;
   if (mUseReducedExtent) {
     w_ext = mReducedExtent;
@@ -801,13 +794,7 @@ void vvSlicer::UpdateDisplayExtent()
 
   // Local copy of extent
   int w_ext[6];
-  for(unsigned int i=0; i<6; i++){
-    if (mUseReducedExtent)
-      w_ext[i] = mReducedExtent[i];
-    else  
-      w_ext[i] = input->GetWholeExtent()[i];
-  }
-
+  copyExtent(GetExtent(), w_ext);
   // Set slice value
   w_ext[ this->SliceOrientation*2   ] = this->Slice;
   w_ext[ this->SliceOrientation*2+1 ] = this->Slice;

@@ -166,7 +166,11 @@ public:
   virtual void SetColorWindow(double s);
   virtual void SetColorLevel(double s);
 
-    
+  /**
+   * When it is enabled, beware of a call to GetExtent.
+   * we must have setted mReducedExtent otherwhise random values
+   * are returned by GetExtent
+   * */
   void EnableReducedExtent(bool b);
   void SetReducedExtent(int * ext);
 
