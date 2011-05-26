@@ -1614,15 +1614,18 @@ void vvMainWindow::ReloadImage(QTreeWidgetItem* item, int column)
   int index = GetSlicerIndexFromItem(item);
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   QString role=item->data(1,Qt::UserRole).toString();
-  if ( role == "vector")
+  if ( role == "vector"){
     mSlicerManagers[index]->ReloadVF();
-  else if (role == "overlay")
+  }
+  else if (role == "overlay"){
     mSlicerManagers[index]->ReloadOverlay();
-  else if (role == "fusion")
+  }
+  else if (role == "fusion"){
     mSlicerManagers[index]->ReloadFusion();
-  else
+  }
+  else{
     mSlicerManagers[index]->Reload();
-
+  }
   // Update view and info
   ImageInfoChanged();
   mSlicerManagers[index]->Render();
