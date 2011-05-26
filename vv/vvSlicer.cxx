@@ -1345,9 +1345,12 @@ void vvSlicer::SetContourSlice()
 {
   if (mSurfaceCutActors.size() > 0)
     for (std::vector<vvMeshActor*>::iterator i=mSurfaceCutActors.begin();
-         i!=mSurfaceCutActors.end(); i++)
+         i!=mSurfaceCutActors.end(); i++) {
+         
+      (*i)->SetSlicingOrientation(this->SliceOrientation);
       (*i)->SetCutSlice((this->Slice)*this->GetImage()->GetSpacing()[this->SliceOrientation]+
                         this->GetImage()->GetOrigin()[this->SliceOrientation]);
+    }
 }
 //----------------------------------------------------------------------------
 
