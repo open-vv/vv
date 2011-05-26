@@ -1064,70 +1064,35 @@ void vvMainWindow::ImageInfoChanged()
     vvImage::Pointer imageSelected;
     if (DataTree->topLevelItem(index) == DataTree->selectedItems()[0]) {
       imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetImage();
-      dimension = imageSelected->GetNumberOfDimensions();
-      origin.resize(dimension);
-      inputSpacing.resize(dimension);
-      inputSize.resize(dimension);
-      sizeMM.resize(dimension);
-      pixelType = mSlicerManagers[index]->GetImage()->GetScalarTypeAsITKString().c_str();
-      for (int i = 0; i < dimension; i++) {
-        origin[i] = imageSelected->GetOrigin()[i];
-        inputSpacing[i] = imageSelected->GetSpacing()[i];
-        inputSize[i] = imageSelected->GetSize()[i];
-        sizeMM[i] = inputSize[i]*inputSpacing[i];
-        NPixel *= inputSize[i];
-      }
-      inputSizeInBytes = GetSizeInBytes(imageSelected->GetActualMemorySize()*1000);
     } else if (DataTree->selectedItems()[0]->data(1,Qt::UserRole).toString() == "vector") {
       imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetVF();
-      dimension = imageSelected->GetNumberOfDimensions();
-      origin.resize(dimension);
-      inputSpacing.resize(dimension);
-      inputSize.resize(dimension);
-      sizeMM.resize(dimension);
-      pixelType = mSlicerManagers[index]->GetVF()->GetScalarTypeAsITKString().c_str();
-      for (int i = 0; i < dimension; i++) {
-        origin[i] = imageSelected->GetOrigin()[i];
-        inputSpacing[i] = imageSelected->GetSpacing()[i];
-        inputSize[i] = imageSelected->GetSize()[i];
-        sizeMM[i] = inputSize[i]*inputSpacing[i];
-        NPixel *= inputSize[i];
-      }
-      inputSizeInBytes = GetSizeInBytes(imageSelected->GetActualMemorySize()*1000);
     } else if (DataTree->selectedItems()[0]->data(1,Qt::UserRole).toString() == "overlay") {
       imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetOverlay();
-      dimension = imageSelected->GetNumberOfDimensions();
-      origin.resize(dimension);
-      inputSpacing.resize(dimension);
-      inputSize.resize(dimension);
-      sizeMM.resize(dimension);
-      pixelType = mSlicerManagers[index]->GetImage()->GetScalarTypeAsITKString().c_str();
-      for (int i = 0; i < dimension; i++) {
-        origin[i] = imageSelected->GetOrigin()[i];
-        inputSpacing[i] = imageSelected->GetSpacing()[i];
-        inputSize[i] = imageSelected->GetSize()[i];
-        sizeMM[i] = inputSize[i]*inputSpacing[i];
-        NPixel *= inputSize[i];
-      }
-      inputSizeInBytes = GetSizeInBytes(imageSelected->GetActualMemorySize()*1000);
     } else if (DataTree->selectedItems()[0]->data(1,Qt::UserRole).toString() == "fusion") {
       imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetFusion();
-      dimension = imageSelected->GetNumberOfDimensions();
-      origin.resize(dimension);
-      inputSpacing.resize(dimension);
-      inputSize.resize(dimension);
-      sizeMM.resize(dimension);
-      pixelType = mSlicerManagers[index]->GetImage()->GetScalarTypeAsITKString().c_str();
-      for (int i = 0; i < dimension; i++) {
-        origin[i] = imageSelected->GetOrigin()[i];
-        inputSpacing[i] = imageSelected->GetSpacing()[i];
-        inputSize[i] = imageSelected->GetSize()[i];
-        sizeMM[i] = inputSize[i]*inputSpacing[i];
-        NPixel *= inputSize[i];
-      }
-      inputSizeInBytes = GetSizeInBytes(imageSelected->GetActualMemorySize()*1000);
+    }
+    else if (DataTree->selectedItems()[0]->data(1,Qt::UserRole).toString() == "contour") {
+      imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetImage();
+    }
+    else {
+      imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetImage();
     }
 
+    dimension = imageSelected->GetNumberOfDimensions();
+    origin.resize(dimension);
+    inputSpacing.resize(dimension);
+    inputSize.resize(dimension);
+    sizeMM.resize(dimension);
+    pixelType = mSlicerManagers[index]->GetImage()->GetScalarTypeAsITKString().c_str();
+    for (int i = 0; i < dimension; i++) {
+      origin[i] = imageSelected->GetOrigin()[i];
+      inputSpacing[i] = imageSelected->GetSpacing()[i];
+      inputSize[i] = imageSelected->GetSize()[i];
+      sizeMM[i] = inputSize[i]*inputSpacing[i];
+      NPixel *= inputSize[i];
+    }
+    inputSizeInBytes = GetSizeInBytes(imageSelected->GetActualMemorySize()*1000);
+    
     QString dim = QString::number(dimension) + " (";
     dim += pixelType + ")";
 
@@ -1614,15 +1579,18 @@ void vvMainWindow::ReloadImage(QTreeWidgetItem* item, int column)
   int index = GetSlicerIndexFromItem(item);
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   QString role=item->data(1,Qt::UserRole).toString();
-  if ( role == "vector")
+  if ( role == "vector"){
     mSlicerManagers[index]->ReloadVF();
-  else if (role == "overlay")
+  }
+  else if (role == "overlay"){
     mSlicerManagers[index]->ReloadOverlay();
-  else if (role == "fusion")
+  }
+  else if (role == "fusion"){
     mSlicerManagers[index]->ReloadFusion();
-  else
+  }
+  else{
     mSlicerManagers[index]->Reload();
-
+  }
   // Update view and info
   ImageInfoChanged();
   mSlicerManagers[index]->Render();

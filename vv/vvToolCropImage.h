@@ -21,7 +21,7 @@
 //qt
 #include <QtDesigner/QDesignerExportWidget>
 #include <QDialog>
-
+#include <QSlider>
 // vv
 #include "vvToolBase.h"
 #include "vvToolWidgetBase.h"
@@ -45,15 +45,9 @@ public slots:
   virtual void apply();
   virtual bool close();
   virtual void reject();
-  void sliderXMinValueChanged(int s);
-  void sliderXMaxValueChanged(int s);
-  void sliderYMinValueChanged(int s);
-  void sliderYMaxValueChanged(int s);
-  void sliderZMinValueChanged(int s);
-  void sliderZMaxValueChanged(int s);
-  void sliderTMinValueChanged(int s);
-  void sliderTMaxValueChanged(int s);
   void autoCropValueChanged(double v);
+  void sliderValueChanged(int id);
+
 
   //-----------------------------------------------------
   static void Initialize() {
@@ -71,6 +65,7 @@ public slots:
   void UpdateExtent();
   virtual void closeEvent(QCloseEvent *event);
 
+  std::vector<QSlider*> mSliders;
 }; // end class vvToolCropImage
 //------------------------------------------------------------------------------
 
