@@ -916,6 +916,7 @@ void vvSlicerManager::UpdateSlice(int slicer)
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateTSlice(int slicer)
 {
+  std::cout << "vvSlicerManager::UpdateTSlice" << std::endl;
   if (mPreviousSlice[slicer] == mSlicers[slicer]->GetSlice()) {
     if (mPreviousTSlice[slicer] == mSlicers[slicer]->GetTSlice()) {
       //      DD("************** NOTHING ***********");

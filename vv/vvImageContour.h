@@ -71,7 +71,7 @@ protected:
   void UpdateWithPreserveMemoryMode();
   void UpdateWithFastCacheMode();
   void CreateNewActor(int numImage);
-  void UpdateActor(vtkActor * actor, vtkMarchingSquares * squares, vtkImageClip * clipper,
+  void UpdateActor(vtkActor * actor, vtkPolyDataMapper * mapper, vtkMarchingSquares * squares, vtkImageClip * clipper,
                    double threshold, int orientation, int slice);
   void CreateActor(int orientation, int slice);
   int ComputeCurrentOrientation();

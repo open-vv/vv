@@ -247,6 +247,7 @@ void vvToolBinarize::InputIsSelected(vvSlicerManager * m)
 //------------------------------------------------------------------------------
 void vvToolBinarize::UpdateSlice(int slicer,int slices)
 {
+  std::cout << "vvToolBinarize::UpdateSlice" << std::endl;
   if (!mInteractiveDisplayIsEnabled) return;
   if (!mCurrentSlicerManager) close();
   mImageContour[slicer]->Update(mThresholdSlider1->GetValue());
