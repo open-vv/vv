@@ -198,10 +198,12 @@ void clitk::DicomRT_ROI_ConvertToImageFilter::Update()
   stencil->ReverseStencilOn();
   stencil->Update();
 
+  /*
   vtkSmartPointer<vtkMetaImageWriter> w = vtkSmartPointer<vtkMetaImageWriter>::New();
   w->SetInput(stencil->GetOutput());
   w->SetFileName("binary2.mhd");
   w->Write();
+  */
 
   mBinaryImage->ShallowCopy(stencil->GetOutput());
 
