@@ -36,7 +36,6 @@ clitk::DicomRT_ROI::DicomRT_ROI()
   mMeshIsUpToDate = false;
   mBackgroundValue = 0;
   mForegroundValue = 1;
-  mZDelta = 0;
 }
 //--------------------------------------------------------------------
 
@@ -173,9 +172,6 @@ void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::Item cons
     }
   unsigned int nitems = sqi2->GetNumberOfItems();
 
-  bool contour_processed=false;
-  bool delta_computed=false;
-  double last_z=0;
   for(unsigned int i = 0; i < nitems; ++i)
     {
       const gdcm::Item & j = sqi2->GetItem(i+1); // Item start at #1
@@ -183,18 +179,8 @@ void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::Item cons
       bool b = c->Read(j);
       if (b) {
         mListOfContours.push_back(c);
-        if (contour_processed) {
-          double delta=c->GetZ() - last_z;
-          if (delta_computed)
-            assert(mZDelta == delta);
-          else
-            mZDelta = delta;
-        } else
-          contour_processed=true;
-        last_z=c->GetZ();
       }
     }
-
 }
 #else
 void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::SQItem * item)
@@ -216,24 +202,14 @@ void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::SQItem * 
   // Read contours [Contour Sequence]
   gdcm::SeqEntry * contours=item->GetSeqEntry(0x3006,0x0040);
   if (contours) {
-    bool contour_processed=false;
-    bool delta_computed=false;
-    double last_z=0;
+    int i=0;
     for(gdcm::SQItem* j=contours->GetFirstSQItem(); j!=0; j=contours->GetNextSQItem()) {
       DicomRT_Contour::Pointer c = DicomRT_Contour::New();
       bool b = c->Read(j);
       if (b) {
         mListOfContours.push_back(c);
-        if (contour_processed) {
-          double delta=c->GetZ() - last_z;
-          if (delta_computed)
-            assert(mZDelta == delta);
-          else
-            mZDelta = delta;
-        } else
-          contour_processed=true;
-        last_z=c->GetZ();
       }
+      ++i;
     }
   }
   else {
@@ -284,9 +260,9 @@ void clitk::DicomRT_ROI::ComputeMesh()
 
 //--------------------------------------------------------------------
 void clitk::DicomRT_ROI::SetFromBinaryImage(vvImage * image, int n,
-					    std::string name,
-					    std::vector<double> color, 
-					    std::string filename)
+                                            std::string name,
+                                            std::vector<double> color, 
+                                            std::string filename)
 {
 
   // ROI number [Referenced ROI Number]
