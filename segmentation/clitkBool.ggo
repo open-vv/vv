@@ -1,0 +1,14 @@
+#File clitkExtractMediastinalVessels.ggo
+package "clitkExtractMediastinalVessels"
+version "1.0"
+purpose "Extract MediastinalVessels"
+
+option "config"	        -  "Config file"		  string  	no
+option "imagetypes"     -  "Display allowed image types"  flag          off
+option "verbose"        v  "Verbose"			  flag		off
+
+option "input"         i	"Input mask 1"               string  	yes
+option "input2"        j	"Input mask 2"               string  	yes
+option "output"        o 	"Output filename"            string 	yes
+
+option "type"          t 	"Bool type : "               int default="1" no
