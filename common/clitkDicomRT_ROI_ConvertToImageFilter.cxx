@@ -19,12 +19,18 @@
 
 #include <iterator>
 #include <algorithm>
+
+// clitk
 #include "clitkDicomRT_ROI_ConvertToImageFilter.h"
+#include "clitkImageCommon.h"
+
+// vtk
 #include <vtkPolyDataToImageStencil.h>
 #include <vtkSmartPointer.h>
 #include <vtkImageStencil.h>
 #include <vtkLinearExtrusionFilter.h>
-#include "clitkImageCommon.h"
+#include <vtkMetaImageWriter.h>
+
 
 //--------------------------------------------------------------------
 clitk::DicomRT_ROI_ConvertToImageFilter::DicomRT_ROI_ConvertToImageFilter()
@@ -121,11 +127,9 @@ void clitk::DicomRT_ROI_ConvertToImageFilter::Update()
     std::cerr << "Error. Please provide image info (spacing/origin) with SetImageFilename" << std::endl;
     exit(0);
   }
-  // DD("Update");
 
   // Get Mesh
   vtkPolyData * mesh = mROI->GetMesh();
-  DD(mesh->GetNumberOfCells());
 
   // Get bounds
   double *bounds=mesh->GetBounds();
@@ -176,7 +180,8 @@ void clitk::DicomRT_ROI_ConvertToImageFilter::Update()
   // Extrude
   vtkSmartPointer<vtkLinearExtrusionFilter> extrude=vtkSmartPointer<vtkLinearExtrusionFilter>::New();
   extrude->SetInput(mesh);
-  extrude->SetVector(0, 0, mROI->GetContourSpacing());
+  ///We extrude in the -slice_spacing direction to respect the FOCAL convention (NEEDED !)
+  extrude->SetVector(0, 0, -mSpacing[2]);
 
   // Binarization
   vtkSmartPointer<vtkPolyDataToImageStencil> sts=vtkSmartPointer<vtkPolyDataToImageStencil>::New();
@@ -192,6 +197,12 @@ void clitk::DicomRT_ROI_ConvertToImageFilter::Update()
   stencil->SetInput(mBinaryImage);
   stencil->ReverseStencilOn();
   stencil->Update();
+
+  vtkSmartPointer<vtkMetaImageWriter> w = vtkSmartPointer<vtkMetaImageWriter>::New();
+  w->SetInput(stencil->GetOutput());
+  w->SetFileName("binary2.mhd");
+  w->Write();
+
   mBinaryImage->ShallowCopy(stencil->GetOutput());
 
   if (mWriteOutput) {
