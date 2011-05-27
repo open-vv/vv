@@ -141,6 +141,7 @@ void vvMesh::ComputeMasks(vtkImageData* sample,bool extrude)
     double * samp_origin=sample->GetOrigin();
     double * spacing=sample->GetSpacing();
     binary_image->SetSpacing(spacing);
+
     /// Put the origin on a voxel to avoid small skips
     binary_image->SetOrigin(floor((bounds[0]-samp_origin[0])/spacing[0]-2)*spacing[0]+samp_origin[0],
                             floor((bounds[2]-samp_origin[1])/spacing[1]-2)*spacing[1]+samp_origin[1],
@@ -173,10 +174,13 @@ void vvMesh::ComputeMasks(vtkImageData* sample,bool extrude)
     stencil->SetInput(binary_image);
     stencil->Update();
     this->AddMask(stencil->GetOutput());
-    //vtkSmartPointer<vtkMetaImageWriter> w = vtkSmartPointer<vtkMetaImageWriter>::New();
-    //w->SetInput(stencil->GetOutput());
-    //w->SetFileName("binary.mhd");
-    //w->Write();
+
+    /*
+      vtkSmartPointer<vtkMetaImageWriter> w = vtkSmartPointer<vtkMetaImageWriter>::New();
+      w->SetInput(stencil->GetOutput());
+      w->SetFileName("binary.mhd");
+      w->Write();
+    */
   }
 }
 
