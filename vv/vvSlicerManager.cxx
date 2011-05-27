@@ -381,6 +381,13 @@ void vvSlicerManager::LeftButtonReleaseEvent(int slicer)
 }
 //----------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------
+void vvSlicerManager::SetSliceOrientation(int slicer, int orientation)
+{
+  mSlicers[slicer]->SetSliceOrientation(orientation);
+  emit UpdateOrientation(slicer, orientation);
+}
+//----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetTSlice(int slice)
@@ -409,6 +416,7 @@ void vvSlicerManager::SetNextTSlice(int originating_slicer)
   t++;
   if (t > mSlicers[0]->GetTMax())
     t = 0;
+  //std::cout << "vvSlicerManager::SetNextTSlice" << std::endl;
   emit UpdateTSlice(originating_slicer,t);
 }
 //----------------------------------------------------------------------------
@@ -421,6 +429,7 @@ void vvSlicerManager::SetPreviousTSlice(int originating_slicer)
   t--;
   if (t < 0)
     t = mSlicers[0]->GetTMax();
+  //std::cout << "vvSlicerManager::SetPreviousTSlice" << std::endl;
   emit UpdateTSlice(originating_slicer,t);
 }
 //----------------------------------------------------------------------------
@@ -906,6 +915,7 @@ void vvSlicerManager::UpdateSlice(int slicer)
     //DD("============= NOTHING");
     return;
   }
+  //std::cout << "vvSlicerManager::UpdateSlice " << slicer << " " << mSlicers[slicer]->GetSlice() << std::endl;
   emit UpdateSlice(slicer, mSlicers[slicer]->GetSlice());
   mSlicers[slicer]->Render(); // DS <-- I add this, this could/must be the only Render ...
   mPreviousSlice[slicer] = mSlicers[slicer]->GetSlice();
@@ -916,16 +926,18 @@ void vvSlicerManager::UpdateSlice(int slicer)
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateTSlice(int slicer)
 {
-  std::cout << "vvSlicerManager::UpdateTSlice" << std::endl;
-  if (mPreviousSlice[slicer] == mSlicers[slicer]->GetSlice()) {
-    if (mPreviousTSlice[slicer] == mSlicers[slicer]->GetTSlice()) {
+  int slice = mSlicers[slicer]->GetSlice();
+  int tslice = mSlicers[slicer]->GetTSlice();
+  if (mPreviousSlice[slicer] == slice) {
+    if (mPreviousTSlice[slicer] == tslice) {
       //      DD("************** NOTHING ***********");
       return;
     }
   }
-  mPreviousSlice[slicer] = mSlicers[slicer]->GetSlice();
-  mPreviousTSlice[slicer] = mSlicers[slicer]->GetTSlice();
-  emit UpdateTSlice(slicer,mSlicers[slicer]->GetTSlice());
+  mPreviousSlice[slicer] = slice;
+  mPreviousTSlice[slicer] = tslice;
+  //std::cout << "vvSlicerManager::UpdateTSlice " << slicer << " " << tslice << std::endl;
+  emit UpdateTSlice(slicer, tslice);
 }
 //----------------------------------------------------------------------------
 

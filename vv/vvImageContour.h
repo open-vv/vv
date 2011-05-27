@@ -79,6 +79,7 @@ protected:
 private:
   vvImageContour();
   ~vvImageContour();
+    int mPreviousTslice;
 }; // end class vvImageContour
 //------------------------------------------------------------------------------
 

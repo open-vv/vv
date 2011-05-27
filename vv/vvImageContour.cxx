@@ -135,13 +135,11 @@ void vvImageContour::ShowActors() {
 
 //------------------------------------------------------------------------------
 void vvImageContour::Update(double value) {
-  std::cout << "vvImageContour::Update " << value << std::endl;
   if (!mSlicer) return;
   if (mPreviousValue == value) {
     if (mPreviousSlice == mSlicer->GetSlice()) {
       if (mPreviousTSlice == mSlicer->GetTSlice()) {
         if (mPreviousOrientation == ComputeCurrentOrientation()) {
-          std::cout << "Nothing to do" << std::endl;
           return; // Nothing to do
         }
       }
@@ -161,7 +159,7 @@ void vvImageContour::Update(double value) {
     UpdateWithFastCacheMode();
   }
 
-  //  mSlicer->Render(); //DS ---> REMOVE ??
+  //mSlicer->Render(); //DS ---> REMOVE ??
 
   mPreviousTSlice = mSlicer->GetTSlice();
   mPreviousSlice  = mSlicer->GetSlice();
@@ -174,7 +172,7 @@ void vvImageContour::Update(double value) {
 //------------------------------------------------------------------------------
 void vvImageContour::UpdateWithPreserveMemoryMode() {
   // Only change actor visibility if tslice change
-  int mPreviousTslice = mTSlice;
+  mPreviousTslice = mTSlice;
   mTSlice = mSlicer->GetTSlice();
 
   vtkMarchingSquares * mSquares = mSquaresList[mTSlice];
@@ -184,11 +182,12 @@ void vvImageContour::UpdateWithPreserveMemoryMode() {
   int orientation = ComputeCurrentOrientation();
 
   UpdateActor(mSquaresActor, mapper, mSquares, mClipper, mValue, orientation, mSlice);
-  //mSquaresActorList[mTSlice]->VisibilityOn();
 
   if (mPreviousTslice != mTSlice) {
     if (mPreviousTslice != -1) mSquaresActorList[mPreviousTslice]->VisibilityOff();
   }
+  
+  mSlicer->Render();
 }
 //------------------------------------------------------------------------------
 
@@ -291,7 +290,6 @@ void vvImageContour::UpdateActor(vtkActor * actor,
                                  vtkMarchingSquares * squares, 
                                  vtkImageClip * clipper, 
                                  double threshold, int orientation, int slice) {
-  std::cout << "vvImageContour::UpdateActor" << std::endl;
   
    // Set parameter for the MarchigSquare
   squares->SetValue(0, threshold);
@@ -329,10 +327,13 @@ void vvImageContour::UpdateActor(vtkActor * actor,
 
   } else {
     extent2 = extent;
+    actor->VisibilityOn();
   }
  
   clipper->SetOutputWholeExtent(extent2[0],extent2[1],extent2[2],
                                 extent2[3],extent2[4],extent2[5]);
+
+  //std::cout << mTSlice << " " << mSlice << " " << extent2[0] << " " << extent2[1] << " " << extent2[2] << " " << extent2[3] << " " << extent2[4] << " " << extent2[5] << std::endl;
 
   if (mHiddenImageIsUsed) delete extent2;
 
@@ -379,7 +380,9 @@ void vvImageContour::UpdateActor(vtkActor * actor,
 //   }
 
   mapper->Update();
-  actor->VisibilityOn();
+ 
+  
+  
 }
 //------------------------------------------------------------------------------
 

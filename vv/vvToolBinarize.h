@@ -50,6 +50,7 @@ class vvToolBinarize:
   virtual void reject();
   void valueChangedT1(double v);
   void valueChangedT2(double v);
+  void UpdateOrientation(int slicer, int orientation);
   void UpdateSlice(int slicer,int slices);
   void enableLowerThan(bool b);
   void useFGBGtoggled(bool);
@@ -64,6 +65,8 @@ class vvToolBinarize:
   std::vector<vvImageContour::Pointer> mImageContour;
   std::vector<vvImageContour::Pointer> mImageContourLower;
   bool mInteractiveDisplayIsEnabled;
+  
+  void Update(int slicer);
 
 }; // end class vvToolBinarize
 //------------------------------------------------------------------------------
