@@ -43,9 +43,9 @@ IF(CLITK_BUILD_SEGMENTATION)
     ADD_EXECUTABLE(clitkExtractMediastinum clitkExtractMediastinum.cxx ${clitkExtractMediastinum_GGO_C})
     TARGET_LINK_LIBRARIES(clitkExtractMediastinum clitkCommon clitkSegmentationGgoLib ${ITK_LIBRARIES})
 
-    WRAP_GGO(clitkExtractLymphStations_GGO_C clitkExtractLymphStations.ggo)
-    ADD_EXECUTABLE(clitkExtractLymphStations clitkExtractLymphStations.cxx clitkFilterWithAnatomicalFeatureDatabaseManagement.cxx ${clitkExtractLymphStations_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkExtractLymphStations clitkSegmentationGgoLib clitkCommon vtkHybrid)
+    #WRAP_GGO(clitkExtractLymphStations_GGO_C clitkExtractLymphStations.ggo)
+    #ADD_EXECUTABLE(clitkExtractLymphStations clitkExtractLymphStations.cxx clitkFilterWithAnatomicalFeatureDatabaseManagement.cxx ${clitkExtractLymphStations_GGO_C})
+    #TARGET_LINK_LIBRARIES(clitkExtractLymphStations clitkSegmentationGgoLib clitkCommon vtkHybrid)
 
     WRAP_GGO(clitkExtractMediastinalVessels_GGO_C clitkExtractMediastinalVessels.ggo)
     ADD_EXECUTABLE(clitkExtractMediastinalVessels clitkExtractMediastinalVessels.cxx clitkFilterWithAnatomicalFeatureDatabaseManagement.cxx ${clitkExtractMediastinalVessels_GGO_C})
