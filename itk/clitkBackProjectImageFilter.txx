@@ -40,6 +40,8 @@ namespace clitk
     this->m_SourceToAxis = 1000.0;
     this->m_EdgePaddingValue = itk::NumericTraits<OutputPixelType>::Zero;//density images
     this->m_RigidTransformMatrix.SetIdentity();
+    this->m_PanelShift[0] = 0.;
+    this->m_PanelShift[1] = 0.;
 
     //Parameters for output
     this->m_OutputSpacing.Fill(1);
@@ -334,8 +336,8 @@ namespace clitk
        
     //Compute the first input coordinate (invert Y/X)
     homInputPoint= (m_ProjectionMatrix * homOutputPoint);
-    iPoint[0]=-homInputPoint[0]/homInputPoint[2];
-    iPoint[1]=homInputPoint[1]/homInputPoint[2];
+    iPoint[0]=-homInputPoint[0]/homInputPoint[2] + m_PanelShift[0];
+    iPoint[1]=homInputPoint[1]/homInputPoint[2] + m_PanelShift[1];
 
     typedef itk::LinearInterpolateImageFunction< InputImageType, double > InterpolatorType;
     typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
