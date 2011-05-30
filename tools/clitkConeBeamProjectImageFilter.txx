@@ -36,6 +36,8 @@ namespace clitk
     m_IsoCenter.Fill(0.0);
     m_SourceToScreen=1536.;
     m_SourceToAxis=1000.;
+    m_PanelShift[0] = 0.;
+    m_PanelShift[1] = 0.;
     m_ProjectionAngle=0.;
     m_RigidTransformMatrix.SetIdentity();
     m_EdgePaddingValue=itk::NumericTraits<OutputPixelType>::Zero;//density images
@@ -163,15 +165,15 @@ namespace clitk
     spacingOutput[1] = m_OutputSpacing[0];  // pixel spacing along Y of the 2D DRR image [mm]
     spacingOutput[2] = m_OutputSpacing[1];  // pixel spacing along Y of the 2D DRR image [mm]
     m_Resampler->SetOutputSpacing( spacingOutput );
-    if (m_Verbose)std::cout<<"The output size is "<< m_OutputSpacing <<"..."<< std::endl;
+    if (m_Verbose)std::cout<<"The output spacing is "<< m_OutputSpacing <<"..."<< std::endl;
 
     // The position of the DRR is specified, we presume that for an angle of 0° the flatpanel is located at the negative x-axis
     // JV -1 seems to correspond better with shearwarp of Simon Rit
     typename  InterpolatorType::InputPointType originOutput;
     originOutput[0] = m_IsoCenter[0]- (m_SourceToScreen - m_SourceToAxis);
     DD(m_PanelShift);
-    originOutput[1] = m_IsoCenter[1]-static_cast<double>(sizeOuput[1]-1)*spacingOutput[1]/2.0 - m_PanelShift;
-    originOutput[2] = m_IsoCenter[2]-static_cast<double>(sizeOuput[2]-1)*spacingOutput[2]/2.0; 
+    originOutput[1] = m_IsoCenter[1]-static_cast<double>(sizeOuput[1]-1)*spacingOutput[1]/2.0 - m_PanelShift[0];
+    originOutput[2] = m_IsoCenter[2]-static_cast<double>(sizeOuput[2]-1)*spacingOutput[2]/2.0 - m_PanelShift[1];
     m_Resampler->SetOutputOrigin( originOutput );
     if (m_Verbose)std::cout<<"The origin of the flat panel is at "<< originOutput <<",..."<< std::endl;
 

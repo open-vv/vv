@@ -188,11 +188,16 @@ namespace clitk
     }
 
     /** Set the panelshift. */
-    void SetPanelShift(double shift)
+    void SetPanelShift(double x, double y)
     {
-      if (m_PanelShift!=shift)
+      if (m_PanelShift[0] != x)
 	{
-	  m_PanelShift=shift;
+	  m_PanelShift[0] = x;
+	  m_IsInitialized=false;
+	}
+      if (m_PanelShift[1] != y)
+	{
+	  m_PanelShift[1] = y;
 	  m_IsInitialized=false;
 	}
     }
@@ -229,7 +234,7 @@ namespace clitk
     double m_SourceToScreen;
     double m_SourceToAxis;
     double m_ProjectionAngle;
-    double m_PanelShift;
+    double m_PanelShift[2];
     MatrixType m_RigidTransformMatrix;
     OutputPixelType m_EdgePaddingValue;
 
