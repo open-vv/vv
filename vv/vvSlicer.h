@@ -80,9 +80,10 @@ public:
     return mFusion;
   }
 
-  /**Set an actor's visibility ("overlay, fusion, vf, contour...")
+  /**Get/Set an actor's visibility ("overlay, fusion, vf, contour...")
      Overlay index is the index of the overlay by type, eg. if there are
      5 contours and we want to activate the 3rd one, pass 2 **/
+  bool GetActorVisibility(const std::string& actor_type, int overlay_index);
   void SetActorVisibility(const std::string& actor_type, int overlay_index,bool vis);
   void RemoveActor(const std::string& actor_type, int overlay_index);
 

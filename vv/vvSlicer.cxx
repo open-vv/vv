@@ -429,23 +429,48 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion)
 
 
 //------------------------------------------------------------------------------
+bool vvSlicer::GetActorVisibility(const std::string& actor_type, int overlay_index)
+{
+  bool vis = false;
+  if (actor_type == "image") {
+    vis = this->ImageActor->GetVisibility();
+  }
+  else if (actor_type == "vector") {
+    vis = this->mVFActor->GetVisibility();
+  }
+  else if (actor_type == "overlay") {
+    vis = this->mOverlayActor->GetVisibility();
+  }
+  else if (actor_type == "fusion") {
+    vis = this->mFusionActor->GetVisibility();
+  }
+  else if (actor_type == "contour")
+    vis = this->mSurfaceCutActors[overlay_index]->GetActor()->GetVisibility();
+
+  return vis;
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 void vvSlicer::SetActorVisibility(const std::string& actor_type, int overlay_index ,bool vis)
 {
-  if (actor_type == "vector") {
+  if (actor_type == "image") {
+    this->ImageActor->SetVisibility(vis);
+  }
+  else if (actor_type == "vector") {
     this->mVFActor->SetVisibility(vis);
   }
-  if (actor_type == "overlay") {
+  else if (actor_type == "overlay") {
     this->mOverlayActor->SetVisibility(vis);
   }
-  if (actor_type == "fusion") {
+  else if (actor_type == "fusion") {
     this->mFusionActor->SetVisibility(vis);
   }
-  if (actor_type == "contour")
+  else if (actor_type == "contour")
     this->mSurfaceCutActors[overlay_index]->GetActor()->SetVisibility(vis);
   UpdateDisplayExtent();
 }
 //------------------------------------------------------------------------------
-
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetVF(vvImage::Pointer vf)
