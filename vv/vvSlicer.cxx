@@ -1052,7 +1052,12 @@ void vvSlicer::ResetCamera()
 //----------------------------------------------------------------------------
 void vvSlicer::SetDisplayMode(bool i)
 {
+  this->GetImageActor()->SetVisibility(i);
+  this->GetAnnotation()->SetVisibility(i);
   this->GetRenderer()->SetDraw(i);
+  if (mLandActor)
+    mLandActor->SetVisibility(i);
+  pdmA->SetVisibility(i);
   if (i)
     UpdateDisplayExtent();
 }
