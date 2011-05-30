@@ -245,17 +245,20 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
 
         if (KeyPress == "F2") {
           this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetText(2,"Sagital\n<slice>");
-          this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(0);
+          //this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(0);
+          this->SM->SetSliceOrientation(VisibleInWindow, 0);
           this->SM->UpdateSliceRange(VisibleInWindow);
         }
         if (KeyPress == "F3") {
           this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetText(2,"Coronal\n<slice>");
-          this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(1);
+          //this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(1);
+          this->SM->SetSliceOrientation(VisibleInWindow, 1);
           this->SM->UpdateSliceRange(VisibleInWindow);
         }
         if (KeyPress == "F4") {
           this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetText(2,"Axial\n<slice>");
-          this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(2);
+          //this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(2);
+          this->SM->SetSliceOrientation(VisibleInWindow, 2);
           this->SM->UpdateSliceRange(VisibleInWindow);
         }
 

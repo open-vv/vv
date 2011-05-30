@@ -42,6 +42,8 @@ public:
   typedef itk::SmartPointer<Self> Pointer;
   itkNewMacro(Self);
 
+  const std::vector<std::string>& GetInputFilenames(){return mInputFilenames;}
+
   void SetInputFilename(const std::string & filename);
   void SetInputFilenames(const std::vector<std::string> & filenames);
 

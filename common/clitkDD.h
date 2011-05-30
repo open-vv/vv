@@ -19,10 +19,20 @@
 #define clitkDD_h
 
 #include <iostream>
-
+#ifdef WIN32
+# include <windows.h>
+#endif
 // David's debug
 
-#define DD(a) std::cout << #a " = [ " << a << " ]" << std::endl;std::cout.flush();
+#ifdef WIN32
+# define DD(a) { \
+    std::ostringstream ossDD; \
+    ossDD << #a " = [ " << a << " ]" << std::endl; \
+    OutputDebugString(ossDD.str().c_str()); \
+  }
+#else
+# define DD(a) std::cout << #a " = [ " << a << " ]" << std::endl;std::cout.flush();
+#endif
 #define DDV(a,n) { std::cout << #a " = [ "; for(unsigned int _i_=0; _i_<n; _i_++) { std::cout << a[_i_] << " "; }; std::cout << " ]" << std::endl;std::cout.flush();}
   template<class T>
     void _print_container(T const& a)

@@ -865,7 +865,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
         item->setData(0,Qt::UserRole,files[i].c_str());
         QFileInfo fileinfo(imageManager->GetFileName().c_str()); //Do not show the path
         item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,fileinfo.fileName());
-        item->setToolTip(COLUMN_IMAGE_NAME,fileinfo.absoluteFilePath());
+        item->setToolTip(COLUMN_IMAGE_NAME, imageManager->GetListOfAbsoluteFilePathInOneString("image").c_str());
         qApp->processEvents();
 
         //Create the buttons for reload and close
@@ -1816,7 +1816,7 @@ void vvMainWindow::AddOverlayImage(int index, QString file)
     item->setData(1,Qt::UserRole,tr("overlay"));
     QFileInfo fileinfo(file); //Do not show the path
     item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,fileinfo.fileName());
-    item->setToolTip(COLUMN_IMAGE_NAME,fileinfo.absoluteFilePath());
+    item->setToolTip(COLUMN_IMAGE_NAME, mSlicerManagers[index]->GetListOfAbsoluteFilePathInOneString("overlay").c_str());
     qApp->processEvents();
 
     for (int j = 1; j <= 4; j++) {
@@ -1938,7 +1938,7 @@ void vvMainWindow::AddFusionImage(int index, QString file)
       item->setData(1,Qt::UserRole,tr("fusion"));
       QFileInfo fileinfo(filename.c_str()); //Do not show the path
       item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,fileinfo.fileName());
-      item->setToolTip(COLUMN_IMAGE_NAME,fileinfo.absoluteFilePath());
+      item->setToolTip(COLUMN_IMAGE_NAME, mSlicerManagers[index]->GetListOfAbsoluteFilePathInOneString("fusion").c_str());
       qApp->processEvents();
 
       for (int j = 1; j <= 4; j++) {
@@ -2023,7 +2023,7 @@ void vvMainWindow::AddFieldEntry(QString filename,int index,bool from_disk)
   item->setData(1,Qt::UserRole,tr("vector"));
   QFileInfo fileinfo(filename); //Do not show the path
   item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,fileinfo.fileName());
-  item->setToolTip(COLUMN_IMAGE_NAME,fileinfo.absoluteFilePath());
+  item->setToolTip(COLUMN_IMAGE_NAME, mSlicerManagers[index]->GetListOfAbsoluteFilePathInOneString("vector").c_str());
   qApp->processEvents();
 
   for (int j = 1; j <= 4; j++) {

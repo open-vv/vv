@@ -80,6 +80,7 @@ class vvSlicerManager : public QObject {
   std::string GetVFName()        { return mVFName; }
   std::string GetOverlayName()   { return mOverlayName; }
   std::string GetFusionName()    { return mFusionName; }
+  std::string GetListOfAbsoluteFilePathInOneString(const std::string &actorType);
 
   ///Switch between nearest neighbor and linear interpolation
   void ToggleInterpolation();
@@ -101,6 +102,7 @@ class vvSlicerManager : public QObject {
 
   void SetFilename(std::string f, int number=0);
 
+  void SetSliceOrientation(int slicer, int orientation);
   void SetTSlice(int slice);
   void SetNextTSlice(int originating_slicer);
   void SetPreviousTSlice(int originating_slicer);
@@ -205,6 +207,7 @@ signals :
   void UpdateOverlay(int display, double valueOver, double valueRef);
   void UpdateFusion(int display, double valueFus);
   void UpdateWindows(int slicer, int view, int slice);
+  void UpdateOrientation(int slicer, int orientation);
   void UpdateSlice(int slicer, int slice);
   void UpdateTSlice(int slicer, int slice);
   void UpdateSliceRange(int slice, int min, int max, int tmin, int tmax);

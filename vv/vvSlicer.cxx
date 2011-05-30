@@ -1045,7 +1045,11 @@ void vvSlicer::FlipHorizontalView()
   vtkCamera *cam = this->Renderer ? this->Renderer->GetActiveCamera() : NULL;
   if (cam) {
     double *position = cam->GetPosition();
-    switch (this->SliceOrientation) {
+    double factor[3] = {1, 1, 1};
+    factor[this->SliceOrientation] = -1;
+    cam->SetPosition(factor[0]*position[0],factor[1]*position[1],factor[2]*position[2]);
+    
+/*    switch (this->SliceOrientation) {
     case vtkImageViewer2::SLICE_ORIENTATION_XY:
       cam->SetPosition(position[0],position[1],-position[2]);
       break;
@@ -1057,7 +1061,8 @@ void vvSlicer::FlipHorizontalView()
     case vtkImageViewer2::SLICE_ORIENTATION_YZ:
       cam->SetPosition(-position[0],position[1],position[2]);
       break;
-    }
+    }*/
+
     this->Renderer->ResetCameraClippingRange();
     this->UpdateDisplayExtent();
   }
