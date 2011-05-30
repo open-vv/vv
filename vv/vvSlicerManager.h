@@ -80,6 +80,7 @@ class vvSlicerManager : public QObject {
   std::string GetVFName()        { return mVFName; }
   std::string GetOverlayName()   { return mOverlayName; }
   std::string GetFusionName()    { return mFusionName; }
+  std::string GetListOfAbsoluteFilePathInOneString(const std::string &actorType);
 
   ///Switch between nearest neighbor and linear interpolation
   void ToggleInterpolation();

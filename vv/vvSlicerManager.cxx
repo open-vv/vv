@@ -40,6 +40,8 @@
 #include <vtksys/SystemTools.hxx>
 #include <vtkCamera.h>
 
+#include <qfileinfo.h>
+
 //----------------------------------------------------------------------------
 vvSlicerManager::vvSlicerManager(int numberOfSlicers)
 {
@@ -118,6 +120,34 @@ void vvSlicerManager::ToggleContourSuperposition()
 {
   for ( unsigned int i = 0; i < mSlicers.size(); i++)
     mSlicers[i]->ToggleContourSuperposition();
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+std::string vvSlicerManager::GetListOfAbsoluteFilePathInOneString(const std::string &actorType)
+{
+  vvImageReader *reader = NULL;
+
+  if(actorType=="image")
+    reader = mReader;
+  else if(actorType=="overlay")
+    reader = mOverlayReader;
+  else if(actorType=="fusion")
+    reader = mFusionReader;
+  else if(actorType=="vector")
+    reader = mVectorReader;
+
+  if(!reader)
+    return "";
+
+  std::string list;
+  for(unsigned int i=0; i<reader->GetInputFilenames().size(); i++){
+    QFileInfo fileinfo(reader->GetInputFilenames()[i].c_str()); //Do not show the path
+    if(i)
+      list += '\n';
+    list += fileinfo.absoluteFilePath().toStdString();
+  }
+  return list;
 }
 //----------------------------------------------------------------------------
 
