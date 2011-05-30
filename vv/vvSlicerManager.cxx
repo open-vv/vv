@@ -1050,14 +1050,6 @@ void vvSlicerManager::SetLocalColorWindowing(const int slicer)
 
 
 //----------------------------------------------------------------------------
-void vvSlicerManager::SetColorMap()
-{
-  SetColorMap(mColorMap);
-}
-//----------------------------------------------------------------------------
-
-
-//----------------------------------------------------------------------------
 void vvSlicerManager::SetColorMap(int colormap)
 {
   double range[2];

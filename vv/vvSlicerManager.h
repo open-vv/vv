@@ -113,7 +113,6 @@ class vvSlicerManager : public QObject {
   void SetColorLevel(double s);
   void SetLocalColorWindowing(const int slicer);
   void SetOpacity(int i, double factor);
-  void SetColorMap();
   void SetColorMap(int colormap);
   void SetPreset(int preset);
   void SetOverlayColor(int color) {
