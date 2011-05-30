@@ -20,6 +20,7 @@
 #include "clitkBackProjectImageFilter.h"
 #include "itkContinuousIndex.h"
 #include "vnl/vnl_math.h"
+#include "itkLinearInterpolateImageFunction.h"
 
 namespace clitk
 {
@@ -304,8 +305,6 @@ namespace clitk
   {
     //Projection pointer
     InputImageConstPointer inputPtr=this->GetInput();
-    InputPixelType * beginPtr=const_cast<InputPixelType *>(this->GetInput()->GetBufferPointer());
-    InputPixelType * pp;
     
     //Volume pointer
     OutputImagePointer outputPTr= this->GetOutput();
@@ -325,8 +324,6 @@ namespace clitk
     OutputIndexType oIndex;
     ContinuousInputIndexType iIndex;
     InputSizeType inputSize=inputPtr->GetLargestPossibleRegion().GetSize();
-    double dx,dy,dxm,dym;
-    int lx, ly;
 
     //Get the first output coordinate
     oIndex=iterator.GetIndex();//costly but only once a thread
@@ -339,7 +336,11 @@ namespace clitk
     homInputPoint= (m_ProjectionMatrix * homOutputPoint);
     iPoint[0]=-homInputPoint[0]/homInputPoint[2];
     iPoint[1]=homInputPoint[1]/homInputPoint[2];
-    
+
+    typedef itk::LinearInterpolateImageFunction< InputImageType, double > InterpolatorType;
+    typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
+    interpolator->SetInputImage(this->GetInput());
+
     //Run over all output voxels
     for (unsigned int i=0; i<outputSizeForThread[2]; i++)
       {
@@ -347,25 +348,15 @@ namespace clitk
 	  {
 	    for (unsigned int k=0; k<outputSizeForThread[0]; k++)
 	      {
-		iPoint[0]=homInputPoint[0]/homInputPoint[2];
-		iPoint[1]=homInputPoint[1]/homInputPoint[2];
+		iPoint[0]=-homInputPoint[0]/homInputPoint[2] + m_PanelShift[0];
+		iPoint[1]=homInputPoint[1]/homInputPoint[2] + m_PanelShift[1];
 
 		//Check wether inside, convert to index (use modified with correct origin)
-		if( m_ModifiedInput->TransformPhysicalPointToContinuousIndex(iPoint, iIndex) )
-		  {
-		    //Own (fast bilinear) interpolation   
-		    lx = (int)floor(iIndex[0]); dx = iIndex[0]-lx; dxm = 1.-dx;
-		    ly = (int)floor(iIndex[1]); dy = iIndex[1]-ly; dym = 1.-dy;
-		    pp = beginPtr + ly*inputSize[0]+lx;
-		    value =static_cast<OutputPixelType>( ( dxm  * dym*(double)(*pp) 
-							   + dx * dym*(double)(*(pp+1)) 
-							   + dxm* dy *(double)(*(pp + inputSize[0]))
-							   + dx * dy *(double)(*(pp + inputSize[0]+1))) );
-	    
-		  }
+		if (m_ModifiedInput->TransformPhysicalPointToContinuousIndex(iPoint, iIndex) && interpolator->IsInsideBuffer(iIndex))
+                    value = interpolator->EvaluateAtContinuousIndex(iIndex);
 		//Outside: padding value
-		else value=m_EdgePaddingValue;
-		
+		else
+                  value=m_EdgePaddingValue;
 		//Set it
 		iterator.Set(value);
 
