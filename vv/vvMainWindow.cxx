@@ -1818,8 +1818,6 @@ void vvMainWindow::AddOverlayImage(int index, QString file)
 
     for (int j = 1; j <= 4; j++) {
       item->setData(j,Qt::CheckStateRole,DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole));
-      mSlicerManagers[index]->GetSlicer(j-1)->SetActorVisibility("overlay",0,
-          DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole).toInt());
     }
 
     //Create the buttons for reload and close
@@ -1940,8 +1938,6 @@ void vvMainWindow::AddFusionImage(int index, QString file)
 
       for (int j = 1; j <= 4; j++) {
         item->setData(j,Qt::CheckStateRole,DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole));
-        mSlicerManagers[index]->GetSlicer(j-1)->SetActorVisibility("fusion",0,
-            DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole).toInt());
       }
 
       //Create the buttons for reload and close
@@ -2025,8 +2021,6 @@ void vvMainWindow::AddFieldEntry(QString filename,int index,bool from_disk)
 
   for (int j = 1; j <= 4; j++) {
     item->setData(j,Qt::CheckStateRole,DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole));
-    mSlicerManagers[index]->GetSlicer(j-1)->SetActorVisibility("vector",0,
-        DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole).toInt());
   }
 
   //Create the buttons for reload and close

@@ -372,7 +372,7 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
       mOverlayActor = vtkSmartPointer<vvBlendImageActor>::New();
       mOverlayActor->SetInput(mOverlayMapper->GetOutput());
       mOverlayActor->SetPickable(0);
-      mOverlayActor->SetVisibility(false);
+      mOverlayActor->SetVisibility(true);
       mOverlayActor->SetOpacity(0.5);
     }
 
@@ -415,7 +415,7 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion)
       mFusionActor = vtkSmartPointer<vtkImageActor>::New();
       mFusionActor->SetInput(mFusionMapper->GetOutput());
       mFusionActor->SetPickable(0);
-      mFusionActor->SetVisibility(false);
+      mFusionActor->SetVisibility(true);
       mFusionActor->SetOpacity(0.7);
       this->GetRenderer()->AddActor(mFusionActor);
     }
