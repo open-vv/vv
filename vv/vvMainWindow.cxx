@@ -1381,9 +1381,13 @@ void vvMainWindow::DisplayChanged(QTreeWidgetItem *clickedItem, int column)
       mSlicerManagers[slicerManagerIndex]->UpdateSlicer(column-1, true);
       mSlicerManagers[slicerManagerIndex]->UpdateInfoOnCursorPosition(column-1);
       DisplaySliders(slicerManagerIndex, column-1);
-      if(clickedParentItem == clickedItem) {
-        // Toggle or force visibility if it was not on this branch so far
-        vis = !draw || !vis;
+      if(!draw) {
+        // We were not on this branch so far => force visibility
+        vis = true;
+      }
+      else if(clickedParentItem == clickedItem) {
+        // Toggle
+        vis =  !vis;
       }
       clickedSlicer->SetActorVisibility("image", 0, vis);
       clickedParentItem->setData(column, Qt::CheckStateRole, vis?2:0);
