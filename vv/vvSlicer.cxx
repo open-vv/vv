@@ -1236,7 +1236,9 @@ void vvSlicer::Render()
       int ix, iy, iz;
       double value = this->GetScalarComponentAsDouble(this->GetInput(), X, Y, Z, ix, iy, iz);
 
-      worldPos << "data value : " << value << std::endl;
+      if(ImageActor->GetVisibility())
+        worldPos << "data value : " << value << std::endl;
+
       worldPos << "mm : " << lrint(mCurrent[0]) << ' '
                           << lrint(mCurrent[1]) << ' '
                           << lrint(mCurrent[2]) << ' '
