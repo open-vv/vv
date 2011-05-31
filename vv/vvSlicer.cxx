@@ -1296,13 +1296,11 @@ void vvSlicer::Render()
 //----------------------------------------------------------------------------
 void vvSlicer::UpdateCursorPosition()
 {
-  if (this->GetImageActor()->GetVisibility()) {
-    pdmA->SetVisibility(true);
-    mCursor[0] = mCurrent[0];
-    mCursor[1] = mCurrent[1];
-    mCursor[2] = mCurrent[2];
-    mCursor[3] = mCurrentTSlice;
-  }
+  pdmA->SetVisibility(true);
+  mCursor[0] = mCurrent[0];
+  mCursor[1] = mCurrent[1];
+  mCursor[2] = mCurrent[2];
+  mCursor[3] = mCurrentTSlice;
 }
 //----------------------------------------------------------------------------
 
