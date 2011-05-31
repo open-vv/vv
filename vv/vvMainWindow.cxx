@@ -910,8 +910,6 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
                 this, SLOT(OverlayChanged(int,double,double)));
         connect(mSlicerManagers.back(), SIGNAL(UpdateFusion(int, double)),
                 this, SLOT(FusionChanged(int,double)));
-        connect(mSlicerManagers.back(), SIGNAL(UpdateWindows(int, int, int)),
-                this,SLOT(WindowsChanged(int, int, int)));
         connect(mSlicerManagers.back(), SIGNAL(WindowLevelChanged(double, double,int, int)),
                 this,SLOT(WindowLevelChanged(double, double, int, int)));
         connect(mSlicerManagers.back(), SIGNAL(UpdateSlice(int,int)),
@@ -1620,13 +1618,6 @@ void vvMainWindow::OverlayChanged(int visibility, double valueOver, double value
 void vvMainWindow::FusionChanged(int visibility, double value)
 {
   overlayPanel->getCurrentFusionInfo(visibility,value);
-}
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-void vvMainWindow::WindowsChanged(int window, int view, int slice)
-{
-  infoPanel->setViews(window, view, slice);
 }
 //------------------------------------------------------------------------------
 
@@ -2828,8 +2819,6 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
           this, SLOT(OverlayChanged(int,double,double)));
   connect(mSlicerManagers.back(), SIGNAL(UpdateFusion(int, double)),
           this, SLOT(FusionChanged(int,double)));
-  connect(mSlicerManagers.back(), SIGNAL(UpdateWindows(int, int, int)),
-          this,SLOT(WindowsChanged(int, int, int)));
   connect(mSlicerManagers.back(), SIGNAL(WindowLevelChanged(double, double,int, int)),
           this,SLOT(WindowLevelChanged(double, double, int, int)));
   connect(mSlicerManagers.back(), SIGNAL(UpdateSlice(int,int)),

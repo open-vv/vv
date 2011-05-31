@@ -101,7 +101,6 @@ public slots:
   void SegmentationOnCurrentImage();
   void SurfaceViewerLaunch();
 
-  void WindowsChanged(int window, int view, int slice);
   void WindowLevelChanged(double window, double level,int preset, int colormap);
   void UpdateSlice(int slicer, int slice);
   void UpdateTSlice(int slicer, int slice);

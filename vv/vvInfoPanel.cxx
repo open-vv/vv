@@ -123,55 +123,6 @@ void vvInfoPanel::setCurrentInfo(int visibility, double x, double y, double z, d
 
 
 //------------------------------------------------------------------------------
-void vvInfoPanel::setViews(int window, int view, int slice)
-{/*
-  QString viewString;
-  switch (view) {
-  case 0: {
-    viewString = "Sagital,  ";
-    break;
-  }
-  case 1: {
-    viewString = "Coronal, ";
-    break;
-  }
-  case 2: {
-    viewString = "Axial,   ";
-    break;
-  }
-  }
-
-  QString text = viewString;
-  if (view != -1) {
-    text += "current slice : ";
-    text += QString::number(slice);
-  } else {
-    text = "Disable";
-  }
-
-  switch (window) {
-  case 0: {
-    ULLabel->setText(text);
-    break;
-  }
-  case 1: {
-    URLabel->setText(text);
-    break;
-  }
-  case 2: {
-    DLLabel->setText(text);
-    break;
-  }
-  case 3: {
-    DRLabel->setText(text);
-    break;
-  }
-  }*/
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
 void vvInfoPanel::setMemoryInMb(QString text)
 {
   memoryUsageLabel->setText("<font color=\"blue\">Memory usage :</font> "+text);
