@@ -865,6 +865,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
         item->setData(0,Qt::UserRole,files[i].c_str());
         QFileInfo fileinfo(imageManager->GetFileName().c_str()); //Do not show the path
         item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,fileinfo.fileName());
+        item->setData(1,Qt::UserRole,tr("image"));
         item->setToolTip(COLUMN_IMAGE_NAME, imageManager->GetListOfAbsoluteFilePathInOneString("image").c_str());
         qApp->processEvents();
 
@@ -1340,75 +1341,75 @@ QTreeWidgetItem* vvMainWindow::GetItemFromSlicerManager(vvSlicerManager* sm)
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void vvMainWindow::DisplayChanged(QTreeWidgetItem *clicked_item, int column)
+void vvMainWindow::DisplayChanged(QTreeWidgetItem *clickedItem, int column)
 {
-  int index = GetSlicerIndexFromItem(clicked_item);
   if ( column >= COLUMN_CLOSE_IMAGE || column <= 0)
     return;
-  for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
-    //Trick to avoid redoing twice the job for a key (sr)
-    mSlicerManagers[i]->GetSlicer(column-1)->GetRenderWindow()-> GetInteractor()->SetKeySym("Crap");
 
-    QTreeWidgetItem* current_row=DataTree->topLevelItem(i);
-    if (DataTree->topLevelItem(index) == current_row) {
-      vvSlicer* clicked_slicer=mSlicerManagers[i]->GetSlicer(column-1);
-      if (current_row == clicked_item) {
-        //If we just activated a slicer
-        if (current_row->data(column,Qt::CheckStateRole).toInt() > 0) {
-          mSlicerManagers[i]->UpdateSlicer(column-1,clicked_item->data(column,Qt::CheckStateRole).toInt());
-          mSlicerManagers[i]->UpdateInfoOnCursorPosition(column-1);
-          DisplaySliders(i,column-1);
-          std::map<std::string,int> overlay_counts;
-          for (int child = 0; child < current_row->childCount(); child++) {
-            std::string overlay_type =
-              current_row->child(child)->data(1,Qt::UserRole).toString().toStdString();
-            overlay_counts[overlay_type]++;
-            current_row->child(child)->setData(column,Qt::CheckStateRole,
-                                               current_row->data(column,Qt::CheckStateRole));
-            clicked_slicer->SetActorVisibility(overlay_type,overlay_counts[overlay_type]-1,true);
-          }
-        } else { //We don't allow simply desactivating a slicer
-          clicked_item->setData(column,Qt::CheckStateRole,2);
-          DisplayChanged(clicked_item, column);
-          return;
-        }
-      }
-      //if we clicked on the vector(or overlay) and not the image
-      else {
-        if (clicked_item->data(column,Qt::CheckStateRole).toInt()) {
-          current_row->setData(column,Qt::CheckStateRole,2);
-          mSlicerManagers[i]->UpdateSlicer(column-1,2);
-          mSlicerManagers[i]->UpdateInfoOnCursorPosition(column-1);
-          DisplaySliders(i,column-1);
-        }
-        int vis = clicked_item->data(column,Qt::CheckStateRole).toInt();
-        std::string overlay_type = clicked_item->data(1,Qt::UserRole).toString().toStdString();
-        int overlay_index=0;
-        for (int child = 0; child < current_row->childCount(); child++) {
-          if (current_row->child(child)->data(1,Qt::UserRole).toString().toStdString() == overlay_type)
-            overlay_index++;
-          if (current_row->child(child) == clicked_item) break;
-        }
-        clicked_slicer->SetActorVisibility(
-          clicked_item->data(1,Qt::UserRole).toString().toStdString(), overlay_index-1,vis);
-      }
-    } else if (current_row->data(column,Qt::CheckStateRole).toInt() > 0) {
-      current_row->setData(column,Qt::CheckStateRole,0);
-      mSlicerManagers[i]->UpdateSlicer(column-1,0);
-      std::map<std::string,int> overlay_counts;
-      for (int child = 0; child < current_row->childCount(); child++) {
-        std::string overlay_type =
-          current_row->child(child)->data(1,Qt::UserRole).toString().toStdString();
-        overlay_counts[overlay_type]++;
-        current_row->child(child)->setData(column,Qt::CheckStateRole,0);
-        vvSlicer * current_slicer=mSlicerManagers[i]->GetSlicer(column-1);
-        current_slicer->SetActorVisibility(overlay_type,overlay_counts[overlay_type]-1,false);
+  // Get parent information (might be the same item)
+  int slicerManagerIndex = GetSlicerIndexFromItem(clickedItem);
+  QTreeWidgetItem* clickedParentItem = DataTree->topLevelItem(slicerManagerIndex);
+  vvSlicer* clickedSlicer = mSlicerManagers[slicerManagerIndex]->GetSlicer(column-1);
+
+  // Go over the complete item tree (only 2 levels, parents and children)
+  for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
+    // Trick to avoid redoing twice the job for a key (sr)
+    mSlicerManagers[i]->GetSlicer(column-1)->GetRenderWindow()->GetInteractor()->SetKeySym("Crap");
+
+    QTreeWidgetItem* currentParentItem = DataTree->topLevelItem(i);
+    if(currentParentItem != clickedParentItem) {
+      // Not the branch of the clicked item, uncheck all
+
+      // Parent
+      currentParentItem->setData(column,Qt::CheckStateRole, 0);
+      mSlicerManagers[i]->UpdateSlicer(column-1, false);
+
+      // Children
+      for (int iChild = 0; iChild < currentParentItem->childCount(); iChild++) {
+        currentParentItem->child(iChild)->setData(column,Qt::CheckStateRole, 0);
       }
     }
-    //mSlicerManagers[i]->SetColorMap(-1);
-    mSlicerManagers[i]->SetColorMap();
+    else {
+      // Branch of the clicked one: get check status from actor visibility in slicer
+      // and toggle the clicked one
+
+      // Parent
+      bool vis = clickedSlicer->GetActorVisibility("image", 0);
+      bool draw = clickedSlicer->GetRenderer()->GetDraw();
+
+      // Update slicer (after getting visibility)
+      mSlicerManagers[slicerManagerIndex]->UpdateSlicer(column-1, true);
+      mSlicerManagers[slicerManagerIndex]->UpdateInfoOnCursorPosition(column-1);
+      DisplaySliders(slicerManagerIndex, column-1);
+      if(!draw) {
+        // We were not on this branch so far => force visibility
+        vis = true;
+      }
+      else if(clickedParentItem == clickedItem) {
+        // Toggle
+        vis =  !vis;
+      }
+      clickedSlicer->SetActorVisibility("image", 0, vis);
+      clickedParentItem->setData(column, Qt::CheckStateRole, vis?2:0);
+
+      // Children
+      std::map<std::string, int> actorTypeCounts;      
+      for (int iChild = 0; iChild < clickedParentItem->childCount(); iChild++) {
+        QTreeWidgetItem* currentChildItem = clickedParentItem->child(iChild);
+        std::string actorType = currentChildItem->data(1,Qt::UserRole).toString().toStdString();
+        vis = clickedSlicer->GetActorVisibility(actorType, actorTypeCounts[actorType]);
+        if(currentChildItem == clickedItem) {
+          // Toggle or force visibility if it was not on this branch so far
+          vis = !draw || !vis;
+          clickedSlicer->SetActorVisibility(actorType, actorTypeCounts[actorType], vis);
+        }
+        currentChildItem->setData(column, Qt::CheckStateRole, vis?2:0);
+        actorTypeCounts[actorType]++;
+      }
+    }
   }
-  mSlicerManagers[index]->GetSlicer(column-1)->Render();
+
+  clickedSlicer->Render();
 }
 //------------------------------------------------------------------------------
 
@@ -1821,8 +1822,6 @@ void vvMainWindow::AddOverlayImage(int index, QString file)
 
     for (int j = 1; j <= 4; j++) {
       item->setData(j,Qt::CheckStateRole,DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole));
-      mSlicerManagers[index]->GetSlicer(j-1)->SetActorVisibility("overlay",0,
-          DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole).toInt());
     }
 
     //Create the buttons for reload and close
@@ -1943,8 +1942,6 @@ void vvMainWindow::AddFusionImage(int index, QString file)
 
       for (int j = 1; j <= 4; j++) {
         item->setData(j,Qt::CheckStateRole,DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole));
-        mSlicerManagers[index]->GetSlicer(j-1)->SetActorVisibility("fusion",0,
-            DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole).toInt());
       }
 
       //Create the buttons for reload and close
@@ -2028,8 +2025,6 @@ void vvMainWindow::AddFieldEntry(QString filename,int index,bool from_disk)
 
   for (int j = 1; j <= 4; j++) {
     item->setData(j,Qt::CheckStateRole,DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole));
-    mSlicerManagers[index]->GetSlicer(j-1)->SetActorVisibility("vector",0,
-        DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole).toInt());
   }
 
   //Create the buttons for reload and close
@@ -2790,6 +2785,7 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
   //create an item in the tree with good settings
   QTreeWidgetItem *item = new QTreeWidgetItem();
   item->setData(0,Qt::UserRole,slicer_manager->GetFileName().c_str());//files[i].c_str());
+  item->setData(1,Qt::UserRole,tr("image"));
   item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,slicer_manager->GetFileName().c_str());//filename.c_str());
   qApp->processEvents();
 

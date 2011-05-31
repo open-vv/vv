@@ -1050,14 +1050,6 @@ void vvSlicerManager::SetLocalColorWindowing(const int slicer)
 
 
 //----------------------------------------------------------------------------
-void vvSlicerManager::SetColorMap()
-{
-  SetColorMap(mColorMap);
-}
-//----------------------------------------------------------------------------
-
-
-//----------------------------------------------------------------------------
 void vvSlicerManager::SetColorMap(int colormap)
 {
   double range[2];
@@ -1128,7 +1120,7 @@ void vvSlicerManager::SetColorMap(int colormap)
       fusLUT = NULL;
   }
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
-    if (mSlicers[i]->GetOverlay() && mSlicers[i]->GetOverlayActor()->GetVisibility()) {
+    if (mSlicers[i]->GetOverlay()) {
       vtkLookupTable* supLUT = vtkLookupTable::New();
       supLUT->SetTableRange(range[0],range[1]);
       supLUT->SetValueRange(1,1);
@@ -1154,7 +1146,7 @@ void vvSlicerManager::SetColorMap(int colormap)
     } else {
       mSlicers[i]->GetWindowLevel()->SetLookupTable(LUT);
     }
-    if (mSlicers[i]->GetFusion() && mSlicers[i]->GetFusionActor()->GetVisibility()) {
+    if (mSlicers[i]->GetFusion()) {
       mSlicers[i]->GetFusionActor()->SetOpacity(double(mFusionOpacity)/100);
       mSlicers[i]->GetFusionMapper()->SetLookupTable(fusLUT);
       mSlicers[i]->GetFusionMapper()->SetWindow(mFusionWindow);
