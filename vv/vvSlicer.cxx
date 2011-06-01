@@ -1052,12 +1052,7 @@ void vvSlicer::ResetCamera()
 //----------------------------------------------------------------------------
 void vvSlicer::SetDisplayMode(bool i)
 {
-  this->GetImageActor()->SetVisibility(i);
-  this->GetAnnotation()->SetVisibility(i);
   this->GetRenderer()->SetDraw(i);
-  if (mLandActor)
-    mLandActor->SetVisibility(i);
-  pdmA->SetVisibility(i);
   if (i)
     UpdateDisplayExtent();
 }
@@ -1241,7 +1236,9 @@ void vvSlicer::Render()
       int ix, iy, iz;
       double value = this->GetScalarComponentAsDouble(this->GetInput(), X, Y, Z, ix, iy, iz);
 
-      worldPos << "data value : " << value << std::endl;
+      if(ImageActor->GetVisibility())
+        worldPos << "data value : " << value << std::endl;
+
       worldPos << "mm : " << lrint(mCurrent[0]) << ' '
                           << lrint(mCurrent[1]) << ' '
                           << lrint(mCurrent[2]) << ' '
@@ -1301,13 +1298,11 @@ void vvSlicer::Render()
 //----------------------------------------------------------------------------
 void vvSlicer::UpdateCursorPosition()
 {
-  if (this->GetImageActor()->GetVisibility()) {
-    pdmA->SetVisibility(true);
-    mCursor[0] = mCurrent[0];
-    mCursor[1] = mCurrent[1];
-    mCursor[2] = mCurrent[2];
-    mCursor[3] = mCurrentTSlice;
-  }
+  pdmA->SetVisibility(true);
+  mCursor[0] = mCurrent[0];
+  mCursor[1] = mCurrent[1];
+  mCursor[2] = mCurrent[2];
+  mCursor[3] = mCurrentTSlice;
 }
 //----------------------------------------------------------------------------
 

@@ -217,6 +217,12 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
           this->SM->UpdateLinked(VisibleInWindow);
           return;
         }
+        if (KeyPress == "o") {
+          this->SM->GetSlicer(VisibleInWindow)->SetCurrentPosition(0,0,0,0);
+          this->SM->UpdateViews(1,VisibleInWindow);
+          this->SM->UpdateLinked(VisibleInWindow);
+          return;
+        }
         if (KeyPress == "F5") {
           this->SM->GetSlicer(VisibleInWindow)->FlipHorizontalView();
           this->SM->GetSlicer(VisibleInWindow)->Render();

@@ -431,7 +431,6 @@ void vvSlicerManager::SetTSlice(int slice)
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
     if (slice != mSlicers[i]->GetTSlice()) {
       mSlicers[i]->SetTSlice(slice);
-      if (mSlicers[i]->GetImageActor()->GetVisibility())
         UpdateTSlice(i);
     }
   }
@@ -493,8 +492,7 @@ void vvSlicerManager::SetTSliceInSlicer(int tslice, int slicer)
   if (mSlicers[slicer]->GetTSlice() == tslice) return;
 
   mSlicers[slicer]->SetTSlice(tslice);
-  if (mSlicers[slicer]->GetImageActor()->GetVisibility())
-    UpdateTSlice(slicer);
+  UpdateTSlice(slicer);
 }
 //----------------------------------------------------------------------------
 
@@ -574,7 +572,8 @@ void vvSlicerManager::UpdateViews(int current,int slicer)
     mSlicers[slicer]->Render();
 
     for ( unsigned int i = 0; i < mSlicers.size(); i++) {
-      if (i != (unsigned int)slicer && mSlicers[i]->GetImageActor()->GetVisibility()
+      if (i != (unsigned int)slicer
+          && mSlicers[i]->GetRenderer()->GetDraw()
           && mSlicers[i]->GetRenderWindow()->GetSize()[0] > 2
           && mSlicers[i]->GetRenderWindow()->GetSize()[1] > 2) {
         mSlicers[i]->SetCurrentPosition(mSlicers[slicer]->GetCurrentPosition()[0],
@@ -863,7 +862,7 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
       Z <= mSlicers[slicer]->GetInput()->GetWholeExtent()[5]) {
     value = this->GetScalarComponentAsDouble(mSlicers[slicer]->GetInput(), X, Y, Z);
 
-    if (mSlicers[slicer]->GetVFActor() && mSlicers[slicer]->GetVFActor()->GetVisibility()) {
+    if (mSlicers[slicer]->GetVFActor() ) {
       displayVec = 1;
       unsigned int currentTime = mSlicers[slicer]->GetTSlice();
       vtkImageData *vf = NULL;
@@ -883,7 +882,7 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
         valueVec = sqrt(xVec*xVec + yVec*yVec + zVec*zVec);
       }
     }
-    if (mSlicers[slicer]->GetOverlayActor() && mSlicers[slicer]->GetOverlayActor()->GetVisibility()) {
+    if (mSlicers[slicer]->GetOverlayActor() ) {
       displayOver = 1;
       vtkImageData *overlay = dynamic_cast<vtkImageData*>(mSlicers[slicer]->GetOverlayMapper()->GetInput());
       double Xover = (x - overlay->GetOrigin()[0]) / overlay->GetSpacing()[0];
@@ -891,7 +890,7 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
       double Zover = (z - overlay->GetOrigin()[2]) / overlay->GetSpacing()[2];
       valueOver = this->GetScalarComponentAsDouble(overlay, Xover, Yover, Zover);
     }
-    if (mSlicers[slicer]->GetFusionActor() && mSlicers[slicer]->GetFusionActor()->GetVisibility()) {
+    if (mSlicers[slicer]->GetFusionActor() ) {
       displayFus = 1;
       vtkImageData *fusion = dynamic_cast<vtkImageData*>(mSlicers[slicer]->GetFusionMapper()->GetInput());
       double Xover = (x - fusion->GetOrigin()[0]) / fusion->GetSpacing()[0];
@@ -904,12 +903,6 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
     emit UpdateVector(displayVec,xVec, yVec, zVec, valueVec);
     emit UpdateOverlay(displayOver,valueOver,value);
     emit UpdateFusion(displayFus,valueFus);
-    for (unsigned int i = 0; i < mSlicers.size(); i++) {
-      if (mSlicers[i]->GetImageActor()->GetVisibility() == 1)
-        emit UpdateWindows(i,mSlicers[i]->GetSliceOrientation(),mSlicers[i]->GetSlice());
-      else
-        emit UpdateWindows(i,-1,-1);
-    }
   }
 }
 //----------------------------------------------------------------------------
