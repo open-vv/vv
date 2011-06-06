@@ -172,7 +172,7 @@ vvBlendImageActor* vvSlicer::GetOverlayActor()
 
 
 //------------------------------------------------------------------------------
-vtkImageMapToWindowLevelColors* vvSlicer::GetFusionMapper()
+vtkImageMapToColors* vvSlicer::GetFusionMapper()
 {
   return mFusionMapper.GetPointer();
 }
@@ -408,7 +408,14 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion)
     mFusionReslice->SetInput(0, mFusion->GetFirstVTKImageData());
 
     if (!mFusionMapper)
-      mFusionMapper = vtkSmartPointer<vtkImageMapToWindowLevelColors>::New();
+      mFusionMapper = vtkSmartPointer<vtkImageMapToColors>::New();
+    
+    vtkSmartPointer<vtkLookupTable> lut = vtkLookupTable::New();
+    lut->SetRange(0, 1);
+    lut->SetValueRange(0, 1);
+    lut->SetSaturationRange(0, 0);
+    lut->Build();
+    mFusionMapper->SetLookupTable(lut);
     mFusionMapper->SetInput(mFusionReslice->GetOutput());
 
     if (!mFusionActor) {

@@ -290,8 +290,8 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(linkPanel,SIGNAL(removeLink(QString,QString)),this,SLOT(RemoveLink(QString,QString)));
   connect(overlayPanel,SIGNAL(VFPropertyUpdated(int,int,int,int,double,double,double)),this,SLOT(SetVFProperty(int,int,int,int,double,double,double)));
   connect(overlayPanel,SIGNAL(OverlayPropertyUpdated(int)),this,SLOT(SetOverlayProperty(int)));
-  connect(overlayPanel,SIGNAL(FusionPropertyUpdated(int,int,double,double)),
-          this,SLOT(SetFusionProperty(int,int,double,double)));
+  connect(overlayPanel,SIGNAL(FusionPropertyUpdated(int,int,int,double,double)),
+          this,SLOT(SetFusionProperty(int,int,int,double,double)));
   connect(landmarksPanel,SIGNAL(UpdateRenderWindows()),this,SLOT(UpdateRenderWindows()));
 
   playMode = 0;//pause
@@ -1166,12 +1166,13 @@ void vvMainWindow::ImageInfoChanged()
     if (mSlicerManagers[index]->GetSlicer(0)->GetFusion()) {
       overlayPanel->getFusionName(mSlicerManagers[index]->GetFusionName().c_str());
       overlayPanel->getFusionProperty(mSlicerManagers[index]->GetFusionOpacity(),
+                                      mSlicerManagers[index]->GetFusionThresholdOpacity(),
                                       mSlicerManagers[index]->GetFusionColorMap(),
                                       mSlicerManagers[index]->GetFusionWindow(),
                                       mSlicerManagers[index]->GetFusionLevel());
     } else {
       overlayPanel->getFusionName(mSlicerManagers[index]->GetFusionName().c_str());
-      overlayPanel->getFusionProperty(-1, -1,-1,-1);
+      overlayPanel->getFusionProperty(-1, -1, -1, -1, -1);
     }
   }
 }
@@ -2131,11 +2132,12 @@ void vvMainWindow::SetOverlayProperty(int color)
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void vvMainWindow::SetFusionProperty(int opacity, int colormap,double window, double level)
+void vvMainWindow::SetFusionProperty(int opacity, int thresOpacity, int colormap,double window, double level)
 {
   int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
   if (mSlicerManagers[index]->GetSlicer(0)->GetFusion()) {
     mSlicerManagers[index]->SetFusionOpacity(opacity);
+    mSlicerManagers[index]->SetFusionThresholdOpacity(thresOpacity);
     mSlicerManagers[index]->SetFusionColorMap(colormap);
     mSlicerManagers[index]->SetFusionWindow(window);
     mSlicerManagers[index]->SetFusionLevel(level);

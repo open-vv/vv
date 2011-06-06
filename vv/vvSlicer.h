@@ -28,6 +28,7 @@
 #include <vtkSmartPointer.h>
 #include <vtkImageViewer2.h>
 #include <vtkImageReslice.h>
+#include <vtkImageMapToColors.h>
 
 class vtkActor;
 class vtkActor2D;
@@ -70,7 +71,7 @@ public:
   }
   vtkImageMapToWindowLevelColors* GetOverlayMapper(); 
   vvBlendImageActor* GetOverlayActor() ;
-  vtkImageMapToWindowLevelColors* GetFusionMapper() ;
+  vtkImageMapToColors* GetFusionMapper() ;
   vtkImageActor* GetFusionActor() ;
   vtkActor* GetVFActor() ;
   vtkCornerAnnotation* GetAnnotation();
@@ -201,7 +202,7 @@ protected:
   vtkSmartPointer<vtkImageMapToWindowLevelColors> mOverlayMapper;
   vtkSmartPointer<vvBlendImageActor> mOverlayActor;
   vtkSmartPointer<vtkImageReslice> mFusionReslice;
-  vtkSmartPointer<vtkImageMapToWindowLevelColors> mFusionMapper;
+  vtkSmartPointer<vtkImageMapToColors> mFusionMapper;
   vtkSmartPointer<vtkImageActor> mFusionActor;
   vtkSmartPointer<vtkCornerAnnotation> ca;
   vtkSmartPointer<vtkCursor2D> crossCursor;
