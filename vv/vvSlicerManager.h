@@ -121,6 +121,9 @@ class vvSlicerManager : public QObject {
   void SetFusionOpacity(int opacity) {
     mFusionOpacity = opacity;
   }
+  void SetFusionThresholdOpacity(int thresOpacity) {
+    mFusionThresOpacity = thresOpacity;
+  }
   void SetFusionColorMap(int colorMap) {
     mFusionColorMap = colorMap;
   }
@@ -145,6 +148,9 @@ class vvSlicerManager : public QObject {
 
   int GetFusionOpacity() {
     return mFusionOpacity;
+  }
+  int GetFusionThresholdOpacity() {
+    return mFusionThresOpacity;
   }
   int GetFusionColorMap() {
     return mFusionColorMap;
@@ -230,6 +236,7 @@ protected:
   int mOverlayColor;
 
   int mFusionOpacity;
+  int mFusionThresOpacity;
   int mFusionColorMap;
   double mFusionWindow;
   double mFusionLevel;

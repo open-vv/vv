@@ -58,6 +58,7 @@ vvSlicerManager::vvSlicerManager(int numberOfSlicers)
   mOverlayColor = 130;
 
   mFusionOpacity = 70;
+  mFusionThresOpacity = 1;
   mFusionColorMap = 3;
   mFusionWindow = 1000;
   mFusionLevel = 1000;
@@ -292,6 +293,7 @@ bool vvSlicerManager::SetFusion(std::string filename,int dim, std::string compon
   double *fusRange = mFusionReader->GetOutput()->GetVTKImages()[0]->GetScalarRange();
   mFusionLevel = (fusRange[0]+fusRange[1])/2;
   mFusionWindow = fusRange[1]-fusRange[0];
+
   return true;
 }
 //----------------------------------------------------------------------------
@@ -1100,26 +1102,50 @@ void vvSlicerManager::SetColorMap(int colormap)
     LUT->SetTableRange(level-fabs(window)/4,level+fabs(window)/4);
     LUT->Build();
   }
-  vtkLookupTable* fusLUT = NULL;
-  if (mSlicers[0]->GetFusion()) {
-    fusLUT = vtkLookupTable::New();
+  vtkWindowLevelLookupTable* fusLUT = NULL;
+  if (mSlicers[0]->GetFusion()) { // && mFusionColorMap != 0) {
+    fusLUT = vtkWindowLevelLookupTable::New();
     double fusRange [2];
     fusRange[0] = mFusionLevel - mFusionWindow/2;
     fusRange[1] = mFusionLevel + mFusionWindow/2;
-    fusLUT->SetTableRange(fusRange[0],fusRange[1]);
+    double* frange = mFusionReader->GetOutput()->GetVTKImages()[0]->GetScalarRange();
+    fusLUT->SetTableRange(frange);
     fusLUT->SetValueRange(1,1);
     fusLUT->SetSaturationRange(1,1);
+    fusLUT->SetAlphaRange(1, 1);
+    fusLUT->SetWindow(mFusionWindow);
+    fusLUT->SetLevel(mFusionLevel);
     if (mFusionColorMap == 1)
       fusLUT->SetHueRange(0,0.18);
     else if (mFusionColorMap == 2)
       fusLUT->SetHueRange(0.4,0.80);
     else if (mFusionColorMap == 3)
+    {
+      fusLUT->SetHueRange(0.666, 0);
+      fusLUT->SetValueRange(0.5, 1);
+    }
+    else if (mFusionColorMap == 4)
       fusLUT->SetHueRange(0,1);
-    fusLUT->Build();
-    if (mFusionColorMap == 0)
-      fusLUT = NULL;
+    else if (mFusionColorMap == 0)
+    {
+      fusLUT->SetValueRange(0,1);
+      fusLUT->SetSaturationRange(0,0);
+    }
+    
+    fusLUT->ForceBuild();
+    
+    // set color table transparancy
+    double alpha_range_end = frange[0] + (double)mFusionThresOpacity*(frange[1] - frange[0])/100;
+    for (double i = frange[0]; i < alpha_range_end; i++) {
+      double v[4];
+      vtkIdType index = fusLUT->GetIndex(i);
+      fusLUT->GetTableValue(index, v);
+      v[3] = 0;
+      fusLUT->SetTableValue(index, v);
+    }
   }
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
+    
     if (mSlicers[i]->GetOverlay()) {
       vtkLookupTable* supLUT = vtkLookupTable::New();
       supLUT->SetTableRange(range[0],range[1]);
@@ -1146,11 +1172,10 @@ void vvSlicerManager::SetColorMap(int colormap)
     } else {
       mSlicers[i]->GetWindowLevel()->SetLookupTable(LUT);
     }
+    
     if (mSlicers[i]->GetFusion()) {
       mSlicers[i]->GetFusionActor()->SetOpacity(double(mFusionOpacity)/100);
       mSlicers[i]->GetFusionMapper()->SetLookupTable(fusLUT);
-      mSlicers[i]->GetFusionMapper()->SetWindow(mFusionWindow);
-      mSlicers[i]->GetFusionMapper()->SetLevel(mFusionLevel);
     }
   }
   if (fusLUT)
