@@ -1383,7 +1383,7 @@ void vvMainWindow::DisplayChanged(QTreeWidgetItem *clickedItem, int column)
       mSlicerManagers[slicerManagerIndex]->UpdateInfoOnCursorPosition(column-1);
       DisplaySliders(slicerManagerIndex, column-1);
       if(clickedParentItem == clickedItem) {
-        // Toggle or force visibility if it was not on this branch so far
+        // Toggle
         vis = !draw || !vis;
       }
       clickedSlicer->SetActorVisibility("image", 0, vis);
