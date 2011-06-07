@@ -58,6 +58,11 @@ signals:
     void VFPropertyUpdated(int subsampling, int scale, int log, int width, double r, double g, double b);
     void OverlayPropertyUpdated(int color);
     void FusionPropertyUpdated(int opacity, int thresOpacity, int colormap, double window, double level);
+
+    
+private:
+    bool disableFusionSignals;
+    
 }; // end class vvOverlayPanel
 //====================================================================
 
