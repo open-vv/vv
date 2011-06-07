@@ -148,6 +148,11 @@ namespace clitk
 	}
     }
 
+    void SetPanelShift(double x, double y)
+    {
+      m_PanelShift[0] = x;
+      m_PanelShift[1] = y;
+    }
     //     itkSetMacro(IsoCenter, OutputPointType);
     //     itkGetConstReferenceMacro(IsoCenter, OutputPointType)
     //     itkSetMacro( SourceToScreen, double );
@@ -258,6 +263,7 @@ namespace clitk
     double  m_SourceToAxis;
     OutputPixelType m_EdgePaddingValue;
     double m_ProjectionAngle;
+    double m_PanelShift[2];
 
     // Output image info
     OutputSizeType                m_OutputSize;        // Size of the output image

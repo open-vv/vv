@@ -41,7 +41,7 @@ public:
     void getOverlayProperty(int color);
     void getOverlayName(QString name);
 
-    void getFusionProperty(int opacity, int colormap, double window, double level);
+    void getFusionProperty(int opacity, int thresOpacity, int colormap, double window, double level);
     void getFusionName(QString name);
 
     void getCurrentVectorInfo(int visibility, double x, double y, double z, double value);
@@ -57,7 +57,7 @@ public slots:
 signals:
     void VFPropertyUpdated(int subsampling, int scale, int log, int width, double r, double g, double b);
     void OverlayPropertyUpdated(int color);
-    void FusionPropertyUpdated(int opacity, int colormap, double window, double level);
+    void FusionPropertyUpdated(int opacity, int thresOpacity, int colormap, double window, double level);
 }; // end class vvOverlayPanel
 //====================================================================
 

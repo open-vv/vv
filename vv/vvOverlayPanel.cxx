@@ -45,6 +45,7 @@ vvOverlayPanel::vvOverlayPanel(QWidget * parent):QWidget(parent)
   connect(vfColorButton,SIGNAL(clicked()),this,SLOT(VFColorChangeRequest()));
   connect(colorHorizontalSlider,SIGNAL(valueChanged(int)),this,SLOT(setOverlayProperty()));
   connect(opacityHorizontalSlider,SIGNAL(valueChanged(int)),this,SLOT(setFusionProperty()));
+  connect(thresOpacityHorizontalSlider,SIGNAL(valueChanged(int)),this,SLOT(setFusionProperty()));
   connect(fusionColorMapComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setFusionProperty()));
   connect(windowSpinBox,SIGNAL(valueChanged(double)),this,SLOT(setFusionProperty()));
   connect(levelSpinBox,SIGNAL(valueChanged(double)),this,SLOT(setFusionProperty()));
@@ -163,13 +164,15 @@ void vvOverlayPanel::getFusionName(QString name)
   dataFusionnedLabel->setText(filename.toStdString().c_str());
 }
 
-void vvOverlayPanel::getFusionProperty(int opacity, int colormap, double window, double level)
+void vvOverlayPanel::getFusionProperty(int opacity, int thresOpacity, int colormap, double window, double level)
 {
   if (opacity > -1) {
     fusionFrame->show();
     fusionFrame->setEnabled(1);
     opacityHorizontalSlider->setEnabled(1);
     opacityHorizontalSlider->setValue(opacity);
+    thresOpacityHorizontalSlider->setEnabled(1);
+    thresOpacityHorizontalSlider->setValue(thresOpacity);
     fusionColorMapComboBox->setEnabled(1);
     fusionColorMapComboBox->setCurrentIndex(colormap);
     windowSpinBox->setEnabled(1);
@@ -181,6 +184,8 @@ void vvOverlayPanel::getFusionProperty(int opacity, int colormap, double window,
     fusionFrame->setEnabled(0);
     opacityHorizontalSlider->setEnabled(0);
     opacityHorizontalSlider->setValue(0);
+    thresOpacityHorizontalSlider->setEnabled(0);
+    thresOpacityHorizontalSlider->setValue(0);
     fusionColorMapComboBox->setEnabled(0);
     fusionColorMapComboBox->setCurrentIndex(-1);
     windowSpinBox->setEnabled(0);
@@ -190,7 +195,7 @@ void vvOverlayPanel::getFusionProperty(int opacity, int colormap, double window,
 
 void vvOverlayPanel::setFusionProperty()
 {
-  emit FusionPropertyUpdated(opacityHorizontalSlider->value(), fusionColorMapComboBox->currentIndex(),
+  emit FusionPropertyUpdated(opacityHorizontalSlider->value(), thresOpacityHorizontalSlider->value(), fusionColorMapComboBox->currentIndex(),
                              windowSpinBox->value(), levelSpinBox->value());
 }
 

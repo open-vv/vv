@@ -35,4 +35,4 @@ option "size"			-	"Size for the output image"			int		multiple no	default="512"
 option "spacing"		-	"Spacing for the output image"			double		multiple no	default="0.8"       
 
 option "panel_position"         -       "Approximate position of the panel: small, medium or large"     string          no              default="small"
-option "panel_shift"            -       "Precise position of the panel in mm"           double          no
+option "panel_shift"            -       "Precise position of the panel in mm"           double          multiple        no

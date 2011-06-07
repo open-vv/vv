@@ -172,7 +172,7 @@ vvBlendImageActor* vvSlicer::GetOverlayActor()
 
 
 //------------------------------------------------------------------------------
-vtkImageMapToWindowLevelColors* vvSlicer::GetFusionMapper()
+vtkImageMapToColors* vvSlicer::GetFusionMapper()
 {
   return mFusionMapper.GetPointer();
 }
@@ -372,7 +372,7 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
       mOverlayActor = vtkSmartPointer<vvBlendImageActor>::New();
       mOverlayActor->SetInput(mOverlayMapper->GetOutput());
       mOverlayActor->SetPickable(0);
-      mOverlayActor->SetVisibility(false);
+      mOverlayActor->SetVisibility(true);
       mOverlayActor->SetOpacity(0.5);
     }
 
@@ -408,14 +408,21 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion)
     mFusionReslice->SetInput(0, mFusion->GetFirstVTKImageData());
 
     if (!mFusionMapper)
-      mFusionMapper = vtkSmartPointer<vtkImageMapToWindowLevelColors>::New();
+      mFusionMapper = vtkSmartPointer<vtkImageMapToColors>::New();
+    
+    vtkSmartPointer<vtkLookupTable> lut = vtkLookupTable::New();
+    lut->SetRange(0, 1);
+    lut->SetValueRange(0, 1);
+    lut->SetSaturationRange(0, 0);
+    lut->Build();
+    mFusionMapper->SetLookupTable(lut);
     mFusionMapper->SetInput(mFusionReslice->GetOutput());
 
     if (!mFusionActor) {
       mFusionActor = vtkSmartPointer<vtkImageActor>::New();
       mFusionActor->SetInput(mFusionMapper->GetOutput());
       mFusionActor->SetPickable(0);
-      mFusionActor->SetVisibility(false);
+      mFusionActor->SetVisibility(true);
       mFusionActor->SetOpacity(0.7);
       this->GetRenderer()->AddActor(mFusionActor);
     }
@@ -429,23 +436,48 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion)
 
 
 //------------------------------------------------------------------------------
+bool vvSlicer::GetActorVisibility(const std::string& actor_type, int overlay_index)
+{
+  bool vis = false;
+  if (actor_type == "image") {
+    vis = this->ImageActor->GetVisibility();
+  }
+  else if (actor_type == "vector") {
+    vis = this->mVFActor->GetVisibility();
+  }
+  else if (actor_type == "overlay") {
+    vis = this->mOverlayActor->GetVisibility();
+  }
+  else if (actor_type == "fusion") {
+    vis = this->mFusionActor->GetVisibility();
+  }
+  else if (actor_type == "contour")
+    vis = this->mSurfaceCutActors[overlay_index]->GetActor()->GetVisibility();
+
+  return vis;
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 void vvSlicer::SetActorVisibility(const std::string& actor_type, int overlay_index ,bool vis)
 {
-  if (actor_type == "vector") {
+  if (actor_type == "image") {
+    this->ImageActor->SetVisibility(vis);
+  }
+  else if (actor_type == "vector") {
     this->mVFActor->SetVisibility(vis);
   }
-  if (actor_type == "overlay") {
+  else if (actor_type == "overlay") {
     this->mOverlayActor->SetVisibility(vis);
   }
-  if (actor_type == "fusion") {
+  else if (actor_type == "fusion") {
     this->mFusionActor->SetVisibility(vis);
   }
-  if (actor_type == "contour")
+  else if (actor_type == "contour")
     this->mSurfaceCutActors[overlay_index]->GetActor()->SetVisibility(vis);
   UpdateDisplayExtent();
 }
 //------------------------------------------------------------------------------
-
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetVF(vvImage::Pointer vf)
@@ -1027,12 +1059,7 @@ void vvSlicer::ResetCamera()
 //----------------------------------------------------------------------------
 void vvSlicer::SetDisplayMode(bool i)
 {
-  this->GetImageActor()->SetVisibility(i);
-  this->GetAnnotation()->SetVisibility(i);
   this->GetRenderer()->SetDraw(i);
-  if (mLandActor)
-    mLandActor->SetVisibility(i);
-  pdmA->SetVisibility(i);
   if (i)
     UpdateDisplayExtent();
 }
@@ -1216,7 +1243,9 @@ void vvSlicer::Render()
       int ix, iy, iz;
       double value = this->GetScalarComponentAsDouble(this->GetInput(), X, Y, Z, ix, iy, iz);
 
-      worldPos << "data value : " << value << std::endl;
+      if(ImageActor->GetVisibility())
+        worldPos << "data value : " << value << std::endl;
+
       worldPos << "mm : " << lrint(mCurrent[0]) << ' '
                           << lrint(mCurrent[1]) << ' '
                           << lrint(mCurrent[2]) << ' '
@@ -1276,13 +1305,11 @@ void vvSlicer::Render()
 //----------------------------------------------------------------------------
 void vvSlicer::UpdateCursorPosition()
 {
-  if (this->GetImageActor()->GetVisibility()) {
-    pdmA->SetVisibility(true);
-    mCursor[0] = mCurrent[0];
-    mCursor[1] = mCurrent[1];
-    mCursor[2] = mCurrent[2];
-    mCursor[3] = mCurrentTSlice;
-  }
+  pdmA->SetVisibility(true);
+  mCursor[0] = mCurrent[0];
+  mCursor[1] = mCurrent[1];
+  mCursor[2] = mCurrent[2];
+  mCursor[3] = mCurrentTSlice;
 }
 //----------------------------------------------------------------------------
 
