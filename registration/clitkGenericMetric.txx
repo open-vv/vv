@@ -35,7 +35,7 @@ GenericMetric<args_info_type, FixedImageType, MovingImageType>::GenericMetric()
   m_Maximize=false;
   m_Verbose=false;
   m_FixedImageRegionGiven=false;
-#ifdef ITK_USE_OPTIMISED_REGISTRATION_METHODS
+#ifdef ITK_USE_OPTIMIZED_REGISTRATION_METHODS
   m_FixedImageSamplesIntensityThreshold=0;
   m_UseFixedImageSamplesIntensityThreshold=false;
 #endif
@@ -337,11 +337,13 @@ GenericMetric<args_info_type,FixedImageType, MovingImageType>::GetMetricPointer(
         }
 
         // Intensity?
+        /*
         if( m_UseFixedImageSamplesIntensityThreshold &&
             ( regionIter.Get() < m_FixedImageSamplesIntensityThreshold) ) {
           ++regionIter; // jump to next pixel
           continue;
         }
+        */
 
         // Add point to the numbers
         fiic.push_back(index);
