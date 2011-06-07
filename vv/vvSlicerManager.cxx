@@ -305,7 +305,11 @@ bool vvSlicerManager::SetVF(std::string filename)
   if (mVectorReader.IsNull())
     mVectorReader = vvImageReader::New();
   mVectorReader->SetInputFilename(filename);
-  mVectorReader->Update(vvImageReader::VECTORFIELD);
+  
+  if (mType == vvImageReader::IMAGEWITHTIME)
+    mVectorReader->Update(vvImageReader::VECTORFIELDWITHTIME);
+  else
+    mVectorReader->Update(vvImageReader::VECTORFIELD);
   if (mVectorReader->GetLastError().size() != 0) {
     mLastError = mVectorReader->GetLastError();
     return false;
