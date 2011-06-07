@@ -310,6 +310,11 @@
          </item>
          <item>
           <property name="text">
+           <string>Dosimetry</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
            <string>Full Color</string>
           </property>
          </item>
@@ -621,7 +626,7 @@
            <number>2</number>
           </property>
           <item row="0" column="0">
-           <widget class="QVTKWidget" name="NOViewWidget" native="true">
+           <widget class="QVTKWidget" name="NOViewWidget">
             <property name="mouseTracking">
              <bool>true</bool>
             </property>
@@ -661,7 +666,7 @@
            <number>2</number>
           </property>
           <item row="0" column="0">
-           <widget class="QVTKWidget" name="SOViewWidget" native="true">
+           <widget class="QVTKWidget" name="SOViewWidget">
             <property name="mouseTracking">
              <bool>true</bool>
             </property>
@@ -703,7 +708,7 @@
            <number>2</number>
           </property>
           <item row="0" column="0">
-           <widget class="QVTKWidget" name="NEViewWidget" native="true">
+           <widget class="QVTKWidget" name="NEViewWidget">
             <property name="mouseTracking">
              <bool>true</bool>
             </property>
@@ -740,7 +745,7 @@
            <number>2</number>
           </property>
           <item row="0" column="0">
-           <widget class="QVTKWidget" name="SEViewWidget" native="true">
+           <widget class="QVTKWidget" name="SEViewWidget">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>
