@@ -402,13 +402,13 @@ GenericMetric<args_info_type,FixedImageType, MovingImageType>::GetMetricPointer(
           }
 
           // Intensity?
-          if( m_UseFixedImageSamplesIntensityThreshold &&
-              randIter.Get() < m_FixedImageSamplesIntensityThreshold ) {
-            ++randIter;
-              //if (m_Verbose) std::cout << "not in threshold" << std::endl;
-              count_not_thres++;
-            continue;
-          }
+//           if( m_UseFixedImageSamplesIntensityThreshold &&
+//               randIter.Get() < m_FixedImageSamplesIntensityThreshold ) {
+//             ++randIter;
+//               //if (m_Verbose) std::cout << "not in threshold" << std::endl;
+//               count_not_thres++;
+//             continue;
+//           }
 
           // Add point to the numbers
           fiic.push_back(index);
