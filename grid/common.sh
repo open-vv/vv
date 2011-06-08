@@ -54,7 +54,7 @@ lcg-cr -v -d ccsrm02.in2p3.fr -l "lfn:${destlfn}" "file:${sourcefile}" || error 
 
 # common path used
 lfnbase="/grid/biomed/creatis/fgate/"
-lfnrelease="${lfnbase}releases/"
+lfnrelease="/grid/biomed/creatis/vip/data/groups/GateLab/releases/"
 lfnworkflow="${lfnbase}workflow/"
 lfngasw="${lfnbase}gasw/"
 lfnscript="${lfnbase}bin/"
