@@ -35,6 +35,7 @@
 #include "itkBinaryMorphologicalOpeningImageFilter.h"
 #include "itkBinaryBallStructuringElement.h"
 #include "itkCastImageFilter.h"
+#include "itkConstantPadImageFilter.h"
 
 //--------------------------------------------------------------------
 template <class TInputImageType>
@@ -113,9 +114,22 @@ GenerateOutputInformation() {
   //--------------------------------------------------------------------
   // Step 1: 
   StartNewStep("Find low densities areas");
+
+  // Pad images with air to prevent patient touching the image border
+  typedef itk::ConstantPadImageFilter<InputImageType, InputImageType> PadFilterType;
+  typename PadFilterType::Pointer padFilter = PadFilterType::New();
+  padFilter->SetInput(input);
+  padFilter->SetConstant(GetUpperThreshold() - 1);
+  typename InputImageType::SizeType bounds;
+  for (unsigned i = 0; i < Dim - 1; ++i)
+    bounds[i] = 1;
+  bounds[Dim - 1] = 0;
+  padFilter->SetPadLowerBound(bounds);
+  padFilter->SetPadUpperBound(bounds);
+
   typedef itk::BinaryThresholdImageFilter<InputImageType, InternalImageType> BinarizeFilterType;  
   typename BinarizeFilterType::Pointer binarizeFilter=BinarizeFilterType::New();
-  binarizeFilter->SetInput(input);
+  binarizeFilter->SetInput(padFilter->GetOutput());
   if (m_UseLowerThreshold) binarizeFilter->SetLowerThreshold(GetLowerThreshold());
   binarizeFilter->SetUpperThreshold(GetUpperThreshold());
   binarizeFilter ->SetInsideValue(this->GetForegroundValue());
@@ -256,6 +270,17 @@ GenerateOutputInformation() {
     cropFilter->Update();   
     output = cropFilter->GetOutput();
     StopCurrentStep<MaskImageType>(output);
+  }
+  else
+  {
+    // Remove Padding region
+    typedef itk::CropImageFilter<MaskImageType, MaskImageType> CropFilterType;
+    typename CropFilterType::Pointer cropFilter = CropFilterType::New();
+    cropFilter->SetInput(output);
+    cropFilter->SetLowerBoundaryCropSize(bounds);
+    cropFilter->SetUpperBoundaryCropSize(bounds);
+    cropFilter->Update();
+    output = cropFilter->GetOutput();
   }
 }
 //--------------------------------------------------------------------
