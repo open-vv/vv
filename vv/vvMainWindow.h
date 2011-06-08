@@ -210,6 +210,4 @@ private:
   
 };
 
-#include "vvMainWindow.txx"
-
 #endif
