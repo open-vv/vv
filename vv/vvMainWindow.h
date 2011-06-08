@@ -139,6 +139,7 @@ public slots:
   void OpenField();
   void SelectOverlayImage();
   void SelectFusionImage();
+  void ResetTransformationToIdentity();
 
   void SetVFProperty(int subsampling,int scale,int lut, int width, double r, double g, double b);
   void SetOverlayProperty(int color);

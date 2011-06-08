@@ -160,6 +160,11 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(actionAdd_fusion_image,SIGNAL(triggered()),this,SLOT(SelectFusionImage()));
   contextActions.push_back(actionAdd_fusion_image);
 
+  contextMenu.addSeparator();
+  QAction* actionResetMatrix = contextMenu.addAction(QIcon(QString::fromUtf8(":/common/icons/identity.png")),
+                                                      tr("Reset transformation to identity"));
+  connect(actionResetMatrix, SIGNAL(triggered()), this,SLOT(ResetTransformationToIdentity()));
+
   // TRIAL DS
   /*
   QMenu * m = new QMenu(menubar);
@@ -1900,6 +1905,16 @@ void vvMainWindow::SelectFusionImage()
   QString file = QFileDialog::getOpenFileName(this,tr("Load Fusion image"),mInputPathName,Extensions);
   if (!file.isEmpty())
     AddFusionImage(index,file);
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::ResetTransformationToIdentity()
+{
+  std::string actorType = DataTree->selectedItems()[0]->data(1,Qt::UserRole).toString().toStdString();
+  int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
+  mSlicerManagers[index]->ResetTransformationToIdentity(actorType);
+  ImageInfoChanged();
 }
 //------------------------------------------------------------------------------
 

@@ -166,6 +166,7 @@ class vvSlicerManager : public QObject {
   void UpdateViews(int current, int slicer);
   void UpdateLinked(int slicer);
   void UpdateLinkedNavigation(vvSlicer *slicer, bool bPropagate=false);
+  void ResetTransformationToIdentity(const std::string actorType);
   void Render();
 
   void AddLink(std::string newId) {
