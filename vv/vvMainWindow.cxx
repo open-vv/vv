@@ -1165,6 +1165,7 @@ void vvMainWindow::ImageInfoChanged()
       overlayPanel->getOverlayName(mSlicerManagers[index]->GetOverlayName().c_str());
       overlayPanel->getOverlayProperty(-1);
     }
+    
     if (mSlicerManagers[index]->GetSlicer(0)->GetFusion()) {
       overlayPanel->getFusionName(mSlicerManagers[index]->GetFusionName().c_str());
       overlayPanel->getFusionProperty(mSlicerManagers[index]->GetFusionOpacity(),
@@ -2145,9 +2146,9 @@ void vvMainWindow::SetFusionProperty(int opacity, int thresOpacity, int colormap
 {
   int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
   if (mSlicerManagers[index]->GetSlicer(0)->GetFusion()) {
+    mSlicerManagers[index]->SetFusionColorMap(colormap);
     mSlicerManagers[index]->SetFusionOpacity(opacity);
     mSlicerManagers[index]->SetFusionThresholdOpacity(thresOpacity);
-    mSlicerManagers[index]->SetFusionColorMap(colormap);
     mSlicerManagers[index]->SetFusionWindow(window);
     mSlicerManagers[index]->SetFusionLevel(level);
     mSlicerManagers[index]->SetColorMap(0);

@@ -305,7 +305,11 @@ bool vvSlicerManager::SetVF(std::string filename)
   if (mVectorReader.IsNull())
     mVectorReader = vvImageReader::New();
   mVectorReader->SetInputFilename(filename);
-  mVectorReader->Update(vvImageReader::VECTORFIELD);
+  
+  if (mType == vvImageReader::IMAGEWITHTIME)
+    mVectorReader->Update(vvImageReader::VECTORFIELDWITHTIME);
+  else
+    mVectorReader->Update(vvImageReader::VECTORFIELD);
   if (mVectorReader->GetLastError().size() != 0) {
     mLastError = mVectorReader->GetLastError();
     return false;
@@ -1078,6 +1082,13 @@ void vvSlicerManager::SetColorMap(int colormap)
   case 3:
     if (LUT == NULL)
       LUT = vtkLookupTable::New();
+    LUT->SetValueRange(0.5,1);
+    LUT->SetSaturationRange(1,1);
+    LUT->SetHueRange(0.666,0);
+    break;
+  case 4:
+    if (LUT == NULL)
+      LUT = vtkLookupTable::New();
     LUT->SetValueRange(0,1);
     LUT->SetSaturationRange(1,1);
     LUT->SetHueRange(0,1);
@@ -1096,7 +1107,7 @@ void vvSlicerManager::SetColorMap(int colormap)
     LUT->Build();
   }
   vtkWindowLevelLookupTable* fusLUT = NULL;
-  if (mSlicers[0]->GetFusion()) { // && mFusionColorMap != 0) {
+  if (mSlicers[0]->GetFusion()) { // && mFusionColorMap >= 0) {
     fusLUT = vtkWindowLevelLookupTable::New();
     double fusRange [2];
     fusRange[0] = mFusionLevel - mFusionWindow/2;
@@ -1119,7 +1130,7 @@ void vvSlicerManager::SetColorMap(int colormap)
     }
     else if (mFusionColorMap == 4)
       fusLUT->SetHueRange(0,1);
-    else if (mFusionColorMap == 0)
+    else if (mFusionColorMap <= 0)
     {
       fusLUT->SetValueRange(0,1);
       fusLUT->SetSaturationRange(0,0);
@@ -1127,7 +1138,7 @@ void vvSlicerManager::SetColorMap(int colormap)
     
     fusLUT->ForceBuild();
     
-    // set color table transparancy
+    // set color table transparency
     double alpha_range_end = frange[0] + (double)mFusionThresOpacity*(frange[1] - frange[0])/100;
     for (double i = frange[0]; i < alpha_range_end; i++) {
       double v[4];
@@ -1167,8 +1178,8 @@ void vvSlicerManager::SetColorMap(int colormap)
     }
     
     if (mSlicers[i]->GetFusion()) {
-      mSlicers[i]->GetFusionActor()->SetOpacity(double(mFusionOpacity)/100);
       mSlicers[i]->GetFusionMapper()->SetLookupTable(fusLUT);
+      mSlicers[i]->GetFusionActor()->SetOpacity(double(mFusionOpacity)/100);
     }
   }
   if (fusLUT)

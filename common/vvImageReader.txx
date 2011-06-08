@@ -34,7 +34,7 @@
 template<unsigned int VImageDimension>
 void vvImageReader::UpdateWithDim(std::string InputPixelType)
 {
-  if (mType == VECTORFIELD)
+  if (mType == VECTORFIELD || mType == VECTORFIELDWITHTIME)
     UpdateWithDimAndInputPixelType<itk::Vector<float,3>,VImageDimension>();
   else if (InputPixelType == "short")
     UpdateWithDimAndInputPixelType<short,VImageDimension>();
@@ -162,7 +162,7 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
       reader->ReleaseDataFlagOn();
 
       try {
-        if (mType == IMAGEWITHTIME)
+        if (mType == IMAGEWITHTIME || mType == VECTORFIELDWITHTIME)
           mImage=vvImageFromITK<VImageDimension,InputPixelType>(reader->GetOutput(),true);
         else
           mImage=vvImageFromITK<VImageDimension,InputPixelType>(reader->GetOutput());
