@@ -274,15 +274,19 @@ void vvToolCropImage::apply()
   catch(clitk::ExceptionObject & e) {
     DD(e.what());
     QApplication::restoreOverrideCursor();
+    delete [] mArgsInfo.boundingBox_arg;
     close();
   }
   std::ostringstream croppedImageName;
   croppedImageName << "Cropped_" << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";
   // Retrieve result and display it
   vvImage::Pointer output = filter->GetOutputVVImage();
+  
   AddImage(output,croppedImageName.str());
+  
   // End
   QApplication::restoreOverrideCursor();
+  delete [] mArgsInfo.boundingBox_arg;
   close();
 }
 //------------------------------------------------------------------------------

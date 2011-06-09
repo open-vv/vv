@@ -267,6 +267,7 @@ void vvImageContour::CreateNewActor(int numImage) {
     clipper->SetInput(mHiddenImage->GetVTKImages()[0]);
   else
     clipper->SetInput(mSlicer->GetImage()->GetVTKImages()[numImage]);
+  
   squares->SetInput(clipper->GetOutput());
   squaresMapper->SetInput(squares->GetOutput());
   squaresMapper->ScalarVisibilityOff();
@@ -333,8 +334,6 @@ void vvImageContour::UpdateActor(vtkActor * actor,
   clipper->SetOutputWholeExtent(extent2[0],extent2[1],extent2[2],
                                 extent2[3],extent2[4],extent2[5]);
 
-  //std::cout << mTSlice << " " << mSlice << " " << extent2[0] << " " << extent2[1] << " " << extent2[2] << " " << extent2[3] << " " << extent2[4] << " " << extent2[5] << std::endl;
-
   if (mHiddenImageIsUsed) delete extent2;
 
   // Move the actor to be visible
@@ -342,47 +341,7 @@ void vvImageContour::UpdateActor(vtkActor * actor,
   position[orientation] = -1;
   actor->SetPosition(position);
   
-//   switch (orientation)  {
-//   case 0:
-//     actor->SetPosition(-1,0,0);
-//     /*
-//     // DD(mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[0]);
-//     if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[0] > slice) {
-//     actor->SetPosition(1,0,0);
-//     } else {
-//       actor->SetPosition(-1,0,0);
-//       }*/
-//     break;
-//   case 1:
-//     actor->SetPosition(0,-1,0);
-//     /*
-//     // DD(mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[1]);
-//     if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[1] > slice) {
-//       actor->SetPosition(0,1,0);
-//     } else {
-//       actor->SetPosition(0,-1,0);
-//     }
-//     */
-//     break;
-//   case 2:
-//     actor->SetPosition(0,0,-1);
-//     /*
-//     DD(mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[2]);
-//     if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[2] > slice) {
-//       DD("1");
-//       actor->SetPosition(0,0,1);
-//     } else {
-//      DD("-1");
-//       actor->SetPosition(0,0,-1);
-//     }
-//     */
-//     break;
-//   }
-
   mapper->Update();
- 
-  
-  
 }
 //------------------------------------------------------------------------------
 
