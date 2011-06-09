@@ -119,8 +119,6 @@ void ImageArithmGenericFilter<args_info_type>::UpdateWithInputImageType()
     ff->SetImage(input1);
     ff->ComputeMaximum();
     mScalar = ff->GetMaximum();
-    DD(mScalar);
-    DD("normalisation");
     mTypeOfOperation = 11; // divide
   }
 
