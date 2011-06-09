@@ -20,6 +20,8 @@
 
 #include "clitkImageCommon.h"
 
+#include "itkMinimumMaximumImageCalculator.h"
+
 namespace clitk
 {
 
@@ -110,6 +112,17 @@ void ImageArithmGenericFilter<args_info_type>::UpdateWithInputImageType()
   typename ImageType::Pointer input2 = NULL;
   IteratorType it2;
 
+  // Special case for normalisation
+  if (mTypeOfOperation == 12) {
+    typedef itk::MinimumMaximumImageCalculator<ImageType> MinMaxFilterType;
+    typename MinMaxFilterType::Pointer ff = MinMaxFilterType::New();
+    ff->SetImage(input1);
+    ff->ComputeMaximum();
+    mScalar = ff->GetMaximum();
+    DD(mScalar);
+    DD("normalisation");
+    mTypeOfOperation = 11; // divide
+  }
 
   if (mIsOperationUseASecondImage) {
       // Read input2
@@ -366,6 +379,13 @@ void clitk::ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it, Ite
   case 10: // exp
     while (!it.IsAtEnd()) {
       ito.Set(PixelTypeDownCast<double, PixelType>((0x10000 - (double)it.Get())/mScalar));
+      ++it;
+      ++ito;
+    }
+    break;
+  case 11: // divide
+    while (!it.IsAtEnd()) {
+      ito.Set(PixelTypeDownCast<double, PixelType>((double)it.Get() / mScalar) );
       ++it;
       ++ito;
     }
