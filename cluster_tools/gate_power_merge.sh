@@ -45,7 +45,7 @@ do
     let count++
     local arguments=" -i ${partial} ${arguments}"
 done
-${rootMerger} ${arguments} || warning "error while calling ${rootMerger}"
+${rootMerger} ${arguments} > /dev/null || warning "error while calling ${rootMerger}"
 echo "  ${indent}merged ${count} files"
 }
 
@@ -74,7 +74,7 @@ do
     fi
 
     update_bar ${count} "adding ${partial}"
-    ${statMerger} -i "${merged}" -j "${partial}" -o "${merged}" || warning "error while calling ${statMerger}"
+    ${statMerger} -i "${merged}" -j "${partial}" -o "${merged}" 2> /dev/null > /dev/null || warning "error while calling ${statMerger}"
 done
 end_bar
 echo "  ${indent}merged ${count} files"
@@ -107,7 +107,7 @@ do
     update_bar ${count} "adding ${partial}"
     local header="$(cat "${merged}" | head -n 6)"
     local tmp="$(mktemp)"
-    ${txtImageMerger} -i "${partial}" -j "${merged}" -o "${tmp}" || warning "error while calling ${txtImageMerger}"
+    ${txtImageMerger} -i "${partial}" -j "${merged}" -o "${tmp}" 2> /dev/null > /dev/null || warning "error while calling ${txtImageMerger}"
     echo "${header}" > "${merged}"
     grep -v '## Merge' "${tmp}" >> "${merged}"
     rm "${tmp}"
@@ -144,7 +144,7 @@ do
     fi
 
     update_bar ${count} "adding ${partial}"
-    ${hdrImageMerger} -t 0 -i "${partial}" -j "${merged}" -o "${merged}" || warning "error while calling ${hdrImageMerger}"
+    ${hdrImageMerger} -t 0 -i "${partial}" -j "${merged}" -o "${merged}" 2> /dev/null > /dev/null || warning "error while calling ${hdrImageMerger}"
 done
 end_bar
 echo "  ${indent}merged ${count} files"
