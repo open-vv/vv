@@ -28,7 +28,7 @@ echo -ne '\n'
 }
 
 rootMerger="clitkMergeRootFiles"
-test -f "./clitkMergeRootFiles" && rootMerger="./clitkMergeRootFiles"
+test -x "./clitkMergeRootFiles" && rootMerger="./clitkMergeRootFiles"
 
 function merge_root {
 local merged="$1"
@@ -45,12 +45,12 @@ do
     let count++
     local arguments=" -i ${partial} ${arguments}"
 done
-${rootMerger} ${arguments} 2> /dev/null > /dev/null || error "error while calling ${rootMerger}"
+${rootMerger} ${arguments} || warning "error while calling ${rootMerger}"
 echo "  ${indent}merged ${count} files"
 }
 
 statMerger="mergeStatFile.py"
-test -f "./mergeStatFile.sh" && statMerger="./mergeStatFile.sh"
+test -x "./mergeStatFile.sh" && statMerger="./mergeStatFile.sh"
 
 function merge_stat {
 local merged="$1"
@@ -74,7 +74,7 @@ do
     fi
 
     update_bar ${count} "adding ${partial}"
-    ${statMerger} -i "${merged}" -j "${partial}" -o "${merged}" > /dev/null || error "error while calling ${statMerger}"
+    ${statMerger} -i "${merged}" -j "${partial}" -o "${merged}" || warning "error while calling ${statMerger}"
 done
 end_bar
 echo "  ${indent}merged ${count} files"
@@ -107,7 +107,7 @@ do
     update_bar ${count} "adding ${partial}"
     local header="$(cat "${merged}" | head -n 6)"
     local tmp="$(mktemp)"
-    ${txtImageMerger} -i "${partial}" -j "${merged}" -o "${tmp}" > /dev/null || error "error while calling ${txtImageMerger}"
+    ${txtImageMerger} -i "${partial}" -j "${merged}" -o "${tmp}" || warning "error while calling ${txtImageMerger}"
     echo "${header}" > "${merged}"
     grep -v '## Merge' "${tmp}" >> "${merged}"
     rm "${tmp}"
@@ -117,7 +117,7 @@ echo "  ${indent}merged ${count} files"
 }
 
 hdrImageMerger="clitkImageArithm"
-test -f "./clitkImageArithm" && hdrImageMerger="./clitkImageArithm"
+test -x "./clitkImageArithm" && hdrImageMerger="./clitkImageArithm"
 
 function merge_hdr_image {
 local merged="$1"
@@ -144,7 +144,7 @@ do
     fi
 
     update_bar ${count} "adding ${partial}"
-    ${hdrImageMerger} -t 0 -i "${partial}" -j "${merged}" -o "${merged}" 2> /dev/null > /dev/null || error "error while calling ${hdrImageMerger}"
+    ${hdrImageMerger} -t 0 -i "${partial}" -j "${merged}" -o "${merged}" || warning "error while calling ${hdrImageMerger}"
 done
 end_bar
 echo "  ${indent}merged ${count} files"
