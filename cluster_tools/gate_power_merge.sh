@@ -27,10 +27,14 @@ unset count_max
 echo -ne '\n'
 }
 
+rootMerger="clitkMergeRootFiles"
+test -f "./clitkMergeRootFiles" && rootMerger="./clitkMergeRootFiles"
+
 function merge_root {
 local merged="$1"
 shift
 echo "  ${indent}entering root merger"
+echo "  ${indent}merger is ${rootMerger}"
 echo "  ${indent}creating ${merged}"
 local count=0
 local arguments=" -o ${merged}"
@@ -41,14 +45,18 @@ do
     let count++
     local arguments=" -i ${partial} ${arguments}"
 done
-clitkMergeRootFiles ${arguments} 2> /dev/null > /dev/null || error "error while calling clitkMergeRootFiles"
+${rootMerger} ${arguments} 2> /dev/null > /dev/null || error "error while calling ${rootMerger}"
 echo "  ${indent}merged ${count} files"
 }
+
+statMerger="mergeStatFile.py"
+test -f "./mergeStatFile.sh" && statMerger="./mergeStatFile.sh"
 
 function merge_stat {
 local merged="$1"
 shift
 echo "  ${indent}entering stat merger"
+echo "  ${indent}merger is ${statMerger}"
 echo "  ${indent}creating ${merged}"
 local count=0
 start_bar $#
@@ -66,16 +74,20 @@ do
     fi
 
     update_bar ${count} "adding ${partial}"
-    mergeStatFile.py -i "${merged}" -j "${partial}" -o "${merged}" > /dev/null || error "error while calling mergeStatFile"
+    ${statMerger} -i "${merged}" -j "${partial}" -o "${merged}" > /dev/null || error "error while calling ${statMerger}"
 done
 end_bar
 echo "  ${indent}merged ${count} files"
 }
 
+txtImageMerger="clitkMergeAsciiDoseActor"
+test -f "./clitkMergeAsciiDoseActor" && txtImageMerger="./clitkMergeAsciiDoseActor"
+
 function merge_txt_image {
 local merged="$1"
 shift
 echo "  ${indent}entering text image merger"
+echo "  ${indent}merger is ${txtImageMerger}"
 echo "  ${indent}creating ${merged}"
 local count=0
 start_bar $#
@@ -95,7 +107,7 @@ do
     update_bar ${count} "adding ${partial}"
     local header="$(cat "${merged}" | head -n 6)"
     local tmp="$(mktemp)"
-    clitkMergeAsciiDoseActor -i "${partial}" -j "${merged}" -o "${tmp}" > /dev/null || error "error while calling clitkMergeAsciiDoseActor"
+    ${txtImageMerger} -i "${partial}" -j "${merged}" -o "${tmp}" > /dev/null || error "error while calling ${txtImageMerger}"
     echo "${header}" > "${merged}"
     grep -v '## Merge' "${tmp}" >> "${merged}"
     rm "${tmp}"
@@ -104,11 +116,15 @@ end_bar
 echo "  ${indent}merged ${count} files"
 }
 
+hdrImageMerger="clitkImageArithm"
+test -f "./clitkImageArithm" && hdrImageMerger="./clitkImageArithm"
+
 function merge_hdr_image {
 local merged="$1"
 local merged_bin="${merged%.*}.img"
 shift
 echo "  ${indent}entering hdr image merger"
+echo "  ${indent}merger is ${hdrImageMerger}"
 echo "  ${indent}creating ${merged}"
 local count=0
 start_bar $#
@@ -128,19 +144,23 @@ do
     fi
 
     update_bar ${count} "adding ${partial}"
-    clitkImageArithm -t 0 -i "${partial}" -j "${merged}" -o "${merged}" 2> /dev/null > /dev/null || error "error while calling clitkImageArithm"
+    ${hdrImageMerger} -t 0 -i "${partial}" -j "${merged}" -o "${merged}" 2> /dev/null > /dev/null || error "error while calling ${hdrImageMerger}"
 done
 end_bar
 echo "  ${indent}merged ${count} files"
 }
 
 rundir="${1?"provide run dir"}"
-nboutputdirs="$(find "${rundir}" -mindepth 1 -type d | wc -l)"
+nboutputdirs="$(find "${rundir}" -mindepth 1 -type d -name 'output*' | wc -l)"
 
 test ${nboutputdirs} -gt 0 || error "no output dir found"
 echo "found ${nboutputdirs} partial output dirs"
 
-outputdir="merged.${rundir##*.}"
+outputdir="results"
+if [ "${rundir}" != "." -a "${rundir##*.}" != "${rundir}" ]
+then
+    outputdir="results.${rundir##*.}"
+fi
 outputdir="$(basename "${outputdir}")"
 echo "output dir is ${outputdir}"
 test -d "${outputdir}" && rm -r "${outputdir}"
