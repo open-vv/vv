@@ -165,14 +165,21 @@ namespace clitk
       output->SetOrigin(origin);
     }
     
-    // force index to zero
-    typename ImageType::RegionType region;
-    region = output->GetLargestPossibleRegion();
-    typename ImageType::IndexType index;
+    // adjust image origin and force index to zero 
+    typename ImageType::RegionType region = output->GetLargestPossibleRegion();
+    typename ImageType::IndexType index = region.GetIndex();
+    typename ImageType::PointType origin = output->GetOrigin();
+    typename ImageType::SpacingType spacing = output->GetSpacing();
+    if (mArgsInfo.verbose_flag) std::cout << "origin before crop " << origin << std::endl;
+    for (unsigned int i = 0; i < output->GetImageDimension(); i++)
+      origin[i] += index[i]*spacing[i];
+    if (mArgsInfo.verbose_flag) std::cout << "origin after crop " << origin << std::endl;
+    output->SetOrigin(origin);
+
     index.Fill(itk::NumericTraits<double>::Zero);
     region.SetIndex(index);
     output->SetRegions(region);
-
+    
     // Write/Save results
     this->template SetNextOutput<ImageType>(output); 
   }

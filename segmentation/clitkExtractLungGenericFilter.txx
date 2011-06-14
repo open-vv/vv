@@ -102,6 +102,7 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   
   f->SetOpenCloseFlag(mArgsInfo.openclose_flag);
   f->SetOpenCloseRadius(mArgsInfo.opencloseRadius_arg);
+  f->SetAutoCrop(!mArgsInfo.noAutoCrop_flag);
   
   if (mArgsInfo.doNotFillHoles_given)
     f->SetFillHolesFlag(false);

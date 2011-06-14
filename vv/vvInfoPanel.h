@@ -39,7 +39,6 @@ public:
     void setDimension(QString text);
     void setSizePixel(QString text);
     void setCurrentInfo(int visibility, double x, double y, double z, double X, double Y, double Z, double value);
-    void setViews(int window, int view, int slice);
     void setMemoryInMb(QString text);
 
 public slots:

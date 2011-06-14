@@ -160,6 +160,11 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(actionAdd_fusion_image,SIGNAL(triggered()),this,SLOT(SelectFusionImage()));
   contextActions.push_back(actionAdd_fusion_image);
 
+  contextMenu.addSeparator();
+  QAction* actionResetMatrix = contextMenu.addAction(QIcon(QString::fromUtf8(":/common/icons/identity.png")),
+                                                      tr("Reset transformation to identity"));
+  connect(actionResetMatrix, SIGNAL(triggered()), this,SLOT(ResetTransformationToIdentity()));
+
   // TRIAL DS
   /*
   QMenu * m = new QMenu(menubar);
@@ -910,8 +915,6 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
                 this, SLOT(OverlayChanged(int,double,double)));
         connect(mSlicerManagers.back(), SIGNAL(UpdateFusion(int, double)),
                 this, SLOT(FusionChanged(int,double)));
-        connect(mSlicerManagers.back(), SIGNAL(UpdateWindows(int, int, int)),
-                this,SLOT(WindowsChanged(int, int, int)));
         connect(mSlicerManagers.back(), SIGNAL(WindowLevelChanged(double, double,int, int)),
                 this,SLOT(WindowLevelChanged(double, double, int, int)));
         connect(mSlicerManagers.back(), SIGNAL(UpdateSlice(int,int)),
@@ -1626,13 +1629,6 @@ void vvMainWindow::FusionChanged(int visibility, double value)
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void vvMainWindow::WindowsChanged(int window, int view, int slice)
-{
-  infoPanel->setViews(window, view, slice);
-}
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
 void vvMainWindow::WindowLevelChanged(double window, double level,int preset,int colormap)
 {
   windowSpinBox->setValue(window);
@@ -1909,6 +1905,16 @@ void vvMainWindow::SelectFusionImage()
   QString file = QFileDialog::getOpenFileName(this,tr("Load Fusion image"),mInputPathName,Extensions);
   if (!file.isEmpty())
     AddFusionImage(index,file);
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::ResetTransformationToIdentity()
+{
+  std::string actorType = DataTree->selectedItems()[0]->data(1,Qt::UserRole).toString().toStdString();
+  int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
+  mSlicerManagers[index]->ResetTransformationToIdentity(actorType);
+  ImageInfoChanged();
 }
 //------------------------------------------------------------------------------
 
@@ -2831,8 +2837,6 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
           this, SLOT(OverlayChanged(int,double,double)));
   connect(mSlicerManagers.back(), SIGNAL(UpdateFusion(int, double)),
           this, SLOT(FusionChanged(int,double)));
-  connect(mSlicerManagers.back(), SIGNAL(UpdateWindows(int, int, int)),
-          this,SLOT(WindowsChanged(int, int, int)));
   connect(mSlicerManagers.back(), SIGNAL(WindowLevelChanged(double, double,int, int)),
           this,SLOT(WindowLevelChanged(double, double, int, int)));
   connect(mSlicerManagers.back(), SIGNAL(UpdateSlice(int,int)),

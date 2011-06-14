@@ -37,6 +37,7 @@
 #include "itkImageIteratorWithIndex.h"
 #include "itkBinaryMorphologicalOpeningImageFilter.h"
 #include "itkBinaryMorphologicalClosingImageFilter.h"
+#include "itkConstantPadImageFilter.h"
 
 //--------------------------------------------------------------------
 template <class ImageType>
@@ -96,6 +97,7 @@ ExtractLungFilter():
   
   // Step 6
   FillHolesFlagOn();
+  AutoCropOn();
 }
 //--------------------------------------------------------------------
 
@@ -160,6 +162,22 @@ GenerateOutputInformation()
   StartNewStep("Set background to initial image");
   working_input = SetBackground<ImageType, MaskImageType>
     (working_input, patient, GetPatientMaskBackgroundValue(), -1000, true);
+
+  // Pad images with air to prevent patient touching the image border
+  static const unsigned int Dim = ImageType::ImageDimension;
+  typedef itk::ConstantPadImageFilter<ImageType, ImageType> PadFilterType;
+  typename PadFilterType::Pointer padFilter = PadFilterType::New();
+  padFilter->SetInput(working_input);
+  padFilter->SetConstant(-1000);
+  typename ImageType::SizeType bounds;
+  for (unsigned i = 0; i < Dim - 1; ++i)
+    bounds[i] = 1;
+  bounds[Dim - 1] = 0;
+  padFilter->SetPadLowerBound(bounds);
+  padFilter->SetPadUpperBound(bounds);
+  padFilter->Update();
+  working_input = padFilter->GetOutput();
+
   StopCurrentStep<ImageType>(working_input);
   PrintMemory(GetVerboseMemoryFlag(), "After set bg"); // OK, additional mem = 0
 
@@ -311,7 +329,19 @@ GenerateOutputInformation()
   //--------------------------------------------------------------------
   PrintMemory(GetVerboseMemoryFlag(), "before autocropfilter");
   if (m_Seeds.size() != 0) { // if ==0 ->no trachea found
-    trachea = clitk::AutoCrop<MaskImageType>(trachea, GetBackgroundValue());
+    if (GetAutoCrop())
+      trachea = clitk::AutoCrop<MaskImageType>(trachea, GetBackgroundValue());
+    else
+    {
+      // Remove Padding region
+      typedef itk::CropImageFilter<MaskImageType, MaskImageType> CropFilterType;
+      typename CropFilterType::Pointer cropFilter = CropFilterType::New();
+      cropFilter->SetInput(trachea);
+      cropFilter->SetLowerBoundaryCropSize(bounds);
+      cropFilter->SetUpperBoundaryCropSize(bounds);
+      cropFilter->Update();
+      trachea = cropFilter->GetOutput();
+    }
     StopCurrentStep<MaskImageType>(trachea);  
     PrintMemory(GetVerboseMemoryFlag(), "after delete trachea");
   }
@@ -321,7 +351,19 @@ GenerateOutputInformation()
   //--------------------------------------------------------------------
   StartNewStep("Cropping lung");
   PrintMemory(GetVerboseMemoryFlag(), "Before Autocropfilter");
-  working_mask = clitk::AutoCrop<MaskImageType>(working_mask, GetBackgroundValue());
+  if (GetAutoCrop())
+    working_mask = clitk::AutoCrop<MaskImageType>(working_mask, GetBackgroundValue());
+  else
+  {
+    // Remove Padding region
+    typedef itk::CropImageFilter<MaskImageType, MaskImageType> CropFilterType;
+    typename CropFilterType::Pointer cropFilter = CropFilterType::New();
+    cropFilter->SetInput(working_mask);
+    cropFilter->SetLowerBoundaryCropSize(bounds);
+    cropFilter->SetUpperBoundaryCropSize(bounds);
+    cropFilter->Update();
+    working_mask = cropFilter->GetOutput();
+  }
   StopCurrentStep<MaskImageType>(working_mask);
 
   //--------------------------------------------------------------------
@@ -395,7 +437,6 @@ GenerateOutputInformation()
   PrintMemory(GetVerboseMemoryFlag(), "After count label");
  
   // Decompose the first label
-  static const unsigned int Dim = ImageType::ImageDimension;
   if (initialNumberOfLabels<2) {
     // Structuring element radius
     typename ImageType::SizeType radius;
@@ -588,7 +629,7 @@ ComputeTracheaVolume()
 
 //--------------------------------------------------------------------
 template <class ImageType>
-void 
+void
 clitk::ExtractLungFilter<ImageType>::
 SearchForTrachea()
 {
@@ -603,8 +644,8 @@ SearchForTrachea()
   double volume = 0.0;
   int skip = GetNumberOfSlicesToSkipBeforeSearchingSeed();
   while (!stop) {
-    stop = SearchForTracheaSeed(skip);
-    if (stop) {
+    stop = true;
+    if (SearchForTracheaSeed(skip)) {
       TracheaRegionGrowing();
       volume = ComputeTracheaVolume()/1000; // assume mm3, so divide by 1000 to get cc
       if (GetWriteStepFlag()) {
@@ -616,7 +657,6 @@ SearchForTrachea()
           if (GetVerboseStepFlag()) {
             std::cout << "\t Found trachea with volume " << volume << " cc." << std::endl;
           }
-          stop = true; 
         }
         else {
           if (GetVerboseStepFlag()) {
@@ -628,6 +668,11 @@ SearchForTrachea()
           stop = false;
           // empty the list of seed
           m_Seeds.clear();
+        }
+        if (skip > 0.5 * working_input->GetLargestPossibleRegion().GetSize()[2]) {
+          // we want to skip more than a half of the image, it is probably a bug
+          std::cerr << "2 : Number of slices to skip to find trachea too high = " << skip << std::endl;
+          stop = true;
         }
       }
       else {

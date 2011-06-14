@@ -214,7 +214,9 @@ ELSE(WIN32)
   ADD_EXECUTABLE(vv vv.cxx)
 ENDIF(WIN32)
 
-TARGET_LINK_LIBRARIES(vv vvLib)
+#TARGET_LINK_LIBRARIES(vv vvLib)
+# QtNetwork added specifically for Fedora build
+TARGET_LINK_LIBRARIES(vv vvLib QtNetwork)
 
 
 #=========================================================

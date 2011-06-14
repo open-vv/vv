@@ -736,6 +736,27 @@ double vvSlicerManager::GetColorLevel()
 }
 //----------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+void vvSlicerManager::ResetTransformationToIdentity(const std::string actorType)
+{
+  if(actorType == "image")
+    this->GetImage()->GetTransform()->Identity();
+  else if(actorType == "overlay")
+    this->GetSlicer(0)->GetOverlay()->GetTransform()->Identity();
+  else if(actorType == "fusion")
+    this->GetSlicer(0)->GetFusion()->GetTransform()->Identity();
+  else if(actorType == "vf")
+    this->GetVF()->GetTransform()->Identity();
+  else
+    return;
+
+  for(int i=0; i< this->GetNumberOfSlicers(); i++){
+    this->GetSlicer(i)->ForceUpdateDisplayExtent();
+    this->GetSlicer(i)->ResetCamera();
+    this->GetSlicer(i)->Render();
+  }
+}
+//------------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::Render()

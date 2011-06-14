@@ -39,5 +39,6 @@
     <file>icons/adjustsize.png</file>
     <file>icons/standardbutton-apply-16.png</file>
     <file>icons/standardbutton-cancel-16.png</file>
+    <file>icons/identity.png</file>
   </qresource>
 </RCC>
