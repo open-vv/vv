@@ -96,6 +96,7 @@ ExtractLungFilter():
   
   // Step 6
   FillHolesFlagOn();
+  AutoCropOn();
 }
 //--------------------------------------------------------------------
 
@@ -311,7 +312,8 @@ GenerateOutputInformation()
   //--------------------------------------------------------------------
   PrintMemory(GetVerboseMemoryFlag(), "before autocropfilter");
   if (m_Seeds.size() != 0) { // if ==0 ->no trachea found
-    trachea = clitk::AutoCrop<MaskImageType>(trachea, GetBackgroundValue());
+    if (GetAutoCrop())
+      trachea = clitk::AutoCrop<MaskImageType>(trachea, GetBackgroundValue());
     StopCurrentStep<MaskImageType>(trachea);  
     PrintMemory(GetVerboseMemoryFlag(), "after delete trachea");
   }
@@ -321,7 +323,8 @@ GenerateOutputInformation()
   //--------------------------------------------------------------------
   StartNewStep("Cropping lung");
   PrintMemory(GetVerboseMemoryFlag(), "Before Autocropfilter");
-  working_mask = clitk::AutoCrop<MaskImageType>(working_mask, GetBackgroundValue());
+  if (GetAutoCrop())
+    working_mask = clitk::AutoCrop<MaskImageType>(working_mask, GetBackgroundValue());
   StopCurrentStep<MaskImageType>(working_mask);
 
   //--------------------------------------------------------------------
