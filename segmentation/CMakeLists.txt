@@ -39,17 +39,21 @@ IF(CLITK_BUILD_SEGMENTATION)
     ADD_EXECUTABLE(clitkExtractBones clitkExtractBones.cxx ${clitkExtractBones_GGO_C})
     TARGET_LINK_LIBRARIES(clitkExtractBones clitkCommon ${ITK_LIBRARIES} clitkSegmentationGgoLib)
 
+    WRAP_GGO(clitkBool_GGO_C clitkBool.ggo)
+    ADD_EXECUTABLE(clitkBool clitkBool.cxx ${clitkBool_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkBool clitkCommon ${ITK_LIBRARIES} clitkSegmentationGgoLib)
+
     WRAP_GGO(clitkExtractMediastinum_GGO_C clitkExtractMediastinum.ggo)
     ADD_EXECUTABLE(clitkExtractMediastinum clitkExtractMediastinum.cxx ${clitkExtractMediastinum_GGO_C})
     TARGET_LINK_LIBRARIES(clitkExtractMediastinum clitkCommon clitkSegmentationGgoLib ${ITK_LIBRARIES})
 
-    # WRAP_GGO(clitkExtractLymphStations_GGO_C clitkExtractLymphStations.ggo)
-    # ADD_EXECUTABLE(clitkExtractLymphStations clitkExtractLymphStations.cxx clitkFilterWithAnatomicalFeatureDatabaseManagement.cxx ${clitkExtractLymphStations_GGO_C})
-    # TARGET_LINK_LIBRARIES(clitkExtractLymphStations clitkSegmentationGgoLib clitkCommon vtkHybrid)
+    WRAP_GGO(clitkExtractLymphStations_GGO_C clitkExtractLymphStations.ggo)
+    ADD_EXECUTABLE(clitkExtractLymphStations clitkExtractLymphStations.cxx clitkFilterWithAnatomicalFeatureDatabaseManagement.cxx ${clitkExtractLymphStations_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkExtractLymphStations clitkSegmentationGgoLib clitkCommon vtkHybrid)
 
-    # WRAP_GGO(clitkExtractMediastinalVessels_GGO_C clitkExtractMediastinalVessels.ggo)
-    # ADD_EXECUTABLE(clitkExtractMediastinalVessels clitkExtractMediastinalVessels.cxx clitkFilterWithAnatomicalFeatureDatabaseManagement.cxx ${clitkExtractMediastinalVessels_GGO_C})
-    # TARGET_LINK_LIBRARIES(clitkExtractMediastinalVessels clitkSegmentationGgoLib clitkCommon vtkHybrid)
+    WRAP_GGO(clitkExtractMediastinalVessels_GGO_C clitkExtractMediastinalVessels.ggo)
+    ADD_EXECUTABLE(clitkExtractMediastinalVessels clitkExtractMediastinalVessels.cxx clitkFilterWithAnatomicalFeatureDatabaseManagement.cxx ${clitkExtractMediastinalVessels_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkExtractMediastinalVessels clitkSegmentationGgoLib clitkCommon vtkHybrid)
 
     WRAP_GGO(clitkMorphoMath_GGO_C clitkMorphoMath.ggo)
     ADD_EXECUTABLE(clitkMorphoMath clitkMorphoMath.cxx ${clitkMorphoMath_GGO_C})
