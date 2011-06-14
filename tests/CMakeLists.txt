@@ -19,10 +19,12 @@ ADD_DEFINITIONS(-DCLITK_DATA_PATH=\"${CLITK_DATA_PATH}\")
 
 add_library(gtest UNKNOWN IMPORTED)
 set(GTEST_DIR ${ITK_DIR}/../gtest/ CACHE STRING "gtestDir")
-#if windows gtestLibName=gtest.dll else libgtest.a
-set(gtestLibName libgtest.a)
+if(WIN32)
+  SET(gtestLibName gtest.lib)
+else(UNIX)
+  SET(gtestLibName libgtest.a)
+endif(WIN32)
 set(GTEST_LIB ${GTEST_DIR}/build/${gtestLibName})
-#message(gtestlib name = ${GTEST_LIB})
 set_property(TARGET gtest PROPERTY IMPORTED_LOCATION "${GTEST_LIB}")
 include_directories(${GTEST_DIR}/include/)
 
@@ -32,8 +34,13 @@ ENDIF()
 IF(CLITK_BUILD_VV)
   ADD_SUBDIRECTORY(vv)
 ENDIF()
+# IF(CLITK_BUILD_SEGMENTATION)
 #   ADD_SUBDIRECTORY(segmentation)
+# ENDIF()
+# 
+# IF(CLITK_BUILD_REGISTATION)
 #   ADD_SUBDIRECTORY(registration)
-#   ADD_SUBDIRECTORY(common)
+# ENDIF()
+#ADD_SUBDIRECTORY(common)
 
 

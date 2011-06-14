@@ -1,18 +1,16 @@
 include_directories(
   ${PROJECT_SOURCE_DIR}/vv
   ${PROJECT_BINARY_DIR}/vv
-  ${QT_INCLUDES}
-  ${QT_INCLUDE_DIR}
   ${QT_QTGUI_INCLUDE_DIR}
   ${QT_QTCORE_INCLUDE_DIR}
   ${QT_QTNETWORK_INCLUDE_DIR}
+  ${QT_QTCORE_INCLUDE_DIR}/../
   ${PROJECT_SOURCE_DIR}/common
   ${PROJECT_SOURCE_DIR}/tools
   ${PROJECT_SOURCE_DIR}/segmentation
   ${QT_LIBRARY_DIR}
   ${GTEST_DIR}/include
 )
-
 FILE(GLOB srcs *.cxx)
 ADD_EXECUTABLE(vvTest ${srcs})
 target_link_libraries(vvTest vvLib gtest)
