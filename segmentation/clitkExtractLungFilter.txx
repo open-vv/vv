@@ -591,7 +591,7 @@ ComputeTracheaVolume()
 
 //--------------------------------------------------------------------
 template <class ImageType>
-void 
+void
 clitk::ExtractLungFilter<ImageType>::
 SearchForTrachea()
 {
@@ -606,8 +606,8 @@ SearchForTrachea()
   double volume = 0.0;
   int skip = GetNumberOfSlicesToSkipBeforeSearchingSeed();
   while (!stop) {
-    stop = SearchForTracheaSeed(skip);
-    if (stop) {
+    stop = true;
+    if (SearchForTracheaSeed(skip)) {
       TracheaRegionGrowing();
       volume = ComputeTracheaVolume()/1000; // assume mm3, so divide by 1000 to get cc
       if (GetWriteStepFlag()) {
@@ -619,7 +619,6 @@ SearchForTrachea()
           if (GetVerboseStepFlag()) {
             std::cout << "\t Found trachea with volume " << volume << " cc." << std::endl;
           }
-          stop = true; 
         }
         else {
           if (GetVerboseStepFlag()) {
@@ -631,6 +630,11 @@ SearchForTrachea()
           stop = false;
           // empty the list of seed
           m_Seeds.clear();
+        }
+        if (skip > 0.5 * working_input->GetLargestPossibleRegion().GetSize()[2]) {
+          // we want to skip more than a half of the image, it is probably a bug
+          std::cerr << "2 : Number of slices to skip to find trachea too high = " << skip << std::endl;
+          stop = true;
         }
       }
       else {
