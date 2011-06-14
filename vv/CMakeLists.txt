@@ -204,6 +204,8 @@ SET(foundationLibraries clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
 #=========================================================
 #Create binary and libs for tests
 SET(vvExternalLibs clitkSegmentationGgoLib clitkDicomRTStruct ${toolLibs} ${foundationLibraries})
+# QtNetwork is required by vvRegisterForm
+SET(vvExternalLibs ${vvExternalLibs} QtNetwork)
 
 ADD_LIBRARY(vvLib ${vv_SRCS} ${vv_UI_CXX})
 TARGET_LINK_LIBRARIES(vvLib ${vvExternalLibs})
@@ -215,8 +217,7 @@ ELSE(WIN32)
 ENDIF(WIN32)
 
 #TARGET_LINK_LIBRARIES(vv vvLib)
-# QtNetwork added specifically for Fedora build
-TARGET_LINK_LIBRARIES(vv vvLib QtNetwork)
+TARGET_LINK_LIBRARIES(vv vvLib)
 
 
 #=========================================================
