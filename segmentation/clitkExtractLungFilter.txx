@@ -37,6 +37,7 @@
 #include "itkImageIteratorWithIndex.h"
 #include "itkBinaryMorphologicalOpeningImageFilter.h"
 #include "itkBinaryMorphologicalClosingImageFilter.h"
+#include "itkConstantPadImageFilter.h"
 
 //--------------------------------------------------------------------
 template <class ImageType>
@@ -161,6 +162,22 @@ GenerateOutputInformation()
   StartNewStep("Set background to initial image");
   working_input = SetBackground<ImageType, MaskImageType>
     (working_input, patient, GetPatientMaskBackgroundValue(), -1000, true);
+
+  // Pad images with air to prevent patient touching the image border
+  static const unsigned int Dim = ImageType::ImageDimension;
+  typedef itk::ConstantPadImageFilter<ImageType, ImageType> PadFilterType;
+  typename PadFilterType::Pointer padFilter = PadFilterType::New();
+  padFilter->SetInput(working_input);
+  padFilter->SetConstant(-1000);
+  typename ImageType::SizeType bounds;
+  for (unsigned i = 0; i < Dim - 1; ++i)
+    bounds[i] = 1;
+  bounds[Dim - 1] = 0;
+  padFilter->SetPadLowerBound(bounds);
+  padFilter->SetPadUpperBound(bounds);
+  padFilter->Update();
+  working_input = padFilter->GetOutput();
+
   StopCurrentStep<ImageType>(working_input);
   PrintMemory(GetVerboseMemoryFlag(), "After set bg"); // OK, additional mem = 0
 
@@ -314,6 +331,17 @@ GenerateOutputInformation()
   if (m_Seeds.size() != 0) { // if ==0 ->no trachea found
     if (GetAutoCrop())
       trachea = clitk::AutoCrop<MaskImageType>(trachea, GetBackgroundValue());
+    else
+    {
+      // Remove Padding region
+      typedef itk::CropImageFilter<MaskImageType, MaskImageType> CropFilterType;
+      typename CropFilterType::Pointer cropFilter = CropFilterType::New();
+      cropFilter->SetInput(trachea);
+      cropFilter->SetLowerBoundaryCropSize(bounds);
+      cropFilter->SetUpperBoundaryCropSize(bounds);
+      cropFilter->Update();
+      trachea = cropFilter->GetOutput();
+    }
     StopCurrentStep<MaskImageType>(trachea);  
     PrintMemory(GetVerboseMemoryFlag(), "after delete trachea");
   }
@@ -325,6 +353,17 @@ GenerateOutputInformation()
   PrintMemory(GetVerboseMemoryFlag(), "Before Autocropfilter");
   if (GetAutoCrop())
     working_mask = clitk::AutoCrop<MaskImageType>(working_mask, GetBackgroundValue());
+  else
+  {
+    // Remove Padding region
+    typedef itk::CropImageFilter<MaskImageType, MaskImageType> CropFilterType;
+    typename CropFilterType::Pointer cropFilter = CropFilterType::New();
+    cropFilter->SetInput(working_mask);
+    cropFilter->SetLowerBoundaryCropSize(bounds);
+    cropFilter->SetUpperBoundaryCropSize(bounds);
+    cropFilter->Update();
+    working_mask = cropFilter->GetOutput();
+  }
   StopCurrentStep<MaskImageType>(working_mask);
 
   //--------------------------------------------------------------------
@@ -398,7 +437,6 @@ GenerateOutputInformation()
   PrintMemory(GetVerboseMemoryFlag(), "After count label");
  
   // Decompose the first label
-  static const unsigned int Dim = ImageType::ImageDimension;
   if (initialNumberOfLabels<2) {
     // Structuring element radius
     typename ImageType::SizeType radius;
