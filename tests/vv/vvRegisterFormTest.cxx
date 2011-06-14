@@ -19,7 +19,7 @@
 #include <QUrl>
 #include <QSettings>
 #include "gtest/gtest.h"
-#include "vvCommon.h"
+#include "vvConfiguration.h"
 #include <stdio.h>
 #include <fstream>
 const std::string data_path = "/home/mpech/workspace/vvSource/tests/data/";
