@@ -101,7 +101,6 @@ public slots:
   void SegmentationOnCurrentImage();
   void SurfaceViewerLaunch();
 
-  void WindowsChanged(int window, int view, int slice);
   void WindowLevelChanged(double window, double level,int preset, int colormap);
   void UpdateSlice(int slicer, int slice);
   void UpdateTSlice(int slicer, int slice);
@@ -140,6 +139,7 @@ public slots:
   void OpenField();
   void SelectOverlayImage();
   void SelectFusionImage();
+  void ResetTransformationToIdentity();
 
   void SetVFProperty(int subsampling,int scale,int lut, int width, double r, double g, double b);
   void SetOverlayProperty(int color);
@@ -210,7 +210,5 @@ private:
   int mCurrentTime;
   
 };
-
-#include "vvMainWindow.txx"
 
 #endif

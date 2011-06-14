@@ -33,6 +33,7 @@
 #include <itkConstantPadImageFilter.h>
 #include <itkImageSliceIteratorWithIndex.h>
 #include <itkBinaryMorphologicalOpeningImageFilter.h>
+#include <itkImageDuplicator.h>
 
 namespace clitk {
 
@@ -515,6 +516,30 @@ namespace clitk {
       int label = labelMap->GetLabels()[i];
       centroids.push_back(labelMap->GetLabelObject(label)->GetCentroid());
     } 
+  }
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType, class LabelType>
+  typename itk::LabelMap< itk::ShapeLabelObject<LabelType, ImageType::ImageDimension> >::Pointer
+  ComputeLabelMap(const ImageType * image, 
+                  typename ImageType::PixelType BG, 
+                  bool computePerimeterFlag) 
+  {
+    static const unsigned int Dim = ImageType::ImageDimension;
+    typedef itk::ShapeLabelObject< LabelType, Dim > LabelObjectType;
+    typedef itk::LabelMap< LabelObjectType > LabelMapType;
+    typedef itk::LabelImageToLabelMapFilter<ImageType, LabelMapType> ImageToMapFilterType;
+    typename ImageToMapFilterType::Pointer imageToLabelFilter = ImageToMapFilterType::New(); 
+    typedef itk::ShapeLabelMapFilter<LabelMapType, ImageType> ShapeFilterType; 
+    typename ShapeFilterType::Pointer statFilter = ShapeFilterType::New();
+    imageToLabelFilter->SetBackgroundValue(BG);
+    imageToLabelFilter->SetInput(image);
+    statFilter->SetInput(imageToLabelFilter->GetOutput());
+    statFilter->SetComputePerimeter(computePerimeterFlag);
+    statFilter->Update();
+    return statFilter->GetOutput();
   }
   //--------------------------------------------------------------------
 
@@ -1072,6 +1097,19 @@ namespace clitk {
     typename ImageType::Pointer output;
     output = clitk::JoinSlices<ImageType>(o, input, d);
     return output;
+  }
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::Pointer
+  Clone(const ImageType * input) {
+    typedef itk::ImageDuplicator<ImageType> DuplicatorType;
+    typename DuplicatorType::Pointer duplicator = DuplicatorType::New();
+    duplicator->SetInputImage(input);
+    duplicator->Update();
+    return duplicator->GetOutput();
   }
   //--------------------------------------------------------------------
 

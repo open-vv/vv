@@ -836,8 +836,8 @@ void vvSlicer::UpdateDisplayExtent()
   
   // Overlay image actor
   if (mOverlay && mOverlayActor->GetVisibility()) {
+    AdjustResliceToSliceOrientation(mOverlayReslice);
     int overExtent[6];
-    mOverlayReslice->GetOutput()->UpdateInformation();
     this->ConvertImageToImageDisplayExtent(input, w_ext, mOverlayReslice->GetOutput(), overExtent);
     ClipDisplayedExtent(overExtent, mOverlayMapper->GetInput()->GetWholeExtent());
     mOverlayActor->SetDisplayExtent( overExtent );
@@ -845,8 +845,8 @@ void vvSlicer::UpdateDisplayExtent()
 
   // Fusion image actor
   if (mFusion && mFusionActor->GetVisibility()) {
+    AdjustResliceToSliceOrientation(mFusionReslice);
     int fusExtent[6];
-    mFusionReslice->GetOutput()->UpdateInformation();
     this->ConvertImageToImageDisplayExtent(input, w_ext, mFusionReslice->GetOutput(), fusExtent);
     ClipDisplayedExtent(fusExtent, mFusionMapper->GetInput()->GetWholeExtent());
     mFusionActor->SetDisplayExtent(fusExtent);

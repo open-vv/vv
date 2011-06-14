@@ -204,6 +204,11 @@ namespace clitk {
 
 
   //--------------------------------------------------------------------
+  template<class ImageType, class LabelType>
+  typename itk::LabelMap< itk::ShapeLabelObject<LabelType, ImageType::ImageDimension> >::Pointer
+  ComputeLabelMap(const ImageType * image, 
+                  typename ImageType::PixelType BG,                   
+                  bool computePerimeterFlag=false);
   template<class ImageType>
   void
   ComputeCentroids(const ImageType * image, 
@@ -404,6 +409,13 @@ namespace clitk {
   SliceBySliceKeepMainCCL(const ImageType * input, 
                           typename ImageType::PixelType BG,
                           typename ImageType::PixelType FG);
+  //--------------------------------------------------------------------
+  
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::Pointer
+  Clone(const ImageType * input);
   //--------------------------------------------------------------------
   
 
