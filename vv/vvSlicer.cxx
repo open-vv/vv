@@ -777,6 +777,7 @@ void vvSlicer::AdjustResliceToSliceOrientation(vtkImageReslice *reslice)
   reslice->SetOutputOrigin(origin);
   reslice->SetOutputSpacing(spacing);
   reslice->UpdateInformation();
+  reslice->GetOutput()->UpdateInformation();
 }
 //------------------------------------------------------------------------------
 
