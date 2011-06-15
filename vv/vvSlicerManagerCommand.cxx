@@ -96,6 +96,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
     if ( VisibleInWindow > -1 ) {
       if (event == vtkCommand::KeyPressEvent) {
         std::string KeyPress = isi->GetInteractor()->GetKeySym();
+        bool bCtrlKey = isi->GetInteractor()->GetControlKey();
         if (KeyPress == "Tab") {
           if(isi->GetInteractor()->GetShiftKey())
             this->SM->PrevImage(VisibleInWindow);
@@ -210,15 +211,13 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
           return;
         }
         if (KeyPress == "g") {
-          double* cursorPos = this->SM->GetSlicer(VisibleInWindow)->GetCursorPosition();
-          this->SM->GetSlicer(VisibleInWindow)->SetCurrentPosition(
-            cursorPos[0],cursorPos[1],cursorPos[2],cursorPos[3]);
-          this->SM->UpdateViews(1,VisibleInWindow);
-          this->SM->UpdateLinked(VisibleInWindow);
-          return;
-        }
-        if (KeyPress == "o") {
-          this->SM->GetSlicer(VisibleInWindow)->SetCurrentPosition(0,0,0,0);
+          if(bCtrlKey)
+            this->SM->GetSlicer(VisibleInWindow)->SetCurrentPosition(0,0,0,0);
+          else {
+            double* cursorPos = this->SM->GetSlicer(VisibleInWindow)->GetCursorPosition();
+            this->SM->GetSlicer(VisibleInWindow)->SetCurrentPosition(
+              cursorPos[0],cursorPos[1],cursorPos[2],cursorPos[3]);
+          }
           this->SM->UpdateViews(1,VisibleInWindow);
           this->SM->UpdateLinked(VisibleInWindow);
           return;
