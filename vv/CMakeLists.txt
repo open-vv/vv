@@ -203,9 +203,8 @@ SET(foundationLibraries clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
 
 #=========================================================
 #Create binary and libs for tests
-SET(vvExternalLibs clitkSegmentationGgoLib clitkDicomRTStruct ${toolLibs} ${foundationLibraries})
+SET(vvExternalLibs ${QT_QTNETWORK_LIBRARY} clitkSegmentationGgoLib clitkDicomRTStruct ${toolLibs} ${foundationLibraries})
 # QtNetwork is required by vvRegisterForm
-SET(vvExternalLibs ${vvExternalLibs} ${QT_QTNETWORK_LIBRARY})
 
 ADD_LIBRARY(vvLib ${vv_SRCS} ${vv_UI_CXX})
 TARGET_LINK_LIBRARIES(vvLib ${vvExternalLibs})
