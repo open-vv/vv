@@ -126,14 +126,14 @@ GenerateOutputInformation()
       // because, from a clinical point of view, it's better to 
       // remove data than to add data that privously didn't exist.
       if(inputSpacing[i]*m_OutputSpacing[i]<0)
-        itkExceptionMacro( << "Input and output spacings don't have the same size, can't cope with that" );
+        itkExceptionMacro( << "Input and output spacings don't have the same signs, can't cope with that" );
       m_OutputSize[i] = (int)floor(inputSize[i]*inputSpacing[i]/m_OutputSpacing[i]);
     }
   } else {
     if (m_OutputSpacing[0] != -1) { // apply spacing, compute size
       for(unsigned int i=0; i<dim; i++) {
         if(inputSpacing[i]*m_OutputSpacing[i]<0)
-          itkExceptionMacro( << "Input and output spacings don't have the same size, can't cope with that" );
+          itkExceptionMacro( << "Input and output spacings don't have the same signs, can't cope with that" );
 	// see comment above for the use of floor()
 	m_OutputSize[i] = (int)floor(inputSize[i]*inputSpacing[i]/m_OutputSpacing[i]);
       }
