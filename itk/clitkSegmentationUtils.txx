@@ -466,7 +466,7 @@ namespace clitk {
     p[dim] = max;
     typename ImageType::IndexType end;
     image->TransformPhysicalPointToIndex(p, end);
-    size[dim] = fabs(end[dim]-start[dim]);
+    size[dim] = abs(end[dim]-start[dim]);
     region.SetIndex(start);
     region.SetSize(size);
   
@@ -581,25 +581,6 @@ namespace clitk {
 
     }
 
-  }
-  //--------------------------------------------------------------------
-
-
-  //--------------------------------------------------------------------
-  template<class ImageType>
-  void
-  ExtractSlices(const ImageType * image, int direction, 
-                std::vector<typename itk::Image<typename ImageType::PixelType, 
-                                                ImageType::ImageDimension-1>::Pointer > & slices) 
-  {
-    typedef ExtractSliceFilter<ImageType> ExtractSliceFilterType;
-    typedef typename ExtractSliceFilterType::SliceType SliceType;
-    typename ExtractSliceFilterType::Pointer 
-      extractSliceFilter = ExtractSliceFilterType::New();
-    extractSliceFilter->SetInput(image);
-    extractSliceFilter->SetDirection(direction);
-    extractSliceFilter->Update();
-    extractSliceFilter->GetOutputSlices(slices);
   }
   //--------------------------------------------------------------------
 
