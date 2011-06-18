@@ -35,7 +35,7 @@ void HypercubeCorners(std::vector<itk::Point<double, Dim> > & out) {
   std::vector<itk::Point<double, Dim-1> > previous;
   HypercubeCorners<Dim-1>(previous);
   out.resize(previous.size()*2);
-  for(uint i=0; i<out.size(); i++) {
+  for(unsigned int i=0; i<out.size(); i++) {
     itk::Point<double, Dim> p;
     if (i<previous.size()) p[0] = 0; 
     else p[0] = 1;
@@ -65,20 +65,21 @@ void ComputeImageBoundariesCoordinates(typename ImageType::Pointer image,
                                        std::vector<typename ImageType::PointType> & bounds) 
 {
   // Get image max/min coordinates
-  const uint dim=ImageType::ImageDimension;
+  const unsigned int dim=ImageType::ImageDimension;
   typedef typename ImageType::PointType PointType;
   typedef typename ImageType::IndexType IndexType;
   PointType min_c, max_c;
   IndexType min_i, max_i;
   min_i = image->GetLargestPossibleRegion().GetIndex();
-  for(uint i=0; i<dim; i++) max_i[i] = image->GetLargestPossibleRegion().GetSize()[i] + min_i[i];
+  for(unsigned int i=0; i<dim; i++)
+    max_i[i] = image->GetLargestPossibleRegion().GetSize()[i] + min_i[i];
   image->TransformIndexToPhysicalPoint(min_i, min_c);
   image->TransformIndexToPhysicalPoint(max_i, max_c);
   
   // Get corners coordinates
   HypercubeCorners<ImageType::ImageDimension>(bounds);
-  for(uint i=0; i<bounds.size(); i++) {
-    for(uint j=0; j<dim; j++) {
+  for(unsigned int i=0; i<bounds.size(); i++) {
+    for(unsigned int j=0; j<dim; j++) {
       if (bounds[i][j] == 0) bounds[i][j] = min_c[j];
       if (bounds[i][j] == 1) bounds[i][j] = max_c[j];
     }
@@ -371,7 +372,7 @@ ExtractStation_2RL_Ant_Limits2()
   clitk::ExtractSlices<MaskImageType>(Aorta, 2, slices_Aorta);
   std::vector<MaskSlicePointer> slices_Trachea;
   clitk::ExtractSlices<MaskImageType>(Trachea, 2, slices_Trachea);
-  uint n= slices_BrachioCephalicArtery.size();
+  unsigned int n= slices_BrachioCephalicArtery.size();
   
   // Get the boundaries of one slice
   std::vector<MaskSlicePointType> bounds;
@@ -382,7 +383,7 @@ ExtractStation_2RL_Ant_Limits2()
   std::vector<MaskImagePointType> p3D;
 
   vtkSmartPointer<vtkAppendPolyData> append = vtkSmartPointer<vtkAppendPolyData>::New();
-  for(uint i=0; i<n; i++) {
+  for(unsigned int i=0; i<n; i++) {
     // Labelize the slices
     slices_CommonCarotidArtery[i] = Labelize<MaskSliceType>(slices_CommonCarotidArtery[i], 
                                                             GetBackgroundValue(), true, 1);
@@ -425,12 +426,12 @@ ExtractStation_2RL_Ant_Limits2()
       centroids6.clear();
     }
 
-    for(uint j=1; j<centroids1.size(); j++) points2D.push_back(centroids1[j]);
-    for(uint j=1; j<centroids2.size(); j++) points2D.push_back(centroids2[j]);
-    for(uint j=1; j<centroids3.size(); j++) points2D.push_back(centroids3[j]);
-    for(uint j=1; j<centroids4.size(); j++) points2D.push_back(centroids4[j]);
-    for(uint j=1; j<centroids5.size(); j++) points2D.push_back(centroids5[j]);
-    for(uint j=1; j<centroids6.size(); j++) points2D.push_back(centroids6[j]);
+    for(unsigned int j=1; j<centroids1.size(); j++) points2D.push_back(centroids1[j]);
+    for(unsigned int j=1; j<centroids2.size(); j++) points2D.push_back(centroids2[j]);
+    for(unsigned int j=1; j<centroids3.size(); j++) points2D.push_back(centroids3[j]);
+    for(unsigned int j=1; j<centroids4.size(); j++) points2D.push_back(centroids4[j]);
+    for(unsigned int j=1; j<centroids5.size(); j++) points2D.push_back(centroids5[j]);
+    for(unsigned int j=1; j<centroids6.size(); j++) points2D.push_back(centroids6[j]);
     
     // Sort by angle according to trachea centroid and vertical line,
     // in polar coordinates :
@@ -439,7 +440,7 @@ ExtractStation_2RL_Ant_Limits2()
     ComputeCentroids<MaskSliceType>(slices_Trachea[i], GetBackgroundValue(), centroids_trachea);
     typedef std::pair<MaskSlicePointType, double> PointAngleType;
     std::vector<PointAngleType> angles;
-    for(uint j=0; j<points2D.size(); j++) {
+    for(unsigned int j=0; j<points2D.size(); j++) {
       //double r = centroids_trachea[1].EuclideanDistanceTo(points2D[j]);
       double x = (points2D[j][0]-centroids_trachea[1][0]); // X : Right to Left
       double y = (centroids_trachea[1][1]-points2D[j][1]); // Y : Post to Ant
@@ -475,7 +476,7 @@ ExtractStation_2RL_Ant_Limits2()
 
     // Sort points2D according to polar angles
     std::sort(angles.begin(), angles.end(), comparePointsWithAngle<PointAngleType>());
-    for(uint j=0; j<angles.size(); j++) {
+    for(unsigned int j=0; j<angles.size(); j++) {
       points2D[j] = angles[j].first;
     }
     //    DDV(points2D, points2D.size());
@@ -496,7 +497,7 @@ ExtractStation_2RL_Ant_Limits2()
        low, add one point
     */
     std::vector<MaskSlicePointType> toadd;
-    uint index = 0;
+    unsigned int index = 0;
     double dmax = 5;
     while (index<points2D.size()-1) {
       MaskSlicePointType a = points2D[index];
@@ -555,7 +556,7 @@ ExtractStation_2RL_Ant_Limits2()
     // Build 3D points from the 2D points
     std::vector<ImagePointType> points3D;
     clitk::PointsUtils<MaskImageType>::Convert2DListTo3DList(points2D, i, m_Working_Support, points3D);
-    for(uint x=0; x<points3D.size(); x++) p3D.push_back(points3D[x]);
+    for(unsigned int x=0; x<points3D.size(); x++) p3D.push_back(points3D[x]);
 
     // Build the mesh from the contour's points
     vtkSmartPointer<vtkPolyData> mesh = Build3DMeshFrom2DContour(points3D);
