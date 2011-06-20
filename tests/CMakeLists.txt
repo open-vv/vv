@@ -1,7 +1,8 @@
 cmake_policy(SET CMP0005 NEW)
-
-
+#=========================================================
+# Google test macro
 macro(ADD_GOOGLE_TESTS executable)
+message(exe : ${executable})
   foreach ( source ${ARGN} )
     file(READ "${source}" contents)
     string(REGEX MATCHALL "TEST_?F?\\(([A-Za-z_0-9 ,]+)\\)" found_tests ${contents})
@@ -11,23 +12,27 @@ macro(ADD_GOOGLE_TESTS executable)
     endforeach(hit)
   endforeach()
 endmacro()
+#=========================================================
+#=========================================================
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/tests/bin)
 SET(BUILDNAME ${CMAKE_SYSTEM_NAME}${CMAKE_OSX_ARCHITECTURES} CACHE INTERNAL DOCSTRING)
-SET(CLITK_DATA_PATH ${PROJECT_SOURCE_DIR}/tests/data/ CACHE STRING "dataTest path")
-#todo  test if data test path exists
+#=========================================================
+#=========================================================
+# Data tests path
+FIND_PATH(CLITK_DATA_PATH data)
 ADD_DEFINITIONS(-DCLITK_DATA_PATH=\"${CLITK_DATA_PATH}\")
+#=========================================================
+#=========================================================
+# GoogleTest framemwork
+FIND_PATH(GTEST_DIR gtest)
+INCLUDE_DIRECTORIES(${GTEST_DIR}/include/)
 
-add_library(gtest UNKNOWN IMPORTED)
-set(GTEST_DIR ${ITK_DIR}/../gtest/ CACHE STRING "gtestDir")
-if(WIN32)
-  SET(gtestLibName gtest.lib)
-else(UNIX)
-  SET(gtestLibName libgtest.a)
-endif(WIN32)
-set(GTEST_LIB ${GTEST_DIR}/build/${gtestLibName})
-set_property(TARGET gtest PROPERTY IMPORTED_LOCATION "${GTEST_LIB}")
-include_directories(${GTEST_DIR}/include/)
-
+FIND_LIBRARY(GTEST_LIB NAMES gtest PATHS ${GTEST_DIR}/build/)
+ADD_LIBRARY(gtest UNKNOWN IMPORTED)
+SET_PROPERTY(TARGET gtest PROPERTY IMPORTED_LOCATION "${GTEST_LIB}")
+#=========================================================
+#=========================================================
+# Enabled options to test
 IF(CLITK_BUILD_TOOLS)
   ADD_SUBDIRECTORY(tools)
 ENDIF()
@@ -42,5 +47,5 @@ ENDIF()
 #   ADD_SUBDIRECTORY(registration)
 # ENDIF()
 #ADD_SUBDIRECTORY(common)
-
+#=========================================================
 
