@@ -98,22 +98,6 @@ vvSlicer::vvSlicer()
   mVFColor[1] = 1;
   mVFColor[2] = 0;
 
-  std::string text = "F1 = sagital; F2 = coronal; F3 = axial\n";
-  text += "F5 = horizontal flip; F6 = vertical flip\n\n";
-  text += "0,1,2,3,4,5 : preset windowing\n";
-  text += "6,7,8,9 : preset colormap\n";
-  text += "z : local windowing\n";
-  text += "r : reset view\n";
-  text += "l : reload image\n";
-  text += "f : fly to mouse position\n";
-  text += "g : go to cross hair position\n\n";
-  text += "Up,down : change slice\n";
-  text += "Left,right : change tenporal slice\n\n";
-  text += "Scrollbar (or w/x) : zoom in/out\n";
-  text += "left button : synchronize all views\n";
-  text += "middle button : grab image\n";
-  text += "right button : change windowing\n";
-
   crossCursor = vtkSmartPointer<vtkCursor2D>::New();
   crossCursor->AllOff();
   crossCursor->AxesOn();
@@ -793,6 +777,7 @@ void vvSlicer::AdjustResliceToSliceOrientation(vtkImageReslice *reslice)
   reslice->SetOutputOrigin(origin);
   reslice->SetOutputSpacing(spacing);
   reslice->UpdateInformation();
+  reslice->GetOutput()->UpdateInformation();
 }
 //------------------------------------------------------------------------------
 

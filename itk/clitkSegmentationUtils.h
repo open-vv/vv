@@ -23,6 +23,7 @@
 #include "clitkCommon.h"
 #include "clitkAutoCropFilter.h"
 #include "clitkLabelizeParameters.h"
+#include "clitkExtractSliceFilter.h"
 
 // itk
 #include <itkBoundingBox.h>
@@ -225,9 +226,19 @@ namespace clitk {
   //--------------------------------------------------------------------
   template<class ImageType>
   void
-  ExtractSlices(const ImageType * image, int dim, 
-		std::vector< typename itk::Image<typename ImageType::PixelType, 
-                                                 ImageType::ImageDimension-1>::Pointer > & slices);
+  ExtractSlices(const ImageType * image, int direction,
+                std::vector<typename itk::Image<typename ImageType::PixelType,
+                                                ImageType::ImageDimension-1>::Pointer > & slices)
+  {
+    typedef ExtractSliceFilter<ImageType> ExtractSliceFilterType;
+    typedef typename ExtractSliceFilterType::SliceType SliceType;
+    typename ExtractSliceFilterType::Pointer
+      extractSliceFilter = ExtractSliceFilterType::New();
+    extractSliceFilter->SetInput(image);
+    extractSliceFilter->SetDirection(direction);
+    extractSliceFilter->Update();
+    extractSliceFilter->GetOutputSlices(slices);
+  }
   //--------------------------------------------------------------------
 
 
