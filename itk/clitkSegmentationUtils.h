@@ -23,6 +23,7 @@
 #include "clitkCommon.h"
 #include "clitkAutoCropFilter.h"
 #include "clitkLabelizeParameters.h"
+#include "clitkExtractSliceFilter.h"
 
 // itk
 #include <itkBoundingBox.h>
