@@ -19,7 +19,7 @@ function update_bar {
 local count="${1:?"provide count"}"
 local message="${2:?"provide message"}"
 local percent=$(echo "100*${count}/${count_max}" | bc)
-printf "[%03d/%03d] %3d%% %-80s\r" ${count} ${count_max} ${percent} "${message}"
+printf "[%03d/%03d] %3d%% %-80.80s\r" ${count} ${count_max} ${percent} "${message}"
 }
 
 function end_bar {
