@@ -256,8 +256,15 @@ IF (CLITK_BUILD_TOOLS)
   ADD_EXECUTABLE(clitkLineProfile clitkLineProfile.cxx clitkLineProfileGenericFilter.cxx ${clitkLineProfile_GGO_C})
   TARGET_LINK_LIBRARIES(clitkLineProfile clitkCommon ${ITK_LIBRARIES})
 
+  ADD_EXECUTABLE(clitkMakeSphereImage clitkMakeSphereImage.cxx) # clitkLineProfileGenericFilter.cxx ${clitkLineProfile_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkMakeSphereImage clitkCommon ${ITK_LIBRARIES})
+
+  #WRAP_GGO(clitkLineProfile_GGO_C clitkLineProfile.ggo)
+  ADD_EXECUTABLE(clitkJacobianImage clitkJacobianImage.cxx) # clitkLineProfileGenericFilter.cxx ${clitkLineProfile_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkJacobianImage clitkCommon ${ITK_LIBRARIES})
+  
   IF(CLITK_EXPERIMENTAL)
-    
+
     WRAP_GGO(clitkBinaryImageToMesh_GGO_C clitkBinaryImageToMesh.ggo)
     ADD_EXECUTABLE(clitkBinaryImageToMesh clitkBinaryImageToMesh.cxx ${clitkBinaryImageToMesh_GGO_C})
     TARGET_LINK_LIBRARIES(clitkBinaryImageToMesh ${ITK_LIBRARIES} vtkCommon vtkRendering)
