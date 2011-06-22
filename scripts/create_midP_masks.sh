@@ -23,10 +23,13 @@ extract_bones()
   if [ x = x$ExtractBonesLower1 ]; then
     ExtractBonesLower1=120
   fi
+  if [ x = x$ExtractBonesLower2 ]; then
+    ExtractBonesLower2=80
+  fi
   echo "$image_name -> Extracting bones..."
   clitkImageConvert -i $image_name -o $mask_dir_tmp/float_$image_name -t float
   #clitkExtractBones -i $mask_dir_tmp/float_$image_name -o $mask_dir_tmp/bones_$image_name --lower1 120 --upper1 2000 --lower2 70 --upper2 2000 --smooth --time 0.0625 --noAutoCrop
-  clitkExtractBones -i $mask_dir_tmp/float_$image_name -o $mask_dir_tmp/bones_$image_name -a $afdb_name --lower1 $ExtractBonesLower1 --upper1 2000 --lower2 80 --upper2 2000 --smooth --time 0.0625 --noAutoCrop
+  clitkExtractBones -i $mask_dir_tmp/float_$image_name -o $mask_dir_tmp/bones_$image_name -a $afdb_name --lower1 $ExtractBonesLower1 --upper1 2000 --lower2 $ExtractBonesLower2 --upper2 2000 --smooth --time 0.0625 --noAutoCrop
   #clitkMorphoMath -i $mask_dir_tmp/bones_$image_name -o $mask_dir_tmp/bones_$image_name --type 2 --radius 4,4,2
 }
 
@@ -50,7 +53,10 @@ compute_motion_mask()
   if [ x = x$MotionMaskOffsetDetect ]; then
     MotionMaskOffsetDetect="0,-5,0"
   fi
-  clitkMotionMask -i $mask_dir_tmp/patient_only_$image_name -o $mask_dir_tmp/mm_$image_name --featureBones=$mask_dir_tmp/bones_$image_name --featureLungs=$mask_dir_tmp/lungs_$image_name --upperThresholdLungs -400 --fillingLevel 94 --offsetDetect 0,-5,0 --pad --writeFeature=$mask_dir_tmp/feature_$image_name $MotionMaskExtra --monitor=$mask_dir_tmp/monitor_$image_name
+  if [ x = x$FillingLevel ]; then
+    FillingLevel=94
+  fi
+  clitkMotionMask -i $mask_dir_tmp/patient_only_$image_name -o $mask_dir_tmp/mm_$image_name --featureBones=$mask_dir_tmp/bones_$image_name --featureLungs=$mask_dir_tmp/lungs_$image_name --upperThresholdLungs -400 --fillingLevel $FillingLevel --offsetDetect 0,-5,0 --pad --writeFeature=$mask_dir_tmp/feature_$image_name $MotionMaskExtra --monitor=$mask_dir_tmp/monitor_$image_name
 }
 
 set_background()
