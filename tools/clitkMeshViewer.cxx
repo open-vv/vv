@@ -75,7 +75,7 @@ public:
       
       m_rActors[m_CurrentActor]->SetVisibility(0);
       
-      int step = round(m_Fps * info->AnimationTime);
+      int step = lrint(m_Fps * info->AnimationTime);
       int actor = step % m_rActors.size();
       
       //if (actor != m_CurrentActor) std::cout << "Showing frame: " << m_CurrentActor << std::endl;
