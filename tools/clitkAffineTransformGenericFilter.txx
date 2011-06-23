@@ -163,6 +163,33 @@ AffineTransformGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     likeReader->SetFileName(m_ArgsInfo.like_arg);
     likeReader->Update();
     resampler->SetOutputParametersFromImage(likeReader->GetOutput());
+  } else if(m_ArgsInfo.transform_grid_flag) {
+    typename itk::Matrix<double, Dimension+1, Dimension+1> invMatrix( matrix.GetInverse() );
+    typename itk::Matrix<double, Dimension, Dimension> invRotMatrix( clitk::GetRotationalPartMatrix(invMatrix) );
+    typename itk::Vector<double,Dimension> invTrans =  clitk::GetTranslationPartMatrix(invMatrix);
+
+    // Size is converted to double, transformed and converted back to size type
+    vnl_vector<double> vnlOutputSize(Dimension);
+    for(unsigned int i=0; i< Dimension; i++) {
+      vnlOutputSize[i] = input->GetLargestPossibleRegion().GetSize()[i];
+    }
+    vnlOutputSize = invRotMatrix *
+                    input->GetDirection().GetVnlMatrix() *
+                    vnlOutputSize;
+    typename OutputImageType::SizeType outputSize;
+    for(unsigned int i=0; i< Dimension; i++) {
+      outputSize[i] = lrint(vnlOutputSize[i]);
+    }
+    resampler->SetSize( outputSize );
+    
+    // Spacing can be dictly computed in the same way
+    resampler->SetOutputSpacing ( invRotMatrix *
+                                  input->GetDirection() *
+                                  input->GetSpacing() );
+    // Origin is influenced by translation but not by direction
+    resampler->SetOutputOrigin ( invRotMatrix *
+                                 input->GetOrigin() +
+                                 invTrans );
   } else {
     //Size
     typename OutputImageType::SizeType outputSize;
@@ -170,7 +197,6 @@ AffineTransformGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
       for(unsigned int i=0; i< Dimension; i++)
         outputSize[i]=m_ArgsInfo.size_arg[i];
     } else outputSize=input->GetLargestPossibleRegion().GetSize();
-    std::cout<<"Setting the size to "<<outputSize<<"..."<<std::endl;
 
     //Spacing
     typename OutputImageType::SpacingType outputSpacing;
@@ -178,7 +204,6 @@ AffineTransformGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
       for(unsigned int i=0; i< Dimension; i++)
         outputSpacing[i]=m_ArgsInfo.spacing_arg[i];
     } else outputSpacing=input->GetSpacing();
-    std::cout<<"Setting the spacing to "<<outputSpacing<<"..."<<std::endl;
 
     //Origin
     typename OutputImageType::PointType outputOrigin;
@@ -186,13 +211,18 @@ AffineTransformGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
       for(unsigned int i=0; i< Dimension; i++)
         outputOrigin[i]=m_ArgsInfo.origin_arg[i];
     } else outputOrigin=input->GetOrigin();
-    std::cout<<"Setting the origin to "<<outputOrigin<<"..."<<std::endl;
 
     // Set
     resampler->SetSize( outputSize );
     resampler->SetOutputSpacing( outputSpacing );
     resampler->SetOutputOrigin(  outputOrigin );
 
+  }
+
+  if (m_ArgsInfo.verbose_flag) {
+    std::cout << "Setting the output size to " << resampler->GetSize() << "..." << std::endl;
+    std::cout << "Setting the output spacing to " << resampler->GetOutputSpacing() << "..." << std::endl;
+    std::cout << "Setting the output origin to " << resampler->GetOutputOrigin() << "..." << std::endl;
   }
 
   resampler->SetInput( input );
