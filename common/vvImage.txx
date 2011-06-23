@@ -47,6 +47,9 @@ void vvImage::AddItkImage(TItkImageType *input)
     (*matrix)[i][3] += input->GetOrigin()[i];
   }
 
+  // GetDirection provides the forward transform, vtkImageReslice wants the inverse
+  matrix->Invert();
+
   mTransform->SetMatrix(matrix);
 }
 //--------------------------------------------------------------------
