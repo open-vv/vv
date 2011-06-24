@@ -7,7 +7,9 @@ echo "ERROR: $1"
 exit 1
 }
 
+warning_count=0
 function warning {
+let "warning_count++"
 echo "WARNING: $1"
 }
 
@@ -19,12 +21,13 @@ function update_bar {
 local count="${1:?"provide count"}"
 local message="${2:?"provide message"}"
 local percent=$(echo "100*${count}/${count_max}" | bc)
-printf "[%03d/%03d] %3d%% %-80.80s\r" ${count} ${count_max} ${percent} "${message}"
+#printf "[%03d/%03d] %3d%% %-80.80s\r" ${count} ${count_max} ${percent} "${message}"
+printf "[%03d/%03d] %3d%% %-80.80s\n" ${count} ${count_max} ${percent} "${message}"
 }
 
 function end_bar {
 unset count_max
-echo -ne '\n'
+#echo -ne '\n'
 }
 
 rootMerger="clitkMergeRootFiles"
@@ -45,12 +48,13 @@ do
     let count++
     local arguments=" -i ${partial} ${arguments}"
 done
-${rootMerger} ${arguments} > /dev/null || warning "error while calling ${rootMerger}"
+${rootMerger} ${arguments} > /dev/null || { warning "error while calling ${rootMerger}" && return; }
 echo "  ${indent}merged ${count} files"
 }
 
 statMerger="mergeStatFile.py"
 test -x "./mergeStatFile.sh" && statMerger="./mergeStatFile.sh"
+test -x "./mergeStatFile.py" && statMerger="./mergeStatFile.py"
 
 function merge_stat {
 local merged="$1"
@@ -74,7 +78,7 @@ do
     fi
 
     update_bar ${count} "adding ${partial}"
-    ${statMerger} -i "${merged}" -j "${partial}" -o "${merged}" 2> /dev/null > /dev/null || warning "error while calling ${statMerger}"
+    ${statMerger} -i "${merged}" -j "${partial}" -o "${merged}" 2> /dev/null > /dev/null || { warning "error while calling ${statMerger}" && return; }
 done
 end_bar
 echo "  ${indent}merged ${count} files"
@@ -107,7 +111,7 @@ do
     update_bar ${count} "adding ${partial}"
     local header="$(cat "${merged}" | head -n 6)"
     local tmp="$(mktemp)"
-    ${txtImageMerger} -i "${partial}" -j "${merged}" -o "${tmp}" 2> /dev/null > /dev/null || warning "error while calling ${txtImageMerger}"
+    ${txtImageMerger} -i "${partial}" -j "${merged}" -o "${tmp}" 2> /dev/null > /dev/null || { warning "error while calling ${txtImageMerger}" && return; }
     echo "${header}" > "${merged}"
     grep -v '## Merge' "${tmp}" >> "${merged}"
     rm "${tmp}"
@@ -144,7 +148,7 @@ do
     fi
 
     update_bar ${count} "adding ${partial}"
-    ${hdrImageMerger} -t 0 -i "${partial}" -j "${merged}" -o "${merged}" 2> /dev/null > /dev/null || warning "error while calling ${hdrImageMerger}"
+    ${hdrImageMerger} -t 0 -i "${partial}" -j "${merged}" -o "${merged}" 2> /dev/null > /dev/null || { warning "error while calling ${hdrImageMerger}" && return; }
 done
 end_bar
 echo "  ${indent}merged ${count} files"
@@ -237,3 +241,4 @@ do
 	merge_dispatcher "${outputfile}"
 done
 
+echo "these was ${warning_count} warning(s)"
