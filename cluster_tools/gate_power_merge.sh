@@ -150,6 +150,72 @@ end_bar
 echo "  ${indent}merged ${count} files"
 }
 
+function merge_dispatcher {
+    local indent="  ** "
+    local outputfile="${1:?"provide output filename"}"
+    echo "merging ${outputfile}"
+
+    local partialoutputfiles="$(find "${rundir}" -type f -name "${outputfile}")"
+    local nboutputfiles="$(echo "${partialoutputfiles}" | wc -l)"
+    if test ${nboutputdirs} -ne ${nboutputfiles}
+    then
+        warning "missing files"
+        return
+    fi
+
+    local firstpartialoutputfile="$(echo "${partialoutputfiles}" | head -n 1)"
+    local firstpartialoutputextension="${firstpartialoutputfile##*.}"
+    echo "${indent}testing file type on ${firstpartialoutputfile}"
+
+    if test "${firstpartialoutputextension}" == "hdr"
+    then
+        echo "${indent}this is a analyse image"
+        local mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}")"
+        merge_hdr_image "${mergedfile}" ${partialoutputfiles} || error "error while merging"
+        return
+    fi
+
+    if test "${firstpartialoutputextension}" == "root"
+    then
+        echo "${indent}this is a root file"
+        local mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}")"
+        merge_root "${mergedfile}" ${partialoutputfiles} || error "error while merging"
+        return
+    fi
+
+    if test "${firstpartialoutputextension}" == "txt" && grep 'NumberOfEvent' "${firstpartialoutputfile}" > /dev/null
+    then
+        echo "${indent}this is a stat file"
+        local mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}")"
+        merge_stat "${mergedfile}" ${partialoutputfiles} || error "error while merging"
+        return
+    fi
+
+    if test "${firstpartialoutputextension}" == "txt" && grep 'Resol' "${firstpartialoutputfile}" > /dev/null
+    then
+        local resol="$(sed -nr '/Resol/s/^.*=\s+\((.+)\)\s*$/\1/p' "${firstpartialoutputfile}")"
+        local resolx="$(echo "${resol}" | cut -d',' -f1)"
+        local resoly="$(echo "${resol}" | cut -d',' -f2)"
+        local resolz="$(echo "${resol}" | cut -d',' -f3)"
+        if test "${resol}" == "1,1,1"
+        then
+            echo "${indent}this is a txt integral value"
+            local mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}")"
+            merge_txt_image "${mergedfile}" ${partialoutputfiles} || error "error while merging"
+            return
+        fi
+        if test \( "${resolx}" == "1" -a "${resoly}" == "1" \) -o \( "${resoly}" == "1" -a "${resolz}" == "1" \) -o \( "${resolz}" == "1" -a "${resolx}" == "1" \)
+        then
+            echo "${indent}this is a txt profile"
+            local mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}")"
+            merge_txt_image "${mergedfile}" ${partialoutputfiles} || error "error while merging"
+            return
+        fi
+    fi
+
+    warning "unknown file type"
+}
+
 rundir="${1?"provide run dir"}"
 nboutputdirs="$(find "${rundir}" -mindepth 1 -type d -name 'output*' | wc -l)"
 
@@ -168,68 +234,6 @@ mkdir "${outputdir}"
 
 for outputfile in $(find "${rundir}" -regextype 'posix-extended' -type f -regex '.*\.(hdr|root|txt)' | awk -F '/' '{ print $NF }' | sort | uniq)
 do
-    indent="  ** "
-    echo "merging ${outputfile}"
-
-    partialoutputfiles="$(find "${rundir}" -type f -name "${outputfile}")"
-    nboutputfiles="$(echo "${partialoutputfiles}" | wc -l)"
-    if test ${nboutputdirs} -ne ${nboutputfiles}
-    then
-        warning "missing files"
-        continue
-    fi
-
-    firstpartialoutputfile="$(echo "${partialoutputfiles}" | head -n 1)"
-    firstpartialoutputextension="${firstpartialoutputfile##*.}"
-    echo "${indent}testing file type on ${firstpartialoutputfile}"
-
-    if test "${firstpartialoutputextension}" == "hdr"
-    then
-        echo "${indent}this is a analyse image"
-        mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}")"
-        merge_hdr_image "${mergedfile}" ${partialoutputfiles} || error "error while merging"
-        continue
-    fi
-
-    if test "${firstpartialoutputextension}" == "root"
-    then
-        echo "${indent}this is a root file"
-        mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}")"
-        merge_root "${mergedfile}" ${partialoutputfiles} || error "error while merging"
-        continue
-    fi
-
-    if test "${firstpartialoutputextension}" == "txt" && grep 'NumberOfEvent' "${firstpartialoutputfile}" > /dev/null
-    then
-        echo "${indent}this is a stat file"
-        mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}")"
-        merge_stat "${mergedfile}" ${partialoutputfiles} || error "error while merging"
-        continue
-    fi
-
-    if test "${firstpartialoutputextension}" == "txt" && grep 'Resol' "${firstpartialoutputfile}" > /dev/null
-    then
-        resol="$(sed -nr '/Resol/s/^.*=\s+\((.+)\)\s*$/\1/p' "${firstpartialoutputfile}")"
-        resolx="$(echo "${resol}" | cut -d',' -f1)"
-        resoly="$(echo "${resol}" | cut -d',' -f2)"
-        resolz="$(echo "${resol}" | cut -d',' -f3)"
-        if test "${resol}" == "1,1,1"
-        then
-            echo "${indent}this is a txt integral value"
-            mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}")"
-            merge_txt_image "${mergedfile}" ${partialoutputfiles} || error "error while merging"
-            continue
-        fi
-        if test \( "${resolx}" == "1" -a "${resoly}" == "1" \) -o \( "${resoly}" == "1" -a "${resolz}" == "1" \) -o \( "${resolz}" == "1" -a "${resolx}" == "1" \)
-        then
-            echo "${indent}this is a txt profile"
-            mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}")"
-            merge_txt_image "${mergedfile}" ${partialoutputfiles} || error "error while merging"
-            continue
-        fi
-    fi
-
-
-    warning "unknown file type"
+	merge_dispatcher "${outputfile}"
 done
 
