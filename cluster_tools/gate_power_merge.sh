@@ -238,7 +238,7 @@ mkdir "${outputdir}"
 
 for outputfile in $(find "${rundir}" -regextype 'posix-extended' -type f -regex '.*\.(hdr|root|txt)' | awk -F '/' '{ print $NF }' | sort | uniq)
 do
-	merge_dispatcher "${outputfile}"
+    merge_dispatcher "${outputfile}"
 done
 
 echo "these was ${warning_count} warning(s)"
