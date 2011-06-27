@@ -8,10 +8,10 @@ int main(int argc, char** argv) {
   const unsigned int dim = 3;
   typedef char PixelType;
   typedef itk::Image<PixelType, dim> ImageType;
-  typedef typename ImageType::IndexType IndexType;
-  typedef typename ImageType::PointType PointType;
-  typedef typename ImageType::SizeType SizeType;
-  typedef typename ImageType::RegionType RegionType;
+  typedef ImageType::IndexType IndexType;
+  typedef ImageType::PointType PointType;
+  typedef ImageType::SizeType SizeType;
+  typedef ImageType::RegionType RegionType;
 
   IndexType index;
   index.Fill(0);
@@ -30,12 +30,12 @@ int main(int argc, char** argv) {
   region.SetIndex(index);
   region.SetSize(size);
 
-  typename ImageType::Pointer image = ImageType::New();
+  ImageType::Pointer image = ImageType::New();
   image->SetRegions(region);
   image->Allocate();
   
   typedef itk::SphereSpatialFunction<dim, PointType> ShpereFunctionType;
-  typename ShpereFunctionType::Pointer sphere = ShpereFunctionType::New();
+  ShpereFunctionType::Pointer sphere = ShpereFunctionType::New();
   
   double radius = atof(argv[8])/2;
   sphere->SetCenter(origin);
@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
   }
   
   typedef itk::ImageFileWriter<ImageType> ImageWriterType;
-  typename ImageWriterType::Pointer writer = ImageWriterType::New();
+  ImageWriterType::Pointer writer = ImageWriterType::New();
   writer->SetInput(image);
   writer->SetFileName(argv[1]);
   writer->Update();
