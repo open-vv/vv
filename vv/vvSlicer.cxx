@@ -369,7 +369,8 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
       this->GetRenderer()->AddActor(mOverlayActor);
 
     //Synchronize orientation and slice
-    this->SetSliceOrientation(this->SliceOrientation);
+    AdjustResliceToSliceOrientation(mOverlayReslice);
+    this->UpdateDisplayExtent();
     this->SetTSlice(mCurrentTSlice);
   }
 }
@@ -412,7 +413,8 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion)
     }
 
     //Synchronize orientation and slice
-    this->SetSliceOrientation(this->SliceOrientation);
+    AdjustResliceToSliceOrientation(mFusionReslice);
+    this->UpdateDisplayExtent();
     this->SetTSlice(mCurrentTSlice);
   }
 }
