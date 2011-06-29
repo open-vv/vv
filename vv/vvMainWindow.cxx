@@ -2007,6 +2007,7 @@ void vvMainWindow::OpenField()
     }
 
   QString Extensions = "Images ( *.mhd)";
+  Extensions += ";;Images ( *.mha)";
   Extensions += ";;Images ( *.vf)";
   QString file = QFileDialog::getOpenFileName(this,tr("Load deformation field"),mInputPathName,Extensions);
   if (!file.isEmpty())
@@ -2184,14 +2185,17 @@ void vvMainWindow::SaveAs()
     OutputListeFormat.push_back(".jpeg");
     OutputListeFormat.push_back(".tif");
     OutputListeFormat.push_back(".mhd");
+    OutputListeFormat.push_back(".mha");
     OutputListeFormat.push_back(".hdr");
     OutputListeFormat.push_back(".vox");
   } else if (dimension == 3) {
     OutputListeFormat.push_back(".mhd");
+    OutputListeFormat.push_back(".mha");
     OutputListeFormat.push_back(".hdr");
     OutputListeFormat.push_back(".vox");
   } else if (dimension == 4) {
     OutputListeFormat.push_back(".mhd");
+    OutputListeFormat.push_back(".mha");
   }
   QString Extensions = "AllFiles(*.*)";
   for (int i = 0; i < OutputListeFormat.count(); i++) {
