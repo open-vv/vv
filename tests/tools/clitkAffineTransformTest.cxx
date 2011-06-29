@@ -52,8 +52,8 @@ static inline void compare(std::string mhd, std::string refMhd, std::string refR
   remove("out.raw");
 }
 TEST(identity, clitkAffineTransformTest){
-  std::string mhd1=std::string(CLITK_DATA_PATH)+"Deformation4D.mhd";
-  std::string refMhd1=std::string(CLITK_DATA_PATH)+"Deformation4DRef.mhd";
-  std::string refRaw1=std::string(CLITK_DATA_PATH)+"Deformation4DRef.raw";
+  std::string mhd1=std::string(CLITK_TEST_DATA_PATH)+"Deformation4D.mhd";
+  std::string refMhd1=std::string(CLITK_TEST_DATA_PATH)+"Deformation4DRef.mhd";
+  std::string refRaw1=std::string(CLITK_TEST_DATA_PATH)+"Deformation4DRef.raw";
   compare(mhd1, refMhd1, refRaw1);
 }

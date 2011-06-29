@@ -3,18 +3,8 @@ cmake_policy(SET CMP0005 NEW)
 
 #=========================================================
 # Data tests path
-
-OPTION(CLITK_DATA_PATH ${CMAKE_CURRENT_BINARY_DIR}/data)
-ADD_DEFINITIONS(-DCLITK_DATA_PATH=\"${CLITK_DATA_PATH}/\")
+ADD_DEFINITIONS(-DCLITK_TEST_DATA_PATH=\"${CLITK_TEST_DATA_PATH}/\")
 #=========================================================
-#=========================================================
-# Get the data tests
-IF(WIN32)
-  SET(scriptExt bat)
-ELSE(UNIX)
-  SET(scriptExt sh)
-ENDIF()
-EXEC_PROGRAM(${CMAKE_CURRENT_SOURCE_DIR}/fetch_data_test.${scriptExt} ARGS ${CLITK_DATA_PATH})
 #=========================================================
 # Google test macro
 macro(ADD_GOOGLE_TESTS executable)

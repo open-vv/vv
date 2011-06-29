@@ -24,8 +24,8 @@
 #include <itksys/SystemTools.hxx>
 int main(int argc, char** argv){
   int fail = 1;
-  std::string mhd = std::string(CLITK_DATA_PATH);
-  std::string ref = std::string(CLITK_DATA_PATH);
+  std::string mhd = std::string(CLITK_TEST_DATA_PATH);
+  std::string ref = std::string(CLITK_TEST_DATA_PATH);
   
   //We select which image we use to test clitkImageInfo
   int idImg = atoi(argv[1]);

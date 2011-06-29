@@ -31,14 +31,14 @@ static inline void compare(std::string mhd, std::string ref){
   remove("clitkImageInfoTest.out");
 }
 TEST(clitkImageInfoTest, main){
-  std::string mhd1=std::string(CLITK_DATA_PATH)+"Deformation4D.mhd";
+  std::string mhd1=std::string(CLITK_TEST_DATA_PATH)+"Deformation4D.mhd";
   ASSERT_TRUE(itksys::SystemTools::FileExists(mhd1.c_str(), true));
   
-  std::string mhd2=std::string(CLITK_DATA_PATH)+"Lung3D.mhd";
+  std::string mhd2=std::string(CLITK_TEST_DATA_PATH)+"Lung3D.mhd";
   ASSERT_TRUE(itksys::SystemTools::FileExists(mhd2.c_str(), true));
   
   mhd1+=" "+mhd2;
-  std::string ref1=std::string(CLITK_DATA_PATH)+"clitkImageInfoTestRef.out";
+  std::string ref1=std::string(CLITK_TEST_DATA_PATH)+"clitkImageInfoTestRef.out";
   ASSERT_TRUE(itksys::SystemTools::FileExists(ref1.c_str(), true));
   compare(mhd1, ref1);
 }

@@ -22,7 +22,7 @@
 #include "vvConfiguration.h"
 #include <stdio.h>
 #include <fstream>
-const std::string data_path = CLITK_DATA_PATH;
+const std::string data_path = CLITK_TEST_DATA_PATH;
 TEST(vvRegisterForm, canPush){
   QUrl url;
   //the file exists with some old lines
