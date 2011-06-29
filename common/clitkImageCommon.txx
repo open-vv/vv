@@ -21,7 +21,7 @@
 
 //--------------------------------------------------------------------
 template<class PixelType>
-typename itk::Image<PixelType,1>::Pointer 
+typename itk::Image<PixelType,1>::Pointer
 NewImage1D(int vsize, double vspacing)
 {
   typedef itk::Image<PixelType,1> ImageType;
@@ -40,7 +40,7 @@ NewImage1D(int vsize, double vspacing)
 
 //--------------------------------------------------------------------
 template<class PixelType>
-typename itk::Image<PixelType,2>::Pointer 
+typename itk::Image<PixelType,2>::Pointer
 NewImage2D(int sx, int sy, double dx, double dy)
 {
   typedef itk::Image<PixelType,2> ImageType;
@@ -62,7 +62,7 @@ NewImage2D(int sx, int sy, double dx, double dy)
 
 //--------------------------------------------------------------------
 template<class PixelType>
-typename itk::Image<PixelType,3>::Pointer 
+typename itk::Image<PixelType,3>::Pointer
 NewImage3D(int sx, int sy, int sz, double dx, double dy, double dz)
 {
   typedef itk::Image<PixelType,3> ImageType;
@@ -323,12 +323,37 @@ void ComputeWeightsOfEachClasses(const typename InputImageType::Pointer & input,
 
 //--------------------------------------------------------------------
 template<class ImageType1, class ImageType2>
-bool HaveSameSizeAndSpacing(typename ImageType1::ConstPointer A, 
-                           typename ImageType2::ConstPointer B) 
+bool HaveSameSpacing(typename ImageType1::ConstPointer A,
+                     typename ImageType2::ConstPointer B)
 {
   if (A->GetImageDimension() != B->GetImageDimension()) return false;
   for(unsigned int i=0; i<A->GetImageDimension(); i++) {
     if (A->GetSpacing()[i] != B->GetSpacing()[i]) return false;
+  }
+  return true;
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+template<class ImageType1, class ImageType2>
+bool HaveSameSpacing(typename ImageType1::Pointer A,
+                     typename ImageType2::Pointer B)
+{
+  if (A->GetImageDimension() != B->GetImageDimension()) return false;
+  for(unsigned int i=0; i<A->GetImageDimension(); i++) {
+    if (A->GetSpacing()[i] != B->GetSpacing()[i]) return false;
+  }
+  return true;
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+template<class ImageType1, class ImageType2>
+bool HaveSameSize(typename ImageType1::ConstPointer A,
+                  typename ImageType2::ConstPointer B)
+{
+  if (A->GetImageDimension() != B->GetImageDimension()) return false;
+  for(unsigned int i=0; i<A->GetImageDimension(); i++) {
     if (A->GetLargestPossibleRegion().GetSize()[i] != B->GetLargestPossibleRegion().GetSize()[i]) return false;
   }
   return true;
@@ -337,12 +362,11 @@ bool HaveSameSizeAndSpacing(typename ImageType1::ConstPointer A,
 
 //--------------------------------------------------------------------
 template<class ImageType1, class ImageType2>
-bool HaveSameSizeAndSpacing(typename ImageType1::Pointer A, 
-                           typename ImageType2::Pointer B) 
+bool HaveSameSize(typename ImageType1::Pointer A,
+                  typename ImageType2::Pointer B)
 {
   if (A->GetImageDimension() != B->GetImageDimension()) return false;
   for(unsigned int i=0; i<A->GetImageDimension(); i++) {
-    if (A->GetSpacing()[i] != B->GetSpacing()[i]) return false;
     if (A->GetLargestPossibleRegion().GetSize()[i] != B->GetLargestPossibleRegion().GetSize()[i]) return false;
   }
   return true;
@@ -351,27 +375,21 @@ bool HaveSameSizeAndSpacing(typename ImageType1::Pointer A,
 
 //--------------------------------------------------------------------
 template<class ImageType1, class ImageType2>
-bool HaveSameSpacing(typename ImageType1::ConstPointer A, 
-                     typename ImageType2::ConstPointer B) 
+bool HaveSameSizeAndSpacing(typename ImageType1::ConstPointer A,
+                            typename ImageType2::ConstPointer B)
 {
-  if (A->GetImageDimension() != B->GetImageDimension()) return false;
-  for(unsigned int i=0; i<A->GetImageDimension(); i++) {
-    if (A->GetSpacing()[i] != B->GetSpacing()[i]) return false;
-  }
-  return true;
+  return ( HaveSameSize<ImageType1, ImageType2>(A, B) &&
+           HaveSameSpacing<ImageType1, ImageType2>(A, B) );
 }
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
 template<class ImageType1, class ImageType2>
-bool HaveSameSpacing(typename ImageType1::Pointer A, 
-                           typename ImageType2::Pointer B) 
+bool HaveSameSizeAndSpacing(typename ImageType1::Pointer A,
+                            typename ImageType2::Pointer B)
 {
-  if (A->GetImageDimension() != B->GetImageDimension()) return false;
-  for(unsigned int i=0; i<A->GetImageDimension(); i++) {
-    if (A->GetSpacing()[i] != B->GetSpacing()[i]) return false;
-  }
-  return true;
+  return ( HaveSameSize<ImageType1, ImageType2>(A, B) &&
+           HaveSameSpacing<ImageType1, ImageType2>(A, B) );
 }
 //--------------------------------------------------------------------
 
