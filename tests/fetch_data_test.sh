@@ -12,12 +12,12 @@ repo=http://localhost/data/.git
 
 if cd $1
 then
-echo working in `pwd`
+git pull
 else
-echo can\'t cd to $1
+git clone $repo $1
 exit 1
 fi
 
-git clone $server$archive $1
+
 exit 0
 

@@ -5,7 +5,7 @@ cmake_policy(SET CMP0005 NEW)
 # Data tests path
 
 OPTION(CLITK_DATA_PATH ${CMAKE_CURRENT_BINARY_DIR}/data)
-ADD_DEFINITIONS(-DCLITK_DATA_PATH=\"${CLITK_DATA_PATH}\")
+ADD_DEFINITIONS(-DCLITK_DATA_PATH=\"${CLITK_DATA_PATH}/\")
 #=========================================================
 #=========================================================
 # Get the data tests
@@ -18,7 +18,6 @@ EXEC_PROGRAM(${CMAKE_CURRENT_SOURCE_DIR}/fetch_data_test.${scriptExt} ARGS ${CLI
 #=========================================================
 # Google test macro
 macro(ADD_GOOGLE_TESTS executable)
-message(exe : ${executable})
   foreach ( source ${ARGN} )
     file(READ "${source}" contents)
     string(REGEX MATCHALL "TEST_?F?\\(([A-Za-z_0-9 ,]+)\\)" found_tests ${contents})
