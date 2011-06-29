@@ -1,5 +1,21 @@
 cmake_policy(SET CMP0005 NEW)
 #=========================================================
+
+#=========================================================
+# Data tests path
+
+OPTION(CLITK_DATA_PATH ${CMAKE_CURRENT_BINARY_DIR}/data)
+ADD_DEFINITIONS(-DCLITK_DATA_PATH=\"${CLITK_DATA_PATH}\")
+#=========================================================
+#=========================================================
+# Get the data tests
+IF(WIN32)
+  SET(scriptExt bat)
+ELSE(UNIX)
+  SET(scriptExt sh)
+ENDIF()
+EXEC_PROGRAM(${CMAKE_CURRENT_SOURCE_DIR}/fetch_data_test.${scriptExt} ARGS ${CLITK_DATA_PATH})
+#=========================================================
 # Google test macro
 macro(ADD_GOOGLE_TESTS executable)
 message(exe : ${executable})
@@ -16,11 +32,6 @@ endmacro()
 #=========================================================
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/tests/bin)
 SET(BUILDNAME ${CMAKE_SYSTEM_NAME}${CMAKE_OSX_ARCHITECTURES} CACHE INTERNAL DOCSTRING)
-#=========================================================
-#=========================================================
-# Data tests path
-FIND_PATH(CLITK_DATA_PATH data)
-ADD_DEFINITIONS(-DCLITK_DATA_PATH=\"${CLITK_DATA_PATH}\")
 #=========================================================
 #=========================================================
 # GoogleTest framemwork

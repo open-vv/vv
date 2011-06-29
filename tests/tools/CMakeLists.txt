@@ -13,3 +13,8 @@ target_link_libraries(toolsTest vvLib ${vvExternalLibs} gtest)
 add_google_tests ( ${EXECUTABLE_OUTPUT_PATH}/toolsTest ${srcs})
 
 SET(BUILDNAME ${BUILDNAME}_tools CACHE INTERNAL DOCSTRING)
+
+ADD_EXECUTABLE(clitkImageInfoTest_oldWay clitkImageInfoTest_oldWay.cpp)
+target_link_libraries(clitkImageInfoTest_oldWay vvLib ${vvExternalLibs})
+ADD_TEST(clitkImageInfoTest_oldWay ${EXECUTABLE_OUTPUT_PATH}/clitkImageInfoTest_oldWay firstOne)
+ADD_TEST(clitkImageInfoTest_oldWay ${EXECUTABLE_OUTPUT_PATH}/clitkImageInfoTest_oldWay secondOne)
