@@ -4,17 +4,31 @@ include_directories(
   ${GTEST_DIR}/include
 )
 
-FILE(GLOB srcs *.cxx)
-ADD_EXECUTABLE(toolsTest ${srcs})
+SET (CUSTOM_TEST_SRC
+  clitkImageInfoTest.cxx
+  vvMainTest.cxx
+)
+ADD_EXECUTABLE(toolsTest ${CUSTOM_TEST_SRC})
 ADD_DEFINITIONS(-DTOOLS_PATH=\"${PROJECT_BINARY_DIR}/bin/\")
-target_link_libraries(toolsTest vvLib ${vvExternalLibs} gtest)
+TARGET_LINK_LIBRARIES(toolsTest vvLib ${vvExternalLibs} gtest)
 
 # Add all tests found in the source code, calling the executable to run them
 add_google_tests ( ${EXECUTABLE_OUTPUT_PATH}/toolsTest ${srcs})
 
 SET(BUILDNAME ${BUILDNAME}_tools CACHE INTERNAL DOCSTRING)
 
-ADD_EXECUTABLE(clitkImageInfoTest_oldWay clitkImageInfoTest_oldWay.cpp)
-target_link_libraries(clitkImageInfoTest_oldWay vvLib ${vvExternalLibs})
-ADD_TEST(clitkImageInfoTest_oldWay ${EXECUTABLE_OUTPUT_PATH}/clitkImageInfoTest_oldWay firstOne)
-ADD_TEST(clitkImageInfoTest_oldWay ${EXECUTABLE_OUTPUT_PATH}/clitkImageInfoTest_oldWay secondOne)
+SET (srcs
+  toolTestRunner.cxx
+)
+ADD_EXECUTABLE(toolTestRunner ${srcs})
+TARGET_LINK_LIBRARIES(toolTestRunner vvLib ${vvExternalLibs})
+SET(exe ${EXECUTABLE_OUTPUT_PATH}/toolTestRunner) 
+#=========================================================
+# clitkImageInfo
+ADD_TEST(clitkImageInfo_1 ${exe} clitkImageInfo Deformation4D.mhd Deformation4D_ref.info)
+ADD_TEST(clitkImageInfo_2 ${exe} clitkImageInfo Lung3D.mhd Lung3D_ref.info)
+#=========================================================
+# clitkGetSpacing
+ADD_TEST(clitkGetSpacing_1 ${exe} clitkGetSpacing Deformation4D.mhd Cropped_Deformation4D_ref.spacing)
+ADD_TEST(clitkGetSpacing_2 ${exe} clitkGetSpacing Lung3D.mhd Cropped_Deformation4D_ref.spacing)
+UNSET(exe)
