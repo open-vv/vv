@@ -8,7 +8,7 @@ set(CTEST_DROP_SITE_CDASH TRUE)
 
 
 #=========================================================
-SET(CLITK_TEST_DATA_PATH ${PROJECT_BINARY_DIR}/tests/data CACHE INTERNAL DOCSTRING)
+SET(CLITK_TEST_DATA_PATH ${PROJECT_BINARY_DIR}/tests/data/ CACHE INTERNAL DOCSTRING)
 # Get the data tests
 IF(WIN32)
   SET(scriptExt bat)
