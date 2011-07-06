@@ -1,3 +1,8 @@
+MACRO(SET_IF_NOT_SET var val)
+  IF(NOT DEFINED "${var}")
+    SET("${var}" "${val}")
+  ENDIF(NOT DEFINED "${var}")
+ENDMACRO(SET_IF_NOT_SET)
 # Set them in a dart file when using ctest to submit on an other dashboard
 # Those are set for running a classical make Experimental
 SET_IF_NOT_SET(CTEST_DROP_METHOD "http")
