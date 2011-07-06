@@ -168,7 +168,20 @@ AffineTransformGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     typename itk::Matrix<double, Dimension, Dimension> invRotMatrix( clitk::GetRotationalPartMatrix(invMatrix) );
     typename itk::Vector<double,Dimension> invTrans =  clitk::GetTranslationPartMatrix(invMatrix);
 
-    // Size is converted to double, transformed and converted back to size type
+    // Spacing is influenced by affine transform matrix and input direction
+    typename InputImageType::SpacingType outputSpacing;
+    outputSpacing = invRotMatrix *
+                    input->GetDirection() *
+                    input->GetSpacing();
+
+    // Origin is influenced by translation but not by input direction
+    typename InputImageType::PointType outputOrigin;
+    outputOrigin = invRotMatrix *
+                   input->GetOrigin() +
+                   invTrans;
+
+    // Size is influenced by affine transform matrix and input direction
+    // Size is converted to double, transformed and converted back to size type.
     vnl_vector<double> vnlOutputSize(Dimension);
     for(unsigned int i=0; i< Dimension; i++) {
       vnlOutputSize[i] = input->GetLargestPossibleRegion().GetSize()[i];
@@ -178,18 +191,18 @@ AffineTransformGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
                     vnlOutputSize;
     typename OutputImageType::SizeType outputSize;
     for(unsigned int i=0; i< Dimension; i++) {
+      // If the size is negative, we have a flip and we must modify
+      // the origin and the spacing accordingly.
+      if(vnlOutputSize[i]<0.) {
+        vnlOutputSize[i] *= -1.;
+        outputOrigin[i] = outputOrigin[i] + outputSpacing[i] * (vnlOutputSize[i]-1);
+        outputSpacing[i] *= -1.;
+      }
       outputSize[i] = lrint(vnlOutputSize[i]);
     }
     resampler->SetSize( outputSize );
-    
-    // Spacing can be dictly computed in the same way
-    resampler->SetOutputSpacing ( invRotMatrix *
-                                  input->GetDirection() *
-                                  input->GetSpacing() );
-    // Origin is influenced by translation but not by direction
-    resampler->SetOutputOrigin ( invRotMatrix *
-                                 input->GetOrigin() +
-                                 invTrans );
+    resampler->SetOutputSpacing( outputSpacing );
+    resampler->SetOutputOrigin( outputOrigin );
   } else {
     //Size
     typename OutputImageType::SizeType outputSize;

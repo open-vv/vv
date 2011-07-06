@@ -1,8 +1,13 @@
 cmake_policy(SET CMP0005 NEW)
 #=========================================================
+
+#=========================================================
+# Data tests path
+ADD_DEFINITIONS(-DCLITK_TEST_DATA_PATH=\"${CLITK_TEST_DATA_PATH}/\")
+#=========================================================
+#=========================================================
 # Google test macro
 macro(ADD_GOOGLE_TESTS executable)
-message(exe : ${executable})
   foreach ( source ${ARGN} )
     file(READ "${source}" contents)
     string(REGEX MATCHALL "TEST_?F?\\(([A-Za-z_0-9 ,]+)\\)" found_tests ${contents})
@@ -16,11 +21,6 @@ endmacro()
 #=========================================================
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/tests/bin)
 SET(BUILDNAME ${CMAKE_SYSTEM_NAME}${CMAKE_OSX_ARCHITECTURES} CACHE INTERNAL DOCSTRING)
-#=========================================================
-#=========================================================
-# Data tests path
-FIND_PATH(CLITK_DATA_PATH data)
-ADD_DEFINITIONS(-DCLITK_DATA_PATH=\"${CLITK_DATA_PATH}\")
 #=========================================================
 #=========================================================
 # GoogleTest framemwork

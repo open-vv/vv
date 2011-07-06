@@ -21,8 +21,8 @@
 #include <itksys/SystemTools.hxx>
 TEST(clitkWriteDicomSeriesTest, main){
   
-  std::string fIn=std::string(CLITK_DATA_PATH)+"/3d/mhd/00.mhd";
-  std::string fOut=std::string(CLITK_DATA_PATH)+"/3d/dcm/1.2.840.113704.1.111.536.1248695032.26";
+  std::string fIn=std::string(CLITK_TEST_DATA_PATH)+"/3d/mhd/00.mhd";
+  std::string fOut=std::string(CLITK_TEST_DATA_PATH)+"/3d/dcm/1.2.840.113704.1.111.536.1248695032.26";
   ASSERT_TRUE(itksys::SystemTools::FileExists(fIn.c_str(), true));
   std::ostringstream cmd_line;
   cmd_line << TOOLS_PATH <<"clitkWriteDicomSeries -i " << fIn << " -d " << fOut << " -o dcm --verbose";
