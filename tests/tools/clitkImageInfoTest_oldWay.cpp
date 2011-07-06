@@ -19,26 +19,45 @@
 #include <sstream>
 #include <string>
 #include <fstream>
-#include "gtest/gtest.h"
-#include "stdio.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <itksys/SystemTools.hxx>
-static inline void compare(std::string mhd, std::string ref){
+int main(int argc, char** argv){
+  int fail = 1;
+  std::string mhd = std::string(CLITK_TEST_DATA_PATH);
+  std::string ref = std::string(CLITK_TEST_DATA_PATH);
+  
+  //We select which image we use to test clitkImageInfo
+  int idImg = atoi(argv[1]);
+  switch(idImg){
+     case '0':
+	mhd += "Deformation4D.mhd";
+	ref += "clitkImageInfoTestRef";
+      break;
+     case '1':
+	mhd += "Lung3D.mhd";
+	ref += "clitkImageInfoTestRef";
+      break;
+    default:
+      return fail;
+  }  
+  //end of selection
+  
+  //ensure mhd do exist
+  if(!itksys::SystemTools::FileExists(mhd.c_str(), true)){
+      return fail;
+  }
+  //ensure ref do exist
+  if(!itksys::SystemTools::FileExists(ref.c_str(), true)){
+      return fail;
+  }
+  
   std::ostringstream cmd_line;
-  cmd_line << TOOLS_PATH<<"clitkImageInfo " << mhd << " > clitkImageInfoTest.out";
+  cmd_line << TOOLS_PATH <<"clitkImageInfo " << mhd << " > clitkImageInfoTest.out";
   system(cmd_line.str().c_str());
   
-  EXPECT_FALSE( itksys::SystemTools::FilesDiffer("clitkImageInfoTest.out", ref.c_str()) );
+  //files should be equal, so if this is the case return success=0
+  fail = (itksys::SystemTools::FilesDiffer("clitkImageInfoTest.out", ref.c_str()))?0:1;
   remove("clitkImageInfoTest.out");
-}
-TEST(clitkImageInfoTest, main){
-  std::string mhd1=std::string(CLITK_TEST_DATA_PATH)+"Deformation4D.mhd";
-  ASSERT_TRUE(itksys::SystemTools::FileExists(mhd1.c_str(), true));
-  
-  std::string mhd2=std::string(CLITK_TEST_DATA_PATH)+"Lung3D.mhd";
-  ASSERT_TRUE(itksys::SystemTools::FileExists(mhd2.c_str(), true));
-  
-  mhd1+=" "+mhd2;
-  std::string ref1=std::string(CLITK_TEST_DATA_PATH)+"clitkImageInfoTestRef.out";
-  ASSERT_TRUE(itksys::SystemTools::FileExists(ref1.c_str(), true));
-  compare(mhd1, ref1);
+  return fail;
 }

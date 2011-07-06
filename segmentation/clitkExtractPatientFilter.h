@@ -98,7 +98,9 @@ namespace clitk {
 
     itkSetMacro(LowerThreshold, InputImagePixelType);
     itkGetMacro(LowerThreshold, InputImagePixelType);
-    itkSetMacro(UseLowerThreshold, bool);    
+    itkSetMacro(UseLowerThreshold, bool);   
+    itkGetMacro(PrimaryOpeningRadius, unsigned int);
+    itkSetMacro(PrimaryOpeningRadius, unsigned int);
     itkGetConstMacro(UseLowerThreshold, bool);    
     itkBooleanMacro(UseLowerThreshold);
 
@@ -165,6 +167,7 @@ namespace clitk {
     bool m_DecomposeAndReconstructDuringFirstStep;
     bool m_DecomposeAndReconstructDuringSecondStep;
     bool m_FinalOpenClose;
+    unsigned  m_PrimaryOpeningRadius;
     InternalImageSizeType m_Radius1;
     InternalImageSizeType m_Radius2;
     int m_MaximumNumberOfLabels1;
