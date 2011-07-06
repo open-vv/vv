@@ -75,6 +75,7 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
 
   f->SetUpperThreshold(mArgsInfo.upper_arg);
   f->SetLowerThreshold(mArgsInfo.lower_arg);
+  f->SetPrimaryOpeningRadius(mArgsInfo.openingRadius_arg);
 
   f->SetDecomposeAndReconstructDuringFirstStep(mArgsInfo.erode1_flag);
 

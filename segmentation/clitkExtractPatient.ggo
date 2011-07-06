@@ -22,6 +22,7 @@ section "Binarize"
 
 option "lower"		-	"Initial lower threshold"	double		no  	
 option "upper"		-	"Initial upper threshold"	double		no  	default="-300"
+option "openingRadius"    - "Radius for opening after threshold"  int no  default="0"
 
 section "First Label Image (air=1)"
 

@@ -48,6 +48,7 @@ ExtractPatientFilter():
   this->SetNumberOfRequiredInputs(1);
   SetBackgroundValue(0); // Must be zero
   SetForegroundValue(1);
+  SetPrimaryOpeningRadius(0);
 
   // Step 1: Threshold + CC + sort (Find low density areas)
   SetUpperThreshold(-300);
@@ -134,14 +135,36 @@ GenerateOutputInformation() {
   binarizeFilter->SetUpperThreshold(GetUpperThreshold());
   binarizeFilter ->SetInsideValue(this->GetForegroundValue());
   binarizeFilter ->SetOutsideValue(this->GetBackgroundValue());
+  working_image = binarizeFilter->GetOutput();
 
+  typedef itk::BinaryBallStructuringElement<InternalPixelType,Dim> KernelType;
+  unsigned int radius = this->GetPrimaryOpeningRadius();
+  if (radius > 0)
+  {
+    if (this->GetVerboseOptionFlag()) std::cout << ("Opening after threshold; R = ") << radius << std::endl;
+    KernelType kernel;
+    kernel.SetRadius(radius);
+    
+    typedef itk::BinaryMorphologicalOpeningImageFilter<InternalImageType, InternalImageType , KernelType> OpenFilterType2;
+    typename OpenFilterType2::Pointer openFilter2 = OpenFilterType2::New();
+    openFilter2->SetInput(working_image);
+    openFilter2->SetBackgroundValue(0);
+    openFilter2->SetForegroundValue(1);
+    openFilter2->SetKernel(kernel);
+    openFilter2->Update();
+    working_image = openFilter2->GetOutput();
+  }
+
+  if (this->GetVerboseOptionFlag()) std::cout << ("Labelling") << std::endl;
   // Connected component labeling
   typedef itk::ConnectedComponentImageFilter<InternalImageType, InternalImageType> ConnectFilterType;
   typename ConnectFilterType::Pointer connectFilter=ConnectFilterType::New();
-  connectFilter->SetInput(binarizeFilter->GetOutput());
+  connectFilter->SetInput(working_image);
   connectFilter->SetBackgroundValue(this->GetBackgroundValue());
   connectFilter->SetFullyConnected(false);
+  connectFilter->Update();
 
+  if (this->GetVerboseOptionFlag()) std::cout << ("RelabelComponentImageFilter") << std::endl;
   // Sort labels according to size
   typedef itk::RelabelComponentImageFilter<InternalImageType, InternalImageType> RelabelFilterType;
   typename RelabelFilterType::Pointer relabelFilter=RelabelFilterType::New();
@@ -175,6 +198,7 @@ GenerateOutputInformation() {
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
+  if (this->GetVerboseOptionFlag()) std::cout << ("Remove the air (largest area)") << std::endl;
   StartNewStep("Remove the air (largest area)");
   typedef itk::BinaryThresholdImageFilter<InternalImageType, InternalImageType> iBinarizeFilterType;
   typename iBinarizeFilterType::Pointer binarizeFilter2 = iBinarizeFilterType::New();
@@ -226,7 +250,6 @@ GenerateOutputInformation() {
   if (GetFinalOpenClose()) {
     StartNewStep("Final OpenClose");
     // Open
-    typedef itk::BinaryBallStructuringElement<InternalPixelType,Dim> KernelType;
     KernelType structuringElement;
     structuringElement.SetRadius(1);
     structuringElement.CreateStructuringElement();
