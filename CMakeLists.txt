@@ -1,7 +1,7 @@
 #=========================================================
 # CLITK = Command Line ITK
-cmake_minimum_required(VERSION 2.4)
-cmake_policy(VERSION 2.4)
+cmake_minimum_required(VERSION 2.8)
+cmake_policy(VERSION 2.8)
 if(COMMAND cmake_policy)
     cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
@@ -42,11 +42,9 @@ ENDIF(VTK_FOUND)
 #=========================================================
 
 #=========================================================
-# Find gengetopt
-FIND_PATH(CLITK_GENGETOPT gengetopt)
-IF (CLITK_GENGETOPT STREQUAL "CLITK_GENGETOPT-NOTFOUND")
-  MESSAGE("gengetopt not found, please install it (see http://www.gnu.org/software/gengetopt/gengetopt.html)")
-ENDIF (CLITK_GENGETOPT STREQUAL "CLITK_GENGETOPT-NOTFOUND")
+# Find gengetopt, will create a target exe if not found
+SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+FIND_PACKAGE(Gengetopt)
 #=========================================================
 
 #=========================================================
