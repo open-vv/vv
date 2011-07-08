@@ -79,8 +79,6 @@ int main(int argc, char** argv){
   //run the command line
   system(cmd_line.str().c_str());
   
-  exit(1);
-  
   //files should be equal, so if this is the case return success=0
   int fail = (itksys::SystemTools::FilesDiffer(outFile.c_str(), refFile))?1:0;
   remove(outFile.c_str());

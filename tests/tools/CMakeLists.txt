@@ -30,7 +30,8 @@ ADD_TEST(clitkImageInfo_1 ${exe} clitkImageInfo ${p}Deformation4D.mhd ${p}Deform
 ADD_TEST(clitkImageInfo_2 ${exe} clitkImageInfo ${p}Lung3D.mhd ${p}Lung3D_ref.info)
 #=========================================================
 # clitkGetSpacing
-ADD_TEST(clitkGetSpacing_1 ${exe} clitkGetSpacing ${p}Deformation4D.mhd ${p}Deformation4D_ref.spacing)
-ADD_TEST(clitkGetSpacing_2 ${exe} clitkGetSpacing ${p}Lung3D.mhd ${p}Deformation4D_ref.spacing)
+ADD_TEST(clitkGetSpacing_1 ${exe} clitkGetSpacing -i ${p}Deformation4D.mhd ${p}Deformation4D_ref.spacing)
+message(clitkGetSpacing_1 "${exe} clitkGetSpacing -i ${p}Deformation4D.mhd ${p}Deformation4D_ref.spacing")
+ADD_TEST(clitkGetSpacing_2 ${exe} clitkGetSpacing -i ${p}Lung3D.mhd ${p}Lung3D_ref.spacing)
 UNSET(exe)
 UNSET(p)
