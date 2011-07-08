@@ -24,7 +24,7 @@
 #include <itksys/SystemTools.hxx>
 static inline void compare(std::string mhd, std::string ref){
   std::ostringstream cmd_line;
-  cmd_line << TOOLS_PATH<<"clitkImageInfo " << mhd << " > clitkImageInfoTest.out";
+  cmd_line << CLITK_TEST_TOOLS_PATH<<"clitkImageInfo " << mhd << " > clitkImageInfoTest.out";
   system(cmd_line.str().c_str());
   
   EXPECT_FALSE( itksys::SystemTools::FilesDiffer("clitkImageInfoTest.out", ref.c_str()) );
