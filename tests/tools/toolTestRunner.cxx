@@ -32,13 +32,13 @@ int getOutputOptionIndex(int argc, char** argv){
   }
   return NO_OUTPUT_OPTION;
 }
-inline char* getTmpFileName(){
+std::string getTmpFileName(){
   char buffer [L_tmpnam];
   char* back = tmpnam (buffer);
   if(back==NULL){
     exit(1);
   }
-  return back;
+  return std::string(back);
 }
 /**
  * argv
@@ -61,29 +61,26 @@ int main(int argc, char** argv){
   std::ostringstream cmd_line;
   cmd_line<<CLITK_TEST_TOOLS_PATH;
   for(int i=1; i<argc-1; i++){
-  //we should ensure the file exists, find an -i index or a long file name maybe?
+      //we should ensure the file exists, find an -i index or a long file name maybe?
       cmd_line<<argv[i]<<" ";
   }
 
   //look for the need of generating an output file
   int outputOptionIndex = getOutputOptionIndex(argc, argv);
-  char* outFile;
+  std::string outFile;
   if(NO_OUTPUT_OPTION==outputOptionIndex){
     outFile = getTmpFileName();
-    cmd_line<<" > "<<outFile;
+    cmd_line<<">"<<outFile;
   }else{
     //todo test this else branch
-    std::string s = std::string(CLITK_TEST_DATA_PATH);
-    s+=argv[outputOptionIndex];
-    //DO NOT MODIFY outFile
-    outFile = (char*)s.c_str();
+    outFile =  std::string(CLITK_TEST_DATA_PATH);
+    outFile += argv[outputOptionIndex];
   }
-  
   //run the command line
   system(cmd_line.str().c_str());
   
   //files should be equal, so if this is the case return success=0
-  int fail = (itksys::SystemTools::FilesDiffer(outFile, refFile))?1:0;
-  remove(outFile);
+  int fail = (itksys::SystemTools::FilesDiffer(outFile.c_str(), refFile))?1:0;
+  remove(outFile.c_str());
   return fail;
 }
