@@ -354,6 +354,7 @@ namespace clitk {
     sliceRelPosFilter->SetIntermediateSpacingFlag((spacing != -1));
     sliceRelPosFilter->SetIntermediateSpacing(spacing);
     sliceRelPosFilter->SetUniqueConnectedComponentBySlice(uniqueConnectedComponent);
+    sliceRelPosFilter->CCLSelectionFlagOff();
     sliceRelPosFilter->SetUseASingleObjectConnectedComponentBySliceFlag(singleObjectCCL);
     //    sliceRelPosFilter->SetInverseOrientationFlag(inverseflag); 
     sliceRelPosFilter->SetAutoCropFlag(autocropFlag); 
@@ -876,6 +877,7 @@ namespace clitk {
   }                                                   
   //--------------------------------------------------------------------
 
+
   //--------------------------------------------------------------------
   template<class ImageType>
   void 
@@ -899,6 +901,34 @@ namespace clitk {
     boolFilter->SetBackgroundValue1(BG);
     boolFilter->SetBackgroundValue2(BG);
     boolFilter->SetOperationType(BoolFilterType::AndNot);
+    boolFilter->Update();
+  }
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  void 
+  And(ImageType * input, 
+      const ImageType * object, 
+      typename ImageType::PixelType BG)
+  {
+    typename ImageType::Pointer o;
+    bool resized=false;
+    if (!clitk::HaveSameSizeAndSpacing<ImageType, ImageType>(input, object)) {
+      o = clitk::ResizeImageLike<ImageType>(object, input, BG);
+      resized = true;
+    }
+
+    typedef clitk::BooleanOperatorLabelImageFilter<ImageType> BoolFilterType;
+    typename BoolFilterType::Pointer boolFilter = BoolFilterType::New(); 
+    boolFilter->InPlaceOn();
+    boolFilter->SetInput1(input);
+    if (resized) boolFilter->SetInput2(o);  
+    else boolFilter->SetInput2(object);
+    boolFilter->SetBackgroundValue1(BG);
+    boolFilter->SetBackgroundValue2(BG);
+    boolFilter->SetOperationType(BoolFilterType::And);
     boolFilter->Update();
   }
   //--------------------------------------------------------------------
@@ -1094,6 +1124,92 @@ namespace clitk {
   }
   //--------------------------------------------------------------------
 
+
+  //--------------------------------------------------------------------
+  /* Consider an input object, start at A, for each slice (dim1): 
+     - compute the intersection between the AB line and the current slice
+     - remove what is at lower or greater according to dim2 of this point
+     - stop at B
+  */
+  template<class ImageType>
+  typename ImageType::Pointer
+  SliceBySliceSetBackgroundFromSingleLine(const ImageType * input, 
+                                          typename ImageType::PixelType BG, 
+                                          typename ImageType::PointType & A, 
+                                          typename ImageType::PointType & B, 
+                                          int dim1, int dim2, bool removeLowerPartFlag)
+    
+  {
+    // Extract slices
+    typedef typename itk::Image<typename ImageType::PixelType, ImageType::ImageDimension-1> SliceType;
+    typedef typename SliceType::Pointer SlicePointer;
+    std::vector<SlicePointer> slices;
+    clitk::ExtractSlices<ImageType>(input, dim1, slices);
+
+    // Start at slice that contains A, and stop at B
+    typename ImageType::IndexType Ap;
+    typename ImageType::IndexType Bp;
+    input->TransformPhysicalPointToIndex(A, Ap);
+    input->TransformPhysicalPointToIndex(B, Bp);
+    
+    // Determine slice largest region
+    typename SliceType::RegionType region = slices[0]->GetLargestPossibleRegion();
+    typename SliceType::SizeType size = region.GetSize();
+    typename SliceType::IndexType index = region.GetIndex();
+
+    // Line slope
+    double a = (Bp[dim2]-Ap[dim2])/(Bp[dim1]-Ap[dim1]);
+    double b = Ap[dim2];
+
+    // Loop from slice A to slice B
+    for(uint i=0; i<(Bp[dim1]-Ap[dim1]); i++) {
+      // Compute intersection between line AB and current slice for the dim2
+      double p = a*i+b;
+      // Change region (lower than dim2)
+      if (removeLowerPartFlag) {
+        size[dim2] = p-Ap[dim2];
+      }
+      else {
+        size[dim2] = slices[0]->GetLargestPossibleRegion().GetSize()[dim2]-p;
+        index[dim2] = p;
+      }
+      region.SetSize(size);
+      region.SetIndex(index);
+      // Fill region with BG (simple region iterator)
+      FillRegionWithValue<SliceType>(slices[i+Ap[dim1]], BG, region);
+      /*
+      typedef itk::ImageRegionIterator<SliceType> IteratorType;
+      IteratorType iter(slices[i+Ap[dim1]], region);
+      iter.GoToBegin();
+      while (!iter.IsAtEnd()) {
+        iter.Set(BG);
+        ++iter;
+      }
+      */
+      // Loop
+    }
+    
+    // Merge slices
+    typename ImageType::Pointer output;
+    output = clitk::JoinSlices<ImageType>(slices, input, dim1);
+    return output;
+  }
+  //--------------------------------------------------------------------
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  void
+  FillRegionWithValue(ImageType * input, typename ImageType::PixelType value, typename ImageType::RegionType & region)
+  {
+    typedef itk::ImageRegionIterator<ImageType> IteratorType;
+    IteratorType iter(input, region);
+    iter.GoToBegin();
+    while (!iter.IsAtEnd()) {
+      iter.Set(value);
+      ++iter;
+    }    
+  }
+  //--------------------------------------------------------------------
 
 } // end of namespace
 
