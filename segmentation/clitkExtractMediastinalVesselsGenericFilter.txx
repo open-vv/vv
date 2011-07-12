@@ -81,6 +81,8 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   f->SetSoughtVesselSeedName(mArgsInfo.seed_arg);
   f->SetSoughtVesselName(mArgsInfo.name_arg);
   f->SetMaxNumberOfFoundBifurcation(mArgsInfo.bif_arg);
+
+  f->SetFinalOpeningRadius(mArgsInfo.open_arg);
   
   // Output filename
   this->AddOutputFilename(mArgsInfo.output_arg);
