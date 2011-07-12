@@ -116,7 +116,7 @@ namespace clitk
 		
 		
 		// get neighbor index and overlap fraction
-		for( dim = 0; dim < 3; dim++ )
+		for( dim = 0; dim < ImageDimension; dim++ )
 		  {
 		    if ( upper & 1 )
 		      {
