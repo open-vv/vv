@@ -29,3 +29,4 @@ option "maxAnt"        - 	"Max distance ant to Carina"      double default="40" 
 option "maxLeft"       - 	"Max distance left to Carina"     double default="35" no
 option "maxRight"      - 	"Max distance right to Carina"    double default="35" no
 option "bif"           - 	"Max number of bifurcation during traking"    int default="0" no
+option "open"          - 	"Final opening radius"            int default="1" no
