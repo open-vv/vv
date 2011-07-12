@@ -125,6 +125,9 @@ namespace clitk {
     itkSetMacro(MaxNumberOfFoundBifurcation, int);
     itkGetConstMacro(MaxNumberOfFoundBifurcation, int);
 
+    itkSetMacro(FinalOpeningRadius, int);
+    itkGetConstMacro(FinalOpeningRadius, int);
+
   protected:
     ExtractMediastinalVesselsFilter();
     virtual ~ExtractMediastinalVesselsFilter() {}
@@ -150,6 +153,7 @@ namespace clitk {
     double             m_MaxDistanceLeftToCarina;
     double             m_MaxDistanceRightToCarina;
     int                m_MaxNumberOfFoundBifurcation;
+    int                m_FinalOpeningRadius;
 
     std::vector<MaskSlicePointer> m_slice_recon;
     std::vector<MaskSlicePointer> m_slice_recon2;
@@ -163,10 +167,17 @@ namespace clitk {
     void CropInputImage();
     void TrackBifurcationFromPoint(MaskImagePointer & recon, 
                                    std::vector<MaskSlicePointer> & slices_recon, 
-                                   MaskImagePointType BCA_p, 
+                                   MaskImagePointType point3D,
+                                   MaskImagePointType pointMaxSlice,
                                    LabelType newLabel, 
                                    std::vector<MaskImagePointType> & bif);
 
+    void TrackVesselsFromPoint(MaskImagePointer & recon, 
+                               std::vector<MaskSlicePointer> & slices_recon, 
+                               MaskImagePointType point3D,
+                               MaskImagePointType pointMaxSlice,
+                               LabelType newLabel);
+    
   private:
     ExtractMediastinalVesselsFilter(const Self&); //purposely not implemented
     void operator=(const Self&); //purposely not implemented
