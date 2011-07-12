@@ -20,28 +20,27 @@ option "output"        o 	"Output lungs mask filename"      string 	no
 option "station"       - 	"Force to compute station even if already exist in the DB"      string 	no multiple
 
 section "Options for Station 8"
-option "maxAntSpine"                 - "Distance max to anterior part of the spine in mm"  double no default="10"
-option "esophagusDilatationForAnt"   - "Dilatation of esophagus, in mm, for 'anterior' limits (default=15,2,1)" double no multiple
-option "esophagusDilatationForRight" - "Dilatation of esophagus, in mm, for 'right' limits (default=5,10,1)" double no multiple
-option "tS8_Esophagus"               - "Threshold for 'Post' to dilated Esophagus" double default="0.5" no 
-option "injectedThresholdForS8"      - "Threshold injected areas in the ct" double default="150" no 
+option "S8_esophagusDilatationForAnt"   - "Dilatation of esophagus, in mm, for 'anterior' limits (default=15,2,1)" double no multiple
+option "S8_esophagusDilatationForRight" - "Dilatation of esophagus, in mm, for 'right' limits (default=5,10,1)" double no multiple
+option "S8_ft_Esophagus"                - "Fuzzy Threshold for 'Post' to dilated Esophagus" double default="0.5" no 
 
 section "Options for Station 7"
-option "tS7_Bronchi"                    - "Threshold for Left/Right bronchi" double default="0.1" no 
-option "tS7_LeftSuperiorPulmonaryVein"  - "Threshold for LeftSuperiorPulmonaryVein" double default="0.3" no 
-option "tS7_RightSuperiorPulmonaryVein" - "Threshold for RightSuperiorPulmonaryVein" double default="0.2" no 
-option "tS7_RightPulmonaryArtery"       - "Threshold for RightPulmonaryArtery" double default="0.3" no 
-option "tS7_LeftPulmonaryArtery"        - "Threshold for LeftPulmonaryArtery (NOT USEFUL YET)" double default="0.5" no 
-option "tS7_SVC"                        - "Threshold for SVC" double default="0.2" no 
+option "S7_ft_Bronchi"                    - "Fuzzy Threshold for Left/Right bronchi" double default="0.1" no 
+option "S7_ft_LeftSuperiorPulmonaryVein"  - "Fuzzy Threshold for LeftSuperiorPulmonaryVein" double default="0.3" no 
+option "S7_ft_RightSuperiorPulmonaryVein" - "Fuzzy Threshold for RightSuperiorPulmonaryVein" double default="0.2" no 
+option "S7_ft_RightPulmonaryArtery"       - "Fuzzy Threshold for RightPulmonaryArtery" double default="0.3" no 
+option "S7_ft_LeftPulmonaryArtery"        - "Fuzzy Threshold for LeftPulmonaryArtery (NOT USEFUL YET)" double default="0.5" no 
+option "S7_ft_SVC"                        - "Fuzzy Threshold for SVC" double default="0.2" no 
+option "S7_UseMostInferiorPartOnly"    - "Inferior separation with S8."  flag off
 
 section "Options for Station 3A"
-option "tS3A_Sternum"          - "Threshold for Post to Sternum" double default="0.5" no 
-option "tS3A_SubclavianArtery" - "Threshold for Ant to SubclavianArtery" double default="0.2" no 
+option "S3A_ft_Sternum"          - "Fuzzy Threshold for Post to Sternum" double default="0.5" no 
+option "S3A_ft_SubclavianArtery" - "Fuzzy Threshold for Ant to SubclavianArtery" double default="0.2" no 
 
 section "Options for Station 2RL"
-option "tS2RL_CommonCarotidArtery"   - "Threshold for NotAntTo to CommonCarotidArtery"   double default="0.7" no 
-option "tS2RL_BrachioCephalicTrunk"  - "Threshold for NotAntTo to BrachioCephalicTrunk"  double default="0.7" no 
-option "tS2RL_BrachioCephalicVein"   - "Threshold for NotAntTo to BrachioCephalicVein"   double default="0.3" no 
-option "tS2RL_Aorta"                 - "Threshold for RightTo  to Aorta"                 double default="0.7" no 
-option "tS2RL_SubclavianArteryRight" - "Threshold for NotLeft  to SubclavianArteryRight" double default="0.5" no 
-option "tS2RL_SubclavianArteryLeft"  - "Threshold for NotRight to SubclavianArteryLeft"  double default="0.8" no 
+option "S2RL_ft_CommonCarotidArtery"   - "Threshold for NotAntTo to CommonCarotidArtery"   double default="0.7" no 
+option "S2RL_ft_BrachioCephalicTrunk"  - "Threshold for NotAntTo to BrachioCephalicTrunk"  double default="0.7" no 
+option "S2RL_ft_BrachioCephalicVein"   - "Threshold for NotAntTo to BrachioCephalicVein"   double default="0.3" no 
+option "S2RL_ft_Aorta"                 - "Threshold for RightTo  to Aorta"                 double default="0.7" no 
+option "S2RL_ft_SubclavianArteryRight" - "Threshold for NotLeft  to SubclavianArteryRight" double default="0.5" no 
+option "S2RL_ft_SubclavianArteryLeft"  - "Threshold for NotRight to SubclavianArteryLeft"  double default="0.8" no 

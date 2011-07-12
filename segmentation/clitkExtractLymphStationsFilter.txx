@@ -72,6 +72,12 @@ GenerateOutputInformation() {
   m_Input = dynamic_cast<const ImageType*>(itk::ProcessObject::GetInput(0));
   m_Mediastinum = GetAFDB()->template GetImage <MaskImageType>("Mediastinum");
 
+  // Global supports for stations
+  StartNewStep("Supports for stations");
+  StartSubStep(); 
+  ExtractStationSupports();
+  StopSubStep();  
+
   // Extract Station8
   StartNewStep("Station 8");
   StartSubStep(); 
@@ -85,10 +91,12 @@ GenerateOutputInformation() {
   StopSubStep();
 
   // Extract Station2RL
-  StartNewStep("Station 2RL");
-  StartSubStep(); 
-  ExtractStation_2RL();
-  StopSubStep();
+  /*
+    StartNewStep("Station 2RL");
+    StartSubStep(); 
+    ExtractStation_2RL();
+    StopSubStep();
+  */
 
   // Extract Station3A
   StartNewStep("Station 3A");
@@ -193,32 +201,6 @@ AddComputeStation(std::string station)
 template <class TImageType>
 void 
 clitk::ExtractLymphStationsFilter<TImageType>::
-ExtractStation_8() 
-{
-  if (CheckForStation("8")) {
-    ExtractStation_8_SI_Limits();
-    ExtractStation_8_Post_Limits();
-    ExtractStation_8_Ant_Sup_Limits();
-    ExtractStation_8_Ant_Inf_Limits();
-    ExtractStation_8_LR_1_Limits();
-    ExtractStation_8_LR_2_Limits();
-    ExtractStation_8_LR_Limits();
-    ExtractStation_8_Ant_Injected_Limits();
-    ExtractStation_8_Single_CCL_Limits();
-    ExtractStation_8_Remove_Structures();
-    // Store image filenames into AFDB 
-    writeImage<MaskImageType>(m_ListOfStations["8"], "seg/Station8.mhd");
-    GetAFDB()->SetImageFilename("Station8", "seg/Station8.mhd");  
-    WriteAFDB();
-  }
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-template <class TImageType>
-void 
-clitk::ExtractLymphStationsFilter<TImageType>::
 ExtractStation_3P()
 {
   if (CheckForStation("3P")) {
@@ -234,26 +216,6 @@ ExtractStation_3P()
     writeImage<MaskImageType>(m_ListOfStations["3P"], "seg/Station3P.mhd");
     GetAFDB()->SetImageFilename("Station3P", "seg/Station3P.mhd"); 
     WriteAFDB(); 
-  }
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-template <class TImageType>
-void 
-clitk::ExtractLymphStationsFilter<TImageType>::
-ExtractStation_7() {
-  if (CheckForStation("7")) {
-  ExtractStation_7_SI_Limits();
-  ExtractStation_7_RL_Limits();
-  ExtractStation_7_Posterior_Limits();
-  //  ExtractStation_8_Single_CCL_Limits(); // Yes the same than 8
-  ExtractStation_7_Remove_Structures();
-  // Store image filenames into AFDB 
-  writeImage<MaskImageType>(m_ListOfStations["7"], "seg/Station7.mhd");
-  GetAFDB()->SetImageFilename("Station7", "seg/Station7.mhd");  
-  WriteAFDB();
   }
 }
 //--------------------------------------------------------------------
@@ -371,6 +333,171 @@ GetFuzzyThreshold(std::string station, std::string tag)
 //--------------------------------------------------------------------
 
 
+//--------------------------------------------------------------------
+template <class TImageType>
+void
+clitk::ExtractLymphStationsFilter<TImageType>::
+FindLineForS7S8Separation(MaskImagePointType & A, MaskImagePointType & B)
+{
+  // Create line from A to B with
+  // A = upper border of LLL at left
+  // B = lower border of bronchus intermedius (BI) or RightMiddleLobeBronchus
+  
+  try {
+    GetAFDB()->GetPoint3D("LineForS7S8Separation_Begin", A); 
+    GetAFDB()->GetPoint3D("LineForS7S8Separation_End", B);
+  }
+  catch(clitk::ExceptionObject & o) {
+    
+    DD("FindLineForS7S8Separation");
+    // Load LeftLowerLobeBronchus and get centroid point
+    MaskImagePointer LeftLowerLobeBronchus = 
+      GetAFDB()->template GetImage <MaskImageType>("LeftLowerLobeBronchus");
+    std::vector<MaskImagePointType> c;
+    clitk::ComputeCentroids<MaskImageType>(LeftLowerLobeBronchus, GetBackgroundValue(), c);
+    A = c[1];
+    
+    // Load RightMiddleLobeBronchus and get superior point (not centroid here)
+    MaskImagePointer RightMiddleLobeBronchus = 
+      GetAFDB()->template GetImage <MaskImageType>("RightMiddleLobeBronchus");
+    bool b = FindExtremaPointInAGivenDirection<MaskImageType>(RightMiddleLobeBronchus, 
+                                                              GetBackgroundValue(), 
+                                                              2, false, B);
+    if (!b) {
+      clitkExceptionMacro("Error while searching most superior point in RightMiddleLobeBronchus. Abort");
+    }
+    
+    // Insert into the DB
+    GetAFDB()->SetPoint3D("LineForS7S8Separation_Begin", A);
+    GetAFDB()->SetPoint3D("LineForS7S8Separation_End", B);
+  }
+}
+//--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
+template <class TImageType>
+double 
+clitk::ExtractLymphStationsFilter<TImageType>::
+FindCarinaSlicePosition()
+{
+  double z;
+  try {
+    z = GetAFDB()->GetDouble("CarinaZ");
+  }
+  catch(clitk::ExceptionObject e) {
+    DD("FindCarinaSlicePosition");
+    // Get Carina
+    MaskImagePointer Carina = GetAFDB()->template GetImage<MaskImageType>("Carina");
+    
+    // Get Centroid and Z value
+    std::vector<MaskImagePointType> centroids;
+    clitk::ComputeCentroids<MaskImageType>(Carina, GetBackgroundValue(), centroids);
+
+    // We dont need Carina structure from now
+    Carina->Delete();
+    
+    // Put inside the AFDB
+    GetAFDB()->SetPoint3D("CarinaPoint", centroids[1]);
+    GetAFDB()->SetDouble("CarinaZ", centroids[1][2]);
+    WriteAFDB();
+    z = centroids[1][2];
+  }
+  return z;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class TImageType>
+void
+clitk::ExtractLymphStationsFilter<TImageType>::
+FindLeftAndRightBronchi()
+{
+  try {
+    m_RightBronchus = GetAFDB()->template GetImage <MaskImageType>("RightBronchus");
+    m_LeftBronchus = GetAFDB()->template GetImage <MaskImageType>("LeftBronchus");
+  }
+  catch(clitk::ExceptionObject & o) {
+
+    DD("FindLeftAndRightBronchi");
+    // The goal is to separate the trachea inferiorly to the carina into
+    // a Left and Right bronchus.
+  
+    // Get the trachea
+    MaskImagePointer Trachea = GetAFDB()->template GetImage<MaskImageType>("Trachea");
+
+    // Get the Carina position
+    m_CarinaZ = FindCarinaSlicePosition();
+
+    // Consider only inferiorly to the Carina
+    MaskImagePointer m_Working_Trachea = 
+      clitk::CropImageRemoveGreaterThan<MaskImageType>(Trachea, 2, m_CarinaZ, true, // AutoCrop
+                                                       GetBackgroundValue());
+
+    // Labelize the trachea
+    m_Working_Trachea = Labelize<MaskImageType>(m_Working_Trachea, 0, true, 1);
+
+    // Carina position must at the first slice that separate the two
+    // main bronchus (not superiorly). We thus first check that the
+    // upper slice is composed of at least two labels
+    MaskImagePointer RightBronchus;
+    MaskImagePointer LeftBronchus;
+    typedef itk::ImageSliceIteratorWithIndex<MaskImageType> SliceIteratorType;
+    SliceIteratorType iter(m_Working_Trachea, m_Working_Trachea->GetLargestPossibleRegion());
+    iter.SetFirstDirection(0);
+    iter.SetSecondDirection(1);
+    iter.GoToReverseBegin(); // Start from the end (because image is IS not SI)
+    int maxLabel=0;
+    while (!iter.IsAtReverseEndOfSlice()) {
+      while (!iter.IsAtReverseEndOfLine()) {    
+        if (iter.Get() > maxLabel) maxLabel = iter.Get();
+        --iter;
+      }
+      iter.PreviousLine();
+    }
+    if (maxLabel < 2) {
+      clitkExceptionMacro("First slice from Carina does not seems to seperate the two main bronchus. Abort");
+    }
+
+    // Compute 3D centroids of both parts to identify the left from the
+    // right bronchus
+    std::vector<ImagePointType> c;
+    clitk::ComputeCentroids<MaskImageType>(m_Working_Trachea, GetBackgroundValue(), c);
+    ImagePointType C1 = c[1];
+    ImagePointType C2 = c[2];
+
+    ImagePixelType rightLabel;
+    ImagePixelType leftLabel;  
+    if (C1[0] < C2[0]) { rightLabel = 1; leftLabel = 2; }
+    else { rightLabel = 2; leftLabel = 1; }
+
+    // Select LeftLabel (set one label to Backgroundvalue)
+    RightBronchus = 
+      clitk::Binarize<MaskImageType>(m_Working_Trachea, rightLabel, rightLabel, 
+                                     GetBackgroundValue(), GetForegroundValue());
+    /*
+      SetBackground<MaskImageType, MaskImageType>(m_Working_Trachea, m_Working_Trachea, 
+      leftLabel, GetBackgroundValue(), false);
+    */
+    LeftBronchus = clitk::Binarize<MaskImageType>(m_Working_Trachea, leftLabel, leftLabel, 
+                                                  GetBackgroundValue(), GetForegroundValue());
+    /*
+      SetBackground<MaskImageType, MaskImageType>(m_Working_Trachea, m_Working_Trachea, 
+      rightLabel, GetBackgroundValue(), false);
+    */
+
+    // Crop images
+    RightBronchus = clitk::AutoCrop<MaskImageType>(RightBronchus, GetBackgroundValue()); 
+    LeftBronchus = clitk::AutoCrop<MaskImageType>(LeftBronchus, GetBackgroundValue()); 
+
+    // Insert int AFDB if need after 
+    GetAFDB()->template SetImage <MaskImageType>("RightBronchus", "seg/rightBronchus.mhd", 
+                                                 RightBronchus, true);
+    GetAFDB()->template SetImage <MaskImageType>("LeftBronchus", "seg/leftBronchus.mhd", 
+                                                 LeftBronchus, true);
+  }
+}
+//--------------------------------------------------------------------
 
 #endif //#define CLITKBOOLEANOPERATORLABELIMAGEFILTER_TXX

@@ -70,9 +70,9 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   f->SetAFDBFilename(mArgsInfo.afdb_arg);  
 
   // Station 8
-  f->SetDistanceMaxToAnteriorPartOfTheSpine(mArgsInfo.maxAntSpine_arg);
-  f->SetFuzzyThreshold("8", "Esophagus", mArgsInfo.tS8_Esophagus_arg);
-  f->SetInjectedThresholdForS8(mArgsInfo.injectedThresholdForS8_arg);
+  //f->SetDistanceMaxToAnteriorPartOfTheSpine(mArgsInfo.S8_maxAntSpine_arg);
+  f->SetFuzzyThreshold("8", "Esophagus", mArgsInfo.S8_ft_Esophagus_arg);
+  //  f->SetInjectedThresholdForS8(mArgsInfo.tS8_injectedThreshold_arg);
 
   // Check multiple options for radius dilatation
   /*
@@ -83,27 +83,27 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
    */
   typename FilterType::MaskImagePointType p;
   p[0] = 7; p[1] = 5; p[2] = 0; // default value
-  if (mArgsInfo.esophagusDilatationForAnt_given == 3) {
+  if (mArgsInfo.S8_esophagusDilatationForAnt_given == 3) {
     for(uint i=0; i<3; i++)
-      p[i] = mArgsInfo.esophagusDilatationForAnt_arg[i];
+      p[i] = mArgsInfo.S8_esophagusDilatationForAnt_arg[i];
   }
   else {
-    if (mArgsInfo.esophagusDilatationForAnt_given == 1) {
+    if (mArgsInfo.S8_esophagusDilatationForAnt_given == 1) {
       for(uint i=0; i<3; i++)
-        p[i] = mArgsInfo.esophagusDilatationForAnt_arg[0];
+        p[i] = mArgsInfo.S8_esophagusDilatationForAnt_arg[0];
     }
   }
   f->SetEsophagusDiltationForAnt(p);
   
   p[0] = 5; p[1] = 10; p[2] = 1; // default value
-  if (mArgsInfo.esophagusDilatationForRight_given == 3) {
+  if (mArgsInfo.S8_esophagusDilatationForRight_given == 3) {
     for(uint i=0; i<3; i++)
-      p[i] = mArgsInfo.esophagusDilatationForRight_arg[i];
+      p[i] = mArgsInfo.S8_esophagusDilatationForRight_arg[i];
   }
   else {
-    if (mArgsInfo.esophagusDilatationForRight_given == 1) {
+    if (mArgsInfo.S8_esophagusDilatationForRight_given == 1) {
       for(uint i=0; i<3; i++)
-        p[i] = mArgsInfo.esophagusDilatationForRight_arg[0];
+        p[i] = mArgsInfo.S8_esophagusDilatationForRight_arg[0];
     }
   }
   f->SetEsophagusDiltationForRight(p);  
@@ -112,24 +112,25 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
     f->AddComputeStation(mArgsInfo.station_arg[i]);
 
   // Station 7
-  f->SetFuzzyThreshold("7", "Bronchi", mArgsInfo.tS7_Bronchi_arg);
-  f->SetFuzzyThreshold("7", "LeftSuperiorPulmonaryVein", mArgsInfo.tS7_LeftSuperiorPulmonaryVein_arg);
-  f->SetFuzzyThreshold("7", "RightSuperiorPulmonaryVein", mArgsInfo.tS7_RightSuperiorPulmonaryVein_arg);
-  f->SetFuzzyThreshold("7", "RightPulmonaryArtery", mArgsInfo.tS7_RightPulmonaryArtery_arg);
-  f->SetFuzzyThreshold("7", "LeftPulmonaryArtery", mArgsInfo.tS7_LeftPulmonaryArtery_arg);
-  f->SetFuzzyThreshold("7", "SVC", mArgsInfo.tS7_SVC_arg);
+  f->SetFuzzyThreshold("7", "Bronchi", mArgsInfo.S7_ft_Bronchi_arg);
+  f->SetFuzzyThreshold("7", "LeftSuperiorPulmonaryVein", mArgsInfo.S7_ft_LeftSuperiorPulmonaryVein_arg);
+  f->SetFuzzyThreshold("7", "RightSuperiorPulmonaryVein", mArgsInfo.S7_ft_RightSuperiorPulmonaryVein_arg);
+  f->SetFuzzyThreshold("7", "RightPulmonaryArtery", mArgsInfo.S7_ft_RightPulmonaryArtery_arg);
+  f->SetFuzzyThreshold("7", "LeftPulmonaryArtery", mArgsInfo.S7_ft_LeftPulmonaryArtery_arg);
+  f->SetFuzzyThreshold("7", "SVC", mArgsInfo.S7_ft_SVC_arg);
+  f->SetS7_UseMostInferiorPartOnlyFlag(mArgsInfo.S7_UseMostInferiorPartOnly_flag);
 
   // Station 3A
-  f->SetFuzzyThreshold("3A", "Sternum", mArgsInfo.tS3A_Sternum_arg);
-  f->SetFuzzyThreshold("3A", "SubclavianArtery", mArgsInfo.tS3A_SubclavianArtery_arg);
+  f->SetFuzzyThreshold("3A", "Sternum", mArgsInfo.S3A_ft_Sternum_arg);
+  f->SetFuzzyThreshold("3A", "SubclavianArtery", mArgsInfo.S3A_ft_SubclavianArtery_arg);
   
   // Station 2RL
-  f->SetFuzzyThreshold("2RL", "CommonCarotidArtery", mArgsInfo.tS2RL_CommonCarotidArtery_arg);
-  f->SetFuzzyThreshold("2RL", "BrachioCephalicTrunk", mArgsInfo.tS2RL_BrachioCephalicTrunk_arg);
-  f->SetFuzzyThreshold("2RL", "BrachioCephalicVein", mArgsInfo.tS2RL_BrachioCephalicVein_arg);
-  f->SetFuzzyThreshold("2RL", "Aorta", mArgsInfo.tS2RL_Aorta_arg);
-  f->SetFuzzyThreshold("2RL", "SubclavianArteryLeft", mArgsInfo.tS2RL_SubclavianArteryLeft_arg);
-  f->SetFuzzyThreshold("2RL", "SubclavianArteryRight", mArgsInfo.tS2RL_SubclavianArteryRight_arg);
+  f->SetFuzzyThreshold("2RL", "CommonCarotidArtery", mArgsInfo.S2RL_ft_CommonCarotidArtery_arg);
+  f->SetFuzzyThreshold("2RL", "BrachioCephalicTrunk", mArgsInfo.S2RL_ft_BrachioCephalicTrunk_arg);
+  f->SetFuzzyThreshold("2RL", "BrachioCephalicVein", mArgsInfo.S2RL_ft_BrachioCephalicVein_arg);
+  f->SetFuzzyThreshold("2RL", "Aorta", mArgsInfo.S2RL_ft_Aorta_arg);
+  f->SetFuzzyThreshold("2RL", "SubclavianArteryLeft", mArgsInfo.S2RL_ft_SubclavianArteryLeft_arg);
+  f->SetFuzzyThreshold("2RL", "SubclavianArteryRight", mArgsInfo.S2RL_ft_SubclavianArteryRight_arg);
 }
 //--------------------------------------------------------------------
 
