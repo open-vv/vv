@@ -498,6 +498,9 @@ RayCastHelper<TInputImage, TCoordRep>
 {
   double maxInterDist, interDist;
   double cornerVect[4][3];
+  for(uint i=0; i<4; i++)
+    for(uint j=0; j<3; j++)
+      cornerVect[i][j] = 0.0; // to avoid warning
   int cross[4][3], noInterFlag[6];
   int nSidesCrossed, crossFlag, c[4];
   double ax, ay, az, bx, by, bz;
