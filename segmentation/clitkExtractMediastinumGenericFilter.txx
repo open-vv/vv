@@ -75,13 +75,14 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   f->SetOutputMediastinumFilename(mArgsInfo.output_arg);
   f->SetVerboseMemoryFlag(mArgsInfo.verboseMemory_flag);
 
+  f->SetDistanceMaxToAnteriorPartOfTheVertebralBody(mArgsInfo.maxAntSpine_arg);
   f->SetUseBones(mArgsInfo.useBones_flag);
+
   f->SetIntermediateSpacing(mArgsInfo.spacing_arg);
-  f->SetFuzzyThreshold1(mArgsInfo.fuzzy1_arg);
-  f->SetFuzzyThreshold2(mArgsInfo.fuzzy2_arg);
-  f->SetFuzzyThreshold3(mArgsInfo.fuzzy3_arg);
-  f->SetUpperThreshold(mArgsInfo.upper_arg);
-  f->SetLowerThreshold(mArgsInfo.lower_arg);
+  f->SetFuzzyThreshold("LR_lungs", mArgsInfo.ft_LR_lungs_arg);
+  f->SetFuzzyThreshold("bones", mArgsInfo.ft_bones_arg);
+  f->SetFuzzyThreshold("inf_lungs", mArgsInfo.ft_inf_lungs_arg);
+  f->SetFuzzyThreshold("ant_sternum", mArgsInfo.ft_ant_sternum_arg);
 }
 //--------------------------------------------------------------------
 

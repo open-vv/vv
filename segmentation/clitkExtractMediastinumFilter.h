@@ -27,11 +27,12 @@ namespace clitk {
   //--------------------------------------------------------------------
   /*
     Try to extract the mediastinum part of a thorax CT.
-    Inputs : 
-    - Patient label image
-    - Lungs label image
-    - Bones label image
-    - Trachea label image
+    Input masks needed : 
+    - Patient
+    - Lungs 
+    - Bones [Optional]
+    - Trachea
+    - VertebralBody 
   */
   //--------------------------------------------------------------------
   
@@ -63,6 +64,10 @@ namespace clitk {
     typedef typename MaskImageType::IndexType    MaskImageIndexType; 
     typedef typename MaskImageType::PointType    MaskImagePointType; 
         
+    typedef itk::Image<MaskImagePixelType, 2>    MaskSliceType;
+    typedef typename MaskSliceType::Pointer      MaskSlicePointer;
+    typedef typename MaskSliceType::PointType    MaskSlicePointType;
+
     /** Standard class typedefs. */
     typedef itk::ImageToImageFilter<TImageType, MaskImageType> Superclass;
     typedef ExtractMediastinumFilter            Self;
@@ -116,24 +121,15 @@ namespace clitk {
     itkSetMacro(IntermediateSpacing, double);
     itkGetConstMacro(IntermediateSpacing, double);
 
-    itkSetMacro(FuzzyThreshold1, double);
-    itkGetConstMacro(FuzzyThreshold1, double);
-
-    itkSetMacro(FuzzyThreshold2, double);
-    itkGetConstMacro(FuzzyThreshold2, double);
-
-    itkSetMacro(FuzzyThreshold3, double);
-    itkGetConstMacro(FuzzyThreshold3, double);
-
     itkBooleanMacro(UseBones);
     itkSetMacro(UseBones, bool);
     itkGetConstMacro(UseBones, bool);
 
-    itkSetMacro(UpperThreshold, double);
-    itkGetConstMacro(UpperThreshold, double);
+    itkSetMacro(DistanceMaxToAnteriorPartOfTheVertebralBody, double);
+    itkGetConstMacro(DistanceMaxToAnteriorPartOfTheVertebralBody, double);
 
-    itkSetMacro(LowerThreshold, double);
-    itkGetConstMacro(LowerThreshold, double);
+    void SetFuzzyThreshold(std::string tag, double value);
+    double GetFuzzyThreshold(std::string tag);
 
   protected:
     ExtractMediastinumFilter();
@@ -156,15 +152,18 @@ namespace clitk {
     MaskImagePixelType m_BackgroundValue;
     MaskImagePixelType m_ForegroundValue;
 
-    typename MaskImageType::Pointer output;
+    MaskImagePointer output;
+    MaskImagePointer patient;
+    MaskImagePointer lung;
+    MaskImagePointer bones;
+    MaskImagePointer trachea;
 
+    std::map<std::string, double> m_FuzzyThreshold;
     double m_IntermediateSpacing;
-    double m_FuzzyThreshold1;
-    double m_FuzzyThreshold2;
-    double m_FuzzyThreshold3;
     bool   m_UseBones;
-    double m_UpperThreshold;
-    double m_LowerThreshold;
+    double m_DistanceMaxToAnteriorPartOfTheVertebralBody;
+
+    void RemovePostPartOfVertebralBody();
     
     std::string m_OutputMediastinumFilename;
     
