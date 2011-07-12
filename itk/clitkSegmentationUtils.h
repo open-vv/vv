@@ -359,6 +359,10 @@ namespace clitk {
   void AndNot(ImageType * input, 
               const ImageType * object, 
               typename ImageType::PixelType BG=0);
+  template<class ImageType>
+  void And(ImageType * input, 
+           const ImageType * object, 
+           typename ImageType::PixelType BG=0);
   //--------------------------------------------------------------------
  
 
@@ -429,6 +433,23 @@ namespace clitk {
   Clone(const ImageType * input);
   //--------------------------------------------------------------------
   
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::Pointer
+  SliceBySliceSetBackgroundFromSingleLine(const ImageType * input, 
+                                          typename ImageType::PixelType BG, 
+                                          typename ImageType::PointType & A, 
+                                          typename ImageType::PointType & B, 
+                                          int dim1, int dim2, bool removeLowerPartFlag);
+  //--------------------------------------------------------------------
+  
+  
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  void
+  FillRegionWithValue(ImageType * input, typename ImageType::PixelType value, typename ImageType::RegionType & region);
+  //--------------------------------------------------------------------
 
 }
 
