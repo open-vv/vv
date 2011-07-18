@@ -28,7 +28,7 @@ then
   exit 1
 fi
 
-nb_phase_file=`find $1 -iname "*[0-9]*.mhd" -o -iname "*[0-9]*\]*.mhd" | wc -l`
+nb_phase_file=`find $1 -maxdepth 1 -iname "*[0-9]*.mhd" -o -iname "*[0-9]*\]*.mhd" | wc -l`
 if [ $nb_phase_file = 0 ]
 then
   echo "Error: no phase found"
@@ -38,7 +38,7 @@ fi
 ########## CT #########
 
 list_pattern=""
-list_phase_file=`find $1 -iname "*[0-9]*.mhd"`
+list_phase_file=`find $1 -maxdepth 1 -iname "*[0-9]*.mhd"`
 for phase_file in $list_phase_file
 do
   phase_file_name=`basename $phase_file`
@@ -63,9 +63,9 @@ do
     pattern=""
   fi
 
-  nbph=`find $1 -iname "${pattern}*[0-9]*.mhd" | wc -l`
-  orig=`find $1 -iname "${pattern}*[0-9]*.mhd" | sort | head -n 1`
-  listph=`find $1 -iname "${pattern}*[0-9]*.raw" | sort`
+  nbph=`find $1 -maxdepth 1 -iname "${pattern}*[0-9]*.mhd" | wc -l`
+  orig=`find $1 -maxdepth 1 -iname "${pattern}*[0-9]*.mhd" | sort | head -n 1`
+  listph=`find $1 -maxdepth 1 -iname "${pattern}*[0-9]*.raw" | sort`
 
   file_name_4D="${pattern}_4D.mhd"
   echo $file_name_4D
@@ -78,7 +78,7 @@ done
 ############ PET ###########
 
 list_pattern=""
-list_phase_file=`find $1 -iname "*[0-9]*\]*.mhd"`
+list_phase_file=`find $1 -maxdepth 1 -iname "*[0-9]*\]*.mhd"`
 for phase_file in $list_phase_file
 do
   phase_file_name=`basename $phase_file`
@@ -103,9 +103,9 @@ do
     pattern=""
   fi
 
-  nbph=`find $1 -iname "*[0-9]${pattern}\]*.mhd" | wc -l`
-  orig=`find $1 -iname "*[0-9]${pattern}\]*.mhd" | sort | head -n 1`
-  listph=`find $1 -iname "*[0-9]${pattern}\]*.raw" | sort`
+  nbph=`find $1 -maxdepth 1 -iname "*[0-9]${pattern}\]*.mhd" | wc -l`
+  orig=`find $1 -maxdepth 1 -iname "*[0-9]${pattern}\]*.mhd" | sort | head -n 1`
+  listph=`find $1 -maxdepth 1 -iname "*[0-9]${pattern}\]*.raw" | sort`
   
   file_name_4D=`basename "$orig" | sed "s/[0-9]${pattern}\]/${pattern}\]/;s/_.mhd/_4D.mhd/"`
 

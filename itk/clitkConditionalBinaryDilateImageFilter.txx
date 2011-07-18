@@ -277,9 +277,9 @@ namespace clitk
 		    IndexType idx = tmpRegIndexIt.GetIndex() + *itIdx;
 		    if( outputRegion.IsInside( idx ) )
 		      { 
-			// JV output->SetPixel( idx, static_cast<OutputPixelType> ( foregroundValue ) ); }
-			if (input->GetPixel(idx)==backgroundValue)
-			  output->SetPixel( idx, static_cast<OutputPixelType> ( foregroundValue ) ); 
+            // JV output->SetPixel( idx, static_cast<OutputPixelType> ( foregroundValue ) ); }
+            if (input->GetPixel(idx)==backgroundValue)
+                output->SetPixel( idx, static_cast<OutputPixelType> ( foregroundValue ) ); 
 		      }
 		  }
  
