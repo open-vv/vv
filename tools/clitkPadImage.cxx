@@ -40,6 +40,7 @@ int pad_like(typename ImageType::Pointer input, const std::string& likeFile, Pad
   
   SizeType size = input->GetLargestPossibleRegion().GetSize(), like_size = like_image->GetLargestPossibleRegion().GetSize();
   PointType origin = input->GetOrigin(), like_origin = like_image->GetOrigin();
+  
   PointType lower_bound, like_lower_bound;
   PointType upper_bound, like_upper_bound;
   PointValueType auxl = 0, auxu = 0;
