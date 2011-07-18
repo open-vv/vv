@@ -16,13 +16,14 @@ enum
 typedef unsigned int DimType;
 
 template <class ImageType, class PadBoundType, DimType dim>
-int pad_like(typename ImageType::Pointer input, const std::string& likeFile, PadBoundType* pad_lower, PadBoundType* pad_upper)
+int pad_like(typename ImageType::Pointer input, const std::string& likeFile, PadBoundType* padLower, PadBoundType* padUpper)
 {
   typedef typename ImageType::SpacingType SpacingType;
   typedef typename ImageType::RegionType RegionType;
   typedef typename ImageType::SizeType SizeType;
   typedef typename ImageType::IndexType IndexType;
   typedef typename ImageType::PointType PointType;
+  typedef typename ImageType::PointValueType PointValueType;
 
   typedef itk::ImageFileReader<ImageType> ImageReaderType;
   typename ImageReaderType::Pointer reader = ImageReaderType::New();
@@ -33,27 +34,33 @@ int pad_like(typename ImageType::Pointer input, const std::string& likeFile, Pad
 
   SpacingType spacing = input->GetSpacing(), like_spacing = like_image->GetSpacing(); 
   if (spacing != like_spacing) {
-    std::cerr << spacing << " " << like_spacing << std::endl;
+    std::cerr << "Like-image must have same spacing as input: " << spacing << " " << like_spacing << std::endl;
     return ERR_NOT_SAME_SPACING;
   }
   
   SizeType size = input->GetLargestPossibleRegion().GetSize(), like_size = like_image->GetLargestPossibleRegion().GetSize();
   PointType origin = input->GetOrigin(), like_origin = like_image->GetOrigin();
-  IndexType lower_bound, like_lower_bound;
-  SizeType upper_bound, like_upper_bound;
+  PointType lower_bound, like_lower_bound;
+  PointType upper_bound, like_upper_bound;
+  PointValueType auxl = 0, auxu = 0;
   for (DimType i = 0; i < dim; i++) {
     lower_bound[i] = origin[i];
     like_lower_bound[i] = like_origin[i];
-    pad_lower[i] = (PadBoundType)(abs(like_lower_bound[i] - lower_bound[i])/spacing[i]);
+    auxl = round(((lower_bound[i] - like_lower_bound[i])/spacing[i]));
     
     upper_bound[i] = (lower_bound[i] + size[i]*spacing[i]);
     like_upper_bound[i] = (like_lower_bound[i] + like_size[i]*spacing[i]);
-    pad_upper[i] = (PadBoundType)((like_upper_bound[i] - upper_bound[i])/spacing[i]);
-    if (pad_upper[i] < 0)
-      pad_upper[i] = 0;
-  }
+    auxu = round(((like_upper_bound[i] - upper_bound[i])/spacing[i]));
 
-   
+    if (auxl < 0 || auxu < 0) {
+      std::cerr << "Like-image's bounding box must be larger than input's" << std::endl;
+      return ERR_NOT_LIKE_LARGER;
+    }
+
+    padLower[i] = (PadBoundType)auxl;
+    padUpper[i] = (PadBoundType)auxu;
+  }
+  
   return ERR_SUCCESS;
 }
 
