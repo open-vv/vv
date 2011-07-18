@@ -263,6 +263,10 @@ IF (CLITK_BUILD_TOOLS)
   ADD_EXECUTABLE(clitkJacobianImage clitkJacobianImage.cxx clitkJacobianImageGenericFilter.cxx ${clitkJacobianImage_GGO_C})
   TARGET_LINK_LIBRARIES(clitkJacobianImage clitkCommon ${ITK_LIBRARIES})
   
+  WRAP_GGO(clitkPadImage_GGO_C clitkPadImage.ggo)
+  ADD_EXECUTABLE(clitkPadImage clitkPadImage.cxx ${clitkPadImage_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkPadImage clitkCommon ${ITK_LIBRARIES})
+
   IF(CLITK_EXPERIMENTAL)
 
     WRAP_GGO(clitkBinaryImageToMesh_GGO_C clitkBinaryImageToMesh.ggo)
