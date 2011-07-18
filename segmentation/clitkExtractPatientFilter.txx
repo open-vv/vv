@@ -127,7 +127,8 @@ GenerateOutputInformation() {
   bounds[Dim - 1] = 0;
   padFilter->SetPadLowerBound(bounds);
   padFilter->SetPadUpperBound(bounds);
-
+  padFilter->Update();
+  
   typedef itk::BinaryThresholdImageFilter<InputImageType, InternalImageType> BinarizeFilterType;
   typename BinarizeFilterType::Pointer binarizeFilter=BinarizeFilterType::New();
   binarizeFilter->SetInput(padFilter->GetOutput());
@@ -135,6 +136,7 @@ GenerateOutputInformation() {
   binarizeFilter->SetUpperThreshold(GetUpperThreshold());
   binarizeFilter ->SetInsideValue(this->GetForegroundValue());
   binarizeFilter ->SetOutsideValue(this->GetBackgroundValue());
+  padFilter->GetOutput()->ReleaseData();
   working_image = binarizeFilter->GetOutput();
 
   typedef itk::BinaryBallStructuringElement<InternalPixelType,Dim> KernelType;
@@ -152,6 +154,7 @@ GenerateOutputInformation() {
     openFilter2->SetForegroundValue(1);
     openFilter2->SetKernel(kernel);
     openFilter2->Update();
+    working_image->ReleaseData();
     working_image = openFilter2->GetOutput();
   }
 
@@ -163,6 +166,8 @@ GenerateOutputInformation() {
   connectFilter->SetBackgroundValue(this->GetBackgroundValue());
   connectFilter->SetFullyConnected(false);
   connectFilter->Update();
+  working_image->ReleaseData();
+  working_image = connectFilter->GetOutput();
 
   if (this->GetVerboseOptionFlag()) std::cout << ("RelabelComponentImageFilter") << std::endl;
   // Sort labels according to size
@@ -171,6 +176,7 @@ GenerateOutputInformation() {
   relabelFilter->InPlaceOn();
   relabelFilter->SetInput(connectFilter->GetOutput());
   relabelFilter->Update();
+  working_image->ReleaseData();
   working_image = relabelFilter->GetOutput();
 
   // End
@@ -192,6 +198,7 @@ GenerateOutputInformation() {
     f->SetFullyConnected(true);
     f->SetNumberOfNewLabels(GetNumberOfNewLabels1());
     f->Update();
+    working_image->ReleaseData();
     working_image = f->GetOutput();
     StopCurrentStep<InternalImageType>(working_image);
   }
@@ -207,16 +214,22 @@ GenerateOutputInformation() {
   binarizeFilter2->SetUpperThreshold(GetLastKeep());
   binarizeFilter2 ->SetInsideValue(0);
   binarizeFilter2 ->SetOutsideValue(1);
-  //  binarizeFilter2 ->Update(); // NEEDED ?
+  binarizeFilter2 ->Update();
+  working_image->ReleaseData();
+  working_image = binarizeFilter2->GetOutput();
 
   typename ConnectFilterType::Pointer connectFilter2 = ConnectFilterType::New();
-  connectFilter2->SetInput(binarizeFilter2->GetOutput());
+  connectFilter2->SetInput(working_image);
   connectFilter2->SetBackgroundValue(this->GetBackgroundValue());
   connectFilter2->SetFullyConnected(false);
+  connectFilter2->Update();
+  working_image->ReleaseData();
+  working_image = connectFilter2->GetOutput();
 
   typename RelabelFilterType::Pointer relabelFilter2 = RelabelFilterType::New();
-  relabelFilter2->SetInput(connectFilter2->GetOutput());
+  relabelFilter2->SetInput(working_image);
   relabelFilter2->Update();
+  working_image->ReleaseData();
   working_image = relabelFilter2->GetOutput();
 
   // Keep main label
@@ -240,6 +253,7 @@ GenerateOutputInformation() {
     f->SetFullyConnected(true);
     f->SetNumberOfNewLabels(GetNumberOfNewLabels2());
     f->Update();
+    working_image->ReleaseData();
     working_image = f->GetOutput();
     StopCurrentStep<InternalImageType>(working_image);
   }
@@ -268,6 +282,7 @@ GenerateOutputInformation() {
     //  closeFilter->SetBackgroundValue(SetBackgroundValue());
     closeFilter->SetKernel(structuringElement);
     closeFilter->Update();
+    working_image->ReleaseData();
     working_image = closeFilter->GetOutput();
     StopCurrentStep<InternalImageType>(working_image);
   }
@@ -279,6 +294,7 @@ GenerateOutputInformation() {
   typename CastImageFilterType::Pointer caster= CastImageFilterType::New();
   caster->SetInput(working_image);
   caster->Update();
+  working_image->ReleaseData();
   output = caster->GetOutput();
 
   //--------------------------------------------------------------------
@@ -291,6 +307,7 @@ GenerateOutputInformation() {
     cropFilter->SetInput(output);
     cropFilter->SetBackgroundValue(GetBackgroundValue());
     cropFilter->Update();
+    output->ReleaseData();
     output = cropFilter->GetOutput();
     StopCurrentStep<MaskImageType>(output);
   }
@@ -303,6 +320,7 @@ GenerateOutputInformation() {
     cropFilter->SetLowerBoundaryCropSize(bounds);
     cropFilter->SetUpperBoundaryCropSize(bounds);
     cropFilter->Update();
+    output->ReleaseData();
     output = cropFilter->GetOutput();
   }
 }
