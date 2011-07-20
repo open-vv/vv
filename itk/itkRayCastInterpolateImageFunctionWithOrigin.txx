@@ -1,4 +1,4 @@
-/*=========================================================================
+﻿/*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
   Authors belong to:
@@ -20,7 +20,7 @@
 #include "itkRayCastInterpolateImageFunctionWithOrigin.h"
 
 #include "vnl/vnl_math.h"
-
+#include "clitkCommon.h"
 
 // Put the helper class in an anonymous namespace so that it is not
 // exposed to the user
@@ -498,8 +498,8 @@ RayCastHelper<TInputImage, TCoordRep>
 {
   double maxInterDist, interDist;
   double cornerVect[4][3];
-  for(uint i=0; i<4; i++)
-    for(uint j=0; j<3; j++)
+  for(clitk::uint i=0; i<4; i++)
+    for(clitk::uint j=0; j<3; j++)
       cornerVect[i][j] = 0.0; // to avoid warning
   int cross[4][3], noInterFlag[6];
   int nSidesCrossed, crossFlag, c[4];

@@ -1,4 +1,4 @@
-/*=========================================================================
+﻿/*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
   Authors belong to: 
@@ -354,8 +354,8 @@ namespace clitk
 	    for(unsigned int r=0; r<ImageDimension; r++) 
 	      {
 		chosenSpacing[r]= m_ArgsInfo.spacing_arg[r];
-		gridSizeOnImage[r] = ceil( (double) transformRegion.GetSize()[r] / ( round(chosenSpacing[r]/fixedImageSpacing[r]) ) );
-		adaptedSpacing[r]= ( round(chosenSpacing[r]/fixedImageSpacing[r]) *fixedImageSpacing[r] ) ;
+		gridSizeOnImage[r] = ceil( (double) transformRegion.GetSize()[r] / ( itk::Math::Round<double>(chosenSpacing[r]/fixedImageSpacing[r]) ) );
+		adaptedSpacing[r]= ( itk::Math::Round<double>(chosenSpacing[r]/fixedImageSpacing[r]) *fixedImageSpacing[r] ) ;
 	      }
 	    if (m_Verbose) std::cout<<"The chosen control point spacing "<<chosenSpacing<<"..."<<std::endl;
 	    if (m_Verbose) std::cout<<"The control points spacing was adapted to "<<adaptedSpacing<<"..."<<std::endl; 
