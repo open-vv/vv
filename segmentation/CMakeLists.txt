@@ -20,80 +20,102 @@ IF(CLITK_BUILD_SEGMENTATION)
     WRAP_GGO(clitkConnectedComponentLabeling_GGO_C clitkConnectedComponentLabeling.ggo)
     ADD_EXECUTABLE(clitkConnectedComponentLabeling clitkConnectedComponentLabeling.cxx ${clitkConnectedComponentLabeling_GGO_C})
     TARGET_LINK_LIBRARIES(clitkConnectedComponentLabeling clitkCommon ${ITK_LIBRARIES})
+    SET(SEGMENTATION_INSTALL clitkConnectedComponentLabeling)
 
     WRAP_GGO(clitkFillMask_GGO_C clitkFillMask.ggo)
     ADD_EXECUTABLE(clitkFillMask clitkFillMask.cxx ${clitkFillMask_GGO_C})
     TARGET_LINK_LIBRARIES(clitkFillMask clitkCommon ${ITK_LIBRARIES})
+    SET(SEGMENTATION_INSTALL ${TOOLS_INSTALL} clitkFillMask)
 
     ADD_EXECUTABLE(clitkExtractPatient clitkExtractPatient.cxx ${clitkExtractPatient_GGO_C})
     TARGET_LINK_LIBRARIES(clitkExtractPatient clitkCommon ${ITK_LIBRARIES} clitkSegmentationGgoLib)
+    SET(SEGMENTATION_INSTALL ${TOOLS_INSTALL} clitkExtractPatient)
 
     ADD_EXECUTABLE(clitkExtractLung clitkExtractLung.cxx  ${clitkExtractLung_GGO_C})
     TARGET_LINK_LIBRARIES(clitkExtractLung clitkSegmentationGgoLib clitkCommon ${ITK_LIBRARIES})
+    SET(SEGMENTATION_INSTALL ${TOOLS_INSTALL} clitkExtractLung)
 
     # WRAP_GGO(clitkExtractAirwaysTreeInfo_GGO_C clitkExtractAirwaysTreeInfo.ggo)
     # ADD_EXECUTABLE(clitkExtractAirwaysTreeInfo clitkExtractAirwaysTreeInfo.cxx ${clitkExtractAirwaysTreeInfo_GGO_C})
     # TARGET_LINK_LIBRARIES(clitkExtractAirwaysTreeInfo clitkSegmentationGgoLib clitkCommon ${ITK_LIBRARIES})
+    # SET(SEGMENTATION_INSTALL ${TOOLS_INSTALL} clitkExtractAirwaysTreeInfo)
 
     WRAP_GGO(clitkExtractBones_GGO_C clitkExtractBones.ggo)
     ADD_EXECUTABLE(clitkExtractBones clitkExtractBones.cxx ${clitkExtractBones_GGO_C})
     TARGET_LINK_LIBRARIES(clitkExtractBones clitkCommon ${ITK_LIBRARIES} clitkSegmentationGgoLib)
+    SET(SEGMENTATION_INSTALL ${TOOLS_INSTALL} clitkExtractBones)
 
     WRAP_GGO(clitkBool_GGO_C clitkBool.ggo)
     ADD_EXECUTABLE(clitkBool clitkBool.cxx ${clitkBool_GGO_C})
     TARGET_LINK_LIBRARIES(clitkBool clitkCommon ${ITK_LIBRARIES} clitkSegmentationGgoLib)
+    SET(SEGMENTATION_INSTALL ${TOOLS_INSTALL} clitkBool)
 
     WRAP_GGO(clitkExtractMediastinum_GGO_C clitkExtractMediastinum.ggo)
     ADD_EXECUTABLE(clitkExtractMediastinum clitkExtractMediastinum.cxx ${clitkExtractMediastinum_GGO_C})
     TARGET_LINK_LIBRARIES(clitkExtractMediastinum clitkCommon clitkSegmentationGgoLib ${ITK_LIBRARIES})
+    SET(SEGMENTATION_INSTALL ${TOOLS_INSTALL} clitkExtractMediastinum)
 
     WRAP_GGO(clitkExtractLymphStations_GGO_C clitkExtractLymphStations.ggo)
     ADD_EXECUTABLE(clitkExtractLymphStations clitkExtractLymphStations.cxx clitkFilterWithAnatomicalFeatureDatabaseManagement.cxx ${clitkExtractLymphStations_GGO_C})
     TARGET_LINK_LIBRARIES(clitkExtractLymphStations clitkSegmentationGgoLib clitkCommon vtkHybrid)
+    SET(SEGMENTATION_INSTALL ${TOOLS_INSTALL} clitkExtractLymphStations)
 
     WRAP_GGO(clitkExtractMediastinalVessels_GGO_C clitkExtractMediastinalVessels.ggo)
     ADD_EXECUTABLE(clitkExtractMediastinalVessels clitkExtractMediastinalVessels.cxx clitkFilterWithAnatomicalFeatureDatabaseManagement.cxx ${clitkExtractMediastinalVessels_GGO_C})
     TARGET_LINK_LIBRARIES(clitkExtractMediastinalVessels clitkSegmentationGgoLib clitkCommon vtkHybrid)
+    SET(SEGMENTATION_INSTALL ${TOOLS_INSTALL} clitkExtractMediastinalVessels)
 
     WRAP_GGO(clitkMorphoMath_GGO_C clitkMorphoMath.ggo)
     ADD_EXECUTABLE(clitkMorphoMath clitkMorphoMath.cxx ${clitkMorphoMath_GGO_C})
     TARGET_LINK_LIBRARIES(clitkMorphoMath clitkCommon ${ITK_LIBRARIES})
+    SET(SEGMENTATION_INSTALL ${TOOLS_INSTALL} clitkMorphoMath)
 
     WRAP_GGO(clitkMorphoReconstruction_GGO_C clitkMorphoReconstruction.ggo)
     ADD_EXECUTABLE(clitkMorphoReconstruction clitkMorphoReconstruction.cxx clitkMorphoReconstructionGenericFilter.cxx ${clitkMorphoReconstruction_GGO_C})
     TARGET_LINK_LIBRARIES(clitkMorphoReconstruction clitkSegmentationGgoLib clitkCommon ${ITK_LIBRARIES})
+    SET(SEGMENTATION_INSTALL ${TOOLS_INSTALL} clitkMorphoReconstruction)
 
     WRAP_GGO(clitkCalculateDistanceMap_GGO_C clitkCalculateDistanceMap.ggo)
     ADD_EXECUTABLE(clitkCalculateDistanceMap clitkCalculateDistanceMap.cxx clitkCalculateDistanceMapGenericFilter.cxx ${clitkCalculateDistanceMap_GGO_C})
     TARGET_LINK_LIBRARIES(clitkCalculateDistanceMap clitkCommon ${ITK_LIBRARIES})
+    SET(SEGMENTATION_INSTALL ${TOOLS_INSTALL} clitkCalculateDistanceMap)
 
     WRAP_GGO(clitkLevelSetSegmentation_GGO_C clitkLevelSetSegmentation.ggo)
     ADD_EXECUTABLE(clitkLevelSetSegmentation clitkLevelSetSegmentation.cxx clitkLevelSetSegmentationGenericFilter.cxx ${clitkLevelSetSegmentation_GGO_C})
     TARGET_LINK_LIBRARIES(clitkLevelSetSegmentation clitkCommon ${ITK_LIBRARIES})
+    SET(SEGMENTATION_INSTALL ${TOOLS_INSTALL} clitkLevelSetSegmentation)
 
     WRAP_GGO(clitkAnd_GGO_C clitkAnd.ggo)
     ADD_EXECUTABLE(clitkAnd clitkAnd.cxx clitkAndGenericFilter.cxx ${clitkAnd_GGO_C})
     TARGET_LINK_LIBRARIES(clitkAnd clitkCommon ${ITK_LIBRARIES} )
+    SET(SEGMENTATION_INSTALL ${TOOLS_INSTALL} clitkAnd)
 
     WRAP_GGO(clitkRegionGrowing_GGO_C clitkRegionGrowing.ggo)
     ADD_EXECUTABLE(clitkRegionGrowing clitkRegionGrowing.cxx clitkRegionGrowingGenericFilter.cxx ${clitkRegionGrowing_GGO_C})
     TARGET_LINK_LIBRARIES(clitkRegionGrowing clitkCommon ${ITK_LIBRARIES})
+    SET(SEGMENTATION_INSTALL ${TOOLS_INSTALL} clitkRegionGrowing)
 
     WRAP_GGO(clitkDecomposeAndReconstruct_GGO_C clitkDecomposeAndReconstruct.ggo)
     ADD_EXECUTABLE(clitkDecomposeAndReconstruct clitkDecomposeAndReconstruct.cxx clitkDecomposeAndReconstructGenericFilter.cxx ${clitkDecomposeAndReconstruct_GGO_C})
     TARGET_LINK_LIBRARIES(clitkDecomposeAndReconstruct clitkCommon ${ITK_LIBRARIES})
+    SET(SEGMENTATION_INSTALL ${TOOLS_INSTALL} clitkDecomposeAndReconstruct)
 
     WRAP_GGO(clitkMotionMask_GGO_C clitkMotionMask.ggo)
     ADD_EXECUTABLE(clitkMotionMask clitkMotionMask.cxx clitkMotionMaskGenericFilter.cxx ${clitkMotionMask_GGO_C})
     TARGET_LINK_LIBRARIES(clitkMotionMask clitkCommon ${ITK_LIBRARIES})
+    SET(SEGMENTATION_INSTALL ${TOOLS_INSTALL} clitkMotionMask)
 
     WRAP_GGO(clitkFillImageRegion_GGO_C clitkFillImageRegion.ggo)
     ADD_EXECUTABLE(clitkFillImageRegion clitkFillImageRegion.cxx clitkFillImageRegionGenericFilter.cxx ${clitkFillImageRegion_GGO_C})
     TARGET_LINK_LIBRARIES(clitkFillImageRegion clitkCommon ${ITK_LIBRARIES})
+    SET(SEGMENTATION_INSTALL ${TOOLS_INSTALL} clitkFillImageRegion)
 
     # WRAP_GGO(clitkTestFilter_GGO_C clitkTestFilter.ggo)
     # ADD_EXECUTABLE(clitkTestFilter clitkTestFilter.cxx ${clitkTestFilter_GGO_C})
     # TARGET_LINK_LIBRARIES(clitkTestFilter clitkSegmentationGgoLib clitkCommon vtkHybrid)
+    # SET(SEGMENTATION_INSTALL ${TOOLS_INSTALL} clitkTestFilter)
+    
+    INSTALL (TARGETS ${SEGMENTATION_INSTALL} DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
 
 ENDIF(CLITK_BUILD_SEGMENTATION)
 
