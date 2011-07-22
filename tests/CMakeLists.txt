@@ -1,9 +1,12 @@
 cmake_policy(SET CMP0005 NEW)
 #=========================================================
-
 #=========================================================
 # Data tests path
-ADD_DEFINITIONS(-DCLITK_TEST_DATA_PATH=\"${CLITK_TEST_DATA_PATH}/\")
+FIND_PATH(CLITK_TEST_DATA_PATH Lung3D.mhd)
+IF(NOT ${CLITK_TEST_DATA_PATH} MATCHES "NOTFOUND$")
+ SET(CLITK_TEST_DATA_PATH "${CLITK_TEST_DATA_PATH}/")
+ENDIF()
+ADD_DEFINITIONS(-DCLITK_TEST_DATA_PATH="${CLITK_TEST_DATA_PATH}")
 #=========================================================
 #=========================================================
 # Google test macro
