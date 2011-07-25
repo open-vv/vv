@@ -1,14 +1,6 @@
 #! /bin/bash -x
 
-MAX_THREADS=2
-
-check_threads()
-{
-    while [[ $(jobs -p | wc -l) -ge $1 ]]; do
-        jobs
-        sleep 10
-    done
-}
+. common.sh
 
 extract_patient()
 {
@@ -132,6 +124,9 @@ motion_mask()
   dir=`dirname $1`
   cd $dir
 
+  # import variables specific to each patient
+  source variables
+
   resample_spacing=$2
   resample_algo=$3
 
@@ -252,9 +247,6 @@ fi
 # reg_in_list: list of registration image files (inside lungs)
 # reg_out_list: list of registration image files (outside lungs)
 #
-
-# import variables specific to each patient
-source variables
 
 if [ $1 != "using-as-lib" ]; then
   motion_mask $1 $2 $3
