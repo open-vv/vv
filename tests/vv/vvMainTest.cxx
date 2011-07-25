@@ -4,5 +4,8 @@
 int main(int argc, char** argv){
   QApplication* q=new QApplication ( argc, argv );
   ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+  
+  int a=RUN_ALL_TESTS();
+  delete q;
+  return a;
 }
