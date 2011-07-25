@@ -17,8 +17,8 @@
 
   =========================================================================*/
 
-#ifndef CLITKDICOMRT_ROI_CONVERTTOIMAGEFILTER_H
-#define CLITKDICOMRT_ROI_CONVERTTOIMAGEFILTER_H
+#ifndef CLITKDICOMRTSTRUCT2IMAGEFILTER_H
+#define CLITKDICOMRT_TRUCT2IMAGEFILTER_H
 
 #include "clitkDicomRT_ROI.h"
 #include "clitkImageCommon.h"
@@ -29,11 +29,11 @@
 namespace clitk {
 
   //--------------------------------------------------------------------
-  class DicomRT_ROI_ConvertToImageFilter {
+  class DicomRTStruct2ImageFilter {
     
   public:
-    DicomRT_ROI_ConvertToImageFilter();
-    ~DicomRT_ROI_ConvertToImageFilter();
+    DicomRTStruct2ImageFilter();
+    ~DicomRTStruct2ImageFilter();
 
     void SetROI(clitk::DicomRT_ROI * roi);
     ///This is used to create a mask with the same characteristics as an input image
@@ -66,7 +66,7 @@ namespace clitk {
 //--------------------------------------------------------------------
 
 template <int Dimension> 
-typename itk::Image<unsigned char,Dimension>::ConstPointer clitk::DicomRT_ROI_ConvertToImageFilter::GetITKOutput()
+typename itk::Image<unsigned char,Dimension>::ConstPointer clitk::DicomRTStruct2ImageFilter::GetITKOutput()
 {
   assert(mBinaryImage);
   typedef itk::Image<unsigned char,Dimension> ConnectorImageType;
@@ -77,5 +77,5 @@ typename itk::Image<unsigned char,Dimension>::ConstPointer clitk::DicomRT_ROI_Co
   return connector->GetOutput();
 }
 //--------------------------------------------------------------------
-#endif // CLITKDICOMRT_ROI_CONVERTTOIMAGEFILTER_H
+#endif // CLITKDICOMRT_TRUCT2IMAGEFILTER_H
 

@@ -21,7 +21,7 @@
 #include <algorithm>
 
 // clitk
-#include "clitkDicomRT_ROI_ConvertToImageFilter.h"
+#include "clitkDicomRTStruct2ImageFilter.h"
 #include "clitkImageCommon.h"
 
 // vtk
@@ -33,7 +33,7 @@
 
 
 //--------------------------------------------------------------------
-clitk::DicomRT_ROI_ConvertToImageFilter::DicomRT_ROI_ConvertToImageFilter()
+clitk::DicomRTStruct2ImageFilter::DicomRTStruct2ImageFilter()
 {
   mROI = NULL;
   mWriteOutput = false;
@@ -43,19 +43,19 @@ clitk::DicomRT_ROI_ConvertToImageFilter::DicomRT_ROI_ConvertToImageFilter()
 
 
 //--------------------------------------------------------------------
-clitk::DicomRT_ROI_ConvertToImageFilter::~DicomRT_ROI_ConvertToImageFilter()
+clitk::DicomRTStruct2ImageFilter::~DicomRTStruct2ImageFilter()
 {
 
 }
 //--------------------------------------------------------------------
 
-bool clitk::DicomRT_ROI_ConvertToImageFilter::ImageInfoIsSet() const
+bool clitk::DicomRTStruct2ImageFilter::ImageInfoIsSet() const
 {
   return mSize.size() && mSpacing.size() && mOrigin.size();
 }
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI_ConvertToImageFilter::SetROI(clitk::DicomRT_ROI * roi)
+void clitk::DicomRTStruct2ImageFilter::SetROI(clitk::DicomRT_ROI * roi)
 {
   mROI = roi;
 }
@@ -63,7 +63,7 @@ void clitk::DicomRT_ROI_ConvertToImageFilter::SetROI(clitk::DicomRT_ROI * roi)
 
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI_ConvertToImageFilter::SetCropMaskEnabled(bool b)
+void clitk::DicomRTStruct2ImageFilter::SetCropMaskEnabled(bool b)
 {
   mCropMask = b;
 }
@@ -71,7 +71,7 @@ void clitk::DicomRT_ROI_ConvertToImageFilter::SetCropMaskEnabled(bool b)
 
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI_ConvertToImageFilter::SetOutputImageFilename(std::string s)
+void clitk::DicomRTStruct2ImageFilter::SetOutputImageFilename(std::string s)
 {
   mOutputFilename = s;
   mWriteOutput = true;
@@ -80,7 +80,7 @@ void clitk::DicomRT_ROI_ConvertToImageFilter::SetOutputImageFilename(std::string
 
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI_ConvertToImageFilter::SetImageFilename(std::string f)
+void clitk::DicomRTStruct2ImageFilter::SetImageFilename(std::string f)
 {
   itk::ImageIOBase::Pointer header = clitk::readImageHeader(f);
   if (header->GetNumberOfDimensions() < 3) {
@@ -101,23 +101,23 @@ void clitk::DicomRT_ROI_ConvertToImageFilter::SetImageFilename(std::string f)
 }
 //--------------------------------------------------------------------
 
-void clitk::DicomRT_ROI_ConvertToImageFilter::SetOutputOrigin(const double* origin)
+void clitk::DicomRTStruct2ImageFilter::SetOutputOrigin(const double* origin)
 {
   std::copy(origin,origin+3,std::back_inserter(mOrigin));
 }
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI_ConvertToImageFilter::SetOutputSpacing(const double* spacing)
+void clitk::DicomRTStruct2ImageFilter::SetOutputSpacing(const double* spacing)
 {
   std::copy(spacing,spacing+3,std::back_inserter(mSpacing));
 }
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI_ConvertToImageFilter::SetOutputSize(const unsigned long* size)
+void clitk::DicomRTStruct2ImageFilter::SetOutputSize(const unsigned long* size)
 {
   std::copy(size,size+3,std::back_inserter(mSize));
 }
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI_ConvertToImageFilter::Update()
+void clitk::DicomRTStruct2ImageFilter::Update()
 {
   if (!mROI) {
     std::cerr << "Error. No ROI set, please use SetROI." << std::endl;
@@ -221,7 +221,7 @@ void clitk::DicomRT_ROI_ConvertToImageFilter::Update()
 
 
 //--------------------------------------------------------------------
-vtkImageData * clitk::DicomRT_ROI_ConvertToImageFilter::GetOutput()
+vtkImageData * clitk::DicomRTStruct2ImageFilter::GetOutput()
 {
   assert(mBinaryImage);
   return mBinaryImage;
