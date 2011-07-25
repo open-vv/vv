@@ -10,40 +10,34 @@ ExtractStation_3P_SetDefaultValues()
 
 
 //--------------------------------------------------------------------
-template <class ImageType>
+template <class TImageType>
 void 
-clitk::ExtractLymphStationsFilter<ImageType>::
-ExtractStation_3P_SI_Limits() 
+clitk::ExtractLymphStationsFilter<TImageType>::
+ExtractStation_3P()
 {
-  /*
-    Apex of the chest & Carina.
-  */
-  StartNewStep("[Station 3P] Inf/Sup limits with apex of the chest and carina");
+  if (!CheckForStation("3P")) return;
 
-  // Get Carina position (has been determined in Station8)
-  m_CarinaZ = GetAFDB()->GetDouble("CarinaZ");
-  
-  // Get Apex of the Chest. The "lungs" structure is autocroped so we
-  // consider the most superior point.
-  MaskImagePointer Lungs = GetAFDB()->template GetImage<MaskImageType>("Lungs");
-  MaskImageIndexType index = Lungs->GetLargestPossibleRegion().GetIndex();
-  index += Lungs->GetLargestPossibleRegion().GetSize();
-  MaskImagePointType p;
-  Lungs->TransformIndexToPhysicalPoint(index, p);
-  p[2] -= 5; // 5 mm below because the autocrop is slightly above the apex
-  double m_ApexOfTheChest = p[2];
-
-  /* Crop support :
-     Superior limit = carina
-     Inferior limit = Apex of the chest */
-  m_Working_Support = 
-    clitk::CropImageAlongOneAxis<MaskImageType>(m_Working_Support, 2, 
-                                                m_CarinaZ,
-                                                m_ApexOfTheChest, true,
-                                                GetBackgroundValue());
-
-  StopCurrentStep<MaskImageType>(m_Working_Support);
+  // Get the current support 
+  StartNewStep("[Station 3P] Get the current 3P suppport");
+  m_Working_Support = m_ListOfSupports["S3P"];
   m_ListOfStations["3P"] = m_Working_Support;
+  StopCurrentStep<MaskImageType>(m_Working_Support);
+  
+  // LR limits inferiorly
+  ExtractStation_3P_LR_inf_Limits();
+  
+  // LR limits superiorly => not here for the moment because not
+  //  clear in the def
+  // ExtractStation_3P_LR_sup_Limits_2(); //TODO
+  // ExtractStation_3P_LR_sup_Limits();   // old version to change
+  
+  ExtractStation_8_Single_CCL_Limits(); // YES 8 !
+  ExtractStation_3P_Remove_Structures(); // after CCL
+  
+  // Store image filenames into AFDB 
+  writeImage<MaskImageType>(m_ListOfStations["3P"], "seg/Station3P.mhd");
+  GetAFDB()->SetImageFilename("Station3P", "seg/Station3P.mhd"); 
+  WriteAFDB();   
 }
 //--------------------------------------------------------------------
 
@@ -54,171 +48,16 @@ void
 clitk::ExtractLymphStationsFilter<ImageType>::
 ExtractStation_3P_Remove_Structures() 
 {
-  /*
-    3 - (sup) remove Aorta, VB, subcl
-    not LR subcl ! -> a séparer LR ?
-    (inf) remove Eso, Aorta, Azygousvein
-  */
-
   StartNewStep("[Station 3P] Remove some structures.");
 
   Remove_Structures("3P", "Aorta");
   Remove_Structures("3P", "VertebralBody");
-  Remove_Structures("3P", "SubclavianArtery");
+  Remove_Structures("3P", "SubclavianArteryLeft");
+  Remove_Structures("3P", "SubclavianArteryRight");
   Remove_Structures("3P", "Esophagus");
-  Remove_Structures("3P", "Azygousvein");
+  Remove_Structures("3P", "AzygousVein");
   Remove_Structures("3P", "Thyroid");
   Remove_Structures("3P", "VertebralArtery");
-
-  StopCurrentStep<MaskImageType>(m_Working_Support);
-  m_ListOfStations["3P"] = m_Working_Support;
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-template <class ImageType>
-void 
-clitk::ExtractLymphStationsFilter<ImageType>::
-ExtractStation_3P_Ant_Limits() 
-{
-  /*
-    Ant Post limit : 
-
-    Anteriorly, it is in contact with the posterior aspect of Stations
-    1–2 superiorly (Fig. 2A–C) and with Stations 4R and 4L inferiorly
-    (Fig. 2D–I and 3A–C). The anterior limit of Station 3P is kept
-    posterior to the trachea, which is defined by an imaginary
-    horizontal line running along the posterior wall of the trachea
-    (Fig. 2B,E, red line). Posteriorly, it is delineated along the
-    anterior and lateral borders of the vertebral body until an
-    imaginary horizontal line running 1 cm posteriorly to the
-    anterior border of the vertebral body (Fig. 2D).
-
-    1 - post to the trachea : define an imaginary line just post the
-    Trachea and remove what is anterior. 
-
-  */
-  StartNewStep("[Station 3P] Ant limits with Trachea ");
-
-  // Load Trachea
-  MaskImagePointer Trachea = GetAFDB()->template GetImage<MaskImageType>("Trachea");
-  
-  // Crop like current support (need by SliceBySliceSetBackgroundFromLineSeparation after)
-  Trachea = 
-    clitk::ResizeImageLike<MaskImageType>(Trachea, m_Working_Support, GetBackgroundValue());
-  
-  // Slice by slice, determine the most post point of the trachea (A)
-  // and consider a second point on the same horizontal line (B)
-  std::vector<MaskImagePointType> p_A;
-  std::vector<MaskImagePointType> p_B;
-  std::vector<typename MaskSliceType::Pointer> slices;
-  clitk::ExtractSlices<MaskImageType>(Trachea, 2, slices);
-  MaskImagePointType p;
-  typename MaskSliceType::PointType sp;
-  for(uint i=0; i<slices.size(); i++) {
-    // First only consider the main CCL (trachea, not bronchus)
-    slices[i] = Labelize<MaskSliceType>(slices[i], 0, true, 100);
-    slices[i] = KeepLabels<MaskSliceType>(slices[i], GetBackgroundValue(), 
-                                          GetForegroundValue(), 1, 1, true);
-    // Find most posterior point
-    clitk::FindExtremaPointInAGivenDirection<MaskSliceType>(slices[i], GetBackgroundValue(), 
-                                                            1, false, sp);
-    clitk::PointsUtils<MaskImageType>::Convert2DTo3D(sp, Trachea, i, p);
-    p_A.push_back(p);
-    p[0] -= 20;
-    p_B.push_back(p);
-  }
-  clitk::WriteListOfLandmarks<MaskImageType>(p_A, "trachea-post.txt");
-
-  // Remove Ant part above those lines
-  clitk::SliceBySliceSetBackgroundFromLineSeparation<MaskImageType>(m_Working_Support, 
-                                                                    p_A, p_B,
-                                                                    GetBackgroundValue(), 
-                                                                    1, 10);
-  // End, release memory
-  GetAFDB()->template ReleaseImage<MaskImageType>("Trachea");
-  StopCurrentStep<MaskImageType>(m_Working_Support);
-  m_ListOfStations["3P"] = m_Working_Support;
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-template <class ImageType>
-void 
-clitk::ExtractLymphStationsFilter<ImageType>::
-ExtractStation_3P_Post_Limits() 
-{
-  /*
-    Ant Post limit : 
-
-    Anteriorly, it is in contact with the posterior aspect of Stations
-    1–2 superiorly (Fig. 2A–C) and with Stations 4R and 4L inferiorly
-    (Fig. 2D–I and 3A–C). The anterior limit of Station 3P is kept
-    posterior to the trachea, which is defined by an imaginary
-    horizontal line running along the posterior wall of the trachea
-    (Fig. 2B,E, red line). Posteriorly, it is delineated along the
-    anterior and lateral borders of the vertebral body until an
-    imaginary horizontal line running 1 cm posteriorly to the
-    anterior border of the vertebral body (Fig. 2D).
-
-    2 - post to the trachea : define an imaginary line just post the
-    Trachea and remove what is anterior. 
-
-  */
-  StartNewStep("[Station 3P] Post limits with VertebralBody ");
-
-  // Load VertebralBody
-  MaskImagePointer VertebralBody = GetAFDB()->template GetImage<MaskImageType>("VertebralBody");
-  
-  // Crop like current support (need by SliceBySliceSetBackgroundFromLineSeparation after)
-  VertebralBody = clitk::ResizeImageLike<MaskImageType>(VertebralBody, m_Working_Support, GetBackgroundValue());
-  
-  writeImage<MaskImageType>(VertebralBody, "vb.mhd");
-  
-  // Compute VertebralBody most Ant position (again because slices
-  // changes). Slice by slice, determine the most post point of the
-  // trachea (A) and consider a second point on the same horizontal
-  // line (B)
-  std::vector<MaskImagePointType> p_A;
-  std::vector<MaskImagePointType> p_B;
-  std::vector<typename MaskSliceType::Pointer> slices;
-  clitk::ExtractSlices<MaskImageType>(VertebralBody, 2, slices);
-  MaskImagePointType p;
-  typename MaskSliceType::PointType sp;
-  for(uint i=0; i<slices.size(); i++) {
-    // Find most anterior point
-    bool found = clitk::FindExtremaPointInAGivenDirection<MaskSliceType>(slices[i], GetBackgroundValue(), 
-                                                                         1, true, sp);
-    
-    // If the VertebralBody stop superiorly before the end of
-    // m_Working_Support, we consider the same previous point.
-    if (!found) {
-      p = p_A.back();
-      p[2] += VertebralBody->GetSpacing()[2];
-      p_A.push_back(p);
-      p = p_B.back();
-      p[2] += VertebralBody->GetSpacing()[2];
-      p_B.push_back(p);
-    }
-    else {
-      clitk::PointsUtils<MaskImageType>::Convert2DTo3D(sp, VertebralBody, i, p);
-      p[1] += 10; // Consider 10 mm more post
-      p_A.push_back(p);
-      p[0] -= 20;
-      p_B.push_back(p);
-    }
-  }
-  clitk::WriteListOfLandmarks<MaskImageType>(p_A, "vb-ant.txt");
-  
-
-  // Remove Ant part above those lines
-  clitk::SliceBySliceSetBackgroundFromLineSeparation<MaskImageType>(m_Working_Support, 
-                                                                    p_A, p_B,
-                                                                    GetBackgroundValue(), 
-                                                                    1, -10);
-  writeImage<MaskImageType>(m_Working_Support, "a.mhd");
 
   StopCurrentStep<MaskImageType>(m_Working_Support);
   m_ListOfStations["3P"] = m_Working_Support;
@@ -424,19 +263,21 @@ clitk::ExtractLymphStationsFilter<ImageType>::
 ExtractStation_3P_LR_sup_Limits_2() 
 {
   /*
-    Use VertebralArtery to limit.
+    "On the right side, the limit is deﬁned by the air–soft-tissue
+    interface. On the left side, it is deﬁned by the air–tissue
+    interface superiorly (Fig. 2A–C) and the aorta inferiorly
+    (Figs. 2D–I and 3A–C)."
+
+    sup : 
+    Resizelike support : Trachea, SubclavianArtery
+    Trachea, slice by slice, get centroid trachea
+    SubclavianArtery, slice by slice, CCL
+    prendre la 1ère à L et R, not at Left
     
-
-  StartNewStep("[Station 3P] Left/Right limits with VertebralArtery");
-
-  // Load structures
-  MaskImagePointer VertebralArtery = GetAFDB()->template GetImage<MaskImageType>("VertebralArtery");
-
-  clitk::AndNot<MaskImageType>(m_Working_Support, VertebralArtery);
-
-  StopCurrentStep<MaskImageType>(m_Working_Support);
-  m_ListOfStations["3P"] = m_Working_Support;
   */
+  //  StartNewStep("[Station 3P] Left/Right limits (superior part) ");
+  
+
 }
 //--------------------------------------------------------------------
 
@@ -460,6 +301,9 @@ ExtractStation_3P_LR_inf_Limits()
   MaskImagePointer AzygousVein = GetAFDB()->template GetImage<MaskImageType>("AzygousVein");
   MaskImagePointer Aorta = GetAFDB()->template GetImage<MaskImageType>("Aorta");
 
+  DD("ici");
+  writeImage<MaskImageType>(m_Working_Support, "ws.mhd");
+
   typedef clitk::AddRelativePositionConstraintToLabelImageFilter<MaskImageType> RelPosFilterType;
   typename RelPosFilterType::Pointer relPosFilter = RelPosFilterType::New();
   relPosFilter->VerboseStepFlagOff();
@@ -469,19 +313,20 @@ ExtractStation_3P_LR_inf_Limits()
   relPosFilter->SetInputObject(AzygousVein); 
   relPosFilter->AddOrientationTypeString("R");
   relPosFilter->SetInverseOrientationFlag(true);
-  //      relPosFilter->SetIntermediateSpacing(3);
+  relPosFilter->SetIntermediateSpacing(3);
   relPosFilter->SetIntermediateSpacingFlag(false);
   relPosFilter->SetFuzzyThreshold(0.7);
   relPosFilter->AutoCropFlagOn();
   relPosFilter->Update();
   m_Working_Support = relPosFilter->GetOutput();
 
+  DD("la");
   writeImage<MaskImageType>(m_Working_Support, "before-L-aorta.mhd");
   relPosFilter->SetInput(m_Working_Support); 
   relPosFilter->SetInputObject(Aorta); 
   relPosFilter->AddOrientationTypeString("L");
   relPosFilter->SetInverseOrientationFlag(true);
-  //      relPosFilter->SetIntermediateSpacing(3);
+  relPosFilter->SetIntermediateSpacing(3);
   relPosFilter->SetIntermediateSpacingFlag(false);
   relPosFilter->SetFuzzyThreshold(0.7);
   relPosFilter->AutoCropFlagOn();

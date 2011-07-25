@@ -109,6 +109,9 @@ namespace clitk {
     void AddComputeStation(std::string station) ;
     void SetFuzzyThreshold(std::string station, std::string tag, double value);
     double GetFuzzyThreshold(std::string station, std::string tag);
+    itkGetConstMacro(ComputeStationsSupportsFlag, bool);
+    itkSetMacro(ComputeStationsSupportsFlag, bool);
+    itkBooleanMacro(ComputeStationsSupportsFlag);
 
   protected:
     ExtractLymphStationsFilter();
@@ -131,9 +134,14 @@ namespace clitk {
     void Remove_Structures(std::string station, std::string s);
 
     // Functions common to several stations
-    void FindLineForS7S8Separation(MaskImagePointType & A, MaskImagePointType & B);
-    double FindCarinaSlicePosition();
+    double FindCarina();
+    double FindApexOfTheChest();
+    double FindSuperiorBorderOfAorticArch();
+    double FindInferiorBorderOfAorticArch();
     void FindLeftAndRightBronchi();
+    void FindLineForS7S8Separation(MaskImagePointType & A, MaskImagePointType & B);
+    MaskImagePointer FindAntPostVessels();
+    MaskImagePointer FindAntPostVessels2();
 
     // Global parameters
     typedef std::map<std::string, double> FuzzyThresholdByStructureType;
@@ -141,11 +149,28 @@ namespace clitk {
 
     // Station's supports
     void ExtractStationSupports();
+    void Support_SupInf_S1RL();
+    void Support_LeftRight_S1R_S1L();
+    void Support_SupInf_S2R_S2L();
+    void Support_LeftRight_S2R_S2L();
+    void Support_SupInf_S4R_S4L();
+    void Support_LeftRight_S4R_S4L();
+    void Support_Post_S1S2S4();
+    void Support_S3P();
+    void Support_S3A();
+    void Support_S5();
+    void Support_S6();
+
+    MaskImagePointer LimitsWithTrachea(MaskImageType * input, 
+                                       int extremaDirection, int lineDirection, 
+                                       double offset, double maxSupPosition);
+    MaskImagePointer LimitsWithTrachea(MaskImageType * input, 
+                                       int extremaDirection, int lineDirection, 
+                                       double offset);
 
     // Station 8
     // double m_DistanceMaxToAnteriorPartOfTheSpine;
     double m_DiaphragmInferiorLimit;
-    double m_CarinaZ;
     double m_OriginOfRightMiddleLobeBronchusZ;
     double m_InjectedThresholdForS8;
     MaskImagePointer m_Esophagus;
@@ -164,13 +189,20 @@ namespace clitk {
     // Station 3P
     void ExtractStation_3P();
     void ExtractStation_3P_SetDefaultValues();
-    void ExtractStation_3P_SI_Limits();
-    void ExtractStation_3P_Remove_Structures();
-    void ExtractStation_3P_Ant_Limits();
-    void ExtractStation_3P_Post_Limits();
-    void ExtractStation_3P_LR_sup_Limits();
-    void ExtractStation_3P_LR_sup_Limits_2();
     void ExtractStation_3P_LR_inf_Limits();
+    void ExtractStation_3P_LR_sup_Limits_2();
+    void ExtractStation_3P_Remove_Structures();
+    void ExtractStation_3P_LR_sup_Limits();
+
+    // Station 3A
+    void ExtractStation_3A();
+    void ExtractStation_3A_SetDefaultValues();
+    void ExtractStation_3A_AntPost_S5();
+    void ExtractStation_3A_AntPost_S6();
+    void ExtractStation_3A_AntPost_Superiorly();
+    void ExtractStation_3A_SI_Limits();
+    void ExtractStation_3A_Ant_Limits();
+    void ExtractStation_3A_Post_Limits();
 
     // Station 2RL
     void ExtractStation_2RL();
@@ -184,13 +216,6 @@ namespace clitk {
     void ExtractStation_2RL_SeparateRL();
     vtkSmartPointer<vtkPolyData> Build3DMeshFrom2DContour(const std::vector<ImagePointType> & points);
 
-    // Station 3A
-    void ExtractStation_3A();
-    void ExtractStation_3A_SetDefaultValues();
-    void ExtractStation_3A_SI_Limits();
-    void ExtractStation_3A_Ant_Limits();
-    void ExtractStation_3A_Post_Limits();
-
     // Station 7
     void ExtractStation_7();
     void ExtractStation_7_SetDefaultValues();
@@ -202,6 +227,7 @@ namespace clitk {
     void ExtractStation_7_Posterior_Limits();   
     void ExtractStation_7_Remove_Structures();
     bool m_S7_UseMostInferiorPartOnlyFlag;
+    bool m_ComputeStationsSupportsFlag;
     MaskImagePointer m_Working_Trachea;
     MaskImagePointer m_LeftBronchus;
     MaskImagePointer m_RightBronchus;

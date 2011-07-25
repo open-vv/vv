@@ -69,6 +69,8 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   f->SetVerboseMemoryFlag(mArgsInfo.verboseMemory_flag);
   f->SetAFDBFilename(mArgsInfo.afdb_arg);  
 
+  f->SetComputeStationsSupportsFlag(!mArgsInfo.nosupport_flag);
+
   // Station 8
   //f->SetDistanceMaxToAnteriorPartOfTheSpine(mArgsInfo.S8_maxAntSpine_arg);
   f->SetFuzzyThreshold("8", "Esophagus", mArgsInfo.S8_ft_Esophagus_arg);
@@ -111,6 +113,11 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   for(uint i=0; i<mArgsInfo.station_given; i++)
     f->AddComputeStation(mArgsInfo.station_arg[i]);
 
+  // Station 3A
+  f->SetFuzzyThreshold("3A", "SVC", mArgsInfo.S3A_ft_SVC_arg);
+  f->SetFuzzyThreshold("3A", "Aorta", mArgsInfo.S3A_ft_Aorta_arg);
+  f->SetFuzzyThreshold("3A", "SubclavianArtery", mArgsInfo.S3A_ft_SubclavianArtery_arg);
+  
   // Station 7
   f->SetFuzzyThreshold("7", "Bronchi", mArgsInfo.S7_ft_Bronchi_arg);
   f->SetFuzzyThreshold("7", "LeftSuperiorPulmonaryVein", mArgsInfo.S7_ft_LeftSuperiorPulmonaryVein_arg);
@@ -120,10 +127,6 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   f->SetFuzzyThreshold("7", "SVC", mArgsInfo.S7_ft_SVC_arg);
   f->SetS7_UseMostInferiorPartOnlyFlag(mArgsInfo.S7_UseMostInferiorPartOnly_flag);
 
-  // Station 3A
-  f->SetFuzzyThreshold("3A", "Sternum", mArgsInfo.S3A_ft_Sternum_arg);
-  f->SetFuzzyThreshold("3A", "SubclavianArtery", mArgsInfo.S3A_ft_SubclavianArtery_arg);
-  
   // Station 2RL
   f->SetFuzzyThreshold("2RL", "CommonCarotidArtery", mArgsInfo.S2RL_ft_CommonCarotidArtery_arg);
   f->SetFuzzyThreshold("2RL", "BrachioCephalicTrunk", mArgsInfo.S2RL_ft_BrachioCephalicTrunk_arg);

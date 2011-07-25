@@ -65,7 +65,7 @@ ExtractStation_7_SI_Limits()
                                                            A, B, 2, 0, false);
 
   // Get the CarinaZ position
-  m_CarinaZ = FindCarinaSlicePosition();
+  double m_CarinaZ = FindCarina();
   
   // Crop support
   m_Working_Support = 

@@ -18,6 +18,14 @@ option "afdb"          a	"Input Anatomical Feature DB"     string  	no
 option "input"         i	"Input filename"                  string  	no
 option "output"        o 	"Output lungs mask filename"      string 	no
 option "station"       - 	"Force to compute station even if already exist in the DB"      string 	no multiple
+option "nosupport"     -        "Do not recompute the station supports if already available"   flag off
+
+
+section "Options for Station 3A"
+option "S3A_ft_SVC"              - "Fuzzy Threshold for NotPost to SVC" double default="0.5" no 
+option "S3A_ft_Aorta"            - "Fuzzy Threshold for NotPost to Aorta" double default="0.5" no 
+option "S3A_ft_SubclavianArtery" - "Fuzzy Threshold for Ant to SubclavianArtery" double default="0.2" no 
+
 
 section "Options for Station 8"
 option "S8_esophagusDilatationForAnt"   - "Dilatation of esophagus, in mm, for 'anterior' limits (default=15,2,1)" double no multiple
@@ -32,10 +40,6 @@ option "S7_ft_RightPulmonaryArtery"       - "Fuzzy Threshold for RightPulmonaryA
 option "S7_ft_LeftPulmonaryArtery"        - "Fuzzy Threshold for LeftPulmonaryArtery (NOT USEFUL YET)" double default="0.5" no 
 option "S7_ft_SVC"                        - "Fuzzy Threshold for SVC" double default="0.2" no 
 option "S7_UseMostInferiorPartOnly"    - "Inferior separation with S8."  flag off
-
-section "Options for Station 3A"
-option "S3A_ft_Sternum"          - "Fuzzy Threshold for Post to Sternum" double default="0.5" no 
-option "S3A_ft_SubclavianArtery" - "Fuzzy Threshold for Ant to SubclavianArtery" double default="0.2" no 
 
 section "Options for Station 2RL"
 option "S2RL_ft_CommonCarotidArtery"   - "Threshold for NotAntTo to CommonCarotidArtery"   double default="0.7" no 
