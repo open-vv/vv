@@ -161,12 +161,14 @@ bool clitk::AnatomicalFeatureDatabase::TagExist(std::string tag)
 }
 //--------------------------------------------------------------------
 
+
 //-------------------------------------------------------------------- 
 void clitk::AnatomicalFeatureDatabase::SetDouble(std::string tag, double value)
 {
   m_MapOfTag[tag] = clitk::toString(value);
 }
 //-------------------------------------------------------------------- 
+
 
 //-------------------------------------------------------------------- 
 double clitk::AnatomicalFeatureDatabase::GetDouble(std::string tag)
@@ -182,5 +184,15 @@ double clitk::AnatomicalFeatureDatabase::GetDouble(std::string tag)
                         << m_MapOfTag[tag] << "' into double.");
   }
   return a;  
+}
+//-------------------------------------------------------------------- 
+
+
+//-------------------------------------------------------------------- 
+void clitk::AnatomicalFeatureDatabase::RemoveTag(TagType tag)
+{
+  if (TagExist(tag)) {
+    m_MapOfTag.erase(m_MapOfTag.find(tag));
+  }
 }
 //-------------------------------------------------------------------- 
