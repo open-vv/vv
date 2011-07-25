@@ -17,15 +17,15 @@
 
   =========================================================================*/
 
-#include "clitkDicomRT_ROI_ConvertToImageFilter.h"
+#include "clitkDicomRTStruct2ImageFilter.h"
 #include "clitkDicomRT_StructureSet.h"
-#include "clitkDicomRTStruct2BinaryImage_ggo.h"
+#include "clitkDicomRTStruct2Image_ggo.h"
 
 //--------------------------------------------------------------------
 int main(int argc, char * argv[]) {
 
   // Init command line
-  GGO(clitkDicomRTStruct2BinaryImage, args_info);
+  GGO(clitkDicomRTStruct2Image, args_info);
 
   // Read and display information
   clitk::DicomRT_StructureSet::Pointer s = clitk::DicomRT_StructureSet::New();
@@ -35,7 +35,7 @@ int main(int argc, char * argv[]) {
   }
   
   // New filter to convert to binary image
-  clitk::DicomRT_ROI_ConvertToImageFilter filter;
+  clitk::DicomRTStruct2ImageFilter filter;
   filter.SetCropMaskEnabled(args_info.crop_flag);
   filter.SetImageFilename(args_info.image_arg);  // Used to get spacing + origin
   if (args_info.roi_arg != -1) {
@@ -45,7 +45,7 @@ int main(int argc, char * argv[]) {
   }
   else {
     for(unsigned int i=0; i<s->GetListOfROI().size(); i++) {
-      clitk::DicomRT_ROI_ConvertToImageFilter filter;
+      clitk::DicomRTStruct2ImageFilter filter;
       filter.SetCropMaskEnabled(args_info.crop_flag);
       filter.SetImageFilename(args_info.image_arg);  // Used to get spacing + origin
       std::string name = s->GetListOfROI()[i]->GetName();
