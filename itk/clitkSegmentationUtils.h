@@ -444,11 +444,32 @@ namespace clitk {
                                           int dim1, int dim2, bool removeLowerPartFlag);
   //--------------------------------------------------------------------
   
-  
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::Pointer
+  SliceBySliceSetBackgroundFromPoints(const ImageType * input, 
+                                      typename ImageType::PixelType BG, 
+                                      int sliceDim,
+                                      std::vector<typename ImageType::PointType> & A, 
+                                      bool removeGreaterThanXFlag,
+                                      bool removeGreaterThanYFlag);
+  //--------------------------------------------------------------------
+
+
   //--------------------------------------------------------------------
   template<class ImageType>
   void
-  FillRegionWithValue(ImageType * input, typename ImageType::PixelType value, typename ImageType::RegionType & region);
+  FillRegionWithValue(ImageType * input, typename ImageType::PixelType value, 
+                      typename ImageType::RegionType & region);
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  void
+  GetMinMaxBoundary(ImageType * input, typename ImageType::PointType & min, 
+                    typename ImageType::PointType & max);
   //--------------------------------------------------------------------
 
 }
