@@ -142,6 +142,18 @@ void clitk::DicomRT_StructureSet::Print(std::ostream & os) const
 
 
 //--------------------------------------------------------------------
+void clitk::DicomRT_StructureSet::Write(const std::string & filename)
+{
+#if GDCM_MAJOR_VERSION == 2
+  DD("WRITE TODO");
+#else
+  FATAL("Sorry not compatible with GDCM1, use GDCM2");
+#endif
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
 void clitk::DicomRT_StructureSet::Read(const std::string & filename)
 {
   // Open DICOM

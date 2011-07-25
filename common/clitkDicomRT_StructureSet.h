@@ -36,6 +36,7 @@ public:
 
   void Print(std::ostream & os = std::cout) const;
   void Read(const std::string & filename);
+  void Write(const std::string & filename);
 
   const std::vector<DicomRT_ROI::Pointer> & GetListOfROI() const;
   clitk::DicomRT_ROI * GetROI(int n);
