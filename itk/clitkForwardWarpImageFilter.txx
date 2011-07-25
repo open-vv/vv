@@ -154,6 +154,7 @@ void HelperClass1<InputImageType, OutputImageType, DeformationFieldType>::Thread
   //define some temp variables
   signed long baseIndex[ImageDimension];
   double distance[ImageDimension];
+  for(uint i=0; i<ImageDimension; i++) distance[i] = 0.0; // to avoid warning
   unsigned int dim, counter, upper;
   double overlap, totalOverlap;
   typename OutputImageType::IndexType neighIndex;
@@ -195,7 +196,7 @@ void HelperClass1<InputImageType, OutputImageType, DeformationFieldType>::Thread
         upper = counter;  // each bit indicates upper/lower neighbour
 
         // get neighbor index and overlap fraction
-        for( dim = 0; dim < 3; dim++ ) {
+        for( dim = 0; dim < ImageDimension; dim++ ) {
           if ( upper & 1 ) {
             neighIndex[dim] = baseIndex[dim] + 1;
             overlap *= distance[dim];
