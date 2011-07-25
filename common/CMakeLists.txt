@@ -49,7 +49,7 @@ ADD_LIBRARY(clitkDicomRTStruct STATIC
   clitkDicomRT_Contour.cxx
   clitkDicomRT_ROI.cxx
   clitkDicomRT_StructureSet.cxx
-  clitkDicomRT_ROI_ConvertToImageFilter.cxx
+  clitkDicomRTStruct2ImageFilter.cxx
 )
 
 TARGET_LINK_LIBRARIES(clitkDicomRTStruct vtkHybrid) 
