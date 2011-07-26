@@ -33,15 +33,25 @@ int getOutputOptionIndex(int argc, char** argv){
   }
   return NO_OUTPUT_OPTION;
 }
+
 std::string getTmpFileName(){
   char fileName[] = "/tmp/vvTempXXXXXX";
-  int fd = mkstemp(fileName);
-  if(fd==-1){
+  
+  #ifdef _WIN32
+    errno_t err = tmpfile_s(&fileName, strlen(fileName));
+  #else
+    int err=0;
+    int fd = mkstemp(fileName);
+    if(fd==-1) err=1;
+  #endif
+  if(err){
    std::cout<<"couldnot create file. Exiting"<<std::endl;
    exit(TEST_EXITED);
   }
   return std::string(fileName);
 }
+
+
 /**
  * argv
  * [1] executable
