@@ -10,10 +10,11 @@ SET (CUSTOM_TEST_SRC
 )
 
 SET(BUILDNAME ${BUILDNAME}_tools CACHE INTERNAL DOCSTRING)
-
+ADD_DEFINITIONS(-DCLITK_TEST_TOOLS_PATH=\"${PROJECT_BINARY_DIR}/bin/\")
 SET (srcs
   toolTestRunner.cxx
 )
+
 ADD_EXECUTABLE(toolTestRunner ${srcs})
 TARGET_LINK_LIBRARIES(toolTestRunner vvLib ${vvExternalLibs})
 SET(exe ${EXECUTABLE_OUTPUT_PATH}/toolTestRunner) 
