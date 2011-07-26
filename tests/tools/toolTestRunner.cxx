@@ -35,11 +35,13 @@ int getOutputOptionIndex(int argc, char** argv){
 }
 
 std::string getTmpFileName(){
-  char fileName[] = "/tmp/vvTempXXXXXX";
+  
   
   #ifdef _WIN32
-    errno_t err = tmpfile_s(&fileName, strlen(fileName));
+	char fileName[L_tmpnam_s];
+    errno_t err = tmpnam_s(fileName);
   #else
+	char fileName[] = "/tmp/vvTempXXXXXX";
     int err=0;
     int fd = mkstemp(fileName);
     if(fd==-1) err=1;
