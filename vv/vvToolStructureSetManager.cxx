@@ -202,10 +202,18 @@ void vvToolStructureSetManager::AddRoiInTreeWidget(clitk::DicomRT_ROI * roi, QTr
 //------------------------------------------------------------------------------
 void vvToolStructureSetManager::UpdateStructureSetInTreeWidget(int index, clitk::DicomRT_StructureSet * s) {
   // Insert ROI
+  /*
   const std::vector<clitk::DicomRT_ROI::Pointer> & rois = s->GetListOfROI();
   for(unsigned int i=0; i<rois.size(); i++) {
     if (mMapROIToTreeWidget.find(rois[i]) == mMapROIToTreeWidget.end())
       AddRoiInTreeWidget(rois[i], mTree); // replace mTree with ss if several SS
+  }
+  */
+  clitk::DicomRT_StructureSet::ROIConstIteratorType iter;
+  for(iter = s->GetROIs().begin(); iter != s->GetROIs().end(); iter++) {
+    clitk::DicomRT_ROI::Pointer roi = iter->second;
+    if (mMapROIToTreeWidget.find(roi) == mMapROIToTreeWidget.end())
+      AddRoiInTreeWidget(roi, mTree); // replace mTree with ss if several SS
   }
 }
 //------------------------------------------------------------------------------
@@ -334,14 +342,14 @@ void vvToolStructureSetManager::AddImage(vvImage * binaryImage, std::string file
   int n = mCurrentStructureSet->AddBinaryImageAsNewROI(binaryImage, filename);
   mLoadedROIIndex.push_back(n);
   if (m_modeBG) 
-    mCurrentStructureSet->GetROI(n)->SetBackgroundValueLabelImage(BG);
+    mCurrentStructureSet->GetROIFromROINumber(n)->SetBackgroundValueLabelImage(BG);
   else 
-    mCurrentStructureSet->GetROI(n)->SetForegroundValueLabelImage(BG);
+    mCurrentStructureSet->GetROIFromROINumber(n)->SetForegroundValueLabelImage(BG);
   
   // Change color
   if (n<mDefaultLUTColor->GetNumberOfTableValues ()) {
     double * color = mDefaultLUTColor->GetTableValue(n % mDefaultLUTColor->GetNumberOfTableValues ());
-    mCurrentStructureSet->GetROI(n)->SetDisplayColor(color[0], color[1], color[2]);
+    mCurrentStructureSet->GetROIFromROINumber(n)->SetDisplayColor(color[0], color[1], color[2]);
   }
   
   // Add a new roi actor
