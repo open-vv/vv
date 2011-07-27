@@ -35,11 +35,6 @@ public:
   itkNewMacro(Self);
 
   void Print(std::ostream & os = std::cout) const;
-#if GDCM_MAJOR_VERSION == 2
-  void Read(std::map<int, std::string> & rois, gdcm::Item const & item);
-#else
-  void Read(std::map<int, std::string> & rois, gdcm::SQItem * item);
-#endif
   void SetFromBinaryImage(vvImage * image, int n, 
         std::string name, 
         std::vector<double> color, 
@@ -64,10 +59,23 @@ public:
   void SetImage(vvImage * im);
   DicomRT_Contour* GetContour(int n);
 
-  // double GetContourSpacing() const {return mZDelta;}
-  
-protected:
+  // Compute a vtk mesh from the dicom contours
   void ComputeMesh();
+  
+  // Indicate if the mesh is uptodate according to the dicom
+  void SetDicomUptodateFlag(bool b) { m_DicomUptodateFlag = b; }
+  bool GetDicomUptoDateFlag() const { return m_DicomUptodateFlag; }
+  void SetName(std::string n) { mName = n; }
+
+  // Read from DICOM RT STRUCT
+#if GDCM_MAJOR_VERSION == 2
+  bool Read(gdcm::Item * itemInfo, gdcm::Item * itemContour);
+  void UpdateDicomItem();
+#else
+  void Read(std::map<int, std::string> & rois, gdcm::SQItem * item);
+#endif
+
+protected:
   std::string mName;
   std::string mFilename;
   int mNumber;
@@ -78,8 +86,12 @@ protected:
   vvImage::Pointer mImage;
   double mBackgroundValue;
   double mForegroundValue;
-  ///Spacing between two contours
-  // double mZDelta;
+  bool m_DicomUptodateFlag;
+
+#if GDCM_MAJOR_VERSION == 2
+  gdcm::Item * mItemInfo;
+  gdcm::Item * mItemContour;
+#endif
 
 private:
   DicomRT_ROI();

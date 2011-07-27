@@ -36,6 +36,7 @@ clitk::DicomRT_ROI::DicomRT_ROI()
   mMeshIsUpToDate = false;
   mBackgroundValue = 0;
   mForegroundValue = 1;
+  SetDicomUptodateFlag(false);
 }
 //--------------------------------------------------------------------
 
@@ -134,21 +135,38 @@ double clitk::DicomRT_ROI::GetForegroundValueLabelImage() const
 
 //--------------------------------------------------------------------
 #if GDCM_MAJOR_VERSION == 2
-void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::Item const & item)
+bool clitk::DicomRT_ROI::Read(gdcm::Item * itemInfo, gdcm::Item * itemContour)
 {
-  const gdcm::DataSet& nestedds = item.GetNestedDataSet();
-
+  // Keep dicom item
+  mItemInfo = itemInfo;
+  mItemContour = itemContour;
+  // DD(mItemInfo);
+  
+  // ROI number [Referenced ROI Number]
+  const gdcm::DataSet & nesteddsInfo = mItemInfo->GetNestedDataSet();
+  gdcm::Attribute<0x3006,0x0022> roinumber;
+  roinumber.SetFromDataSet( nesteddsInfo );
+  int nb1 = roinumber.GetValue();
+  
+  // Check this is the same with the other item
+  const gdcm::DataSet & nestedds = mItemContour->GetNestedDataSet();
   gdcm::Attribute<0x3006,0x0084> referencedroinumber;
   referencedroinumber.SetFromDataSet( nestedds );
-  // Change number if needed
+  int nb2 = referencedroinumber.GetValue();
+  
+  // Must never be different
+  if (nb1 != nb2) {
+    DD(nb2);
+    DD(nb1);
+    FATAL("nb1 must equal nb2" << std::endl);
+  }
+  mNumber = nb1;
 
-  // TODO
-
-  // ROI number [Referenced ROI Number]
-  mNumber = referencedroinumber.GetValue();
-
-  // Retrieve ROI Name
-  mName = rois[mNumber];
+  // Retrieve ROI Name (in the info item)
+  gdcm::Attribute<0x3006,0x26> roiname;
+  roiname.SetFromDataSet( nesteddsInfo );
+  mName = roiname.GetValue();
+  // DD(mName);
 
   // ROI Color [ROI Display Color]
   gdcm::Attribute<0x3006,0x002a> color = {};
@@ -163,7 +181,8 @@ void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::Item cons
   if( !nestedds.FindDataElement( tcsq ) )
     {
       std::cerr << "Warning. Could not read contour for structure <" << mName << ">, number" << mNumber << " ? I ignore it" << std::endl;
-      return;
+      SetDicomUptodateFlag(true);
+      return false;
     }
   const gdcm::DataElement& csq = nestedds.GetDataElement( tcsq );
   gdcm::SmartPointer<gdcm::SequenceOfItems> sqi2 = csq.GetValueAsSQ();
@@ -181,15 +200,12 @@ void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::Item cons
         mListOfContours.push_back(c);
       }
     }
+  SetDicomUptodateFlag(true);
+  return true;
 }
 #else
 void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::SQItem * item)
 {
-
-  // Change number if needed
-
-  // TODO
-
   // ROI number [Referenced ROI Number]
   mNumber = atoi(item->GetEntryValue(0x3006,0x0084).c_str());
 
@@ -215,6 +231,7 @@ void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::SQItem * 
   else {
     std::cerr << "Warning. Could not read contour for structure <" << mName << ">, number" << mNumber << " ? I ignore it" << std::endl;
   }
+  SetDicomUptodateFlag(true);
 }
 #endif
 //--------------------------------------------------------------------
@@ -237,10 +254,15 @@ vtkPolyData * clitk::DicomRT_ROI::GetMesh()
   return mMesh;
 }
 //--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
 clitk::DicomRT_Contour * clitk::DicomRT_ROI::GetContour(int n)
 {
   return mListOfContours[n];
 }
+//--------------------------------------------------------------------
+
 
 //--------------------------------------------------------------------
 void clitk::DicomRT_ROI::ComputeMesh()
@@ -257,6 +279,34 @@ void clitk::DicomRT_ROI::ComputeMesh()
 }
 //--------------------------------------------------------------------
 
+
+#if GDCM_MAJOR_VERSION == 2
+
+//--------------------------------------------------------------------
+void clitk::DicomRT_ROI::UpdateDicomItem()
+{
+  if (GetDicomUptoDateFlag()) return;
+  DD("ROI::UpdateDicomItem");
+  DD(GetName());  
+
+  // From now, only some item can be modified
+
+  // Set ROI Name 0x3006,0x26> 
+  gdcm::Attribute<0x3006,0x26> roiname;
+  roiname.SetValue(GetName());
+  gdcm::DataElement de = roiname.GetAsDataElement();
+  gdcm::DataSet & ds = mItemInfo->GetNestedDataSet();  
+  ds.Replace(de);
+
+  // Update contours
+  for(uint i=0; i<mListOfContours.size(); i++) {
+    DD(i);
+    DicomRT_Contour::Pointer roi = mListOfContours[i];
+    roi->UpdateDicomItem(mItemContour);
+  }
+}
+//--------------------------------------------------------------------
+#endif
 
 //--------------------------------------------------------------------
 void clitk::DicomRT_ROI::SetFromBinaryImage(vvImage * image, int n,
