@@ -83,7 +83,7 @@ vvROIActor * vvStructureSetActor::GetROIActor(int n)
 void vvStructureSetActor::CreateNewROIActor(int n, bool modeBG)
 {
   // Check
-  clitk::DicomRT_ROI * roi = mStructureSet->GetROI(n);
+  clitk::DicomRT_ROI * roi = mStructureSet->GetROIFromROINumber(n);
   if (roi == NULL) {
     std::cerr << "Error. No ROI number " << n << std::endl;
     exit(0);
