@@ -20,10 +20,6 @@
 #include "clitkDicomRT_StructureSet.h"
 #include <vtksys/SystemTools.hxx>
 #include "gdcmFile.h"
-#if GDCM_MAJOR_VERSION == 2
-#include "gdcmReader.h"
-#include "gdcmAttribute.h"
-#endif
 
 //--------------------------------------------------------------------
 clitk::DicomRT_StructureSet::DicomRT_StructureSet()
@@ -35,6 +31,7 @@ clitk::DicomRT_StructureSet::DicomRT_StructureSet()
   mName = "NoName";
   mDate = "NoDate";
   mTime = "NoTime";
+  mFile = NULL;
 }
 //--------------------------------------------------------------------
 
@@ -103,23 +100,21 @@ const std::string & clitk::DicomRT_StructureSet::GetTime() const
 
 
 //--------------------------------------------------------------------
-const std::vector<clitk::DicomRT_ROI::Pointer> & clitk::DicomRT_StructureSet::GetListOfROI() const
-{
-  return mListOfROI;
-}
+// const std::vector<clitk::DicomRT_ROI::Pointer> & clitk::DicomRT_StructureSet::GetListOfROI() const
+// {
+//   return mListOfROI;
+// }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-clitk::DicomRT_ROI* clitk::DicomRT_StructureSet::GetROI(int n)
+clitk::DicomRT_ROI* clitk::DicomRT_StructureSet::GetROIFromROINumber(int n)
 {
-  if (mMapOfROIIndex.find(n) == mMapOfROIIndex.end()) {
+  if (mROIs.find(n) == mROIs.end()) {
     std::cerr << "No ROI number " << n << std::endl;
     return NULL;
   }
-  //  DD(mListOfROI[mMapOfROIIndex[n]]->GetName());
-  //DD(mListOfROI[mMapOfROIIndex[n]]->GetROINumber());
-  return mListOfROI[mMapOfROIIndex[n]];
+  return mROIs[n];
 }
 //--------------------------------------------------------------------
 
@@ -133,19 +128,68 @@ void clitk::DicomRT_StructureSet::Print(std::ostream & os) const
      << "Struct Label  = " << mLabel << std::endl
      << "Struct Name   = " << mName << std::endl
      << "Struct Time   = " << mTime << std::endl
-     << "Number of ROI = " << mListOfROI.size() << std::endl;
-  for(unsigned int i=0; i<mListOfROI.size(); i++) {
-    mListOfROI[i]->Print(os);
+     << "Number of ROI = " << mROIs.size() << std::endl;
+  for(ROIConstIteratorType iter = mROIs.begin(); iter != mROIs.end(); iter++) {
+    iter->second->Print(os);
   }
 }
 //--------------------------------------------------------------------
 
 
+#if GDCM_MAJOR_VERSION == 2
+//--------------------------------------------------------------------
+int clitk::DicomRT_StructureSet::ReadROINumber(const gdcm::Item & item)
+{
+  // 0x3006,0x0022 = [ROI Number]
+  const gdcm::DataSet & nestedds = item.GetNestedDataSet();
+  gdcm::Attribute<0x3006,0x0022> roinumber;
+  roinumber.SetFromDataSet( nestedds );
+  return roinumber.GetValue();  
+}
+//--------------------------------------------------------------------
+#endif
+
 //--------------------------------------------------------------------
 void clitk::DicomRT_StructureSet::Write(const std::string & filename)
 {
 #if GDCM_MAJOR_VERSION == 2
-  DD("WRITE TODO");
+  DD("DCM RT Writer");
+
+  // Assert that the gdcm file is still open (we can write only if it was readed)
+  if (mFile == NULL) {
+    //assert(mFile != NULL);
+    FATAL("Sorry, I can write DICOM only if it was read first from a file with 'Read' function");
+  }
+
+  // Loop and update each ROI 
+  for(ROIIteratorType iter = mROIs.begin(); iter != mROIs.end(); iter++) {
+    iter->second->UpdateDicomItem();
+  }
+
+  // Write [ Structure Set ROI Sequence ] = 0x3006,0x0020
+  gdcm::DataSet & ds = mFile->GetDataSet();
+  gdcm::Tag tssroisq(0x3006,0x0020);
+  const gdcm::DataElement &ssroisq = ds.GetDataElement( tssroisq );
+  gdcm::DataElement de(ssroisq);
+  de.SetValue(*mROIInfoSequenceOfItems);
+  ds.Replace(de);
+  
+  // Write [ ROI Contour Sequence ] = 0x3006,0x0039 
+  DD("ici");
+  gdcm::Tag troicsq(0x3006,0x0039);
+  const gdcm::DataElement &roicsq = ds.GetDataElement( troicsq );
+  gdcm::DataElement de2(roicsq);
+  de2.SetValue(*mROIContoursSequenceOfItems);
+  ds.Replace(de);
+  
+  // Write dicom
+  gdcm::Writer writer;
+  //writer.CheckFileMetaInformationOff();
+  writer.SetFileName(filename.c_str());
+  writer.SetFile(*mFile);
+  DD("before write");
+  writer.Write();
+  DD("End write");
 #else
   FATAL("Sorry not compatible with GDCM1, use GDCM2");
 #endif
@@ -158,17 +202,17 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename)
 {
   // Open DICOM
 #if GDCM_MAJOR_VERSION == 2
-  gdcm::Reader reader;
-  reader.SetFileName(filename.c_str());
-  reader.Read();
-
-  const gdcm::File & file = reader.GetFile();
-  const gdcm::DataSet & ds = file.GetDataSet();
-
+  // Read gdcm file
+  mReader = new gdcm::Reader;
+  mReader->SetFileName(filename.c_str());
+  mReader->Read();
+  mFile = &(mReader->GetFile());
+  const gdcm::DataSet & ds = mFile->GetDataSet();
+  
   // Check file type
   //Verify if the file is a RT-Structure-Set dicom file
   gdcm::MediaStorage ms;
-  ms.SetFromFile(file);
+  ms.SetFromFile(*mFile);
   if( ms != gdcm::MediaStorage::RTStructureSetStorage )
     {
     std::cerr << "Error. the file " << filename
@@ -208,12 +252,17 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename)
   mName      = atname.GetValue();
   mTime      = time.GetValue();
 
+  // Temporary store the list of items
+  std::map<int, gdcm::Item*> mMapOfROIInfo;
+  std::map<int, gdcm::Item*> mMapOfROIContours;
+
   //----------------------------------
   // Read all ROI Names and number
   // 0x3006,0x0020 = [ Structure Set ROI Sequence ]
   gdcm::Tag tssroisq(0x3006,0x0020);
   const gdcm::DataElement &ssroisq = ds.GetDataElement( tssroisq );
-  gdcm::SmartPointer<gdcm::SequenceOfItems> roi_seq = ssroisq.GetValueAsSQ();
+  mROIInfoSequenceOfItems = ssroisq.GetValueAsSQ();
+  gdcm::SmartPointer<gdcm::SequenceOfItems> & roi_seq = mROIInfoSequenceOfItems;
   assert(roi_seq); // TODO error message
   for(unsigned int ridx = 0; ridx < roi_seq->GetNumberOfItems(); ++ridx)
     {
@@ -222,13 +271,13 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename)
 
     gdcm::Attribute<0x3006,0x26> roiname;
     roiname.SetFromDataSet( nestedds );
-    std::string name = roiname.GetValue();      // 0x3006,0x0026 = [ROI Name]
-    gdcm::Attribute<0x3006,0x0022> roinumber;
-    roinumber.SetFromDataSet( nestedds );
-    int nb = roinumber.GetValue();  // 0x3006,0x0022 = [ROI Number]
-    // Change number if needed
+    std::string name = roiname.GetValue(); // 0x3006,0x0026 = [ROI Name]
 
-    //TODO
+    // 0x3006,0x0022 = [ROI Number]
+    int nb = ReadROINumber(item);
+
+    // Store the item
+    mMapOfROIInfo[nb] = &item;
 
     // Check if such a number already exist
     if (mMapOfROIName.find(nb) != mMapOfROIName.end()) {
@@ -238,43 +287,57 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename)
     // Add in map
     mMapOfROIName[nb] = name;
     }
-  // DD(mMapOfROIName.size());
 
   //----------------------------------
-  // Read all ROI
+  // Read all ROI item
   // 0x3006,0x0039 = [ ROI Contour Sequence ]
   gdcm::Tag troicsq(0x3006,0x0039);
   const gdcm::DataElement &roicsq = ds.GetDataElement( troicsq );
   gdcm::SmartPointer<gdcm::SequenceOfItems> roi_contour_seq = roicsq.GetValueAsSQ();
+  mROIContoursSequenceOfItems = roi_contour_seq;
   assert(roi_contour_seq); // TODO error message
-  int n=0;
-  for(unsigned int ridx = 0; ridx < roi_contour_seq->GetNumberOfItems(); ++ridx)
-    {
+  for(unsigned int ridx = 0; ridx < roi_contour_seq->GetNumberOfItems(); ++ridx) {
     gdcm::Item & item = roi_contour_seq->GetItem( ridx + 1); // Item starts at 1
+    // ROI number [Referenced ROI Number]
+    const gdcm::DataSet& nestedds = item.GetNestedDataSet();
+    gdcm::Attribute<0x3006,0x0084> referencedroinumber;
+    referencedroinumber.SetFromDataSet( nestedds );
+    int nb = referencedroinumber.GetValue();
+    // Store the item
+    mMapOfROIContours[nb] = &item;
+  }
 
+  //----------------------------------
+  // Create the ROIs
+  for(std::map<int, gdcm::Item*>::iterator i = mMapOfROIInfo.begin(); i != mMapOfROIInfo.end(); i++) {
+    int nb = i->first;//ReadROINumber(i);//mROIIndex[i];
+    // Create the roi
     DicomRT_ROI::Pointer roi = DicomRT_ROI::New();
-    roi->Read(mMapOfROIName, item);
-    mListOfROI.push_back(roi);
-    mMapOfROIIndex[roi->GetROINumber()] = n;
-    n++;
-    }
+    roi->Read(mMapOfROIInfo[nb], mMapOfROIContours[nb]);
+    //    mListOfROI.push_back(roi);
+    //    mMapOfROIIndex[nb] = i;
+    mROIs[nb] = roi;
+  }
 
+  //----------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------------------
 #else
-  gdcm::File reader;
-  reader.SetFileName(filename.c_str());
-  reader.SetMaxSizeLoadEntry(16384); // Needed ...
-  reader.SetLoadMode(gdcm::LD_NOSHADOW); // don't load shadow tags (in order to save memory)
-  reader.Load();
-
+  mFile = new gdcm::File;
+  mFile->SetFileName(filename.c_str());
+  mFile->SetMaxSizeLoadEntry(16384); // Needed ...
+  mFile->SetLoadMode(gdcm::LD_NOSHADOW); // don't load shadow tags (in order to save memory)
+  mFile->Load();
+  
   // Check file type
   //Verify if the file is a RT-Structure-Set dicom file
-  if (!gdcm::Util::DicomStringEqual(reader.GetEntryValue(0x0008,0x0016),"1.2.840.10008.5.1.4.1.1.481.3")) {  //SOP clas UID
+  if (!gdcm::Util::DicomStringEqual(mFile->GetEntryValue(0x0008,0x0016),"1.2.840.10008.5.1.4.1.1.481.3")) {  //SOP clas UID
     std::cerr << "Error. the file " << filename
               << " is not a Dicom Struct ? (must have a SOP Class UID [0008|0016] = 1.2.840.10008.5.1.4.1.1.481.3 ==> [RT Structure Set Storage])"
               << std::endl;
     exit(0);
   }
-  if (!gdcm::Util::DicomStringEqual(reader.GetEntryValue(0x0008,0x0060),"RTSTRUCT")) {  //SOP clas UID
+  if (!gdcm::Util::DicomStringEqual(mFile->GetEntryValue(0x0008,0x0060),"RTSTRUCT")) {  //SOP clas UID
     std::cerr << "Error. the file " << filename
               << " is not a Dicom Struct ? (must have 0x0008,0x0060 = RTSTRUCT [RT Structure Set Storage])"
               << std::endl;
@@ -282,30 +345,26 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename)
   }
 
   // Read global info
-  mStudyID   = reader.GetValEntry(0x0020,0x0010)->GetValue();
-  mStudyTime = reader.GetValEntry(0x008,0x0020)->GetValue();
-  mStudyDate = reader.GetValEntry(0x008,0x0030)->GetValue();
-  mLabel     = reader.GetValEntry(0x3006,0x002)->GetValue();
-  if (!reader.GetValEntry(0x3006,0x004)) {
+  mStudyID   = mFile->GetValEntry(0x0020,0x0010)->GetValue();
+  mStudyTime = mFile->GetValEntry(0x008,0x0020)->GetValue();
+  mStudyDate = mFile->GetValEntry(0x008,0x0030)->GetValue();
+  mLabel     = mFile->GetValEntry(0x3006,0x002)->GetValue();
+  if (!mFile->GetValEntry(0x3006,0x004)) {
     mName = "Anonymous";
   }
   else {
-    mName = reader.GetValEntry(0x3006,0x004)->GetValue();
+    mName = mFile->GetValEntry(0x3006,0x004)->GetValue();
   }
-  mTime      = reader.GetValEntry(0x3006,0x009)->GetValue();
+  mTime      = mFile->GetValEntry(0x3006,0x009)->GetValue();
 
   //----------------------------------
   // Read all ROI Names and number
   // 0x3006,0x0020 = [ Structure Set ROI Sequence ]
-  gdcm::SeqEntry * roi_seq=reader.GetSeqEntry(0x3006,0x0020);
+  gdcm::SeqEntry * roi_seq=mFile->GetSeqEntry(0x3006,0x0020);
   assert(roi_seq); // TODO error message
   for (gdcm::SQItem* r=roi_seq->GetFirstSQItem(); r!=0; r=roi_seq->GetNextSQItem()) {
     std::string name = r->GetEntryValue(0x3006,0x0026);      // 0x3006,0x0026 = [ROI Name]
     int nb = atoi(r->GetEntryValue(0x3006,0x0022).c_str());  // 0x3006,0x0022 = [ROI Number]
-    // Change number if needed
-
-    //TODO
-
     // Check if such a number already exist
     if (mMapOfROIName.find(nb) != mMapOfROIName.end()) {
       std::cerr << "WARNING. A Roi already exist with the number "
@@ -314,19 +373,17 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename)
     // Add in map
     mMapOfROIName[nb] = name;
   }
-  // DD(mMapOfROIName.size());
 
   //----------------------------------
   // Read all ROI
   // 0x3006,0x0039 = [ ROI Contour Sequence ]
-  gdcm::SeqEntry * roi_contour_seq=reader.GetSeqEntry(0x3006,0x0039);
+  gdcm::SeqEntry * roi_contour_seq=mFile->GetSeqEntry(0x3006,0x0039);
   assert(roi_contour_seq); // TODO error message
   int n=0;
   for (gdcm::SQItem* r=roi_contour_seq->GetFirstSQItem(); r!=0; r=roi_contour_seq->GetNextSQItem()) {
     DicomRT_ROI::Pointer roi = DicomRT_ROI::New();
     roi->Read(mMapOfROIName, r);
-    mListOfROI.push_back(roi);
-    mMapOfROIIndex[roi->GetROINumber()] = n;
+    mROIs[roi->GetROINumber()] = roi;
     n++;
   }
 
@@ -338,22 +395,19 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename)
 //--------------------------------------------------------------------
 int clitk::DicomRT_StructureSet::AddBinaryImageAsNewROI(vvImage * im, std::string n)
 {
-  //DD("AddBinaryImageAsNewROI");
   // Search max ROI number
   int max = -1;
-  for(unsigned int i=0; i<mListOfROI.size(); i++) {
-    if (mListOfROI[i]->GetROINumber() > max)
-      max = mListOfROI[i]->GetROINumber();
+  for(ROIConstIteratorType iter = mROIs.begin(); iter != mROIs.end(); iter++) {
+    //  for(unsigned int i=0; i<mListOfROI.size(); i++) {
+    clitk::DicomRT_ROI::Pointer roi = iter->second;
+    if (roi->GetROINumber() > max)
+      max = roi->GetROINumber();
   }
-  //  DD(max);
   ++max;
-  //DD(max);
 
   // Compute name
   std::ostringstream oss;
   oss << vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(n));
-  //      << "_roi_" << max << vtksys::SystemTools::GetFilenameLastExtension(n);
-  //DD(oss.str());
   mMapOfROIName[max] = oss.str();
 
   // Set color
@@ -365,9 +419,7 @@ int clitk::DicomRT_StructureSet::AddBinaryImageAsNewROI(vvImage * im, std::strin
   // Create ROI
   DicomRT_ROI::Pointer roi = DicomRT_ROI::New();
   roi->SetFromBinaryImage(im, max, oss.str(), color, n);
-  mListOfROI.push_back(roi);
-  mMapOfROIIndex[mListOfROI.size()-1] = max;
-  //DD(mMapOfROIIndex[mListOfROI.size()-1]);
+  mROIs[max] = roi;
   return max;
 }
 //--------------------------------------------------------------------

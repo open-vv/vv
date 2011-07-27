@@ -20,9 +20,19 @@
 #ifndef CLITKDICOMRT_STRUCTURESET_H
 #define CLITKDICOMRT_STRUCTURESET_H
 
+// clitk
 #include "clitkCommon.h" 
 #include "clitkDicomRT_ROI.h"
+
+// vv
 #include "vvImage.h"
+
+// gdcm
+#if GDCM_MAJOR_VERSION == 2
+#include "gdcmReader.h"
+#include "gdcmWriter.h"
+#include "gdcmAttribute.h"
+#endif
 
 namespace clitk {
 
@@ -34,12 +44,15 @@ public:
   typedef itk::SmartPointer<Self> Pointer;
   itkNewMacro(Self);
 
+  typedef typename std::map<int, clitk::DicomRT_ROI::Pointer>::iterator ROIIteratorType;
+  typedef typename std::map<int, clitk::DicomRT_ROI::Pointer>::const_iterator ROIConstIteratorType;
+
   void Print(std::ostream & os = std::cout) const;
   void Read(const std::string & filename);
   void Write(const std::string & filename);
 
-  const std::vector<DicomRT_ROI::Pointer> & GetListOfROI() const;
-  clitk::DicomRT_ROI * GetROI(int n);
+  clitk::DicomRT_ROI * GetROIFromROINumber(int n);
+  std::map<int, clitk::DicomRT_ROI::Pointer> & GetROIs() { return mROIs; }
   const std::string & GetStudyID() const;
   const std::string & GetStudyTime() const;
   const std::string & GetStudyDate() const;
@@ -50,6 +63,11 @@ public:
 
   int AddBinaryImageAsNewROI(vvImage * i, std::string name);
   
+#if GDCM_MAJOR_VERSION == 2
+  // Static
+  static int ReadROINumber(const gdcm::Item & item);
+#endif
+
 protected:
   std::string mStudyID;
   std::string mStudyTime;
@@ -58,9 +76,15 @@ protected:
   std::string mName;
   std::string mDate;
   std::string mTime;
+
+  std::map<int, clitk::DicomRT_ROI::Pointer> mROIs;
   std::map<int, std::string> mMapOfROIName;
-  std::map<int, int> mMapOfROIIndex;
-  std::vector<clitk::DicomRT_ROI::Pointer> mListOfROI;
+#if GDCM_MAJOR_VERSION == 2
+  gdcm::Reader * mReader;
+  gdcm::SmartPointer<gdcm::SequenceOfItems> mROIInfoSequenceOfItems;
+  gdcm::SmartPointer<gdcm::SequenceOfItems> mROIContoursSequenceOfItems;  
+#endif
+  gdcm::File * mFile;
 
 private:
   DicomRT_StructureSet();
