@@ -22,7 +22,7 @@ option "fg" 	 	-   	"Foreground value"								float		no	default="1"
 option "bg" 	 	-   	"Background value (0,1,3: filling value)"					float		no	default="0" 	        
 option "bound"  	b   	"0-1: Set borders to foreground/ 2:safe borders "				flag		off 
 option "radius"   	r   	"Use binary ball element with given radius"					int		no	multiple 	default="1"		
-option "radiusInMM"   	m   	"Use binary ball element with given radius in mm (rounded to nearest voxel value)" double		no	multiple 	default="1"
+option "radiusInMM"   	m   	"Use binary ball element with given radius in mm (rounded to nearest voxel value), you can give one radius by dimension" double		no	multiple 	default="1"
 
 option "extend" - "Extend the image size according to radius"     flag          off
 
