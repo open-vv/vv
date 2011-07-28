@@ -128,6 +128,9 @@ namespace clitk {
     itkSetMacro(CombineWithOrFlag, bool);
     itkBooleanMacro(CombineWithOrFlag);
 
+    // I dont want to verify inputs information
+    virtual void VerifyInputInformation() { }
+
   protected:
     AddRelativePositionConstraintToLabelImageFilter();
     virtual ~AddRelativePositionConstraintToLabelImageFilter() {}
