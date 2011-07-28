@@ -53,10 +53,72 @@ void clitk::DicomRT_Contour::Print(std::ostream & os) const
 
 
 //--------------------------------------------------------------------
-#if GDCM_MAJOR_VERSION == 2
-bool clitk::DicomRT_Contour::Read(gdcm::Item const & item)
+void clitk::DicomRT_Contour::UpdateDicomItem()
 {
-  const gdcm::DataSet& nestedds2 = item.GetNestedDataSet();
+  DD("DicomRT_Contour::UpdateDicomItem");
+
+  gdcm::DataSet & nestedds = mItem->GetNestedDataSet();
+
+  //NON CONSIDER CONTOUR ITEM NOT SEQ ITEM ?
+
+  // Contour type [Contour Geometric Type]
+  gdcm::Attribute<0x3006,0x0042> contgeotype;
+  contgeotype.SetFromDataSet( nestedds );
+
+  // Number of points [Number of Contour Points]
+  gdcm::Attribute<0x3006,0x0046> numcontpoints;
+  numcontpoints.SetFromDataSet( nestedds );
+  DD(mNbOfPoints);
+  mNbOfPoints = numcontpoints.GetValue();
+  DD(mNbOfPoints);
+
+  // Contour dicom values from DataPoints
+  //ComputeDataPointsFromMesh();
+  uint nb = mData->GetNumberOfPoints();
+  std::vector<double> points;
+  points.resize(mNbOfPoints*3);
+  for(unsigned int i=0; i<nb; i++) {
+    double * p = mData->GetPoint(i);
+    points[i*3] = p[0];
+    points[i*3+1] = p[1];
+    points[i*3+2] = p[2];
+  }
+
+  // Get attribute
+  gdcm::Attribute<0x3006,0x0050> at;
+  gdcm::Tag tcontourdata(0x3006,0x0050);
+  gdcm::DataElement contourdata = nestedds.GetDataElement( tcontourdata );
+  at.SetFromDataElement( contourdata );
+
+  // Set attribute
+  at.SetValues(&points[0], points.size(), false);
+  DD(at.GetValues()[0]);
+  
+  DD("replace");
+  nestedds.Replace(at.GetAsDataElement());
+  DD("done");
+
+  // Change Number of points [Number of Contour Points]
+  numcontpoints.SetValue(nb);
+  nestedds.Replace(numcontpoints.GetAsDataElement());
+
+  // Test
+  gdcm::DataElement aa = nestedds.GetDataElement( tcontourdata );
+  at.SetFromDataElement( aa );
+  const double* bb = at.GetValues();
+  DD(bb[0]);
+
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+#if GDCM_MAJOR_VERSION == 2
+bool clitk::DicomRT_Contour::Read(gdcm::Item * item)
+{
+  mItem = item;
+  
+  const gdcm::DataSet& nestedds2 = item->GetNestedDataSet();
 
   // Contour type [Contour Geometric Type]
   gdcm::Attribute<0x3006,0x0042> contgeotype;
@@ -82,6 +144,10 @@ bool clitk::DicomRT_Contour::Read(gdcm::Item const & item)
   const gdcm::DataElement & contourdata = nestedds2.GetDataElement( tcontourdata );
   at.SetFromDataElement( contourdata );
   const double* points = at.GetValues();
+<<<<<<< Updated upstream
+=======
+  //  unsigned int npts = at.GetNumberOfValues() / 3;
+>>>>>>> Stashed changes
 
   assert(at.GetNumberOfValues() == static_cast<unsigned int>(mNbOfPoints)*3);
 
@@ -162,7 +228,7 @@ bool clitk::DicomRT_Contour::Read(gdcm::SQItem * item)
 vtkPolyData * clitk::DicomRT_Contour::GetMesh()
 {
   if (!mMeshIsUpToDate) {
-    ComputeMesh();
+    ComputeMeshFromDataPoints();
   }
   return mMesh;
 }
@@ -170,7 +236,15 @@ vtkPolyData * clitk::DicomRT_Contour::GetMesh()
 
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_Contour::ComputeMesh()
+void clitk::DicomRT_Contour::SetMesh(vtkPolyData * mesh)
+{
+  mMesh = mesh;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void clitk::DicomRT_Contour::ComputeMeshFromDataPoints()
 {
 //  DD("ComputeMesh Contour");
   mMesh = vtkSmartPointer<vtkPolyData>::New();
@@ -184,11 +258,35 @@ void clitk::DicomRT_Contour::ComputeMesh()
                                         mData->GetPoint(idx)[2]);
     ids[0]=idx;
     ids[1]=(ids[0]+1) % mNbOfPoints; //0-1,1-2,...,n-1-0
-    // DD(ids[0]);
-//     DD(ids[1]);
     mMesh->GetLines()->InsertNextCell(2,ids);
   }
-  // DD(mMesh->GetNumberOfCells());
   mMeshIsUpToDate = true;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void clitk::DicomRT_Contour::ComputeDataPointsFromMesh()
+{
+  DD("ComputeDataPointsFromMesh");
+
+
+  /*todo
+
+  mMesh = vtkSmartPointer<vtkPolyData>::New();
+  mMesh->Allocate(); //for cell structures
+  mPoints = vtkSmartPointer<vtkPoints>::New();
+  mMesh->SetPoints(mPoints);
+  vtkIdType ids[2];
+  for (unsigned int idx=0 ; idx<mNbOfPoints ; idx++) {
+    mMesh->GetPoints()->InsertNextPoint(mData->GetPoint(idx)[0],
+                                        mData->GetPoint(idx)[1],
+                                        mData->GetPoint(idx)[2]);
+    ids[0]=idx;
+    ids[1]=(ids[0]+1) % mNbOfPoints; //0-1,1-2,...,n-1-0
+    mMesh->GetLines()->InsertNextCell(2,ids);
+  }
+  mMeshIsUpToDate = true;
+*/
 }
 //--------------------------------------------------------------------
