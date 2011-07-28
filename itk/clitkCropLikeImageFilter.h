@@ -65,6 +65,9 @@ namespace clitk {
     /** ImageDimension constants */
     itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
 
+    // I dont want to verify inputs information
+    virtual void VerifyInputInformation() { }
+
   protected:
     CropLikeImageFilter();
     virtual ~CropLikeImageFilter() {}
