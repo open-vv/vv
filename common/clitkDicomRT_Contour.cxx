@@ -145,6 +145,10 @@ bool clitk::DicomRT_Contour::Read(gdcm::Item * item)
   at.SetFromDataElement( contourdata );
   const double* points = at.GetValues();
 <<<<<<< Updated upstream
+<<<<<<< variant A
+>>>>>>> variant B
+  //  unsigned int npts = at.GetNumberOfValues() / 3;
+======= end
 =======
   //  unsigned int npts = at.GetNumberOfValues() / 3;
 >>>>>>> Stashed changes

@@ -118,23 +118,13 @@ GenerateOutputInformation() {
   }
 
   // Extract Station8
-  StartNewStep("Station 8");
-  StartSubStep(); 
   ExtractStation_8();
-  StopSubStep();
 
   // Extract Station3P
-  StartNewStep("Station 3P");
-  StartSubStep(); 
   ExtractStation_3P();
-  StopSubStep();
 
   // Extract Station3A
-  StartNewStep("Station 3A");
-  StartSubStep(); 
   ExtractStation_3A();
-  StopSubStep();
-
 
   // HERE
 

@@ -39,8 +39,9 @@ int main(int argc, char * argv[]) {
   
   // Write result
   clitk::DicomRT_StructureSet::Pointer s = filter.GetDicomRTStruct();
-  s->Write(args_info.output_arg);
+  //  s->Write(args_info.output_arg);
 
   // This is the end my friend 
   return 0;
 }
+//--------------------------------------------------------------------

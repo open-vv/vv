@@ -20,6 +20,8 @@
 #include "clitkDicomRT_ROI.h"
 #include <vtkSmartPointer.h>
 #include <vtkAppendPolyData.h>
+#include <vtkImageClip.h>
+#include <vtkMarchingSquares.h>
 
 #if GDCM_MAJOR_VERSION == 2
 #include "gdcmAttribute.h"
@@ -31,6 +33,7 @@ clitk::DicomRT_ROI::DicomRT_ROI()
 {
   mName = "NoName";
   mNumber = -1;
+  mImage = NULL;
   mColor.resize(3);
   mColor[0] = mColor[1] = mColor[2] = 0;
   mMeshIsUpToDate = false;
@@ -185,7 +188,8 @@ bool clitk::DicomRT_ROI::Read(gdcm::Item * itemInfo, gdcm::Item * itemContour)
       return false;
     }
   const gdcm::DataElement& csq = nestedds.GetDataElement( tcsq );
-  gdcm::SmartPointer<gdcm::SequenceOfItems> sqi2 = csq.GetValueAsSQ();
+  mContoursSequenceOfItems = csq.GetValueAsSQ();
+  gdcm::SmartPointer<gdcm::SequenceOfItems> & sqi2 = mContoursSequenceOfItems;
   if( !sqi2 || !sqi2->GetNumberOfItems() )
     {
     }
@@ -193,9 +197,9 @@ bool clitk::DicomRT_ROI::Read(gdcm::Item * itemInfo, gdcm::Item * itemContour)
 
   for(unsigned int i = 0; i < nitems; ++i)
     {
-      const gdcm::Item & j = sqi2->GetItem(i+1); // Item start at #1
+      gdcm::Item & j = sqi2->GetItem(i+1); // Item start at #1
       DicomRT_Contour::Pointer c = DicomRT_Contour::New();
-      bool b = c->Read(j);
+      bool b = c->Read(&j);
       if (b) {
         mListOfContours.push_back(c);
       }
@@ -249,7 +253,7 @@ void clitk::DicomRT_ROI::SetImage(vvImage * image)
 vtkPolyData * clitk::DicomRT_ROI::GetMesh()
 {
   if (!mMeshIsUpToDate) {
-    ComputeMesh();
+    ComputeMeshFromContour();
   }
   return mMesh;
 }
@@ -265,7 +269,7 @@ clitk::DicomRT_Contour * clitk::DicomRT_ROI::GetContour(int n)
 
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI::ComputeMesh()
+void clitk::DicomRT_ROI::ComputeMeshFromContour()
 {
   vtkSmartPointer<vtkAppendPolyData> append = vtkSmartPointer<vtkAppendPolyData>::New();
   for(unsigned int i=0; i<mListOfContours.size(); i++) {
@@ -298,12 +302,37 @@ void clitk::DicomRT_ROI::UpdateDicomItem()
   gdcm::DataSet & ds = mItemInfo->GetNestedDataSet();  
   ds.Replace(de);
 
+  // From MESH to CONTOURS
+  ComputeContoursFromImage();
+
   // Update contours
+  DD(mListOfContours.size());
   for(uint i=0; i<mListOfContours.size(); i++) {
     DD(i);
-    DicomRT_Contour::Pointer roi = mListOfContours[i];
-    roi->UpdateDicomItem(mItemContour);
+    DicomRT_Contour::Pointer contour = mListOfContours[i];
+    contour->UpdateDicomItem();//mItemContour);
   }
+
+  // Nb of contours
+  unsigned int nitems = mContoursSequenceOfItems->GetNumberOfItems();
+  DD(nitems);
+
+  // Write [Contour Sequence] = 0x3006,0x0040)
+  gdcm::DataSet & dsc = mItemContour->GetNestedDataSet();
+  gdcm::Tag tcsq(0x3006,0x0040);
+  const gdcm::DataElement& csq = dsc.GetDataElement( tcsq );
+  gdcm::DataElement dec(csq);
+  dec.SetValue(*mContoursSequenceOfItems);
+  dsc.Replace(dec);
+
+  gdcm::DataSet & a = mContoursSequenceOfItems->GetItem(1).GetNestedDataSet();
+  gdcm::Attribute<0x3006,0x0050> at;
+  gdcm::Tag tcontourdata(0x3006,0x0050);
+  gdcm::DataElement contourdata = a.GetDataElement( tcontourdata );
+  at.SetFromDataElement( contourdata );
+  const double* points = at.GetValues();
+  DD(points[0]);
+
 }
 //--------------------------------------------------------------------
 #endif
@@ -338,5 +367,51 @@ void clitk::DicomRT_ROI::SetFromBinaryImage(vvImage * image, int n,
 vvImage * clitk::DicomRT_ROI::GetImage() const
 {
   return mImage;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void clitk::DicomRT_ROI::ComputeContoursFromImage()
+{
+  DD("ComputeMeshFromImage");
+
+  // Check that an image is loaded
+  if (!mImage) return;
+
+  // Only consider 3D here
+  if (mImage->GetNumberOfDimensions() != 3) {
+    FATAL("DicomRT_ROI::ComputeMeshFromImage only work with 3D images");
+  }
+
+  // Get the VTK image
+  vtkImageData * image = mImage->GetVTKImages()[0];
+  
+  // Get initial extend for the clipping
+  vtkSmartPointer<vtkImageClip> clipper = vtkSmartPointer<vtkImageClip>::New();
+  clipper->SetInput(image);
+  int* extent = image->GetExtent();
+  DDV(extent, 6);
+  //  std::vector<int> extend;
+
+  // Prepare the marching squares
+  vtkSmartPointer<vtkMarchingSquares> squares = vtkSmartPointer<vtkMarchingSquares>::New();
+  squares->SetInput(clipper->GetOutput());
+
+  // Loop on slice
+  uint n = image->GetDimensions()[2];
+  DD(n);
+  for(uint i=0; i<n; i++) {
+    // Clip to the current slice
+    extent[4] = extent[5] = image->GetOrigin()[2]+i*image->GetSpacing()[2];
+    DDV(extent, 6);
+    clipper->SetOutputWholeExtent(extent[0],extent[1],extent[2],
+                                extent[3],extent[4],extent[5]);
+    
+
+    squares->Update();
+    DD(squares->GetNumberOfContours());
+    mListOfContours[i]->SetMesh(squares->GetOutput());
+  }
 }
 //--------------------------------------------------------------------

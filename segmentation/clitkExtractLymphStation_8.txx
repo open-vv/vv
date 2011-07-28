@@ -24,19 +24,22 @@ void
 clitk::ExtractLymphStationsFilter<TImageType>::
 ExtractStation_8() 
 {
-  if (CheckForStation("8")) {
-    ExtractStation_8_SI_Limits();         // OK, validated
-    ExtractStation_8_Ant_Limits();        // OK, validated
-    ExtractStation_8_Left_Sup_Limits();   // OK, validated
-    ExtractStation_8_Left_Inf_Limits();   // OK, validated
-    ExtractStation_8_Single_CCL_Limits(); // OK, validated
-    ExtractStation_8_Remove_Structures(); // OK, validated
+  if (!CheckForStation("8")) return;
 
-    // Store image filenames into AFDB 
-    writeImage<MaskImageType>(m_ListOfStations["8"], "seg/Station8.mhd");
-    GetAFDB()->SetImageFilename("Station8", "seg/Station8.mhd");  
-    WriteAFDB();
-  }
+  StartNewStep("Station 8");
+  StartSubStep();   
+  ExtractStation_8_SI_Limits();         // OK, validated
+  ExtractStation_8_Ant_Limits();        // OK, validated
+  ExtractStation_8_Left_Sup_Limits();   // OK, validated
+  ExtractStation_8_Left_Inf_Limits();   // OK, validated
+  ExtractStation_8_Single_CCL_Limits(); // OK, validated
+  ExtractStation_8_Remove_Structures(); // OK, validated
+  
+  // Store image filenames into AFDB 
+  writeImage<MaskImageType>(m_ListOfStations["8"], "seg/Station8.mhd");
+  GetAFDB()->SetImageFilename("Station8", "seg/Station8.mhd");  
+  WriteAFDB();
+  StopSubStep();
 }
 //--------------------------------------------------------------------
 

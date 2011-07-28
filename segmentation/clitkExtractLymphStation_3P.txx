@@ -17,6 +17,9 @@ ExtractStation_3P()
 {
   if (!CheckForStation("3P")) return;
 
+  StartNewStep("Station 3P");
+  StartSubStep();  
+
   // Get the current support 
   StartNewStep("[Station 3P] Get the current 3P suppport");
   m_Working_Support = m_ListOfSupports["S3P"];
@@ -38,6 +41,7 @@ ExtractStation_3P()
   writeImage<MaskImageType>(m_ListOfStations["3P"], "seg/Station3P.mhd");
   GetAFDB()->SetImageFilename("Station3P", "seg/Station3P.mhd"); 
   WriteAFDB();   
+  StopSubStep();
 }
 //--------------------------------------------------------------------
 

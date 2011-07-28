@@ -180,8 +180,23 @@ void clitk::DicomRT_StructureSet::Write(const std::string & filename)
   const gdcm::DataElement &roicsq = ds.GetDataElement( troicsq );
   gdcm::DataElement de2(roicsq);
   de2.SetValue(*mROIContoursSequenceOfItems);
-  ds.Replace(de);
-  
+  ds.Replace(de2);
+
+  //DEBUG
+  gdcm::DataSet & a = mROIContoursSequenceOfItems->GetItem(1).GetNestedDataSet();
+  gdcm::Tag tcsq(0x3006,0x0040);
+  const gdcm::DataElement& csq = a.GetDataElement( tcsq );
+  gdcm::SmartPointer<gdcm::SequenceOfItems> sqi2 = csq.GetValueAsSQ();
+  gdcm::Item & j = sqi2->GetItem(1);
+  gdcm::DataSet & b = j.GetNestedDataSet();
+  gdcm::Attribute<0x3006,0x0050> at;
+  gdcm::Tag tcontourdata(0x3006,0x0050);
+  gdcm::DataElement contourdata = b.GetDataElement( tcontourdata );
+  at.SetFromDataElement( contourdata );
+  const double* points = at.GetValues();
+  DD(points[0]);
+
+
   // Write dicom
   gdcm::Writer writer;
   //writer.CheckFileMetaInformationOff();

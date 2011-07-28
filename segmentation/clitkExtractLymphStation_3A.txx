@@ -18,7 +18,10 @@ clitk::ExtractLymphStationsFilter<TImageType>::
 ExtractStation_3A()
 {
   if (!CheckForStation("3A")) return;
-    
+
+  StartNewStep("Station 3A");
+  StartSubStep();   
+
   // Get the current support 
   StartNewStep("[Station 3A] Get the current 3A suppport");
   m_Working_Support = m_ListOfSupports["S3A"];
@@ -28,7 +31,6 @@ ExtractStation_3A()
   ExtractStation_3A_AntPost_S5();
   ExtractStation_3A_AntPost_S6();
   ExtractStation_3A_AntPost_Superiorly();
-
   ExtractStation_3A_Remove_Structures();
 
   Remove_Structures("3A", "Aorta");
@@ -38,8 +40,10 @@ ExtractStation_3A()
   Remove_Structures("3A", "CommonCarotidArteryLeft");
   Remove_Structures("3A", "CommonCarotidArteryRight");
   Remove_Structures("3A", "BrachioCephalicArtery");
-  //  Remove_Structures("3A", "BrachioCephalicVein"); ?
 
+  ExtractStation_3A_PostToBones();
+  
+  
 
   // ExtractStation_3A_Ant_Limits(); --> No, already in support; to remove
   // ExtractStation_3A_Post_Limits(); --> No, more complex, see Vessels etc
@@ -48,6 +52,7 @@ ExtractStation_3A()
   writeImage<MaskImageType>(m_ListOfStations["3A"], "seg/Station3A.mhd");
   GetAFDB()->SetImageFilename("Station3A", "seg/Station3A.mhd"); 
   WriteAFDB(); 
+  StopSubStep();
 }
 //--------------------------------------------------------------------
 
@@ -112,24 +117,6 @@ ExtractStation_3A_AntPost_S5()
   MaskImagePointer SVC = GetAFDB()->template GetImage <MaskImageType>("SVC");
 
   // Trial in 3D -> difficulties superiorly. Stay slice by slice.
-  /*
-  typedef clitk::AddRelativePositionConstraintToLabelImageFilter<MaskImageType> RelPosFilterType;
-  typename RelPosFilterType::Pointer relPosFilter = RelPosFilterType::New();
-  relPosFilter->VerboseStepFlagOff();
-  relPosFilter->WriteStepFlagOff();
-  relPosFilter->SetBackgroundValue(GetBackgroundValue());
-  relPosFilter->SetInput(m_Working_Support); 
-  relPosFilter->SetInputObject(SVC); 
-  relPosFilter->AddOrientationTypeString("PostTo");
-  relPosFilter->SetInverseOrientationFlag(true);
-  relPosFilter->SetIntermediateSpacing(4);
-  relPosFilter->SetIntermediateSpacingFlag(false);
-  relPosFilter->SetFuzzyThreshold(0.5);
-  //  relPosFilter->AutoCropFlagOff(); // important ! because we join the slices after this loop
-  relPosFilter->Update();
-  m_Working_Support = relPosFilter->GetOutput();
-  */
-  
   // Slice by slice not post to SVC. Use initial spacing
   m_Working_Support = 
     clitk::SliceBySliceRelativePosition<MaskImageType>(m_Working_Support, SVC, 2, 
@@ -308,6 +295,8 @@ ExtractStation_3A_Remove_Structures()
   // resize like support, extract slices
   // while single CCL -> remove
   // when two remove only the most post
+  MaskImagePointer BrachioCephalicVein = 
+    GetAFDB()->template GetImage <MaskImageType>("BrachioCephalicVein");
   BrachioCephalicVein = clitk::ResizeImageLike<MaskImageType>(BrachioCephalicVein, 
                                                               m_Working_Support, 
                                                               GetBackgroundValue());
@@ -318,27 +307,31 @@ ExtractStation_3A_Remove_Structures()
   for(uint i=0; i<slices.size(); i++) {
     // Labelize slices_BCV
     slices_BCV[i] = Labelize<MaskSliceType>(slices_BCV[i], 0, true, 1);
+
     // Compute centroids
     std::vector<typename MaskSliceType::PointType> centroids;
     ComputeCentroids<MaskSliceType>(slices_BCV[i], GetBackgroundValue(), centroids);
-    if (centroids.size() > 1) {
+
+    // If several centroid, select the one most anterior
+    if (centroids.size() > 2) {
       // Only keep the one most post
       typename MaskSliceType::PixelType label;
       if (centroids[1][1] > centroids[2][1]) {
-        label = 1;
-      }
-      else {
         label = 2;
       }
-      
-      HERE
-
-      slices_BCV[i] = clitk::SetBackground<MaskSliceType>(slices_BCV[i], slices_BCV[i], 
-                                                          label, 
-                                                          GetBackgroundValue(), true);
+      else {
+        label = 1;
+      }      
+      // "remove" the CCL 
+      slices_BCV[i] = clitk::SetBackground<MaskSliceType, MaskSliceType>(slices_BCV[i], 
+                                                                         slices_BCV[i], 
+                                                                         label, 
+                                                                         GetBackgroundValue(), 
+                                                                         true);
     }
+    
     // Remove from the support
-    slices[i] = clitk::AndNot(slices[i], slices_BCV[i], GetBackgroundValue());
+    clitk::AndNot<MaskSliceType>(slices[i], slices_BCV[i], GetBackgroundValue());
   }
   
   // Joint

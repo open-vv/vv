@@ -42,17 +42,23 @@ public:
   itkNewMacro(Self);
 
   void Print(std::ostream & os = std::cout) const;
+
 #if GDCM_MAJOR_VERSION == 2
-  bool Read(gdcm::Item const & item);
+  bool Read(gdcm::Item * item);
+  void UpdateDicomItem();
 #else
   bool Read(gdcm::SQItem * item);
 #endif
+
   vtkPolyData * GetMesh();
+  void SetMesh(vtkPolyData * mesh);
   vtkPoints * GetPoints() {return mData;}
   double GetZ() const {return mZ;}
   
+  
 protected:
-  void ComputeMesh();
+  void ComputeMeshFromDataPoints();
+  void ComputeDataPointsFromMesh();
   unsigned int mNbOfPoints;
   std::string mType;
   vtkSmartPointer<vtkPoints> mData;
@@ -61,6 +67,8 @@ protected:
   bool mMeshIsUpToDate;
   ///Z location of the contour
   double mZ;
+  
+  gdcm::Item * mItem;
 
 private:
   DicomRT_Contour();

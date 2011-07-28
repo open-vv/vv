@@ -24,6 +24,7 @@
 // clitk
 #include "clitkImage2DicomRTStructFilter.h"
 #include "clitkImageCommon.h"
+#include "vvFromITK.h"
 
 // vtk
 #include <vtkPolyDataToImageStencil.h>
@@ -32,6 +33,8 @@
 #include <vtkLinearExtrusionFilter.h>
 #include <vtkMetaImageWriter.h>
 #include <vtkImageData.h>
+
+// itk
 #include <itkImage.h>
 #include <itkVTKImageToImageFilter.h>
 
@@ -57,9 +60,44 @@ clitk::Image2DicomRTStructFilter<PixelType>::~Image2DicomRTStructFilter()
 template<class PixelType>
 void clitk::Image2DicomRTStructFilter<PixelType>::Update() 
 {
-  DD("Image2DicomRTStructFilter::Update");
+  DD("Image2DicomRTStructFilter::GenerateData");
 
+  // Read DicomRTStruct
+  std::string filename = "RS.zzQAnotmt_french01_.dcm";
+  clitk::DicomRT_StructureSet::Pointer structset = clitk::DicomRT_StructureSet::New();
+  structset->Read(filename);
+  
+  DD(structset->GetName());
+  clitk::DicomRT_ROI * roi = structset->GetROIFromROINumber(1); // Aorta
+  DD(roi->GetName());
+  DD(roi->GetROINumber());
 
+  // Add an image to the roi
+  vvImage::Pointer im = vvImageFromITK<3, PixelType>(m_Input);
+  roi->SetImage(im);
+
+  // Get one contour
+  DD("Compute Mesh");
+  roi->ComputeMeshFromImage();
+  vtkSmartPointer<vtkPolyData> mesh = roi->GetMesh();
+  DD("done");
+  
+  // Change the mesh (shift by 10);
+  // const vtkSmartPointer<vtkPoints> & points = mesh->GetPoints();
+  // for(uint i=0; i<mesh->GetNumberOfVerts (); i++) {
+  //   DD(i);
+  //   double * p = points->GetPoint(i);
+  //   p[0] += 30;
+  //   points->SetPoint(i, p);
+  // }
+  roi->SetName("TOTO");
+  roi->SetDicomUptodateFlag(false); // indicate that dicom info must be updated from the mesh.
+    
+  // Convert to dicom ?
+  DD("TODO");
+  
+  // Write
+  structset->Write("toto.dcm");
 }
 //--------------------------------------------------------------------
 

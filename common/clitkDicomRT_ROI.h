@@ -60,7 +60,8 @@ public:
   DicomRT_Contour* GetContour(int n);
 
   // Compute a vtk mesh from the dicom contours
-  void ComputeMesh();
+  void ComputeMeshFromContour();
+  void ComputeContoursFromImage();
   
   // Indicate if the mesh is uptodate according to the dicom
   void SetDicomUptodateFlag(bool b) { m_DicomUptodateFlag = b; }
@@ -91,6 +92,7 @@ protected:
 #if GDCM_MAJOR_VERSION == 2
   gdcm::Item * mItemInfo;
   gdcm::Item * mItemContour;
+  gdcm::SmartPointer<gdcm::SequenceOfItems> mContoursSequenceOfItems;
 #endif
 
 private:

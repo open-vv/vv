@@ -200,6 +200,8 @@ namespace clitk {
     void ExtractStation_3A_AntPost_S5();
     void ExtractStation_3A_AntPost_S6();
     void ExtractStation_3A_AntPost_Superiorly();
+    void ExtractStation_3A_Remove_Structures();
+    
     void ExtractStation_3A_SI_Limits();
     void ExtractStation_3A_Ant_Limits();
     void ExtractStation_3A_Post_Limits();
