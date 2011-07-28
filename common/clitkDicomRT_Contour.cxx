@@ -144,19 +144,7 @@ bool clitk::DicomRT_Contour::Read(gdcm::Item * item)
   const gdcm::DataElement & contourdata = nestedds2.GetDataElement( tcontourdata );
   at.SetFromDataElement( contourdata );
   const double* points = at.GetValues();
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< variant A
->>>>>>> variant B
-  //  unsigned int npts = at.GetNumberOfValues() / 3;
-======= end
-=======
-  //  unsigned int npts = at.GetNumberOfValues() / 3;
->>>>>>> Stashed changes
-=======
-  //  unsigned int npts = at.GetNumberOfValues() / 3;
->>>>>>> Stashed changes
-
+  unsigned int npts = at.GetNumberOfValues() / 3;
   assert(at.GetNumberOfValues() == static_cast<unsigned int>(mNbOfPoints)*3);
 
   // Organize values
