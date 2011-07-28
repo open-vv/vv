@@ -21,9 +21,10 @@
 
 // clitk
 #include "clitkCommon.h"
+#include "clitkPasteImageFilter.h"
 
 // itk
-#include "itkPasteImageFilter.h"
+//#include "itkPasteImageFilter.h"
 
 //--------------------------------------------------------------------
 template <class ImageType>
@@ -228,7 +229,7 @@ GenerateData() {
   output->FillBuffer(GetBackgroundValue());
   
   // Paste image inside
-  typedef itk::PasteImageFilter<ImageType,ImageType> PasteFilterType;
+  typedef clitk::PasteImageFilter<ImageType,ImageType> PasteFilterType;
   typename PasteFilterType::Pointer pasteFilter = PasteFilterType::New();
   //pasteFilter->ReleaseDataFlagOn(); // change nothing ?
   //  pasteFilter->InPlaceOn(); // makt it seg fault
