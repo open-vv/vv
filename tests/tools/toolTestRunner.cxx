@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <itksys/SystemTools.hxx>
 const int NO_OUTPUT_OPTION=-1;
+const int TEST_EXITED=1;
 int getOutputOptionIndex(int argc, char** argv){
   for(int i=1; i<argc; i++){
       std::string s = argv[i];
@@ -32,14 +33,27 @@ int getOutputOptionIndex(int argc, char** argv){
   }
   return NO_OUTPUT_OPTION;
 }
+
 std::string getTmpFileName(){
-  char buffer [L_tmpnam];
-  char* back = tmpnam (buffer);
-  if(back==NULL){
-    exit(1);
+  
+  
+  #ifdef _WIN32
+	char fileName[L_tmpnam_s];
+    errno_t err = tmpnam_s(fileName);
+  #else
+	char fileName[] = "/tmp/vvTempXXXXXX";
+    int err=0;
+    int fd = mkstemp(fileName);
+    if(fd==-1) err=1;
+  #endif
+  if(err){
+   std::cout<<"couldnot create file. Exiting"<<std::endl;
+   exit(TEST_EXITED);
   }
-  return std::string(back);
+  return std::string(fileName);
 }
+
+
 /**
  * argv
  * [1] executable
@@ -70,6 +84,7 @@ int main(int argc, char** argv){
   std::string outFile;
   if(NO_OUTPUT_OPTION==outputOptionIndex){
     outFile = getTmpFileName();
+    std::cout<<outFile<<std::endl;
     cmd_line<<">"<<outFile;
   }else{
     //todo test this else branch
