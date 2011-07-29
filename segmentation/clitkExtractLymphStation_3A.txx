@@ -43,10 +43,11 @@ ExtractStation_3A()
 
   ExtractStation_3A_PostToBones();
   
-  
-
-  // ExtractStation_3A_Ant_Limits(); --> No, already in support; to remove
-  // ExtractStation_3A_Post_Limits(); --> No, more complex, see Vessels etc
+  // Keep a single CCL
+  m_ListOfStations["3A"] = 
+    clitk::SliceBySliceKeepMainCCL<MaskImageType>(m_ListOfStations["3A"], 
+                                                  GetBackgroundValue(), 
+                                                  GetForegroundValue());
 
   // Store image filenames into AFDB 
   writeImage<MaskImageType>(m_ListOfStations["3A"], "seg/Station3A.mhd");
@@ -56,53 +57,6 @@ ExtractStation_3A()
 }
 //--------------------------------------------------------------------
 
-
-//--------------------------------------------------------------------
-template <class ImageType>
-void 
-clitk::ExtractLymphStationsFilter<ImageType>::
-ExtractStation_3A_Ant_Limits() 
-{
-  StartNewStep("[Station 3A] Ant limits with Sternum");
-
-  // Get Sternum, keep posterior part.
-  MaskImagePointer Sternum = GetAFDB()->template GetImage<MaskImageType>("Sternum");
-  m_Working_Support = 
-    clitk::SliceBySliceRelativePosition<MaskImageType>(m_Working_Support, Sternum, 2, 
-                                                       GetFuzzyThreshold("3A", "Sternum"), "PostTo", 
-                                                       false, 3, true, false);
-  StopCurrentStep<MaskImageType>(m_Working_Support);
-  m_ListOfStations["3A"] = m_Working_Support;
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-template <class ImageType>
-void 
-clitk::ExtractLymphStationsFilter<ImageType>::
-ExtractStation_3A_Post_Limits() 
-{
-  StartNewStep("[Station 3A] Post limits with SubclavianArtery");
-
-  // Get Sternum, keep posterior part.
-  MaskImagePointer SubclavianArteryLeft = 
-    GetAFDB()->template GetImage<MaskImageType>("SubclavianArteryLeft");
-  MaskImagePointer SubclavianArteryRight = 
-    GetAFDB()->template GetImage<MaskImageType>("SubclavianArteryRight");
-
-  m_Working_Support = 
-    clitk::SliceBySliceRelativePosition<MaskImageType>(m_Working_Support, SubclavianArteryLeft, 2, 
-                                                       GetFuzzyThreshold("3A", "SubclavianArtery"), "AntTo", 
-                                                       false, 3, true, false);
-  m_Working_Support = 
-    clitk::SliceBySliceRelativePosition<MaskImageType>(m_Working_Support, SubclavianArteryRight, 2, 
-                                                       GetFuzzyThreshold("3A", "SubclavianArtery"), "AntTo", 
-                                                       false, 3, true, false);
-  StopCurrentStep<MaskImageType>(m_Working_Support);
-  m_ListOfStations["3A"] = m_Working_Support;
-}
-//--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
@@ -341,3 +295,25 @@ ExtractStation_3A_Remove_Structures()
   m_ListOfStations["3A"] = m_Working_Support;
 }
 //--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class ImageType>
+void 
+clitk::ExtractLymphStationsFilter<ImageType>::
+ExtractStation_3A_PostToBones() 
+{
+  StartNewStep("[Station 3A] Post limits with bones");
+
+  // limits with bones
+  MaskImagePointer Bones = GetAFDB()->template GetImage<MaskImageType>("Bones");  
+  m_Working_Support = 
+    clitk::SliceBySliceRelativePosition<MaskImageType>(m_Working_Support, Bones, 2, 
+                                                       GetFuzzyThreshold("3A", "Bones"), "NotAntTo", 
+                                                       false, 3, true, false);
+  
+  StopCurrentStep<MaskImageType>(m_Working_Support);
+  m_ListOfStations["3A"] = m_Working_Support;
+}
+//--------------------------------------------------------------------
+ 
