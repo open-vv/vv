@@ -115,6 +115,8 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
 
   // Station 3A
   f->SetFuzzyThreshold("3A", "SVC", mArgsInfo.S3A_ft_SVC_arg);
+  f->SetFuzzyThreshold("3A", "Bones", mArgsInfo.S3A_ft_Bones_arg);
+  f->SetThreshold("3A", "Bones", mArgsInfo.S3A_t_Bones_arg);
   f->SetFuzzyThreshold("3A", "Aorta", mArgsInfo.S3A_ft_Aorta_arg);
   f->SetFuzzyThreshold("3A", "SubclavianArtery", mArgsInfo.S3A_ft_SubclavianArtery_arg);
   
