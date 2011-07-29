@@ -109,6 +109,8 @@ namespace clitk {
     void AddComputeStation(std::string station) ;
     void SetFuzzyThreshold(std::string station, std::string tag, double value);
     double GetFuzzyThreshold(std::string station, std::string tag);
+    void SetThreshold(std::string station, std::string tag, double value);
+    double GetThreshold(std::string station, std::string tag);
     itkGetConstMacro(ComputeStationsSupportsFlag, bool);
     itkSetMacro(ComputeStationsSupportsFlag, bool);
     itkBooleanMacro(ComputeStationsSupportsFlag);
@@ -146,6 +148,8 @@ namespace clitk {
     // Global parameters
     typedef std::map<std::string, double> FuzzyThresholdByStructureType;
     std::map<std::string, FuzzyThresholdByStructureType> m_FuzzyThreshold;    
+    typedef std::map<std::string, double> ThresholdByStructureType;
+    std::map<std::string, ThresholdByStructureType> m_Threshold;    
 
     // Station's supports
     void ExtractStationSupports();
@@ -201,10 +205,7 @@ namespace clitk {
     void ExtractStation_3A_AntPost_S6();
     void ExtractStation_3A_AntPost_Superiorly();
     void ExtractStation_3A_Remove_Structures();
-    
-    void ExtractStation_3A_SI_Limits();
-    void ExtractStation_3A_Ant_Limits();
-    void ExtractStation_3A_Post_Limits();
+    void ExtractStation_3A_PostToBones();
 
     // Station 2RL
     void ExtractStation_2RL();
