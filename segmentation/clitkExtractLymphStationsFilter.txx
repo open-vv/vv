@@ -353,6 +353,17 @@ SetFuzzyThreshold(std::string station, std::string tag, double value)
 
 //--------------------------------------------------------------------
 template <class TImageType>
+void 
+clitk::ExtractLymphStationsFilter<TImageType>::
+SetThreshold(std::string station, std::string tag, double value)
+{
+  m_Threshold[station][tag] = value;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class TImageType>
 double 
 clitk::ExtractLymphStationsFilter<TImageType>::
 GetFuzzyThreshold(std::string station, std::string tag)
@@ -368,6 +379,27 @@ GetFuzzyThreshold(std::string station, std::string tag)
   }
   
   return m_FuzzyThreshold[station][tag]; 
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class TImageType>
+double 
+clitk::ExtractLymphStationsFilter<TImageType>::
+GetThreshold(std::string station, std::string tag)
+{
+  if (m_Threshold.find(station) == m_Threshold.end()) {
+    clitkExceptionMacro("Could not find options for station "+station+" in the list (while searching for tag "+tag+").");
+    return 0.0;
+  }
+
+  if (m_Threshold[station].find(tag) == m_Threshold[station].end()) {
+    clitkExceptionMacro("Could not find options "+tag+" in the list of Threshold for station "+station+".");
+    return 0.0;
+  }
+  
+  return m_Threshold[station][tag]; 
 }
 //--------------------------------------------------------------------
 
