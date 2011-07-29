@@ -33,24 +33,25 @@ void
 clitk::ExtractLymphStationsFilter<TImageType>::
 ExtractStation_2RL()
 {
-  if (CheckForStation("2RL")) {
-    ExtractStation_2RL_SI_Limits();
-    ExtractStation_2RL_Post_Limits();
+  if ((!CheckForStation("2R")) && (!CheckForStation("2L"))) return;
 
-    ExtractStation_2RL_Ant_Limits2();
-    //ExtractStation_2RL_Ant_Limits(); 
+  ExtractStation_2RL_SI_Limits();
+  ExtractStation_2RL_Post_Limits();
+  
+  ExtractStation_2RL_Ant_Limits2();
+  //ExtractStation_2RL_Ant_Limits(); 
+  
+  ExtractStation_2RL_LR_Limits(); 
+  ExtractStation_2RL_Remove_Structures(); 
+  ExtractStation_2RL_SeparateRL(); 
+  
+  // Store image filenames into AFDB 
+  writeImage<MaskImageType>(m_ListOfStations["2R"], "seg/Station2R.mhd");
+  writeImage<MaskImageType>(m_ListOfStations["2L"], "seg/Station2L.mhd");
+  GetAFDB()->SetImageFilename("Station2R", "seg/Station2R.mhd"); 
+  GetAFDB()->SetImageFilename("Station2L", "seg/Station2L.mhd"); 
+  WriteAFDB(); 
 
-    ExtractStation_2RL_LR_Limits(); 
-    ExtractStation_2RL_Remove_Structures(); 
-    ExtractStation_2RL_SeparateRL(); 
-    
-    // Store image filenames into AFDB 
-    writeImage<MaskImageType>(m_ListOfStations["2R"], "seg/Station2R.mhd");
-    writeImage<MaskImageType>(m_ListOfStations["2L"], "seg/Station2L.mhd");
-    GetAFDB()->SetImageFilename("Station2R", "seg/Station2R.mhd"); 
-    GetAFDB()->SetImageFilename("Station2L", "seg/Station2L.mhd"); 
-    WriteAFDB(); 
-  }
 }
 //--------------------------------------------------------------------
 
