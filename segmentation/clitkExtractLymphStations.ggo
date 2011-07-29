@@ -22,8 +22,10 @@ option "nosupport"     -        "Do not recompute the station supports if alread
 
 
 section "Options for Station 3A"
-option "S3A_ft_SVC"              - "Fuzzy Threshold for NotPost to SVC" double default="0.5" no 
-option "S3A_ft_Aorta"            - "Fuzzy Threshold for NotPost to Aorta" double default="0.5" no 
+option "S3A_ft_SVC"              - "Fuzzy Threshold for NotPost to SVC"         double default="0.5" no 
+option "S3A_ft_Bones"            - "Fuzzy Threshold for Post to Bones"          double default="0.5" no 
+option "S3A_t_Bones"             - "Binary HU Threshold for bones"              double default="250" no 
+option "S3A_ft_Aorta"            - "Fuzzy Threshold for NotPost to Aorta"       double default="0.5" no 
 option "S3A_ft_SubclavianArtery" - "Fuzzy Threshold for Ant to SubclavianArtery" double default="0.2" no 
 
 
