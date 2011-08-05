@@ -109,3 +109,20 @@ ENDIF(CLITK_BUILD_VV)
 IF(BUILD_TESTING)
   ADD_SUBDIRECTORY(tests)
 ENDIF(BUILD_TESTING)
+
+#=========================================================
+# Install scripts when running make install
+SET(SCRIPTS 
+  scripts/common.sh
+  scripts/registration.sh
+  scripts/create_midP.sh
+  scripts/create_midP-2.0.sh        
+  scripts/create_mhd_4D.sh          
+  scripts/create_mhd_4D_pattern.sh  
+  scripts/create_midP_masks.sh  
+  scripts/create_midP_masks-2.0.sh  
+  scripts/pts_to_landmarks.sh
+)
+
+INSTALL (FILES ${SCRIPTS} DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
+
