@@ -2,7 +2,7 @@
 
 ###############################################################################
 #
-# FILE: common.sh
+# FILE: midp_common.sh
 # AUTHOR: Rômulo Pinho 05/08/2011
 #
 # Helper file with many functions used in the midP scripts.

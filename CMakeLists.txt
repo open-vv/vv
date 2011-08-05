@@ -113,7 +113,7 @@ ENDIF(BUILD_TESTING)
 #=========================================================
 # Install scripts when running make install
 SET(SCRIPTS 
-  scripts/common.sh
+  scripts/midp_common.sh
   scripts/registration.sh
   scripts/create_midP.sh
   scripts/create_midP-2.0.sh        

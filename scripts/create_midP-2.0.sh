@@ -21,7 +21,7 @@
 
 source `dirname $0`/create_midP_masks-2.0.sh using-as-lib 2 nn
 source `dirname $0`/registration.sh
-source `dirname $0`/common.sh
+source `dirname $0`/midp_common.sh
 
 registration()
 {
