@@ -88,13 +88,14 @@ registration_elastix()
   echo "Computing ELASTIX $reference -> $target ..."
   exec_dir=`which elastix`
   exec_dir=`dirname $exec_dir`
+  suffix=${nb_samples}_${nb_iter}_${nb_levels}
   cat $exec_dir/params_BSpline.txt | sed -e "s+<NbIterations>+$nb_iter+" \
                               -e "s+<LabelsFile>++" \
                               -e "s+<HistBins>+$hist_bins+" \
                               -e "s+<Levels>+$nb_levels+" \
                               -e "s+<NbSamples>+$nb_samples+" \
                               -e "s+<SamplerType>+$sampling_algo+" \
-                              -e "s+<Spacing>+$spacing+" > params_BSpline.txt 
+                              -e "s+<Spacing>+$spacing+" > params_BSpline_${suffix}.txt 
 
   vf_dir=`dirname $vf`
   vf_base=`basename $vf .mhd`
@@ -102,7 +103,7 @@ registration_elastix()
   result_base=`basename $result .mhd`
 
   # image registration
-  cmd="elastix -f $reference -m $target -fMask $mask_ref -mMask $mask_targ -out $result_dir -p params_BSpline.txt"
+  cmd="elastix -f $reference -m $target -fMask $mask_ref -mMask $mask_targ -out $result_dir -p params_BSpline_${suffix}.txt"
   $cmd  > /dev/null
 
   # generate vector field
