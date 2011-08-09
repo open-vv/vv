@@ -36,6 +36,7 @@ void write_points_txt(const std::string& fileName, const PointArrayType& points,
 void read_points_pts(const std::string& fileName, PointArrayType& points);
 void write_points_pts(const std::string& fileName, const PointArrayType& points);
 
+void apply_spacing(const PointArrayType& input, const double* spacing, PointArrayType& output);
 void transform_points(const PointArrayType& input, const MatrixType& matrix, PointArrayType& output);
 
 
@@ -45,8 +46,6 @@ int main(int argc, char** argv)
 {
   GGO(clitkTransformLandmarks, args_info);
   verbose = args_info.verbose_flag;
-
-  MatrixType matrix = clitk::ReadMatrix3D(args_info.matrix_arg);
 
   TxtDataArrayType data;
   PointArrayType inputPoints;
@@ -58,13 +57,29 @@ int main(int argc, char** argv)
   }
   
   PointArrayType outputPoints;
-  transform_points(inputPoints, matrix, outputPoints);
+  PointArrayType spacingPoints;
+  PointArrayType* workingInputPoints = &inputPoints;
+  PointArrayType* workingOutputPoints = &outputPoints;
+  if (args_info.spacing_given) {
+    if (verbose) std::cout << "Processing spacing..." << std::endl;
+    
+    apply_spacing(*workingInputPoints, args_info.spacing_arg, spacingPoints);
+    workingInputPoints = &spacingPoints;
+    workingOutputPoints = &spacingPoints;
+  }
+
+  MatrixType matrix;
+  if (args_info.matrix_given) {
+    matrix = clitk::ReadMatrix3D(args_info.matrix_arg);
+    transform_points(*workingInputPoints, matrix, outputPoints);
+    workingOutputPoints = &outputPoints;
+  }
 
   if (strcmp(args_info.type_arg, "txt") == 0) {
-    write_points_txt(args_info.output_arg, outputPoints, data);
+    write_points_txt(args_info.output_arg, *workingOutputPoints, data);
   }
   else {
-    write_points_pts(args_info.output_arg, outputPoints);
+    write_points_pts(args_info.output_arg, *workingOutputPoints);
   }
   
   return 0;
@@ -74,14 +89,14 @@ void read_points_txt(const std::string& fileName, PointArrayType& points, TxtDat
 {
   std::ifstream landmarksFile(fileName.c_str());
   if (landmarksFile.fail()) {
-    std::cout << "ERROR: could not open '" << fileName << "'" << std::endl;
+    std::cerr << "ERROR: could not open '" << fileName << "'" << std::endl;
     exit(-2);
   }
   
   std::string line;
   std::getline(landmarksFile, line);
   if (line.find("LANDMARKS") == std::string::npos) {
-    std::cout << "ERROR: invalid landmarks file '" << fileName << "'" << std::endl;
+    std::cerr << "ERROR: invalid landmarks file '" << fileName << "'" << std::endl;
     exit(-3);
   }
   
@@ -119,14 +134,14 @@ void read_points_pts(const std::string& fileName, PointArrayType& points)
 {
   std::ifstream landmarksFile(fileName.c_str());
   if (landmarksFile.fail()) {
-    std::cout << "ERROR: could not open '" << fileName << "'" << std::endl;
+    std::cerr << "ERROR: could not open '" << fileName << "'" << std::endl;
     exit(-2);
   }
   
   std::string line;
   std::getline(landmarksFile, line);
   if (line.find("#X") != 0) {
-    std::cout << "ERROR: invalid landmarks file '" << fileName << "'" << std::endl;
+    std::cerr << "ERROR: invalid landmarks file '" << fileName << "'" << std::endl;
     exit(-3);
   }
   
@@ -154,6 +169,22 @@ void write_points_pts(const std::string& fileName, const PointArrayType& points)
   landmarksFile << "#X\tY\tZ" << std::endl;
   for (size_t i = 0; i < points.size(); i++)
     landmarksFile << points[i][0] << "\t" << points[i][1] << "\t" << points[i][2] << "\t" << std::endl;
+}
+
+void apply_spacing(const PointArrayType& input, const double* spacing, PointArrayType& output)
+{
+  PointType out;
+  out.Fill(1);
+  
+  for (size_t i = 0; i < input.size(); i++) {
+    out[0] = input[i][0] * spacing[0];
+    out[1] = input[i][1] * spacing[1];
+    out[2] = input[i][2] * spacing[2];
+    if (verbose){
+      std::cout << "output " << out << std::endl;
+    }
+    output.push_back(out);
+  }
 }
 
 void transform_points(const PointArrayType& input, const MatrixType& matrix, PointArrayType& output)
