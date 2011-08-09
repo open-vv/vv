@@ -60,7 +60,7 @@ compute_motion_mask()
     FillingLevel=94
   fi
 
-  clitkMotionMask -i $mask_dir_tmp/patient_$phase_nb.mhd -o $mask_dir_tmp/mm_$phase_nb.mhd --featureLungs $mask_dir_tmp/lungs_$phase_nb.mhd --upperThresholdLungs -400 --fillingLevel $FillingLevel --offsetDetect 0,-5,0 --pad --writeFeature=$mask_dir_tmp/feature_$phase_nb.mhd $MotionMaskExtra 
+  clitkMotionMask -i $mask_dir_tmp/patient_$phase_nb.mhd -o $mask_dir_tmp/mm_$phase_nb.mhd --featureLungs $mask_dir_tmp/lungs_$phase_nb.mhd --upperThresholdLungs -400 --fillingLevel $FillingLevel --offsetDetect $MotionMaskOffsetDetect --pad --writeFeature=$mask_dir_tmp/feature_$phase_nb.mhd $MotionMaskExtra 
   #--monitor=$mask_dir_tmp/monitor_$phase_nb.mhd
 }
 
@@ -143,12 +143,12 @@ motion_mask()
   resample_spacing=$2
   resample_algo=$3
 
-  # import variables specific to each patient
-  source variables
-
   dir=`dirname $1`
   cd $dir
     
+  # import variables specific to each patient
+  source ./variables
+
   #set other global variables
   mask_dir="MASK-${resample_spacing}mm-$resample_algo"
   mask_dir_tmp="tmp.$mask_dir"
