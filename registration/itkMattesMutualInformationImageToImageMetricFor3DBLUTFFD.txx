@@ -54,7 +54,11 @@
 #include "itkImageRegionIterator.h"
 #include "itkImageIterator.h"
 #include "vnl/vnl_math.h"
-#include "itkBSplineDeformableTransform.h"
+#if ITK_VERSION_MAJOR >= 4
+  #include "itkBSplineTransform.h"
+#else
+  #include "itkBSplineDeformableTransform.h"
+#endif
 
 namespace itk
 {
