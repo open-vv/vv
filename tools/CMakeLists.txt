@@ -38,7 +38,7 @@ IF (CLITK_BUILD_TOOLS)
   WRAP_GGO(clitkImageInfo_GGO_C clitkImageInfo.ggo)
   ADD_EXECUTABLE(clitkImageInfo clitkImageInfo.cxx ${clitkImageInfo_GGO_C})
   TARGET_LINK_LIBRARIES(clitkImageInfo clitkCommon ${ITK_LIBRARIES})
-  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkDicom2Image)
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageInfo)
 
   ADD_EXECUTABLE(clitkImageConvert clitkImageConvert.cxx)
   TARGET_LINK_LIBRARIES(clitkImageConvert clitkImageConvertLib clitkCommon ${ITK_LIBRARIES})
