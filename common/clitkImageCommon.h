@@ -58,11 +58,11 @@ typename ImageType::Pointer readImage(const std::string & filename, const bool v
 template<typename ImageType>
 typename ImageType::Pointer readImage(const std::vector<std::string> & filenames, const bool verbose=false);
 template<class ImageType>
-void writeImage(const typename ImageType::Pointer image, const std::string & filename, const bool verbose=false);
+void writeImage(const typename ImageType::Pointer image, const std::string & filename, const bool verbose=false, const bool compression=false);
 //   template<class ImageType>
 //   void writeConstImage(const typename ImageType::ConstPointer image, const std::string & filename, const bool verbose=false);
 template<class ImageType>
-void writeImage(const ImageType* image, const std::string & filename, const bool verbose=false);
+void writeImage(const ImageType* image, const std::string & filename, const bool verbose=false, const bool compression=false);
 
 //--------------------------------------------------------------------
 // Read/print image header

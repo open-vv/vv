@@ -188,34 +188,22 @@ typename ImageType::Pointer readImage(const std::vector<std::string> & filenames
 
 //--------------------------------------------------------------------
 template<class ImageType>
-void writeImage(const typename ImageType::Pointer image, const std::string & filename, const bool verbose)
+void writeImage(const typename ImageType::Pointer image, const std::string & filename, const bool verbose, const bool compression)
 {
-  typedef itk::ImageFileWriter<ImageType> WriterType;
-  typename WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName(filename.c_str());
-  writer->SetInput(image);
-  if (verbose) {
-    std::cout << "Writing [" << filename << "] ... " << std::endl;
-  }
-  try {
-    writer->Update();
-  } catch( itk::ExceptionObject & err ) {
-    std::cerr << "Exception while writing image [" << filename << "]" << std::endl;
-    std::cerr << err << std::endl;
-    exit(-1);
-  }
+  return writeImage(image.GetPointer(), filename, verbose, compression);
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
 template<class ImageType>
-void writeImage(const ImageType* image, const std::string & filename, const bool verbose)
+void writeImage(const ImageType* image, const std::string & filename, const bool verbose, const bool compression)
 {
   typedef itk::ImageFileWriter<ImageType> WriterType;
   typename WriterType::Pointer writer = WriterType::New();
   writer->SetFileName(filename.c_str());
   writer->SetInput(image);
+  writer->SetUseCompression(compression);
   if (verbose) {
     std::cout << "Writing [" << filename << "] ... " << std::endl;
   }
