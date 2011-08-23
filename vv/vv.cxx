@@ -192,7 +192,7 @@ int main( int argc, char** argv )
   }
 
   if(win!="" && lev!="") {
-    window.WindowLevelChanged(atof(win.c_str()), atof(lev.c_str()), 6, 0);
+    window.SetWindowLevel(atof(win.c_str()), atof(lev.c_str()));
     window.ApplyWindowLevelToAllImages();
   }
 
