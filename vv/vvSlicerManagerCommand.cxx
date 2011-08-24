@@ -109,7 +109,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
           return;
         }
         if (KeyPress == "w") {
-          this->SM->SetLocalColorWindowing(VisibleInWindow);
+          this->SM->SetLocalColorWindowing(VisibleInWindow, bCtrlKey);
           return;
         }
         if (KeyPress == "0") {
@@ -186,7 +186,6 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
           return;
         }
         if (KeyPress == "h") {
-          std::cout << "KeyPress == \"h\"\n";
           this->SM->SetCursorAndCornerAnnotationVisibility(0);
           this->SM->Render();
           return;
@@ -405,8 +404,8 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
       this->SM->SetColorWindow(window*dx);
       this->SM->SetColorLevel(level-dy);
       this->SM->SetPreset(6);
-      this->SM->UpdateWindowLevel();
       this->SM->Render();
+      this->SM->UpdateWindowLevel();
       return;
     }
   }

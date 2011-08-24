@@ -153,7 +153,7 @@ public:
   void SetCornerAnnotationVisibility(bool s);
   bool GetCornerAnnotationVisibility();
 
-  void GetExtremasAroundMousePointer(double & min, double & max);
+  void GetExtremasAroundMousePointer(double & min, double & max, vtkImageData *image);
 
   void UpdateLandmarks();
   void ForceUpdateDisplayExtent();
@@ -167,6 +167,14 @@ public:
 
   virtual void SetColorWindow(double s);
   virtual void SetColorLevel(double s);
+
+  double GetOverlayColorWindow();
+  double GetOverlayColorLevel();
+  bool GetLinkOverlayWindowLevel() { return mLinkOverlayWindowLevel; }
+
+  void SetOverlayColorWindow(double s);
+  void SetOverlayColorLevel(double s);
+  void SetLinkOverlayWindowLevel(bool b) { mLinkOverlayWindowLevel = b; }
 
   /**
    * When it is enabled, beware of a call to GetExtent.
@@ -235,6 +243,7 @@ protected:
   bool mUseReducedExtent;
   int * mReducedExtent;
   int * mInitialExtent;
+  bool mLinkOverlayWindowLevel;
 
 private:
   void UpdateOrientation();

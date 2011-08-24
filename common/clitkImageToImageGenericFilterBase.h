@@ -62,6 +62,7 @@ namespace clitk {
     void SetInputFilenames(const std::vector<std::string> & filenames);
     void EnableReadOnDisk(bool b);
     void EnableWriteOnDisk(bool b);
+    void EnableWriteCompression(bool b);
     void SetOutputFilename(const std::string & filename);
     void AddOutputFilename(const std::string filename);
     void SetOutputFilenames(const std::vector<std::string> & filenames);
@@ -94,6 +95,8 @@ namespace clitk {
   protected:  
     bool m_ReadOnDisk;
     bool m_WriteOnDisk;
+    bool m_WriteCompression;
+
     /// Call this function to dispatch an output towards the correct sink
     template<class ImageType> 
     void SetNextOutput(typename ImageType::Pointer output);

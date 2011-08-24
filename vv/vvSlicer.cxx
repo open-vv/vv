@@ -135,6 +135,8 @@ vvSlicer::vvSlicer()
   this->WindowLevel = vvImageMapToWLColors::New();
 
   this->InstallPipeline();
+
+  mLinkOverlayWindowLevel = true;
 }
 //------------------------------------------------------------------------------
 
@@ -1111,7 +1113,6 @@ void vvSlicer::SetColorWindow(double window)
 }
 //----------------------------------------------------------------------------
 
-
 //----------------------------------------------------------------------------
 void vvSlicer::SetColorLevel(double level)
 {
@@ -1126,8 +1127,42 @@ void vvSlicer::SetColorLevel(double level)
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
+double vvSlicer::GetOverlayColorWindow()
+{
+  if(mOverlayMapper)
+    return mOverlayMapper->GetWindow();
+  else
+    return 0.;
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+double vvSlicer::GetOverlayColorLevel()
+{
+  if(mOverlayMapper)
+    return mOverlayMapper->GetLevel();
+  else
+    return 0.;
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+void vvSlicer::SetOverlayColorWindow(double window)
+{
+  mOverlayMapper->SetWindow(window);
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+void vvSlicer::SetOverlayColorLevel(double level)
+{
+  mOverlayMapper->SetLevel(level);
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
 // Returns the min an the max value in a 41x41 region around the mouse pointer
-void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max)
+void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max, vtkImageData *image)
 {
   //Get mouse pointer position in view coordinates
   double fLocalExtents[6];
@@ -1149,8 +1184,8 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max)
   //Convert to image pixel coordinates (rounded)
   int iLocalExtents[6];
   for(int i=0; i<3; i++) {
-    fLocalExtents[i*2  ] = (fLocalExtents[i*2  ] - this->GetInput()->GetOrigin()[i])/this->GetInput()->GetSpacing()[i];
-    fLocalExtents[i*2+1] = (fLocalExtents[i*2+1] - this->GetInput()->GetOrigin()[i])/this->GetInput()->GetSpacing()[i];
+    fLocalExtents[i*2  ] = (fLocalExtents[i*2  ] - image->GetOrigin()[i])/image->GetSpacing()[i];
+    fLocalExtents[i*2+1] = (fLocalExtents[i*2+1] - image->GetOrigin()[i])/image->GetSpacing()[i];
 
     iLocalExtents[i*2  ] = lrint(fLocalExtents[i*2  ]);
     iLocalExtents[i*2+1] = lrint(fLocalExtents[i*2+1]);
@@ -1160,7 +1195,7 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max)
   }
 
   vtkSmartPointer<vtkExtractVOI> voiFilter = vtkSmartPointer<vtkExtractVOI>::New();
-  voiFilter->SetInput(this->GetInput());
+  voiFilter->SetInput(image);
   voiFilter->SetVOI(iLocalExtents);
   voiFilter->Update();
   if (!voiFilter->GetOutput()->GetNumberOfPoints()) {
@@ -1275,8 +1310,10 @@ void vvSlicer::Render()
 
 
   if (mOverlay && mOverlayActor->GetVisibility()) {
-    mOverlayMapper->SetWindow(this->GetColorWindow());
-    mOverlayMapper->SetLevel(this->GetColorLevel());
+    if(mLinkOverlayWindowLevel) {
+      mOverlayMapper->SetWindow(this->GetColorWindow());
+      mOverlayMapper->SetLevel(this->GetColorLevel());
+    }
     mOverlayMapper->GetOutput()->SetUpdateExtent(mOverlayActor->GetDisplayExtent());
     mOverlayMapper->GetOutput()->Update();
     mOverlayMapper->Update();

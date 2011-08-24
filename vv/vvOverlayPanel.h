@@ -38,7 +38,7 @@ public:
     void getVFProperty(int subsampling, int scale, int log);
     void getVFName(QString name);
 
-    void getOverlayProperty(int color);
+    void getOverlayProperty(int color, int linked, double window, double level);
     void getOverlayName(QString name);
 
     void getFusionProperty(int opacity, int thresOpacity, int colormap, double window, double level);
@@ -56,7 +56,7 @@ public slots:
 
 signals:
     void VFPropertyUpdated(int subsampling, int scale, int log, int width, double r, double g, double b);
-    void OverlayPropertyUpdated(int color);
+    void OverlayPropertyUpdated(int color, int linked, double window, double level);
     void FusionPropertyUpdated(int opacity, int thresOpacity, int colormap, double window, double level);
 
     

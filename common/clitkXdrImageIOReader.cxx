@@ -700,11 +700,13 @@ int clitk::XdrImageIO::ReadImageInformationWithError()
         SetOrigin(i,10*p[0]);
 
         //Test if rectilinear image is actually uniform (tolerance 0.1 mm)
-        for (j=0; j<GetDimensions(i)-1; j++) {
-          if (fabs((p[j+1]-p[j])*10-GetSpacing(i))>0.1) {
-            free(points);
-            fclose(fstream);
-            return ER_NOT_HANDLED;
+        if(i<3) { // Only for first 3 dimensions because spacing is barely used in other dims
+          for (j=0; j<GetDimensions(i)-1; j++) {
+            if (fabs((p[j+1]-p[j])*10-GetSpacing(i))>0.1) {
+              free(points);
+              fclose(fstream);
+              return ER_NOT_HANDLED;
+            }
           }
         }
         p += (int)GetDimensions(i);

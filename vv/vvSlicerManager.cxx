@@ -512,12 +512,38 @@ void vvSlicerManager::SetColorWindow(double s)
 }
 //----------------------------------------------------------------------------
 
-
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetColorLevel(double s)
 {
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
     mSlicers[i]->SetColorLevel(s);
+  }
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+void vvSlicerManager::SetOverlayColorWindow(double s)
+{
+  for ( unsigned int i = 0; i < mSlicers.size(); i++) {
+    mSlicers[i]->SetOverlayColorWindow(s);
+  }
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+void vvSlicerManager::SetOverlayColorLevel(double s)
+{
+  for ( unsigned int i = 0; i < mSlicers.size(); i++) {
+    mSlicers[i]->SetOverlayColorLevel(s);
+  }
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+void vvSlicerManager::SetLinkOverlayWindowLevel(bool b)
+{
+  for ( unsigned int i = 0; i < mSlicers.size(); i++) {
+    mSlicers[i]->SetLinkOverlayWindowLevel(b);
   }
 }
 //----------------------------------------------------------------------------
@@ -736,6 +762,33 @@ double vvSlicerManager::GetColorLevel()
 }
 //----------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------
+double vvSlicerManager::GetOverlayColorWindow()
+{
+  if (mSlicers.size())
+    return mSlicers[0]->GetOverlayColorWindow();
+  return -1;
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+double vvSlicerManager::GetOverlayColorLevel()
+{
+  if (mSlicers.size())
+    return mSlicers[0]->GetOverlayColorLevel();
+  return -1;
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+bool vvSlicerManager::GetLinkOverlayWindowLevel()
+{
+  if (mSlicers.size())
+    return mSlicers[0]->GetLinkOverlayWindowLevel();
+  return -1;
+}
+//----------------------------------------------------------------------------
+
 //------------------------------------------------------------------------------
 void vvSlicerManager::ResetTransformationToIdentity(const std::string actorType)
 {
@@ -950,10 +1003,11 @@ void vvSlicerManager::Picked()
 }
 //----------------------------------------------------------------------------
 
+
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateWindowLevel()
 {
-  emit WindowLevelChanged(mSlicers[0]->GetColorWindow(),mSlicers[0]->GetColorLevel(),mPreset,mColorMap);
+  emit WindowLevelChanged();
 }
 //----------------------------------------------------------------------------
 
@@ -1057,14 +1111,34 @@ void vvSlicerManager::SetPreset(int preset)
 
 
 //----------------------------------------------------------------------------
-void vvSlicerManager::SetLocalColorWindowing(const int slicer)
+void vvSlicerManager::SetLocalColorWindowing(const int slicer, const bool bCtrlKey)
 {
   double min, max;
-  this->mSlicers[slicer]->GetExtremasAroundMousePointer(min, max);
-  this->SetColorWindow(max-min);
-  this->SetColorLevel(0.5*(min+max));
-  this->UpdateWindowLevel();
+  int t = this->mSlicers[slicer]->GetTSlice();
+  if(bCtrlKey && this->mSlicers[slicer]->GetFusion()) {
+    this->mSlicers[slicer]->GetExtremasAroundMousePointer(min, max, this->mSlicers[slicer]->GetFusion()->GetVTKImages()[t]);
+    this->SetFusionWindow(max-min);
+    this->SetFusionLevel(0.5*(min+max));
+    this->SetColorMap(mColorMap);
+  }
+  else if(bCtrlKey && this->mSlicers[slicer]->GetOverlay()) {
+    this->mSlicers[slicer]->GetExtremasAroundMousePointer(min, max, this->mSlicers[slicer]->GetOverlay()->GetVTKImages()[t]);
+    if(this->mSlicers[slicer]->GetLinkOverlayWindowLevel()){
+      this->SetColorWindow(max-min);
+      this->SetColorLevel(0.5*(min+max));
+    } else {
+      this->SetOverlayColorWindow(max-min);
+      this->SetOverlayColorLevel(0.5*(min+max));
+    }
+  }
+  else {
+    this->mSlicers[slicer]->GetExtremasAroundMousePointer(min, max, this->mSlicers[slicer]->GetInput());
+    this->SetColorWindow(max-min);
+    this->SetColorLevel(0.5*(min+max));
+    this->SetPreset(6);
+  }
   this->Render();
+  this->UpdateWindowLevel();
 }
 //----------------------------------------------------------------------------
 
