@@ -111,7 +111,10 @@ class vvSlicerManager : public QObject {
   void GenerateDefaultLookupTable();
   void SetColorWindow(double s);
   void SetColorLevel(double s);
-  void SetLocalColorWindowing(const int slicer);
+  void SetOverlayColorWindow(double s);
+  void SetOverlayColorLevel(double s);
+  void SetLinkOverlayWindowLevel(bool b);
+  void SetLocalColorWindowing(const int slicer, const bool bCtrlKey);
   void SetOpacity(int i, double factor);
   void SetColorMap(int colormap);
   void SetPreset(int preset);
@@ -136,6 +139,9 @@ class vvSlicerManager : public QObject {
 
   double GetColorWindow();
   double GetColorLevel();
+  double GetOverlayColorWindow();
+  double GetOverlayColorLevel();
+  bool GetLinkOverlayWindowLevel();
   int GetColorMap() {
     return mColorMap;
   }
@@ -145,7 +151,6 @@ class vvSlicerManager : public QObject {
   int GetOverlayColor() {
     return mOverlayColor;
   }
-
   int GetFusionOpacity() {
     return mFusionOpacity;
   }
@@ -216,7 +221,7 @@ signals :
   void UpdateSlice(int slicer, int slice);
   void UpdateTSlice(int slicer, int slice);
   void UpdateSliceRange(int slice, int min, int max, int tmin, int tmax);
-  void WindowLevelChanged(double window, double level, int preset, int colormap);
+  void WindowLevelChanged();
   void UpdateLinkManager(std::string, int slicer, double x, double y, double z, int temps);
   void UpdateLinkedNavigation(std::string, vvSlicerManager*, vvSlicer*);
   void LandmarkAdded();

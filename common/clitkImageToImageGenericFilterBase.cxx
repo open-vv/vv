@@ -36,6 +36,7 @@ clitk::ImageToImageGenericFilterBase::ImageToImageGenericFilterBase(std::string 
   m_FailOnImageTypeError = true;
   m_ReadOnDisk = true;
   m_WriteOnDisk = true;
+  m_WriteCompression = false;
   // m_LastError = "";
   // StopOnErrorOn();
   SetFilterBase(NULL);
@@ -68,6 +69,14 @@ void clitk::ImageToImageGenericFilterBase::EnableReadOnDisk(bool b)
 void clitk::ImageToImageGenericFilterBase::EnableWriteOnDisk(bool b)
 {
   m_WriteOnDisk = b;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void clitk::ImageToImageGenericFilterBase::EnableWriteCompression(bool b)
+{
+  m_WriteCompression = b;
 }
 //--------------------------------------------------------------------
 
@@ -321,7 +330,7 @@ template<class ImageType>
 void clitk::ImageToImageGenericFilterBase::SetNextOutput(typename ImageType::Pointer output)
 {
   if (m_WriteOnDisk && m_OutputFilenames.size()) {
-    clitk::writeImage<ImageType>(output, m_OutputFilenames.front(), m_IOVerbose);
+    clitk::writeImage<ImageType>(output, m_OutputFilenames.front(), m_IOVerbose, m_WriteCompression);
     m_OutputFilenames.pop_front();
   }
   if (m_InputVVImages.size()) //We assume that if a vv image is set as input, we want one as the output

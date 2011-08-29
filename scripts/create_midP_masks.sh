@@ -1,6 +1,6 @@
 #! /bin/bash -x
 
-. common.sh
+source `dirname $0`/midp_common.sh
 
 extract_patient()
 {
@@ -241,7 +241,7 @@ fi
 #
 # variables exported in this scope
 #
-# mask_dir: directory where all mask are kept
+# mask_dir: directory where all masks are kept
 # regmask_in_list: list of registration mask files (inside lungs)
 # regmask_out_list: list of registration mask files (outised lungs)
 # reg_in_list: list of registration image files (inside lungs)

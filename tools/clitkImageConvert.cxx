@@ -56,6 +56,7 @@ int main(int argc, char * argv[])
   filter->SetInputFilenames(l);
   filter->SetIOVerbose(args_info.verbose_flag);
   filter->SetOutputFilename(args_info.output_arg);
+  filter->EnableWriteCompression(args_info.compression_flag);
   if (args_info.type_given) filter->SetOutputPixelType(args_info.type_arg);
 
   // Go !

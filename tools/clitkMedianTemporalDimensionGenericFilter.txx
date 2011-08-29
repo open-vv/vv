@@ -184,22 +184,23 @@ namespace clitk
 
       // Take the median
       double value;
+      typename InputImageType::IndexValueType temporal_dimension = size4D[Dimension-1];
+      std::vector<PixelType> temp(temporal_dimension);
       while (!(iterators[0]).IsAtEnd()) {
         value=0.;
-        std::vector<PixelType> temp;
-        for (unsigned int i=0; i<size4D[Dimension-1]; i++) {
-          temp.push_back(iterators[i].Get());
+        for (unsigned int i=0; i<temporal_dimension; i++) {
+          temp[i] = iterators[i].Get();
           ++(iterators[i]);
         }
-        if (temp.size() % 2) {
-          nth_element(temp.begin(),temp.begin()+((temp.size()-1)/2+1),temp.end());
-          value=temp[(temp.size()-1)/2];
+        if (temporal_dimension & 1) {
+          nth_element(temp.begin(), temp.begin() + temporal_dimension/2,temp.end());
+          value = temp[temporal_dimension/2];
         } else {
-          nth_element(temp.begin(),temp.begin()+(temp.size())/2,temp.end());
-          value=temp[temp.size()/2];
-          nth_element(temp.begin(),temp.begin()+ (temp.size()/2+1),temp.end());
-          value+=temp[temp.size()/2+1];
-          value/=2;
+          nth_element(temp.begin(), temp.begin() + temporal_dimension/2 - 1, temp.end());
+          value = temp[temporal_dimension/2 - 1];
+          nth_element(temp.begin(), temp.begin() + temporal_dimension/2, temp.end());
+          value += temp[temporal_dimension/2];
+          value /= 2;
         }
         avIt.Set(value);
         ++avIt;

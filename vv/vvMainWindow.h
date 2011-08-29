@@ -101,11 +101,12 @@ public slots:
   void SegmentationOnCurrentImage();
   void SurfaceViewerLaunch();
 
-  void WindowLevelChanged(double window, double level,int preset, int colormap);
+  void WindowLevelChanged();
   void UpdateSlice(int slicer, int slice);
   void UpdateTSlice(int slicer, int slice);
   void UpdateSliceRange(int slicer, int min, int max, int tmin, int tmax);
   void WindowLevelEdited();
+  void SetWindowLevel(double w, double l);
   void UpdateColorMap();
   void UpdateWindowLevel();
   void SwitchWindowLevel();
@@ -142,7 +143,7 @@ public slots:
   void ResetTransformationToIdentity();
 
   void SetVFProperty(int subsampling,int scale,int lut, int width, double r, double g, double b);
-  void SetOverlayProperty(int color);
+  void SetOverlayProperty(int color, int linked, double window, double level);
   void SetFusionProperty(int opacity, int tresOpacity, int colormap,double window,double level);
 
   void GoToCursor();

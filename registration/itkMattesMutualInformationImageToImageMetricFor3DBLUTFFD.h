@@ -52,7 +52,11 @@
 #include "itkBSplineDerivativeKernelFunction.h"
 #include "itkCentralDifferenceImageFunction.h"
 #include "itkBSplineInterpolateImageFunction.h"
-#include "itkBSplineDeformableTransform.h"
+#if ITK_VERSION_MAJOR >= 4
+  #include "itkBSplineTransform.h"
+#else
+  #include "itkBSplineDeformableTransform.h"
+#endif
 #include "itkArray2D.h"
 
 namespace itk
@@ -471,10 +475,17 @@ private:
   /**
    * Typedefs for the BSplineDeformableTransform.
    */
+#if ITK_VERSION_MAJOR >= 4
+  typedef BSplineTransform<
+  CoordinateRepresentationType,
+  ::itk::GetImageDimension<FixedImageType>::ImageDimension,
+  DeformationSplineOrder> BSplineTransformType;
+#else
   typedef BSplineDeformableTransform<
   CoordinateRepresentationType,
   ::itk::GetImageDimension<FixedImageType>::ImageDimension,
   DeformationSplineOrder> BSplineTransformType;
+#endif
   typedef typename BSplineTransformType::WeightsType
   BSplineTransformWeightsType;
   typedef typename BSplineTransformType::ParameterIndexArrayType

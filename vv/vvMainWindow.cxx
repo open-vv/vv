@@ -294,7 +294,8 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(linkPanel,SIGNAL(addLink(QString,QString)),this,SLOT(AddLink(QString,QString)));
   connect(linkPanel,SIGNAL(removeLink(QString,QString)),this,SLOT(RemoveLink(QString,QString)));
   connect(overlayPanel,SIGNAL(VFPropertyUpdated(int,int,int,int,double,double,double)),this,SLOT(SetVFProperty(int,int,int,int,double,double,double)));
-  connect(overlayPanel,SIGNAL(OverlayPropertyUpdated(int)),this,SLOT(SetOverlayProperty(int)));
+  connect(overlayPanel,SIGNAL(OverlayPropertyUpdated(int,int,double,double)),
+          this,SLOT(SetOverlayProperty(int,int,double,double)));
   connect(overlayPanel,SIGNAL(FusionPropertyUpdated(int,int,int,double,double)),
           this,SLOT(SetFusionProperty(int,int,int,double,double)));
   connect(landmarksPanel,SIGNAL(UpdateRenderWindows()),this,SLOT(UpdateRenderWindows()));
@@ -915,8 +916,8 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
                 this, SLOT(OverlayChanged(int,double,double)));
         connect(mSlicerManagers.back(), SIGNAL(UpdateFusion(int, double)),
                 this, SLOT(FusionChanged(int,double)));
-        connect(mSlicerManagers.back(), SIGNAL(WindowLevelChanged(double, double,int, int)),
-                this,SLOT(WindowLevelChanged(double, double, int, int)));
+        connect(mSlicerManagers.back(), SIGNAL(WindowLevelChanged()),
+                this,SLOT(WindowLevelChanged()));
         connect(mSlicerManagers.back(), SIGNAL(UpdateSlice(int,int)),
                 this,SLOT(UpdateSlice(int,int)));
         connect(mSlicerManagers.back(), SIGNAL(UpdateTSlice(int, int)),
@@ -1122,10 +1123,6 @@ void vvMainWindow::ImageInfoChanged()
         break;
       }
     }
-    windowSpinBox->setValue(mSlicerManagers[index]->GetColorWindow());
-    levelSpinBox->setValue(mSlicerManagers[index]->GetColorLevel());
-    presetComboBox->setCurrentIndex(mSlicerManagers[index]->GetPreset());
-    colorMapComboBox->setCurrentIndex(mSlicerManagers[index]->GetColorMap());
 
     infoPanel->setFileName(image);
     infoPanel->setDimension(dim);
@@ -1147,10 +1144,7 @@ void vvMainWindow::ImageInfoChanged()
         break;
       }
     }
-    windowSpinBox->setValue(mSlicerManagers[index]->GetColorWindow());
-    levelSpinBox->setValue(mSlicerManagers[index]->GetColorLevel());
-    presetComboBox->setCurrentIndex(mSlicerManagers[index]->GetPreset());
-    colorMapComboBox->setCurrentIndex(mSlicerManagers[index]->GetColorMap());
+    WindowLevelChanged();
 
     if (mSlicerManagers[index]->GetSlicer(0)->GetVF()) {
       overlayPanel->getVFName(mSlicerManagers[index]->GetVFName().c_str());
@@ -1163,22 +1157,14 @@ void vvMainWindow::ImageInfoChanged()
     }
     if (mSlicerManagers[index]->GetSlicer(0)->GetOverlay()) {
       overlayPanel->getOverlayName(mSlicerManagers[index]->GetOverlayName().c_str());
-      overlayPanel->getOverlayProperty(mSlicerManagers[index]->GetOverlayColor());
     } else {
       overlayPanel->getOverlayName(mSlicerManagers[index]->GetOverlayName().c_str());
-      overlayPanel->getOverlayProperty(-1);
     }
     
     if (mSlicerManagers[index]->GetSlicer(0)->GetFusion()) {
       overlayPanel->getFusionName(mSlicerManagers[index]->GetFusionName().c_str());
-      overlayPanel->getFusionProperty(mSlicerManagers[index]->GetFusionOpacity(),
-                                      mSlicerManagers[index]->GetFusionThresholdOpacity(),
-                                      mSlicerManagers[index]->GetFusionColorMap(),
-                                      mSlicerManagers[index]->GetFusionWindow(),
-                                      mSlicerManagers[index]->GetFusionLevel());
     } else {
       overlayPanel->getFusionName(mSlicerManagers[index]->GetFusionName().c_str());
-      overlayPanel->getFusionProperty(-1, -1, -1, -1, -1);
     }
   }
 }
@@ -1629,12 +1615,34 @@ void vvMainWindow::FusionChanged(int visibility, double value)
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void vvMainWindow::WindowLevelChanged(double window, double level,int preset,int colormap)
+void vvMainWindow::WindowLevelChanged()
 {
-  windowSpinBox->setValue(window);
-  levelSpinBox->setValue(level);
-  colorMapComboBox->setCurrentIndex(colormap);
-  presetComboBox->setCurrentIndex(preset);
+  // Base image
+  int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
+  if(index==-1) return;
+  windowSpinBox->setValue(mSlicerManagers[index]->GetColorWindow());
+  levelSpinBox->setValue(mSlicerManagers[index]->GetColorLevel());
+  colorMapComboBox->setCurrentIndex(mSlicerManagers[index]->GetColorMap());
+  presetComboBox->setCurrentIndex(mSlicerManagers[index]->GetPreset());
+
+  // Overlay image
+  if (mSlicerManagers[index]->GetSlicer(0)->GetOverlay())
+    overlayPanel->getOverlayProperty(mSlicerManagers[index]->GetOverlayColor(),
+                                     mSlicerManagers[index]->GetLinkOverlayWindowLevel(),
+                                     mSlicerManagers[index]->GetOverlayColorWindow(),
+                                     mSlicerManagers[index]->GetOverlayColorLevel());
+  else
+    overlayPanel->getOverlayProperty(-1,0,0.,0.);
+
+  // Fusion image
+  if (mSlicerManagers[index]->GetSlicer(0)->GetFusion())
+    overlayPanel->getFusionProperty(mSlicerManagers[index]->GetFusionOpacity(),
+                                    mSlicerManagers[index]->GetFusionThresholdOpacity(),
+                                    mSlicerManagers[index]->GetFusionColorMap(),
+                                    mSlicerManagers[index]->GetFusionWindow(),
+                                    mSlicerManagers[index]->GetFusionLevel());
+  else
+    overlayPanel->getFusionProperty(-1, -1, -1, -1, -1);
 }
 //------------------------------------------------------------------------------
 
@@ -1642,6 +1650,17 @@ void vvMainWindow::WindowLevelChanged(double window, double level,int preset,int
 void vvMainWindow::WindowLevelEdited()
 {
   presetComboBox->setCurrentIndex(6);
+  UpdateWindowLevel();
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::SetWindowLevel(double w, double l)
+{
+  windowSpinBox->setValue(w);
+  levelSpinBox->setValue(l);
+  presetComboBox->setCurrentIndex(6);
+  colorMapComboBox->setCurrentIndex(0);
   UpdateWindowLevel();
 }
 //------------------------------------------------------------------------------
@@ -1657,8 +1676,7 @@ void vvMainWindow::UpdateWindowLevel()
     mSlicerManagers[index]->SetColorLevel(levelSpinBox->value());
     mSlicerManagers[index]->SetPreset(presetComboBox->currentIndex());
     mSlicerManagers[index]->Render();
-    windowSpinBox->setValue(mSlicerManagers[index]->GetColorWindow());
-    levelSpinBox->setValue(mSlicerManagers[index]->GetColorLevel());
+    WindowLevelChanged();
   }
 }
 //------------------------------------------------------------------------------
@@ -1854,6 +1872,7 @@ void vvMainWindow::AddOverlayImage(int index, QString file)
     error += mSlicerManagers[index]->GetLastError().c_str();
     QMessageBox::information(this,tr("Problem reading image !"),error);
   }
+  WindowLevelChanged();
 }
 //------------------------------------------------------------------------------
 
@@ -2137,12 +2156,15 @@ void vvMainWindow::SetVFProperty(int subsampling, int scale, int log, int width,
 
 
 //------------------------------------------------------------------------------
-void vvMainWindow::SetOverlayProperty(int color)
+void vvMainWindow::SetOverlayProperty(int color, int linked, double window, double level)
 {
   int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
   if (mSlicerManagers[index]->GetSlicer(0)->GetOverlay()) {
     mSlicerManagers[index]->SetOverlayColor(color);
     mSlicerManagers[index]->SetColorMap(0);
+    mSlicerManagers[index]->SetLinkOverlayWindowLevel(linked);
+    mSlicerManagers[index]->SetOverlayColorWindow(window);
+    mSlicerManagers[index]->SetOverlayColorLevel(level);
     mSlicerManagers[index]->Render();
   }
 }
@@ -2836,8 +2858,8 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
           this, SLOT(OverlayChanged(int,double,double)));
   connect(mSlicerManagers.back(), SIGNAL(UpdateFusion(int, double)),
           this, SLOT(FusionChanged(int,double)));
-  connect(mSlicerManagers.back(), SIGNAL(WindowLevelChanged(double, double,int, int)),
-          this,SLOT(WindowLevelChanged(double, double, int, int)));
+  connect(mSlicerManagers.back(), SIGNAL(WindowLevelChanged()),
+          this,SLOT(WindowLevelChanged()));
   connect(mSlicerManagers.back(), SIGNAL(UpdateSlice(int,int)),
           this,SLOT(UpdateSlice(int,int)));
   connect(mSlicerManagers.back(), SIGNAL(UpdateTSlice(int, int)),

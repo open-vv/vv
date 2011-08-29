@@ -76,6 +76,23 @@ int main( int argc, char** argv )
 
   QApplication app( argc, argv );
   Q_INIT_RESOURCE(vvIcons);
+  
+  // 
+  // ATTENTION: Rômulo Pinho - 05/08/2011
+  // Forcing the locale of the application is necessary
+  // because QT initialization changes it to the locale
+  // of the language of the system. This can cause 
+  // inconsistencies when, e.g., reading float values
+  // from DICOM fields with gdcm, since the decimal
+  // point may be changed for a comma (as in French).
+  // In practice, functions such as scanf and its
+  // variations are directly affected.
+  // https://bugreports.qt.nokia.com//browse/QTBUG-15247?page=com.atlassian.jira.plugin.system.issuetabpanels%253Achangehistory-tabpanel
+  //
+#ifndef _WIN32
+  std::string old_locale = setlocale(LC_NUMERIC, NULL);
+  setlocale(LC_NUMERIC, "POSIX");
+#endif
 
   vvMainWindow window;
 
@@ -175,9 +192,14 @@ int main( int argc, char** argv )
   }
 
   if(win!="" && lev!="") {
-    window.WindowLevelChanged(atof(win.c_str()), atof(lev.c_str()), 6, 0);
+    window.SetWindowLevel(atof(win.c_str()), atof(lev.c_str()));
     window.ApplyWindowLevelToAllImages();
   }
+
+#ifndef _WIN32
+  // restoring the locale, just to be clean...
+  setlocale(LC_NUMERIC, old_locale.c_str());
+#endif
 
   return app.exec();
 }
