@@ -78,7 +78,11 @@ namespace clitk
     typedef itk::Image<Displacement, Dimension> OutputImageType;
     
     // Filter
+#if ITK_VERSION_MAJOR >= 4
+    typedef itk::TransformToDisplacementFieldSource<OutputImageType, double> ConvertorType;
+#else
     typedef itk::TransformToDeformationFieldSource<OutputImageType, double> ConvertorType;
+#endif
     typename   ConvertorType::Pointer filter= ConvertorType::New();
 
     // Output image info

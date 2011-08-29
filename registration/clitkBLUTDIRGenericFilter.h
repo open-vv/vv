@@ -60,7 +60,11 @@
 #include "itkLabelGeometryImageFilter.h"
 #include "itkImageDuplicator.h"
 #include "itkExtractImageFilter.h"
-#include "itkTransformToDeformationFieldSource.h"
+#if ITK_VERSION_MAJOR >= 4
+  #include "itkTransformToDisplacementFieldSource.h"
+#else
+  #include "itkTransformToDeformationFieldSource.h"
+#endif
 
 namespace clitk
 {
