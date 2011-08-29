@@ -26,7 +26,11 @@ namespace clitk
   // Constructor
   template<class TScalarType, unsigned int InputDimension, unsigned int OutputDimension, unsigned int SpaceDimension>
   DeformationFieldTransform<TScalarType, InputDimension, OutputDimension, SpaceDimension>
+#if ITK_VERSION_MAJOR >= 4
+  ::DeformationFieldTransform():Superclass(1)
+#else
   ::DeformationFieldTransform():Superclass(OutputDimension,1)
+#endif
   {
      m_DeformationField=NULL;
      m_Interpolator=DefaultInterpolatorType::New();
