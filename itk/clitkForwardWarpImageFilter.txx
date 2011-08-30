@@ -154,7 +154,7 @@ void HelperClass1<InputImageType, OutputImageType, DeformationFieldType>::Thread
   //define some temp variables
   signed long baseIndex[ImageDimension];
   double distance[ImageDimension];
-  for(uint i=0; i<ImageDimension; i++) distance[i] = 0.0; // to avoid warning
+  for(unsigned int i=0; i<ImageDimension; i++) distance[i] = 0.0; // to avoid warning
   unsigned int dim, counter, upper;
   double overlap, totalOverlap;
   typename OutputImageType::IndexType neighIndex;
