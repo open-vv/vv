@@ -384,7 +384,7 @@ MotionMaskGenericFilter::GetLungsImage(typename itk::Image<PixelType, Dimension>
     typename RelabelFilterType::Pointer relabelFilter=RelabelFilterType::New();
     relabelFilter->SetInput(connectFilter->GetOutput());
     if (m_Verbose) std::cout<<"Sorting the labels..."<<std::endl;
-    // writeImage<InternalImageType> (relabelFilter->GetOutput(), "/home/jef/tmp/labels.mhd");
+    // writeImage<InternalImageType> (relabelFilter->GetOutput(), "/home/vdelmon/tmp/labels.mhd");
 
     //---------------------------------
     // Keep the label
