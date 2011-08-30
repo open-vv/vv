@@ -101,7 +101,11 @@ void vvImageWarp::Update_WithDimAndPixelType()
     jacobian_filter->SetUseImageSpacingOn();
     vf_connector->SetInput(mVF->GetVTKImages()[num]);
     warp_filter->SetInput(input[num]);
+#if ITK_VERSION_MAJOR >= 4
+    warp_filter->SetDisplacementField(vf_connector->GetOutput());
+#else
     warp_filter->SetDeformationField(vf_connector->GetOutput());
+#endif
     jacobian_filter->SetInput(vf_connector->GetOutput());
     warp_filter->SetOutputSpacing(input[num]->GetSpacing());
     warp_filter->SetOutputOrigin(input[num]->GetOrigin());

@@ -819,7 +819,11 @@ namespace clitk
     typedef itk::WarpImageFilter< MovingImageType, FixedImageType, DeformationField4DType >    WarpFilterType;
     typename WarpFilterType::Pointer warp = WarpFilterType::New();
 
+#if ITK_VERSION_MAJOR >= 4
+    warp->SetDisplacementField( field4D );
+#else
     warp->SetDeformationField( field4D );
+#endif
     warp->SetInput( movingImageReader->GetOutput() );
     warp->SetOutputOrigin(  fixedImage->GetOrigin() );
     warp->SetOutputSpacing( fixedImage->GetSpacing() );

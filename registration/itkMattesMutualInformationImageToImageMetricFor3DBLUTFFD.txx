@@ -1445,9 +1445,13 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 
     // Compute the transform Jacobian.
     typedef typename TransformType::JacobianType JacobianType;
-    const JacobianType& jacobian =
-      this->m_Transform->GetJacobian(
-        m_FixedImageSamples[sampleNumber].FixedImagePointValue );
+#if ITK_VERSION_MAJOR >= 4
+      JacobianType jacobian;
+      this->m_Transform->ComputeJacobianWithRespectToParameters( m_FixedImageSamples[sampleNumber].FixedImagePointValue, jacobian );
+#else
+      const JacobianType & jacobian =
+        this->m_Transform->GetJacobian( m_FixedImageSamples[sampleNumber].FixedImagePointValue );
+#endif
 
     for ( unsigned int mu = 0; mu < m_NumberOfParameters; mu++ ) {
       double innerProduct = 0.0;
@@ -1480,8 +1484,13 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
       weights = m_BSplineTransformWeightsArray[sampleNumber];
       indices = m_BSplineTransformIndicesArray[sampleNumber];
     } else {
+#if ITK_VERSION_MAJOR >= 4
+      m_BSplineTransform->ComputeJacobianFromBSplineWeightsWithRespectToPosition(
+        m_FixedImageSamples[sampleNumber].FixedImagePointValue, m_Weights, m_Indices );
+#else
       m_BSplineTransform->GetJacobian(
         m_FixedImageSamples[sampleNumber].FixedImagePointValue, m_Weights, m_Indices );
+#endif
     }
 
     for( unsigned int dim = 0; dim < FixedImageDimension; dim++ ) {
