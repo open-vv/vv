@@ -23,6 +23,7 @@
 #include "clitkCommon.h"
 #include "clitkAutoCropFilter.h"
 #include "clitkLabelizeParameters.h"
+#include "clitkExtractSliceFilter.h"
 
 // itk
 #include <itkBoundingBox.h>
@@ -192,18 +193,23 @@ namespace clitk {
                         typename ImageType::PixelType BG=0);
   template<class ImageType>
   typename ImageType::Pointer
-  CropImageAbove(const ImageType * image, 
-                 int dim, double min, bool autoCrop = false,
-                 typename ImageType::PixelType BG=0);
+  CropImageRemoveGreaterThan(const ImageType * image, 
+                             int dim, double min, bool autoCrop = false,
+                             typename ImageType::PixelType BG=0);
   template<class ImageType>
   typename ImageType::Pointer
-  CropImageBelow(const ImageType * image, 
-                 int dim, double max,bool autoCrop = false,
-                 typename ImageType::PixelType BG=0);
+  CropImageRemoveLowerThan(const ImageType * image, 
+                           int dim, double max,bool autoCrop = false,
+                           typename ImageType::PixelType BG=0);
   //--------------------------------------------------------------------
 
 
   //--------------------------------------------------------------------
+  template<class ImageType, class LabelType>
+  typename itk::LabelMap< itk::ShapeLabelObject<LabelType, ImageType::ImageDimension> >::Pointer
+  ComputeLabelMap(const ImageType * image, 
+                  typename ImageType::PixelType BG,                   
+                  bool computePerimeterFlag=false);
   template<class ImageType>
   void
   ComputeCentroids(const ImageType * image, 
@@ -220,9 +226,19 @@ namespace clitk {
   //--------------------------------------------------------------------
   template<class ImageType>
   void
-  ExtractSlices(const ImageType * image, int dim, 
-		std::vector< typename itk::Image<typename ImageType::PixelType, 
-                                                 ImageType::ImageDimension-1>::Pointer > & slices);
+  ExtractSlices(const ImageType * image, int direction,
+                std::vector<typename itk::Image<typename ImageType::PixelType,
+                                                ImageType::ImageDimension-1>::Pointer > & slices)
+  {
+    typedef ExtractSliceFilter<ImageType> ExtractSliceFilterType;
+    typedef typename ExtractSliceFilterType::SliceType SliceType;
+    typename ExtractSliceFilterType::Pointer
+      extractSliceFilter = ExtractSliceFilterType::New();
+    extractSliceFilter->SetInput(image);
+    extractSliceFilter->SetDirection(direction);
+    extractSliceFilter->Update();
+    extractSliceFilter->GetOutputSlices(slices);
+  }
   //--------------------------------------------------------------------
 
 
@@ -308,6 +324,15 @@ namespace clitk {
          bool extendSupport);
   //--------------------------------------------------------------------
 
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::Pointer 
+  Opening(const ImageType * image, typename ImageType::SizeType radius,
+          typename ImageType::PixelType BG, typename ImageType::PixelType FG);
+  //--------------------------------------------------------------------
+
+
   //--------------------------------------------------------------------
   template<class ValueType, class VectorType>
   void ConvertOption(std::string optionName, uint given, 
@@ -334,6 +359,10 @@ namespace clitk {
   void AndNot(ImageType * input, 
               const ImageType * object, 
               typename ImageType::PixelType BG=0);
+  template<class ImageType>
+  void And(ImageType * input, 
+           const ImageType * object, 
+           typename ImageType::PixelType BG=0);
   //--------------------------------------------------------------------
  
 
@@ -388,6 +417,60 @@ namespace clitk {
                                                          std::vector<typename ImageType::PointType> & B);  
   //--------------------------------------------------------------------
 
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::Pointer
+  SliceBySliceKeepMainCCL(const ImageType * input, 
+                          typename ImageType::PixelType BG,
+                          typename ImageType::PixelType FG);
+  //--------------------------------------------------------------------
+  
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::Pointer
+  Clone(const ImageType * input);
+  //--------------------------------------------------------------------
+  
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::Pointer
+  SliceBySliceSetBackgroundFromSingleLine(const ImageType * input, 
+                                          typename ImageType::PixelType BG, 
+                                          typename ImageType::PointType & A, 
+                                          typename ImageType::PointType & B, 
+                                          int dim1, int dim2, bool removeLowerPartFlag);
+  //--------------------------------------------------------------------
+  
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::Pointer
+  SliceBySliceSetBackgroundFromPoints(const ImageType * input, 
+                                      typename ImageType::PixelType BG, 
+                                      int sliceDim,
+                                      std::vector<typename ImageType::PointType> & A, 
+                                      bool removeGreaterThanXFlag,
+                                      bool removeGreaterThanYFlag);
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  void
+  FillRegionWithValue(ImageType * input, typename ImageType::PixelType value, 
+                      typename ImageType::RegionType & region);
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  void
+  GetMinMaxBoundary(ImageType * input, typename ImageType::PointType & min, 
+                    typename ImageType::PointType & max);
+  //--------------------------------------------------------------------
 
 }
 

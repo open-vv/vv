@@ -30,6 +30,7 @@
 
 #include "clitkIO.h"
 #include "vvMainWindow.h"
+#include "vvToolsList.h"
 #include <vtkFileOutputWindow.h>
 #include <vtkSmartPointer.h>
 #include <itkFileOutputWindow.h>
@@ -38,7 +39,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include  <errno.h>
+#include <errno.h>
 
 void load_image_first_error()
 {
@@ -61,19 +62,37 @@ std::string create_timed_string()
 }
 
 //------------------------------------------------------------------------------
+#ifdef _WIN32
+int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR lpCmdLine, int nShowCmd)
+{
+  int argc = __argc;
+  char **argv = __argv;
+#else
 int main( int argc, char** argv )
 {
+#endif
+
   CLITK_INIT;
 
   QApplication app( argc, argv );
   Q_INIT_RESOURCE(vvIcons);
-  //QPixmap pixmap(":/splashscreen.PNG");
-  QSplashScreen *splash = new QSplashScreen(QPixmap(QString::fromUtf8(":/new/prefix1/splashscreen.PNG")));
-  /*splash->showMessage("VV 1.0 developped by Léon Bérard c`ancer center http://www.centreleonberard.fr and CREATIS-LRMN http://www.creatis.insa-lyon.fr",(Qt::AlignRight | Qt::AlignBottom));*/
-  //  splash->show();
-  QTimer::singleShot(2000, splash, SLOT(close()));
-  while (!splash->isHidden())
-    app.processEvents();
+  
+  // 
+  // ATTENTION: Rômulo Pinho - 05/08/2011
+  // Forcing the locale of the application is necessary
+  // because QT initialization changes it to the locale
+  // of the language of the system. This can cause 
+  // inconsistencies when, e.g., reading float values
+  // from DICOM fields with gdcm, since the decimal
+  // point may be changed for a comma (as in French).
+  // In practice, functions such as scanf and its
+  // variations are directly affected.
+  // https://bugreports.qt.nokia.com//browse/QTBUG-15247?page=com.atlassian.jira.plugin.system.issuetabpanels%253Achangehistory-tabpanel
+  //
+#ifndef _WIN32
+  std::string old_locale = setlocale(LC_NUMERIC, NULL);
+  setlocale(LC_NUMERIC, "POSIX");
+#endif
 
   vvMainWindow window;
 
@@ -129,9 +148,11 @@ int main( int argc, char** argv )
 
           if(itksys::SystemTools::FileExists(log_dir.c_str()) &&
               !itksys::SystemTools::FileIsDirectory(log_dir.c_str())) {
-            itkGenericExceptionMacro(<< "Error creating log directory, file exists and is not a directory.");
+            std::cerr << "Error creating log directory, file exists and is not a directory." << std::endl;
+            exit(1);
           } else if(!itksys::SystemTools::MakeDirectory(log_dir.c_str())) {
-            itkGenericExceptionMacro(<< "Error creating log directory.");
+            std::cerr << "Error creating log directory." << std::endl;
+            exit(1);
           }
 
           std::string log_file = log_dir + "/" + create_timed_string() + ".log";
@@ -171,9 +192,14 @@ int main( int argc, char** argv )
   }
 
   if(win!="" && lev!="") {
-    window.WindowLevelChanged(atof(win.c_str()), atof(lev.c_str()), 6, 0);
+    window.SetWindowLevel(atof(win.c_str()), atof(lev.c_str()));
     window.ApplyWindowLevelToAllImages();
   }
+
+#ifndef _WIN32
+  // restoring the locale, just to be clean...
+  setlocale(LC_NUMERIC, old_locale.c_str());
+#endif
 
   return app.exec();
 }

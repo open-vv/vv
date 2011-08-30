@@ -1,0 +1,26 @@
+#File clitkCropImage.ggo
+package "clitkCropImage"
+version "1.0"
+purpose "Pad an image according to a given extends or like another image"
+
+option "config"	           -  "Config file"                 string  no
+option "verbose"           v  "Verbose"			    flag    off
+
+section "I/O"
+
+option "input"		i	"Input image filename"		  string  	yes
+option "output"    	o   	"Output image filename"		  string 	yes
+
+section "Used determined padding"
+option "lower"    	l   	"Size of the lower crop region (multiple values)"	  int 	no  multiple
+option "upper"    	u   	"Size of the upper crop region (multiple values)"	  int 	no  multiple
+
+section "Pad like another image"
+option "like"		-	"Pad like this image (must have the same spacing and bounding box must be larger)"   string no
+
+section "Extra parameters"
+option "value"    - "Value to be set in padded area" float default="0" no  
+
+
+
+

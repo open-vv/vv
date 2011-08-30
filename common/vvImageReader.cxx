@@ -148,13 +148,15 @@ void vvImageReader::ReadNkiImageTransform()
 //Read transformation in ASCII format
 void vvImageReader::ReadMatImageTransform()
 {
-  std::string filename(mInputFilenames[0]+".mat");
+  std::string filename(itksys::SystemTools::GetFilenameWithoutExtension(mInputFilenames[0]));
+  filename += ".mat";
+
   std::ifstream f(filename.c_str());
   if(f.is_open()) {
     f.close();
-    
+
     itk::Matrix<double, 4, 4> itkMat = clitk::ReadMatrix3D(filename);
-    
+
     vtkSmartPointer<vtkMatrix4x4> matrix = vtkSmartPointer<vtkMatrix4x4>::New();
     matrix->Identity();
     for(int j=0; j<4; j++)
@@ -166,22 +168,26 @@ void vvImageReader::ReadMatImageTransform()
     // file is inverted wrt the transformation given in the MAT file.
     // We don't really know where the inversion takes place inside
     // VTK or ITK. For what we could see in VV, the transformation
-    // given in the MHD file seems "more correct" than that given in 
+    // given in the MHD file seems "more correct" than that given in
     // the MAT file. For this reason, we invert the matrix read from
     // the MAT file before concatenating it to the current transformation.
     // Still, it would be nice to find out what happens exactly between
     // VTK and ITK...
     //
-    vtkSmartPointer<vtkMatrix4x4> inv_matrix = vtkSmartPointer<vtkMatrix4x4>::New();
+    // SR: 23/06/2011
+    // We actually use vtkImageReslice which takes the inverse transform
+    // as input. So it seems more correct to inverse the matrix given by
+    // itk::ImageBase< VImageDimension >::GetDirection() than the matrix
+    // in .mat which is indeed the inverse optimized by a typical
+    // affine registration algorithm.
+    // Validated using clitkAffineTransform --transform_grid
     if (matrix->Determinant() == 0)
     {
       vtkGenericWarningMacro("Matrix in " << filename.c_str() << " cannot be inverted (determinant = 0)");
     }
-    else
-      matrix->Invert(*matrix, *inv_matrix);
-    
+
     mImage->GetTransform()->PostMultiply();
-    mImage->GetTransform()->Concatenate(inv_matrix);
+    mImage->GetTransform()->Concatenate(matrix);
     mImage->GetTransform()->Update();
   }
 }

@@ -274,7 +274,12 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename)
   mStudyTime = reader.GetValEntry(0x008,0x0020)->GetValue();
   mStudyDate = reader.GetValEntry(0x008,0x0030)->GetValue();
   mLabel     = reader.GetValEntry(0x3006,0x002)->GetValue();
-  mName      = reader.GetValEntry(0x3006,0x004)->GetValue();
+  if (!reader.GetValEntry(0x3006,0x004)) {
+    mName = "Anonymous";
+  }
+  else {
+    mName = reader.GetValEntry(0x3006,0x004)->GetValue();
+  }
   mTime      = reader.GetValEntry(0x3006,0x009)->GetValue();
 
   //----------------------------------

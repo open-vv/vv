@@ -1,4 +1,4 @@
-/*=========================================================================
+﻿/*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
   Authors belong to: 
@@ -18,6 +18,7 @@
 #ifndef __clitkBSplineDeformableTransformInitializer_txx
 #define __clitkBSplineDeformableTransformInitializer_txx
 #include "clitkBSplineDeformableTransformInitializer.h"
+#include "itkMath.h"
 
 namespace clitk
 {
@@ -80,7 +81,7 @@ namespace clitk
 	  {
 	    // JV
 	    m_ChosenSpacing[r]= m_ControlPointSpacing[r];
-	    m_ControlPointSpacing[r]= ( round(m_ChosenSpacing[r]/fixedImageSpacing[r]) *fixedImageSpacing[r] ) ;
+	    m_ControlPointSpacing[r]= ( itk::Math::Round<double>(m_ChosenSpacing[r]/fixedImageSpacing[r]) *fixedImageSpacing[r] ) ;
 	    m_NumberOfControlPointsInsideTheImage[r] = ceil( (double)fixedImageSize[r]*fixedImageSpacing[r]/ m_ControlPointSpacing[r] );
 	    if (  ( ceil( (double)fixedImageSize[r]*fixedImageSpacing[r]/ m_ControlPointSpacing[r] ) )
 		 == ( (double)fixedImageSize[r]*fixedImageSpacing[r]/ m_ControlPointSpacing[r] ) )

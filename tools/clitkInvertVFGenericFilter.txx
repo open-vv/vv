@@ -148,7 +148,11 @@ InvertVFGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
 
   case 1: {
     // Create the InverseDeformationFieldFilter
+#if ITK_VERSION_MAJOR >= 4
+    typedef itk::InverseDisplacementFieldImageFilter<InputImageType,OutputImageType> FilterType;
+#else
     typedef itk::InverseDeformationFieldImageFilter<InputImageType,OutputImageType> FilterType;
+#endif
     typename FilterType::Pointer filter =FilterType::New();
     filter->SetInput(input);
     filter->SetOutputOrigin(input->GetOrigin());

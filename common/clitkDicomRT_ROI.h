@@ -64,7 +64,7 @@ public:
   void SetImage(vvImage * im);
   DicomRT_Contour* GetContour(int n);
 
-  double GetContourSpacing() const {return mZDelta;}
+  // double GetContourSpacing() const {return mZDelta;}
   
 protected:
   void ComputeMesh();
@@ -79,7 +79,7 @@ protected:
   double mBackgroundValue;
   double mForegroundValue;
   ///Spacing between two contours
-  double mZDelta;
+  // double mZDelta;
 
 private:
   DicomRT_ROI();

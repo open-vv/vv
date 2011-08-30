@@ -34,7 +34,7 @@
 template<unsigned int VImageDimension>
 void vvImageReader::UpdateWithDim(std::string InputPixelType)
 {
-  if (mType == VECTORFIELD)
+  if (mType == VECTORFIELD || mType == VECTORFIELDWITHTIME)
     UpdateWithDimAndInputPixelType<itk::Vector<float,3>,VImageDimension>();
   else if (InputPixelType == "short")
     UpdateWithDimAndInputPixelType<short,VImageDimension>();
@@ -67,7 +67,7 @@ void vvImageReader::UpdateWithDim(std::string InputPixelType)
 template<class InputPixelType, unsigned int VImageDimension>
 void vvImageReader::UpdateWithDimAndInputPixelType()
 {
-  itk::AnalyzeImageIO *analyzeImageIO;
+  itk::AnalyzeImageIO *analyzeImageIO = NULL;
 
   if (mType == MERGEDWITHTIME)   // In this case we can load the images
     // one at the time to avoid excessive
@@ -118,6 +118,9 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
     filter->SetExtractionRegion(extractedRegion);
     filter->SetInput(reader->GetOutput());
     filter->ReleaseDataFlagOn();
+#if ITK_VERSION_MAJOR == 4
+    filter->SetDirectionCollapseToSubmatrix();
+#endif
     try {
       mImage->AddItkImage<SlicedImageType>(filter->GetOutput());
     } catch ( itk::ExceptionObject & err ) {
@@ -136,7 +139,12 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
 
       try {
         if (mType == IMAGEWITHTIME)
-          mImage=vvImageFromITK<VImageDimension,InputPixelType>(reader->GetOutput(),true);
+        {
+          std::cerr << "We should never come here:" << std::endl
+            << "  Calling vvImageReader with multiple images and IMAGEWITHTIME is undefined." << std::endl
+            << "  You are probably looking for MERGEDWITHTIME Type." << std::endl;
+          return;
+        }
         else
           mImage=vvImageFromITK<VImageDimension,InputPixelType>(reader->GetOutput());
       } catch ( itk::ExceptionObject & err ) {
@@ -154,7 +162,7 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
       reader->ReleaseDataFlagOn();
 
       try {
-        if (mType == IMAGEWITHTIME)
+        if (mType == IMAGEWITHTIME || mType == VECTORFIELDWITHTIME)
           mImage=vvImageFromITK<VImageDimension,InputPixelType>(reader->GetOutput(),true);
         else
           mImage=vvImageFromITK<VImageDimension,InputPixelType>(reader->GetOutput());

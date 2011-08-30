@@ -35,6 +35,7 @@ vvImageContour::vvImageContour()
   mHiddenImageIsUsed = false;
   mDisplayModeIsPreserveMemory = true;
   SetPreserveMemoryModeEnabled(true);
+  mPreviousOrientation = -1;
 }
 //------------------------------------------------------------------------------
 
@@ -138,7 +139,9 @@ void vvImageContour::Update(double value) {
   if (mPreviousValue == value) {
     if (mPreviousSlice == mSlicer->GetSlice()) {
       if (mPreviousTSlice == mSlicer->GetTSlice()) {
-        return; // Nothing to do
+        if (mPreviousOrientation == ComputeCurrentOrientation()) {
+          return; // Nothing to do
+        }
       }
     }
   }
@@ -156,11 +159,12 @@ void vvImageContour::Update(double value) {
     UpdateWithFastCacheMode();
   }
 
-  //  mSlicer->Render(); //DS ---> REMOVE ??
+  //mSlicer->Render(); //DS ---> REMOVE ??
 
   mPreviousTSlice = mSlicer->GetTSlice();
   mPreviousSlice  = mSlicer->GetSlice();
   mPreviousValue  = value;
+  mPreviousOrientation = ComputeCurrentOrientation();
 }
 //------------------------------------------------------------------------------
 
@@ -168,20 +172,22 @@ void vvImageContour::Update(double value) {
 //------------------------------------------------------------------------------
 void vvImageContour::UpdateWithPreserveMemoryMode() {
   // Only change actor visibility if tslice change
-  int mPreviousTslice = mTSlice;
+  mPreviousTslice = mTSlice;
   mTSlice = mSlicer->GetTSlice();
 
   vtkMarchingSquares * mSquares = mSquaresList[mTSlice];
+  vtkPolyDataMapper* mapper = mSquaresMapperList[mTSlice];
   vtkImageClip * mClipper = mClipperList[mTSlice];
   vtkActor * mSquaresActor = mSquaresActorList[mTSlice];
   int orientation = ComputeCurrentOrientation();
 
-  UpdateActor(mSquaresActor, mSquares, mClipper, mValue, orientation, mSlice);
-  //mSquaresActorList[mTSlice]->VisibilityOn();
+  UpdateActor(mSquaresActor, mapper, mSquares, mClipper, mValue, orientation, mSlice);
 
   if (mPreviousTslice != mTSlice) {
     if (mPreviousTslice != -1) mSquaresActorList[mPreviousTslice]->VisibilityOff();
   }
+  
+  mSlicer->Render();
 }
 //------------------------------------------------------------------------------
 
@@ -261,6 +267,7 @@ void vvImageContour::CreateNewActor(int numImage) {
     clipper->SetInput(mHiddenImage->GetVTKImages()[0]);
   else
     clipper->SetInput(mSlicer->GetImage()->GetVTKImages()[numImage]);
+  
   squares->SetInput(clipper->GetOutput());
   squaresMapper->SetInput(squares->GetOutput());
   squaresMapper->ScalarVisibilityOff();
@@ -280,9 +287,11 @@ void vvImageContour::CreateNewActor(int numImage) {
 
 //------------------------------------------------------------------------------
 void vvImageContour::UpdateActor(vtkActor * actor, 
+                                 vtkPolyDataMapper * mapper, 
                                  vtkMarchingSquares * squares, 
                                  vtkImageClip * clipper, 
                                  double threshold, int orientation, int slice) {
+  
    // Set parameter for the MarchigSquare
   squares->SetValue(0, threshold);
 
@@ -319,6 +328,7 @@ void vvImageContour::UpdateActor(vtkActor * actor,
 
   } else {
     extent2 = extent;
+    actor->VisibilityOn();
   }
  
   clipper->SetOutputWholeExtent(extent2[0],extent2[1],extent2[2],
@@ -327,44 +337,11 @@ void vvImageContour::UpdateActor(vtkActor * actor,
   if (mHiddenImageIsUsed) delete extent2;
 
   // Move the actor to be visible
-  switch (orientation)  {
-  case 0:
-    actor->SetPosition(-1,0,0);
-    /*
-    // DD(mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[0]);
-    if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[0] > slice) {
-    actor->SetPosition(1,0,0);
-    } else {
-      actor->SetPosition(-1,0,0);
-      }*/
-    break;
-  case 1:
-    actor->SetPosition(0,-1,0);
-    /*
-    // DD(mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[1]);
-    if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[1] > slice) {
-      actor->SetPosition(0,1,0);
-    } else {
-      actor->SetPosition(0,-1,0);
-    }
-    */
-    break;
-  case 2:
-    actor->SetPosition(0,0,-1);
-    /*
-    DD(mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[2]);
-    if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[2] > slice) {
-      DD("1");
-      actor->SetPosition(0,0,1);
-    } else {
-     DD("-1");
-      actor->SetPosition(0,0,-1);
-    }
-    */
-    break;
-  }
-
-  squares->Update();
+  double position[3] = {0, 0, 0};
+  position[orientation] = -1;
+  actor->SetPosition(position);
+  
+  mapper->Update();
 }
 //------------------------------------------------------------------------------
 

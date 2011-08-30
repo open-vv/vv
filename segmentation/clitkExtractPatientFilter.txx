@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://www.centreleonberard.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -35,6 +35,7 @@
 #include "itkBinaryMorphologicalOpeningImageFilter.h"
 #include "itkBinaryBallStructuringElement.h"
 #include "itkCastImageFilter.h"
+#include "itkConstantPadImageFilter.h"
 
 //--------------------------------------------------------------------
 template <class TInputImageType>
@@ -47,6 +48,7 @@ ExtractPatientFilter():
   this->SetNumberOfRequiredInputs(1);
   SetBackgroundValue(0); // Must be zero
   SetForegroundValue(1);
+  SetPrimaryOpeningRadius(0);
 
   // Step 1: Threshold + CC + sort (Find low density areas)
   SetUpperThreshold(-300);
@@ -68,11 +70,11 @@ ExtractPatientFilter():
   SetRadius2(r);
   SetMaximumNumberOfLabels2(2);
   SetNumberOfNewLabels2(1);
-  
+
   // Step 5: Only keep label corresponding (Keep patient's labels)
   SetFirstKeep(1);
   SetLastKeep(1);
-  
+
   // Step 4: OpenClose (option)
   FinalOpenCloseOff();
   AutoCropOn();
@@ -82,9 +84,9 @@ ExtractPatientFilter():
 
 //--------------------------------------------------------------------
 template <class TInputImageType>
-void 
+void
 clitk::ExtractPatientFilter<TInputImageType>::
-SetInput(const TInputImageType * image) 
+SetInput(const TInputImageType * image)
 {
   this->SetNthInput(0, const_cast<TInputImageType *>(image));
 }
@@ -93,9 +95,9 @@ SetInput(const TInputImageType * image)
 
 //--------------------------------------------------------------------
 template <class TInputImageType>
-void 
+void
 clitk::ExtractPatientFilter<TInputImageType>::
-GenerateOutputInformation() { 
+GenerateOutputInformation() {
 
   clitk::PrintMemory(GetVerboseMemoryFlag(), "Initial memory"); // OK
 
@@ -108,40 +110,81 @@ GenerateOutputInformation() {
   // Get input pointers
   static const unsigned int Dim = InputImageType::ImageDimension;
   //input = dynamic_cast<const TInputImageType*>(itk::ProcessObject::GetInput(0));
-    
+
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
-  // Step 1: 
+  // Step 1:
   StartNewStep("Find low densities areas");
-  typedef itk::BinaryThresholdImageFilter<InputImageType, InternalImageType> BinarizeFilterType;  
+
+  // Pad images with air to prevent patient touching the image border
+  typedef itk::ConstantPadImageFilter<InputImageType, InputImageType> PadFilterType;
+  typename PadFilterType::Pointer padFilter = PadFilterType::New();
+  padFilter->SetInput(input);
+  padFilter->SetConstant(GetUpperThreshold() - 1);
+  typename InputImageType::SizeType bounds;
+  for (unsigned i = 0; i < Dim - 1; ++i)
+    bounds[i] = 1;
+  bounds[Dim - 1] = 0;
+  padFilter->SetPadLowerBound(bounds);
+  padFilter->SetPadUpperBound(bounds);
+  padFilter->Update();
+  
+  typedef itk::BinaryThresholdImageFilter<InputImageType, InternalImageType> BinarizeFilterType;
   typename BinarizeFilterType::Pointer binarizeFilter=BinarizeFilterType::New();
-  binarizeFilter->SetInput(input);
+  binarizeFilter->SetInput(padFilter->GetOutput());
   if (m_UseLowerThreshold) binarizeFilter->SetLowerThreshold(GetLowerThreshold());
   binarizeFilter->SetUpperThreshold(GetUpperThreshold());
   binarizeFilter ->SetInsideValue(this->GetForegroundValue());
   binarizeFilter ->SetOutsideValue(this->GetBackgroundValue());
+  padFilter->GetOutput()->ReleaseData();
+  working_image = binarizeFilter->GetOutput();
 
+  typedef itk::BinaryBallStructuringElement<InternalPixelType,Dim> KernelType;
+  unsigned int radius = this->GetPrimaryOpeningRadius();
+  if (radius > 0)
+  {
+    if (this->GetVerboseOptionFlag()) std::cout << ("Opening after threshold; R = ") << radius << std::endl;
+    KernelType kernel;
+    kernel.SetRadius(radius);
+    
+    typedef itk::BinaryMorphologicalOpeningImageFilter<InternalImageType, InternalImageType , KernelType> OpenFilterType2;
+    typename OpenFilterType2::Pointer openFilter2 = OpenFilterType2::New();
+    openFilter2->SetInput(working_image);
+    openFilter2->SetBackgroundValue(0);
+    openFilter2->SetForegroundValue(1);
+    openFilter2->SetKernel(kernel);
+    openFilter2->Update();
+    working_image->ReleaseData();
+    working_image = openFilter2->GetOutput();
+  }
+
+  if (this->GetVerboseOptionFlag()) std::cout << ("Labelling") << std::endl;
   // Connected component labeling
   typedef itk::ConnectedComponentImageFilter<InternalImageType, InternalImageType> ConnectFilterType;
   typename ConnectFilterType::Pointer connectFilter=ConnectFilterType::New();
-  connectFilter->SetInput(binarizeFilter->GetOutput());
+  connectFilter->SetInput(working_image);
   connectFilter->SetBackgroundValue(this->GetBackgroundValue());
   connectFilter->SetFullyConnected(false);
-  
+  connectFilter->Update();
+  working_image->ReleaseData();
+  working_image = connectFilter->GetOutput();
+
+  if (this->GetVerboseOptionFlag()) std::cout << ("RelabelComponentImageFilter") << std::endl;
   // Sort labels according to size
   typedef itk::RelabelComponentImageFilter<InternalImageType, InternalImageType> RelabelFilterType;
   typename RelabelFilterType::Pointer relabelFilter=RelabelFilterType::New();
   relabelFilter->InPlaceOn();
   relabelFilter->SetInput(connectFilter->GetOutput());
   relabelFilter->Update();
+  working_image->ReleaseData();
   working_image = relabelFilter->GetOutput();
-  
+
   // End
   StopCurrentStep<InternalImageType>(working_image);
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
-  // [Optional] 
+  // [Optional]
   if (GetDecomposeAndReconstructDuringFirstStep()) {
     StartNewStep("First Decompose & Reconstruct step");
     typedef clitk::DecomposeAndReconstructImageFilter<InternalImageType,InternalImageType> FilterType;
@@ -155,40 +198,48 @@ GenerateOutputInformation() {
     f->SetFullyConnected(true);
     f->SetNumberOfNewLabels(GetNumberOfNewLabels1());
     f->Update();
+    working_image->ReleaseData();
     working_image = f->GetOutput();
     StopCurrentStep<InternalImageType>(working_image);
   }
-  
+
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
+  if (this->GetVerboseOptionFlag()) std::cout << ("Remove the air (largest area)") << std::endl;
   StartNewStep("Remove the air (largest area)");
-  typedef itk::BinaryThresholdImageFilter<InternalImageType, InternalImageType> iBinarizeFilterType;  
+  typedef itk::BinaryThresholdImageFilter<InternalImageType, InternalImageType> iBinarizeFilterType;
   typename iBinarizeFilterType::Pointer binarizeFilter2 = iBinarizeFilterType::New();
   binarizeFilter2->SetInput(working_image);
   binarizeFilter2->SetLowerThreshold(GetFirstKeep());
   binarizeFilter2->SetUpperThreshold(GetLastKeep());
   binarizeFilter2 ->SetInsideValue(0);
   binarizeFilter2 ->SetOutsideValue(1);
-  //  binarizeFilter2 ->Update(); // NEEDED ?
+  binarizeFilter2 ->Update();
+  working_image->ReleaseData();
+  working_image = binarizeFilter2->GetOutput();
 
   typename ConnectFilterType::Pointer connectFilter2 = ConnectFilterType::New();
-  connectFilter2->SetInput(binarizeFilter2->GetOutput());
+  connectFilter2->SetInput(working_image);
   connectFilter2->SetBackgroundValue(this->GetBackgroundValue());
   connectFilter2->SetFullyConnected(false);
+  connectFilter2->Update();
+  working_image->ReleaseData();
+  working_image = connectFilter2->GetOutput();
 
   typename RelabelFilterType::Pointer relabelFilter2 = RelabelFilterType::New();
-  relabelFilter2->SetInput(connectFilter2->GetOutput());
+  relabelFilter2->SetInput(working_image);
   relabelFilter2->Update();
+  working_image->ReleaseData();
   working_image = relabelFilter2->GetOutput();
-  
+
   // Keep main label
   working_image = KeepLabels<InternalImageType>
-    (working_image, GetBackgroundValue(), GetForegroundValue(), 1, 1, true);  
+    (working_image, GetBackgroundValue(), GetForegroundValue(), 1, 1, true);
   StopCurrentStep<InternalImageType>(working_image);
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
-  // [Optional] 
+  // [Optional]
   if (GetDecomposeAndReconstructDuringSecondStep()) {
     StartNewStep("Second Decompose & Reconstruct step");
     typedef clitk::DecomposeAndReconstructImageFilter<InternalImageType,InternalImageType> FilterType;
@@ -202,6 +253,7 @@ GenerateOutputInformation() {
     f->SetFullyConnected(true);
     f->SetNumberOfNewLabels(GetNumberOfNewLabels2());
     f->Update();
+    working_image->ReleaseData();
     working_image = f->GetOutput();
     StopCurrentStep<InternalImageType>(working_image);
   }
@@ -212,7 +264,6 @@ GenerateOutputInformation() {
   if (GetFinalOpenClose()) {
     StartNewStep("Final OpenClose");
     // Open
-    typedef itk::BinaryBallStructuringElement<InternalPixelType,Dim> KernelType;
     KernelType structuringElement;
     structuringElement.SetRadius(1);
     structuringElement.CreateStructuringElement();
@@ -221,7 +272,7 @@ GenerateOutputInformation() {
     openFilter->SetInput(working_image);
     openFilter->SetBackgroundValue(this->GetBackgroundValue());
     openFilter->SetForegroundValue(this->GetForegroundValue());
-    openFilter->SetKernel(structuringElement);  
+    openFilter->SetKernel(structuringElement);
     // Close
     typedef itk::BinaryMorphologicalClosingImageFilter<InternalImageType, InternalImageType , KernelType> CloseFilterType;
     typename CloseFilterType::Pointer closeFilter = CloseFilterType::New();
@@ -230,18 +281,20 @@ GenerateOutputInformation() {
     closeFilter->SetForegroundValue(this->GetForegroundValue());
     //  closeFilter->SetBackgroundValue(SetBackgroundValue());
     closeFilter->SetKernel(structuringElement);
-    closeFilter->Update();  
+    closeFilter->Update();
+    working_image->ReleaseData();
     working_image = closeFilter->GetOutput();
     StopCurrentStep<InternalImageType>(working_image);
   }
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
-  // Final Cast 
+  // Final Cast
   typedef itk::CastImageFilter<InternalImageType, MaskImageType> CastImageFilterType;
   typename CastImageFilterType::Pointer caster= CastImageFilterType::New();
   caster->SetInput(working_image);
   caster->Update();
+  working_image->ReleaseData();
   output = caster->GetOutput();
 
   //--------------------------------------------------------------------
@@ -253,9 +306,22 @@ GenerateOutputInformation() {
     typename CropFilterType::Pointer cropFilter = CropFilterType::New();
     cropFilter->SetInput(output);
     cropFilter->SetBackgroundValue(GetBackgroundValue());
-    cropFilter->Update();   
+    cropFilter->Update();
+    output->ReleaseData();
     output = cropFilter->GetOutput();
     StopCurrentStep<MaskImageType>(output);
+  }
+  else
+  {
+    // Remove Padding region
+    typedef itk::CropImageFilter<MaskImageType, MaskImageType> CropFilterType;
+    typename CropFilterType::Pointer cropFilter = CropFilterType::New();
+    cropFilter->SetInput(output);
+    cropFilter->SetLowerBoundaryCropSize(bounds);
+    cropFilter->SetUpperBoundaryCropSize(bounds);
+    cropFilter->Update();
+    output->ReleaseData();
+    output = cropFilter->GetOutput();
   }
 }
 //--------------------------------------------------------------------
@@ -263,16 +329,16 @@ GenerateOutputInformation() {
 
 //--------------------------------------------------------------------
 template <class TInputImageType>
-void 
+void
 clitk::ExtractPatientFilter<TInputImageType>::
 GenerateData() {
   // Final Graft
   this->GraftOutput(output);
   // Store image filename into AFDB
-  GetAFDB()->SetImageFilename("Patient", this->GetOutputPatientFilename());  
+  GetAFDB()->SetImageFilename("Patient", this->GetOutputPatientFilename());
   WriteAFDB();
 }
 //--------------------------------------------------------------------
-  
+
 
 #endif //#define CLITKBOOLEANOPERATORLABELIMAGEFILTER_TXX

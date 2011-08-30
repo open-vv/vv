@@ -27,7 +27,6 @@
 #include "itkImageRegion.h"
 #include "itkSpatialObject.h"
 #include "itkPasteImageFilter.h"
-#include "itkMultiplyByConstantImageFilter.h"
 
 namespace clitk
 {
@@ -264,7 +263,15 @@ namespace clitk
     } 
     
     /** Compute the Jacobian Matrix of the transformation at one point */
+#if ITK_VERSION_MAJOR >= 4
+    virtual void ComputeJacobianWithRespectToParameters (const InputPointType &p, JacobianType &jacobian) const;
+    virtual void ComputeJacobianWithRespectToPosition (const InputPointType &p, JacobianType &jacobian) const
+    {
+      itkExceptionMacro( "ComputeJacobianWithRespectToPosition not yet implemented for " << this->GetNameOfClass() );
+    }
+#else
     virtual const JacobianType& GetJacobian(const InputPointType  &point ) const;
+#endif
 
     /** Return the number of parameters that completely define the Transfom */
     virtual unsigned int GetNumberOfParameters(void) const;
@@ -431,6 +438,9 @@ namespace clitk
     // JV Shape
     unsigned int m_TransformShape;
 
+#if ITK_VERSION_MAJOR >= 4
+    mutable JacobianType                            m_SharedDataBSplineJacobian;
+#endif
 
   }; //class ShapedBLUTSpatioTemporalDeformableTransform
 

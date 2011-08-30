@@ -21,10 +21,13 @@
 #include <QInputDialog>
 #include <QTimer>
 #include "QTreePushButton.h"
+#include <QUrl>
+#include <QSettings>
 
 // VV include
 #include "vvMainWindow.h"
 #include "vvHelpDialog.h"
+#include "vvRegisterForm.h"
 #include "vvDocumentation.h"
 #include "vvProgressDialog.h"
 #include "vvQDicomSeriesSelector.h"
@@ -65,9 +68,11 @@
 #include <vtkPNMWriter.h>
 #include <vtkPNGWriter.h>
 #include <vtkJPEGWriter.h>
-#include <vtkFFMPEGWriter.h>
+#ifdef VTK_USE_FFMPEG_ENCODER
+#  include <vtkFFMPEGWriter.h>
+#endif
 #ifdef VTK_USE_MPEG2_ENCODER
-  #include <vtkMPEG2Writer.h>
+#  include <vtkMPEG2Writer.h>
 #endif
 #include <vtkMatrix4x4.h>
 #include <vtkTransform.h>
@@ -86,7 +91,7 @@
 #define COLUMN_RELOAD_IMAGE 6
 #define COLUMN_IMAGE_NAME 7
 
-#define EXTENSIONS "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.hdr *.vox *.his *.xdr *.SCAN )"
+#define EXTENSIONS "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN )"
 
 /*Data Tree values
   0,Qt::UserRole full filename
@@ -154,6 +159,11 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   contextMenu.addAction(actionAdd_fusion_image);
   connect(actionAdd_fusion_image,SIGNAL(triggered()),this,SLOT(SelectFusionImage()));
   contextActions.push_back(actionAdd_fusion_image);
+
+  contextMenu.addSeparator();
+  QAction* actionResetMatrix = contextMenu.addAction(QIcon(QString::fromUtf8(":/common/icons/identity.png")),
+                                                      tr("Reset transformation to identity"));
+  connect(actionResetMatrix, SIGNAL(triggered()), this,SLOT(ResetTransformationToIdentity()));
 
   // TRIAL DS
   /*
@@ -249,6 +259,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(actionAdd_VF_to_current_Image,SIGNAL(triggered()),this,SLOT(OpenField()));
   connect(actionNavigation_Help,SIGNAL(triggered()),this,SLOT(ShowHelpDialog()));
   connect(actionDocumentation,SIGNAL(triggered()),this,SLOT(ShowDocumentation()));
+  connect(actionRegister_vv,SIGNAL(triggered()),this,SLOT(PopupRegisterForm()));
 
   ///////////////////////////////////////////////
   connect(actionSegmentation,SIGNAL(triggered()),this,SLOT(SegmentationOnCurrentImage()));
@@ -283,9 +294,10 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(linkPanel,SIGNAL(addLink(QString,QString)),this,SLOT(AddLink(QString,QString)));
   connect(linkPanel,SIGNAL(removeLink(QString,QString)),this,SLOT(RemoveLink(QString,QString)));
   connect(overlayPanel,SIGNAL(VFPropertyUpdated(int,int,int,int,double,double,double)),this,SLOT(SetVFProperty(int,int,int,int,double,double,double)));
-  connect(overlayPanel,SIGNAL(OverlayPropertyUpdated(int)),this,SLOT(SetOverlayProperty(int)));
-  connect(overlayPanel,SIGNAL(FusionPropertyUpdated(int,int,double,double)),
-          this,SLOT(SetFusionProperty(int,int,double,double)));
+  connect(overlayPanel,SIGNAL(OverlayPropertyUpdated(int,int,double,double)),
+          this,SLOT(SetOverlayProperty(int,int,double,double)));
+  connect(overlayPanel,SIGNAL(FusionPropertyUpdated(int,int,int,double,double)),
+          this,SLOT(SetFusionProperty(int,int,int,double,double)));
   connect(landmarksPanel,SIGNAL(UpdateRenderWindows()),this,SLOT(UpdateRenderWindows()));
 
   playMode = 0;//pause
@@ -306,21 +318,15 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
 
   //Recently opened files
   std::list<std::string> recent_files = GetRecentlyOpenedImages();
+  recentlyOpenedFilesMenu=NULL;
   if ( !recent_files.empty() ) {
-    QMenu * rmenu = new QMenu("Recently opened files...");
-    rmenu->setIcon(QIcon(QString::fromUtf8(":/common/icons/open.png")));
-    menuFile->insertMenu(actionOpen_Image_With_Time,rmenu);
-    menuFile->insertSeparator(actionOpen_Image_With_Time);
-    for (std::list<std::string>::iterator i = recent_files.begin(); i!=recent_files.end(); i++) {
-      QAction* current=new QAction(QIcon(QString::fromUtf8(":/common/icons/open.png")),
-                                   (*i).c_str(),this);
-      rmenu->addAction(current);
-      connect(current,SIGNAL(triggered()),this,SLOT(OpenRecentImage()));
-    }
+    createRecentlyOpenedFilesMenu();
+    updateRecentlyOpenedFilesMenu(recent_files);
   }
 
   // Adding all new tools (insertion in the menu)
   vvToolManager::GetInstance()->InsertToolsInMenu(this);
+  vvToolManager::GetInstance()->EnableToolsInMenu(this, false);
 
   if (!CLITK_EXPERIMENTAL)
     menuExperimental->menuAction()->setVisible(false);
@@ -330,17 +336,48 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   //timerMemory->setInterval(5);
   connect(timerMemory, SIGNAL(timeout()), this, SLOT(UpdateMemoryUsage()));
   timerMemory->start(2000);
-  
 }
 //------------------------------------------------------------------------------
-
-
+void vvMainWindow::show()
+{
+  vvMainWindowBase::show();
+  PopupRegisterForm(true);
+}
 //------------------------------------------------------------------------------
 void vvMainWindow::UpdateMemoryUsage()
 {
   //  clitk::PrintMemory(true);
   if (clitk::GetMemoryUsageInMb() == 0) infoPanel->setMemoryInMb("NA");
   else infoPanel->setMemoryInMb(QString::number(clitk::GetMemoryUsageInMb())+" MiB");
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvMainWindow::createRecentlyOpenedFilesMenu()
+{
+  recentlyOpenedFilesMenu = new QMenu("Recently opened files...");
+  recentlyOpenedFilesMenu->setIcon(QIcon(QString::fromUtf8(":/common/icons/open.png")));
+  menuFile->insertMenu(actionOpen_Image_With_Time,recentlyOpenedFilesMenu);
+  menuFile->insertSeparator(actionOpen_Image_With_Time);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+
+void vvMainWindow::updateRecentlyOpenedFilesMenu(const std::list<std::string> &recent_files)
+{
+  if(recentlyOpenedFilesMenu==NULL) {
+    createRecentlyOpenedFilesMenu();
+  } else {
+    recentlyOpenedFilesMenu->clear();
+  }
+  for (std::list<std::string>::const_iterator i = recent_files.begin(); i!=recent_files.end(); i++) {
+    QAction* current=new QAction(QIcon(QString::fromUtf8(":/common/icons/open.png")), i->c_str(),this);
+    recentlyOpenedFilesMenu->addAction(current);
+    connect(current,SIGNAL(triggered()),this,SLOT(OpenRecentImage()));
+  }
 }
 //------------------------------------------------------------------------------
 
@@ -790,6 +827,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
   if (files.size() == 1) {
     QFileInfo finfo=tr(files[0].c_str());
     AddToRecentlyOpenedImages(finfo.absoluteFilePath().toStdString());
+    updateRecentlyOpenedFilesMenu(GetRecentlyOpenedImages());
   }
   //init the progress events
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -833,7 +871,8 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
         item->setData(0,Qt::UserRole,files[i].c_str());
         QFileInfo fileinfo(imageManager->GetFileName().c_str()); //Do not show the path
         item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,fileinfo.fileName());
-        item->setToolTip(COLUMN_IMAGE_NAME,fileinfo.absoluteFilePath());
+        item->setData(1,Qt::UserRole,tr("image"));
+        item->setToolTip(COLUMN_IMAGE_NAME, imageManager->GetListOfAbsoluteFilePathInOneString("image").c_str());
         qApp->processEvents();
 
         //Create the buttons for reload and close
@@ -867,8 +906,8 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
 
         connect(mSlicerManagers.back(), SIGNAL(currentImageChanged(std::string)),
                 this,SLOT(CurrentImageChanged(std::string)));
-	connect(mSlicerManagers.back(), SIGNAL(currentPickedImageChanged(std::string)),
-		this, SLOT(CurrentPickedImageChanged(std::string)));
+        connect(mSlicerManagers.back(), SIGNAL(currentPickedImageChanged(std::string)),
+                this, SLOT(CurrentPickedImageChanged(std::string)));
         connect(mSlicerManagers.back(), SIGNAL(UpdatePosition(int, double, double, double, double, double, double, double)),
                 this,SLOT(MousePositionChanged(int,double, double, double, double, double, double, double)));
         connect(mSlicerManagers.back(), SIGNAL(UpdateVector(int, double, double, double, double)),
@@ -877,10 +916,8 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
                 this, SLOT(OverlayChanged(int,double,double)));
         connect(mSlicerManagers.back(), SIGNAL(UpdateFusion(int, double)),
                 this, SLOT(FusionChanged(int,double)));
-        connect(mSlicerManagers.back(), SIGNAL(UpdateWindows(int, int, int)),
-                this,SLOT(WindowsChanged(int, int, int)));
-        connect(mSlicerManagers.back(), SIGNAL(WindowLevelChanged(double, double,int, int)),
-                this,SLOT(WindowLevelChanged(double, double, int, int)));
+        connect(mSlicerManagers.back(), SIGNAL(WindowLevelChanged()),
+                this,SLOT(WindowLevelChanged()));
         connect(mSlicerManagers.back(), SIGNAL(UpdateSlice(int,int)),
                 this,SLOT(UpdateSlice(int,int)));
         connect(mSlicerManagers.back(), SIGNAL(UpdateTSlice(int, int)),
@@ -989,6 +1026,7 @@ void vvMainWindow::ImageInfoChanged()
   actionNorth_West_Window->setEnabled(1);
   actionSouth_East_Window->setEnabled(1);
   actionSouth_West_Window->setEnabled(1);
+  vvToolManager::GetInstance()->EnableToolsInMenu(this, true);
   inverseButton->setEnabled(1);
 
   goToCursorPushButton->setEnabled(1);
@@ -1031,70 +1069,35 @@ void vvMainWindow::ImageInfoChanged()
     vvImage::Pointer imageSelected;
     if (DataTree->topLevelItem(index) == DataTree->selectedItems()[0]) {
       imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetImage();
-      dimension = imageSelected->GetNumberOfDimensions();
-      origin.resize(dimension);
-      inputSpacing.resize(dimension);
-      inputSize.resize(dimension);
-      sizeMM.resize(dimension);
-      pixelType = mSlicerManagers[index]->GetImage()->GetScalarTypeAsITKString().c_str();
-      for (int i = 0; i < dimension; i++) {
-        origin[i] = imageSelected->GetOrigin()[i];
-        inputSpacing[i] = imageSelected->GetSpacing()[i];
-        inputSize[i] = imageSelected->GetSize()[i];
-        sizeMM[i] = inputSize[i]*inputSpacing[i];
-        NPixel *= inputSize[i];
-      }
-      inputSizeInBytes = GetSizeInBytes(imageSelected->GetActualMemorySize()*1000);
     } else if (DataTree->selectedItems()[0]->data(1,Qt::UserRole).toString() == "vector") {
       imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetVF();
-      dimension = imageSelected->GetNumberOfDimensions();
-      origin.resize(dimension);
-      inputSpacing.resize(dimension);
-      inputSize.resize(dimension);
-      sizeMM.resize(dimension);
-      pixelType = mSlicerManagers[index]->GetVF()->GetScalarTypeAsITKString().c_str();
-      for (int i = 0; i < dimension; i++) {
-        origin[i] = imageSelected->GetOrigin()[i];
-        inputSpacing[i] = imageSelected->GetSpacing()[i];
-        inputSize[i] = imageSelected->GetSize()[i];
-        sizeMM[i] = inputSize[i]*inputSpacing[i];
-        NPixel *= inputSize[i];
-      }
-      inputSizeInBytes = GetSizeInBytes(imageSelected->GetActualMemorySize()*1000);
     } else if (DataTree->selectedItems()[0]->data(1,Qt::UserRole).toString() == "overlay") {
       imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetOverlay();
-      dimension = imageSelected->GetNumberOfDimensions();
-      origin.resize(dimension);
-      inputSpacing.resize(dimension);
-      inputSize.resize(dimension);
-      sizeMM.resize(dimension);
-      pixelType = mSlicerManagers[index]->GetImage()->GetScalarTypeAsITKString().c_str();
-      for (int i = 0; i < dimension; i++) {
-        origin[i] = imageSelected->GetOrigin()[i];
-        inputSpacing[i] = imageSelected->GetSpacing()[i];
-        inputSize[i] = imageSelected->GetSize()[i];
-        sizeMM[i] = inputSize[i]*inputSpacing[i];
-        NPixel *= inputSize[i];
-      }
-      inputSizeInBytes = GetSizeInBytes(imageSelected->GetActualMemorySize()*1000);
     } else if (DataTree->selectedItems()[0]->data(1,Qt::UserRole).toString() == "fusion") {
       imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetFusion();
-      dimension = imageSelected->GetNumberOfDimensions();
-      origin.resize(dimension);
-      inputSpacing.resize(dimension);
-      inputSize.resize(dimension);
-      sizeMM.resize(dimension);
-      pixelType = mSlicerManagers[index]->GetImage()->GetScalarTypeAsITKString().c_str();
-      for (int i = 0; i < dimension; i++) {
-        origin[i] = imageSelected->GetOrigin()[i];
-        inputSpacing[i] = imageSelected->GetSpacing()[i];
-        inputSize[i] = imageSelected->GetSize()[i];
-        sizeMM[i] = inputSize[i]*inputSpacing[i];
-        NPixel *= inputSize[i];
-      }
-      inputSizeInBytes = GetSizeInBytes(imageSelected->GetActualMemorySize()*1000);
+    }
+    else if (DataTree->selectedItems()[0]->data(1,Qt::UserRole).toString() == "contour") {
+      imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetImage();
+    }
+    else {
+      imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetImage();
     }
 
+    dimension = imageSelected->GetNumberOfDimensions();
+    origin.resize(dimension);
+    inputSpacing.resize(dimension);
+    inputSize.resize(dimension);
+    sizeMM.resize(dimension);
+    pixelType = mSlicerManagers[index]->GetImage()->GetScalarTypeAsITKString().c_str();
+    for (int i = 0; i < dimension; i++) {
+      origin[i] = imageSelected->GetOrigin()[i];
+      inputSpacing[i] = imageSelected->GetSpacing()[i];
+      inputSize[i] = imageSelected->GetSize()[i];
+      sizeMM[i] = inputSize[i]*inputSpacing[i];
+      NPixel *= inputSize[i];
+    }
+    inputSizeInBytes = GetSizeInBytes(imageSelected->GetActualMemorySize()*1000);
+    
     QString dim = QString::number(dimension) + " (";
     dim += pixelType + ")";
 
@@ -1120,10 +1123,6 @@ void vvMainWindow::ImageInfoChanged()
         break;
       }
     }
-    windowSpinBox->setValue(mSlicerManagers[index]->GetColorWindow());
-    levelSpinBox->setValue(mSlicerManagers[index]->GetColorLevel());
-    presetComboBox->setCurrentIndex(mSlicerManagers[index]->GetPreset());
-    colorMapComboBox->setCurrentIndex(mSlicerManagers[index]->GetColorMap());
 
     infoPanel->setFileName(image);
     infoPanel->setDimension(dim);
@@ -1145,10 +1144,7 @@ void vvMainWindow::ImageInfoChanged()
         break;
       }
     }
-    windowSpinBox->setValue(mSlicerManagers[index]->GetColorWindow());
-    levelSpinBox->setValue(mSlicerManagers[index]->GetColorLevel());
-    presetComboBox->setCurrentIndex(mSlicerManagers[index]->GetPreset());
-    colorMapComboBox->setCurrentIndex(mSlicerManagers[index]->GetColorMap());
+    WindowLevelChanged();
 
     if (mSlicerManagers[index]->GetSlicer(0)->GetVF()) {
       overlayPanel->getVFName(mSlicerManagers[index]->GetVFName().c_str());
@@ -1161,20 +1157,14 @@ void vvMainWindow::ImageInfoChanged()
     }
     if (mSlicerManagers[index]->GetSlicer(0)->GetOverlay()) {
       overlayPanel->getOverlayName(mSlicerManagers[index]->GetOverlayName().c_str());
-      overlayPanel->getOverlayProperty(mSlicerManagers[index]->GetOverlayColor());
     } else {
       overlayPanel->getOverlayName(mSlicerManagers[index]->GetOverlayName().c_str());
-      overlayPanel->getOverlayProperty(-1);
     }
+    
     if (mSlicerManagers[index]->GetSlicer(0)->GetFusion()) {
       overlayPanel->getFusionName(mSlicerManagers[index]->GetFusionName().c_str());
-      overlayPanel->getFusionProperty(mSlicerManagers[index]->GetFusionOpacity(),
-                                      mSlicerManagers[index]->GetFusionColorMap(),
-                                      mSlicerManagers[index]->GetFusionWindow(),
-                                      mSlicerManagers[index]->GetFusionLevel());
     } else {
       overlayPanel->getFusionName(mSlicerManagers[index]->GetFusionName().c_str());
-      overlayPanel->getFusionProperty(-1, -1,-1,-1);
     }
   }
 }
@@ -1186,6 +1176,23 @@ void vvMainWindow::ShowDocumentation()
   documentation->show();
 }
 //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::PopupRegisterForm(bool checkCanPush)
+{
+  vvRegisterForm* registerForm = new vvRegisterForm(QUrl("http://www.creatis.insa-lyon.fr/~dsarrut/vvregister/write.php"), getVVSettingsPath(), getSettingsOptionFormat());
+  if(!checkCanPush) {
+    registerForm->show();
+  } else {
+    if(registerForm->canPush()) {
+      registerForm->show();
+      registerForm->acquitPushed();//too bad if there is not internet connection anymore.
+    }
+  }
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 void vvMainWindow::ShowHelpDialog()
 {
   help_dialog->show();
@@ -1195,40 +1202,36 @@ void vvMainWindow::ShowHelpDialog()
 //------------------------------------------------------------------------------
 void vvMainWindow::ChangeViewMode()
 {
-  QListIterator<int> it0(splitter_3->sizes());
-  QListIterator<int> it1(splitter_3->sizes());
-  int max0 = 0;
-  int max1 = 1;
-  while (it0.hasNext()) {
-    max0 += it0.next();
-  }
-  while (it1.hasNext()) {
-    max1 += it1.next();
-  }
-  QList<int> size0;
-  QList<int> size1;
+  QList<int> size;
   if (viewMode == 1) {
     viewMode = 0;
-    size0.push_back(max0);
-    size0.push_back(0);
-    size1.push_back(max1);
-    size1.push_back(0);
-    splitter_3->setSizes(size0);
-    OSplitter->setSizes(size1);
+    size.push_back(1);
+    size.push_back(0);
+    splitter_3->setSizes(size);
+    OSplitter->setSizes(size);
     DataTree->setColumnHidden(2,1);
     DataTree->setColumnHidden(3,1);
     DataTree->setColumnHidden(4,1);
   } else {
     viewMode = 1;
-    size0.push_back(int(max0/2));
-    size0.push_back(int(max0/2));
-    size1.push_back(int(max1/2));
-    size1.push_back(int(max1/2));
-    splitter_3->setSizes(size0);
-    OSplitter->setSizes(size1);
+    size.push_back(1);
+    size.push_back(1);
+    splitter_3->setSizes(size);
+    OSplitter->setSizes(size);
     DataTree->setColumnHidden(2,0);
     DataTree->setColumnHidden(3,0);
     DataTree->setColumnHidden(4,0);
+  }
+  UpdateRenderWindows();
+  /*
+  ** I don't know why but for both resized QVTKWidget we also need to render
+  ** the associated Slicer to redraw crosses.
+  */
+  for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
+    if (DataTree->topLevelItem(i)->data(COLUMN_UL_VIEW,Qt::CheckStateRole).toInt() > 1)
+      mSlicerManagers[i]->GetSlicer(0)->Render();
+    if (DataTree->topLevelItem(i)->data(COLUMN_DL_VIEW,Qt::CheckStateRole).toInt() > 1)
+      mSlicerManagers[i]->GetSlicer(2)->Render();
   }
 }
 //------------------------------------------------------------------------------
@@ -1329,74 +1332,71 @@ QTreeWidgetItem* vvMainWindow::GetItemFromSlicerManager(vvSlicerManager* sm)
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void vvMainWindow::DisplayChanged(QTreeWidgetItem *clicked_item, int column)
+void vvMainWindow::DisplayChanged(QTreeWidgetItem *clickedItem, int column)
 {
-  int index = GetSlicerIndexFromItem(clicked_item);
   if ( column >= COLUMN_CLOSE_IMAGE || column <= 0)
     return;
-  for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
-    //Trick to avoid redoing twice the job for a key (sr)
-    mSlicerManagers[i]->GetSlicer(column-1)->GetRenderWindow()-> GetInteractor()->SetKeySym("Crap");
 
-    QTreeWidgetItem* current_row=DataTree->topLevelItem(i);
-    if (DataTree->topLevelItem(index) == current_row) {
-      vvSlicer* clicked_slicer=mSlicerManagers[i]->GetSlicer(column-1);
-      if (current_row == clicked_item) {
-        //If we just activated a slicer
-        if (current_row->data(column,Qt::CheckStateRole).toInt() > 0) {
-          mSlicerManagers[i]->UpdateSlicer(column-1,clicked_item->data(column,Qt::CheckStateRole).toInt());
-          mSlicerManagers[i]->UpdateInfoOnCursorPosition(column-1);
-          DisplaySliders(i,column-1);
-          std::map<std::string,int> overlay_counts;
-          for (int child = 0; child < current_row->childCount(); child++) {
-            std::string overlay_type =
-              current_row->child(child)->data(1,Qt::UserRole).toString().toStdString();
-            overlay_counts[overlay_type]++;
-            current_row->child(child)->setData(column,Qt::CheckStateRole,
-                                               current_row->data(column,Qt::CheckStateRole));
-            clicked_slicer->SetActorVisibility(overlay_type,overlay_counts[overlay_type]-1,true);
-          }
-        } else { //We don't allow simply desactivating a slicer
-          clicked_item->setData(column,Qt::CheckStateRole,2);
-          return;
-        }
-      }
-      //if we clicked on the vector(or overlay) and not the image
-      else {
-        if (clicked_item->data(column,Qt::CheckStateRole).toInt()) {
-          current_row->setData(column,Qt::CheckStateRole,2);
-          mSlicerManagers[i]->UpdateSlicer(column-1,2);
-          mSlicerManagers[i]->UpdateInfoOnCursorPosition(column-1);
-          DisplaySliders(i,column-1);
-        }
-        int vis = clicked_item->data(column,Qt::CheckStateRole).toInt();
-        std::string overlay_type = clicked_item->data(1,Qt::UserRole).toString().toStdString();
-        int overlay_index=0;
-        for (int child = 0; child < current_row->childCount(); child++) {
-          if (current_row->child(child)->data(1,Qt::UserRole).toString().toStdString() == overlay_type)
-            overlay_index++;
-          if (current_row->child(child) == clicked_item) break;
-        }
-        clicked_slicer->SetActorVisibility(
-          clicked_item->data(1,Qt::UserRole).toString().toStdString(), overlay_index-1,vis);
-      }
-    } else if (current_row->data(column,Qt::CheckStateRole).toInt() > 0) {
-      current_row->setData(column,Qt::CheckStateRole,0);
-      mSlicerManagers[i]->UpdateSlicer(column-1,0);
-      std::map<std::string,int> overlay_counts;
-      for (int child = 0; child < current_row->childCount(); child++) {
-        std::string overlay_type =
-          current_row->child(child)->data(1,Qt::UserRole).toString().toStdString();
-        overlay_counts[overlay_type]++;
-        current_row->child(child)->setData(column,Qt::CheckStateRole,0);
-        vvSlicer * current_slicer=mSlicerManagers[i]->GetSlicer(column-1);
-        current_slicer->SetActorVisibility(overlay_type,overlay_counts[overlay_type]-1,false);
+  // Get parent information (might be the same item)
+  int slicerManagerIndex = GetSlicerIndexFromItem(clickedItem);
+  QTreeWidgetItem* clickedParentItem = DataTree->topLevelItem(slicerManagerIndex);
+  vvSlicer* clickedSlicer = mSlicerManagers[slicerManagerIndex]->GetSlicer(column-1);
+
+  // Go over the complete item tree (only 2 levels, parents and children)
+  for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
+    // Trick to avoid redoing twice the job for a key (sr)
+    mSlicerManagers[i]->GetSlicer(column-1)->GetRenderWindow()->GetInteractor()->SetKeySym("Crap");
+
+    QTreeWidgetItem* currentParentItem = DataTree->topLevelItem(i);
+    if(currentParentItem != clickedParentItem) {
+      // Not the branch of the clicked item, uncheck all
+
+      // Parent
+      currentParentItem->setData(column,Qt::CheckStateRole, 0);
+      mSlicerManagers[i]->UpdateSlicer(column-1, false);
+
+      // Children
+      for (int iChild = 0; iChild < currentParentItem->childCount(); iChild++) {
+        currentParentItem->child(iChild)->setData(column,Qt::CheckStateRole, 0);
       }
     }
-    //mSlicerManagers[i]->SetColorMap(-1);
-    mSlicerManagers[i]->SetColorMap();
+    else {
+      // Branch of the clicked one: get check status from actor visibility in slicer
+      // and toggle the clicked one
+
+      // Parent
+      bool vis = clickedSlicer->GetActorVisibility("image", 0);
+      bool draw = clickedSlicer->GetRenderer()->GetDraw();
+
+      // Update slicer (after getting visibility)
+      mSlicerManagers[slicerManagerIndex]->UpdateSlicer(column-1, true);
+      mSlicerManagers[slicerManagerIndex]->UpdateInfoOnCursorPosition(column-1);
+      DisplaySliders(slicerManagerIndex, column-1);
+      if(clickedParentItem == clickedItem) {
+        // Toggle
+        vis = !draw || !vis;
+      }
+      clickedSlicer->SetActorVisibility("image", 0, vis);
+      clickedParentItem->setData(column, Qt::CheckStateRole, vis?2:0);
+
+      // Children
+      std::map<std::string, int> actorTypeCounts;      
+      for (int iChild = 0; iChild < clickedParentItem->childCount(); iChild++) {
+        QTreeWidgetItem* currentChildItem = clickedParentItem->child(iChild);
+        std::string actorType = currentChildItem->data(1,Qt::UserRole).toString().toStdString();
+        vis = clickedSlicer->GetActorVisibility(actorType, actorTypeCounts[actorType]);
+        if(currentChildItem == clickedItem) {
+          // Toggle or force visibility if it was not on this branch so far
+          vis = !draw || !vis;
+          clickedSlicer->SetActorVisibility(actorType, actorTypeCounts[actorType], vis);
+        }
+        currentChildItem->setData(column, Qt::CheckStateRole, vis?2:0);
+        actorTypeCounts[actorType]++;
+      }
+    }
   }
-  mSlicerManagers[index]->GetSlicer(column-1)->Render();
+
+  clickedSlicer->Render();
 }
 //------------------------------------------------------------------------------
 
@@ -1567,15 +1567,18 @@ void vvMainWindow::ReloadImage(QTreeWidgetItem* item, int column)
   int index = GetSlicerIndexFromItem(item);
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   QString role=item->data(1,Qt::UserRole).toString();
-  if ( role == "vector")
+  if ( role == "vector"){
     mSlicerManagers[index]->ReloadVF();
-  else if (role == "overlay")
+  }
+  else if (role == "overlay"){
     mSlicerManagers[index]->ReloadOverlay();
-  else if (role == "fusion")
+  }
+  else if (role == "fusion"){
     mSlicerManagers[index]->ReloadFusion();
-  else
+  }
+  else{
     mSlicerManagers[index]->Reload();
-
+  }
   // Update view and info
   ImageInfoChanged();
   mSlicerManagers[index]->Render();
@@ -1612,19 +1615,34 @@ void vvMainWindow::FusionChanged(int visibility, double value)
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void vvMainWindow::WindowsChanged(int window, int view, int slice)
+void vvMainWindow::WindowLevelChanged()
 {
-  infoPanel->setViews(window, view, slice);
-}
-//------------------------------------------------------------------------------
+  // Base image
+  int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
+  if(index==-1) return;
+  windowSpinBox->setValue(mSlicerManagers[index]->GetColorWindow());
+  levelSpinBox->setValue(mSlicerManagers[index]->GetColorLevel());
+  colorMapComboBox->setCurrentIndex(mSlicerManagers[index]->GetColorMap());
+  presetComboBox->setCurrentIndex(mSlicerManagers[index]->GetPreset());
 
-//------------------------------------------------------------------------------
-void vvMainWindow::WindowLevelChanged(double window, double level,int preset,int colormap)
-{
-  windowSpinBox->setValue(window);
-  levelSpinBox->setValue(level);
-  colorMapComboBox->setCurrentIndex(colormap);
-  presetComboBox->setCurrentIndex(preset);
+  // Overlay image
+  if (mSlicerManagers[index]->GetSlicer(0)->GetOverlay())
+    overlayPanel->getOverlayProperty(mSlicerManagers[index]->GetOverlayColor(),
+                                     mSlicerManagers[index]->GetLinkOverlayWindowLevel(),
+                                     mSlicerManagers[index]->GetOverlayColorWindow(),
+                                     mSlicerManagers[index]->GetOverlayColorLevel());
+  else
+    overlayPanel->getOverlayProperty(-1,0,0.,0.);
+
+  // Fusion image
+  if (mSlicerManagers[index]->GetSlicer(0)->GetFusion())
+    overlayPanel->getFusionProperty(mSlicerManagers[index]->GetFusionOpacity(),
+                                    mSlicerManagers[index]->GetFusionThresholdOpacity(),
+                                    mSlicerManagers[index]->GetFusionColorMap(),
+                                    mSlicerManagers[index]->GetFusionWindow(),
+                                    mSlicerManagers[index]->GetFusionLevel());
+  else
+    overlayPanel->getFusionProperty(-1, -1, -1, -1, -1);
 }
 //------------------------------------------------------------------------------
 
@@ -1632,6 +1650,17 @@ void vvMainWindow::WindowLevelChanged(double window, double level,int preset,int
 void vvMainWindow::WindowLevelEdited()
 {
   presetComboBox->setCurrentIndex(6);
+  UpdateWindowLevel();
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::SetWindowLevel(double w, double l)
+{
+  windowSpinBox->setValue(w);
+  levelSpinBox->setValue(l);
+  presetComboBox->setCurrentIndex(6);
+  colorMapComboBox->setCurrentIndex(0);
   UpdateWindowLevel();
 }
 //------------------------------------------------------------------------------
@@ -1647,8 +1676,7 @@ void vvMainWindow::UpdateWindowLevel()
     mSlicerManagers[index]->SetColorLevel(levelSpinBox->value());
     mSlicerManagers[index]->SetPreset(presetComboBox->currentIndex());
     mSlicerManagers[index]->Render();
-    windowSpinBox->setValue(mSlicerManagers[index]->GetColorWindow());
-    levelSpinBox->setValue(mSlicerManagers[index]->GetColorLevel());
+    WindowLevelChanged();
   }
 }
 //------------------------------------------------------------------------------
@@ -1801,13 +1829,11 @@ void vvMainWindow::AddOverlayImage(int index, QString file)
     item->setData(1,Qt::UserRole,tr("overlay"));
     QFileInfo fileinfo(file); //Do not show the path
     item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,fileinfo.fileName());
-    item->setToolTip(COLUMN_IMAGE_NAME,fileinfo.absoluteFilePath());
+    item->setToolTip(COLUMN_IMAGE_NAME, mSlicerManagers[index]->GetListOfAbsoluteFilePathInOneString("overlay").c_str());
     qApp->processEvents();
 
     for (int j = 1; j <= 4; j++) {
       item->setData(j,Qt::CheckStateRole,DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole));
-      mSlicerManagers[index]->GetSlicer(j-1)->SetActorVisibility("overlay",0,
-          DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole).toInt());
     }
 
     //Create the buttons for reload and close
@@ -1846,6 +1872,7 @@ void vvMainWindow::AddOverlayImage(int index, QString file)
     error += mSlicerManagers[index]->GetLastError().c_str();
     QMessageBox::information(this,tr("Problem reading image !"),error);
   }
+  WindowLevelChanged();
 }
 //------------------------------------------------------------------------------
 
@@ -1901,6 +1928,16 @@ void vvMainWindow::SelectFusionImage()
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+void vvMainWindow::ResetTransformationToIdentity()
+{
+  std::string actorType = DataTree->selectedItems()[0]->data(1,Qt::UserRole).toString().toStdString();
+  int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
+  mSlicerManagers[index]->ResetTransformationToIdentity(actorType);
+  ImageInfoChanged();
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 void vvMainWindow::AddFusionImage(int index, QString file)
 {
   mInputPathName = itksys::SystemTools::GetFilenamePath(file.toStdString()).c_str();
@@ -1923,13 +1960,11 @@ void vvMainWindow::AddFusionImage(int index, QString file)
       item->setData(1,Qt::UserRole,tr("fusion"));
       QFileInfo fileinfo(filename.c_str()); //Do not show the path
       item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,fileinfo.fileName());
-      item->setToolTip(COLUMN_IMAGE_NAME,fileinfo.absoluteFilePath());
+      item->setToolTip(COLUMN_IMAGE_NAME, mSlicerManagers[index]->GetListOfAbsoluteFilePathInOneString("fusion").c_str());
       qApp->processEvents();
 
       for (int j = 1; j <= 4; j++) {
         item->setData(j,Qt::CheckStateRole,DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole));
-        mSlicerManagers[index]->GetSlicer(j-1)->SetActorVisibility("fusion",0,
-            DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole).toInt());
       }
 
       //Create the buttons for reload and close
@@ -1991,6 +2026,7 @@ void vvMainWindow::OpenField()
     }
 
   QString Extensions = "Images ( *.mhd)";
+  Extensions += ";;Images ( *.mha)";
   Extensions += ";;Images ( *.vf)";
   QString file = QFileDialog::getOpenFileName(this,tr("Load deformation field"),mInputPathName,Extensions);
   if (!file.isEmpty())
@@ -2008,13 +2044,11 @@ void vvMainWindow::AddFieldEntry(QString filename,int index,bool from_disk)
   item->setData(1,Qt::UserRole,tr("vector"));
   QFileInfo fileinfo(filename); //Do not show the path
   item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,fileinfo.fileName());
-  item->setToolTip(COLUMN_IMAGE_NAME,fileinfo.absoluteFilePath());
+  item->setToolTip(COLUMN_IMAGE_NAME, mSlicerManagers[index]->GetListOfAbsoluteFilePathInOneString("vector").c_str());
   qApp->processEvents();
 
   for (int j = 1; j <= 4; j++) {
     item->setData(j,Qt::CheckStateRole,DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole));
-    mSlicerManagers[index]->GetSlicer(j-1)->SetActorVisibility("vector",0,
-        DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole).toInt());
   }
 
   //Create the buttons for reload and close
@@ -2122,24 +2156,28 @@ void vvMainWindow::SetVFProperty(int subsampling, int scale, int log, int width,
 
 
 //------------------------------------------------------------------------------
-void vvMainWindow::SetOverlayProperty(int color)
+void vvMainWindow::SetOverlayProperty(int color, int linked, double window, double level)
 {
   int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
   if (mSlicerManagers[index]->GetSlicer(0)->GetOverlay()) {
     mSlicerManagers[index]->SetOverlayColor(color);
     mSlicerManagers[index]->SetColorMap(0);
+    mSlicerManagers[index]->SetLinkOverlayWindowLevel(linked);
+    mSlicerManagers[index]->SetOverlayColorWindow(window);
+    mSlicerManagers[index]->SetOverlayColorLevel(level);
     mSlicerManagers[index]->Render();
   }
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void vvMainWindow::SetFusionProperty(int opacity, int colormap,double window, double level)
+void vvMainWindow::SetFusionProperty(int opacity, int thresOpacity, int colormap,double window, double level)
 {
   int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
   if (mSlicerManagers[index]->GetSlicer(0)->GetFusion()) {
-    mSlicerManagers[index]->SetFusionOpacity(opacity);
     mSlicerManagers[index]->SetFusionColorMap(colormap);
+    mSlicerManagers[index]->SetFusionOpacity(opacity);
+    mSlicerManagers[index]->SetFusionThresholdOpacity(thresOpacity);
     mSlicerManagers[index]->SetFusionWindow(window);
     mSlicerManagers[index]->SetFusionLevel(level);
     mSlicerManagers[index]->SetColorMap(0);
@@ -2169,14 +2207,17 @@ void vvMainWindow::SaveAs()
     OutputListeFormat.push_back(".jpeg");
     OutputListeFormat.push_back(".tif");
     OutputListeFormat.push_back(".mhd");
+    OutputListeFormat.push_back(".mha");
     OutputListeFormat.push_back(".hdr");
     OutputListeFormat.push_back(".vox");
   } else if (dimension == 3) {
     OutputListeFormat.push_back(".mhd");
+    OutputListeFormat.push_back(".mha");
     OutputListeFormat.push_back(".hdr");
     OutputListeFormat.push_back(".vox");
   } else if (dimension == 4) {
     OutputListeFormat.push_back(".mhd");
+    OutputListeFormat.push_back(".mha");
   }
   QString Extensions = "AllFiles(*.*)";
   for (int i = 0; i < OutputListeFormat.count(); i++) {
@@ -2226,7 +2267,7 @@ void vvMainWindow::AddLink(QString image1,QString image2)
 {
   unsigned int sm1 = 0;
   unsigned int sm2 = 0;
-  
+
   for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
     if (image1.toStdString() == mSlicerManagers[i]->GetId()) {
       mSlicerManagers[i]->AddLink(image2.toStdString());
@@ -2241,8 +2282,7 @@ void vvMainWindow::AddLink(QString image1,QString image2)
   if (linkPanel->isLinkAll())	{
     emit UpdateLinkedNavigation(mSlicerManagers[sm1]->GetId(), mSlicerManagers[mCurrentPickedImageIndex], mSlicerManagers[mCurrentPickedImageIndex]->GetSlicer(0));
     emit UpdateLinkedNavigation(mSlicerManagers[sm2]->GetId(), mSlicerManagers[mCurrentPickedImageIndex], mSlicerManagers[mCurrentPickedImageIndex]->GetSlicer(0));
-  }
-  else {
+  } else {
     emit UpdateLinkedNavigation(mSlicerManagers[sm2]->GetId(), mSlicerManagers[sm1], mSlicerManagers[sm1]->GetSlicer(0));
   }
 }
@@ -2273,8 +2313,8 @@ void vvMainWindow::ChangeImageWithIndexOffset(vvSlicerManager *sm, int slicer, i
   index = (index+offset) % mSlicerManagers.size();
 
   QTreeWidgetItem* item = GetItemFromSlicerManager(mSlicerManagers[index]);
-  //CurrentImageChanged(mSlicerManagers[index]->GetId()); //select new image
   item->setData(slicer+1,Qt::CheckStateRole,2);         //change checkbox
+  CurrentImageChanged(mSlicerManagers[index]->GetId()); //select new image
   DisplayChanged(item,slicer+1);
 }
 //------------------------------------------------------------------------------
@@ -2479,27 +2519,22 @@ void vvMainWindow::UpdateTSlice(int slicer, int slice)
 void vvMainWindow::UpdateSliceRange(int slicer, int min, int max, int tmin, int tmax)
 {
   int position = int((min+max)/2);
-  int tPosition = int((tmin+tmax)/2);
   if (slicer == 0) {
     NOVerticalSlider->setValue(position);
     NOVerticalSlider->setRange(min,max);
     NOHorizontalSlider->setRange(tmin,tmax);
-    NOHorizontalSlider->setValue(tPosition);
   } else if (slicer == 1) {
     NEVerticalSlider->setValue(position);
     NEVerticalSlider->setRange(min,max);
     NEHorizontalSlider->setRange(tmin,tmax);
-    NEHorizontalSlider->setValue(tPosition);
   } else if (slicer == 2) {
     SOVerticalSlider->setValue(position);
     SOVerticalSlider->setRange(min,max);
     SOHorizontalSlider->setRange(tmin,tmax);
-    SOHorizontalSlider->setValue(tPosition);
   } else if (slicer == 3) {
     SEVerticalSlider->setValue(position);
     SEVerticalSlider->setRange(min,max);
     SEHorizontalSlider->setRange(tmin,tmax);
-    SEHorizontalSlider->setValue(tPosition);
   }
 }
 //------------------------------------------------------------------------------
@@ -2606,8 +2641,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 
       vvImage * vvImg = mSlicerManagers[smIndex]->GetImage();
       int nSlice = vvImg->GetVTKImages().size();
-      for(int i=0; i<nSlice; i++)
-      {
+      for(int i=0; i<nSlice; i++) {
         mSlicerManagers[smIndex]->SetNextTSlice(0);
         vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
         w2i->SetInput(widget->GetRenderWindow());
@@ -2627,8 +2661,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 
       vvImage * vvImg = mSlicerManagers[smIndex]->GetImage();
       int nSlice = vvImg->GetVTKImages().size();
-      for(int i=0; i<nSlice; i++)
-      {
+      for(int i=0; i<nSlice; i++) {
         mSlicerManagers[smIndex]->SetNextTSlice(0);
         vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
         w2i->SetInput(widget->GetRenderWindow());
@@ -2778,6 +2811,7 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
   //create an item in the tree with good settings
   QTreeWidgetItem *item = new QTreeWidgetItem();
   item->setData(0,Qt::UserRole,slicer_manager->GetFileName().c_str());//files[i].c_str());
+  item->setData(1,Qt::UserRole,tr("image"));
   item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,slicer_manager->GetFileName().c_str());//filename.c_str());
   qApp->processEvents();
 
@@ -2824,10 +2858,8 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
           this, SLOT(OverlayChanged(int,double,double)));
   connect(mSlicerManagers.back(), SIGNAL(UpdateFusion(int, double)),
           this, SLOT(FusionChanged(int,double)));
-  connect(mSlicerManagers.back(), SIGNAL(UpdateWindows(int, int, int)),
-          this,SLOT(WindowsChanged(int, int, int)));
-  connect(mSlicerManagers.back(), SIGNAL(WindowLevelChanged(double, double,int, int)),
-          this,SLOT(WindowLevelChanged(double, double, int, int)));
+  connect(mSlicerManagers.back(), SIGNAL(WindowLevelChanged()),
+          this,SLOT(WindowLevelChanged()));
   connect(mSlicerManagers.back(), SIGNAL(UpdateSlice(int,int)),
           this,SLOT(UpdateSlice(int,int)));
   connect(mSlicerManagers.back(), SIGNAL(UpdateTSlice(int, int)),

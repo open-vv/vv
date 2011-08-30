@@ -7,6 +7,7 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 #=========================================================
 
+
 #=========================================================
 #List of vv tools to compile
 SET(vv_TOOLS
@@ -18,6 +19,7 @@ SET(vv_TOOLS
   vvToolResample
 #   vvToolExtractPatient
 #  vvToolExtractLung
+  vvToolStructureSetManager
   vvToolMIP
   vvToolConvert ## with dummy vvToolConvert.ui
   
@@ -61,7 +63,7 @@ SET(vv_COMMON_WITH_UI
   vvToolWidgetBase  
   vvToolSimpleInputSelectorWidget
   vvToolInputSelectorWidget
-  vvToolStructureSetManager
+  vvRegisterForm
 )
 
 # All others sources
@@ -124,14 +126,23 @@ QT4_WRAP_UI(vv_UI_CXX
 
 QT4_ADD_RESOURCES(vv_SRCS vvIcons.qrc)
 
-#Add the autotools and the common files ui
+# Add the autotools in the header vvToolsList.h for initialization of the dummy
+# variables in vv.cxx for the tools contained in vvLib
+file(REMOVE ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h)
+foreach(tool ${vv_TOOLS})
+    FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h "#include \"${tool}.h\"\n")
+    FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h "extern const vvToolCreator<${tool}> *dummy${tool};\n")
+    FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h "const vvToolCreator<${tool}> *dummy${tool}2 = dummy${tool};\n\n")
+endforeach(tool)
+
+# Add the autotools and the common files ui
 foreach(tool ${vv_TOOLS} ${vv_COMMON_WITH_UI})
     SET(vv_SRCS ${vv_SRCS} ${tool}.cxx)
     QT4_WRAP_CPP(vv_SRCS ${tool}.h)
     QT4_WRAP_UI(vv_UI_CXX qt_ui/${tool}.ui)
 endforeach(tool)
 
-#Add the common source files
+# Add the common source files
 foreach(tool ${vv_COMMON})
     SET(vv_SRCS ${vv_SRCS} ${tool}.cxx)
     QT4_WRAP_CPP(vv_SRCS ${tool}.h)
@@ -179,26 +190,34 @@ INCLUDE_DIRECTORIES(
   ../segmentation
   )
 
-IF(WIN32)
-  SET(EXE_ICON vvIcon.rc)
-ENDIF(WIN32)
-
 LINK_DIRECTORIES(${QT_LIBRARY_DIR})
-ADD_EXECUTABLE(vv ${vv_SRCS} vv.cxx ${vv_UI_CXX} ${EXE_ICON})
-ADD_DEPENDENCIES(vv clitkSegmentationGgoLib)
-TARGET_LINK_LIBRARIES(vv clitkDicomRTStruct)
-
 #=========================================================
 #Add each tool's dependencies
 foreach(tool ${vv_TOOLS})
-    target_link_libraries(vv ${${tool}_LIBS})
+  SET(toolLibs ${toolLibs} ${${tool}_LIBS})
 endforeach(tool)
-
 #=========================================================
 #Add Foundation Libraries (this should be after our libraries, since we depend
 #on them)
-TARGET_LINK_LIBRARIES(vv
-clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
+SET(foundationLibraries clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
+
+#=========================================================
+#Create binary and libs for tests
+SET(vvExternalLibs ${QT_QTNETWORK_LIBRARY} clitkSegmentationGgoLib clitkDicomRTStruct ${toolLibs} ${foundationLibraries})
+# QtNetwork is required by vvRegisterForm
+
+ADD_LIBRARY(vvLib ${vv_SRCS} ${vv_UI_CXX})
+TARGET_LINK_LIBRARIES(vvLib ${vvExternalLibs})
+
+IF(WIN32)
+  ADD_EXECUTABLE(vv WIN32 vv.cxx vvIcon.rc)
+ELSE(WIN32)
+  ADD_EXECUTABLE(vv vv.cxx)
+ENDIF(WIN32)
+
+#TARGET_LINK_LIBRARIES(vv vvLib)
+TARGET_LINK_LIBRARIES(vv vvLib)
+
 
 #=========================================================
 # Install options (also used by CPack)
@@ -232,9 +251,10 @@ SET(CPACK_PACKAGE_VENDOR "Creatis-CLB")
 SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/ReadMe.txt")
 SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/License.txt")
 SET(CPACK_PACKAGE_VERSION_MAJOR "1")
-SET(CPACK_PACKAGE_VERSION_MINOR "1")
-SET(CPACK_PACKAGE_VERSION_PATCH "0")
+SET(CPACK_PACKAGE_VERSION_MINOR "2")
+SET(CPACK_PACKAGE_VERSION_PATCH "2")
 SET(CPACK_PACKAGE_INSTALL_DIRECTORY "vv")
+SET(CPACK_STRIP_FILES TRUE)
 
 IF(WIN32)
   # There is a bug in NSI that does not handle full unix paths properly. Make
@@ -254,4 +274,7 @@ ELSE(WIN32)
   SET(CPACK_SOURCE_GENERATOR "TGZ") 
 ENDIF(WIN32)
 INCLUDE(CPack)
+#=========================================================
+#=========================================================
+configure_file(vvConfiguration.h.in vvConfiguration.h)
 #=========================================================

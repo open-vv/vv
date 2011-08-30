@@ -76,6 +76,9 @@ namespace clitk {
     typedef itk::Image<MaskImagePixelType, 2>    MaskSliceType;
     typedef typename MaskSliceType::Pointer      MaskSlicePointer;
     typedef typename MaskSliceType::PointType    MaskSlicePointType;
+    typedef typename MaskSliceType::RegionType   MaskSliceRegionType; 
+    typedef typename MaskSliceType::SizeType     MaskSliceSizeType; 
+    typedef typename MaskSliceType::IndexType    MaskSliceIndexType; 
 
     /** ImageDimension constants */
     itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
@@ -87,8 +90,8 @@ namespace clitk {
     itkSetMacro(ForegroundValue, MaskImagePixelType);
 
     // Station 8
-    itkSetMacro(DistanceMaxToAnteriorPartOfTheSpine, double);
-    itkGetConstMacro(DistanceMaxToAnteriorPartOfTheSpine, double);
+    // itkSetMacro(DistanceMaxToAnteriorPartOfTheSpine, double);
+    //itkGetConstMacro(DistanceMaxToAnteriorPartOfTheSpine, double);
     itkSetMacro(EsophagusDiltationForAnt, MaskImagePointType);
     itkGetConstMacro(EsophagusDiltationForAnt, MaskImagePointType);
     itkSetMacro(EsophagusDiltationForRight, MaskImagePointType);
@@ -97,6 +100,9 @@ namespace clitk {
     itkGetConstMacro(InjectedThresholdForS8, double);
 
     // Station 7
+    itkGetConstMacro(S7_UseMostInferiorPartOnlyFlag, bool);
+    itkSetMacro(S7_UseMostInferiorPartOnlyFlag, bool);
+    itkBooleanMacro(S7_UseMostInferiorPartOnlyFlag);
 
     // All stations
     bool GetComputeStation(std::string s);
@@ -116,6 +122,7 @@ namespace clitk {
     MaskImagePointer   m_Mediastinum;
     MaskImagePointer   m_Working_Support;
     std::map<std::string, MaskImagePointer> m_ListOfStations;
+    std::map<std::string, MaskImagePointer> m_ListOfSupports;
     MaskImagePixelType m_BackgroundValue;
     MaskImagePixelType m_ForegroundValue;
     std::map<std::string, bool> m_ComputeStationMap;
@@ -123,12 +130,20 @@ namespace clitk {
     bool CheckForStation(std::string station);
     void Remove_Structures(std::string station, std::string s);
 
+    // Functions common to several stations
+    void FindLineForS7S8Separation(MaskImagePointType & A, MaskImagePointType & B);
+    double FindCarinaSlicePosition();
+    void FindLeftAndRightBronchi();
+
     // Global parameters
     typedef std::map<std::string, double> FuzzyThresholdByStructureType;
     std::map<std::string, FuzzyThresholdByStructureType> m_FuzzyThreshold;    
 
+    // Station's supports
+    void ExtractStationSupports();
+
     // Station 8
-    double m_DistanceMaxToAnteriorPartOfTheSpine;
+    // double m_DistanceMaxToAnteriorPartOfTheSpine;
     double m_DiaphragmInferiorLimit;
     double m_CarinaZ;
     double m_OriginOfRightMiddleLobeBronchusZ;
@@ -136,22 +151,16 @@ namespace clitk {
     MaskImagePointer m_Esophagus;
     MaskImagePointType m_EsophagusDiltationForAnt;
     MaskImagePointType m_EsophagusDiltationForRight;
-    MaskImagePointer EnlargeEsophagusDilatationRadiusInferiorly(MaskImagePointer & eso);
+
     void ExtractStation_8();
     void ExtractStation_8_SetDefaultValues();
     void ExtractStation_8_SI_Limits();
-    void ExtractStation_8_Post_Limits();
-    void ExtractStation_8_Ant_Sup_Limits();
-    void ExtractStation_8_Ant_Inf_Limits();
-    void ExtractStation_8_Ant_Injected_Limits();
-    void ExtractStation_8_LR_1_Limits();
-    void ExtractStation_8_LR_2_Limits();
+    void ExtractStation_8_Ant_Limits();
+    void ExtractStation_8_Left_Sup_Limits();
+    void ExtractStation_8_Left_Inf_Limits();
     void ExtractStation_8_Single_CCL_Limits();
-    void ExtractStation_8_LR_Limits();
     void ExtractStation_8_Remove_Structures();
-    void ExtractStation_8_LR_Limits_old();
-    void ExtractStation_8_LR_Limits_old2();
-    
+
     // Station 3P
     void ExtractStation_3P();
     void ExtractStation_3P_SetDefaultValues();
@@ -186,9 +195,13 @@ namespace clitk {
     void ExtractStation_7();
     void ExtractStation_7_SetDefaultValues();
     void ExtractStation_7_SI_Limits();
-    void ExtractStation_7_RL_Limits();
+    void ExtractStation_7_RL_Interior_Limits();
+
+
+    void ExtractStation_7_RL_Limits_OLD();
     void ExtractStation_7_Posterior_Limits();   
     void ExtractStation_7_Remove_Structures();
+    bool m_S7_UseMostInferiorPartOnlyFlag;
     MaskImagePointer m_Working_Trachea;
     MaskImagePointer m_LeftBronchus;
     MaskImagePointer m_RightBronchus;
@@ -226,6 +239,7 @@ namespace clitk {
 
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "clitkExtractLymphStationsFilter.txx"
+#include "clitkExtractLymphStation_Supports.txx"
 #include "clitkExtractLymphStation_8.txx"
 #include "clitkExtractLymphStation_3P.txx"
 #include "clitkExtractLymphStation_2RL.txx"

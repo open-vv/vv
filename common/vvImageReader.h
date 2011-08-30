@@ -35,12 +35,15 @@ public:
   IMAGEWITHTIME,
   MERGEDWITHTIME,
   VECTORFIELD,
+  VECTORFIELDWITHTIME,
   UNDEFINEDIMAGETYPE
   } LoadedImageType;
 
   typedef vvImageReader Self;
   typedef itk::SmartPointer<Self> Pointer;
   itkNewMacro(Self);
+
+  const std::vector<std::string>& GetInputFilenames(){return mInputFilenames;}
 
   void SetInputFilename(const std::string & filename);
   void SetInputFilenames(const std::vector<std::string> & filenames);

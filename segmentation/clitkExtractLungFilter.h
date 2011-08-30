@@ -191,6 +191,11 @@ namespace clitk {
     itkGetConstMacro(FillHolesFlag, bool);
     itkBooleanMacro(FillHolesFlag);
 
+    // Step Auto Crop
+    itkSetMacro(AutoCrop, bool);
+    itkGetConstMacro(AutoCrop, bool);
+    itkBooleanMacro(AutoCrop);
+
   protected:
     ExtractLungFilter();
     virtual ~ExtractLungFilter() {}
@@ -212,6 +217,7 @@ namespace clitk {
     MaskImagePixelType m_BackgroundValue;
     MaskImagePixelType m_ForegroundValue;
     int m_MinimalComponentSize;
+    bool m_AutoCrop;
 
     // Step 1
     InputImagePixelType m_UpperThreshold;

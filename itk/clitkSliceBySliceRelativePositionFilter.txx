@@ -37,7 +37,7 @@ SliceBySliceRelativePositionFilter():
   this->VerboseStepFlagOff();
   this->WriteStepFlagOff();
   this->SetCombineWithOrFlag(false);
-  CCLSelectionFlagOn();
+  CCLSelectionFlagOff();
   SetCCLSelectionDimension(0);
   SetCCLSelectionDirection(1);
   CCLSelectionIgnoreSingleCCLFlagOff();
@@ -222,7 +222,7 @@ GenerateOutputInformation()
                                                                    true);
           }
         }
-      }
+      } // end GetCCLSelectionFlag = true
 
       // Relative position
       typedef clitk::AddRelativePositionConstraintToLabelImageFilter<SliceType> RelPosFilterType;

@@ -35,7 +35,7 @@ void HypercubeCorners(std::vector<itk::Point<double, Dim> > & out) {
   std::vector<itk::Point<double, Dim-1> > previous;
   HypercubeCorners<Dim-1>(previous);
   out.resize(previous.size()*2);
-  for(uint i=0; i<out.size(); i++) {
+  for(unsigned int i=0; i<out.size(); i++) {
     itk::Point<double, Dim> p;
     if (i<previous.size()) p[0] = 0; 
     else p[0] = 1;
@@ -65,20 +65,21 @@ void ComputeImageBoundariesCoordinates(typename ImageType::Pointer image,
                                        std::vector<typename ImageType::PointType> & bounds) 
 {
   // Get image max/min coordinates
-  const uint dim=ImageType::ImageDimension;
+  const unsigned int dim=ImageType::ImageDimension;
   typedef typename ImageType::PointType PointType;
   typedef typename ImageType::IndexType IndexType;
   PointType min_c, max_c;
   IndexType min_i, max_i;
   min_i = image->GetLargestPossibleRegion().GetIndex();
-  for(uint i=0; i<dim; i++) max_i[i] = image->GetLargestPossibleRegion().GetSize()[i] + min_i[i];
+  for(unsigned int i=0; i<dim; i++)
+    max_i[i] = image->GetLargestPossibleRegion().GetSize()[i] + min_i[i];
   image->TransformIndexToPhysicalPoint(min_i, min_c);
   image->TransformIndexToPhysicalPoint(max_i, max_c);
   
   // Get corners coordinates
   HypercubeCorners<ImageType::ImageDimension>(bounds);
-  for(uint i=0; i<bounds.size(); i++) {
-    for(uint j=0; j<dim; j++) {
+  for(unsigned int i=0; i<bounds.size(); i++) {
+    for(unsigned int j=0; j<dim; j++) {
       if (bounds[i][j] == 0) bounds[i][j] = min_c[j];
       if (bounds[i][j] == 1) bounds[i][j] = max_c[j];
     }
@@ -94,7 +95,7 @@ clitk::ExtractLymphStationsFilter<ImageType>::
 ExtractStation_2RL_SetDefaultValues()
 {
   SetFuzzyThreshold("2RL", "CommonCarotidArtery", 0.7);
-  SetFuzzyThreshold("2RL", "BrachioCephalicTrunk", 0.7);
+  SetFuzzyThreshold("2RL", "BrachioCephalicArtery", 0.7);
   SetFuzzyThreshold("2RL", "BrachioCephalicVein", 0.3);
   SetFuzzyThreshold("2RL", "Aorta", 0.7);
   SetFuzzyThreshold("2RL", "SubclavianArteryRight", 0.5);
@@ -208,17 +209,17 @@ ExtractStation_2RL_Ant_Limits()
   // -----------------------------------------------------
   // Remove Ant to H line from the Ant most part of the
   // CommonCarotidArtery until we reach the first slice of
-  // BrachioCephalicTrunk
+  // BrachioCephalicArtery
   StartNewStep("[Station 2RL] Ant limits with CommonCarotidArtery, H line");
 
-  // First, find the first slice of BrachioCephalicTrunk
-  MaskImagePointer BrachioCephalicTrunk = GetAFDB()->template GetImage<MaskImageType>("BrachioCephalicTrunk");
-  MaskImagePointType p = BrachioCephalicTrunk->GetOrigin(); // initialise to avoid warning 
-  clitk::FindExtremaPointInAGivenDirection<MaskImageType>(BrachioCephalicTrunk, GetBackgroundValue(), 2, false, p);
-  double TopOfBrachioCephalicTrunkZ=p[2] + BrachioCephalicTrunk->GetSpacing()[2]; // Add one slice
+  // First, find the first slice of BrachioCephalicArtery
+  MaskImagePointer BrachioCephalicArtery = GetAFDB()->template GetImage<MaskImageType>("BrachioCephalicArtery");
+  MaskImagePointType p = BrachioCephalicArtery->GetOrigin(); // initialise to avoid warning 
+  clitk::FindExtremaPointInAGivenDirection<MaskImageType>(BrachioCephalicArtery, GetBackgroundValue(), 2, false, p);
+  double TopOfBrachioCephalicArteryZ=p[2] + BrachioCephalicArtery->GetSpacing()[2]; // Add one slice
 
   // Remove CommonCarotidArtery below this point
-  CommonCarotidArtery = clitk::CropImageBelow<MaskImageType>(CommonCarotidArtery, 2, TopOfBrachioCephalicTrunkZ, true, GetBackgroundValue());  
+  CommonCarotidArtery = clitk::CropImageRemoveLowerThan<MaskImageType>(CommonCarotidArtery, 2, TopOfBrachioCephalicArteryZ, true, GetBackgroundValue());  
 
   // Find most Ant points
   std::vector<MaskImagePointType> ccaAntPositionA;
@@ -242,26 +243,26 @@ ExtractStation_2RL_Ant_Limits()
   m_ListOfStations["2L"] = m_Working_Support;
 
   // -----------------------------------------------------
-  // Ant limit with the BrachioCephalicTrunk
-  StartNewStep("[Station 2RL] Ant limits with BrachioCephalicTrunk line");
+  // Ant limit with the BrachioCephalicArtery
+  StartNewStep("[Station 2RL] Ant limits with BrachioCephalicArtery line");
 
-  // Remove Ant to BrachioCephalicTrunk
+  // Remove Ant to BrachioCephalicArtery
   m_Working_Support = 
-    clitk::SliceBySliceRelativePosition<MaskImageType>(m_Working_Support, BrachioCephalicTrunk, 2, 
-                                                       GetFuzzyThreshold("2RL", "BrachioCephalicTrunk"), "NotAntTo", false, 2, true, false);
+    clitk::SliceBySliceRelativePosition<MaskImageType>(m_Working_Support, BrachioCephalicArtery, 2, 
+                                                       GetFuzzyThreshold("2RL", "BrachioCephalicArtery"), "NotAntTo", false, 2, true, false);
   // End
   StopCurrentStep<MaskImageType>(m_Working_Support);
   m_ListOfStations["2R"] = m_Working_Support;
   m_ListOfStations["2L"] = m_Working_Support;
 
   // -----------------------------------------------------
-  // Ant limit with the BrachioCephalicTrunk H line
-  StartNewStep("[Station 2RL] Ant limits with BrachioCephalicTrunk, Horizontal line");
+  // Ant limit with the BrachioCephalicArtery H line
+  StartNewStep("[Station 2RL] Ant limits with BrachioCephalicArtery, Horizontal line");
   
   // Find most Ant points
   std::vector<MaskImagePointType> bctAntPositionA;
   std::vector<MaskImagePointType> bctAntPositionB;
-  clitk::SliceBySliceBuildLineSegmentAccordingToExtremaPosition<MaskImageType>(BrachioCephalicTrunk, 
+  clitk::SliceBySliceBuildLineSegmentAccordingToExtremaPosition<MaskImageType>(BrachioCephalicArtery, 
                                                                                GetBackgroundValue(), 2,
                                                                                1, true, // Ant
                                                                                0, // Horizontal line
@@ -317,7 +318,7 @@ ExtractStation_2RL_Ant_Limits2()
   /* Here, we consider the vessels form a kind of anterior barrier. We
      link all vessels centroids and remove what is post to it.
     - select the list of structure
-            vessel1 = BrachioCephalicTrunk
+            vessel1 = BrachioCephalicArtery
             vessel2 = BrachioCephalicVein (warning several CCL, keep most at Right)
             vessel3 = CommonCarotidArtery
             vessel4 = SubclavianArtery
@@ -332,7 +333,7 @@ ExtractStation_2RL_Ant_Limits2()
   */
 
   // Read structures
-  MaskImagePointer BrachioCephalicTrunk = GetAFDB()->template GetImage<MaskImageType>("BrachioCephalicTrunk");
+  MaskImagePointer BrachioCephalicArtery = GetAFDB()->template GetImage<MaskImageType>("BrachioCephalicArtery");
   MaskImagePointer BrachioCephalicVein = GetAFDB()->template GetImage<MaskImageType>("BrachioCephalicVein");
   MaskImagePointer CommonCarotidArtery = GetAFDB()->template GetImage<MaskImageType>("CommonCarotidArtery");
   MaskImagePointer SubclavianArtery = GetAFDB()->template GetImage<MaskImageType>("SubclavianArtery");
@@ -341,8 +342,8 @@ ExtractStation_2RL_Ant_Limits2()
   MaskImagePointer Trachea = GetAFDB()->template GetImage<MaskImageType>("Trachea");
   
   // Resize all structures like support
-  BrachioCephalicTrunk = 
-    clitk::ResizeImageLike<MaskImageType>(BrachioCephalicTrunk, m_Working_Support, GetBackgroundValue());
+  BrachioCephalicArtery = 
+    clitk::ResizeImageLike<MaskImageType>(BrachioCephalicArtery, m_Working_Support, GetBackgroundValue());
   CommonCarotidArtery = 
     clitk::ResizeImageLike<MaskImageType>(CommonCarotidArtery, m_Working_Support, GetBackgroundValue());
   SubclavianArtery = 
@@ -357,8 +358,8 @@ ExtractStation_2RL_Ant_Limits2()
     clitk::ResizeImageLike<MaskImageType>(Trachea, m_Working_Support, GetBackgroundValue());
 
   // Extract slices
-  std::vector<MaskSlicePointer> slices_BrachioCephalicTrunk;
-  clitk::ExtractSlices<MaskImageType>(BrachioCephalicTrunk, 2, slices_BrachioCephalicTrunk);
+  std::vector<MaskSlicePointer> slices_BrachioCephalicArtery;
+  clitk::ExtractSlices<MaskImageType>(BrachioCephalicArtery, 2, slices_BrachioCephalicArtery);
   std::vector<MaskSlicePointer> slices_BrachioCephalicVein;
   clitk::ExtractSlices<MaskImageType>(BrachioCephalicVein, 2, slices_BrachioCephalicVein);
   std::vector<MaskSlicePointer> slices_CommonCarotidArtery;
@@ -371,24 +372,24 @@ ExtractStation_2RL_Ant_Limits2()
   clitk::ExtractSlices<MaskImageType>(Aorta, 2, slices_Aorta);
   std::vector<MaskSlicePointer> slices_Trachea;
   clitk::ExtractSlices<MaskImageType>(Trachea, 2, slices_Trachea);
-  uint n= slices_BrachioCephalicTrunk.size();
+  unsigned int n= slices_BrachioCephalicArtery.size();
   
   // Get the boundaries of one slice
   std::vector<MaskSlicePointType> bounds;
-  ComputeImageBoundariesCoordinates<MaskSliceType>(slices_BrachioCephalicTrunk[0], bounds);
+  ComputeImageBoundariesCoordinates<MaskSliceType>(slices_BrachioCephalicArtery[0], bounds);
 
   // For all slices, for all structures, find the centroid and build the contour
   // List of 3D points (for debug)
   std::vector<MaskImagePointType> p3D;
 
   vtkSmartPointer<vtkAppendPolyData> append = vtkSmartPointer<vtkAppendPolyData>::New();
-  for(uint i=0; i<n; i++) {
+  for(unsigned int i=0; i<n; i++) {
     // Labelize the slices
     slices_CommonCarotidArtery[i] = Labelize<MaskSliceType>(slices_CommonCarotidArtery[i], 
                                                             GetBackgroundValue(), true, 1);
     slices_SubclavianArtery[i] = Labelize<MaskSliceType>(slices_SubclavianArtery[i], 
                                                          GetBackgroundValue(), true, 1);
-    slices_BrachioCephalicTrunk[i] = Labelize<MaskSliceType>(slices_BrachioCephalicTrunk[i], 
+    slices_BrachioCephalicArtery[i] = Labelize<MaskSliceType>(slices_BrachioCephalicArtery[i], 
                                                              GetBackgroundValue(), true, 1);
     slices_BrachioCephalicVein[i] = Labelize<MaskSliceType>(slices_BrachioCephalicVein[i], 
                                                             GetBackgroundValue(), true, 1);
@@ -407,7 +408,7 @@ ExtractStation_2RL_Ant_Limits2()
     std::vector<MaskSlicePointType> centroids6;
     ComputeCentroids<MaskSliceType>(slices_CommonCarotidArtery[i], GetBackgroundValue(), centroids1);
     ComputeCentroids<MaskSliceType>(slices_SubclavianArtery[i], GetBackgroundValue(), centroids2);
-    ComputeCentroids<MaskSliceType>(slices_BrachioCephalicTrunk[i], GetBackgroundValue(), centroids3);
+    ComputeCentroids<MaskSliceType>(slices_BrachioCephalicArtery[i], GetBackgroundValue(), centroids3);
     ComputeCentroids<MaskSliceType>(slices_Thyroid[i], GetBackgroundValue(), centroids4);
     ComputeCentroids<MaskSliceType>(slices_Aorta[i], GetBackgroundValue(), centroids5);
     ComputeCentroids<MaskSliceType>(slices_BrachioCephalicVein[i], GetBackgroundValue(), centroids6);
@@ -420,17 +421,17 @@ ExtractStation_2RL_Ant_Limits2()
     }
     
     // BrachioCephalicVein -> when SubclavianArtery has 2 CCL
-    // (BrachioCephalicTrunk is divided) -> forget BrachioCephalicVein
+    // (BrachioCephalicArtery is divided) -> forget BrachioCephalicVein
     if ((centroids3.size() ==1) && (centroids2.size() > 2)) {
       centroids6.clear();
     }
 
-    for(uint j=1; j<centroids1.size(); j++) points2D.push_back(centroids1[j]);
-    for(uint j=1; j<centroids2.size(); j++) points2D.push_back(centroids2[j]);
-    for(uint j=1; j<centroids3.size(); j++) points2D.push_back(centroids3[j]);
-    for(uint j=1; j<centroids4.size(); j++) points2D.push_back(centroids4[j]);
-    for(uint j=1; j<centroids5.size(); j++) points2D.push_back(centroids5[j]);
-    for(uint j=1; j<centroids6.size(); j++) points2D.push_back(centroids6[j]);
+    for(unsigned int j=1; j<centroids1.size(); j++) points2D.push_back(centroids1[j]);
+    for(unsigned int j=1; j<centroids2.size(); j++) points2D.push_back(centroids2[j]);
+    for(unsigned int j=1; j<centroids3.size(); j++) points2D.push_back(centroids3[j]);
+    for(unsigned int j=1; j<centroids4.size(); j++) points2D.push_back(centroids4[j]);
+    for(unsigned int j=1; j<centroids5.size(); j++) points2D.push_back(centroids5[j]);
+    for(unsigned int j=1; j<centroids6.size(); j++) points2D.push_back(centroids6[j]);
     
     // Sort by angle according to trachea centroid and vertical line,
     // in polar coordinates :
@@ -439,7 +440,7 @@ ExtractStation_2RL_Ant_Limits2()
     ComputeCentroids<MaskSliceType>(slices_Trachea[i], GetBackgroundValue(), centroids_trachea);
     typedef std::pair<MaskSlicePointType, double> PointAngleType;
     std::vector<PointAngleType> angles;
-    for(uint j=0; j<points2D.size(); j++) {
+    for(unsigned int j=0; j<points2D.size(); j++) {
       //double r = centroids_trachea[1].EuclideanDistanceTo(points2D[j]);
       double x = (points2D[j][0]-centroids_trachea[1][0]); // X : Right to Left
       double y = (centroids_trachea[1][1]-points2D[j][1]); // Y : Post to Ant
@@ -475,7 +476,7 @@ ExtractStation_2RL_Ant_Limits2()
 
     // Sort points2D according to polar angles
     std::sort(angles.begin(), angles.end(), comparePointsWithAngle<PointAngleType>());
-    for(uint j=0; j<angles.size(); j++) {
+    for(unsigned int j=0; j<angles.size(); j++) {
       points2D[j] = angles[j].first;
     }
     //    DDV(points2D, points2D.size());
@@ -496,7 +497,7 @@ ExtractStation_2RL_Ant_Limits2()
        low, add one point
     */
     std::vector<MaskSlicePointType> toadd;
-    uint index = 0;
+    unsigned int index = 0;
     double dmax = 5;
     while (index<points2D.size()-1) {
       MaskSlicePointType a = points2D[index];
@@ -555,7 +556,7 @@ ExtractStation_2RL_Ant_Limits2()
     // Build 3D points from the 2D points
     std::vector<ImagePointType> points3D;
     clitk::PointsUtils<MaskImageType>::Convert2DListTo3DList(points2D, i, m_Working_Support, points3D);
-    for(uint x=0; x<points3D.size(); x++) p3D.push_back(points3D[x]);
+    for(unsigned int x=0; x<points3D.size(); x++) p3D.push_back(points3D[x]);
 
     // Build the mesh from the contour's points
     vtkSmartPointer<vtkPolyData> mesh = Build3DMeshFrom2DContour(points3D);

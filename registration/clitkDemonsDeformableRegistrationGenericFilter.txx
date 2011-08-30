@@ -151,8 +151,12 @@ namespace clitk
     //find the multiresolution filter
     //     typedef typename  RegistrationFilterType::FixedImageType InternalImageType;
     //     typedef typename  RegistrationFilterType::MovingImageType MovingImageType;
-    typedef typename  RegistrationFilterType::DeformationFieldType DeformationFieldType;
-    typedef clitk::MultiResolutionPDEDeformableRegistration<FixedImageType, MovingImageType, DeformationFieldType> MultiResolutionRegistrationType; 
+#if ITK_VERSION_MAJOR >= 4
+    typedef typename  RegistrationFilterType::DisplacementFieldType DisplacementFieldType;
+#else
+    typedef typename  RegistrationFilterType::DeformationFieldType DisplacementFieldType;
+#endif
+    typedef clitk::MultiResolutionPDEDeformableRegistration<FixedImageType, MovingImageType, DisplacementFieldType> MultiResolutionRegistrationType;
     typedef CommandResolutionLevelUpdate<MultiResolutionRegistrationType> LevelObserver;
     
   protected:
@@ -533,7 +537,11 @@ namespace clitk
     //JV TODO
     // pdeFilter->SetMaximumError(m_ArgsInfo.maxError_arg);
     // pdeFilter->SetMaximumKernelWidth(m_ArgsInfo.maxError_arg);
+#if ITK_VERSION_MAJOR >= 4
+    pdeFilter->SetSmoothDisplacementField(!m_ArgsInfo.fluid_flag);
+#else
     pdeFilter->SetSmoothDeformationField(!m_ArgsInfo.fluid_flag);
+#endif
     pdeFilter->SetSmoothUpdateField(m_ArgsInfo.fluid_flag);
     pdeFilter->SetUseImageSpacing( m_ArgsInfo.spacing_flag );
 
@@ -599,7 +607,11 @@ namespace clitk
     typedef itk::WarpImageFilter< MovingImageType, FixedImageType, DeformationFieldType >    WarpFilterType;
     typename WarpFilterType::Pointer warp = WarpFilterType::New();
 
+#if ITK_VERSION_MAJOR >= 4
+    warp->SetDisplacementField( deformationField );
+#else
     warp->SetDeformationField( deformationField );
+#endif
     warp->SetInput( movingImageReader->GetOutput() );
     warp->SetOutputOrigin(  fixedImage->GetOrigin() );
     warp->SetOutputSpacing( fixedImage->GetSpacing() );

@@ -225,6 +225,8 @@ void vvToolBinarize::InputIsSelected(vvSlicerManager * m)
 
   connect(mCurrentSlicerManager,SIGNAL(UpdateSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
   connect(mCurrentSlicerManager,SIGNAL(UpdateTSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
+  
+  connect(mCurrentSlicerManager,SIGNAL(UpdateOrientation(int,int)),this,SLOT(UpdateOrientation(int, int)));
 
   //  connect(mCurrentSlicerManager, SIGNAL(LeftButtonReleaseSignal(int)), SLOT(LeftButtonReleaseEvent(int)));
   
@@ -245,7 +247,21 @@ void vvToolBinarize::InputIsSelected(vvSlicerManager * m)
 
 
 //------------------------------------------------------------------------------
+void vvToolBinarize::UpdateOrientation(int slicer,int orientation)
+{
+  Update(slicer);
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 void vvToolBinarize::UpdateSlice(int slicer,int slices)
+{
+  Update(slicer);
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvToolBinarize::Update(int slicer)
 {
   if (!mInteractiveDisplayIsEnabled) return;
   if (!mCurrentSlicerManager) close();
@@ -254,7 +270,6 @@ void vvToolBinarize::UpdateSlice(int slicer,int slices)
     mImageContourLower[slicer]->Update(mThresholdSlider2->GetValue());
 }
 //------------------------------------------------------------------------------
-
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::GetArgsInfoFromGUI()

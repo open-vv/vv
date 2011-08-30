@@ -80,6 +80,7 @@ class vvSlicerManager : public QObject {
   std::string GetVFName()        { return mVFName; }
   std::string GetOverlayName()   { return mOverlayName; }
   std::string GetFusionName()    { return mFusionName; }
+  std::string GetListOfAbsoluteFilePathInOneString(const std::string &actorType);
 
   ///Switch between nearest neighbor and linear interpolation
   void ToggleInterpolation();
@@ -101,6 +102,7 @@ class vvSlicerManager : public QObject {
 
   void SetFilename(std::string f, int number=0);
 
+  void SetSliceOrientation(int slicer, int orientation);
   void SetTSlice(int slice);
   void SetNextTSlice(int originating_slicer);
   void SetPreviousTSlice(int originating_slicer);
@@ -109,9 +111,11 @@ class vvSlicerManager : public QObject {
   void GenerateDefaultLookupTable();
   void SetColorWindow(double s);
   void SetColorLevel(double s);
-  void SetLocalColorWindowing(const int slicer);
+  void SetOverlayColorWindow(double s);
+  void SetOverlayColorLevel(double s);
+  void SetLinkOverlayWindowLevel(bool b);
+  void SetLocalColorWindowing(const int slicer, const bool bCtrlKey);
   void SetOpacity(int i, double factor);
-  void SetColorMap();
   void SetColorMap(int colormap);
   void SetPreset(int preset);
   void SetOverlayColor(int color) {
@@ -119,6 +123,9 @@ class vvSlicerManager : public QObject {
   }
   void SetFusionOpacity(int opacity) {
     mFusionOpacity = opacity;
+  }
+  void SetFusionThresholdOpacity(int thresOpacity) {
+    mFusionThresOpacity = thresOpacity;
   }
   void SetFusionColorMap(int colorMap) {
     mFusionColorMap = colorMap;
@@ -132,6 +139,9 @@ class vvSlicerManager : public QObject {
 
   double GetColorWindow();
   double GetColorLevel();
+  double GetOverlayColorWindow();
+  double GetOverlayColorLevel();
+  bool GetLinkOverlayWindowLevel();
   int GetColorMap() {
     return mColorMap;
   }
@@ -141,9 +151,11 @@ class vvSlicerManager : public QObject {
   int GetOverlayColor() {
     return mOverlayColor;
   }
-
   int GetFusionOpacity() {
     return mFusionOpacity;
+  }
+  int GetFusionThresholdOpacity() {
+    return mFusionThresOpacity;
   }
   int GetFusionColorMap() {
     return mFusionColorMap;
@@ -159,6 +171,7 @@ class vvSlicerManager : public QObject {
   void UpdateViews(int current, int slicer);
   void UpdateLinked(int slicer);
   void UpdateLinkedNavigation(vvSlicer *slicer, bool bPropagate=false);
+  void ResetTransformationToIdentity(const std::string actorType);
   void Render();
 
   void AddLink(std::string newId) {
@@ -204,11 +217,11 @@ signals :
   void UpdateVector(int display, double x, double y, double z, double value);
   void UpdateOverlay(int display, double valueOver, double valueRef);
   void UpdateFusion(int display, double valueFus);
-  void UpdateWindows(int slicer, int view, int slice);
+  void UpdateOrientation(int slicer, int orientation);
   void UpdateSlice(int slicer, int slice);
   void UpdateTSlice(int slicer, int slice);
   void UpdateSliceRange(int slice, int min, int max, int tmin, int tmax);
-  void WindowLevelChanged(double window, double level, int preset, int colormap);
+  void WindowLevelChanged();
   void UpdateLinkManager(std::string, int slicer, double x, double y, double z, int temps);
   void UpdateLinkedNavigation(std::string, vvSlicerManager*, vvSlicer*);
   void LandmarkAdded();
@@ -228,6 +241,7 @@ protected:
   int mOverlayColor;
 
   int mFusionOpacity;
+  int mFusionThresOpacity;
   int mFusionColorMap;
   double mFusionWindow;
   double mFusionLevel;

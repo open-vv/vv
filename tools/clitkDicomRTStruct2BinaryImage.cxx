@@ -30,7 +30,9 @@ int main(int argc, char * argv[]) {
   // Read and display information
   clitk::DicomRT_StructureSet::Pointer s = clitk::DicomRT_StructureSet::New();
   s->Read(args_info.input_arg);
-  // s->Print(std::cout);
+  if (args_info.verboseFile_flag) {
+    s->Print(std::cout);
+  }
   
   // New filter to convert to binary image
   clitk::DicomRT_ROI_ConvertToImageFilter filter;

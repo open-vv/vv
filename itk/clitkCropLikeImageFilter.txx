@@ -136,6 +136,16 @@ GenerateOutputInformation() {
                           << ") of 'like' is " << likeSpacing[i] << ".");
     }
   }
+
+  // Check that we must crop along each dimension. If not, we use the
+  // size of the input image
+  for(unsigned int i=0; i<ImageType::ImageDimension; i++) {
+    if (m_CropAlongThisDimension[i] == false) {
+      likeStart[i] = input->GetLargestPossibleRegion().GetIndex()[i];
+      likeSize[i] = input->GetLargestPossibleRegion().GetSize()[i];
+    }
+  }
+
   // Define output region 
   m_OutputRegion.SetIndex(likeStart);
   m_OutputRegion.SetSize(likeSize);

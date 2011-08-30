@@ -377,6 +377,8 @@ MotionMaskGenericFilter::GetLungsImage(typename itk::Image<PixelType, Dimension>
     connectFilter->SetBackgroundValue(0);
     connectFilter->SetFullyConnected(true);
     if (m_Verbose) std::cout<<"Labeling the connected components..."<<std::endl;
+    connectFilter->Update();
+    if (m_Verbose) std::cout<<"found "<< connectFilter->GetObjectCount() << std::endl;
 
     //---------------------------------
     // Sort the labels according to size

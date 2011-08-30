@@ -133,14 +133,14 @@ namespace clitk
 
     DD(m_ArgsInfo.panel_position_arg);
     if (m_ArgsInfo.panel_shift_given) // one should read the specific values for each angle in Frame.dbf
-      filter->SetPanelShift(m_ArgsInfo.panel_shift_arg);
+      filter->SetPanelShift(m_ArgsInfo.panel_shift_arg[0], m_ArgsInfo.panel_shift_arg[1]);
     else { // approximate panel positions hard coded values for the elekta synergy
       if (strcmp(m_ArgsInfo.panel_position_arg,"small") ==0)
-        filter->SetPanelShift(0.);
+        filter->SetPanelShift(0., 0.);
       else if (strcmp(m_ArgsInfo.panel_position_arg,"medium") ==0)
-        filter->SetPanelShift(114.84);
+        filter->SetPanelShift(114.84, 0.); // VD : 120 , 0 ?
       else if (strcmp(m_ArgsInfo.panel_position_arg,"large") ==0)
-        filter->SetPanelShift(190.);
+        filter->SetPanelShift(190., 0.);
       else assert(false); //Unsupported panel position
     }
     // Output image info

@@ -19,11 +19,18 @@
 #define vvXXX_h
 #include <list>
 #include <string>
+#include <QSettings>
 
 ///Returns the last images opened by the user
 std::list<std::string> GetRecentlyOpenedImages();
 
 ///Adds an image to the list of recently opened images
 void AddToRecentlyOpenedImages(std::string filename);
+
+///path to user settings
+QString getVVSettingsPath();
+
+///by default nativeFormat
+QSettings::Format getSettingsOptionFormat();
 
 #endif

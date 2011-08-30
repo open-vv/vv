@@ -1,22 +1,32 @@
-# Tests are organized to mirror the clitk directory tree. 
-# Eacho subdirectory has its own CMakeLists.txt with the compiling directives
-
-IF (BUILD_TESTING)
-
-  set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/tests/bin)
-
-  # default data path is searched in the project source tree
-  FIND_PATH(CLITK_DATA_PATH data PATHS ${PROJECT_SOURCE_DIR})
-  IF (CLITK_DATA_PATH STREQUAL "CLITK_DATA_PATH-NOTFOUND")
-    MESSAGE(FATAL_ERROR "Data path must be given when tests are enabled.")
-  ENDIF (CLITK_DATA_PATH STREQUAL "CLITK_DATA_PATH-NOTFOUND")
-
-  set(CLITK_DATA_PATH ${CLITK_DATA_PATH}/data)
-  ADD_DEFINITIONS(-DCLITK_DATA_PATH='"${CLITK_DATA_PATH}"')
-
+cmake_policy(SET CMP0005 NEW)
+#=========================================================
+#=========================================================
+# Data tests path
+FIND_PATH(CLITK_TEST_DATA_PATH Lung3D.mhd)
+IF(NOT ${CLITK_TEST_DATA_PATH} MATCHES "NOTFOUND$")
+ SET(CLITK_TEST_DATA_PATH "${CLITK_TEST_DATA_PATH}/")
+ENDIF()
+ADD_DEFINITIONS(-DCLITK_TEST_DATA_PATH="${CLITK_TEST_DATA_PATH}")
+#=========================================================
+#=========================================================
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/tests/bin)
+SET(BUILDNAME ${CMAKE_SYSTEM_NAME}${CMAKE_OSX_ARCHITECTURES} CACHE INTERNAL DOCSTRING)
+#=========================================================
+#=========================================================
+# Enabled options to test
+IF(CLITK_BUILD_TOOLS)
   ADD_SUBDIRECTORY(tools)
-  #ADD_SUBDIRECTORY(segmentation)
-  #ADD_SUBDIRECTORY(registration)
-  #ADD_SUBDIRECTORY(common)
+ENDIF()
+#IF(CLITK_BUILD_VV)
+#  ADD_SUBDIRECTORY(vv)
+#ENDIF()
+# IF(CLITK_BUILD_SEGMENTATION)
+#   ADD_SUBDIRECTORY(segmentation)
+# ENDIF()
+# 
+# IF(CLITK_BUILD_REGISTATION)
+#   ADD_SUBDIRECTORY(registration)
+# ENDIF()
+#ADD_SUBDIRECTORY(common)
+#=========================================================
 
-ENDIF(BUILD_TESTING)

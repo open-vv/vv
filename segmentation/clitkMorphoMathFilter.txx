@@ -30,6 +30,7 @@ clitk::MorphoMathFilter<ImageType>::MorphoMathFilter():
   p.Fill(1);
   SetRadius(p);
   SetBoundaryToForegroundFlag(false);
+  VerboseFlagOff();
 }
 //--------------------------------------------------------------------
 
@@ -84,15 +85,9 @@ template<class ImageType>
 void clitk::MorphoMathFilter<ImageType>::
 SetOperationType(int type)
 {
-  switch (type) {
-  case 0: m_OperationType = Erode; return;
-  case 1: m_OperationType = Dilate; return;
-  case 2: m_OperationType = Open; return;
-  case 3: m_OperationType = Close; return;
-  case 4: m_OperationType = CondErode; return;
-  case 5: m_OperationType = CondDilate; return;
-  default: clitkExceptionMacro("Operation type must be between 0-5 (0=Erode, 1=Dilate, 2=Close (erode(dilate(x))), 3=Open (dilate(erode(x))), 4=CondErode, 5=CondDilate)");
-  }    
+  if(type<0 || type>5)
+    clitkExceptionMacro("Operation type must be between 0-5 (0=Erode, 1=Dilate, 2=Close (erode(dilate(x))), 3=Open (dilate(erode(x))), 4=CondErode, 5=CondDilate)");
+  m_OperationType = OperationTypeEnumeration(type);
 }
 //--------------------------------------------------------------------
 
@@ -288,7 +283,9 @@ GenerateData()
   typename OutputCastImageFilterType::Pointer oCaster = OutputCastImageFilterType::New();
   oCaster->SetInput(filter->GetOutput());
   oCaster->Update();
+
   this->SetNthOutput(0, oCaster->GetOutput());
+  //this->GraftOutput(oCaster->GetOutput()); // NO
 }
 //--------------------------------------------------------------------
 

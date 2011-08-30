@@ -28,6 +28,7 @@
 #include <vtkSmartPointer.h>
 #include <vtkImageViewer2.h>
 #include <vtkImageReslice.h>
+#include <vtkImageMapToColors.h>
 
 class vtkActor;
 class vtkActor2D;
@@ -70,7 +71,7 @@ public:
   }
   vtkImageMapToWindowLevelColors* GetOverlayMapper(); 
   vvBlendImageActor* GetOverlayActor() ;
-  vtkImageMapToWindowLevelColors* GetFusionMapper() ;
+  vtkImageMapToColors* GetFusionMapper() ;
   vtkImageActor* GetFusionActor() ;
   vtkActor* GetVFActor() ;
   vtkCornerAnnotation* GetAnnotation();
@@ -80,9 +81,10 @@ public:
     return mFusion;
   }
 
-  /**Set an actor's visibility ("overlay, fusion, vf, contour...")
+  /**Get/Set an actor's visibility ("overlay, fusion, vf, contour...")
      Overlay index is the index of the overlay by type, eg. if there are
      5 contours and we want to activate the 3rd one, pass 2 **/
+  bool GetActorVisibility(const std::string& actor_type, int overlay_index);
   void SetActorVisibility(const std::string& actor_type, int overlay_index,bool vis);
   void RemoveActor(const std::string& actor_type, int overlay_index);
 
@@ -151,7 +153,7 @@ public:
   void SetCornerAnnotationVisibility(bool s);
   bool GetCornerAnnotationVisibility();
 
-  void GetExtremasAroundMousePointer(double & min, double & max);
+  void GetExtremasAroundMousePointer(double & min, double & max, vtkImageData *image);
 
   void UpdateLandmarks();
   void ForceUpdateDisplayExtent();
@@ -166,7 +168,19 @@ public:
   virtual void SetColorWindow(double s);
   virtual void SetColorLevel(double s);
 
-    
+  double GetOverlayColorWindow();
+  double GetOverlayColorLevel();
+  bool GetLinkOverlayWindowLevel() { return mLinkOverlayWindowLevel; }
+
+  void SetOverlayColorWindow(double s);
+  void SetOverlayColorLevel(double s);
+  void SetLinkOverlayWindowLevel(bool b) { mLinkOverlayWindowLevel = b; }
+
+  /**
+   * When it is enabled, beware of a call to GetExtent.
+   * we must have setted mReducedExtent otherwhise random values
+   * are returned by GetExtent
+   * */
   void EnableReducedExtent(bool b);
   void SetReducedExtent(int * ext);
 
@@ -196,7 +210,7 @@ protected:
   vtkSmartPointer<vtkImageMapToWindowLevelColors> mOverlayMapper;
   vtkSmartPointer<vvBlendImageActor> mOverlayActor;
   vtkSmartPointer<vtkImageReslice> mFusionReslice;
-  vtkSmartPointer<vtkImageMapToWindowLevelColors> mFusionMapper;
+  vtkSmartPointer<vtkImageMapToColors> mFusionMapper;
   vtkSmartPointer<vtkImageActor> mFusionActor;
   vtkSmartPointer<vtkCornerAnnotation> ca;
   vtkSmartPointer<vtkCursor2D> crossCursor;
@@ -229,6 +243,7 @@ protected:
   bool mUseReducedExtent;
   int * mReducedExtent;
   int * mInitialExtent;
+  bool mLinkOverlayWindowLevel;
 
 private:
   void UpdateOrientation();

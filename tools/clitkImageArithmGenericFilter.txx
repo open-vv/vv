@@ -20,6 +20,8 @@
 
 #include "clitkImageCommon.h"
 
+#include "itkMinimumMaximumImageCalculator.h"
+
 namespace clitk
 {
 
@@ -110,6 +112,15 @@ void ImageArithmGenericFilter<args_info_type>::UpdateWithInputImageType()
   typename ImageType::Pointer input2 = NULL;
   IteratorType it2;
 
+  // Special case for normalisation
+  if (mTypeOfOperation == 12) {
+    typedef itk::MinimumMaximumImageCalculator<ImageType> MinMaxFilterType;
+    typename MinMaxFilterType::Pointer ff = MinMaxFilterType::New();
+    ff->SetImage(input1);
+    ff->ComputeMaximum();
+    mScalar = ff->GetMaximum();
+    mTypeOfOperation = 11; // divide
+  }
 
   if (mIsOperationUseASecondImage) {
       // Read input2
@@ -117,9 +128,12 @@ void ImageArithmGenericFilter<args_info_type>::UpdateWithInputImageType()
       // Set input image iterator
       it2 = IteratorType(input2, input2->GetLargestPossibleRegion());
       // Check dimension
-      if (!clitk::HaveSameSizeAndSpacing<ImageType, ImageType>(input1, input2)) {
-          std::cerr << "* ERROR * the images (input and input2) must have the same size & spacing";
-          return;
+      if (!clitk::HaveSameSize<ImageType, ImageType>(input1, input2)) {
+        itkExceptionMacro(<< "The images (input and input2) must have the same size");
+      }
+      if(!clitk::HaveSameSpacing<ImageType, ImageType>(input1, input2)) {
+        itkWarningMacro(<< "The images (input and input2) do not have the same spacing. "
+                        << "Using first input's information.");
       }
   }
 
@@ -366,6 +380,13 @@ void clitk::ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it, Ite
   case 10: // exp
     while (!it.IsAtEnd()) {
       ito.Set(PixelTypeDownCast<double, PixelType>((0x10000 - (double)it.Get())/mScalar));
+      ++it;
+      ++ito;
+    }
+    break;
+  case 11: // divide
+    while (!it.IsAtEnd()) {
+      ito.Set(PixelTypeDownCast<double, PixelType>((double)it.Get() / mScalar) );
       ++it;
       ++ito;
     }

@@ -32,6 +32,8 @@
 #include <itkBinaryDilateImageFilter.h>
 #include <itkConstantPadImageFilter.h>
 #include <itkImageSliceIteratorWithIndex.h>
+#include <itkBinaryMorphologicalOpeningImageFilter.h>
+#include <itkImageDuplicator.h>
 
 namespace clitk {
 
@@ -352,6 +354,7 @@ namespace clitk {
     sliceRelPosFilter->SetIntermediateSpacingFlag((spacing != -1));
     sliceRelPosFilter->SetIntermediateSpacing(spacing);
     sliceRelPosFilter->SetUniqueConnectedComponentBySlice(uniqueConnectedComponent);
+    sliceRelPosFilter->CCLSelectionFlagOff();
     sliceRelPosFilter->SetUseASingleObjectConnectedComponentBySliceFlag(singleObjectCCL);
     //    sliceRelPosFilter->SetInverseOrientationFlag(inverseflag); 
     sliceRelPosFilter->SetAutoCropFlag(autocropFlag); 
@@ -420,7 +423,7 @@ namespace clitk {
   //--------------------------------------------------------------------
   template<class ImageType>
   typename ImageType::Pointer
-  CropImageAbove(const ImageType * image, 
+  CropImageRemoveGreaterThan(const ImageType * image, 
                  int dim, double min, bool autoCrop,
                  typename ImageType::PixelType BG) 
   {
@@ -435,7 +438,7 @@ namespace clitk {
   //--------------------------------------------------------------------
   template<class ImageType>
   typename ImageType::Pointer
-  CropImageBelow(const ImageType * image, 
+  CropImageRemoveLowerThan(const ImageType * image, 
                  int dim, double max, bool autoCrop,
                  typename ImageType::PixelType BG) 
   {
@@ -464,7 +467,7 @@ namespace clitk {
     p[dim] = max;
     typename ImageType::IndexType end;
     image->TransformPhysicalPointToIndex(p, end);
-    size[dim] = fabs(end[dim]-start[dim]);
+    size[dim] = abs(end[dim]-start[dim]);
     region.SetIndex(start);
     region.SetSize(size);
   
@@ -508,10 +511,36 @@ namespace clitk {
 
     centroids.clear();
     typename ImageType::PointType dummy;
-    centroids.push_back(dummy); // label 0 -> no centroid, use dummy point
-    for(uint i=1; i<labelMap->GetNumberOfLabelObjects()+1; i++) {
-      centroids.push_back(labelMap->GetLabelObject(i)->GetCentroid());
+    centroids.push_back(dummy); // label 0 -> no centroid, use dummy point for BG 
+    //DS FIXME (not useful ! to change ..)
+    for(uint i=0; i<labelMap->GetNumberOfLabelObjects(); i++) {
+      int label = labelMap->GetLabels()[i];
+      centroids.push_back(labelMap->GetLabelObject(label)->GetCentroid());
     } 
+  }
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType, class LabelType>
+  typename itk::LabelMap< itk::ShapeLabelObject<LabelType, ImageType::ImageDimension> >::Pointer
+  ComputeLabelMap(const ImageType * image, 
+                  typename ImageType::PixelType BG, 
+                  bool computePerimeterFlag) 
+  {
+    static const unsigned int Dim = ImageType::ImageDimension;
+    typedef itk::ShapeLabelObject< LabelType, Dim > LabelObjectType;
+    typedef itk::LabelMap< LabelObjectType > LabelMapType;
+    typedef itk::LabelImageToLabelMapFilter<ImageType, LabelMapType> ImageToMapFilterType;
+    typename ImageToMapFilterType::Pointer imageToLabelFilter = ImageToMapFilterType::New(); 
+    typedef itk::ShapeLabelMapFilter<LabelMapType, ImageType> ShapeFilterType; 
+    typename ShapeFilterType::Pointer statFilter = ShapeFilterType::New();
+    imageToLabelFilter->SetBackgroundValue(BG);
+    imageToLabelFilter->SetInput(image);
+    statFilter->SetInput(imageToLabelFilter->GetOutput());
+    statFilter->SetComputePerimeter(computePerimeterFlag);
+    statFilter->Update();
+    return statFilter->GetOutput();
   }
   //--------------------------------------------------------------------
 
@@ -553,25 +582,6 @@ namespace clitk {
 
     }
 
-  }
-  //--------------------------------------------------------------------
-
-
-  //--------------------------------------------------------------------
-  template<class ImageType>
-  void
-  ExtractSlices(const ImageType * image, int direction, 
-                std::vector<typename itk::Image<typename ImageType::PixelType, 
-                                                ImageType::ImageDimension-1>::Pointer > & slices) 
-  {
-    typedef ExtractSliceFilter<ImageType> ExtractSliceFilterType;
-    typedef typename ExtractSliceFilterType::SliceType SliceType;
-    typename ExtractSliceFilterType::Pointer 
-      extractSliceFilter = ExtractSliceFilterType::New();
-    extractSliceFilter->SetInput(image);
-    extractSliceFilter->SetDirection(direction);
-    extractSliceFilter->Update();
-    extractSliceFilter->GetOutputSlices(slices);
   }
   //--------------------------------------------------------------------
 
@@ -720,11 +730,40 @@ namespace clitk {
     dilateFilter->SetForegroundValue(FG);
     dilateFilter->SetBoundaryToForeground(false);
     dilateFilter->SetKernel(structuringElement);
-    dilateFilter->SetInput(output);
+    if (extendSupport) dilateFilter->SetInput(output);
+    else dilateFilter->SetInput(image);
     dilateFilter->Update();
     return dilateFilter->GetOutput();
   }
   //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::Pointer 
+  Opening(const ImageType * image, typename ImageType::SizeType radius,
+         typename ImageType::PixelType BG,
+         typename ImageType::PixelType FG)
+  {
+    // Kernel 
+    typedef itk::BinaryBallStructuringElement<typename ImageType::PixelType, 
+                                              ImageType::ImageDimension> KernelType;    
+    KernelType structuringElement;
+    structuringElement.SetRadius(radius);
+    structuringElement.CreateStructuringElement();
+    
+    // Filter
+    typedef itk::BinaryMorphologicalOpeningImageFilter<ImageType, ImageType , KernelType> OpeningFilterType;
+    typename OpeningFilterType::Pointer open = OpeningFilterType::New();
+    open->SetInput(image);
+    open->SetBackgroundValue(BG);
+    open->SetForegroundValue(FG);
+    open->SetKernel(structuringElement);
+    open->Update();
+    return open->GetOutput();
+  }
+  //--------------------------------------------------------------------
+
 
 
   //--------------------------------------------------------------------
@@ -793,9 +832,6 @@ namespace clitk {
     while ((i<lA.size()) && (!siter.IsAtEnd())) {
       // Check that the current slice correspond to the current point
       input->TransformIndexToPhysicalPoint(siter.GetIndex(), C);
-      // DD(C);
-      // DD(i);
-      // DD(lA[i]);
       if ((fabs(C[2] - lA[i][2]))>0.01) { // is !equal with a tolerance of 0.01 mm
       }
       else {
@@ -803,9 +839,6 @@ namespace clitk {
         A = lA[i];
         B = lB[i];
         C = A;
-        // DD(A);
-        // DD(B);
-        // DD(C);
       
         // Check that the line is not a point (A=B)
         bool p = (A[0] == B[0]) && (A[1] == B[1]);
@@ -839,6 +872,7 @@ namespace clitk {
   }                                                   
   //--------------------------------------------------------------------
 
+
   //--------------------------------------------------------------------
   template<class ImageType>
   void 
@@ -869,6 +903,34 @@ namespace clitk {
 
   //--------------------------------------------------------------------
   template<class ImageType>
+  void 
+  And(ImageType * input, 
+      const ImageType * object, 
+      typename ImageType::PixelType BG)
+  {
+    typename ImageType::Pointer o;
+    bool resized=false;
+    if (!clitk::HaveSameSizeAndSpacing<ImageType, ImageType>(input, object)) {
+      o = clitk::ResizeImageLike<ImageType>(object, input, BG);
+      resized = true;
+    }
+
+    typedef clitk::BooleanOperatorLabelImageFilter<ImageType> BoolFilterType;
+    typename BoolFilterType::Pointer boolFilter = BoolFilterType::New(); 
+    boolFilter->InPlaceOn();
+    boolFilter->SetInput1(input);
+    if (resized) boolFilter->SetInput2(o);  
+    else boolFilter->SetInput2(object);
+    boolFilter->SetBackgroundValue1(BG);
+    boolFilter->SetBackgroundValue2(BG);
+    boolFilter->SetOperationType(BoolFilterType::And);
+    boolFilter->Update();
+  }
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
   typename ImageType::Pointer
   Binarize(const ImageType * input, 
            typename ImageType::PixelType lower, 
@@ -879,6 +941,7 @@ namespace clitk {
     typedef itk::BinaryThresholdImageFilter<ImageType, ImageType> BinaryThresholdFilterType;
     typename BinaryThresholdFilterType::Pointer binarizeFilter = BinaryThresholdFilterType::New();
     binarizeFilter->SetInput(input);
+    binarizeFilter->InPlaceOff();
     binarizeFilter->SetLowerThreshold(lower);
     binarizeFilter->SetUpperThreshold(upper);
     binarizeFilter->SetInsideValue(FG);
@@ -995,7 +1058,7 @@ namespace clitk {
                                                             extremaDirection, extremaOppositeFlag, p);
       if (found) {
         position2D[i] = p;
-      }    
+      }
     }
     
     // Convert 2D points in slice into 3D points
@@ -1008,13 +1071,230 @@ namespace clitk {
       p[lineDirection] += 10;
       B.push_back(p);
       // Margins ?
-      A[i][1] += margin;
-      B[i][1] += margin;
+      A[i][extremaDirection] += margin;
+      B[i][extremaDirection] += margin;
     }
 
   }
   //--------------------------------------------------------------------
 
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::Pointer
+  SliceBySliceKeepMainCCL(const ImageType * input, 
+                          typename ImageType::PixelType BG,
+                          typename ImageType::PixelType FG)  {
+    
+    // Extract slices
+    const int d = ImageType::ImageDimension-1;
+    typedef typename itk::Image<typename ImageType::PixelType, d> SliceType;
+    std::vector<typename SliceType::Pointer> slices;
+    clitk::ExtractSlices<ImageType>(input, d, slices);
+    
+    // Labelize and keep the main one
+    std::vector<typename SliceType::Pointer> o;
+    for(uint i=0; i<slices.size(); i++) {
+      o.push_back(clitk::Labelize<SliceType>(slices[i], BG, false, 1));
+      o[i] = clitk::KeepLabels<SliceType>(o[i], BG, FG, 1, 1, true);
+    }
+    
+    // Join slices
+    typename ImageType::Pointer output;
+    output = clitk::JoinSlices<ImageType>(o, input, d);
+    return output;
+  }
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::Pointer
+  Clone(const ImageType * input) {
+    typedef itk::ImageDuplicator<ImageType> DuplicatorType;
+    typename DuplicatorType::Pointer duplicator = DuplicatorType::New();
+    duplicator->SetInputImage(input);
+    duplicator->Update();
+    return duplicator->GetOutput();
+  }
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  /* Consider an input object, start at A, for each slice (dim1): 
+     - compute the intersection between the AB line and the current slice
+     - remove what is at lower or greater according to dim2 of this point
+     - stop at B
+  */
+  template<class ImageType>
+  typename ImageType::Pointer
+  SliceBySliceSetBackgroundFromSingleLine(const ImageType * input, 
+                                          typename ImageType::PixelType BG, 
+                                          typename ImageType::PointType & A, 
+                                          typename ImageType::PointType & B, 
+                                          int dim1, int dim2, bool removeLowerPartFlag)
+    
+  {
+    // Extract slices
+    typedef typename itk::Image<typename ImageType::PixelType, ImageType::ImageDimension-1> SliceType;
+    typedef typename SliceType::Pointer SlicePointer;
+    std::vector<SlicePointer> slices;
+    clitk::ExtractSlices<ImageType>(input, dim1, slices);
+
+    // Start at slice that contains A, and stop at B
+    typename ImageType::IndexType Ap;
+    typename ImageType::IndexType Bp;
+    input->TransformPhysicalPointToIndex(A, Ap);
+    input->TransformPhysicalPointToIndex(B, Bp);
+    
+    // Determine slice largest region
+    typename SliceType::RegionType region = slices[0]->GetLargestPossibleRegion();
+    typename SliceType::SizeType size = region.GetSize();
+    typename SliceType::IndexType index = region.GetIndex();
+
+    // Line slope
+    double a = (Bp[dim2]-Ap[dim2])/(Bp[dim1]-Ap[dim1]);
+    double b = Ap[dim2];
+
+    // Loop from slice A to slice B
+    for(uint i=0; i<(Bp[dim1]-Ap[dim1]); i++) {
+      // Compute intersection between line AB and current slice for the dim2
+      double p = a*i+b;
+      // Change region (lower than dim2)
+      if (removeLowerPartFlag) {
+        size[dim2] = p-Ap[dim2];
+      }
+      else {
+        size[dim2] = slices[0]->GetLargestPossibleRegion().GetSize()[dim2]-p;
+        index[dim2] = p;
+      }
+      region.SetSize(size);
+      region.SetIndex(index);
+      // Fill region with BG (simple region iterator)
+      FillRegionWithValue<SliceType>(slices[i+Ap[dim1]], BG, region);
+      /*
+      typedef itk::ImageRegionIterator<SliceType> IteratorType;
+      IteratorType iter(slices[i+Ap[dim1]], region);
+      iter.GoToBegin();
+      while (!iter.IsAtEnd()) {
+        iter.Set(BG);
+        ++iter;
+      }
+      */
+      // Loop
+    }
+    
+    // Merge slices
+    typename ImageType::Pointer output;
+    output = clitk::JoinSlices<ImageType>(slices, input, dim1);
+    return output;
+  }
+  //--------------------------------------------------------------------
+
+  //--------------------------------------------------------------------
+  /* Consider an input object, slice by slice, use the point A and set
+     pixel to BG according to their position relatively to A
+  */
+  template<class ImageType>
+  typename ImageType::Pointer
+  SliceBySliceSetBackgroundFromPoints(const ImageType * input, 
+                                      typename ImageType::PixelType BG, 
+                                      int sliceDim,
+                                      std::vector<typename ImageType::PointType> & A, 
+                                      bool removeGreaterThanXFlag,
+                                      bool removeGreaterThanYFlag)
+    
+  {
+    // Extract slices
+    typedef typename itk::Image<typename ImageType::PixelType, ImageType::ImageDimension-1> SliceType;
+    typedef typename SliceType::Pointer SlicePointer;
+    std::vector<SlicePointer> slices;
+    clitk::ExtractSlices<ImageType>(input, sliceDim, slices);
+
+    // Start at slice that contains A
+    typename ImageType::IndexType Ap;
+    
+    // Determine slice largest region
+    typename SliceType::RegionType region = slices[0]->GetLargestPossibleRegion();
+    typename SliceType::SizeType size = region.GetSize();
+    typename SliceType::IndexType index = region.GetIndex();
+
+    // Loop from slice A to slice B
+    for(uint i=0; i<A.size(); i++) {
+      input->TransformPhysicalPointToIndex(A[i], Ap);
+      uint sliceIndex = Ap[2] - input->GetLargestPossibleRegion().GetIndex()[2];
+      if ((sliceIndex < 0) || (sliceIndex >= slices.size())) {
+        continue; // do not consider this slice
+      }
+      
+      // Compute region for BG
+      if (removeGreaterThanXFlag) {
+        index[0] = Ap[0];
+        size[0] = region.GetSize()[0]-(index[0]-region.GetIndex()[0]);
+      }
+      else {
+        index[0] = region.GetIndex()[0];
+        size[0] = Ap[0] - index[0];
+      }
+
+      if (removeGreaterThanYFlag) {
+        index[1] = Ap[1];
+        size[1] = region.GetSize()[1]-(index[1]-region.GetIndex()[1]);
+      }
+      else {
+        index[1] = region.GetIndex()[1];
+        size[1] = Ap[1] - index[1];
+      }
+
+      // Set region
+      region.SetSize(size);
+      region.SetIndex(index);
+
+      // Fill region with BG (simple region iterator)
+      FillRegionWithValue<SliceType>(slices[sliceIndex], BG, region);
+      // Loop
+    }
+    
+    // Merge slices
+    typename ImageType::Pointer output;
+    output = clitk::JoinSlices<ImageType>(slices, input, sliceDim);
+    return output;
+  }
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  void
+  FillRegionWithValue(ImageType * input, typename ImageType::PixelType value, typename ImageType::RegionType & region)
+  {
+    typedef itk::ImageRegionIterator<ImageType> IteratorType;
+    IteratorType iter(input, region);
+    iter.GoToBegin();
+    while (!iter.IsAtEnd()) {
+      iter.Set(value);
+      ++iter;
+    }    
+  }
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  void
+  GetMinMaxBoundary(ImageType * input, typename ImageType::PointType & min, 
+                    typename ImageType::PointType & max)
+  {
+    typedef typename ImageType::PointType PointType;
+    typedef typename ImageType::IndexType IndexType;
+    IndexType min_i, max_i;
+    min_i = input->GetLargestPossibleRegion().GetIndex();
+    for(uint i=0; i<ImageType::ImageDimension; i++)
+      max_i[i] = input->GetLargestPossibleRegion().GetSize()[i] + min_i[i];
+    input->TransformIndexToPhysicalPoint(min_i, min);
+    input->TransformIndexToPhysicalPoint(max_i, max);  
+  }
+  //--------------------------------------------------------------------
 
 } // end of namespace
 

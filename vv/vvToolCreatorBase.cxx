@@ -22,7 +22,7 @@
 #include <QMenu>
 
 //------------------------------------------------------------------------------
-vvToolCreatorBase::vvToolCreatorBase(QString name): mExperimental(false)
+vvToolCreatorBase::vvToolCreatorBase(QString name): mAction(NULL), mExperimental(false)
 {
   mUseContextMenu = false;
   mToolName = name;

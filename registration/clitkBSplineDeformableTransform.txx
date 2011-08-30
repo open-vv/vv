@@ -32,7 +32,11 @@ namespace clitk
   // Constructor with default arguments
   template<class TCoordRep, unsigned int NInputDimensions, unsigned int NOutputDimensions>
   BSplineDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>
+#if ITK_VERSION_MAJOR >= 4
+  ::BSplineDeformableTransform():Superclass(0)
+#else
   ::BSplineDeformableTransform():Superclass(OutputDimension,0)
+#endif
   {
     unsigned int i;
     
@@ -576,10 +580,18 @@ namespace clitk
     m_CoefficientImage = m_WrappedImage;
     
     //JV Wrap jacobian into OutputDimension X Vectorial images
+#if ITK_VERSION_MAJOR >= 4
+    this->m_SharedDataBSplineJacobian.set_size( OutputDimension, this->GetNumberOfParameters() );
+#else
     this->m_Jacobian.set_size( OutputDimension, this->GetNumberOfParameters() );
+#endif
 
     // Use memset to set the memory
+#if ITK_VERSION_MAJOR >= 4
+    JacobianPixelType * jacobianDataPointer = reinterpret_cast<JacobianPixelType *>(this->m_SharedDataBSplineJacobian.data_block());
+#else
     JacobianPixelType * jacobianDataPointer = reinterpret_cast<JacobianPixelType *>(this->m_Jacobian.data_block());
+#endif
     memset(jacobianDataPointer, 0,  OutputDimension*numberOfPixels*sizeof(JacobianPixelType));
     m_LastJacobianIndex = m_ValidRegion.GetIndex();
     m_NeedResetJacobian = false;
@@ -904,6 +916,69 @@ namespace clitk
 
   // JV weights are identical as for transformpoint, could be done simultaneously in metric!!!!
   // Compute the Jacobian in one position 
+#if ITK_VERSION_MAJOR >= 4
+  template<class TCoordRep, unsigned int NInputDimensions, unsigned int NOutputDimensions>
+  void
+  BSplineDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>
+  ::ComputeJacobianWithRespectToParameters(const InputPointType & point, JacobianType & jacobian) const
+  {
+    if (m_NeedResetJacobian)
+      ResetJacobian();
+
+    //========================================================
+    // For each dimension, copy the weight to the support region
+    //========================================================
+
+    // Check if inside mask
+    if (m_Mask &&  !(m_Mask->IsInside(point) ) )
+      {
+	// Outside: no (deformable) displacement
+        jacobian = m_SharedDataBSplineJacobian;
+	return;
+      }
+
+    //Get index
+    this->TransformPointToContinuousIndex( point, m_Index );
+
+    // NOTE: if the support region does not lie totally within the grid
+    // we assume zero displacement and return the input point
+    if ( !this->InsideValidRegion( m_Index ) )
+      {
+        jacobian = m_SharedDataBSplineJacobian;
+	return;
+      }
+
+    //Compute interpolation weights
+    const WeightsDataType *weights = NULL;
+    m_VectorInterpolator->EvaluateWeightsAtContinuousIndex( m_Index, &weights, m_LastJacobianIndex);
+    m_SupportRegion.SetIndex( m_LastJacobianIndex );
+
+    //Reset the iterators
+    unsigned int j = 0;
+    for ( j = 0; j < OutputDimension; j++ )
+      m_Iterator[j] = IteratorType( m_JacobianImage[j], m_SupportRegion);
+
+    // For each dimension, copy the weight to the support region
+    while ( ! (m_Iterator[0]).IsAtEnd() )
+      {
+	//copy weight to jacobian image
+	for ( j = 0; j < OutputDimension; j++ )
+	  {
+	    m_ZeroVector[j]=*weights;
+	    (m_Iterator[j]).Set( m_ZeroVector);
+	    m_ZeroVector[j]=itk::NumericTraits<JacobianValueType>::Zero;
+	    ++(m_Iterator[j]);
+	  }
+	// go to next coefficient in the support region
+	weights++;
+      }
+    m_NeedResetJacobian = true;
+
+    // Return the result
+    jacobian = m_SharedDataBSplineJacobian;
+
+  }
+#else
   template<class TCoordRep, unsigned int NInputDimensions, unsigned int NOutputDimensions>
   const 
   typename BSplineDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>
@@ -972,6 +1047,7 @@ namespace clitk
     return this->m_Jacobian;
 
   }
+#endif
 
 
   template<class TCoordRep, unsigned int NInputDimensions, unsigned int NOutputDimensions>

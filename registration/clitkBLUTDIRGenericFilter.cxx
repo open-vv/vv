@@ -747,21 +747,25 @@ namespace clitk
       // Compute the DVF (only deformable transform)
       //=======================================================
       typedef itk::Vector< float, SpaceDimension >  DisplacementType;
-      typedef itk::Image< DisplacementType, InputImageType::ImageDimension >  DeformationFieldType;
-      typedef itk::TransformToDeformationFieldSource<DeformationFieldType, double> ConvertorType;
+      typedef itk::Image< DisplacementType, InputImageType::ImageDimension >  DisplacementFieldType;
+#if ITK_VERSION_MAJOR >= 4
+      typedef itk::TransformToDisplacementFieldSource<DisplacementFieldType, double> ConvertorType;
+#else
+      typedef itk::TransformToDeformationFieldSource<DisplacementFieldType, double> ConvertorType;
+#endif
       typename ConvertorType::Pointer filter= ConvertorType::New();
       filter->SetNumberOfThreads(1);
       transform->SetBulkTransform(NULL);
       filter->SetTransform(transform);
       filter->SetOutputParametersFromImage(fixedImage);
       filter->Update();
-      typename DeformationFieldType::Pointer field = filter->GetOutput();
+      typename DisplacementFieldType::Pointer field = filter->GetOutput();
 
 
       //=======================================================
       // Write the DVF
       //=======================================================
-      typedef itk::ImageFileWriter< DeformationFieldType >  FieldWriterType;
+      typedef itk::ImageFileWriter< DisplacementFieldType >  FieldWriterType;
       typename FieldWriterType::Pointer fieldWriter = FieldWriterType::New();
       fieldWriter->SetFileName( m_ArgsInfo.vf_arg );
       fieldWriter->SetInput( field );

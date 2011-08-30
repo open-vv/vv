@@ -34,7 +34,7 @@ int main(int argc, char * argv[])
 
   filter->SetArgsInfo(args_info);
 
-  try {
+  try { 
     filter->Update();
   } catch(std::runtime_error e) {
     std::cout << e.what() << std::endl;

@@ -56,3 +56,4 @@ TARGET_LINK_LIBRARIES(clitkDicomRTStruct vtkHybrid)
 
 #ADD_LIBRARY(clitkCommonShared SHARED ${clitkCommon_SRC})
 #SET_TARGET_PROPERTIES(clitkCommonShared PROPERTIES COMPILE_FLAGS -fPIC)
+

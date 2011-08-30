@@ -41,7 +41,11 @@
 #include "itkBSplineResampleImageFunction.h"
 #include "clitkVectorBSplineResampleImageFunction.h"
 #include "itkAddImageFilter.h"
-#include "itkTransformToDeformationFieldSource.h"
+#if ITK_VERSION_MAJOR >= 4
+  #include "itkTransformToDisplacementFieldSource.h"
+#else
+  #include "itkTransformToDeformationFieldSource.h"
+#endif
 
 namespace clitk 
 {

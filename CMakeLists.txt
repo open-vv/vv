@@ -1,7 +1,7 @@
 #=========================================================
 # CLITK = Command Line ITK
-cmake_minimum_required(VERSION 2.4)
-cmake_policy(VERSION 2.4)
+cmake_minimum_required(VERSION 2.8)
+cmake_policy(VERSION 2.8)
 if(COMMAND cmake_policy)
     cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
@@ -10,6 +10,15 @@ PROJECT(clitk)
 
 #=========================================================
 INCLUDE(cmake/common.cmake)
+#=========================================================
+
+#=========================================================
+#Support for the CTest dashboard testing system
+OPTION(BUILD_TESTING "Build the testing tree" OFF)
+IF (BUILD_TESTING)
+  OPTION(CLITK_BUILD_TESTING "Test ITK" ON)
+  INCLUDE(CTest)
+ENDIF(BUILD_TESTING)
 #=========================================================
 
 #=========================================================
@@ -33,18 +42,16 @@ ENDIF(VTK_FOUND)
 #=========================================================
 
 #=========================================================
-# Find gengetopt
-FIND_PATH(CLITK_GENGETOPT gengetopt)
-IF (CLITK_GENGETOPT STREQUAL "CLITK_GENGETOPT-NOTFOUND")
-  MESSAGE("gengetopt not found, please install it (see http://www.gnu.org/software/gengetopt/gengetopt.html)")
-ENDIF (CLITK_GENGETOPT STREQUAL "CLITK_GENGETOPT-NOTFOUND")
+# Find gengetopt, will create a target exe if not found
+SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+FIND_PACKAGE(Gengetopt)
 #=========================================================
 
 #=========================================================
 # Find libstatgrab is installed, add clitkMemoryUsage.cxx in the library
 FIND_LIBRARY(LIBSTATGRAB NAMES statgrab PATHS)
 IF (${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
-  MESSAGE("Install libstatgrab (http://www.i-scream.org/libstatgrab/) for memory usage information")
+#  MESSAGE("Install libstatgrab (http://www.i-scream.org/libstatgrab/) for memory usage information")
   SET(CLITK_MEMORY_INFO OFF)
 ELSE (${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
   SET(CLITK_MEMORY_INFO ON)
@@ -80,9 +87,9 @@ INCLUDE_DIRECTORIES(itk filters segmentation registration tools ${PROJECT_BINARY
 
 # Select what is compiled
 ADD_SUBDIRECTORY(common)
-add_subdirectory(tools)
-add_subdirectory(segmentation)
-add_subdirectory(registration)
+ADD_SUBDIRECTORY(tools)
+ADD_SUBDIRECTORY(segmentation)
+ADD_SUBDIRECTORY(registration)
 
 
 # Compilation options
@@ -98,14 +105,24 @@ ENDIF(CLITK_BUILD_VV)
 
 
 #=========================================================
-#Support for the CTest dashboard testing system
-INCLUDE(CTest)
-#=========================================================
-IF (BUILD_TESTING)
+# Build test when vv has been compiled
+IF(BUILD_TESTING)
   ADD_SUBDIRECTORY(tests)
 ENDIF(BUILD_TESTING)
-#=========================================================
-
 
 #=========================================================
+# Install scripts when running make install
+SET(SCRIPTS 
+  scripts/midp_common.sh
+  scripts/registration.sh
+  scripts/create_midP.sh
+  scripts/create_midP-2.0.sh        
+  scripts/create_mhd_4D.sh          
+  scripts/create_mhd_4D_pattern.sh  
+  scripts/create_midP_masks.sh  
+  scripts/create_midP_masks-2.0.sh  
+  scripts/pts_to_landmarks.sh
+)
+
+INSTALL (FILES ${SCRIPTS} DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
 

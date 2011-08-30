@@ -96,6 +96,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
     if ( VisibleInWindow > -1 ) {
       if (event == vtkCommand::KeyPressEvent) {
         std::string KeyPress = isi->GetInteractor()->GetKeySym();
+        bool bCtrlKey = isi->GetInteractor()->GetControlKey();
         if (KeyPress == "Tab") {
           if(isi->GetInteractor()->GetShiftKey())
             this->SM->PrevImage(VisibleInWindow);
@@ -108,7 +109,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
           return;
         }
         if (KeyPress == "w") {
-          this->SM->SetLocalColorWindowing(VisibleInWindow);
+          this->SM->SetLocalColorWindowing(VisibleInWindow, bCtrlKey);
           return;
         }
         if (KeyPress == "0") {
@@ -185,7 +186,6 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
           return;
         }
         if (KeyPress == "h") {
-          std::cout << "KeyPress == \"h\"\n";
           this->SM->SetCursorAndCornerAnnotationVisibility(0);
           this->SM->Render();
           return;
@@ -210,9 +210,13 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
           return;
         }
         if (KeyPress == "g") {
-          double* cursorPos = this->SM->GetSlicer(VisibleInWindow)->GetCursorPosition();
-          this->SM->GetSlicer(VisibleInWindow)->SetCurrentPosition(
-            cursorPos[0],cursorPos[1],cursorPos[2],cursorPos[3]);
+          if(bCtrlKey)
+            this->SM->GetSlicer(VisibleInWindow)->SetCurrentPosition(0,0,0,0);
+          else {
+            double* cursorPos = this->SM->GetSlicer(VisibleInWindow)->GetCursorPosition();
+            this->SM->GetSlicer(VisibleInWindow)->SetCurrentPosition(
+              cursorPos[0],cursorPos[1],cursorPos[2],cursorPos[3]);
+          }
           this->SM->UpdateViews(1,VisibleInWindow);
           this->SM->UpdateLinked(VisibleInWindow);
           return;
@@ -245,17 +249,20 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
 
         if (KeyPress == "F2") {
           this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetText(2,"Sagital\n<slice>");
-          this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(0);
+          //this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(0);
+          this->SM->SetSliceOrientation(VisibleInWindow, 0);
           this->SM->UpdateSliceRange(VisibleInWindow);
         }
         if (KeyPress == "F3") {
           this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetText(2,"Coronal\n<slice>");
-          this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(1);
+          //this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(1);
+          this->SM->SetSliceOrientation(VisibleInWindow, 1);
           this->SM->UpdateSliceRange(VisibleInWindow);
         }
         if (KeyPress == "F4") {
           this->SM->GetSlicer(VisibleInWindow)->GetAnnotation()->SetText(2,"Axial\n<slice>");
-          this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(2);
+          //this->SM->GetSlicer(VisibleInWindow)->SetSliceOrientation(2);
+          this->SM->SetSliceOrientation(VisibleInWindow, 2);
           this->SM->UpdateSliceRange(VisibleInWindow);
         }
 
@@ -397,8 +404,8 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
       this->SM->SetColorWindow(window*dx);
       this->SM->SetColorLevel(level-dy);
       this->SM->SetPreset(6);
-      this->SM->UpdateWindowLevel();
       this->SM->Render();
+      this->SM->UpdateWindowLevel();
       return;
     }
   }

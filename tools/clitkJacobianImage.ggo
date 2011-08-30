@@ -1,0 +1,12 @@
+#File clitkJacobianImage.ggo
+#Author: Rômulo Pinho <pinho@lyon.fnclcc.fr>
+#Date : Tue 21 June 16.10 
+
+package "clitk"
+version "Read a DVF and calculate the corresponding jacobian image."
+
+option "config"       - "Config file"               string    no
+option "verbose"      v     "Verbose"               flag    off
+
+option "input"        i     "Input VF filename"             string    yes
+option "output"       o     "Output VF filename"              string    yes

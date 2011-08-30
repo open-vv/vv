@@ -79,6 +79,7 @@ namespace clitk
   { 
     // Reading input
     typename ImageType::Pointer input = this->template GetInput<ImageType>(0);
+    typename ImageType::RegionType input_region = input->GetLargestPossibleRegion();
 
     // Check options
     if (mArgsInfo.BG_given && mArgsInfo.like_given)
@@ -123,10 +124,11 @@ namespace clitk
         // ------------------------------------------------
         typename ImageType::SizeType lSize;
         typename ImageType::SizeType uSize;
+        if (mArgsInfo.verbose_flag) std::cout << "input region " << input_region << std::endl;
         if (mArgsInfo.boundingBox_given) {
           for(unsigned int i=0; i<ImageType::ImageDimension; i++) {
             lSize[i] = mArgsInfo.boundingBox_arg[2*i];
-            uSize[i] = input->GetLargestPossibleRegion().GetSize()[i]-mArgsInfo.boundingBox_arg[2*i+1]-1;
+            uSize[i] = input_region.GetSize()[i]-mArgsInfo.boundingBox_arg[2*i+1]-1;
           }
         }
         else {
@@ -141,6 +143,11 @@ namespace clitk
           }
           else uSize.Fill(0);
         }
+        
+        if (mArgsInfo.verbose_flag) {
+          std::cout << "lower " << lSize << " upper " << uSize << std::endl;
+        }
+        
         typedef  itk::CropImageFilter<ImageType, ImageType> CropImageFilterType;
         typename CropImageFilterType::Pointer filter=CropImageFilterType::New();
         filter->SetInput(input);
@@ -157,7 +164,22 @@ namespace clitk
       origin.Fill(itk::NumericTraits<double>::Zero);
       output->SetOrigin(origin);
     }
+    
+    // adjust image origin and force index to zero 
+    typename ImageType::RegionType region = output->GetLargestPossibleRegion();
+    typename ImageType::IndexType index = region.GetIndex();
+    typename ImageType::PointType origin = output->GetOrigin();
+    typename ImageType::SpacingType spacing = output->GetSpacing();
+    if (mArgsInfo.verbose_flag) std::cout << "origin before crop " << origin << std::endl;
+    for (unsigned int i = 0; i < output->GetImageDimension(); i++)
+      origin[i] += index[i]*spacing[i];
+    if (mArgsInfo.verbose_flag) std::cout << "origin after crop " << origin << std::endl;
+    output->SetOrigin(origin);
 
+    index.Fill(itk::NumericTraits<double>::Zero);
+    region.SetIndex(index);
+    output->SetRegions(region);
+    
     // Write/Save results
     this->template SetNextOutput<ImageType>(output); 
   }

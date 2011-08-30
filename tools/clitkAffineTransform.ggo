@@ -10,6 +10,7 @@ section "I/O"
 option "input"		i	"Input image filename"		  string  	yes
 option "output"    	o   	"Output image filename"		  string 	yes
 option "like"    	l   	"Resample output this image (size, spacing,origin)"	string 	no
+option "transform_grid" -       "Apply affine transform to input grid for output's"     flag    off
 
 section "Options"
 option "size"		-	"New output size if different from input"  	int 	no 	multiple

@@ -38,7 +38,7 @@ namespace clitk {
   AutoCropFilter():itk::ImageToImageFilter<ImageType, ImageType>() {
     this->SetNumberOfRequiredInputs(1);
     m_BackgroundValue  = 0;
-    UseBorderOn();
+    UseBorderOff();
   }
   //--------------------------------------------------------------------
 
@@ -97,6 +97,8 @@ namespace clitk {
     autoCropFilter->SetInput(imageToLabelFilter->GetOutput());
     //    autoCropFilter->ReleaseDataFlagOff(); 
     if (GetUseBorder()) {
+      DD("UseBorder seems buggy ?");
+      exit(0);
       typename ImageType::SizeType s;
       for(uint i=0; i<ImageType::ImageDimension; i++) s[i] = 1;
       autoCropFilter->SetCropBorder(s);

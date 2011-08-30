@@ -65,6 +65,9 @@ namespace clitk {
     // Set Get Double
     void SetDouble(TagType tag, double d);
     double GetDouble(TagType tag);
+    
+    // Remove Tag
+    void RemoveTag(TagType tag);
 
   protected:
     std::string m_Filename;
