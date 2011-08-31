@@ -36,11 +36,6 @@ IF(CLITK_BUILD_REGISTRATION)
     TARGET_LINK_LIBRARIES(clitkShapedBLUTSpatioTemporalDIR clitkCommon ${ITK_LIBRARIES})
     SET(REGISTRATION_INSTALL ${REGISTRATION_INSTALL} clitkShapedBLUTSpatioTemporalDIR)
 
-    WRAP_GGO(clitkBSplineDeformableRegistration_GGO_C clitkBSplineDeformableRegistration.ggo)
-    ADD_EXECUTABLE(clitkBSplineDeformableRegistration clitkBSplineDeformableRegistration.cxx clitkBSplineDeformableRegistrationGenericFilter.cxx  ${clitkBSplineDeformableRegistration_GGO_C} clitkLBFGSBOptimizer.cxx)
-    TARGET_LINK_LIBRARIES(clitkBSplineDeformableRegistration  clitkCommon ${ITK_LIBRARIES})
-    SET(REGISTRATION_INSTALL ${REGISTRATION_INSTALL} clitkBSplineDeformableRegistration)
-
 
     ############################## registration-related tools to process points, bsplines, vf and image pyramids
     WRAP_GGO(clitkConvertPointList_GGO_C clitkConvertPointList.ggo)
