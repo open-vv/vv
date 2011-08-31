@@ -39,7 +39,7 @@ option "order"			-	"Spline Order FFD"						int 	  no  	multiple        default="
 option "control"		-	"Internal control points for each dimension"			int	  no 	multiple	
 option "spacing"		-	"Control point spacing for each dimension (mm)"			double	  no	multiple	
 option "samplingFactor"		-	"LUT sampling factor"						int	  no	multiple	
-
+option "itkbspline"             -       "Use ITK BSpline instead of multilabel BLUT for debug"          flag      off
 
 section "Interpolator"
 
