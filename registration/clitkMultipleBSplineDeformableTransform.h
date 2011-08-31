@@ -233,6 +233,8 @@ namespace clitk
 
     typedef  clitk::BSplineDeformableTransform<TCoordRep,InputDimension, OutputDimension > TransformType;
 
+    const std::vector<typename TransformType::Pointer> &GetTransforms() { return m_trans; }
+
   protected:
 
     void PrintSelf(std::ostream &os, itk::Indent indent) const;
