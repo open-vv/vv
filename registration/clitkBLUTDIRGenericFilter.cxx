@@ -584,6 +584,25 @@ namespace clitk
       transform->SetParameters( parameters );
       if (m_ArgsInfo.initCoeff_given) initializer->SetInitialParameters(m_ArgsInfo.initCoeff_arg, parameters);
 
+      //-------------------------------------------------------------------------
+      // DEBUG: use an itk BSpline instead of multilabel BLUTs
+      //-------------------------------------------------------------------------
+      typedef itk::Transform< TCoordRep, 3, 3 > RegistrationTransformType;
+      RegistrationTransformType::Pointer regTransform(transform);
+      typedef itk::BSplineDeformableTransform<TCoordRep,SpaceDimension, 3> SingleBSplineTransformType;
+      typename SingleBSplineTransformType::Pointer sTransform;
+      if(m_ArgsInfo.itkbspline_flag) {
+        if( transform->GetTransforms().size()>1)
+          itkExceptionMacro(<< "invalid --itkbspline option if there is more than 1 label")
+        sTransform = SingleBSplineTransformType::New();
+        sTransform->SetBulkTransform( transform->GetTransforms()[0]->GetBulkTransform() );
+        sTransform->SetGridSpacing( transform->GetTransforms()[0]->GetGridSpacing() );
+        sTransform->SetGridOrigin( transform->GetTransforms()[0]->GetGridOrigin() );
+        sTransform->SetGridRegion( transform->GetTransforms()[0]->GetGridRegion() );
+        sTransform->SetParameters( transform->GetTransforms()[0]->GetParameters() );
+        regTransform = sTransform;
+        transform = NULL; // free memory
+      }
 
       //=======================================================
       // Interpolator
@@ -625,7 +644,7 @@ namespace clitk
       GenericOptimizerType::Pointer genericOptimizer = GenericOptimizerType::New();
       genericOptimizer->SetArgsInfo(m_ArgsInfo);
       genericOptimizer->SetMaximize(genericMetric->GetMaximize());
-      genericOptimizer->SetNumberOfParameters(transform->GetNumberOfParameters());
+      genericOptimizer->SetNumberOfParameters(regTransform->GetNumberOfParameters());
       typedef itk::SingleValuedNonLinearOptimizer OptimizerType;
       OptimizerType::Pointer optimizer = genericOptimizer->GetOptimizerPointer();
 
@@ -638,7 +657,7 @@ namespace clitk
       registration->SetMetric(        metric        );
       registration->SetOptimizer(     optimizer     );
       registration->SetInterpolator(  interpolator  );
-      registration->SetTransform (transform);
+      registration->SetTransform (regTransform );
       if(threadsGiven) {
         registration->SetNumberOfThreads(threads);
         if (m_Verbose) std::cout<< "Using " << threads << " threads." << std::endl;
@@ -648,7 +667,7 @@ namespace clitk
       registration->SetFixedImageRegion( metricRegion );
       registration->SetFixedImagePyramid( fixedImagePyramid );
       registration->SetMovingImagePyramid( movingImagePyramid );
-      registration->SetInitialTransformParameters( transform->GetParameters() );
+      registration->SetInitialTransformParameters( regTransform->GetParameters() );
       registration->SetNumberOfLevels( m_ArgsInfo.levels_arg );
       if (m_Verbose) std::cout<<"Setting the number of resolution levels to "<<m_ArgsInfo.levels_arg<<"..."<<std::endl;
 
@@ -675,6 +694,10 @@ namespace clitk
 
         if (m_ArgsInfo.coeff_given)
         {
+          if(m_ArgsInfo.itkbspline_flag) {
+            itkExceptionMacro("--coeff and --itkbpline are incompatible");
+          }
+
           std::cout << std::endl << "Output coefficient images every " << m_ArgsInfo.coeffEveryN_arg << " iterations." << std::endl;
           typedef CommandIterationUpdateDVF<FixedImageType, OptimizerType, TransformType> DVFCommandType;
           typename DVFCommandType::Pointer observerdvf = DVFCommandType::New();
@@ -707,7 +730,7 @@ namespace clitk
       // Get the result
       //=======================================================
       OptimizerType::ParametersType finalParameters =  registration->GetLastTransformParameters();
-      transform->SetParameters( finalParameters );
+      regTransform->SetParameters( finalParameters );
       if (m_Verbose)
       {
         std::cout<<"Stop condition description: "
@@ -755,8 +778,11 @@ namespace clitk
 #endif
       typename ConvertorType::Pointer filter= ConvertorType::New();
       filter->SetNumberOfThreads(1);
-      transform->SetBulkTransform(NULL);
-      filter->SetTransform(transform);
+      if(m_ArgsInfo.itkbspline_flag)
+        sTransform->SetBulkTransform(NULL);
+      else
+        transform->SetBulkTransform(NULL);
+      filter->SetTransform(regTransform);
       filter->SetOutputParametersFromImage(fixedImage);
       filter->Update();
       typename DisplacementFieldType::Pointer field = filter->GetOutput();
@@ -786,8 +812,13 @@ namespace clitk
       //=======================================================
       typedef itk::ResampleImageFilter< MovingImageType, FixedImageType >    ResampleFilterType;
       typename ResampleFilterType::Pointer resampler = ResampleFilterType::New();
-      if (rigidTransform) transform->SetBulkTransform(rigidTransform);
-      resampler->SetTransform( transform );
+      if (rigidTransform) {
+        if(m_ArgsInfo.itkbspline_flag)
+          sTransform->SetBulkTransform(rigidTransform);
+        else
+          transform->SetBulkTransform(rigidTransform);
+      }
+      resampler->SetTransform( regTransform );
       resampler->SetInput( movingImage);
       resampler->SetOutputParametersFromImage(fixedImage);
       resampler->Update();
