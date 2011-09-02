@@ -97,6 +97,9 @@ namespace clitk {
     itkStaticConstMacro(InputImage1Dimension, unsigned int, TInputImage1::ImageDimension);
     itkStaticConstMacro(InputImage2Dimension, unsigned int, TInputImage2::ImageDimension);
     itkStaticConstMacro(OutputImageDimension, unsigned int, TOutputImage::ImageDimension);
+
+    // I dont want to verify inputs information
+    virtual void VerifyInputInformation() { }
     
   protected:
     BooleanOperatorLabelImageFilter();
