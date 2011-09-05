@@ -383,7 +383,11 @@ namespace clitk
 
   // Get the number of parameters
   template<class TCoordRep, unsigned int NInputDimensions, unsigned int NOutputDimensions>
+#if ITK_VERSION_MAJOR >= 4
+  typename ShapedBLUTSpatioTemporalDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>::NumberOfParametersType
+#else
   unsigned int
+#endif
   ShapedBLUTSpatioTemporalDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>
   ::GetNumberOfParameters(void) const
   {

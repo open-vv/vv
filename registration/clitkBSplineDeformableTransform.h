@@ -65,6 +65,9 @@ namespace clitk
 
     /** Standard parameters container. */
     typedef typename Superclass::ParametersType ParametersType;
+#if ITK_VERSION_MAJOR >= 4
+    typedef typename Superclass::NumberOfParametersType NumberOfParametersType;
+#endif
 
     /** Standard Jacobian container. */
     typedef typename Superclass::JacobianType JacobianType;
@@ -265,7 +268,11 @@ namespace clitk
 #endif
 
     /** Return the number of parameters that completely define the Transfom */
+#if ITK_VERSION_MAJOR >= 4
+    virtual NumberOfParametersType GetNumberOfParameters(void) const;
+#else
     virtual unsigned int GetNumberOfParameters(void) const;
+#endif
 
     /** Return the number of parameters per dimension */
     unsigned int GetNumberOfParametersPerDimension(void) const;
