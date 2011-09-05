@@ -315,6 +315,7 @@ QString vvDicomSeriesSelector::MakeDicomInfo(std::string & s, const gdcm::Reader
 #else
 QString vvDicomSeriesSelector::MakeDicomInfo(std::string & s, gdcm::File *header)
 {
+  setlocale(LC_NUMERIC, "POSIX");
   QString n = QString("%1").arg(mListOfSeriesFilenames[s]->size());
   QString size = QString("%1x%2x%3")
                  .arg(header->GetXSize())
