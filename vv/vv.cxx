@@ -196,10 +196,13 @@ int main( int argc, char** argv )
     window.ApplyWindowLevelToAllImages();
   }
 
+
+  int ret = app.exec();
+  
 #ifndef _WIN32
   // restoring the locale, just to be clean...
   setlocale(LC_NUMERIC, old_locale.c_str());
 #endif
 
-  return app.exec();
+  return ret;
 }
