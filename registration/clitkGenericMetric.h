@@ -143,7 +143,7 @@ private:
   typename FixedImageType::Pointer m_FixedImage;
   typename FixedImageMaskType::ConstPointer m_FixedImageMask;
 
-#ifdef ITK_USE_OPTIMIZED_REGISTRATION_METHODS
+#if defined(ITK_USE_OPTIMIZED_REGISTRATION_METHODS) || ITK_VERSION_MAJOR >= 4
   FixedImagePixelType m_FixedImageSamplesIntensityThreshold;
   bool m_UseFixedImageSamplesIntensityThreshold;
 #endif

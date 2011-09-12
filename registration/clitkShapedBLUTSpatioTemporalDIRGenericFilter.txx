@@ -623,7 +623,7 @@ namespace clitk
     typename  MetricType::Pointer metric=genericMetric->GetMetricPointer();
     if (movingMask) metric->SetMovingImageMask(movingMask);
 
-#ifdef ITK_USE_OPTIMIZED_REGISTRATION_METHODS
+#if defined(ITK_USE_OPTIMIZED_REGISTRATION_METHODS) || ITK_VERSION_MAJOR >= 4
     if (threadsGiven) metric->SetNumberOfThreads( threads );
 #else
     if (m_Verbose) std::cout<<"Not setting the number of threads (not compiled with USE_OPTIMIZED_REGISTRATION_METHODS)..."<<std::endl;

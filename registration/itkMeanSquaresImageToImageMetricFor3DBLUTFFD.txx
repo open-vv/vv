@@ -40,7 +40,7 @@
 // gets integrated into the main directories.
 #include "itkConfigure.h"
 
-#ifdef ITK_USE_OPTIMIZED_REGISTRATION_METHODS
+#if defined(ITK_USE_OPTIMIZED_REGISTRATION_METHODS) || ITK_VERSION_MAJOR >= 4
 #include "itkOptMeanSquaresImageToImageMetricFor3DBLUTFFD.txx"
 #else
 
