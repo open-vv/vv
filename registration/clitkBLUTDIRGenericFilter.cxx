@@ -387,6 +387,9 @@ namespace clitk
         // Crop the fixedImage to the bounding box to facilitate multi-resolution
         typedef itk::ExtractImageFilter<FixedImageType,FixedImageType> ExtractImageFilterType;
         typename ExtractImageFilterType::Pointer extractImageFilter=ExtractImageFilterType::New();
+#if ITK_VERSION_MAJOR == 4
+        extractImageFilter->SetDirectionCollapseToSubmatrix();
+#endif
         extractImageFilter->SetInput(fixedImage);
         extractImageFilter->SetExtractionRegion(transformRegion);
         extractImageFilter->Update();
