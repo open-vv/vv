@@ -181,13 +181,13 @@ NormalizedCorrelationImageToImageMetric<TFixedImage,TMovingImage>
 
   const unsigned int ParametersDimension = this->GetNumberOfParameters();
   derivative = DerivativeType( ParametersDimension );
-  derivative.Fill( itk::NumericTraits<ITK_TYPENAME DerivativeType::ValueType>::Zero );
+  derivative.Fill( itk::NumericTraits<typename DerivativeType::ValueType>::Zero );
 
   DerivativeType derivativeF = DerivativeType( ParametersDimension );
-  derivativeF.Fill( itk::NumericTraits<ITK_TYPENAME DerivativeType::ValueType>::Zero );
+  derivativeF.Fill( itk::NumericTraits<typename DerivativeType::ValueType>::Zero );
 
   DerivativeType derivativeM = DerivativeType( ParametersDimension );
-  derivativeM.Fill( itk::NumericTraits<ITK_TYPENAME DerivativeType::ValueType>::Zero );
+  derivativeM.Fill( itk::NumericTraits<typename DerivativeType::ValueType>::Zero );
 
   ti.GoToBegin();
   // First compute the sums
@@ -358,16 +358,16 @@ NormalizedCorrelationImageToImageMetric<TFixedImage,TMovingImage>
 
   const unsigned int ParametersDimension = this->GetNumberOfParameters();
   derivative = DerivativeType( ParametersDimension );
-  derivative.Fill( itk::NumericTraits<ITK_TYPENAME DerivativeType::ValueType>::Zero );
+  derivative.Fill( itk::NumericTraits<typename DerivativeType::ValueType>::Zero );
 
   DerivativeType derivativeF = DerivativeType( ParametersDimension );
-  derivativeF.Fill( itk::NumericTraits<ITK_TYPENAME DerivativeType::ValueType>::Zero );
+  derivativeF.Fill( itk::NumericTraits<typename DerivativeType::ValueType>::Zero );
 
   DerivativeType derivativeM = DerivativeType( ParametersDimension );
-  derivativeM.Fill( itk::NumericTraits<ITK_TYPENAME DerivativeType::ValueType>::Zero );
+  derivativeM.Fill( itk::NumericTraits<typename DerivativeType::ValueType>::Zero );
 
   DerivativeType derivativeM1 = DerivativeType( ParametersDimension );
-  derivativeM1.Fill( itk::NumericTraits<ITK_TYPENAME DerivativeType::ValueType>::Zero );
+  derivativeM1.Fill( itk::NumericTraits<typename DerivativeType::ValueType>::Zero );
 
   ti.GoToBegin();
   // First compute the sums

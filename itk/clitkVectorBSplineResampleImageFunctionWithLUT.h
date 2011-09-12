@@ -43,13 +43,13 @@ namespace clitk
 template <class TImageType, class TCoordRep = float>
 class ITK_EXPORT VectorBSplineResampleImageFunctionWithLUT : 
     public VectorBSplineInterpolateImageFunctionWithLUT<
-  TImageType,TCoordRep,ITK_TYPENAME TImageType::PixelType::ValueType > 
+  TImageType,TCoordRep,typename TImageType::PixelType::ValueType >
 {
 public:
   /** Standard class typedefs. */
   typedef VectorBSplineResampleImageFunctionWithLUT   Self;
   typedef VectorBSplineInterpolateImageFunctionWithLUT< 
-    TImageType,TCoordRep, ITK_TYPENAME TImageType::PixelType::ValueType >  Superclass;
+    TImageType,TCoordRep, typename TImageType::PixelType::ValueType >  Superclass;
   typedef itk::SmartPointer<Self>                    Pointer;
   typedef itk::SmartPointer<const Self>              ConstPointer;
 

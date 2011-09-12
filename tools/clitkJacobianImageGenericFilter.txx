@@ -28,7 +28,7 @@
  ===================================================*/
 
 #include "clitkImageCommon.h"
-#include "itkDeformationFieldJacobianDeterminantFilter.h"
+#include "itkDisplacementFieldJacobianDeterminantFilter.h"
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
@@ -126,7 +126,6 @@ JacobianImageGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   
   typedef double OutputPixelType;
   typedef itk::Image<OutputPixelType, dim> ImageType;
-  //typedef itk::DeformationFieldJacobianDeterminantFilter<VectorFieldType, PixelType, ImageType> JacobianFilterType;
   typedef itk::DisplacementFieldJacobianDeterminantFilter<VectorFieldType, OutputPixelType, ImageType> JacobianFilterType;
 
   typename VectorFieldType::Pointer vfield = vfield_reader->GetOutput();

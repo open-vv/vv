@@ -227,7 +227,7 @@ CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
   FixedImageType> FixedIteratorType;
 
   typedef  itk::ImageRegionConstIteratorWithIndex<
-  ITK_TYPENAME Superclass::GradientImageType> GradientIteratorType;
+  typename Superclass::GradientImageType> GradientIteratorType;
 
 
   FixedIteratorType ti( fixedImage, this->GetFixedImageRegion() );
@@ -240,7 +240,7 @@ CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
 
   const unsigned int ParametersDimension = this->GetNumberOfParameters();
   derivative = DerivativeType( ParametersDimension );
-  derivative.Fill( itk::NumericTraits<ITK_TYPENAME DerivativeType::ValueType>::Zero );
+  derivative.Fill( itk::NumericTraits<typename DerivativeType::ValueType>::Zero );
 
   ti.GoToBegin();
 
@@ -348,7 +348,7 @@ CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
   FixedImageType> FixedIteratorType;
 
   typedef  itk::ImageRegionConstIteratorWithIndex<
-  ITK_TYPENAME Superclass::GradientImageType> GradientIteratorType;
+  typename Superclass::GradientImageType> GradientIteratorType;
 
 
   FixedIteratorType ti( fixedImage, this->GetFixedImageRegion() );
@@ -363,7 +363,7 @@ CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
 
   const unsigned int ParametersDimension = this->GetNumberOfParameters();
   derivative = DerivativeType( ParametersDimension );
-  derivative.Fill( NumericTraits<ITK_TYPENAME DerivativeType::ValueType>::Zero );
+  derivative.Fill( NumericTraits<typename DerivativeType::ValueType>::Zero );
 
   ti.GoToBegin();
 

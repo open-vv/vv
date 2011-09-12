@@ -43,13 +43,13 @@ namespace itk
 template <class TImageType, class TCoordRep = float>
 class ITK_EXPORT BSplineResampleImageFunctionWithLUT : 
     public BSplineInterpolateImageFunctionWithLUT<
-  TImageType,TCoordRep,ITK_TYPENAME TImageType::PixelType > 
+  TImageType,TCoordRep,typename TImageType::PixelType >
 {
 public:
   /** Standard class typedefs. */
   typedef BSplineResampleImageFunctionWithLUT                   Self;
   typedef BSplineInterpolateImageFunctionWithLUT< 
-    TImageType,TCoordRep, ITK_TYPENAME TImageType::PixelType >  Superclass;
+    TImageType,TCoordRep, typename TImageType::PixelType >  Superclass;
   typedef SmartPointer<Self>                                    Pointer;
   typedef SmartPointer<const Self>                              ConstPointer;
 

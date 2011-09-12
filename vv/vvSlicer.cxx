@@ -755,12 +755,14 @@ void vvSlicer::SetSliceOrientation(int orientation)
 // of the displayed image in the slicing direction.
 void vvSlicer::AdjustResliceToSliceOrientation(vtkImageReslice *reslice)
 {
-  // Reset autocrop
-  double origin[3] = {VTK_DOUBLE_MAX, VTK_DOUBLE_MAX, VTK_DOUBLE_MAX};
-  double spacing[3] = {VTK_DOUBLE_MAX, VTK_DOUBLE_MAX, VTK_DOUBLE_MAX};
-  reslice->SetOutputOrigin(origin);
-  reslice->SetOutputSpacing(spacing);
+  // Reset autocrop and update output information
+  reslice->SetOutputOriginToDefault();
+  reslice->SetOutputSpacingToDefault();
   reslice->GetOutput()->UpdateInformation();
+
+  // Ge new origin / spacing
+  double origin[3];
+  double spacing[3];
   reslice->GetOutput()->GetOrigin(origin);
   reslice->GetOutput()->GetSpacing(spacing);
 

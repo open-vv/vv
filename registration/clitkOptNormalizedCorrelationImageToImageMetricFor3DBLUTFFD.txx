@@ -457,16 +457,16 @@ NormalizedCorrelationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   }
   memset( derivative.data_block(),
           0,
-          this->m_NumberOfParameters * sizeof(ITK_TYPENAME DerivativeType::ValueType) );
+          this->m_NumberOfParameters * sizeof(typename DerivativeType::ValueType) );
 
   for( unsigned int threadID = 0; threadID<this->m_NumberOfThreads; threadID++ ) {
     memset( m_ThreaderDerivativeF[threadID].data_block(),
             0,
-            this->m_NumberOfParameters * sizeof(ITK_TYPENAME DerivativeType::ValueType) );
+            this->m_NumberOfParameters * sizeof(typename DerivativeType::ValueType) );
 
     memset( m_ThreaderDerivativeM[threadID].data_block(),
             0,
-            this->m_NumberOfParameters * sizeof(ITK_TYPENAME DerivativeType::ValueType) );
+            this->m_NumberOfParameters * sizeof(typename DerivativeType::ValueType) );
   }
 
   // MUST BE CALLED TO INITIATE PROCESSING

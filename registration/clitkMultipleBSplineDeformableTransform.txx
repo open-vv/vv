@@ -329,7 +329,11 @@ namespace clitk
 #undef LOOP_ON_LABELS
 
   template<class TCoordRep, unsigned int NInputDimensions, unsigned int NOutputDimensions>
+#if ITK_VERSION_MAJOR >= 4
+  inline typename MultipleBSplineDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>::NumberOfParametersType
+#else
   inline unsigned int
+#endif
   MultipleBSplineDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>
   ::GetNumberOfParameters(void) const
   {
