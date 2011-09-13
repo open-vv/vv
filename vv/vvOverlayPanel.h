@@ -52,6 +52,7 @@ public slots:
     void setVFProperty();
     void setOverlayProperty();
     void setFusionProperty();
+    void setFusionSpinProperty();
     void VFColorChangeRequest();
 
 signals:

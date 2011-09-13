@@ -49,6 +49,8 @@ vvOverlayPanel::vvOverlayPanel(QWidget * parent):QWidget(parent)
   connect(fusionColorMapComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setFusionProperty()));
   connect(fusionWindowSpinBox,SIGNAL(valueChanged(double)),this,SLOT(setFusionProperty()));
   connect(fusionLevelSpinBox,SIGNAL(valueChanged(double)),this,SLOT(setFusionProperty()));
+  connect(fusionOpacitySpin,SIGNAL(valueChanged(double)),this,SLOT(setFusionSpinProperty()));
+  connect(fusionThresSpin,SIGNAL(valueChanged(double)),this,SLOT(setFusionSpinProperty()));
   connect(overlayWindowSpinBox,SIGNAL(valueChanged(double)),this,SLOT(setOverlayProperty()));
   connect(overlayLevelSpinBox,SIGNAL(valueChanged(double)),this,SLOT(setOverlayProperty()));
   connect(overlayLinkCheckBox,SIGNAL(stateChanged(int)),this,SLOT(setOverlayProperty()));
@@ -217,8 +219,17 @@ void vvOverlayPanel::setFusionProperty()
   if (disableFusionSignals)
     return;
   
+  fusionOpacitySpin->setValue(opacityHorizontalSlider->value()); 
+  fusionThresSpin->setValue(thresOpacityHorizontalSlider->value());
+
   emit FusionPropertyUpdated(opacityHorizontalSlider->value(), thresOpacityHorizontalSlider->value(), fusionColorMapComboBox->currentIndex(),
                              fusionWindowSpinBox->value(), fusionLevelSpinBox->value());
+}
+
+void vvOverlayPanel::setFusionSpinProperty()
+{
+  opacityHorizontalSlider->setValue(fusionOpacitySpin->value()); 
+  thresOpacityHorizontalSlider->setValue(fusionThresSpin->value());
 }
 
 void vvOverlayPanel::getCurrentFusionInfo(int visibility,double value)
