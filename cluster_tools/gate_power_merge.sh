@@ -241,4 +241,10 @@ do
     merge_dispatcher "${outputfile}"
 done
 
+if [ -f "${rundir}/params.txt" ]
+then
+	echo "copying params file"
+	cp "${rundir}/params.txt" "${outputdir}/params.txt"
+fi
+
 echo "these was ${warning_count} warning(s)"
