@@ -1198,7 +1198,7 @@ void vvSlicerManager::SetColorMap(int colormap)
     break;
   }
   if (LUT) {
-    LUT->SetTableRange(level-fabs(window)/4,level+fabs(window)/4);
+    LUT->SetTableRange(level-fabs(window)/2,level+fabs(window)/2);
     LUT->Build();
   }
   vtkWindowLevelLookupTable* fusLUT = NULL;

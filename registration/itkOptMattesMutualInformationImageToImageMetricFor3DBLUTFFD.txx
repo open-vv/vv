@@ -1152,8 +1152,13 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
       transform = this->m_Transform;
     }
 
+#if ITK_VERSION_MAJOR >= 4
+    JacobianType jacobian;
+    transform->ComputeJacobianWithRespectToParameters(this->m_FixedImageSamples[sampleNumber].point, jacobian);
+#else
     const JacobianType& jacobian =
       transform->GetJacobian( this->m_FixedImageSamples[sampleNumber].point );
+#endif
 
     //     for ( unsigned int mu = 0; mu < this->m_NumberOfParameters; mu++ )
     //       {
@@ -1221,9 +1226,15 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
         indicesHelper = &(this->m_BSplineTransformIndices);
       }
 
+#if ITK_VERSION_MAJOR >= 4
+      this->m_BSplineTransform->ComputeJacobianFromBSplineWeightsWithRespectToPosition(
+        this->m_FixedImageSamples[sampleNumber].point,
+        *weightsHelper, *indicesHelper );
+#else
       this->m_BSplineTransform->GetJacobian(
         this->m_FixedImageSamples[sampleNumber].point,
         *weightsHelper, *indicesHelper );
+#endif
     }
 
     for( unsigned int dim = 0; dim < Superclass::FixedImageDimension; dim++ ) {

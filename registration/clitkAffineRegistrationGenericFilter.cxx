@@ -176,7 +176,7 @@ void AffineRegistrationGenericFilter::UpdateWithInputImageType()
 //typedef typename InputImageType::ImageDimension Dimension;
 
 
-#ifdef ITK_USE_OPTIMIZED_REGISTRATION_METHODS
+#if defined(ITK_USE_OPTIMIZED_REGISTRATION_METHODS) || ITK_VERSION_MAJOR >= 4
   bool threadsGiven=m_ArgsInfo.threads_given;
   int threads=m_ArgsInfo.threads_arg;
 #endif
@@ -396,7 +396,7 @@ void AffineRegistrationGenericFilter::UpdateWithInputImageType()
   typename  MetricType::Pointer metric=genericMetric->GetMetricPointer();
   if (movingMask) metric->SetMovingImageMask(movingMask);
 
-#ifdef ITK_USE_OPTIMIZED_REGISTRATION_METHODS
+#if defined(ITK_USE_OPTIMIZED_REGISTRATION_METHODS) || ITK_VERSION_MAJOR >= 4
   if (threadsGiven) metric->SetNumberOfThreads( threads );
 #else
   if (m_Verbose) std::cout<<"Not setting the number of threads (not compiled with USE_OPTIMIZED_REGISTRATION_METHODS)..."<<std::endl;

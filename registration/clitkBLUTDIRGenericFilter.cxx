@@ -387,6 +387,9 @@ namespace clitk
         // Crop the fixedImage to the bounding box to facilitate multi-resolution
         typedef itk::ExtractImageFilter<FixedImageType,FixedImageType> ExtractImageFilterType;
         typename ExtractImageFilterType::Pointer extractImageFilter=ExtractImageFilterType::New();
+#if ITK_VERSION_MAJOR == 4
+        extractImageFilter->SetDirectionCollapseToSubmatrix();
+#endif
         extractImageFilter->SetInput(fixedImage);
         extractImageFilter->SetExtractionRegion(transformRegion);
         extractImageFilter->Update();
@@ -627,7 +630,7 @@ namespace clitk
       typename  MetricType::Pointer metric=genericMetric->GetMetricPointer();
       if (movingMask) metric->SetMovingImageMask(movingMask);
 
-#ifdef ITK_USE_OPTIMIZED_REGISTRATION_METHODS
+#if defined(ITK_USE_OPTIMIZED_REGISTRATION_METHODS) || ITK_VERSION_MAJOR >= 4
       if (threadsGiven) {
         metric->SetNumberOfThreads( threads );
         if (m_Verbose) std::cout<< "Using " << threads << " threads." << std::endl;

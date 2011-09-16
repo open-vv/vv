@@ -21,6 +21,7 @@
 
 #include "vvToolBaseBase.h"
 #include "vvToolCreator.h"
+#include <QIcon>
 
 //------------------------------------------------------------------------------
 template<class ToolType>

@@ -35,7 +35,7 @@ GenericMetric<args_info_type, FixedImageType, MovingImageType>::GenericMetric()
   m_Maximize=false;
   m_Verbose=false;
   m_FixedImageRegionGiven=false;
-#ifdef ITK_USE_OPTIMIZED_REGISTRATION_METHODS
+#if defined(ITK_USE_OPTIMIZED_REGISTRATION_METHODS) || ITK_VERSION_MAJOR >= 4
   m_FixedImageSamplesIntensityThreshold=0;
   m_UseFixedImageSamplesIntensityThreshold=false;
 #endif
@@ -274,7 +274,7 @@ GenericMetric<args_info_type,FixedImageType, MovingImageType>::GetMetricPointer(
   //m_Metric->SetFixedImageRegion(mask_region);
 
 
-#ifdef ITK_USE_OPTIMIZED_REGISTRATION_METHODS
+#if defined(ITK_USE_OPTIMIZED_REGISTRATION_METHODS) || ITK_VERSION_MAJOR >= 4
 
   //============================================================================
   // Set the lower intensity threshold

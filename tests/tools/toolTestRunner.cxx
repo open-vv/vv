@@ -57,6 +57,27 @@ void assertFalse(int fail, const std::string &message=""){
     exit(1);
   }
 }
+
+#ifdef _WIN32
+void dosToUnixFile(std::string dosFile, std::string unixedFile){
+		
+	std::ifstream ifile(dosFile.c_str(),std::ios::binary);
+	ifile.seekg(0,std::ios_base::end);
+	long s=ifile.tellg();
+	char *buffer=new char[s];
+	ifile.seekg(0);
+	ifile.read(buffer,s);
+	ifile.close();
+	std::string txt(buffer,s);
+	delete[] buffer;
+	size_t off=0;
+	while ((off=txt.find("\r\n",off))!=std::string::npos)
+		txt.replace(off,sizeof("\r\n")-1,"\n");
+	std::ofstream ofile(unixedFile.c_str());
+	ofile.write(txt.c_str(),txt.size());
+	
+}
+#endif
 /**
  * argv
  * [1] executable
@@ -91,15 +112,23 @@ int main(int argc, char** argv){
   //run the command line
   system(cmd_line.str().c_str());
   
-  //compare source files
-  assertFalse((itksys::SystemTools::FilesDiffer(outFile.c_str(), refFile)), "Source Files are different");
   
-  //eventually raw files associated
+	//compare source files
+#ifdef _WIN32
+	std::string unixedOutFile= getTmpFileName();
+	//replace \r\n
+	dosToUnixFile(outFile, unixedOutFile);
+	assertFalse((itksys::SystemTools::FilesDiffer(unixedOutFile.c_str(), refFile)), "Generated mhd file != ref File");
+  remove(unixedOutFile.c_str());
+#else
+  assertFalse((itksys::SystemTools::FilesDiffer(outFile.c_str(), refFile)), "Generated mhd file != ref File");
+#endif
+  
+	
+	//eventually raw files associated
   //should be passed as a boolean to check also for raw or not
-  
   std::string refRawFile = std::string(refFile)+".raw";
-  
-  
+   
   int found=outFile.find_last_of(".");
   std::string rawFile = outFile.substr(0, found)+".raw";
   if((itksys::SystemTools::FileExists(refRawFile.c_str(), true))){
@@ -117,3 +146,5 @@ int main(int argc, char** argv){
   //success
   return 0;
 }
+
+

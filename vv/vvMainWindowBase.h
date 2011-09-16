@@ -25,6 +25,7 @@
 
 class vvSlicerManager;
 class QMenu;
+class QTabWidget;
 
 //------------------------------------------------------------------------------
 class vvMainWindowBase : public QMainWindow

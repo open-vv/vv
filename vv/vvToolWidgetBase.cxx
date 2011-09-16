@@ -25,6 +25,7 @@
 #include <QMessageBox>
 #include <QKeyEvent>
 #include <QDockWidget>
+#include <QTabWidget>
 
 //------------------------------------------------------------------------------
 // Static initialisation

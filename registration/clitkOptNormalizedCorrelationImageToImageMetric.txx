@@ -381,8 +381,13 @@ NormalizedCorrelationImageToImageMetric<TFixedImage,TMovingImage>
   }
 
   // Jacobian should be evaluated at the unmapped (fixed image) point.
+#if ITK_VERSION_MAJOR >= 4
+  TransformJacobianType jacobian;
+  transform->ComputeJacobianWithRespectToParameters(fixedImagePoint, jacobian);
+#else
   const TransformJacobianType & jacobian = transform
       ->GetJacobian( fixedImagePoint );
+#endif
 
   for(unsigned int par=0; par<this->m_NumberOfParameters; par++) {
     RealType sumF = itk::NumericTraits< RealType >::Zero;
