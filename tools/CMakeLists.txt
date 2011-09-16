@@ -325,7 +325,7 @@ IF (CLITK_BUILD_TOOLS)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkJacobianImage)
   
   WRAP_GGO(clitkPadImage_GGO_C clitkPadImage.ggo)
-  ADD_EXECUTABLE(clitkPadImage clitkPadImage.cxx ${clitkPadImage_GGO_C})
+  ADD_EXECUTABLE(clitkPadImage clitkPadImage.cxx clitkPadImageGenericFilter.cxx ${clitkPadImage_GGO_C})
   TARGET_LINK_LIBRARIES(clitkPadImage clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkPadImage)
 
