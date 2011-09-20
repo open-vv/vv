@@ -45,18 +45,21 @@ ADD_TEST(clitkBinarizeBGl0.1356_4d ${exe} clitkBinarizeImage -i ${p}Deformation4
 ADD_TEST(clitkBinarizeFGl0.1556_3d ${exe} clitkBinarizeImage -i ${p}Lung3D.mhd        --mode FG -l 0.1556 -o Lung3D_ref.binarizeFGl0.1556.mhd ${p}Lung3D_ref.binarizeFGl0.1556)
 #=========================================================
 # clitkImageArithm
+#check raws are also checked
 ADD_TEST(clitkImageArithm0_3d ${exe} clitkImageArithm -i ${p}Lung3D.mhd -j ${p}Lung3D.mhd -t 0 -o Lung3D_ref.arithm0.mhd ${p}Lung3D_ref.arithm0.mhd)
-ADD_TEST(clitkImageArithm1_3d ${exe} clitkImageArithm -i ${p}Lung3D.mhd -j ${p}Lung3D.mhd -t 0 -o Lung3D_ref.arithm1.mhd ${p}Lung3D_ref.arithm1.mhd)
-ADD_TEST(clitkImageArithm2_3d ${exe} clitkImageArithm -i ${p}Lung3D.mhd -j ${p}Lung3D.mhd -t 0 -o Lung3D_ref.arithm2.mhd ${p}Lung3D_ref.arithm2.mhd)
-ADD_TEST(clitkImageArithm3_3d ${exe} clitkImageArithm -i ${p}Lung3D.mhd -j ${p}Lung3D.mhd -t 0 -o Lung3D_ref.arithm3.mhd ${p}Lung3D_ref.arithm3.mhd)
-ADD_TEST(clitkImageArithm4_3d ${exe} clitkImageArithm -i ${p}Lung3D.mhd -j ${p}Lung3D.mhd -t 0 -o Lung3D_ref.arithm4.mhd ${p}Lung3D_ref.arithm4.mhd)
-ADD_TEST(clitkImageArithm5_3d ${exe} clitkImageArithm -i ${p}Lung3D.mhd -j ${p}Lung3D.mhd -t 0 -o Lung3D_ref.arithm5.mhd ${p}Lung3D_ref.arithm5.mhd)
-ADD_TEST(clitkImageArithm6_3d ${exe} clitkImageArithm -i ${p}Lung3D.mhd -j ${p}Lung3D.mhd -t 0 -o Lung3D_ref.arithm6.mhd ${p}Lung3D_ref.arithm6.mhd)
+ADD_TEST(clitkImageArithm1_3d ${exe} clitkImageArithm -i ${p}Lung3D.mhd -j ${p}Lung3D.mhd -t 1 -o Lung3D_ref.arithm1.mhd ${p}Lung3D_ref.arithm1.mhd)
+ADD_TEST(clitkImageArithm2_3d ${exe} clitkImageArithm -i ${p}Lung3D.mhd -j ${p}Lung3D.mhd -t 2 -o Lung3D_ref.arithm2.mhd ${p}Lung3D_ref.arithm2.mhd)
+ADD_TEST(clitkImageArithm3_3d ${exe} clitkImageArithm -i ${p}Lung3D.mhd -j ${p}Lung3D.mhd -t 3 -o Lung3D_ref.arithm3.mhd ${p}Lung3D_ref.arithm3.mhd)
+ADD_TEST(clitkImageArithm4_3d ${exe} clitkImageArithm -i ${p}Lung3D.mhd -j ${p}Lung3D.mhd -t 4 -o Lung3D_ref.arithm4.mhd ${p}Lung3D_ref.arithm4.mhd)
+ADD_TEST(clitkImageArithm5_3d ${exe} clitkImageArithm -i ${p}Lung3D.mhd -j ${p}Lung3D.mhd -t 5 -o Lung3D_ref.arithm5.mhd ${p}Lung3D_ref.arithm5.mhd)
+ADD_TEST(clitkImageArithm6_3d ${exe} clitkImageArithm -i ${p}Lung3D.mhd -j ${p}Lung3D.mhd -t 6 -o Lung3D_ref.arithm6.mhd ${p}Lung3D_ref.arithm6.mhd)
 
 ADD_TEST(clitkImageArithm0_4d ${exe} clitkImageArithm -i ${p}Deformation4D.mhd -j ${p}Deformation4D.mhd -t 0 -o Deformation4D_ref.arithm0.mhd ${p}Deformation4D_ref.arithm0.mhd)
-ADD_TEST(clitkImageArithm2_4d ${exe} clitkImageArithm -i ${p}Deformation4D.mhd -j ${p}Deformation4D.mhd -t 0 -o Deformation4D_ref.arithm2.mhd ${p}Deformation4D_ref.arithm2.mhd)
+ADD_TEST(clitkImageArithm2_4d ${exe} clitkImageArithm -i ${p}Deformation4D.mhd -j ${p}Deformation4D.mhd -t 2 -o Deformation4D_ref.arithm2.mhd ${p}Deformation4D_ref.arithm2.mhd)
 
-
+#=========================================================
+# clitkCropImage
+#ADD_TEST(clitkCropImage_3d ${exe} crlitkCropImage -i ${p}Lung3D.mhd -b 0 -o Lung3D_ref.arithm0.mhd ${p}Lung3D_ref.arithm0.mhd)
 
 
 UNSET(exe)
