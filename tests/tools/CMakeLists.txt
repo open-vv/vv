@@ -45,7 +45,6 @@ ADD_TEST(clitkBinarizeBGl0.1356_4d ${exe} clitkBinarizeImage -i ${p}Deformation4
 ADD_TEST(clitkBinarizeFGl0.1556_3d ${exe} clitkBinarizeImage -i ${p}Lung3D.mhd        --mode FG -l 0.1556 -o Lung3D_ref.binarizeFGl0.1556.mhd ${p}Lung3D_ref.binarizeFGl0.1556)
 #=========================================================
 # clitkImageArithm
-#check raws are also checked
 ADD_TEST(clitkImageArithm0_3d ${exe} clitkImageArithm -i ${p}Lung3D.mhd -j ${p}Lung3D.mhd -t 0 -o Lung3D_ref.arithm0.mhd ${p}Lung3D_ref.arithm0.mhd)
 ADD_TEST(clitkImageArithm1_3d ${exe} clitkImageArithm -i ${p}Lung3D.mhd -j ${p}Lung3D.mhd -t 1 -o Lung3D_ref.arithm1.mhd ${p}Lung3D_ref.arithm1.mhd)
 ADD_TEST(clitkImageArithm2_3d ${exe} clitkImageArithm -i ${p}Lung3D.mhd -j ${p}Lung3D.mhd -t 2 -o Lung3D_ref.arithm2.mhd ${p}Lung3D_ref.arithm2.mhd)
@@ -56,10 +55,10 @@ ADD_TEST(clitkImageArithm6_3d ${exe} clitkImageArithm -i ${p}Lung3D.mhd -j ${p}L
 
 ADD_TEST(clitkImageArithm0_4d ${exe} clitkImageArithm -i ${p}Deformation4D.mhd -j ${p}Deformation4D.mhd -t 0 -o Deformation4D_ref.arithm0.mhd ${p}Deformation4D_ref.arithm0.mhd)
 ADD_TEST(clitkImageArithm2_4d ${exe} clitkImageArithm -i ${p}Deformation4D.mhd -j ${p}Deformation4D.mhd -t 2 -o Deformation4D_ref.arithm2.mhd ${p}Deformation4D_ref.arithm2.mhd)
-
 #=========================================================
 # clitkCropImage
-#ADD_TEST(clitkCropImage_3d ${exe} crlitkCropImage -i ${p}Lung3D.mhd -b 0 -o Lung3D_ref.arithm0.mhd ${p}Lung3D_ref.arithm0.mhd)
+ADD_TEST(clitkCropImage_3d ${exe} clitkCropImage -i ${p}Lung3D.mhd -b 1,4,0,2,2,3 -o Lung3D_ref.cropImage.1.4.0.2.2.3.mhd ${p}Lung3D_ref.cropImage.1.4.0.2.2.3.mhd)
+#=========================================================
 
 
 UNSET(exe)
