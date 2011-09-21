@@ -59,6 +59,32 @@ ADD_TEST(clitkImageArithm2_4d ${exe} clitkImageArithm -i ${p}Deformation4D.mhd -
 # clitkCropImage
 ADD_TEST(clitkCropImage_3d ${exe} clitkCropImage -i ${p}Lung3D.mhd -b 1,4,0,2,2,3 -o Lung3D_ref.cropImage.1.4.0.2.2.3.mhd ${p}Lung3D_ref.cropImage.1.4.0.2.2.3.mhd)
 #=========================================================
+#clitkMorphoMath
+ADD_TEST(clitkMorphoMath0_3d ${exe} clitkMorphoMath -i ${p}Lung3D.mhd -o Lung3D_ref.morphoMath.t0.mhd ${p}Lung3D_ref.morphoMath.t0.mhd)
+ADD_TEST(clitkMorphoMath1_3d ${exe} clitkMorphoMath -i ${p}Lung3D.mhd -o Lung3D_ref.morphoMath.t1.mhd ${p}Lung3D_ref.morphoMath.t1.mhd)
+ADD_TEST(clitkMorphoMath2_3d ${exe} clitkMorphoMath -i ${p}Lung3D.mhd -o Lung3D_ref.morphoMath.t2.mhd ${p}Lung3D_ref.morphoMath.t2.mhd)
+ADD_TEST(clitkMorphoMath3_3d ${exe} clitkMorphoMath -i ${p}Lung3D.mhd -o Lung3D_ref.morphoMath.t3.mhd ${p}Lung3D_ref.morphoMath.t3.mhd)
+ADD_TEST(clitkMorphoMath4_3d ${exe} clitkMorphoMath -i ${p}Lung3D.mhd -o Lung3D_ref.morphoMath.t4.mhd ${p}Lung3D_ref.morphoMath.t4.mhd)
+ADD_TEST(clitkMorphoMath5_3d ${exe} clitkMorphoMath -i ${p}Lung3D.mhd -o Lung3D_ref.morphoMath.t5.mhd ${p}Lung3D_ref.morphoMath.t5.mhd)
+
+ADD_TEST(clitkMorphoMath0_4d ${exe} clitkMorphoMath -i ${p}Deformation4D.mhd -o Deformation4D_ref.morphoMath.t0.mhd ${p}Deformation4D_ref.morphoMath.t0.mhd)
+ADD_TEST(clitkMorphoMath1_4d ${exe} clitkMorphoMath -i ${p}Deformation4D.mhd -o Deformation4D_ref.morphoMath.t1.mhd ${p}Deformation4D_ref.morphoMath.t1.mhd)
+ADD_TEST(clitkMorphoMath2_4d ${exe} clitkMorphoMath -i ${p}Deformation4D.mhd -o Deformation4D_ref.morphoMath.t2.mhd ${p}Deformation4D_ref.morphoMath.t2.mhd)
+ADD_TEST(clitkMorphoMath3_4d ${exe} clitkMorphoMath -i ${p}Deformation4D.mhd -o Deformation4D_ref.morphoMath.t3.mhd ${p}Deformation4D_ref.morphoMath.t3.mhd)
+ADD_TEST(clitkMorphoMath4_4d ${exe} clitkMorphoMath -i ${p}Deformation4D.mhd -o Deformation4D_ref.morphoMath.t4.mhd ${p}Deformation4D_ref.morphoMath.t4.mhd)
+ADD_TEST(clitkMorphoMath5_4d ${exe} clitkMorphoMath -i ${p}Deformation4D.mhd -o Deformation4D_ref.morphoMath.t5.mhd ${p}Deformation4D_ref.morphoMath.t5.mhd)
+
+
+#=========================================================
+
+
+
+
+
+
+
+
+
 
 
 UNSET(exe)
