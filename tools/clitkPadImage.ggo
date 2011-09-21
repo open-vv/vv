@@ -1,5 +1,5 @@
-#File clitkCropImage.ggo
-package "clitkCropImage"
+#File clitkPadImage.ggo
+package "clitkPadImage"
 version "1.0"
 purpose "Pad an image according to a given extends or like another image"
 
