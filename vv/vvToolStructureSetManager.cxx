@@ -248,7 +248,7 @@ void vvToolStructureSetManager::OpenBinaryImage()
   mCurrentStructureSetActor = mStructureSetActorsList[index].data();
   mCurrentStructureSetIndex = index;
   // Open images
-  QString Extensions = "Images files ( *.mhd *.hdr *.his)";
+  QString Extensions = "Images files ( *.mha *.mhd *.hdr *.his)";
   Extensions += ";;All Files (*)";
   QStringList filename =
     QFileDialog::getOpenFileNames(this,tr("Open binary image"),
