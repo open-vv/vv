@@ -122,6 +122,10 @@ SET(SCRIPTS
   scripts/create_midP_masks.sh  
   scripts/create_midP_masks-2.0.sh  
   scripts/pts_to_landmarks.sh
+  scripts/create_mhd_3D.sh
+  scripts/create_sequence.sh
+  scripts/dcm_sort_by_field.sh
+  scripts/dicom_info.sh
 )
 
 INSTALL (FILES ${SCRIPTS} DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
