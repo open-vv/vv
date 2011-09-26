@@ -157,7 +157,7 @@ ExtractStation_8_Ant_Limits()
   relPosFilter->AddOrientationTypeString("PostTo");
   //  relPosFilter->InverseOrientationFlagOff();
   relPosFilter->SetDirection(2); // Z axis
-  relPosFilter->UniqueConnectedComponentBySliceOff();
+  relPosFilter->UniqueConnectedComponentBySliceFlagOff();
   relPosFilter->SetIntermediateSpacing(3);
   relPosFilter->IntermediateSpacingFlagOn();
   relPosFilter->SetFuzzyThreshold(GetFuzzyThreshold("8", "Esophagus"));

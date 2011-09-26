@@ -25,18 +25,28 @@ ExtractStation_3P()
   m_Working_Support = m_ListOfSupports["S3P"];
   m_ListOfStations["3P"] = m_Working_Support;
   StopCurrentStep<MaskImageType>(m_Working_Support);
+
+  /* TODO
+     LR_sup -> AzygousVein, Aorta
+
+keep computed object, RelPos then
+     
+
+   */
+
   
-  // LR limits inferiorly
-  ExtractStation_3P_LR_inf_Limits();
-  
+  ExtractStation_3P_LR_inf_Limits();  
+  ExtractStation_8_Single_CCL_Limits(); // YES 8 !
+  ExtractStation_3P_Remove_Structures(); // after CCL
+
+  // Old stuff
   // LR limits superiorly => not here for the moment because not
   //  clear in the def
   // ExtractStation_3P_LR_sup_Limits_2(); //TODO
   // ExtractStation_3P_LR_sup_Limits();   // old version to change
   
-  ExtractStation_8_Single_CCL_Limits(); // YES 8 !
-  ExtractStation_3P_Remove_Structures(); // after CCL
-  
+  m_ListOfStations["3P"] = this->ApplyRelativePositionList("Station_3P", m_ListOfStations["3P"]); 
+
   // Store image filenames into AFDB 
   writeImage<MaskImageType>(m_ListOfStations["3P"], "seg/Station3P.mhd");
   GetAFDB()->SetImageFilename("Station3P", "seg/Station3P.mhd"); 
@@ -170,7 +180,7 @@ ExtractStation_3P_LR_sup_Limits()
         relPosFilter->SetBackgroundValue(GetBackgroundValue());
         relPosFilter->SetInput(slices_support[i]); 
         relPosFilter->SetInputObject(object); 
-        relPosFilter->AddOrientationTypeString("R");
+        relPosFilter->AddOrientationTypeString("RightTo");
         relPosFilter->SetInverseOrientationFlag(true);
         //      relPosFilter->SetIntermediateSpacing(3);
         relPosFilter->SetIntermediateSpacingFlag(false);
@@ -186,7 +196,7 @@ ExtractStation_3P_LR_sup_Limits()
         relPosFilter->SetBackgroundValue(GetBackgroundValue());
         relPosFilter->SetInput(slices_support[i]); 
         relPosFilter->SetInputObject(object); 
-        relPosFilter->AddOrientationTypeString("A");
+        relPosFilter->AddOrientationTypeString("AntTo");
         relPosFilter->SetInverseOrientationFlag(true);
         //      relPosFilter->SetIntermediateSpacing(3);
         relPosFilter->SetIntermediateSpacingFlag(false);

@@ -354,7 +354,7 @@ ExtractStation_7_RL_Limits_OLD()
     sliceRelPosFilter->AddOrientationTypeString("NotAntTo");
     sliceRelPosFilter->SetIntermediateSpacingFlag(true);
     sliceRelPosFilter->SetIntermediateSpacing(3);
-    sliceRelPosFilter->SetUniqueConnectedComponentBySlice(false);
+    sliceRelPosFilter->SetUniqueConnectedComponentBySliceFlag(false);
     sliceRelPosFilter->SetAutoCropFlag(false); 
     sliceRelPosFilter->IgnoreEmptySliceObjectFlagOn();
     sliceRelPosFilter->Update();
@@ -380,7 +380,7 @@ ExtractStation_7_RL_Limits_OLD()
     sliceRelPosFilter->AddOrientationTypeString("NotPostTo");
     sliceRelPosFilter->SetIntermediateSpacingFlag(true);
     sliceRelPosFilter->SetIntermediateSpacing(3);
-    sliceRelPosFilter->SetUniqueConnectedComponentBySlice(false);
+    sliceRelPosFilter->SetUniqueConnectedComponentBySliceFlag(false);
     sliceRelPosFilter->SetAutoCropFlag(false); 
     sliceRelPosFilter->IgnoreEmptySliceObjectFlagOn();
     sliceRelPosFilter->Update();
@@ -403,7 +403,7 @@ ExtractStation_7_RL_Limits_OLD()
   sliceRelPosFilter->AddOrientationTypeString("NotAntTo");
   sliceRelPosFilter->SetIntermediateSpacingFlag(true);
   sliceRelPosFilter->SetIntermediateSpacing(3);
-  sliceRelPosFilter->SetUniqueConnectedComponentBySlice(false);
+  sliceRelPosFilter->SetUniqueConnectedComponentBySliceFlag(false);
   sliceRelPosFilter->SetAutoCropFlag(false); 
   sliceRelPosFilter->IgnoreEmptySliceObjectFlagOn();
   sliceRelPosFilter->Update();
@@ -421,7 +421,7 @@ ExtractStation_7_RL_Limits_OLD()
   sliceRelPosFilter->AddOrientationTypeString("NotAntTo");
   sliceRelPosFilter->SetIntermediateSpacingFlag(true);
   sliceRelPosFilter->SetIntermediateSpacing(3);
-  sliceRelPosFilter->SetUniqueConnectedComponentBySlice(false);
+  sliceRelPosFilter->SetUniqueConnectedComponentBySliceFlag(false);
   sliceRelPosFilter->SetAutoCropFlag(false); 
   sliceRelPosFilter->IgnoreEmptySliceObjectFlagOn();
   sliceRelPosFilter->Update();
@@ -439,7 +439,7 @@ ExtractStation_7_RL_Limits_OLD()
   sliceRelPosFilter->AddOrientationTypeString("NotAntTo");
   sliceRelPosFilter->SetIntermediateSpacingFlag(true);
   sliceRelPosFilter->SetIntermediateSpacing(3);
-  sliceRelPosFilter->SetUniqueConnectedComponentBySlice(false);
+  sliceRelPosFilter->SetUniqueConnectedComponentBySliceFlag(false);
   sliceRelPosFilter->SetAutoCropFlag(true); 
   sliceRelPosFilter->IgnoreEmptySliceObjectFlagOn();
   sliceRelPosFilter->Update();
