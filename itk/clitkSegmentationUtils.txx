@@ -353,9 +353,9 @@ namespace clitk {
     sliceRelPosFilter->AddOrientationTypeString(orientation);
     sliceRelPosFilter->SetIntermediateSpacingFlag((spacing != -1));
     sliceRelPosFilter->SetIntermediateSpacing(spacing);
-    sliceRelPosFilter->SetUniqueConnectedComponentBySlice(uniqueConnectedComponent);
-    sliceRelPosFilter->CCLSelectionFlagOff();
-    sliceRelPosFilter->SetUseASingleObjectConnectedComponentBySliceFlag(singleObjectCCL);
+    sliceRelPosFilter->SetUniqueConnectedComponentBySliceFlag(uniqueConnectedComponent);
+    sliceRelPosFilter->ObjectCCLSelectionFlagOff();
+    sliceRelPosFilter->SetUseTheLargestObjectCCLFlag(singleObjectCCL);
     //    sliceRelPosFilter->SetInverseOrientationFlag(inverseflag); 
     sliceRelPosFilter->SetAutoCropFlag(autocropFlag); 
     sliceRelPosFilter->IgnoreEmptySliceObjectFlagOn();
@@ -363,6 +363,7 @@ namespace clitk {
     return sliceRelPosFilter->GetOutput();
   }
   //--------------------------------------------------------------------
+
 
   //--------------------------------------------------------------------
   template<class ImageType>
@@ -377,6 +378,7 @@ namespace clitk {
                                              opposite, dummy, 0, point);
   }
   //--------------------------------------------------------------------
+
 
   //--------------------------------------------------------------------
   template<class ImageType>
@@ -818,6 +820,7 @@ namespace clitk {
                                               int mainDirection, 
                                               double offsetToKeep)
   {
+    assert((mainDirection==0) || (mainDirection==1));
     typedef itk::ImageSliceIteratorWithIndex<ImageType> SliceIteratorType;
     SliceIteratorType siter = SliceIteratorType(input, 
                                                 input->GetLargestPossibleRegion());
@@ -924,6 +927,34 @@ namespace clitk {
     boolFilter->SetBackgroundValue1(BG);
     boolFilter->SetBackgroundValue2(BG);
     boolFilter->SetOperationType(BoolFilterType::And);
+    boolFilter->Update();
+  }
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  void 
+  Or(ImageType * input, 
+     const ImageType * object, 
+     typename ImageType::PixelType BG)
+  {
+    typename ImageType::Pointer o;
+    bool resized=false;
+    if (!clitk::HaveSameSizeAndSpacing<ImageType, ImageType>(input, object)) {
+      o = clitk::ResizeImageLike<ImageType>(object, input, BG);
+      resized = true;
+    }
+
+    typedef clitk::BooleanOperatorLabelImageFilter<ImageType> BoolFilterType;
+    typename BoolFilterType::Pointer boolFilter = BoolFilterType::New(); 
+    boolFilter->InPlaceOn();
+    boolFilter->SetInput1(input);
+    if (resized) boolFilter->SetInput2(o);  
+    else boolFilter->SetInput2(object);
+    boolFilter->SetBackgroundValue1(BG);
+    boolFilter->SetBackgroundValue2(BG);
+    boolFilter->SetOperationType(BoolFilterType::Or);
     boolFilter->Update();
   }
   //--------------------------------------------------------------------

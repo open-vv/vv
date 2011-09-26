@@ -363,6 +363,10 @@ namespace clitk {
   void And(ImageType * input, 
            const ImageType * object, 
            typename ImageType::PixelType BG=0);
+  template<class ImageType>
+  void Or(ImageType * input, 
+          const ImageType * object, 
+          typename ImageType::PixelType BG=0);
   //--------------------------------------------------------------------
  
 
