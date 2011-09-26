@@ -50,13 +50,15 @@ IF(CLITK_BUILD_SEGMENTATION)
     TARGET_LINK_LIBRARIES(clitkBool clitkCommon ${ITK_LIBRARIES} clitkSegmentationGgoLib)
     SET(SEGMENTATION_INSTALL ${SEGMENTATION_INSTALL} clitkBool)
 
+    WRAP_GGO(clitkRelativePosition_GGO_C ../tools/clitkRelativePosition.ggo)
+
     WRAP_GGO(clitkExtractMediastinum_GGO_C clitkExtractMediastinum.ggo)
-    ADD_EXECUTABLE(clitkExtractMediastinum clitkExtractMediastinum.cxx ${clitkExtractMediastinum_GGO_C})
+    ADD_EXECUTABLE(clitkExtractMediastinum clitkExtractMediastinum.cxx ${clitkExtractMediastinum_GGO_C}  ${clitkRelativePosition_GGO_C})
     TARGET_LINK_LIBRARIES(clitkExtractMediastinum clitkCommon clitkSegmentationGgoLib ${ITK_LIBRARIES})
     SET(SEGMENTATION_INSTALL ${SEGMENTATION_INSTALL} clitkExtractMediastinum)
 
     WRAP_GGO(clitkExtractLymphStations_GGO_C clitkExtractLymphStations.ggo)
-    ADD_EXECUTABLE(clitkExtractLymphStations clitkExtractLymphStations.cxx clitkFilterWithAnatomicalFeatureDatabaseManagement.cxx ${clitkExtractLymphStations_GGO_C})
+    ADD_EXECUTABLE(clitkExtractLymphStations clitkExtractLymphStations.cxx clitkFilterWithAnatomicalFeatureDatabaseManagement.cxx ${clitkExtractLymphStations_GGO_C} ${clitkRelativePosition_GGO_C})
     TARGET_LINK_LIBRARIES(clitkExtractLymphStations clitkSegmentationGgoLib clitkCommon vtkHybrid)
     SET(SEGMENTATION_INSTALL ${SEGMENTATION_INSTALL} clitkExtractLymphStations)
 
