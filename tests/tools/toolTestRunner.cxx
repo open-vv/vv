@@ -78,6 +78,11 @@ void dosToUnixFile(std::string dosFile, std::string unixedFile){
 	
 }
 #endif
+
+std::string mhdToRawName(const std::string &mhdName){
+	int found = mhdName.find_last_of(".");
+  return mhdName.substr(0, found)+".raw";
+}
 /**
  * argv
  * [1] executable
@@ -90,7 +95,8 @@ void dosToUnixFile(std::string dosFile, std::string unixedFile){
 int main(int argc, char** argv){
   //reference file must exist or we fail
   char* refFile = argv[argc-1];
-  assertFalse(!(itksys::SystemTools::FileExists(refFile, true)), "refFile "+std::string(refFile)+" doesn't exist");
+	std::string strRefFile = std::string(refFile);
+  assertFalse(!(itksys::SystemTools::FileExists(refFile, true)), "refFile "+strRefFile+" doesn't exist");
   
   std::ostringstream cmd_line;
   cmd_line<<CLITK_TEST_TOOLS_PATH;
@@ -124,13 +130,9 @@ int main(int argc, char** argv){
   assertFalse((itksys::SystemTools::FilesDiffer(outFile.c_str(), refFile)), "Generated mhd file != ref File");
 #endif
   
-	
-	//eventually raw files associated
-  //should be passed as a boolean to check also for raw or not
-  std::string refRawFile = std::string(refFile)+".raw";
-   
-  int found=outFile.find_last_of(".");
-  std::string rawFile = outFile.substr(0, found)+".raw";
+  std::string refRawFile = mhdToRawName(strRefFile);
+  std::string rawFile = mhdToRawName(outFile);
+  
   if((itksys::SystemTools::FileExists(refRawFile.c_str(), true))){
     //compare the raw stuff
     if((itksys::SystemTools::FileExists(rawFile.c_str(), true))){
