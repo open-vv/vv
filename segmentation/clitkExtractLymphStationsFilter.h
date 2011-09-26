@@ -20,8 +20,7 @@
 #define CLITKEXTRACTLYMPHSTATIONSFILTER_H
 
 // clitk
-#include "clitkFilterBase.h"
-#include "clitkFilterWithAnatomicalFeatureDatabaseManagement.h"
+#include "clitkStructuresExtractionFilter.h"
 
 // vtk
 #include <vtkPolyData.h>
@@ -37,14 +36,12 @@ namespace clitk {
   
   template <class TImageType>
   class ITK_EXPORT ExtractLymphStationsFilter: 
-    public virtual clitk::FilterBase, 
-    public clitk::FilterWithAnatomicalFeatureDatabaseManagement,
-    public itk::ImageToImageFilter<TImageType, itk::Image<uchar, 3> >
+    public clitk::StructuresExtractionFilter<TImageType>
   {
 
   public:
     /** Standard class typedefs. */
-    typedef itk::ImageToImageFilter<TImageType, itk::Image<uchar, 3> > Superclass;
+    typedef clitk::StructuresExtractionFilter<TImageType> Superclass;
     typedef ExtractLymphStationsFilter          Self;
     typedef itk::SmartPointer<Self>             Pointer;
     typedef itk::SmartPointer<const Self>       ConstPointer;
@@ -83,15 +80,13 @@ namespace clitk {
     /** ImageDimension constants */
     itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
     FILTERBASE_INIT;
-   
+     
     itkGetConstMacro(BackgroundValue, MaskImagePixelType);
     itkGetConstMacro(ForegroundValue, MaskImagePixelType);
     itkSetMacro(BackgroundValue, MaskImagePixelType);
     itkSetMacro(ForegroundValue, MaskImagePixelType);
 
     // Station 8
-    // itkSetMacro(DistanceMaxToAnteriorPartOfTheSpine, double);
-    //itkGetConstMacro(DistanceMaxToAnteriorPartOfTheSpine, double);
     itkSetMacro(EsophagusDiltationForAnt, MaskImagePointType);
     itkGetConstMacro(EsophagusDiltationForAnt, MaskImagePointType);
     itkSetMacro(EsophagusDiltationForRight, MaskImagePointType);
@@ -123,6 +118,17 @@ namespace clitk {
     virtual void GenerateInputRequestedRegion();
     virtual void GenerateData();
     
+    // To avoid repeat "this->"
+    AnatomicalFeatureDatabase * GetAFDB() { return clitk::FilterWithAnatomicalFeatureDatabaseManagement::GetAFDB(); }
+    void WriteAFDB() { clitk::FilterWithAnatomicalFeatureDatabaseManagement::WriteAFDB(); }
+    void LoadAFDB() {  clitk::FilterWithAnatomicalFeatureDatabaseManagement::LoadAFDB(); }  
+    void StartNewStep(std::string s) { clitk::FilterBase::StartNewStep(s); }
+    void StartSubStep() { clitk::FilterBase::StartSubStep(); }
+    template<class TInternalImageType>
+      void StopCurrentStep(typename TInternalImageType::Pointer p, std::string txt="") { clitk::FilterBase::StopCurrentStep<TInternalImageType>(p, txt); }
+    void StopCurrentStep() {clitk::FilterBase::StopCurrentStep(); }
+    void StopSubStep() {clitk::FilterBase::StopSubStep(); }
+
     ImageConstPointer  m_Input;
     MaskImagePointer   m_Mediastinum;
     MaskImagePointer   m_Working_Support;
@@ -142,7 +148,7 @@ namespace clitk {
     double FindInferiorBorderOfAorticArch();
     void FindLeftAndRightBronchi();
     void FindLineForS7S8Separation(MaskImagePointType & A, MaskImagePointType & B);
-    MaskImagePointer FindAntPostVessels();
+    MaskImagePointer FindAntPostVesselsOLD();
     MaskImagePointer FindAntPostVessels2();
 
     // Global parameters
@@ -171,9 +177,7 @@ namespace clitk {
     MaskImagePointer LimitsWithTrachea(MaskImageType * input, 
                                        int extremaDirection, int lineDirection, 
                                        double offset);
-
     // Station 8
-    // double m_DistanceMaxToAnteriorPartOfTheSpine;
     double m_DiaphragmInferiorLimit;
     double m_OriginOfRightMiddleLobeBronchusZ;
     double m_InjectedThresholdForS8;
@@ -201,30 +205,30 @@ namespace clitk {
     // Station 3A
     void ExtractStation_3A();
     void ExtractStation_3A_SetDefaultValues();
-    void ExtractStation_3A_AntPost_S5();
-    void ExtractStation_3A_AntPost_S6();
+    void ExtractStation_3A_Post_Left_Limits_With_Aorta_S5_Support();
+    void ExtractStation_3A_Post_Limits_With_Dilated_Aorta_S6_Support();
     void ExtractStation_3A_AntPost_Superiorly();
     void ExtractStation_3A_Remove_Structures();
-    void ExtractStation_3A_PostToBones();
 
     // Station 2RL
     void ExtractStation_2RL();
     void ExtractStation_2RL_SetDefaultValues();
-    void ExtractStation_2RL_SI_Limits();
-    void ExtractStation_2RL_Ant_Limits();
-    void ExtractStation_2RL_Ant_Limits2();
-    void ExtractStation_2RL_Post_Limits();
-    void ExtractStation_2RL_LR_Limits();
-    void ExtractStation_2RL_Remove_Structures();
-    void ExtractStation_2RL_SeparateRL();
+    void ExtractStation_2RL_Ant_Limits(std::string s);
+    void ExtractStation_2RL_Remove_Structures(std::string s);
+    void ExtractStation_2RL_Cut_BrachioCephalicVein_superiorly_when_it_split();
     vtkSmartPointer<vtkPolyData> Build3DMeshFrom2DContour(const std::vector<ImagePointType> & points);
+
+    // Station 1RL
+    void ExtractStation_1RL();
+    void ExtractStation_1RL_SetDefaultValues();
+    void ExtractStation_1RL_Ant_Limits();
+    void ExtractStation_1RL_Post_Limits();
 
     // Station 7
     void ExtractStation_7();
     void ExtractStation_7_SetDefaultValues();
     void ExtractStation_7_SI_Limits();
     void ExtractStation_7_RL_Interior_Limits();
-
 
     void ExtractStation_7_RL_Limits_OLD();
     void ExtractStation_7_Posterior_Limits();   
@@ -269,12 +273,13 @@ namespace clitk {
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "clitkExtractLymphStationsFilter.txx"
 #include "clitkExtractLymphStation_Supports.txx"
-#include "clitkExtractLymphStation_8.txx"
 #include "clitkExtractLymphStation_3P.txx"
 #include "clitkExtractLymphStation_2RL.txx"
 #include "clitkExtractLymphStation_3A.txx"
-#include "clitkExtractLymphStation_7.txx"
 #include "clitkExtractLymphStation_4RL.txx"
+#include "clitkExtractLymphStation_1RL.txx"
+#include "clitkExtractLymphStation_8.txx"
+#include "clitkExtractLymphStation_7.txx"
 #endif
 
 #endif

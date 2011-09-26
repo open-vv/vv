@@ -50,9 +50,7 @@
 template <class TImageType>
 clitk::ExtractLymphStationsFilter<TImageType>::
 ExtractLymphStationsFilter():
-  clitk::FilterBase(),
-  clitk::FilterWithAnatomicalFeatureDatabaseManagement(),
-  itk::ImageToImageFilter<TImageType, MaskImageType>()
+  clitk::StructuresExtractionFilter<ImageType>()
 {
   this->SetNumberOfRequiredInputs(1);
   SetBackgroundValue(0);
@@ -60,11 +58,13 @@ ExtractLymphStationsFilter():
   ComputeStationsSupportsFlagOn();
 
   // Default values
-  ExtractStation_8_SetDefaultValues();
   ExtractStation_3P_SetDefaultValues();
   ExtractStation_2RL_SetDefaultValues();
   ExtractStation_3A_SetDefaultValues();
+  ExtractStation_1RL_SetDefaultValues();
+
   ExtractStation_7_SetDefaultValues();
+  ExtractStation_8_SetDefaultValues();
 }
 //--------------------------------------------------------------------
 
@@ -75,50 +75,51 @@ void
 clitk::ExtractLymphStationsFilter<TImageType>::
 GenerateOutputInformation() { 
   // Get inputs
-  LoadAFDB();
+  this->LoadAFDB();
   m_Input = dynamic_cast<const ImageType*>(itk::ProcessObject::GetInput(0));
-  m_Mediastinum = GetAFDB()->template GetImage <MaskImageType>("Mediastinum");
+  m_Mediastinum = this->GetAFDB()->template GetImage <MaskImageType>("Mediastinum");
 
   // Clean some computer landmarks to force the recomputation
-  GetAFDB()->RemoveTag("AntPostVesselsSeparation");
+  this->GetAFDB()->RemoveTag("AntPostVesselsSeparation");
 
   // Global supports for stations
-  if (GetComputeStationsSupportsFlag()) {
-    StartNewStep("Supports for stations");
-    StartSubStep(); 
-    GetAFDB()->RemoveTag("CarinaZ");
-    GetAFDB()->RemoveTag("ApexOfTheChestZ");
-    GetAFDB()->RemoveTag("ApexOfTheChest");
-    GetAFDB()->RemoveTag("RightBronchus");
-    GetAFDB()->RemoveTag("LeftBronchus");
-    GetAFDB()->RemoveTag("SuperiorBorderOfAorticArchZ");
-    GetAFDB()->RemoveTag("SuperiorBorderOfAorticArch");
-    GetAFDB()->RemoveTag("InferiorBorderOfAorticArchZ");
-    GetAFDB()->RemoveTag("InferiorBorderOfAorticArch");
+  bool supportsExist = true;
+  try {
+    m_ListOfSupports["S1R"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S1R");
+    m_ListOfSupports["S1L"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S1L");
+    m_ListOfSupports["S2R"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S2R");
+    m_ListOfSupports["S2L"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S2L");
+    m_ListOfSupports["S4R"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S4R");
+    m_ListOfSupports["S4L"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S4L");
+    
+    m_ListOfSupports["S3A"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S3A");
+    m_ListOfSupports["S3P"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S3P");
+    m_ListOfSupports["S5"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S5");
+    m_ListOfSupports["S6"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S6");
+    m_ListOfSupports["S7"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S7");
+    m_ListOfSupports["S8"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S8");
+    m_ListOfSupports["S9"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S9");
+    m_ListOfSupports["S10"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S10");
+    m_ListOfSupports["S11"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S11");
+  } catch(clitk::ExceptionObject o) {
+    supportsExist = false;
+  }
+
+  if (!supportsExist || GetComputeStationsSupportsFlag()) {
+    this->StartNewStep("Supports for stations");
+    this->StartSubStep(); 
+    this->GetAFDB()->RemoveTag("CarinaZ");
+    this->GetAFDB()->RemoveTag("ApexOfTheChestZ");
+    this->GetAFDB()->RemoveTag("ApexOfTheChest");
+    this->GetAFDB()->RemoveTag("RightBronchus");
+    this->GetAFDB()->RemoveTag("LeftBronchus");
+    this->GetAFDB()->RemoveTag("SuperiorBorderOfAorticArchZ");
+    this->GetAFDB()->RemoveTag("SuperiorBorderOfAorticArch");
+    this->GetAFDB()->RemoveTag("InferiorBorderOfAorticArchZ");
+    this->GetAFDB()->RemoveTag("InferiorBorderOfAorticArch");
     ExtractStationSupports();
-    StopSubStep();  
+    this->StopSubStep();  
   }
-  else {
-    m_ListOfSupports["S1R"] = GetAFDB()->template GetImage<MaskImageType>("Support_S1R");
-    m_ListOfSupports["S1L"] = GetAFDB()->template GetImage<MaskImageType>("Support_S1L");
-    m_ListOfSupports["S2R"] = GetAFDB()->template GetImage<MaskImageType>("Support_S2R");
-    m_ListOfSupports["S2L"] = GetAFDB()->template GetImage<MaskImageType>("Support_S2L");
-    m_ListOfSupports["S4R"] = GetAFDB()->template GetImage<MaskImageType>("Support_S4R");
-    m_ListOfSupports["S4L"] = GetAFDB()->template GetImage<MaskImageType>("Support_S4L");
-
-    m_ListOfSupports["S3A"] = GetAFDB()->template GetImage<MaskImageType>("Support_S3A");
-    m_ListOfSupports["S3P"] = GetAFDB()->template GetImage<MaskImageType>("Support_S3P");
-    m_ListOfSupports["S5"] = GetAFDB()->template GetImage<MaskImageType>("Support_S5");
-    m_ListOfSupports["S6"] = GetAFDB()->template GetImage<MaskImageType>("Support_S6");
-    m_ListOfSupports["S7"] = GetAFDB()->template GetImage<MaskImageType>("Support_S7");
-    m_ListOfSupports["S8"] = GetAFDB()->template GetImage<MaskImageType>("Support_S8");
-    m_ListOfSupports["S9"] = GetAFDB()->template GetImage<MaskImageType>("Support_S9");
-    m_ListOfSupports["S10"] = GetAFDB()->template GetImage<MaskImageType>("Support_S10");
-    m_ListOfSupports["S11"] = GetAFDB()->template GetImage<MaskImageType>("Support_S11");
-  }
-
-  // Extract Station8
-  ExtractStation_8();
 
   // Extract Station3P
   ExtractStation_3P();
@@ -126,26 +127,29 @@ GenerateOutputInformation() {
   // Extract Station3A
   ExtractStation_3A();
 
-  // HERE
-
   // Extract Station2RL
-  StartNewStep("Station 2RL");
-  StartSubStep(); 
   ExtractStation_2RL();
-  StopSubStep();
+
+  // Extract Station1RL
+  ExtractStation_1RL();
+
+  // ---------- TODO -----------------------
+
+  // Extract Station8
+  ExtractStation_8();
 
   // Extract Station7
-  StartNewStep("Station 7");
-  StartSubStep();
+  this->StartNewStep("Station 7");
+  this->StartSubStep();
   ExtractStation_7();
-  StopSubStep();
+  this->StopSubStep();
 
   if (0) { // temporary suppress
     // Extract Station4RL
-    StartNewStep("Station 4RL");
-    StartSubStep();
+    this->StartNewStep("Station 4RL");
+    this->StartSubStep();
     //ExtractStation_4RL();
-    StopSubStep();
+    this->StopSubStep();
   }
 }
 //--------------------------------------------------------------------
@@ -184,8 +188,8 @@ CheckForStation(std::string station)
 
   // Check if station already exist in DB
   bool found = false;
-  if (GetAFDB()->TagExist(s)) {
-    m_ListOfStations[station] = GetAFDB()->template GetImage<MaskImageType>(s);
+  if (this->GetAFDB()->TagExist(s)) {
+    m_ListOfStations[station] = this->GetAFDB()->template GetImage<MaskImageType>(s);
     found = true;
   }
 
@@ -194,7 +198,7 @@ CheckForStation(std::string station)
     std::cout << "Station " << station << " already exists, but re-computation forced." << std::endl;
   }
   if (!found || GetComputeStation(station)) {
-    m_Working_Support = m_Mediastinum = GetAFDB()->template GetImage<MaskImageType>("Mediastinum", true);
+    m_Working_Support = m_Mediastinum = this->GetAFDB()->template GetImage<MaskImageType>("Mediastinum", true);
     return true;
   }
   else {
@@ -329,8 +333,8 @@ clitk::ExtractLymphStationsFilter<ImageType>::
 Remove_Structures(std::string station, std::string s)
 {
   try {
-    StartNewStep("[Station"+station+"] Remove "+s);  
-    MaskImagePointer Structure = GetAFDB()->template GetImage<MaskImageType>(s);
+    this->StartNewStep("[Station"+station+"] Remove "+s);  
+    MaskImagePointer Structure = this->GetAFDB()->template GetImage<MaskImageType>(s);
     clitk::AndNot<MaskImageType>(m_Working_Support, Structure, GetBackgroundValue());
   }
   catch(clitk::ExceptionObject e) {
@@ -415,22 +419,22 @@ FindLineForS7S8Separation(MaskImagePointType & A, MaskImagePointType & B)
   // B = lower border of bronchus intermedius (BI) or RightMiddleLobeBronchus
   
   try {
-    GetAFDB()->GetPoint3D("LineForS7S8Separation_Begin", A); 
-    GetAFDB()->GetPoint3D("LineForS7S8Separation_End", B);
+    this->GetAFDB()->GetPoint3D("LineForS7S8Separation_Begin", A); 
+    this->GetAFDB()->GetPoint3D("LineForS7S8Separation_End", B);
   }
   catch(clitk::ExceptionObject & o) {
     
     DD("FindLineForS7S8Separation");
     // Load LeftLowerLobeBronchus and get centroid point
     MaskImagePointer LeftLowerLobeBronchus = 
-      GetAFDB()->template GetImage <MaskImageType>("LeftLowerLobeBronchus");
+      this->GetAFDB()->template GetImage <MaskImageType>("LeftLowerLobeBronchus");
     std::vector<MaskImagePointType> c;
     clitk::ComputeCentroids<MaskImageType>(LeftLowerLobeBronchus, GetBackgroundValue(), c);
     A = c[1];
     
     // Load RightMiddleLobeBronchus and get superior point (not centroid here)
     MaskImagePointer RightMiddleLobeBronchus = 
-      GetAFDB()->template GetImage <MaskImageType>("RightMiddleLobeBronchus");
+      this->GetAFDB()->template GetImage <MaskImageType>("RightMiddleLobeBronchus");
     bool b = FindExtremaPointInAGivenDirection<MaskImageType>(RightMiddleLobeBronchus, 
                                                               GetBackgroundValue(), 
                                                               2, false, B);
@@ -439,8 +443,8 @@ FindLineForS7S8Separation(MaskImagePointType & A, MaskImagePointType & B)
     }
     
     // Insert into the DB
-    GetAFDB()->SetPoint3D("LineForS7S8Separation_Begin", A);
-    GetAFDB()->SetPoint3D("LineForS7S8Separation_End", B);
+    this->GetAFDB()->SetPoint3D("LineForS7S8Separation_Begin", A);
+    this->GetAFDB()->SetPoint3D("LineForS7S8Separation_End", B);
   }
 }
 //--------------------------------------------------------------------
@@ -454,24 +458,24 @@ FindCarina()
 {
   double z;
   try {
-    z = GetAFDB()->GetDouble("CarinaZ");
+    z = this->GetAFDB()->GetDouble("CarinaZ");
   }
   catch(clitk::ExceptionObject e) {
     DD("FindCarinaSlicePosition");
     // Get Carina
-    MaskImagePointer Carina = GetAFDB()->template GetImage<MaskImageType>("Carina");
+    MaskImagePointer Carina = this->GetAFDB()->template GetImage<MaskImageType>("Carina");
     
     // Get Centroid and Z value
     std::vector<MaskImagePointType> centroids;
     clitk::ComputeCentroids<MaskImageType>(Carina, GetBackgroundValue(), centroids);
 
     // We dont need Carina structure from now
-    GetAFDB()->template ReleaseImage<MaskImageType>("Carina");
+    this->GetAFDB()->template ReleaseImage<MaskImageType>("Carina");
     
     // Put inside the AFDB
-    GetAFDB()->SetPoint3D("CarinaPoint", centroids[1]);
-    GetAFDB()->SetDouble("CarinaZ", centroids[1][2]);
-    WriteAFDB();
+    this->GetAFDB()->SetPoint3D("CarinaPoint", centroids[1]);
+    this->GetAFDB()->SetDouble("CarinaZ", centroids[1][2]);
+    this->WriteAFDB();
     z = centroids[1][2];
   }
   return z;
@@ -487,23 +491,23 @@ FindApexOfTheChest()
 {
   double z;
   try {
-    z = GetAFDB()->GetDouble("ApexOfTheChestZ");
+    z = this->GetAFDB()->GetDouble("ApexOfTheChestZ");
   }
   catch(clitk::ExceptionObject e) {
     DD("FindApexOfTheChestPosition");
-    MaskImagePointer Lungs = GetAFDB()->template GetImage<MaskImageType>("Lungs");
+    MaskImagePointer Lungs = this->GetAFDB()->template GetImage<MaskImageType>("Lungs");
     MaskImagePointType p;
     p[0] = p[1] = p[2] =  0.0; // to avoid warning
     clitk::FindExtremaPointInAGivenDirection<MaskImageType>(Lungs, GetBackgroundValue(), 2, false, p);
 
     // We dont need Lungs structure from now
-    GetAFDB()->template ReleaseImage<MaskImageType>("Lungs");
+    this->GetAFDB()->template ReleaseImage<MaskImageType>("Lungs");
     
     // Put inside the AFDB
-    GetAFDB()->SetPoint3D("ApexOfTheChest", p);
+    this->GetAFDB()->SetPoint3D("ApexOfTheChest", p);
     p[2] -= 5; // We consider 5 mm lower 
-    GetAFDB()->SetDouble("ApexOfTheChestZ", p[2]);
-    WriteAFDB();
+    this->GetAFDB()->SetDouble("ApexOfTheChestZ", p[2]);
+    this->WriteAFDB();
     z = p[2];
   }
   return z;
@@ -518,8 +522,8 @@ clitk::ExtractLymphStationsFilter<TImageType>::
 FindLeftAndRightBronchi()
 {
   try {
-    m_RightBronchus = GetAFDB()->template GetImage <MaskImageType>("RightBronchus");
-    m_LeftBronchus = GetAFDB()->template GetImage <MaskImageType>("LeftBronchus");
+    m_RightBronchus = this->GetAFDB()->template GetImage <MaskImageType>("RightBronchus");
+    m_LeftBronchus = this->GetAFDB()->template GetImage <MaskImageType>("LeftBronchus");
   }
   catch(clitk::ExceptionObject & o) {
 
@@ -528,7 +532,7 @@ FindLeftAndRightBronchi()
     // a Left and Right bronchus.
   
     // Get the trachea
-    MaskImagePointer Trachea = GetAFDB()->template GetImage<MaskImageType>("Trachea");
+    MaskImagePointer Trachea = this->GetAFDB()->template GetImage<MaskImageType>("Trachea");
 
     // Get the Carina position
     double m_CarinaZ = FindCarina();
@@ -595,9 +599,9 @@ FindLeftAndRightBronchi()
     LeftBronchus = clitk::AutoCrop<MaskImageType>(LeftBronchus, GetBackgroundValue()); 
 
     // Insert int AFDB if need after 
-    GetAFDB()->template SetImage <MaskImageType>("RightBronchus", "seg/rightBronchus.mhd", 
+    this->GetAFDB()->template SetImage <MaskImageType>("RightBronchus", "seg/rightBronchus.mhd", 
                                                  RightBronchus, true);
-    GetAFDB()->template SetImage <MaskImageType>("LeftBronchus", "seg/leftBronchus.mhd", 
+    this->GetAFDB()->template SetImage <MaskImageType>("LeftBronchus", "seg/leftBronchus.mhd", 
                                                  LeftBronchus, true);
   }
 }
@@ -612,23 +616,23 @@ FindSuperiorBorderOfAorticArch()
 {
   double z;
   try {
-    z = GetAFDB()->GetDouble("SuperiorBorderOfAorticArchZ");
+    z = this->GetAFDB()->GetDouble("SuperiorBorderOfAorticArchZ");
   }
   catch(clitk::ExceptionObject e) {
     DD("FindSuperiorBorderOfAorticArch");
-    MaskImagePointer Aorta = GetAFDB()->template GetImage<MaskImageType>("Aorta");
+    MaskImagePointer Aorta = this->GetAFDB()->template GetImage<MaskImageType>("Aorta");
     MaskImagePointType p;
     p[0] = p[1] = p[2] =  0.0; // to avoid warning
     clitk::FindExtremaPointInAGivenDirection<MaskImageType>(Aorta, GetBackgroundValue(), 2, false, p);
     p[2] += Aorta->GetSpacing()[2]; // the slice above
     
     // We dont need Lungs structure from now
-    GetAFDB()->template ReleaseImage<MaskImageType>("Aorta");
+    this->GetAFDB()->template ReleaseImage<MaskImageType>("Aorta");
     
     // Put inside the AFDB
-    GetAFDB()->SetPoint3D("SuperiorBorderOfAorticArch", p);
-    GetAFDB()->SetDouble("SuperiorBorderOfAorticArchZ", p[2]);
-    WriteAFDB();
+    this->GetAFDB()->SetPoint3D("SuperiorBorderOfAorticArch", p);
+    this->GetAFDB()->SetDouble("SuperiorBorderOfAorticArchZ", p[2]);
+    this->WriteAFDB();
     z = p[2];
   }
   return z;
@@ -644,11 +648,11 @@ FindInferiorBorderOfAorticArch()
 {
   double z;
   try {
-    z = GetAFDB()->GetDouble("InferiorBorderOfAorticArchZ");
+    z = this->GetAFDB()->GetDouble("InferiorBorderOfAorticArchZ");
   }
   catch(clitk::ExceptionObject e) {
     DD("FindInferiorBorderOfAorticArch");
-    MaskImagePointer Aorta = GetAFDB()->template GetImage<MaskImageType>("Aorta");
+    MaskImagePointer Aorta = this->GetAFDB()->template GetImage<MaskImageType>("Aorta");
     std::vector<MaskSlicePointer> slices;
     clitk::ExtractSlices<MaskImageType>(Aorta, 2, slices);
     bool found=false;
@@ -671,12 +675,12 @@ FindInferiorBorderOfAorticArch()
     Aorta->TransformIndexToPhysicalPoint(index, lower);
     
     // We dont need Lungs structure from now
-    GetAFDB()->template ReleaseImage<MaskImageType>("Aorta");
+    this->GetAFDB()->template ReleaseImage<MaskImageType>("Aorta");
     
     // Put inside the AFDB
-    GetAFDB()->SetPoint3D("InferiorBorderOfAorticArch", lower);
-    GetAFDB()->SetDouble("InferiorBorderOfAorticArchZ", lower[2]);
-    WriteAFDB();
+    this->GetAFDB()->SetPoint3D("InferiorBorderOfAorticArch", lower);
+    this->GetAFDB()->SetDouble("InferiorBorderOfAorticArchZ", lower[2]);
+    this->WriteAFDB();
     z = lower[2];
   }
   return z;
@@ -688,7 +692,7 @@ FindInferiorBorderOfAorticArch()
 template <class ImageType>
 typename clitk::ExtractLymphStationsFilter<ImageType>::MaskImagePointer 
 clitk::ExtractLymphStationsFilter<ImageType>::
-FindAntPostVessels()
+FindAntPostVesselsOLD()
 {
   // -----------------------------------------------------
   /* Rod says: "The anterior border, as with the Atlas – UM, is
@@ -704,11 +708,9 @@ FindAntPostVessels()
   bool found = true;
   MaskImagePointer binarizedContour;
   try {
-    DD("FindAntPostVessels try to get");
-    binarizedContour = GetAFDB()->template GetImage <MaskImageType>("AntPostVesselsSeparation");
+    binarizedContour = this->GetAFDB()->template GetImage <MaskImageType>("AntPostVesselsSeparation");
   }
   catch(clitk::ExceptionObject e) {
-    DD("not found");
     found = false;
   }
   if (found) {
@@ -733,22 +735,22 @@ FindAntPostVessels()
   */
 
   // Read structures
-  MaskImagePointer BrachioCephalicArtery = GetAFDB()->template GetImage<MaskImageType>("BrachioCephalicArtery");
-  MaskImagePointer BrachioCephalicVein = GetAFDB()->template GetImage<MaskImageType>("BrachioCephalicVein");
-  MaskImagePointer CommonCarotidArtery = GetAFDB()->template GetImage<MaskImageType>("CommonCarotidArtery");
-  MaskImagePointer SubclavianArtery = GetAFDB()->template GetImage<MaskImageType>("SubclavianArtery");
-  MaskImagePointer Thyroid = GetAFDB()->template GetImage<MaskImageType>("Thyroid");
-  MaskImagePointer Aorta = GetAFDB()->template GetImage<MaskImageType>("Aorta");
-  MaskImagePointer Trachea = GetAFDB()->template GetImage<MaskImageType>("Trachea");
+  MaskImagePointer BrachioCephalicArtery = this->GetAFDB()->template GetImage<MaskImageType>("BrachioCephalicArtery");
+  MaskImagePointer BrachioCephalicVein = this->GetAFDB()->template GetImage<MaskImageType>("BrachioCephalicVein");
+  MaskImagePointer CommonCarotidArtery = this->GetAFDB()->template GetImage<MaskImageType>("CommonCarotidArtery");
+  MaskImagePointer SubclavianArtery = this->GetAFDB()->template GetImage<MaskImageType>("SubclavianArtery");
+  MaskImagePointer Thyroid = this->GetAFDB()->template GetImage<MaskImageType>("Thyroid");
+  MaskImagePointer Aorta = this->GetAFDB()->template GetImage<MaskImageType>("Aorta");
+  MaskImagePointer Trachea = this->GetAFDB()->template GetImage<MaskImageType>("Trachea");
   
   // Create a temporay support
   // From first slice of BrachioCephalicVein to end of 3A
-  MaskImagePointer support = GetAFDB()->template GetImage<MaskImageType>("Support_Sup_Carina");
+  MaskImagePointer support = this->GetAFDB()->template GetImage<MaskImageType>("Support_Sup_Carina");
   MaskImagePointType p;
   p[0] = p[1] = p[2] =  0.0; // to avoid warning
   clitk::FindExtremaPointInAGivenDirection<MaskImageType>(BrachioCephalicVein, GetBackgroundValue(), 2, true, p);
   double inf = p [2];
-  clitk::FindExtremaPointInAGivenDirection<MaskImageType>(GetAFDB()->template GetImage<MaskImageType>("Support_S3A"), 
+  clitk::FindExtremaPointInAGivenDirection<MaskImageType>(this->GetAFDB()->template GetImage<MaskImageType>("Support_S3A"), 
                                                           GetBackgroundValue(), 2, false, p);
   double sup = p [2];  
   support = clitk::CropImageAlongOneAxis<MaskImageType>(support, 2, inf, sup, 
@@ -1010,8 +1012,8 @@ FindAntPostVessels()
                                                         false, GetBackgroundValue());
   // Update the AFDB
   writeImage<MaskImageType>(binarizedContour, "seg/AntPostVesselsSeparation.mhd");
-  GetAFDB()->SetImageFilename("AntPostVesselsSeparation", "seg/AntPostVesselsSeparation.mhd");  
-  WriteAFDB();
+  this->GetAFDB()->SetImageFilename("AntPostVesselsSeparation", "seg/AntPostVesselsSeparation.mhd");  
+  this->WriteAFDB();
   return binarizedContour;
 
   /*
@@ -1046,21 +1048,6 @@ FindAntPostVessels()
 //--------------------------------------------------------------------
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //--------------------------------------------------------------------
 template <class ImageType>
 typename clitk::ExtractLymphStationsFilter<ImageType>::MaskImagePointer 
@@ -1081,11 +1068,9 @@ FindAntPostVessels2()
   bool found = true;
   MaskImagePointer binarizedContour;
   try {
-    DD("FindAntPostVessels try to get");
-    binarizedContour = GetAFDB()->template GetImage <MaskImageType>("AntPostVesselsSeparation");
+    binarizedContour = this->GetAFDB()->template GetImage <MaskImageType>("AntPostVesselsSeparation");
   }
   catch(clitk::ExceptionObject e) {
-    DD("not found");
     found = false;
   }
   if (found) {
@@ -1112,28 +1097,33 @@ FindAntPostVessels2()
   // Read structures
   std::map<std::string, MaskImagePointer> MapOfStructures;  
   typedef std::map<std::string, MaskImagePointer>::iterator MapIter;
-  MapOfStructures["BrachioCephalicArtery"] = GetAFDB()->template GetImage<MaskImageType>("BrachioCephalicArtery");
-  MapOfStructures["BrachioCephalicVein"] = GetAFDB()->template GetImage<MaskImageType>("BrachioCephalicVein");
-  MapOfStructures["CommonCarotidArteryLeft"] = GetAFDB()->template GetImage<MaskImageType>("CommonCarotidArteryLeft");
-  MapOfStructures["CommonCarotidArteryRight"] = GetAFDB()->template GetImage<MaskImageType>("CommonCarotidArteryRight");
-  MapOfStructures["SubclavianArteryLeft"] = GetAFDB()->template GetImage<MaskImageType>("SubclavianArteryLeft");
-  MapOfStructures["SubclavianArteryRight"] = GetAFDB()->template GetImage<MaskImageType>("SubclavianArteryRight");
-  MapOfStructures["Thyroid"] = GetAFDB()->template GetImage<MaskImageType>("Thyroid");
-  MapOfStructures["Aorta"] = GetAFDB()->template GetImage<MaskImageType>("Aorta");
-  MapOfStructures["Trachea"] = GetAFDB()->template GetImage<MaskImageType>("Trachea");
+  MapOfStructures["BrachioCephalicArtery"] = this->GetAFDB()->template GetImage<MaskImageType>("BrachioCephalicArtery");
+  MapOfStructures["BrachioCephalicVein"] = this->GetAFDB()->template GetImage<MaskImageType>("BrachioCephalicVein");
+  MapOfStructures["CommonCarotidArteryLeft"] = this->GetAFDB()->template GetImage<MaskImageType>("CommonCarotidArteryLeft");
+  MapOfStructures["CommonCarotidArteryRight"] = this->GetAFDB()->template GetImage<MaskImageType>("CommonCarotidArteryRight");
+  MapOfStructures["SubclavianArteryLeft"] = this->GetAFDB()->template GetImage<MaskImageType>("SubclavianArteryLeft");
+  MapOfStructures["SubclavianArteryRight"] = this->GetAFDB()->template GetImage<MaskImageType>("SubclavianArteryRight");
+  MapOfStructures["Thyroid"] = this->GetAFDB()->template GetImage<MaskImageType>("Thyroid");
+  MapOfStructures["Aorta"] = this->GetAFDB()->template GetImage<MaskImageType>("Aorta");
+  MapOfStructures["Trachea"] = this->GetAFDB()->template GetImage<MaskImageType>("Trachea");
   
   std::vector<std::string> ListOfStructuresNames;
 
   // Create a temporay support
-  // From first slice of BrachioCephalicVein to end of 3A
-  MaskImagePointer support = GetAFDB()->template GetImage<MaskImageType>("Support_Sup_Carina");
+  // From first slice of BrachioCephalicVein to end of 3A or end of 2RL
+  MaskImagePointer support = this->GetAFDB()->template GetImage<MaskImageType>("Support_Sup_Carina");
   MaskImagePointType p;
   p[0] = p[1] = p[2] =  0.0; // to avoid warning
   clitk::FindExtremaPointInAGivenDirection<MaskImageType>(MapOfStructures["BrachioCephalicVein"], 
                                                           GetBackgroundValue(), 2, true, p);
   double inf = p[2];
-  clitk::FindExtremaPointInAGivenDirection<MaskImageType>(GetAFDB()->template GetImage<MaskImageType>("Support_S3A"), 
+  clitk::FindExtremaPointInAGivenDirection<MaskImageType>(this->GetAFDB()->template GetImage<MaskImageType>("Support_S3A"), 
                                                           GetBackgroundValue(), 2, false, p);
+  MaskImagePointType p2;
+  clitk::FindExtremaPointInAGivenDirection<MaskImageType>(this->GetAFDB()->template GetImage<MaskImageType>("Support_S2L"), 
+                                                          GetBackgroundValue(), 2, false, p2);
+  if (p2[2] > p[2]) p = p2;
+
   double sup = p[2]+support->GetSpacing()[2];//one slice more ?
   support = clitk::CropImageAlongOneAxis<MaskImageType>(support, 2, inf, sup, 
                                                         false, GetBackgroundValue());
@@ -1381,8 +1371,8 @@ FindAntPostVessels2()
 
   // Update the AFDB
   writeImage<MaskImageType>(binarizedContour, "seg/AntPostVesselsSeparation.mhd");
-  GetAFDB()->SetImageFilename("AntPostVesselsSeparation", "seg/AntPostVesselsSeparation.mhd");  
-  WriteAFDB();
+  this->GetAFDB()->SetImageFilename("AntPostVesselsSeparation", "seg/AntPostVesselsSeparation.mhd");  
+  this->WriteAFDB();
   return binarizedContour;
 
   /*

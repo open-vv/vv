@@ -114,11 +114,6 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
     f->AddComputeStation(mArgsInfo.station_arg[i]);
 
   // Station 3A
-  f->SetFuzzyThreshold("3A", "SVC", mArgsInfo.S3A_ft_SVC_arg);
-  f->SetFuzzyThreshold("3A", "Bones", mArgsInfo.S3A_ft_Bones_arg);
-  f->SetThreshold("3A", "Bones", mArgsInfo.S3A_t_Bones_arg);
-  f->SetFuzzyThreshold("3A", "Aorta", mArgsInfo.S3A_ft_Aorta_arg);
-  f->SetFuzzyThreshold("3A", "SubclavianArtery", mArgsInfo.S3A_ft_SubclavianArtery_arg);
   
   // Station 7
   f->SetFuzzyThreshold("7", "Bronchi", mArgsInfo.S7_ft_Bronchi_arg);
@@ -130,12 +125,12 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   f->SetS7_UseMostInferiorPartOnlyFlag(mArgsInfo.S7_UseMostInferiorPartOnly_flag);
 
   // Station 2RL
-  f->SetFuzzyThreshold("2RL", "CommonCarotidArtery", mArgsInfo.S2RL_ft_CommonCarotidArtery_arg);
-  f->SetFuzzyThreshold("2RL", "BrachioCephalicTrunk", mArgsInfo.S2RL_ft_BrachioCephalicTrunk_arg);
-  f->SetFuzzyThreshold("2RL", "BrachioCephalicVein", mArgsInfo.S2RL_ft_BrachioCephalicVein_arg);
-  f->SetFuzzyThreshold("2RL", "Aorta", mArgsInfo.S2RL_ft_Aorta_arg);
-  f->SetFuzzyThreshold("2RL", "SubclavianArteryLeft", mArgsInfo.S2RL_ft_SubclavianArteryLeft_arg);
-  f->SetFuzzyThreshold("2RL", "SubclavianArteryRight", mArgsInfo.S2RL_ft_SubclavianArteryRight_arg);
+
+  // Station 1RL
+
+  // Set RelativePositionList filenames
+  for(uint i=0; i<mArgsInfo.relpos_given; i++) 
+    f->AddRelativePositionListFilename(mArgsInfo.relpos_arg[i]);
 }
 //--------------------------------------------------------------------
 
