@@ -17,22 +17,8 @@ section "I/O"
 option "input"     i	"Input CT filename"               string  	yes
 option "output"    o 	"Output lungs mask filename"      string 	yes
 option "afdb"      a	"Input Anatomical Feature DB (needs Patient, Lungs, Trachea, VertebralBody)"     string  	no
+option "relpos" - "List of filenames for relativeposition operations" string no multiple
+
 option "useBones"  -    "If set : do use bones mask (when image is not injected)"  flag	off
 option "maxAntSpine"  - "Distance max to anterior part of the VertebralBody (spine) in mm"  double no default="10"
 
-option "spacing"     -	"Intermediate resampling spacing"         double no default="6"
-option "ft_LR_lungs"	     -	"RelPos LR limits lungs"	  double no default="0.3"
-option "ft_bones"	     -	"RelPos AP limits bones"	  double no default="0.6"
-option "ft_inf_lungs"	     -	"RelPos inf limits bones"	  double no default="0.05"
-option "ft_ant_sternum"	     -	"RelPos ant limits sternum"	  double no default="0.5"
-
-#section "Step 1 : Left/Right limits with lungs"
-
-section "Step 2 : Ant/Post limits with bones"
-#option "antSpine"     -	"Distance max to anterior part of the spine in mm"  double no default="10"
-
-#section "Step 3 : Inf limits with Lung"
-
-# section "Step x : threshold for removing bones and injected parts"
-# option "upper"  - "Upper threshold" double no default="150"
-# option "lower"  - "Lower threshold" double no default="-200"

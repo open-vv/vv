@@ -19,8 +19,7 @@
 #ifndef CLITKEXTRACTMEDIASTINUMFILTER_H
 #define CLITKEXTRACTMEDIASTINUMFILTER_H
 
-#include "clitkFilterBase.h"
-#include "clitkFilterWithAnatomicalFeatureDatabaseManagement.h"
+#include "clitkStructuresExtractionFilter.h"
 
 namespace clitk {
   
@@ -38,9 +37,7 @@ namespace clitk {
   
   template <class TImageType>
   class ITK_EXPORT ExtractMediastinumFilter: 
-    public virtual clitk::FilterBase, 
-    public clitk::FilterWithAnatomicalFeatureDatabaseManagement,
-    public itk::ImageToImageFilter<TImageType, itk::Image<uchar, 3> > 
+    public clitk::StructuresExtractionFilter<TImageType>
   {
 
   public:
@@ -69,7 +66,8 @@ namespace clitk {
     typedef typename MaskSliceType::PointType    MaskSlicePointType;
 
     /** Standard class typedefs. */
-    typedef itk::ImageToImageFilter<TImageType, MaskImageType> Superclass;
+    //    typedef itk::ImageToImageFilter<TImageType, MaskImageType> Superclass;
+    typedef clitk::StructuresExtractionFilter<TImageType> Superclass;
     typedef ExtractMediastinumFilter            Self;
     typedef itk::SmartPointer<Self>             Pointer;
     typedef itk::SmartPointer<const Self>       ConstPointer;
@@ -88,8 +86,8 @@ namespace clitk {
                                 MaskImagePixelType fgLeftLung=1, MaskImagePixelType fgRightLung=2);
     void SetInputBonesLabelImage(const MaskImageType * image, MaskImagePixelType bg=0);
     void SetInputTracheaLabelImage(const MaskImageType * image, MaskImagePixelType bg=0);
-   
-   // Output filename  (for AFBD)
+
+    // Output filename  (for AFBD)
     itkSetMacro(OutputMediastinumFilename, std::string);
     itkGetConstMacro(OutputMediastinumFilename, std::string);
 
@@ -106,9 +104,6 @@ namespace clitk {
     itkSetMacro(BackgroundValueBones, MaskImagePixelType);
     itkGetConstMacro(BackgroundValueBones, MaskImagePixelType);
     
-    itkGetConstMacro(BackgroundValue, MaskImagePixelType);
-    itkGetConstMacro(ForegroundValue, MaskImagePixelType);
-
     itkSetMacro(ForegroundValueLeftLung, MaskImagePixelType);
     itkGetConstMacro(ForegroundValueLeftLung, MaskImagePixelType);
     
@@ -138,19 +133,13 @@ namespace clitk {
     virtual void GenerateOutputInformation();
     virtual void GenerateInputRequestedRegion();
     virtual void GenerateData();
-       
-    itkSetMacro(BackgroundValue, MaskImagePixelType);
-    itkSetMacro(ForegroundValue, MaskImagePixelType);
-    
+         
     MaskImagePixelType m_BackgroundValuePatient;
     MaskImagePixelType m_BackgroundValueLung;
     MaskImagePixelType m_BackgroundValueBones;
     MaskImagePixelType m_BackgroundValueTrachea;
     MaskImagePixelType m_ForegroundValueLeftLung;
     MaskImagePixelType m_ForegroundValueRightLung;
-
-    MaskImagePixelType m_BackgroundValue;
-    MaskImagePixelType m_ForegroundValue;
 
     MaskImagePointer output;
     MaskImagePointer patient;
