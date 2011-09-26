@@ -29,6 +29,7 @@ clitk::FilterBase::FilterBase()
   VerboseWarningFlagOn();
   VerboseWarningFlagOff();
   VerboseMemoryFlagOff();
+  VerboseImageSizeFlagOff();
   SetWarning("");
   VerboseWarningFlagOn();
   m_IsCancelled = false;

@@ -59,7 +59,7 @@ void clitk::FilterBase::VerboseOptionV(std::string name, int nb, OptionType * va
 
 //--------------------------------------------------------------------
 template<class TInternalImageType>
-void clitk::FilterBase::StopCurrentStep(typename TInternalImageType::Pointer p) 
+void clitk::FilterBase::StopCurrentStep(typename TInternalImageType::Pointer p, std::string txt) 
 {
   StopCurrentStep();
   if (m_WriteStepFlag) {
@@ -68,6 +68,19 @@ void clitk::FilterBase::StopCurrentStep(typename TInternalImageType::Pointer p)
     clitk::writeImage<TInternalImageType>(p, name.str());
   }
   clitk::PrintMemory(GetVerboseMemoryFlag(), "End of step"); 
+  if (GetVerboseImageSizeFlag()) {
+    std::ostream & os = std::cout;
+    int dim = p->GetImageDimension();
+    int nb = 1;
+    os << txt << " size = ";
+    for(unsigned int i=0; i<dim-1; i++) {
+      os << p->GetLargestPossibleRegion().GetSize()[i] << "x";
+      nb *= p->GetLargestPossibleRegion().GetSize()[i];
+    }
+    os << p->GetLargestPossibleRegion().GetSize()[dim-1] << "  ";
+    nb *= p->GetLargestPossibleRegion().GetSize()[dim-1];
+    os << " pixels = " << nb << std::endl;    
+  }
 }
 //--------------------------------------------------------------------
 

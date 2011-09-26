@@ -69,6 +69,11 @@ namespace clitk {
     itkGetConstMacro(VerboseMemoryFlag, bool);
     itkBooleanMacro(VerboseMemoryFlag);
 
+    // Verbose ImageSize
+    itkSetMacro(VerboseImageSizeFlag, bool);
+    itkGetConstMacro(VerboseImageSizeFlag, bool);
+    itkBooleanMacro(VerboseImageSizeFlag);
+
     // Steps management
     itkSetMacro(NumberOfSteps, int);
     itkGetConstMacro(NumberOfSteps, int);
@@ -115,13 +120,14 @@ namespace clitk {
     virtual ~FilterBase() {}    
     void StartNewStep(std::string s);
     template<class TInternalImageType>
-    void StopCurrentStep(typename TInternalImageType::Pointer p);
+    void StopCurrentStep(typename TInternalImageType::Pointer p, std::string txt="");
     void StopCurrentStep();
 
     bool m_VerboseFlag;  
     bool m_VerboseOptionFlag;  
     bool m_VerboseStepFlag;
     bool m_VerboseMemoryFlag;
+    bool m_VerboseImageSizeFlag;
     bool m_WriteStepFlag;
     int m_CurrentStepNumber;
     int m_NumberOfSteps;
