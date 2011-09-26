@@ -74,28 +74,28 @@ namespace clitk {
     itkGetConstMacro(Direction, int);
     itkSetMacro(Direction, int);
 
-    itkGetConstMacro(UniqueConnectedComponentBySlice, bool);
-    itkSetMacro(UniqueConnectedComponentBySlice, bool);
-    itkBooleanMacro(UniqueConnectedComponentBySlice);
+    itkGetConstMacro(UniqueConnectedComponentBySliceFlag, bool);
+    itkSetMacro(UniqueConnectedComponentBySliceFlag, bool);
+    itkBooleanMacro(UniqueConnectedComponentBySliceFlag);
 
     itkGetConstMacro(IgnoreEmptySliceObjectFlag, bool);
     itkSetMacro(IgnoreEmptySliceObjectFlag, bool);
     itkBooleanMacro(IgnoreEmptySliceObjectFlag);
 
-    itkGetConstMacro(UseASingleObjectConnectedComponentBySliceFlag, bool);
-    itkSetMacro(UseASingleObjectConnectedComponentBySliceFlag, bool);
-    itkBooleanMacro(UseASingleObjectConnectedComponentBySliceFlag);
+    itkGetConstMacro(UseTheLargestObjectCCLFlag, bool);
+    itkSetMacro(UseTheLargestObjectCCLFlag, bool);
+    itkBooleanMacro(UseTheLargestObjectCCLFlag);
 
-    itkGetConstMacro(CCLSelectionFlag, bool);
-    itkSetMacro(CCLSelectionFlag, bool);
-    itkBooleanMacro(CCLSelectionFlag);
-    itkGetConstMacro(CCLSelectionDimension, int);
-    itkSetMacro(CCLSelectionDimension, int);
-    itkGetConstMacro(CCLSelectionDirection, int);
-    itkSetMacro(CCLSelectionDirection, int);
-    itkGetConstMacro(CCLSelectionIgnoreSingleCCLFlag, bool);
-    itkSetMacro(CCLSelectionIgnoreSingleCCLFlag, bool);
-    itkBooleanMacro(CCLSelectionIgnoreSingleCCLFlag);
+    itkGetConstMacro(ObjectCCLSelectionFlag, bool);
+    itkSetMacro(ObjectCCLSelectionFlag, bool);
+    itkBooleanMacro(ObjectCCLSelectionFlag);
+    itkGetConstMacro(ObjectCCLSelectionDimension, int);
+    itkSetMacro(ObjectCCLSelectionDimension, int);
+    itkGetConstMacro(ObjectCCLSelectionDirection, int);
+    itkSetMacro(ObjectCCLSelectionDirection, int);
+    itkGetConstMacro(ObjectCCLSelectionIgnoreSingleCCLFlag, bool);
+    itkSetMacro(ObjectCCLSelectionIgnoreSingleCCLFlag, bool);
+    itkBooleanMacro(ObjectCCLSelectionIgnoreSingleCCLFlag);
 
   protected:
     SliceBySliceRelativePositionFilter();
@@ -109,14 +109,14 @@ namespace clitk {
     ImagePointer object;
     ImagePointer m_working_input;
     ImagePointer m_working_object;
-    bool         m_UniqueConnectedComponentBySlice;
+    bool         m_UniqueConnectedComponentBySliceFlag;
     int          m_Direction;
     bool         m_IgnoreEmptySliceObjectFlag;
-    bool         m_UseASingleObjectConnectedComponentBySliceFlag;
-    bool         m_CCLSelectionFlag;
-    int          m_CCLSelectionDimension;
-    int          m_CCLSelectionDirection;
-    bool         m_CCLSelectionIgnoreSingleCCLFlag;
+    bool         m_UseTheLargestObjectCCLFlag;
+    bool         m_ObjectCCLSelectionFlag;
+    int          m_ObjectCCLSelectionDimension;
+    int          m_ObjectCCLSelectionDirection;
+    bool         m_ObjectCCLSelectionIgnoreSingleCCLFlag;
 
   private:
     SliceBySliceRelativePositionFilter(const Self&); //purposely not implemented

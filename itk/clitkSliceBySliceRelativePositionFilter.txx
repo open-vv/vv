@@ -31,16 +31,16 @@ SliceBySliceRelativePositionFilter():
   clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>()
 {
   SetDirection(2);
-  UniqueConnectedComponentBySliceOff();
+  UniqueConnectedComponentBySliceFlagOff();
   SetIgnoreEmptySliceObjectFlag(false);
-  UseASingleObjectConnectedComponentBySliceFlagOn();
+  UseTheLargestObjectCCLFlagOff();
   this->VerboseStepFlagOff();
   this->WriteStepFlagOff();
   this->SetCombineWithOrFlag(false);
-  CCLSelectionFlagOff();
-  SetCCLSelectionDimension(0);
-  SetCCLSelectionDirection(1);
-  CCLSelectionIgnoreSingleCCLFlagOff();
+  ObjectCCLSelectionFlagOff();
+  SetObjectCCLSelectionDimension(0);
+  SetObjectCCLSelectionDirection(1);
+  ObjectCCLSelectionIgnoreSingleCCLFlagOff();
 }
 //--------------------------------------------------------------------
 
@@ -81,11 +81,15 @@ PrintOptions()
   DD(this->GetIntermediateSpacingFlag());
   DD(this->GetIntermediateSpacing());
   DD(this->GetFuzzyThreshold());
-  DD(this->GetUniqueConnectedComponentBySlice());
+  DD(this->GetUniqueConnectedComponentBySliceFlag());
   DD(this->GetAutoCropFlag());
   DD(this->GetInverseOrientationFlag());
   DD(this->GetRemoveObjectFlag());
   DD(this->GetCombineWithOrFlag());
+  DD(this->GetUseTheLargestObjectCCLFlag());
+  DD(this->GetObjectCCLSelectionFlag());
+  DD(this->GetObjectCCLSelectionDimension());
+  DD(this->GetObjectCCLSelectionIgnoreSingleCCLFlag());
 }
 //--------------------------------------------------------------------
 
@@ -187,23 +191,23 @@ GenerateOutputInformation()
     if ((!GetIgnoreEmptySliceObjectFlag()) || (nb!=0)) {
 
       // Select or not a single CCL ?
-      if (GetUseASingleObjectConnectedComponentBySliceFlag()) {
+      if (GetUseTheLargestObjectCCLFlag()) {
         mObjectSlices[i] = KeepLabels<SliceType>(mObjectSlices[i], 0, 1, 1, 1, true);
       }
 
       // Select a single according to a position if more than one CCL
-      if (GetCCLSelectionFlag()) {
+      if (GetObjectCCLSelectionFlag()) {
         // if several CCL, choose the most extrema according a direction, 
         // if not -> should we consider this slice ? 
         if (nb<2) {
-          if (GetCCLSelectionIgnoreSingleCCLFlag()) {
+          if (GetObjectCCLSelectionIgnoreSingleCCLFlag()) {
             mObjectSlices[i] = SetBackground<SliceType, SliceType>(mObjectSlices[i], mObjectSlices[i], 
                                                                    1, this->GetBackgroundValue(), 
                                                                    true);
           }
         }
-        int dim = GetCCLSelectionDimension();
-        int direction = GetCCLSelectionDirection();
+        int dim = GetObjectCCLSelectionDimension();
+        int direction = GetObjectCCLSelectionDirection();
         std::vector<typename SliceType::PointType> centroids;
         ComputeCentroids<SliceType>(mObjectSlices[i], this->GetBackgroundValue(), centroids);
         uint index=1;
@@ -222,7 +226,7 @@ GenerateOutputInformation()
                                                                    true);
           }
         }
-      } // end GetCCLSelectionFlag = true
+      } // end GetbjectCCLSelectionFlag = true
 
       // Relative position
       typedef clitk::AddRelativePositionConstraintToLabelImageFilter<SliceType> RelPosFilterType;
@@ -234,10 +238,14 @@ GenerateOutputInformation()
       relPosFilter->SetInput(mInputSlices[i]); 
       relPosFilter->SetInputObject(mObjectSlices[i]); 
       relPosFilter->SetRemoveObjectFlag(this->GetRemoveObjectFlag());
+      // This flag (InverseOrientation) *must* be set before
+      // AddOrientation because AddOrientation can change it.
+      relPosFilter->SetInverseOrientationFlag(this->GetInverseOrientationFlag());
       for(int j=0; j<this->GetNumberOfAngles(); j++) {
         relPosFilter->AddOrientationTypeString(this->GetOrientationTypeString(j));
+        //DD(this->GetOrientationTypeString(j));
       }
-      relPosFilter->SetInverseOrientationFlag(this->GetInverseOrientationFlag());
+      //DD(this->GetInverseOrientationFlag());
       //relPosFilter->SetOrientationType(this->GetOrientationType());
       relPosFilter->SetIntermediateSpacing(this->GetIntermediateSpacing());
       relPosFilter->SetIntermediateSpacingFlag(this->GetIntermediateSpacingFlag());
@@ -248,7 +256,7 @@ GenerateOutputInformation()
       mInputSlices[i] = relPosFilter->GetOutput();
 
       // Select main CC if needed
-      if (GetUniqueConnectedComponentBySlice()) {
+      if (GetUniqueConnectedComponentBySliceFlag()) {
         mInputSlices[i] = Labelize<SliceType>(mInputSlices[i], 0, true, 1);
         mInputSlices[i] = KeepLabels<SliceType>(mInputSlices[i], 0, 1, 1, 1, true);
       }
