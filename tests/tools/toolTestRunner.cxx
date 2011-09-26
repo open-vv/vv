@@ -57,6 +57,39 @@ void assertFalse(int fail, const std::string &message=""){
     exit(1);
   }
 }
+bool isLineToIgnore(const std::string line){
+	if(std::string::npos == line.find_first_of("ITK_InputFilterName")){
+		return true;
+	}
+	return false;
+}
+bool mhdCmp(const std::string &file, const std::string &refFile){
+	bool sameFiles = true;
+	std::ifstream in(file.c_str());
+	std::ifstream ref(file.c_str());
+	std::string line;
+	std::string refLine;
+	while ( in.good() && ref.good()){
+		getline (in,line);
+		//does the line begins by an attribute to ignore
+		if(isLineToIgnore(line)){
+			continue;
+		}
+		
+		getline(ref,refLine);
+		while(isLineToIgnore(refLine)){
+			getline(ref,refLine);
+		}
+		if(line!=refLine){
+			sameFiles = false;
+			break;
+		}
+	}
+	in.close();
+	ref.close();
+	//check files same length
+	return sameFiles;
+}
 
 #ifdef _WIN32
 void dosToUnixFile(std::string dosFile, std::string unixedFile){
@@ -124,10 +157,10 @@ int main(int argc, char** argv){
 	std::string unixedOutFile= getTmpFileName();
 	//replace \r\n
 	dosToUnixFile(outFile, unixedOutFile);
-	assertFalse((itksys::SystemTools::FilesDiffer(unixedOutFile.c_str(), refFile)), "Generated mhd file != ref File");
+	assertFalse(!mhdCmp(unixedOutFile, refFile), "Generated mhd file != ref File");
   remove(unixedOutFile.c_str());
 #else
-  assertFalse((itksys::SystemTools::FilesDiffer(outFile.c_str(), refFile)), "Generated mhd file != ref File");
+  assertFalse(!mhdCmp(outFile.c_str(), refFile), "Generated mhd file != ref File");
 #endif
   
   std::string refRawFile = mhdToRawName(strRefFile);
