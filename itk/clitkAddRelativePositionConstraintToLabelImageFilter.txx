@@ -121,22 +121,22 @@ clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
 AddOrientationTypeString(std::string t) 
 {
   m_OrientationTypeString.push_back(t);
-  switch (t[0]) {
-  case 'L' : AddOrientationType(AtLeftTo); break;
-  case 'R' : AddOrientationType(AtRightTo);break;
-  case 'A' : AddOrientationType(AntTo);break;
-  case 'P' : AddOrientationType(PostTo);break;
-  case 'S' : AddOrientationType(SupTo);break;
-  case 'I' : AddOrientationType(InfTo);break;
-  case 'N': 
-    if (t == "NotLeftTo") { AddOrientationType(AtLeftTo); InverseOrientationFlagOn(); break; }
-    if (t == "NotRightTo") { AddOrientationType(AtRightTo); InverseOrientationFlagOn(); break; }
-    if (t == "NotAntTo") { AddOrientationType(AntTo); InverseOrientationFlagOn(); break; }
-    if (t == "NotPostTo") { AddOrientationType(PostTo); InverseOrientationFlagOn(); break; }
-    if (t == "NotSupTo") { AddOrientationType(SupTo); InverseOrientationFlagOn(); break; }
-    if (t == "NotInfTo") { AddOrientationType(InfTo); InverseOrientationFlagOn(); break; }
-  default: clitkExceptionMacro("Error, you must provide L,R or A,P or S,I (or NotLeftTo, NotRightTo etc)");
-  }
+
+  if (t == "LeftTo") { AddOrientationType(LeftTo); return; }
+  if (t == "RightTo") { AddOrientationType(RightTo); return; }
+  if (t == "AntTo") { AddOrientationType(AntTo); return; }
+  if (t == "PostTo") { AddOrientationType(PostTo); return; }
+  if (t == "SupTo") { AddOrientationType(SupTo); return; }
+  if (t == "InfTo") { AddOrientationType(InfTo); return; }
+
+  if (t == "NotLeftTo") { AddOrientationType(LeftTo); InverseOrientationFlagOn(); return; }
+  if (t == "NotRightTo") { AddOrientationType(RightTo); InverseOrientationFlagOn(); return; }
+  if (t == "NotAntTo") { AddOrientationType(AntTo); InverseOrientationFlagOn(); return; }
+  if (t == "NotPostTo") { AddOrientationType(PostTo); InverseOrientationFlagOn(); return; }
+  if (t == "NotSupTo") { AddOrientationType(SupTo); InverseOrientationFlagOn(); return; }
+  if (t == "NotInfTo") { AddOrientationType(InfTo); InverseOrientationFlagOn(); return; }
+
+  clitkExceptionMacro("Error, you must provide LeftTo,RightTo or AntTo,PostTo or SupTo,InfTo (or NotLeftTo, NotRightTo etc) but you give " << t);
 }
 //--------------------------------------------------------------------
   
@@ -192,11 +192,11 @@ AddOrientationType(OrientationTypeEnumeration orientation)
 {
   m_OrientationType.push_back(orientation);
   switch (orientation) {
-  case AtRightTo:   
+  case RightTo:   
     m_Angle1.push_back(clitk::deg2rad(0));   
     m_Angle2.push_back(clitk::deg2rad(0));
     break;
-  case AtLeftTo:  
+  case LeftTo:  
     m_Angle1.push_back(clitk::deg2rad(180)); 
     m_Angle2.push_back(clitk::deg2rad(0));
     break;
@@ -234,11 +234,43 @@ AddOrientationType(OrientationTypeEnumeration orientation)
 template <class ImageType>
 void 
 clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
+PrintOptions() 
+{
+  DD((int)this->GetBackgroundValue());
+  DD((int)this->GetObjectBackgroundValue());
+  DDV(this->GetOrientationTypeString(), (uint)this->GetNumberOfAngles());
+  DD(this->GetIntermediateSpacingFlag());
+  DD(this->GetIntermediateSpacing());
+  DD(this->GetFuzzyThreshold());
+  DD(this->GetAutoCropFlag());
+  DD(this->GetInverseOrientationFlag());
+  DD(this->GetRemoveObjectFlag());
+  DD(this->GetCombineWithOrFlag());
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class ImageType>
+void 
+clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
 GenerateData() 
 {
   if (GetNumberOfAngles() <1) {
     clitkExceptionMacro("Add at least one orientation type");
   }  
+
+  if (GetVerboseOptionFlag()) {
+    for(int i=0; i<GetNumberOfAngles(); i++) {
+        std::cout << "Orientation    \t:" << GetOrientationTypeString(i) << std::endl;
+    }
+    std::cout << "Interm Spacing \t:" << GetIntermediateSpacingFlag() << " " << GetIntermediateSpacing() << "mm" << std::endl;
+    std::cout << "Fuzzy threshold\t:" << GetFuzzyThreshold() << std::endl;
+    std::cout << "AutoCrop       \t:" << GetAutoCropFlag() << std::endl;
+    std::cout << "InverseOrient  \t:" << GetInverseOrientationFlag() << std::endl;
+    std::cout << "RemoveObject   \t:" << GetRemoveObjectFlag() << std::endl;
+    std::cout << "CombineWithOr  \t:" << GetCombineWithOrFlag() << std::endl;
+  }
 
   // Get input pointer
   input = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));

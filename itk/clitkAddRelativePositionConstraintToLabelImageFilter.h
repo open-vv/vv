@@ -78,7 +78,7 @@ namespace clitk {
     typedef itk::Image<float, ImageDimension> FloatImageType;
 
     /** Orientation types */
-    typedef enum { AtRightTo = 0, AtLeftTo = 1,
+    typedef enum { RightTo = 0, LeftTo = 1,
                    AntTo = 2,   PostTo = 3, 
                    InfTo = 4,   SupTo = 5, Angle = 6
     } OrientationTypeEnumeration;
@@ -130,6 +130,9 @@ namespace clitk {
 
     // I dont want to verify inputs information
     virtual void VerifyInputInformation() { }
+    
+    // For debug
+    void PrintOptions();
 
   protected:
     AddRelativePositionConstraintToLabelImageFilter();
