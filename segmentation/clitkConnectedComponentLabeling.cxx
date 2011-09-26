@@ -24,26 +24,26 @@
 //--------------------------------------------------------------------
 int main(int argc, char * argv[])
 {
-  clitk::PrintMemory(true, "start");
+  //  clitk::PrintMemory(true, "start");
 
   // Init command line
   GGO(clitkConnectedComponentLabeling, args_info);
   CLITK_INIT;
 
   // Filter
-  clitk::PrintMemory(true, "before filter");
+  //clitk::PrintMemory(true, "before filter");
   typedef clitk::ConnectedComponentLabelingGenericFilter<args_info_clitkConnectedComponentLabeling> FilterType;
   FilterType::Pointer filter = FilterType::New();
 
   filter->SetArgsInfo(args_info);
-  clitk::PrintMemory(true, "before update");
+  //clitk::PrintMemory(true, "before update");
   try {
     filter->Update();
   } catch(std::runtime_error e) {
     std::cout << e.what() << std::endl;
   }
 
-  clitk::PrintMemory(true, "after filter");
+  //clitk::PrintMemory(true, "after filter");
 
   return EXIT_SUCCESS;
 } // This is the end, my friend
