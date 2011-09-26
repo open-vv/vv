@@ -77,12 +77,16 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
     f->IntermediateSpacingFlagOn();
     f->SetIntermediateSpacing(mArgsInfo.spacing_arg);
   }
+  else {
+    f->IntermediateSpacingFlagOff();
+  }
 
   f->SetFuzzyThreshold(mArgsInfo.threshold_arg);
   f->SetRemoveObjectFlag(!mArgsInfo.doNotRemoveObject_flag);
   f->SetAutoCropFlag(!mArgsInfo.noAutoCrop_flag);
   f->SetCombineWithOrFlag(mArgsInfo.combineWithOr_flag);
   f->SetInverseOrientationFlag(mArgsInfo.inverse_flag);
+  
 }
 
 //--------------------------------------------------------------------
@@ -112,7 +116,13 @@ UpdateWithInputImageType()
 
     // Set options only for SliceBySliceRelativePositionFilter
     filter->SetDirection(mArgsInfo.direction_arg);
-    filter->SetUniqueConnectedComponentBySlice(mArgsInfo.uniqueCCL_flag);
+    filter->SetUniqueConnectedComponentBySliceFlag(mArgsInfo.uniqueCCL_flag);
+    if (mArgsInfo.uniqueObjectCCL_flag) {
+      filter->UseTheLargestObjectCCLFlagOn();
+    }
+    else {
+      filter->UseTheLargestObjectCCLFlagOff();
+    }
     
     // Go !
     filter->Update();
