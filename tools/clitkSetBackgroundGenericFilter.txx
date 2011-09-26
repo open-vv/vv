@@ -18,16 +18,6 @@
 #ifndef clitkSetBackgroundGenericFilter_txx
 #define clitkSetBackgroundGenericFilter_txx
 
-/* =================================================
- * @file   clitkSetBackgroundGenericFilter.txx
- * @author
- * @date
- *
- * @brief
- *
- ===================================================*/
-
-
 namespace clitk
 {
 

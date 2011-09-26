@@ -16,16 +16,6 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
 
-/* =================================================
- * @file   clitkSetBackground.cxx
- * @author
- * @date
- *
- * @brief
- *
- ===================================================*/
-
-
 // clitk
 #include "clitkSetBackground_ggo.h"
 #include "clitkIO.h"
