@@ -11,7 +11,7 @@ ExtractStationSupports()
   DD("ExtractStationSupports");
 
   // Get initial Mediastinum
-  m_Working_Support = m_Mediastinum = GetAFDB()->template GetImage<MaskImageType>("Mediastinum", true);
+  m_Working_Support = m_Mediastinum = this->GetAFDB()->template GetImage<MaskImageType>("Mediastinum", true);
 
   // Consider sup/inf to Carina
   double m_CarinaZ = FindCarina();
@@ -24,9 +24,9 @@ ExtractStationSupports()
   m_ListOfSupports["Support_Superior_to_Carina"] = m_Support_Superior_to_Carina;
   m_ListOfSupports["Support_Inferior_to_Carina"] = m_Support_Inferior_to_Carina;
   writeImage<MaskImageType>(m_Support_Inferior_to_Carina, "seg/Support_Inf_Carina.mhd");
-  GetAFDB()->SetImageFilename("Support_Inf_Carina", "seg/Support_Inf_Carina.mhd");
+  this->GetAFDB()->SetImageFilename("Support_Inf_Carina", "seg/Support_Inf_Carina.mhd");
   writeImage<MaskImageType>(m_Support_Superior_to_Carina, "seg/Support_Sup_Carina.mhd");
-  GetAFDB()->SetImageFilename("Support_Sup_Carina", "seg/Support_Sup_Carina.mhd");
+  this->GetAFDB()->SetImageFilename("Support_Sup_Carina", "seg/Support_Sup_Carina.mhd");
 
   // S1RL
   Support_SupInf_S1RL();
@@ -60,44 +60,44 @@ ExtractStationSupports()
 
   // Store image filenames into AFDB 
   writeImage<MaskImageType>(m_ListOfSupports["S1R"], "seg/Support_S1R.mhd");
-  GetAFDB()->SetImageFilename("Support_S1R", "seg/Support_S1R.mhd");
+  this->GetAFDB()->SetImageFilename("Support_S1R", "seg/Support_S1R.mhd");
   writeImage<MaskImageType>(m_ListOfSupports["S1L"], "seg/Support_S1L.mhd");
-  GetAFDB()->SetImageFilename("Support_S1L", "seg/Support_S1L.mhd");
+  this->GetAFDB()->SetImageFilename("Support_S1L", "seg/Support_S1L.mhd");
 
   writeImage<MaskImageType>(m_ListOfSupports["S2L"], "seg/Support_S2L.mhd");
-  GetAFDB()->SetImageFilename("Support_S2L", "seg/Support_S2L.mhd");
+  this->GetAFDB()->SetImageFilename("Support_S2L", "seg/Support_S2L.mhd");
   writeImage<MaskImageType>(m_ListOfSupports["S2R"], "seg/Support_S2R.mhd");
-  GetAFDB()->SetImageFilename("Support_S2R", "seg/Support_S2R.mhd");
+  this->GetAFDB()->SetImageFilename("Support_S2R", "seg/Support_S2R.mhd");
 
   writeImage<MaskImageType>(m_ListOfSupports["S3P"], "seg/Support_S3P.mhd");
-  GetAFDB()->SetImageFilename("Support_S3P", "seg/Support_S3P.mhd");
+  this->GetAFDB()->SetImageFilename("Support_S3P", "seg/Support_S3P.mhd");
   writeImage<MaskImageType>(m_ListOfSupports["S3A"], "seg/Support_S3A.mhd");
-  GetAFDB()->SetImageFilename("Support_S3A", "seg/Support_S3A.mhd");
+  this->GetAFDB()->SetImageFilename("Support_S3A", "seg/Support_S3A.mhd");
 
   writeImage<MaskImageType>(m_ListOfSupports["S4L"], "seg/Support_S4L.mhd");
-  GetAFDB()->SetImageFilename("Support_S4L", "seg/Support_S4L.mhd");
+  this->GetAFDB()->SetImageFilename("Support_S4L", "seg/Support_S4L.mhd");
   writeImage<MaskImageType>(m_ListOfSupports["S4R"], "seg/Support_S4R.mhd");
-  GetAFDB()->SetImageFilename("Support_S4R", "seg/Support_S4R.mhd");
+  this->GetAFDB()->SetImageFilename("Support_S4R", "seg/Support_S4R.mhd");
 
   writeImage<MaskImageType>(m_ListOfSupports["S5"], "seg/Support_S5.mhd");
-  GetAFDB()->SetImageFilename("Support_S5", "seg/Support_S5.mhd");
+  this->GetAFDB()->SetImageFilename("Support_S5", "seg/Support_S5.mhd");
   writeImage<MaskImageType>(m_ListOfSupports["S6"], "seg/Support_S6.mhd");
-  GetAFDB()->SetImageFilename("Support_S6", "seg/Support_S6.mhd");
+  this->GetAFDB()->SetImageFilename("Support_S6", "seg/Support_S6.mhd");
 
   writeImage<MaskImageType>(m_ListOfSupports["S7"], "seg/Support_S7.mhd");
-  GetAFDB()->SetImageFilename("Support_S7", "seg/Support_S7.mhd");
+  this->GetAFDB()->SetImageFilename("Support_S7", "seg/Support_S7.mhd");
 
   writeImage<MaskImageType>(m_ListOfSupports["S8"], "seg/Support_S8.mhd");
-  GetAFDB()->SetImageFilename("Support_S8", "seg/Support_S8.mhd");
+  this->GetAFDB()->SetImageFilename("Support_S8", "seg/Support_S8.mhd");
 
   writeImage<MaskImageType>(m_ListOfSupports["S9"], "seg/Support_S9.mhd");
-  GetAFDB()->SetImageFilename("Support_S9", "seg/Support_S9.mhd");
+  this->GetAFDB()->SetImageFilename("Support_S9", "seg/Support_S9.mhd");
 
   writeImage<MaskImageType>(m_ListOfSupports["S10"], "seg/Support_S10.mhd");
-  GetAFDB()->SetImageFilename("Support_S10", "seg/Support_S10.mhd");  
+  this->GetAFDB()->SetImageFilename("Support_S10", "seg/Support_S10.mhd");  
 
   writeImage<MaskImageType>(m_ListOfSupports["S11"], "seg/Support_S11.mhd");
-  GetAFDB()->SetImageFilename("Support_S11", "seg/Support_S11.mhd");  
+  this->GetAFDB()->SetImageFilename("Support_S11", "seg/Support_S11.mhd");  
   WriteAFDB();
 }
 //--------------------------------------------------------------------
@@ -121,7 +121,7 @@ Support_SupInf_S1RL()
     => apex / manubrium = up Sternum
   */
   m_Working_Support = m_ListOfSupports["Support_Superior_to_Carina"];
-  MaskImagePointer Sternum = GetAFDB()->template GetImage <MaskImageType>("Sternum");
+  MaskImagePointer Sternum = this->GetAFDB()->template GetImage <MaskImageType>("Sternum");
   MaskImagePointType p;
   p[0] = p[1] = p[2] =  0.0; // to avoid warning
   clitk::FindExtremaPointInAGivenDirection<MaskImageType>(Sternum, GetBackgroundValue(), 2, false, p);
@@ -147,7 +147,7 @@ Support_LeftRight_S1R_S1L()
   std::vector<ImagePointType> A;
   std::vector<ImagePointType> B;
   // Search for centroid positions of trachea
-  MaskImagePointer Trachea = GetAFDB()->template GetImage <MaskImageType>("Trachea");
+  MaskImagePointer Trachea = this->GetAFDB()->template GetImage <MaskImageType>("Trachea");
   MaskImagePointer S1RL = m_ListOfSupports["S1RL"];
   Trachea = clitk::ResizeImageLike<MaskImageType>(Trachea, S1RL, GetBackgroundValue());
   std::vector<MaskSlicePointer> slices;
@@ -172,13 +172,13 @@ Support_LeftRight_S1R_S1L()
 
   // Right part
   clitk::SliceBySliceSetBackgroundFromLineSeparation<MaskImageType>(S1R, A, B, 
-                                                                    GetBackgroundValue(), 0, 10);
+                                                                    GetBackgroundValue(), 0, -10);
   S1R = clitk::AutoCrop<MaskImageType>(S1R, GetBackgroundValue());
   m_ListOfSupports["S1R"] = S1R;
 
   // Left part
   clitk::SliceBySliceSetBackgroundFromLineSeparation<MaskImageType>(S1L, A, B, 
-                                                                    GetBackgroundValue(), 0, -10);
+                                                                    GetBackgroundValue(), 0, 10);
   S1L = clitk::AutoCrop<MaskImageType>(S1L, GetBackgroundValue());
   m_ListOfSupports["S1L"] = S1L;
 }
@@ -201,30 +201,66 @@ Support_SupInf_S2R_S2L()
   m_Working_Support = m_ListOfSupports["Support_Superior_to_Carina"];
   
   // S2R Caudal Margin Of Left BrachiocephalicVein
-  MaskImagePointer BrachioCephalicVein = GetAFDB()->template GetImage<MaskImageType>("BrachioCephalicVein");
+  MaskImagePointer BrachioCephalicVein = this->GetAFDB()->template GetImage<MaskImageType>("BrachioCephalicVein");
   MaskImagePointType p;
   clitk::FindExtremaPointInAGivenDirection<MaskImageType>(BrachioCephalicVein, GetBackgroundValue(), 2, true, p);
   // I add slightly more than a slice
   double CaudalMarginOfLeftBrachiocephalicVeinZ=p[2]+ 1.1*m_Working_Support->GetSpacing()[2];
-  GetAFDB()->SetDouble("CaudalMarginOfLeftBrachiocephalicVeinZ", CaudalMarginOfLeftBrachiocephalicVeinZ);
+  this->GetAFDB()->SetDouble("CaudalMarginOfLeftBrachiocephalicVeinZ", CaudalMarginOfLeftBrachiocephalicVeinZ);
   MaskImagePointer S2R = 
     clitk::CropImageRemoveLowerThan<MaskImageType>(m_Working_Support, 2, 
                                                    CaudalMarginOfLeftBrachiocephalicVeinZ, true,
                                                    GetBackgroundValue());
-  m_ListOfSupports["S2R"] = S2R;
-
   // S2L : Top Of Aortic Arch
-  MaskImagePointer Aorta = GetAFDB()->template GetImage<MaskImageType>("Aorta");
+  MaskImagePointer Aorta = this->GetAFDB()->template GetImage<MaskImageType>("Aorta");
   clitk::FindExtremaPointInAGivenDirection<MaskImageType>(Aorta, GetBackgroundValue(), 2, false, p);
-  // I add slightly more than a slice
-  double TopOfAorticArchZ=p[2]+ 1.1*m_Working_Support->GetSpacing()[2];
-  GetAFDB()->SetDouble("TopOfAorticArchZ", TopOfAorticArchZ);
+
+  // Save the TopOfAorticArchZ
+  this->GetAFDB()->SetDouble("TopOfAorticArchZ", p[2]);
+
+  // I substract slightly more than a slice to respect delineation
+  double TopOfAorticArchZ=p[2]- 1.1*m_Working_Support->GetSpacing()[2];
+  //  this->GetAFDB()->SetDouble("TopOfAorticArchZ", TopOfAorticArchZ);
 
   MaskImagePointer S2L = 
     clitk::CropImageRemoveLowerThan<MaskImageType>(m_Working_Support, 2, 
                                                    TopOfAorticArchZ, true,
                                                    GetBackgroundValue());
+
+  /*
+  // S2RL: Superior support, I use inferior part of S1RL
+  MaskImagePointer S1L = m_ListOfSupports["S1L"];
+  clitk::FindExtremaPointInAGivenDirection<MaskImageType>(S1L, GetBackgroundValue(), 2, true, p);
+  DD(p);
+  S2L = 
+    clitk::CropImageRemoveGreaterThan<MaskImageType>(S2L, 2, 
+                                                     p[2], true,
+                                                     GetBackgroundValue());
+
+  MaskImagePointer S1R = m_ListOfSupports["S1R"];
+  clitk::FindExtremaPointInAGivenDirection<MaskImageType>(S1R, GetBackgroundValue(), 2, true, p);
+  DD(p);
+  S2R = 
+    clitk::CropImageRemoveGreaterThan<MaskImageType>(S2R, 2, 
+                                                     p[2], true,
+                                                     GetBackgroundValue());          
+  */
+
+  // Superior limits, use Sternum (but not strictly inf to S1RL
+  MaskImagePointer Sternum = this->GetAFDB()->template GetImage <MaskImageType>("Sternum");
+  clitk::FindExtremaPointInAGivenDirection<MaskImageType>(Sternum, GetBackgroundValue(), 2, false, p);
+  // Add one slice
+  p[2] = p[2] +  m_Working_Support->GetSpacing()[2];
+  S2L = 
+    clitk::CropImageRemoveGreaterThan<MaskImageType>(S2L, 2, 
+                                                     p[2], true, GetBackgroundValue());
+  S2R = 
+    clitk::CropImageRemoveGreaterThan<MaskImageType>(S2R, 2, 
+                                                     p[2], true, GetBackgroundValue());
+
+  // The is the end
   m_ListOfSupports["S2L"] = S2L;
+  m_ListOfSupports["S2R"] = S2R;
 }
 //--------------------------------------------------------------------
 
@@ -251,7 +287,7 @@ Support_LeftRight_S2R_S2L()
   S2L = LimitsWithTrachea(S2L, 0, 1, 10);
   m_ListOfSupports["S2R"] = S2R;
   m_ListOfSupports["S2L"] = S2L;  
-  GetAFDB()->template ReleaseImage<MaskImageType>("Trachea");
+  this->GetAFDB()->template ReleaseImage<MaskImageType>("Trachea");
 }
 //--------------------------------------------------------------------
 
@@ -291,7 +327,7 @@ Support_SupInf_S4R_S4L()
   
   // Get AzygousVein and limit according to LowerBorderAzygousVein
   MaskImagePointer LowerBorderAzygousVein 
-    = GetAFDB()->template GetImage<MaskImageType>("LowerBorderAzygousVein");
+    = this->GetAFDB()->template GetImage<MaskImageType>("LowerBorderAzygousVein");
   std::vector<MaskImagePointType> c;
   clitk::ComputeCentroids<MaskImageType>(LowerBorderAzygousVein, GetBackgroundValue(), c);
   S4R = clitk::CropImageRemoveLowerThan<MaskImageType>(S4RL, 2, 
@@ -302,7 +338,7 @@ Support_SupInf_S4R_S4L()
 
   // Limit according to LeftPulmonaryArtery
   MaskImagePointer LeftPulmonaryArtery 
-    = GetAFDB()->template GetImage<MaskImageType>("LeftPulmonaryArtery");
+    = this->GetAFDB()->template GetImage<MaskImageType>("LeftPulmonaryArtery");
   MaskImagePointType p;
   clitk::FindExtremaPointInAGivenDirection<MaskImageType>(LeftPulmonaryArtery, GetBackgroundValue(), 
                                                           2, false, p);
@@ -366,7 +402,7 @@ LimitsWithTrachea(MaskImageType * input, int extremaDirection, int lineDirection
     the offset
   */
   // Read the trachea
-  MaskImagePointer Trachea = GetAFDB()->template GetImage<MaskImageType>("Trachea");
+  MaskImagePointer Trachea = this->GetAFDB()->template GetImage<MaskImageType>("Trachea");
 
   // Find extrema post positions
   std::vector<MaskImagePointType> tracheaLeftPositionsA;
@@ -479,7 +515,7 @@ Support_S3A()
 
   //double m_ApexOfTheChest = FindApexOfTheChest();
 
-  MaskImagePointer Sternum = GetAFDB()->template GetImage <MaskImageType>("Sternum");
+  MaskImagePointer Sternum = this->GetAFDB()->template GetImage <MaskImageType>("Sternum");
   MaskImagePointType p;
   p[0] = p[1] = p[2] =  0.0; // to avoid warning
   clitk::FindExtremaPointInAGivenDirection<MaskImageType>(Sternum, GetBackgroundValue(), 2, false, p);
@@ -505,14 +541,14 @@ Support_S5()
   StartNewStep("[Support] Sup-Inf limits S5 with aorta");
 
   // Initial S5 support
-  MaskImagePointer S5 = clitk::Clone<MaskImageType>(GetAFDB()->template GetImage<MaskImageType>("Mediastinum", true));
+  MaskImagePointer S5 = clitk::Clone<MaskImageType>(this->GetAFDB()->template GetImage<MaskImageType>("Mediastinum", true));
 
   // Sup limits with Aorta
   double sup = FindInferiorBorderOfAorticArch();
   
   // Inf limits with "upper rim of the left main pulmonary artery"
   // For the moment only, it will change.
-  MaskImagePointer PulmonaryTrunk = GetAFDB()->template GetImage<MaskImageType>("PulmonaryTrunk");
+  MaskImagePointer PulmonaryTrunk = this->GetAFDB()->template GetImage<MaskImageType>("PulmonaryTrunk");
   MaskImagePointType p;
   p[0] = p[1] = p[2] =  0.0; // to avoid warning
   clitk::FindExtremaPointInAGivenDirection<MaskImageType>(PulmonaryTrunk, GetBackgroundValue(), 2, false, p);
