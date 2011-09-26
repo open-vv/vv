@@ -513,20 +513,24 @@ void vvSegmentationDialog::Save()
     int dimension = mManager->GetDimension();
     if (dimension == 1) {
       OutputListeFormat.push_back(".mhd");
+      OutputListeFormat.push_back(".mha");
     }
     if (dimension == 2) {
       OutputListeFormat.push_back(".bmp");
       OutputListeFormat.push_back(".png");
       OutputListeFormat.push_back(".jpeg");
       OutputListeFormat.push_back(".tif");
+      OutputListeFormat.push_back(".mha");
       OutputListeFormat.push_back(".mhd");
       OutputListeFormat.push_back(".hdr");
       OutputListeFormat.push_back(".vox");
     } else if (dimension == 3) {
+      OutputListeFormat.push_back(".mha");
       OutputListeFormat.push_back(".mhd");
       OutputListeFormat.push_back(".hdr");
       OutputListeFormat.push_back(".vox");
     } else if (dimension == 4) {
+      OutputListeFormat.push_back(".mha");
       OutputListeFormat.push_back(".mhd");
     }
     QString Extensions = "AllFiles(*.*)";

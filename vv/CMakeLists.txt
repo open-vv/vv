@@ -19,7 +19,7 @@ SET(vv_TOOLS
   vvToolResample
 #   vvToolExtractPatient
 #  vvToolExtractLung
-#vvToolStructureSetManager
+  vvToolStructureSetManager
   vvToolMIP
   vvToolConvert ## with dummy vvToolConvert.ui
   
@@ -93,7 +93,7 @@ SET(vv_SRCS
   vvThreadedFilter.cxx
   vvImageContour.cxx
   vvBinaryImageOverlayActor.cxx
-  #vvStructureSetActor.cxx
+  vvStructureSetActor.cxx
   vvROIActor.cxx
   vvBlendImageActor.cxx
   vvToolManager.cxx
@@ -112,7 +112,7 @@ QT4_WRAP_CPP(vv_SRCS
   vvQDicomSeriesSelector.h 
   vvSlicerManager.h
   vvThreadedFilter.h
-  #vvStructureSetActor.h
+  vvStructureSetActor.h
   vvROIActor.h
   vvToolCreatorBase.h
   )

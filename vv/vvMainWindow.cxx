@@ -2200,6 +2200,7 @@ void vvMainWindow::SaveAs()
   OutputListeFormat.clear();
   if (dimension == 1) {
     OutputListeFormat.push_back(".mhd");
+    OutputListeFormat.push_back(".mha");
   }
   if (dimension == 2) {
     OutputListeFormat.push_back(".bmp");
