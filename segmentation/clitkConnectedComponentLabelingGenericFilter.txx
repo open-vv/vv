@@ -32,7 +32,7 @@ template<class ArgsInfoType>
 clitk::ConnectedComponentLabelingGenericFilter<ArgsInfoType>::ConnectedComponentLabelingGenericFilter():
   ImageToImageGenericFilter<Self>("ConnectedComponentLabeling") 
 {
-  //  InitializeImageType<2>();
+  InitializeImageType<2>();
   InitializeImageType<3>();
   //InitializeImageType<4>();
 }
@@ -47,7 +47,7 @@ void clitk::ConnectedComponentLabelingGenericFilter<ArgsInfoType>::InitializeIma
   ADD_IMAGE_TYPE(Dim, uchar);
   ADD_IMAGE_TYPE(Dim, short);
   // ADD_IMAGE_TYPE(Dim, int);
-  // ADD_IMAGE_TYPE(Dim, float);
+  ADD_IMAGE_TYPE(Dim, float);
 }
 //--------------------------------------------------------------------
   
@@ -72,14 +72,12 @@ template<class ArgsInfoType>
 template<class ImageType>
 void clitk::ConnectedComponentLabelingGenericFilter<ArgsInfoType>::UpdateWithInputImageType() 
 { 
-  DD("UpdateWithInputImageType");
-
   // Reading input
   typename ImageType::Pointer input = this->template GetInput<ImageType>(0);
 
   // Output image type
   typedef itk::Image<int, ImageType::ImageDimension> OutputImageType;
-  PrintMemory(true, "initial");
+  //PrintMemory(true, "initial");
 
   typename OutputImageType::Pointer output;
   {
@@ -95,11 +93,11 @@ void clitk::ConnectedComponentLabelingGenericFilter<ArgsInfoType>::UpdateWithInp
       //          connectFilter->SetNumberOfThreads(8);
       connectFilter->Update();
       temp = connectFilter->GetOutput();
-      PrintMemory(true, "after udpate");
+      // PrintMemory(true, "after udpate");
     }
-    PrintMemory(true, "after CCL block");
-    DD(input->GetReferenceCount());
-    DD(temp->GetReferenceCount());
+    // PrintMemory(true, "after CCL block");
+    // DD(input->GetReferenceCount());
+    // DD(temp->GetReferenceCount());
     
     // Sort by size and remove too small area.
     typedef itk::RelabelComponentImageFilter<OutputImageType, OutputImageType> RelabelFilterType;
@@ -109,9 +107,9 @@ void clitk::ConnectedComponentLabelingGenericFilter<ArgsInfoType>::UpdateWithInp
     relabelFilter->SetMinimumObjectSize(mArgsInfo.minSize_arg);
     relabelFilter->Update();
     
-    DD(mArgsInfo.inputBG_arg);
-    DD(mArgsInfo.full_flag);
-    DD(mArgsInfo.minSize_arg);
+    // DD(mArgsInfo.inputBG_arg);
+    // DD(mArgsInfo.full_flag);
+    // DD(mArgsInfo.minSize_arg);
     
     // Set information
     const std::vector<typename RelabelFilterType::ObjectSizeType> & a 
@@ -120,16 +118,16 @@ void clitk::ConnectedComponentLabelingGenericFilter<ArgsInfoType>::UpdateWithInp
     for(unsigned int i=0; i<a.size(); i++) m_SizeOfObjectsInPixels[i] = a[i];
     m_SizeOfObjectsInPhysicalUnits = relabelFilter->GetSizeOfObjectsInPhysicalUnits();
     m_OriginalNumberOfObjects = relabelFilter->GetOriginalNumberOfObjects();
-    DD(m_OriginalNumberOfObjects);
-    DD(m_SizeOfObjectsInPhysicalUnits.size());
+    // DD(m_OriginalNumberOfObjects);
+    // DD(m_SizeOfObjectsInPhysicalUnits.size());
     
     output = relabelFilter->GetOutput();
   }
-  PrintMemory(true, "after block");
+  // PrintMemory(true, "after block");
 
   // Write/Save results
   this->template SetNextOutput<OutputImageType>(output); 
-  PrintMemory(true, "end filter ");
+  // PrintMemory(true, "end filter ");
 }
 //--------------------------------------------------------------------
 
