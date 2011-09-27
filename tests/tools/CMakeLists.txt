@@ -41,8 +41,8 @@ ADD_TEST(clitkGetDirection_4d ${exe} clitkGetDirection -i ${p}Deformation4D.mhd 
 ADD_TEST(clitkGetDirection_3d ${exe} clitkGetDirection -i ${p}Lung3D.mhd 	${p}Lung3D_ref.direction)
 #=========================================================
 # clitkBinarize
-ADD_TEST(clitkBinarizeBGl0.1356_4d ${exe} clitkBinarizeImage -i ${p}Deformation4D.mhd --mode BG -l 0.1356 -o Deformation4D_ref.binarizeBGl0.1356.mhd ${p}Deformation4D_ref.binarizeBGl0.1356)
-ADD_TEST(clitkBinarizeFGl0.1556_3d ${exe} clitkBinarizeImage -i ${p}Lung3D.mhd        --mode FG -l 0.1556 -o Lung3D_ref.binarizeFGl0.1556.mhd ${p}Lung3D_ref.binarizeFGl0.1556)
+ADD_TEST(clitkBinarizeBGl0.1356_4d ${exe} clitkBinarizeImage -i ${p}Deformation4D.mhd --mode BG -l 0.1356 -o Deformation4D_ref.binarizeBGl0.1356.mhd ${p}Deformation4D_ref.binarizeBGl0.1356.mhd)
+ADD_TEST(clitkBinarizeFGl0.1556_3d ${exe} clitkBinarizeImage -i ${p}Lung3D.mhd        --mode FG -l 0.1556 -o Lung3D_ref.binarizeFGl0.1556.mhd ${p}Lung3D_ref.binarizeFGl0.1556.mhd)
 #=========================================================
 # clitkImageArithm
 ADD_TEST(clitkImageArithm0_3d ${exe} clitkImageArithm -i ${p}Lung3D.mhd -j ${p}Lung3D.mhd -t 0 -o Lung3D_ref.arithm0.mhd ${p}Lung3D_ref.arithm0.mhd)
@@ -73,11 +73,10 @@ ADD_TEST(clitkMorphoMath2_4d ${exe} clitkMorphoMath -i ${p}Deformation4D.mhd -o 
 ADD_TEST(clitkMorphoMath3_4d ${exe} clitkMorphoMath -i ${p}Deformation4D.mhd -o Deformation4D_ref.morphoMath.t3.mhd ${p}Deformation4D_ref.morphoMath.t3.mhd)
 ADD_TEST(clitkMorphoMath4_4d ${exe} clitkMorphoMath -i ${p}Deformation4D.mhd -o Deformation4D_ref.morphoMath.t4.mhd ${p}Deformation4D_ref.morphoMath.t4.mhd)
 ADD_TEST(clitkMorphoMath5_4d ${exe} clitkMorphoMath -i ${p}Deformation4D.mhd -o Deformation4D_ref.morphoMath.t5.mhd ${p}Deformation4D_ref.morphoMath.t5.mhd)
-
-
 #=========================================================
-
-
+#clitkSetBackground
+ADD_TEST(clitkSetBackground_4d ${exe} clitkSetBackground -i ${p}Deformation4D.mhd -o Deformation4D_ref.setBackground.mhd ${p}Deformation4D_ref.setBackground.mhd)
+ADD_TEST(clitkSetBackground_3d ${exe} clitkSetBackground -i ${p}Lung3D.mhd -o Lung3D_ref.setBackground.mhd ${p}Lung3D_ref.setBackground.mhd)
 
 
 
