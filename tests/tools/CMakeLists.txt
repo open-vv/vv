@@ -4,11 +4,6 @@ include_directories(
   ${GTEST_DIR}/include
 )
 
-SET (CUSTOM_TEST_SRC
-  clitkImageInfoTest.cxx
-  vvMainTest.cxx
-)
-
 SET(BUILDNAME ${BUILDNAME}_tools CACHE INTERNAL DOCSTRING)
 ADD_DEFINITIONS(-DCLITK_TEST_TOOLS_PATH=\"${PROJECT_BINARY_DIR}/bin/\")
 SET (srcs
@@ -16,7 +11,7 @@ SET (srcs
 )
 
 ADD_EXECUTABLE(toolTestRunner ${srcs})
-TARGET_LINK_LIBRARIES(toolTestRunner vvLib ${vvExternalLibs})
+TARGET_LINK_LIBRARIES(toolTestRunner ${ITK_LIBRARIES})
 SET(exe ${EXECUTABLE_OUTPUT_PATH}/toolTestRunner) 
 SET(p ${CLITK_TEST_DATA_PATH})
 #=========================================================
