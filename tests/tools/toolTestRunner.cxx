@@ -176,7 +176,7 @@ int main(int argc, char** argv){
     remove(rawFile.c_str());
   }
   //neither the mhd is
-  //remove(outFile.c_str());
+  remove(outFile.c_str());
   
   //success
   return 0;
