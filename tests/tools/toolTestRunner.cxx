@@ -151,6 +151,7 @@ int main(int argc, char** argv){
   //run the command line
   system(cmd_line.str().c_str());
   
+	assertFalse(!itksys::SystemTools::FileExists(outFile.c_str(), true), "no mhd have been generated");
   
 	//compare source files
 #ifdef _WIN32
@@ -162,7 +163,6 @@ int main(int argc, char** argv){
 #else
   assertFalse(!mhdCmp(outFile.c_str(), refFile), "Generated mhd file != ref File");
 #endif
-  
   std::string refRawFile = mhdToRawName(strRefFile);
   std::string rawFile = mhdToRawName(outFile);
   

@@ -4,11 +4,6 @@ include_directories(
   ${GTEST_DIR}/include
 )
 
-SET (CUSTOM_TEST_SRC
-  clitkImageInfoTest.cxx
-  vvMainTest.cxx
-)
-
 SET(BUILDNAME ${BUILDNAME}_tools CACHE INTERNAL DOCSTRING)
 ADD_DEFINITIONS(-DCLITK_TEST_TOOLS_PATH=\"${PROJECT_BINARY_DIR}/bin/\")
 SET (srcs
@@ -16,7 +11,7 @@ SET (srcs
 )
 
 ADD_EXECUTABLE(toolTestRunner ${srcs})
-TARGET_LINK_LIBRARIES(toolTestRunner vvLib ${vvExternalLibs})
+TARGET_LINK_LIBRARIES(toolTestRunner ${ITK_LIBRARIES})
 SET(exe ${EXECUTABLE_OUTPUT_PATH}/toolTestRunner) 
 SET(p ${CLITK_TEST_DATA_PATH})
 #=========================================================
@@ -75,8 +70,8 @@ ADD_TEST(clitkMorphoMath4_4d ${exe} clitkMorphoMath -i ${p}Deformation4D.mhd -o 
 ADD_TEST(clitkMorphoMath5_4d ${exe} clitkMorphoMath -i ${p}Deformation4D.mhd -o Deformation4D_ref.morphoMath.t5.mhd ${p}Deformation4D_ref.morphoMath.t5.mhd)
 #=========================================================
 #clitkSetBackground
-ADD_TEST(clitkSetBackground_4d ${exe} clitkSetBackground -i ${p}Deformation4D.mhd -o Deformation4D_ref.setBackground.mhd ${p}Deformation4D_ref.setBackground.mhd)
-ADD_TEST(clitkSetBackground_3d ${exe} clitkSetBackground -i ${p}Lung3D.mhd -o Lung3D_ref.setBackground.mhd ${p}Lung3D_ref.setBackground.mhd)
+ADD_TEST(clitkSetBackground_4d ${exe} clitkSetBackground -i ${p}Deformation4D.mhd -m ${p}Deformation4D.mhd -o Deformation4D_ref.setBackground.mhd ${p}Deformation4D_ref.setBackground.mhd)
+ADD_TEST(clitkSetBackground_3d ${exe} clitkSetBackground -i ${p}Lung3D.mhd -m ${p}Lung3D.mhd -o Lung3D_ref.setBackground.mhd ${p}Lung3D_ref.setBackground.mhd)
 
 
 
