@@ -72,6 +72,8 @@ ADD_TEST(clitkMorphoMath5_4d ${exe} clitkMorphoMath -i ${p}Deformation4D.mhd -o 
 #clitkSetBackground
 ADD_TEST(clitkSetBackground_4d ${exe} clitkSetBackground -i ${p}Deformation4D.mhd -m ${p}Deformation4D.mhd -o Deformation4D_ref.setBackground.mhd ${p}Deformation4D_ref.setBackground.mhd)
 ADD_TEST(clitkSetBackground_3d ${exe} clitkSetBackground -i ${p}Lung3D.mhd -m ${p}Lung3D.mhd -o Lung3D_ref.setBackground.mhd ${p}Lung3D_ref.setBackground.mhd)
+#clitkWarpImage
+ADD_TEST(clitkWarpImage_3d ${exe} clitkWarpImage -i ${p}00-P.mhd --vf ${p}vf50-P_1.mhd -o 00-P_ref.warpImage.mhd ${p}00-P_ref.warpImage.mhd)
 
 
 
