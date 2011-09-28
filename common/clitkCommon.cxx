@@ -243,7 +243,7 @@ double clitk::ComputeEuclideanDistanceFromPointToPlane(const itk::ContinuousInde
 // Open a file for reading
 void clitk::openFileForReading(std::ifstream & is, const std::string & filename)
 {
-  is.open(filename.c_str(), std::ios::in);
+  is.open(filename.c_str(), std::ios::in | std::ios::binary);
   if ( is.fail() ) {
     clitkExceptionMacro("Could not open file for reading: " 
                         << filename << ". Error is : <" 

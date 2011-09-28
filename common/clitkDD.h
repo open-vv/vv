@@ -29,6 +29,7 @@
     std::ostringstream ossDD; \
     ossDD << #a " = [ " << a << " ]" << std::endl; \
     OutputDebugString(ossDD.str().c_str()); \
+    std::cout << ossDD.str() << std::endl; \
   }
 #else
 # define DD(a) std::cout << #a " = [ " << a << " ]" << std::endl;std::cout.flush();

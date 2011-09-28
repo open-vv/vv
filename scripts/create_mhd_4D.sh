@@ -35,80 +35,81 @@ then
   exit 1
 fi
 
-########## CT #########
 
-list_pattern=""
+list_prefix=""
 list_phase_file=`find $1 -maxdepth 1 -iname "*[0-9]*.mhd"`
 for phase_file in $list_phase_file
 do
   phase_file_name=`basename $phase_file`
-  if [[ ! -z `echo "$phase_file_name" | grep ","` ]]
+  if [[ ! -z `echo "$phase_file_name" | grep "__[0-9]"` ]]
   then
-    prefix=`echo $phase_file_name | sed "s/,_.*/,_/"`
+    prefix=`echo $phase_file_name | sed "s/__[0-9].*/__/"`
   else
-    prefix="NONE"
+    if [[ ! -z `echo "$phase_file_name" | grep "[0-9]-.*\]"` ]]
+    then
+      if [[ ! -z `echo "$phase_file_name" | grep "[0-9][0-9]-.*\]"` ]]
+      then
+	prefix=`echo $phase_file_name | sed "s/[0-9][0-9]-.*//"`
+      else
+	prefix=`echo $phase_file_name | sed "s/[0-9]-.*//"`
+      fi
+    else
+      prefix="NONE"
+    fi
   fi
-  if [[ -z `echo "$list_pattern" | grep "$prefix"` ]]
+
+  if [[ -z `echo "$list_prefix" | grep "$prefix"` ]]
   then
-    list_pattern="$list_pattern $prefix"
+    list_prefix="$list_prefix $prefix"
   fi
 done
 
 
-for pattern in $list_pattern
+for prefix in $list_prefix
 do
-
-  if [ "$pattern" = "NONE" ]
+  if [ "$prefix" = "NONE" ]
   then
-    pattern=""
+    prefix=""
   fi
 
-  nbph=`find $1 -maxdepth 1 -iname "${pattern}*[0-9]*.mhd" | wc -l`
-  orig=`find $1 -maxdepth 1 -iname "${pattern}*[0-9]*.mhd" | sort | head -n 1`
-  listph=`find $1 -maxdepth 1 -iname "${pattern}*[0-9]*.raw" | sort`
+  list_suffix=""
+  list_phase_file_prefix=`find $1 -maxdepth 1 -iname "${prefix}[0-9]*.mhd"`
+  for phase_file_prefix in $list_phase_file_prefix
+  do
+    phase_file_prefix_name=`basename $phase_file_prefix`
+    if [[ ! -z `echo "$phase_file_prefix_name" | grep "__[0-9]"` ]]
+    then
+      suffix="NONE"
+    else
+      if [[ ! -z `echo "$phase_file_prefix_name" | grep "[0-9]-.*\]"` ]]
+      then
+	suffix=`echo $phase_file_prefix_name | sed "s/.*[0-9]-//;s/_\.mhd//;s/\.mhd//"`
+      else
+	suffix="NONE"
+      fi
+    fi
 
-  file_name_4D="${pattern}_4D.mhd"
-  echo $file_name_4D
+    if [[ -z `echo "$list_suffix" | grep "$suffix"` ]]
+    then
+      list_suffix="$list_suffix $suffix"
+    fi
+  done
 
-  write_mhd_4D $1
+  for suffix in $list_suffix
+  do
+    if [ "$suffix" = "NONE" ]
+    then
+      suffix=""
+    fi
+    nbph=`find $1 -maxdepth 1 -iname "*${prefix}*[0-9]*${suffix}*.mhd" | wc -l`
+    orig=`find $1 -maxdepth 1 -iname "*${prefix}*[0-9]*${suffix}*.mhd" | sort | head -n 1`
+    listph=`find $1 -maxdepth 1 -iname "*${prefix}*[0-9]*${suffix}*.raw" | sort`
+
+    file_name_4D="${prefix}4D${suffix}.mhd"
+    
+    write_mhd_4D $1
+
+  done
 
 done
 
-
-############ PET ###########
-
-list_pattern=""
-list_phase_file=`find $1 -maxdepth 1 -iname "*[0-9]*\]*.mhd"`
-for phase_file in $list_phase_file
-do
-  phase_file_name=`basename $phase_file`
-  if [[ ! -z `echo "$phase_file_name" | grep "[0-9]-.*\]"` ]]
-  then
-    prefix=`echo $phase_file_name | sed "s/.*[0-9]-/-/;s/\]_.*//"`
-  else
-    prefix="NONE"
-  fi
-  if [[ -z `echo "$list_pattern" | grep -- "$prefix"` ]]
-  then
-    list_pattern="$list_pattern $prefix"
-  fi
-done
-
-  
-for pattern in $list_pattern
-do
-
-  if [ "$pattern" = "NONE" ]
-  then
-    pattern=""
-  fi
-
-  nbph=`find $1 -maxdepth 1 -iname "*[0-9]${pattern}\]*.mhd" | wc -l`
-  orig=`find $1 -maxdepth 1 -iname "*[0-9]${pattern}\]*.mhd" | sort | head -n 1`
-  listph=`find $1 -maxdepth 1 -iname "*[0-9]${pattern}\]*.raw" | sort`
-  
-  file_name_4D=`basename "$orig" | sed "s/[0-9]${pattern}\]/${pattern}\]/;s/_.mhd/_4D.mhd/"`
-
-  write_mhd_4D $1
-
-done
