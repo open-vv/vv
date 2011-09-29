@@ -28,10 +28,10 @@ then
   exit 1
 fi
 
-nb_phase_file=`find $1 -maxdepth 1 -iname "*[0-9]*.mhd" -o -iname "*[0-9]*\]*.mhd" | wc -l`
+nb_phase_file=`find $1 -maxdepth 1 -iname "*[0-9]*.mhd" | wc -l`
 if [ $nb_phase_file = 0 ]
 then
-  echo "Error: no phase found"
+  echo "No phase found in $1"
   exit 1
 fi
 
