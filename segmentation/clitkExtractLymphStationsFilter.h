@@ -224,6 +224,17 @@ namespace clitk {
     void ExtractStation_1RL_Ant_Limits();
     void ExtractStation_1RL_Post_Limits();
 
+    // Station 4RL
+    void ExtractStation_4RL_SetDefaultValues();
+    void ExtractStation_4RL();
+    void ExtractStation_4RL_SI_Limits();
+    void ExtractStation_4RL_LR_Limits();
+    void ExtractStation_4RL_AP_Limits();
+    MaskImagePointer m_RightSupport;
+    MaskImagePointer m_LeftSupport;
+
+
+
     // Station 7
     void ExtractStation_7();
     void ExtractStation_7_SetDefaultValues();
@@ -252,14 +263,6 @@ namespace clitk {
 				     ListOfPointsType & LR, 
 				     ListOfPointsType & Ant, 
 				     ListOfPointsType & Post);
-    // Station 4RL
-    void ExtractStation_4RL();
-    void ExtractStation_4RL_SI_Limits();
-    void ExtractStation_4RL_LR_Limits();
-    void ExtractStation_4RL_AP_Limits();
-    MaskImagePointer m_RightSupport;
-    MaskImagePointer m_LeftSupport;
-
   private:
     ExtractLymphStationsFilter(const Self&); //purposely not implemented
     void operator=(const Self&); //purposely not implemented

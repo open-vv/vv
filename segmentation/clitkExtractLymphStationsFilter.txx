@@ -62,6 +62,7 @@ ExtractLymphStationsFilter():
   ExtractStation_2RL_SetDefaultValues();
   ExtractStation_3A_SetDefaultValues();
   ExtractStation_1RL_SetDefaultValues();
+  ExtractStation_4RL_SetDefaultValues();
 
   ExtractStation_7_SetDefaultValues();
   ExtractStation_8_SetDefaultValues();
@@ -133,6 +134,9 @@ GenerateOutputInformation() {
   // Extract Station1RL
   ExtractStation_1RL();
 
+  // Extract Station1RL
+  ExtractStation_4RL();
+
   // ---------- TODO -----------------------
 
   // Extract Station8
@@ -143,14 +147,7 @@ GenerateOutputInformation() {
   this->StartSubStep();
   ExtractStation_7();
   this->StopSubStep();
-
-  if (0) { // temporary suppress
-    // Extract Station4RL
-    this->StartNewStep("Station 4RL");
-    this->StartSubStep();
-    //ExtractStation_4RL();
-    this->StopSubStep();
-  }
+  
 }
 //--------------------------------------------------------------------
 
@@ -305,23 +302,6 @@ void ComputeImageBoundariesCoordinates(typename ImageType::Pointer image,
       if (bounds[i][j] == 1) bounds[i][j] = max_c[j];
     }
   }
-}
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-template <class TImageType>
-void 
-clitk::ExtractLymphStationsFilter<TImageType>::
-ExtractStation_4RL() {
-  DD("TODO");
-  exit(0);
-  /*
-    WARNING ONLY 4R FIRST !!! (not same inf limits)
-  */    
-  ExtractStation_4RL_SI_Limits();
-  ExtractStation_4RL_LR_Limits();
-  ExtractStation_4RL_AP_Limits();
 }
 //--------------------------------------------------------------------
 
