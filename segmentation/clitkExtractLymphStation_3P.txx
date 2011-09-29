@@ -26,26 +26,19 @@ ExtractStation_3P()
   m_ListOfStations["3P"] = m_Working_Support;
   StopCurrentStep<MaskImageType>(m_Working_Support);
 
-  /* TODO
-     LR_sup -> AzygousVein, Aorta
-
-keep computed object, RelPos then
-     
-
-   */
-
+  // ExtractStation_3P_LR_inf_Limits();  // <-- done in RelPosList
   
-  ExtractStation_3P_LR_inf_Limits();  
+  // Generic RelativePosition processes
+  m_ListOfStations["3P"] = this->ApplyRelativePositionList("Station_3P", m_ListOfStations["3P"]);
+  m_Working_Support = m_ListOfStations["3P"];
   ExtractStation_8_Single_CCL_Limits(); // YES 8 !
   ExtractStation_3P_Remove_Structures(); // after CCL
+  m_ListOfStations["3P"] = m_Working_Support;
 
   // Old stuff
-  // LR limits superiorly => not here for the moment because not
-  //  clear in the def
+  // LR limits superiorly => not here for the moment because not clear in the def
   // ExtractStation_3P_LR_sup_Limits_2(); //TODO
   // ExtractStation_3P_LR_sup_Limits();   // old version to change
-  
-  m_ListOfStations["3P"] = this->ApplyRelativePositionList("Station_3P", m_ListOfStations["3P"]); 
 
   // Store image filenames into AFDB 
   writeImage<MaskImageType>(m_ListOfStations["3P"], "seg/Station3P.mhd");
@@ -63,16 +56,9 @@ clitk::ExtractLymphStationsFilter<ImageType>::
 ExtractStation_3P_Remove_Structures() 
 {
   StartNewStep("[Station 3P] Remove some structures.");
-
-  Remove_Structures("3P", "Aorta");
-  Remove_Structures("3P", "VertebralBody");
-  Remove_Structures("3P", "SubclavianArteryLeft");
-  Remove_Structures("3P", "SubclavianArteryRight");
   Remove_Structures("3P", "Esophagus");
-  Remove_Structures("3P", "AzygousVein");
   Remove_Structures("3P", "Thyroid");
-  Remove_Structures("3P", "VertebralArtery");
-
+  Remove_Structures("3P", "VertebralArtery"); // (inside the station)
   StopCurrentStep<MaskImageType>(m_Working_Support);
   m_ListOfStations["3P"] = m_Working_Support;
 }
@@ -295,60 +281,3 @@ ExtractStation_3P_LR_sup_Limits_2()
 }
 //--------------------------------------------------------------------
 
-//--------------------------------------------------------------------
-template <class ImageType>
-void 
-clitk::ExtractLymphStationsFilter<ImageType>::
-ExtractStation_3P_LR_inf_Limits() 
-{
-  /*
-    "On the right side, the limit is deﬁned by the air–soft-tissue
-    interface. On the left side, it is deﬁned by the air–tissue
-    interface superiorly (Fig. 2A–C) and the aorta inferiorly
-    (Figs. 2D–I and 3A–C)."
-
-    inf : not Right to Azygousvein    
-  */
-  StartNewStep("[Station 3P] Left/Right limits (inferior part) with Azygousvein and Aorta");
-
-  // Load structures
-  MaskImagePointer AzygousVein = GetAFDB()->template GetImage<MaskImageType>("AzygousVein");
-  MaskImagePointer Aorta = GetAFDB()->template GetImage<MaskImageType>("Aorta");
-
-  DD("ici");
-  writeImage<MaskImageType>(m_Working_Support, "ws.mhd");
-
-  typedef clitk::AddRelativePositionConstraintToLabelImageFilter<MaskImageType> RelPosFilterType;
-  typename RelPosFilterType::Pointer relPosFilter = RelPosFilterType::New();
-  relPosFilter->VerboseStepFlagOff();
-  relPosFilter->WriteStepFlagOff();
-  relPosFilter->SetBackgroundValue(GetBackgroundValue());
-  relPosFilter->SetInput(m_Working_Support); 
-  relPosFilter->SetInputObject(AzygousVein); 
-  relPosFilter->AddOrientationTypeString("R");
-  relPosFilter->SetInverseOrientationFlag(true);
-  relPosFilter->SetIntermediateSpacing(3);
-  relPosFilter->SetIntermediateSpacingFlag(false);
-  relPosFilter->SetFuzzyThreshold(0.7);
-  relPosFilter->AutoCropFlagOn();
-  relPosFilter->Update();
-  m_Working_Support = relPosFilter->GetOutput();
-
-  DD("la");
-  writeImage<MaskImageType>(m_Working_Support, "before-L-aorta.mhd");
-  relPosFilter->SetInput(m_Working_Support); 
-  relPosFilter->SetInputObject(Aorta); 
-  relPosFilter->AddOrientationTypeString("L");
-  relPosFilter->SetInverseOrientationFlag(true);
-  relPosFilter->SetIntermediateSpacing(3);
-  relPosFilter->SetIntermediateSpacingFlag(false);
-  relPosFilter->SetFuzzyThreshold(0.7);
-  relPosFilter->AutoCropFlagOn();
-  relPosFilter->Update();
-  m_Working_Support = relPosFilter->GetOutput();
-  writeImage<MaskImageType>(m_Working_Support, "after-L-aorta.mhd");
-
-  StopCurrentStep<MaskImageType>(m_Working_Support);
-  m_ListOfStations["3P"] = m_Working_Support;
-}
-//--------------------------------------------------------------------
