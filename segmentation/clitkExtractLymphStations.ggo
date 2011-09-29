@@ -23,12 +23,9 @@ option "station" - "Force to compute station even if already exist in the DB" st
 option "nosupport" - "Do not recompute the station supports if already available" flag off
 option "relpos" - "List of filenames for relativeposition operations" string no multiple
 
-section "Options for Station 3A"
-
-section "Options for Station 2RL"
-
-section "Options for Station 1RL"
-
+# section "Options for Station 3A"
+# section "Options for Station 2RL"
+# section "Options for Station 1RL"
 
 section "Options for Station 8"
 option "S8_esophagusDilatationForAnt" - "Dilatation of esophagus, in mm, for 'anterior' limits (default=15,2,1)" double no multiple
