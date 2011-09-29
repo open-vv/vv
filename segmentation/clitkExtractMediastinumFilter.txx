@@ -330,6 +330,13 @@ GenerateOutputInformation() {
   }
 
   //--------------------------------------------------------------------
+  // Remove VertebralBody part
+  this->StartNewStep("[Mediastinum] Remove VertebralBody");  
+  MaskImagePointer VertebralBody = this->GetAFDB()->template GetImage<MaskImageType>("VertebralBody");
+  clitk::AndNot<MaskImageType>(output, VertebralBody, this->GetBackgroundValue());
+  this->template StopCurrentStep<MaskImageType>(output);
+
+  //--------------------------------------------------------------------
   // Generic RelativePosition processes
   output = this->ApplyRelativePositionList("Mediastinum", output);
 
