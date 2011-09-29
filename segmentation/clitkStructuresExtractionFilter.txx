@@ -73,8 +73,8 @@ ApplyRelativePositionList(std::string name, MaskImageType * input)
     relpos->SetInput(input);
     relpos->Update();
     input = relpos->GetOutput();
+    SetCurrentStepNumber(relpos->GetCurrentStepNumber());
   }
-  SetCurrentStepNumber(relpos->GetCurrentStepNumber());
   return input;
 }
 //--------------------------------------------------------------------
