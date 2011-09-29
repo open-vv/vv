@@ -90,15 +90,19 @@ Read(std::string filename) {
       os << text;
       os.close();
 
-      // Create a struct to store options
+      // Create a struct to store options. I use two step to allow to
+      // fill the args values with de default and then check
+      // automatically the options.
       ArgsInfoType args_info;
+      std::vector<char> writable(tmpfilename.size() + 1);
+      std::copy(tmpfilename.begin(), tmpfilename.end(), writable.begin());
+      char ** argv;
+      cmdline_parser_clitkRelativePosition2(0, argv, &args_info, 1, 1, 0);
       args_info.input_given = 1;
       args_info.input_arg = new char[1];
       args_info.output_given = 1;
       args_info.output_arg = new char[1];
-      std::vector<char> writable(tmpfilename.size() + 1);
-      std::copy(tmpfilename.begin(), tmpfilename.end(), writable.begin());
-      cmdline_parser_clitkRelativePosition_configfile(&writable[0], &args_info, 1, 1, 0);
+      cmdline_parser_clitkRelativePosition_configfile(&writable[0], &args_info, 0, 0, 1);
       
       // Store the args
       mArgsInfoList.push_back(args_info);
@@ -154,20 +158,33 @@ GenerateOutputInformation() {
     StartNewStep(text);  
     typename RelPosFilterType::Pointer relPosFilter;
 
-    // DD(mArgsInfoList[i].sliceBySlice_flag);
+    // Is it slice by slice or 3D ?
     if (mArgsInfoList[i].sliceBySlice_flag) {
-      relPosFilter = SliceRelPosFilterType::New();
-      dynamic_cast<SliceRelPosFilterType*>(&*relPosFilter)->SetDirection(2);
+      typename SliceRelPosFilterType::Pointer f = SliceRelPosFilterType::New();
+      relPosFilter = f;
+      SetFilterOptions(relPosFilter, mArgsInfoList[i]);  
+      f->SetDirection(2);
+      // Set SbS specific options
+      f->SetUniqueConnectedComponentBySliceFlag(mArgsInfoList[i].uniqueCCL_flag);
+      f->SetObjectCCLSelectionFlag(mArgsInfoList[i].uniqueObjectCCL_flag);
+      f->IgnoreEmptySliceObjectFlagOn();
+      //f->SetObjectCCLSelectionDimension(0);
+      //f->SetObjectCCLSelectionDirection(-1);
+      //f->SetAutoCropFlag(false);
+      // Print if needed
+      if (mArgsInfoList[i].verboseOptions_flag) f->PrintOptions();
     }
     else {
       relPosFilter = clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::New();
+      SetFilterOptions(relPosFilter, mArgsInfoList[i]);  
+      // Print if needed
+      if (mArgsInfoList[i].verboseOptions_flag) relPosFilter->PrintOptions();
     }
-    relPosFilter->VerboseStepFlagOff();
-    relPosFilter->WriteStepFlagOff();
-    relPosFilter->SetVerboseImageSizeFlag(GetVerboseImageSizeFlag());
-    relPosFilter->SetInput(m_working_input);
-    SetFilterOptions(relPosFilter, mArgsInfoList[i]);    
-    //relPosFilter->PrintOptions();
+
+    // Set input
+    relPosFilter->SetInput(m_working_input);  
+  
+    // Run the filter
     relPosFilter->Update();
     m_working_input = relPosFilter->GetOutput();  
     StopCurrentStep<ImageType>(m_working_input);
@@ -192,8 +209,7 @@ GenerateData()
 template <class TImageType>
 void
 clitk::RelativePositionList<TImageType>::
-SetFilterOptions(typename RelPosFilterType::Pointer filter, 
-                 ArgsInfoType & options) {
+SetFilterOptions(typename RelPosFilterType::Pointer filter, ArgsInfoType & options) {
 
   if (options.orientation_given != 1) {
     DD("ERRROR DEBUG TODO no more than 1 orientation yet");
@@ -202,23 +218,16 @@ SetFilterOptions(typename RelPosFilterType::Pointer filter,
 
   ImagePointer object = GetAFDB()->template GetImage<ImageType>(options.object_arg);
   filter->SetInputObject(object);
+  filter->WriteStepFlagOff();
+  filter->SetVerboseImageSizeFlag(GetVerboseImageSizeFlag());
   filter->SetFuzzyThreshold(options.threshold_arg);
   filter->SetInverseOrientationFlag(options.inverse_flag); // MUST BE BEFORE AddOrientationTypeString
   for(uint i=0; i<options.orientation_given; i++) 
     filter->AddOrientationTypeString(options.orientation_arg[i]);
   filter->SetIntermediateSpacing(options.spacing_arg);
   if (options.spacing_arg == -1) filter->IntermediateSpacingFlagOff();
-  filter->IntermediateSpacingFlagOn();
-  
-  if (options.sliceBySlice_flag) {
-    SliceRelPosFilterType * f = dynamic_cast<SliceRelPosFilterType*>(&*filter);
-    f->SetUniqueConnectedComponentBySliceFlag(options.uniqueCCL_flag);
-    f->SetObjectCCLSelectionFlag(options.uniqueObjectCCL_flag);
-    f->IgnoreEmptySliceObjectFlagOn();
-    //filter->SetObjectCCLSelectionDimension(0);
-    //filter->SetObjectCCLSelectionDirection(-1);
-    //filter->SetAutoCropFlag(false);
-  }
+  else filter->IntermediateSpacingFlagOn();
+  filter->SetVerboseStepFlag(options.verboseStep_flag);
   filter->SetAutoCropFlag(!options.noAutoCrop_flag); 
 }
 //--------------------------------------------------------------------
