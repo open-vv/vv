@@ -1,0 +1,325 @@
+\documentclass[12pt]{report}
+
+\usepackage[a4paper, top=1.5cm, bottom=1.5cm, left=1.5cm, right=1.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[francais]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+\usepackage{color}
+\usepackage{colortbl}
+\usepackage{lastpage}
+\usepackage{fancyhdr}
+\usepackage{hyperref}	% html link
+\usepackage{float} %placement images
+\usepackage{caption} %légendes centrées
+\usepackage{textcomp} %caractères spéciaux
+\usepackage{version} %ajoute l'environnement comment pour les commentaires longs
+
+%configure caption
+\captionsetup{margin=10pt,font=small,labelfont=bf,justification=centerlast}
+
+%définition des entêtes et pieds de page
+\fancyhf{}
+\setlength{\headheight}{15pt}
+\renewcommand{\headrulewidth}{0pt} %épaisseur ligne de séparation
+\renewcommand{\footrulewidth}{0pt}
+\pagestyle{fancyplain}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}} 
+\renewcommand{\sectionmark}[1]{\markright{#1}{}}
+\lhead{}
+\chead{}
+\rhead{}
+\lfoot{}
+\cfoot{\thepage\ / \pageref{LastPage}}
+\rfoot{}
+\newenvironment{note}{\textbf{Note:}}{}
+
+\begin{document}
+\title{Tester vv}
+\maketitle
+\thispagestyle{empty} %pas d'entêtes pour la première page
+\clearpage
+
+\renewcommand{\contentsname}{Sommaire}
+\tableofcontents
+\clearpage
+
+ \chapter{Intégration continue}
+\section{Les options de make}
+Il y a principalement quatre \htmladdnormallink{options}{http://www.vtk.org/Wiki/CTest:Nightly,_Experimental,_Continuous} de compilation : 
+Nightly, Continuous, Experimental et Test.
+
+Quiconque peut lancer une compilation avec l'une de ces options.
+\begin{itemize}
+\item make Nightly fait un raz des binaires mais garde la configuration, update les sources, build, lance les tests puis submit au dashboard.
+\item make Experimental fait un build, lance les tests puis submit au dashboard.
+\item make Continous fait un build, lance les tests puis submit au dashboard.
+\end{itemize}
+
+
+\section{Installation des compilations automatiques}
+\begin{enumerate}
+	\item Récupérer les scripts \begin{verbatim}git clone http://russule/gitSources/vvDashboard\end{verbatim}
+	\item Configurer les scripts
+	\item Créer la tache sous linux et éventuellement sous windows
+\end{enumerate}
+
+\subsection{Configuration des scripts}
+Voici un bref résumé du rôle de chacun des scripts
+\begin{itemize} 
+ \item builderNightly.bat : Lance les builds pour windows
+ \item commonConfig.cmake : Arborescence des dossiers, URL des données de test, path vers ITK et VTK
+ \item continuousBuild.cmake : Amorce un continuous
+ \item dartConfig.cmake : Configuration du serveur distant
+ \item fetch\_data\_test.bat : git pull ou clone si le repo n'existe pas
+ \item fetch\_data\_test.sh : idem pour linux
+ \item nightlyBuild.cmake : Parse les arguments pour lancer le build correspondant.
+L'appèle du script est de la forme
+\begin{verbatim}
+	ctest -S nightlyBuild.cmake,Itkv3.20.0 (ou ,ItkNightly)
+# variante : ctest -S nightlyBuild.cmake,Itkv3.20.0,NoTools
+# où il faut définir que faire lorsque l'argument NoTools est trouvé (ici, CLITK_BUILD_TOOLS=OFF)
+\end{verbatim}
+ \item startNightlyBuilds.sh : Lance toutes les nightly et lance la vm
+ \item vmLaunch.sh : Lance toutes les images virtuelles.
+ \item itkNightlyBuild.cmake : Met à jour le dossier itk from scratch. Ce script est appelé par nightlyBuild.cmake,ItkNightly
+\end{itemize}
+
+Les principales informations à modifier sont dans le fichier commonConfig.cmake.\\
+Description de commonConfig.cmake
+\begin{verbatim}
+set(itkBin "${itkVersion}Bin/")
+set(dashboard_binary_name "vv${itkVersion}${buildOptions}Bin/")
+set(dashboard_source_name "vvSource")
+#adresse où télécharger(cloner) les données de test.
+set(data_test_path "${CTEST_DASHBOARD_ROOT}${dashboard_binary_name}data/") 
+
+#http://192.168.156.8/gitSources/vvDataTest est l'adresse où récupérer les données de test
+EXEC_PROGRAM(${CTEST_SCRIPT_DIRECTORY}/fetch_data_test.${ext} ARGS ${data_test_path} http://192.168.156.8/gitSources/vvDataTest)
+\end{verbatim}
+Exemple d'architecture des dossiers : 
+\begin{verbatim}
+./vvItkNightlyBin
+./vvItkNightlyNoToolsBin
+./vvItkv3.20.0Bin
+./vvItkv3.20.0NoToolsBin
+./vvItkv3.20.0NoVvBin
+./vvSource
+\end{verbatim}
+
+\subsection{Création des taches}
+Concernant les compilations automatiques, il est possible de créer une tache appelant le script startNightlyBuilds. \\
+Ce dernier exécute pour chacun des builds configurés un raz, une mise à jour, une configuration, une compilation, puis l'exécution des tests et la
+soumission de leurs résultats.\\
+Il lance également la machine virtuelle, dans laquelle se trouve des builds sous windows.
+\begin{itemize}
+\item Pour Suse : 
+\begin{verbatim}
+  >crontab -l
+0  22   *   *   * /home/mpech/workspace/vv/vvDashboard/startNightlyBuilds.sh > /home/mpech/workspace/nightlyLog.log
+0  5   *   *   * ctest -S /home/mpech/workspace/vv/vvDashboard/continuousBuild.cmake,ItkNightly -V > /home/mpech/workspace/vvItkNightly/continuousMaster.log 2>&1
+\end{verbatim}
+A 22h, on commence les builds linux puis on lance la VM. Chaque OS a la responsabilité de s'éteindre.\\
+\begin{note}
+A 5h tous les jours un continuous est lancé. Il n'est pas nécessaire d'appeler plusieurs fois le continous : 
+une fois appelé, il dure pendant ''dashboard\_loop'' et tente une mise à jour du repo et soumet un build
+au dashboard si le repo a été modifié, tous les ''CTEST\_DELAY\_TIME''. Ces variables
+se modifient dans continuousBuild.cmake.
+En regardant le script continuousBuild.cmake, on constate qu'il est effectif pendant une durée de \${dashboard\_loop}68400/3600=19h.
+\end{note}
+\item Sous windows :
+Il faut également créer une tâche appelant builderNightly.bat. Ce dernier lance également les builds et une fois ceux-ci finis,
+éteint l'OS.
+Voici un \htmladdnormallink{lien}{http://www.vistax64.com/tutorials/132903-task-scheduler-create-task.html}.
+Démarrer>exécuter>taskschd.msc ou bien clique-droit gérer sur ''Ordinateur'' dans l'explorateur de fichiers.
+
+Sur le pannel de gauche, librairie>windows, créer un dossier par exemple vv, et à l'intérieur créer une nouvelle tache.
+Seuls les déclencheurs et l'action (builderNightly.bat) nous intéresse.
+\end{itemize}
+
+\section{Configuration du dashboard}
+Le dashboard de VV est accessible via ce \htmladdnormallink{lien}{http://my.cdash.org/index.php?project=VV}.\\
+
+Le fuseau horaire d'affichage du dashboard est EDT.\\
+Nous sommes CET. Il n'est pas possible de modifier l'heure affichée sur le dashboard pour qu'elle
+corresponde à l'heure CET.
+En revanche, il est possible de spécifier l'heure de début des nightly : sachant qu'il y a un décalage de 6h
+(10h en France équivaut à 4h sur le dashboard). Par exemple si nous soumettons un build à 1h CET le mardi, cela équivaut à soumettre ce build à 19h EDT le lundi.\\
+Ce faisant, en indiquant que les nightly commencent à 19h EDT sur le dashboard, notre build sera bien affiché mardi sur le dashboard.
+
+
+ \chapter{Création d'un sous-module pour les données de test}
+\section{Git deuxième repo}
+Actuellement, un deuxième repo est utilisé pour les données de test.
+\begin{verbatim}
+http://russule/gitSources/vvDataTest
+# ou bien 
+/home/mpech/workspace/git/vvDataTest
+\end{verbatim}
+
+Le serveur n'est pas configuré pour pouvoir pusher par http. Donc soit passer par le repo /home/..., soit
+\begin{verbatim}
+git push ssh://mpech@russule/home/mpech/workspace/gitSources/vvDataTest
+\end{verbatim}
+
+\subsection{Mise en place du Git par http}
+\begin{verbatim}
+sudo zypper install apache2
+cd /srv/www/htdocs
+sudo ln -s /home/mpech/workspace/git gitSources
+\end{verbatim}
+Il est possible que le dossier ne soit pas accessible, s'assurer que FollowSymlinks est bien précisé. Chez moi dans
+le fichier ''/etc/apache2/default-server.conf'', rajouter les options si non présentes.\\
+Indexes pour afficher la liste des dossiers/fichiers présents dans un répertoire \\
+FollowSymLinks pour permettre les liens symboliques depuis le répertoire web vers un répertoire quelconque.
+\begin{verbatim}
+<Directory "/srv/www/htdocs">
+        Options Indexes FollowSymLinks
+\end{verbatim}
+
+Enfin, après chaque push vers le remote repo, il faut updater le serveur manuellement.
+\begin{verbatim}
+cd /home/mpech/workspace/git;
+git update-server-info
+\end{verbatim}
+A la place, on peut activer le hook post-update de git (en renommant le post-update.sample sans son suffixe): 
+\begin{verbatim}
+cd /home/mpech/workspace/git/vvDatatest/hooks
+mv post-update.sample post-update
+\end{verbatim}
+De fait, git sera automatiquement mis à jour.
+\\
+\begin{note}
+ Ici git ne fait pas référence au données de test, le répertoire git contient
+\begin{itemize}
+\item vvDataTest qui est le repo qui nous intéresse
+\item vvDashboard qui contient les scripts pour les nightly, également versionné
+\end{itemize}
+\end{note}
+
+\section{Git submodule}
+Procédure pour monter le dossier de tests.
+Création de notre repo data (qui contiendra les données de test): 
+\begin{verbatim}
+git init --bare data
+git clone tests dataCloned
+(
+ cd dataCloned; echo "a">a; git add a; git commit -m "add a";
+ git push origin master
+)
+\end{verbatim}
+Le fichier ''a'' est accessible aux autres clones de data.
+
+On ajoute notre repo dataCloned en tant que submodule du super repo (par exemple vv).
+\begin{verbatim}
+cd vv;
+git submodule add ../dataCloned tests/data
+git commit -m "added the submodule data"
+git push
+\end{verbatim}
+
+Côté client : 
+\begin{verbatim}
+cd vv;
+git pull;
+git submodule init; 
+git submodule update; //now tests/data contain a file named "a"
+cd tests/data; echo "b">b; git add b && git commit -m "adding b";
+git push
+\end{verbatim}
+
+Comme le sous-module a été modifié, on oublie pas de mettre à jour super : 
+\begin{verbatim}
+git submodule add tests/data #remarque : PAS de trailing slash à la fin de data
+git commit -m "mise à jour du sous-repos"
+git push
+\end{verbatim}
+
+Désormais les autres pourront git submodule update avec la dernière version du repo de data.
+
+Si on avait pas commité, alors le submodule update ne tient pas compte des nouvelles modifications
+sur le repository data.
+
+\subsection{Enlever des fichiers du repository data}
+Si pour une raison x, on veut enlever des fichiers de data. Par exemple heavy.dcm
+dans le submodule ou simplement dans dataCloned : 
+\begin{verbatim}
+#modify l'arbre
+git filter-branch --index-filter 'git rm --cached --ignore-unmatch heavy.dcm' HEAD
+git push origin master --force
+\end{verbatim}
+
+dans le bare repo data : 
+\begin{verbatim}
+git reflog expire --expire=now --all
+git gc --aggressive --prune=now
+\end{verbatim}
+
+Côté super, on met à jour le submodule,
+\begin{verbatim}
+git pull 
+#puis on ajoute la nouvelle référence : 
+git add tests/data; git commit -m "updated submodule"; git push
+\end{verbatim}
+
+
+Côté client, celui-ci n'a plus qu'à runner 
+\begin{verbatim}
+git pull; git submodule update
+\end{verbatim}
+Si il avait le fichier heavy.dcm, alors celui-ci est potentiellement encore dans le .git du submodule. Il peut l'enlever
+à coup de 
+\begin{verbatim}
+rm -rf .git/refs/original
+git reflog expire --expire=now --all
+git gc --aggressive --prune=now
+\end{verbatim}
+
+Source : \htmladdnormallink{github}{http://help.github.com/remove-sensitive-data/}
+
+
+
+
+ 
+ \chapter{Procédure de test d'outils}
+\section{Procédure de test}
+\begin{enumerate}
+	\item Choisir un outil, et une image test d'entrée.
+	\item Lui faire générer une image
+	\item Cette image générée sert de référence. L'outil valide doit générer cette image à partir de l'image test d'entrée.
+	\item Passer l'image test d'entrée et s'assurer que l'outil génère bien l'image de référence.
+\end{enumerate}
+\section{Step by Step}
+\begin{enumerate}
+	\item Choisir un outils : ex : clitkCropImage
+	\item Chercher comment le lancer : 
+\begin{verbatim}
+cat $(find -name *CropImage*ggo)
+\end{verbatim}
+	\item Choisir les images qui vont bien: par défaut sont présentes Lung3D.mhd, Deformation4D.mhd (toutes deux de petites
+tailles), les paramètres etc...
+	\item Exécuter l'outil : ./clitkCropImage {parametres}
+	\item Récupérer la (les) images générées (vérifier qu'elle(s) est(sont) correcte(s)) et les copier dans le dossier
+des images de test.
+	\item Mettre à jour le /tests/tools/CMakeLists.txt en ajoutant le test
+	\item Vérifier qu'on a bien le test qui passe, 
+\begin{verbatim}
+#on reparse le CMakeLists.txt
+	cmake ../vvSource
+#et on run les tests
+	make test
+\end{verbatim}
+Si un test échoue, on peut accéder à la raison via le fichier /Testing/Temporary/lastTest.log
+	\item Répéter pour autant de tests qu'on veut faire sur un outils
+	\item Mettre à jour le dashboard ''make Experimental''
+	\item Commit/Push les images sur le git des images tests
+	\item Commit du CMakeLists.txt sur le repository de vv
+\end{enumerate}
+
+
+\end{document}
