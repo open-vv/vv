@@ -192,6 +192,8 @@ void vvOverlayPanel::getFusionProperty(int opacity, int thresOpacity, int colorm
     opacityHorizontalSlider->setValue(opacity);
     thresOpacityHorizontalSlider->setEnabled(1);
     thresOpacityHorizontalSlider->setValue(thresOpacity);
+    fusionOpacitySpin->setValue(opacity); 
+    fusionThresSpin->setValue(thresOpacity);
     fusionWindowSpinBox->setEnabled(1);
     fusionLevelSpinBox->setEnabled(1);
     fusionWindowSpinBox->setValue(window);
@@ -207,6 +209,8 @@ void vvOverlayPanel::getFusionProperty(int opacity, int thresOpacity, int colorm
     opacityHorizontalSlider->setValue(0);
     thresOpacityHorizontalSlider->setEnabled(0);
     thresOpacityHorizontalSlider->setValue(0);
+    fusionOpacitySpin->setValue(0); 
+    fusionThresSpin->setValue(0);
     fusionColorMapComboBox->setEnabled(0);
     fusionColorMapComboBox->setCurrentIndex(-1);
     fusionWindowSpinBox->setEnabled(0);

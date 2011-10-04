@@ -58,7 +58,7 @@ vvSlicerManager::vvSlicerManager(int numberOfSlicers)
   mOverlayColor = 130;
 
   mFusionOpacity = 70;
-  mFusionThresOpacity = 1;
+  mFusionThresOpacity = 0;
   mFusionColorMap = 3;
   mFusionWindow = 1000;
   mFusionLevel = 1000;
