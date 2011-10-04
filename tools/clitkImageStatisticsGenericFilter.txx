@@ -18,6 +18,8 @@
 #ifndef clitkImageStatisticsGenericFilter_txx
 #define clitkImageStatisticsGenericFilter_txx
 
+#include "itkNthElementImageAdaptor.h"
+
 /* =================================================
  * @file   clitkImageStatisticsGenericFilter.txx
  * @author 
@@ -34,15 +36,15 @@ namespace clitk
   //-------------------------------------------------------------------
   // Update with the number of dimensions
   //-------------------------------------------------------------------
-  template<unsigned int Dimension>
+  template<unsigned int Dimension, unsigned int Components>
   void 
   ImageStatisticsGenericFilter::UpdateWithDim(std::string PixelType)
   {
-    if (m_Verbose) std::cout << "Image was detected to be "<<Dimension<<"D and "<< PixelType<<"..."<<std::endl;
+    if (m_Verbose) std::cout << "Image was detected to be "<<Dimension<<"D and "<< PixelType<<" with " << Components << " channel(s)..."<<std::endl;
 
     if(PixelType == "short"){  
       if (m_Verbose) std::cout << "Launching filter in "<< Dimension <<"D and signed short..." << std::endl;
-      UpdateWithDimAndPixelType<Dimension, signed short>(); 
+      UpdateWithDimAndPixelType<Dimension, signed short, Components>(); 
     }
     //    else if(PixelType == "unsigned_short"){  
     //       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_short..." << std::endl;
@@ -51,7 +53,7 @@ namespace clitk
     
     else if (PixelType == "unsigned_char"){ 
       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_char..." << std::endl;
-      UpdateWithDimAndPixelType<Dimension, unsigned char>();
+      UpdateWithDimAndPixelType<Dimension, unsigned char, Components>();
     }
     
     //     else if (PixelType == "char"){ 
@@ -60,7 +62,7 @@ namespace clitk
     //     }
     else {
       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and float..." << std::endl;
-      UpdateWithDimAndPixelType<Dimension, float>();
+      UpdateWithDimAndPixelType<Dimension, float, Components>();
     }
   }
 
@@ -68,15 +70,14 @@ namespace clitk
   //-------------------------------------------------------------------
   // Update with the number of dimensions and the pixeltype
   //-------------------------------------------------------------------
-  template <unsigned int Dimension, class  PixelType> 
+  template <unsigned int Dimension, class  PixelType, unsigned int Components> 
   void 
   ImageStatisticsGenericFilter::UpdateWithDimAndPixelType()
   {
 
     // ImageTypes
-    typedef itk::Image<PixelType, Dimension> InputImageType;
+    typedef itk::Image<itk::Vector<PixelType, Components>, Dimension> InputImageType;
     typedef itk::Image<unsigned int, Dimension> LabelImageType;
-    typedef itk::Image<PixelType, Dimension> OutputImageType;
     
     // Read the input
     typedef itk::ImageFileReader<InputImageType> InputReaderType;
@@ -84,31 +85,35 @@ namespace clitk
     reader->SetFileName( m_InputFileName);
     reader->Update();
     typename InputImageType::Pointer input= reader->GetOutput();
+    
+    typedef itk::NthElementImageAdaptor<InputImageType, PixelType> InputImageAdaptorType;
+    typedef itk::Image<PixelType, Dimension> OutputImageType;
 
+    typename InputImageAdaptorType::Pointer input_adaptor = InputImageAdaptorType::New();
+    input_adaptor->SetImage(input);
+    
     // Filter
-    typedef itk::LabelStatisticsImageFilter<InputImageType, LabelImageType> StatisticsImageFilterType;
+    typedef itk::LabelStatisticsImageFilter<InputImageAdaptorType, LabelImageType> StatisticsImageFilterType;
     typename StatisticsImageFilterType::Pointer statisticsFilter=StatisticsImageFilterType::New();
-    statisticsFilter->SetInput(input);
+    statisticsFilter->SetInput(input_adaptor);
 
     // Label image
     typename LabelImageType::Pointer labelImage;
-    if (m_ArgsInfo.mask_given)
-      {
-	typedef itk::ImageFileReader<LabelImageType> LabelImageReaderType;
-	typename LabelImageReaderType::Pointer labelImageReader=LabelImageReaderType::New();
-	labelImageReader->SetFileName(m_ArgsInfo.mask_arg);
-	labelImageReader->Update();
-	labelImage= labelImageReader->GetOutput();
-      }
-    else
-      { 
-	labelImage=LabelImageType::New();
-	labelImage->SetRegions(input->GetLargestPossibleRegion());
-	labelImage->SetOrigin(input->GetOrigin());
-	labelImage->SetSpacing(input->GetSpacing());
-	labelImage->Allocate();
-	labelImage->FillBuffer(m_ArgsInfo.label_arg[0]);
-      }
+    if (m_ArgsInfo.mask_given) {
+      typedef itk::ImageFileReader<LabelImageType> LabelImageReaderType;
+      typename LabelImageReaderType::Pointer labelImageReader=LabelImageReaderType::New();
+      labelImageReader->SetFileName(m_ArgsInfo.mask_arg);
+      labelImageReader->Update();
+      labelImage= labelImageReader->GetOutput();
+    }
+    else { 
+      labelImage=LabelImageType::New();
+      labelImage->SetRegions(input->GetLargestPossibleRegion());
+      labelImage->SetOrigin(input->GetOrigin());
+      labelImage->SetSpacing(input->GetSpacing());
+      labelImage->Allocate();
+      labelImage->FillBuffer(m_ArgsInfo.label_arg[0]);
+    }
     statisticsFilter->SetLabelInput(labelImage);
 
     // For each Label
@@ -119,77 +124,91 @@ namespace clitk
     else
       numberOfLabels=1;
 
-    for (unsigned int k=0; k< numberOfLabels; k++)
-      {
-	label=m_ArgsInfo.label_arg[k];
-
-	std::cout<<std::endl;
-	if (m_Verbose) std::cout<<"-------------"<<std::endl;
-	if (m_Verbose) std::cout<<"| Label: "<<label<<"  |"<<std::endl;
-	if (m_Verbose) std::cout<<"-------------"<<std::endl;
-	
-	// Histograms
-	if (m_ArgsInfo.histogram_given)
-	  {
-	    statisticsFilter->SetUseHistograms(true);
-	    statisticsFilter->SetHistogramParameters(m_ArgsInfo.bins_arg, m_ArgsInfo.lower_arg, m_ArgsInfo.upper_arg);
-	  }
-	statisticsFilter->Update();
-
-
-	// Output
-	if (m_Verbose) std::cout<<"N° of pixels: ";
-	std::cout<<statisticsFilter->GetCount(label)<<std::endl;
-
-	if (m_Verbose) std::cout<<"Mean: ";
-	std::cout<<statisticsFilter->GetMean(label)<<std::endl;
+    unsigned int firstComponent = 0, lastComponent = 0;
+    if (m_ArgsInfo.channel_arg == -1) {
+      firstComponent = 0; 
+      lastComponent = Components - 1;
+    }
+    else {
+      firstComponent = m_ArgsInfo.channel_arg;
+      lastComponent = m_ArgsInfo.channel_arg;
+    }
     
-	if (m_Verbose) std::cout<<"SD: ";
-	std::cout<<statisticsFilter->GetSigma(label)<<std::endl;
+    for (unsigned int c=firstComponent; c<=lastComponent; c++) {
+      if (m_Verbose) std::cout << std::endl << "Processing channel " << c << std::endl;
+      
+      input_adaptor->SelectNthElement(c);
+      input_adaptor->Update();
+      
+      for (unsigned int k=0; k< numberOfLabels; k++) {
+        label=m_ArgsInfo.label_arg[k];
 
-	if (m_Verbose) std::cout<<"Variance: ";
-	std::cout<<statisticsFilter->GetVariance(label)<<std::endl;
+        std::cout<<std::endl;
+        if (m_Verbose) std::cout<<"-------------"<<std::endl;
+        if (m_Verbose) std::cout<<"| Label: "<<label<<"  |"<<std::endl;
+        if (m_Verbose) std::cout<<"-------------"<<std::endl;
 
-	if (m_Verbose) std::cout<<"Min: ";
-	std::cout<<statisticsFilter->GetMinimum(label)<<std::endl;
+        // Histograms
+        if (m_ArgsInfo.histogram_given) {
+          statisticsFilter->SetUseHistograms(true);
+          statisticsFilter->SetHistogramParameters(m_ArgsInfo.bins_arg, m_ArgsInfo.lower_arg, m_ArgsInfo.upper_arg);
+        }
+        statisticsFilter->Update();
 
-	if (m_Verbose) std::cout<<"Max: ";
-	std::cout<<statisticsFilter->GetMaximum(label)<<std::endl;
+        // Output
+        if (m_Verbose) std::cout<<"N° of pixels: ";
+          std::cout<<statisticsFilter->GetCount(label)<<std::endl;
 
-	if (m_Verbose) std::cout<<"Sum: ";
-	std::cout<<statisticsFilter->GetSum(label)<<std::endl;
+        if (m_Verbose) std::cout<<"Mean: ";
+          std::cout<<statisticsFilter->GetMean(label)<<std::endl;
 
-	if (m_Verbose) std::cout<<"Bounding box: ";
-	for(unsigned int i =0; i <statisticsFilter->GetBoundingBox(label).size(); i++)
-	  std::cout<<statisticsFilter->GetBoundingBox(label)[i]<<" ";
-	std::cout<<std::endl;
+        if (m_Verbose) std::cout<<"SD: ";
+          std::cout<<statisticsFilter->GetSigma(label)<<std::endl;
 
+        if (m_Verbose) std::cout<<"Variance: ";
+          std::cout<<statisticsFilter->GetVariance(label)<<std::endl;
 
-	// Histogram
-	if (m_ArgsInfo.histogram_given)
-	  {
-	    if (m_Verbose) std::cout<<"Median: ";
-	    std::cout<<statisticsFilter->GetMedian(label)<<std::endl;
+        if (m_Verbose) std::cout<<"Min: ";
+          std::cout<<statisticsFilter->GetMinimum(label)<<std::endl;
 
-	    typename StatisticsImageFilterType::HistogramPointer histogram =statisticsFilter->GetHistogram(label);
-	    
-	    // Screen
-	    if (m_Verbose) std::cout<<"Histogram: "<<std::endl;
-	    std::cout<<"# MinBin\tMidBin\tMaxBin\tFrequency"<<std::endl;
-	    for( int i =0; i <m_ArgsInfo.bins_arg; i++)
-	      std::cout<<histogram->GetBinMin(0,i)<<"\t"<<histogram->GetMeasurement(i,0)<<"\t"<<histogram->GetBinMax(0,i)<<"\t"<<histogram->GetFrequency(i)<<std::endl;
-	  
-	    // Add to the file
-	    std::ofstream histogramFile(m_ArgsInfo.histogram_arg);
-	    histogramFile<<"#Histogram: "<<std::endl;
-	    histogramFile<<"#MinBin\tMidBin\tMaxBin\tFrequency"<<std::endl;
-	    for( int i =0; i <m_ArgsInfo.bins_arg; i++)
-	      histogramFile<<histogram->GetBinMin(0,i)<<"\t"<<histogram->GetMeasurement(i,0)<<"\t"<<histogram->GetBinMax(0,i)<<"\t"<<histogram->GetFrequency(i)<<std::endl;
-	  }
+        if (m_Verbose) std::cout<<"Max: ";
+          std::cout<<statisticsFilter->GetMaximum(label)<<std::endl;
+
+        if (m_Verbose) std::cout<<"Sum: ";
+          std::cout<<statisticsFilter->GetSum(label)<<std::endl;
+
+        if (m_Verbose) std::cout<<"Bounding box: ";
+        
+        for(unsigned int i =0; i <statisticsFilter->GetBoundingBox(label).size(); i++)
+          std::cout<<statisticsFilter->GetBoundingBox(label)[i]<<" ";
+        std::cout<<std::endl;
+
+        // Histogram
+        if (m_ArgsInfo.histogram_given)
+        {
+          if (m_Verbose) std::cout<<"Median: ";
+          std::cout<<statisticsFilter->GetMedian(label)<<std::endl;
+
+          typename StatisticsImageFilterType::HistogramPointer histogram =statisticsFilter->GetHistogram(label);
+
+          // Screen
+          if (m_Verbose) std::cout<<"Histogram: "<<std::endl;
+            std::cout<<"# MinBin\tMidBin\tMaxBin\tFrequency"<<std::endl;
+          for( int i =0; i <m_ArgsInfo.bins_arg; i++)
+            std::cout<<histogram->GetBinMin(0,i)<<"\t"<<histogram->GetMeasurement(i,0)<<"\t"<<histogram->GetBinMax(0,i)<<"\t"<<histogram->GetFrequency(i)<<std::endl;
+
+          // Add to the file
+          std::ofstream histogramFile(m_ArgsInfo.histogram_arg);
+          histogramFile<<"#Histogram: "<<std::endl;
+          histogramFile<<"#MinBin\tMidBin\tMaxBin\tFrequency"<<std::endl;
+          for( int i =0; i <m_ArgsInfo.bins_arg; i++)
+            histogramFile<<histogram->GetBinMin(0,i)<<"\t"<<histogram->GetMeasurement(i,0)<<"\t"<<histogram->GetBinMax(0,i)<<"\t"<<histogram->GetFrequency(i)<<std::endl;
+        }
       }
-    
+    }
+
     return;
-    
+
   }
   
   

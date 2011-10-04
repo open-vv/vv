@@ -50,20 +50,69 @@ namespace clitk
   void ImageStatisticsGenericFilter::Update()
   {
     // Read the Dimension and PixelType
-    int Dimension;
+    int Dimension, Components;
     std::string PixelType;
-    ReadImageDimensionAndPixelType(m_InputFileName, Dimension, PixelType);
+    ReadImageDimensionAndPixelType(m_InputFileName, Dimension, PixelType, Components);
+    
+    if (m_ArgsInfo.channel_arg != -1 && m_ArgsInfo.channel_arg >= Components) {
+      std::cout << "Invalid image channel" << std::endl;
+      return;
+    }
 
     
     // Call UpdateWithDim
-    if(Dimension==2) UpdateWithDim<2>(PixelType);
-    else if(Dimension==3) UpdateWithDim<3>(PixelType);
-    // else if (Dimension==4)UpdateWithDim<4>(PixelType); 
-    else 
-      {
-	std::cout<<"Error, Only for 2 or 3  Dimensions!!!"<<std::endl ;
-	return;
+    if (Dimension==2) {
+      switch (Components) {
+        case 1: 
+          UpdateWithDim<2,1>(PixelType);
+          break;
+        case 2: 
+          UpdateWithDim<2,2>(PixelType);
+          break;
+        case 3: 
+          UpdateWithDim<2,3>(PixelType);
+          break;
+        default:
+          std::cout << "Unsupported number of channels" << std::endl;
+          break;
       }
+    }
+    else if (Dimension==3) {
+      switch (Components) {
+        case 1: 
+          UpdateWithDim<3,1>(PixelType);
+          break;
+        case 2: 
+          UpdateWithDim<3,2>(PixelType);
+          break;
+        case 3: 
+          UpdateWithDim<3,3>(PixelType);
+          break;
+        default:
+          std::cout << "Unsupported number of channels" << std::endl;
+          break;
+      }
+    }
+    else if (Dimension==4) {
+      switch (Components) {
+        case 1: 
+          UpdateWithDim<4,1>(PixelType);
+          break;
+        case 2: 
+          UpdateWithDim<4,2>(PixelType);
+          break;
+        case 3: 
+          UpdateWithDim<4,3>(PixelType);
+          break;
+        default:
+          std::cout << "Unsupported number of channels" << std::endl;
+          break;
+      }
+    }
+    else {
+      std::cout<<"Error, Only for 2 or 3  Dimensions!!!"<<std::endl ;
+      return;
+    }
   }
 
 

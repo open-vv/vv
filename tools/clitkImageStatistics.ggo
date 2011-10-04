@@ -1,12 +1,14 @@
 #File clitkImageStatistics.ggo
 package "clitkImageStatistics"
-version "1.0"
-purpose "Compute statistics on an image, or on part of an image specified by a mask and label(s)"
+version "2.0"
+#This tool supports multiple images on the input, or even 4D, but all images must be of the same type and dimensions. 
+purpose "Compute statistics on an image, or on part of an image specified by a mask and label(s). The tool also supports multichannel images, which is useful, e.g., for vector fields. All channels are processed (separately) by default, but only one channel may be chosen."
 
 option "config"	  	-	"Config file"			  string  	no
 option "verbose"   	v   	"Verbose"			  flag		off
 
-option "input"		i	"Input image filename"		  string  	yes
+option "input"		i	"Input image filename"		  string  	yes multiple
+option "channel"    c "Image channel to be used in statistics (-1 to process all channels)"  int no default="-1"
 option "mask"		m	"Mask image filename (uchar)"		  string  	no
 option "label"		l	"Label(s) in the mask image to consider"	int  	no 	multiple 	default="1"
 option "histogram"	-	"Compute histogram, allows median calculation"	string  no
