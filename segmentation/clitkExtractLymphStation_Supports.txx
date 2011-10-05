@@ -266,7 +266,6 @@ Support_SupInf_S2R_S2L()
 
 
 
-
 //--------------------------------------------------------------------
 template <class ImageType>
 void 
@@ -313,24 +312,39 @@ Support_SupInf_S4R_S4L()
   */
   StartNewStep("[Support] Sup-Inf limits of 4R/4L");
 
-  // Start from the support, remove 2R and 2L
+  // Start from the support
   MaskImagePointer S4RL = clitk::Clone<MaskImageType>(m_Working_Support);
-  MaskImagePointer S2R = m_ListOfSupports["S2R"];
-  MaskImagePointer S2L = m_ListOfSupports["S2L"];
-  clitk::AndNot<MaskImageType>(S4RL, S2R, GetBackgroundValue());
-  clitk::AndNot<MaskImageType>(S4RL, S2L, GetBackgroundValue());
-  S4RL = clitk::AutoCrop<MaskImageType>(S4RL, GetBackgroundValue());
-
-  // Copy, stop 4R at AzygousVein and 4L at LeftPulmonaryArtery
   MaskImagePointer S4R = clitk::Clone<MaskImageType>(S4RL);
   MaskImagePointer S4L = clitk::Clone<MaskImageType>(S4RL);
+
+  // Keep only what is lower than S2
+  MaskImagePointer S2R = m_ListOfSupports["S2R"];
+  MaskImagePointer S2L = m_ListOfSupports["S2L"];
+  MaskImagePointType p;
+  // Right part
+  clitk::FindExtremaPointInAGivenDirection<MaskImageType>(S2R, GetBackgroundValue(), 
+                                                          2, true, p);
+  DD(p);
+  writeImage<MaskImageType>(S4R, "before.mha");
+  S4R = clitk::CropImageRemoveGreaterThan<MaskImageType>(S4R, 2, 
+                                                       p[2], true, GetBackgroundValue());
+  writeImage<MaskImageType>(S4R, "after.mha");
   
+  // Left part
+  clitk::FindExtremaPointInAGivenDirection<MaskImageType>(S2L, GetBackgroundValue(), 
+                                                          2, true, p);
+  DD(p);
+  S4L = clitk::CropImageRemoveGreaterThan<MaskImageType>(S4L, 2, 
+                                                         p[2], true, GetBackgroundValue());
+  // S4R = clitk::AutoCrop<MaskImageType>(S4R, GetBackgroundValue());
+  // S4L = clitk::AutoCrop<MaskImageType>(S4L, GetBackgroundValue());
+
   // Get AzygousVein and limit according to LowerBorderAzygousVein
   MaskImagePointer LowerBorderAzygousVein 
     = this->GetAFDB()->template GetImage<MaskImageType>("LowerBorderAzygousVein");
   std::vector<MaskImagePointType> c;
   clitk::ComputeCentroids<MaskImageType>(LowerBorderAzygousVein, GetBackgroundValue(), c);
-  S4R = clitk::CropImageRemoveLowerThan<MaskImageType>(S4RL, 2, 
+  S4R = clitk::CropImageRemoveLowerThan<MaskImageType>(S4R, 2, 
                                                        c[1][2], true, GetBackgroundValue());
   S4R = clitk::AutoCrop<MaskImageType>(S4R, GetBackgroundValue());
   m_ListOfSupports["S4R"] = S4R;
@@ -339,10 +353,9 @@ Support_SupInf_S4R_S4L()
   // Limit according to LeftPulmonaryArtery
   MaskImagePointer LeftPulmonaryArtery 
     = this->GetAFDB()->template GetImage<MaskImageType>("LeftPulmonaryArtery");
-  MaskImagePointType p;
   clitk::FindExtremaPointInAGivenDirection<MaskImageType>(LeftPulmonaryArtery, GetBackgroundValue(), 
                                                           2, false, p);
-  S4L = clitk::CropImageRemoveLowerThan<MaskImageType>(S4RL, 2, 
+  S4L = clitk::CropImageRemoveLowerThan<MaskImageType>(S4L, 2, 
                                                        p[2], true, GetBackgroundValue());
   S4L = clitk::AutoCrop<MaskImageType>(S4L, GetBackgroundValue());
   m_ListOfSupports["S4L"] = S4L;
@@ -423,7 +436,7 @@ LimitsWithTrachea(MaskImageType * input, int extremaDirection, int lineDirection
                                                                                GetBackgroundValue(), 2, 
                                                                                extremaDirection, false, // Left
                                                                                lineDirection, // Vertical line 
-                                                                               1, // margins 
+                                                                               -1, // margins 
                                                                                tracheaLeftPositionsA, 
                                                                                tracheaLeftPositionsB);
   // Do not consider trachea above the limit
@@ -541,7 +554,8 @@ Support_S5()
   StartNewStep("[Support] Sup-Inf limits S5 with aorta");
 
   // Initial S5 support
-  MaskImagePointer S5 = clitk::Clone<MaskImageType>(this->GetAFDB()->template GetImage<MaskImageType>("Mediastinum", true));
+  MaskImagePointer S5 = 
+    clitk::Clone<MaskImageType>(this->GetAFDB()->template GetImage<MaskImageType>("Mediastinum", true));
 
   // Sup limits with Aorta
   double sup = FindInferiorBorderOfAorticArch();
@@ -552,6 +566,8 @@ Support_S5()
   MaskImagePointType p;
   p[0] = p[1] = p[2] =  0.0; // to avoid warning
   clitk::FindExtremaPointInAGivenDirection<MaskImageType>(PulmonaryTrunk, GetBackgroundValue(), 2, false, p);
+  p[2] += PulmonaryTrunk->GetSpacing()[2];
+  DD(p);
   
   // Cut Sup/Inf
   S5 = clitk::CropImageAlongOneAxis<MaskImageType>(S5, 2, p[2], sup, true, GetBackgroundValue());
