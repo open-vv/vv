@@ -34,6 +34,7 @@
 #include <itkImageSliceIteratorWithIndex.h>
 #include <itkBinaryMorphologicalOpeningImageFilter.h>
 #include <itkImageDuplicator.h>
+#include <itkSignedMaurerDistanceMapImageFilter.h>
 
 namespace clitk {
 
@@ -1326,6 +1327,130 @@ namespace clitk {
     input->TransformIndexToPhysicalPoint(max_i, max);  
   }
   //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename itk::Image<float, ImageType::ImageDimension>::Pointer
+  DistanceMap(const ImageType * input, typename ImageType::PixelType BG)//, 
+  //              typename itk::Image<float, ImageType::ImageDimension>::Pointer dmap) 
+  {
+    typedef itk::Image<float,ImageType::ImageDimension> FloatImageType;
+    typedef itk::SignedMaurerDistanceMapImageFilter<ImageType, FloatImageType> DistanceMapFilterType;
+    typename DistanceMapFilterType::Pointer filter = DistanceMapFilterType::New();
+    filter->SetInput(input);
+    filter->SetUseImageSpacing(true);
+    filter->SquaredDistanceOff();
+    filter->SetBackgroundValue(BG);
+    filter->Update();
+    return filter->GetOutput();
+  }
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  void 
+  SliceBySliceBuildLineSegmentAccordingToMinimalDistanceBetweenStructures(const ImageType * S1, 
+                                                                          const ImageType * S2, 
+                                                                          typename ImageType::PixelType BG, 
+                                                                          int sliceDimension, 
+                                                                          std::vector<typename ImageType::PointType> & A, 
+                                                                          std::vector<typename ImageType::PointType> & B)
+  {
+    // Extract slices
+    typedef typename itk::Image<typename ImageType::PixelType, 2> SliceType;
+    typedef typename SliceType::Pointer SlicePointer;
+    std::vector<SlicePointer> slices_s1;
+    std::vector<SlicePointer> slices_s2;
+    clitk::ExtractSlices<ImageType>(S1, sliceDimension, slices_s1);
+    clitk::ExtractSlices<ImageType>(S2, sliceDimension, slices_s2);
+
+    assert(slices_s1.size() == slices_s2.size());
+
+    // Prepare dmap
+    typedef itk::Image<float,2> FloatImageType;
+    typedef itk::SignedMaurerDistanceMapImageFilter<SliceType, FloatImageType> DistanceMapFilterType;
+    std::vector<typename FloatImageType::Pointer> dmaps1;
+    std::vector<typename FloatImageType::Pointer> dmaps2;
+    typename FloatImageType::Pointer dmap;
+
+    // loop on slices
+    for(uint i=0; i<slices_s1.size(); i++) {
+      // Compute dmap for S1 *TO PUT IN FONCTION*
+      dmap = clitk::DistanceMap<SliceType>(slices_s1[i], BG);
+      dmaps1.push_back(dmap);
+      writeImage<FloatImageType>(dmap, "dmap1.mha");
+      // Compute dmap for S2
+      dmap = clitk::DistanceMap<SliceType>(slices_s2[i], BG);
+      dmaps2.push_back(dmap);
+      writeImage<FloatImageType>(dmap, "dmap2.mha");
+      
+      // Look in S2 for the point the closest to S1
+      typename SliceType::PointType p = ComputeClosestPoint<SliceType>(slices_s1[i], dmaps2[i], BG);
+      typename ImageType::PointType p3D;
+      clitk::PointsUtils<ImageType>::Convert2DTo3D(p, S1, i, p3D);
+      A.push_back(p3D);
+
+      // Look in S2 for the point the closest to S1
+      p = ComputeClosestPoint<SliceType>(slices_s2[i], dmaps1[i], BG);
+      clitk::PointsUtils<ImageType>::Convert2DTo3D(p, S2, i, p3D);
+      B.push_back(p3D);
+
+    }
+
+    // Debug dmap
+    /*
+      typedef itk::Image<float,3> FT;
+      FT::Pointer f = FT::New();
+      typename FT::Pointer d1 = clitk::JoinSlices<FT>(dmaps1, S1, 2);
+      typename FT::Pointer d2 = clitk::JoinSlices<FT>(dmaps2, S2, 2);
+      writeImage<FT>(d1, "d1.mha");
+      writeImage<FT>(d2, "d2.mha");
+    */
+  }
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::PointType
+  ComputeClosestPoint(const ImageType * input, 
+                      const itk::Image<float, ImageType::ImageDimension> * dmap, 
+                      typename ImageType::PixelType & BG) 
+  {
+    // Loop dmap + S2, if FG, get min
+    typedef itk::Image<float,ImageType::ImageDimension> FloatImageType;
+    typedef itk::ImageRegionConstIteratorWithIndex<ImageType> ImageIteratorType;
+    typedef itk::ImageRegionConstIterator<FloatImageType> DMapIteratorType;
+    ImageIteratorType iter1(input, input->GetLargestPossibleRegion());
+    DMapIteratorType iter2(dmap, dmap->GetLargestPossibleRegion());
+    
+    iter1.GoToBegin();
+    iter2.GoToBegin();
+    double dmin = 100000.0;
+    typename ImageType::IndexType indexmin;
+    while (!iter1.IsAtEnd()) {
+      if (iter1.Get() != BG) {
+        double d = iter2.Get();
+        if (d<dmin) {
+          indexmin = iter1.GetIndex();
+          dmin = d;
+        }
+      }
+      ++iter1;
+      ++iter2;
+    }
+    
+    // Convert in Point
+    typename ImageType::PointType p;
+    input->TransformIndexToPhysicalPoint(indexmin, p);
+    return p;
+  }
+  //--------------------------------------------------------------------
+     
+
+
 
 } // end of namespace
 

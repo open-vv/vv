@@ -247,7 +247,7 @@ namespace clitk {
   typename ImageType::Pointer
   JoinSlices(std::vector<typename itk::Image<typename ImageType::PixelType, 
                                              ImageType::ImageDimension-1>::Pointer > & slices, 
-             const ImageType * input, 
+             const itk::ImageBase<ImageType::ImageDimension> * input, //const ImageType * input, 
              int direction) {
     typedef typename itk::Image<typename ImageType::PixelType, ImageType::ImageDimension-1> SliceType;
     typedef itk::JoinSeriesImageFilter<SliceType, ImageType> JoinSeriesFilterType;
@@ -419,6 +419,14 @@ namespace clitk {
                                                          double margin,
                                                          std::vector<typename ImageType::PointType> & A, 
                                                          std::vector<typename ImageType::PointType> & B);  
+  template<class ImageType>
+  void 
+  SliceBySliceBuildLineSegmentAccordingToMinimalDistanceBetweenStructures(const ImageType * S1, 
+                                                                          const ImageType * S2, 
+                                                                          typename ImageType::PixelType BG, 
+                                                                          int sliceDimension, 
+                                                                          std::vector<typename ImageType::PointType> & A, 
+                                                                          std::vector<typename ImageType::PointType> & B);  
   //--------------------------------------------------------------------
 
 
@@ -476,7 +484,25 @@ namespace clitk {
                     typename ImageType::PointType & max);
   //--------------------------------------------------------------------
 
-}
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename itk::Image<float, ImageType::ImageDimension>::Pointer//void
+  DistanceMap(const ImageType * input, typename ImageType::PixelType BG);//, 
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::PointType
+  ComputeClosestPoint(const ImageType * input, 
+                      const itk::Image<float, ImageType::ImageDimension> * dmap, 
+                      typename ImageType::PixelType & BG);
+  //--------------------------------------------------------------------
+  
+
+
+} // end clitk namespace
 
 #include "clitkSegmentationUtils.txx"
 
