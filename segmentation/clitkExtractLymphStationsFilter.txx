@@ -63,7 +63,10 @@ ExtractLymphStationsFilter():
   ExtractStation_3A_SetDefaultValues();
   ExtractStation_1RL_SetDefaultValues();
   ExtractStation_4RL_SetDefaultValues();
+  ExtractStation_5_SetDefaultValues();
+  ExtractStation_6_SetDefaultValues();
 
+  // TODO
   ExtractStation_7_SetDefaultValues();
   ExtractStation_8_SetDefaultValues();
 }
@@ -122,20 +125,14 @@ GenerateOutputInformation() {
     this->StopSubStep();  
   }
 
-  // Extract Station3P
+  // Extract Stations
   ExtractStation_3P();
-
-  // Extract Station3A
   ExtractStation_3A();
-
-  // Extract Station2RL
   ExtractStation_2RL();
-
-  // Extract Station1RL
   ExtractStation_1RL();
-
-  // Extract Station1RL
   ExtractStation_4RL();
+  ExtractStation_5();
+  ExtractStation_6();
 
   // ---------- TODO -----------------------
 

@@ -227,12 +227,16 @@ namespace clitk {
     // Station 4RL
     void ExtractStation_4RL_SetDefaultValues();
     void ExtractStation_4RL();
-    void ExtractStation_4RL_SI_Limits();
-    void ExtractStation_4RL_LR_Limits();
-    void ExtractStation_4RL_AP_Limits();
-    MaskImagePointer m_RightSupport;
-    MaskImagePointer m_LeftSupport;
+    void ExtractStation_S4L_S5_Limits_Aorta_LeftPulmonaryArtery(int KeepPoint);
 
+    // Station 5
+    void ExtractStation_5_SetDefaultValues();
+    void ExtractStation_5();
+    void ExtractStation_5_Limits_AscendingAorta_Ant();
+
+    // Station 6
+    void ExtractStation_6_SetDefaultValues();
+    void ExtractStation_6();
 
 
     // Station 7
@@ -281,6 +285,9 @@ namespace clitk {
 #include "clitkExtractLymphStation_3A.txx"
 #include "clitkExtractLymphStation_4RL.txx"
 #include "clitkExtractLymphStation_1RL.txx"
+#include "clitkExtractLymphStation_5.txx"
+#include "clitkExtractLymphStation_6.txx"
+
 #include "clitkExtractLymphStation_8.txx"
 #include "clitkExtractLymphStation_7.txx"
 #endif
