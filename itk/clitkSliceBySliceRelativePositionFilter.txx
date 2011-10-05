@@ -73,23 +73,25 @@ SetInputObject(const ImageType * image)
 template <class ImageType>
 void 
 clitk::SliceBySliceRelativePositionFilter<ImageType>::
-PrintOptions() 
+PrintOptions(std::ostream & os) 
 {
-  DD(this->GetDirection());
-  DD((int)this->GetObjectBackgroundValue());
-  DDV(this->GetOrientationTypeString(), (uint)this->GetNumberOfAngles());
-  DD(this->GetIntermediateSpacingFlag());
-  DD(this->GetIntermediateSpacing());
-  DD(this->GetFuzzyThreshold());
-  DD(this->GetUniqueConnectedComponentBySliceFlag());
-  DD(this->GetAutoCropFlag());
-  DD(this->GetInverseOrientationFlag());
-  DD(this->GetRemoveObjectFlag());
-  DD(this->GetCombineWithOrFlag());
-  DD(this->GetUseTheLargestObjectCCLFlag());
-  DD(this->GetObjectCCLSelectionFlag());
-  DD(this->GetObjectCCLSelectionDimension());
-  DD(this->GetObjectCCLSelectionIgnoreSingleCCLFlag());
+  os << "Slice direction = " << this->GetDirection() << std::endl
+     << "BG value        = " << this->GetBackgroundValue() << std::endl;
+  for(int i=0; i<this->GetNumberOfAngles(); i++)
+    os << "Orientation     = " << this->GetOrientationTypeString()[i] << std::endl;
+  os << "InverseOrientationFlag  = " << this->GetInverseOrientationFlag() << std::endl        
+     << "SpacingFlag     = " << this->GetIntermediateSpacingFlag() << std::endl
+     << "Spacing         = " << this->GetIntermediateSpacing() << std::endl
+     << "FuzzyThreshold  = " << this->GetFuzzyThreshold() << std::endl
+     << "UniqueConnectedComponentBySliceFlag  = " << this->GetUniqueConnectedComponentBySliceFlag() << std::endl
+     << "AutoCropFlag    = " << this->GetAutoCropFlag() << std::endl    
+     << "RemoveObjectFlag= " << this->GetRemoveObjectFlag() << std::endl    
+     << "CombineWithOrFlag = " << this->GetCombineWithOrFlag() << std::endl    
+     << "UseTheLargestObjectCCLFlag = " << this->GetUseTheLargestObjectCCLFlag() << std::endl    
+     << "ObjectCCLSelectionFlag = " << this->GetObjectCCLSelectionFlag() << std::endl    
+     << "ObjectCCLSelectionDimension = " << this->GetObjectCCLSelectionDimension() << std::endl    
+     << "ObjectCCLSelectionIgnoreSingleCCLFlag = " << this->GetObjectCCLSelectionIgnoreSingleCCLFlag() << std::endl    
+     << "IgnoreEmptySliceObjectFlag = " << this->GetIgnoreEmptySliceObjectFlag() << std::endl;    
 }
 //--------------------------------------------------------------------
 

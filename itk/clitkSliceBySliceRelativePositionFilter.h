@@ -70,7 +70,7 @@ namespace clitk {
     void SetInputObject(const ImageType * image);
 
     // Options
-    void PrintOptions();
+    void PrintOptions(std::ostream & os = std::cout);
     itkGetConstMacro(Direction, int);
     itkSetMacro(Direction, int);
 
