@@ -275,6 +275,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(actionNorth_West_Window,SIGNAL(triggered()),this,SLOT(SaveNOScreenshot()));
   connect(actionSouth_East_Window,SIGNAL(triggered()),this,SLOT(SaveSEScreenshot()));
   connect(actionSouth_West_Window,SIGNAL(triggered()),this,SLOT(SaveSOScreenshot()));
+  connect(actionSave_all_slices,SIGNAL(triggered()),this,SLOT(SaveScreenshotAllSlices()));
 
   connect(DataTree,SIGNAL(itemSelectionChanged()),this,SLOT(ImageInfoChanged()));
   connect(DataTree,SIGNAL(itemClicked(QTreeWidgetItem*, int)),this,
@@ -2569,6 +2570,48 @@ void vvMainWindow::SaveSOScreenshot()
 void vvMainWindow::SaveSEScreenshot()
 {
   SaveScreenshot(SEViewWidget);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvMainWindow::SaveScreenshotAllSlices()
+{
+  QVTKWidget *widget = NOViewWidget;
+  vtkSmartPointer<vtkRenderWindow>  renderWindow = widget->GetRenderWindow();
+
+  int index = 0;// GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
+  vvSlicerManager * SM = mSlicerManagers[index];
+  vvImage * image = SM->GetImage();
+  vvSlicer * slicer = SM->GetSlicer(0);
+  int orientation = slicer->GetOrientation();
+  int nbSlices = image->GetSize()[orientation];
+
+  // Select filename base
+  QString filename = QFileDialog::getSaveFileName(this,
+                                                  tr("Save As (filename will be completed by slice number)"),
+                                                  itksys::SystemTools::GetFilenamePath(mSlicerManagers[index]->GetFileName()).c_str(),
+                                                  "Images( *.png);;");
+
+  // Loop on slices
+  for(uint i=0; i<nbSlices; i++) {
+    // Change the slice
+    slicer->SetSlice(i);
+    
+    // Screenshot  
+    vtkSmartPointer<vtkWindowToImageFilter> windowToImageFilter = vtkSmartPointer<vtkWindowToImageFilter>::New();
+    windowToImageFilter->SetInput(renderWindow);
+    windowToImageFilter->SetMagnification(1);
+    windowToImageFilter->SetInputBufferTypeToRGBA(); //also record the alpha (transparency) channel
+    windowToImageFilter->Update();
+    
+    vtkSmartPointer<vtkPNGWriter> writer = vtkSmartPointer<vtkPNGWriter>::New();
+    std::string fn = itksys::SystemTools::GetFilenameWithoutLastExtension(filename.toStdString());
+    fn = fn + "_" + clitk::toString(i) + itksys::SystemTools::GetFilenameLastExtension(filename.toStdString());
+    writer->SetFileName(fn.c_str());
+    writer->SetInput(windowToImageFilter->GetOutput());
+    writer->Write();
+  }
 }
 //------------------------------------------------------------------------------
 

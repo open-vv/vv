@@ -133,6 +133,7 @@ public slots:
   void SaveNOScreenshot();
   void SaveSEScreenshot();
   void SaveSOScreenshot();
+  void SaveScreenshotAllSlices();
 
   void ShowContextMenu(QPoint point);
   void CloseImage();

@@ -626,7 +626,7 @@
            <number>2</number>
           </property>
           <item row="0" column="0">
-           <widget class="QVTKWidget" name="NOViewWidget">
+           <widget class="QVTKWidget" name="NOViewWidget" native="true">
             <property name="mouseTracking">
              <bool>true</bool>
             </property>
@@ -666,7 +666,7 @@
            <number>2</number>
           </property>
           <item row="0" column="0">
-           <widget class="QVTKWidget" name="SOViewWidget">
+           <widget class="QVTKWidget" name="SOViewWidget" native="true">
             <property name="mouseTracking">
              <bool>true</bool>
             </property>
@@ -708,7 +708,7 @@
            <number>2</number>
           </property>
           <item row="0" column="0">
-           <widget class="QVTKWidget" name="NEViewWidget">
+           <widget class="QVTKWidget" name="NEViewWidget" native="true">
             <property name="mouseTracking">
              <bool>true</bool>
             </property>
@@ -745,7 +745,7 @@
            <number>2</number>
           </property>
           <item row="0" column="0">
-           <widget class="QVTKWidget" name="SEViewWidget">
+           <widget class="QVTKWidget" name="SEViewWidget" native="true">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>
@@ -833,6 +833,8 @@
     <addaction name="actionNorth_East_Window"/>
     <addaction name="actionSouth_West_Window"/>
     <addaction name="actionSouth_East_Window"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave_all_slices"/>
    </widget>
    <widget class="QMenu" name="menuExperimental">
     <property name="title">
@@ -1110,6 +1112,11 @@
   <action name="actionRegister_vv">
    <property name="text">
     <string>Register vv</string>
+   </property>
+  </action>
+  <action name="actionSave_all_slices">
+   <property name="text">
+    <string>Save all slices (Top-Left view)</string>
    </property>
   </action>
  </widget>
