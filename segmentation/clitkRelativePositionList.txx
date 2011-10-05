@@ -77,7 +77,6 @@ Read(std::string filename) {
       if (!is) stop = true;
       else {
         std::getline(is, s);
-        // DD(s);
         if (s.find("object") != std::string::npos) stop=true;
         else ss << s << std::endl;
         if (!is) stop = true;
@@ -96,8 +95,9 @@ Read(std::string filename) {
       ArgsInfoType args_info;
       std::vector<char> writable(tmpfilename.size() + 1);
       std::copy(tmpfilename.begin(), tmpfilename.end(), writable.begin());
-      char ** argv;
-      cmdline_parser_clitkRelativePosition2(0, argv, &args_info, 1, 1, 0);
+      char ** argv = new char*[1];
+      argv[0] = new char[1];
+      cmdline_parser_clitkRelativePosition2(1, argv, &args_info, 1, 1, 0);
       args_info.input_given = 1;
       args_info.input_arg = new char[1];
       args_info.output_given = 1;
