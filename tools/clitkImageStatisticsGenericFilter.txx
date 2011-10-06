@@ -186,7 +186,6 @@ namespace clitk
           statisticsFilter->SetHistogramParameters(m_ArgsInfo.bins_arg, m_ArgsInfo.lower_arg, m_ArgsInfo.upper_arg);
         }
         statisticsFilter->Update();
-        if (m_Verbose) std::cout<<"FINISHED!";
 
         // Output
         if (m_Verbose) std::cout<<"N° of pixels: ";

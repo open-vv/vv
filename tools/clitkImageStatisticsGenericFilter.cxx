@@ -54,7 +54,7 @@ namespace clitk
     std::string PixelType;
     ReadImageDimensionAndPixelType(m_InputFileName, Dimension, PixelType, Components);
     
-    if (m_ArgsInfo.channel_arg != -1 && m_ArgsInfo.channel_arg >= Components) {
+    if (m_ArgsInfo.channel_arg < -1 || m_ArgsInfo.channel_arg >= Components) {
       std::cout << "Invalid image channel" << std::endl;
       return;
     }
