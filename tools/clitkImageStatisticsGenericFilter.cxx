@@ -58,6 +58,16 @@ namespace clitk
       std::cout << "Invalid image channel" << std::endl;
       return;
     }
+    
+    if (m_ArgsInfo.mask_given) {
+      int maskDimension, maskComponents;
+      std::string maskPixelType;
+      ReadImageDimensionAndPixelType(m_ArgsInfo.mask_arg, maskDimension, maskPixelType, maskComponents);
+      if (!(maskDimension == Dimension || maskDimension == (Dimension - 1))) {
+        std::cout << "Dimension of label mask must be equal to the (d)imension of the input image or d-1." << std::endl;
+        return;
+      }
+    }
 
     
     // Call UpdateWithDim

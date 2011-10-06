@@ -19,6 +19,7 @@
 #define clitkImageStatisticsGenericFilter_txx
 
 #include "itkNthElementImageAdaptor.h"
+#include "itkJoinSeriesImageFilter.h"
 
 /* =================================================
  * @file   clitkImageStatisticsGenericFilter.txx
@@ -28,6 +29,7 @@
  * @brief 
  * 
  ===================================================*/
+#include "clitkImageStatisticsGenericFilter.h"
 
 
 namespace clitk
@@ -76,8 +78,9 @@ namespace clitk
   {
 
     // ImageTypes
+    typedef unsigned char LabelPixelType;
     typedef itk::Image<itk::Vector<PixelType, Components>, Dimension> InputImageType;
-    typedef itk::Image<unsigned int, Dimension> LabelImageType;
+    typedef itk::Image<LabelPixelType, Dimension> LabelImageType;
     
     // Read the input
     typedef itk::ImageFileReader<InputImageType> InputReaderType;
@@ -100,11 +103,40 @@ namespace clitk
     // Label image
     typename LabelImageType::Pointer labelImage;
     if (m_ArgsInfo.mask_given) {
-      typedef itk::ImageFileReader<LabelImageType> LabelImageReaderType;
-      typename LabelImageReaderType::Pointer labelImageReader=LabelImageReaderType::New();
-      labelImageReader->SetFileName(m_ArgsInfo.mask_arg);
-      labelImageReader->Update();
-      labelImage= labelImageReader->GetOutput();
+      int maskDimension, maskComponents;
+      std::string maskPixelType;
+      ReadImageDimensionAndPixelType(m_ArgsInfo.mask_arg, maskDimension, maskPixelType, maskComponents);
+      if (maskDimension == Dimension - 1) {
+        // Due to a limitation of filter itk::LabelStatisticsImageFilter, InputImageType and LabelImageType
+        // must have the same image dimension. However, we want to support label images with Dl = Di - 1,
+        // so we need to replicate the label image as many times as the size along dimension Di.
+        if (m_Verbose) 
+          std::cout << "Replicating label image to match input image's dimension... " << std::endl;
+        
+        typedef itk::Image<LabelPixelType, Dimension - 1> ReducedLabelImageType;
+        typedef itk::ImageFileReader<ReducedLabelImageType> LabelImageReaderType;
+        typedef itk::JoinSeriesImageFilter<ReducedLabelImageType, LabelImageType> JoinImageFilterType;
+        
+        typename LabelImageReaderType::Pointer labelImageReader=LabelImageReaderType::New();
+        labelImageReader->SetFileName(m_ArgsInfo.mask_arg);
+        labelImageReader->Update();
+
+        typename JoinImageFilterType::Pointer joinFilter = JoinImageFilterType::New();
+        typename InputImageType::SizeType size = input->GetLargestPossibleRegion().GetSize();
+        for (unsigned int i = 0; i < size[Dimension - 1]; i++)
+          joinFilter->PushBackInput(labelImageReader->GetOutput());
+        
+        joinFilter->Update();
+        labelImage = joinFilter->GetOutput();
+      }
+      else {
+        typedef itk::ImageFileReader<LabelImageType> LabelImageReaderType;
+        typename LabelImageReaderType::Pointer labelImageReader=LabelImageReaderType::New();
+        labelImageReader->SetFileName(m_ArgsInfo.mask_arg);
+        labelImageReader->Update();
+        labelImage= labelImageReader->GetOutput();
+      }
+
     }
     else { 
       labelImage=LabelImageType::New();
@@ -154,6 +186,7 @@ namespace clitk
           statisticsFilter->SetHistogramParameters(m_ArgsInfo.bins_arg, m_ArgsInfo.lower_arg, m_ArgsInfo.upper_arg);
         }
         statisticsFilter->Update();
+        if (m_Verbose) std::cout<<"FINISHED!";
 
         // Output
         if (m_Verbose) std::cout<<"N° of pixels: ";
