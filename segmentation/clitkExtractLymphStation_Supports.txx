@@ -8,8 +8,6 @@ void
 clitk::ExtractLymphStationsFilter<ImageType>::
 ExtractStationSupports()
 {
-  DD("ExtractStationSupports");
-
   // Get initial Mediastinum
   m_Working_Support = m_Mediastinum = this->GetAFDB()->template GetImage<MaskImageType>("Mediastinum", true);
 
@@ -204,8 +202,10 @@ Support_SupInf_S2R_S2L()
   MaskImagePointer BrachioCephalicVein = this->GetAFDB()->template GetImage<MaskImageType>("BrachioCephalicVein");
   MaskImagePointType p;
   clitk::FindExtremaPointInAGivenDirection<MaskImageType>(BrachioCephalicVein, GetBackgroundValue(), 2, true, p);
-  // I add slightly more than a slice
-  double CaudalMarginOfLeftBrachiocephalicVeinZ=p[2]+ 1.1*m_Working_Support->GetSpacing()[2];
+
+  // I add slightly more than a slice --> NO !!
+  double CaudalMarginOfLeftBrachiocephalicVeinZ=p[2];//+ 1.1*m_Working_Support->GetSpacing()[2];
+
   this->GetAFDB()->SetDouble("CaudalMarginOfLeftBrachiocephalicVeinZ", CaudalMarginOfLeftBrachiocephalicVeinZ);
   MaskImagePointer S2R = 
     clitk::CropImageRemoveLowerThan<MaskImageType>(m_Working_Support, 2, 
@@ -324,20 +324,13 @@ Support_SupInf_S4R_S4L()
   // Right part
   clitk::FindExtremaPointInAGivenDirection<MaskImageType>(S2R, GetBackgroundValue(), 
                                                           2, true, p);
-  DD(p);
-  writeImage<MaskImageType>(S4R, "before.mha");
   S4R = clitk::CropImageRemoveGreaterThan<MaskImageType>(S4R, 2, 
                                                        p[2], true, GetBackgroundValue());
-  writeImage<MaskImageType>(S4R, "after.mha");
-  
   // Left part
   clitk::FindExtremaPointInAGivenDirection<MaskImageType>(S2L, GetBackgroundValue(), 
                                                           2, true, p);
-  DD(p);
   S4L = clitk::CropImageRemoveGreaterThan<MaskImageType>(S4L, 2, 
                                                          p[2], true, GetBackgroundValue());
-  // S4R = clitk::AutoCrop<MaskImageType>(S4R, GetBackgroundValue());
-  // S4L = clitk::AutoCrop<MaskImageType>(S4L, GetBackgroundValue());
 
   // Get AzygousVein and limit according to LowerBorderAzygousVein
   MaskImagePointer LowerBorderAzygousVein 
@@ -532,7 +525,7 @@ Support_S3A()
   MaskImagePointType p;
   p[0] = p[1] = p[2] =  0.0; // to avoid warning
   clitk::FindExtremaPointInAGivenDirection<MaskImageType>(Sternum, GetBackgroundValue(), 2, false, p);
-
+  p[2] += Sternum->GetSpacing()[2]; // we add one slice to stop 3A at the same slice than Sternum stop
   S3A = 
     clitk::CropImageRemoveGreaterThan<MaskImageType>(S3A, 2, 
                                                      //m_ApexOfTheChest
@@ -567,7 +560,6 @@ Support_S5()
   p[0] = p[1] = p[2] =  0.0; // to avoid warning
   clitk::FindExtremaPointInAGivenDirection<MaskImageType>(PulmonaryTrunk, GetBackgroundValue(), 2, false, p);
   p[2] += PulmonaryTrunk->GetSpacing()[2];
-  DD(p);
   
   // Cut Sup/Inf
   S5 = clitk::CropImageAlongOneAxis<MaskImageType>(S5, 2, p[2], sup, true, GetBackgroundValue());
