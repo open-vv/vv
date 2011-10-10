@@ -147,7 +147,7 @@ ExtractStation_1RL_Post_Limits()
   // Resize like S1R.
   VertebralArtery = clitk::ResizeImageLike<MaskImageType>(VertebralArtery, S1R, GetBackgroundValue());
 
-  // Search for most Ant point, slice by slice, between Trachea and Thyroid
+  // Search for most Ant point
   std::vector<MaskSlicePointer> VertebralArtery_slices;
   clitk::ExtractSlices<MaskImageType>(VertebralArtery, 2, VertebralArtery_slices);
   std::vector<typename ImageType::PointType> A;
