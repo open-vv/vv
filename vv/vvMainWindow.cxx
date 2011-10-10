@@ -2578,7 +2578,6 @@ void vvMainWindow::SaveSEScreenshot()
 void vvMainWindow::SaveScreenshotAllSlices()
 {
   QVTKWidget *widget = NOViewWidget;
-  vtkSmartPointer<vtkRenderWindow>  renderWindow = widget->GetRenderWindow();
 
   int index = 0;// GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
   vvSlicerManager * SM = mSlicerManagers[index];
@@ -2586,18 +2585,21 @@ void vvMainWindow::SaveScreenshotAllSlices()
   vvSlicer * slicer = SM->GetSlicer(0);
   int orientation = slicer->GetOrientation();
   int nbSlices = image->GetSize()[orientation];
+  vtkSmartPointer<vtkRenderWindow>  renderWindow = widget->GetRenderWindow();
 
   // Select filename base
   QString filename = QFileDialog::getSaveFileName(this,
                                                   tr("Save As (filename will be completed by slice number)"),
                                                   itksys::SystemTools::GetFilenamePath(mSlicerManagers[index]->GetFileName()).c_str(),
-                                                  "Images( *.png);;");
+                                                  "Images( *.png);;Images( *.jpg)");
 
   // Loop on slices
   for(uint i=0; i<nbSlices; i++) {
     // Change the slice
-    slicer->SetSlice(i);
-    
+    slicer->SetSlice(i); // -> change the slice of the current slicer
+    SM->UpdateSlice(0); // --> this one emit UpdateSlice
+    QCoreApplication::flush(); // -> needed to force display of contours 
+
     // Screenshot  
     vtkSmartPointer<vtkWindowToImageFilter> windowToImageFilter = vtkSmartPointer<vtkWindowToImageFilter>::New();
     windowToImageFilter->SetInput(renderWindow);
@@ -2607,7 +2609,13 @@ void vvMainWindow::SaveScreenshotAllSlices()
     
     vtkSmartPointer<vtkPNGWriter> writer = vtkSmartPointer<vtkPNGWriter>::New();
     std::string fn = itksys::SystemTools::GetFilenameWithoutLastExtension(filename.toStdString());
-    fn = fn + "_" + clitk::toString(i) + itksys::SystemTools::GetFilenameLastExtension(filename.toStdString());
+    std::string num = clitk::toString(i);
+    if (i<10) num = "0"+num;
+    if (i<100) num = "0"+num;
+    if (i<1000) num = "0"+num;
+
+    fn = itksys::SystemTools::GetFilenamePath(filename.toStdString()) + "/"+ fn 
+      + "_" + num + itksys::SystemTools::GetFilenameLastExtension(filename.toStdString());
     writer->SetFileName(fn.c_str());
     writer->SetInput(windowToImageFilter->GetOutput());
     writer->Write();
