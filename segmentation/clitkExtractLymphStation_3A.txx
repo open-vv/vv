@@ -67,6 +67,13 @@ ExtractStation_3A_Post_Left_Limits_With_Aorta_S5_Support()
   // Inferiorly, Aorta has two CCL that merge into a single one when
   // S6 appears. Loop on Aorta slices, select the most ant one, detect
   // the most ant point.
+
+
+
+  // ====> TO BE CHANGED USING AscendingAorta and DescendingAorta
+
+
+
   std::vector<MaskSlicePointer> slices;
   clitk::ExtractSlices<MaskImageType>(Aorta, 2, slices);
   std::vector<MaskImagePointType> points;
