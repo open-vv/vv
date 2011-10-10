@@ -113,6 +113,7 @@ ENDIF(BUILD_TESTING)
 #=========================================================
 # Install scripts when running make install
 SET(SCRIPTS 
+  scripts/calculate_motion_amplitude.sh
   scripts/midp_common.sh
   scripts/registration.sh
   scripts/create_midP.sh

@@ -1,0 +1,8 @@
+# file DicomWave2Text
+package "DicomWave2Text"
+version "1.0"
+purpose "Extract data from a Dicom wave file to a text file"
+option "config"         -    "config file"                     string  no
+option "InputFile"      i    "Dicom inputfile name"                       string  no
+option "OutputFile"     o   "Text outputfile name"                       string  no
+option "Verbose"        v    "verbose"                         int  no

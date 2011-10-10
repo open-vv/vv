@@ -72,7 +72,7 @@ namespace clitk
     {
       m_ArgsInfo=a;
       m_Verbose=m_ArgsInfo.verbose_flag;
-      m_InputFileName=m_ArgsInfo.input_arg;
+      m_InputFileName=m_ArgsInfo.input_arg[0];
     }
     
     
@@ -93,8 +93,8 @@ namespace clitk
     //----------------------------------------  
     // Templated members
     //----------------------------------------  
-    template <unsigned int Dimension>  void UpdateWithDim(std::string PixelType);
-    template <unsigned int Dimension, class PixelType>  void UpdateWithDimAndPixelType();
+    template <unsigned int Dimension, unsigned int Components>  void UpdateWithDim(std::string PixelType);
+    template <unsigned int Dimension, class PixelType, unsigned int Components>  void UpdateWithDimAndPixelType();
 
 
     //----------------------------------------  
