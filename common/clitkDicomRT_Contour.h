@@ -68,7 +68,11 @@ protected:
   ///Z location of the contour
   double mZ;
   
+#if GDCM_MAJOR_VERSION == 2
   gdcm::Item * mItem;
+#else
+  gdcm::SQItem * mItem;
+#endif
 
 private:
   DicomRT_Contour();
