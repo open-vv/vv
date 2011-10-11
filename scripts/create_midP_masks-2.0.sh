@@ -147,7 +147,9 @@ motion_mask()
   cd $dir
     
   # import variables specific to each patient
-  source ./variables
+  if test -e ./variables; then
+    source ./variables
+  fi
 
   #set other global variables
   mask_dir="MASK-${resample_spacing}mm-$resample_algo"
