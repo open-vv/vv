@@ -184,6 +184,8 @@ ref_phase=$2
 conf=$3
 source $conf
 
+cd `dirname $mhd4d`
+
 mkdir -p $log_dir
 mask_dir="MASK-${mask_interpolation_spacing}mm-$mask_interpolation_algorithm"
 
