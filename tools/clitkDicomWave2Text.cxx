@@ -1,13 +1,18 @@
 #include "clitkDicomWave2Text.h"
 #include "clitkDicomWave2Text_ggo.h"
 
+#include "clitkCommon.h"
 //gdcm include
-#include "gdcmUtil.h"
 #include "gdcmFile.h"
-#include "gdcmBinEntry.h"
-#include "gdcmValEntry.h"
-#include "gdcmSeqEntry.h"
-#include "gdcmSQItem.h"
+
+#if GDCM_MAJOR_VERSION < 2
+  #include "gdcmUtil.h"
+  #include "gdcmBinEntry.h"
+  #include "gdcmValEntry.h"
+  #include "gdcmSeqEntry.h"
+  #include "gdcmSQItem.h"
+#endif
+
 #include "gdcmSerieHelper.h"
 
 #include <iostream>
@@ -22,6 +27,7 @@ int main(int argc, char * argv[]) {
 GGO(clitkDicomWave2Text, args_info);
 //-----------------------------------------------------------------------------
 
+#if GDCM_MAJOR_VERSION < 2
 //-----------------------------------------------------------------------
 // opening dicom input file
 gdcm::File * mDCMFile = new gdcm::File();
@@ -100,5 +106,8 @@ if(text_file)
 }
 else
     std::cerr << "Error openning "<< args_info.OutputFile_arg << std::endl;
-	
+#else
+    std::cerr << argv[0] << " is not compatible with GDCM 2.x you should use GDCM 1.x" << std::endl;
+    return 1;
+#endif
 }
