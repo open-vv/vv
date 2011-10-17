@@ -26,8 +26,6 @@ ExtractStation_3P()
   m_ListOfStations["3P"] = m_Working_Support;
   StopCurrentStep<MaskImageType>(m_Working_Support);
 
-  // ExtractStation_3P_LR_inf_Limits();  // <-- done in RelPosList
-  
   // Generic RelativePosition processes
   m_ListOfStations["3P"] = this->ApplyRelativePositionList("Station_3P", m_ListOfStations["3P"]);
   m_Working_Support = m_ListOfStations["3P"];
@@ -39,6 +37,7 @@ ExtractStation_3P()
   // LR limits superiorly => not here for the moment because not clear in the def
   // ExtractStation_3P_LR_sup_Limits_2(); //TODO
   // ExtractStation_3P_LR_sup_Limits();   // old version to change
+  // ExtractStation_3P_LR_inf_Limits();  // <-- done in RelPosList 
 
   // Store image filenames into AFDB 
   writeImage<MaskImageType>(m_ListOfStations["3P"], "seg/Station3P.mhd");
@@ -94,8 +93,8 @@ ExtractStation_3P_LR_sup_Limits()
   Trachea = clitk::ResizeImageLike<MaskImageType>(Trachea, m_Working_Support, GetBackgroundValue());
   SubclavianArtery = clitk::ResizeImageLike<MaskImageType>(SubclavianArtery, m_Working_Support, GetBackgroundValue());
   
-  writeImage<MaskImageType>(Trachea, "tr.mhd");
-  writeImage<MaskImageType>(SubclavianArtery, "sca.mhd");
+  // writeImage<MaskImageType>(Trachea, "tr.mhd");
+  // writeImage<MaskImageType>(SubclavianArtery, "sca.mhd");
   
   // Get list of slices
   std::vector<MaskSlicePointer> slices_support;
