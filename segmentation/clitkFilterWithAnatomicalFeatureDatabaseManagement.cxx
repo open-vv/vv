@@ -45,7 +45,7 @@ void clitk::FilterWithAnatomicalFeatureDatabaseManagement::LoadAFDB()
   try {
     GetAFDB()->Load();
   } catch (clitk::ExceptionObject e) {
-    std::cout << "Could not read '" << GetAFDBFilename() << "', create one AFDB." << std::endl;
+    std::cout << "******* Could not read '" << GetAFDBFilename() << "', create one AFDB. ********" << std::endl;
     GetAFDB();
   }
 }
