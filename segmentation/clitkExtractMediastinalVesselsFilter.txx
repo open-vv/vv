@@ -213,7 +213,7 @@ GenerateOutputInformation() {
 
   // Build the final 3D image from the previous slice by slice processing
   m_SoughtVessel = clitk::JoinSlices<MaskImageType>(m_slice_recon, m_Mask, 2);
-  writeImage<MaskImageType>(m_SoughtVessel, "recon2.mhd");
+  // writeImage<MaskImageType>(m_SoughtVessel, "recon2.mhd");
   
   // Set binary image, (remove other labels).  
   m_SoughtVessel = 
@@ -600,7 +600,7 @@ TrackVesselsFromPoint(MaskImagePointer & recon,
 
   do {
     // Debug
-    std::cout << std::endl;
+    //std::cout << std::endl;
     //DD(currentSlice);
     ImagePointType c;
     clitk::PointsUtils<MaskImageType>::Convert2DTo3D(previousCentroid, m_Mask, currentSlice-1, c);
