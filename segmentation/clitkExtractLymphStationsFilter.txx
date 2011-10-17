@@ -126,10 +126,10 @@ GenerateOutputInformation() {
   }
 
   // Extract Stations
+  ExtractStation_1RL();
+  ExtractStation_2RL();
   ExtractStation_3P();
   ExtractStation_3A();
-  ExtractStation_2RL();
-  ExtractStation_1RL();
   ExtractStation_4RL();
   ExtractStation_5();
   ExtractStation_6();
@@ -988,8 +988,8 @@ FindAntPostVesselsOLD()
   binarizedContour = clitk::CropImageAlongOneAxis<MaskImageType>(binarizedContour, 2, inf, sup, 
                                                         false, GetBackgroundValue());
   // Update the AFDB
-  writeImage<MaskImageType>(binarizedContour, "seg/AntPostVesselsSeparation.mhd");
-  this->GetAFDB()->SetImageFilename("AntPostVesselsSeparation", "seg/AntPostVesselsSeparation.mhd");  
+  writeImage<MaskImageType>(binarizedContour, "seg/AntPostVesselsSeparation.mha");
+  this->GetAFDB()->SetImageFilename("AntPostVesselsSeparation", "seg/AntPostVesselsSeparation.mha");
   this->WriteAFDB();
   return binarizedContour;
 
@@ -1076,10 +1076,10 @@ FindAntPostVessels2()
   typedef std::map<std::string, MaskImagePointer>::iterator MapIter;
   MapOfStructures["BrachioCephalicArtery"] = this->GetAFDB()->template GetImage<MaskImageType>("BrachioCephalicArtery");
   MapOfStructures["BrachioCephalicVein"] = this->GetAFDB()->template GetImage<MaskImageType>("BrachioCephalicVein");
-  MapOfStructures["CommonCarotidArteryLeft"] = this->GetAFDB()->template GetImage<MaskImageType>("CommonCarotidArteryLeft");
-  MapOfStructures["CommonCarotidArteryRight"] = this->GetAFDB()->template GetImage<MaskImageType>("CommonCarotidArteryRight");
-  MapOfStructures["SubclavianArteryLeft"] = this->GetAFDB()->template GetImage<MaskImageType>("SubclavianArteryLeft");
-  MapOfStructures["SubclavianArteryRight"] = this->GetAFDB()->template GetImage<MaskImageType>("SubclavianArteryRight");
+  MapOfStructures["CommonCarotidArteryLeft"] = this->GetAFDB()->template GetImage<MaskImageType>("LeftCommonCarotidArtery");
+  MapOfStructures["CommonCarotidArteryRight"] = this->GetAFDB()->template GetImage<MaskImageType>("RightCommonCarotidArtery");
+  MapOfStructures["SubclavianArteryLeft"] = this->GetAFDB()->template GetImage<MaskImageType>("LeftSubclavianArtery");
+  MapOfStructures["SubclavianArteryRight"] = this->GetAFDB()->template GetImage<MaskImageType>("RightSubclavianArtery");
   MapOfStructures["Thyroid"] = this->GetAFDB()->template GetImage<MaskImageType>("Thyroid");
   MapOfStructures["Aorta"] = this->GetAFDB()->template GetImage<MaskImageType>("Aorta");
   MapOfStructures["Trachea"] = this->GetAFDB()->template GetImage<MaskImageType>("Trachea");
@@ -1347,8 +1347,8 @@ FindAntPostVessels2()
                                                         false, GetBackgroundValue());
 
   // Update the AFDB
-  writeImage<MaskImageType>(binarizedContour, "seg/AntPostVesselsSeparation.mhd");
-  this->GetAFDB()->SetImageFilename("AntPostVesselsSeparation", "seg/AntPostVesselsSeparation.mhd");  
+  writeImage<MaskImageType>(binarizedContour, "seg/AntPostVesselsSeparation.mha");
+  this->GetAFDB()->SetImageFilename("AntPostVesselsSeparation", "seg/AntPostVesselsSeparation.mha");
   this->WriteAFDB();
   return binarizedContour;
 
