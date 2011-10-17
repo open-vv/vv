@@ -137,13 +137,13 @@ GenerateOutputInformation() {
   // ---------- TODO -----------------------
 
   // Extract Station8
-  ExtractStation_8();
+  //  ExtractStation_8();
 
   // Extract Station7
-  this->StartNewStep("Station 7");
-  this->StartSubStep();
-  ExtractStation_7();
-  this->StopSubStep();
+  //this->StartNewStep("Station 7");
+  //this->StartSubStep();
+  //ExtractStation_7();
+  //this->StopSubStep();
   
 }
 //--------------------------------------------------------------------
