@@ -184,10 +184,10 @@ ExtractStation_2RL_Remove_Structures(std::string s)
   // m_Working_Support must be set
   Remove_Structures(s, "BrachioCephalicVein");
   Remove_Structures(s, "BrachioCephalicArtery");
-  Remove_Structures(s, "CommonCarotidArteryLeft");
-  Remove_Structures(s, "CommonCarotidArteryRight");
-  Remove_Structures(s, "SubclavianArteryLeft");
-  Remove_Structures(s, "SubclavianArteryRight");
+  Remove_Structures(s, "LeftCommonCarotidArtery");
+  Remove_Structures(s, "RightCommonCarotidArtery");
+  Remove_Structures(s, "LeftSubclavianArtery");
+  Remove_Structures(s, "RightSubclavianArtery");
   Remove_Structures(s, "Thyroid");
   Remove_Structures(s, "Aorta");
 }
