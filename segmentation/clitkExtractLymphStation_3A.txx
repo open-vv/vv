@@ -207,11 +207,11 @@ clitk::ExtractLymphStationsFilter<ImageType>::
 ExtractStation_3A_Remove_Structures() 
 {
   Remove_Structures(" 3A", "Aorta");
-  Remove_Structures(" 3A", "SubclavianArteryLeft");
-  Remove_Structures(" 3A", "SubclavianArteryRight");
+  Remove_Structures(" 3A", "LeftSubclavianArtery");
+  Remove_Structures(" 3A", "RightSubclavianArtery");
   Remove_Structures(" 3A", "Thyroid");
-  Remove_Structures(" 3A", "CommonCarotidArteryLeft");
-  Remove_Structures(" 3A", "CommonCarotidArteryRight");
+  Remove_Structures(" 3A", "LeftCommonCarotidArtery");
+  Remove_Structures(" 3A", "RightCommonCarotidArtery");
   Remove_Structures(" 3A", "BrachioCephalicArtery");
   //  Remove_Structures("3A", "Bones"); --> should be in extractmediastinum
   //  Remove_Structures("3A", "BrachioCephalicVein"); ?
