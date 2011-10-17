@@ -21,10 +21,10 @@ ExtractStationSupports()
                                                      m_CarinaZ, true, GetBackgroundValue());
   m_ListOfSupports["Support_Superior_to_Carina"] = m_Support_Superior_to_Carina;
   m_ListOfSupports["Support_Inferior_to_Carina"] = m_Support_Inferior_to_Carina;
-  writeImage<MaskImageType>(m_Support_Inferior_to_Carina, "seg/Support_Inf_Carina.mhd");
-  this->GetAFDB()->SetImageFilename("Support_Inf_Carina", "seg/Support_Inf_Carina.mhd");
-  writeImage<MaskImageType>(m_Support_Superior_to_Carina, "seg/Support_Sup_Carina.mhd");
-  this->GetAFDB()->SetImageFilename("Support_Sup_Carina", "seg/Support_Sup_Carina.mhd");
+  writeImage<MaskImageType>(m_Support_Inferior_to_Carina, "seg/Support_Inf_Carina.mha");
+  this->GetAFDB()->SetImageFilename("Support_Inf_Carina", "seg/Support_Inf_Carina.mha");
+  writeImage<MaskImageType>(m_Support_Superior_to_Carina, "seg/Support_Sup_Carina.mha");
+  this->GetAFDB()->SetImageFilename("Support_Sup_Carina", "seg/Support_Sup_Carina.mha");
 
   // S1RL
   Support_SupInf_S1RL();
@@ -57,45 +57,45 @@ ExtractStationSupports()
   m_ListOfSupports["S11"] = clitk::Clone<MaskImageType>(m_Support_Inferior_to_Carina);
 
   // Store image filenames into AFDB 
-  writeImage<MaskImageType>(m_ListOfSupports["S1R"], "seg/Support_S1R.mhd");
-  this->GetAFDB()->SetImageFilename("Support_S1R", "seg/Support_S1R.mhd");
-  writeImage<MaskImageType>(m_ListOfSupports["S1L"], "seg/Support_S1L.mhd");
-  this->GetAFDB()->SetImageFilename("Support_S1L", "seg/Support_S1L.mhd");
+  writeImage<MaskImageType>(m_ListOfSupports["S1R"], "seg/Support_S1R.mha");
+  this->GetAFDB()->SetImageFilename("Support_S1R", "seg/Support_S1R.mha");
+  writeImage<MaskImageType>(m_ListOfSupports["S1L"], "seg/Support_S1L.mha");
+  this->GetAFDB()->SetImageFilename("Support_S1L", "seg/Support_S1L.mha");
 
-  writeImage<MaskImageType>(m_ListOfSupports["S2L"], "seg/Support_S2L.mhd");
-  this->GetAFDB()->SetImageFilename("Support_S2L", "seg/Support_S2L.mhd");
-  writeImage<MaskImageType>(m_ListOfSupports["S2R"], "seg/Support_S2R.mhd");
-  this->GetAFDB()->SetImageFilename("Support_S2R", "seg/Support_S2R.mhd");
+  writeImage<MaskImageType>(m_ListOfSupports["S2L"], "seg/Support_S2L.mha");
+  this->GetAFDB()->SetImageFilename("Support_S2L", "seg/Support_S2L.mha");
+  writeImage<MaskImageType>(m_ListOfSupports["S2R"], "seg/Support_S2R.mha");
+  this->GetAFDB()->SetImageFilename("Support_S2R", "seg/Support_S2R.mha");
 
-  writeImage<MaskImageType>(m_ListOfSupports["S3P"], "seg/Support_S3P.mhd");
-  this->GetAFDB()->SetImageFilename("Support_S3P", "seg/Support_S3P.mhd");
-  writeImage<MaskImageType>(m_ListOfSupports["S3A"], "seg/Support_S3A.mhd");
-  this->GetAFDB()->SetImageFilename("Support_S3A", "seg/Support_S3A.mhd");
+  writeImage<MaskImageType>(m_ListOfSupports["S3P"], "seg/Support_S3P.mha");
+  this->GetAFDB()->SetImageFilename("Support_S3P", "seg/Support_S3P.mha");
+  writeImage<MaskImageType>(m_ListOfSupports["S3A"], "seg/Support_S3A.mha");
+  this->GetAFDB()->SetImageFilename("Support_S3A", "seg/Support_S3A.mha");
 
-  writeImage<MaskImageType>(m_ListOfSupports["S4L"], "seg/Support_S4L.mhd");
-  this->GetAFDB()->SetImageFilename("Support_S4L", "seg/Support_S4L.mhd");
-  writeImage<MaskImageType>(m_ListOfSupports["S4R"], "seg/Support_S4R.mhd");
-  this->GetAFDB()->SetImageFilename("Support_S4R", "seg/Support_S4R.mhd");
+  writeImage<MaskImageType>(m_ListOfSupports["S4L"], "seg/Support_S4L.mha");
+  this->GetAFDB()->SetImageFilename("Support_S4L", "seg/Support_S4L.mha");
+  writeImage<MaskImageType>(m_ListOfSupports["S4R"], "seg/Support_S4R.mha");
+  this->GetAFDB()->SetImageFilename("Support_S4R", "seg/Support_S4R.mha");
 
-  writeImage<MaskImageType>(m_ListOfSupports["S5"], "seg/Support_S5.mhd");
-  this->GetAFDB()->SetImageFilename("Support_S5", "seg/Support_S5.mhd");
-  writeImage<MaskImageType>(m_ListOfSupports["S6"], "seg/Support_S6.mhd");
-  this->GetAFDB()->SetImageFilename("Support_S6", "seg/Support_S6.mhd");
+  writeImage<MaskImageType>(m_ListOfSupports["S5"], "seg/Support_S5.mha");
+  this->GetAFDB()->SetImageFilename("Support_S5", "seg/Support_S5.mha");
+  writeImage<MaskImageType>(m_ListOfSupports["S6"], "seg/Support_S6.mha");
+  this->GetAFDB()->SetImageFilename("Support_S6", "seg/Support_S6.mha");
 
-  writeImage<MaskImageType>(m_ListOfSupports["S7"], "seg/Support_S7.mhd");
-  this->GetAFDB()->SetImageFilename("Support_S7", "seg/Support_S7.mhd");
+  writeImage<MaskImageType>(m_ListOfSupports["S7"], "seg/Support_S7.mha");
+  this->GetAFDB()->SetImageFilename("Support_S7", "seg/Support_S7.mha");
 
-  writeImage<MaskImageType>(m_ListOfSupports["S8"], "seg/Support_S8.mhd");
-  this->GetAFDB()->SetImageFilename("Support_S8", "seg/Support_S8.mhd");
+  writeImage<MaskImageType>(m_ListOfSupports["S8"], "seg/Support_S8.mha");
+  this->GetAFDB()->SetImageFilename("Support_S8", "seg/Support_S8.mha");
 
-  writeImage<MaskImageType>(m_ListOfSupports["S9"], "seg/Support_S9.mhd");
-  this->GetAFDB()->SetImageFilename("Support_S9", "seg/Support_S9.mhd");
+  writeImage<MaskImageType>(m_ListOfSupports["S9"], "seg/Support_S9.mha");
+  this->GetAFDB()->SetImageFilename("Support_S9", "seg/Support_S9.mha");
 
-  writeImage<MaskImageType>(m_ListOfSupports["S10"], "seg/Support_S10.mhd");
-  this->GetAFDB()->SetImageFilename("Support_S10", "seg/Support_S10.mhd");  
+  writeImage<MaskImageType>(m_ListOfSupports["S10"], "seg/Support_S10.mha");
+  this->GetAFDB()->SetImageFilename("Support_S10", "seg/Support_S10.mha");  
 
-  writeImage<MaskImageType>(m_ListOfSupports["S11"], "seg/Support_S11.mhd");
-  this->GetAFDB()->SetImageFilename("Support_S11", "seg/Support_S11.mhd");  
+  writeImage<MaskImageType>(m_ListOfSupports["S11"], "seg/Support_S11.mha");
+  this->GetAFDB()->SetImageFilename("Support_S11", "seg/Support_S11.mha");  
   WriteAFDB();
 }
 //--------------------------------------------------------------------
@@ -544,7 +544,7 @@ void
 clitk::ExtractLymphStationsFilter<ImageType>::
 Support_S5()
 {
-  StartNewStep("[Support] Sup-Inf limits S5 with aorta");
+  StartNewStep("[Support] Sup-Inf limits S5 with Aorta and MainPulmonaryArtery");
 
   // Initial S5 support
   MaskImagePointer S5 = 
@@ -555,11 +555,11 @@ Support_S5()
   
   // Inf limits with "upper rim of the left main pulmonary artery"
   // For the moment only, it will change.
-  MaskImagePointer PulmonaryTrunk = this->GetAFDB()->template GetImage<MaskImageType>("PulmonaryTrunk");
+  MaskImagePointer MainPulmonaryArtery = this->GetAFDB()->template GetImage<MaskImageType>("MainPulmonaryArtery");
   MaskImagePointType p;
   p[0] = p[1] = p[2] =  0.0; // to avoid warning
-  clitk::FindExtremaPointInAGivenDirection<MaskImageType>(PulmonaryTrunk, GetBackgroundValue(), 2, false, p);
-  p[2] += PulmonaryTrunk->GetSpacing()[2];
+  clitk::FindExtremaPointInAGivenDirection<MaskImageType>(MainPulmonaryArtery, GetBackgroundValue(), 2, false, p);
+  p[2] += MainPulmonaryArtery->GetSpacing()[2];
   
   // Cut Sup/Inf
   S5 = clitk::CropImageAlongOneAxis<MaskImageType>(S5, 2, p[2], sup, true, GetBackgroundValue());
