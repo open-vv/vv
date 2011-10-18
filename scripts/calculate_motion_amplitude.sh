@@ -43,10 +43,16 @@ clitkResampleImage -i ${roi_mask} -o ${roi_mask2} --like ${vector_file}
 dir=( sagittal coronal axial )
 for i in 0 1 2; do
   echo Motion along ${dir[$i]} direction
-  clitkImageStatistics -i ${vector_file} -m ${roi_mask2} -c $i --verbose 2> /dev/null | tail -n 8 | head -n 6
+  clitkImageStatistics -i ${vector_file} -m ${roi_mask2} -c $i --verbose 2> /dev/null | tail -n 8 | head -n 6 > /tmp/res.txt
+  min=`tail -n 2 /tmp/res.txt | head -n 1 | cut -f 2 -d ':'`
+  max=`tail -n 1 /tmp/res.txt | cut -f 2 -d ':'`
+  amp=`echo $max-$min | bc`
+  cat /tmp/res.txt
+  echo "Amplitude: $amp"
   echo
 done
 
 rm `basename $roi_mask .mhd`.{mhd,raw}
 rm `basename $roi_mask2 .mhd`.{mhd,raw}
 rm /tmp/err.txt
+rm /tmp/res.txt
