@@ -58,6 +58,7 @@ ExtractMediastinalVesselsFilter():
   SetMaxDistanceRightToCarina(35);
   SetSoughtVesselSeedName("NoSeedNameGiven");
   SetFinalOpeningRadius(1);
+  VerboseTrackingFlagOff();
 }
 //--------------------------------------------------------------------
 
@@ -294,6 +295,10 @@ CropInputImage() {
   m_Input = 
     clitk::CropImageRemoveLowerThan<ImageType>(m_Input, 2, m_CarinaZ, false, GetBackgroundValue());  
 
+  // // Get seed, crop around
+  // MaskImagePointType SoughtVesselSeedPoint;
+  // GetAFDB()->GetPoint3D(m_SoughtVesselSeedName, SoughtVesselSeedPoint);
+
   // Crop post
   double m_CarinaY = centroids[1][1];
   m_Input = clitk::CropImageRemoveGreaterThan<ImageType>(m_Input, 1,
@@ -359,9 +364,20 @@ TrackBifurcationFromPoint(MaskImagePointer & recon,
   uint currentSlice=index[2]; 
   bool found = false;
   LabelType previous_slice_label=recon->GetPixel(index);
+
+
+  if (GetVerboseTrackingFlag()) {
+    std::cout << "TrackBifurcationFromPoint " << std::endl;
+    std::cout << "\t point3D = " << point3D << std::endl;
+    std::cout << "\t pointMaxSlice = " << pointMaxSlice << std::endl;
+    std::cout << "\t newLabel = " << newLabel << std::endl;
+  }
+
   //  DD(slices_recon.size());
   do {
-    //    DD(currentSlice);
+    if (GetVerboseTrackingFlag()) {
+      std::cout << "currentSlice = " << currentSlice << std::endl;
+    }
     // Consider current reconstructed slice
     MaskSlicePointer s = slices_recon[currentSlice];
     MaskSlicePointer previous;
@@ -413,7 +429,10 @@ TrackBifurcationFromPoint(MaskImagePointer & recon,
     // -------------------------
     // If no centroid were found
     if (centroids.size() == 0) {
-      // Last attempt to find -> check if previous centroid is inside a CCL
+      if (GetVerboseTrackingFlag()) {
+        std::cout << "no centroid" << std::endl;
+      }
+       // Last attempt to find -> check if previous centroid is inside a CCL
       //      if in s -> get value, getcentroid add.
       //      DD(currentSlice);
       //DD("Last change to find");
@@ -434,6 +453,9 @@ TrackBifurcationFromPoint(MaskImagePointer & recon,
     // Some centroid were found
     // If several centroids, we found a bifurcation
     if (centroids.size() > 1) {
+      if (GetVerboseTrackingFlag()) {
+        std::cout << "Centroid" << centroids.size() << std::endl;
+      }
       //      int n = centroids.size();
       // Debug point
       std::vector<ImagePointType> d;
@@ -498,6 +520,10 @@ TrackBifurcationFromPoint(MaskImagePointer & recon,
     
     // if only one centroids, we change the current image with the current label 
     if (centroids.size() == 1) {
+      if (GetVerboseTrackingFlag()) {
+        std::cout << "Centroid" << centroids.size() << std::endl;
+      }
+      
       //DD(centroids_label[0]);
       s = clitk::SetBackground<MaskSliceType, MaskSliceType>(s, s, centroids_label[0], newLabel, true);
       slices_recon[currentSlice] = s;
@@ -534,6 +560,10 @@ TrackBifurcationFromPoint(MaskImagePointer & recon,
       previousCenter = centroids[1];
     }
 
+    if (GetVerboseTrackingFlag()) {
+        std::cout << "End iteration c=" << centroids.size() << std::endl;
+    }
+    
     if (centroids.size() == 0) {
       //      DD("ZERO");
       found = true;
@@ -598,6 +628,13 @@ TrackVesselsFromPoint(MaskImagePointer & recon,
   std::vector<MaskSlicePointer> shapeObjectsSliceList; // keep slice, useful for 'union'
   typename LabelObjectType::Pointer previousShapeObject;
 
+ if (GetVerboseTrackingFlag()) {
+    std::cout << "TrackBifurcationFromPoint " << std::endl;
+    std::cout << "\t seedPoint = " << seedPoint << std::endl;
+    std::cout << "\t pointMaxSlice = " << pointMaxSlice << std::endl;
+    std::cout << "\t newLabel = " << newLabel << std::endl;
+  }
+
   do {
     // Debug
     //std::cout << std::endl;
@@ -605,6 +642,10 @@ TrackVesselsFromPoint(MaskImagePointer & recon,
     ImagePointType c;
     clitk::PointsUtils<MaskImageType>::Convert2DTo3D(previousCentroid, m_Mask, currentSlice-1, c);
     //DD(c);
+
+    if (GetVerboseTrackingFlag()) {
+      std::cout << "Loop slice = " << currentSlice << " c = " << c << std::endl;
+    }
 
     // Consider current reconstructed slice
     MaskSlicePointer s = slices[currentSlice];
