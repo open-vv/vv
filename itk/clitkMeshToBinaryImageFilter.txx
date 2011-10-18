@@ -134,7 +134,7 @@ GenerateData()
   m_Exporter->SetInput( stencil->GetOutput() );
   m_Importer->Update();
 
-  writeImage<ImageType>(m_Importer->GetOutput(), "f.mhd");
+  // writeImage<ImageType>(m_Importer->GetOutput(), "f.mhd");
 
   this->SetNthOutput(0, m_Importer->GetOutput());
 
