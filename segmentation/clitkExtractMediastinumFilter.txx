@@ -345,11 +345,16 @@ GenerateOutputInformation() {
   // RelativePosition to avoid some issue due to superior boundaries.
   this->StartNewStep("[Mediastinum] Keep inferior to CricoidCartilag");
   // load Cricoid, get centroid, cut above (or below), lower bound
-  MaskImagePointer CricoidCartilag = this->GetAFDB()->template GetImage <MaskImageType>("CricoidCartilag");
   MaskImagePointType p;
-  p[0] = p[1] = p[2] =  0.0; // to avoid warning
-  clitk::FindExtremaPointInAGivenDirection<MaskImageType>(CricoidCartilag, 
-                                                          this->GetBackgroundValue(), 2, true, p);
+  try {
+    MaskImagePointer CricoidCartilag = this->GetAFDB()->template GetImage <MaskImageType>("CricoidCartilag");
+    p[0] = p[1] = p[2] =  0.0; // to avoid warning
+    clitk::FindExtremaPointInAGivenDirection<MaskImageType>(CricoidCartilag, 
+                                                            this->GetBackgroundValue(), 2, true, p);
+  } catch (clitk::ExceptionObject e) {
+    //DD("CricoidCartilag image not found, try CricoidCartilagZ");
+    this->GetAFDB()->GetPoint3D("CricoidCartilagPoint", p);
+  }
   output = clitk::CropImageRemoveGreaterThan<MaskImageType>(output, 2, p[2], true, this->GetBackgroundValue());
   this->template StopCurrentStep<MaskImageType>(output);
 
