@@ -100,6 +100,15 @@ namespace clitk {
   }; // end class
   //--------------------------------------------------------------------
 
+
+  //--------------------------------------------------------------------
+  // Convenient function 
+  template<class ImageType>
+  typename ImageType::Pointer
+  ResizeImageLike(const ImageType * input,
+                  const itk::ImageBase<ImageType::ImageDimension> * like, 
+                  typename ImageType::PixelType BG);
+
 } // end namespace clitk
 //--------------------------------------------------------------------
 

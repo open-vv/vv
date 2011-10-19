@@ -23,9 +23,6 @@
 #include "clitkCommon.h"
 #include "clitkPasteImageFilter.h"
 
-// itk
-//#include "itkPasteImageFilter.h"
-
 //--------------------------------------------------------------------
 template <class ImageType>
 clitk::CropLikeImageFilter<ImageType>::
@@ -244,5 +241,23 @@ GenerateData() {
 }
 //--------------------------------------------------------------------
    
+
+//--------------------------------------------------------------------
+template<class ImageType>
+typename ImageType::Pointer
+clitk::ResizeImageLike(const ImageType * input,                       
+                       const itk::ImageBase<ImageType::ImageDimension> * like, 
+                       typename ImageType::PixelType backgroundValue) 
+{
+  typedef clitk::CropLikeImageFilter<ImageType> CropFilterType;
+  typename CropFilterType::Pointer cropFilter = CropFilterType::New();
+  cropFilter->SetInput(input);
+  cropFilter->SetCropLikeImage(like);
+  cropFilter->SetBackgroundValue(backgroundValue);
+  cropFilter->Update();
+  return cropFilter->GetOutput();  
+}
+//--------------------------------------------------------------------
+
  
-#endif //#define CLITKAUTOCROPFILTER
+#endif //#define CLITKCROPLIKEIMAGEFILTER_TXX
