@@ -69,6 +69,9 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   f->SetVerboseStepFlag(mArgsInfo.verboseStep_flag);
   f->SetWriteStepFlag(mArgsInfo.writeStep_flag);
 
+  // Must be set before AddOrientationTypeString
+  f->SetInverseOrientationFlag(mArgsInfo.inverse_flag);
+  
   for(uint i=0; i<mArgsInfo.orientation_given; i++) {
     f->AddOrientationTypeString(mArgsInfo.orientation_arg[i]);
   }
@@ -85,8 +88,6 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   f->SetRemoveObjectFlag(!mArgsInfo.doNotRemoveObject_flag);
   f->SetAutoCropFlag(!mArgsInfo.noAutoCrop_flag);
   f->SetCombineWithOrFlag(mArgsInfo.combineWithOr_flag);
-  f->SetInverseOrientationFlag(mArgsInfo.inverse_flag);
-  
 }
 
 //--------------------------------------------------------------------
