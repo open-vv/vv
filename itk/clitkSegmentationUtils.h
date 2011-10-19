@@ -38,25 +38,6 @@
 namespace clitk {
 
   //--------------------------------------------------------------------
-  template<class ImageType>
-  void ComputeBBFromImageRegion(const ImageType * image, 
-                                typename ImageType::RegionType region,
-                                typename itk::BoundingBox<unsigned long, 
-                                                          ImageType::ImageDimension>::Pointer bb);
-  
-  //--------------------------------------------------------------------
-  template<int Dimension>
-  void ComputeBBIntersection(typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbo, 
-                             typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbi1, 
-                             typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbi2);
-
-  //--------------------------------------------------------------------
-  template<class ImageType>
-  void ComputeRegionFromBB(const ImageType * image, 
-                           const typename itk::BoundingBox<unsigned long, 
-                                                           ImageType::ImageDimension>::Pointer bb, 
-                           typename ImageType::RegionType & region);
-  //--------------------------------------------------------------------
   template<class TInternalImageType, class TMaskInternalImageType>
   typename TInternalImageType::Pointer
   SetBackground(const TInternalImageType * input,
@@ -135,13 +116,6 @@ namespace clitk {
                           bool isFullyConnected,
                           int minimalComponentSize,
                           LabelizeParameters<typename TImageType::PixelType> * param);
-
-  //--------------------------------------------------------------------
-  template<class ImageType>
-  typename ImageType::Pointer
-  ResizeImageLike(const ImageType * input,
-                  const itk::ImageBase<ImageType::ImageDimension> * like, 
-                  typename ImageType::PixelType BG);
 
 
   //--------------------------------------------------------------------
