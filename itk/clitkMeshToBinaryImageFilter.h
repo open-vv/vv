@@ -22,6 +22,13 @@
 // clitk
 #include "clitkCommon.h"
 
+// itk
+#include <itkImageSource.h>
+
+// vtk
+#include <vtkSmartPointer.h>
+#include <vtkPolyData.h>
+
 namespace clitk {
     
   /* --------------------------------------------------------------------     
