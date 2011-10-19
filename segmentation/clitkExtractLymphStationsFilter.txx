@@ -438,7 +438,7 @@ FindCarina()
     z = this->GetAFDB()->GetDouble("CarinaZ");
   }
   catch(clitk::ExceptionObject e) {
-    DD("FindCarinaSlicePosition");
+    //DD("FindCarinaSlicePosition");
     // Get Carina
     MaskImagePointer Carina = this->GetAFDB()->template GetImage<MaskImageType>("Carina");
     
@@ -471,7 +471,7 @@ FindApexOfTheChest()
     z = this->GetAFDB()->GetDouble("ApexOfTheChestZ");
   }
   catch(clitk::ExceptionObject e) {
-    DD("FindApexOfTheChestPosition");
+    //DD("FindApexOfTheChestPosition");
     MaskImagePointer Lungs = this->GetAFDB()->template GetImage<MaskImageType>("Lungs");
     MaskImagePointType p;
     p[0] = p[1] = p[2] =  0.0; // to avoid warning
@@ -596,7 +596,7 @@ FindSuperiorBorderOfAorticArch()
     z = this->GetAFDB()->GetDouble("SuperiorBorderOfAorticArchZ");
   }
   catch(clitk::ExceptionObject e) {
-    DD("FindSuperiorBorderOfAorticArch");
+    //    DD("FindSuperiorBorderOfAorticArch");
     MaskImagePointer Aorta = this->GetAFDB()->template GetImage<MaskImageType>("Aorta");
     MaskImagePointType p;
     p[0] = p[1] = p[2] =  0.0; // to avoid warning
@@ -628,7 +628,7 @@ FindInferiorBorderOfAorticArch()
     z = this->GetAFDB()->GetDouble("InferiorBorderOfAorticArchZ");
   }
   catch(clitk::ExceptionObject e) {
-    DD("FindInferiorBorderOfAorticArch");
+    //DD("FindInferiorBorderOfAorticArch");
     MaskImagePointer Aorta = this->GetAFDB()->template GetImage<MaskImageType>("Aorta");
     std::vector<MaskSlicePointer> slices;
     clitk::ExtractSlices<MaskImageType>(Aorta, 2, slices);
