@@ -22,6 +22,7 @@
 #include "clitkAutoCropFilter.h"
 #include "clitkResampleImageWithOptionsFilter.h"
 #include "clitkBooleanOperatorLabelImageFilter.h"
+#include "clitkCropLikeImageFilter.h"
 
 // itk
 #include <deque>
@@ -61,6 +62,7 @@ AddRelativePositionConstraintToLabelImageFilter():
   CombineWithOrFlagOff();
   VerboseStepFlagOff();
   WriteStepFlagOff();
+  FuzzyMapOnlyFlagOff();
 }
 //--------------------------------------------------------------------
 
@@ -361,7 +363,6 @@ GenerateData()
   typedef itk::RelativePositionPropImageFilter<ImageType, FloatImageType> RelPosFilterType;
   typename RelPosFilterType::Pointer relPosFilter;
 
-  typename FloatImageType::Pointer m_FuzzyMap;
   for(int i=0; i<GetNumberOfAngles(); i++) {
     // Compute fuzzy map
     relPosFilter = RelPosFilterType::New();

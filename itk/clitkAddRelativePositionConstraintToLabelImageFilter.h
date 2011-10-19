@@ -21,6 +21,7 @@
 
 // clitk
 #include "clitkFilterBase.h"
+#include "clitkCropLikeImageFilter.h"
 
 // itk
 #include <itkPasteImageFilter.h>
@@ -128,6 +129,12 @@ namespace clitk {
     itkSetMacro(CombineWithOrFlag, bool);
     itkBooleanMacro(CombineWithOrFlag);
 
+    itkGetConstMacro(FuzzyMapOnlyFlag, bool);
+    itkSetMacro(FuzzyMapOnlyFlag, bool);
+    itkBooleanMacro(FuzzyMapOnlyFlag);
+
+    typename FloatImageType::Pointer GetFuzzyMap() { return m_FuzzyMap; }
+
     // I dont want to verify inputs information
     virtual void VerifyInputInformation() { }
     
@@ -151,6 +158,7 @@ namespace clitk {
     bool m_InverseOrientationFlag;
     bool m_RemoveObjectFlag;
     bool m_CombineWithOrFlag;
+    bool m_FuzzyMapOnlyFlag;
 
     virtual void GenerateOutputInformation();
     virtual void GenerateInputRequestedRegion();
@@ -160,6 +168,7 @@ namespace clitk {
     typename ImageType::Pointer working_image;
     typename ImageType::Pointer object_resampled;
     typename FloatImageType::Pointer relPos;
+    typename FloatImageType::Pointer m_FuzzyMap;
     ImagePointer input;
     ImagePointer object;
 
