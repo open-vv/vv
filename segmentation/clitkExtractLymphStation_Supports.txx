@@ -123,6 +123,8 @@ Support_SupInf_S1RL()
   MaskImagePointType p;
   p[0] = p[1] = p[2] =  0.0; // to avoid warning
   clitk::FindExtremaPointInAGivenDirection<MaskImageType>(Sternum, GetBackgroundValue(), 2, false, p);
+  //  DD(p);
+  p[2] += Sternum->GetSpacing()[2]; // add one slice:  start just superiorly
   MaskImagePointer S1RL = 
     clitk::CropImageRemoveLowerThan<MaskImageType>(m_Working_Support, 2, 
                                                    p[2], true, GetBackgroundValue());
