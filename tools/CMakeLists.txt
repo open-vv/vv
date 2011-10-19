@@ -315,6 +315,11 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkRelativePosition clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkRelativePosition)
 
+  WRAP_GGO(clitkRelativePositionAnalyzer_GGO_C clitkRelativePositionAnalyzer.ggo)
+  ADD_EXECUTABLE(clitkRelativePositionAnalyzer  clitkRelativePositionAnalyzer.cxx ${clitkRelativePositionAnalyzer_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkRelativePositionAnalyzer clitkCommon ${ITK_LIBRARIES})
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkRelativePositionAnalyzer)
+
   WRAP_GGO(clitkTransformLandmarks_GGO_C clitkTransformLandmarks.ggo)
   ADD_EXECUTABLE(clitkTransformLandmarks clitkTransformLandmarks.cxx ${clitkTransformLandmarks_GGO_C})
   TARGET_LINK_LIBRARIES(clitkTransformLandmarks clitkCommon ${ITK_LIBRARIES})

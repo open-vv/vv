@@ -1,0 +1,16 @@
+#File clitkRelativePositionAnalyzer.ggo
+package "clitkRelativePositionAnalyzer"
+version "1.0"
+purpose "Analyze relative position of a target according to structures"
+
+section "General options"
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+option "imagetypes"     -       "Display allowed image types"     flag          off
+
+section "Input/Output"
+option "support"	i	"Input mask support"	  string  	yes
+option "object"		j	"Input mask object"	  string  	yes
+option "target"		t	"Input mask target"	  string  	yes
+option "output"    	o   	"Output image "		  string 	yes
+
