@@ -323,7 +323,7 @@ public:
       std::cout<<std::setprecision(6);
       if (m_OutputIteration)  std::cout<<"Iteration: "<< o->GetCurrentIteration()<<std::endl;
       if (m_OutputPosition)  std::cout<<"Position: "<< o->GetCurrentPosition()<<std::endl;
-      if (m_OutputPosition)  std::cout<<"Step length: "<< o->GetCurrentStepLength()<<std::endl;
+      if (m_OutputValue)  std::cout<<"Step length: "<< o->GetCurrentStepLength()<<std::endl;
       if (m_OutputValue)  std::cout<<"Value: "<< o->GetValue()<<std::endl;
       if (m_OutputGradient)  std::cout<<"Gradient: "<< o->GetGradient()<<std::endl;
       std::cout<<std::endl;
