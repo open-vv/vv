@@ -1,0 +1,11 @@
+#File clitkBinaryImageToMesh.ggo
+package "clitkMeshToBinaryImage"
+version "1.0"
+purpose "Transform a vtk obj file into a binary mask"
+
+option "config"   - "Config file"   string  no
+option "verbose"  v     "Verbose"   flag  off
+
+option "input"      i "Input obj file"   string  yes
+option "output"     o "Output binary image"  string yes 
+option "like"       l "Output image will be like this one (size, spacing)"  string yes 
