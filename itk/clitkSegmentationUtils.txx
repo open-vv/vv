@@ -464,10 +464,12 @@ namespace clitk {
     typename ImageType::RegionType region;
     typename ImageType::SizeType size = image->GetLargestPossibleRegion().GetSize();
     typename ImageType::PointType p = image->GetOrigin();
-    p[dim] = min;
+    if (min > p[dim]) p[dim] = min; // Check if not outside the image
     typename ImageType::IndexType start;
     image->TransformPhysicalPointToIndex(p, start);
-    p[dim] = max;
+    double m = image->GetOrigin()[dim] + size[dim]*image->GetSpacing()[dim];
+    if (max > m) p[dim] = m; // Check if not outside the image
+    else p[dim] = max;
     typename ImageType::IndexType end;
     image->TransformPhysicalPointToIndex(p, end);
     size[dim] = abs(end[dim]-start[dim]);

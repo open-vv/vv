@@ -54,7 +54,7 @@ ExtractMediastinumFilter():
   SetForegroundValueLeftLung(1);
   SetForegroundValueRightLung(2);
   SetDistanceMaxToAnteriorPartOfTheVertebralBody(10);  
-  SetOutputMediastinumFilename("mediastinum.mhd");  
+  SetOutputMediastinumFilename("mediastinum.mha");  
   UseBonesOff();
 }
 //--------------------------------------------------------------------
@@ -250,9 +250,9 @@ GenerateOutputInformation() {
   left_lung = clitk::SetBackground<MaskImageType, MaskImageType>(left_lung, left_lung, 2, 1, false);
   right_lung = clitk::ResizeImageLike<MaskImageType>(right_lung, output, this->GetBackgroundValue());
   left_lung = clitk::ResizeImageLike<MaskImageType>(left_lung, output, this->GetBackgroundValue());
-  this->GetAFDB()->template SetImage<MaskImageType>("RightLung", "seg/RightLung.mhd", 
+  this->GetAFDB()->template SetImage<MaskImageType>("RightLung", "seg/RightLung.mha", 
                                                     right_lung, true);
-  this->GetAFDB()->template SetImage<MaskImageType>("LeftLung", "seg/LeftLung.mhd", 
+  this->GetAFDB()->template SetImage<MaskImageType>("LeftLung", "seg/LeftLung.mha", 
                                                     left_lung, true);
   this->GetAFDB()->Write();
   this->template StopCurrentStep<MaskImageType>(output);
@@ -319,12 +319,12 @@ GenerateOutputInformation() {
     bones_post = roiFilter->GetOutput();
     // writeImage<MaskImageType>(bones_post, "b_post.mhd");
 
-     // Now, insert this image in the AFDB
-     this->GetAFDB()->template SetImage<MaskImageType>("Bones_Post", "seg/Bones_Post.mhd", 
+    // Now, insert this image in the AFDB ==> (needed because used in the RelativePosition config file)
+    this->GetAFDB()->template SetImage<MaskImageType>("Bones_Post", "seg/Bones_Post.mha", 
                                                  bones_post, true);
-     this->GetAFDB()->template SetImage<MaskImageType>("Bones_Ant", "seg/Bones_Ant.mhd", 
+    this->GetAFDB()->template SetImage<MaskImageType>("Bones_Ant", "seg/Bones_Ant.mha", 
                                                  bones_ant, true);
-     this->GetAFDB()->Write();
+    this->GetAFDB()->Write();
 
     this->template StopCurrentStep<MaskImageType>(output);
   }
@@ -345,11 +345,16 @@ GenerateOutputInformation() {
   // RelativePosition to avoid some issue due to superior boundaries.
   this->StartNewStep("[Mediastinum] Keep inferior to CricoidCartilag");
   // load Cricoid, get centroid, cut above (or below), lower bound
-  MaskImagePointer CricoidCartilag = this->GetAFDB()->template GetImage <MaskImageType>("CricoidCartilag");
   MaskImagePointType p;
-  p[0] = p[1] = p[2] =  0.0; // to avoid warning
-  clitk::FindExtremaPointInAGivenDirection<MaskImageType>(CricoidCartilag, 
-                                                          this->GetBackgroundValue(), 2, true, p);
+  try {
+    MaskImagePointer CricoidCartilag = this->GetAFDB()->template GetImage <MaskImageType>("CricoidCartilag");
+    p[0] = p[1] = p[2] =  0.0; // to avoid warning
+    clitk::FindExtremaPointInAGivenDirection<MaskImageType>(CricoidCartilag, 
+                                                            this->GetBackgroundValue(), 2, true, p);
+  } catch (clitk::ExceptionObject e) {
+    //DD("CricoidCartilag image not found, try CricoidCartilagZ");
+    this->GetAFDB()->GetPoint3D("CricoidCartilagPoint", p);
+  }
   output = clitk::CropImageRemoveGreaterThan<MaskImageType>(output, 2, p[2], true, this->GetBackgroundValue());
   this->template StopCurrentStep<MaskImageType>(output);
 

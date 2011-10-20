@@ -113,6 +113,10 @@ namespace clitk {
     itkGetConstMacro(DebugFlag, bool);
     itkBooleanMacro(DebugFlag);
 
+    itkSetMacro(VerboseTrackingFlag, bool);
+    itkGetConstMacro(VerboseTrackingFlag, bool);
+    itkBooleanMacro(VerboseTrackingFlag);
+
     itkSetMacro(SoughtVesselSeedName, std::string);
     itkGetConstMacro(SoughtVesselSeedName, std::string);
 
@@ -137,6 +141,7 @@ namespace clitk {
     virtual void GenerateData();
     
     bool               m_DebugFlag;
+    bool               m_VerboseTrackingFlag;
     ImagePointer       m_Input;
     MaskImagePointer   m_Working_Support;
     MaskImagePointer   m_Mediastinum;

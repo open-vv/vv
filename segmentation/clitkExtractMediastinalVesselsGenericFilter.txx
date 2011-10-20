@@ -83,6 +83,8 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   f->SetMaxNumberOfFoundBifurcation(mArgsInfo.bif_arg);
 
   f->SetFinalOpeningRadius(mArgsInfo.open_arg);
+
+  f->SetVerboseTrackingFlag(mArgsInfo.verboseTracking_flag);
   
   // Output filename
   this->AddOutputFilename(mArgsInfo.output_arg);

@@ -30,7 +30,7 @@
 //--------------------------------------------------------------------
 template <class ImageType>
 clitk::MeshToBinaryImageFilter<ImageType>::
-MeshToBinaryImageFilter():itk::ImageSource<ImageType>()
+MeshToBinaryImageFilter() : itk::ImageSource<ImageType>(), m_Extrude(true)
 {
 }
 //--------------------------------------------------------------------
@@ -102,11 +102,16 @@ GenerateData()
   sts->SetInformationInput(binary_image);
     
   // Extrusion
-  vtkSmartPointer<vtkLinearExtrusionFilter> extrude=vtkSmartPointer<vtkLinearExtrusionFilter>::New();
-  extrude->SetInput(m_Mesh);
-  // We extrude in the -slice_spacing direction to respect the FOCAL convention 
-  extrude->SetVector(0, 0, -m_LikeImage->GetSpacing()[2]);
-  sts->SetInput(extrude->GetOutput());
+  if (m_Extrude)
+  {
+    vtkSmartPointer<vtkLinearExtrusionFilter> extrude=vtkSmartPointer<vtkLinearExtrusionFilter>::New();
+    extrude->SetInput(m_Mesh);
+    // We extrude in the -slice_spacing direction to respect the FOCAL convention 
+    extrude->SetVector(0, 0, -m_LikeImage->GetSpacing()[2]);
+    sts->SetInput(extrude->GetOutput());
+  }
+  else
+    sts->SetInput(m_Mesh);
 
   // Stencil
   vtkSmartPointer<vtkImageStencil> stencil=vtkSmartPointer<vtkImageStencil>::New();
@@ -134,7 +139,7 @@ GenerateData()
   m_Exporter->SetInput( stencil->GetOutput() );
   m_Importer->Update();
 
-  writeImage<ImageType>(m_Importer->GetOutput(), "f.mhd");
+  // writeImage<ImageType>(m_Importer->GetOutput(), "f.mhd");
 
   this->SetNthOutput(0, m_Importer->GetOutput());
 

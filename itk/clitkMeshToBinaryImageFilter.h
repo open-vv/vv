@@ -22,6 +22,13 @@
 // clitk
 #include "clitkCommon.h"
 
+// itk
+#include <itkImageSource.h>
+
+// vtk
+#include <vtkSmartPointer.h>
+#include <vtkPolyData.h>
+
 namespace clitk {
     
   /* --------------------------------------------------------------------     
@@ -67,6 +74,9 @@ namespace clitk {
     itkSetMacro(LikeImage, ImagePointer);
     itkGetConstMacro(LikeImage, ImagePointer);
 
+    itkSetMacro(Extrude, bool);
+    itkGetMacro(Extrude, bool);
+
   protected:
     MeshToBinaryImageFilter();
     virtual ~MeshToBinaryImageFilter() {}
@@ -74,6 +84,7 @@ namespace clitk {
     virtual void GenerateOutputInformation();
     virtual void GenerateData();
 
+    bool m_Extrude;
     ImagePointer m_LikeImage;
     vtkSmartPointer<vtkPolyData> m_Mesh;
 

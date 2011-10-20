@@ -10,7 +10,8 @@ option "verboseStep"    -  "Verbose each step"		  flag		off
 option "writeStep"      w  "Write image at each step"	  flag		off
 option "verboseOption"  -  "Display options values"       flag          off
 option "verboseWarningOff" -  "Do not display warning"    flag          off
-option "verboseMemory"  -  "Display memory usage"         flag          off
+option "verboseMemory"     -  "Display memory usage"      flag          off
+option "verboseTracking"   -  "Verbose tracking"          flag          off
 
 section "I/O"
 

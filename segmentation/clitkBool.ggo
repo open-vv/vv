@@ -11,4 +11,4 @@ option "input"         i	"Input mask 1"               string  	yes
 option "input2"        j	"Input mask 2"               string  	yes
 option "output"        o 	"Output filename"            string 	yes
 
-option "type"          t 	"Bool type : "               int default="1" no
+option "type"          t 	"Bool type (0=AndNot, 1=And, 2=Or)"               int default="1" no

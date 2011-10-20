@@ -44,10 +44,10 @@ ExtractStation_1RL()
   ExtractStation_1RL_Post_Limits();
   m_Working_Support = m_ListOfStations["1R"];
   Remove_Structures(" 1R", "ScaleneMuscleAnt");
-  Remove_Structures(" 1R", "CommonCarotidArteryRight");  
+  Remove_Structures(" 1R", "RightCommonCarotidArtery");  
   m_Working_Support = m_ListOfStations["1L"];
   Remove_Structures(" 1L", "ScaleneMuscleAnt");
-  Remove_Structures(" 1L", "CommonCarotidArteryLeft");  
+  Remove_Structures(" 1L", "LeftCommonCarotidArtery");  
  
   // Generic RelativePosition processes
   m_ListOfStations["1R"] = this->ApplyRelativePositionList("Station_1R", m_ListOfStations["1R"]);
