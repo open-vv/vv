@@ -69,7 +69,9 @@ namespace clitk {
 	    virtual void Write(const void* buffer);
 
 	protected:
-	    int m_HeaderSize;
+
+	    static bool ReadHeader(FILE* handle, GateAsciiHeader& header);
+	    static bool ReadLine(FILE* handle, std::string& line);
 
     }; // end class GateAsciiImageIO
 } // end namespace

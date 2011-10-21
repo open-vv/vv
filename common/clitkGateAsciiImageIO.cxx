@@ -17,7 +17,12 @@
 ===========================================================================**/
 
 // std include
-#include <stdio.h>
+#include <regex.h>
+#include <cstdio>
+#include <sstream>
+#include <iostream>
+using std::cout;
+using std::endl;
 
 // clitk include
 #include "clitkGateAsciiImageIO.h"
@@ -26,6 +31,15 @@
 // itk include
 #include <itkMetaDataObject.h>
 
+std::ostream& operator<<(std::ostream& os, const clitk::GateAsciiImageIO::GateAsciiHeader& header)
+{
+    os << "matrix_size=[" << header.matrix_size[0] << "," << header.matrix_size[1] << "," << header.matrix_size[2] << "]" << endl;
+    os << "resolution=[" << header.resolution[0] << "," << header.resolution[1] << "," << header.resolution[2] << "]" << endl;
+    os << "voxel_size=[" << header.voxel_size[0] << "," << header.voxel_size[1] << "," << header.voxel_size[2] << "]" << endl;
+    os << "nb_value=" << header.nb_value << endl;
+    return os;
+}
+
 //--------------------------------------------------------------------
 // Read Image Information
 void clitk::GateAsciiImageIO::ReadImageInformation()
@@ -33,28 +47,135 @@ void clitk::GateAsciiImageIO::ReadImageInformation()
     itkGenericExceptionMacro(<< "Could not open file (for reading): " << m_FileName);
 
 
-  /* Convert hnd to ITK image information */
-  SetNumberOfDimensions(2);
-  //SetDimensions(0, hnd.SizeX);
-  //SetDimensions(1, hnd.SizeY);
-  //SetSpacing(0, hnd.dIDUResolutionX);
-  //SetSpacing(1, hnd.dIDUResolutionY);
-  //SetOrigin(0, -0.5*(hnd.SizeX-1)*hnd.dIDUResolutionX); //SR: assumed centered
-  //SetOrigin(1, -0.5*(hnd.SizeY-1)*hnd.dIDUResolutionY); //SR: assumed centered
-  //SetComponentType(itk::ImageIOBase::UINT);
+    /* Convert hnd to ITK image information */
+    SetNumberOfDimensions(2);
+    //SetDimensions(0, hnd.SizeX);
+    //SetDimensions(1, hnd.SizeY);
+    //SetSpacing(0, hnd.dIDUResolutionX);
+    //SetSpacing(1, hnd.dIDUResolutionY);
+    //SetOrigin(0, -0.5*(hnd.SizeX-1)*hnd.dIDUResolutionX); //SR: assumed centered
+    //SetOrigin(1, -0.5*(hnd.SizeY-1)*hnd.dIDUResolutionY); //SR: assumed centered
+    //SetComponentType(itk::ImageIOBase::UINT);
 
-  /* Store important meta information in the meta data dictionary */
-  //itk::EncapsulateMetaData<double>(this->GetMetaDataDictionary(), "dCTProjectionAngle", hnd.dCTProjectionAngle);
-  //itk::ExposeMetaData<double>( this->GetMetaDataDictionary(), &(hnd.dCTProjectionAngle), "dCTProjectionAngle");
+    /* Store important meta information in the meta data dictionary */
+    //itk::EncapsulateMetaData<double>(this->GetMetaDataDictionary(), "dCTProjectionAngle", hnd.dCTProjectionAngle);
+    //itk::ExposeMetaData<double>( this->GetMetaDataDictionary(), &(hnd.dCTProjectionAngle), "dCTProjectionAngle");
 }
 
 //--------------------------------------------------------------------
 bool clitk::GateAsciiImageIO::CanReadFile(const char* FileNameToRead)
 {
-  std::string filename(FileNameToRead);
-  std::string filenameext = GetExtension(filename);
-  if (filenameext != std::string("hnd")) return false;
-  return true;
+    std::string filename(FileNameToRead);
+
+    { // check extension
+	std::string filenameext = GetExtension(filename);
+	if (filenameext != std::string("txt")) return false;
+    }
+
+    { // check header
+	FILE* handle = fopen(filename.c_str(),"r");
+	if (!handle) return false;
+
+	GateAsciiHeader header;
+	if (!ReadHeader(handle,header)) { fclose(handle); return false; }
+	fclose(handle);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------
+// Read Line in file
+bool clitk::GateAsciiImageIO::ReadLine(FILE* handle, std::string& line)
+{
+    std::stringstream stream;
+    while (true)
+    {
+	char item;
+	if (ferror(handle)) return false;
+	if (fread(&item,1,1,handle) != 1) return false;
+
+	if (item=='\n' or feof(handle)) {
+	    line = stream.str();
+	    return true;
+	}
+
+	stream << item;
+    }
+}
+
+std::string ExtractMatch(const std::string& base, const regmatch_t& match) 
+{
+    return base.substr(match.rm_so,match.rm_eo-match.rm_so);
+}
+
+template <typename T>
+T ConvertFromString(const std::string& value)
+{
+    std::stringstream stream;
+    stream << value;
+    T converted;
+    stream >> converted;
+    return converted;
+}
+
+//--------------------------------------------------------------------
+// Read Image Header
+bool clitk::GateAsciiImageIO::ReadHeader(FILE* handle, GateAsciiHeader& header)
+{
+    assert(handle);
+    std::string line;
+
+    regex_t re_comment;
+    regex_t re_matrix_size;
+    regex_t re_resol;
+    regex_t re_voxel_size;
+    regex_t re_nb_value;
+    regmatch_t matches[4];
+
+    { // build regex
+	int ret = 0;
+	ret = regcomp(&re_comment,"^#.+$",REG_EXTENDED|REG_NEWLINE);
+	assert(ret);
+	ret = regcomp(&re_matrix_size,"^# +Matrix *Size *= +\\(([0-9]+\\.?[0-9]*),([0-9]+\\.?[0-9]*),([0-9]+\\.?[0-9]*)\\)$",REG_EXTENDED|REG_NEWLINE);
+	assert(ret);
+	ret = regcomp(&re_resol,"^# +Resol *= +\\(([0-9]+),([0-9]+),([0-9]+)\\)$",REG_EXTENDED|REG_NEWLINE);
+	assert(ret);
+	ret = regcomp(&re_voxel_size,"^# +Voxel *Size *= +\\(([0-9]+\\.?[0-9]*),([0-9]+\\.?[0-9]*),([0-9]+\\.?[0-9]*)\\)$",REG_EXTENDED|REG_NEWLINE);
+	assert(ret);
+	ret = regcomp(&re_nb_value,"^# +nbVal *= +([0-9]+)$",REG_EXTENDED|REG_NEWLINE);
+	assert(ret);
+    }
+
+    if (!ReadLine(handle,line)) return false;
+    if (regexec(&re_comment,line.c_str(),1,matches,0) == REG_NOMATCH) return false;
+
+    if (!ReadLine(handle,line)) return false;
+    if (regexec(&re_matrix_size,line.c_str(),4,matches,0) == REG_NOMATCH) return false;
+    header.matrix_size[0] = ConvertFromString<double>(ExtractMatch(line,matches[1]));
+    header.matrix_size[1] = ConvertFromString<double>(ExtractMatch(line,matches[2]));
+    header.matrix_size[2] = ConvertFromString<double>(ExtractMatch(line,matches[3]));
+
+    if (!ReadLine(handle,line)) return false;
+    if (regexec(&re_resol,line.c_str(),4,matches,0) == REG_NOMATCH) return false;
+    header.resolution[0] = ConvertFromString<int>(ExtractMatch(line,matches[1]));
+    header.resolution[1] = ConvertFromString<int>(ExtractMatch(line,matches[2]));
+    header.resolution[2] = ConvertFromString<int>(ExtractMatch(line,matches[3]));
+
+    if (!ReadLine(handle,line)) return false;
+    if (regexec(&re_voxel_size,line.c_str(),4,matches,0) == REG_NOMATCH) return false;
+    header.voxel_size[0] = ConvertFromString<double>(ExtractMatch(line,matches[1]));
+    header.voxel_size[1] = ConvertFromString<double>(ExtractMatch(line,matches[2]));
+    header.voxel_size[2] = ConvertFromString<double>(ExtractMatch(line,matches[3]));
+
+    if (!ReadLine(handle,line)) return false;
+    if (regexec(&re_nb_value,line.c_str(),2,matches,0) == REG_NOMATCH) return false;
+    header.nb_value = ConvertFromString<int>(ExtractMatch(line,matches[1]));
+
+    if (!ReadLine(handle,line)) return false;
+    if (regexec(&re_comment,line.c_str(),1,matches,0) == REG_NOMATCH) return false;
+
+    return true;
 }
 
 //--------------------------------------------------------------------

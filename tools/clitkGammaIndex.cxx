@@ -32,6 +32,7 @@ using std::cout;
 
 #include "clitkGammaIndex_ggo.h"
 
+#include <clitkIO.h>
 #include <vvImage.h>
 #include <vvImageReader.h>
 
@@ -148,6 +149,8 @@ vtkPolyData *buildPlane(vtkImageData *image,double spatial_margin,double dose_ma
 
 int main(int argc,char * argv[])
 {
+    clitk::RegisterClitkFactories();
+
     args_info_clitkGammaIndex args_info;
 
     if (cmdline_parser_clitkGammaIndex(argc, argv, &args_info) != 0)
@@ -184,7 +187,9 @@ int main(int argc,char * argv[])
 	reader->SetInputFilename(reference_filename);
 	reader->Update();
 	vvImage::Pointer vvimage = reader->GetOutput();
+	if (!vvimage) { cerr << "can't load " << reference_filename << endl; return 2; }
 	reference = vvimage->GetFirstVTKImageData();
+	assert(reference);
     }
 
     // intensity normalisation
@@ -211,7 +216,9 @@ int main(int argc,char * argv[])
 	reader->SetInputFilename(target_filename);
 	reader->Update();
 	vvImage::Pointer vvimage = reader->GetOutput();
+	if (!vvimage) { cerr << "can't load " << target_filename << endl; return 2; }
 	target = vvimage->GetFirstVTKImageData();
+	if (!target) return 2;
     }
 
     // allocate output
