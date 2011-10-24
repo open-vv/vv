@@ -286,6 +286,8 @@ Support_LeftRight_S2R_S2L()
   MaskImagePointer S2L = m_ListOfSupports["S2L"];
   S2R = LimitsWithTrachea(S2R, 0, 1, -10);
   S2L = LimitsWithTrachea(S2L, 0, 1, 10);
+  S2R = clitk::AutoCrop<MaskImageType>(S2R, GetBackgroundValue());
+  S2L = clitk::AutoCrop<MaskImageType>(S2L, GetBackgroundValue());
   m_ListOfSupports["S2R"] = S2R;
   m_ListOfSupports["S2L"] = S2L;  
   this->GetAFDB()->template ReleaseImage<MaskImageType>("Trachea");
@@ -474,12 +476,12 @@ Support_Post_S1S2S4()
   MaskImagePointer S2L = m_ListOfSupports["S2L"];
   MaskImagePointer S4R = m_ListOfSupports["S4R"];
   MaskImagePointer S4L = m_ListOfSupports["S4L"];
-  S1L = LimitsWithTrachea(S1L, 1, 0, -10, m_ApexOfTheChest);
-  S1R = LimitsWithTrachea(S1R, 1, 0, -10, m_ApexOfTheChest);
-  S2R = LimitsWithTrachea(S2R, 1, 0, -10, m_ApexOfTheChest);
-  S2L = LimitsWithTrachea(S2L, 1, 0, -10, m_ApexOfTheChest);
-  S4R = LimitsWithTrachea(S4R, 1, 0, -10, m_ApexOfTheChest);
-  S4L = LimitsWithTrachea(S4L, 1, 0, -10, m_ApexOfTheChest);
+  m_ListOfSupports["S1R"] = LimitsWithTrachea(S1L, 1, 0, -10, m_ApexOfTheChest);
+  m_ListOfSupports["S1L"] = LimitsWithTrachea(S1R, 1, 0, -10, m_ApexOfTheChest);
+  m_ListOfSupports["S2R"] = LimitsWithTrachea(S2R, 1, 0, -10, m_ApexOfTheChest);
+  m_ListOfSupports["S2L"] = LimitsWithTrachea(S2L, 1, 0, -10, m_ApexOfTheChest);
+  m_ListOfSupports["S4R"] = LimitsWithTrachea(S4R, 1, 0, -10, m_ApexOfTheChest);
+  m_ListOfSupports["S4L"] = LimitsWithTrachea(S4L, 1, 0, -10, m_ApexOfTheChest);
 }
 //--------------------------------------------------------------------
 
