@@ -138,6 +138,8 @@ AddOrientationTypeString(std::string t)
   if (t == "NotSupTo") { AddOrientationType(SupTo); InverseOrientationFlagOn(); return; }
   if (t == "NotInfTo") { AddOrientationType(InfTo); InverseOrientationFlagOn(); return; }
 
+  if (t == "Angle") return;
+
   clitkExceptionMacro("Error, you must provide LeftTo,RightTo or AntTo,PostTo or SupTo,InfTo (or NotLeftTo, NotRightTo etc) but you give " << t);
 }
 //--------------------------------------------------------------------
@@ -179,7 +181,8 @@ void
 clitk::AddRelativePositionConstraintToLabelImageFilter<ImageType>::
 AddAngles(double a, double b) 
 {
-  AddOrientationTypeString("Angle");
+  m_OrientationTypeString.push_back("Angle");
+  m_OrientationType.push_back(Angle);
   m_Angle1.push_back(a);
   m_Angle2.push_back(b);
 }
@@ -412,6 +415,7 @@ GenerateData()
 
   relPos = m_FuzzyMap;
   StopCurrentStep<FloatImageType>(relPos);
+  if (GetFuzzyMapOnlyFlag()) return;
                
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
