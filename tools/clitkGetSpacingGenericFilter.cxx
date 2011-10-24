@@ -14,25 +14,14 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-===========================================================================**/
+  ===========================================================================**/
 #ifndef clitkGetSpacingGenericFilter_cxx
 #define clitkGetSpacingGenericFilter_cxx
 
-/* =================================================
- * @file   clitkGetSpacingGenericFilter.cxx
- * @author 
- * @date   
- * 
- * @brief 
- * 
- ===================================================*/
-
 #include "clitkGetSpacingGenericFilter.h"
-
 
 namespace clitk
 {
-
 
   //-----------------------------------------------------------
   // Constructor
