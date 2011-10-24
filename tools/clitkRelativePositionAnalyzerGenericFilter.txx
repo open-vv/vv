@@ -64,7 +64,7 @@ template<class FilterType>
 void clitk::RelativePositionAnalyzerGenericFilter<ArgsInfoType>::
 SetOptionsFromArgsInfoToFilter(FilterType * f) 
 {
-  
+  f->SetAFDBFilename(mArgsInfo.afdb_arg);  
 }
 
 //--------------------------------------------------------------------

@@ -23,6 +23,7 @@
 #include "clitkIO.h"
 #include "clitkImageToImageGenericFilter.h"
 #include "clitkRelativePositionAnalyzerFilter.h"
+#include "clitkSliceBySliceRelativePositionFilter.h"
 
 //--------------------------------------------------------------------
 namespace clitk 
