@@ -14,3 +14,6 @@ option "object"		j	"Input mask object"	  string  	yes
 option "target"		t	"Input mask target"	  string  	yes
 option "output"    	o   	"Output image "		  string 	yes
 
+
+option "afdb" a "Input Anatomical Feature DB" string no
+
