@@ -130,6 +130,18 @@ namespace clitk {
                                double spacing=-1, 
                                bool autocropflag=true, 
                                bool singleObjectCCL=true);
+  template<class MaskImageType>
+  typename MaskImageType::Pointer
+  SliceBySliceRelativePosition(const MaskImageType * input,
+			       const MaskImageType * object,
+			       int direction, 
+			       double threshold, 
+			       double angle, 
+                               bool inverseflag,
+                               bool uniqueConnectedComponent=false, 
+                               double spacing=-1, 
+                               bool autocropflag=true, 
+                               bool singleObjectCCL=true);
 
   //--------------------------------------------------------------------
   // In a binary image, search for the point belonging to the FG that

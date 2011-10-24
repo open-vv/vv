@@ -266,6 +266,44 @@ namespace clitk {
 
 
   //--------------------------------------------------------------------
+  template<class MaskImageType>
+  typename MaskImageType::Pointer
+  SliceBySliceRelativePosition(const MaskImageType * input,
+                               const MaskImageType * object,
+                               int direction, 
+                               double threshold, 
+                               double angle,
+                               bool inverseflag,
+                               bool uniqueConnectedComponent, 
+                               double spacing, 
+                               bool autocropFlag, 
+                               bool singleObjectCCL) 
+  {
+    typedef clitk::SliceBySliceRelativePositionFilter<MaskImageType> SliceRelPosFilterType;
+    typename SliceRelPosFilterType::Pointer sliceRelPosFilter = SliceRelPosFilterType::New();
+    sliceRelPosFilter->VerboseStepFlagOff();
+    sliceRelPosFilter->WriteStepFlagOff();
+    sliceRelPosFilter->SetInput(input);
+    sliceRelPosFilter->SetInputObject(object);
+    sliceRelPosFilter->SetDirection(direction);
+    sliceRelPosFilter->SetFuzzyThreshold(threshold);
+    //    sliceRelPosFilter->AddOrientationTypeString(orientation);
+    sliceRelPosFilter->AddAngles(angle, 0.0);
+    sliceRelPosFilter->SetIntermediateSpacingFlag((spacing != -1));
+    sliceRelPosFilter->SetIntermediateSpacing(spacing);
+    sliceRelPosFilter->SetUniqueConnectedComponentBySliceFlag(uniqueConnectedComponent);
+    sliceRelPosFilter->ObjectCCLSelectionFlagOff();
+    sliceRelPosFilter->SetUseTheLargestObjectCCLFlag(singleObjectCCL);
+    sliceRelPosFilter->SetInverseOrientationFlag(inverseflag); 
+    sliceRelPosFilter->SetAutoCropFlag(autocropFlag); 
+    sliceRelPosFilter->IgnoreEmptySliceObjectFlagOn();
+    sliceRelPosFilter->Update();
+    return sliceRelPosFilter->GetOutput();
+  }
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
   template<class ImageType>
   bool
   FindExtremaPointInAGivenDirection(const ImageType * input, 
