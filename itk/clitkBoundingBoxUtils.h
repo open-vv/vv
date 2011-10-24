@@ -41,11 +41,18 @@ namespace clitk {
                              typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbi2);
 
   //--------------------------------------------------------------------
+  template<int Dimension>
+  void ComputeBBUnion(typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbo, 
+                      typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbi1, 
+                      typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbi2);
+  
+  //--------------------------------------------------------------------
   template<class ImageType>
   void ComputeRegionFromBB(const ImageType * image, 
                            const typename itk::BoundingBox<unsigned long, 
                                                            ImageType::ImageDimension>::Pointer bb, 
                            typename ImageType::RegionType & region);
+
 } // end clitk namespace
 
 #include "clitkBoundingBoxUtils.txx"
