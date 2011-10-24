@@ -259,5 +259,38 @@ clitk::ResizeImageLike(const ImageType * input,
 }
 //--------------------------------------------------------------------
 
- 
+
+//--------------------------------------------------------------------
+template<class ImageType>
+typename ImageType::Pointer
+clitk::ResizeImageLike(const ImageType * input,                       
+                       typename itk::ImageBase<ImageType::ImageDimension>::RegionType * region, 
+                       typename ImageType::PixelType backgroundValue) 
+{
+  typename ImageType::Pointer output = ImageType::New();
+  output->CopyInformation(input);
+  output->SetRegions(region);
+  output->Allocate();
+  return clitk::ResizeImageLike<ImageType>(input, output, backgroundValue);
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template<class ImageType>
+typename ImageType::Pointer
+clitk::ResizeImageLike(const ImageType * input, 
+                       typename itk::BoundingBox<unsigned long, ImageType::ImageDimension>::Pointer bb, 
+                       typename ImageType::PixelType BG)
+{
+  typename ImageType::RegionType region;
+  clitk::ComputeRegionFromBB<ImageType>(input, bb, region);
+  typename ImageType::Pointer output = ImageType::New();
+  output->CopyInformation(input);
+  output->SetRegions(region);
+  output->Allocate();
+  return clitk::ResizeImageLike<ImageType>(input, output, BG);   
+}
+//--------------------------------------------------------------------
+
 #endif //#define CLITKCROPLIKEIMAGEFILTER_TXX
