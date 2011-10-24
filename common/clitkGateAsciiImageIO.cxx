@@ -72,7 +72,6 @@ void clitk::GateAsciiImageIO::ReadImageInformation()
     }
     assert(real_length == header.nb_value);
 
-
     // Set image information
     SetNumberOfDimensions(2);
     SetDimensions(0, real_length);
@@ -91,7 +90,7 @@ bool clitk::GateAsciiImageIO::CanReadFile(const char* FileNameToRead)
 
     { // check extension
 	std::string filenameext = GetExtension(filename);
-	if (filenameext != std::string("txt")) return false;
+	if (filenameext != "txt") return false;
     }
 
     { // check header
@@ -236,11 +235,44 @@ void clitk::GateAsciiImageIO::Read(void* abstract_buffer)
 //--------------------------------------------------------------------
 bool clitk::GateAsciiImageIO::CanWriteFile(const char* FileNameToWrite)
 {
-  return false;
+    if (GetExtension(std::string(FileNameToWrite)) != "txt") return false;
+    return true;
+}
+
+void clitk::GateAsciiImageIO::WriteImageInformation()
+{
+    cout << GetNumberOfDimensions() << endl;
+}
+
+bool clitk::GateAsciiImageIO::SupportsDimension(unsigned long dim)
+{
+    if (dim==2) return true;
+    return false;
 }
 
 //--------------------------------------------------------------------
 // Write Image
-void clitk::GateAsciiImageIO::Write(const void* buffer)
+void clitk::GateAsciiImageIO::Write(const void* abstract_buffer)
 {
+    const unsigned long nb_value = GetDimensions(0)*GetDimensions(1);
+    std::stringstream stream;
+    stream << "######################" << endl;
+    stream << "# Matrix Size= (" << GetSpacing(0)*GetDimensions(0) << "," << GetSpacing(1)*GetDimensions(1) << ",1)" << endl;
+    stream << "# Resol      = (" << GetDimensions(0) << "," << GetDimensions(1) << ",1)" << endl;
+    stream << "# VoxelSize  = (" << GetSpacing(0) << "," << GetSpacing(1) << ",1)" << endl;
+    stream << "# nbVal      = " << nb_value << endl;
+    stream << "######################" << endl;
+
+    const double* buffer = static_cast<const double*>(abstract_buffer);
+    for (unsigned long kk=0; kk<nb_value; kk++) { stream << buffer[kk] << endl; }
+
+    FILE* handle = fopen(m_FileName.c_str(),"w");
+    if (!handle) {
+	itkGenericExceptionMacro(<< "Could not open file (for writing): " << m_FileName);
+	return;
+    }
+
+    fwrite(stream.str().c_str(),1,stream.str().size(),handle);
+
+    fclose(handle);
 }

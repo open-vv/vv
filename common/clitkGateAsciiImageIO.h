@@ -63,10 +63,11 @@ namespace clitk {
 	    virtual void Read(void * buffer);
 
 	    /*-------- This part of the interfaces deals with writing data. ----- */
-	    virtual void WriteImageInformation(bool keepOfStream) { ; }
-	    virtual void WriteImageInformation() { WriteImageInformation(false); }
+	    virtual void WriteImageInformation();
 	    virtual bool CanWriteFile(const char* filename);
 	    virtual void Write(const void* buffer);
+
+	    virtual bool SupportsDimension(unsigned long dim);
 
 	protected:
 
