@@ -315,9 +315,14 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkRelativePosition clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkRelativePosition)
 
+  WRAP_GGO(clitkLabelImageOverlapMeasure_GGO_C clitkLabelImageOverlapMeasure.ggo)
+  ADD_EXECUTABLE(clitkLabelImageOverlapMeasure clitkLabelImageOverlapMeasure.cxx ${clitkLabelImageOverlapMeasure_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkLabelImageOverlapMeasure clitkSegmentationGgoLib clitkCommon ${ITK_LIBRARIES} )
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkLabelImageOverlapMeasure)
+
   WRAP_GGO(clitkRelativePositionAnalyzer_GGO_C clitkRelativePositionAnalyzer.ggo)
-  ADD_EXECUTABLE(clitkRelativePositionAnalyzer  clitkRelativePositionAnalyzer.cxx ${clitkRelativePositionAnalyzer_GGO_C})
-  TARGET_LINK_LIBRARIES(clitkRelativePositionAnalyzer clitkCommon ${ITK_LIBRARIES})
+  ADD_EXECUTABLE(clitkRelativePositionAnalyzer clitkRelativePositionAnalyzer.cxx ${clitkRelativePositionAnalyzer_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkRelativePositionAnalyzer clitkSegmentationGgoLib clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkRelativePositionAnalyzer)
 
   WRAP_GGO(clitkTransformLandmarks_GGO_C clitkTransformLandmarks.ggo)
