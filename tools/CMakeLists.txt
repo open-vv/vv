@@ -348,7 +348,11 @@ IF (CLITK_BUILD_TOOLS)
 
     WRAP_GGO(clitkMeshToBinaryImage_GGO_C clitkMeshToBinaryImage.ggo)
     ADD_EXECUTABLE(clitkMeshToBinaryImage clitkMeshToBinaryImage.cxx ${clitkMeshToBinaryImage_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkMeshToBinaryImage clitkCommon ${ITK_LIBRARIES} ${VTK_LIBRARIES})
+    IF(VTK_VERSION VERSION_LESS 5.8.0)
+      TARGET_LINK_LIBRARIES(clitkMeshToBinaryImage clitkCommon ${ITK_LIBRARIES} vtkHybrid vtkIO)
+    ELSE(VTK_VERSION VERSION_LESS 5.8.0)
+      TARGET_LINK_LIBRARIES(clitkMeshToBinaryImage clitkCommon ${ITK_LIBRARIES} ${VTK_LIBRARIES})
+    ENDIF(VTK_VERSION VERSION_LESS 5.8.0)
     SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMeshToBinaryImage)
 
     WRAP_GGO(clitkMeshViewer_GGO_C clitkMeshViewer.ggo)

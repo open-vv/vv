@@ -124,8 +124,6 @@ SET(SCRIPTS
   scripts/create_midP_masks-2.0.sh  
   scripts/pts_to_landmarks.sh
   scripts/create_mhd_3D.sh
-  scripts/create_sequence.sh
-  scripts/dcm_sort_by_field.sh
   scripts/dicom_info.sh
 )
 
