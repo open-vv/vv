@@ -17,6 +17,7 @@
   ======================================================================-====*/
 
 // clitk
+#include "clitkCropLikeImageFilter.h"
 #include "clitkSegmentationUtils.h"
 #include "clitkExtractSliceFilter.h"
 #include "clitkResampleImageWithOptionsFilter.h"
@@ -77,8 +78,11 @@ PrintOptions(std::ostream & os)
 {
   os << "Slice direction = " << this->GetDirection() << std::endl
      << "BG value        = " << this->GetBackgroundValue() << std::endl;
-  for(int i=0; i<this->GetNumberOfAngles(); i++)
+  for(int i=0; i<this->GetNumberOfAngles(); i++) {
     os << "Orientation     = " << this->GetOrientationTypeString()[i] << std::endl;
+    os << "Angles     = " << clitk::rad2deg(this->GetAngle1(i)) 
+       << " " << clitk::rad2deg(this->GetAngle2(i)) << std::endl;
+  }
   os << "InverseOrientationFlag  = " << this->GetInverseOrientationFlag() << std::endl        
      << "SpacingFlag     = " << this->GetIntermediateSpacingFlag() << std::endl
      << "Spacing         = " << this->GetIntermediateSpacing() << std::endl
@@ -183,6 +187,11 @@ GenerateOutputInformation()
   this->template StopCurrentStep<SliceType>(mObjectSlices[0]);
 
   //--------------------------------------------------------------------
+  // Prepare fuzzy slices (if needed)
+  std::vector<typename FloatSliceType::Pointer> mFuzzyMapSlices;
+  mFuzzyMapSlices.resize(mInputSlices.size());
+
+  //--------------------------------------------------------------------
   // Perform slice by slice relative position
   this->StartNewStep("Perform slice by slice relative position");
   for(unsigned int i=0; i<mInputSlices.size(); i++) {
@@ -190,89 +199,122 @@ GenerateOutputInformation()
     // Count the number of CCL (allow to ignore empty slice)
     int nb=0;
     mObjectSlices[i] = LabelizeAndCountNumberOfObjects<SliceType>(mObjectSlices[i], 0, true, 1, nb);
-    if ((!GetIgnoreEmptySliceObjectFlag()) || (nb!=0)) {
 
-      // Select or not a single CCL ?
-      if (GetUseTheLargestObjectCCLFlag()) {
-        mObjectSlices[i] = KeepLabels<SliceType>(mObjectSlices[i], 0, 1, 1, 1, true);
-      }
+    // If no object and empty slices :
+    if ((nb==0) && (this->GetFuzzyMapOnlyFlag())) {
+      typename FloatSliceType::Pointer one = FloatSliceType::New();
+      one->CopyInformation(mObjectSlices[0]);
+      one->SetRegions(mObjectSlices[0]->GetLargestPossibleRegion());
+      one->Allocate();
+      one->FillBuffer(2.0);
+      mFuzzyMapSlices[i] = one;
+    }
+    else {
+      if ((!GetIgnoreEmptySliceObjectFlag()) || (nb!=0)) {
 
-      // Select a single according to a position if more than one CCL
-      if (GetObjectCCLSelectionFlag()) {
-        // if several CCL, choose the most extrema according a direction, 
-        // if not -> should we consider this slice ? 
-        if (nb<2) {
-          if (GetObjectCCLSelectionIgnoreSingleCCLFlag()) {
-            mObjectSlices[i] = SetBackground<SliceType, SliceType>(mObjectSlices[i], mObjectSlices[i], 
-                                                                   1, this->GetBackgroundValue(), 
-                                                                   true);
-          }
+        // Select or not a single CCL ?
+        if (GetUseTheLargestObjectCCLFlag()) {
+          mObjectSlices[i] = KeepLabels<SliceType>(mObjectSlices[i], 0, 1, 1, 1, true);
         }
-        int dim = GetObjectCCLSelectionDimension();
-        int direction = GetObjectCCLSelectionDirection();
-        std::vector<typename SliceType::PointType> centroids;
-        ComputeCentroids<SliceType>(mObjectSlices[i], this->GetBackgroundValue(), centroids);
-        uint index=1;
-        for(uint j=1; j<centroids.size(); j++) {
-          if (direction == 1) {
-            if (centroids[j][dim] > centroids[index][dim]) index = j;
+
+        // Select a single according to a position if more than one CCL
+        if (GetObjectCCLSelectionFlag()) {
+          // if several CCL, choose the most extrema according a direction, 
+          // if not -> should we consider this slice ? 
+          if (nb<2) {
+            if (GetObjectCCLSelectionIgnoreSingleCCLFlag()) {
+              mObjectSlices[i] = SetBackground<SliceType, SliceType>(mObjectSlices[i], mObjectSlices[i], 
+                                                                     1, this->GetBackgroundValue(), 
+                                                                     true);
+            }
           }
-          else {
-            if (centroids[j][dim] < centroids[index][dim]) index = j;
+          int dim = GetObjectCCLSelectionDimension();
+          int direction = GetObjectCCLSelectionDirection();
+          std::vector<typename SliceType::PointType> centroids;
+          ComputeCentroids<SliceType>(mObjectSlices[i], this->GetBackgroundValue(), centroids);
+          uint index=1;
+          for(uint j=1; j<centroids.size(); j++) {
+            if (direction == 1) {
+              if (centroids[j][dim] > centroids[index][dim]) index = j;
+            }
+            else {
+              if (centroids[j][dim] < centroids[index][dim]) index = j;
+            }
           }
+          for(uint v=1; v<centroids.size(); v++) {
+            if (v != index) {
+              mObjectSlices[i] = SetBackground<SliceType, SliceType>(mObjectSlices[i], mObjectSlices[i], 
+                                                                     (char)v, this->GetBackgroundValue(), 
+                                                                     true);
+            }
+          }
+        } // end GetbjectCCLSelectionFlag = true
+
+        // Relative position
+        typedef clitk::AddRelativePositionConstraintToLabelImageFilter<SliceType> RelPosFilterType;
+        typename RelPosFilterType::Pointer relPosFilter = RelPosFilterType::New();
+
+        relPosFilter->VerboseStepFlagOff();
+        relPosFilter->WriteStepFlagOff();
+        relPosFilter->SetBackgroundValue(this->GetBackgroundValue());
+        relPosFilter->SetInput(mInputSlices[i]); 
+        relPosFilter->SetInputObject(mObjectSlices[i]); 
+        relPosFilter->SetRemoveObjectFlag(this->GetRemoveObjectFlag());
+        // This flag (InverseOrientation) *must* be set before
+        // AddOrientation because AddOrientation can change it.
+        relPosFilter->SetInverseOrientationFlag(this->GetInverseOrientationFlag());
+        for(int j=0; j<this->GetNumberOfAngles(); j++) {
+          //          relPosFilter->AddOrientationTypeString(this->GetOrientationTypeString(j));
+          relPosFilter->AddAngles(this->GetAngle1(j), this->GetAngle2(j));
+          // DD(this->GetOrientationTypeString(j));
         }
-        for(uint v=1; v<centroids.size(); v++) {
-          if (v != index) {
-            mObjectSlices[i] = SetBackground<SliceType, SliceType>(mObjectSlices[i], mObjectSlices[i], 
-                                                                   (char)v, this->GetBackgroundValue(), 
-                                                                   true);
-          }
+        // DD(this->GetInverseOrientationFlag());
+        //relPosFilter->SetOrientationType(this->GetOrientationType());
+        relPosFilter->SetIntermediateSpacing(this->GetIntermediateSpacing());
+        relPosFilter->SetIntermediateSpacingFlag(this->GetIntermediateSpacingFlag());
+        relPosFilter->SetFuzzyThreshold(this->GetFuzzyThreshold());
+        relPosFilter->AutoCropFlagOff(); // important ! because we join the slices after this loop
+        relPosFilter->SetCombineWithOrFlag(this->GetCombineWithOrFlag()); 
+
+        // should we stop after fuzzy map ?
+        relPosFilter->SetFuzzyMapOnlyFlag(this->GetFuzzyMapOnlyFlag());
+      
+        // Go !
+        relPosFilter->Update();
+
+        // If we stop after the fuzzy map, store the fuzzy slices
+        if (this->GetFuzzyMapOnlyFlag()) {
+          mFuzzyMapSlices[i] = relPosFilter->GetFuzzyMap();
+          // writeImage<FloatSliceType>(mFuzzyMapSlices[i], "slice_"+toString(i)+".mha");
         }
-      } // end GetbjectCCLSelectionFlag = true
+        else  {
+          mInputSlices[i] = relPosFilter->GetOutput();
+          // Select main CC if needed
+          if (GetUniqueConnectedComponentBySliceFlag()) {
+            mInputSlices[i] = Labelize<SliceType>(mInputSlices[i], 0, true, 1);
+            mInputSlices[i] = KeepLabels<SliceType>(mInputSlices[i], 0, 1, 1, 1, true);
+          }
+        
+        }
 
-      // Relative position
-      typedef clitk::AddRelativePositionConstraintToLabelImageFilter<SliceType> RelPosFilterType;
-      typename RelPosFilterType::Pointer relPosFilter = RelPosFilterType::New();
-
-      relPosFilter->VerboseStepFlagOff();
-      relPosFilter->WriteStepFlagOff();
-      relPosFilter->SetBackgroundValue(this->GetBackgroundValue());
-      relPosFilter->SetInput(mInputSlices[i]); 
-      relPosFilter->SetInputObject(mObjectSlices[i]); 
-      relPosFilter->SetRemoveObjectFlag(this->GetRemoveObjectFlag());
-      // This flag (InverseOrientation) *must* be set before
-      // AddOrientation because AddOrientation can change it.
-      relPosFilter->SetInverseOrientationFlag(this->GetInverseOrientationFlag());
-      for(int j=0; j<this->GetNumberOfAngles(); j++) {
-        relPosFilter->AddOrientationTypeString(this->GetOrientationTypeString(j));
-        //DD(this->GetOrientationTypeString(j));
       }
-      //DD(this->GetInverseOrientationFlag());
-      //relPosFilter->SetOrientationType(this->GetOrientationType());
-      relPosFilter->SetIntermediateSpacing(this->GetIntermediateSpacing());
-      relPosFilter->SetIntermediateSpacingFlag(this->GetIntermediateSpacingFlag());
-      relPosFilter->SetFuzzyThreshold(this->GetFuzzyThreshold());
-      relPosFilter->AutoCropFlagOff(); // important ! because we join the slices after this loop
-      relPosFilter->SetCombineWithOrFlag(this->GetCombineWithOrFlag()); 
-      relPosFilter->Update();
-      mInputSlices[i] = relPosFilter->GetOutput();
-
-      // Select main CC if needed
-      if (GetUniqueConnectedComponentBySliceFlag()) {
-        mInputSlices[i] = Labelize<SliceType>(mInputSlices[i], 0, true, 1);
-        mInputSlices[i] = KeepLabels<SliceType>(mInputSlices[i], 0, 1, 1, 1, true);
-      }
-
       /*
       // Select unique CC according to the most in a given direction
       if (GetUniqueConnectedComponentBySliceAccordingToADirection()) {
-        int nb;
-        mInputSlices[i] = LabelizeAndCountNumberOfObjects<SliceType>(mInputSlices[i], 0, true, 1, nb);
-        std::vector<typename ImageType::PointType> & centroids;
-        ComputeCentroids
-        }
+      int nb;
+      mInputSlices[i] = LabelizeAndCountNumberOfObjects<SliceType>(mInputSlices[i], 0, true, 1, nb);
+      std::vector<typename ImageType::PointType> & centroids;
+      ComputeCentroids
+      }
       */
     }
+  }
+
+  // Join the fuzzy map if needed
+  if (this->GetFuzzyMapOnlyFlag()) {
+    this->m_FuzzyMap = clitk::JoinSlices<FloatImageType>(mFuzzyMapSlices, input, GetDirection());
+    this->template StopCurrentStep<FloatImageType>(this->m_FuzzyMap);
+    return;
   }
 
   // Join the slices
@@ -309,6 +351,7 @@ GenerateData()
   //--------------------------------------------------------------------  
   // Final Step -> set output
   //this->SetNthOutput(0, m_working_input);
+  if (this->GetFuzzyMapOnlyFlag()) return; // no output in this case
   this->GraftOutput(m_working_input);
   return;
 }
