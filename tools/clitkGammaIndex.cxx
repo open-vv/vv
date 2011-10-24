@@ -36,6 +36,19 @@ using std::cout;
 #include <vvImage.h>
 #include <vvImageReader.h>
 
+vtkImageData* loadImage(const std::string& filename)
+{
+    vvImageReader::Pointer reader = vvImageReader::New();
+    reader->SetInputFilename(filename);
+    reader->Update();
+    vvImage::Pointer vvimage = reader->GetOutput();
+    if (!vvimage) { cerr << "can't load " << filename << endl; return NULL; }
+
+    vtkImageData *image = vtkImageData::New();
+    image->DeepCopy(vvimage->GetFirstVTKImageData());
+    return image;
+}
+
 void saveImage(vtkImageData *image,const std::string &filename) {
     cout << "saving " << filename << endl;
     vtkImageWriter *writer = vtkMetaImageWriter::New();
@@ -90,12 +103,23 @@ void insertTriangles(vtkCellArray *cells, vtkPoints *points, const vtkIdType ids
     cells->InsertCellPoint(center_id);
 }
 
+void insertLine(vtkCellArray *cells, vtkPoints *points, const vtkIdType ids[2]) {
+    cells->InsertNextCell(2);
+    cells->InsertCellPoint(ids[0]);
+    cells->InsertCellPoint(ids[1]);
+}
+
 double getMaximum(vtkImageData *image) {
     bool first = true;
     double maximum = 0;
 
+    vtkPointData* point_data = image->GetPointData();
+    assert(point_data);
+    vtkDataArray* scalars = point_data->GetScalars();
+    assert(scalars);
+
     for (int kk=0; kk<image->GetNumberOfPoints(); kk++) {
-	double value = image->GetPointData()->GetScalars()->GetTuple1(kk);
+	double value = scalars->GetTuple1(kk);
 
 	if (first) {
 	    maximum = value;
@@ -134,8 +158,18 @@ vtkPolyData *buildPlane(vtkImageData *image,double spatial_margin,double dose_ma
     vtkCellArray *cells = vtkCellArray::New();
     for (int kk=0; kk<image->GetNumberOfCells(); kk++) {
 	vtkCell *cell = image->GetCell(kk);
-	assert(cell->GetNumberOfPoints()==4);
-	insertTriangles(cells,points,cell->GetPointIds()->GetPointer(0));
+
+	if (cell->GetNumberOfPoints()==4) {
+	    insertTriangles(cells,points,cell->GetPointIds()->GetPointer(0));
+	    continue;
+	}
+
+	if (cell->GetNumberOfPoints()==2) {
+	    insertLine(cells,points,cell->GetPointIds()->GetPointer(0));
+	    continue;
+	}
+
+	assert(false);
     }
 
     vtkPolyData *data = vtkPolyData::New();
@@ -181,16 +215,8 @@ int main(int argc,char * argv[])
     }
 
     // load reference
-    vtkImageData* reference = NULL;
-    {
-	vvImageReader::Pointer reader = vvImageReader::New();
-	reader->SetInputFilename(reference_filename);
-	reader->Update();
-	vvImage::Pointer vvimage = reader->GetOutput();
-	if (!vvimage) { cerr << "can't load " << reference_filename << endl; return 2; }
-	reference = vvimage->GetFirstVTKImageData();
-	assert(reference);
-    }
+    vtkImageData* reference = loadImage(reference_filename);
+    assert(reference);
 
     // intensity normalisation
     if (!use_dose_margin) {
@@ -210,16 +236,8 @@ int main(int argc,char * argv[])
     locator->BuildLocator();
 
     // load target
-    vtkImageData *target = NULL;
-    {
-	vvImageReader::Pointer reader = vvImageReader::New();
-	reader->SetInputFilename(target_filename);
-	reader->Update();
-	vvImage::Pointer vvimage = reader->GetOutput();
-	if (!vvimage) { cerr << "can't load " << target_filename << endl; return 2; }
-	target = vvimage->GetFirstVTKImageData();
-	if (!target) return 2;
-    }
+    vtkImageData *target = loadImage(target_filename);
+    assert(target);
 
     // allocate output
     vtkImageData *output = vtkImageData::New();
