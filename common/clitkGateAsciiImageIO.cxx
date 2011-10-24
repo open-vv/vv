@@ -44,22 +44,44 @@ std::ostream& operator<<(std::ostream& os, const clitk::GateAsciiImageIO::GateAs
 // Read Image Information
 void clitk::GateAsciiImageIO::ReadImageInformation()
 {
-    itkGenericExceptionMacro(<< "Could not open file (for reading): " << m_FileName);
+    FILE* handle = fopen(m_FileName.c_str(),"r");
+    if (!handle) {
+	itkGenericExceptionMacro(<< "Could not open file (for reading): " << m_FileName);
+	return;
+    }
+
+    GateAsciiHeader header;
+    if (!ReadHeader(handle,header)) {
+	itkGenericExceptionMacro(<< "Could not read header: " << m_FileName);
+	fclose(handle);
+	return;
+    }
+    fclose(handle);
+
+    int real_length = -1;
+    double real_spacing = 0;
+    for (int kk=0; kk<3; kk++) {
+	if (header.resolution[kk]>1) {
+	    if (real_length>0) {
+		itkGenericExceptionMacro(<< "Could not image dimension: " << m_FileName);
+		return;
+	    }
+	    real_length = header.resolution[kk];
+	    real_spacing = header.voxel_size[kk];
+	}
+    }
+    assert(real_length == header.nb_value);
 
 
-    /* Convert hnd to ITK image information */
+    // Set image information
     SetNumberOfDimensions(2);
-    //SetDimensions(0, hnd.SizeX);
-    //SetDimensions(1, hnd.SizeY);
-    //SetSpacing(0, hnd.dIDUResolutionX);
-    //SetSpacing(1, hnd.dIDUResolutionY);
-    //SetOrigin(0, -0.5*(hnd.SizeX-1)*hnd.dIDUResolutionX); //SR: assumed centered
-    //SetOrigin(1, -0.5*(hnd.SizeY-1)*hnd.dIDUResolutionY); //SR: assumed centered
-    //SetComponentType(itk::ImageIOBase::UINT);
-
-    /* Store important meta information in the meta data dictionary */
-    //itk::EncapsulateMetaData<double>(this->GetMetaDataDictionary(), "dCTProjectionAngle", hnd.dCTProjectionAngle);
-    //itk::ExposeMetaData<double>( this->GetMetaDataDictionary(), &(hnd.dCTProjectionAngle), "dCTProjectionAngle");
+    SetDimensions(0, real_length);
+    SetDimensions(1, 1);
+    SetSpacing(0, real_spacing);
+    SetSpacing(1, 1);
+    SetOrigin(0, 0);
+    SetOrigin(1, 0);
+    SetComponentType(itk::ImageIOBase::DOUBLE);
 }
 
 //--------------------------------------------------------------------
@@ -136,15 +158,15 @@ bool clitk::GateAsciiImageIO::ReadHeader(FILE* handle, GateAsciiHeader& header)
     { // build regex
 	int ret = 0;
 	ret = regcomp(&re_comment,"^#.+$",REG_EXTENDED|REG_NEWLINE);
-	assert(ret);
+	assert(ret == 0);
 	ret = regcomp(&re_matrix_size,"^# +Matrix *Size *= +\\(([0-9]+\\.?[0-9]*),([0-9]+\\.?[0-9]*),([0-9]+\\.?[0-9]*)\\)$",REG_EXTENDED|REG_NEWLINE);
-	assert(ret);
+	assert(ret == 0);
 	ret = regcomp(&re_resol,"^# +Resol *= +\\(([0-9]+),([0-9]+),([0-9]+)\\)$",REG_EXTENDED|REG_NEWLINE);
-	assert(ret);
+	assert(ret == 0);
 	ret = regcomp(&re_voxel_size,"^# +Voxel *Size *= +\\(([0-9]+\\.?[0-9]*),([0-9]+\\.?[0-9]*),([0-9]+\\.?[0-9]*)\\)$",REG_EXTENDED|REG_NEWLINE);
-	assert(ret);
+	assert(ret == 0);
 	ret = regcomp(&re_nb_value,"^# +nbVal *= +([0-9]+)$",REG_EXTENDED|REG_NEWLINE);
-	assert(ret);
+	assert(ret == 0);
     }
 
     if (!ReadLine(handle,line)) return false;
@@ -180,107 +202,35 @@ bool clitk::GateAsciiImageIO::ReadHeader(FILE* handle, GateAsciiHeader& header)
 
 //--------------------------------------------------------------------
 // Read Image Content
-void clitk::GateAsciiImageIO::Read(void * buffer)
+void clitk::GateAsciiImageIO::Read(void* abstract_buffer)
 {
-  FILE *fp;
-
-  uint32_t* buf = (uint32_t*)buffer;
-  unsigned char *pt_lut;
-  uint32_t a;
-  float b;
-  unsigned char v;
-  int lut_idx, lut_off;
-  size_t num_read;
-  char dc;
-  short ds;
-  long dl, diff=0;
-  uint32_t i;
-
-  fp = fopen (m_FileName.c_str(), "rb");
-  if (fp == NULL)
-    itkGenericExceptionMacro(<< "Could not open file (for reading): " << m_FileName);
-
-  pt_lut = (unsigned char*) malloc (sizeof (unsigned char) * GetDimensions(0) * GetDimensions(1));
-
-  /* Read LUT */
-  fseek (fp, 1024, SEEK_SET);
-  fread (pt_lut, sizeof(unsigned char), (GetDimensions(1)-1)*GetDimensions(0) / 4, fp);
-
-  /* Read first row */
-  for (i = 0; i < GetDimensions(0); i++) {
-    fread (&a, sizeof(uint32_t), 1, fp);
-    buf[i] = a;
-    b = a;
-  }
-
-  /* Read first pixel of second row */
-  fread (&a, sizeof(uint32_t), 1, fp);
-  buf[i++] = a;
-  b = a;
-
-  /* Decompress the rest */
-  lut_idx = 0;
-  lut_off = 0;
-  while (i < GetDimensions(0) * GetDimensions(1)) {
-    uint32_t r11, r12, r21;
-
-    r11 = buf[i-GetDimensions(0)-1];
-    r12 = buf[i-GetDimensions(0)];
-    r21 = buf[i-1];
-    v = pt_lut[lut_idx];
-    switch (lut_off) {
-    case 0:
-      v = v & 0x03;
-      lut_off ++;
-      break;
-    case 1:
-      v = (v & 0x0C) >> 2;
-      lut_off ++;
-      break;
-    case 2:
-      v = (v & 0x30) >> 4;
-      lut_off ++;
-      break;
-    case 3:
-      v = (v & 0xC0) >> 6;
-      lut_off = 0;
-      lut_idx ++;
-      break;
-    }
-    switch (v) {
-    case 0:
-      num_read = fread (&dc, sizeof(unsigned char), 1, fp);
-      if (num_read != 1) goto read_error;
-      diff = dc;
-      break;
-    case 1:
-      num_read = fread (&ds, sizeof(unsigned short), 1, fp);
-      if (num_read != 1) goto read_error;
-      diff = ds;
-      break;
-    case 2:
-      num_read = fread (&dl, sizeof(uint32_t), 1, fp);
-      if (num_read != 1) goto read_error;
-      diff = dl;
-      break;
+    FILE* handle = fopen(m_FileName.c_str(),"r");
+    if (!handle) {
+	itkGenericExceptionMacro(<< "Could not open file (for reading): " << m_FileName);
+	return;
     }
 
-    buf[i] = r21 + r12 + diff - r11;
-    b = buf[i];
-    i++;
-  }
+    GateAsciiHeader header;
+    if (!ReadHeader(handle,header)) {
+	itkGenericExceptionMacro(<< "Could not read header: " << m_FileName);
+	fclose(handle);
+	return;
+    }
 
-  /* Clean up */
-  free (pt_lut);
-  fclose (fp);
-  return;
+    {
+	double* buffer = static_cast<double*>(abstract_buffer);
+	int read_count = 0;
+	while (true) { 
+	    std::string line;
+	    if (!ReadLine(handle,line)) break;
+	    *buffer = ConvertFromString<double>(line);
+	    read_count++;
+	    buffer++;
+	}
+	assert(read_count == header.nb_value);
+    }
 
-read_error:
-
-  itkGenericExceptionMacro(<< "Error reading gate ascii file");
-  free (pt_lut);
-  fclose (fp);
-  return;
+    fclose(handle);
 }
 
 //--------------------------------------------------------------------
