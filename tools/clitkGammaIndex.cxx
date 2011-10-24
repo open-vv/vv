@@ -35,6 +35,12 @@ using std::cout;
 #include <clitkIO.h>
 #include <vvImage.h>
 #include <vvImageReader.h>
+#include <vvImageWriter.h>
+
+#include <itkImage.h>
+#include <itkImageRegionIterator.h>
+typedef itk::Image<double> OutputImageType;
+typedef itk::ImageRegionIterator<OutputImageType> OutputImageIterator;
 
 vtkImageData* loadImage(const std::string& filename)
 {
@@ -49,13 +55,14 @@ vtkImageData* loadImage(const std::string& filename)
     return image;
 }
 
-void saveImage(vtkImageData *image,const std::string &filename) {
-    cout << "saving " << filename << endl;
-    vtkImageWriter *writer = vtkMetaImageWriter::New();
-    writer->SetFileName(filename.c_str());
-    writer->SetInput(image);
-    writer->Write();
-    writer->Delete();
+void saveImage(OutputImageType* image,const std::string &filename) {
+    vvImage::Pointer vvimage = vvImage::New();
+    vvimage->AddItkImage(image);
+
+    vvImageWriter::Pointer writer = vvImageWriter::New();
+    writer->SetOutputFileName(filename.c_str());
+    writer->SetInput(vvimage);
+    writer->Update();
 }
 
 
@@ -236,21 +243,29 @@ int main(int argc,char * argv[])
     locator->BuildLocator();
 
     // load target
-    vtkImageData *target = loadImage(target_filename);
+    vtkImageData* target = loadImage(target_filename);
     assert(target);
 
     // allocate output
-    vtkImageData *output = vtkImageData::New();
-    output->SetExtent(target->GetWholeExtent());
-    output->SetOrigin(target->GetOrigin());
-    output->SetSpacing(target->GetSpacing());
-    output->SetScalarTypeToFloat();
-    output->AllocateScalars();
+    OutputImageType::Pointer output = OutputImageType::New();
+    {
+	OutputImageType::SizeType::SizeValueType output_array_size[2];
+	output_array_size[0] = target->GetDimensions()[0];
+	output_array_size[1] = target->GetDimensions()[1];
+	OutputImageType::SizeType output_size;
+	output_size.SetSize(output_array_size);
+	output->SetRegions(OutputImageType::RegionType(output_size));
+	output->SetOrigin(target->GetOrigin());
+	output->SetSpacing(target->GetSpacing());
+	output->Allocate();
+    }
 
     // fill output
-    unsigned long total = 0;
+    unsigned long  kk = 0;
     unsigned long over_one = 0;
-    for (int kk=0; kk<target->GetNumberOfPoints(); kk++) {
+    OutputImageIterator iter(output,output->GetLargestPossibleRegion());
+    iter.GoToBegin();
+    while (!iter.IsAtEnd()) {
 	double *point = target->GetPoint(kk);
 	double value = target->GetPointData()->GetScalars()->GetTuple1(kk);
 	assert(value>=0);
@@ -268,24 +283,23 @@ int main(int argc,char * argv[])
 
 	locator->FindClosestPoint(point,closest_point,cell_id,foo,squared_distance);
 	double distance = sqrt(squared_distance);
-	output->GetPointData()->GetScalars()->SetTuple1(kk,distance);
+	iter.Set(distance);
 
 	if (distance>1) over_one++;
-	total++;
-
+	kk++;
+	++iter;
     }
 
     if (verbose) {
-	cout << "total=" << total << endl;
+	cout << "total=" << kk << endl;
 	cout << "over_one=" << over_one << endl;
-	cout << "ratio=" << static_cast<float>(over_one)/total << endl;
+	cout << "ratio=" << static_cast<float>(over_one)/kk << endl;
     }
 
     locator->Delete();
     target->Delete();
 
     saveImage(output,gamma_filename);
-    output->Delete();
 
     return 0;
 }
