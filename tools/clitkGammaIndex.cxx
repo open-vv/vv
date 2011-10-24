@@ -267,11 +267,10 @@ int main(int argc,char * argv[])
 	double squared_distance = 0;
 
 	locator->FindClosestPoint(point,closest_point,cell_id,foo,squared_distance);
-
 	double distance = sqrt(squared_distance);
 	output->GetPointData()->GetScalars()->SetTuple1(kk,distance);
 
-	if (value>1) over_one++;
+	if (distance>1) over_one++;
 	total++;
 
     }
