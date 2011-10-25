@@ -94,6 +94,8 @@ SET(vv_SRCS
   vvImageContour.cxx
   vvBinaryImageOverlayActor.cxx
   vvStructureSetActor.cxx
+  vvSaveState.cxx
+  vvReadState.cxx
   vvROIActor.cxx
   vvBlendImageActor.cxx
   vvToolManager.cxx

@@ -45,6 +45,8 @@
 #include "vvMesh.h"
 #include "vvStructSelector.h"
 #include "vvMeshReader.h"
+#include "vvSaveState.h"
+#include "vvReadState.h"
 #include "clitkConfiguration.h"
 
 // ITK include
@@ -143,6 +145,16 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
                               tr("Save Current Image"));
   connect(actionSave_image,SIGNAL(triggered()),this,SLOT(SaveAs()));
   contextActions.push_back(actionSave_image);
+
+  QAction* actionSave_state = contextMenu.addAction(QIcon(QString::fromUtf8(":/common/icons/filesave.png")),
+                              tr("Save Current State"));
+  connect(actionSave_state,SIGNAL(triggered()),this,SLOT(SaveCurrentState()));
+  contextActions.push_back(actionSave_state);
+
+  QAction* actionRead_state = contextMenu.addAction(QIcon(QString::fromUtf8(":/common/icons/filesave.png")),
+                              tr("Read Saved State"));
+  connect(actionRead_state,SIGNAL(triggered()),this,SLOT(ReadSavedState()));
+  contextActions.push_back(actionRead_state);
 
   contextMenu.addSeparator();
 
@@ -255,6 +267,8 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(actionOpen_Image_With_Time,SIGNAL(triggered()),this,SLOT(OpenImageWithTime()));
   connect(actionMerge_images_as_n_dim_t, SIGNAL(triggered()), this, SLOT(MergeImagesWithTime()));
   connect(actionSave_As,SIGNAL(triggered()),this,SLOT(SaveAs()));
+  connect(actionSave_current_state,SIGNAL(triggered()),this,SLOT(SaveCurrentState()));
+  connect(actionRead_saved_state,SIGNAL(triggered()),this,SLOT(ReadSavedState()));
   connect(actionExit,SIGNAL(triggered()),this,SLOT(close()));
   connect(actionAdd_VF_to_current_Image,SIGNAL(triggered()),this,SLOT(OpenField()));
   connect(actionNavigation_Help,SIGNAL(triggered()),this,SLOT(ShowHelpDialog()));
@@ -292,6 +306,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
 
   connect(this,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(ShowContextMenu(QPoint)));
 
+#include "vvSaveState.h"
   connect(linkPanel,SIGNAL(addLink(QString,QString)),this,SLOT(AddLink(QString,QString)));
   connect(linkPanel,SIGNAL(removeLink(QString,QString)),this,SLOT(RemoveLink(QString,QString)));
   connect(overlayPanel,SIGNAL(VFPropertyUpdated(int,int,int,int,double,double,double)),this,SLOT(SetVFProperty(int,int,int,int,double,double,double)));
@@ -2263,6 +2278,48 @@ void vvMainWindow::SaveAs()
 }
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+void vvMainWindow::SaveCurrentState()
+{
+  QString Extensions = "XML Files(*.xml)";
+  QString fileName = QFileDialog::getSaveFileName(this,
+                     tr("Save Current Window State"),
+                     "",
+                     Extensions);
+                     
+  SaveCurrentStateAs(fileName.toStdString());
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::SaveCurrentStateAs(const std::string& stateFile)
+{
+  vvSaveState save_state;
+  save_state.Run(this, stateFile);
+  
+  std::cout << "void vvMainWindow::SaveCurrentState()" << std::endl;
+}
+
+//------------------------------------------------------------------------------
+void vvMainWindow::ReadSavedState()
+{
+  QString Extensions = "XML Files(*.xml)";
+  QString fileName = QFileDialog::getOpenFileName(this,
+                     tr("Load Window State"),
+                     "",
+                     Extensions);
+                     
+  ReadSavedStateFile(fileName.toStdString());
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::ReadSavedStateFile(const std::string& stateFile)
+{
+  vvReadState read_state;
+  read_state.Run(this, stateFile);
+}
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvMainWindow::AddLink(QString image1,QString image2)

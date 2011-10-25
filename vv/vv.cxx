@@ -168,7 +168,11 @@ int main( int argc, char** argv )
           vtk_log->FlushOn();
           vtk_log->AppendOn();
           vtkOutputWindow::SetInstance(vtk_log);
+        } else if (current == "--state") {
+          window.ReadSavedStateFile(argv[i+1]);
+          i++;
         }
+        
       } else if (parse_mode == P_SEQUENCE) {
         sequence_filenames.push_back(current);
       } else if (parse_mode == P_WINDOW) {
