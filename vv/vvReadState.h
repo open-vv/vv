@@ -15,6 +15,7 @@ public:
   virtual ~vvReadState();
   
   virtual void Run(vvMainWindow* vvWindow, const std::string& file);
+  int GetNumberOfImages() { return m_NumImages; }
     
 protected:
   
@@ -29,6 +30,7 @@ protected:
   std::auto_ptr<QFile> m_File;
   vvMainWindow* m_Window;
   int m_TreeItemCount;
+  int m_NumImages;
 };
 
 #endif // VVREADSTATE_H

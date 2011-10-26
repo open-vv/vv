@@ -30,6 +30,7 @@
 
 #include "clitkIO.h"
 #include "vvMainWindow.h"
+#include "vvReadState.h"
 #include "vvToolsList.h"
 #include <vtkFileOutputWindow.h>
 #include <vtkSmartPointer.h>
@@ -169,7 +170,10 @@ int main( int argc, char** argv )
           vtk_log->AppendOn();
           vtkOutputWindow::SetInstance(vtk_log);
         } else if (current == "--state") {
-          window.ReadSavedStateFile(argv[i+1]);
+          //window.ReadSavedStateFile(argv[i+1]);
+          vvReadState read_state;
+          read_state.Run(&window, argv[i+1]);
+          n_image_loaded += read_state.GetNumberOfImages();
           i++;
         }
         

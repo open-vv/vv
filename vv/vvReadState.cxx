@@ -11,6 +11,7 @@
 
 vvReadState::vvReadState() : m_XmlReader(new QXmlStreamReader), m_File(new QFile)
 {
+  m_NumImages = 0;
 }
 
 vvReadState::~vvReadState()
@@ -21,6 +22,7 @@ void vvReadState::Run(vvMainWindow* vvWindow, const std::string& file)
 {
   assert(vvWindow);
 
+  m_NumImages = 0;
   m_File->setFileName(file.c_str());
   m_File->open(QIODevice::ReadOnly);
   m_XmlReader->setDevice(m_File.get());
@@ -82,6 +84,9 @@ std::string  vvReadState::ReadImage()
       }
     }
   }
+  
+  if (!m_XmlReader->hasError())
+    m_NumImages++;
 
   return value;
 }
