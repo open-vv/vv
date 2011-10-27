@@ -20,14 +20,22 @@
 template <class ImageType>
 clitk::RelativePositionAnalyzerFilter<ImageType>::
 RelativePositionAnalyzerFilter():
-  clitk::FilterBase(),
-  clitk::FilterWithAnatomicalFeatureDatabaseManagement(),
+  // clitk::FilterBase(),
+  clitk::FilterWithAnatomicalFeatureDatabaseManagement(), 
   itk::ImageToImageFilter<ImageType, ImageType>()
 {
   this->SetNumberOfRequiredInputs(3); // support, object, target
   VerboseFlagOff();
   SetBackgroundValue(0);
   SetForegroundValue(1);
+  SetNumberOfBins(100);
+  SetNumberOfAngles(4);
+  SetAreaLossTolerance(0.01);
+  m_ListOfAngles.clear();
+  SetSupportSize(0);
+  SetTargetSize(0);
+  SetSizeWithThreshold(0);
+  SetSizeWithReverseThreshold(0);
 }
 //--------------------------------------------------------------------
 
@@ -96,28 +104,10 @@ GenerateOutputInformation()
 template <class ImageType>
 void 
 clitk::RelativePositionAnalyzerFilter<ImageType>::
-GenerateInputRequestedRegion() 
-{
-  // Call default
-  itk::ImageToImageFilter<ImageType, ImageType>::GenerateInputRequestedRegion();
-  // Get input pointers and set requested region to common region
-  ImagePointer input1 = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
-  ImagePointer input2 = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(1));
-  ImagePointer input3 = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(2));
-  input1->SetRequestedRegion(input1->GetLargestPossibleRegion());
-  input2->SetRequestedRegion(input2->GetLargestPossibleRegion());
-  input3->SetRequestedRegion(input3->GetLargestPossibleRegion());
-}
-//--------------------------------------------------------------------
-
-//--------------------------------------------------------------------
-template <class ImageType>
-void 
-clitk::RelativePositionAnalyzerFilter<ImageType>::
 GenerateData() 
 {
   this->LoadAFDB();
-
+  
   // Get input pointer
   m_Support = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
   m_Object = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(1));
@@ -138,59 +128,66 @@ GenerateData()
   statFilter->SetInput(m_Support);
   statFilter->SetLabelInput(m_Support);
   statFilter->Update();
-  int m_SupportSize = statFilter->GetCount(GetForegroundValue());
-  // DD(m_SupportSize);
+  SetSupportSize(statFilter->GetCount(GetForegroundValue()));
+  // DD(GetSupportSize());
   
   // Compute the initial target size
   ImagePointer s = clitk::ResizeImageLike<ImageType>(m_Support, m_Target, GetBackgroundValue());
   statFilter->SetInput(s);
   statFilter->SetLabelInput(m_Target);
   statFilter->Update();
-  int m_TargetSize = statFilter->GetCount(GetForegroundValue());
-  // DD(m_TargetSize);
+  SetTargetSize(statFilter->GetCount(GetForegroundValue()));
+  // DD(GetTargetSize());
 
   // Build the list of tested orientations
-  std::vector<double> m_ListOfAngles;
-  int m_NumberOfAngles = this->GetAFDB()->GetDouble("NumberOfAngles");
-  for(uint i=0; i<m_NumberOfAngles; i++) {
-    double a = i*360.0/m_NumberOfAngles;
+  m_ListOfAngles.clear();
+  for(uint i=0; i<GetNumberOfAngles(); i++) {
+    double a = i*360.0/GetNumberOfAngles();
     if (a>180) a = 180-a;
     m_ListOfAngles.push_back(clitk::deg2rad(a));
+    RelativePositionOrientationType r;
+    r.angle1 = clitk::deg2rad(a);
+    r.angle2 = 0;
+    r.notFlag = false;
+    m_ListOfOrientation.push_back(r);
+    r.notFlag = true;
+    m_ListOfOrientation.push_back(r);
   }
 
   // Loop on all orientations
+  int bins = GetNumberOfBins();
+  double tolerance = GetAreaLossTolerance();
   for(int i=0; i<m_ListOfAngles.size(); i++) {
-    
     // Compute Fuzzy map
     typename FloatImageType::Pointer map = ComputeFuzzyMap(objectLikeTarget, m_Target, m_ListOfAngles[i]);
     writeImage<FloatImageType>(map, "fuzzy_"+toString(i)+".mha");
 
     // Compute the optimal thresholds (direct and inverse)
-    double mThreshold;
-    double mReverseThreshold;
-    int bins = this->GetAFDB()->GetDouble("bins");
-    double tolerance = this->GetAFDB()->GetDouble("TargetAreaLossTolerance");
+    double mThreshold=0.0;
+    double mReverseThreshold=1.0;
     ComputeOptimalThresholds(map, m_Target, bins, tolerance, mThreshold, mReverseThreshold);
 
     // Use the threshold to compute new support
-    int s1;
+    int s1 = GetSupportSize();
+    // DD(mThreshold);
+    // DD(mReverseThreshold);
     if (mThreshold > 0.0) {
       ImagePointer support1 = 
         clitk::SliceBySliceRelativePosition<ImageType>(m_Support, m_Object, 2, 
                                                        mThreshold,
                                                        m_ListOfAngles[i],false,
                                                        false, -1, true, false);
-      writeImage<ImageType>(support1, "sup_"+toString(i)+".mha");
+      // writeImage<ImageType>(support1, "sup_"+toString(i)+".mha");
       // Compute the new support size
       statFilter->SetInput(support1);
       statFilter->SetLabelInput(support1);
       statFilter->Update();
       s1 = statFilter->GetCount(GetForegroundValue());
     }
-    else s1 = m_SupportSize;
       
-    int s2;
+    int s2 = GetSupportSize();
     if (mReverseThreshold < 1.0) {
+      // DD(m_ListOfAngles[1]);
       ImagePointer support2 = 
         clitk::SliceBySliceRelativePosition<ImageType>(m_Support, m_Object, 2, 
                                                        mReverseThreshold, 
@@ -204,20 +201,20 @@ GenerateData()
       statFilter->Update();
       s2 = statFilter->GetCount(GetForegroundValue());
     }
-    else s2 =m_SupportSize;
-    
-    // Print results
-    std::cout << i << " " << clitk::rad2deg(m_ListOfAngles[i]) << "\t" 
-              << m_SupportSize << " " << m_TargetSize << "\t"
-              << s1/(double)m_SupportSize << " " << s2/(double)m_SupportSize << "\t" 
-              << mThreshold << " " << mReverseThreshold << std::endl;
-    
-  } // end loop on orientations
 
-  
-  // Final Step -> set output TODO
-  // this->SetNthOutput(0, working_image);
-  //  this->GraftOutput(working_image);
+    // Set results values
+    RelativePositionInformationType r;
+    r.threshold = mThreshold;
+    r.sizeAfterThreshold = s1; // DD(s1);
+    r.sizeBeforeThreshold = GetSupportSize();
+    r.sizeReference = GetTargetSize();
+    m_ListOfInformation.push_back(r);
+
+    r.threshold = mReverseThreshold;
+    r.sizeAfterThreshold = s2;     // DD(s2);
+    m_ListOfInformation.push_back(r);
+    // Print();
+  } // end loop on orientations
 }
 //--------------------------------------------------------------------
 
@@ -292,7 +289,8 @@ ComputeOptimalThresholds(FloatImageType * map, ImageType * target, int bins, dou
   for(int j=0; j<bins; j++) {
     sum += ((double)h->GetFrequency(j)/(double)count);
     if ((!found) && (sum > tolerance)) {
-      threshold = h->GetBinMin(0,j);
+      if (j==0) threshold = h->GetBinMin(0,j);
+      else threshold = h->GetBinMin(0,j-1); // the last before reaching the threshold
       found = true;
     }
   }
@@ -304,10 +302,25 @@ ComputeOptimalThresholds(FloatImageType * map, ImageType * target, int bins, dou
   for(int j=bins-1; j>=0; j--) {
     sum += ((double)h->GetFrequency(j)/(double)count);
     if ((!found) && (sum > tolerance)) {
-      reverseThreshold = h->GetBinMax(0,j);
+      if (j==bins-1) reverseThreshold = h->GetBinMax(0,j);
+      else reverseThreshold = h->GetBinMax(0,j+1);
       found = true;
     }
   }
 }
 //--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
+template <class ImageType>
+void
+clitk::RelativePositionAnalyzerFilter<ImageType>::
+Print(std::string s, std::ostream & os)
+{
+  for(int i=0; i<m_ListOfOrientation.size(); i++) {
+    os << s << " ";
+    m_ListOfOrientation[i].Print(os);
+    m_ListOfInformation[i].Println(os);
+  }
+}
+//--------------------------------------------------------------------

@@ -23,6 +23,7 @@
 #include "clitkFilterWithAnatomicalFeatureDatabaseManagement.h"
 #include "clitkFilterBase.h"
 #include "clitkSliceBySliceRelativePositionFilter.h"
+#include "clitkRelativePositionDataBase.h"
 
 // itk
 #include <itkImageToImageFilter.h>
@@ -33,15 +34,17 @@ namespace clitk {
   //--------------------------------------------------------------------
   /*
     Analyze the relative position of a Target (mask image) according
-    to some Object, in a given Support. Indicate the main important
-    position of this Target according the Object. 
+    to some Object (mask image), in a given Support (mask
+    image). Compute the optimal threshold allowing to remove the
+    maximal area from the Support without removing area belonging to
+    the Target.
   */
   //--------------------------------------------------------------------
   
   template <class ImageType>
   class RelativePositionAnalyzerFilter:
-    public virtual FilterBase,
-    public clitk::FilterWithAnatomicalFeatureDatabaseManagement,
+    // public virtual clitk::FilterBase, 
+    public clitk::FilterWithAnatomicalFeatureDatabaseManagement, 
     public itk::ImageToImageFilter<ImageType, ImageType>
   {
 
@@ -85,8 +88,28 @@ namespace clitk {
     itkGetConstMacro(ForegroundValue, PixelType);
     itkSetMacro(ForegroundValue, PixelType);
 
+    itkGetConstMacro(NumberOfBins, int);
+    itkSetMacro(NumberOfBins, int);
+
+    itkGetConstMacro(NumberOfAngles, int);
+    itkSetMacro(NumberOfAngles, int);
+
+    itkGetConstMacro(AreaLossTolerance, double);
+    itkSetMacro(AreaLossTolerance, double);
+
+    itkGetConstMacro(SupportSize, int);
+    itkGetConstMacro(TargetSize, int);
+    itkGetConstMacro(SizeWithThreshold, int);
+    itkGetConstMacro(SizeWithReverseThreshold, int);
+
+    std::vector<clitk::RelativePositionInformationType> & GetListOfInformation() { return m_ListOfInformation; }
+    std::vector<clitk::RelativePositionOrientationType> & GetListOfOrientation() { return m_ListOfOrientation; }
+
     // For debug
     void PrintOptions();
+    
+    // Print output
+    void Print(std::string s=" ", std::ostream & os=std::cout);
 
     // I dont want to verify inputs information
     virtual void VerifyInputInformation() { }
@@ -95,14 +118,28 @@ namespace clitk {
     RelativePositionAnalyzerFilter();
     virtual ~RelativePositionAnalyzerFilter() {}
     
+    itkSetMacro(SupportSize, int);
+    itkSetMacro(TargetSize, int);
+    itkSetMacro(SizeWithThreshold, int);
+    itkSetMacro(SizeWithReverseThreshold, int);
+
     PixelType m_BackgroundValue;
     PixelType m_ForegroundValue;
     ImagePointer m_Support;
     ImagePointer m_Object;
     ImagePointer m_Target;
-
+    int m_NumberOfAngles;
+    int m_NumberOfBins;
+    double m_AreaLossTolerance;
+    int m_SupportSize;
+    int m_TargetSize;
+    int m_SizeWithReverseThreshold;
+    int m_SizeWithThreshold;
+    std::vector<double> m_ListOfAngles;
+    std::vector<clitk::RelativePositionInformationType> m_ListOfInformation;
+    std::vector<clitk::RelativePositionOrientationType> m_ListOfOrientation;
+    
     virtual void GenerateOutputInformation();
-    virtual void GenerateInputRequestedRegion();
     virtual void GenerateData();
 
     typename FloatImageType::Pointer
