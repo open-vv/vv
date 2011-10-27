@@ -195,6 +195,7 @@ std::string GetTypeAsString()
 }
 //--------------------------------------------------------------------
 
+
 //--------------------------------------------------------------------
 template<class ImageType>
 void CloneImage(const typename ImageType::Pointer & input, typename ImageType::Pointer & output)
@@ -213,6 +214,23 @@ void CloneImage(const typename ImageType::Pointer & input, typename ImageType::P
     po.Set(pi.Get());
     ++pi;
     ++po;
+  }
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+// http://stackoverflow.com/questions/771453/copy-map-values-to-vector-in-stl
+template <typename M, typename V> 
+void MapToVecFirst(const  M & m, V & v) {
+  for( typename M::const_iterator it = m.begin(); it != m.end(); ++it ) {
+    v.push_back( it->first );
+  }
+}
+template <typename M, typename V> 
+void MapToVecSecond(const  M & m, V & v) {
+  for( typename M::const_iterator it = m.begin(); it != m.end(); ++it ) {
+    v.push_back( it->second );
   }
 }
 //--------------------------------------------------------------------

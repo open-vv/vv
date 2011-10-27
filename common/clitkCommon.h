@@ -209,6 +209,13 @@ namespace clitk {
   //--------------------------------------------------------------------
   void PrintMemoryUsed();
 
+  //--------------------------------------------------------------------
+  // Convert a map to a vector
+  template <typename M, typename V> 
+  void MapToVecFirst(const M & m, V & v);
+  template <typename M, typename V> 
+  void MapToVecSecond(const M & m, V & v);
+
 #include "clitkCommon.txx"
 
 } // end namespace
