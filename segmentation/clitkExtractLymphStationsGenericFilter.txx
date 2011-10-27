@@ -68,6 +68,7 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   f->SetWriteStepFlag(mArgsInfo.writeStep_flag);
   f->SetVerboseMemoryFlag(mArgsInfo.verboseMemory_flag);
   f->SetAFDBFilename(mArgsInfo.afdb_arg);  
+  f->SetAFDBPath(mArgsInfo.afdb_path_arg);  
 
   f->SetComputeStationsSupportsFlag(!mArgsInfo.nosupport_flag);
 
