@@ -325,6 +325,16 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkRelativePositionAnalyzer clitkSegmentationGgoLib clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkRelativePositionAnalyzer)
 
+  WRAP_GGO(clitkRelativePositionDataBaseAnalyzer_GGO_C clitkRelativePositionDataBaseAnalyzer.ggo)
+  ADD_EXECUTABLE(clitkRelativePositionDataBaseAnalyzer ../itk/clitkRelativePositionDataBase.cxx clitkRelativePositionDataBaseAnalyzer.cxx ${clitkRelativePositionDataBaseAnalyzer_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkRelativePositionDataBaseAnalyzer clitkSegmentationGgoLib clitkCommon ${ITK_LIBRARIES})
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkRelativePositionDataBaseAnalyzer)
+
+  WRAP_GGO(clitkRelativePositionDataBaseBuilder_GGO_C clitkRelativePositionDataBaseBuilder.ggo)
+  ADD_EXECUTABLE(clitkRelativePositionDataBaseBuilder clitkRelativePositionDataBaseBuilder.cxx ${clitkRelativePositionDataBaseBuilder_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkRelativePositionDataBaseBuilder clitkSegmentationGgoLib clitkCommon ${ITK_LIBRARIES})
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkRelativePositionDataBaseBuilder)
+
   WRAP_GGO(clitkTransformLandmarks_GGO_C clitkTransformLandmarks.ggo)
   ADD_EXECUTABLE(clitkTransformLandmarks clitkTransformLandmarks.cxx ${clitkTransformLandmarks_GGO_C})
   TARGET_LINK_LIBRARIES(clitkTransformLandmarks clitkCommon ${ITK_LIBRARIES})
