@@ -15,6 +15,7 @@ option "verboseMemory" - "Display memory usage" flag off
 section "I/O"
 
 option "afdb" a "Input Anatomical Feature DB" string no
+option "afdb_path" p "Input path for image in AFDB" string no
 option "input" i "Input filename" string no
 option "output" o "Output lungs mask filename" string no
 
