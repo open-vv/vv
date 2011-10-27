@@ -28,7 +28,19 @@
 //--------------------------------------------------------------------
 clitk::AnatomicalFeatureDatabase::AnatomicalFeatureDatabase() 
 { 
-  SetFilename("default.afdb"); 
+  SetFilename("default.afdb");
+  SetPath("./");
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+clitk::AnatomicalFeatureDatabase::Pointer clitk::AnatomicalFeatureDatabase::New(std::string filename) 
+{ 
+  Pointer a = AnatomicalFeatureDatabase::New();
+  a->SetFilename(filename);
+  a->Load();
+  return a;
 }
 //--------------------------------------------------------------------
 
@@ -111,6 +123,19 @@ double clitk::AnatomicalFeatureDatabase::GetPoint3D(std::string tag, int dim)
   PointType3D p;
   GetPoint3D(tag, p);
   return p[dim];
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+std::string clitk::AnatomicalFeatureDatabase::GetTagValue(std::string tag)
+{
+  if (!TagExist(tag)) {
+    clitkExceptionMacro("Could not find the tag <" << tag << "> in the DB");
+    return "";
+  }
+  std::string s = m_MapOfTag[tag];
+  return s;
 }
 //--------------------------------------------------------------------
 
