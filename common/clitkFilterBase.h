@@ -31,7 +31,7 @@ namespace clitk {
   
   //--------------------------------------------------------------------
   /*
-    Convenient class to manage options from GGO (gengetopt) to filter
+    Convenient class to manage frequent options
   */
   //--------------------------------------------------------------------
   class FilterBase
