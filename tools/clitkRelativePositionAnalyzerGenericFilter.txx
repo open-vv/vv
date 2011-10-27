@@ -64,7 +64,10 @@ template<class FilterType>
 void clitk::RelativePositionAnalyzerGenericFilter<ArgsInfoType>::
 SetOptionsFromArgsInfoToFilter(FilterType * f) 
 {
-  f->SetAFDBFilename(mArgsInfo.afdb_arg);  
+  f->SetAFDBFilename(mArgsInfo.afdb_arg);
+  f->SetNumberOfBins(mArgsInfo.bins_arg);
+  f->SetNumberOfAngles(mArgsInfo.nb_arg);
+  f->SetAreaLossTolerance(mArgsInfo.tol_arg);
 }
 
 //--------------------------------------------------------------------
@@ -75,28 +78,38 @@ template<class ImageType>
 void clitk::RelativePositionAnalyzerGenericFilter<ArgsInfoType>::
 UpdateWithInputImageType() 
 { 
-  // Reading input
-  typename ImageType::Pointer support = this->template GetInput<ImageType>(0);
-  typename ImageType::Pointer object = this->template GetInput<ImageType>(1);
-  typename ImageType::Pointer target = this->template GetInput<ImageType>(2);
-
   // Create filter
   typedef clitk::RelativePositionAnalyzerFilter<ImageType> FilterType;
   typename FilterType::Pointer filter = FilterType::New();
   
-  // Set global Options 
+  // Reading input
+  typename ImageType::Pointer support = this->template GetInput<ImageType>(0);
+  typename ImageType::Pointer object = this->template GetInput<ImageType>(1);
+  typename ImageType::Pointer target = this->template GetInput<ImageType>(2);
   filter->SetInputSupport(support);
   filter->SetInputObject(object);
   filter->SetInputTarget(target);
+
+  // Set global Options 
   SetOptionsFromArgsInfoToFilter<FilterType>(filter);
 
   // Go !
   filter->Update();
-  
-  // Write/Save results
-  //  typename ImageType::Pointer output = filter->GetOutput();
-  //this->template SetNextOutput<ImageType>(output); 
 
+  // Display output
+  std::string s;
+  if (mArgsInfo.afdb_given) {
+    NewAFDB(afdb, mArgsInfo.afdb_arg);
+    std::string patient = afdb->GetTagValue("PatientID");
+    std::string support;
+    std::string object;
+    if (mArgsInfo.objectName_given) object = mArgsInfo.objectName_arg;
+    else object = mArgsInfo.object_arg;
+    if (mArgsInfo.supportName_given) support = mArgsInfo.supportName_arg;
+    else support = mArgsInfo.support_arg;
+    s = patient+" "+support+" "+object+" ";
+  }
+  filter->Print(s, std::cout);
 }
 //--------------------------------------------------------------------
 

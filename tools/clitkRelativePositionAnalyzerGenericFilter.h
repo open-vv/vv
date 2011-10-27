@@ -36,6 +36,7 @@ namespace clitk
   public:
     //--------------------------------------------------------------------
     RelativePositionAnalyzerGenericFilter();
+    ~RelativePositionAnalyzerGenericFilter() {}
   
     //--------------------------------------------------------------------
     typedef ImageToImageGenericFilter<RelativePositionAnalyzerGenericFilter<ArgsInfoType> > Superclass;
