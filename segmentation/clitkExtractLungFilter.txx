@@ -414,49 +414,51 @@ GenerateOutputInformation()
     StopCurrentStep<MaskImageType>(working_mask);
   }
 
-  //--------------------------------------------------------------------
-  //--------------------------------------------------------------------
-  StartNewStep("Separate Left/Right lungs");
-    PrintMemory(GetVerboseMemoryFlag(), "Before Separate");
-  // Initial label
-  working_mask = Labelize<MaskImageType>(working_mask, 
-                                         GetBackgroundValue(), 
-                                         false, 
-                                         GetMinimalComponentSize());
+  if (GetSeparateLungsFlag()) {
+    //--------------------------------------------------------------------
+    //--------------------------------------------------------------------
+    StartNewStep("Separate Left/Right lungs");
+      PrintMemory(GetVerboseMemoryFlag(), "Before Separate");
+    // Initial label
+    working_mask = Labelize<MaskImageType>(working_mask, 
+                                          GetBackgroundValue(), 
+                                          false, 
+                                          GetMinimalComponentSize());
 
-  PrintMemory(GetVerboseMemoryFlag(), "After Labelize");
+    PrintMemory(GetVerboseMemoryFlag(), "After Labelize");
 
-  // Count the labels
-  typedef itk::StatisticsImageFilter<MaskImageType> StatisticsImageFilterType;
-  typename StatisticsImageFilterType::Pointer statisticsImageFilter=StatisticsImageFilterType::New();
-  statisticsImageFilter->SetInput(working_mask);
-  statisticsImageFilter->Update();
-  unsigned int initialNumberOfLabels = statisticsImageFilter->GetMaximum();
-  working_mask = statisticsImageFilter->GetOutput();	
+    // Count the labels
+    typedef itk::StatisticsImageFilter<MaskImageType> StatisticsImageFilterType;
+    typename StatisticsImageFilterType::Pointer statisticsImageFilter=StatisticsImageFilterType::New();
+    statisticsImageFilter->SetInput(working_mask);
+    statisticsImageFilter->Update();
+    unsigned int initialNumberOfLabels = statisticsImageFilter->GetMaximum();
+    working_mask = statisticsImageFilter->GetOutput();	
+    
+    PrintMemory(GetVerboseMemoryFlag(), "After count label");
   
-  PrintMemory(GetVerboseMemoryFlag(), "After count label");
- 
-  // Decompose the first label
-  if (initialNumberOfLabels<2) {
-    // Structuring element radius
-    typename ImageType::SizeType radius;
-    for (unsigned int i=0;i<Dim;i++) radius[i]=1;
-    typedef clitk::DecomposeAndReconstructImageFilter<MaskImageType,MaskImageType> DecomposeAndReconstructFilterType;
-    typename DecomposeAndReconstructFilterType::Pointer decomposeAndReconstructFilter=DecomposeAndReconstructFilterType::New();
-    decomposeAndReconstructFilter->SetInput(working_mask);
-    decomposeAndReconstructFilter->SetVerbose(false);
-    decomposeAndReconstructFilter->SetRadius(radius);
-    decomposeAndReconstructFilter->SetMaximumNumberOfLabels(2);
-    decomposeAndReconstructFilter->SetMinimumObjectSize(this->GetMinimalComponentSize());
-    decomposeAndReconstructFilter->SetMinimumNumberOfIterations(1);
-    decomposeAndReconstructFilter->SetBackgroundValue(this->GetBackgroundValue());
-    decomposeAndReconstructFilter->SetForegroundValue(this->GetForegroundValue());
-    decomposeAndReconstructFilter->SetFullyConnected(true);
-    decomposeAndReconstructFilter->SetNumberOfNewLabels(1);
-    decomposeAndReconstructFilter->Update();
-    working_mask = decomposeAndReconstructFilter->GetOutput();      
+    // Decompose the first label
+    if (initialNumberOfLabels<2) {
+      // Structuring element radius
+      typename ImageType::SizeType radius;
+      for (unsigned int i=0;i<Dim;i++) radius[i]=1;
+      typedef clitk::DecomposeAndReconstructImageFilter<MaskImageType,MaskImageType> DecomposeAndReconstructFilterType;
+      typename DecomposeAndReconstructFilterType::Pointer decomposeAndReconstructFilter=DecomposeAndReconstructFilterType::New();
+      decomposeAndReconstructFilter->SetInput(working_mask);
+      decomposeAndReconstructFilter->SetVerbose(false);
+      decomposeAndReconstructFilter->SetRadius(radius);
+      decomposeAndReconstructFilter->SetMaximumNumberOfLabels(2);
+      decomposeAndReconstructFilter->SetMinimumObjectSize(this->GetMinimalComponentSize());
+      decomposeAndReconstructFilter->SetMinimumNumberOfIterations(1);
+      decomposeAndReconstructFilter->SetBackgroundValue(this->GetBackgroundValue());
+      decomposeAndReconstructFilter->SetForegroundValue(this->GetForegroundValue());
+      decomposeAndReconstructFilter->SetFullyConnected(true);
+      decomposeAndReconstructFilter->SetNumberOfNewLabels(1);
+      decomposeAndReconstructFilter->Update();
+      working_mask = decomposeAndReconstructFilter->GetOutput();      
+    }
+    PrintMemory(GetVerboseMemoryFlag(), "After decomposeAndReconstructFilter");
   }
-  PrintMemory(GetVerboseMemoryFlag(), "After decomposeAndReconstructFilter");
 
   // Retain labels ('1' is largset lung, so right. '2' is left)
   typedef itk::ThresholdImageFilter<MaskImageType> ThresholdImageFilterType;

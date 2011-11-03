@@ -191,6 +191,11 @@ namespace clitk {
     itkGetConstMacro(FillHolesFlag, bool);
     itkBooleanMacro(FillHolesFlag);
 
+    // Separate lungs
+    itkSetMacro(SeparateLungsFlag, bool);
+    itkGetConstMacro(SeparateLungsFlag, bool);
+    itkBooleanMacro(SeparateLungsFlag);
+
     // Step Auto Crop
     itkSetMacro(AutoCrop, bool);
     itkGetConstMacro(AutoCrop, bool);
@@ -250,6 +255,8 @@ namespace clitk {
     bool m_FillHolesFlag;    
     InputImageSizeType m_FillHolesDirections;
 
+    bool m_SeparateLungsFlag;
+    
     // Main functions
     virtual void GenerateOutputInformation();
     virtual void GenerateInputRequestedRegion();
