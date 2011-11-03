@@ -1,4 +1,4 @@
-#! /bin/sh +x
+#! /bin/sh -x
 
 ###############################################################################
 #
@@ -9,7 +9,72 @@
 #
 ###############################################################################
 
+#
+# check return value passed and abort if it represents an error (ie, ret != 0)
+# optionally, a function can be passed as a 3rd parameter, to be called just
+# before exiting. this is useful for cleaning up, for example.
+#
+abort_on_error()
+{
+  if [ $2 != 0 ]; then
+    echo Aborted at $1 with code $2
+    if [ $# = 3 ]; then
+      eval $3
+    fi
 
+    exit $2
+  fi
+}
+
+#
+# wait for all processes in the list and return their exit codes
+# in the ret_codes variable.
+#
+# OBS: this function must always be called in the same shell
+# that launched the processes.
+#
+wait_pids()
+{
+  local pids=$*
+  local ret=
+  local rets=
+#   echo PIDS: $pids
+  for p in $pids; do
+#     echo waiting $p
+    wait $p > /dev/null 2> /dev/null
+    ret=$?
+    if [ ret != 127 ]; then
+      rets=$rets" "$ret
+    else
+      rets=$rets" "0
+    fi
+      
+  done
+
+  ret_codes=$rets
+}
+
+#
+# clean-up functions for maks, registration, and midp
+#
+clean_up_masks()
+{
+  rm -fr $mask_dir_tmp
+}
+
+clean_up_midp()
+{
+  rm -fr $midp_dir
+}
+
+clean_up_registration()
+{
+  rm -fr $vf_dir
+  rm -fr $output_dir
+}
+
+
+#
 # block execution untill the number of threads (jobs) launched by the
 # current process is below the given number of threads. 
 MAX_THREADS=2

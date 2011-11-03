@@ -60,7 +60,7 @@ int main(int argc, char * argv[])
   if (args_info.type_given) filter->SetOutputPixelType(args_info.type_arg);
 
   // Go !
-  filter->Update();
+  CLITK_TRY_CATCH_EXIT(filter->Update());
 
   // this is the end my friend
   return 0;

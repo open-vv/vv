@@ -31,6 +31,8 @@
 #
 ###############################################################################
 
+source `dirname $0`/midp_common.sh
+
 
 ################# BLUTDIR #####################
 registration_blutdir()
@@ -56,6 +58,8 @@ registration_blutdir()
   blutdir_params="--levels $nb_levels  --metric $metric --optimizer $optimizer --samples $nb_samples --spacing $spacing,$spacing,$spacing --bins $hist_bins --maxIt $nb_iter --interp $interpolator --verbose"
   cmd="clitkBLUTDIR -r $reference -t $target -m $mask_ref --targetMask $mask_targ --vf $vf -o $result $blutdir_params"
   $cmd > $log
+
+  abort_on_error registration_blutdir $? clean_up_registration
 }
 
 ################# ELASTIX #####################
@@ -105,10 +109,12 @@ registration_elastix()
   # image registration
   cmd="elastix -f $reference -m $target -fMask $mask_ref -mMask $mask_targ -out $result_dir -p params_BSpline_${suffix}.txt"
   $cmd  > /dev/null
+  abort_on_error registration_elastix $? clean_up_registration
 
   # generate vector field
   cmd="transformix -tp $result_dir/TransformParameters.0.txt -out $vf_dir -def all"
   $cmd  > /dev/null
+  abort_on_error registration_elastix $? clean_up_registration
 
   # post-processing
   mv $vf_dir/deformationField.mhd $vf

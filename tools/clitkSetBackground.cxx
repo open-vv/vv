@@ -34,7 +34,7 @@ int main(int argc, char * argv[])
   clitk::SetBackgroundGenericFilter::Pointer genericFilter=clitk::SetBackgroundGenericFilter::New();
 
   genericFilter->SetArgsInfo(args_info);
-  genericFilter->Update();
+  CLITK_TRY_CATCH_EXIT(genericFilter->Update());
 
   return EXIT_SUCCESS;
 }// end main
