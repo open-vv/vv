@@ -21,12 +21,31 @@
 
 // clitk
 #include "clitkStructuresExtractionFilter.h"
+#include "clitkLabelImageOverlapMeasureFilter.h"
 
 // vtk
 #include <vtkPolyData.h>
 
 namespace clitk {
   
+  class SupportLimitsType {
+  public:
+    std::string station_limit;
+    std::string station;
+    std::string structure_limit;
+    std::string structure;
+    double offset;
+    void Read(istream & is) {
+      is >> station_limit;
+      is >> station;
+      is >> structure_limit;
+      is >> structure;
+      std::string s;
+      is >> s;
+      offset = atof(s.c_str());
+    }
+  };
+
   //--------------------------------------------------------------------
   /*
     Try to extract the LymphStations part of a thorax CT.
@@ -106,9 +125,16 @@ namespace clitk {
     double GetFuzzyThreshold(std::string station, std::string tag);
     void SetThreshold(std::string station, std::string tag, double value);
     double GetThreshold(std::string station, std::string tag);
-    itkGetConstMacro(ComputeStationsSupportsFlag, bool);
-    itkSetMacro(ComputeStationsSupportsFlag, bool);
-    itkBooleanMacro(ComputeStationsSupportsFlag);
+    itkGetConstMacro(ForceSupportsFlag, bool);
+    itkSetMacro(ForceSupportsFlag, bool);
+    itkBooleanMacro(ForceSupportsFlag);
+
+    itkGetConstMacro(CheckSupportFlag, bool);
+    itkSetMacro(CheckSupportFlag, bool);
+    itkBooleanMacro(CheckSupportFlag);
+
+    itkGetConstMacro(SupportLimitsFilename, std::string);
+    itkSetMacro(SupportLimitsFilename, std::string);
 
   protected:
     ExtractLymphStationsFilter();
@@ -137,9 +163,18 @@ namespace clitk {
     MaskImagePixelType m_BackgroundValue;
     MaskImagePixelType m_ForegroundValue;
     std::map<std::string, bool> m_ComputeStationMap;
+    std::string m_SupportLimitsFilename;
+    std::vector<SupportLimitsType> m_ListOfSupportLimits;
 
     bool CheckForStation(std::string station);
     void Remove_Structures(std::string station, std::string s);
+    void WriteImageSupport(std::string support);
+    void WriteImageStation(std::string station);
+    void ComputeOverlapWithRef(std::string station);
+    void Support_SI_Limit(const std::string station_limit, const std::string station, 
+                          const std::string structure_limit, const std::string structure, 
+                          const double offset);
+    void ReadSupportLimits(std::string filename);
 
     // Functions common to several stations
     double FindCarina();
@@ -159,17 +194,10 @@ namespace clitk {
 
     // Station's supports
     void ExtractStationSupports();
-    void Support_SupInf_S1RL();
     void Support_LeftRight_S1R_S1L();
-    void Support_SupInf_S2R_S2L();
     void Support_LeftRight_S2R_S2L();
-    void Support_SupInf_S4R_S4L();
     void Support_LeftRight_S4R_S4L();
     void Support_Post_S1S2S4();
-    void Support_S3P();
-    void Support_S3A();
-    void Support_S5();
-    void Support_S6();
 
     MaskImagePointer LimitsWithTrachea(MaskImageType * input, 
                                        int extremaDirection, int lineDirection, 
@@ -226,7 +254,8 @@ namespace clitk {
 
     // Station 4RL
     void ExtractStation_4RL_SetDefaultValues();
-    void ExtractStation_4RL();
+    void ExtractStation_4L();
+    void ExtractStation_4R();
     void ExtractStation_S4L_S5_Limits_Aorta_LeftPulmonaryArtery(int KeepPoint);
 
     // Station 5
@@ -249,7 +278,8 @@ namespace clitk {
     void ExtractStation_7_Posterior_Limits();   
     void ExtractStation_7_Remove_Structures();
     bool m_S7_UseMostInferiorPartOnlyFlag;
-    bool m_ComputeStationsSupportsFlag;
+    bool m_ForceSupportsFlag;
+    bool m_CheckSupportFlag;
     MaskImagePointer m_Working_Trachea;
     MaskImagePointer m_LeftBronchus;
     MaskImagePointer m_RightBronchus;

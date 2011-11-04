@@ -55,7 +55,9 @@ ExtractLymphStationsFilter():
   this->SetNumberOfRequiredInputs(1);
   SetBackgroundValue(0);
   SetForegroundValue(1);
-  ComputeStationsSupportsFlagOn();
+  ForceSupportsFlagOn();
+  SetSupportLimitsFilename("none");
+  CheckSupportFlagOff();
 
   // Default values
   ExtractStation_3P_SetDefaultValues();
@@ -84,34 +86,39 @@ GenerateOutputInformation() {
   m_Mediastinum = this->GetAFDB()->template GetImage <MaskImageType>("Mediastinum");
 
   // Clean some computer landmarks to force the recomputation
+  // FIXME -> to put elsewhere ?
   this->GetAFDB()->RemoveTag("AntPostVesselsSeparation");
 
-  // Global supports for stations
+  // Must I compute the supports ?
   bool supportsExist = true;
-  try {
-    m_ListOfSupports["S1R"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S1R");
-    m_ListOfSupports["S1L"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S1L");
-    m_ListOfSupports["S2R"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S2R");
-    m_ListOfSupports["S2L"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S2L");
-    m_ListOfSupports["S4R"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S4R");
-    m_ListOfSupports["S4L"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S4L");
-    
-    m_ListOfSupports["S3A"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S3A");
-    m_ListOfSupports["S3P"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S3P");
-    m_ListOfSupports["S5"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S5");
-    m_ListOfSupports["S6"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S6");
-    m_ListOfSupports["S7"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S7");
-    m_ListOfSupports["S8"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S8");
-    m_ListOfSupports["S9"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S9");
-    m_ListOfSupports["S10"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S10");
-    m_ListOfSupports["S11"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S11");
-  } catch(clitk::ExceptionObject o) {
-    supportsExist = false;
+  if (!GetForceSupportsFlag()) {
+    try {
+      m_ListOfSupports["S1R"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S1R");
+      m_ListOfSupports["S1L"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S1L");
+      m_ListOfSupports["S2R"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S2R");
+      m_ListOfSupports["S2L"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S2L");
+      m_ListOfSupports["S4R"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S4R");
+      m_ListOfSupports["S4L"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S4L");
+      
+      m_ListOfSupports["S3A"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S3A");
+      m_ListOfSupports["S3P"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S3P");
+      m_ListOfSupports["S5"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S5");
+      m_ListOfSupports["S6"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S6");
+      m_ListOfSupports["S7"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S7");
+      m_ListOfSupports["S8"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S8");
+      m_ListOfSupports["S9"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S9");
+      m_ListOfSupports["S10"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S10");
+      m_ListOfSupports["S11"] = this->GetAFDB()->template GetImage<MaskImageType>("Support_S11");
+    } catch(clitk::ExceptionObject o) {
+      supportsExist = false;
+    }
   }
 
-  if (!supportsExist || GetComputeStationsSupportsFlag()) {
+  if (!supportsExist || GetForceSupportsFlag()) {
     this->StartNewStep("Supports for stations");
     this->StartSubStep(); 
+    
+    // FIXME : why should I remove theses tags ???
     this->GetAFDB()->RemoveTag("CarinaZ");
     this->GetAFDB()->RemoveTag("ApexOfTheChestZ");
     this->GetAFDB()->RemoveTag("ApexOfTheChest");
@@ -130,11 +137,12 @@ GenerateOutputInformation() {
   ExtractStation_2RL();
   ExtractStation_3P();
   ExtractStation_3A();
-  ExtractStation_4RL();
+  ExtractStation_4R();
+  ExtractStation_4L();
   ExtractStation_5();
   ExtractStation_6();
 
-  // ---------- TODO -----------------------
+  // ---------- todo -----------------------
 
   // Extract Station8
   //  ExtractStation_8();
@@ -165,7 +173,7 @@ void
 clitk::ExtractLymphStationsFilter<TImageType>::
 GenerateData() {
   // Final Step -> graft output (if SetNthOutput => redo)
-  this->GraftOutput(m_ListOfStations["8"]);
+  // this->GraftOutput(m_ListOfStations["8"]);
 }
 //--------------------------------------------------------------------
   
@@ -180,25 +188,29 @@ CheckForStation(std::string station)
   std::string s = "Station"+station;
   
 
+  // Define the starting support 
+  // if (GetComputeStation(station)) {
+  //   std::cout << "Station " << station << " already exists, but re-computation forced." << std::endl;
+  // }
+  if (GetComputeStation(station)) {
+    m_Working_Support = m_Mediastinum = this->GetAFDB()->template GetImage<MaskImageType>("Mediastinum", true);
+    return true;
+  }
+  else return false;
+  // else {
+  //   std::cout << "Station " << station << " found. I used it" << std::endl;
+  //   return false;
+  // }
+
   // Check if station already exist in DB
+  
+  // FIXME -> do nothing if not on the command line. Is it what I want ?
   bool found = false;
   if (this->GetAFDB()->TagExist(s)) {
     m_ListOfStations[station] = this->GetAFDB()->template GetImage<MaskImageType>(s);
     found = true;
   }
 
-  // Define the starting support 
-  if (found && GetComputeStation(station)) {
-    std::cout << "Station " << station << " already exists, but re-computation forced." << std::endl;
-  }
-  if (!found || GetComputeStation(station)) {
-    m_Working_Support = m_Mediastinum = this->GetAFDB()->template GetImage<MaskImageType>("Mediastinum", true);
-    return true;
-  }
-  else {
-    std::cout << "Station " << station << " found. I used it" << std::endl;
-    return false;
-  }
 }
 //--------------------------------------------------------------------
 
@@ -471,6 +483,8 @@ FindApexOfTheChest()
     z = this->GetAFDB()->GetDouble("ApexOfTheChestZ");
   }
   catch(clitk::ExceptionObject e) {
+
+    /*
     //DD("FindApexOfTheChestPosition");
     MaskImagePointer Lungs = this->GetAFDB()->template GetImage<MaskImageType>("Lungs");
     MaskImagePointType p;
@@ -486,6 +500,23 @@ FindApexOfTheChest()
     this->GetAFDB()->SetDouble("ApexOfTheChestZ", p[2]);
     this->WriteAFDB();
     z = p[2];
+    */
+    
+    // the superior border becomes the more inferior of the two apices
+    MaskImagePointer RightLung = this->GetAFDB()->template GetImage<MaskImageType>("RightLung");
+    MaskImagePointer LeftLung = this->GetAFDB()->template GetImage<MaskImageType>("LeftLung");
+    MaskImagePointType pr;
+    MaskImagePointType pl;
+    clitk::FindExtremaPointInAGivenDirection<MaskImageType>(RightLung, GetBackgroundValue(), 2, false, pr);
+    clitk::FindExtremaPointInAGivenDirection<MaskImageType>(LeftLung, GetBackgroundValue(), 2, false, pl);
+    // We dont need Lungs structure from now
+    this->GetAFDB()->template ReleaseImage<MaskImageType>("RightLung");
+    this->GetAFDB()->template ReleaseImage<MaskImageType>("LeftLung");
+    // Put inside the AFDB
+    if (pr[2] < pl[2]) z = pr[2];
+    else z = pl[2];
+    this->GetAFDB()->SetDouble("ApexOfTheChestZ", z);
+    this->WriteAFDB();
   }
   return z;
 }
@@ -1383,6 +1414,65 @@ FindAntPostVessels2()
 }
 //--------------------------------------------------------------------
 
+//--------------------------------------------------------------------
+template <class ImageType>
+void
+clitk::ExtractLymphStationsFilter<ImageType>::
+WriteImageSupport(std::string support)
+{
+  writeImage<MaskImageType>(m_ListOfSupports[support], this->GetAFDBPath()+"/"+"seg/Support_"+support+".mha");
+  this->GetAFDB()->SetImageFilename("Support_"+support, "seg/Support_"+support+".mha");
+}
+//--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
+template <class ImageType>
+void
+clitk::ExtractLymphStationsFilter<ImageType>::
+WriteImageStation(std::string station)
+{
+  writeImage<MaskImageType>(m_ListOfStations[station], GetAFDB()->GetPath()+"/seg/Station"+station+".mha");
+  GetAFDB()->SetImageFilename("Station"+station, "seg/Station"+station+".mha"); 
+  WriteAFDB();
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class ImageType>
+void
+clitk::ExtractLymphStationsFilter<ImageType>::
+ComputeOverlapWithRef(std::string station)
+{
+  if (GetComputeStation(station)) {
+    MaskImagePointer ref = this->GetAFDB()->template GetImage <MaskImageType>("Station"+station+"_Ref");
+    typedef clitk::LabelImageOverlapMeasureFilter<MaskImageType> FilterType;
+    typename FilterType::Pointer filter = FilterType::New();
+    filter->SetInput(0, m_ListOfStations[station]);
+    filter->SetInput(1, ref);
+    filter->Update();
+  }
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+template <class ImageType>
+void
+clitk::ExtractLymphStationsFilter<ImageType>::
+ReadSupportLimits(std::string filename)
+{
+  m_ListOfSupportLimits.clear();
+  ifstream is;
+  openFileForReading(is, filename);
+  while (is) {
+    skipComment(is);
+    SupportLimitsType s;
+    s.Read(is);
+    if (is) m_ListOfSupportLimits.push_back(s);
+  }
+}
+//--------------------------------------------------------------------
 
 #endif //#define CLITKBOOLEANOPERATORLABELIMAGEFILTER_TXX
+

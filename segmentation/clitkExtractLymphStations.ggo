@@ -3,26 +3,30 @@ package "clitkExtractLymphStations"
 version "1.0"
 purpose "Extract LymphStations with help of TODO"
 
-option "config" - "Config file" string no
-option "imagetypes" - "Display allowed image types" flag off
-option "verbose" v "Verbose" flag off
-option "verboseStep" - "Verbose each step" flag off
-option "writeStep" w "Write image at each step" flag off
-option "verboseOption" - "Display options values" flag off
-option "verboseWarningOff" - "Do not display warning" flag off
-option "verboseMemory" - "Display memory usage" flag off
+option "config"             - "Config file"                 string no
+option "imagetypes"         - "Display allowed image types" flag   off
+option "verbose"            v "Verbose"                     flag   off
+option "verboseStep"        - "Verbose each step"           flag   off
+option "writeStep"          w "Write image at each step"    flag   off
+option "verboseOption"      - "Display options values"      flag   off
+option "verboseWarningOff"  - "Do not display warning"      flag   off
+option "verboseMemory"      - "Display memory usage"        flag   off
 
 section "I/O"
 
-option "afdb" a "Input Anatomical Feature DB" string no
-option "afdb_path" p "Input path for image in AFDB" string no
-option "input" i "Input filename" string no
-option "output" o "Output lungs mask filename" string no
+option "afdb"       a "Input Anatomical Feature DB"  string no
+option "afdb_path"  p "Input path for image in AFDB" string default="./" no
+option "input"      i "Input filename"               string no
+option "support_limits" - "Filename to read the support limits"                           string yes
+option "check_support_limits" - "Display stat on the support limits" flag off
+option "output"     o "Output lungs mask filename"   string no
 
 section "Options for all stations"
-option "station" - "Force to compute station even if already exist in the DB" string no multiple
-option "nosupport" - "Do not recompute the station supports if already available" flag off
-option "relpos" - "List of filenames for relativeposition operations" string no multiple
+option "force_support"  - "Force to compute all supports even if already available"       flag   off
+option "station"        - "Force to compute this station even if already exist in the DB" string no multiple
+option "relpos"         - "List of filenames for relativeposition operations"             string no multiple
+
+
 
 # section "Options for Station 3A"
 # section "Options for Station 2RL"
