@@ -30,14 +30,14 @@ namespace clitk {
     is >> index.patient; 
     is >> index.station;
     is >> index.object;
-    is >> index.orientation.angle1; 
-    index.orientation.angle1 = clitk::deg2rad(index.orientation.angle1);
-    is >> index.orientation.angle2;
-    index.orientation.angle2 = clitk::deg2rad(index.orientation.angle2);
+    is >> index.direction.angle1; 
+    index.direction.angle1 = clitk::deg2rad(index.direction.angle1);
+    is >> index.direction.angle2;
+    index.direction.angle2 = clitk::deg2rad(index.direction.angle2);
     std::string s;
     is >> s;
-    if (s=="true") index.orientation.notFlag = true;
-    else index.orientation.notFlag = false;
+    if (s=="true") index.direction.notFlag = true;
+    else index.direction.notFlag = false;
   }
   //--------------------------------------------------------------------
  
@@ -55,7 +55,6 @@ namespace clitk {
   //--------------------------------------------------------------------
   void RelativePositionDataBase::Read(const std::string & filename)
   {
-    DD(filename);
     std::ifstream is;
     openFileForReading(is, filename);
 
@@ -75,19 +74,19 @@ namespace clitk {
         }
         MapByObjectType & s = m_DB[index.station];
         
-        // Get Orientation map from Object
+        // Get Direction map from Object
         if (s.find(index.object) == s.end()) {
-          MapByOrientationType r;
+          MapByDirectionType r;
           s[index.object] = r;
         }
-        MapByOrientationType & r = s[index.object];
+        MapByDirectionType & r = s[index.object];
         
-        // Get Patient map from Orientation
-        if (r.find(index.orientation) == r.end()) {
+        // Get Patient map from Direction
+        if (r.find(index.direction) == r.end()) {
           MapByPatientType q;
-          r[index.orientation] = q;
+          r[index.direction] = q;
         }
-        MapByPatientType & q = r[index.orientation];
+        MapByPatientType & q = r[index.direction];
 
         // Set value by patient
         q[index.patient] = v;
@@ -98,14 +97,13 @@ namespace clitk {
         
       } // End insertion
     } // end loop reading
-    DD("end read");
   }
   //--------------------------------------------------------------------
 
   
   //--------------------------------------------------------------------
-  const RelativePositionDataBase::MapByOrientationType & 
-  RelativePositionDataBase::GetMapByOrientation(const IndexType & index) const
+  const RelativePositionDataBase::MapByDirectionType & 
+  RelativePositionDataBase::GetMapByDirection(const IndexType & index) const
   {
     const MapByObjectType & a = GetMapByObject(index.station);
     if (a.find(index.object) == a.end()) {
@@ -132,13 +130,13 @@ namespace clitk {
   const RelativePositionDataBase::MapByPatientType & 
   RelativePositionDataBase::GetMapByPatient(const IndexType & index) const
   {
-    const MapByOrientationType & a = GetMapByOrientation(index);
-    if (a.find(index.orientation) == a.end()) {
+    const MapByDirectionType & a = GetMapByDirection(index);
+    if (a.find(index.direction) == a.end()) {
       std::ostringstream s;
-      index.orientation.Print(s);
-      clitkExceptionMacro("Could not find index in DB (orientation= '" << s.str() << "' not found).");
+      index.direction.Print(s);
+      clitkExceptionMacro("Could not find index in DB (direction= '" << s.str() << "' not found).");
     }
-    return a.find(index.orientation)->second;
+    return a.find(index.direction)->second;
   }
   //--------------------------------------------------------------------
   
@@ -208,15 +206,15 @@ namespace clitk {
 
   //--------------------------------------------------------------------
   void
-  RelativePositionDataBase::GetListOfOrientations(const std::string & station, 
+  RelativePositionDataBase::GetListOfDirections(const std::string & station, 
                                                   const std::string & object, 
-                                                  std::vector<RelativePositionOrientationType> & orientations) const
+                                                  std::vector<RelativePositionDirectionType> & directions) const
   {
     IndexType i;
     i.station = station;
     i.object = object;
-    const MapByOrientationType & n = GetMapByOrientation(i);
-    MapToVecFirst(n, orientations);    
+    const MapByDirectionType & n = GetMapByDirection(i);
+    MapToVecFirst(n, directions);    
   }
   //--------------------------------------------------------------------
 
