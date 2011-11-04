@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/sh -x
 
 ###############################################################################
 #
@@ -85,6 +85,7 @@ registration()
       clitkZeroVF -i $vf_in -o vf_zero.mhd
       abort_on_error registration $? clean_up_registration
 
+      patient_mask=$mask_dir/patient_mask_$phase_nb.mhd
       clitkCombineImage -i $vf_result -j vf_zero.mhd -m $patient_mask -o $vf_result
       abort_on_error registration $? clean_up_registration
 

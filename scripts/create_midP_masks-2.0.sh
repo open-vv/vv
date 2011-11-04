@@ -42,9 +42,11 @@ extract_bones()
 
 extract_lungs()
 {
-  echo "$phase_file -> Extracting lungs..."
-  clitkExtractLung -i $phase_file -o $mask_dir_tmp/lungs_$phase_nb.mhd -a $afdb_file --noAutoCrop
+  echo "$phase_file -> Extracting lungs..."  
+  clitkExtractLung -i $phase_file -o $mask_dir_tmp/lungs_$phase_nb.mhd -a $afdb_file --noAutoCrop --doNotSeparateLungs
 }
+
+
 
 resample()
 {
@@ -62,7 +64,7 @@ compute_motion_mask()
     FillingLevel=94
   fi
 
-  clitkMotionMask -i $mask_dir_tmp/patient_$phase_nb.mh -o $mask_dir_tmp/mm_$phase_nb.mhd --featureLungs $mask_dir_tmp/lungs_$phase_nb.mhd --upperThresholdLungs -400 --fillingLevel $FillingLevel --offsetDetect $MotionMaskOffsetDetect --pad --writeFeature=$mask_dir_tmp/feature_$phase_nb.mhd $MotionMaskExtra 
+  clitkMotionMask -i $mask_dir_tmp/patient_$phase_nb.mhd -o $mask_dir_tmp/mm_$phase_nb.mhd --featureLungs $mask_dir_tmp/lungs_$phase_nb.mhd --upperThresholdLungs -400 --fillingLevel $FillingLevel --offsetDetect $MotionMaskOffsetDetect --pad --writeFeature=$mask_dir_tmp/feature_$phase_nb.mhd $MotionMaskExtra 
   #--monitor=$mask_dir_tmp/monitor_$phase_nb.mhd
 }
 
