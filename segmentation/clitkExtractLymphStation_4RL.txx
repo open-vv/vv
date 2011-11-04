@@ -14,20 +14,42 @@ ExtractStation_4RL_SetDefaultValues()
 template <class TImageType>
 void 
 clitk::ExtractLymphStationsFilter<TImageType>::
-ExtractStation_4RL() {
-  if ((!CheckForStation("4R")) && (!CheckForStation("4L"))) return;
-
-  StartNewStep("Stations 4RL");
+ExtractStation_4R() {
+  if (!CheckForStation("4R")) return;
+  StartNewStep("Stations 4R");
   StartSubStep(); 
 
   // Get the current support 
-  StartNewStep("[Station 4RL] Get the current 4RL suppport");
+  StartNewStep("[Station 4R] Get the current 4RL suppport");
   m_ListOfStations["4R"] = m_ListOfSupports["S4R"];
-  m_ListOfStations["4L"] = m_ListOfSupports["S4L"];
   StopCurrentStep<MaskImageType>(m_ListOfStations["4R"]);
     
   // Generic RelativePosition processes
   m_ListOfStations["4R"] = this->ApplyRelativePositionList("Station_4R", m_ListOfStations["4R"]);
+
+  // Store image filenames into AFDB 
+  WriteImageStation("4R");
+  StopSubStep();
+  ComputeOverlapWithRef("4R");
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class TImageType>
+void 
+clitk::ExtractLymphStationsFilter<TImageType>::
+ExtractStation_4L() {
+  if (!CheckForStation("4L")) return;
+  StartNewStep("Stations 4L");
+  StartSubStep(); 
+
+  // Get the current support 
+  StartNewStep("[Station 4L] Get the current 4RL suppport");
+  m_ListOfStations["4L"] = m_ListOfSupports["S4L"];
+  StopCurrentStep<MaskImageType>(m_ListOfStations["4L"]);
+    
+  // Generic RelativePosition processes
   m_ListOfStations["4L"] = this->ApplyRelativePositionList("Station_4L", m_ListOfStations["4L"]);
 
   // Separation Ant/Post
@@ -43,13 +65,9 @@ ExtractStation_4RL() {
   StopCurrentStep<MaskImageType>(m_ListOfStations["4L"]);
 
   // Store image filenames into AFDB 
-  writeImage<MaskImageType>(m_ListOfStations["4R"], "seg/Station4R.mhd");
-  writeImage<MaskImageType>(m_ListOfStations["4L"], "seg/Station4L.mhd");
-  GetAFDB()->SetImageFilename("Station4R", "seg/Station4R.mhd"); 
-  GetAFDB()->SetImageFilename("Station4L", "seg/Station4L.mhd"); 
-  WriteAFDB(); 
+  WriteImageStation("4L");
   StopSubStep();
-
+  ComputeOverlapWithRef("4L");
 }
 //--------------------------------------------------------------------
 
