@@ -92,9 +92,10 @@ namespace clitk {
     void AddOrientationType(OrientationTypeEnumeration orientation);
     void AddOrientationTypeString(std::string s);
     void ClearOrientationType();
-    void AddAngles(double a, double b);
-    double GetAngle1(int i) { return m_Angle1[i]; }
-    double GetAngle2(int i) { return m_Angle2[i]; }
+    void AddAnglesInRad(double a, double b);
+    void AddAnglesInDeg(double a, double b);
+    double GetAngle1InRad(int i) { return m_Angle1[i]; }
+    double GetAngle2InRad(int i) { return m_Angle2[i]; }
     int GetNumberOfAngles();
     std::string GetOrientationTypeString(int i) { return m_OrientationTypeString[i]; }
     std::vector<std::string> & GetOrientationTypeString() { return m_OrientationTypeString; }
