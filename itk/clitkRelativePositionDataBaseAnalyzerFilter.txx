@@ -61,16 +61,16 @@ Update()
     // DD(m_ListOfObjects[i]);
     // Set current index
     index.object = m_ListOfObjects[i];
-    // Get the list of orientation
-    std::vector<clitk::RelativePositionOrientationType> m_ListOfOrientations;
-    db.GetListOfOrientations(GetStationName(), index.object, m_ListOfOrientations);
+    // Get the list of direction
+    std::vector<clitk::RelativePositionDirectionType> m_ListOfDirections;
+    db.GetListOfDirections(GetStationName(), index.object, m_ListOfDirections);
     
-    // Loop over orientation
-    for(int j=0; j<m_ListOfOrientations.size(); j++) {
+    // Loop over direction
+    for(int j=0; j<m_ListOfDirections.size(); j++) {
       // DD(j);
-      // m_ListOfOrientations[j].Println();
+      // m_ListOfDirections[j].Println();
       // Set current index
-      index.orientation = m_ListOfOrientations[j];
+      index.direction = m_ListOfDirections[j];
       // Compute the best RelPos parameters 
       double threshold;
       bool ok = ComputeOptimalThreshold(index, threshold);
@@ -78,9 +78,15 @@ Update()
       
       // Print debug FIXME
       if (ok) {
-        std::cout << m_ListOfObjects[i] << " ";
-        m_ListOfOrientations[j].Print();
+        /*std::cout << m_ListOfObjects[i] << " ";
+        m_ListOfDirections[j].Print();
         std::cout << " " << threshold << " " << ok << std::endl;
+        */
+        std::cout << "# -----------------------" << std::endl
+                  << "object = " << m_ListOfObjects[i] << std::endl;
+        m_ListOfDirections[j].PrintOptions();
+        std::cout << "threshold = " << threshold << std::endl
+                  << "sliceBySlice" << std::endl << std::endl; // FIXME spacing ?
       }
     }
   }
@@ -96,36 +102,33 @@ ComputeOptimalThreshold(RelativePositionDataBaseIndexType & index, double & thre
   // Get list of patient
   std::vector<std::string> & ListOfPatients = db.GetListOfPatients(index);
   //  DD(ListOfPatients.size());
-  // index.orientation.Println();
+  // index.direction.Println();
 
-  // For a given station, object, orientation
+  // For a given station, object, direction
   bool stop=false;
   int i=0;
-  if (index.orientation.notFlag) threshold = 0.0;
+  if (index.direction.notFlag) threshold = 0.0;
   else threshold = 1.0;
   while (!stop && (i<ListOfPatients.size())) {
-    // DD(i);
     index.patient = ListOfPatients[i];
-    // std::cout << i << " " << index.patient << " ";
     // Check index
     if (!db.CheckIndex(index)) {
       std::cout << "Warning index does not exist in the DB. index = "; 
       index.Println(std::cout);
     }
     else {
-      // index = patient station object, orientation = angle1 angle2 notFlag
-      if (db.GetAreaGain(index) == 1.0) stop = true;
-      else {
-        if (index.orientation.notFlag) threshold = std::max(db.GetThreshold(index), threshold);
-        else threshold = std::min(db.GetThreshold(index), threshold);
-        // std::cout << db.GetThreshold(index) << " opt=" << threshold;
-      } 
+      if (index.direction.notFlag) threshold = std::max(db.GetThreshold(index), threshold);
+      else threshold = std::min(db.GetThreshold(index), threshold);
     }
     ++i;
+  } // end while
+
+  if (index.direction.notFlag)  {
+    if (threshold >=1) return false; // not useful
   }
-  // std::cout << std::endl;
-  // DD(threshold);
-  // DD(stop);
-  return !stop; // if stop before the end, this orientation is not useful.
+  else {
+    if (threshold <=0) return false; // not useful
+  }
+  return true;
 }
 //--------------------------------------------------------------------
