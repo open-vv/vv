@@ -20,18 +20,13 @@
 template <class ImageType>
 clitk::RelativePositionAnalyzerFilter<ImageType>::
 RelativePositionAnalyzerFilter():
-  // clitk::FilterBase(),
-  clitk::FilterWithAnatomicalFeatureDatabaseManagement(), 
   itk::ImageToImageFilter<ImageType, ImageType>()
 {
-  this->SetNumberOfRequiredInputs(3); // support, object, target
-  VerboseFlagOff();
+  this->SetNumberOfRequiredInputs(3); // Input : support, object, target
   SetBackgroundValue(0);
   SetForegroundValue(1);
   SetNumberOfBins(100);
-  SetNumberOfAngles(4);
   SetAreaLossTolerance(0.01);
-  m_ListOfAngles.clear();
   SetSupportSize(0);
   SetTargetSize(0);
   SetSizeWithThreshold(0);
@@ -106,20 +101,16 @@ void
 clitk::RelativePositionAnalyzerFilter<ImageType>::
 GenerateData() 
 {
-  this->LoadAFDB();
+  static const unsigned int dim = ImageType::ImageDimension;
   
-  // Get input pointer
-  m_Support = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
+  ImagePointer temp = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
   m_Object = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(1));
   m_Target = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(2));
-  static const unsigned int dim = ImageType::ImageDimension;
 
-  // Remove object from support
+  // Remove object from support (keep initial image)
+  m_Support = clitk::Clone<ImageType>(temp);
   clitk::AndNot<ImageType>(m_Support, m_Object, GetBackgroundValue());
   
-  // Resize object like target (to enable substraction later)
-  ImagePointer objectLikeTarget = clitk::ResizeImageLike<ImageType>(m_Object, m_Target, GetBackgroundValue());
-
   // Define filter to compute statics on mask image
   typedef itk::LabelStatisticsImageFilter<ImageType, ImageType> StatFilterType;
   typename StatFilterType::Pointer statFilter = StatFilterType::New();
@@ -139,82 +130,63 @@ GenerateData()
   SetTargetSize(statFilter->GetCount(GetForegroundValue()));
   // DD(GetTargetSize());
 
-  // Build the list of tested orientations
-  m_ListOfAngles.clear();
-  for(uint i=0; i<GetNumberOfAngles(); i++) {
-    double a = i*360.0/GetNumberOfAngles();
-    if (a>180) a = 180-a;
-    m_ListOfAngles.push_back(clitk::deg2rad(a));
-    RelativePositionOrientationType r;
-    r.angle1 = clitk::deg2rad(a);
-    r.angle2 = 0;
-    r.notFlag = false;
-    m_ListOfOrientation.push_back(r);
-    r.notFlag = true;
-    m_ListOfOrientation.push_back(r);
-  }
-
-  // Loop on all orientations
+  //
   int bins = GetNumberOfBins();
   double tolerance = GetAreaLossTolerance();
-  for(int i=0; i<m_ListOfAngles.size(); i++) {
-    // Compute Fuzzy map
-    typename FloatImageType::Pointer map = ComputeFuzzyMap(objectLikeTarget, m_Target, m_ListOfAngles[i]);
-    writeImage<FloatImageType>(map, "fuzzy_"+toString(i)+".mha");
 
-    // Compute the optimal thresholds (direct and inverse)
-    double mThreshold=0.0;
-    double mReverseThreshold=1.0;
-    ComputeOptimalThresholds(map, m_Target, bins, tolerance, mThreshold, mReverseThreshold);
+  // Compute Fuzzy map
+  double angle = GetDirection().angle1;
+  typename FloatImageType::Pointer map = ComputeFuzzyMap(m_Object, m_Target, m_Support, angle);
+  writeImage<FloatImageType>(map, "fuzzy_"+toString(clitk::rad2deg(angle))+".mha");
 
-    // Use the threshold to compute new support
-    int s1 = GetSupportSize();
-    // DD(mThreshold);
-    // DD(mReverseThreshold);
-    if (mThreshold > 0.0) {
-      ImagePointer support1 = 
-        clitk::SliceBySliceRelativePosition<ImageType>(m_Support, m_Object, 2, 
-                                                       mThreshold,
-                                                       m_ListOfAngles[i],false,
-                                                       false, -1, true, false);
-      // writeImage<ImageType>(support1, "sup_"+toString(i)+".mha");
-      // Compute the new support size
-      statFilter->SetInput(support1);
-      statFilter->SetLabelInput(support1);
-      statFilter->Update();
-      s1 = statFilter->GetCount(GetForegroundValue());
-    }
-      
-    int s2 = GetSupportSize();
-    if (mReverseThreshold < 1.0) {
-      // DD(m_ListOfAngles[1]);
-      ImagePointer support2 = 
-        clitk::SliceBySliceRelativePosition<ImageType>(m_Support, m_Object, 2, 
-                                                       mReverseThreshold, 
-                                                       m_ListOfAngles[i],true,
-                                                       false, -1, true, false);
-      writeImage<ImageType>(support2, "sup_rev_"+toString(i)+".mha");
-      // Compute the new support size
-      statFilter = StatFilterType::New();
-      statFilter->SetInput(support2);
-      statFilter->SetLabelInput(support2);
-      statFilter->Update();
-      s2 = statFilter->GetCount(GetForegroundValue());
-    }
+  // Compute the optimal thresholds (direct and inverse)
+  double mThreshold=0.0;
+  double mReverseThreshold=1.0;
+  ComputeOptimalThresholds(map, m_Target, bins, tolerance, mThreshold, mReverseThreshold);
 
-    // Set results values
-    RelativePositionInformationType r;
-    r.threshold = mThreshold;
-    r.sizeAfterThreshold = s1; // DD(s1);
-    r.sizeBeforeThreshold = GetSupportSize();
-    r.sizeReference = GetTargetSize();
-    m_ListOfInformation.push_back(r);
-
-    r.threshold = mReverseThreshold;
-    r.sizeAfterThreshold = s2;     // DD(s2);
-    m_ListOfInformation.push_back(r);
-    // Print();
-  } // end loop on orientations
+  // Use the threshold to compute new support
+  int s1 = GetSupportSize();
+  if (mThreshold > 0.0) {
+    ImagePointer support1 = 
+      clitk::SliceBySliceRelativePosition<ImageType>(m_Support, m_Object, 2, 
+                                                     mThreshold,
+                                                     angle,false, // inverseFlag
+                                                     false,  // uniqueConnectedComponent
+                                                     -1, true, 
+                                                     false);//singleObjectCCL
+    // Compute the new support size
+    statFilter->SetInput(support1);
+    statFilter->SetLabelInput(support1);
+    statFilter->Update();
+    s1 = statFilter->GetCount(GetForegroundValue());
+  }
+  
+  int s2 = GetSupportSize();
+  if (mReverseThreshold < 1.0) {
+    ImagePointer support2 = 
+      clitk::SliceBySliceRelativePosition<ImageType>(m_Support, m_Object, 2, 
+                                                     mReverseThreshold, 
+                                                     angle,true,// inverseFlag
+                                                     false, // uniqueConnectedComponent
+                                                     -1, true, 
+                                                     false); //singleObjectCCL
+    // Compute the new support size
+    statFilter = StatFilterType::New();
+    statFilter->SetInput(support2);
+    statFilter->SetLabelInput(support2);
+    statFilter->Update();
+    s2 = statFilter->GetCount(GetForegroundValue());
+  }
+  
+  // Set results values
+  m_Info.threshold = mThreshold;
+  m_Info.sizeAfterThreshold = s1;
+  m_Info.sizeBeforeThreshold = GetSupportSize();
+  m_Info.sizeReference = GetTargetSize();
+  m_InfoReverse.threshold = mReverseThreshold;
+  m_InfoReverse.sizeAfterThreshold = s2;
+  m_InfoReverse.sizeBeforeThreshold = GetSupportSize();
+  m_InfoReverse.sizeReference = GetTargetSize();  
 }
 //--------------------------------------------------------------------
 
@@ -223,24 +195,27 @@ GenerateData()
 template <class ImageType>
 typename clitk::RelativePositionAnalyzerFilter<ImageType>::FloatImageType::Pointer
 clitk::RelativePositionAnalyzerFilter<ImageType>::
-ComputeFuzzyMap(ImageType * object, ImageType * target, double angle)
+ComputeFuzzyMap(ImageType * object, ImageType * target, ImageType * support, double angle)
 {
   typedef clitk::SliceBySliceRelativePositionFilter<ImageType> SliceRelPosFilterType;
   typedef typename SliceRelPosFilterType::FloatImageType FloatImageType;
   typename SliceRelPosFilterType::Pointer sliceRelPosFilter = SliceRelPosFilterType::New();
   sliceRelPosFilter->VerboseStepFlagOff();
   sliceRelPosFilter->WriteStepFlagOff();
-  sliceRelPosFilter->SetInput(target);
+  sliceRelPosFilter->SetInput(support);
   sliceRelPosFilter->SetInputObject(object);
   sliceRelPosFilter->SetDirection(2);
   sliceRelPosFilter->SetIntermediateSpacingFlag(false);
   //sliceRelPosFilter->AddOrientationTypeString(orientation);
-  sliceRelPosFilter->AddAngles(angle, 0.0);
+  sliceRelPosFilter->AddAnglesInRad(angle, 0.0);
   sliceRelPosFilter->FuzzyMapOnlyFlagOn(); // do not threshold, only compute the fuzzy map
   // sliceRelPosFilter->PrintOptions();
   sliceRelPosFilter->Update();
   typename FloatImageType::Pointer map = sliceRelPosFilter->GetFuzzyMap();
 
+  // Resize map like object to allow SetBackground
+  map = clitk::ResizeImageLike<FloatImageType>(map, object, GetBackgroundValue());
+  
   // Remove initial object from the fuzzy map
   map = clitk::SetBackground<FloatImageType, ImageType>(map, object, GetForegroundValue(), 0.0, true);
   
@@ -310,17 +285,3 @@ ComputeOptimalThresholds(FloatImageType * map, ImageType * target, int bins, dou
 }
 //--------------------------------------------------------------------
 
-
-//--------------------------------------------------------------------
-template <class ImageType>
-void
-clitk::RelativePositionAnalyzerFilter<ImageType>::
-Print(std::string s, std::ostream & os)
-{
-  for(int i=0; i<m_ListOfOrientation.size(); i++) {
-    os << s << " ";
-    m_ListOfOrientation[i].Print(os);
-    m_ListOfInformation[i].Println(os);
-  }
-}
-//--------------------------------------------------------------------

@@ -43,8 +43,6 @@ namespace clitk {
   
   template <class ImageType>
   class RelativePositionAnalyzerFilter:
-    // public virtual clitk::FilterBase, 
-    public clitk::FilterWithAnatomicalFeatureDatabaseManagement, 
     public itk::ImageToImageFilter<ImageType, ImageType>
   {
 
@@ -81,6 +79,9 @@ namespace clitk {
     void SetInputObject(const ImageType * image);
     void SetInputTarget(const ImageType * image);
     
+    // Input
+    // supportname, objectname multiple targetname
+    
     // Options
     itkGetConstMacro(BackgroundValue, PixelType);
     itkSetMacro(BackgroundValue, PixelType);
@@ -88,11 +89,11 @@ namespace clitk {
     itkGetConstMacro(ForegroundValue, PixelType);
     itkSetMacro(ForegroundValue, PixelType);
 
+    clitk::RelativePositionDirectionType & GetDirection() { return m_Direction; }
+    void SetDirection(clitk::RelativePositionDirectionType & d) { m_Direction = d; }
+
     itkGetConstMacro(NumberOfBins, int);
     itkSetMacro(NumberOfBins, int);
-
-    itkGetConstMacro(NumberOfAngles, int);
-    itkSetMacro(NumberOfAngles, int);
 
     itkGetConstMacro(AreaLossTolerance, double);
     itkSetMacro(AreaLossTolerance, double);
@@ -102,14 +103,14 @@ namespace clitk {
     itkGetConstMacro(SizeWithThreshold, int);
     itkGetConstMacro(SizeWithReverseThreshold, int);
 
-    std::vector<clitk::RelativePositionInformationType> & GetListOfInformation() { return m_ListOfInformation; }
-    std::vector<clitk::RelativePositionOrientationType> & GetListOfOrientation() { return m_ListOfOrientation; }
+    itkGetConstMacro(Info, clitk::RelativePositionInformationType);
+    itkGetConstMacro(InfoReverse, clitk::RelativePositionInformationType);
 
     // For debug
     void PrintOptions();
     
     // Print output
-    void Print(std::string s=" ", std::ostream & os=std::cout);
+    void Print(std::ostream & os=std::cout);
 
     // I dont want to verify inputs information
     virtual void VerifyInputInformation() { }
@@ -128,22 +129,21 @@ namespace clitk {
     ImagePointer m_Support;
     ImagePointer m_Object;
     ImagePointer m_Target;
-    int m_NumberOfAngles;
     int m_NumberOfBins;
     double m_AreaLossTolerance;
     int m_SupportSize;
     int m_TargetSize;
     int m_SizeWithReverseThreshold;
     int m_SizeWithThreshold;
-    std::vector<double> m_ListOfAngles;
-    std::vector<clitk::RelativePositionInformationType> m_ListOfInformation;
-    std::vector<clitk::RelativePositionOrientationType> m_ListOfOrientation;
+    clitk::RelativePositionDirectionType m_Direction;
+    clitk::RelativePositionInformationType m_Info;
+    clitk::RelativePositionInformationType m_InfoReverse;
     
     virtual void GenerateOutputInformation();
     virtual void GenerateData();
 
     typename FloatImageType::Pointer
-    ComputeFuzzyMap(ImageType * object, ImageType * target, double angle);
+    ComputeFuzzyMap(ImageType * object, ImageType * target, ImageType * support, double angle);
     
     void
     ComputeOptimalThresholds(FloatImageType * map, ImageType * target, int bins, double tolerance, 

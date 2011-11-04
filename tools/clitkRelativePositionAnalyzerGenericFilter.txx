@@ -64,11 +64,16 @@ template<class FilterType>
 void clitk::RelativePositionAnalyzerGenericFilter<ArgsInfoType>::
 SetOptionsFromArgsInfoToFilter(FilterType * f) 
 {
-  f->SetAFDBFilename(mArgsInfo.afdb_arg);
   f->SetNumberOfBins(mArgsInfo.bins_arg);
-  f->SetNumberOfAngles(mArgsInfo.nb_arg);
   f->SetAreaLossTolerance(mArgsInfo.tol_arg);
+  clitk::RelativePositionDirectionType d;
+  if (mArgsInfo.angle1_given) d.angle1 = clitk::deg2rad(mArgsInfo.angle1_arg);
+  if (mArgsInfo.angle2_given) d.angle2 = clitk::deg2rad(mArgsInfo.angle2_arg);
+  if (mArgsInfo.inverse_given) d.notFlag = clitk::deg2rad(mArgsInfo.inverse_flag);
+  f->SetDirection(d);
 }
+//--------------------------------------------------------------------
+
 
 //--------------------------------------------------------------------
 // Update with the number of dimensions and the pixeltype
@@ -97,19 +102,8 @@ UpdateWithInputImageType()
   filter->Update();
 
   // Display output
-  std::string s;
-  if (mArgsInfo.afdb_given) {
-    NewAFDB(afdb, mArgsInfo.afdb_arg);
-    std::string patient = afdb->GetTagValue("PatientID");
-    std::string support;
-    std::string object;
-    if (mArgsInfo.objectName_given) object = mArgsInfo.objectName_arg;
-    else object = mArgsInfo.object_arg;
-    if (mArgsInfo.supportName_given) support = mArgsInfo.supportName_arg;
-    else support = mArgsInfo.support_arg;
-    s = patient+" "+support+" "+object+" ";
-  }
-  filter->Print(s, std::cout);
+  filter->GetInfo().Println();
+  filter->GetInfoReverse().Println();
 }
 //--------------------------------------------------------------------
 

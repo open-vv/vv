@@ -144,7 +144,7 @@ UpdateWithInputImageType()
     filter->SetInput(input);
     filter->SetInputObject(object);
     if (mArgsInfo.angle1_given && mArgsInfo.angle2_given)
-      filter->AddAngles(mArgsInfo.angle1_arg, mArgsInfo.angle2_arg);
+      filter->AddAnglesInDeg(mArgsInfo.angle1_arg, mArgsInfo.angle2_arg);
     SetOptionsFromArgsInfoToFilter<FilterType>(filter);
    
     // Go !
