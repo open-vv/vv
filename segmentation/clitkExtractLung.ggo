@@ -61,4 +61,7 @@ section "Step 6 : fill holes"
 option "doNotFillHoles"		-  "Do not fill holes if set"                 flag on
 option "dir"    	        d  "Directions (axes) to perform filling (defaults to 2,1,0)"	int multiple no
 
+section "Step 7 : lung separation (labelling)"
+option "doNotSeparateLungs"   -  "Do not separate lungs if set"                 flag off
+
 option "noAutoCrop"	- 	"If set : do no crop final mask to BoundingBox"	                        flag 	off

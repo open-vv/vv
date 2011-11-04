@@ -16,38 +16,14 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
 
-/* =================================================
- * @file   clitkInvertVF.cxx
- * @author
- * @date
- *
- * @brief
- *
- ===================================================*/
+#include "clitkGateAsciiImageIOFactory.h"
 
-
-// clitk
-#include "clitkInvertVF_ggo.h"
-#include "clitkIO.h"
-#include "clitkInvertVFGenericFilter.h"
-
-
-//--------------------------------------------------------------------
-int main(int argc, char * argv[])
+//====================================================================
+clitk::GateAsciiImageIOFactory::GateAsciiImageIOFactory()
 {
-
-  // Init command line
-  GGO(clitkInvertVF, args_info);
-  CLITK_INIT;
-
-  // Filter
-  typedef clitk::InvertVFGenericFilter<args_info_clitkInvertVF> FilterType;
-  FilterType::Pointer genericFilter = FilterType::New();
-
-  genericFilter->SetArgsInfo(args_info);
-  CLITK_TRY_CATCH_EXIT(genericFilter->Update());
-
-  return EXIT_SUCCESS;
-}// end main
-
-//--------------------------------------------------------------------
+  this->RegisterOverride("itkImageIOBase",
+                         "GateAsciiImageIO",
+                         "GateAscii Image IO",
+                         1,
+                         itk::CreateObjectFunction<GateAsciiImageIO>::New());
+}

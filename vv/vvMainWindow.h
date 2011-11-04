@@ -40,6 +40,7 @@ class vtkRenderer;
 class vtkMatrix4x4;
 class vvDicomSeriesSelector;
 class vvSlicer;
+class QTreeWidget;
 
 //------------------------------------------------------------------------------
 class vvMainWindow: public vvMainWindowBase,
@@ -60,9 +61,12 @@ class vvMainWindow: public vvMainWindowBase,
   void AddContour(int image_index, vvMesh::Pointer contour, bool propagation);
   ///This is used to show an image when opened or computed
   void ShowLastImage();
+  void SaveCurrentStateAs(const std::string& stateFile);
+  void ReadSavedStateFile(const std::string& stateFile);
 
   virtual void UpdateCurrentSlicer();
   virtual QTabWidget * GetTab();
+  QTreeWidget* GetTree() { return DataTree; }
   //vvMainWindowToolInfo * GetInfoForTool();
 //   void AddRunningTool(vvToolCreatorBase * tool);
 
@@ -82,6 +86,8 @@ public slots:
   ///Open a vtkPolyData surface mesh and display it over the current image
   void OpenVTKContour();
   void SaveAs();
+  void SaveCurrentState();
+  void ReadSavedState();
   void CurrentImageChanged(std::string id);
   void CurrentPickedImageChanged(std::string id);
   void ImageInfoChanged();

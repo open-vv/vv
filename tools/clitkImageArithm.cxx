@@ -43,7 +43,7 @@ int main(int argc, char * argv[])
 
   // Go !
   filter->SetArgsInfo(args_info);
-  filter->Update();
+  CLITK_TRY_CATCH_EXIT(filter->Update());
 
   // this is the end my friend
   return EXIT_SUCCESS;

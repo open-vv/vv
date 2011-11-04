@@ -36,11 +36,7 @@ int main(int argc, char * argv[]) {
   // Passing the arguments to the generic filter
   filter->SetArgsInfo(args_info);
  
-  try {
-    filter->Update();
-  } catch(std::runtime_error e) {
-    std::cout << e.what() << std::endl;
-  }
+  CLITK_TRY_CATCH_EXIT(filter->Update());
 
   return EXIT_SUCCESS;
 } // This is the end, my friend

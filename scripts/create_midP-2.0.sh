@@ -80,8 +80,15 @@ registration()
       motion_mask=$mask_dir/mm_$phase_nb.mhd
       vf_result=$vf_dir/vf_${ref_phase_nb}_$phase_nb.mhd
       clitkCombineImage -i $vf_in -j $vf_out -m $motion_mask -o $vf_result
+      abort_on_error registration $? clean_up_registration
+
       clitkZeroVF -i $vf_in -o vf_zero.mhd
+      abort_on_error registration $? clean_up_registration
+
+      patient_mask=$mask_dir/patient_mask_$phase_nb.mhd
       clitkCombineImage -i $vf_result -j vf_zero.mhd -m $patient_mask -o $vf_result
+      abort_on_error registration $? clean_up_registration
+
       rm vf_zero.*
 
       # save for later...
@@ -91,6 +98,7 @@ registration()
 
   # create (zero) vf from reference to reference
   clitkZeroVF -i $vf_ref -o $vf_dir/vf_${ref_phase_nb}_${ref_phase_nb}.mhd
+  abort_on_error registration $? clean_up_registration
 
   # create 4D vf
   create_mhd_4D_pattern.sh $vf_dir/vf_${ref_phase_nb}_
@@ -120,14 +128,20 @@ midp()
   midp=$midp_dir/midp_$phase_nb.mhd
   # average the vf's from reference phase to phase
   clitkAverageTemporalDimension -i $vf_dir/vf_${ref_phase_nb}_4D.mhd -o $vf_midp
+  abort_on_error midp $? clean_up_midp
+
   # invert the vf (why?)
   clitkInvertVF -i $vf_midp -o $vf_midp
+  abort_on_error midp $? clean_up_midp
+
   # create the midp by warping the reference phase with the reference vf
   clitkWarpImage -i $ref_phase_file -o $midp --vf=$vf_midp -s 1
+  abort_on_error midp $? clean_up_midp
 
   ref_vf_midp=$vf_midp
   ref_midp=$midp
   clitkImageConvert -i $ref_midp -o $ref_midp -t float
+  abort_on_error midp $? clean_up_midp
 
   ########### calculate the midp wrt the other phases
   for i in $( seq 0 $((${#phase_files[@]} - 1))); do
@@ -141,16 +155,25 @@ midp()
       # calculate vf from phase to midp, using the vf from reference phase to midp (-i)
       # and the vf from reference phase to phase (-j)
       clitkComposeVF -i $ref_vf_midp -j $vf_dir/vf_$ref_phase_nb\_$phase_nb.mhd -o $vf_midp
+      abort_on_error midp $? clean_up_midp
+      
       clitkWarpImage -i $phase_file -o $midp --vf=$vf_midp -s 1
+      abort_on_error midp $? clean_up_midp
+      
       clitkImageConvert -i $midp -o $midp -t float
+      abort_on_error midp $? clean_up_midp
     fi
   done
 
   create_mhd_4D_pattern.sh $midp_dir/midp_
+
   echo "Calculating midp_avg.mhd..."
   clitkAverageTemporalDimension -i $midp_dir/midp_4D.mhd -o $midp_dir/midp_avg.mhd
+  abort_on_error midp $? clean_up_midp
+
   echo "Calculating midp_med.mhd..."
   clitkMedianTemporalDimension -i $midp_dir/midp_4D.mhd -o $midp_dir/midp_med.mhd
+  abort_on_error midp $? clean_up_midp
 
   # clean-up
   rm $midp_dir/vf_*

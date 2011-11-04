@@ -108,6 +108,11 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
     f->SetFillHolesFlag(false);
   else
     f->SetFillHolesFlag(true);
+
+  if (mArgsInfo.doNotSeparateLungs_given)
+    f->SetSeparateLungsFlag(false);
+  else
+    f->SetSeparateLungsFlag(true);
 }
 //--------------------------------------------------------------------
 

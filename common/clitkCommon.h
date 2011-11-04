@@ -48,6 +48,24 @@ namespace clitk {
   typedef unsigned char uchar;
   typedef unsigned short ushort;
   typedef unsigned int uint;
+  
+#define CLITK_TRY_CATCH_EXIT(func) \
+  try { \
+    func; \
+  } \
+  catch (const itk::ExceptionObject& e) { \
+    e.Print(std::cout); \
+    exit(-1);\
+  } \
+  catch (const std::exception& e) { \
+    std::cout << e.what() << std::endl; \
+    exit(-2);\
+  } \
+  catch (...) { \
+    std::cout << "Unknown excpetion" << std::endl; \
+    exit(-3); \
+  }
+    
 
   //--------------------------------------------------------------------
   // when everything goes wrong

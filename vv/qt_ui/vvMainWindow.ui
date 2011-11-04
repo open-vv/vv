@@ -626,7 +626,7 @@
            <number>2</number>
           </property>
           <item row="0" column="0">
-           <widget class="QVTKWidget" name="NOViewWidget" native="true">
+           <widget class="QVTKWidget" name="NOViewWidget">
             <property name="mouseTracking">
              <bool>true</bool>
             </property>
@@ -666,7 +666,7 @@
            <number>2</number>
           </property>
           <item row="0" column="0">
-           <widget class="QVTKWidget" name="SOViewWidget" native="true">
+           <widget class="QVTKWidget" name="SOViewWidget">
             <property name="mouseTracking">
              <bool>true</bool>
             </property>
@@ -708,7 +708,7 @@
            <number>2</number>
           </property>
           <item row="0" column="0">
-           <widget class="QVTKWidget" name="NEViewWidget" native="true">
+           <widget class="QVTKWidget" name="NEViewWidget">
             <property name="mouseTracking">
              <bool>true</bool>
             </property>
@@ -745,7 +745,7 @@
            <number>2</number>
           </property>
           <item row="0" column="0">
-           <widget class="QVTKWidget" name="SEViewWidget" native="true">
+           <widget class="QVTKWidget" name="SEViewWidget">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>
@@ -791,25 +791,6 @@
    <property name="defaultUp">
     <bool>false</bool>
    </property>
-   <widget class="QMenu" name="menuFile">
-    <property name="title">
-     <string>File</string>
-    </property>
-    <addaction name="actionLoad_images"/>
-    <addaction name="actionOpen_Image_With_Time"/>
-    <addaction name="actionMerge_images_as_n_dim_t"/>
-    <addaction name="separator"/>
-    <addaction name="actionSlice_Image_As_Multiple_Images"/>
-    <addaction name="actionOpen_Multiple_Images_As_One"/>
-    <addaction name="separator"/>
-    <addaction name="actionOpen_Dicom"/>
-    <addaction name="actionOpen_Dicom_Struct"/>
-    <addaction name="actionOpen_VTK_contour"/>
-    <addaction name="separator"/>
-    <addaction name="actionSave_As"/>
-    <addaction name="separator"/>
-    <addaction name="actionExit"/>
-   </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
@@ -850,6 +831,27 @@
     <property name="title">
      <string>Tools</string>
     </property>
+   </widget>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionLoad_images"/>
+    <addaction name="actionOpen_Image_With_Time"/>
+    <addaction name="actionMerge_images_as_n_dim_t"/>
+    <addaction name="separator"/>
+    <addaction name="actionSlice_Image_As_Multiple_Images"/>
+    <addaction name="actionOpen_Multiple_Images_As_One"/>
+    <addaction name="separator"/>
+    <addaction name="actionOpen_Dicom"/>
+    <addaction name="actionOpen_Dicom_Struct"/>
+    <addaction name="actionOpen_VTK_contour"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave_As"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+    <addaction name="actionSave_current_state"/>
+    <addaction name="actionRead_saved_state"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuOverlay"/>
@@ -1117,6 +1119,27 @@
   <action name="actionSave_all_slices">
    <property name="text">
     <string>Save all slices (Top-Left view)</string>
+   </property>
+  </action>
+  <action name="actionSave_current_state">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/filesave.png</normaloff>../icons/filesave.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save current state</string>
+   </property>
+   <property name="toolTip">
+    <string>Save current window and file states</string>
+   </property>
+  </action>
+  <action name="actionRead_saved_state">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/filesave.png</normaloff>../icons/filesave.png</iconset>
+   </property>
+   <property name="text">
+    <string>Read Saved State</string>
    </property>
   </action>
  </widget>

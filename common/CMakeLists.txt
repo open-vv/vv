@@ -24,6 +24,8 @@ SET(clitkCommon_SRC
   clitkXdrImageIOFactory.cxx
   clitkHndImageIO.cxx
   clitkHndImageIOFactory.cxx
+  clitkGateAsciiImageIO.cxx
+  clitkGateAsciiImageIOFactory.cxx
   clitkDicomRTDoseIO.cxx
   clitkDicomRTDoseIOFactory.cxx
   clitkOrientation.cxx
