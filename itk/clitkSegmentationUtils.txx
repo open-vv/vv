@@ -288,7 +288,7 @@ namespace clitk {
     sliceRelPosFilter->SetDirection(direction);
     sliceRelPosFilter->SetFuzzyThreshold(threshold);
     //    sliceRelPosFilter->AddOrientationTypeString(orientation);
-    sliceRelPosFilter->AddAngles(angle, 0.0);
+    sliceRelPosFilter->AddAnglesInRad(angle, 0.0);
     sliceRelPosFilter->SetIntermediateSpacingFlag((spacing != -1));
     sliceRelPosFilter->SetIntermediateSpacing(spacing);
     sliceRelPosFilter->SetUniqueConnectedComponentBySliceFlag(uniqueConnectedComponent);
@@ -385,7 +385,11 @@ namespace clitk {
     typename ImageType::PointType p;
     image->TransformIndexToPhysicalPoint(image->GetLargestPossibleRegion().GetIndex()+
                                          image->GetLargestPossibleRegion().GetSize(), p);
-    return CropImageAlongOneAxis<ImageType>(image, dim, max, p[dim], autoCrop, BG);
+    // Add GetSpacing because remove Lower or equal than
+    // DD(max);
+    // DD(p);
+    // DD(max+image->GetSpacing()[dim]);
+    return CropImageAlongOneAxis<ImageType>(image, dim, max+image->GetSpacing()[dim], p[dim], autoCrop, BG);
   }
   //--------------------------------------------------------------------
 
