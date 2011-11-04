@@ -80,8 +80,8 @@ PrintOptions(std::ostream & os)
      << "BG value        = " << this->GetBackgroundValue() << std::endl;
   for(int i=0; i<this->GetNumberOfAngles(); i++) {
     os << "Orientation     = " << this->GetOrientationTypeString()[i] << std::endl;
-    os << "Angles     = " << clitk::rad2deg(this->GetAngle1(i)) 
-       << " " << clitk::rad2deg(this->GetAngle2(i)) << std::endl;
+    os << "Angles     = " << clitk::rad2deg(this->GetAngle1InRad(i)) 
+       << " " << clitk::rad2deg(this->GetAngle2InRad(i)) << std::endl;
   }
   os << "InverseOrientationFlag  = " << this->GetInverseOrientationFlag() << std::endl        
      << "SpacingFlag     = " << this->GetIntermediateSpacingFlag() << std::endl
@@ -265,7 +265,7 @@ GenerateOutputInformation()
         relPosFilter->SetInverseOrientationFlag(this->GetInverseOrientationFlag());
         for(int j=0; j<this->GetNumberOfAngles(); j++) {
           //          relPosFilter->AddOrientationTypeString(this->GetOrientationTypeString(j));
-          relPosFilter->AddAngles(this->GetAngle1(j), this->GetAngle2(j));
+          relPosFilter->AddAnglesInRad(this->GetAngle1InRad(j), this->GetAngle2InRad(j));
           // DD(this->GetOrientationTypeString(j));
         }
         // DD(this->GetInverseOrientationFlag());
