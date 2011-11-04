@@ -21,7 +21,7 @@
 
 #include "clitkCommon.h"
 #include "clitkBooleanOperatorLabelImageFilter.h"
-#include "clitkSegmentationUtils.h"
+#include "clitkBoundingBoxUtils.h"
 
 namespace clitk {
 

@@ -19,6 +19,10 @@
 #ifndef CLITKCROPLIKEIMAGEFILTER_H
 #define CLITKCROPLIKEIMAGEFILTER_H
 
+// clitk
+#include "clitkBoundingBoxUtils.h"
+
+// itk
 #include <itkImageToImageFilter.h>
 
 namespace clitk {
@@ -99,6 +103,28 @@ namespace clitk {
     
   }; // end class
   //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  // Convenient function 
+  template<class ImageType>
+  typename ImageType::Pointer
+  ResizeImageLike(const ImageType * input,
+                  const itk::ImageBase<ImageType::ImageDimension> * like, 
+                  typename ImageType::PixelType BG);
+
+  template<class ImageType>
+  typename ImageType::Pointer
+  ResizeImageLike(const ImageType * input,
+                  typename itk::ImageBase<ImageType::ImageDimension>::RegionType * like, 
+                  typename ImageType::PixelType BG);
+
+  template<class ImageType>
+  typename ImageType::Pointer
+  ResizeImageLike(const ImageType * input, 
+                  typename itk::BoundingBox<unsigned long, ImageType::ImageDimension>::Pointer bb, 
+                  typename ImageType::PixelType BG);
+
 
 } // end namespace clitk
 //--------------------------------------------------------------------

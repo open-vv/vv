@@ -34,9 +34,16 @@ namespace clitk {
   class AnatomicalFeatureDatabase: public itk::Object
   {
   public:
-    AnatomicalFeatureDatabase();
-
+    // typedef
     typedef std::string TagType;
+
+    // New macro
+    typedef itk::Object                    Superclass;
+    typedef AnatomicalFeatureDatabase      Self;
+    typedef itk::SmartPointer<Self>        Pointer;
+    typedef itk::SmartPointer<const Self>  ConstPointer;
+    itkNewMacro(Self);
+    static Pointer New(std::string filename);
 
     // Set/Get filename 
     itkSetMacro(Filename, std::string);
@@ -45,6 +52,8 @@ namespace clitk {
     // Read and write DB
     void Write();
     void Load();
+    itkGetConstMacro(Path, std::string);
+    itkSetMacro(Path, std::string);
     
     // Set Get landmarks
     typedef itk::Point<double,3> PointType3D;
@@ -52,7 +61,8 @@ namespace clitk {
     void GetPoint3D(TagType tag, PointType3D & p);
     double GetPoint3D(std::string tag, int dim);
     bool TagExist(std::string tag);
-    
+    std::string GetTagValue(std::string tag);
+
     // Set Get image
     void SetImageFilename(TagType tag, std::string f);
     template<class ImageType>
@@ -70,15 +80,22 @@ namespace clitk {
     void RemoveTag(TagType tag);
 
   protected:
+    AnatomicalFeatureDatabase();
+    ~AnatomicalFeatureDatabase() {}
+
     std::string m_Filename;
+    std::string m_Path;
     typedef itk::ImageBase<3> ImageBaseType;
     typedef std::map<TagType, std::string> MapTagType;
-        typedef std::map<TagType, ImageBaseType*> MapTagImageType; 
+    typedef std::map<TagType, ImageBaseType*> MapTagImageType; 
     MapTagType m_MapOfTag;
     MapTagImageType m_MapOfImage;
 
   }; // end class
   //--------------------------------------------------------------------
+
+#define NewAFDB(NAME, FILE)                                             \
+  clitk::AnatomicalFeatureDatabase::Pointer NAME = clitk::AnatomicalFeatureDatabase::New(FILE);
 
   #include "clitkAnatomicalFeatureDatabase.txx" 
 

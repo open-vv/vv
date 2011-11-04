@@ -68,8 +68,10 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   f->SetWriteStepFlag(mArgsInfo.writeStep_flag);
   f->SetVerboseMemoryFlag(mArgsInfo.verboseMemory_flag);
   f->SetAFDBFilename(mArgsInfo.afdb_arg);  
-
-  f->SetComputeStationsSupportsFlag(!mArgsInfo.nosupport_flag);
+  if (mArgsInfo.afdb_path_given) f->SetAFDBPath(mArgsInfo.afdb_path_arg);  
+  f->SetForceSupportsFlag(mArgsInfo.force_support_flag);
+  f->SetSupportLimitsFilename(mArgsInfo.support_limits_arg);
+  f->SetCheckSupportFlag(mArgsInfo.check_support_limits_flag);
 
   // Station 8
   //f->SetDistanceMaxToAnteriorPartOfTheSpine(mArgsInfo.S8_maxAntSpine_arg);

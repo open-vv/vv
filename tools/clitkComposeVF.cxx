@@ -39,7 +39,7 @@ int main( int argc, char *argv[] )
   //JV how to pass for different dims?
   //ComposeVFGenericFilter->SetEdgePaddingValue(args_info.pad_arg);
   ComposeVFGenericFilter->SetVerbose(args_info.verbose_flag);
-  ComposeVFGenericFilter->Update();  
+  CLITK_TRY_CATCH_EXIT(ComposeVFGenericFilter->Update());  
 
   return EXIT_SUCCESS;
 }

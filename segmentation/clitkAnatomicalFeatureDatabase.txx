@@ -34,7 +34,7 @@ GetImage(std::string tag, bool reload)
     else {
       std::string s = m_MapOfTag[tag];
       // Read the file
-      image = readImage<ImageType>(s);
+      image = readImage<ImageType>(GetPath()+"/"+s);
       // I add a reference count because the cache is not a smartpointer
       image->SetReferenceCount(image->GetReferenceCount()+1);
       // Insert into the cache

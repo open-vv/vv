@@ -340,7 +340,10 @@ GenerateOutputInformation() {
   // Generic RelativePosition processes
   output = this->ApplyRelativePositionList("Mediastinum", output);
 
+
   //--------------------------------------------------------------------
+  // FIXME --> do not put this limits here !
+  /*
   // Step : SI limits It is better to do this limit *AFTER* the
   // RelativePosition to avoid some issue due to superior boundaries.
   this->StartNewStep("[Mediastinum] Keep inferior to CricoidCartilag");
@@ -357,6 +360,7 @@ GenerateOutputInformation() {
   }
   output = clitk::CropImageRemoveGreaterThan<MaskImageType>(output, 2, p[2], true, this->GetBackgroundValue());
   this->template StopCurrentStep<MaskImageType>(output);
+  */
 
   //--------------------------------------------------------------------
   // Step: Get CCL

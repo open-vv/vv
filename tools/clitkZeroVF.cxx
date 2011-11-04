@@ -50,7 +50,7 @@ int main( int argc, char *argv[] )
   zeroVFGenericFilter->SetVerbose(args_info.verbose_flag);
 
   //update
-  zeroVFGenericFilter->Update();
+  CLITK_TRY_CATCH_EXIT(zeroVFGenericFilter->Update());
   return EXIT_SUCCESS;
 }
 #endif

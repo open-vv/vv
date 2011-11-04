@@ -16,8 +16,8 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
 
-#ifndef CLITKEXTRACTPATIENTGENERICFILTER_H
-#define CLITKEXTRACTPATIENTGENERICFILTER_H
+#ifndef CLITKRELATIVEPOSITIONGENERICFILTER_H
+#define CLITKRELATIVEPOSITIONGENERICFILTER_H
 
 // clitk 
 #include "clitkIO.h"
@@ -73,4 +73,4 @@ namespace clitk
 #include "clitkRelativePositionGenericFilter.txx"
 #endif
 
-#endif // #define CLITKEXTRACTPATIENTGENERICFILTER_H
+#endif // #define CLITKRELATIVEPOSITIONGENERICFILTER_H

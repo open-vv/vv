@@ -21,6 +21,7 @@
 
 // clitk
 #include "clitkFilterBase.h"
+#include "clitkCropLikeImageFilter.h"
 
 // itk
 #include <itkPasteImageFilter.h>
@@ -91,7 +92,10 @@ namespace clitk {
     void AddOrientationType(OrientationTypeEnumeration orientation);
     void AddOrientationTypeString(std::string s);
     void ClearOrientationType();
-    void AddAngles(double a, double b);
+    void AddAnglesInRad(double a, double b);
+    void AddAnglesInDeg(double a, double b);
+    double GetAngle1InRad(int i) { return m_Angle1[i]; }
+    double GetAngle2InRad(int i) { return m_Angle2[i]; }
     int GetNumberOfAngles();
     std::string GetOrientationTypeString(int i) { return m_OrientationTypeString[i]; }
     std::vector<std::string> & GetOrientationTypeString() { return m_OrientationTypeString; }
@@ -128,6 +132,12 @@ namespace clitk {
     itkSetMacro(CombineWithOrFlag, bool);
     itkBooleanMacro(CombineWithOrFlag);
 
+    itkGetConstMacro(FuzzyMapOnlyFlag, bool);
+    itkSetMacro(FuzzyMapOnlyFlag, bool);
+    itkBooleanMacro(FuzzyMapOnlyFlag);
+
+    typename FloatImageType::Pointer GetFuzzyMap() { return m_FuzzyMap; }
+
     // I dont want to verify inputs information
     virtual void VerifyInputInformation() { }
     
@@ -151,6 +161,7 @@ namespace clitk {
     bool m_InverseOrientationFlag;
     bool m_RemoveObjectFlag;
     bool m_CombineWithOrFlag;
+    bool m_FuzzyMapOnlyFlag;
 
     virtual void GenerateOutputInformation();
     virtual void GenerateInputRequestedRegion();
@@ -160,6 +171,7 @@ namespace clitk {
     typename ImageType::Pointer working_image;
     typename ImageType::Pointer object_resampled;
     typename FloatImageType::Pointer relPos;
+    typename FloatImageType::Pointer m_FuzzyMap;
     ImagePointer input;
     ImagePointer object;
 

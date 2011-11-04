@@ -1,0 +1,31 @@
+#File clitkRelativePositionAnalyzer.ggo
+package "clitkRelativePositionAnalyzer"
+version "1.0"
+purpose "Analyze relative position of a target according to structures"
+
+section "General options"
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+option "imagetypes"     -       "Display allowed image types"     flag          off
+
+section "Input/Output"
+option "support"	i	"Input mask support"	  string  	yes
+option "object"		j	"Input mask object"	  string  	yes
+option "target"		t	"Input mask target"	  string  	yes
+option "output"    	o   	"Output image "		                string yes
+
+section "Options for building the relative positions"
+option "bins"           -       "Number of histo bins for fuzzy map"      int default="100" no
+option "tol"            -       "Target area loss tolerance (|0-1])"      double default="0.01" no
+
+option "angle1"   	a   	"Angle 1 (deg)"		           double  	no 	default="0"
+option "angle2"   	b   	"Angle 2 (deg)"		           double  	no 	default="0"
+option "inverse"        n       "Not flag : inverse of the orientation"     flag   off
+
+
+section "Compute some statistic on afdb"
+option "afdb"           -       "Input Anatomical Feature DB"           string no multiple
+option "afdb_path"      -       "Path to search image in afdb"          string no multiple
+option "station"	-	"Station name"	                        string no
+
+

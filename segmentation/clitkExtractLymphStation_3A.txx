@@ -148,19 +148,10 @@ ExtractStation_3A_Post_Limits_With_Dilated_Aorta_S6_Support()
   Aorta = clitk::Dilate<MaskImageType>(Aorta, radius, GetBackgroundValue(), GetForegroundValue(), false);
   
   // Now, insert this image in the AFDB (but do not store on disk)
-  GetAFDB()->template SetImage<MaskImageType>("Aorta_Dilated_Anteriorly", "bidon", 
-                                              Aorta, false);
-  /*
-  // Not Post to
-  m_Working_Support = 
-    clitk::SliceBySliceRelativePosition<MaskImageType>(m_Working_Support, Aorta, 2, 
-                                                       GetFuzzyThreshold("3A", "Aorta"), 
-                                                       "NotPostTo", true, 
-                                                       Aorta->GetSpacing()[0], false, false);
+  GetAFDB()->template SetImage<MaskImageType>("Aorta_Dilated_Anteriorly", "seg/Aorta_Dilated_Anteriorly.mha", Aorta, false);
+  writeImage<MaskImageType>(Aorta, "seg/Aorta_Dilated_Anteriorly.mha");
+  GetAFDB()->Write();
 
-  */
-
-  
   StopCurrentStep<MaskImageType>(m_Working_Support);
   m_ListOfStations["3A"] = m_Working_Support;
 }

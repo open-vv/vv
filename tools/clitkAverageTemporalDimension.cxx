@@ -45,7 +45,7 @@ int main(int argc, char * argv[])
   FilterType::Pointer genericFilter = FilterType::New();
 
   genericFilter->SetArgsInfo(args_info);
-  genericFilter->Update();
+  CLITK_TRY_CATCH_EXIT(genericFilter->Update());
 
   return EXIT_SUCCESS;
 }// end main

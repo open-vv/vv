@@ -25,6 +25,7 @@ FilterWithAnatomicalFeatureDatabaseManagement()
 {
   m_AFDB = NULL; 
   SetAFDBFilename("default.afdb");
+  SetAFDBPath("./");
 }
 //--------------------------------------------------------------------
 
@@ -42,6 +43,7 @@ void clitk::FilterWithAnatomicalFeatureDatabaseManagement::WriteAFDB()
 void clitk::FilterWithAnatomicalFeatureDatabaseManagement::LoadAFDB() 
 {
   GetAFDB()->SetFilename(GetAFDBFilename());
+  GetAFDB()->SetPath(GetAFDBPath());
   try {
     GetAFDB()->Load();
   } catch (clitk::ExceptionObject e) {
@@ -53,10 +55,10 @@ void clitk::FilterWithAnatomicalFeatureDatabaseManagement::LoadAFDB()
 
 
 //--------------------------------------------------------------------
-clitk::AnatomicalFeatureDatabase * clitk::FilterWithAnatomicalFeatureDatabaseManagement::GetAFDB() 
+clitk::AnatomicalFeatureDatabase::Pointer clitk::FilterWithAnatomicalFeatureDatabaseManagement::GetAFDB() 
 {
-  if (m_AFDB == NULL) {
-    m_AFDB = new clitk::AnatomicalFeatureDatabase;
+  if (!m_AFDB) {
+    m_AFDB = clitk::AnatomicalFeatureDatabase::New();
   }
   return m_AFDB;
 }

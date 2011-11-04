@@ -53,6 +53,7 @@ namespace clitk {
     /** ImageDimension constants */
     itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
     typedef itk::Image<float, ImageDimension> FloatImageType;
+    typedef itk::Image<float, ImageDimension-1> FloatSliceType;
 
     /** Some convenient typedefs. */
     typedef typename ImageType::ConstPointer ImageConstPointer;

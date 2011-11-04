@@ -1,5 +1,5 @@
-#! /bin/bash -x
-
+#! /bin/bash 
+  
 ###############################################################################
 #
 # FILE: create_midP-2.0.sh
@@ -21,7 +21,10 @@ extract_patient()
 {
   echo "$phase_file -> Extracting patient..."
   clitkExtractPatient -i $phase_file -o $mask_dir_tmp/patient_mask_$phase_nb.mhd --noAutoCrop -a $afdb_file $ExtractPatientExtra
+#   abort_on_error clitkExtractPatient $?
+
   clitkSetBackground -i $phase_file -o $mask_dir_tmp/patient_$phase_nb.mhd --mask $mask_dir_tmp/patient_mask_$phase_nb.mhd --outsideValue -1000
+#   abort_on_error clitkSetBackground $?
 }
 
 extract_bones()
@@ -39,15 +42,16 @@ extract_bones()
 
 extract_lungs()
 {
-  echo "$phase_file -> Extracting lungs..."
-  clitkExtractLung -i $phase_file -o $mask_dir_tmp/lungs_$phase_nb.mhd -a $afdb_file --noAutoCrop
+  echo "$phase_file -> Extracting lungs..."  
+  clitkExtractLung -i $phase_file -o $mask_dir_tmp/lungs_$phase_nb.mhd -a $afdb_file --noAutoCrop --doNotSeparateLungs
 }
+
+
 
 resample()
 {
   echo "$phase_file -> Resampling..."
   clitkResampleImage -i $mask_dir_tmp/patient_$phase_nb.mhd -o $mask_dir_tmp/patient_$phase_nb.mhd --spacing $resample_spacing --interp $resample_algo
-
   clitkResampleImage -i $mask_dir_tmp/lungs_$phase_nb.mhd -o $mask_dir_tmp/lungs_$phase_nb.mhd --like $mask_dir_tmp/patient_$phase_nb.mhd
 }
 
@@ -198,6 +202,7 @@ motion_mask()
     mkdir -p $mask_log_dir
 
     # multi-threaded pre-processing for motion mask calcs
+    pids=( )
     for i in $( seq 0 $((${#phase_nbs[@]} - 1))); do
       phase_nb=${phase_nbs[$i]}
       phase_file=${phase_files[$i]}
@@ -205,6 +210,12 @@ motion_mask()
 
       check_threads $MAX_THREADS
       mm_preprocessing &
+      pids=( "${pids[@]}" "$!" )
+    done
+
+    wait_pids ${pids[@]}
+    for ret in $ret_codes; do
+      abort_on_error mm_preprocessing $ret clean_up_masks
     done
 
     # single-threaded motion mask calc
@@ -215,16 +226,25 @@ motion_mask()
       check_threads 1
       echo "$phase_file -> Computing motion mask..."
       compute_motion_mask > $mask_log_dir/motion_mask_$phase_file.log
+      abort_on_error compute_motion_mask $? clean_up_masks
     done
 
     # multi-threaded post-processing of motion mask calcs
+    pids=( )
     for i in $( seq 0 $((${#phase_nbs[@]} - 1))); do
       phase_nb=${phase_nbs[$i]}
       phase_file=${phase_files[$i]}
 
       check_threads $MAX_THREADS 
       mm_postprocessing &
+      pids=( "${pids[@]}" "$!" )
     done
+  
+    wait_pids ${pids[@]}
+    for ret in $ret_codes; do
+      abort_on_error mm_postprocessing $ret clean_up_masks
+    done
+
 
     # rename tmp mask directory after mask creation
     check_threads 1

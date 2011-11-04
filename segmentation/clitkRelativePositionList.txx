@@ -146,10 +146,12 @@ GenerateOutputInformation() {
   // Loop on RelativePositionList of operations
   std::string s = GetInputName();
   for(uint i=0; i<mArgsInfoList.size(); i++) {
-    std::string text = "["+s+"] limits "+
-      mArgsInfoList[i].orientation_arg[0]+" "+
-      mArgsInfoList[i].object_arg+" "+
-      toString(mArgsInfoList[i].threshold_arg);
+    std::string text = "["+s+"] limits ";
+    if (mArgsInfoList[i].orientation_given) text += std::string(mArgsInfoList[i].orientation_arg[0])+" ";
+    else text = text+"("+toString(mArgsInfoList[i].angle1_arg)+" "+
+           toString(mArgsInfoList[i].angle2_arg)+" "+
+           (mArgsInfoList[i].inverse_flag==true?"true":"false")+") ";
+    text = text+mArgsInfoList[i].object_arg+" "+toString(mArgsInfoList[i].threshold_arg);
     if (mArgsInfoList[i].sliceBySlice_flag) {
       text += " slice by slice";
     }
@@ -211,9 +213,10 @@ void
 clitk::RelativePositionList<TImageType>::
 SetFilterOptions(typename RelPosFilterType::Pointer filter, ArgsInfoType & options) {
 
-  if (options.orientation_given != 1) {
-    DD("ERRROR DEBUG TODO no more than 1 orientation yet");
-    exit(0);
+  if (options.orientation_given > 1) {
+    clitkExceptionMacro("Error in the RelPos options. I need a single --orientation (for the moment)."
+                        << " Current options are for obj = '" << options.object_arg
+                        << "', threshold = " << options.threshold_arg << std::endl);
   }
 
   ImagePointer object = GetAFDB()->template GetImage<ImageType>(options.object_arg);
@@ -222,8 +225,21 @@ SetFilterOptions(typename RelPosFilterType::Pointer filter, ArgsInfoType & optio
   filter->SetVerboseImageSizeFlag(GetVerboseImageSizeFlag());
   filter->SetFuzzyThreshold(options.threshold_arg);
   filter->SetInverseOrientationFlag(options.inverse_flag); // MUST BE BEFORE AddOrientationTypeString
-  for(uint i=0; i<options.orientation_given; i++) 
-    filter->AddOrientationTypeString(options.orientation_arg[i]);
+
+  if (options.orientation_given == 1)  {
+    for(uint i=0; i<options.orientation_given; i++) 
+      filter->AddOrientationTypeString(options.orientation_arg[i]);
+  }
+  else {
+    if (options.angle1_given && options.angle2_given) {
+      filter->AddAnglesInDeg(options.angle1_arg, options.angle2_arg);
+    }
+    else {
+      clitkExceptionMacro("Error in the RelPos options. I need --orientation or (--angle1 and --angle2)."
+                          << " Current options are for obj = '" << options.object_arg
+                          << "', threshold = " << options.threshold_arg << std::endl);
+    }
+  }
   filter->SetIntermediateSpacing(options.spacing_arg);
   if (options.spacing_arg == -1) filter->IntermediateSpacingFlagOff();
   else filter->IntermediateSpacingFlagOn();

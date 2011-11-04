@@ -37,7 +37,7 @@ namespace clitk
   //-----------------------------------------------------------
   // Constructor
   //-----------------------------------------------------------
-  ExtractPatientGenericFilter::ExtractPatientGenericFilter()
+  ExtractPatientGenericFilter:::ExtractPatientGenericFilter()
   {
     m_Verbose=false;
     m_InputFileName="";

@@ -1,0 +1,25 @@
+#File clitkRelativePositionDataBaseBuilder.ggo
+package "clitkRelativePositionDataBaseBuilder"
+version "1.0"
+purpose "Analyze relative position of a target according to structures"
+
+section "General options"
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+option "imagetypes"     -       "Display allowed image types"     flag          off
+
+section "Input/Output"
+option "afdb"           a       "Input Anatomical Feature DB"           string yes
+option "afdb_path"      -       "Path to search image in afdb"          string no
+
+option "supportName"	i	"Input mask support name in afdb"	string yes
+option "targetName"	t	"Input mask target name in afdb"	string yes
+option "objectName"	j	"Input mask object name in afdb"	string yes multiple
+
+option "output"    	o   	"Output image "		                string yes
+
+section "Options for building the relative positions"
+option "bins"           b       "Number of histo bins for fuzzy map"      int default="100" no
+option "nb"             n       "Number of angles to test"                int default="4" no
+option "tol"            -       "Target area loss tolerance (|0-1])"      double default="0.01" no
+

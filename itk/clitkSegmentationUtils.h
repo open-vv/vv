@@ -38,25 +38,6 @@
 namespace clitk {
 
   //--------------------------------------------------------------------
-  template<class ImageType>
-  void ComputeBBFromImageRegion(const ImageType * image, 
-                                typename ImageType::RegionType region,
-                                typename itk::BoundingBox<unsigned long, 
-                                                          ImageType::ImageDimension>::Pointer bb);
-  
-  //--------------------------------------------------------------------
-  template<int Dimension>
-  void ComputeBBIntersection(typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbo, 
-                             typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbi1, 
-                             typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbi2);
-
-  //--------------------------------------------------------------------
-  template<class ImageType>
-  void ComputeRegionFromBB(const ImageType * image, 
-                           const typename itk::BoundingBox<unsigned long, 
-                                                           ImageType::ImageDimension>::Pointer bb, 
-                           typename ImageType::RegionType & region);
-  //--------------------------------------------------------------------
   template<class TInternalImageType, class TMaskInternalImageType>
   typename TInternalImageType::Pointer
   SetBackground(const TInternalImageType * input,
@@ -136,13 +117,6 @@ namespace clitk {
                           int minimalComponentSize,
                           LabelizeParameters<typename TImageType::PixelType> * param);
 
-  //--------------------------------------------------------------------
-  template<class ImageType>
-  typename ImageType::Pointer
-  ResizeImageLike(const ImageType * input,
-                  const itk::ImageBase<ImageType::ImageDimension> * like, 
-                  typename ImageType::PixelType BG);
-
 
   //--------------------------------------------------------------------
   template<class MaskImageType>
@@ -152,6 +126,18 @@ namespace clitk {
 			       int direction, 
 			       double threshold, 
 			       std::string orientation, 
+                               bool uniqueConnectedComponent=false, 
+                               double spacing=-1, 
+                               bool autocropflag=true, 
+                               bool singleObjectCCL=true);
+  template<class MaskImageType>
+  typename MaskImageType::Pointer
+  SliceBySliceRelativePosition(const MaskImageType * input,
+			       const MaskImageType * object,
+			       int direction, 
+			       double threshold, 
+			       double angle, 
+                               bool inverseflag,
                                bool uniqueConnectedComponent=false, 
                                double spacing=-1, 
                                bool autocropflag=true, 

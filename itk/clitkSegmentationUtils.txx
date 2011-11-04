@@ -39,89 +39,6 @@
 namespace clitk {
 
   //--------------------------------------------------------------------
-  template<class ImageType>
-  void ComputeBBFromImageRegion(const ImageType * image, 
-                                typename ImageType::RegionType region,
-                                typename itk::BoundingBox<unsigned long, 
-                                ImageType::ImageDimension>::Pointer bb) {
-    typedef typename ImageType::IndexType IndexType;
-    IndexType firstIndex;
-    IndexType lastIndex;
-    for(unsigned int i=0; i<image->GetImageDimension(); i++) {
-      firstIndex[i] = region.GetIndex()[i];
-      lastIndex[i] = firstIndex[i]+region.GetSize()[i];
-    }
-
-    typedef itk::BoundingBox<unsigned long, 
-                             ImageType::ImageDimension> BBType;
-    typedef typename BBType::PointType PointType;
-    PointType lastPoint;
-    PointType firstPoint;
-    image->TransformIndexToPhysicalPoint(firstIndex, firstPoint);
-    image->TransformIndexToPhysicalPoint(lastIndex, lastPoint);
-
-    bb->SetMaximum(lastPoint);
-    bb->SetMinimum(firstPoint);
-  }
-  //--------------------------------------------------------------------
-
-
-  //--------------------------------------------------------------------
-  template<int Dimension>
-  void ComputeBBIntersection(typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbo, 
-                             typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbi1, 
-                             typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbi2) {
-
-    typedef itk::BoundingBox<unsigned long, Dimension> BBType;
-    typedef typename BBType::PointType PointType;
-    PointType lastPoint;
-    PointType firstPoint;
-
-    for(unsigned int i=0; i<Dimension; i++) {
-      firstPoint[i] = std::max(bbi1->GetMinimum()[i], 
-                               bbi2->GetMinimum()[i]);
-      lastPoint[i] = std::min(bbi1->GetMaximum()[i], 
-                              bbi2->GetMaximum()[i]);
-    }
-
-    bbo->SetMaximum(lastPoint);
-    bbo->SetMinimum(firstPoint);
-  }
-  //--------------------------------------------------------------------
-
-
-  //--------------------------------------------------------------------
-  template<class ImageType>
-  void ComputeRegionFromBB(const ImageType * image, 
-                           const typename itk::BoundingBox<unsigned long, 
-                                                           ImageType::ImageDimension>::Pointer bb, 
-                           typename ImageType::RegionType & region) {
-    // Types
-    typedef typename ImageType::IndexType  IndexType;
-    typedef typename ImageType::PointType  PointType;
-    typedef typename ImageType::RegionType RegionType;
-    typedef typename ImageType::SizeType   SizeType;
-
-    // Region starting point
-    IndexType regionStart;
-    PointType start = bb->GetMinimum();
-    image->TransformPhysicalPointToIndex(start, regionStart);
-    
-    // Region size
-    SizeType regionSize;
-    PointType maxs = bb->GetMaximum();
-    PointType mins = bb->GetMinimum();
-    for(unsigned int i=0; i<ImageType::ImageDimension; i++) {
-      regionSize[i] = lrint((maxs[i] - mins[i])/image->GetSpacing()[i]);
-    }
-   
-    // Create region
-    region.SetIndex(regionStart);
-    region.SetSize(regionSize);
-  }
-  //--------------------------------------------------------------------
-
-  //--------------------------------------------------------------------
   template<class ImageType, class TMaskImageType>
   typename ImageType::Pointer
   SetBackground(const ImageType * input, 
@@ -313,24 +230,6 @@ namespace clitk {
 
 
   //--------------------------------------------------------------------
-  template<class ImageType>
-  typename ImageType::Pointer
-  ResizeImageLike(const ImageType * input,                       
-                  const itk::ImageBase<ImageType::ImageDimension> * like, 
-                  typename ImageType::PixelType backgroundValue) 
-  {
-    typedef CropLikeImageFilter<ImageType> CropFilterType;
-    typename CropFilterType::Pointer cropFilter = CropFilterType::New();
-    cropFilter->SetInput(input);
-    cropFilter->SetCropLikeImage(like);
-    cropFilter->SetBackgroundValue(backgroundValue);
-    cropFilter->Update();
-    return cropFilter->GetOutput();  
-  }
-  //--------------------------------------------------------------------
-
-
-  //--------------------------------------------------------------------
   template<class MaskImageType>
   typename MaskImageType::Pointer
   SliceBySliceRelativePosition(const MaskImageType * input,
@@ -343,7 +242,7 @@ namespace clitk {
                                bool autocropFlag, 
                                bool singleObjectCCL) 
   {
-    typedef SliceBySliceRelativePositionFilter<MaskImageType> SliceRelPosFilterType;
+    typedef clitk::SliceBySliceRelativePositionFilter<MaskImageType> SliceRelPosFilterType;
     typename SliceRelPosFilterType::Pointer sliceRelPosFilter = SliceRelPosFilterType::New();
     sliceRelPosFilter->VerboseStepFlagOff();
     sliceRelPosFilter->WriteStepFlagOff();
@@ -358,6 +257,44 @@ namespace clitk {
     sliceRelPosFilter->ObjectCCLSelectionFlagOff();
     sliceRelPosFilter->SetUseTheLargestObjectCCLFlag(singleObjectCCL);
     //    sliceRelPosFilter->SetInverseOrientationFlag(inverseflag); 
+    sliceRelPosFilter->SetAutoCropFlag(autocropFlag); 
+    sliceRelPosFilter->IgnoreEmptySliceObjectFlagOn();
+    sliceRelPosFilter->Update();
+    return sliceRelPosFilter->GetOutput();
+  }
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<class MaskImageType>
+  typename MaskImageType::Pointer
+  SliceBySliceRelativePosition(const MaskImageType * input,
+                               const MaskImageType * object,
+                               int direction, 
+                               double threshold, 
+                               double angle,
+                               bool inverseflag,
+                               bool uniqueConnectedComponent, 
+                               double spacing, 
+                               bool autocropFlag, 
+                               bool singleObjectCCL) 
+  {
+    typedef clitk::SliceBySliceRelativePositionFilter<MaskImageType> SliceRelPosFilterType;
+    typename SliceRelPosFilterType::Pointer sliceRelPosFilter = SliceRelPosFilterType::New();
+    sliceRelPosFilter->VerboseStepFlagOff();
+    sliceRelPosFilter->WriteStepFlagOff();
+    sliceRelPosFilter->SetInput(input);
+    sliceRelPosFilter->SetInputObject(object);
+    sliceRelPosFilter->SetDirection(direction);
+    sliceRelPosFilter->SetFuzzyThreshold(threshold);
+    //    sliceRelPosFilter->AddOrientationTypeString(orientation);
+    sliceRelPosFilter->AddAnglesInRad(angle, 0.0);
+    sliceRelPosFilter->SetIntermediateSpacingFlag((spacing != -1));
+    sliceRelPosFilter->SetIntermediateSpacing(spacing);
+    sliceRelPosFilter->SetUniqueConnectedComponentBySliceFlag(uniqueConnectedComponent);
+    sliceRelPosFilter->ObjectCCLSelectionFlagOff();
+    sliceRelPosFilter->SetUseTheLargestObjectCCLFlag(singleObjectCCL);
+    sliceRelPosFilter->SetInverseOrientationFlag(inverseflag); 
     sliceRelPosFilter->SetAutoCropFlag(autocropFlag); 
     sliceRelPosFilter->IgnoreEmptySliceObjectFlagOn();
     sliceRelPosFilter->Update();
@@ -448,7 +385,11 @@ namespace clitk {
     typename ImageType::PointType p;
     image->TransformIndexToPhysicalPoint(image->GetLargestPossibleRegion().GetIndex()+
                                          image->GetLargestPossibleRegion().GetSize(), p);
-    return CropImageAlongOneAxis<ImageType>(image, dim, max, p[dim], autoCrop, BG);
+    // Add GetSpacing because remove Lower or equal than
+    // DD(max);
+    // DD(p);
+    // DD(max+image->GetSpacing()[dim]);
+    return CropImageAlongOneAxis<ImageType>(image, dim, max+image->GetSpacing()[dim], p[dim], autoCrop, BG);
   }
   //--------------------------------------------------------------------
 

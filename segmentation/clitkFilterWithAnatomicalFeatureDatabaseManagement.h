@@ -42,19 +42,28 @@ namespace clitk {
     itkTypeMacro(FilterWithAnatomicalFeatureDatabaseManagement, Object);
 
     // Set/Get filename 
-    itkBooleanMacro(AFDBFilenameGivenFlag);
-    itkSetMacro(AFDBFilenameGivenFlag, bool);
-    itkGetConstMacro(AFDBFilenameGivenFlag, bool);
-    GGO_DefineOption_Flag(afdb, SetAFDBFilenameGivenFlag);
+    // itkBooleanMacro(AFDBFilenameGivenFlag);
+    // itkSetMacro(AFDBFilenameGivenFlag, bool);
+    // itkGetConstMacro(AFDBFilenameGivenFlag, bool);
+    // GGO_DefineOption_Flag(afdb, SetAFDBFilenameGivenFlag);
+
+    // itkBooleanMacro(AFDBPathGivenFlag);
+    // itkSetMacro(AFDBPathGivenFlag, bool);
+    // itkGetConstMacro(AFDBPathGivenFlag, bool);
+    // GGO_DefineOption_Flag(afdb_path, SetAFDBPathGivenFlag);
 
     itkSetMacro(AFDBFilename, std::string);
     itkGetConstMacro(AFDBFilename, std::string);
-    GGO_DefineOption_WithTest(afdb, SetAFDBFilename, std::string, AFDBFilenameGivenFlag);
+    // GGO_DefineOption_WithTest(afdb, SetAFDBFilename, std::string, AFDBFilenameGivenFlag);
+
+    itkSetMacro(AFDBPath, std::string);
+    itkGetConstMacro(AFDBPath, std::string);
+    // GGO_DefineOption_WithTest(afdb_path, SetAFDBPath, std::string, AFDBPathGivenFlag);
 
     void WriteAFDB();
     void LoadAFDB();
 
-    AnatomicalFeatureDatabase * GetAFDB();
+    AnatomicalFeatureDatabase::Pointer GetAFDB();
     void SetAFDB(AnatomicalFeatureDatabase * a) { m_AFDB = a; }
 
   protected:
@@ -62,8 +71,10 @@ namespace clitk {
     virtual ~FilterWithAnatomicalFeatureDatabaseManagement() {}    
     
     std::string m_AFDBFilename;
-    bool m_AFDBFilenameGivenFlag;
-    clitk::AnatomicalFeatureDatabase * m_AFDB;
+    // bool m_AFDBFilenameGivenFlag;
+    std::string m_AFDBPath;
+    // bool m_AFDBPathGivenFlag;
+    clitk::AnatomicalFeatureDatabase::Pointer m_AFDB;
 
   private:
     FilterWithAnatomicalFeatureDatabaseManagement(const Self&); //purposely not implemented
