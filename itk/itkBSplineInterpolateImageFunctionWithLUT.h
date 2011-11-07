@@ -62,6 +62,14 @@ namespace itk {
     virtual void SetInputImage(const TImageType * inputData);
     
     /** Evaluate the function at a ContinuousIndex position.
+  Overwritten for taking LUT into account (RP: multi-threading-compatible version, 
+  the threadID is actually ignored) */  
+    virtual OutputType EvaluateAtContinuousIndex(const ContinuousIndexType & index, unsigned int /* threadID */ ) const
+    {
+      return this->EvaluateAtContinuousIndex( index );
+    }
+
+    /** Evaluate the function at a ContinuousIndex position.
 	Overwritten for taking LUT into account */  
     virtual OutputType EvaluateAtContinuousIndex(const ContinuousIndexType & index ) const;
     
