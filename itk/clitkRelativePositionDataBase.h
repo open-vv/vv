@@ -109,6 +109,9 @@ namespace clitk {
       os << std::endl;
     }
   };
+  std::ostream operator<<(std::ostream & os, const clitk::RelativePositionInformationType & rp) {
+    rp.Print(os);
+  }
   //--------------------------------------------------------------------
 
 
