@@ -224,6 +224,17 @@ int main(int argc,char * argv[])
     // load reference
     vtkImageData* reference = loadImage(reference_filename);
     assert(reference);
+ 
+    // translate target with arguments values
+    // reference is translated instead of target so that the output space stay the same as target
+    {
+	double reference_origin[3];
+        reference->GetOrigin(reference_origin);
+	reference_origin[0] -= args_info.translation_x_arg;
+	reference_origin[1] -= args_info.translation_y_arg;
+	reference_origin[2] -= args_info.translation_z_arg;
+	reference->SetOrigin(reference_origin);
+    }
 
     // intensity normalisation
     if (!use_dose_margin) {
@@ -245,6 +256,7 @@ int main(int argc,char * argv[])
     // load target
     vtkImageData* target = loadImage(target_filename);
     assert(target);
+
 
     // allocate output
     OutputImageType::Pointer output = OutputImageType::New();
