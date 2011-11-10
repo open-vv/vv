@@ -359,6 +359,11 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkPadImage clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkPadImage)
 
+  WRAP_GGO(clitkCatImage_GGO_C clitkCatImage.ggo)
+  ADD_EXECUTABLE(clitkCatImage clitkCatImage.cxx ${clitkCatImage_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkCatImage clitkCommon ${ITK_LIBRARIES})
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkCatImage)
+
   IF(CLITK_EXPERIMENTAL)
 
     WRAP_GGO(clitkBinaryImageToMesh_GGO_C clitkBinaryImageToMesh.ggo)

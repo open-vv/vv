@@ -1,0 +1,14 @@
+#File clitkCatImage.ggo
+package "clitkCatImage"
+version "1.0"
+purpose "Concatenate two images along chosen direction"
+
+option "config"	  	-	"Config file"			      string  optional
+option "verbose"   	v "Verbose"			          flag		off
+
+option "imagetypes" 	-   	"Display allowed image types"	  flag		off
+
+option "input1"		  i	"First input image filename"	string  required
+option "input2"		  j	"Second input image filename"	string  required
+option "output"    	o "Output image filename"	string 	required
+option "dimension"  d "Dimension on which to concatenate" int required
