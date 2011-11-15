@@ -321,7 +321,7 @@ IF (CLITK_BUILD_TOOLS)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkLabelImageOverlapMeasure)
 
   WRAP_GGO(clitkRelativePositionAnalyzer_GGO_C clitkRelativePositionAnalyzer.ggo)
-  ADD_EXECUTABLE(clitkRelativePositionAnalyzer clitkRelativePositionAnalyzer.cxx ${clitkRelativePositionAnalyzer_GGO_C})
+  ADD_EXECUTABLE(clitkRelativePositionAnalyzer ../itk/clitkRelativePositionDataBase.cxx clitkRelativePositionAnalyzer.cxx ${clitkRelativePositionAnalyzer_GGO_C})
   TARGET_LINK_LIBRARIES(clitkRelativePositionAnalyzer clitkSegmentationGgoLib clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkRelativePositionAnalyzer)
 
@@ -331,7 +331,7 @@ IF (CLITK_BUILD_TOOLS)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkRelativePositionDataBaseAnalyzer)
 
   WRAP_GGO(clitkRelativePositionDataBaseBuilder_GGO_C clitkRelativePositionDataBaseBuilder.ggo)
-  ADD_EXECUTABLE(clitkRelativePositionDataBaseBuilder clitkRelativePositionDataBaseBuilder.cxx ${clitkRelativePositionDataBaseBuilder_GGO_C})
+  ADD_EXECUTABLE(clitkRelativePositionDataBaseBuilder ../itk/clitkRelativePositionDataBase.cxx clitkRelativePositionDataBaseBuilder.cxx ${clitkRelativePositionDataBaseBuilder_GGO_C})
   TARGET_LINK_LIBRARIES(clitkRelativePositionDataBaseBuilder clitkSegmentationGgoLib clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkRelativePositionDataBaseBuilder)
 
@@ -358,6 +358,11 @@ IF (CLITK_BUILD_TOOLS)
   ADD_EXECUTABLE(clitkPadImage clitkPadImage.cxx clitkPadImageGenericFilter.cxx ${clitkPadImage_GGO_C})
   TARGET_LINK_LIBRARIES(clitkPadImage clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkPadImage)
+
+  WRAP_GGO(clitkCatImage_GGO_C clitkCatImage.ggo)
+  ADD_EXECUTABLE(clitkCatImage clitkCatImage.cxx ${clitkCatImage_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkCatImage clitkCommon ${ITK_LIBRARIES})
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkCatImage)
 
   IF(CLITK_EXPERIMENTAL)
 
