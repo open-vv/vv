@@ -76,8 +76,14 @@ registration()
         registration_elastix $reference_out $target_out $mask_ref_out $mask_targ_out $vf_out $result_out $params $log_out
       fi
 
-      # combine in and out vf
       motion_mask=$mask_dir/mm_$phase_nb.mhd
+
+      # combine in and out results
+      out_result=$output_dir/result_${ref_phase_nb}_$phase_nb.mhd
+      clitkCombineImage -i $result_in -j $result_out -m $motion_mask -o $out_result
+      abort_on_error registration $? clean_up_registration
+
+      # combine in and out vf
       vf_result=$vf_dir/vf_${ref_phase_nb}_$phase_nb.mhd
       clitkCombineImage -i $vf_in -j $vf_out -m $motion_mask -o $vf_result
       abort_on_error registration $? clean_up_registration
@@ -102,6 +108,10 @@ registration()
 
   # create 4D vf
   create_mhd_4D_pattern.sh $vf_dir/vf_${ref_phase_nb}_
+
+  # create 4D result image
+  create_mhd_4D_pattern.sh $output_dir/result_inside_${ref_phase_nb}_
+  create_mhd_4D_pattern.sh $output_dir/result_${ref_phase_nb}_
 
   echo
   echo "-------- Registration done ! --------"
