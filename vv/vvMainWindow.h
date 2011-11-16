@@ -63,6 +63,7 @@ class vvMainWindow: public vvMainWindowBase,
   void ShowLastImage();
   void SaveCurrentStateAs(const std::string& stateFile);
   void ReadSavedStateFile(const std::string& stateFile);
+	void LinkAllImages();
 
   virtual void UpdateCurrentSlicer();
   virtual QTabWidget * GetTab();

@@ -112,6 +112,7 @@ int main( int argc, char** argv )
   int n_image_loaded=0;
   std::string win(""), lev("");
 
+	bool link_images = false;
   if (argc >1) {
     for (int i = 1; i < argc; i++) {
       std::string current = argv[i];
@@ -144,7 +145,10 @@ int main( int argc, char** argv )
           parse_mode=P_WINDOW;
         } else if (current == "--level") {
           parse_mode=P_LEVEL;
-        } else if (current == "--log") {
+        } else if (current == "--linkall") {
+					link_images = true;
+				}
+				else if (current == "--log") {
           std::string log_dir = QDir::tempPath().toStdString() + std::string("/vv-log");
 
           if(itksys::SystemTools::FileExists(log_dir.c_str()) &&
@@ -204,6 +208,8 @@ int main( int argc, char** argv )
     window.ApplyWindowLevelToAllImages();
   }
 
+	if (link_images)
+		window.LinkAllImages();
 
   int ret = app.exec();
   

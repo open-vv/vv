@@ -2322,6 +2322,12 @@ void vvMainWindow::ReadSavedStateFile(const std::string& stateFile)
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+void vvMainWindow::LinkAllImages()
+{
+	linkPanel->linkAll();
+}
+
+//------------------------------------------------------------------------------
 void vvMainWindow::AddLink(QString image1,QString image2)
 {
   unsigned int sm1 = 0;
