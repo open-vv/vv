@@ -18,6 +18,7 @@
 #ifndef _clitkVectorBSplineDecompositionImageFilter_txx
 #define _clitkVectorBSplineDecompositionImageFilter_txx
 #include "clitkVectorBSplineDecompositionImageFilter.h"
+#include "clitkDD.h"
 #include "itkImageRegionConstIteratorWithIndex.h"
 #include "itkImageRegionIterator.h"
 #include "itkProgressReporter.h"

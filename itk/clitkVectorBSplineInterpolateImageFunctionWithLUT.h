@@ -85,6 +85,15 @@ namespace clitk {
     //void SetInputImageIsCoefficient(bool inputIsCoef) { mInputIsCoef = inputIsCoef; }
 
     /** Evaluate the function at a ContinuousIndex position.
+  Overwritten for taking LUT into account (RP: multi-threading-compatible version, 
+  the threadID is actually ignored) */  
+    virtual OutputType EvaluateAtContinuousIndex(const ContinuousIndexType & index, unsigned int /* threadID */ ) const
+    {
+      std::cout << "EvaluateAtContinuousIndex" << std::endl;
+      return this->EvaluateAtContinuousIndex( index );
+    }
+
+    /** Evaluate the function at a ContinuousIndex position.
 	Overwritten for taking LUT into account */  
     virtual OutputType EvaluateAtContinuousIndex(const ContinuousIndexType & index ) const;
     void EvaluateWeightsAtContinuousIndex(const ContinuousIndexType &  x,  const TCoefficientType ** pweights, IndexType & evaluateIndex) const;
