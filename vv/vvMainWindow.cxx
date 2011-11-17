@@ -1720,11 +1720,16 @@ void vvMainWindow::SwitchWindowLevel()
 //------------------------------------------------------------------------------
 void vvMainWindow::ApplyWindowLevelToAllImages()
 {
+  int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
+  if(index==-1) return;
+  double window = mSlicerManagers[index]->GetColorWindow();
+  double level = mSlicerManagers[index]->GetColorLevel();
+
   for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
     if (mSlicerManagers[i] == NULL)
       continue;
-    mSlicerManagers[i]->SetColorWindow(windowSpinBox->value());
-    mSlicerManagers[i]->SetColorLevel(levelSpinBox->value());
+    mSlicerManagers[i]->SetColorWindow(window);
+    mSlicerManagers[i]->SetColorLevel(level);
     mSlicerManagers[i]->SetPreset(6);
     mSlicerManagers[i]->Render();
   }
@@ -2372,10 +2377,13 @@ void vvMainWindow::RemoveLink(QString image1,QString image2)
 //------------------------------------------------------------------------------
 void vvMainWindow::ChangeImageWithIndexOffset(vvSlicerManager *sm, int slicer, int offset)
 {
+  if(mSlicerManagers.size()==1)
+    return;
+
   int index = 0;
   while(sm != mSlicerManagers[index])
     index++;
-  index = (index+offset) % mSlicerManagers.size();
+  index = (index+offset+mSlicerManagers.size()) % mSlicerManagers.size();
 
   QTreeWidgetItem* item = GetItemFromSlicerManager(mSlicerManagers[index]);
   item->setData(slicer+1,Qt::CheckStateRole,2);         //change checkbox
@@ -2657,7 +2665,7 @@ void vvMainWindow::SaveScreenshotAllSlices()
                                                   "Images( *.png);;Images( *.jpg)");
 
   // Loop on slices
-  for(uint i=0; i<nbSlices; i++) {
+  for(int i=0; i<nbSlices; i++) {
     // Change the slice
     slicer->SetSlice(i); // -> change the slice of the current slicer
     SM->UpdateSlice(0); // --> this one emit UpdateSlice
