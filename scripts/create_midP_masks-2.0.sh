@@ -130,7 +130,9 @@ mm_preprocessing()
   # extract_bones
   extract_lungs
   # remove_tmp_masks 1
-  resample
+  if [ $resample_spacing -ne 0 ] ; then 
+    resample
+  fi
 }
 
 mm_postprocessing()
@@ -144,8 +146,13 @@ motion_mask()
 {
   #set cmd line variables
   mhd4d=$1
-  resample_spacing=$2
-  resample_algo=$3
+  if [ $# -eq 3 ] ; then
+    resample_spacing=$2
+    resample_algo=$3
+  else
+    resample_spacing=0
+    resample_algo=0
+  fi
 
   dir=`dirname $1`
   cd $dir
@@ -156,7 +163,11 @@ motion_mask()
   fi
 
   #set other global variables
-  mask_dir="MASK-${resample_spacing}mm-$resample_algo"
+  if [ $resample_spacing -ne 0 ] ; then
+    mask_dir="MASK-${resample_spacing}mm-$resample_algo"
+  else
+    mask_dir="MASK"
+  fi
   mask_dir_tmp="tmp.$mask_dir"
   extract_4d_phases $mhd4d
 
@@ -264,8 +275,8 @@ motion_mask()
 # main  #
 #################
 
-if [ $# != 3 ]; then
-  echo "Usage: $0 CT_4D RESAMPLE_SPACING RESAMPLE_ALGORITHM"
+if [ $# -ne 3 -a $# -ne 1 ]; then
+  echo "Usage: $0 CT_4D [RESAMPLE_SPACING RESAMPLE_ALGORITHM]"
   exit -1
 fi
 
@@ -276,5 +287,9 @@ fi
 #
 
 if [ $1 != "using-as-lib" ]; then
-  motion_mask $1 $2 $3
+  if [ $# -eq 3 ] ; then
+    motion_mask $1 $2 $3
+  else
+    motion_mask $1
+  fi
 fi
