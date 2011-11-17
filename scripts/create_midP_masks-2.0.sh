@@ -145,7 +145,7 @@ mm_postprocessing()
 motion_mask()
 {
   #set cmd line variables
-  mhd4d=$1
+  mhd4d=`basename $1`
   if [ $# -eq 3 ] ; then
     resample_spacing=$2
     resample_algo=$3
