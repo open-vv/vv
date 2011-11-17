@@ -2372,10 +2372,13 @@ void vvMainWindow::RemoveLink(QString image1,QString image2)
 //------------------------------------------------------------------------------
 void vvMainWindow::ChangeImageWithIndexOffset(vvSlicerManager *sm, int slicer, int offset)
 {
+  if(mSlicerManagers.size()==1)
+    return;
+
   int index = 0;
   while(sm != mSlicerManagers[index])
     index++;
-  index = (index+offset) % mSlicerManagers.size();
+  index = (index+offset+mSlicerManagers.size()) % mSlicerManagers.size();
 
   QTreeWidgetItem* item = GetItemFromSlicerManager(mSlicerManagers[index]);
   item->setData(slicer+1,Qt::CheckStateRole,2);         //change checkbox
@@ -2657,7 +2660,7 @@ void vvMainWindow::SaveScreenshotAllSlices()
                                                   "Images( *.png);;Images( *.jpg)");
 
   // Loop on slices
-  for(uint i=0; i<nbSlices; i++) {
+  for(int i=0; i<nbSlices; i++) {
     // Change the slice
     slicer->SetSlice(i); // -> change the slice of the current slicer
     SM->UpdateSlice(0); // --> this one emit UpdateSlice
