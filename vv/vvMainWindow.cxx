@@ -1720,11 +1720,16 @@ void vvMainWindow::SwitchWindowLevel()
 //------------------------------------------------------------------------------
 void vvMainWindow::ApplyWindowLevelToAllImages()
 {
+  int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
+  if(index==-1) return;
+  double window = mSlicerManagers[index]->GetColorWindow();
+  double level = mSlicerManagers[index]->GetColorLevel();
+
   for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
     if (mSlicerManagers[i] == NULL)
       continue;
-    mSlicerManagers[i]->SetColorWindow(windowSpinBox->value());
-    mSlicerManagers[i]->SetColorLevel(levelSpinBox->value());
+    mSlicerManagers[i]->SetColorWindow(window);
+    mSlicerManagers[i]->SetColorLevel(level);
     mSlicerManagers[i]->SetPreset(6);
     mSlicerManagers[i]->Render();
   }
