@@ -44,8 +44,8 @@ public:
   typedef itk::SmartPointer<Self> Pointer;
   itkNewMacro(Self);
 
-  typedef typename std::map<int, clitk::DicomRT_ROI::Pointer>::iterator ROIIteratorType;
-  typedef typename std::map<int, clitk::DicomRT_ROI::Pointer>::const_iterator ROIConstIteratorType;
+  typedef std::map<int, clitk::DicomRT_ROI::Pointer>::iterator ROIIteratorType;
+  typedef std::map<int, clitk::DicomRT_ROI::Pointer>::const_iterator ROIConstIteratorType;
 
   void Print(std::ostream & os = std::cout) const;
   void Read(const std::string & filename);

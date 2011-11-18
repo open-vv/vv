@@ -245,7 +245,6 @@ typename VectorBSplineInterpolateImageFunctionWithLUT<TImageType,TCoordRep,TCoef
 VectorBSplineInterpolateImageFunctionWithLUT<TImageType,TCoordRep,TCoefficientType>::
 EvaluateAtContinuousIndex(const ContinuousIndexType & x) const
 {
-
     // JV Compute BSpline weights if not up to date! Problem const: pass image as last
     //  if (!mWeightsAreUpToDate) UpdatePrecomputedWeights();
   // For shorter coding
