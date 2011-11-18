@@ -766,8 +766,7 @@ namespace clitk {
   {
     assert((mainDirection==0) || (mainDirection==1));
     typedef itk::ImageSliceIteratorWithIndex<ImageType> SliceIteratorType;
-    SliceIteratorType siter = SliceIteratorType(input, 
-                                                input->GetLargestPossibleRegion());
+    SliceIteratorType siter = SliceIteratorType(input, input->GetLargestPossibleRegion());
     siter.SetFirstDirection(0);
     siter.SetSecondDirection(1);
     siter.GoToBegin();
@@ -786,7 +785,6 @@ namespace clitk {
         A = lA[i];
         B = lB[i];
         C = A;
-      
         // Check that the line is not a point (A=B)
         bool p = (A[0] == B[0]) && (A[1] == B[1]);
       
