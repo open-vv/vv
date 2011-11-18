@@ -103,7 +103,7 @@ void vvStructureSetActor::CreateNewROIActor(int n, bool modeBG)
   actor->SetBGMode(modeBG);
   actor->SetROI(roi);
   actor->SetSlicerManager(mSlicerManager);
-  actor->Initialize();
+  actor->Initialize(n+1); // depth is n+1 to start at 1
   mMapROIIndex[n] = mROIActors.size()-1;
 }
 //------------------------------------------------------------------------------
