@@ -145,7 +145,7 @@ template<class TLabelImage>
 void
 LabelOverlapMeasuresImageFilter<TLabelImage>
 ::ThreadedGenerateData( const RegionType& outputRegionForThread,
-  int threadId )
+  ThreadIdType threadId )
 {
   ImageRegionConstIterator<LabelImageType> ItS( this->GetSourceImage(),
     outputRegionForThread );

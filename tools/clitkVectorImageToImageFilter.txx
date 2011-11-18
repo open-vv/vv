@@ -47,7 +47,7 @@ namespace clitk
   //-------------------------------------------------------------------
   template<class InputImageType, class  OutputImageType> 
   void 
-  VectorImageToImageFilter<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, int threadId)
+  VectorImageToImageFilter<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, itk::ThreadIdType threadId)
   {
     // Iterators
     typename OutputImageType::Pointer output=this->GetOutput();

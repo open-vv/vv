@@ -159,7 +159,7 @@ NormalizedCorrelationImageToImageMetric<TFixedImage,TMovingImage>
     delete [] m_ThreaderDerivativeF;
   }
   m_ThreaderDerivativeF = new DerivativeType[this->m_NumberOfThreads];
-  for(unsigned int threadID=0; threadID<this->m_NumberOfThreads; threadID++) {
+  for(itk::ThreadIdType threadID=0; threadID<this->m_NumberOfThreads; threadID++) {
     m_ThreaderDerivativeF[threadID].SetSize( this->m_NumberOfParameters );
   }
 
@@ -167,7 +167,7 @@ NormalizedCorrelationImageToImageMetric<TFixedImage,TMovingImage>
     delete [] m_ThreaderDerivativeM;
   }
   m_ThreaderDerivativeM = new DerivativeType[this->m_NumberOfThreads];
-  for(unsigned int threadID=0; threadID<this->m_NumberOfThreads; threadID++) {
+  for(itk::ThreadIdType threadID=0; threadID<this->m_NumberOfThreads; threadID++) {
     m_ThreaderDerivativeM[threadID].SetSize( this->m_NumberOfParameters );
   }
 }
@@ -177,7 +177,7 @@ template < class TFixedImage, class TMovingImage  >
 inline bool
 NormalizedCorrelationImageToImageMetric<TFixedImage,TMovingImage>
 ::GetValueThreadProcessSample(
-  unsigned int threadID,
+  itk::ThreadIdType threadID,
   unsigned long fixedImageSample,
   const MovingImagePointType & itkNotUsed(mappedPoint),
   double movingImageValue) const
@@ -354,7 +354,7 @@ template < class TFixedImage, class TMovingImage  >
 inline bool
 NormalizedCorrelationImageToImageMetric<TFixedImage,TMovingImage>
 ::GetValueAndDerivativeThreadProcessSample(
-  unsigned int threadID,
+  itk::ThreadIdType threadID,
   unsigned long fixedImageSample,
   const MovingImagePointType & itkNotUsed(mappedPoint),
   double movingImageValue,
@@ -440,7 +440,7 @@ NormalizedCorrelationImageToImageMetric<TFixedImage,TMovingImage>
           0,
           this->m_NumberOfParameters * sizeof(typename DerivativeType::ValueType) );
 
-  for( unsigned int threadID = 0; threadID<this->m_NumberOfThreads; threadID++ ) {
+  for( itk::ThreadIdType threadID = 0; threadID<this->m_NumberOfThreads; threadID++ ) {
     memset( m_ThreaderDerivativeF[threadID].data_block(),
             0,
             this->m_NumberOfParameters * sizeof(typename DerivativeType::ValueType) );

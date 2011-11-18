@@ -129,12 +129,12 @@ private:
   //purposely not implemented
   void operator=(const Self &);
 
-  inline bool GetValueThreadProcessSample( unsigned int threadID,
+  inline bool GetValueThreadProcessSample( ThreadIdType threadID,
       unsigned long fixedImageSample,
       const MovingImagePointType & mappedPoint,
       double movingImageValue ) const;
 
-  inline bool GetValueAndDerivativeThreadProcessSample( unsigned int threadID,
+  inline bool GetValueAndDerivativeThreadProcessSample( ThreadIdType threadID,
       unsigned long fixedImageSample,
       const MovingImagePointType & mappedPoint,
       double movingImageValue,

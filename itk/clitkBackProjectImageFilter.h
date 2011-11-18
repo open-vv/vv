@@ -242,7 +242,7 @@ namespace clitk
     void BeforeThreadedGenerateData(void );
   
     // Threaded Generate Data
-    void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, int threadId );
+    void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, itk::ThreadIdType threadId );
 
  
     //------------------------------------------------

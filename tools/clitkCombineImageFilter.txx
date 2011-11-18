@@ -46,7 +46,7 @@ namespace clitk
   //-------------------------------------------------------------------
   template<class InputImageType> 
   void 
-  CombineImageFilter<InputImageType>::ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, int threadId)
+  CombineImageFilter<InputImageType>::ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, itk::ThreadIdType threadId)
   {
     typename InputImageType::ConstPointer input1=this->GetInput(0);
     typename InputImageType::ConstPointer input2=this->GetInput(1);

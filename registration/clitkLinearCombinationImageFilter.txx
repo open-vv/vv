@@ -71,7 +71,7 @@ namespace clitk
   template <class InputImageType, class OutputImageType> 
   void 
   LinearCombinationImageFilter<InputImageType, OutputImageType>
-  ::ThreadedGenerateData(const OutputImageRegionType &threadRegion, int threadId)
+  ::ThreadedGenerateData(const OutputImageRegionType &threadRegion, itk::ThreadIdType threadId)
   {
     //Pointers to input and output
     typename InputImageType::ConstPointer input1=this->GetInput(0);

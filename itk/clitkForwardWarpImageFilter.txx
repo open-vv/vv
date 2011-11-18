@@ -84,7 +84,7 @@ protected:
 
   //the actual processing
   void BeforeThreadedGenerateData();
-  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId );
+  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId );
 
   //member data
   typename  itk::Image< double, ImageDimension>::Pointer m_Weights;
@@ -124,7 +124,7 @@ void HelperClass1<InputImageType, OutputImageType, DeformationFieldType>::Before
 //=========================================================================================================================
 //update the output for the outputRegionForThread
 template<class InputImageType, class OutputImageType, class DeformationFieldType >
-void HelperClass1<InputImageType, OutputImageType, DeformationFieldType>::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId )
+void HelperClass1<InputImageType, OutputImageType, DeformationFieldType>::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId )
 {
 
   //Get pointer to the input
@@ -303,7 +303,7 @@ protected:
 
 
   //the actual processing
-  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId );
+  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId );
 
 
   //member data
@@ -330,7 +330,7 @@ HelperClass2<InputImageType, OutputImageType>::HelperClass2()
 //=========================================================================================================================
 //update the output for the outputRegionForThread
 template<class InputImageType, class OutputImageType > void
-HelperClass2<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId )
+HelperClass2<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId )
 {
 
   //Get pointer to the input
