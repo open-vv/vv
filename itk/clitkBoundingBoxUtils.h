@@ -42,6 +42,13 @@ namespace clitk {
 
   //--------------------------------------------------------------------
   template<int Dimension>
+  void ComputeBBIntersection(typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbo, 
+                             typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbi1, 
+                             typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbi2, 
+                             int dimension);
+
+  //--------------------------------------------------------------------
+  template<int Dimension>
   void ComputeBBUnion(typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbo, 
                       typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbi1, 
                       typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbi2);
