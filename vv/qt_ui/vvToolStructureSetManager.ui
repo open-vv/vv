@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>301</width>
-    <height>480</height>
+    <width>411</width>
+    <height>534</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -186,8 +186,14 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="editTriggers">
+      <set>QAbstractItemView::AllEditTriggers</set>
+     </property>
+     <property name="tabKeyNavigation">
+      <bool>true</bool>
+     </property>
      <property name="alternatingRowColors">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="selectionMode">
       <enum>QAbstractItemView::SingleSelection</enum>
@@ -216,6 +222,11 @@
        <string>Color</string>
       </property>
      </column>
+     <column>
+      <property name="text">
+       <string>Depth</string>
+      </property>
+     </column>
      <item>
       <property name="text">
        <string>10</string>
@@ -225,6 +236,9 @@
       </property>
       <property name="text">
        <string>Red</string>
+      </property>
+      <property name="text">
+       <string/>
       </property>
      </item>
     </widget>
@@ -241,12 +255,6 @@
       <string>Selected ROI</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
-      <property name="spacing">
-       <number>1</number>
-      </property>
-      <property name="margin">
-       <number>1</number>
-      </property>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_8">
         <item>
@@ -308,13 +316,20 @@
         </item>
         <item>
          <widget class="QSlider" name="mOpacitySlider">
+          <property name="maximum">
+           <number>100</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QSpinBox" name="mOpacitySpinBox"/>
+         <widget class="QSpinBox" name="mOpacitySpinBox">
+          <property name="maximum">
+           <number>100</number>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -364,7 +379,7 @@
              <number>1</number>
             </property>
             <property name="maximum">
-             <number>5</number>
+             <number>10</number>
             </property>
            </widget>
           </item>
@@ -373,17 +388,57 @@
        </layout>
       </item>
       <item>
-       <widget class="QLabel" name="mROInameLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Name : Lung</string>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QLabel" name="mROInameLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Name : Lung</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="mROInameLabel_3">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Depth</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="mDepthSpinBox">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>999999</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -458,12 +513,12 @@
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>344</x>
-     <y>381</y>
+     <x>219</x>
+     <y>385</y>
     </hint>
     <hint type="destinationlabel">
-     <x>426</x>
-     <y>381</y>
+     <x>376</x>
+     <y>376</y>
     </hint>
    </hints>
   </connection>
@@ -474,12 +529,12 @@
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>432</x>
-     <y>386</y>
+     <x>376</x>
+     <y>367</y>
     </hint>
     <hint type="destinationlabel">
-     <x>351</x>
-     <y>386</y>
+     <x>222</x>
+     <y>373</y>
     </hint>
    </hints>
   </connection>
