@@ -40,6 +40,7 @@ vvROIActor::vvROIActor()
   mContourWidth = 1;
   mContourColor.resize(3);
   m_modeBG = true;
+  mDepth = 1.0;
 }
 //------------------------------------------------------------------------------
 
@@ -78,7 +79,7 @@ void vvROIActor::UpdateImage()
 {
   mOverlayActors.clear();
   mImageContour.clear();
-  Initialize(mIsVisible);
+  Initialize(mDepth, mIsVisible);
   Update(); // No Render
 }
 //------------------------------------------------------------------------------
@@ -133,10 +134,11 @@ bool vvROIActor::IsContourVisible() {
 
 
 //------------------------------------------------------------------------------
-void vvROIActor::Initialize(bool IsVisible) {
+void vvROIActor::Initialize(double depth, bool IsVisible) {
   if (mROI->GetImage()) {
     mImageContour.clear();
     mOverlayActors.clear();
+    mDepth = depth;
     for(int i=0; i<mSlicerManager->GetNumberOfSlicers(); i++) {
 
       mImageContour.push_back(vvImageContour::New());
@@ -148,6 +150,7 @@ void vvROIActor::Initialize(bool IsVisible) {
       mImageContour[i]->SetColor(mContourColor[0], mContourColor[1], mContourColor[2]);
       mImageContour[i]->SetLineWidth(mContourWidth);
       mImageContour[i]->SetPreserveMemoryModeEnabled(true);
+      mImageContour[i]->SetDepth(mDepth);
       //mImageContour[i]->SetPreserveMemoryModeEnabled(false); // SEG FAULT !!!
       mImageContour[i]->SetSlicer(mSlicerManager->GetSlicer(i));
       mImageContour[i]->HideActors();
@@ -168,7 +171,8 @@ void vvROIActor::Initialize(bool IsVisible) {
                                   mROI->GetDisplayColor()[2]);
       mOverlayActors[i]->SetOpacity(mOpacity);
       mOverlayActors[i]->SetSlicer(mSlicerManager->GetSlicer(i));
-      mOverlayActors[i]->Initialize(IsVisible);
+      mOverlayActors[i]->Initialize(IsVisible);      
+      mOverlayActors[i]->SetDepth(mDepth);
     }
 
     connect(mSlicerManager,SIGNAL(UpdateSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
@@ -180,17 +184,30 @@ void vvROIActor::Initialize(bool IsVisible) {
 
 
 //------------------------------------------------------------------------------
-void vvROIActor::Update()
+void vvROIActor::SetDepth(double d)
+{
+  mDepth = d;
+  for(int i=0; i<mSlicerManager->GetNumberOfSlicers(); i++) {  
+    mOverlayActors[i]->SetDepth(d);
+    mImageContour[i]->SetDepth(d);
+  }
+  Update(true);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvROIActor::Update(bool force)
 {
   for(int i=0; i<mSlicerManager->GetNumberOfSlicers(); i++) {
-    UpdateSlice(i, mSlicerManager->GetSlicer(i)->GetSlice());
+    UpdateSlice(i, mSlicerManager->GetSlicer(i)->GetSlice(), force);
   }
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvROIActor::UpdateSlice(int slicer, int slices)
+void vvROIActor::UpdateSlice(int slicer, int slices, bool force)
 {
   if (!mROI->GetImage())  return;
   if ((!mIsVisible) && (!mIsContourVisible)) return; 
@@ -204,7 +221,7 @@ void vvROIActor::UpdateSlice(int slicer, int slices)
   }
 
   // Refresh overlays
-  mOverlayActors[slicer]->UpdateSlice(slicer, slices);
+  mOverlayActors[slicer]->UpdateSlice(slicer, slices, force);
 }
 //------------------------------------------------------------------------------
 

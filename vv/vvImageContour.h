@@ -43,6 +43,7 @@ public:
   void SetLineWidth(double w);
   void SetImage(vvImage * image);
   void SetPreserveMemoryModeEnabled(bool b);
+  void SetDepth(double d) { mDepth = d; }
 
 protected:
   vvSlicer * mSlicer;
@@ -54,6 +55,7 @@ protected:
   bool mHiddenImageIsUsed;
   vvImage * mHiddenImage;
   bool mDisplayModeIsPreserveMemory;
+  double mDepth;
 
   // For preserveMemory mode
   std::vector<vtkSmartPointer<vtkActor> > mSquaresActorList;

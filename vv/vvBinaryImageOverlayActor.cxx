@@ -42,6 +42,7 @@ vvBinaryImageOverlayActor::vvBinaryImageOverlayActor()
   mForegroundValue = 1;
   mBackgroundValue = 0;
   m_modeBG = true;
+  mDepth = 1.0;
 }
 //------------------------------------------------------------------------------
 
@@ -233,14 +234,15 @@ void vvBinaryImageOverlayActor::UpdateColor()
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void vvBinaryImageOverlayActor::UpdateSlice(int slicer, int slice)
+void vvBinaryImageOverlayActor::UpdateSlice(int slicer, int slice, bool force)
 {
   if (!mSlicer) return;
 
-  if (mPreviousSlice == mSlicer->GetSlice()) {
-    if (mPreviousTSlice == mSlicer->GetTSlice()) {
-      //DD("=========== NOTHING");
-      return; // Nothing to do
+  if (!force) {
+    if (mPreviousSlice == mSlicer->GetSlice()) {
+      if (mPreviousTSlice == mSlicer->GetTSlice()) {
+        return; // Nothing to do
+      }
     }
   }
 
@@ -253,14 +255,9 @@ void vvBinaryImageOverlayActor::UpdateSlice(int slicer, int slice)
   int orientation = mSlicer->GetOrientation();
   int maskExtent[6];
   ComputeExtent(orientation, mSlice, imageExtent, maskExtent);
-  //ComputeExtent(imageExtent, maskExtent, mSlicer->GetImage()->GetFirstVTKImageData(), mImage->GetFirstVTKImageData());
   ComputeExtent(maskExtent, maskExtent, mSlicer->GetImage()->GetFirstVTKImageData(), mImage->GetFirstVTKImageData());
-  // std::cout << "maskExtent = " << maskExtent[0] << " " << maskExtent[1] << " " << maskExtent[2] << " "
-  //  	    << maskExtent[3] << " " << maskExtent[4] << " " << maskExtent[5] << std::endl;
   mSlicer->ClipDisplayedExtent(maskExtent, mMapperList[mTSlice]->GetInput()->GetWholeExtent());
-  // std::cout << "maskExtent = " << maskExtent[0] << " " << maskExtent[1] << " " << maskExtent[2] << " "
-  // 	    << maskExtent[3] << " " << maskExtent[4] << " " << maskExtent[5] << std::endl;
-  SetDisplayExtentAndCameraPosition(orientation, mSlice, maskExtent, mImageActorList[mTSlice], 0.0);
+  SetDisplayExtentAndCameraPosition(orientation, mSlice, maskExtent, mImageActorList[mTSlice], mDepth);
 
   // set previous slice
   mPreviousTSlice = mSlicer->GetTSlice();
@@ -297,18 +294,12 @@ void vvBinaryImageOverlayActor::ComputeExtent(int orientation,
 //----------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::ComputeExtent(int * inExtent, int * outExtent, vtkImageData * image, vtkImageData * overlay)
 {
-  outExtent[0] = (( image->GetOrigin()[0] + inExtent[0]*image->GetSpacing()[0] ) - overlay->GetOrigin()[0]) /
-                 overlay->GetSpacing()[0];
-  outExtent[1] = (( image->GetOrigin()[0] + inExtent[1]*image->GetSpacing()[0] ) - overlay->GetOrigin()[0]) /
-                 overlay->GetSpacing()[0];
-  outExtent[2] = (( image->GetOrigin()[1] + inExtent[2]*image->GetSpacing()[1] ) - overlay->GetOrigin()[1]) /
-                 overlay->GetSpacing()[1];
-  outExtent[3] = (( image->GetOrigin()[1] + inExtent[3]*image->GetSpacing()[1] ) - overlay->GetOrigin()[1]) /
-                 overlay->GetSpacing()[1];
-  outExtent[4] = (( image->GetOrigin()[2] + inExtent[4]*image->GetSpacing()[2] ) - overlay->GetOrigin()[2]) /
-                 overlay->GetSpacing()[2];
-  outExtent[5] = (( image->GetOrigin()[2] + inExtent[5]*image->GetSpacing()[2] ) - overlay->GetOrigin()[2]) /
-                 overlay->GetSpacing()[2];
+  outExtent[0] = (int)lrint(((image->GetOrigin()[0] + inExtent[0]*image->GetSpacing()[0]) - overlay->GetOrigin()[0]) / overlay->GetSpacing()[0]);
+  outExtent[1] = (int)lrint(((image->GetOrigin()[0] + inExtent[1]*image->GetSpacing()[0]) - overlay->GetOrigin()[0]) / overlay->GetSpacing()[0]);
+  outExtent[2] = (int)lrint(((image->GetOrigin()[1] + inExtent[2]*image->GetSpacing()[1]) - overlay->GetOrigin()[1]) / overlay->GetSpacing()[1]);
+  outExtent[3] = (int)lrint(((image->GetOrigin()[1] + inExtent[3]*image->GetSpacing()[1]) - overlay->GetOrigin()[1]) / overlay->GetSpacing()[1]);
+  outExtent[4] = (int)lrint(((image->GetOrigin()[2] + inExtent[4]*image->GetSpacing()[2]) - overlay->GetOrigin()[2]) / overlay->GetSpacing()[2]);
+  outExtent[5] = (int)lrint(((image->GetOrigin()[2] + inExtent[5]*image->GetSpacing()[2]) - overlay->GetOrigin()[2]) / overlay->GetSpacing()[2]);
 }
 //----------------------------------------------------------------------------
 
@@ -320,23 +311,27 @@ void vvBinaryImageOverlayActor::SetDisplayExtentAndCameraPosition(int orientatio
 								  vtkImageActor * actor,
 								  double position)
 {
+  /* FIXME
+     Error according to camera orientation
+   */
+
   // Set position
   if (orientation == vtkImageViewer2::SLICE_ORIENTATION_XY) {
-    if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[2] > slice)
-      actor->SetPosition(0,0, position);
-    else
+    //if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[2] > slice)
       actor->SetPosition(0,0, -position);
+      //else
+      //actor->SetPosition(0,0, position);
   }
   if (orientation == vtkImageViewer2::SLICE_ORIENTATION_XZ) {
-    if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[1] > slice)
-      actor->SetPosition(0,position,0);
-    else
+    //if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[1] > slice)
+    // actor->SetPosition(0,position,0);
+    //else
       actor->SetPosition(0,-position,0);
   }
   if (orientation == vtkImageViewer2::SLICE_ORIENTATION_YZ) {
-    if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[0] > slice)
-      actor->SetPosition(position,0, 0);
-    else
+    //if (mSlicer->GetRenderer()->GetActiveCamera()->GetPosition()[0] > slice)
+    //  actor->SetPosition(position,0, 0);
+    //else
       actor->SetPosition(-position,0, 0);
   }
   actor->SetDisplayExtent(extent);
