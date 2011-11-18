@@ -63,6 +63,7 @@ public slots:
   void ChangeColor();
   void ChangeContourColor();
   void ChangeContourWidth(int n);
+  void ChangeDepth(int n);
   void AllVisibleROIToggled(int b);
   void AllVisibleContourROIToggled(bool b);
   void ReloadCurrentROI();
