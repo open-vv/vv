@@ -17,6 +17,7 @@
 ===========================================================================**/
 #ifndef __clitkDifferenceImageFilter_h
 #define __clitkDifferenceImageFilter_h
+#include "clitkCommon.h"
 #include "clitkImageCommon.h"
 
 //itk include
@@ -56,7 +57,7 @@ namespace clitk
   protected:
     DifferenceImageFilter();
     ~DifferenceImageFilter() {};
-    void ThreadedGenerateData(const OutputImageRegionType& threadRegion, int threadId);
+    void ThreadedGenerateData(const OutputImageRegionType& threadRegion, itk::ThreadIdType threadId);
     
        
   };

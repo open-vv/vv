@@ -115,7 +115,7 @@ MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
     delete [] m_ThreaderMSEDerivatives;
   }
   m_ThreaderMSEDerivatives = new DerivativeType[this->m_NumberOfThreads];
-  for(unsigned int threadID=0; threadID<this->m_NumberOfThreads; threadID++) {
+  for(ThreadIdType threadID=0; threadID<this->m_NumberOfThreads; threadID++) {
     m_ThreaderMSEDerivatives[threadID].SetSize( this->m_NumberOfParameters );
   }
 }
@@ -123,7 +123,7 @@ MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 template < class TFixedImage, class TMovingImage  >
 inline bool
 MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
-::GetValueThreadProcessSample( unsigned int threadID,
+::GetValueThreadProcessSample( ThreadIdType threadID,
                                unsigned long fixedImageSample,
                                const MovingImagePointType & itkNotUsed(mappedPoint),
                                double movingImageValue) const
@@ -184,7 +184,7 @@ MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 template < class TFixedImage, class TMovingImage  >
 inline bool
 MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
-::GetValueAndDerivativeThreadProcessSample( unsigned int threadID,
+::GetValueAndDerivativeThreadProcessSample( ThreadIdType threadID,
     unsigned long fixedImageSample,
     const MovingImagePointType & itkNotUsed(mappedPoint),
     double movingImageValue,
@@ -270,7 +270,7 @@ MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
           0,
           this->m_NumberOfParameters * sizeof(double) );
 
-  for( unsigned int threadID = 0; threadID<this->m_NumberOfThreads; threadID++ ) {
+  for( ThreadIdType threadID = 0; threadID<this->m_NumberOfThreads; threadID++ ) {
     memset( m_ThreaderMSEDerivatives[threadID].data_block(),
             0,
             this->m_NumberOfParameters * sizeof(double) );

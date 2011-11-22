@@ -386,7 +386,7 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   }
   m_ThreaderJointPDFSum = new double[this->m_NumberOfThreads];
 
-  unsigned int threadID;
+  ThreadIdType threadID;
 
   int binRange = m_NumberOfHistogramBins / this->m_NumberOfThreads;
 
@@ -473,7 +473,7 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 template < class TFixedImage, class TMovingImage  >
 inline void
 MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
-::GetValueThreadPreProcess( unsigned int threadID,
+::GetValueThreadPreProcess( ThreadIdType threadID,
                             bool withinSampleThread ) const
 {
 
@@ -501,7 +501,7 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 template < class TFixedImage, class TMovingImage  >
 inline bool
 MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
-::GetValueThreadProcessSample( unsigned int threadID,
+::GetValueThreadProcessSample( ThreadIdType threadID,
                                unsigned long fixedImageSample,
                                const MovingImagePointType & itkNotUsed(mappedPoint),
                                double movingImageValue) const
@@ -576,7 +576,7 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 template < class TFixedImage, class TMovingImage  >
 inline void
 MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
-::GetValueThreadPostProcess( unsigned int threadID,
+::GetValueThreadPostProcess( ThreadIdType threadID,
                              bool itkNotUsed(withinSampleThread) ) const
 {
   unsigned int t;
@@ -638,7 +638,7 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   // MUST BE CALLED TO INITIATE PROCESSING
   this->GetValueMultiThreadedPostProcessInitiate();
 
-  for(unsigned int threadID = 0; threadID<this->m_NumberOfThreads-1; threadID++) {
+  for(ThreadIdType threadID = 0; threadID<this->m_NumberOfThreads-1; threadID++) {
     m_JointPDFSum += m_ThreaderJointPDFSum[threadID];
   }
   if ( m_JointPDFSum == 0.0 ) {
@@ -720,7 +720,7 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 template < class TFixedImage, class TMovingImage  >
 inline void
 MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
-::GetValueAndDerivativeThreadPreProcess( unsigned int threadID,
+::GetValueAndDerivativeThreadPreProcess( ThreadIdType threadID,
     bool itkNotUsed(withinSampleThread) ) const
 {
   if(threadID > 0) {
@@ -757,7 +757,7 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 template < class TFixedImage, class TMovingImage  >
 inline bool
 MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
-::GetValueAndDerivativeThreadProcessSample( unsigned int threadID,
+::GetValueAndDerivativeThreadProcessSample( ThreadIdType threadID,
     unsigned long fixedImageSample,
     const MovingImagePointType & itkNotUsed(mappedPoint),
     double movingImageValue,
@@ -864,7 +864,7 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 template < class TFixedImage, class TMovingImage  >
 inline void
 MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
-::GetValueAndDerivativeThreadPostProcess( unsigned int threadID,
+::GetValueAndDerivativeThreadPostProcess( ThreadIdType threadID,
     bool withinSampleThread ) const
 {
   this->GetValueThreadPostProcess( threadID, withinSampleThread );
@@ -931,7 +931,7 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   } else {
     this->m_PRatioArray.Fill( 0.0 );
     this->m_MetricDerivative.Fill( NumericTraits< MeasureType >::Zero );
-    for(unsigned int threadID = 0; threadID < this->m_NumberOfThreads-1; threadID++ ) {
+    for(ThreadIdType threadID = 0; threadID < this->m_NumberOfThreads-1; threadID++ ) {
       this->m_ThreaderMetricDerivative[threadID].Fill( NumericTraits< MeasureType >::Zero );
     }
     this->m_ImplicitDerivativesSecondPass = false;
@@ -947,7 +947,7 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   // CALL IF DOING THREADED POST PROCESSING
   this->GetValueAndDerivativeMultiThreadedPostProcessInitiate();
 
-  for(unsigned int threadID = 0; threadID<this->m_NumberOfThreads-1; threadID++) {
+  for(ThreadIdType threadID = 0; threadID<this->m_NumberOfThreads-1; threadID++) {
     m_JointPDFSum += m_ThreaderJointPDFSum[threadID];
   }
   if ( m_JointPDFSum == 0.0 ) {
@@ -1091,7 +1091,7 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 template < class TFixedImage, class TMovingImage >
 void
 MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
-::ComputePDFDerivatives( unsigned int threadID,
+::ComputePDFDerivatives( ThreadIdType threadID,
                          unsigned int sampleNumber,
                          int pdfMovingIndex,
                          const ImageDerivativesType & movingImageGradientValue,

@@ -194,7 +194,7 @@ namespace itk
     virtual ~RelativePositionPropImageFilter() {}
     void PrintSelf(std::ostream& os, Indent indent) const;
 
-    //void GenerateThreadedData(const typename TOutputImage::RegionType& outputRegionForThread, int threadId);
+    //void GenerateThreadedData(const typename TOutputImage::RegionType& outputRegionForThread, ThreadIdType threadId);
     void GenerateData();
 
   private:

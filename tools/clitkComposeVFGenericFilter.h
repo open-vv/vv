@@ -21,6 +21,7 @@
 
 // clitk
 #include "clitkIO.h"
+#include "clitkCommon.h"
 #include "clitkImageCommon.h"
 #include "clitkComposeVFFilter.h"
 
