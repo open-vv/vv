@@ -161,15 +161,12 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   contextMenu.addAction(actionAdd_VF_to_current_Image);
   contextActions.push_back(actionAdd_VF_to_current_Image);
 
-  QAction* actionAdd_Overlay_to_current_Image = menuOverlay->addAction(QIcon(QString::fromUtf8(":/common/icons/GPSup.png")),
-      tr("Add overlay image to current image"));
-  contextMenu.addAction(actionAdd_Overlay_to_current_Image);
-  contextActions.push_back(actionAdd_Overlay_to_current_Image);
-
-  connect(actionAdd_Overlay_to_current_Image,SIGNAL(triggered()), this,SLOT(SelectOverlayImage()));
+  //QAction* actionAdd_Overlay_to_current_Image = menuOverlay->addAction(QIcon(QString::fromUtf8(":/common/icons/GPSup.png")),
+  //    tr("Add overlay image to current image"));
+  contextMenu.addAction(actionAdd_overlay_image_to_current_image);
+  contextActions.push_back(actionAdd_overlay_image_to_current_image);
 
   contextMenu.addAction(actionAdd_fusion_image);
-  connect(actionAdd_fusion_image,SIGNAL(triggered()),this,SLOT(SelectFusionImage()));
   contextActions.push_back(actionAdd_fusion_image);
 
   contextMenu.addSeparator();
@@ -221,7 +218,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   dicomSeriesSelector = new vvDicomSeriesSelector();
 
   inverseButton->setEnabled(0);
-  actionAdd_Overlay_to_current_Image->setEnabled(0);
+  actionAdd_overlay_image_to_current_image->setEnabled(0);
   actionSave_As->setEnabled(0);
   actionAdd_VF_to_current_Image->setEnabled(0);
   actionAdd_fusion_image->setEnabled(0);
@@ -271,7 +268,8 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(actionRead_saved_state,SIGNAL(triggered()),this,SLOT(ReadSavedState()));
   connect(actionExit,SIGNAL(triggered()),this,SLOT(close()));
   connect(actionAdd_VF_to_current_Image,SIGNAL(triggered()),this,SLOT(OpenField()));
-  connect(actionNavigation_Help,SIGNAL(triggered()),this,SLOT(ShowHelpDialog()));
+  connect(actionAdd_fusion_image,SIGNAL(triggered()),this,SLOT(SelectFusionImage()));
+  connect(actionAdd_overlay_image_to_current_image,SIGNAL(triggered()), this,SLOT(SelectOverlayImage()));  connect(actionNavigation_Help,SIGNAL(triggered()),this,SLOT(ShowHelpDialog()));
   connect(actionDocumentation,SIGNAL(triggered()),this,SLOT(ShowDocumentation()));
   connect(actionRegister_vv,SIGNAL(triggered()),this,SLOT(PopupRegisterForm()));
 
@@ -306,7 +304,6 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
 
   connect(this,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(ShowContextMenu(QPoint)));
 
-#include "vvSaveState.h"
   connect(linkPanel,SIGNAL(addLink(QString,QString)),this,SLOT(AddLink(QString,QString)));
   connect(linkPanel,SIGNAL(removeLink(QString,QString)),this,SLOT(RemoveLink(QString,QString)));
   connect(overlayPanel,SIGNAL(VFPropertyUpdated(int,int,int,int,double,double,double)),this,SLOT(SetVFProperty(int,int,int,int,double,double,double)));
@@ -1038,6 +1035,7 @@ void vvMainWindow::ImageInfoChanged()
   actionSave_As->setEnabled(1);
   actionAdd_VF_to_current_Image->setEnabled(1);
   actionAdd_fusion_image->setEnabled(1);
+  actionAdd_overlay_image_to_current_image->setEnabled(1);
   actionNorth_East_Window->setEnabled(1);
   actionNorth_West_Window->setEnabled(1);
   actionSouth_East_Window->setEnabled(1);
