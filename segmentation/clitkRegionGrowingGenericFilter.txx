@@ -98,7 +98,7 @@ namespace clitk
         for (unsigned i = 0; i < Dimension; i++)
           r[i] = m_ArgsInfo.seedRadius_arg[i];
       else
-        r.Fill(m_ArgsInfo.seed_arg[0]);
+        r.Fill(m_ArgsInfo.seedRadius_arg[0]);
 
       BallType ball;
       ball.SetRadius(r);
