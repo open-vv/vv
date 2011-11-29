@@ -17,6 +17,8 @@
 ===========================================================================**/
 #ifndef clitkRegionGrowingGenericFilter_txx
 #define clitkRegionGrowingGenericFilter_txx
+#include <itkBinaryBallStructuringElement.h>
+#include <itkConstShapedNeighborhoodIterator.h>
 
 namespace clitk
 {
@@ -75,17 +77,64 @@ namespace clitk
     typename InputImageType::Pointer input= reader->GetOutput();
 
     // Seed
-    typename  InputImageType::IndexType index;
+    typedef typename  std::vector<typename InputImageType::IndexType> SeedsType;
+    SeedsType seeds(1);
     if(m_ArgsInfo.seed_given==Dimension)
       for (unsigned int i=0; i<Dimension;i++)
-	index[i]=m_ArgsInfo.seed_arg[i];
+	seeds[0][i]=m_ArgsInfo.seed_arg[i];
     
     else if ( m_ArgsInfo.seed_given==1)
-      index.Fill(m_ArgsInfo.seed_arg[0]);
+      seeds[0].Fill(m_ArgsInfo.seed_arg[0]);
     
-    else index.Fill(m_ArgsInfo.seed_arg[0]);
-    if(m_Verbose)std::cout<<"Setting seed index to "<<index<<"..."<<std::endl;
+    else seeds[0].Fill(m_ArgsInfo.seed_arg[0]);
+    if(m_Verbose)std::cout<<"Setting seed seeds to "<<seeds[0]<<"..."<<std::endl;
 
+    if (m_ArgsInfo.seedRadius_given)
+    {
+      typedef itk::BinaryBallStructuringElement<PixelType, Dimension> BallType;
+      typename BallType::RadiusType r;
+
+      if (m_ArgsInfo.seedRadius_given == Dimension)
+        for (unsigned i = 0; i < Dimension; i++)
+          r[i] = m_ArgsInfo.seedRadius_arg[i];
+      else
+        r.Fill(m_ArgsInfo.seed_arg[0]);
+
+      BallType ball;
+      ball.SetRadius(r);
+      ball.CreateStructuringElement();
+
+      typedef itk::ConstShapedNeighborhoodIterator<InputImageType> IteratorType;
+      IteratorType it(ball.GetRadius(),
+          input,
+          input->GetLargestPossibleRegion());
+#if ITK_VERSION_MAJOR < 4
+      typename BallType::ConstIterator nit;
+      unsigned idx = 0;
+      for (nit = ball.Begin(); nit != ball.End(); ++nit, ++idx)
+      {
+        if (*nit)
+        {
+          it.ActivateOffset(it.GetOffset(idx));
+        }
+        else
+        {
+          it.DeactivateOffset(it.GetOffset(idx));
+        }
+      }
+#else
+      it.CreateActiveListFromNeighborhood(ball);
+      it.NeedToUseBoundaryConditionOff();
+#endif
+
+      it.SetLocation(seeds[0]);
+      for (typename IteratorType::ConstIterator i = it.Begin(); !i.IsAtEnd(); ++i)
+      {
+        typename InputImageType::IndexType id = seeds[0] + i.GetNeighborhoodOffset();
+        if (id != seeds[0] && input->GetLargestPossibleRegion().IsInside(id))
+          seeds.push_back(id);
+      }
+    }
 
     // Filter
     typedef itk::ImageToImageFilter<InputImageType, OutputImageType> ImageToImageFilterType;
@@ -101,7 +150,8 @@ namespace clitk
 	f->SetLower(m_ArgsInfo.lower_arg);
 	f->SetUpper(m_ArgsInfo.upper_arg);
 	f->SetReplaceValue(static_cast<PixelType>(m_ArgsInfo.pad_arg));
-	f->SetSeed(index);
+        for (typename SeedsType::const_iterator it = seeds.begin(); it != seeds.end(); ++it)
+          f->AddSeed(*it);
 	filter=f;
 	if(m_Verbose)std::cout<<"Using the connected threshold image filter..."<<std::endl;
 
@@ -128,7 +178,8 @@ namespace clitk
 	f->SetLower(m_ArgsInfo.lower_arg);
 	f->SetUpper(m_ArgsInfo.upper_arg);
 	f->SetReplaceValue(static_cast<PixelType>(m_ArgsInfo.pad_arg));
-	f->AddSeed(index);
+        for (typename SeedsType::const_iterator it = seeds.begin(); it != seeds.end(); ++it)
+          f->AddSeed(*it);
 	f->SetRadius(size);
 	filter=f;
 	if(m_Verbose)std::cout<<"Using the neighborhood threshold connected image filter..."<<std::endl;
@@ -155,7 +206,8 @@ namespace clitk
 
 	f->SetMultiplier( m_ArgsInfo.multiplier_arg );
 	f->SetNumberOfIterations( m_ArgsInfo.multiplier_arg );
-	f->AddSeed( index );
+        for (typename SeedsType::const_iterator it = seeds.begin(); it != seeds.end(); ++it)
+          f->AddSeed(*it);
 	f->SetNumberOfIterations( m_ArgsInfo.iter_arg);
 	f->SetReplaceValue(static_cast<PixelType>(m_ArgsInfo.pad_arg));
 	f->SetInitialNeighborhoodRadius(size[0]);
@@ -187,7 +239,8 @@ namespace clitk
 	f->SetMultiplier(m_ArgsInfo.multiplier_arg);
 	f->SetMaximumSDIsGiven(m_ArgsInfo.maxSD_given);
 	if (m_ArgsInfo.maxSD_given) f->SetMaximumSD(m_ArgsInfo.maxSD_arg);
-	f->AddSeed(index);
+        for (typename SeedsType::const_iterator it = seeds.begin(); it != seeds.end(); ++it)
+          f->AddSeed(*it);
 	f->SetRadius(size);
 	filter=f;
 	if(m_Verbose)std::cout<<"Using the locally adaptive threshold connected image filter..."<<std::endl;
@@ -221,7 +274,8 @@ namespace clitk
 	f->SetThresholdStepSize(m_ArgsInfo.step_arg);
 	f->SetMinimumThresholdStepSize(m_ArgsInfo.minStep_arg);
 	f->SetFullyConnected(m_ArgsInfo.full_flag);
-	f->AddSeed(index);
+        for (typename SeedsType::const_iterator it = seeds.begin(); it != seeds.end(); ++it)
+          f->AddSeed(*it);
 	filter=f;
 	if(m_Verbose)std::cout<<"Using the explosion controlled threshold connected image filter..."<<std::endl;
 
