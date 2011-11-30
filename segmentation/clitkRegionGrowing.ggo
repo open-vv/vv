@@ -25,6 +25,7 @@ option "adaptLower" 	-   	"3,4: (locally) adapt lower thresholding"	  flag 		off
 option "adaptUpper" 	-   	"3,4: (locally) adapt upper thresholding"	  flag 		off
 option "multiplier"    	m   	"2-4: (2-3) accept if within mean+-mutiplier*SD, (4) explosion if size increases multiplier times"	double	no	default="2.0"
 option "seed"    	s   	"Seed index postion (in voxels)"	  	  int 		multiple 	no	default="0"	
+option "seedRadius"    	-   	"Radius used for seed dilatation(in voxel)"	  int 		multiple 	no	default="0"	
 option "pad"    	p   	"The replace padding value"	  		  double 	no		default="1.0"	
 option "radius"    	r   	"1-3: The radius of the neighborhood"  		  int		no		multiple 	default="1"
 option "maxSD"		-	"3: Limit to SD"				  double	no 	 
