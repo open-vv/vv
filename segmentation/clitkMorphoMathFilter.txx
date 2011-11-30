@@ -117,6 +117,7 @@ GenerateOutputInformation()
   // Define the images
   //---------------------------------
   ImagePointer m_input = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
+  const unsigned int dim = ImageType::ImageDimension;
 
   //---------------------------------
   // Cast into internalimagetype
@@ -131,7 +132,7 @@ GenerateOutputInformation()
   // Compute the radius in pixel
   //---------------------------------
   if (m_RadiusInMMIsSet) {
-    for(uint i=0; i<ImageType::ImageDimension; i++) {
+    for(uint i=0; i<dim; i++) {
       m_Radius[i] = (uint)lrint(m_RadiusInMM[i]/input->GetSpacing()[i]);
     }
   }
@@ -145,7 +146,7 @@ GenerateOutputInformation()
     padFilter->SetInput(input);
     typename ImageType::SizeType lower;
     typename ImageType::SizeType upper;
-    for(uint i=0; i<3; i++) {
+    for(uint i=0; i<dim; i++) {
       lower[i] = upper[i] = 2*(m_Radius[i]+1);
     }
     padFilter->SetPadLowerBound(lower);

@@ -116,6 +116,7 @@ namespace clitk
 		
 		
 		// get neighbor index and overlap fraction
+                bool neighbIndexSupZero = 1;
 		for( dim = 0; dim < ImageDimension; dim++ )
 		  {
 		    if ( upper & 1 )
@@ -128,12 +129,14 @@ namespace clitk
 			neighIndex[dim] = baseIndex[dim];
 			overlap *= 1.0 - distance[dim];
 		      }
+                    if (neighIndex[dim] < 0)
+                      neighbIndexSupZero = 0;
 		    upper >>= 1;
 		  }
 
 		//JV shouldn't we verify that the index is not over the upper border instead of zero?
 		// Set neighbor value only if overlap is not zero and index is still in image
-		if( overlap>0.0 && neighIndex[0]>=0 && neighIndex[1]>=0 && neighIndex[2]>=0 )
+		if ( overlap>0.0 && neighbIndexSupZero )
 		  {
 		    //what to store? the weighted displacement vector of Input2? 
 		    totalDisplacement+=m_Input2->GetPixel(neighIndex)*overlap;

@@ -33,7 +33,7 @@ ExtractStationSupports()
   
   // Read all support limits in a file and apply them
   ReadSupportLimits(GetSupportLimitsFilename());  
-  for(int i=0; i<m_ListOfSupportLimits.size(); i++) {
+  for(unsigned int i=0; i<m_ListOfSupportLimits.size(); i++) {
     SupportLimitsType s = m_ListOfSupportLimits[i];
     Support_SI_Limit(s.station_limit, s.station, s.structure_limit, 
                      s.structure, s.offset*m_Working_Support->GetSpacing()[2]);

@@ -132,7 +132,6 @@ void clitk::HndImageIO::Read(void * buffer)
   uint32_t* buf = (uint32_t*)buffer;
   unsigned char *pt_lut;
   uint32_t a;
-  float b;
   unsigned char v;
   int lut_idx, lut_off;
   size_t num_read;
@@ -155,13 +154,11 @@ void clitk::HndImageIO::Read(void * buffer)
   for (i = 0; i < GetDimensions(0); i++) {
     fread (&a, sizeof(uint32_t), 1, fp);
     buf[i] = a;
-    b = a;
   }
 
   /* Read first pixel of second row */
   fread (&a, sizeof(uint32_t), 1, fp);
   buf[i++] = a;
-  b = a;
 
   /* Decompress the rest */
   lut_idx = 0;
@@ -211,7 +208,6 @@ void clitk::HndImageIO::Read(void * buffer)
     }
 
     buf[i] = r21 + r12 + diff - r11;
-    b = buf[i];
     i++;
   }
 

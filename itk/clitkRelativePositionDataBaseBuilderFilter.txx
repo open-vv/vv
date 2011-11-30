@@ -85,7 +85,6 @@ clitk::RelativePositionDataBaseBuilderFilter<ImageType>::
 GenerateData() 
 {
   // Load database of anatomical elements
-  static const unsigned int dim = ImageType::ImageDimension;
   this->LoadAFDB();
 
   // Get some information
@@ -97,7 +96,7 @@ GenerateData()
 
   // Build the list of tested directions
   m_ListOfAngles.clear();
-  for(uint i=0; i<GetNumberOfAngles(); i++) {
+  for(int i=0; i<GetNumberOfAngles(); i++) {
     double a = i*360.0/GetNumberOfAngles();
     if (a>180) a = 180-a;
     m_ListOfAngles.push_back(clitk::deg2rad(a));
@@ -114,7 +113,7 @@ GenerateData()
   for (int i=0; i<GetNumberOfObjects(); i++) {
     m_Object = this->GetAFDB()->template GetImage <ImageType>(GetObjectName(i));
 
-    for (int j=0; j<m_ListOfDirections.size(); j++) {
+    for (unsigned int j=0; j<m_ListOfDirections.size(); j++) {
       clitk::RelativePositionDirectionType direction = m_ListOfDirections[j];
       
       // Create the filter

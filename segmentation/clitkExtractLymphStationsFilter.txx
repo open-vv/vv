@@ -205,10 +205,10 @@ CheckForStation(std::string station)
   // Check if station already exist in DB
   
   // FIXME -> do nothing if not on the command line. Is it what I want ?
-  bool found = false;
+  //bool found = false;
   if (this->GetAFDB()->TagExist(s)) {
     m_ListOfStations[station] = this->GetAFDB()->template GetImage<MaskImageType>(s);
-    found = true;
+    //found = true;
   }
 
 }

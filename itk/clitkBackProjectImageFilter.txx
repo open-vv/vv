@@ -223,7 +223,7 @@ namespace clitk
   BackProjectImageFilter<InputImageType, OutputImageType>
   ::CalculateProjectionMatrix( void )
   {
-    InputSpacingType inputSpacing=this->GetInput()->GetSpacing();
+    //InputSpacingType inputSpacing=this->GetInput()->GetSpacing();
     
     // Projection on YZ plane+pixelTrans
     itk::Matrix<double,3,4> temp;
@@ -325,7 +325,6 @@ namespace clitk
     iPoint.Fill(itk::NumericTraits<double>::Zero);
     OutputIndexType oIndex;
     ContinuousInputIndexType iIndex;
-    InputSizeType inputSize=inputPtr->GetLargestPossibleRegion().GetSize();
 
     //Get the first output coordinate
     oIndex=iterator.GetIndex();//costly but only once a thread

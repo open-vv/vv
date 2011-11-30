@@ -132,7 +132,7 @@ void HelperClass1<InputImageType, OutputImageType, DeformationFieldType>::Thread
 
   //Get pointer to the output
   typename OutputImageType::Pointer outputPtr = this->GetOutput();
-  typename OutputImageType::SizeType size=outputPtr->GetLargestPossibleRegion().GetSize();
+  //typename OutputImageType::SizeType size=outputPtr->GetLargestPossibleRegion().GetSize();
 
   //Iterators over input and deformation field
   typedef itk::ImageRegionConstIteratorWithIndex<InputImageType> InputImageIteratorType;

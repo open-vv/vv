@@ -70,7 +70,7 @@ void clitk::FilterBase::StopCurrentStep(typename TInternalImageType::Pointer p, 
   clitk::PrintMemory(GetVerboseMemoryFlag(), "End of step"); 
   if (GetVerboseImageSizeFlag()) {
     std::ostream & os = std::cout;
-    int dim = p->GetImageDimension();
+    unsigned int dim = p->GetImageDimension();
     int nb = 1;
     os << txt << " size = ";
     for(unsigned int i=0; i<dim-1; i++) {

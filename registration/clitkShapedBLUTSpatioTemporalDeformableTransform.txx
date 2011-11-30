@@ -1058,7 +1058,6 @@ namespace clitk
     typename   CoefficientImageType::RegionType sourceRegion=m_PaddedCoefficientImage->GetLargestPossibleRegion();
     typename   CoefficientImageType::RegionType destinationRegion=m_PaddedCoefficientImage->GetLargestPossibleRegion();
     typename   CoefficientImageType::RegionType::SizeType sourceSize=sourceRegion.GetSize();
-    typename   CoefficientImageType::RegionType::SizeType destinationSize=destinationRegion.GetSize();    
     typename   CoefficientImageType::IndexType sourceIndex=sourceRegion.GetIndex();
     typename   CoefficientImageType::IndexType destinationIndex=destinationRegion.GetIndex();
  
