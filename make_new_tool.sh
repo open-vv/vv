@@ -6,7 +6,7 @@ then
   exit 1
 fi
 
-find filters tools -name "clitkFooImage*" |
+find tools -name "clitkFooImage*" |
 while read i
 do
     cp $i ${i/FooImage/$1}
