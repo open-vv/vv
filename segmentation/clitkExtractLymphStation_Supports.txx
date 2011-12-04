@@ -111,7 +111,7 @@ Support_SI_Limit(const std::string station_limit, const std::string station,
   m_Working_Support = m_ListOfSupports[station];
   
   // Get structure or structureZ
-  double z;
+  double z=0.;
   int found=0;
   std::string file;
 
