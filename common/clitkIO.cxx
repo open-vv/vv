@@ -38,7 +38,9 @@
 // Register factories
 void clitk::RegisterClitkFactories()
 {
+#ifdef unix
   clitk::GateAsciiImageIOFactory::RegisterOneFactory();
+#endif
   clitk::DicomRTDoseIOFactory::RegisterOneFactory();
 #if ITK_VERSION_MAJOR <= 3
   itk::ImageIOFactory::RegisterBuiltInFactories();
