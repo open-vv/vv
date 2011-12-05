@@ -19,18 +19,6 @@ ExtractStationSupports()
   Support_SI_Limit("inferior", "Sup_to_Carina", "inferior", "Carina", 0); 
   Support_SI_Limit("superior", "Inf_to_Carina", "inferior", "Carina", m_Working_Support->GetSpacing()[2]); 
 
-  // Initialise all others supports
-  // m_ListOfSupports["S1R"] = m_ListOfSupports["Sup_to_Carina"];
-  // m_ListOfSupports["S1L"] = m_ListOfSupports["Sup_to_Carina"];
-  // m_ListOfSupports["S2R"] = m_ListOfSupports["Sup_to_Carina"];
-  // m_ListOfSupports["S2L"] = m_ListOfSupports["Sup_to_Carina"];
-  // m_ListOfSupports["S3A"] = m_ListOfSupports["Sup_to_Carina"];
-  // m_ListOfSupports["S3P"] = m_ListOfSupports["Sup_to_Carina"];
-  // m_ListOfSupports["S4R"] = m_ListOfSupports["Sup_to_Carina"];
-  // m_ListOfSupports["S4L"] = m_ListOfSupports["Sup_to_Carina"];
-  // m_ListOfSupports["S5"] = m_Mediastinum; // Not above Carina
-  // m_ListOfSupports["S6"] = m_Mediastinum; // Not above Carina
-  
   // Read all support limits in a file and apply them
   ReadSupportLimits(GetSupportLimitsFilename());  
   for(int i=0; i<m_ListOfSupportLimits.size(); i++) {
@@ -49,15 +37,26 @@ ExtractStationSupports()
   Support_LeftRight_S4R_S4L();
   
   // Post limits of S1,S2,S4
-  Support_Post_S1S2S4();
+  Support_Post_S2S4();
 
-  // S3P
+  // S3P : "the anterior border is an imaginary horizontal line
+  // extending along the posterior wall of the trachea"
   StartNewStep("[Support] Ant limits of S3P with trachea");
   m_ListOfSupports["S3P"] = LimitsWithTrachea(m_ListOfSupports["S3P"], 1, 0, 10);
 
-  // S3A
+  // S3A : "Posteriorly, the station is limited by station 2R and 2L,
+  // but excludes the great vessels. An imaginary line joins the
+  // midpoint of the vessel in the anterior to posterior plane. It is
+  // here that station 2 contacts station 3a" ===> here limit with
+  // trachea only
   StartNewStep("[Support] Ant limits of S3A with trachea");
   m_ListOfSupports["S3A"] = LimitsWithTrachea(m_ListOfSupports["S3A"], 1, 0, -10);
+
+  // S1RL - posterior limits when SI overlap with S3P
+  Support_Post_S1_S3P();
+  
+  // S1RL - posterior limits with S2RL above sternal notch
+  Support_Post_S1_Ant_S2RL();
   
   // I will do it later
   // Below Carina S7,8,9,10
@@ -235,6 +234,11 @@ void
 clitk::ExtractLymphStationsFilter<ImageType>::
 Support_LeftRight_S1R_S1L()
 {
+  /*
+    Medially, station 1R and 1L are separated by the midline of the
+    trachea, whilst excluding the thyroid gland.
+  */
+
   // Step S1RL : Left-Right
   StartNewStep("[Support] Left-Right S1R S1L");
   std::vector<ImagePointType> A;
@@ -265,13 +269,13 @@ Support_LeftRight_S1R_S1L()
 
   // Right part
   clitk::SliceBySliceSetBackgroundFromLineSeparation<MaskImageType>(S1R, A, B, 
-                                                                    GetBackgroundValue(), 0, 10);
+                                                                    GetBackgroundValue(), 0, -10);
   S1R = clitk::AutoCrop<MaskImageType>(S1R, GetBackgroundValue());
   m_ListOfSupports["S1R"] = S1R;
 
   // Left part
   clitk::SliceBySliceSetBackgroundFromLineSeparation<MaskImageType>(S1L, A, B, 
-                                                                    GetBackgroundValue(), 0, -10);
+                                                                    GetBackgroundValue(), 0, 10);
   S1L = clitk::AutoCrop<MaskImageType>(S1L, GetBackgroundValue());
   m_ListOfSupports["S1L"] = S1L;
   StopCurrentStep<MaskImageType>(m_ListOfSupports["S1L"]);
@@ -286,11 +290,14 @@ clitk::ExtractLymphStationsFilter<ImageType>::
 Support_LeftRight_S2R_S2L()
 {
   // ---------------------------------------------------------------------------
-  /* Step : S2RL LeftRight
-     As for lymph node station 4R, 2R includes nodes extending to the
-     left lateral border of the trachea
-     Rod says:  "For station 2 there is a shift, dividing 2R from 2L, from midline
-     to the left paratracheal border."
+  /* Step : S2RL LeftRight As for lymph node station 4R, 2R includes
+     nodes extending to the left lateral border of the trachea.
+
+     Rod says: "For station 2 there is a shift in the IASLC definition
+     dividing 2R from 2L, from the midline to the left lateral
+     tracheal border. This is represented in the atlas as a vertical
+     line passing tangentially along the left lateral tracheal border
+     "
   */
   StartNewStep("[Support] Separate 2R/2L according to Trachea");
   MaskImagePointer S2R = m_ListOfSupports["S2R"];
@@ -313,15 +320,10 @@ clitk::ExtractLymphStationsFilter<ImageType>::
 Support_LeftRight_S4R_S4L()
 {
   // ---------------------------------------------------------------------------
-  /* Step : S4RL LeftRight 
-     
-     - 4R: includes right paratracheal nodes, and pretracheal nodes
-     extending to the left lateral border of trachea
-     
-     - 4L: includes nodes to the left of the left lateral border of
-     the trachea, medial to the ligamentum arteriosum
-     
-     => same than 2RL
+  /*      
+          The medial border of station 4R is defined as an imaginary line
+          running vertically from the left lateral tracheal border. This is
+          the same medial border as was described for station 2R.
   */
   StartNewStep("[Support] Left Right separation of 4R/4L");
 
@@ -409,21 +411,21 @@ LimitsWithTrachea(MaskImageType * input, int extremaDirection, int lineDirection
 template <class ImageType>
 void
 clitk::ExtractLymphStationsFilter<ImageType>::
-Support_Post_S1S2S4()
+Support_Post_S2S4()
 {
-  StartNewStep("[Support] Post limits of S1RL, S2RL, S4RL");
+  StartNewStep("[Support] Post limits of S2RL, S4RL");
   
   double m_ApexOfTheChest = FindApexOfTheChest();
   
   // Post limits with Trachea 
-  MaskImagePointer S1R = m_ListOfSupports["S1R"];
-  MaskImagePointer S1L = m_ListOfSupports["S1L"];
+  // MaskImagePointer S1R = m_ListOfSupports["S1R"];
+  // MaskImagePointer S1L = m_ListOfSupports["S1L"];
   MaskImagePointer S2R = m_ListOfSupports["S2R"];
   MaskImagePointer S2L = m_ListOfSupports["S2L"];
   MaskImagePointer S4R = m_ListOfSupports["S4R"];
   MaskImagePointer S4L = m_ListOfSupports["S4L"];
-  m_ListOfSupports["S1R"] = LimitsWithTrachea(S1L, 1, 0, -10, m_ApexOfTheChest);
-  m_ListOfSupports["S1L"] = LimitsWithTrachea(S1R, 1, 0, -10, m_ApexOfTheChest);
+  // m_ListOfSupports["S1R"] = LimitsWithTrachea(S1L, 1, 0, -10, m_ApexOfTheChest);
+  // m_ListOfSupports["S1L"] = LimitsWithTrachea(S1R, 1, 0, -10, m_ApexOfTheChest);
   m_ListOfSupports["S2R"] = LimitsWithTrachea(S2R, 1, 0, -10, m_ApexOfTheChest);
   m_ListOfSupports["S2L"] = LimitsWithTrachea(S2L, 1, 0, -10, m_ApexOfTheChest);
   m_ListOfSupports["S4R"] = LimitsWithTrachea(S4R, 1, 0, -10, m_ApexOfTheChest);
@@ -432,3 +434,161 @@ Support_Post_S1S2S4()
 //--------------------------------------------------------------------
 
 
+//--------------------------------------------------------------------
+template <class ImageType>
+void
+clitk::ExtractLymphStationsFilter<ImageType>::
+Support_Post_S1_S3P()
+{
+  StartNewStep("[Support] If S1RL and S3P have Sup-Inf overlap, define S1RL posterior limits with S3P anterior limits (post wall trachea)");
+
+  // Get current supports
+  MaskImagePointer S1R = m_ListOfSupports["S1R"];
+  MaskImagePointer S1L = m_ListOfSupports["S1L"];
+
+  // Find extrema ant positions for 3P
+  std::vector<MaskImagePointType> A;
+  std::vector<MaskImagePointType> B;
+
+  // Crop S3P like S1R
+  MaskImagePointer S3P = clitk::Clone<MaskImageType>(m_ListOfSupports["S3P"]);
+  S3P = clitk::ResizeImageLike<MaskImageType>(S3P, S1R, GetBackgroundValue());
+
+  // Slice by slice, build the separation line 
+  clitk::SliceBySliceBuildLineSegmentAccordingToExtremaPosition<MaskImageType>(S3P, 
+                                                                               GetBackgroundValue(), 2, 
+                                                                               1, true, // Ant-Post
+                                                                               0, // Horizontal line 
+                                                                               0, // margins 
+                                                                               A, B);
+
+  // clitk::WriteListOfLandmarks<MaskImageType>(A, "A-S1S3P.txt");
+  // clitk::WriteListOfLandmarks<MaskImageType>(B, "B-S1S3P.txt");
+
+  // Cut post to this line 
+  clitk::SliceBySliceSetBackgroundFromLineSeparation<MaskImageType>(S1R, A, B,
+                                                                    GetBackgroundValue(), 
+                                                                    1, -10); 
+  
+  // Crop S3P like S1L  (Redo for S1L)
+  S3P = clitk::Clone<MaskImageType>(m_ListOfSupports["S3P"]);
+  S3P = clitk::ResizeImageLike<MaskImageType>(S3P, S1L, GetBackgroundValue());
+
+  // Slice by slice, build the separation line
+  A.clear();
+  B.clear();
+  clitk::SliceBySliceBuildLineSegmentAccordingToExtremaPosition<MaskImageType>(S3P, 
+                                                                               GetBackgroundValue(), 2, 
+                                                                               1, true, // Ant-Post
+                                                                               0, // Horizontal line 
+                                                                               0, // margins 
+                                                                               A, B);
+  // Cut post to this line 
+  clitk::SliceBySliceSetBackgroundFromLineSeparation<MaskImageType>(S1L, A, B,
+                                                                    GetBackgroundValue(), 
+                                                                    1, -10); 
+
+  // Crop both images
+  S1R = clitk::AutoCrop<MaskImageType>(S1R, GetBackgroundValue());
+  S1L = clitk::AutoCrop<MaskImageType>(S1L, GetBackgroundValue());
+
+  StopCurrentStep<MaskImageType>(S1R);
+  
+  m_ListOfSupports["S1R"] = S1R;
+  m_ListOfSupports["S1L"] = S1L;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class ImageType>
+void
+clitk::ExtractLymphStationsFilter<ImageType>::
+Support_Post_S1_Ant_S2RL()
+{
+  StartNewStep("[Support] Define S1RL posterior limits with S2RL anterior limits when overlap");
+
+  // Get RightLung
+  MaskImagePointer RightLung = this->GetAFDB()->template GetImage<MaskImageType>("RightLung");
+
+  // Find common area between S1 and S2
+  MaskImagePointType p_min;
+  MaskImagePointType p_max;
+  clitk::FindExtremaPointInAGivenDirection<MaskImageType>(m_ListOfSupports["S2R"], 
+                                                          GetBackgroundValue(), 2, false, p_max);
+  clitk::FindExtremaPointInAGivenDirection<MaskImageType>(m_ListOfSupports["S1R"], 
+                                                          GetBackgroundValue(), 2, true, p_min);
+  p_min[2] -= RightLung->GetSpacing()[2]; // consider the slice below (remove lower or equal)
+  p_max[2] += RightLung->GetSpacing()[2]; // consider the slice abov  (remove greater or equal)
+  
+  if (p_min[2] > p_max[2]) {
+
+    // Crop RightLung
+    RightLung = clitk::Clone<MaskImageType>(RightLung);
+    RightLung = clitk::ResizeImageLike<MaskImageType>(RightLung, m_ListOfSupports["S1R"], GetBackgroundValue());
+    RightLung = clitk::CropImageRemoveLowerThan<MaskImageType>(RightLung, 2, p_min[2], true, GetBackgroundValue());
+    RightLung = clitk::CropImageRemoveGreaterThan<MaskImageType>(RightLung, 2, p_max[2], true, GetBackgroundValue());
+
+    // Find extrema ant positions for RightLung
+    std::vector<MaskImagePointType> A;
+    std::vector<MaskImagePointType> B;
+    clitk::SliceBySliceBuildLineSegmentAccordingToExtremaPosition<MaskImageType>(RightLung, 
+                                                                                 GetBackgroundValue(), 2, 
+                                                                                 1, true, // Ant-Post
+                                                                                 0, // Horizontal line 
+                                                                                 0, // margins 
+                                                                                 A, B);
+    clitk::SliceBySliceSetBackgroundFromLineSeparation<MaskImageType>(m_ListOfSupports["S1R"],
+                                                                      A, B,
+                                                                      GetBackgroundValue(), 
+                                                                      1, -10); 
+    // I add one pixel to abupt S2R to S1R
+    for(int i=0; i<A.size(); i++) {
+      A[i][1] -= RightLung->GetSpacing()[1];
+      B[i][1] -= RightLung->GetSpacing()[1];
+    }
+    clitk::SliceBySliceSetBackgroundFromLineSeparation<MaskImageType>(m_ListOfSupports["S2R"],
+                                                                      A, B,
+                                                                      GetBackgroundValue(), 
+                                                                      1, 10);
+  }
+
+  // Get LeftLung, crop
+  MaskImagePointer LeftLung = this->GetAFDB()->template GetImage<MaskImageType>("LeftLung");
+  clitk::FindExtremaPointInAGivenDirection<MaskImageType>(m_ListOfSupports["S2L"], 
+                                                          GetBackgroundValue(), 2, false, p_max);
+  clitk::FindExtremaPointInAGivenDirection<MaskImageType>(m_ListOfSupports["S1L"], 
+                                                          GetBackgroundValue(), 2, true, p_min);
+  p_min[2] -= LeftLung->GetSpacing()[2]; // consider the slice below (remove lower or equal)
+  p_max[2] += LeftLung->GetSpacing()[2]; // consider the slice abov  (remove greater or equal)  
+  
+  if (p_min[2] > p_max[2]) {
+    LeftLung = clitk::ResizeImageLike<MaskImageType>(LeftLung, m_ListOfSupports["S1L"], GetBackgroundValue());
+    LeftLung = clitk::CropImageRemoveLowerThan<MaskImageType>(LeftLung, 2, p_min[2], true, GetBackgroundValue());
+    LeftLung = clitk::CropImageRemoveGreaterThan<MaskImageType>(LeftLung, 2, p_max[2], true, GetBackgroundValue());
+
+    // Find extrema ant positions for LeftLung
+    std::vector<MaskImagePointType> A;
+    std::vector<MaskImagePointType> B;
+    clitk::SliceBySliceBuildLineSegmentAccordingToExtremaPosition<MaskImageType>(LeftLung, 
+                                                                                 GetBackgroundValue(), 2, 
+                                                                                 1, true, // Ant-Post
+                                                                                 0, // Horizontal line 
+                                                                                 0, // margins 
+                                                                                 A, B);
+    clitk::SliceBySliceSetBackgroundFromLineSeparation<MaskImageType>(m_ListOfSupports["S1L"],
+                                                                      A, B,
+                                                                      GetBackgroundValue(), 
+                                                                      1, -10); 
+    // I add one pixel to abupt S2R to S1R
+    for(int i=0; i<A.size(); i++) {
+      A[i][1] -= LeftLung->GetSpacing()[1];
+      B[i][1] -= LeftLung->GetSpacing()[1];
+    }
+    clitk::SliceBySliceSetBackgroundFromLineSeparation<MaskImageType>(m_ListOfSupports["S2L"],
+                                                                      A, B,
+                                                                      GetBackgroundValue(), 
+                                                                      1, 10); 
+  }
+}
+//--------------------------------------------------------------------
