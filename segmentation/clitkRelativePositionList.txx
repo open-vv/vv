@@ -146,6 +146,7 @@ GenerateOutputInformation() {
   // Loop on RelativePositionList of operations
   std::string s = GetInputName();
   for(uint i=0; i<mArgsInfoList.size(); i++) {
+    // clitk::PrintMemory(true, "Start"); 
     std::string text = "["+s+"] limits ";
     if (mArgsInfoList[i].orientation_given) text += std::string(mArgsInfoList[i].orientation_arg[0])+" ";
     else text = text+"("+toString(mArgsInfoList[i].angle1_arg)+" "+
@@ -190,6 +191,7 @@ GenerateOutputInformation() {
     relPosFilter->Update();
     m_working_input = relPosFilter->GetOutput();  
     StopCurrentStep<ImageType>(m_working_input);
+    // clitk::PrintMemory(true, "End"); 
   }
 }
 //--------------------------------------------------------------------
