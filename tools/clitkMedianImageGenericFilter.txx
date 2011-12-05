@@ -98,9 +98,8 @@ MedianImageGenericFilter<args_info_type>::UpdateWithInputImageType()
   typename MedianImageFilterType::Pointer thresholdFilter=MedianImageFilterType::New();
   thresholdFilter->SetInput(input);
 
-  indexRadius[0]=mArgsInfo.radius_arg[0];
-  indexRadius[1]=mArgsInfo.radius_arg[1];
-  indexRadius[2]=mArgsInfo.radius_arg[2];
+  for (unsigned i = 0; i < InputImageType::ImageDimension; ++i)
+    indexRadius[i]=mArgsInfo.radius_arg[i];
 
   // indexRadius[0] = 1;
   // indexRadius[1] = 1;

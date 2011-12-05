@@ -1371,6 +1371,7 @@ namespace clitk {
     iter2.GoToBegin();
     double dmin = 100000.0;
     typename ImageType::IndexType indexmin;
+    indexmin.Fill(0);
     while (!iter1.IsAtEnd()) {
       if (iter1.Get() != BG) {
         double d = iter2.Get();

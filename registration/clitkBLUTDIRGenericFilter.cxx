@@ -322,7 +322,6 @@ namespace clitk
       // The metric region with respect to the extracted transform region:
       // where should the metric be CALCULATED (depends on transform)
       typename FixedImageType::RegionType metricRegion = fixedImage->GetLargestPossibleRegion();
-      typename FixedImageType::RegionType::SizeType metricRegionSize=metricRegion.GetSize();
       typename FixedImageType::RegionType::IndexType metricRegionIndex=metricRegion.GetIndex();
       typename FixedImageType::PointType metricRegionOrigin=fixedImage->GetOrigin();
 

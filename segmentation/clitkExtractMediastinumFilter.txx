@@ -263,6 +263,7 @@ GenerateOutputInformation() {
   MaskImagePointer bones_ant;
   MaskImagePointer bones_post;
   MaskImagePointType middle_AntPost_position;
+  middle_AntPost_position.Fill(NumericTraits<MaskImagePointType::ValueType>::Zero);
   if (GetUseBones()) { 
     this->StartNewStep("[Mediastinum] Ant/Post limits with bones");
 

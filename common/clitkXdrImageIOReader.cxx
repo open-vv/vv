@@ -750,7 +750,7 @@ int clitk::XdrImageIO::ReadWithError(void * buffer)
   //int      forcenoswap=0;
   char     *file = const_cast<char *>(m_FileName.c_str());
   int      offset=0;
-  AVSType  field=UNIFORM;
+  // AVSType  field=UNIFORM;
 
   for (i=0; i<GetNumberOfDimensions(); i++) coords += GetDimensions(i);
 
@@ -759,9 +759,9 @@ int clitk::XdrImageIO::ReadWithError(void * buffer)
 
   c = scan_header(file, "field", offset, 1);
   if (c) {
-    if (memicmp(c, "unifo", 5) == 0) field=UNIFORM, coords=nspace*2;
-    else if (memicmp(c, "recti", 5) == 0) field=RECTILINEAR;
-    else if (memicmp(c, "irreg", 5) == 0) field=IRREGULAR, coords=total*nspace;
+    if (memicmp(c, "unifo", 5) == 0) /*field=UNIFORM,*/ coords=nspace*2;
+    // else if (memicmp(c, "recti", 5) == 0) field=RECTILINEAR;
+    else if (memicmp(c, "irreg", 5) == 0) /*field=IRREGULAR,*/ coords=total*nspace;
     else return ER_XDR_FIELD;
   } else
     coords=0;

@@ -167,7 +167,6 @@ namespace clitk {
   std::vector<std::string> & RelativePositionDataBase::GetListOfPatients(const IndexType & index) const
   {
     const MapByPatientType & o = GetMapByPatient(index);
-    MapByPatientType::const_iterator iter = o.begin();
     std::vector<std::string> * v = new std::vector<std::string>; 
     MapToVecFirst(o, *v);
     return *v;
@@ -223,7 +222,7 @@ namespace clitk {
   bool RelativePositionDataBase::CheckIndex(const IndexType & index) const
   {
     try {
-      const RelativePositionInformationType & m =  GetInformation(index);
+      /*const RelativePositionInformationType & m = */ GetInformation(index);
     } catch (clitk::ExceptionObject e) {
       // std::cout << e.what() << std::endl;      
       return false;

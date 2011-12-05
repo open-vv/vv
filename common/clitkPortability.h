@@ -36,4 +36,9 @@ int IsNormal(const T val) {
 #endif
 }
 
+#if defined(_MSC_VER)
+#  include <io.h>
+#  define mkstemp(x) _mktemp_s(x, sizeof(x))
+#endif
+
 #endif /* end #define CLITKPORTABILITY_H */

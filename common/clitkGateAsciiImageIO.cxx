@@ -155,17 +155,11 @@ bool clitk::GateAsciiImageIO::ReadHeader(FILE* handle, GateAsciiHeader& header)
     regmatch_t matches[4];
 
     { // build regex
-	int ret = 0;
-	ret = regcomp(&re_comment,"^#.+$",REG_EXTENDED|REG_NEWLINE);
-	assert(ret == 0);
-	ret = regcomp(&re_matrix_size,"^# +Matrix *Size *= +\\(([0-9]+\\.?[0-9]*),([0-9]+\\.?[0-9]*),([0-9]+\\.?[0-9]*)\\)$",REG_EXTENDED|REG_NEWLINE);
-	assert(ret == 0);
-	ret = regcomp(&re_resol,"^# +Resol *= +\\(([0-9]+),([0-9]+),([0-9]+)\\)$",REG_EXTENDED|REG_NEWLINE);
-	assert(ret == 0);
-	ret = regcomp(&re_voxel_size,"^# +Voxel *Size *= +\\(([0-9]+\\.?[0-9]*),([0-9]+\\.?[0-9]*),([0-9]+\\.?[0-9]*)\\)$",REG_EXTENDED|REG_NEWLINE);
-	assert(ret == 0);
-	ret = regcomp(&re_nb_value,"^# +nbVal *= +([0-9]+)$",REG_EXTENDED|REG_NEWLINE);
-	assert(ret == 0);
+	assert(regcomp(&re_comment,"^#.+$",REG_EXTENDED|REG_NEWLINE) == 0);
+	assert(regcomp(&re_matrix_size,"^# +Matrix *Size *= +\\(([0-9]+\\.?[0-9]*),([0-9]+\\.?[0-9]*),([0-9]+\\.?[0-9]*)\\)$",REG_EXTENDED|REG_NEWLINE) == 0);
+	assert(regcomp(&re_resol,"^# +Resol *= +\\(([0-9]+),([0-9]+),([0-9]+)\\)$",REG_EXTENDED|REG_NEWLINE) == 0);
+	assert(regcomp(&re_voxel_size,"^# +Voxel *Size *= +\\(([0-9]+\\.?[0-9]*),([0-9]+\\.?[0-9]*),([0-9]+\\.?[0-9]*)\\)$",REG_EXTENDED|REG_NEWLINE) == 0);
+	assert(regcomp(&re_nb_value,"^# +nbVal *= +([0-9]+)$",REG_EXTENDED|REG_NEWLINE) == 0);
     }
 
     if (!ReadLine(handle,line)) return false;

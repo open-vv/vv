@@ -151,7 +151,7 @@ void clitk::DicomRTDoseIO::ReadImageInformation()
   while (1) {
     int len;
     gfov = (double*) realloc (gfov, (gfov_len + 1) * sizeof(double));
-    rc = sscanf (gfov_str, "%g%n", &gfov[gfov_len], &len);
+    rc = sscanf (gfov_str, "%lf%n", &gfov[gfov_len], &len);
     if (rc != 1) {
       break;
     }

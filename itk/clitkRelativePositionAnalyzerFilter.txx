@@ -101,8 +101,6 @@ void
 clitk::RelativePositionAnalyzerFilter<ImageType>::
 GenerateData() 
 {
-  static const unsigned int dim = ImageType::ImageDimension;
-  
   ImagePointer temp = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
   m_Object = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(1));
   ImagePointer temp2 = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(2));

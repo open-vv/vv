@@ -50,7 +50,7 @@ clitk::StructuresExtractionFilter<TImageType>::
 ApplyRelativePositionList(std::string name, MaskImageType * input) 
 { 
   // Create all RelativePositionList
-  for(int i=0; i<mListOfRelativePositionListFilename.size(); i++) {
+  for(unsigned int i=0; i<mListOfRelativePositionListFilename.size(); i++) {
     RelPosListPointer rpl = RelPosListType::New();
     rpl->SetAFDB(GetAFDB());
     rpl->Read(mListOfRelativePositionListFilename[i]);

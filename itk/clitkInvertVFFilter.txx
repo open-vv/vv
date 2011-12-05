@@ -119,7 +119,7 @@ void HelperClass1<InputImageType, OutputImageType>::ThreadedGenerateData(const O
 
   //Get pointer to the output
   typename OutputImageType::Pointer outputPtr = this->GetOutput();
-  typename OutputImageType::SizeType size=outputPtr->GetLargestPossibleRegion().GetSize();
+  //typename OutputImageType::SizeType size=outputPtr->GetLargestPossibleRegion().GetSize();
 
   //Iterator over input
   typedef itk::ImageRegionConstIteratorWithIndex<InputImageType> InputImageIteratorType;
@@ -178,7 +178,7 @@ void HelperClass1<InputImageType, OutputImageType>::ThreadedGenerateData(const O
         upper = counter;  // each bit indicates upper/lower neighbour
 
         // get neighbor index and overlap fraction
-        for( dim = 0; dim < 3; dim++ ) {
+        for( dim = 0; dim < ImageDimension; dim++ ) {
           if ( upper & 1 ) {
             neighIndex[dim] = baseIndex[dim] + 1;
             overlap *= distance[dim];
@@ -398,7 +398,6 @@ template <class InputImageType, class OutputImageType> void InvertVFFilter<Input
   typename OutputImageType::IndexType start;
   for (unsigned int i=0; i< ImageDimension; i++) start[i]=0;
   region.SetIndex(start);
-  PixelType zero = itk::NumericTraits<double>::Zero;
 
 
   //Allocate the weights

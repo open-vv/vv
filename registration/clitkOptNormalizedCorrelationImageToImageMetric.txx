@@ -219,7 +219,9 @@ NormalizedCorrelationImageToImageMetric<TFixedImage,TMovingImage>
 
   // Set up the parameters in the transform
   this->m_Transform->SetParameters( parameters );
+#if ITK_VERSION_MAJOR < 4
   this->m_Parameters = parameters;
+#endif
 
   // MUST BE CALLED TO INITIATE PROCESSING
   this->GetValueMultiThreadedInitiate();
@@ -294,7 +296,9 @@ NormalizedCorrelationImageToImageMetric<TFixedImage,TMovingImage>
 
   // Set up the parameters in the transform
   this->m_Transform->SetParameters( parameters );
+#if ITK_VERSION_MAJOR < 4
   this->m_Parameters = parameters;
+#endif
 
   // MUST BE CALLED TO INITIATE PROCESSING
   this->GetValueMultiThreadedInitiate();
@@ -427,7 +431,9 @@ NormalizedCorrelationImageToImageMetric<TFixedImage,TMovingImage>
 
   // Set up the parameters in the transform
   this->m_Transform->SetParameters( parameters );
+#if ITK_VERSION_MAJOR < 4
   this->m_Parameters = parameters;
+#endif
 
   //We need the sums and the value to be calculated first
   value=this->ComputeSums(parameters);

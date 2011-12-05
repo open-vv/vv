@@ -630,7 +630,9 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 {
   // Set up the parameters in the transform
   this->m_Transform->SetParameters( parameters );
+#if ITK_VERSION_MAJOR < 4
   this->m_Parameters = parameters;
+#endif
 
   // MUST BE CALLED TO INITIATE PROCESSING
   this->GetValueMultiThreadedInitiate();
@@ -939,7 +941,9 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 
   // Set up the parameters in the transform
   this->m_Transform->SetParameters( parameters );
+#if ITK_VERSION_MAJOR < 4
   this->m_Parameters = parameters;
+#endif
 
   // MUST BE CALLED TO INITIATE PROCESSING ON SAMPLES
   this->GetValueAndDerivativeMultiThreadedInitiate();

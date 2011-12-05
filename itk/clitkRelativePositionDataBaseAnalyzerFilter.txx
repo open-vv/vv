@@ -56,7 +56,7 @@ Update()
 
   // Loop over objects
   std::vector<double> m_ListOfThresholds;
-  for(int i=0; i<m_ListOfObjects.size(); i++) {
+  for(unsigned int i=0; i<m_ListOfObjects.size(); i++) {
     // DD(i);
     // DD(m_ListOfObjects[i]);
     // Set current index
@@ -66,7 +66,7 @@ Update()
     db.GetListOfDirections(GetStationName(), index.object, m_ListOfDirections);
     
     // Loop over direction
-    for(int j=0; j<m_ListOfDirections.size(); j++) {
+    for(unsigned int j=0; j<m_ListOfDirections.size(); j++) {
       // DD(j);
       // m_ListOfDirections[j].Println();
       // Set current index
@@ -106,7 +106,7 @@ ComputeOptimalThreshold(RelativePositionDataBaseIndexType & index, double & thre
 
   // For a given station, object, direction
   bool stop=false;
-  int i=0;
+  unsigned int i=0;
   if (index.direction.notFlag) threshold = 0.0;
   else threshold = 1.0;
   while (!stop && (i<ListOfPatients.size())) {

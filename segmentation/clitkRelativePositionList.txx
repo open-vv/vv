@@ -151,7 +151,7 @@ GenerateOutputInformation() {
     if (mArgsInfoList[i].orientation_given) text += std::string(mArgsInfoList[i].orientation_arg[0])+" ";
     else text = text+"("+toString(mArgsInfoList[i].angle1_arg)+" "+
            toString(mArgsInfoList[i].angle2_arg)+" "+
-           (mArgsInfoList[i].inverse_flag==true?"true":"false")+") ";
+           (mArgsInfoList[i].inverse_flag?"true":"false")+") ";
     text = text+mArgsInfoList[i].object_arg+" "+toString(mArgsInfoList[i].threshold_arg);
     if (mArgsInfoList[i].sliceBySlice_flag) {
       text += " slice by slice";

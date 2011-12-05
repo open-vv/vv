@@ -67,7 +67,7 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   f->SetAreaLossTolerance(mArgsInfo.tol_arg);
   f->SetSupportName(mArgsInfo.supportName_arg);
   f->SetTargetName(mArgsInfo.targetName_arg);
-  for(int i=0; i<mArgsInfo.objectName_given; i++)
+  for(unsigned int i=0; i<mArgsInfo.objectName_given; i++)
     f->AddObjectName(mArgsInfo.objectName_arg[i]);  
 }
 //--------------------------------------------------------------------
