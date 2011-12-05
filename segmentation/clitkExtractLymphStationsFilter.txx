@@ -85,6 +85,9 @@ GenerateOutputInformation() {
   m_Input = dynamic_cast<const ImageType*>(itk::ProcessObject::GetInput(0));
   m_Mediastinum = this->GetAFDB()->template GetImage <MaskImageType>("Mediastinum");
 
+  // DD(this->GetVerboseMemoryFlag());
+  // clitk::PrintMemory(this->GetVerboseMemoryFlag(), "Start"); 
+
   // Clean some computer landmarks to force the recomputation
   // FIXME -> to put elsewhere ?
   this->GetAFDB()->RemoveTag("AntPostVesselsSeparation");
