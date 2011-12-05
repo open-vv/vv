@@ -105,11 +105,16 @@ GenerateData()
   
   ImagePointer temp = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
   m_Object = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(1));
-  m_Target = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(2));
+  ImagePointer temp2 = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(2));
 
   // Remove object from support (keep initial image)
   m_Support = clitk::Clone<ImageType>(temp);
   clitk::AndNot<ImageType>(m_Support, m_Object, GetBackgroundValue());
+  
+  // Remove object from target. Important because sometimes, there is
+  // overlap between target and object.
+  m_Target = clitk::Clone<ImageType>(temp2);
+  clitk::AndNot<ImageType>(m_Target, m_Object, GetBackgroundValue());
   
   // Define filter to compute statics on mask image
   typedef itk::LabelStatisticsImageFilter<ImageType, ImageType> StatFilterType;
@@ -143,6 +148,9 @@ GenerateData()
   double mThreshold=0.0;
   double mReverseThreshold=1.0;
   ComputeOptimalThresholds(map, m_Target, bins, tolerance, mThreshold, mReverseThreshold);
+
+  // DD(mThreshold);
+  // DD(mReverseThreshold);
 
   // Use the threshold to compute new support
   int s1 = GetSupportSize();
@@ -178,6 +186,13 @@ GenerateData()
     s2 = statFilter->GetCount(GetForegroundValue());
   }
   
+  // Check threshold, if we gain nothing, we force to max/min thresholds
+  // DD(GetSupportSize());
+  // DD(s1);
+  // DD(s2);
+  if (s1 >= GetSupportSize()) mThreshold = 0.0;
+  if (s2 >= GetSupportSize()) mReverseThreshold = 1.0;
+
   // Set results values
   m_Info.threshold = mThreshold;
   m_Info.sizeAfterThreshold = s1;
@@ -212,15 +227,19 @@ ComputeFuzzyMap(ImageType * object, ImageType * target, ImageType * support, dou
   // sliceRelPosFilter->PrintOptions();
   sliceRelPosFilter->Update();
   typename FloatImageType::Pointer map = sliceRelPosFilter->GetFuzzyMap();
+  writeImage<FloatImageType>(map, "fuzzy_0_"+toString(clitk::rad2deg(angle))+".mha");
 
-  // Resize map like object to allow SetBackground
-  map = clitk::ResizeImageLike<FloatImageType>(map, object, GetBackgroundValue());
+  // Resize object like map to allow SetBackground
+  ImagePointer temp = clitk::ResizeImageLike<ImageType>(object, map, GetBackgroundValue());
+  //  writeImage<FloatImageType>(map, "fuzzy_1_"+toString(clitk::rad2deg(angle))+".mha");
   
   // Remove initial object from the fuzzy map
-  map = clitk::SetBackground<FloatImageType, ImageType>(map, object, GetForegroundValue(), 0.0, true);
+  map = clitk::SetBackground<FloatImageType, ImageType>(map, temp, GetForegroundValue(), 0.0, true);
+  writeImage<FloatImageType>(map, "fuzzy_2_"+toString(clitk::rad2deg(angle))+".mha");
   
   // Resize the fuzzy map like the target, put 2.0 when outside
   map = clitk::ResizeImageLike<FloatImageType>(map, target, 2.0);  // Put 2.0 when out of initial map
+  writeImage<FloatImageType>(map, "fuzzy_3_"+toString(clitk::rad2deg(angle))+".mha");
   
   // end
   return map;
@@ -241,9 +260,10 @@ ComputeOptimalThresholds(FloatImageType * map, ImageType * target, int bins, dou
   f->SetInput(map);
   f->SetLabelInput(target);
   f->UseHistogramsOn();
-  f->SetHistogramParameters(bins, 0.0, 1.1);
+  f->SetHistogramParameters(bins, 0.0-(1.0/bins), 1.0+(1.0/bins));
   f->Update();
   int count = f->GetCount(GetForegroundValue());
+  // DD(count);
   typename FloatStatFilterType::HistogramPointer h = f->GetHistogram(GetForegroundValue());
 
   // Debug : dump histogram
@@ -255,18 +275,34 @@ ComputeOptimalThresholds(FloatImageType * map, ImageType * target, int bins, dou
                   << "\t" << (double)h->GetFrequency(j)/(double)count << std::endl;
   }
   histogramFile.close();  
+  std::ofstream histogramFile2(std::string("fuzzy_histo_R_"+toString(i)+".txt").c_str());
+  for(int j=bins-1; j>=0; j--) {
+    histogramFile2 << h->GetMeasurement(j,0) 
+                  << "\t" << h->GetFrequency(j) 
+                  << "\t" << (double)h->GetFrequency(j)/(double)count << std::endl;
+  }
+  histogramFile2.close();  
   i++;
 
   // Analyze the histogram (direct)
   double sum = 0.0;
   bool found = false;
   threshold = 0.0;
-  for(int j=0; j<bins; j++) {
+  for(int j=0; j<bins-1; j++) {
     sum += ((double)h->GetFrequency(j)/(double)count);
+     // DD(j);
+     // DD(sum);
+     // DD(threshold);
+     // DD(h->GetBinMin(0,j));
+     // DD(h->GetBinMax(0,j));
     if ((!found) && (sum > tolerance)) {
-      if (j==0) threshold = h->GetBinMin(0,j);
-      else threshold = h->GetBinMin(0,j-1); // the last before reaching the threshold
+      // We consider as threshold the laste before current, because 
+      if (j==0) 
+        threshold = h->GetBinMin(0,j);
+      else threshold = h->GetBinMin(0,j-1); // FIXME  ? the last before reaching the threshold
+      // DD(threshold);
       found = true;
+      j = bins;
     }
   }
 
@@ -274,14 +310,23 @@ ComputeOptimalThresholds(FloatImageType * map, ImageType * target, int bins, dou
   sum = 0.0;
   found = false;
   reverseThreshold = 1.0;
-  for(int j=bins-1; j>=0; j--) {
+  for(int j=bins-1; j>0; j--) {
     sum += ((double)h->GetFrequency(j)/(double)count);
+     // DD(j);
+     // DD(sum);
+     // DD(reverseThreshold);
+     // DD(h->GetBinMin(0,j));
+     // DD(h->GetBinMax(0,j));
     if ((!found) && (sum > tolerance)) {
-      if (j==bins-1) reverseThreshold = h->GetBinMax(0,j);
-      else reverseThreshold = h->GetBinMax(0,j+1);
+      if (j==bins-1) 
+      reverseThreshold = h->GetBinMax(0,j);
+      else reverseThreshold = h->GetBinMax(0,j-1);// FIXME  ? the last before reaching the threshold
+      // DD(reverseThreshold);
       found = true;
+      j = -1;
     }
   }
+
 }
 //--------------------------------------------------------------------
 
