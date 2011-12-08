@@ -52,6 +52,7 @@ resample()
 {
   echo "$phase_file -> Resampling..."
   clitkResampleImage -i $mask_dir_tmp/patient_$phase_nb.mhd -o $mask_dir_tmp/patient_$phase_nb.mhd --spacing $resample_spacing --interp $resample_algo
+  clitkResampleImage -i $mask_dir_tmp/patient_mask_$phase_nb.mhd -o $mask_dir_tmp/patient_mask_$phase_nb.mhd --spacing $resample_spacing --interp $resample_algo
   clitkResampleImage -i $mask_dir_tmp/lungs_$phase_nb.mhd -o $mask_dir_tmp/lungs_$phase_nb.mhd --like $mask_dir_tmp/patient_$phase_nb.mhd
 }
 
