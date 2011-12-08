@@ -13,6 +13,8 @@ SET(clitkCommon_SRC
   clitkImageCommon.cxx
   clitkTransformUtilities.cxx
   clitkIO.cxx
+  clitkGateAsciiImageIO.cxx
+  clitkGateAsciiImageIOFactory.cxx
   clitkVoxImageIO.cxx  
   clitkVoxImageIOFactory.cxx
   clitkVfImageIO.cxx  
@@ -35,14 +37,6 @@ SET(clitkCommon_SRC
   vvImageReader.cxx
   vvImageWriter.cxx
 )
-
-IF(UNIX)
-  SET(clitkCommon_SRC
-    ${clitkCommon_SRC}
-    clitkGateAsciiImageIO.cxx
-    clitkGateAsciiImageIOFactory.cxx
-  )
-ENDIF(UNIX)
 
 ### Declare clitkCommon library
 ADD_LIBRARY(clitkCommon STATIC ${clitkCommon_SRC})

@@ -19,7 +19,8 @@
 #define CLITKGATEASCIIIMAGEIO_H
 
 // itk include
-#include "itkImageIOBase.h"
+#include <itkImageIOBase.h>
+#include <itksys/RegularExpression.hxx>
 
 #if defined (_MSC_VER) && (_MSC_VER < 1600)
 //SR: taken from
@@ -70,9 +71,9 @@ namespace clitk {
 	    virtual bool SupportsDimension(unsigned long dim);
 
 	protected:
-
-	    static bool ReadHeader(FILE* handle, GateAsciiHeader& header);
+            static bool ReadHeader(FILE* handle, GateAsciiHeader& header);
 	    static bool ReadLine(FILE* handle, std::string& line);
+            static bool FindRegularExpressionNextLine(itksys::RegularExpression &reg, std::string &s, FILE* handle);
 
     }; // end class GateAsciiImageIO
 } // end namespace
