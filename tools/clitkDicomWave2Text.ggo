@@ -3,6 +3,6 @@ package "clitk"
 version "1.2"
 purpose "Extract data from a Dicom wave file to a text file"
 option "config"         -    "config file"                     string  no
-option "InputFile"      i    "Dicom inputfile name"                       string  no
-option "OutputFile"     o   "Text outputfile name"                       string  no
+option "InputFile"      i    "Dicom inputfile name"                       string  yes
+option "OutputFile"     o   "Text outputfile name"                       string  yes
 option "Verbose"        v    "verbose"                         int  no

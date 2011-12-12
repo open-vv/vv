@@ -31,13 +31,17 @@ option "minSize"     -	"Minimum component size in voxels"	  int		no  	default="1
 
 section "Step 2 : find trachea"
 
-option "skipslices"                  -  "Number of slices to skip before searching seed" int no default="0"
-option "upperThresholdForTrachea"    -	"Initial upper threshold for trachea"  double	no  default="-900"
-option "multiplierForTrachea"	     -	"Multiplier for the region growing"    double	no  default="5"
-option "thresholdStepSizeForTrachea" -	"Threshold step size"	               int      no  default="64"
-option "seed"                        -	"Index of the trachea seed point (in pixel, not in mm)"      int	no  multiple
-option "doNotCheckTracheaVolume"     -  "If set, do not check the trachea volume" flag off
-option "verboseRG"                   -  "Verbose RegionGrowing"   flag off
+option "type"                        -  "trachea finding algorithm (0: original; 1: LOLA11)" int no default="0"
+option "skipslices"                  -  "0: Number of slices to skip before searching seed" int no default="0"
+option "upperThresholdForTrachea"    -	"0: Initial upper threshold for trachea"  double	no  default="-900"
+option "multiplierForTrachea"	     -	"0: Multiplier for the region growing"    double	no  default="5"
+option "thresholdStepSizeForTrachea" -	"0: Threshold step size"	               int      no  default="64"
+option "seed"                        -	"0,1: Index of the trachea seed point (in pixel, not in mm)"      int	no  multiple
+option "doNotCheckTracheaVolume"     -  "0,1: If set, do not check the trachea volume" flag off
+option "verboseRG"                   -  "0,1: Verbose RegionGrowing"   flag off
+option "maxElongation"               -  "1: Maximum allowed elongation of candidate regions for the trachea" float no default="0.5"
+option "numSlices"                   -  "1: Number of slices to search for trachea" int no default="50"
+option "seedPreProcessingThreshold"   -  "1: Threshold for the pre-processing step of the algorithm" int no default="-400"
 
 section "Step 3 : auto extract lung"
 
