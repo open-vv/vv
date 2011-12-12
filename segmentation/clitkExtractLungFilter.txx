@@ -79,11 +79,16 @@ ExtractLungFilter():
   SetLabelizeParameters1(p1);
 
   // Step 2 default values
-  SetUpperThresholdForTrachea(-900);
+  SetTracheaSeedAlgorithm(0);
+  SetUpperThresholdForTrachea(-700);
   SetMultiplierForTrachea(5);
   SetThresholdStepSizeForTrachea(64);
   SetNumberOfSlicesToSkipBeforeSearchingSeed(0);
   TracheaVolumeMustBeCheckedFlagOn();
+  SetNumSlices(50);
+  SetMaxElongation(0.5);
+  SetSeedPreProcessingThreshold(-400);
+ 
   
   // Step 3 default values
   SetNumberOfHistogramBins(500);
@@ -591,6 +596,9 @@ clitk::ExtractLungFilter<ImageType>::
 SearchForTracheaSeed2(int numberOfSlices)
 {
   if (m_Seeds.size() == 0) { // try to find seed (if not zero, it is given by user)    
+    if (GetVerboseFlag())
+      std::cout << "SearchForTracheaSeed2(" << numberOfSlices << ", " << GetMaxElongation() << ")" << std::endl;
+    
     typedef unsigned char MaskPixelType;
     typedef itk::Image<MaskPixelType, ImageType::ImageDimension> MaskImageType;
     typedef itk::Image<typename MaskImageType::PixelType, 2> MaskImageType2D;
@@ -609,7 +617,7 @@ SearchForTracheaSeed2(int numberOfSlices)
     // threshold to isolate airawys and lungs
     typename ThresholdFilterType::Pointer threshold = ThresholdFilterType::New();
     threshold->SetLowerThreshold(-2000);
-    threshold->SetUpperThreshold(-400);
+    threshold->SetUpperThreshold(GetSeedPreProcessingThreshold());
     threshold->SetInput(working_input);
     threshold->Update();
     
@@ -698,7 +706,7 @@ SearchForTracheaSeed2(int numberOfSlices)
       typename LabelImageType::LabelObjectContainerType shapes_map = label_map->GetLabelObjectContainer();
       typename LabelImageType::LabelObjectContainerType::const_iterator s;
       typename ShapeLabelType::Pointer shape, max_e_shape;
-      double max_elongation = 0.5;
+      double max_elongation = GetMaxElongation();
       double max_size = size[0]*size[1]/128;
       double max_e = 0;
       int nshapes = 0;
@@ -738,7 +746,7 @@ SearchForTracheaSeed2(int numberOfSlices)
         p2[2] = prev_e_centre[2];
         
         double mag = (p2 - p1).GetNorm();
-        if (GetVerboseStepFlag()) {
+        if (GetVerboseFlag()) {
           cout.precision(3);
           cout << index[2] << ": ";
           cout << "region(" << max_e_centre[0] << ", " << max_e_centre[1] << ", " << max_e_centre[2] << "); ";
@@ -770,7 +778,7 @@ SearchForTracheaSeed2(int numberOfSlices)
       }
     }
     
-    if (GetVerboseStepFlag()) 
+    if (GetVerboseFlag()) 
       std::cout << "seed at: " << trachea_centre << std::endl;
     m_Seeds.push_back(trachea_centre);
   }
@@ -859,12 +867,18 @@ SearchForTrachea()
   // compute trachea volume
   // if volume not plausible  -> skip more slices and restart 
 
+  bool has_seed;
   bool stop = false;
   double volume = 0.0;
   int skip = GetNumberOfSlicesToSkipBeforeSearchingSeed();
   while (!stop) {
     stop = true;
-    if (SearchForTracheaSeed2(50)) {
+    if (GetTracheaSeedAlgorithm() == 0)
+      has_seed = SearchForTracheaSeed(skip);
+    else
+      has_seed = SearchForTracheaSeed2(GetNumSlices());
+    
+    if (has_seed) {
       TracheaRegionGrowing();
       volume = ComputeTracheaVolume()/1000; // assume mm3, so divide by 1000 to get cc
       if (GetWriteStepFlag()) {

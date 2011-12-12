@@ -142,6 +142,9 @@ namespace clitk {
 
     void SetLabelizeParameters1(LabelParamType * a) { m_LabelizeParameters1 = a; }
     itkGetConstMacro(LabelizeParameters1, LabelParamType*);
+    
+    itkSetMacro(TracheaSeedAlgorithm, int);
+    itkGetConstMacro(TracheaSeedAlgorithm, int);
 
     // Step 2 options FindTrachea
     itkSetMacro(UpperThresholdForTrachea, InputImagePixelType);
@@ -152,6 +155,14 @@ namespace clitk {
 
     itkSetMacro(ThresholdStepSizeForTrachea, InputImagePixelType);
     itkGetConstMacro(ThresholdStepSizeForTrachea, InputImagePixelType);
+
+    // options FindTrachea2
+    itkSetMacro(NumSlices, int);
+    itkGetConstMacro(NumSlices, int);
+    itkSetMacro(MaxElongation, double);
+    itkGetConstMacro(MaxElongation, double);
+    itkSetMacro(SeedPreProcessingThreshold, int);
+    itkGetConstMacro(SeedPreProcessingThreshold, int);
 
     void AddSeed(InternalIndexType s);
     std::vector<InternalIndexType> & GetSeeds() { return  m_Seeds; }
@@ -200,7 +211,7 @@ namespace clitk {
     itkSetMacro(AutoCrop, bool);
     itkGetConstMacro(AutoCrop, bool);
     itkBooleanMacro(AutoCrop);
-
+    
   protected:
     ExtractLungFilter();
     virtual ~ExtractLungFilter() {}
@@ -231,6 +242,7 @@ namespace clitk {
     LabelParamType* m_LabelizeParameters1;
 
     // Step 2
+    int m_TracheaSeedAlgorithm;
     InputImagePixelType m_UpperThresholdForTrachea;
     InputImagePixelType m_ThresholdStepSizeForTrachea;
     double m_MultiplierForTrachea;
@@ -238,6 +250,9 @@ namespace clitk {
     int m_NumberOfSlicesToSkipBeforeSearchingSeed;
     bool m_TracheaVolumeMustBeCheckedFlag;
     bool m_VerboseRegionGrowingFlag;
+    int m_NumSlices;
+    double m_MaxElongation;
+    int m_SeedPreProcessingThreshold;
 
     // Step 3
     int m_NumberOfHistogramBins;
