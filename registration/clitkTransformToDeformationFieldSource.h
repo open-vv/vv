@@ -184,21 +184,21 @@ protected:
    */
   void ThreadedGenerateData(
     const OutputImageRegionType & outputRegionForThread,
-    itk::ThreadIdType threadId );
+    int threadId );
 
   /** Default implementation for resampling that works for any
    * transformation type.
    */
   void NonlinearThreadedGenerateData(
     const OutputImageRegionType& outputRegionForThread,
-    itk::ThreadIdType threadId );
+    int threadId );
 
   /** Faster implementation for resampling that works for with linear
    *  transformation types. 
    */
   void LinearThreadedGenerateData(
     const OutputImageRegionType & outputRegionForThread,
-    itk::ThreadIdType threadId );
+    int threadId );
   
 private:
 

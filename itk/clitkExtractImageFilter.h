@@ -95,7 +95,7 @@ protected:
 
 
   void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread,
-                            itk::ThreadIdType threadId );
+                            int threadId );
   InputImageRegionType m_ExtractionRegion;
   OutputImageRegionType m_OutputImageRegion;
 

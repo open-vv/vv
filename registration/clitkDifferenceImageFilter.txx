@@ -53,7 +53,7 @@ namespace clitk
   //=========================================================================================================================
   //Update
   template <class InputImageType, class OutputImageType> 
-  void DifferenceImageFilter<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType &threadRegion, itk::ThreadIdType threadId)
+  void DifferenceImageFilter<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType &threadRegion, int threadId)
   {
     //Pointers to input and output
     typename InputImageType::ConstPointer input1=this->GetInput(0);

@@ -82,7 +82,7 @@ namespace itk
   template< class TInputImage, class TOutputImage ,class TtNorm>
   void
   RelativePositionPropImageFilter< TInputImage, TOutputImage ,TtNorm>
-  //::GenerateThreadedData(const typename TOutputImage::RegionType& outputRegionForThread, ThreadIdType threadId)
+  //::GenerateThreadedData(const typename TOutputImage::RegionType& outputRegionForThread, int threadId)
   ::GenerateData()
   {
 

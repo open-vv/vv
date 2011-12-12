@@ -86,7 +86,7 @@ namespace clitk
     //----------------------------------------  
     // Update
     //----------------------------------------  
-    void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, itk::ThreadIdType threadId );
+    void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, int threadId );
    
     //----------------------------------------  
     // Data members

@@ -42,13 +42,6 @@
 #  include <windows.h>
 #endif
 
-#if ITK_VERSION_MAJOR < 4
-namespace itk
-{
-  typedef unsigned int ThreadIdType;
-}
-#endif
-
 //--------------------------------------------------------------------
 namespace clitk {
 
