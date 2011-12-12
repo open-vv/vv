@@ -89,6 +89,10 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   f->SetUpperThresholdForTrachea(mArgsInfo.upperThresholdForTrachea_arg);
   f->SetMultiplierForTrachea(mArgsInfo.multiplierForTrachea_arg);
   f->SetThresholdStepSizeForTrachea(mArgsInfo.thresholdStepSizeForTrachea_arg);
+  f->SetTracheaSeedAlgorithm(mArgsInfo.type_arg);
+  f->SetNumSlices(mArgsInfo.numSlices_arg);
+  f->SetMaxElongation(mArgsInfo.maxElongation_arg);
+  f->SetSeedPreProcessingThreshold(mArgsInfo.seedPreProcessingThreshold_arg);
 
   typename FilterType::InputImageIndexType s;
   if (mArgsInfo.seed_given) {

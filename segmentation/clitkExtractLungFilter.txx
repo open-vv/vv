@@ -38,6 +38,16 @@
 #include "itkBinaryMorphologicalOpeningImageFilter.h"
 #include "itkBinaryMorphologicalClosingImageFilter.h"
 #include "itkConstantPadImageFilter.h"
+#include <itkBinaryBallStructuringElement.h>
+#include "itkStatisticsLabelObject.h"
+#include "itkLabelMap.h"
+#include "itkLabelImageToShapeLabelMapFilter.h"
+#include "itkLabelMapToLabelImageFilter.h"
+#include "itkExtractImageFilter.h"
+#include "itkOrientImageFilter.h"
+#include "itkSpatialOrientationAdapter.h"
+#include "itkImageDuplicator.h"
+#include <fcntl.h>
 
 //--------------------------------------------------------------------
 template <class ImageType>
@@ -69,11 +79,16 @@ ExtractLungFilter():
   SetLabelizeParameters1(p1);
 
   // Step 2 default values
-  SetUpperThresholdForTrachea(-900);
+  SetTracheaSeedAlgorithm(0);
+  SetUpperThresholdForTrachea(-700);
   SetMultiplierForTrachea(5);
   SetThresholdStepSizeForTrachea(64);
   SetNumberOfSlicesToSkipBeforeSearchingSeed(0);
   TracheaVolumeMustBeCheckedFlagOn();
+  SetNumSlices(50);
+  SetMaxElongation(0.5);
+  SetSeedPreProcessingThreshold(-400);
+ 
   
   // Step 3 default values
   SetNumberOfHistogramBins(500);
@@ -561,7 +576,217 @@ SearchForTracheaSeed(int skip)
 }
 //--------------------------------------------------------------------
 
+
+bool is_orientation_superior(itk::SpatialOrientation::ValidCoordinateOrientationFlags orientation)
+{
+  itk::SpatialOrientation::CoordinateTerms sup = itk::SpatialOrientation::ITK_COORDINATE_Superior;
+  std::cout << "orientation: " << std::hex << orientation << "; superior: " << std::hex << sup << std::endl;
+  std::cout << std::dec;
+
+  bool primary = (orientation & 0x0000ff) == sup;
+  bool secondary = ((orientation & 0x00ff00) >> 8) == sup;
+  bool tertiary = ((orientation & 0xff0000) >> 16) == sup;
+  return primary || secondary || tertiary;
+}
+
+//--------------------------------------------------------------------
+template <class ImageType>
+bool 
+clitk::ExtractLungFilter<ImageType>::
+SearchForTracheaSeed2(int numberOfSlices)
+{
+  if (m_Seeds.size() == 0) { // try to find seed (if not zero, it is given by user)    
+    if (GetVerboseFlag())
+      std::cout << "SearchForTracheaSeed2(" << numberOfSlices << ", " << GetMaxElongation() << ")" << std::endl;
+    
+    typedef unsigned char MaskPixelType;
+    typedef itk::Image<MaskPixelType, ImageType::ImageDimension> MaskImageType;
+    typedef itk::Image<typename MaskImageType::PixelType, 2> MaskImageType2D;
+    typedef itk::BinaryThresholdImageFilter<ImageType, MaskImageType> ThresholdFilterType;
+    typedef itk::BinaryBallStructuringElement<MaskPixelType, MaskImageType::ImageDimension> KernelType;
+    typedef itk::BinaryMorphologicalClosingImageFilter<MaskImageType, MaskImageType, KernelType> ClosingFilterType;
+    typedef itk::BinaryMorphologicalOpeningImageFilter<MaskImageType, MaskImageType, KernelType> OpeningFilterType;
+    typedef itk::ExtractImageFilter<MaskImageType, MaskImageType2D> SlicerFilterType;
+    typedef itk::ConnectedComponentImageFilter<MaskImageType2D, MaskImageType2D> LabelFilterType;
+    typedef itk::ShapeLabelObject<MaskPixelType, MaskImageType2D::ImageDimension> ShapeLabelType;
+    typedef itk::LabelMap<ShapeLabelType> LabelImageType;
+    typedef itk::LabelImageToShapeLabelMapFilter<MaskImageType2D, LabelImageType> ImageToLabelMapFilterType;
+    typedef itk::LabelMapToLabelImageFilter<LabelImageType, MaskImageType2D> LabelMapToImageFilterType;
+    typedef itk::ImageFileWriter<MaskImageType2D> FileWriterType;
+    
+    // threshold to isolate airawys and lungs
+    typename ThresholdFilterType::Pointer threshold = ThresholdFilterType::New();
+    threshold->SetLowerThreshold(-2000);
+    threshold->SetUpperThreshold(GetSeedPreProcessingThreshold());
+    threshold->SetInput(working_input);
+    threshold->Update();
+    
+    KernelType kernel_closing, kernel_opening;
+    
+    // remove small noise
+    typename OpeningFilterType::Pointer opening = OpeningFilterType::New();
+    kernel_opening.SetRadius(1);
+    opening->SetKernel(kernel_opening);
+    opening->SetInput(threshold->GetOutput());
+    opening->Update();
+    
+    typename SlicerFilterType::Pointer slicer = SlicerFilterType::New();
+    slicer->SetInput(opening->GetOutput());
+    
+    // label result
+    typename LabelFilterType::Pointer label_filter = LabelFilterType::New();
+    label_filter->SetInput(slicer->GetOutput());
+    
+    // extract shape information from labels
+    typename ImageToLabelMapFilterType::Pointer label_to_map_filter = ImageToLabelMapFilterType::New();
+    label_to_map_filter->SetInput(label_filter->GetOutput());
+    
+    typename LabelMapToImageFilterType::Pointer map_to_label_filter = LabelMapToImageFilterType::New();
+    typename FileWriterType::Pointer writer = FileWriterType::New();
+    
+    typename ImageType::IndexType index;
+    typename ImageType::RegionType region = working_input->GetLargestPossibleRegion();
+    typename ImageType::SizeType size = region.GetSize();
+    typename ImageType::SpacingType spacing = working_input->GetSpacing();
+    typename ImageType::PointType origin = working_input->GetOrigin();
+
+    int nslices = min(numberOfSlices, size[2]);
+    int start = 0, increment = 1;
+    itk::SpatialOrientationAdapter orientation;
+    typename ImageType::DirectionType dir = working_input->GetDirection();
+    if (!is_orientation_superior(orientation.FromDirectionCosines(dir))) {
+      start = size[2]-1;
+      increment = -1;
+    }
+    
+    typename MaskImageType::PointType image_centre;
+    image_centre[0] = size[0]/2;
+    image_centre[1] = size[1]/2;
+    image_centre[2] = 0;
   
+    typedef InternalIndexType SeedType;
+    SeedType trachea_centre, shape_centre, max_e_centre, prev_e_centre;
+    typedef std::list<SeedType> PointListType;
+    typedef std::list<PointListType> SequenceListType;
+    PointListType* current_sequence = NULL;
+    SequenceListType sequence_list;
+
+    prev_e_centre.Fill(0);
+    std::ostringstream file_name;
+    index[0] = index[1] = 0;
+    size[0] = size[1] = 512;
+    size[2] = 0;
+    while (nslices--) {
+      index[2] = start;
+      start += increment;
+      
+      region.SetIndex(index);
+      region.SetSize(size);
+      slicer->SetExtractionRegion(region);
+      slicer->Update();
+      label_filter->SetInput(slicer->GetOutput());
+      label_filter->Update();
+
+      label_to_map_filter->SetInput(label_filter->GetOutput());
+      label_to_map_filter->Update();
+      typename LabelImageType::Pointer label_map = label_to_map_filter->GetOutput();
+
+      if (GetWriteStepFlag()) {
+        map_to_label_filter->SetInput(label_map);
+        writer->SetInput(map_to_label_filter->GetOutput());
+        file_name.str("");
+        file_name << "labels_";
+        file_name.width(3);
+        file_name.fill('0');
+        file_name << index[2] << ".mhd";
+        writer->SetFileName(file_name.str().c_str());
+        writer->Update();
+      }
+      
+      typename LabelImageType::LabelObjectContainerType shapes_map = label_map->GetLabelObjectContainer();
+      typename LabelImageType::LabelObjectContainerType::const_iterator s;
+      typename ShapeLabelType::Pointer shape, max_e_shape;
+      double max_elongation = GetMaxElongation();
+      double max_size = size[0]*size[1]/128;
+      double max_e = 0;
+      int nshapes = 0;
+      for (s = shapes_map.begin(); s != shapes_map.end(); s++) {
+        shape = s->second;
+        if (shape->GetSize() > 150 && shape->GetSize() <= max_size) {
+          double e = 1 - 1/shape->GetBinaryElongation();
+          //double area = 1 - r->Area() ;
+          if (e < max_elongation) {
+            nshapes++;
+            shape_centre[0] = (shape->GetCentroid()[0] - origin[0])/spacing[0];
+            shape_centre[1] = (shape->GetCentroid()[1] - origin[1])/spacing[1];
+            shape_centre[2] = index[2];
+            //double d = 1 - (shape_centre - image_centre).Magnitude()/max_dist;
+            double dx = shape_centre[0] - image_centre[0];
+            double d = 1 - dx*2/size[0];
+            e = e + d;
+            if (e > max_e)
+            {
+              max_e = e;
+              max_e_shape = shape;
+              max_e_centre = shape_centre;
+            }
+          }
+        }
+      }
+      
+      if (nshapes > 0)
+      {
+        itk::Point<typename SeedType::IndexValueType, ImageType::ImageDimension> p1, p2;
+        p1[0] = max_e_centre[0];
+        p1[1] = max_e_centre[1];
+        p1[2] = max_e_centre[2];
+        
+        p2[0] = prev_e_centre[0];
+        p2[1] = prev_e_centre[1];
+        p2[2] = prev_e_centre[2];
+        
+        double mag = (p2 - p1).GetNorm();
+        if (GetVerboseFlag()) {
+          cout.precision(3);
+          cout << index[2] << ": ";
+          cout << "region(" << max_e_centre[0] << ", " << max_e_centre[1] << ", " << max_e_centre[2] << "); ";
+          cout << "prev_region(" << prev_e_centre[0] << ", " << prev_e_centre[1] << ", " << prev_e_centre[2] << "); ";
+          cout << "mag(" << mag << "); " << endl;
+        }
+        
+        if (mag > 5)
+        {
+          PointListType point_list;
+          point_list.push_back(max_e_centre);
+          sequence_list.push_back(point_list);
+          current_sequence = &sequence_list.back();
+        }
+        else if (current_sequence)
+          current_sequence->push_back(max_e_centre);
+        
+        prev_e_centre= max_e_centre;
+      }
+    }
+    
+    size_t longest = 0;
+    for (typename SequenceListType::iterator s = sequence_list.begin(); s != sequence_list.end(); s++)
+    {
+      if (s->size() > longest)
+      {
+        longest = s->size();
+        trachea_centre = s->front();
+      }
+    }
+    
+    if (GetVerboseFlag()) 
+      std::cout << "seed at: " << trachea_centre << std::endl;
+    m_Seeds.push_back(trachea_centre);
+  }
+  
+  return (m_Seeds.size() != 0);
+}
+//--------------------------------------------------------------------
+
 //--------------------------------------------------------------------
 template <class ImageType>
 void 
@@ -577,7 +802,7 @@ TracheaRegionGrowing()
   f->SetUpper(GetUpperThresholdForTrachea());
   f->SetMinimumLowerThreshold(-2000);
   //  f->SetMaximumUpperThreshold(0); // MAYBE TO CHANGE ???
-  f->SetMaximumUpperThreshold(-800); // MAYBE TO CHANGE ???
+  f->SetMaximumUpperThreshold(-700); // MAYBE TO CHANGE ???
   f->SetAdaptLowerBorder(false);
   f->SetAdaptUpperBorder(true);
   f->SetMinimumSize(5000); 
@@ -642,12 +867,18 @@ SearchForTrachea()
   // compute trachea volume
   // if volume not plausible  -> skip more slices and restart 
 
+  bool has_seed;
   bool stop = false;
   double volume = 0.0;
   int skip = GetNumberOfSlicesToSkipBeforeSearchingSeed();
   while (!stop) {
     stop = true;
-    if (SearchForTracheaSeed(skip)) {
+    if (GetTracheaSeedAlgorithm() == 0)
+      has_seed = SearchForTracheaSeed(skip);
+    else
+      has_seed = SearchForTracheaSeed2(GetNumSlices());
+    
+    if (has_seed) {
       TracheaRegionGrowing();
       volume = ComputeTracheaVolume()/1000; // assume mm3, so divide by 1000 to get cc
       if (GetWriteStepFlag()) {
@@ -656,7 +887,8 @@ SearchForTrachea()
       if (GetTracheaVolumeMustBeCheckedFlag()) {
         if ((volume > 10) && (volume < 65 )) { // depend on image size ...
           // Typical volume 22.59 cm 3 (± 7.69 cm 3 ) [ Leader 2004 ]
-          if (GetVerboseStepFlag()) {
+          if (GetVerboseStepFlag())
+          {
             std::cout << "\t Found trachea with volume " << volume << " cc." << std::endl;
           }
         }
