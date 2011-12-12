@@ -264,6 +264,7 @@ namespace clitk {
     
     // Functions for trachea extraction
     bool SearchForTracheaSeed(int skip);
+    bool SearchForTracheaSeed2(int numberOfSlices);
     void SearchForTrachea();
     void TracheaRegionGrowing();
     double ComputeTracheaVolume();
