@@ -182,7 +182,7 @@ void
 TransformToDeformationFieldSource<TOutputImage, TTransformPrecisionType>
   ::ThreadedGenerateData(
   const OutputImageRegionType & outputRegionForThread,
-  itk::ThreadIdType threadId )
+  int threadId )
 {
   // Check whether we can use a fast path for resampling. Fast path
   // can be used if the transformation is linear. Transform respond
@@ -203,7 +203,7 @@ void
 TransformToDeformationFieldSource<TOutputImage, TTransformPrecisionType>
   ::NonlinearThreadedGenerateData(
   const OutputImageRegionType & outputRegionForThread,
-  itk::ThreadIdType threadId )
+  int threadId )
 {
   // Get the output pointer
   OutputImagePointer outputPtr = this->GetOutput();
@@ -253,7 +253,7 @@ void
 TransformToDeformationFieldSource<TOutputImage, TTransformPrecisionType>
   ::LinearThreadedGenerateData(
   const OutputImageRegionType & outputRegionForThread,
-  itk::ThreadIdType threadId )
+  int threadId )
 {
   // Get the output pointer
   OutputImagePointer outputPtr = this->GetOutput();

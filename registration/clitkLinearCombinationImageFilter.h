@@ -73,7 +73,7 @@ namespace clitk
     LinearCombinationImageFilter();
     virtual ~LinearCombinationImageFilter(){};
 
-    virtual void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId);
+    virtual void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId);
     
   private:
     LinearCombinationImageFilter(const Self&); //purposely not implemented

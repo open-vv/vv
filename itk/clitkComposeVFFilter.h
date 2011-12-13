@@ -75,7 +75,7 @@ namespace clitk
 
     //========================================================================================
     //Threaded execution should implement generate threaded data
-    void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId );
+    void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId );
   
     bool m_Verbose;
     PixelType m_EdgePaddingValue;

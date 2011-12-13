@@ -313,7 +313,7 @@ private:
     FixedImageSampleContainer & samples );
 
   /** Compute PDF derivative contribution for each parameter. */
-  virtual void ComputePDFDerivatives( ThreadIdType threadID,
+  virtual void ComputePDFDerivatives( unsigned int threadID,
                                       unsigned int sampleNumber,
                                       int movingImageParzenWindowIndex,
                                       const ImageDerivativesType
@@ -333,26 +333,26 @@ private:
   mutable bool                                  m_ImplicitDerivativesSecondPass;
 
 
-  virtual inline void GetValueThreadPreProcess( ThreadIdType threadID,
+  virtual inline void GetValueThreadPreProcess( unsigned int threadID,
       bool withinSampleThread ) const;
-  virtual inline bool GetValueThreadProcessSample( ThreadIdType threadID,
+  virtual inline bool GetValueThreadProcessSample( unsigned int threadID,
       unsigned long fixedImageSample,
       const MovingImagePointType & mappedPoint,
       double movingImageValue ) const;
-  virtual inline void GetValueThreadPostProcess( ThreadIdType threadID,
+  virtual inline void GetValueThreadPostProcess( unsigned int threadID,
       bool withinSampleThread ) const;
 
   virtual inline void GetValueAndDerivativeThreadPreProcess(
-    ThreadIdType threadID,
+    unsigned int threadID,
     bool withinSampleThread ) const;
-  virtual inline bool GetValueAndDerivativeThreadProcessSample( ThreadIdType threadID,
+  virtual inline bool GetValueAndDerivativeThreadProcessSample( unsigned int threadID,
       unsigned long fixedImageSample,
       const MovingImagePointType & mappedPoint,
       double movingImageValue,
       const ImageDerivativesType &
       movingImageGradientValue ) const;
   virtual inline void GetValueAndDerivativeThreadPostProcess(
-    ThreadIdType threadID,
+    unsigned int threadID,
     bool withinSampleThread ) const;
 
 };

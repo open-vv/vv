@@ -74,7 +74,7 @@ protected:
 
   //the actual processing
   void BeforeThreadedGenerateData();
-  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId );
+  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId );
 
   //member data
   typename  WeightsImageType::Pointer m_Weights;
@@ -111,7 +111,7 @@ void HelperClass1<InputImageType, OutputImageType>::BeforeThreadedGenerateData()
 //=========================================================================================================================
 //update the output for the outputRegionForThread
 template<class InputImageType, class OutputImageType>
-void HelperClass1<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId )
+void HelperClass1<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId )
 {
 
   //Get pointer to the input
@@ -282,7 +282,7 @@ protected:
 
 
   //the actual processing
-  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId );
+  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId );
 
 
   //member data
@@ -308,7 +308,7 @@ template<class InputImageType, class OutputImageType > HelperClass2<InputImageTy
 
 //=========================================================================================================================
 //update the output for the outputRegionForThread
-template<class InputImageType, class OutputImageType > void HelperClass2<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId )
+template<class InputImageType, class OutputImageType > void HelperClass2<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId )
 {
 
   //Get pointer to the input

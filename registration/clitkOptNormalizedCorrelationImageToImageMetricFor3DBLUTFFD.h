@@ -130,13 +130,13 @@ private:
   MeasureType ComputeSums( const ParametersType & parameters ) const;
 
 
-  inline bool GetValueThreadProcessSample( ThreadIdType threadID,
+  inline bool GetValueThreadProcessSample( unsigned int threadID,
       unsigned long fixedImageSample,
       const MovingImagePointType & mappedPoint,
       double movingImageValue ) const;
 
 
-  inline bool GetValueAndDerivativeThreadProcessSample( ThreadIdType threadID,
+  inline bool GetValueAndDerivativeThreadProcessSample( unsigned int threadID,
       unsigned long fixedImageSample,
       const MovingImagePointType & mappedPoint,
       double movingImageValue,

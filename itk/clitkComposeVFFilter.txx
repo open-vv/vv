@@ -36,7 +36,7 @@ namespace clitk
   //=========================================================================================================================
   //update the output for the outputRegionForThread
   template<class InputImageType, class OutputImageType> 
-  void ComposeVFFilter<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId )
+  void ComposeVFFilter<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId )
   {
  
     //Get pointer to the output

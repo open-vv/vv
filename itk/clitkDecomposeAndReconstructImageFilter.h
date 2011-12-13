@@ -131,7 +131,7 @@ namespace clitk
 
     //     // Threaded Generate Data
     //     void BeforeThreadedGenerateData(void );
-    //     void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId );
+    //     void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, int threadId );
     //     void AfterThreadedGenerateData(void );
     //     // Override defaults
     //     virtual void GenerateInputRequestedRegion();
