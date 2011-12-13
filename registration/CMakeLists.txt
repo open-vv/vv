@@ -1,7 +1,7 @@
 #ADD_LIBRARY(clitkLBGSB STATIC clitkLBGSBOptimizer.cxx)
 #=========================================================
 
-INCLUDE(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
+INCLUDE(${CLITK_SOURCE_DIR}/cmake/common.cmake)
 
 #=========================================================
 
