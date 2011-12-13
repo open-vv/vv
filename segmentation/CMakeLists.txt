@@ -1,6 +1,6 @@
 #=========================================================
 
-INCLUDE(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
+INCLUDE(${CLITK_SOURCE_DIR}/cmake/common.cmake)
 
 #=========================================================
 

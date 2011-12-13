@@ -1,5 +1,5 @@
 #=========================================================
-INCLUDE(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
+INCLUDE(${CLITK_SOURCE_DIR}/cmake/common.cmake)
 #=========================================================
 
 # Add Libraries used in vv and clitk to avoid recompilation
