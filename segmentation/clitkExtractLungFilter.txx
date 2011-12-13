@@ -580,9 +580,6 @@ SearchForTracheaSeed(int skip)
 bool is_orientation_superior(itk::SpatialOrientation::ValidCoordinateOrientationFlags orientation)
 {
   itk::SpatialOrientation::CoordinateTerms sup = itk::SpatialOrientation::ITK_COORDINATE_Superior;
-  std::cout << "orientation: " << std::hex << orientation << "; superior: " << std::hex << sup << std::endl;
-  std::cout << std::dec;
-
   bool primary = (orientation & 0x0000ff) == sup;
   bool secondary = ((orientation & 0x00ff00) >> 8) == sup;
   bool tertiary = ((orientation & 0xff0000) >> 16) == sup;
@@ -596,7 +593,7 @@ clitk::ExtractLungFilter<ImageType>::
 SearchForTracheaSeed2(int numberOfSlices)
 {
   if (m_Seeds.size() == 0) { // try to find seed (if not zero, it is given by user)    
-    if (GetVerboseFlag())
+    if (GetVerboseRegionGrowingFlag())
       std::cout << "SearchForTracheaSeed2(" << numberOfSlices << ", " << GetMaxElongation() << ")" << std::endl;
     
     typedef unsigned char MaskPixelType;
@@ -702,7 +699,7 @@ SearchForTracheaSeed2(int numberOfSlices)
         writer->SetFileName(file_name.str().c_str());
         writer->Update();
       }
-      
+
       typename LabelImageType::LabelObjectContainerType shapes_map = label_map->GetLabelObjectContainer();
       typename LabelImageType::LabelObjectContainerType::const_iterator s;
       typename ShapeLabelType::Pointer shape, max_e_shape;
@@ -746,7 +743,7 @@ SearchForTracheaSeed2(int numberOfSlices)
         p2[2] = prev_e_centre[2];
         
         double mag = (p2 - p1).GetNorm();
-        if (GetVerboseFlag()) {
+        if (GetVerboseRegionGrowingFlag()) {
           cout.precision(3);
           cout << index[2] << ": ";
           cout << "region(" << max_e_centre[0] << ", " << max_e_centre[1] << ", " << max_e_centre[2] << "); ";
@@ -778,7 +775,7 @@ SearchForTracheaSeed2(int numberOfSlices)
       }
     }
     
-    if (GetVerboseFlag()) 
+    if (GetVerboseRegionGrowingFlag()) 
       std::cout << "seed at: " << trachea_centre << std::endl;
     m_Seeds.push_back(trachea_centre);
   }
