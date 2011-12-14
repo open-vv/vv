@@ -1,9 +1,5 @@
 #=========================================================
 
-INCLUDE(${CLITK_SOURCE_DIR}/cmake/common.cmake)
-
-#=========================================================
-
 # Add Libraries used in vv and clitk to avoid recompilation
 FOREACH(clitkTool clitkExtractLung clitkExtractPatient)
     WRAP_GGO(${clitkTool}_GGO_C ${clitkTool}.ggo)

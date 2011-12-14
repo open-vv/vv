@@ -1,10 +1,6 @@
 #ADD_LIBRARY(clitkLBGSB STATIC clitkLBGSBOptimizer.cxx)
 #=========================================================
 
-INCLUDE(${CLITK_SOURCE_DIR}/cmake/common.cmake)
-
-#=========================================================
-
 # Add Libraries used in vv and clitk to avoid recompilation
 WRAP_GGO(clitkAffineRegistration_GGO_C clitkAffineRegistration.ggo)
 ADD_LIBRARY(clitkAffineRegistrationLib 

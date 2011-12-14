@@ -1,8 +1,4 @@
 #=========================================================
-INCLUDE(${CLITK_SOURCE_DIR}/cmake/common.cmake)
-#=========================================================
-
-#=========================================================
 # make clitk libraries*
 CONFIGURE_FILE(clitkConfiguration.h.in ${PROJECT_BINARY_DIR}/clitkConfiguration.h)
 

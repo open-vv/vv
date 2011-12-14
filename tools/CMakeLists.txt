@@ -1,7 +1,3 @@
-#=========================================================
-INCLUDE(${CLITK_SOURCE_DIR}/cmake/common.cmake)
-#=========================================================
-
 # Add Libraries used in vv and clitk to avoid recompilation
 WRAP_GGO(clitkCropImage_GGO_C clitkCropImage.ggo)
 ADD_LIBRARY(clitkCropImageLib clitkCropImageGenericFilter.cxx ${clitkCropImage_GGO_C})
