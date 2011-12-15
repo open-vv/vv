@@ -1,7 +1,3 @@
-#=========================================================
-INCLUDE(${CLITK_SOURCE_DIR}/cmake/common.cmake)
-#=========================================================
-
 # Add Libraries used in vv and clitk to avoid recompilation
 WRAP_GGO(clitkCropImage_GGO_C clitkCropImage.ggo)
 ADD_LIBRARY(clitkCropImageLib clitkCropImageGenericFilter.cxx ${clitkCropImage_GGO_C})
@@ -126,7 +122,7 @@ IF (CLITK_BUILD_TOOLS)
 
   WRAP_GGO(clitkGammaIndex_GGO_C clitkGammaIndex.ggo)
   ADD_EXECUTABLE(clitkGammaIndex clitkGammaIndex.cxx ${clitkGammaIndex_GGO_C})
-  TARGET_LINK_LIBRARIES(clitkGammaIndex clitkCommon ${VTK_LIBRARIES} ${ITK_LIBRARIES} vtkIO)
+  TARGET_LINK_LIBRARIES(clitkGammaIndex clitkCommon ${VTK_LIBRARIES} ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkGammaIndex)
 
   ADD_EXECUTABLE(clitkImageArithm clitkImageArithm.cxx)
@@ -368,21 +364,17 @@ IF (CLITK_BUILD_TOOLS)
 
     WRAP_GGO(clitkBinaryImageToMesh_GGO_C clitkBinaryImageToMesh.ggo)
     ADD_EXECUTABLE(clitkBinaryImageToMesh clitkBinaryImageToMesh.cxx ${clitkBinaryImageToMesh_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkBinaryImageToMesh ${ITK_LIBRARIES} vtkCommon vtkRendering)
+    TARGET_LINK_LIBRARIES(clitkBinaryImageToMesh ${ITK_LIBRARIES} ${VTK_LIBRARIES})
     SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkBinaryImageToMesh)
 
     WRAP_GGO(clitkMeshToBinaryImage_GGO_C clitkMeshToBinaryImage.ggo)
     ADD_EXECUTABLE(clitkMeshToBinaryImage clitkMeshToBinaryImage.cxx ${clitkMeshToBinaryImage_GGO_C})
-    IF(VTK_VERSION VERSION_LESS 5.8.0)
-      TARGET_LINK_LIBRARIES(clitkMeshToBinaryImage clitkCommon ${ITK_LIBRARIES} vtkHybrid vtkIO)
-    ELSE(VTK_VERSION VERSION_LESS 5.8.0)
-      TARGET_LINK_LIBRARIES(clitkMeshToBinaryImage clitkCommon ${ITK_LIBRARIES} ${VTK_LIBRARIES})
-    ENDIF(VTK_VERSION VERSION_LESS 5.8.0)
+    TARGET_LINK_LIBRARIES(clitkMeshToBinaryImage clitkCommon ${ITK_LIBRARIES} ${VTK_LIBRARIES})
     SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMeshToBinaryImage)
 
     WRAP_GGO(clitkMeshViewer_GGO_C clitkMeshViewer.ggo)
     ADD_EXECUTABLE(clitkMeshViewer clitkMeshViewer.cxx ${clitkMeshViewer_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkMeshViewer vtkCommon vtkRendering)
+    TARGET_LINK_LIBRARIES(clitkMeshViewer ${VTK_LIBRARIES})
     SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMeshViewer)
   ENDIF(CLITK_EXPERIMENTAL)
 

@@ -38,7 +38,7 @@ registration()
   # with the specified preffix, which is interesting for debugging. 
   # if blank, it means that the original images (those without bands) 
   # will be used (see create_midP_masks-2.0.sh for details).
-  banded="banded_"
+  banded=""
 
   # params read from conf file
   params="$nb_iter $nb_samples $sampling_algo $nb_hist_bins $nb_levels $bspline_spacing $metric $optimizer $interpolator"
@@ -102,15 +102,29 @@ registration()
     fi
   done
 
-  # create (zero) vf from reference to reference
+  # create (zero) vf from reference to reference and associated images
+  vf_in=$vf_dir/vf_inside_${ref_phase_nb}_${ref_phase_nb}.mhd
+  vf_out=$vf_dir/vf_outside_${ref_phase_nb}_${ref_phase_nb}.mhd
   clitkZeroVF -i $vf_ref -o $vf_dir/vf_${ref_phase_nb}_${ref_phase_nb}.mhd
+  clitkZeroVF -i $vf_ref -o $vf_in
+  clitkZeroVF -i $vf_ref -o $vf_out
+  abort_on_error registration $? clean_up_registration
+
+  motion_mask=$mask_dir/mm_${ref_phase_nb}.mhd
+  reference_in=$mask_dir/${banded}inside_${ref_phase_nb}.mhd
+  reference_out=$mask_dir/${banded}outside_$ref_phase_nb.mhd
+  out_result=$output_dir/result_${ref_phase_nb}_${ref_phase_nb}.mhd
+  clitkCombineImage -i $reference_in -j $reference_out -m $motion_mask -o $out_result
   abort_on_error registration $? clean_up_registration
 
   # create 4D vf
   create_mhd_4D_pattern.sh $vf_dir/vf_${ref_phase_nb}_
+  create_mhd_4D_pattern.sh $vf_dir/vf_inside_${ref_phase_nb}_
+  create_mhd_4D_pattern.sh $vf_dir/vf_outside_${ref_phase_nb}_
 
   # create 4D result image
   create_mhd_4D_pattern.sh $output_dir/result_inside_${ref_phase_nb}_
+  create_mhd_4D_pattern.sh $output_dir/result_outside_${ref_phase_nb}_
   create_mhd_4D_pattern.sh $output_dir/result_${ref_phase_nb}_
 
   echo
@@ -134,7 +148,7 @@ midp()
   ########### calculate the midp wrt the reference phase
   phase_nb=$ref_phase_nb
   echo "Calculating midp_$phase_nb.mhd..."
-  vf_midp=$midp_dir/vf_$phase_nb\_midp.mhd
+  vf_midp=$midp_dir/vf_midp_$phase_nb.mhd
   midp=$midp_dir/midp_$phase_nb.mhd
   # average the vf's from reference phase to phase
   clitkAverageTemporalDimension -i $vf_dir/vf_${ref_phase_nb}_4D.mhd -o $vf_midp
@@ -157,7 +171,7 @@ midp()
   for i in $( seq 0 $((${#phase_files[@]} - 1))); do
     phase_file=${phase_files[$i]}
     phase_nb=${phase_nbs[$i]}
-    vf_midp=$midp_dir/vf_$phase_nb\_midp.mhd
+    vf_midp=$midp_dir/vf_midp_$phase_nb.mhd
     midp=$midp_dir/midp_$phase_nb.mhd
 
     if [ "$phase_nb" != "$ref_phase_nb" ]; then
@@ -175,7 +189,9 @@ midp()
     fi
   done
 
+  # create 4D midp
   create_mhd_4D_pattern.sh $midp_dir/midp_
+  create_mhd_4D_pattern.sh $midp_dir/vf_midp_
 
   echo "Calculating midp_avg.mhd..."
   clitkAverageTemporalDimension -i $midp_dir/midp_4D.mhd -o $midp_dir/midp_avg.mhd
@@ -186,7 +202,7 @@ midp()
   abort_on_error midp $? clean_up_midp
 
   # clean-up
-  rm $midp_dir/vf_*
+  #rm $midp_dir/vf_*
       
   echo
   echo "-------- Mid-position done ! --------"

@@ -43,7 +43,7 @@ extract_bones()
 extract_lungs()
 {
   echo "$phase_file -> Extracting lungs..."  
-  clitkExtractLung -i $phase_file -o $mask_dir_tmp/lungs_$phase_nb.mhd -a $afdb_file --noAutoCrop --doNotSeparateLungs
+  clitkExtractLung -i $phase_file -o $mask_dir_tmp/lungs_$phase_nb.mhd -a $afdb_file --noAutoCrop --doNotSeparateLungs --type 1
 }
 
 

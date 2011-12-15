@@ -13,6 +13,18 @@ ENDIF(ITK_FOUND)
 FIND_PACKAGE(VTK REQUIRED)
 IF(VTK_FOUND)
   INCLUDE("${VTK_USE_FILE}")
+  IF(VTK_VERSION VERSION_LESS 5.8.0)
+    SET ( VTK_LIBRARIES
+      vtkCommon
+      vtkRendering
+      vtkIO
+      vtkFiltering
+      vtkGraphics
+      vtkWidgets
+      vtkImaging
+      vtkHybrid
+      )
+  ENDIF(VTK_VERSION VERSION_LESS 5.8.0)
 ELSE(VTK_FOUND)
   MESSAGE(FATAL_ERROR "Please set VTK_DIR.")
 ENDIF(VTK_FOUND)
