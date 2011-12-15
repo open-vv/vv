@@ -119,10 +119,12 @@ create_registration_masks()
   # 
   echo "$phase_file -> Creating registration masks..."
   # inside
-  create_banded_mask $mask_dir_tmp/inside_$phase_nb.mhd $mask_dir_tmp/mm_$phase_nb.mhd $mask_dir_tmp/banded_inside_$phase_nb.mhd $mask_dir_tmp/mask_inside_$phase_nb.mhd 4
+  clitkMorphoMath -i $mask_dir_tmp/mm_$phase_nb.mhd -o $mask_dir_tmp/mask_inside_$phase_nb.mhd --type 1 --radius 8
+  create_banded_mask $mask_dir_tmp/inside_$phase_nb.mhd $mask_dir_tmp/mm_$phase_nb.mhd $mask_dir_tmp/banded_inside_$phase_nb.mhd $mask_dir_tmp/banded_mask_inside_$phase_nb.mhd 4
   # outside 
   clitkExtractPatient -i $mask_dir_tmp/outside_$phase_nb.mhd -o $mask_dir_tmp/mm_outside_$phase_nb.mhd --noAutoCrop
-  create_banded_mask $mask_dir_tmp/outside_$phase_nb.mhd $mask_dir_tmp/mm_outside_$phase_nb.mhd $mask_dir_tmp/banded_outside_$phase_nb.mhd $mask_dir_tmp/mask_outside_$phase_nb.mhd 4
+  clitkMorphoMath -i $mask_dir_tmp/mm_outside_$phase_nb.mhd -o $mask_dir_tmp/mask_outside_$phase_nb.mhd --type 1 --radius 8
+  create_banded_mask $mask_dir_tmp/outside_$phase_nb.mhd $mask_dir_tmp/mm_outside_$phase_nb.mhd $mask_dir_tmp/banded_outside_$phase_nb.mhd $mask_dir_tmp/banded_mask_outside_$phase_nb.mhd 4
 }
 
 mm_preprocessing()
