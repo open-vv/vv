@@ -145,6 +145,68 @@ mm_postprocessing()
   create_registration_masks
 }
 
+wait_mm_creation()
+{
+  # the motion masks are first created in a tmp directory. this directory is 
+  # later going to be renamed to the final motion mask directory. concurrent
+  # executions trying to create the same set of masks will be blocked until
+  # the first execution finishes. naturally, these other executions will not
+  # recreate the masks. so first we try to create the tmp directory. 
+  # if the creation fails, it means that another execution is
+  # already creating the masks, so this execution will be blocked. the
+  # execution is unblocked only when the creation of masks is finished and
+  # the mask directory is renamed.
+  #
+  do_mm=1
+  if [ -e $mask_dir ]; then
+    # check that the final mask dir exists and that it contains all files it needs.
+    # the check assumes that the inside and outside masks are the key files to exist.
+    do_mm=0
+    nb_phases=${#phase_nbs[@]}
+    nb_in_masks=`ls $mask_dir/mask_in*.mhd | wc -l`
+    nb_out_masks=`ls $mask_dir/mask_out*.mhd | wc -l`
+    if [ $nb_in_masks != $nb_phases -o $nb_out_masks != $nb_phases ]; then
+      # if the mask dir is invalid, remove it and recreate all masks, just in case.
+      rm -fr $mask_dir 2> /dev/null
+      do_mm=1
+    fi
+  fi
+  
+  if [ $do_mm = 1 ]; then
+    if ! mkdir $mask_dir_tmp 2> /dev/null; then
+      if [ ! -e $mask_dir_tmp ]; then
+        # if the temp dir couldn't be created, but it doesn't exist, abort
+        abort_on_error wait_mm_creation $? clean_up_masks
+      else
+        # assumes another process is creating the maks in the temp dir.
+        # now we need to wait until the masks are complete or until the
+        # time limit is reached. 
+        interval=10
+        sleeping=0
+        max_wait=3600 # one hour
+        nb_files0=`ls $mask_dir_tmp/* | wc -l`
+        while [ ! -e $mask_dir -a $sleeping -le $max_wait ]; do
+          echo "waiting creation of motion masks..."
+          sleep $interval
+          sleeping=$(( $sleeping + $interval ))
+          nb_files1=`ls $mask_dir_tmp/* | wc -l`
+          if [ $nb_files1 != $nb_files0 ]; then
+            nb_files0=$nb_files1
+            sleeping=0
+          fi  
+        done
+
+        if [ $sleeping -gt $max_wait ]; then
+          abort_on_error wait_mm_creation -1 clean_up_masks
+        else
+          echo "finished waiting"
+          do_mm=0
+        fi
+      fi
+    fi  
+  fi
+}
+
 motion_mask()
 {
   #set cmd line variables
@@ -180,35 +242,8 @@ motion_mask()
   echo "start: $start"
   echo
 
-  # the motion masks are first created in a tmp directory. this directory is 
-  # later going to be renamed to the final motion mask directory. concurrent
-  # executions trying to create the same set of masks will be blocked until
-  # the first execution finishes. naturally, these other executions will not
-  # recreate the masks. so first we try to create the tmp directory. 
-  # if the creation fails, it means that another execution is
-  # already creating the masks, so this execution will be blocked. the
-  # execution is unblocked only when the creation of masks is finished and
-  # the mask directory is renamed.
-  #
-  # ATTENTION: RP - 08/02/2011
-  # robustness issue: tmp directory may exist but may be empty or 
-  # incomplete. the solution is to check per file, but I'll leave it like 
-  # this for the moment.
-  do_mm=0
-  if [ $(ls -d $mask_dir 2> /dev/null | wc -l) -eq 0 ]; then
-    mkdir $mask_dir_tmp 2> /dev/null
-    return_mkdir=$?
-    if [ $return_mkdir == 0 ]; then
-      do_mm=1 
-    else
-      while [[ $(ls -d $mask_dir 2> /dev/null | wc -l) -eq 0 ]]; do
-        echo "waiting creation of motion masks..."
-        sleep 2
-      done
-      echo "finished waiting"
-    fi  
-  fi
-  
+  wait_mm_creation
+
 #   do_mm=1
 #   mask_dir_tmp=$mask_dir
   if [ $do_mm == 1 ]; then
