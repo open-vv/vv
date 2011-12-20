@@ -64,6 +64,27 @@ void vvImage::Reset()
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
+void vvImage::AddVtkImage(vtkImageData* input)
+{
+  // RP: 20/12/2011
+  // Note that we're simply adding a new image to the vector.
+  // mItkToVtkConverters is therefore not being updated, but 
+  // up to here it's not being used anyway...
+  mImageDimension = 0;
+  int* extent = input->GetWholeExtent();
+  if (extent[4] != extent[5])
+    mImageDimension = 3;
+  else if (extent[3] != extent[4])
+    mImageDimension = 2;
+  else if (extent[0] != extent[1])
+    mImageDimension = 1;
+  
+  mVtkImages.push_back(input);
+}
+
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
 int vvImage::GetNumberOfSpatialDimensions()
 {
   return mImageDimension;
