@@ -134,6 +134,10 @@ int main( int argc, char** argv )
           if (!n_image_loaded) load_image_first_error();
           window.AddROI(n_image_loaded-1,argv[i+1]);
           i++; //skip roi name
+        } else if (current=="--contour") {
+          if (!n_image_loaded) load_image_first_error();
+          window.AddDCStructContour(n_image_loaded-1,argv[i+1]);
+          i++; //skip roi name
         } else if (current=="--fusion") {
           if (!n_image_loaded) load_image_first_error();
           window.AddFusionImage(n_image_loaded-1,argv[i+1]);

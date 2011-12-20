@@ -491,15 +491,8 @@ void vvMainWindow::OpenVTKContour()
 
 
 //------------------------------------------------------------------------------
-void vvMainWindow::OpenDCStructContour()
+void vvMainWindow::AddDCStructContour(int index, QString file)
 {
-  if (mSlicerManagers.size() > 0) {
-    QString Extensions = "Dicom Files ( *.dcm RS*)";
-    Extensions += ";;All Files (*)";
-    QString file = QFileDialog::getOpenFileName(this,tr("Merge Images"),mInputPathName,Extensions);
-    if (file.isNull())
-      return;
-    int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
     vvMeshReader reader;
     reader.SetFilename(file.toStdString());
     vvStructSelector selector;
@@ -519,6 +512,19 @@ void vvMainWindow::OpenDCStructContour()
         AddContour(index,*i,selector.PropagationEnabled());
       QApplication::restoreOverrideCursor();
     }
+}
+
+//------------------------------------------------------------------------------
+void vvMainWindow::OpenDCStructContour()
+{
+  if (mSlicerManagers.size() > 0) {
+    QString Extensions = "Dicom Files ( *.dcm RS*)";
+    Extensions += ";;All Files (*)";
+    QString file = QFileDialog::getOpenFileName(this,tr("Merge Images"),mInputPathName,Extensions);
+    if (file.isNull())
+      return;
+    int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
+    AddDCStructContour(index, file);
   }
 }
 //------------------------------------------------------------------------------
