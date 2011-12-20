@@ -23,6 +23,7 @@
 #include "vvImageReader.h"
 #include "vvImageWriter.h"
 #include <gdcmFile.h>
+#include <vtkImageChangeInformation.h>
 #if GDCM_MAJOR_VERSION == 2
   #include <gdcmImageHelper.h>
   #include <gdcmAttribute.h>
@@ -51,6 +52,7 @@ int main(int argc, char * argv[])
 
   //===========================================
   /// Get slices locations ...
+  std::vector<double> theorigin(3);
   std::vector<double> sliceLocations;
   for(unsigned int i=0; i<args_info.inputs_num; i++) {
     //std::cout << "Reading <" << input_files[i] << std::endl;
@@ -58,7 +60,7 @@ int main(int argc, char * argv[])
     gdcm::Reader hreader;
     hreader.SetFileName(input_files[i].c_str());
     hreader.Read();
-    std::vector<double> theorigin = gdcm::ImageHelper::GetOriginValue(hreader.GetFile());
+    theorigin = gdcm::ImageHelper::GetOriginValue(hreader.GetFile());
     sliceLocations.push_back(theorigin[2]);
     gdcm::Attribute<0x28, 0x100> pixel_size;
     gdcm::DataSet& ds = hreader.GetFile().GetDataSet();
@@ -74,7 +76,10 @@ int main(int argc, char * argv[])
   header->SetFileName(input_files[i]);
   header->SetMaxSizeLoadEntry(16384); // required ?
   header->Load();
-  sliceLocations.push_back(header->GetZOrigin());
+  theorigin[0] = header->GetXOrigin();
+  theorigin[1] = header->GetYOrigin();
+  theorigin[2] = header->GetZOrigin();
+  sliceLocations.push_back(theorigin[2]);
   if (header->GetPixelSize() != 2) {
     std::cerr << "Pixel type 2 bytes ! " << std::endl;
     std::cerr << "In file " << input_files[i] << std::endl;
@@ -143,11 +148,29 @@ int main(int argc, char * argv[])
     std::cerr << reader->GetLastError() << std::endl;
     return 1;
   }
+  
+  vvImage::Pointer image = reader->GetOutput();
+  vtkImageData* vtk_image = image->GetFirstVTKImageData();
+  vtkImageChangeInformation* modifier = vtkImageChangeInformation::New();
+  if  (args_info.focal_origin_given) {
+    std::vector<double> spacing = image->GetSpacing();
+    std::vector<int> size = image->GetSize();
+    theorigin[0] = -spacing[0]*size[0]/2.0;
+    theorigin[1] = -spacing[1]*size[1]/2.0;
+    modifier->SetInput(vtk_image);
+    modifier->SetOutputOrigin(theorigin[0], theorigin[1], theorigin[2]);
+    modifier->Update();
+    vvImage::Pointer focal_image = vvImage::New();
+    focal_image->AddVtkImage(modifier->GetOutput());
+    image = focal_image;
+  }
 
   vvImageWriter::Pointer writer = vvImageWriter::New();
-  writer->SetInput(reader->GetOutput());
+  writer->SetInput(image);
   writer->SetOutputFileName(args_info.output_arg);
   writer->Update();
+
+  modifier->Delete();
 
   return 0;
 }
