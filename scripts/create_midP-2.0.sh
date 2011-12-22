@@ -221,6 +221,107 @@ midp()
   echo
 }
 
+midp_in_out()
+{
+  echo
+  echo "----------- Mid-position ------------"
+  start=`date`
+  echo "start: $start"
+  echo
+
+  mkdir -p $midp_dir
+
+  ########### calculate the midp wrt the reference phase
+  phase_nb=$ref_phase_nb
+  phase_file=$ref_phase_file
+  echo "Calculating midp_$phase_nb.mhd..."
+  vf_midp_in=$midp_dir/vf_inside_midp_$phase_nb.mhd
+  vf_midp_out=$midp_dir/vf_outside_midp_$phase_nb.mhd
+  # average the vf's from reference phase to phase
+  clitkAverageTemporalDimension -i $vf_dir/vf_inside_${ref_phase_nb}_4D.mhd -o $vf_midp_in
+  abort_on_error midp $? clean_up_midp
+  clitkAverageTemporalDimension -i $vf_dir/vf_outside_${ref_phase_nb}_4D.mhd -o $vf_midp_out
+  abort_on_error midp $? clean_up_midp
+
+  # invert the vf (why?)
+  clitkInvertVF -i $vf_midp_in -o $vf_midp_in
+  abort_on_error midp $? clean_up_midp
+  clitkInvertVF -i $vf_midp_out -o $vf_midp_out
+  abort_on_error midp $? clean_up_midp
+
+  # combine in and out VF's
+  ref_vf_midp_in=$vf_midp_in
+  ref_vf_midp_out=$vf_midp_out
+  vf_midp=$midp_dir/vf_midp_$phase_nb.mhd
+  clitkCombineImage -i $vf_midp_in -j $vf_midp_out -o $vf_midp -m $mask_dir/mm_$phase_nb.mhd
+  clitkZeroVF -i $vf_midp -o vf_zero.mhd
+  clitkCombineImage -i $vf_midp -j vf_zero.mhd -o $vf_midp -m $mask_dir/patient_mask_$phase_nb.mhd
+
+  # create the midp by warping the reference phase with the reference vf
+  midp=$midp_dir/midp_$phase_nb.mhd
+  clitkWarpImage -i $phase_file -o $midp --vf=$vf_midp -s 1
+  abort_on_error midp $? clean_up_midp
+
+  clitkImageConvert -i $midp -o $midp -t float
+  abort_on_error midp $? clean_up_midp
+
+  ########### calculate the midp wrt the other phases
+  for i in $( seq 0 $((${#phase_files[@]} - 1))); do
+    phase_file=${phase_files[$i]}
+    phase_nb=${phase_nbs[$i]}
+    vf_midp_in=$midp_dir/vf_inside_midp_$phase_nb.mhd
+    vf_midp_out=$midp_dir/vf_outside_midp_$phase_nb.mhd
+
+    if [ "$phase_nb" != "$ref_phase_nb" ]; then
+      echo "Calculating midp_$phase_nb.mhd..."
+      # calculate vf from phase to midp, using the vf from reference phase to midp (-i)
+      # and the vf from reference phase to phase (-j)
+      clitkComposeVF -i $ref_vf_midp_in -j $vf_dir/vf_inside_$ref_phase_nb\_$phase_nb.mhd -o $vf_midp_in
+      abort_on_error midp $? clean_up_midp
+      clitkComposeVF -i $ref_vf_midp_out -j $vf_dir/vf_outside_$ref_phase_nb\_$phase_nb.mhd -o $vf_midp_out
+      abort_on_error midp $? clean_up_midp
+
+      # combine in and out VF's
+      vf_midp=$midp_dir/vf_midp_$phase_nb.mhd
+      clitkCombineImage -i $vf_midp_in -j $vf_midp_out -o $vf_midp -m $mask_dir/mm_$phase_nb.mhd
+      clitkZeroVF -i $vf_midp -o vf_zero.mhd
+      clitkCombineImage -i $vf_midp -j vf_zero.mhd -o $vf_midp -m $mask_dir/patient_mask_$phase_nb.mhd
+      
+      midp=$midp_dir/midp_$phase_nb.mhd
+      clitkWarpImage -i $phase_file -o $midp --vf=$vf_midp -s 1
+      abort_on_error midp $? clean_up_midp
+      
+      clitkImageConvert -i $midp -o $midp -t float
+      abort_on_error midp $? clean_up_midp
+    fi
+  done
+
+  rm vf_zero.*
+
+  # create 4D midp
+  create_mhd_4D_pattern.sh $midp_dir/midp_
+  create_mhd_4D_pattern.sh $midp_dir/vf_midp_
+  create_mhd_4D_pattern.sh $midp_dir/vf_inside_midp_
+  create_mhd_4D_pattern.sh $midp_dir/vf_outside_midp_
+
+  echo "Calculating midp_avg.mhd..."
+  clitkAverageTemporalDimension -i $midp_dir/midp_4D.mhd -o $midp_dir/midp_avg.mhd
+  abort_on_error midp $? clean_up_midp
+
+  echo "Calculating midp_med.mhd..."
+  clitkMedianTemporalDimension -i $midp_dir/midp_4D.mhd -o $midp_dir/midp_med.mhd
+  abort_on_error midp $? clean_up_midp
+
+  # clean-up
+  #rm $midp_dir/vf_*
+      
+  echo
+  echo "-------- Mid-position done ! --------"
+  end=`date`
+  echo "start: $start"
+  echo "end: $end"
+  echo
+}
 
 
 ######################### main
@@ -257,8 +358,13 @@ if [ "$step" == "registration" -o "$step" == "all" ]; then
   registration
 fi 
 
+midp_combined_vf=0
 if [ "$step" == "midp" -o "$step" == "all" ]; then
-  midp
+  if [ $midp_combined_vf = 0 ]; then
+    midp_in_out
+  else
+    midp
+  fi
 fi 
 
 echo
