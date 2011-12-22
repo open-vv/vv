@@ -41,6 +41,7 @@ registration()
   banded=""
 
   # params read from conf file
+  use_coeffs=1
   params="$nb_iter $nb_samples $sampling_algo $nb_hist_bins $nb_levels $bspline_spacing $metric $optimizer $interpolator"
 
   # register all phases to the reference
@@ -57,6 +58,10 @@ registration()
       vf_in=$vf_dir/vf_inside_${ref_phase_nb}_$phase_nb.mhd
       result_in=$output_dir/result_inside_${ref_phase_nb}_$phase_nb.mhd
       log_in=$log_dir/log_inside_${ref_phase_nb}_$phase_nb.log
+      if [ $use_coeffs = 1 ]; then
+        init_coeff_in=$coeff_in # empty at first iteration
+        coeff_in=$vf_dir/coeff_inside_${ref_phase_nb}_$phase_nb.mhd
+      fi
 
       # outside params
       reference_out=$mask_dir/${banded}outside_$ref_phase_nb.mhd
@@ -66,11 +71,15 @@ registration()
       vf_out=$vf_dir/vf_outside_$ref_phase_nb\_$phase_nb.mhd
       result_out=$output_dir/result_outside_$ref_phase_nb\_$phase_nb.mhd
       log_out=$log_dir/log_outside_${ref_phase_nb}_$phase_nb.log
+      if [ $use_coeffs = 1 ]; then
+        init_coeff_out=$coeff_out # empty at first iteration
+        coeff_out=$vf_dir/coeff_outside_${ref_phase_nb}_$phase_nb.mhd
+      fi
 
       # registration
       if [ "$method" == "blutdir" ]; then
-        registration_blutdir $reference_in $target_in $mask_ref_in $mask_targ_in $vf_in $result_in $params $log_in
-        registration_blutdir $reference_out $target_out $mask_ref_out $mask_targ_out $vf_out $result_out $params $log_out
+        registration_blutdir $reference_in $target_in $mask_ref_in $mask_targ_in $vf_in $result_in $params $log_in $coeff_in $init_coeff_in
+        registration_blutdir $reference_out $target_out $mask_ref_out $mask_targ_out $vf_out $result_out $params $log_out $coeff_out $init_coeff_out
       elif [ "$method" == "elastix" ]; then
         registration_elastix $reference_in $target_in $mask_ref_in $mask_targ_in $vf_in $result_in $params $log_in
         registration_elastix $reference_out $target_out $mask_ref_out $mask_targ_out $vf_out $result_out $params $log_out
