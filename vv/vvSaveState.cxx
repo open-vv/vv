@@ -80,7 +80,7 @@ void vvSaveState::SaveImage(const QTreeWidgetItem* item, int index)
     if (role == "fusion")
       SaveFusion(item_child, slicerManager);
     else if (role == "overlay")
-      SaveOverlay(item_child);
+      SaveOverlay(item_child, slicerManager);
     else if (role == "vector")
       SaveVector(item_child);
   }
@@ -101,11 +101,15 @@ void vvSaveState::SaveFusion(const QTreeWidgetItem* item, const vvSlicerManager*
   m_XmlWriter->writeEndElement();
 }
 
-void vvSaveState::SaveOverlay(QTreeWidgetItem* item)
+void vvSaveState::SaveOverlay(const QTreeWidgetItem* item, const vvSlicerManager* vvManager)
 {
   m_XmlWriter->writeStartElement("Overlay");
   std::string filename = item->data(0, Qt::UserRole).toString().toStdString();
   m_XmlWriter->writeTextElement("FileName", QDir::current().absoluteFilePath(filename.c_str()));
+  m_XmlWriter->writeTextElement("OverlayColorWindow", QString::number(vvManager->GetOverlayColorWindow()));
+  m_XmlWriter->writeTextElement("OverlayColorLevel", QString::number(vvManager->GetOverlayColorLevel()));
+  m_XmlWriter->writeTextElement("LinkOverlayWindowLevel", QString::number(vvManager->GetLinkOverlayWindowLevel()));
+  m_XmlWriter->writeTextElement("OverlayColor", QString::number(vvManager->GetOverlayColor()));
   m_XmlWriter->writeEndElement();
 }
 

@@ -141,6 +141,9 @@ std::string vvReadState::ReadFusion(int index)
 std::string vvReadState::ReadOverlay(int index)
 {
   std::string file, value;
+  int vali;
+  double vald;
+  vvSlicerManager* slicerManager = m_Window->GetSlicerManagers()[index];
   while (!m_XmlReader->isEndElement() || value != "Overlay") {
     m_XmlReader->readNext();
     value = m_XmlReader->qualifiedName().toString().toStdString();
@@ -150,8 +153,29 @@ std::string vvReadState::ReadOverlay(int index)
         if (!m_XmlReader->hasError())
           m_Window->AddOverlayImage(index, file.c_str());
       }
+      if (value == "OverlayColorWindow") {
+        vald = m_XmlReader->readElementText().toDouble();
+        if (!m_XmlReader->hasError())
+          slicerManager->SetOverlayColorWindow(vald);
+      }
+      if (value == "OverlayColorLevel") {
+        vald = m_XmlReader->readElementText().toDouble();
+        if (!m_XmlReader->hasError())
+          slicerManager->SetOverlayColorLevel(vald);
+      }
+      if (value == "LinkOverlayWindowLevel") {
+        vali = m_XmlReader->readElementText().toInt();
+        if (!m_XmlReader->hasError())
+          slicerManager->SetLinkOverlayWindowLevel(vali);
+      }
+      if (value == "OverlayColor") {
+        vali = m_XmlReader->readElementText().toInt();
+        if (!m_XmlReader->hasError())
+          slicerManager->SetOverlayColor(vali);
+      }
     }
   }
+  m_Window->ImageInfoChanged();
   return value;
 }
 
