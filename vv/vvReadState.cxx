@@ -1,5 +1,6 @@
 #include "vvReadState.h"
 #include "vvMainWindow.h"
+#include "vvSlicerManager.h"
 
 #include <qtreewidget.h>
 
@@ -75,7 +76,7 @@ std::string  vvReadState::ReadImage()
         }
       }
       else if (current_index >= 0) {
-        if (value == "Fusion") 
+        if (value == "Fusion")
           value = ReadFusion(current_index);
         else if (value == "Overlay")
           value = ReadOverlay(current_index);
@@ -94,6 +95,9 @@ std::string  vvReadState::ReadImage()
 std::string vvReadState::ReadFusion(int index)
 {
   std::string file, value;
+  int vali;
+  double vald;
+  vvSlicerManager* slicerManager = m_Window->GetSlicerManagers()[index];
   while (!m_XmlReader->isEndElement() || value != "Fusion") {
     m_XmlReader->readNext();
     value = m_XmlReader->qualifiedName().toString().toStdString();
@@ -103,8 +107,34 @@ std::string vvReadState::ReadFusion(int index)
         if (!m_XmlReader->hasError())
           m_Window->AddFusionImage(index, file.c_str());
       }
+      if (value == "FusionOpacity") {
+        vali = m_XmlReader->readElementText().toInt();
+        if (!m_XmlReader->hasError())
+          slicerManager->SetFusionOpacity(vali);
+      }
+      if (value == "FusionThresholdOpacity") {
+        vali = m_XmlReader->readElementText().toInt();
+        if (!m_XmlReader->hasError())
+          slicerManager->SetFusionThresholdOpacity(vali);
+      }
+      if (value == "FusionColorMap") {
+        vali = m_XmlReader->readElementText().toInt();
+        if (!m_XmlReader->hasError())
+          slicerManager->SetFusionColorMap(vali);
+      }
+      if (value == "FusionWindow") {
+        vald = m_XmlReader->readElementText().toDouble();
+        if (!m_XmlReader->hasError())
+          slicerManager->SetFusionWindow(vald);
+      }
+      if (value == "FusionLevel") {
+        vald = m_XmlReader->readElementText().toDouble();
+        if (!m_XmlReader->hasError())
+          slicerManager->SetFusionLevel(vald);
+      }
     }
   }
+  m_Window->ImageInfoChanged();
   return value;
 }
 

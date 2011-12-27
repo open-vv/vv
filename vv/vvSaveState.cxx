@@ -59,10 +59,11 @@ void vvSaveState::SaveTree()
   m_XmlWriter->writeEndElement();
 }
 
-void vvSaveState::SaveImage(QTreeWidgetItem* item, int index)
+void vvSaveState::SaveImage(const QTreeWidgetItem* item, int index)
 {
+  const vvSlicerManager * slicerManager = m_Window->GetSlicerManagers()[index];
   m_XmlWriter->writeStartElement("Image");
-  
+
   std::ostringstream indexStr;
   indexStr.str("");
   indexStr << index;
@@ -70,28 +71,33 @@ void vvSaveState::SaveImage(QTreeWidgetItem* item, int index)
 
   std::string filename = item->data(0, Qt::UserRole).toString().toStdString();
   m_XmlWriter->writeTextElement("FileName", QDir::current().absoluteFilePath(filename.c_str()));
-  
+
   QTreeWidgetItem* item_child;
   std::string role;
   for (int i = 0; i < item->childCount(); i++) {
     item_child = item->child(i);
     role = item_child->data(1,Qt::UserRole).toString().toStdString();
     if (role == "fusion")
-      SaveFusion(item_child);
+      SaveFusion(item_child, slicerManager);
     else if (role == "overlay")
       SaveOverlay(item_child);
     else if (role == "vector")
       SaveVector(item_child);
   }
-  
+
   m_XmlWriter->writeEndElement();
 }
 
-void vvSaveState::SaveFusion(QTreeWidgetItem* item)
+void vvSaveState::SaveFusion(const QTreeWidgetItem* item, const vvSlicerManager* vvManager)
 {
   m_XmlWriter->writeStartElement("Fusion");
   std::string filename = item->data(0, Qt::UserRole).toString().toStdString();
   m_XmlWriter->writeTextElement("FileName", QDir::current().absoluteFilePath(filename.c_str()));
+  m_XmlWriter->writeTextElement("FusionOpacity", QString::number(vvManager->GetFusionOpacity()));
+  m_XmlWriter->writeTextElement("FusionThresholdOpacity", QString::number(vvManager->GetFusionThresholdOpacity()));
+  m_XmlWriter->writeTextElement("FusionColorMap", QString::number(vvManager->GetFusionColorMap()));
+  m_XmlWriter->writeTextElement("FusionWindow", QString::number(vvManager->GetFusionWindow()));
+  m_XmlWriter->writeTextElement("FusionLevel", QString::number(vvManager->GetFusionLevel()));
   m_XmlWriter->writeEndElement();
 }
 
@@ -103,7 +109,7 @@ void vvSaveState::SaveOverlay(QTreeWidgetItem* item)
   m_XmlWriter->writeEndElement();
 }
 
-void vvSaveState::SaveVector(QTreeWidgetItem* item)
+void vvSaveState::SaveVector(const QTreeWidgetItem* item)
 {
   m_XmlWriter->writeStartElement("Vector");
   std::string filename = item->data(0, Qt::UserRole).toString().toStdString();
