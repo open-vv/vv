@@ -43,9 +43,7 @@ template<unsigned int Dim>
 void CatImageGenericFilter<args_info_type>::InitializeImageType()
 {
   ADD_DEFAULT_IMAGE_TYPES(Dim);
-  ADD_VEC_IMAGE_TYPE(2,2,float);
-  ADD_VEC_IMAGE_TYPE(2,3,float);
-  ADD_VEC_IMAGE_TYPE(3,3,float);
+  ADD_DEFAULT_VEC_IMAGE_TYPES;
 }
 //--------------------------------------------------------------------
 

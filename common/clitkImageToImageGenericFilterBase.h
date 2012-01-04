@@ -137,6 +137,9 @@ namespace clitk {
                                      ADD_IMAGE_TYPE(DIM, int);    \
                                      ADD_IMAGE_TYPE(DIM, float);  \
                                      ADD_IMAGE_TYPE(DIM, double);
+#define ADD_DEFAULT_VEC_IMAGE_TYPES ADD_VEC_IMAGE_TYPE(2,2,float); \
+                                    ADD_VEC_IMAGE_TYPE(2,3,float); \
+                                    ADD_VEC_IMAGE_TYPE(3,3,float);
 
   //#include "clitkImageToImageGenericFilterBase.txx"
 
