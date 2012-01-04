@@ -37,26 +37,37 @@ source `dirname $0`/midp_common.sh
 ################# BLUTDIR #####################
 registration_blutdir()
 {
-  reference=$1
-  target=$2
-  mask_ref=$3
-  mask_targ=$4
-  vf=$5
-  result=$6
-  nb_iter=$7
-  nb_samples=$8
-  sampling_algo=$9
-  hist_bins=${10}
-  nb_levels=${11}
-  spacing=${12}
-  metric=${13}
-  optimizer=${14}
-  interpolator=${15}
-  log=${16}
+  local reference=$1
+  local target=$2
+  local mask_ref=$3
+  local mask_targ=$4
+  local vf=$5
+  local result=$6
+  local nb_iter=$7
+  local nb_samples=$8
+  local sampling_algo=$9
+  local hist_bins=${10}
+  local nb_levels=${11}
+  local spacing=${12}
+  local metric=${13}
+  local optimizer=${14}
+  local interpolator=${15}
+  local log=${16}
+  local coeff=${17}
+  local init_coeff=${18}
 
   echo "Computing BLUTDIR $reference -> $target ..."
   blutdir_params="--levels $nb_levels  --metric $metric --optimizer $optimizer --samples $nb_samples --spacing $spacing,$spacing,$spacing --bins $hist_bins --maxIt $nb_iter --interp $interpolator --verbose"
-  cmd="clitkBLUTDIR -r $reference -t $target -m $mask_ref --targetMask $mask_targ --vf $vf -o $result $blutdir_params"
+
+  if [ -n "$coeff" ]; then
+    coeff="--coeff $coeff"
+  fi
+  
+  if [ -n "$init_coeff" ]; then
+    init_coeff="--initCoeff $init_coeff"
+  fi
+  
+  cmd="clitkBLUTDIR -r $reference -t $target -m $mask_ref --targetMask $mask_targ --vf $vf $coeff $init_coeff -o $result $blutdir_params"
   $cmd > $log
 
   abort_on_error registration_blutdir $? clean_up_registration

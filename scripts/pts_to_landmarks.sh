@@ -12,10 +12,11 @@
 
 if [ $# -ne 2 ]; then
   echo "Usage: $0 input.pts output.txt" 1>&2
+  exit 1
 fi
 
-to_append=/tmp/$RANDOM
-to_prepend=/tmp/$RANDOM
+to_append=`mktemp`
+to_prepend=`mktemp`
 
 for i in $(seq 0 $((`cat $1 | wc -l` - 1)));
 do
@@ -25,3 +26,5 @@ done
 
 echo "LANDMARKS1" > $2
 paste -d ' ' $to_prepend $1 $to_append >> $2
+
+rm $to_append $to_prepend

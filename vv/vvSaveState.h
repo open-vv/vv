@@ -3,6 +3,7 @@
 
 #include <string>
 #include <memory>
+#include "vvSlicerManager.h"
 
 class vvMainWindow;
 class QXmlStreamWriter;
@@ -22,10 +23,10 @@ protected:
   void SaveGlobals();
   void SaveGUI();
   void SaveTree();
-  void SaveImage(QTreeWidgetItem* item, int index);
-  void SaveFusion(QTreeWidgetItem* item);
-  void SaveOverlay(QTreeWidgetItem* item);
-  void SaveVector(QTreeWidgetItem* item);
+  void SaveImage(const QTreeWidgetItem* item, int index);
+  void SaveFusion(const QTreeWidgetItem* item, const vvSlicerManager* slicerManager);
+  void SaveOverlay(const QTreeWidgetItem* item, const vvSlicerManager* slicerManager);
+  void SaveVector(const QTreeWidgetItem* item);
 
   std::auto_ptr<QXmlStreamWriter> m_XmlWriter;
   std::auto_ptr<QFile> m_File;

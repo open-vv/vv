@@ -139,31 +139,31 @@ class vvSlicerManager : public QObject {
 
   double GetColorWindow();
   double GetColorLevel();
-  double GetOverlayColorWindow();
-  double GetOverlayColorLevel();
-  bool GetLinkOverlayWindowLevel();
+  double GetOverlayColorWindow() const;
+  double GetOverlayColorLevel() const;
+  bool GetLinkOverlayWindowLevel() const;
   int GetColorMap() {
     return mColorMap;
   }
   int GetPreset() {
     return mPreset;
   }
-  int GetOverlayColor() {
+  int GetOverlayColor() const {
     return mOverlayColor;
   }
-  int GetFusionOpacity() {
+  int GetFusionOpacity() const {
     return mFusionOpacity;
   }
-  int GetFusionThresholdOpacity() {
+  int GetFusionThresholdOpacity() const {
     return mFusionThresOpacity;
   }
-  int GetFusionColorMap() {
+  int GetFusionColorMap() const {
     return mFusionColorMap;
   }
-  double GetFusionWindow() {
+  double GetFusionWindow() const {
     return mFusionWindow;
   }
-  double GetFusionLevel() {
+  double GetFusionLevel() const {
     return mFusionLevel;
   }
 

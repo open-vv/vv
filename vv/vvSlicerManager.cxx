@@ -763,7 +763,7 @@ double vvSlicerManager::GetColorLevel()
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-double vvSlicerManager::GetOverlayColorWindow()
+double vvSlicerManager::GetOverlayColorWindow() const
 {
   if (mSlicers.size())
     return mSlicers[0]->GetOverlayColorWindow();
@@ -772,7 +772,7 @@ double vvSlicerManager::GetOverlayColorWindow()
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-double vvSlicerManager::GetOverlayColorLevel()
+double vvSlicerManager::GetOverlayColorLevel() const
 {
   if (mSlicers.size())
     return mSlicers[0]->GetOverlayColorLevel();
@@ -781,7 +781,7 @@ double vvSlicerManager::GetOverlayColorLevel()
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-bool vvSlicerManager::GetLinkOverlayWindowLevel()
+bool vvSlicerManager::GetLinkOverlayWindowLevel() const
 {
   if (mSlicers.size())
     return mSlicers[0]->GetLinkOverlayWindowLevel();

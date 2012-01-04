@@ -250,7 +250,8 @@ void vvOverlayPanel::VFColorChangeRequest()
   QColor color(vfColorButton->palette().color(QPalette::Background));
   color = QColorDialog::getColor(color, this, "Choose the new color of the vector field");
   //vfColorButton->palette().setColor(QPalette::Background, color); SR: Not working?
-  vfColorButton->setStyleSheet("* { background-color: " + color.name() + "; border: 0px }");
+  if (color.isValid())
+    vfColorButton->setStyleSheet("* { background-color: " + color.name() + "; border: 0px }");
   this->setVFProperty();
 }
 
