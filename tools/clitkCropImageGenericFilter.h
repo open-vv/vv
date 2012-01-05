@@ -60,6 +60,18 @@ namespace clitk
     void UpdateWithInputImageType();
 
   protected:
+    template <class ImageType>
+    class AutoCrop
+    {
+    public:
+      typedef typename ImageType::Pointer ImagePointer;
+      ImagePointer Do(args_info_type &, ImagePointer);
+    private:
+      template<unsigned int> struct PixelDimType {};
+      template<unsigned int Dim> ImagePointer Do(args_info_type &,ImagePointer, PixelDimType<Dim> *);
+      ImagePointer Do(args_info_type &, ImagePointer, PixelDimType<1> *);
+    };
+
     template<unsigned int Dim> void InitializeImageType();
     args_info_type mArgsInfo;
 

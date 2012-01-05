@@ -30,7 +30,7 @@ CropLikeImageFilter():itk::ImageToImageFilter<ImageType, ImageType>() {
   this->SetNumberOfRequiredInputs(1);
   m_LikeImage = NULL;
   m_LikeFilenameIsGiven = false;
-  this->SetBackgroundValue(0);
+  this->SetBackgroundValue(typename PixelTraits<typename ImageType::PixelType>::ValueType(0));
   m_CropAlongThisDimension.resize(ImageType::ImageDimension);
   for(uint i=0; i<ImageType::ImageDimension; i++)
     m_CropAlongThisDimension[i] = true;

@@ -41,7 +41,7 @@ void clitk::VFResampleGenericFilter::InitializeImageType()
 {
   //typedef itk::Vector<float,Dim> v3f;
   //ADD_IMAGE_TYPE(Dim, v3f);
-  ADD_VEC_IMAGE_TYPE(Dim, Dim, float)
+  ADD_DEFAULT_VEC_IMAGE_TYPES
 }
 //--------------------------------------------------------------------
 
