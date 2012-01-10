@@ -18,6 +18,8 @@
 #ifndef clitkInvertVFGenericFilter_txx
 #define clitkInvertVFGenericFilter_txx
 
+#include "itkVectorResampleImageFilter.h"
+
 /* =================================================
  * @file   clitkInvertVFGenericFilter.txx
  * @author
@@ -117,7 +119,7 @@ InvertVFGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   typename InputReaderType::Pointer reader = InputReaderType::New();
   reader->SetFileName( m_InputFileName);
   reader->Update();
-  typename InputImageType::Pointer input= reader->GetOutput();
+  typename InputImageType::Pointer input = reader->GetOutput();
 
   // Filter
   typename OutputImageType::Pointer output;
@@ -128,19 +130,29 @@ InvertVFGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     // Create the InvertVFFilter
     typedef clitk::InvertVFFilter<InputImageType,OutputImageType> FilterType;
     typename FilterType::Pointer filter =FilterType::New();
-    filter->SetInput(input);
-    typename FilterType::SpacingType spacing = input->GetSpacing();
-    typename FilterType::SizeType size = input->GetLargestPossibleRegion().GetSize();
     if (m_ArgsInfo.like_given) {
+      typename FilterType::SpacingType spacing;
+      typename FilterType::SizeType size;
       itk::ImageIOBase::Pointer header = readImageHeader(m_ArgsInfo.like_arg);
       for(unsigned int i=0; i<InputImageType::ImageDimension; i++) {
         size[i] = header->GetDimensions(i);
         spacing[i] = header->GetSpacing(i);
       }
+
+      typedef itk::VectorResampleImageFilter<InputImageType, OutputImageType> ResampleFilterType;
+      typename ResampleFilterType::Pointer resampler = ResampleFilterType::New();
+      resampler->SetInput(input);
+      resampler->SetOutputOrigin(input->GetOrigin());
+      resampler->SetOutputDirection(input->GetDirection());
+      resampler->SetOutputSpacing(spacing);
+      resampler->SetSize(size);
+      resampler->Update();
+      spacing = resampler->GetOutput()->GetSpacing();
+      size = resampler->GetOutput()->GetLargestPossibleRegion().GetSize();
+      filter->SetInput(resampler->GetOutput());
     }
-    std::cout << spacing << size << std::endl;
-    filter->SetOutputSpacing(spacing);
-    filter->SetOutputSize(size);
+    else
+      filter->SetInput(input);
 
     filter->SetVerbose(m_Verbose);
     if (m_ArgsInfo.threads_given) filter->SetNumberOfThreads(m_ArgsInfo.threads_arg);

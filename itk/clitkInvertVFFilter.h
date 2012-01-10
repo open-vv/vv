@@ -79,8 +79,6 @@ namespace clitk
     InvertVFFilter();
     ~InvertVFFilter() {};
     void GenerateData( );
-    void GenerateOutputInformation();
-    void GenerateInputRequestedRegion();
     
     bool m_Verbose;
     bool m_NumberOfThreadsIsGiven;
