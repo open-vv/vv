@@ -17,6 +17,7 @@
 ===========================================================================**/
 #ifndef __clitkInvertVFFilter_txx
 #define __clitkInvertVFFilter_txx
+
 namespace
 {
 
@@ -73,6 +74,8 @@ protected:
   ~HelperClass1() {};
 
   //the actual processing
+  void GenerateInputRequestedRegion();
+  void GenerateOutputInformation();  
   void BeforeThreadedGenerateData();
   void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId );
 
@@ -99,10 +102,38 @@ HelperClass1<InputImageType, OutputImageType>::HelperClass1()
 }
 
 //=========================================================================================================================
+//Set input image params
+template <class InputImageType, class OutputImageType>
+void HelperClass1<InputImageType, OutputImageType>::GenerateInputRequestedRegion()
+{
+  //std::cout << "HelperClass1::GenerateInputRequestedRegion - IN" << std::endl;
+
+  typename InputImageType::Pointer inputPtr = const_cast< InputImageType * >(this->GetInput());
+  inputPtr->SetRequestedRegion(inputPtr->GetLargestPossibleRegion());
+  
+  //std::cout << "HelperClass1::GenerateInputRequestedRegion - OUT" << std::endl;
+}
+
+//=========================================================================================================================
+//Set output image params
+template<class InputImageType, class OutputImageType >
+void HelperClass1<InputImageType, OutputImageType>::GenerateOutputInformation()
+{
+  //std::cout << "HelperClass1::GenerateOutputInformation - IN" << std::endl;
+  Superclass::GenerateOutputInformation();
+
+  // it's the weight image that determines the size of the output
+  typename OutputImageType::Pointer outputPtr = this->GetOutput();
+  outputPtr->SetLargestPossibleRegion( m_Weights->GetLargestPossibleRegion() );
+  outputPtr->SetSpacing(m_Weights->GetSpacing());
+}
+
+//=========================================================================================================================
 //Before threaded data
 template<class InputImageType, class OutputImageType >
 void HelperClass1<InputImageType, OutputImageType>::BeforeThreadedGenerateData()
 {
+  //std::cout << "HelperClass1::BeforeThreadedGenerateData - IN" << std::endl;
   //Since we will add, put to zero!
   this->GetOutput()->FillBuffer(itk::NumericTraits<double>::Zero);
   this->GetWeights()->FillBuffer(itk::NumericTraits<double>::Zero);
@@ -113,49 +144,58 @@ void HelperClass1<InputImageType, OutputImageType>::BeforeThreadedGenerateData()
 template<class InputImageType, class OutputImageType>
 void HelperClass1<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId )
 {
-
+  //std::cout << "HelperClass1::ThreadedGenerateData - IN" << std::endl;
   //Get pointer to the input
   typename InputImageType::ConstPointer inputPtr = this->GetInput();
 
   //Get pointer to the output
   typename OutputImageType::Pointer outputPtr = this->GetOutput();
-  //typename OutputImageType::SizeType size=outputPtr->GetLargestPossibleRegion().GetSize();
+/*  outputPtr->SetLargestPossibleRegion( m_Weights->GetLargestPossibleRegion() );
+  outputPtr->SetSpacing(m_Weights->GetSpacing());*/
+  typename OutputImageType::SizeType size=outputPtr->GetLargestPossibleRegion().GetSize();
+  //std::cout << outputPtr->GetSpacing() << size << std::endl;
 
   //Iterator over input
-  typedef itk::ImageRegionConstIteratorWithIndex<InputImageType> InputImageIteratorType;
+  //typedef itk::ImageRegionConstIteratorWithIndex<InputImageType> InputImageIteratorType;
+  typedef itk::ImageRegionConstIteratorWithIndex<OutputImageType> InputImageIteratorType;
 
   //define them over the outputRegionForThread
-  InputImageIteratorType inputIt(inputPtr, outputRegionForThread);
+  //InputImageIteratorType outputIt(inputPtr, outputRegionForThread);
+  InputImageIteratorType outputIt(outputPtr, outputPtr->GetLargestPossibleRegion());
 
   //Initialize
   typename InputImageType::IndexType index;
-  itk::ContinuousIndex<double,ImageDimension> contIndex;
+  itk::ContinuousIndex<double,ImageDimension> contIndex, inContIndex;
   typename InputImageType::PointType ipoint;
   typename OutputImageType::PointType opoint;
   typedef typename OutputImageType::PixelType DisplacementType;
   DisplacementType displacement;
-  inputIt.GoToBegin();
+  outputIt.GoToBegin();
 
   //define some temp variables
   signed long baseIndex[ImageDimension];
   double distance[ImageDimension];
   unsigned int dim, counter, upper;
   double totalOverlap,overlap;
-  typename OutputImageType::IndexType neighIndex;
+  typename OutputImageType::IndexType neighIndex, outIndex;
 
   //Find the number of neighbors
   unsigned int neighbors =  1 << ImageDimension;
 
   //==================================================================================================
-  //Loop over the region and add the intensities to the output and the weight to the weights
+  //Loop over the output region and add the intensities from the input to the output and the weight to the weights
   //==================================================================================================
-  while( !inputIt.IsAtEnd() ) {
+  while( !outputIt.IsAtEnd() ) {
     // get the input image index
-    index = inputIt.GetIndex();
+    outIndex = outputIt.GetIndex();
+    outputPtr->TransformIndexToPhysicalPoint( outIndex,opoint );
+    for(unsigned int j = 0; j < ImageDimension; j++ ) ipoint[j] = opoint[j];
+    inputPtr->TransformPhysicalPointToIndex(ipoint, index);
     inputPtr->TransformIndexToPhysicalPoint( index,ipoint );
 
     // get the required displacement
-    displacement = inputIt.Get();
+    //displacement = outputIt.Get();
+    displacement = inputPtr->GetPixel(index);
 
     // compute the required output image point
     for(unsigned int j = 0; j < ImageDimension; j++ ) opoint[j] = ipoint[j] + (double)displacement[j];
@@ -230,9 +270,10 @@ void HelperClass1<InputImageType, OutputImageType>::ThreadedGenerateData(const O
       }
     }
 
-    ++inputIt;
+    ++outputIt;
   }
 
+  //std::cout << "HelperClass1::ThreadedGenerateData - OUT" << std::endl;
 }
 
 
@@ -310,7 +351,8 @@ template<class InputImageType, class OutputImageType > HelperClass2<InputImageTy
 //update the output for the outputRegionForThread
 template<class InputImageType, class OutputImageType > void HelperClass2<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId )
 {
-
+  //std::cout << "HelperClass2::ThreadedGenerateData - IN" << std::endl;
+  
   //Get pointer to the input
   typename InputImageType::ConstPointer inputPtr = this->GetInput();
 
@@ -360,6 +402,9 @@ template<class InputImageType, class OutputImageType > void HelperClass2<InputIm
     ++inputIt;
 
   }//end while
+  
+  //std::cout << "HelperClass2::ThreadedGenerateData - OUT" << std::endl;
+  
 }//end member
 
 
@@ -384,27 +429,60 @@ InvertVFFilter<InputImageType, OutputImageType>::InvertVFFilter()
   m_Verbose=false;
 }
 
+//=========================================================================================================================
+//Set input image params
+template <class InputImageType, class OutputImageType>
+void InvertVFFilter<InputImageType, OutputImageType>::GenerateInputRequestedRegion()
+{
+  //std::cout << "InvertVFFilter::GenerateInputRequestedRegion - IN" << std::endl;
+  // call the superclass' implementation of this method
+  // Superclass::GenerateInputRequestedRegion();
+
+  typename InputImageType::Pointer inputPtr = const_cast< InputImageType * >(this->GetInput());
+  inputPtr->SetRequestedRegion(inputPtr->GetLargestPossibleRegion());
+  
+  //std::cout << "InvertVFFilter::GenerateInputRequestedRegion - OUT" << std::endl;
+}
+
+//=========================================================================================================================
+//Set output image params
+template<class InputImageType, class OutputImageType >
+void InvertVFFilter<InputImageType, OutputImageType>::GenerateOutputInformation()
+{
+  //std::cout << "InvertVFFilter::GenerateOutputInformation - IN" << std::endl;
+  Superclass::GenerateOutputInformation();
+
+  typename InputImageType::ConstPointer inputPtr=this->GetInput();
+  typename WeightsImageType::RegionType region = inputPtr->GetLargestPossibleRegion();
+  region.SetSize(m_OutputSize);
+
+  typename OutputImageType::Pointer outputPtr = this->GetOutput();
+  outputPtr->SetRegions( region );
+  outputPtr->SetSpacing(m_OutputSpacing);
+  outputPtr->SetOrigin(inputPtr->GetOrigin());
+
+  //std::cout << "InvertVFFilter::GenerateOutputInformation - OUT" << std::endl;
+}
 
 //=========================================================================================================================
 //Update
 template <class InputImageType, class OutputImageType> void InvertVFFilter<InputImageType, OutputImageType>::GenerateData()
 {
+  //std::cout << "InvertVFFilter::GenerateData - IN" << std::endl;
 
   //Get the properties of the input
   typename InputImageType::ConstPointer inputPtr=this->GetInput();
-  typename WeightsImageType::RegionType region;
-  typename WeightsImageType::RegionType::SizeType size=inputPtr->GetLargestPossibleRegion().GetSize();
-  region.SetSize(size);
-  typename OutputImageType::IndexType start;
-  for (unsigned int i=0; i< ImageDimension; i++) start[i]=0;
-  region.SetIndex(start);
-
+  typename WeightsImageType::RegionType region = inputPtr->GetLargestPossibleRegion();
+  //region.SetSize(size);
+  region.SetSize(m_OutputSize);
 
   //Allocate the weights
   typename WeightsImageType::Pointer weights=WeightsImageType::New();
+  weights->SetOrigin(inputPtr->GetOrigin());
   weights->SetRegions(region);
+  weights->SetSpacing(m_OutputSpacing);
   weights->Allocate();
-  weights->SetSpacing(inputPtr->GetSpacing());
+  //weights->SetSpacing(inputPtr->GetSpacing());
 
   //===========================================================================
   //Inversion is divided in in two loops, for each we will call a threaded helper class
@@ -435,7 +513,8 @@ template <class InputImageType, class OutputImageType> void InvertVFFilter<Input
     typename MutexImageType::Pointer mutex=InvertVFFilter::MutexImageType::New();
     mutex->SetRegions(region);
     mutex->Allocate();
-    mutex->SetSpacing(inputPtr->GetSpacing());
+    //mutex->SetSpacing(inputPtr->GetSpacing());
+    mutex->SetSpacing(m_OutputSpacing);
     helper1->SetMutexImage(mutex);
     if (m_Verbose) std::cout <<"Inverting using a thread-safe algorithm" <<std::endl;
   } else  if(m_Verbose)std::cout <<"Inverting using a thread-unsafe algorithm" <<std::endl;
@@ -455,6 +534,8 @@ template <class InputImageType, class OutputImageType> void InvertVFFilter<Input
   typename HelperClass2Type::Pointer helper2=HelperClass2Type::New();
 
   //Set temporary output as input
+  //std::cout << temp->GetSpacing() << temp->GetLargestPossibleRegion().GetSize() << std::endl;
+  //std::cout << weights->GetSpacing() << weights->GetLargestPossibleRegion().GetSize() << std::endl;
   helper2->SetInput(temp);
   helper2->SetWeights(weights);
   helper2->SetEdgePaddingValue(m_EdgePaddingValue);

@@ -129,6 +129,19 @@ InvertVFGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     typedef clitk::InvertVFFilter<InputImageType,OutputImageType> FilterType;
     typename FilterType::Pointer filter =FilterType::New();
     filter->SetInput(input);
+    typename FilterType::SpacingType spacing = input->GetSpacing();
+    typename FilterType::SizeType size = input->GetLargestPossibleRegion().GetSize();
+    if (m_ArgsInfo.like_given) {
+      itk::ImageIOBase::Pointer header = readImageHeader(m_ArgsInfo.like_arg);
+      for(unsigned int i=0; i<InputImageType::ImageDimension; i++) {
+        size[i] = header->GetDimensions(i);
+        spacing[i] = header->GetSpacing(i);
+      }
+    }
+    std::cout << spacing << size << std::endl;
+    filter->SetOutputSpacing(spacing);
+    filter->SetOutputSize(size);
+
     filter->SetVerbose(m_Verbose);
     if (m_ArgsInfo.threads_given) filter->SetNumberOfThreads(m_ArgsInfo.threads_arg);
     if (m_ArgsInfo.pad_given) {
