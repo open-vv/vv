@@ -25,6 +25,7 @@ namespace clitk {
   clitk::ComposeVFGenericFilter::ComposeVFGenericFilter()
   {
     m_Verbose=false;
+    m_Type = 0;
   }
 
 

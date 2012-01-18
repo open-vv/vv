@@ -51,6 +51,8 @@ namespace clitk
     void SetInput1(const std::string m){m_InputName1=m;}
     void SetInput2(const std::string m){m_InputName2=m;}
     void SetOutput(const std::string m){m_OutputName=m;}
+    void SetLikeImage(const std::string like){m_LikeImage=like;}
+    void SetInputType(int t){m_Type=t;}
     void SetVerbose(const bool m){m_Verbose=m;}
  
 
@@ -65,10 +67,14 @@ namespace clitk
     //Templated members
     template<unsigned int Dimension> void UpdateWithDim(std::string PixelType);
     template<unsigned int Dimension, class PixelType> void UpdateWithDimAndPixelType(); 
-
+    template<class DisplacementFieldType> typename DisplacementFieldType::Pointer CoeffsToDVF(std::string fileName, std::string likeFileName);
+    
     std::string m_InputName1;
     std::string m_InputName2;
     std::string m_OutputName;
+    std::string m_LikeImage;
+    int m_Type;
+    
     bool m_Verbose;
   
   };
