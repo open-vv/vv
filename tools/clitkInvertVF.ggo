@@ -11,7 +11,7 @@ option "threads"   	 	-   	"Number of threads (default=min(8, #CPU))"				  			in
 
 option "input"    	 	i   	"Input VF filename"		  				string 		yes
 option "output"    	 	o   	"Output VF filename"		  				string 		yes
-option "type"    	 	t   	"Type of filter: 0=clitk (fast forward splat using linear kernels), 1= itk (grid subsumpling with controllable precision)"	int 		no 	default="0"
+option "type"    	 	t   	"Type of filter: 0=clitk (fast forward splat using linear kernels), 1=clitk (like 0, but input images are B-Spline coefficients), 2= itk (grid subsumpling with controllable precision)"	int 		no 	default="0"
 option "threadSafe"    	 	-   	"Clitk: use thread safe algorithm"		  		flag 		off
 option "pad"    	 	p   	"Clitk: edge padding value (1 or N number of values!, defautls to zeros)" 		double		multiple	no
 option "sampling"    	 	s   	"Itk: subsampling factor"		  			int	    	no	default="20"
