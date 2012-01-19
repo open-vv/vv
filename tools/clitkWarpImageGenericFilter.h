@@ -98,7 +98,7 @@ namespace clitk
     //----------------------------------------  
     template <unsigned int Dimension>  void UpdateWithDim(std::string PixelType);
     template <unsigned int Dimension, class PixelType>  void UpdateWithDimAndPixelType();
-
+    template<class DisplacementFieldType> typename DisplacementFieldType::Pointer CoeffsToDVF(std::string fileName, std::string likeFileName);
 
     //----------------------------------------  
     // Data members
