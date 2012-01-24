@@ -259,6 +259,9 @@ GenerateOutputInformation()
   StartNewStep("Search for the trachea");
   SearchForTrachea();
   PrintMemory(GetVerboseMemoryFlag(), "After SearchForTrachea");
+  if (m_Seeds.empty()) {
+    clitkExceptionMacro("No seeds for trachea... Aborting.");
+  }
 
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------
@@ -766,6 +769,11 @@ SearchForTracheaSeed2(int numberOfSlices)
         
         prev_e_centre= max_e_centre;
       }
+      else {
+        if (GetVerboseRegionGrowingFlag()) {
+          cout << "No shapes found at slice " << index[2] << std::endl;
+        }
+      }
     }
     
     size_t longest = 0;
@@ -778,9 +786,11 @@ SearchForTracheaSeed2(int numberOfSlices)
       }
     }
     
-    if (GetVerboseRegionGrowingFlag()) 
-      std::cout << "seed at: " << trachea_centre << std::endl;
-    m_Seeds.push_back(trachea_centre);
+    if (longest > 0) {
+      if (GetVerboseRegionGrowingFlag()) 
+        std::cout << "seed at: " << trachea_centre << std::endl;
+      m_Seeds.push_back(trachea_centre);
+    }
   }
   
   return (m_Seeds.size() != 0);
@@ -892,16 +902,17 @@ SearchForTrachea()
             std::cout << "\t Found trachea with volume " << volume << " cc." << std::endl;
           }
         }
-        else {
-          if (GetVerboseStepFlag()) {
-            std::cout << "\t The volume of the trachea (" << volume 
-                      << " cc) seems not correct. I skip some slices (" << skip << ") and restart to find seeds." 
-                      << std::endl;
-          }
-          skip += 5;
-          stop = false;
-          // empty the list of seed
-          m_Seeds.clear();
+        else 
+          if (GetTracheaSeedAlgorithm() == 0) {
+            if (GetVerboseStepFlag()) {
+              std::cout << "\t The volume of the trachea (" << volume 
+                        << " cc) seems not correct. I skip some slices (" << skip << ") and restart to find seeds." 
+                        << std::endl;
+            }
+            skip += 5;
+            stop = false;
+            // empty the list of seed
+            m_Seeds.clear();
         }
         if (skip > 0.5 * working_input->GetLargestPossibleRegion().GetSize()[2]) {
           // we want to skip more than a half of the image, it is probably a bug
