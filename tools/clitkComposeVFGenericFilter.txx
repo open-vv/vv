@@ -47,8 +47,8 @@ namespace clitk
 
     //Define the image type
     if (m_Type == 1) {
-      input1 = CoeffsToDVF<ImageType>(m_InputName1, m_LikeImage, m_Verbose);
-      input2 = CoeffsToDVF<ImageType>(m_InputName2, m_LikeImage, m_Verbose);
+      input1 = BLUTCoeffsToDVF<ImageType>(m_InputName1, m_LikeImage, m_Verbose);
+      input2 = BLUTCoeffsToDVF<ImageType>(m_InputName2, m_LikeImage, m_Verbose);
     }
     else {
       //Read the input1

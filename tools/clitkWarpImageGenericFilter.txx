@@ -90,7 +90,7 @@ WarpImageGenericFilter::UpdateWithDimAndPixelType()
   
   typename DeformationFieldType::Pointer deformationField;
   if (m_ArgsInfo.coeff_given) {
-    deformationField = CoeffsToDVF<DeformationFieldType>(m_ArgsInfo.coeff_arg, m_InputFileName, m_Verbose);
+    deformationField = BLUTCoeffsToDVF<DeformationFieldType>(m_ArgsInfo.coeff_arg, m_InputFileName, m_Verbose);
   }
   else {
     //Read the deformation field

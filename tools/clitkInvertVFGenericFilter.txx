@@ -177,7 +177,7 @@ InvertVFGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     typedef clitk::InvertVFFilter<InputImageType,OutputImageType> FilterType;
     typename FilterType::Pointer filter =FilterType::New();
     if (m_ArgsInfo.like_given) {
-      filter->SetInput(CoeffsToDVF<OutputImageType>(m_InputFileName, m_ArgsInfo.like_arg));
+      filter->SetInput(BLUTCoeffsToDVF<OutputImageType>(m_InputFileName, m_ArgsInfo.like_arg));
     }
 
     filter->SetVerbose(m_Verbose);
