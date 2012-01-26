@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh 
 
 ###############################################################################
 #
@@ -21,12 +21,12 @@ write_mhd_4D()
 		  s/AnatomicalOrientation = .*/AnatomicalOrientation = ????/
 		  /ElementSpacing/ s/.*/& 1/
 		  /DimSize/ s/.*/& $nbph/
-		  s/ElementDataFile = .*/ElementDataFile = LIST/" > "$1/$file_name_4D"
+		  s/ElementDataFile = .*/ElementDataFile = LIST/" > "$dirname/$file_name_4D"
   
   for ph in $listph
   do
     phase=`basename $ph`
-    echo "$phase" >> "$1/$file_name_4D"
+    echo "$phase" >> "$dirname/$file_name_4D"
   done
 }
 
@@ -39,25 +39,32 @@ then
   exit 1
 fi
 
-prefix=$1
+dirname=`dirname $1`
+prefix=`basename $1`
 suffix=$2
 
-dirname=`dirname $1`
-pattern=`basename $1`
+nbph=0
+list_phase_file=`ls -1 $dirname/$prefix*[0-9]*$suffix.mhd`
+for ph in $list_phase_file
+do
+  if [ -e `echo $ph | sed 's/mhd/raw/'` ]
+  then
+    listph="$listph $ph"
+    nbph=$(( nbph + 1 ))
+  fi
+done
 
-list_phase_file=`ls -1 $prefix*[0-9]*$suffix.mhd`
-nb_phase_file=`ls -1 $prefix*[0-9]*$suffix.mhd | wc -l`
+nb_phase_file=`ls -1 $dirname/$prefix*[0-9]*$suffix.mhd | wc -l`
 if [ $nb_phase_file = 0 ]
 then
   echo "Error: no phase found"
   exit 1
 fi
 
-nbph=$nb_phase_file
 orig=`echo $list_phase_file | cut -f 1 -d ' '`
-listph=`echo $list_phase_file | sed 's:\.mhd:\.raw:g'`
+listph=`echo $listph | sed 's:\.mhd:\.raw:g'`
 
 file_name_4D=`echo "${prefix}4D${suffix}.mhd"`
 
-write_mhd_4D $dirname
+write_mhd_4D
 echo "$dirname/$file_name_4D"
