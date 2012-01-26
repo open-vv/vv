@@ -1,4 +1,4 @@
-#!/bin/sh +x
+#!/bin/sh
 
 ###############################################################################
 #
@@ -35,15 +35,18 @@ write_mhd_4D()
 #################################################
 if [ $# -lt 1 ]
 then
-  echo "Usage: $0 PATTERN"
+  echo "Usage: $0 PREFIX [SUFFIX]"
   exit 1
 fi
+
+prefix=$1
+suffix=$2
 
 dirname=`dirname $1`
 pattern=`basename $1`
 
-list_phase_file=`ls -1 $1*[0-9].mhd`
-nb_phase_file=`ls -1 $1*[0-9].mhd | wc -l`
+list_phase_file=`ls -1 $prefix*[0-9]*$suffix.mhd`
+nb_phase_file=`ls -1 $prefix*[0-9]*$suffix.mhd | wc -l`
 if [ $nb_phase_file = 0 ]
 then
   echo "Error: no phase found"
@@ -54,7 +57,7 @@ nbph=$nb_phase_file
 orig=`echo $list_phase_file | cut -f 1 -d ' '`
 listph=`echo $list_phase_file | sed 's:\.mhd:\.raw:g'`
 
-file_name_4D=`echo "${pattern}4D.mhd"`
+file_name_4D=`echo "${prefix}4D${suffix}.mhd"`
 
 write_mhd_4D $dirname
 echo "$dirname/$file_name_4D"
