@@ -1184,14 +1184,15 @@ void vvSlicerManager::SetColorMap(int colormap)
   case 4:
     if (LUT == NULL)
       LUT = vtkLookupTable::New();
-    LUT->SetValueRange(0,1);
+    LUT->SetValueRange(1,1);
     LUT->SetSaturationRange(1,1);
     LUT->SetHueRange(0,1);
+    LUT->SetAlphaRange(1, 1);
     break;
   case 5:
     if (LUT == NULL)
       LUT = vtkLookupTable::New();
-    LUT->SetValueRange(0.,1);
+    LUT->SetValueRange(1,1);
     LUT->SetSaturationRange(1,1);
     LUT->SetHueRange(1,0.1);
     //LUT->SetRampToLinear();
