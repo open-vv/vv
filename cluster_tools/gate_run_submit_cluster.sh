@@ -45,6 +45,11 @@ test -z "${PARAM}" && echo "no param" || echo "param is ${PARAM}"
 echo "using release $(basename ${RELEASEDIR})"
 echo "submitting ${NJOBS} jobs"
 
+PARAMFILE="${OUTPUTDIR}/params.txt"
+echo "njobs = ${NJOBS}" >> "${PARAMFILE}"
+echo "macro = ${MACROFILE}" >> "${PARAMFILE}"
+test -z "${PARAM}" || echo "param = ${PARAM}" >> "${PARAMFILE}"
+
 while test $NJOBS -gt 0; do
 	qsub -N "gatejob.${RUNID}" -o "${OUTPUTDIR}" \
 	-v "PARAM=\"${PARAM}\",INDEX=${NJOBS},INDEXMAX=${NJOBSMAX},SCRIPTDIR=${SCRIPTDIR},OUTPUTDIR=${OUTPUTDIR},RELEASEDIR=${RELEASEDIR},MACROFILE=${MACROFILE},MACRODIR=${MACRODIR}" \
