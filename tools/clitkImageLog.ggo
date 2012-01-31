@@ -1,9 +1,0 @@
-# file clitkImageLog.ggo
-package "clitk"
-version "Perform a inverse normalized log on the image"
-
-option "config"	  	 -	"Config file"		  		string  no
-option "input"		 i	"Input image filename"			string  yes
-option "output"      	 o  	"Output image filename"			string 	yes
-option "verbose"   	 v  	"Verbose"			  	flag	off
-
