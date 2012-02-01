@@ -130,12 +130,14 @@ QT4_ADD_RESOURCES(vv_SRCS vvIcons.qrc)
 
 # Add the autotools in the header vvToolsList.h for initialization of the dummy
 # variables in vv.cxx for the tools contained in vvLib
-file(REMOVE ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h)
-foreach(tool ${vv_TOOLS})
+if(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt IS_NEWER_THAN ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h)
+  file(REMOVE ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h)
+  foreach(tool ${vv_TOOLS})
     FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h "#include \"${tool}.h\"\n")
     FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h "extern const vvToolCreator<${tool}> *dummy${tool};\n")
     FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h "const vvToolCreator<${tool}> *dummy${tool}2 = dummy${tool};\n\n")
-endforeach(tool)
+  endforeach(tool)
+endif(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt IS_NEWER_THAN ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h)
 
 # Add the autotools and the common files ui
 foreach(tool ${vv_TOOLS} ${vv_COMMON_WITH_UI})

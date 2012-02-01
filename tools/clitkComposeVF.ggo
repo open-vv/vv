@@ -9,6 +9,8 @@ option "config"	  	 	-	"Config file"			string  	no
 option "input1"    	 	i   	"Input1 VF filename"		string 		yes
 option "input2"    	 	j   	"Input2 VF filename"		string 		yes
 option "output"    	 	o   	"Output VF filename"		string 		yes
+option "type"   t "Type of input images (0: DVF, 1: b-spline coefficient images)"   int no default="0"
+option "like"   l "Image to read output parameters from (obligatory if type=1)"    string    no
 option "pad"    	 	p   	"Edgepadding value"		float 	multiple 	no  default="0.0"
 option "verbose"   	 	v   	"Verbose"			flag		off
 

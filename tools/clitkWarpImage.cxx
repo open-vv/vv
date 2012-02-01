@@ -40,6 +40,13 @@ int main(int argc, char * argv[])
   GGO(clitkWarpImage, args_info);
   CLITK_INIT;
 
+  if (args_info.coeff_given) {
+    if (args_info.verbose_flag)
+      std::cout<< "Using coefficient images, so forcing sapcing = 1.\n" << std::endl;
+    
+    args_info.spacing_arg = 1;
+  }
+
   // Filter
   clitk::WarpImageGenericFilter::Pointer genericFilter=clitk::WarpImageGenericFilter::New();
 

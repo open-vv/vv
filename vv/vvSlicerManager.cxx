@@ -1184,14 +1184,15 @@ void vvSlicerManager::SetColorMap(int colormap)
   case 4:
     if (LUT == NULL)
       LUT = vtkLookupTable::New();
-    LUT->SetValueRange(0,1);
+    LUT->SetValueRange(1,1);
     LUT->SetSaturationRange(1,1);
     LUT->SetHueRange(0,1);
+    LUT->SetAlphaRange(1, 1);
     break;
   case 5:
     if (LUT == NULL)
       LUT = vtkLookupTable::New();
-    LUT->SetValueRange(0.,1);
+    LUT->SetValueRange(1,1);
     LUT->SetSaturationRange(1,1);
     LUT->SetHueRange(1,0.1);
     //LUT->SetRampToLinear();
@@ -1232,15 +1233,18 @@ void vvSlicerManager::SetColorMap(int colormap)
     }
     
     fusLUT->ForceBuild();
+    double v[4];
     
     // set color table transparency
-    double alpha_range_end = frange[0] + (double)mFusionThresOpacity*(frange[1] - frange[0])/100;
-    for (double i = frange[0]; i < alpha_range_end; i++) {
-      double v[4];
-      vtkIdType index = fusLUT->GetIndex(i);
-      fusLUT->GetTableValue(index, v);
+    double range_end = frange[0] + (double)mFusionThresOpacity*(frange[1] - frange[0])/100;
+    double curr_value = frange[0];
+    int nvalues = fusLUT->GetNumberOfTableValues();
+    //for (double i = frange[0]; i <= alpha_range_end; i++) {
+    for (double i = 0; curr_value < range_end; i++) {  
+      fusLUT->GetTableValue(i, v);
       v[3] = 0;
-      fusLUT->SetTableValue(index, v);
+      fusLUT->SetTableValue(i, v);
+      curr_value += (frange[1] - frange[0])/nvalues;
     }
   }
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {

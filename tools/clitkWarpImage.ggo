@@ -10,7 +10,10 @@ section "I/O"
 
 option "input"		i	"Input image filename"		  string  	yes
 option "output"    	o   	"Output image filename"		  string 	yes
-option "vf"		-	"Vector field filename"		  string 		yes
+
+defgroup "DVFoption" groupdesc="an option of this group is required" required
+groupoption "vf"		-	"Vector field filename"		  string 		yes group="DVFoption"
+groupoption "coeff"   - "B-Spline coefficients filename"     string    yes group="DVFoption"
 
 
 section "Options"

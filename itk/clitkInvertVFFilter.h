@@ -71,15 +71,19 @@ namespace clitk
       m_NumberOfThreads=r;
     }
     itkSetMacro(ThreadSafe, bool);
+    itkSetMacro(OutputSpacing, SpacingType);
+    itkSetMacro(OutputSize, SizeType);
 
   
   protected:
     InvertVFFilter();
     ~InvertVFFilter() {};
     void GenerateData( );
-   
+    
     bool m_Verbose;
     bool m_NumberOfThreadsIsGiven;
+    SpacingType m_OutputSpacing;
+    SizeType m_OutputSize;
     unsigned int m_NumberOfThreads;
     PixelType m_EdgePaddingValue;
     bool m_ThreadSafe;

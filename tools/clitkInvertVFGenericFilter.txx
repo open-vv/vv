@@ -18,6 +18,9 @@
 #ifndef clitkInvertVFGenericFilter_txx
 #define clitkInvertVFGenericFilter_txx
 
+#include "itkVectorResampleImageFilter.h"
+#include "clitkCoeffsToDVF.h"
+
 /* =================================================
  * @file   clitkInvertVFGenericFilter.txx
  * @author
@@ -117,7 +120,7 @@ InvertVFGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   typename InputReaderType::Pointer reader = InputReaderType::New();
   reader->SetFileName( m_InputFileName);
   reader->Update();
-  typename InputImageType::Pointer input= reader->GetOutput();
+  typename InputImageType::Pointer input = reader->GetOutput();
 
   // Filter
   typename OutputImageType::Pointer output;
@@ -128,7 +131,30 @@ InvertVFGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     // Create the InvertVFFilter
     typedef clitk::InvertVFFilter<InputImageType,OutputImageType> FilterType;
     typename FilterType::Pointer filter =FilterType::New();
-    filter->SetInput(input);
+    if (m_ArgsInfo.like_given) {
+      typename FilterType::SpacingType spacing;
+      typename FilterType::SizeType size;
+      itk::ImageIOBase::Pointer header = readImageHeader(m_ArgsInfo.like_arg);
+      for(unsigned int i=0; i<InputImageType::ImageDimension; i++) {
+        size[i] = header->GetDimensions(i);
+        spacing[i] = header->GetSpacing(i);
+      }
+
+      typedef itk::VectorResampleImageFilter<InputImageType, OutputImageType> ResampleFilterType;
+      typename ResampleFilterType::Pointer resampler = ResampleFilterType::New();
+      resampler->SetInput(input);
+      resampler->SetOutputOrigin(input->GetOrigin());
+      resampler->SetOutputDirection(input->GetDirection());
+      resampler->SetOutputSpacing(spacing);
+      resampler->SetSize(size);
+      resampler->Update();
+      spacing = resampler->GetOutput()->GetSpacing();
+      size = resampler->GetOutput()->GetLargestPossibleRegion().GetSize();
+      filter->SetInput(resampler->GetOutput());
+    }
+    else
+      filter->SetInput(input);
+
     filter->SetVerbose(m_Verbose);
     if (m_ArgsInfo.threads_given) filter->SetNumberOfThreads(m_ArgsInfo.threads_arg);
     if (m_ArgsInfo.pad_given) {
@@ -147,6 +173,31 @@ InvertVFGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   }
 
   case 1: {
+    // Create the InvertVFFilter
+    typedef clitk::InvertVFFilter<InputImageType,OutputImageType> FilterType;
+    typename FilterType::Pointer filter =FilterType::New();
+    if (m_ArgsInfo.like_given) {
+      filter->SetInput(BLUTCoeffsToDVF<OutputImageType>(m_InputFileName, m_ArgsInfo.like_arg));
+    }
+
+    filter->SetVerbose(m_Verbose);
+    if (m_ArgsInfo.threads_given) filter->SetNumberOfThreads(m_ArgsInfo.threads_arg);
+    if (m_ArgsInfo.pad_given) {
+      PixelType pad;
+      if (m_ArgsInfo.pad_given !=  (pad.GetNumberOfComponents()) )
+        pad.Fill(m_ArgsInfo.pad_arg[0]);
+      else
+        for(unsigned int i=0; i<Dimension; i++)
+          pad[i]=m_ArgsInfo.pad_arg[i];
+    }
+    filter->SetThreadSafe(m_ArgsInfo.threadSafe_flag);
+    filter->Update();
+    output=filter->GetOutput();
+
+    break;
+  }
+
+  case 2: {
     // Create the InverseDeformationFieldFilter
 #if ITK_VERSION_MAJOR >= 4
     typedef itk::InverseDisplacementFieldImageFilter<InputImageType,OutputImageType> FilterType;
@@ -165,6 +216,7 @@ InvertVFGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     break;
   }
 
+    
   }
 
   // Output

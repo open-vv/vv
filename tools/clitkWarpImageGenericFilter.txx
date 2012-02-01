@@ -27,6 +27,8 @@
  *
  ===================================================*/
 
+#include "itkVectorResampleImageFilter.h"
+#include "clitkCoeffsToDVF.h"
 
 namespace clitk
 {
@@ -78,21 +80,26 @@ WarpImageGenericFilter::UpdateWithDimAndPixelType()
   typedef itk::Image<PixelType, Dimension> OutputImageType;
   typedef itk::Vector<float, Dimension> DisplacementType;
   typedef itk::Image<DisplacementType, Dimension> DeformationFieldType;
-
-
+  
   // Read the input
   typedef itk::ImageFileReader<InputImageType> InputReaderType;
   typename InputReaderType::Pointer reader = InputReaderType::New();
   reader->SetFileName( m_InputFileName);
   reader->Update();
   typename InputImageType::Pointer input= reader->GetOutput();
-
-  //Read the deformation field
-  typedef itk::ImageFileReader<DeformationFieldType> DeformationFieldReaderType;
-  typename  DeformationFieldReaderType::Pointer deformationFieldReader= DeformationFieldReaderType::New();
-  deformationFieldReader->SetFileName(m_ArgsInfo.vf_arg);
-  deformationFieldReader->Update();
-  typename DeformationFieldType::Pointer deformationField =deformationFieldReader->GetOutput();
+  
+  typename DeformationFieldType::Pointer deformationField;
+  if (m_ArgsInfo.coeff_given) {
+    deformationField = BLUTCoeffsToDVF<DeformationFieldType>(m_ArgsInfo.coeff_arg, m_InputFileName, m_Verbose);
+  }
+  else {
+    //Read the deformation field
+    typedef itk::ImageFileReader<DeformationFieldType> DeformationFieldReaderType;
+    typename  DeformationFieldReaderType::Pointer deformationFieldReader= DeformationFieldReaderType::New();
+    deformationFieldReader->SetFileName(m_ArgsInfo.vf_arg);
+    deformationFieldReader->Update();
+    deformationField =deformationFieldReader->GetOutput();
+  }
 
   // Intensity interpolator
   typedef clitk::GenericVectorInterpolator<args_info_clitkWarpImage, DeformationFieldType, double> GenericInterpolatorType;
@@ -139,7 +146,7 @@ WarpImageGenericFilter::UpdateWithDimAndPixelType()
   // -------------------------------------------
   // Spacing like input
   // -------------------------------------------
-  else {
+  else if (!m_ArgsInfo.coeff_given) {
     // Get size
     typename DeformationFieldType::SizeType newSize;
     for (unsigned int i=0 ; i <Dimension; i++)

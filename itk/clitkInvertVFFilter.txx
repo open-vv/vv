@@ -17,6 +17,7 @@
 ===========================================================================**/
 #ifndef __clitkInvertVFFilter_txx
 #define __clitkInvertVFFilter_txx
+
 namespace
 {
 
@@ -103,6 +104,7 @@ HelperClass1<InputImageType, OutputImageType>::HelperClass1()
 template<class InputImageType, class OutputImageType >
 void HelperClass1<InputImageType, OutputImageType>::BeforeThreadedGenerateData()
 {
+  //std::cout << "HelperClass1::BeforeThreadedGenerateData - IN" << std::endl;
   //Since we will add, put to zero!
   this->GetOutput()->FillBuffer(itk::NumericTraits<double>::Zero);
   this->GetWeights()->FillBuffer(itk::NumericTraits<double>::Zero);
@@ -113,7 +115,7 @@ void HelperClass1<InputImageType, OutputImageType>::BeforeThreadedGenerateData()
 template<class InputImageType, class OutputImageType>
 void HelperClass1<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId )
 {
-
+  //std::cout << "HelperClass1::ThreadedGenerateData - IN" << std::endl;
   //Get pointer to the input
   typename InputImageType::ConstPointer inputPtr = this->GetInput();
 
@@ -129,7 +131,7 @@ void HelperClass1<InputImageType, OutputImageType>::ThreadedGenerateData(const O
 
   //Initialize
   typename InputImageType::IndexType index;
-  itk::ContinuousIndex<double,ImageDimension> contIndex;
+  itk::ContinuousIndex<double,ImageDimension> contIndex, inContIndex;
   typename InputImageType::PointType ipoint;
   typename OutputImageType::PointType opoint;
   typedef typename OutputImageType::PixelType DisplacementType;
@@ -147,7 +149,7 @@ void HelperClass1<InputImageType, OutputImageType>::ThreadedGenerateData(const O
   unsigned int neighbors =  1 << ImageDimension;
 
   //==================================================================================================
-  //Loop over the region and add the intensities to the output and the weight to the weights
+  //Loop over the output region and add the intensities from the input to the output and the weight to the weights
   //==================================================================================================
   while( !inputIt.IsAtEnd() ) {
     // get the input image index
@@ -233,6 +235,7 @@ void HelperClass1<InputImageType, OutputImageType>::ThreadedGenerateData(const O
     ++inputIt;
   }
 
+  //std::cout << "HelperClass1::ThreadedGenerateData - OUT" << std::endl;
 }
 
 
@@ -310,7 +313,8 @@ template<class InputImageType, class OutputImageType > HelperClass2<InputImageTy
 //update the output for the outputRegionForThread
 template<class InputImageType, class OutputImageType > void HelperClass2<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId )
 {
-
+  //std::cout << "HelperClass2::ThreadedGenerateData - IN" << std::endl;
+  
   //Get pointer to the input
   typename InputImageType::ConstPointer inputPtr = this->GetInput();
 
@@ -360,6 +364,9 @@ template<class InputImageType, class OutputImageType > void HelperClass2<InputIm
     ++inputIt;
 
   }//end while
+  
+  //std::cout << "HelperClass2::ThreadedGenerateData - OUT" << std::endl;
+  
 }//end member
 
 
@@ -384,24 +391,19 @@ InvertVFFilter<InputImageType, OutputImageType>::InvertVFFilter()
   m_Verbose=false;
 }
 
-
 //=========================================================================================================================
 //Update
 template <class InputImageType, class OutputImageType> void InvertVFFilter<InputImageType, OutputImageType>::GenerateData()
 {
+  //std::cout << "InvertVFFilter::GenerateData - IN" << std::endl;
 
   //Get the properties of the input
   typename InputImageType::ConstPointer inputPtr=this->GetInput();
-  typename WeightsImageType::RegionType region;
-  typename WeightsImageType::RegionType::SizeType size=inputPtr->GetLargestPossibleRegion().GetSize();
-  region.SetSize(size);
-  typename OutputImageType::IndexType start;
-  for (unsigned int i=0; i< ImageDimension; i++) start[i]=0;
-  region.SetIndex(start);
-
+  typename WeightsImageType::RegionType region = inputPtr->GetLargestPossibleRegion();
 
   //Allocate the weights
   typename WeightsImageType::Pointer weights=WeightsImageType::New();
+  weights->SetOrigin(inputPtr->GetOrigin());
   weights->SetRegions(region);
   weights->Allocate();
   weights->SetSpacing(inputPtr->GetSpacing());

@@ -1,0 +1,12 @@
+#File clitkComposeVF.ggo
+#Author: Rômulo Pinho
+#Date : Wed 24 January 2012
+
+package "clitk"
+version "Convert a BLUT-coefficient image to a vector field."
+
+option "config"       - "Config file"     string    no
+option "input"       i     "Input1 VF filename"    string    yes
+option "output"       o     "Output VF filename"    string    yes
+option "like"   l "Image to read output parameters from"    string    yes
+

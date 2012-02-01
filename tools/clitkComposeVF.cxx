@@ -28,14 +28,23 @@ int main( int argc, char *argv[] )
   // Init command line
   GGO(clitkComposeVF, args_info);
   CLITK_INIT;
+
+  if (args_info.type_arg == 1 && !args_info.like_given) {
+    std::cerr << "--like must be used when type = 1" << std::endl;
+    return -1;
+  }
+
   
   //Creation of the generic filter
   clitk::ComposeVFGenericFilter::Pointer ComposeVFGenericFilter= clitk::ComposeVFGenericFilter::New();
-
+  
   //Pass the parameters
   ComposeVFGenericFilter->SetInput1(args_info.input1_arg);
   ComposeVFGenericFilter->SetInput2(args_info.input2_arg);
   ComposeVFGenericFilter->SetOutput(args_info.output_arg);
+  ComposeVFGenericFilter->SetInputType(args_info.type_arg);
+  if (args_info.like_given)
+    ComposeVFGenericFilter->SetLikeImage(args_info.like_arg);
   //JV how to pass for different dims?
   //ComposeVFGenericFilter->SetEdgePaddingValue(args_info.pad_arg);
   ComposeVFGenericFilter->SetVerbose(args_info.verbose_flag);
