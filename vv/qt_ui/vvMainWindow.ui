@@ -39,8 +39,8 @@
    <property name="statusTip">
     <string>Type 'F1' on image to display help on navigation</string>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
      <widget class="QFrame" name="frame">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -405,7 +405,7 @@
       </layout>
      </widget>
     </item>
-    <item>
+    <item row="1" column="0">
      <widget class="QSplitter" name="splitter_4">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
@@ -525,6 +525,12 @@
            </widget>
           </item>
          </layout>
+        </widget>
+        <widget class="QWidget" name="ROItab">
+         <attribute name="title">
+          <string>ROI</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_2"/>
         </widget>
         <widget class="QWidget" name="LinkTab">
          <property name="sizePolicy">
@@ -785,7 +791,7 @@
      <x>0</x>
      <y>0</y>
      <width>1008</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="defaultUp">
