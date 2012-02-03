@@ -24,6 +24,7 @@
 #include <itkImageSeriesReader.h>
 #include <itkImageToVTKImageFilter.h>
 #include <itkAnalyzeImageIO.h>
+#include <itkVectorCastImageFilter.h>
 
 #include <vtkTransform.h>
 
@@ -35,7 +36,7 @@ template<unsigned int VImageDimension>
 void vvImageReader::UpdateWithDim(std::string InputPixelType)
 {
   if (mType == VECTORFIELD || mType == VECTORFIELDWITHTIME)
-    UpdateWithDimAndInputPixelType<itk::Vector<float,3>,VImageDimension>();
+    UpdateWithDimAndInputVectorPixelType<itk::Vector<float,VImageDimension>,VImageDimension>();
   else if (InputPixelType == "short")
     UpdateWithDimAndInputPixelType<short,VImageDimension>();
   else if (InputPixelType == "unsigned_short")
@@ -162,10 +163,7 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
       reader->ReleaseDataFlagOn();
 
       try {
-        if (mType == IMAGEWITHTIME || mType == VECTORFIELDWITHTIME)
-          mImage=vvImageFromITK<VImageDimension,InputPixelType>(reader->GetOutput(),true);
-        else
-          mImage=vvImageFromITK<VImageDimension,InputPixelType>(reader->GetOutput());
+        mImage = vvImageFromITK<VImageDimension,InputPixelType>(reader->GetOutput(), mType == IMAGEWITHTIME || mType == VECTORFIELDWITHTIME);
       } catch ( itk::ExceptionObject & err ) {
         std::cerr << "Error while reading " << mInputFilenames[0].c_str()
                   << " " << err << std::endl;
@@ -195,6 +193,77 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
 }
 //----------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------
+template<class InputPixelType, unsigned int VImageDimension>
+void vvImageReader::UpdateWithDimAndInputVectorPixelType()
+{
+  itk::AnalyzeImageIO *analyzeImageIO = NULL;
+
+  typedef itk::Image< InputPixelType, VImageDimension > InputImageType;
+  typename InputImageType::Pointer input;
+
+  if (mInputFilenames.size() > 1) {
+    typedef itk::ImageSeriesReader<InputImageType> ReaderType;
+    typename ReaderType::Pointer reader = ReaderType::New();
+    reader->SetFileNames(mInputFilenames);
+    reader->ReleaseDataFlagOn();
+    try {
+      reader->Update();
+      input = reader->GetOutput();
+    } catch ( itk::ExceptionObject & err ) {
+      std::cerr << "Error while reading image series:" << err << std::endl;
+      std::stringstream error;
+      error << err;
+      mLastError = error.str();
+      return;
+    }
+  } else {
+    typedef itk::ImageFileReader<InputImageType> ReaderType;
+    typename ReaderType::Pointer reader = ReaderType::New();
+    reader->SetFileName(mInputFilenames[0]);
+    reader->ReleaseDataFlagOn();
+    try {
+      reader->Update();
+      input = reader->GetOutput();
+    } catch ( itk::ExceptionObject & err ) {
+      std::cerr << "Error while reading " << mInputFilenames[0].c_str()
+        << " " << err << std::endl;
+      std::stringstream error;
+      error << err;
+      mLastError = error.str();
+      return;
+    }
+    analyzeImageIO = dynamic_cast<itk::AnalyzeImageIO*>( reader->GetImageIO() );
+  }
+
+  typedef itk::Image< itk::Vector<float , 3>, VImageDimension > VectorImageType;
+  typedef itk::VectorCastImageFilter<InputImageType, VectorImageType> CasterType;
+  typename VectorImageType::Pointer casted_input;
+  typename CasterType::Pointer caster = CasterType::New();
+  caster->SetInput(input);
+  casted_input = caster->GetOutput();
+
+  mImage = vvImageFromITK<VImageDimension, itk::Vector<float, 3> >(casted_input, mType == IMAGEWITHTIME || mType == VECTORFIELDWITHTIME);
+
+  // For unknown analyze orientations, we set identity
+  if (analyzeImageIO)
+  {
+    const double m[16] = {1.,0.,0.,0.,
+                          0.,0.,1.,0.,
+                          0.,-1.,0.,0.,
+                          0.,0.,0.,1.};
+    int i;
+    for (i = 0; i < 16 && m[i] == mImage->GetTransform()->GetMatrix()->GetElement(i % 4, i / 4); i++)
+      ;
+    if (i == 16)
+    {
+      itkWarningMacro(<< "Analyze image file format detected with unknown orientation. "
+                      << "Forcing identity orientation, use other file format if not ok.");
+      mImage->GetTransform()->Identity();
+    }
+  }
+}
+//----------------------------------------------------------------------------
 
 #endif /* end #define vvImageReader_TXX */
 
