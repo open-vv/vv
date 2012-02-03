@@ -605,18 +605,18 @@ void vvSlicerManager::UpdateViews(int current,int slicer)
 
     switch (mSlicers[slicer]->GetSliceOrientation()) {
     case vtkImageViewer2::SLICE_ORIENTATION_XY:
-      if (mSlicers[slicer]->GetSlice() != (int)floor(z))
-        mSlicers[slicer]->SetSlice((int)floor(z));
+      if (mSlicers[slicer]->GetSlice() != (int)lrint(z))  //FIXME
+        mSlicers[slicer]->SetSlice((int)lrint(z));
       break;
 
     case vtkImageViewer2::SLICE_ORIENTATION_XZ:
-      if (mSlicers[slicer]->GetSlice() != (int)floor(y))
-        mSlicers[slicer]->SetSlice((int)floor(y));
+      if (mSlicers[slicer]->GetSlice() != (int)lrint(y))
+        mSlicers[slicer]->SetSlice((int)lrint(y));
       break;
 
     case vtkImageViewer2::SLICE_ORIENTATION_YZ:
-      if (mSlicers[slicer]->GetSlice() != (int)floor(x))
-        mSlicers[slicer]->SetSlice((int)floor(x));
+      if (mSlicers[slicer]->GetSlice() != (int)lrint(x))
+        mSlicers[slicer]->SetSlice((int)lrint(x));
       break;
     }
     mSlicers[slicer]->Render();
@@ -640,18 +640,18 @@ void vvSlicerManager::UpdateViews(int current,int slicer)
         }
         switch (mSlicers[i]->GetSliceOrientation()) {
         case vtkImageViewer2::SLICE_ORIENTATION_XY:
-          if (mSlicers[i]->GetSlice() != (int)floor(z))
-            mSlicers[i]->SetSlice((int)floor(z));
+          if (mSlicers[i]->GetSlice() != (int)lrint(z))
+            mSlicers[i]->SetSlice((int)lrint(z));
           break;
 
         case vtkImageViewer2::SLICE_ORIENTATION_XZ:
-          if (mSlicers[i]->GetSlice() != (int)floor(y))
-            mSlicers[i]->SetSlice((int)floor(y));
+          if (mSlicers[i]->GetSlice() != (int)lrint(y))
+            mSlicers[i]->SetSlice((int)lrint(y));
           break;
 
         case vtkImageViewer2::SLICE_ORIENTATION_YZ:
-          if (mSlicers[i]->GetSlice() != (int)floor(x))
-            mSlicers[i]->SetSlice((int)floor(x));
+          if (mSlicers[i]->GetSlice() != (int)lrint(x))
+            mSlicers[i]->SetSlice((int)lrint(x));
           break;
         }
         
