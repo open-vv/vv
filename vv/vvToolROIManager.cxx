@@ -356,7 +356,6 @@ void vvToolROIManager::OpenBinaryImage(QStringList & filename)
 //------------------------------------------------------------------------------
 void vvToolROIManager::OpenDicomImage(std::string filename) 
 {
-  DD("OpenDicomImage");
   // GUI selector of roi
   vvMeshReader reader;
   reader.SetFilename(filename);
@@ -377,8 +376,8 @@ void vvToolROIManager::OpenDicomImage(std::string filename)
     // Loop on selected struct
     std::vector<int> list = selector.getSelectedItems();
     for (uint i=0; i<list.size(); i++) {
-      p.SetProgress(i, list.size());
-      
+      p.SetProgress(i, list.size());      
+       
       clitk::DicomRTStruct2ImageFilter filter;
       filter.SetCropMaskEnabled(true);
       filter.SetImage(mCurrentImage);
