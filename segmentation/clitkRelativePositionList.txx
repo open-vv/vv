@@ -226,6 +226,7 @@ GenerateOutputInformation() {
       filter->SetInput(0, m_working_input);
       filter->SetInput(1, m_reference);
       filter->Update();
+      std::cout << std::endl;
     }
     
   }
