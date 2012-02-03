@@ -34,7 +34,4 @@ IF(BUILD_TESTING)
   ADD_SUBDIRECTORY(${CLITK_SOURCE_DIR}/tests ${PROJECT_BINARY_DIR}/tests)
 ENDIF(BUILD_TESTING)
 
-#=========================================================
-# Build with external GDCM (required for rt-struct and itk4)
-option(CLITK_USE_SYSTEM_GDCM "Use system GDCM (required for rt-struct with itk4)" OFF)
 
