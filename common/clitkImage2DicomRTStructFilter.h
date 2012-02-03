@@ -46,6 +46,8 @@ namespace clitk {
     itkSetMacro(StructureSetFilename, std::string);
     itkSetMacro(DicomFolder, std::string);
     itkSetMacro(OutputFilename, std::string);
+    void SetROIName(std::string name, std::string type);
+    itkSetMacro(ThresholdValue, PixelType);
     
     // Run filter
     void Update();    
@@ -55,7 +57,9 @@ namespace clitk {
     std::string m_StructureSetFilename;
     std::string m_DicomFolder;
     std::string m_OutputFilename;
-
+    std::string m_ROIName;
+    std::string m_ROIType;
+    PixelType m_ThresholdValue;
   };
   //--------------------------------------------------------------------
 

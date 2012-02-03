@@ -42,13 +42,12 @@ namespace clitk {
      -------------------------------------------------------------------- */
   
   template<class ImageType>
-  class ITK_EXPORT BinaryImageToMeshFilter:public itk::Object //:public clitk::FilterBase
+  class ITK_EXPORT BinaryImageToMeshFilter:public itk::Object
   {
 
   public:
     /** Standard class typedefs. */
-    //    typedef itk::ImageToMeshFilter<ImageType, vtkPolyData>   Superclass;
-    typedef itk::ProcessObject   Superclass;
+    typedef itk::ProcessObject            Superclass;
     typedef BinaryImageToMeshFilter       Self;
     typedef itk::SmartPointer<Self>       Pointer;
     typedef itk::SmartPointer<const Self> ConstPointer;
@@ -63,48 +62,14 @@ namespace clitk {
     itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
 
     // /** Some convenient typedefs. */
-    // typedef typename ImageType::ConstPointer ImageConstPointer;
     typedef typename ImageType::Pointer      ImagePointer;
-    // typedef typename ImageType::RegionType   RegionType; 
     typedef typename ImageType::PixelType    PixelType;
-    // typedef typename ImageType::SpacingType  SpacingType;
-    // typedef typename ImageType::SizeType     SizeType;
-    // typedef typename ImageType::PointType    PointType;
-    //typedef itk::ProcessObject::DataObjectPointerArraySizeType DataObjectPointerArraySizeType;
-    //    typedef vtkSmartPointer<vtkPolyData> DataObjectPointer;
 
-    //    using Superclass::SetInput;
-    // void SetInput(unsigned int idx, const ImageType *input);
-    // void SetInput(const ImageType *input)
-    // {
-    //   m_this->SetInput(0, input);
-    // }
-    
-    // const ImageType * GetInput(unsigned int idx);
-    // const ImageType * GetInput()
-    // {
-    //   return this->GetInput(0);
-    // }
-    
-    //virtual DataObjectPointer MakeOutput(DataObjectPointerArraySizeType idx);
-    //    virtual void GenerateData();
-    //    virtual void GenerateOutputInformation();
-
-    /** Input : initial image and object */
-    // itkSetMacro(Mesh, vtkSmartPointer<vtkPolyData>);
-    // itkGetConstMacro(Mesh, vtkSmartPointer<vtkPolyData>);
-
-    // itkSetMacro(LikeImage, ImagePointer);
-    // itkGetConstMacro(LikeImage, ImagePointer);
-
-    // itkSetMacro(Extrude, bool);
-    // itkGetMacro(Extrude, bool);
-    // itkBooleanMacro(Extrude);    
     itkSetMacro(Input, ImagePointer);
     itkGetConstMacro(Input, ImagePointer);
     itkGetMacro(OutputMesh, vtkSmartPointer<vtkPolyData>);
+    itkSetMacro(ThresholdValue, PixelType);
 
-    // virtual void GenerateOutputInformation();
     virtual void Update();
 
   protected:
@@ -113,6 +78,7 @@ namespace clitk {
     
     ImagePointer m_Input;
     vtkSmartPointer<vtkPolyData> m_OutputMesh;
+    PixelType m_ThresholdValue;
 
   private:
     BinaryImageToMeshFilter(const Self&); //purposely not implemented
