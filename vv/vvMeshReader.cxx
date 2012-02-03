@@ -61,8 +61,6 @@ vtk_mode(false)
 //------------------------------------------------------------------------------
 void vvMeshReader::Update()
 {
-  DD("vvMeshReader::Update");
-
   //Show a progress bar only when opening a DC-struct (ie. multiple contours)
   vvProgressDialog progress("Opening " + filename,(!vtk_mode) && (selected_contours.size()>1));
   this->start();
@@ -107,24 +105,17 @@ std::vector<std::pair<int,std::string> > vvMeshReader::GetROINames()
 {
   assert(filename!="");
   std::vector<std::pair<int, std::string> > roi_names;
-  DD(GDCM_MAJOR_VERSION);
-  DD(CLITK_USE_SYSTEM_GDCM);
 
 #if CLITK_USE_SYSTEM_GDCM == 1
+
   // Read RT-struct data
-  DD("before read");
   vtkSmartPointer<vtkGDCMPolyDataReader> areader = vtkGDCMPolyDataReader::New();
   areader->SetFileName(filename.c_str());
   areader->Update();
-  DD("after read");
 
   // get info on roi names
   vtkRTStructSetProperties * p = areader->GetRTStructSetProperties();
-  DD(p->GetNumberOfStructureSetROIs());
-  DD(p->GetStructureSetROIName(0));
-  DD(p->GetStructureSetROINumber(0));  
   int n = p->GetNumberOfStructureSetROIs();
-  DD(n);
   
   for(unsigned int i=0; i<n; i++) {
     std::string name = p->GetStructureSetROIName(i);
@@ -223,7 +214,6 @@ std::vector<std::pair<int,std::string> > vvMeshReader::GetROINames()
 #endif
 
   return roi_names;
-
 }
 //------------------------------------------------------------------------------
 
