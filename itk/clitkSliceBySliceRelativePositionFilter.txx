@@ -127,7 +127,7 @@ GenerateOutputInformation()
     PrintOptions();
   }
 
-  if (this->GetFuzzyMapOnlyFlag()) this->ComputeFuzzyMapFlagOn();
+  //  if (this->GetFuzzyMapOnlyFlag()) this->ComputeFuzzyMapFlagOn();
 
   // Get input pointer
   input = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
@@ -229,7 +229,7 @@ GenerateOutputInformation()
     mObjectSlices[i] = LabelizeAndCountNumberOfObjects<SliceType>(mObjectSlices[i], 0, true, 1, nb);
 
     // If no object and empty slices and if we need the full fuzzy map, create a dummy one.
-    if ((nb==0) && (this->GetComputeFuzzyMapFlag())) {
+    if ((nb==0) && (this->GetFuzzyMapOnlyFlag())) {
       typename FloatSliceType::Pointer one = FloatSliceType::New();
       one->CopyInformation(mObjectSlices[0]);
       one->SetRegions(mObjectSlices[0]->GetLargestPossibleRegion());
@@ -306,13 +306,13 @@ GenerateOutputInformation()
 
         // should we stop after fuzzy map ?
         relPosFilter->SetFuzzyMapOnlyFlag(this->GetFuzzyMapOnlyFlag());
-        relPosFilter->SetComputeFuzzyMapFlag(this->GetComputeFuzzyMapFlag());
+        //        relPosFilter->SetComputeFuzzyMapFlag(this->GetComputeFuzzyMapFlag());
       
         // Go !
         relPosFilter->Update();
 
         // If we stop after the fuzzy map, store the fuzzy slices
-        if (this->GetComputeFuzzyMapFlag()) {
+        if (this->GetFuzzyMapOnlyFlag()) {
           mFuzzyMapSlices[i] = relPosFilter->GetFuzzyMap();
           // writeImage<FloatSliceType>(mFuzzyMapSlices[i], "slice_"+toString(i)+".mha");
         }
@@ -348,7 +348,7 @@ GenerateOutputInformation()
   this->template StopCurrentStep<ImageType>(m_working_input);
 
   // Join the fuzzy map if needed
-  if (this->GetComputeFuzzyMapFlag()) {
+  if (this->GetFuzzyMapOnlyFlag()) {
     this->m_FuzzyMap = clitk::JoinSlices<FloatImageType>(mFuzzyMapSlices, m_working_input, GetDirection());
     this->template StopCurrentStep<FloatImageType>(this->m_FuzzyMap);
     if (this->GetFuzzyMapOnlyFlag()) return;
