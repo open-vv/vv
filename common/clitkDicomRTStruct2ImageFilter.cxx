@@ -160,6 +160,7 @@ void clitk::DicomRTStruct2ImageFilter::SetOutputSize(const unsigned long* size)
 //--------------------------------------------------------------------
 void clitk::DicomRTStruct2ImageFilter::Update()
 {
+  DD("DicomRTStruct2ImageFilter::Update");
   if (!mROI) {
     std::cerr << "Error. No ROI set, please use SetROI." << std::endl;
     exit(0);
@@ -170,7 +171,7 @@ void clitk::DicomRTStruct2ImageFilter::Update()
   }
 
   // Get Mesh
-  vtkPolyData * mesh = mROI->GetMesh();
+  vtkPolyData * mesh = mROI->GetMesh();  
 
   // Get bounds
   double *bounds=mesh->GetBounds();

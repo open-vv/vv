@@ -43,16 +43,19 @@ namespace clitk {
     // Set inputs
     itkSetMacro(Input, ImagePointer);
     itkGetConstMacro(Input, ImagePointer);
+    itkSetMacro(StructureSetFilename, std::string);
+    itkSetMacro(DicomFolder, std::string);
+    itkSetMacro(OutputFilename, std::string);
     
     // Run filter
     void Update();    
     
-    // Get output
-    itkGetConstMacro(DicomRTStruct, DicomRTStructPointer);
-
   protected:
     ImagePointer m_Input;
-    DicomRTStructPointer m_DicomRTStruct;
+    std::string m_StructureSetFilename;
+    std::string m_DicomFolder;
+    std::string m_OutputFilename;
+
   };
   //--------------------------------------------------------------------
 
