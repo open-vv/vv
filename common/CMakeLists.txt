@@ -81,14 +81,39 @@ ENDIF(CLITK_USE_SYSTEM_GDCM)
 
 TARGET_LINK_LIBRARIES(clitkCommon vtkCommon vtkImaging ${ITK_LIBRARIES} ${CLITK_GDCM_LIBRARIES})
 
-ADD_LIBRARY(clitkDicomRTStruct STATIC
-  clitkDicomRT_Contour.cxx
-  clitkDicomRT_ROI.cxx
-  clitkDicomRT_StructureSet.cxx
-  clitkDicomRTStruct2ImageFilter.cxx
-)
+IF (CLITK_USE_SYSTEM_GDCM)
+  DD(CLITK_USE_SYSTEM_GDCM)
+  FIND_PACKAGE(GDCM REQUIRED)
+  INCLUDE(${GDCM_USE_FILE})
+  
+  FIND_LIBRARY(LIBVTKGDCM vtkgdcm ${GDCM_LIBRARY_DIRS})
+  SET(GDCM_LIBRARIES ${LIBVTKGDCM})
 
-TARGET_LINK_LIBRARIES(clitkDicomRTStruct vtkHybrid ${CLITK_GDCM_LIBRARIES}) 
+  DD(GDCM_USE_FILE)
+  DD(GDCM_LIBRARY_DIRS)
+  DD(GDCM_LIBRARIES)
+
+  ADD_LIBRARY(clitkDicomRTStruct STATIC
+    clitkDicomRT_Contour.cxx
+    clitkDicomRT_ROI.cxx
+    clitkDicomRT_StructureSet.cxx
+    clitkDicomRTStruct2ImageFilter.cxx
+    vtkGDCMPolyDataReader.cxx
+    vtkGDCMPolyDataWriter.cxx
+    )
+  TARGET_LINK_LIBRARIES(clitkDicomRTStruct ${ITK_LIBRARIES} ${GDCM_LIBRARIES})
+
+ELSE()
+  ADD_LIBRARY(clitkDicomRTStruct STATIC
+    clitkDicomRT_Contour.cxx
+    clitkDicomRT_ROI.cxx
+    clitkDicomRT_StructureSet.cxx
+    clitkDicomRTStruct2ImageFilter.cxx
+    )
+ENDIF()
+
+
+TARGET_LINK_LIBRARIES(clitkDicomRTStruct vtkHybrid ${CLITK_GDCM_LIBRARIES} ${GDCM_LIBRARIES} ) 
 
 #ADD_LIBRARY(clitkCommonShared SHARED ${clitkCommon_SRC})
 #SET_TARGET_PROPERTIES(clitkCommonShared PROPERTIES COMPILE_FLAGS -fPIC)
