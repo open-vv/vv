@@ -99,10 +99,12 @@ GenerateData()
   clitk::AndNot<ImageType>(image_1NotIn2, input2, GetBackgroundValue());
   
   ImagePointer image_2NotIn1 = clitk::Clone<ImageType>(input2);
-  clitk::AndNot<ImageType>(image_1NotIn2, input1, GetBackgroundValue());
+  clitk::AndNot<ImageType>(image_2NotIn1, input1, GetBackgroundValue());
 
   //writeImage<ImageType>(image_union, "union.mha");
   //writeImage<ImageType>(image_intersection, "intersection.mha");
+  //writeImage<ImageType>(image_1NotIn2, "image_1NotIn2.mha");
+  //writeImage<ImageType>(image_2NotIn1, "image_2NotIn1.mha");
   
   // Compute size
   typedef itk::LabelStatisticsImageFilter<ImageType, ImageType> StatFilterType;
