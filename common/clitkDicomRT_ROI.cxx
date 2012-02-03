@@ -22,6 +22,7 @@
 #include <vtkAppendPolyData.h>
 #include <vtkImageClip.h>
 #include <vtkMarchingSquares.h>
+#include <vtkPolyDataWriter.h>
 
 #if GDCM_MAJOR_VERSION == 2
 #include "gdcmAttribute.h"
@@ -394,24 +395,88 @@ void clitk::DicomRT_ROI::ComputeContoursFromImage()
   DDV(extent, 6);
   //  std::vector<int> extend;
 
-  // Prepare the marching squares
-  vtkSmartPointer<vtkMarchingSquares> squares = vtkSmartPointer<vtkMarchingSquares>::New();
-  squares->SetInput(clipper->GetOutput());
 
   // Loop on slice
   uint n = image->GetDimensions()[2];
   DD(n);
+  DD(mListOfContours.size());
+  mListOfContours.resize(n); /// ???FIXME
+  DD(mListOfContours.size());
+  std::vector<vtkSmartPointer<vtkPolyData> > contours;
   for(uint i=0; i<n; i++) {
+    DD(i);
+
+    // FIXME     vtkDiscreteMarchingCubes INSTEAD
+
+
+    vtkSmartPointer<vtkMarchingSquares> squares = vtkSmartPointer<vtkMarchingSquares>::New();
+    squares->SetInput(image);
+    squares->SetImageRange(extent[0], extent[1], extent[2], extent[3], i, i);
+    squares->SetValue(1, 1.0);
+    squares->Update();
+    DD(squares->GetNumberOfContours());
+    
+    //clitk::DicomRT_Contour * contour = new clitk::DicomRT_Contour();
+    //mListOfContours[i]->SetMesh(squares->GetOutput());
+
+    
+    vtkSmartPointer<vtkPolyData> m = squares->GetOutput();
+    contours.push_back(m);
+
+    /*
     // Clip to the current slice
     extent[4] = extent[5] = image->GetOrigin()[2]+i*image->GetSpacing()[2];
     DDV(extent, 6);
+    // Prepare the marching squares
+    vtkSmartPointer<vtkMarchingSquares> squares = vtkSmartPointer<vtkMarchingSquares>::New();
     clipper->SetOutputWholeExtent(extent[0],extent[1],extent[2],
-                                extent[3],extent[4],extent[5]);
-    
+                                extent[3],extent[4],extent[5]); 
 
+    squares->SetInput(clipper->GetOutput());
     squares->Update();
     DD(squares->GetNumberOfContours());
     mListOfContours[i]->SetMesh(squares->GetOutput());
+    */
   }
+  DD("done");
+ 
+  vtkSmartPointer<vtkAppendPolyData> append = vtkSmartPointer<vtkAppendPolyData>::New();
+  for(unsigned int i=0; i<n; i++) {
+    append->AddInput(contours[i]);
+  }
+  append->Update();
+ 
+  mMesh = vtkSmartPointer<vtkPolyData>::New();
+  mMesh->DeepCopy(append->GetOutput());
+  
+  // Write vtk
+  vtkPolyDataWriter * w = vtkPolyDataWriter::New();
+  w->SetInput(mMesh);
+  w->SetFileName("toto.vtk");
+  w->Write();
+
+  DD("done");
 }
 //--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+#if CLITK_USE_SYSTEM_GDCM == 1
+void clitk::DicomRT_ROI::Read(vtkSmartPointer<vtkGDCMPolyDataReader> & reader, int roiindex)
+{
+  vtkRTStructSetProperties * p = reader->GetRTStructSetProperties();
+  
+  mName = p->GetStructureSetROIName(roiindex);
+  mNumber = p->GetStructureSetROINumber(roiindex);
+  //mColor = //FIXME !!  
+  SetDicomUptodateFlag(true);
+  // Get the contour
+  mMesh =  reader->GetOutput(roiindex);  
+  DicomRT_Contour::Pointer c = DicomRT_Contour::New();
+  c->SetMesh(mMesh); // FIXME no GetZ, not GetPoints  
+  mMeshIsUpToDate = true;
+  mListOfContours.push_back(c);
+}
+#endif
+//--------------------------------------------------------------------
+
