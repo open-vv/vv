@@ -143,6 +143,9 @@ namespace clitk {
     itkGetConstMacro(Radius, double);
     itkSetMacro(Radius, double);
 
+    itkSetMacro(K1, double);
+    itkGetMacro(K1, double);
+
     typename FloatImageType::Pointer GetFuzzyMap() { return m_FuzzyMap; }
 
     // I dont want to verify inputs information
@@ -171,6 +174,7 @@ namespace clitk {
     bool m_FuzzyMapOnlyFlag;
     bool m_FastFlag;
     double m_Radius;
+    double m_K1;
 
     virtual void GenerateOutputInformation();
     virtual void GenerateInputRequestedRegion();
