@@ -339,7 +339,16 @@ namespace clitk {
                                               std::vector<typename ImageType::PointType> & lB, 
                                               typename ImageType::PixelType BG, 
                                               int mainDirection, 
-                                              double offsetToKeep);
+                                              double offsetToKeep, 
+                                              bool keepIfEqual=false);
+  template<class ImageType>
+  void 
+  SliceBySliceSetBackgroundFromLineSeparation(ImageType * input, 
+                                              std::vector<typename ImageType::PointType> & lA, 
+                                              std::vector<typename ImageType::PointType> & lB, 
+                                              typename ImageType::PixelType BG, 
+                                              typename ImageType::PointType offsetToKeep, 
+                                              bool keepIfEqual=false);
   //--------------------------------------------------------------------
 
 

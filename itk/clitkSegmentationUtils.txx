@@ -768,9 +768,24 @@ namespace clitk {
                                               std::vector<typename ImageType::PointType> & lB, 
                                               typename ImageType::PixelType BG, 
                                               int mainDirection, 
-                                              double offsetToKeep)
+                                              double offsetToKeep,
+                                              bool keepIfEqual)
   {
     assert((mainDirection==0) || (mainDirection==1));
+    typename ImageType::PointType offset;
+    offset[0] = offset[1] = offset[2] = 0.0;
+    offset[mainDirection] = offsetToKeep;
+    SliceBySliceSetBackgroundFromLineSeparation<ImageType>(input, lA, lB, BG, offset, keepIfEqual);
+  }
+  template<class ImageType>
+  void 
+  SliceBySliceSetBackgroundFromLineSeparation(ImageType * input, 
+                                              std::vector<typename ImageType::PointType> & lA, 
+                                              std::vector<typename ImageType::PointType> & lB, 
+                                              typename ImageType::PixelType BG, 
+                                              typename ImageType::PointType offsetToKeep,
+                                              bool keepIfEqual)
+  {
     typedef itk::ImageSliceIteratorWithIndex<ImageType> SliceIteratorType;
     SliceIteratorType siter = SliceIteratorType(input, input->GetLargestPossibleRegion());
     siter.SetFirstDirection(0);
@@ -795,7 +810,10 @@ namespace clitk {
         bool p = (A[0] == B[0]) && (A[1] == B[1]);
       
         if (!p) {
-          C[mainDirection] += offsetToKeep; // I know I must keep this point
+          //C[mainDirection] += offsetToKeep; // I know I must keep this point
+          C[0] += offsetToKeep[0];
+          C[1] += offsetToKeep[1];
+          //C[2] += offsetToKeep[2]; 
           double s = (B[0] - A[0]) * (C[1] - A[1]) - (B[1] - A[1]) * (C[0] - A[0]);
           bool isPositive = s<0;
           while (!siter.IsAtEndOfSlice()) {
@@ -803,7 +821,9 @@ namespace clitk {
               // Very slow, I know ... but image should be very small
               input->TransformIndexToPhysicalPoint(siter.GetIndex(), C);
               double s = (B[0] - A[0]) * (C[1] - A[1]) - (B[1] - A[1]) * (C[0] - A[0]);
-              if (s == 0) siter.Set(BG); // on the line, we decide to remove
+              if (s == 0) {
+                if (!keepIfEqual) siter.Set(BG); // on the line, we decide to remove
+              }
               if (isPositive) {
                 if (s > 0) siter.Set(BG);
               }
@@ -1346,14 +1366,14 @@ namespace clitk {
 
     }
 
-    // Debug dmap
     /*
-      typedef itk::Image<float,3> FT;
-      FT::Pointer f = FT::New();
-      typename FT::Pointer d1 = clitk::JoinSlices<FT>(dmaps1, S1, 2);
-      typename FT::Pointer d2 = clitk::JoinSlices<FT>(dmaps2, S2, 2);
-      writeImage<FT>(d1, "d1.mha");
-      writeImage<FT>(d2, "d2.mha");
+    // Debug dmap
+    typedef itk::Image<float,3> FT;
+    FT::Pointer f = FT::New();
+    typename FT::Pointer d1 = clitk::JoinSlices<FT>(dmaps1, S1, 2);
+    typename FT::Pointer d2 = clitk::JoinSlices<FT>(dmaps2, S2, 2);
+    writeImage<FT>(d1, "d1.mha");
+    writeImage<FT>(d2, "d2.mha");
     */
   }
   //--------------------------------------------------------------------
