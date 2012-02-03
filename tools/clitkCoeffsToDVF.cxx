@@ -21,7 +21,7 @@ int main(int argc, char** argv)
   GGO(clitkCoeffsToDVF, args_info);
   CLITK_INIT;
 
-  typename itk::ImageIOBase::Pointer image_io = itk::ImageIOFactory::CreateImageIO(args_info.input_arg, itk::ImageIOFactory::ReadMode);
+  itk::ImageIOBase::Pointer image_io = itk::ImageIOFactory::CreateImageIO(args_info.input_arg, itk::ImageIOFactory::ReadMode);
   image_io->SetFileName(args_info.input_arg);
   image_io->ReadImageInformation();
   
@@ -32,7 +32,7 @@ int main(int argc, char** argv)
       unsigned const dim = 2;
       typedef itk::Vector<double, dim>  PixelType;
       typedef itk::Image<PixelType, dim> DVFType;
-      typename DVFType::Pointer dvf = clitk::BLUTCoeffsToDVF<DVFType>(args_info.input_arg, args_info.like_arg);
+      DVFType::Pointer dvf = clitk::BLUTCoeffsToDVF<DVFType>(args_info.input_arg, args_info.like_arg);
       Write<DVFType>(dvf, args_info.output_arg);
     }
     break;
@@ -42,7 +42,7 @@ int main(int argc, char** argv)
       unsigned const dim = 3;
       typedef itk::Vector<double, dim>  PixelType;
       typedef itk::Image<PixelType, dim> DVFType;
-      typename DVFType::Pointer dvf = clitk::BLUTCoeffsToDVF<DVFType>(args_info.input_arg, args_info.like_arg);
+      DVFType::Pointer dvf = clitk::BLUTCoeffsToDVF<DVFType>(args_info.input_arg, args_info.like_arg);
       Write<DVFType>(dvf, args_info.output_arg);
     }
     break;

@@ -59,13 +59,13 @@ namespace clitk
     typedef itk::ImageRegionConstIterator<typename TransformType::CoefficientImageType> Iterator;
     Iterator it (coefficientImage, coefficientImage->GetLargestPossibleRegion() );
     it.GoToBegin();
-    unsigned int i = 0;
+    unsigned int k = 0;
     while (! it.IsAtEnd()) {
         for (unsigned int j = 0; j < dim; j++)
-            params[i+j]=it.Get()[j];
+            params[k+j]=it.Get()[j];
 
         ++it;
-        i += dim;
+        k += dim;
     }
 
     transform->SetParameters(params);
