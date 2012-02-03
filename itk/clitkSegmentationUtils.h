@@ -343,7 +343,7 @@ namespace clitk {
                                               bool keepIfEqual=false);
   template<class ImageType>
   void 
-  SliceBySliceSetBackgroundFromLineSeparation(ImageType * input, 
+  SliceBySliceSetBackgroundFromLineSeparation_pt(ImageType * input, 
                                               std::vector<typename ImageType::PointType> & lA, 
                                               std::vector<typename ImageType::PointType> & lB, 
                                               typename ImageType::PixelType BG, 

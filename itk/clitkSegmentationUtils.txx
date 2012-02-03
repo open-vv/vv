@@ -775,16 +775,16 @@ namespace clitk {
     typename ImageType::PointType offset;
     offset[0] = offset[1] = offset[2] = 0.0;
     offset[mainDirection] = offsetToKeep;
-    SliceBySliceSetBackgroundFromLineSeparation<ImageType>(input, lA, lB, BG, offset, keepIfEqual);
+    SliceBySliceSetBackgroundFromLineSeparation_pt<ImageType>(input, lA, lB, BG, offset, keepIfEqual);
   }
   template<class ImageType>
   void 
-  SliceBySliceSetBackgroundFromLineSeparation(ImageType * input, 
-                                              std::vector<typename ImageType::PointType> & lA, 
-                                              std::vector<typename ImageType::PointType> & lB, 
-                                              typename ImageType::PixelType BG, 
-                                              typename ImageType::PointType offsetToKeep,
-                                              bool keepIfEqual)
+  SliceBySliceSetBackgroundFromLineSeparation_pt(ImageType * input, 
+                                                 std::vector<typename ImageType::PointType> & lA, 
+                                                 std::vector<typename ImageType::PointType> & lB, 
+                                                 typename ImageType::PixelType BG, 
+                                                 typename ImageType::PointType offsetToKeep,
+                                                 bool keepIfEqual)
   {
     typedef itk::ImageSliceIteratorWithIndex<ImageType> SliceIteratorType;
     SliceIteratorType siter = SliceIteratorType(input, input->GetLargestPossibleRegion());
@@ -800,6 +800,8 @@ namespace clitk {
       // Check that the current slice correspond to the current point
       input->TransformIndexToPhysicalPoint(siter.GetIndex(), C);
       if ((fabs(C[2] - lA[i][2]))>0.01) { // is !equal with a tolerance of 0.01 mm
+        // FIXME : if not the same slices, should advance i or slice (not done yet)
+        //        clitkExceptionMacro("Error list of point and slice do not start at the same location");
       }
       else {
         // Define A,B,C points
@@ -818,17 +820,19 @@ namespace clitk {
           bool isPositive = s<0;
           while (!siter.IsAtEndOfSlice()) {
             while (!siter.IsAtEndOfLine()) {
-              // Very slow, I know ... but image should be very small
-              input->TransformIndexToPhysicalPoint(siter.GetIndex(), C);
-              double s = (B[0] - A[0]) * (C[1] - A[1]) - (B[1] - A[1]) * (C[0] - A[0]);
-              if (s == 0) {
-                if (!keepIfEqual) siter.Set(BG); // on the line, we decide to remove
-              }
-              if (isPositive) {
-                if (s > 0) siter.Set(BG);
-              }
-              else {
-                if (s < 0) siter.Set(BG); 
+              if (siter.Get() != BG) { // do only if not BG
+                // Very slow, I know ... but image should be very small
+                input->TransformIndexToPhysicalPoint(siter.GetIndex(), C);
+                double s = (B[0] - A[0]) * (C[1] - A[1]) - (B[1] - A[1]) * (C[0] - A[0]);
+                if (s == 0) {
+                  if (!keepIfEqual) siter.Set(BG); // on the line, we decide to remove
+                }
+                if (isPositive) {
+                  if (s > 0) siter.Set(BG);
+                }
+                else {
+                  if (s < 0) siter.Set(BG); 
+                }
               }
               ++siter;
             }
