@@ -281,8 +281,8 @@ VectorBSplineDecompositionImageFilter<TInputImage, TOutputImage>
   InputIterator inIt( this->GetInput(), this->GetInput()->GetBufferedRegion() );
   OutputIterator outIt( this->GetOutput(), this->GetOutput()->GetBufferedRegion() );
 
-  inIt = inIt.Begin();
-  outIt = outIt.Begin();
+  inIt.GoToBegin();
+  outIt.GoToBegin();
   OutputPixelType v;
   while ( !outIt.IsAtEnd() ) {
     for (unsigned int i=0; i< VectorDimension; i++) {
