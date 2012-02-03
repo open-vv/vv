@@ -43,6 +43,7 @@ SliceBySliceRelativePositionFilter():
   SetObjectCCLSelectionDirection(1);
   ObjectCCLSelectionIgnoreSingleCCLFlagOff();
   VerboseSlicesFlagOff();
+  this->SetK1(vcl_acos(-1.0)/2);
 }
 //--------------------------------------------------------------------
 
@@ -98,7 +99,8 @@ PrintOptions(std::ostream & os)
      << "ObjectCCLSelectionIgnoreSingleCCLFlag = " << this->GetObjectCCLSelectionIgnoreSingleCCLFlag() << std::endl    
      << "IgnoreEmptySliceObjectFlag = " << this->GetIgnoreEmptySliceObjectFlag() << std::endl
      << "(RP) FastFlag              = " << this->GetFastFlag() << std::endl
-     << "(RP) Radius                = " << this->GetRadius() << std::endl;
+     << "(RP) Radius                = " << this->GetRadius() << std::endl
+     << "(RP) K1                    = " << this->GetK1() << std::endl;
 }
 //--------------------------------------------------------------------
 
@@ -319,6 +321,7 @@ GenerateOutputInformation()
         //        relPosFilter->SetComputeFuzzyMapFlag(this->GetComputeFuzzyMapFlag());      
         relPosFilter->SetFastFlag(this->GetFastFlag());
         relPosFilter->SetRadius(this->GetRadius());
+        relPosFilter->SetK1(this->GetK1());
 
         // Go !
         relPosFilter->Update();
