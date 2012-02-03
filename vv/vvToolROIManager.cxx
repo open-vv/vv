@@ -104,9 +104,9 @@ vvToolROIManager::~vvToolROIManager()
 // STATIC
 void vvToolROIManager::Initialize() {
   SetToolName("ROIManager");
-  SetToolMenuName("Display ROI (binary image)");
+  SetToolMenuName("Open ROI (binary image or RT-STRUCT)");
   SetToolIconFilename(":/common/icons/tool-roi.png");
-  SetToolTip("Display ROI from a binary image.");
+  SetToolTip("Display ROI from a binary image or a RT-struct file.");
   SetToolExperimental(false);
 }
 //------------------------------------------------------------------------------
@@ -356,9 +356,11 @@ void vvToolROIManager::OpenBinaryImage(QStringList & filename)
 //------------------------------------------------------------------------------
 void vvToolROIManager::OpenDicomImage(std::string filename) 
 {
+  DD("OpenDicomImage");
   // GUI selector of roi
   vvMeshReader reader;
   reader.SetFilename(filename);
+  
   vvStructSelector selector;
   selector.SetStructures(reader.GetROINames());
   selector.SetPropagationCheckBoxFlag(false);
@@ -370,7 +372,7 @@ void vvToolROIManager::OpenDicomImage(std::string filename)
 
     // Read information
     clitk::DicomRT_StructureSet::Pointer s = clitk::DicomRT_StructureSet::New();
-    s->Read(filename);
+    s->Read(filename); //FIXME 
 
     // Loop on selected struct
     std::vector<int> list = selector.getSelectedItems();
