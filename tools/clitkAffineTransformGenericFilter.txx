@@ -289,7 +289,23 @@ namespace clitk
       typename InputReaderType::Pointer likeReader=InputReaderType::New();
       likeReader->SetFileName(m_ArgsInfo.spacinglike_arg);
       likeReader->Update(); 
-      resampler->SetOutputSpacing( likeReader->GetOutput()->GetSpacing() );
+
+      // set the support like the image 
+      if (m_ArgsInfo.like_given) {
+        typename OutputImageType::SizeType outputSize;
+        outputSize[0] = ceil(resampler->GetSize()[0]*resampler->GetOutputSpacing()[0]
+                             /likeReader->GetOutput()->GetSpacing()[0]);
+        outputSize[1] = ceil(resampler->GetSize()[1]*resampler->GetOutputSpacing()[1]
+                             /likeReader->GetOutput()->GetSpacing()[1]);
+        outputSize[2] = ceil(resampler->GetSize()[2]*resampler->GetOutputSpacing()[2]
+                             /likeReader->GetOutput()->GetSpacing()[2]);
+        if (m_ArgsInfo.verbose_flag) {
+          std::cout << "Compute the number of pixels such as the support is like " << m_ArgsInfo.like_arg << std::endl;
+        }
+        resampler->SetSize( outputSize );
+      }
+
+      resampler->SetOutputSpacing( likeReader->GetOutput()->GetSpacing() );      
     }
 
     if (m_ArgsInfo.verbose_flag) {
