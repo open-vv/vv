@@ -344,6 +344,7 @@ void vvToolSegmentation::RegionGrowing()
   mCurrentMaskActor = CreateMaskActor(mCurrentMaskImage, 1, 0, false);
   mCurrentMaskActor->Update(); // default color is red
   UpdateAndRenderNewMask();
+  UpdateMaskSizeLabels();
   DD("end");
   
   // mouse pointer
