@@ -110,17 +110,16 @@ std::vector<std::pair<int,std::string> > vvMeshReader::GetROINames()
   DD(GDCM_MAJOR_VERSION);
   DD(CLITK_USE_SYSTEM_GDCM);
 
-#if GDCM_MAJOR_VERSION == 2
-
+#if CLITK_USE_SYSTEM_GDCM == 1
   // Read RT-struct data
   DD("before read");
-  vtkSmartPointer<vtkGDCMPolyDataReader> reader = vtkGDCMPolyDataReader::New();
-  reader->SetFileName(filename.c_str());
-  reader->Update();
+  vtkSmartPointer<vtkGDCMPolyDataReader> areader = vtkGDCMPolyDataReader::New();
+  areader->SetFileName(filename.c_str());
+  areader->Update();
   DD("after read");
 
   // get info on roi names
-  vtkRTStructSetProperties * p = reader->GetRTStructSetProperties();
+  vtkRTStructSetProperties * p = areader->GetRTStructSetProperties();
   DD(p->GetNumberOfStructureSetROIs());
   DD(p->GetStructureSetROIName(0));
   DD(p->GetStructureSetROINumber(0));  
@@ -133,19 +132,15 @@ std::vector<std::pair<int,std::string> > vvMeshReader::GetROINames()
     roi_names.push_back(make_pair(nb,name));
   }
 
-  // ====================
+#else
+#if GDCM_MAJOR_VERSION == 2 
 
-  if (false) {
     // duplicate code from  clitk::DicomRT_StructureSet::Read
     gdcm::Reader * reader = new gdcm::Reader;
     reader->SetFileName( filename.c_str() );
     reader->Read();
-    DD("after gdcm read");
 
     const gdcm::DataSet &ds = reader->GetFile().GetDataSet();
-
-    DD("after ds");
-    DD(ds.IsEmpty());
 
     // Check file type
     //Verify if the file is a RT-Structure-Set dicom file
@@ -172,7 +167,6 @@ std::vector<std::pair<int,std::string> > vvMeshReader::GetROINames()
 
     gdcm::Attribute<0x20,0x10> studyid;
     studyid.SetFromDataSet( ds );
-    DD(studyid.GetValue());
 
     gdcm::Tag tssroisq(0x3006,0x0020);
     // 0x3006,0x0020 = [ Structure Set ROI Sequence ]
@@ -182,46 +176,35 @@ std::vector<std::pair<int,std::string> > vvMeshReader::GetROINames()
     }
   
     const gdcm::DataElement &ssroisq = ds.GetDataElement( tssroisq );
-    DD("after ssroisq");
     gdcm::SmartPointer<gdcm::SequenceOfItems> roi_seq = ssroisq.GetValueAsSQ();
     assert(roi_seq); // FIXME error message
   
-    DD(roi_seq->GetNumberOfItems());
-
     for(unsigned int ridx = 0; ridx < roi_seq->GetNumberOfItems(); ++ridx)
       {
-        DD(ridx);
-        gdcm::Item & item = roi_seq->GetItem( ridx + 1); // Item starts at 1
+         gdcm::Item & item = roi_seq->GetItem( ridx + 1); // Item starts at 1
 
         const gdcm::Item & sitem = roi_seq->GetItem(ridx+1); // Item start at #1   
 
         const gdcm::DataSet& snestedds = sitem.GetNestedDataSet();
         const gdcm::DataSet& nestedds = item.GetNestedDataSet();
 
-        DD(nestedds.IsEmpty());
-
         if( snestedds.FindDataElement( gdcm::Tag(0x3006,0x22) ) )
           {
-            DD("tag found");
             // const gdcm::DataElement & a = nestedds.GetDataElement(gdcm::Tag(0x3006,0x26));
             // DD(a.GetValue());
 
             gdcm::Attribute<0x3006,0x26> roiname;
             roiname.SetFromDataSet( snestedds );
             std::string name = roiname.GetValue();      // 0x3006,0x0026 = [ROI Name]
-            DD(name);
             gdcm::Attribute<0x3006,0x0022> roinumber;
             roinumber.SetFromDataSet( snestedds );
             int nb = roinumber.GetValue();  // 0x3006,0x0022 = [ROI Number]
-            DD(nb);
           
             roi_names.push_back(make_pair(nb,name));
           }
       }
   
     delete reader;
-
-  }
 
 #else
   gdcm::File reader;
@@ -237,7 +220,10 @@ std::vector<std::pair<int,std::string> > vvMeshReader::GetROINames()
     if (i->GetEntryValue(0x3006,0x0022)!= gdcm::GDCM_UNFOUND)
       roi_names.push_back(make_pair(atoi(i->GetEntryValue(0x3006,0x0022).c_str()),i->GetEntryValue(0x3006,0x0026)));
 #endif
+#endif
+
   return roi_names;
+
 }
 //------------------------------------------------------------------------------
 
@@ -247,6 +233,13 @@ std::vector<vvMesh::Pointer> vvMeshReader::readSelectedContours()
 {
   std::vector<vvMesh::Pointer> result;
 #if GDCM_MAJOR_VERSION == 2
+
+#if CLITK_USE_SYSTEM_GDCM == 0
+  
+  clitkExceptionMacro("ERROR ! You need to compile vv with itk4 + system_gdcm to use this function");
+
+#endif
+
   gdcm::Reader reader;
   reader.SetFileName(filename.c_str());
   reader.Read();
