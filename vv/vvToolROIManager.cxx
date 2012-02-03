@@ -737,6 +737,9 @@ void vvToolROIManager::ChangeDepth(int n) {
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::ReloadCurrentROI() {
+  if (mCurrentROI->GetImage()) {
+    return; // do nothing (contour from rt struct do not reload)
+  }
 
   // Remove all contours/overlay first
   bool visible = mCurrentROIActor->IsVisible();
