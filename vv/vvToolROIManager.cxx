@@ -677,6 +677,8 @@ void vvToolROIManager::ChangeColor() {
                 mCurrentROIActor->GetROI()->GetDisplayColor()[1],
                 mCurrentROIActor->GetROI()->GetDisplayColor()[2]);
   QColor c = QColorDialog::getColor(color, this, "Choose the ROI color");
+  if (!c.isValid()) return;// User cancel
+
   mCurrentROIActor->GetROI()->SetDisplayColor(c.redF(), c.greenF(), c.blueF());
   mCurrentROIActor->UpdateColor();
 
