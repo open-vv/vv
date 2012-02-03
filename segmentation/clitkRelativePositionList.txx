@@ -198,6 +198,7 @@ GenerateOutputInformation() {
       f->SetUniqueConnectedComponentBySliceFlag(mArgsInfoList[i].uniqueCCL_flag);
       f->SetObjectCCLSelectionFlag(mArgsInfoList[i].uniqueObjectCCL_flag);
       f->IgnoreEmptySliceObjectFlagOn();
+      f->SetVerboseSlicesFlag(mArgsInfoList[i].verboseSlices_flag);
       //f->SetObjectCCLSelectionDimension(0);
       //f->SetObjectCCLSelectionDirection(-1);
       //f->SetAutoCropFlag(false);
@@ -261,6 +262,7 @@ SetFilterOptions(typename RelPosFilterType::Pointer filter, ArgsInfoType & optio
   ImagePointer object = GetAFDB()->template GetImage<ImageType>(options.object_arg);
   filter->SetInputObject(object);
   filter->WriteStepFlagOff();
+  if (options.writeStep_flag) filter->WriteStepFlagOn();
   filter->SetVerboseImageSizeFlag(GetVerboseImageSizeFlag());
   filter->SetFuzzyThreshold(options.threshold_arg);
   filter->SetInverseOrientationFlag(options.inverse_flag); // MUST BE BEFORE AddOrientationTypeString
