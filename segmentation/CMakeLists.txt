@@ -34,8 +34,7 @@ IF(CLITK_BUILD_SEGMENTATION)
  
     WRAP_GGO(clitkRelativePosition_GGO_C ../tools/clitkRelativePosition.ggo)
 
-
-     WRAP_GGO(clitkMorphoMath_GGO_C clitkMorphoMath.ggo)
+    WRAP_GGO(clitkMorphoMath_GGO_C clitkMorphoMath.ggo)
     ADD_EXECUTABLE(clitkMorphoMath clitkMorphoMath.cxx ${clitkMorphoMath_GGO_C})
     TARGET_LINK_LIBRARIES(clitkMorphoMath clitkCommon ${ITK_LIBRARIES})
     SET(SEGMENTATION_INSTALL ${SEGMENTATION_INSTALL} clitkMorphoMath)
