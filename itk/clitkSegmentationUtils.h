@@ -85,11 +85,13 @@ namespace clitk {
   template<class ImageType>
   typename ImageType::Pointer
   AutoCrop(const ImageType * input, 
-           typename ImageType::PixelType BG) {
+           typename ImageType::PixelType BG, 
+           const bool useBorderFlag=false) {
     typedef clitk::AutoCropFilter<ImageType> AutoCropFilterType;
     typename AutoCropFilterType::Pointer autoCropFilter = AutoCropFilterType::New();
     autoCropFilter->SetInput(input);
     autoCropFilter->SetBackgroundValue(BG);
+    autoCropFilter->SetUseBorder(useBorderFlag);
     autoCropFilter->Update();   
     return autoCropFilter->GetOutput();
   }
