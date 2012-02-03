@@ -166,10 +166,10 @@ void vvROIActor::Initialize(double depth, bool IsVisible) {
       mImageContour.push_back(vvImageContour::New());
       mImageContour[i]->SetSlicer(mSlicerManager->GetSlicer(i));
       mImageContour[i]->SetImage(mROI->GetImage());
-      // Color of the contour is "complement" of roi color
-      mContourColor[0] = 1-mROI->GetDisplayColor()[0];
-      mContourColor[1] = 1-mROI->GetDisplayColor()[1];
-      mContourColor[2] = 1-mROI->GetDisplayColor()[2];
+      // Color of the contour is same of roi color
+      mContourColor[0] = mROI->GetDisplayColor()[0];
+      mContourColor[1] = mROI->GetDisplayColor()[1];
+      mContourColor[2] = mROI->GetDisplayColor()[2];
       mImageContour[i]->SetColor(mContourColor[0], mContourColor[1], mContourColor[2]);
       mImageContour[i]->SetLineWidth(mContourWidth);
       mImageContour[i]->SetPreserveMemoryModeEnabled(true);
