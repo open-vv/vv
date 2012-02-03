@@ -317,7 +317,7 @@ void vvToolROIManager::Open()
 void vvToolROIManager::OpenBinaryImage(QStringList & filename) 
 {
   if (filename.size() == 0) return;
-  
+ 
   vvProgressDialog p("Reading ROI ...", true);
   p.SetCancelButtonEnabled(false);
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -371,7 +371,7 @@ void vvToolROIManager::OpenDicomImage(std::string filename)
 
     // Read information
     clitk::DicomRT_StructureSet::Pointer s = clitk::DicomRT_StructureSet::New();
-    s->Read(filename); //FIXME 
+    s->Read(filename);
 
     // Loop on selected struct
     std::vector<int> list = selector.getSelectedItems();
