@@ -264,10 +264,12 @@ SetFilterOptions(typename RelPosFilterType::Pointer filter, ArgsInfoType & optio
   ImagePointer object = GetAFDB()->template GetImage<ImageType>(options.object_arg);
   filter->SetInputObject(object);
   filter->WriteStepFlagOff();
+  filter->SetRadius(options.radius_arg);
   if (options.writeStep_flag) filter->WriteStepFlagOn();
   filter->SetVerboseImageSizeFlag(GetVerboseImageSizeFlag());
   filter->SetFuzzyThreshold(options.threshold_arg);
   filter->SetInverseOrientationFlag(options.inverse_flag); // MUST BE BEFORE AddOrientationTypeString
+  filter->SetFastFlag(options.fastFlag_flag);
 
   if (options.orientation_given == 1)  {
     for(uint i=0; i<options.orientation_given; i++) 
