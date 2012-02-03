@@ -354,7 +354,7 @@ namespace clitk {
       ++iter;
     }
     if (!found) return false;
-    input->TransformIndexToPhysicalPoint(max, point);
+    input->TransformIndexToPhysicalPoint(max, point); // half of the pixel
     return true;
   }
   //--------------------------------------------------------------------
@@ -382,14 +382,12 @@ namespace clitk {
                  int dim, double max, bool autoCrop,
                  typename ImageType::PixelType BG) 
   {
-    typename ImageType::PointType p;
+    typename ImageType::PointType p; 
+    
     image->TransformIndexToPhysicalPoint(image->GetLargestPossibleRegion().GetIndex()+
                                          image->GetLargestPossibleRegion().GetSize(), p);
-    // Add GetSpacing because remove Lower or equal than
-    // DD(max);
-    // DD(p);
-    // DD(max+image->GetSpacing()[dim]);
-    return CropImageAlongOneAxis<ImageType>(image, dim, max+image->GetSpacing()[dim], p[dim], autoCrop, BG);
+
+    return CropImageAlongOneAxis<ImageType>(image, dim, max, p[dim], autoCrop, BG);
   }
   //--------------------------------------------------------------------
 
@@ -404,16 +402,24 @@ namespace clitk {
     // Compute region size
     typename ImageType::RegionType region;
     typename ImageType::SizeType size = image->GetLargestPossibleRegion().GetSize();
-    typename ImageType::PointType p = image->GetOrigin();
+    
+    // Starting index
+    typename ImageType::PointType p = image->GetOrigin(); // not at pixel center !
     if (min > p[dim]) p[dim] = min; // Check if not outside the image
     typename ImageType::IndexType start;
     image->TransformPhysicalPointToIndex(p, start);
-    double m = image->GetOrigin()[dim] + size[dim]*image->GetSpacing()[dim];
+
+    // Size of the region
+    // -1 because last point is size -1
+    double m = image->GetOrigin()[dim] + (size[dim]-1)*image->GetSpacing()[dim];
     if (max > m) p[dim] = m; // Check if not outside the image
     else p[dim] = max;
+
     typename ImageType::IndexType end;
     image->TransformPhysicalPointToIndex(p, end);
-    size[dim] = abs(end[dim]-start[dim]);
+    size[dim] = abs(end[dim]-start[dim])+1;// +1 because we want to include the point. 
+    
+    // Set region
     region.SetIndex(start);
     region.SetSize(size);
   
