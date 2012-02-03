@@ -26,6 +26,8 @@
 // clitk
 #include "clitkConnectedComponentLabeling_ggo.h"
 #include "clitkConnectedComponentLabelingGenericFilter.h"
+#include "clitkRegionGrowing_ggo.h"
+#include "clitkRegionGrowingGenericFilter.h"
 
 // Qt
 #include <QFileDialog>
@@ -70,7 +72,8 @@ vvToolSegmentation::vvToolSegmentation(vvMainWindowBase * parent, Qt::WindowFlag
   
   // Init
   mCurrentLabelUnderMousePointer = 0.0;
-  mCurrentMousePosition.resize(3);
+  mCurrentMousePositionInMM.resize(3);
+  //  mCurrentMousePositionInPixel.resize(3);
   mRefMaskImage = NULL;
   mCurrentState = State_Default;
   mKernelValue = 3; // FIXME must be odd. If even -> not symmetrical
@@ -259,7 +262,7 @@ long vvToolSegmentation::ComputeNumberOfPixels(vvImage::Pointer image, double va
 //------------------------------------------------------------------------------
 void vvToolSegmentation::KeyPressed(std::string KeyPress)
 { 
-  if (KeyPress == "g") {
+  if (KeyPress == "G") {
     RegionGrowing();
   }
   if (KeyPress == "e") {
@@ -302,46 +305,49 @@ void vvToolSegmentation::RegionGrowing()
   Merge();
   // Get mouse location
   DD(mCurrentLabelUnderMousePointer); 
-  DDV(mCurrentMousePosition, 3);
+  DDV(mCurrentMousePositionInMM, 3);
+  //  DDV(mCurrentMousePositionInPixel, 3);
 
-  //   FIXME
-
- // Build RG filter
-
-clitk.private/deprecated/./mv_to_public.sh ~/src/clitk/clitk.private/tests_dav/ ~/src/clitk/clitk/segmentation/ clitkRegionGrowing.cxx
-
-clitk.private/deprecated/./mv_to_public.sh ~/src/clitk/clitk.private/tests_dav/ ~/src/clitk/clitk/segmentation/ clitkRegionGrowing.cxx
-
-
-git format-patch --stdout --root -- clitkRegionGrowing.cxx >/tmp/patch
-git rm clitkRegionGrowing.cxx
-git commit clitkRegionGrowing.cxx -m "Moved from repository tests_dav to segmentation"
-/home/dsarrut/src/clitk/clitk/segmentation
-
-
-git am /tmp/patch
-git mv clitkRegionGrowing.cxx /home/dsarrut/src/clitk/clitk/segmentation//clitkRegionGrowing.cxx
-git commit clitkRegionGrowing.cxx /home/dsarrut/src/clitk/clitk/segmentation//clitkRegionGrowing.cxx -m Moved from repository tests_dav to segmentation
-
-
-  
-  typedef args_info_clitkConnectedComponentLabeling ArgsInfoType;
+  // Build RG filter parameters
+  typedef args_info_clitkRegionGrowing ArgsInfoType;
   ArgsInfoType a;
-  cmdline_parser_clitkConnectedComponentLabeling_init(&a);
-  a.inputBG_arg = GetBackgroundValue();
-  a.full_flag = false;  // FIXME set by gui
-  a.minSize_arg = 100;  // FIXME set by gui 
-  typedef clitk::ConnectedComponentLabelingGenericFilter<ArgsInfoType> FilterType;
+  cmdline_parser_clitkRegionGrowing_init(&a);
+  // FIXME parameters
+  a.type_arg = 4;  // FIXME set by gui 
+  DD(a.lower_arg);
+  a.lower_arg = 200;
+  a.upper_arg = 3000;
+  a.seed_given = 3;
+  a.seed_arg = new int[3];
+
+  DDV(mCurrentMousePositionInMM, 3);
+  vtkImageData * image = mCurrentImage->GetFirstVTKImageData();
+  double x = (mCurrentMousePositionInMM[0] - image->GetOrigin()[0]) / image->GetSpacing()[0];
+  double y = (mCurrentMousePositionInMM[1] - image->GetOrigin()[1]) / image->GetSpacing()[1];
+  double z = (mCurrentMousePositionInMM[2] - image->GetOrigin()[2]) / image->GetSpacing()[2];
+  a.seed_arg[0] = x;
+  a.seed_arg[1] = y;
+  a.seed_arg[2] = z;
+  a.verbose_flag = 1;
+
+  // Build RG filter parameters
+  typedef clitk::RegionGrowingGenericFilter<args_info_clitkRegionGrowing> FilterType;
   FilterType::Pointer filter = FilterType::New();
   filter->SetArgsInfo(a);
-  filter->SetInputVVImage(mCurrentMaskImage); // FIXME Check type is ok ? convert float ?
+  filter->SetInputVVImage(mCurrentImage);
   filter->SetIOVerbose(true);  
   filter->Update();
-  DD(filter->GetOriginalNumberOfObjects());
-  DD(filter->GetSizeOfObjectsInPixels().size());
-  mCurrentCCLImage = filter->GetOutputVVImage();
-  DDV(filter->GetSizeOfObjectsInPixels(), filter->GetSizeOfObjectsInPixels().size());
+  mCurrentMaskImage = filter->GetOutputVVImage();
   DD("filter done");
+
+  mCurrentMaskActor->RemoveActors();
+  mCurrentMaskActor = CreateMaskActor(mCurrentMaskImage, 1, 0, false);
+  mCurrentMaskActor->Update(); // default color is red
+  UpdateAndRenderNewMask();
+  DD("end");
+  
+  // mouse pointer
+  QApplication::restoreOverrideCursor();
 }  
 //------------------------------------------------------------------------------
 
@@ -529,18 +535,27 @@ QSharedPointer<vvROIActor> vvToolSegmentation::CreateMaskActor(vvImage::Pointer 
 //------------------------------------------------------------------------------
 void vvToolSegmentation::MousePositionChanged(int slicer)
 {
+  // DD("MousePositionChanged ");
+  // DD(slicer);
   double x = mCurrentSlicerManager->GetSlicer(slicer)->GetCurrentPosition()[0];
   double y = mCurrentSlicerManager->GetSlicer(slicer)->GetCurrentPosition()[1];
   double z = mCurrentSlicerManager->GetSlicer(slicer)->GetCurrentPosition()[2];
-  vtkImageData * image = mCurrentCCLImage->GetFirstVTKImageData();
+  mCurrentMousePositionInMM[0] = x;
+  mCurrentMousePositionInMM[1] = y;
+  mCurrentMousePositionInMM[2] = z;
+  // DDV(mCurrentMousePositionInMM, 3);
+
+  //  vtkImageData * image = mCurrentCCLImage->GetFirstVTKImageData();
+  vtkImageData * image = mCurrentMaskImage->GetFirstVTKImageData();
   double Xover = (x - image->GetOrigin()[0]) / image->GetSpacing()[0];
   double Yover = (y - image->GetOrigin()[1]) / image->GetSpacing()[1];
   double Zover = (z - image->GetOrigin()[2]) / image->GetSpacing()[2];
   int ix, iy, iz;
   
-  mCurrentMousePosition[0] = Xover;
-  mCurrentMousePosition[1] = Yover;
-  mCurrentMousePosition[2] = Zover;
+  // mCurrentMousePositionInPixel[0] = Xover;
+  // mCurrentMousePositionInPixel[1] = Yover;
+  // mCurrentMousePositionInPixel[2] = Zover;
+  // DDV(mCurrentMousePositionInPixel, 3);
 
   if (Xover >= image->GetWholeExtent()[0] &&
       Xover <= image->GetWholeExtent()[1] &&
@@ -553,6 +568,7 @@ void vvToolSegmentation::MousePositionChanged(int slicer)
       return; 
     }
     else { // inside the label image
+      vtkImageData * image = mCurrentCCLImage->GetFirstVTKImageData();
       mCurrentLabelUnderMousePointer = 
         mCurrentSlicerManager->GetSlicer(0)->GetScalarComponentAsDouble(image, Xover, Yover, Zover, ix, iy, iz, 0);
       return;
