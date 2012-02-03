@@ -41,6 +41,7 @@ clitk::DicomRT_ROI::DicomRT_ROI()
   mBackgroundValue = 0;
   mForegroundValue = 1;
   SetDicomUptodateFlag(false);
+  mFilename = "";
 }
 //--------------------------------------------------------------------
 
@@ -141,6 +142,7 @@ double clitk::DicomRT_ROI::GetForegroundValueLabelImage() const
 #if GDCM_MAJOR_VERSION == 2
 bool clitk::DicomRT_ROI::Read(gdcm::Item * itemInfo, gdcm::Item * itemContour)
 {
+  FATAL("Error : compile vv with itk4 + external gdcm");
   // Keep dicom item
   mItemInfo = itemInfo;
   mItemContour = itemContour;
@@ -286,10 +288,11 @@ void clitk::DicomRT_ROI::ComputeMeshFromContour()
 
 
 #if GDCM_MAJOR_VERSION == 2
-
 //--------------------------------------------------------------------
 void clitk::DicomRT_ROI::UpdateDicomItem()
 {
+  FATAL("Error : compile vv with itk4 + external gdcm");
+
   if (GetDicomUptoDateFlag()) return;
   DD("ROI::UpdateDicomItem");
   DD(GetName());  
@@ -375,6 +378,7 @@ vvImage * clitk::DicomRT_ROI::GetImage() const
 //--------------------------------------------------------------------
 void clitk::DicomRT_ROI::ComputeContoursFromImage()
 {
+  FATAL("ComputeContoursFromImage should not be call. To be replace");
   DD("ComputeMeshFromImage");
 
   // Check that an image is loaded
@@ -468,7 +472,9 @@ void clitk::DicomRT_ROI::Read(vtkSmartPointer<vtkGDCMPolyDataReader> & reader, i
   
   mName = p->GetStructureSetROIName(roiindex);
   mNumber = p->GetStructureSetROINumber(roiindex);
+
   //mColor = //FIXME !!  
+
   SetDicomUptodateFlag(true);
   // Get the contour
   mMesh =  reader->GetOutput(roiindex);  
