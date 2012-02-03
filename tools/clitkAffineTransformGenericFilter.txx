@@ -211,6 +211,12 @@ AffineTransformGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     typename itk::Matrix<double, Dimension, Dimension> invRotMatrix( clitk::GetRotationalPartMatrix(invMatrix) );
     typename itk::Vector<double,Dimension> invTrans =  clitk::GetTranslationPartMatrix(invMatrix);
 
+    // Display warning
+    if (m_ArgsInfo.spacing_given)
+      std::cout << "Warning --spacing ignored (because --transform_grid_flag)" << std::endl;
+    if (m_ArgsInfo.origin_given)
+      std::cout << "Warning --origin ignored (because --transform_grid_flag)" << std::endl;
+
     // Spacing is influenced by affine transform matrix and input direction
     typename InputImageType::SpacingType outputSpacing;
     outputSpacing = invRotMatrix *
