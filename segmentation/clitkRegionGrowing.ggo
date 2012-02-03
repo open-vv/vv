@@ -15,8 +15,8 @@ option "output"    	o   	"Output image filename"		  string 	yes
 section "Parameters"
 
 option "type"		t	"Region growing filter type: 0=threshold , 1=neighborhood-threshold , 2=confidence , 3= locally-adaptive-threshold, 4= explosion-controlled-threshold" int	no	default="0"
-option "lower"    	l   	"1,2,3,4: Lower threshold value"		  double	no	default="0"
-option "upper"    	u   	"1,2,3,4: Upper threshold value"		  double 	no	default="1"
+option "lower"    	l   	"1,2,3,4: Lower threshold value"		  double	no	default="310"
+option "upper"    	u   	"1,2,3,4: Upper threshold value"		  double 	no	default="4000"
 option "maxUpper"    	-   	"4: Maximum upper threshold value"		  double 	no	default="2000"
 option "minLower"    	-   	"4: Minimum lower threshold value"		  double 	no	default="-1000"
 option "step"    	-   	"4: Threshold step size"			  double 	no	default="64.0"

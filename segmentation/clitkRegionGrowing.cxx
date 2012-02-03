@@ -16,21 +16,10 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
 
-/* =================================================
- * @file   clitkRegionGrowing.cxx
- * @author 
- * @date   
- * 
- * @brief 
- * 
- ===================================================*/
-
-
 // clitk
 #include "clitkRegionGrowing_ggo.h"
 #include "clitkIO.h"
 #include "clitkRegionGrowingGenericFilter.h"
-
 
 //--------------------------------------------------------------------
 int main(int argc, char * argv[]) {
@@ -40,7 +29,8 @@ int main(int argc, char * argv[]) {
   CLITK_INIT;
 
   // Filter
-  clitk::RegionGrowingGenericFilter::Pointer genericFilter=clitk::RegionGrowingGenericFilter::New();
+  typedef clitk::RegionGrowingGenericFilter<args_info_clitkRegionGrowing> FilterType;
+  FilterType::Pointer genericFilter = FilterType::New();
   
   genericFilter->SetArgsInfo(args_info);
   genericFilter->Update();

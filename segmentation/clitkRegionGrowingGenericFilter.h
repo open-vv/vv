@@ -15,24 +15,13 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
-#ifndef clitkRegionGrowingGenericFilter_h
-#define clitkRegionGrowingGenericFilter_h
 
-/* =================================================
- * @file   clitkRegionGrowingGenericFilter.h
- * @author 
- * @date   
- * 
- * @brief 
- * 
- ===================================================*/
-
+#ifndef CLITKREGIONGROWINGGENERICFILTER_H
+#define CLITKREGIONGROWINGGENERICFILTER_H
 
 // clitk include
 #include "clitkIO.h"
-#include "clitkCommon.h"
-#include "clitkImageCommon.h"
-#include "clitkRegionGrowing_ggo.h"
+#include "clitkImageToImageGenericFilter.h"
 #include "clitkLocallyAdaptiveThresholdConnectedImageFilter.h"
 #include "clitkExplosionControlledThresholdConnectedImageFilter.h"
 
@@ -43,79 +32,45 @@
 #include "itkConfidenceConnectedImageFilter.h"
 #include "itkConfidenceConnectedImageFilter.h"
 
+//--------------------------------------------------------------------
 namespace clitk 
 {
-
-
-  class ITK_EXPORT RegionGrowingGenericFilter : public itk::LightObject
+  template<class ArgsInfoType>
+  class ITK_EXPORT RegionGrowingGenericFilter: 
+    public ImageToImageGenericFilter<RegionGrowingGenericFilter<ArgsInfoType> >
   {
+
   public:
     //----------------------------------------
-    // ITK
+    RegionGrowingGenericFilter();
+
     //----------------------------------------
-    typedef RegionGrowingGenericFilter                   Self;
-    typedef itk::LightObject                   Superclass;
+    typedef RegionGrowingGenericFilter         Self;
     typedef itk::SmartPointer<Self>            Pointer;
     typedef itk::SmartPointer<const Self>      ConstPointer;
    
-    // Method for creation through the object factory
+    //----------------------------------------
     itkNewMacro(Self);  
-
-    // Run-time type information (and related methods)
     itkTypeMacro( RegionGrowingGenericFilter, LightObject );
 
+    //--------------------------------------------------------------------
+    void SetArgsInfo(const ArgsInfoType & a);
 
-    //----------------------------------------
-    // Typedefs
-    //----------------------------------------
-
-
-    //----------------------------------------
-    // Set & Get
-    //----------------------------------------    
-    void SetArgsInfo(const args_info_clitkRegionGrowing & a)
-    {
-      m_ArgsInfo=a;
-      m_Verbose=m_ArgsInfo.verbose_flag;
-      m_InputFileName=m_ArgsInfo.input_arg;
-    }
-    
-    
-    //----------------------------------------  
-    // Update
-    //----------------------------------------  
-    void Update();
+    //--------------------------------------------------------------------
+    // Main function called each time the filter is updated
+    template<class ImageType>  
+    void UpdateWithInputImageType();
 
   protected:
+    void Modified() {} // Need for using itkMacros
+    template<unsigned int Dim> void InitializeImageType();
+    ArgsInfoType mArgsInfo;
 
-    //----------------------------------------  
-    // Constructor & Destructor
-    //----------------------------------------  
-    RegionGrowingGenericFilter();
-    ~RegionGrowingGenericFilter() {};
-
-    
-    //----------------------------------------  
-    // Templated members
-    //----------------------------------------  
-    template <unsigned int Dimension>  void UpdateWithDim(std::string PixelType);
-    template <unsigned int Dimension, class PixelType>  void UpdateWithDimAndPixelType();
-
-
-    //----------------------------------------  
-    // Data members
-    //----------------------------------------
-    args_info_clitkRegionGrowing m_ArgsInfo;
-    bool m_Verbose;
-    std::string m_InputFileName;
-
-  };
-
-
+  }; // end class
 } // end namespace clitk
 
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "clitkRegionGrowingGenericFilter.txx"
 #endif
 
-#endif // #define clitkRegionGrowingGenericFilter_h
+#endif // #define CLITKREGIONGROWINGGENERICFILTER_H

@@ -14,91 +14,93 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-===========================================================================**/
-#ifndef clitkRegionGrowingGenericFilter_txx
-#define clitkRegionGrowingGenericFilter_txx
+  ===========================================================================**/
+
+#ifndef CLITKREGIONGROWINGGENERICFILTER_TXX
+#define CLITKREGIONGROWINGGENERICFILTER_TXX
+
 #include <itkBinaryBallStructuringElement.h>
 #include <itkConstShapedNeighborhoodIterator.h>
 
-namespace clitk
+
+//--------------------------------------------------------------------
+template<class ArgsInfoType>
+clitk::RegionGrowingGenericFilter<ArgsInfoType>::RegionGrowingGenericFilter():
+  ImageToImageGenericFilter<Self>("RegionGrowing") 
 {
+  InitializeImageType<2>();
+  InitializeImageType<3>();
+  //InitializeImageType<4>();
+}
+//--------------------------------------------------------------------
 
-  //-------------------------------------------------------------------
-  // Update with the number of dimensions
-  //-------------------------------------------------------------------
-  template<unsigned int Dimension>
-  void 
-  RegionGrowingGenericFilter::UpdateWithDim(std::string PixelType)
-  {
-    if (m_Verbose) std::cout << "Image was detected to be "<<Dimension<<"D and "<< PixelType<<"..."<<std::endl;
 
-    if(PixelType == "short"){  
-      if (m_Verbose) std::cout << "Launching filter in "<< Dimension <<"D and signed short..." << std::endl;
-      UpdateWithDimAndPixelType<Dimension, signed short>(); 
-    }
-    //    else if(PixelType == "unsigned_short"){  
-    //       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_short..." << std::endl;
-    //       UpdateWithDimAndPixelType<Dimension, unsigned short>(); 
-    //     }
+//--------------------------------------------------------------------
+template<class ArgsInfoType>
+template<unsigned int Dim>
+void clitk::RegionGrowingGenericFilter<ArgsInfoType>::InitializeImageType() 
+{  
+  ADD_IMAGE_TYPE(Dim, uchar);
+  ADD_IMAGE_TYPE(Dim, short);
+  // ADD_IMAGE_TYPE(Dim, int);
+  ADD_IMAGE_TYPE(Dim, float);
+}
+//--------------------------------------------------------------------
+  
+
+//--------------------------------------------------------------------
+template<class ArgsInfoType>
+void clitk::RegionGrowingGenericFilter<ArgsInfoType>::SetArgsInfo(const ArgsInfoType & a) 
+{
+  mArgsInfo=a;
+  this->SetIOVerbose(mArgsInfo.verbose_flag);
+  if (mArgsInfo.input_given)   this->AddInputFilename(mArgsInfo.input_arg);
+  if (mArgsInfo.output_given)  this->SetOutputFilename(mArgsInfo.output_arg);
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+// Update with the number of dimensions and the pixeltype
+//--------------------------------------------------------------------
+template<class ArgsInfoType>
+template<class ImageType>
+void clitk::RegionGrowingGenericFilter<ArgsInfoType>::UpdateWithInputImageType() 
+{ 
+  DD("UpdateWithInputImageType");
+  const int Dimension = ImageType::ImageDimension;
+
+  // ImageTypes
+  typedef ImageType InputImageType;
+  typedef ImageType OutputImageType;
+  typedef typename ImageType::PixelType PixelType;
     
-    else if (PixelType == "unsigned_char"){ 
-      if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_char..." << std::endl;
-      UpdateWithDimAndPixelType<Dimension, unsigned char>();
-    }
+  // Reading input
+  typename ImageType::Pointer input = this->template GetInput<ImageType>(0);
+
+  // Seed
+  typedef typename  std::vector<typename InputImageType::IndexType> SeedsType;
+  SeedsType seeds(1);
+  if (mArgsInfo.seed_given==Dimension)
+    for (unsigned int i=0; i<Dimension;i++)
+      seeds[0][i]=mArgsInfo.seed_arg[i];
     
-    //     else if (PixelType == "char"){ 
-    //       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and signed_char..." << std::endl;
-    //       UpdateWithDimAndPixelType<Dimension, signed char>();
-    //     }
-    else {
-      if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and float..." << std::endl;
-      UpdateWithDimAndPixelType<Dimension, float>();
-    }
-  }
-
-
-  //-------------------------------------------------------------------
-  // Update with the number of dimensions and the pixeltype
-  //-------------------------------------------------------------------
-  template <unsigned int Dimension, class  PixelType> 
-  void 
-  RegionGrowingGenericFilter::UpdateWithDimAndPixelType()
-  {
-
-    // ImageTypes
-    typedef itk::Image<PixelType, Dimension> InputImageType;
-    typedef itk::Image<PixelType, Dimension> OutputImageType;
+  else if ( mArgsInfo.seed_given==1)
+    seeds[0].Fill(mArgsInfo.seed_arg[0]);
     
-    // Read the input
-    typedef itk::ImageFileReader<InputImageType> InputReaderType;
-    typename InputReaderType::Pointer reader = InputReaderType::New();
-    reader->SetFileName( m_InputFileName);
-    reader->Update();
-    typename InputImageType::Pointer input= reader->GetOutput();
+  else seeds[0].Fill(mArgsInfo.seed_arg[0]);
+  if (mArgsInfo.verbose_flag) std::cout<<"Setting seed seeds to "<<seeds[0]<<"..."<<std::endl;
 
-    // Seed
-    typedef typename  std::vector<typename InputImageType::IndexType> SeedsType;
-    SeedsType seeds(1);
-    if(m_ArgsInfo.seed_given==Dimension)
-      for (unsigned int i=0; i<Dimension;i++)
-	seeds[0][i]=m_ArgsInfo.seed_arg[i];
-    
-    else if ( m_ArgsInfo.seed_given==1)
-      seeds[0].Fill(m_ArgsInfo.seed_arg[0]);
-    
-    else seeds[0].Fill(m_ArgsInfo.seed_arg[0]);
-    if(m_Verbose)std::cout<<"Setting seed seeds to "<<seeds[0]<<"..."<<std::endl;
-
-    if (m_ArgsInfo.seedRadius_given)
+  if (mArgsInfo.seedRadius_given)
     {
       typedef itk::BinaryBallStructuringElement<PixelType, Dimension> BallType;
       typename BallType::RadiusType r;
 
-      if (m_ArgsInfo.seedRadius_given == Dimension)
+      if (mArgsInfo.seedRadius_given == Dimension)
         for (unsigned i = 0; i < Dimension; i++)
-          r[i] = m_ArgsInfo.seedRadius_arg[i];
+          r[i] = mArgsInfo.seedRadius_arg[i];
       else
-        r.Fill(m_ArgsInfo.seedRadius_arg[0]);
+        r.Fill(mArgsInfo.seedRadius_arg[0]);
 
       BallType ball;
       ball.SetRadius(r);
@@ -106,22 +108,22 @@ namespace clitk
 
       typedef itk::ConstShapedNeighborhoodIterator<InputImageType> IteratorType;
       IteratorType it(ball.GetRadius(),
-          input,
-          input->GetLargestPossibleRegion());
+                      input,
+                      input->GetLargestPossibleRegion());
 #if ITK_VERSION_MAJOR < 4
       typename BallType::ConstIterator nit;
       unsigned idx = 0;
       for (nit = ball.Begin(); nit != ball.End(); ++nit, ++idx)
-      {
-        if (*nit)
         {
-          it.ActivateOffset(it.GetOffset(idx));
+          if (*nit)
+            {
+              it.ActivateOffset(it.GetOffset(idx));
+            }
+          else
+            {
+              it.DeactivateOffset(it.GetOffset(idx));
+            }
         }
-        else
-        {
-          it.DeactivateOffset(it.GetOffset(idx));
-        }
-      }
 #else
       it.CreateActiveListFromNeighborhood(ball);
       it.NeedToUseBoundaryConditionOff();
@@ -129,174 +131,170 @@ namespace clitk
 
       it.SetLocation(seeds[0]);
       for (typename IteratorType::ConstIterator i = it.Begin(); !i.IsAtEnd(); ++i)
-      {
-        typename InputImageType::IndexType id = seeds[0] + i.GetNeighborhoodOffset();
-        if (id != seeds[0] && input->GetLargestPossibleRegion().IsInside(id))
-          seeds.push_back(id);
-      }
+        {
+          typename InputImageType::IndexType id = seeds[0] + i.GetNeighborhoodOffset();
+          if (id != seeds[0] && input->GetLargestPossibleRegion().IsInside(id))
+            seeds.push_back(id);
+        }
     }
 
-    // Filter
-    typedef itk::ImageToImageFilter<InputImageType, OutputImageType> ImageToImageFilterType;
-    typename ImageToImageFilterType::Pointer filter;
+  // Filter
+  typedef itk::ImageToImageFilter<InputImageType, OutputImageType> ImageToImageFilterType;
+  typename ImageToImageFilterType::Pointer filter;
 
-    switch (m_ArgsInfo.type_arg)
-      {
-      case 0: {
+  switch (mArgsInfo.type_arg)
+    {
+    case 0: {
 		
-	typedef itk::ConnectedThresholdImageFilter<InputImageType, OutputImageType> ImageFilterType;
-	typename ImageFilterType::Pointer f= ImageFilterType::New();
+      typedef itk::ConnectedThresholdImageFilter<InputImageType, OutputImageType> ImageFilterType;
+      typename ImageFilterType::Pointer f= ImageFilterType::New();
 	
-	f->SetLower(m_ArgsInfo.lower_arg);
-	f->SetUpper(m_ArgsInfo.upper_arg);
-	f->SetReplaceValue(static_cast<PixelType>(m_ArgsInfo.pad_arg));
-        for (typename SeedsType::const_iterator it = seeds.begin(); it != seeds.end(); ++it)
-          f->AddSeed(*it);
-	filter=f;
-	if(m_Verbose)std::cout<<"Using the connected threshold image filter..."<<std::endl;
+      f->SetLower(mArgsInfo.lower_arg);
+      f->SetUpper(mArgsInfo.upper_arg);
+      f->SetReplaceValue(static_cast<PixelType>(mArgsInfo.pad_arg));
+      for (typename SeedsType::const_iterator it = seeds.begin(); it != seeds.end(); ++it)
+        f->AddSeed(*it);
+      filter=f;
+      if (mArgsInfo.verbose_flag) std::cout<<"Using the connected threshold image filter..."<<std::endl;
 
-	break;
-      }
+      break;
+    }
 
-      case 1: {
+    case 1: {
 		
-	typedef itk::NeighborhoodConnectedImageFilter<InputImageType, OutputImageType> ImageFilterType;
-	typename ImageFilterType::Pointer f= ImageFilterType::New();
+      typedef itk::NeighborhoodConnectedImageFilter<InputImageType, OutputImageType> ImageFilterType;
+      typename ImageFilterType::Pointer f= ImageFilterType::New();
 	
-	// Radius
-	typename  InputImageType::SizeType size;
-	if(m_ArgsInfo.radius_given==Dimension)
-	  for (unsigned int i=0; i<Dimension;i++)
-	    size[i]=m_ArgsInfo.radius_arg[i];
+      // Radius
+      typename  InputImageType::SizeType size;
+      if (mArgsInfo.radius_given==Dimension)
+        for (unsigned int i=0; i<Dimension;i++)
+          size[i]=mArgsInfo.radius_arg[i];
 	
-	else if ( m_ArgsInfo.radius_given==1)
-	  size.Fill(m_ArgsInfo.radius_arg[0]);
+      else if ( mArgsInfo.radius_given==1)
+        size.Fill(mArgsInfo.radius_arg[0]);
 	
-	else size.Fill(m_ArgsInfo.radius_arg[0]);
-	if(m_Verbose)std::cout<<"Setting neighborhood radius to "<<size<<"..."<<std::endl;
+      else size.Fill(mArgsInfo.radius_arg[0]);
+      if (mArgsInfo.verbose_flag) std::cout<<"Setting neighborhood radius to "<<size<<"..."<<std::endl;
 
-	f->SetLower(m_ArgsInfo.lower_arg);
-	f->SetUpper(m_ArgsInfo.upper_arg);
-	f->SetReplaceValue(static_cast<PixelType>(m_ArgsInfo.pad_arg));
-        for (typename SeedsType::const_iterator it = seeds.begin(); it != seeds.end(); ++it)
-          f->AddSeed(*it);
-	f->SetRadius(size);
-	filter=f;
-	if(m_Verbose)std::cout<<"Using the neighborhood threshold connected image filter..."<<std::endl;
+      f->SetLower(mArgsInfo.lower_arg);
+      f->SetUpper(mArgsInfo.upper_arg);
+      f->SetReplaceValue(static_cast<PixelType>(mArgsInfo.pad_arg));
+      for (typename SeedsType::const_iterator it = seeds.begin(); it != seeds.end(); ++it)
+        f->AddSeed(*it);
+      f->SetRadius(size);
+      filter=f;
+      if (mArgsInfo.verbose_flag) std::cout<<"Using the neighborhood threshold connected image filter..."<<std::endl;
 
-	break;
-      }
+      break;
+    }
 
-      case 2: {
+    case 2: {
 	
-	typedef itk::ConfidenceConnectedImageFilter<InputImageType, OutputImageType> ImageFilterType;
-	typename ImageFilterType::Pointer f= ImageFilterType::New();
+      typedef itk::ConfidenceConnectedImageFilter<InputImageType, OutputImageType> ImageFilterType;
+      typename ImageFilterType::Pointer f= ImageFilterType::New();
 	
-	// Radius
-	typename  InputImageType::SizeType size;
-	if(m_ArgsInfo.radius_given==Dimension)
-	  for (unsigned int i=0; i<Dimension;i++)
-	    size[i]=m_ArgsInfo.radius_arg[i];
+      // Radius
+      typename  InputImageType::SizeType size;
+      if (mArgsInfo.radius_given==Dimension)
+        for (unsigned int i=0; i<Dimension;i++)
+          size[i]=mArgsInfo.radius_arg[i];
 	
-	else if ( m_ArgsInfo.radius_given==1)
-	  size.Fill(m_ArgsInfo.radius_arg[0]);
+      else if ( mArgsInfo.radius_given==1)
+        size.Fill(mArgsInfo.radius_arg[0]);
 	
-	else size.Fill(m_ArgsInfo.radius_arg[0]);
-	if(m_Verbose)std::cout<<"Setting neighborhood radius to "<<size<<"..."<<std::endl;
+      else size.Fill(mArgsInfo.radius_arg[0]);
+      if (mArgsInfo.verbose_flag) std::cout<<"Setting neighborhood radius to "<<size<<"..."<<std::endl;
 
-	f->SetMultiplier( m_ArgsInfo.multiplier_arg );
-	f->SetNumberOfIterations( m_ArgsInfo.multiplier_arg );
-        for (typename SeedsType::const_iterator it = seeds.begin(); it != seeds.end(); ++it)
-          f->AddSeed(*it);
-	f->SetNumberOfIterations( m_ArgsInfo.iter_arg);
-	f->SetReplaceValue(static_cast<PixelType>(m_ArgsInfo.pad_arg));
-	f->SetInitialNeighborhoodRadius(size[0]);
-	filter=f;
-	if(m_Verbose)std::cout<<"Using the confidence threshold connected image filter..."<<std::endl;
+      f->SetMultiplier( mArgsInfo.multiplier_arg );
+      f->SetNumberOfIterations( mArgsInfo.multiplier_arg );
+      for (typename SeedsType::const_iterator it = seeds.begin(); it != seeds.end(); ++it)
+        f->AddSeed(*it);
+      f->SetNumberOfIterations( mArgsInfo.iter_arg);
+      f->SetReplaceValue(static_cast<PixelType>(mArgsInfo.pad_arg));
+      f->SetInitialNeighborhoodRadius(size[0]);
+      filter=f;
+      if (mArgsInfo.verbose_flag) std::cout<<"Using the confidence threshold connected image filter..."<<std::endl;
 	
-	break;
-      }
+      break;
+    }
 
-      case 3: {
+    case 3: {
 		
-	typedef clitk::LocallyAdaptiveThresholdConnectedImageFilter<InputImageType, OutputImageType> ImageFilterType;
-	typename ImageFilterType::Pointer f= ImageFilterType::New();
+      typedef clitk::LocallyAdaptiveThresholdConnectedImageFilter<InputImageType, OutputImageType> ImageFilterType;
+      typename ImageFilterType::Pointer f= ImageFilterType::New();
 	
-	// Radius
-	typename  InputImageType::SizeType size;
-	if(m_ArgsInfo.radius_given==Dimension)
-	  for (unsigned int i=0; i<Dimension;i++)
-	    size[i]=m_ArgsInfo.radius_arg[i];
-	else size.Fill(m_ArgsInfo.radius_arg[0]);
-	if(m_Verbose)std::cout<<"Setting neighborhood radius to "<<size<<"..."<<std::endl;
+      // Radius
+      typename  InputImageType::SizeType size;
+      if (mArgsInfo.radius_given==Dimension)
+        for (unsigned int i=0; i<Dimension;i++)
+          size[i]=mArgsInfo.radius_arg[i];
+      else size.Fill(mArgsInfo.radius_arg[0]);
+      if (mArgsInfo.verbose_flag) std::cout<<"Setting neighborhood radius to "<<size<<"..."<<std::endl;
 
-	// params
-	f->SetLower(m_ArgsInfo.lower_arg);
-	f->SetUpper(m_ArgsInfo.upper_arg);
-	f->SetLowerBorderIsGiven(m_ArgsInfo.adaptLower_flag);
-	f->SetLowerBorderIsGiven(m_ArgsInfo.adaptUpper_flag);
-	f->SetReplaceValue(static_cast<PixelType>(m_ArgsInfo.pad_arg));
-	f->SetMultiplier(m_ArgsInfo.multiplier_arg);
-	f->SetMaximumSDIsGiven(m_ArgsInfo.maxSD_given);
-	if (m_ArgsInfo.maxSD_given) f->SetMaximumSD(m_ArgsInfo.maxSD_arg);
-        for (typename SeedsType::const_iterator it = seeds.begin(); it != seeds.end(); ++it)
-          f->AddSeed(*it);
-	f->SetRadius(size);
-	filter=f;
-	if(m_Verbose)std::cout<<"Using the locally adaptive threshold connected image filter..."<<std::endl;
+      // params
+      f->SetLower(mArgsInfo.lower_arg);
+      f->SetUpper(mArgsInfo.upper_arg);
+      f->SetLowerBorderIsGiven(mArgsInfo.adaptLower_flag);
+      f->SetLowerBorderIsGiven(mArgsInfo.adaptUpper_flag);
+      f->SetReplaceValue(static_cast<PixelType>(mArgsInfo.pad_arg));
+      f->SetMultiplier(mArgsInfo.multiplier_arg);
+      f->SetMaximumSDIsGiven(mArgsInfo.maxSD_given);
+      if (mArgsInfo.maxSD_given) f->SetMaximumSD(mArgsInfo.maxSD_arg);
+      for (typename SeedsType::const_iterator it = seeds.begin(); it != seeds.end(); ++it)
+        f->AddSeed(*it);
+      f->SetRadius(size);
+      filter=f;
+      if (mArgsInfo.verbose_flag) std::cout<<"Using the locally adaptive threshold connected image filter..."<<std::endl;
 
-	break;
-      }
+      break;
+    }
   
-      case 4: {
+    case 4: {
 		
-	typedef clitk::ExplosionControlledThresholdConnectedImageFilter<InputImageType, OutputImageType> ImageFilterType;
-	typename ImageFilterType::Pointer f= ImageFilterType::New();
+      typedef clitk::ExplosionControlledThresholdConnectedImageFilter<InputImageType, OutputImageType> ImageFilterType;
+      typename ImageFilterType::Pointer f= ImageFilterType::New();
 	
-	// 	// Radius
-	// 	typename  InputImageType::SizeType size;
-	// 	if(m_ArgsInfo.radius_given==Dimension)
-	// 	  for (unsigned int i=0; i<Dimension;i++)
-	// 	    size[i]=m_ArgsInfo.radius_arg[i];
-	// 	else size.Fill(m_ArgsInfo.radius_arg[0]);
-	// 	if(m_Verbose)std::cout<<"Setting neighborhood radius to "<<size<<"..."<<std::endl;
+      // 	// Radius
+      // 	typename  InputImageType::SizeType size;
+      // 	if (mArgsInfo.radius_given==Dimension)
+      // 	  for (unsigned int i=0; i<Dimension;i++)
+      // 	    size[i]=mArgsInfo.radius_arg[i];
+      // 	else size.Fill(mArgsInfo.radius_arg[0]);
+      // 	if (mArgsInfo.verbose_flag) std::cout<<"Setting neighborhood radius to "<<size<<"..."<<std::endl;
 	
-	// params
-	f->SetVerbose(m_ArgsInfo.verbose_flag);
-	f->SetLower(m_ArgsInfo.lower_arg);
-	f->SetUpper(m_ArgsInfo.upper_arg);
-	f->SetMinimumLowerThreshold(m_ArgsInfo.minLower_arg);
-	f->SetMaximumUpperThreshold(m_ArgsInfo.maxUpper_arg);
-	f->SetAdaptLowerBorder(m_ArgsInfo.adaptLower_flag);
-	f->SetAdaptUpperBorder(m_ArgsInfo.adaptUpper_flag);
-	f->SetReplaceValue(static_cast<PixelType>(m_ArgsInfo.pad_arg));
-	f->SetMultiplier(m_ArgsInfo.multiplier_arg);
-	f->SetThresholdStepSize(m_ArgsInfo.step_arg);
-	f->SetMinimumThresholdStepSize(m_ArgsInfo.minStep_arg);
-	f->SetFullyConnected(m_ArgsInfo.full_flag);
-        for (typename SeedsType::const_iterator it = seeds.begin(); it != seeds.end(); ++it)
-          f->AddSeed(*it);
-	filter=f;
-	if(m_Verbose)std::cout<<"Using the explosion controlled threshold connected image filter..."<<std::endl;
+      // params
+      f->SetVerbose(mArgsInfo.verbose_flag);
+      f->SetLower(mArgsInfo.lower_arg);
+      f->SetUpper(mArgsInfo.upper_arg);
+      f->SetMinimumLowerThreshold(mArgsInfo.minLower_arg);
+      f->SetMaximumUpperThreshold(mArgsInfo.maxUpper_arg);
+      f->SetAdaptLowerBorder(mArgsInfo.adaptLower_flag);
+      f->SetAdaptUpperBorder(mArgsInfo.adaptUpper_flag);
+      f->SetReplaceValue(static_cast<PixelType>(mArgsInfo.pad_arg));
+      f->SetMultiplier(mArgsInfo.multiplier_arg);
+      f->SetThresholdStepSize(mArgsInfo.step_arg);
+      f->SetMinimumThresholdStepSize(mArgsInfo.minStep_arg);
+      f->SetFullyConnected(mArgsInfo.full_flag);
+      for (typename SeedsType::const_iterator it = seeds.begin(); it != seeds.end(); ++it)
+        f->AddSeed(*it);
+      filter=f;
+      if (mArgsInfo.verbose_flag) std::cout<<"Using the explosion controlled threshold connected image filter..."<<std::endl;
 
-	break;
-      }
+      break;
+    }
   
     }
 
 
-    filter->SetInput(input);
-    filter->Update();
-    typename OutputImageType::Pointer output=filter->GetOutput();
+  filter->SetInput(input);
+  filter->Update();
+  typename OutputImageType::Pointer output=filter->GetOutput();
 
-    // Output
-    typedef itk::ImageFileWriter<OutputImageType> WriterType;
-    typename WriterType::Pointer writer = WriterType::New();
-    writer->SetFileName(m_ArgsInfo.output_arg);
-    writer->SetInput(output);
-    writer->Update();
-  }
+  // Write/Save results
+  this->template SetNextOutput<OutputImageType>(output); 
+}
+//--------------------------------------------------------------------
 
-}//end clitk
  
-#endif //#define clitkRegionGrowingGenericFilter_txx
+#endif //#define CLITKREGIONGROWINGGENERICFILTER_TXX
