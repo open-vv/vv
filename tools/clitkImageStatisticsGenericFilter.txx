@@ -21,16 +21,9 @@
 #include "itkNthElementImageAdaptor.h"
 #include "itkJoinSeriesImageFilter.h"
 
-/* =================================================
- * @file   clitkImageStatisticsGenericFilter.txx
- * @author 
- * @date   
- * 
- * @brief 
- * 
- ===================================================*/
 #include "clitkImageStatisticsGenericFilter.h"
-
+#include "clitkCropLikeImageFilter.h"
+#include "clitkResampleImageWithOptionsFilter.h"
 
 namespace clitk
 {
@@ -106,6 +99,7 @@ namespace clitk
       int maskDimension, maskComponents;
       std::string maskPixelType;
       ReadImageDimensionAndPixelType(m_ArgsInfo.mask_arg, maskDimension, maskPixelType, maskComponents);
+
       if (maskDimension == Dimension - 1) {
         // Due to a limitation of filter itk::LabelStatisticsImageFilter, InputImageType and LabelImageType
         // must have the same image dimension. However, we want to support label images with Dl = Di - 1,
@@ -135,6 +129,30 @@ namespace clitk
         labelImageReader->SetFileName(m_ArgsInfo.mask_arg);
         labelImageReader->Update();
         labelImage= labelImageReader->GetOutput();
+
+        // Check mask sampling/size
+        if (!HaveSameSizeAndSpacing<LabelImageType, InputImageType>(labelImage, input)) {
+          if (m_ArgsInfo.allow_resize_flag) {
+            if (m_ArgsInfo.verbose_flag) {
+              std::cout << "Resize mask image like input" << std::endl;
+            }
+            typedef clitk::ResampleImageWithOptionsFilter<LabelImageType> ResamplerType;
+            typename ResamplerType::Pointer resampler = ResamplerType::New();
+            resampler->SetInput(labelImage);
+            resampler->SetOutputSpacing(input->GetSpacing());
+            resampler->Update();
+            labelImage = resampler->GetOutput();
+
+            typename itk::ImageBase<LabelImageType::ImageDimension>::RegionType reg 
+              = input->GetLargestPossibleRegion();
+            labelImage = ResizeImageLike<LabelImageType>(labelImage, &reg, 0);
+          }
+          else {
+            std::cerr << "Mask image has a different size/spacing than input. Abort" << std::endl;
+            exit(-1);
+          }
+        }
+
       }
 
     }

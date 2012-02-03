@@ -15,3 +15,5 @@ option "histogram"	-	"Compute histogram, allows median calculation"	string  no
 option "bins"		-	"Number of histogram bins"	  		int  	no 	default="100"
 option "lower"		-	"Lower histogram bound"	double 	no default="-1000"	
 option "upper"		-	"Upper histogram bound"	double 	no default="1000"		
+
+option "allow_resize"   	r   	"Resize mask if different from input"			  flag		off

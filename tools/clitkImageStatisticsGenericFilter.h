@@ -18,16 +18,6 @@
 #ifndef clitkImageStatisticsGenericFilter_h
 #define clitkImageStatisticsGenericFilter_h
 
-/* =================================================
- * @file   clitkImageStatisticsGenericFilter.h
- * @author 
- * @date   
- * 
- * @brief 
- * 
- ===================================================*/
-
-
 // clitk include
 #include "clitkIO.h"
 #include "clitkCommon.h"
@@ -40,7 +30,6 @@
 
 namespace clitk 
 {
-
 
   class ITK_EXPORT ImageStatisticsGenericFilter : public itk::LightObject
   {
