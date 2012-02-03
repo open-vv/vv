@@ -106,6 +106,7 @@ GenerateData() {
   m_region.SetSize(m_size);
   int start = m_index[GetDirection()];
   this->SetNumberOfOutputs(m_NumberOfSlices);
+  // deprecated : use SetNumberOfIndexedInputs ? FIXME
 
   //--------------------------------------------------------------------
   // loop ExtractImageFilter with region updated, push_back
@@ -122,7 +123,7 @@ GenerateData() {
     extract->SetDirectionCollapseToSubmatrix();
 #endif
     extract->Update();
-    SetNthOutput(i, extract->GetOutput());
+    this->SetNthOutput(i, extract->GetOutput());
   }
   return;
 }
