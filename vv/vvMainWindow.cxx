@@ -277,7 +277,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(actionWarp_image_with_vector_field,SIGNAL(triggered()),this,SLOT(WarpImage()));
   connect(actionLoad_images,SIGNAL(triggered()),this,SLOT(OpenImages()));
   connect(actionOpen_Dicom,SIGNAL(triggered()),this,SLOT(OpenDicom()));
-  connect(actionOpen_Dicom_Struct,SIGNAL(triggered()),this,SLOT(OpenDCStructContour()));
+  //  connect(actionOpen_Dicom_Struct,SIGNAL(triggered()),this,SLOT(OpenDCStructContour()));
   connect(actionOpen_VTK_contour,SIGNAL(triggered()),this,SLOT(OpenVTKContour()));
   connect(actionOpen_Multiple_Images_As_One,SIGNAL(triggered()),this,SLOT(MergeImages()));
   connect(actionSlice_Image_As_Multiple_Images,SIGNAL(triggered()),this,SLOT(SliceImages()));
@@ -461,7 +461,7 @@ void vvMainWindow::AddContour(int image_index, vvMesh::Pointer contour, bool pro
   brush.setColor(QColor(contour->r*255,contour->g*255,contour->b*255));
   brush.setStyle(Qt::SolidPattern);
   item->setData(COLUMN_IMAGE_NAME,Qt::BackgroundRole,brush);
-  item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,contour->structure_name.c_str());
+  //  item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,contour->structure_name.c_str());
 
   for (int j = 1; j <= 4; j++)
     item->setData(j,Qt::CheckStateRole,DataTree->topLevelItem(image_index)->data(j,Qt::CheckStateRole));
