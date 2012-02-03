@@ -34,10 +34,6 @@ IF(CLITK_BUILD_SEGMENTATION)
  
     WRAP_GGO(clitkRelativePosition_GGO_C ../tools/clitkRelativePosition.ggo)
 
-    WRAP_GGO(clitkExtractLymphStations_GGO_C clitkExtractLymphStations.ggo)
-    ADD_EXECUTABLE(clitkExtractLymphStations clitkExtractLymphStations.cxx clitkFilterWithAnatomicalFeatureDatabaseManagement.cxx ${clitkExtractLymphStations_GGO_C} ${clitkRelativePosition_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkExtractLymphStations clitkSegmentationGgoLib clitkCommon vtkHybrid)
-    SET(SEGMENTATION_INSTALL ${SEGMENTATION_INSTALL} clitkExtractLymphStations)
 
      WRAP_GGO(clitkMorphoMath_GGO_C clitkMorphoMath.ggo)
     ADD_EXECUTABLE(clitkMorphoMath clitkMorphoMath.cxx ${clitkMorphoMath_GGO_C})
