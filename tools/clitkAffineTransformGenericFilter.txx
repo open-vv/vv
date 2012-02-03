@@ -52,12 +52,12 @@ namespace clitk
     // Call UpdateWithDim
     if(Dimension==2) UpdateWithDim<2>(PixelType, Components);
     else 
-    if(Dimension==3) UpdateWithDim<3>(PixelType, Components);
-    else if (Dimension==4)UpdateWithDim<4>(PixelType, Components);
-    else {
-      std::cout<<"Error, Only for 2, 3 or 4  Dimensions!!!"<<std::endl ;
-      return;
-    }
+      if(Dimension==3) UpdateWithDim<3>(PixelType, Components);
+      else if (Dimension==4)UpdateWithDim<4>(PixelType, Components);
+      else {
+        std::cout<<"Error, Only for 2, 3 or 4  Dimensions!!!"<<std::endl ;
+        return;
+      }
   }
   //-------------------------------------------------------------------
  
@@ -77,10 +77,10 @@ namespace clitk
         if (m_Verbose) std::cout << "Launching filter in "<< Dimension <<"D and signed short..." << std::endl;
         UpdateWithDimAndPixelType<Dimension, signed short>();
       }
-      //    else if(PixelType == "unsigned_short"){
-      //       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_short..." << std::endl;
-      //       UpdateWithDimAndPixelType<Dimension, unsigned short>();
-      //     }
+      else if(PixelType == "unsigned_short"){
+        if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_short..." << std::endl;
+        UpdateWithDimAndPixelType<Dimension, unsigned short>();
+      }
 
       else if (PixelType == "unsigned_char") {
         if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_char..." << std::endl;
@@ -181,7 +181,9 @@ namespace clitk
           }
         else {
           if (m_ArgsInfo.elastix_given) {
-            matrix = createMatrixFromElastixFile<Dimension,PixelType>(m_ArgsInfo.elastix_arg);
+            std::vector<std::string> s;
+            for(uint i=0; i<m_ArgsInfo.elastix_given; i++) s.push_back(m_ArgsInfo.elastix_arg[i]);
+            matrix = createMatrixFromElastixFile<Dimension,PixelType>(s);
           }
           else 
             matrix.SetIdentity();
@@ -495,64 +497,81 @@ namespace clitk
   template<class args_info_type>
   template<unsigned int Dimension, class PixelType>
   typename itk::Matrix<double, Dimension+1, Dimension+1>
-   AffineTransformGenericFilter<args_info_type>::createMatrixFromElastixFile(std::string filename)
+  AffineTransformGenericFilter<args_info_type>::createMatrixFromElastixFile(std::vector<std::string> & filename)
   {
     if (Dimension != 3) {
       FATAL("Only 3D yet" << std::endl);
     }
     typename itk::Matrix<double, Dimension+1, Dimension+1> matrix;
 
-    // Open file
-    std::ifstream is;
-    clitk::openFileForReading(is, filename);
-
-    // Check Transform
-    std::string s; 
-    bool b = GetElastixValueFromTag(is, "Transform ", s);
-    if (!b) {
-      FATAL("Error must read 'Transform' in " << filename << std::endl);
-    }
-    if (s != "EulerTransform") {
-      FATAL("Sorry only 'EulerTransform'" << std::endl);
-    }
-
-    // FIXME check
-    //    (InitialTransformParametersFileName "NoInitialTransform")
-
-    // Get CenterOfRotationPoint
-    GetElastixValueFromTag(is, "CenterOfRotationPoint ", s); // space is needed
-    if (!b) {
-      FATAL("Error must read 'CenterOfRotationPoint' in " << filename << std::endl);
-    }
-    std::vector<std::string> cor; 
-    GetValuesFromValue(s, cor);
-
-    // Get Transformparameters
-    GetElastixValueFromTag(is, "TransformParameters ", s); // space is needed
-    if (!b) {
-      FATAL("Error must read 'TransformParameters' in " << filename << std::endl);
-    }
-    std::vector<std::string> results; 
-    GetValuesFromValue(s, results);
-    
-    // construct a stream from the string
     itk::CenteredEuler3DTransform<double>::Pointer mat = itk::CenteredEuler3DTransform<double>::New();
-    itk::CenteredEuler3DTransform<double>::ParametersType p;
-    p.SetSize(9);
-    for(uint i=0; i<3; i++)
-      p[i] = atof(results[i].c_str()); // Rotation
-    for(uint i=0; i<3; i++)
-      p[i+3] = atof(cor[i].c_str()); // Centre of rotation
-    for(uint i=0; i<3; i++)
-      p[i+6] = atof(results[i+3].c_str()); // Translation
-    mat->SetParameters(p);
+    itk::CenteredEuler3DTransform<double>::Pointer previous;
+    for(uint j=0; j<filename.size(); j++) {
+      
+      // Open file
+      if (m_Verbose) std::cout << "Read elastix parameters in " << filename[j] << std::endl;
+      std::ifstream is;
+      clitk::openFileForReading(is, filename[j]);
+      
+      // Check Transform
+      std::string s; 
+      bool b = GetElastixValueFromTag(is, "Transform ", s);
+      if (!b) {
+        FATAL("Error must read 'Transform' in " << filename[j] << std::endl);
+      }
+      if (s != "EulerTransform") {
+        FATAL("Sorry only 'EulerTransform'" << std::endl);
+      }
+      
+      // FIXME check
+      //    (InitialTransformParametersFilename[j] "NoInitialTransform")
+      
+      // Get CenterOfRotationPoint
+      GetElastixValueFromTag(is, "CenterOfRotationPoint ", s); // space is needed
+      if (!b) {
+        FATAL("Error must read 'CenterOfRotationPoint' in " << filename[j] << std::endl);
+      }
+      std::vector<std::string> cor; 
+      GetValuesFromValue(s, cor);
+      
+      // Get Transformparameters
+      GetElastixValueFromTag(is, "TransformParameters ", s); // space is needed
+      if (!b) {
+        FATAL("Error must read 'TransformParameters' in " << filename[j] << std::endl);
+      }
+      std::vector<std::string> results; 
+      GetValuesFromValue(s, results);
+      
+      // construct a stream from the string
+      itk::CenteredEuler3DTransform<double>::ParametersType p;
+      p.SetSize(9);
+      for(uint i=0; i<3; i++)
+        p[i] = atof(results[i].c_str()); // Rotation
+      for(uint i=0; i<3; i++)
+        p[i+3] = atof(cor[i].c_str()); // Centre of rotation
+      for(uint i=0; i<3; i++)
+        p[i+6] = atof(results[i+3].c_str()); // Translation
+      mat->SetParameters(p);
     
-    if (m_Verbose) {
-      std::cout << "Rotation      (deg) : " << rad2deg(p[0]) << " " << rad2deg(p[1]) << " " << rad2deg(p[2]) << std::endl;
-      std::cout << "Translation   (phy) : " << p[3] << " " << p[4] << " " << p[5] << std::endl;
-      std::cout << "Center of rot (phy) : " << p[6] << " " << p[7] << " " << p[8] << std::endl;
+      if (m_Verbose) {
+        std::cout << "Rotation      (deg) : " << rad2deg(p[0]) << " " << rad2deg(p[1]) << " " << rad2deg(p[2]) << std::endl;
+        std::cout << "Center of rot (phy) : " << p[3] << " " << p[4] << " " << p[5] << std::endl;
+        std::cout << "Translation   (phy) : " << p[6] << " " << p[7] << " " << p[8] << std::endl;
+      }
+
+      // Compose with previous if needed
+      if (j!=0) {
+        mat->Compose(previous);
+        if (m_Verbose) {
+          std::cout << "Composed rotation      (deg) : " << rad2deg(mat->GetAngleX()) << " " << rad2deg(mat->GetAngleY()) << " " << rad2deg(mat->GetAngleZ()) << std::endl;
+          std::cout << "Composed center of rot (phy) : " << mat->GetCenter() << std::endl;
+          std::cout << "Compsoed translation   (phy) : " << mat->GetTranslation() << std::endl;
+      }
+      }
+      previous = mat->Clone();
     }
 
+    mat = previous;
     for(uint i=0; i<3; i++)
       for(uint j=0; j<3; j++)
         matrix[i][j] = mat->GetMatrix()[i][j];
@@ -582,7 +601,7 @@ namespace clitk
         value.erase (std::remove (value.begin(), value.end(), ')'), value.end());
         return true;
       }
-   }
+    }
     return false;
   }
   //-------------------------------------------------------------------
