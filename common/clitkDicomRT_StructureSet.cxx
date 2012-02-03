@@ -110,8 +110,6 @@ const std::string & clitk::DicomRT_StructureSet::GetTime() const
 //--------------------------------------------------------------------
 clitk::DicomRT_ROI* clitk::DicomRT_StructureSet::GetROIFromROINumber(int n)
 {
-  DD("GetROIFromROINumber");
-  DD(n);
   if (mROIs.find(n) == mROIs.end()) {
     std::cerr << "No ROI number " << n << std::endl;
     return NULL;
@@ -250,7 +248,6 @@ int clitk::DicomRT_StructureSet::ReadROINumber(const gdcm::Item & item)
 void clitk::DicomRT_StructureSet::Write(const std::string & filename)
 {
 #if GDCM_MAJOR_VERSION == 2
-  DD("DCM RT Writer");
 
   // Assert that the gdcm file is still open (we can write only if it was readed)
   if (mFile == NULL) {
@@ -314,18 +311,12 @@ void clitk::DicomRT_StructureSet::Write(const std::string & filename)
 //--------------------------------------------------------------------
 void clitk::DicomRT_StructureSet::Read(const std::string & filename)
 {
-  DD(GDCM_MAJOR_VERSION);
-  DD(CLITK_USE_SYSTEM_GDCM);
-  
 #if CLITK_USE_SYSTEM_GDCM == 1
   vtkSmartPointer<vtkGDCMPolyDataReader> reader = vtkGDCMPolyDataReader::New();
   reader->SetFileName(filename.c_str());
   reader->Update();
   
-  // FIXME : check
-
   // Get global information
-  // FIXME (could be remove with a single access to properties objet.
   vtkRTStructSetProperties * p = reader->GetRTStructSetProperties();  
   mStudyID   = p->GetStudyInstanceUID();
   mStudyDate = p->GetStructureSetDate();
@@ -343,11 +334,13 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename)
     // Insert in the map
     mROIs[roinumber] = roi;
   }
+  return;
 #endif // END version with system gdcm (vtkGDCMPolyDataReader)
 
 
   // Open DICOM
 #if GDCM_MAJOR_VERSION == 2
+  FATAL("Error : compile vv with itk4 + external gdcm");
 
   // Read gdcm file
   mReader = new gdcm::Reader;
