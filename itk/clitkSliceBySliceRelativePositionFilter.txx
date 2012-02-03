@@ -240,6 +240,10 @@ GenerateOutputInformation()
     int nb=0;
     mObjectSlices[i] = LabelizeAndCountNumberOfObjects<SliceType>(mObjectSlices[i], 0, true, 1, nb);
 
+    if (GetVerboseSlicesFlag()) {
+      std::cout << "slice " << i << " nb = " << nb << std::endl;
+    }
+
     // If no object and empty slices and if we need the full fuzzy map, create a dummy one.
     if ((nb==0) && (this->GetFuzzyMapOnlyFlag())) {
       typename FloatSliceType::Pointer one = FloatSliceType::New();
@@ -297,6 +301,7 @@ GenerateOutputInformation()
         if (GetVerboseSlicesFlag()) {
           std::cout << "Slice " << i << std::endl;
           relPosFilter->VerboseStepFlagOn();
+          //relPosFilter->WriteStepFlagOn();
         }
         relPosFilter->WriteStepFlagOff();
         // relPosFilter->VerboseMemoryFlagOn();
