@@ -14,21 +14,26 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-===========================================================================**/
+  ===========================================================================**/
+
+// std
 #include <algorithm>
 
+// qt
 #include <QApplication>
 
+// gdcm 
 #include <gdcmFile.h>
 #if GDCM_MAJOR_VERSION == 2
-  #include <gdcmReader.h>
-  #include <gdcmTag.h>
-  #include <gdcmAttribute.h>
+#include <gdcmReader.h>
+#include <gdcmTag.h>
+#include <gdcmAttribute.h>
 #else
-  #include <gdcm.h>
-  #include <gdcmSQItem.h>
+#include <gdcm.h>
+#include <gdcmSQItem.h>
 #endif
 
+// vtk
 #include <vtkSmartPointer.h>
 #include <vtkAppendPolyData.h>
 #include <vtkCellArray.h>
@@ -39,17 +44,25 @@
 #include <vtkImageCast.h>
 #include <vtkImageGaussianSmooth.h>
 
+// clitk
 #include "clitkCommon.h"
+#include "clitkCommon.h"
+#include "clitkDicomRT_StructureSet.h"
 #include "vvMeshReader.h"
 #include "vvProgressDialog.h"
-#include <clitkCommon.h>
 
+//------------------------------------------------------------------------------
 vvMeshReader::vvMeshReader() :
-  vtk_mode(false)
+vtk_mode(false)
 {}
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvMeshReader::Update()
 {
+  DD("vvMeshReader::Update");
+
   //Show a progress bar only when opening a DC-struct (ie. multiple contours)
   vvProgressDialog progress("Opening " + filename,(!vtk_mode) && (selected_contours.size()>1));
   this->start();
@@ -59,7 +72,10 @@ void vvMeshReader::Update()
     qApp->processEvents();
   }
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvMeshReader::run()
 {
   ///Verify the important stuff has been set
@@ -83,39 +99,130 @@ void vvMeshReader::run()
     }
   }
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 std::vector<std::pair<int,std::string> > vvMeshReader::GetROINames()
 {
   assert(filename!="");
   std::vector<std::pair<int, std::string> > roi_names;
+  DD(GDCM_MAJOR_VERSION);
+  DD(CLITK_USE_SYSTEM_GDCM);
+
 #if GDCM_MAJOR_VERSION == 2
-  // duplicate code from  clitk::DicomRT_StructureSet::Read
-  gdcm::Reader reader;
-  reader.SetFileName( filename.c_str() );
-  reader.Read();
 
-  const gdcm::DataSet &ds = reader.GetFile().GetDataSet();
+  // Read RT-struct data
+  DD("before read");
+  vtkSmartPointer<vtkGDCMPolyDataReader> reader = vtkGDCMPolyDataReader::New();
+  reader->SetFileName(filename.c_str());
+  reader->Update();
+  DD("after read");
 
-  gdcm::Tag tssroisq(0x3006,0x0020);
-  const gdcm::DataElement &ssroisq = ds.GetDataElement( tssroisq );
-  gdcm::SmartPointer<gdcm::SequenceOfItems> roi_seq = ssroisq.GetValueAsSQ();
-  assert(roi_seq); // TODO error message
-  for(unsigned int ridx = 0; ridx < roi_seq->GetNumberOfItems(); ++ridx)
-    {
-    gdcm::Item & item = roi_seq->GetItem( ridx + 1); // Item starts at 1
-    const gdcm::DataSet& nestedds = item.GetNestedDataSet();
-    if( nestedds.FindDataElement( gdcm::Tag(0x3006,0x22) ) )
+  // get info on roi names
+  vtkRTStructSetProperties * p = reader->GetRTStructSetProperties();
+  DD(p->GetNumberOfStructureSetROIs());
+  DD(p->GetStructureSetROIName(0));
+  DD(p->GetStructureSetROINumber(0));  
+  int n = p->GetNumberOfStructureSetROIs();
+  DD(n);
+  
+  for(unsigned int i=0; i<n; i++) {
+    std::string name = p->GetStructureSetROIName(i);
+    int nb = p->GetStructureSetROINumber(i);
+    roi_names.push_back(make_pair(nb,name));
+  }
+
+  // ====================
+
+  if (false) {
+    // duplicate code from  clitk::DicomRT_StructureSet::Read
+    gdcm::Reader * reader = new gdcm::Reader;
+    reader->SetFileName( filename.c_str() );
+    reader->Read();
+    DD("after gdcm read");
+
+    const gdcm::DataSet &ds = reader->GetFile().GetDataSet();
+
+    DD("after ds");
+    DD(ds.IsEmpty());
+
+    // Check file type
+    //Verify if the file is a RT-Structure-Set dicom file
+    gdcm::File * mFile = &(reader->GetFile());
+    gdcm::MediaStorage ms;
+    ms.SetFromFile(*mFile);
+    if( ms != gdcm::MediaStorage::RTStructureSetStorage )
       {
-      gdcm::Attribute<0x3006,0x26> roiname;
-      roiname.SetFromDataSet( nestedds );
-      std::string name = roiname.GetValue();      // 0x3006,0x0026 = [ROI Name]
-      gdcm::Attribute<0x3006,0x0022> roinumber;
-      roinumber.SetFromDataSet( nestedds );
-      int nb = roinumber.GetValue();  // 0x3006,0x0022 = [ROI Number]
-
-      roi_names.push_back(make_pair(nb,name));
+        std::cerr << "Error. the file " << filename
+                  << " is not a Dicom Struct ? (must have a SOP Class UID [0008|0016] = 1.2.840.10008.5.1.4.1.1.481.3 ==> [RT Structure Set Storage])"
+                  << std::endl;
+        exit(0);
       }
+
+    gdcm::Attribute<0x8,0x60> modality;
+    modality.SetFromDataSet( ds );
+    if( modality.GetValue() != "RTSTRUCT" )
+      {
+        std::cerr << "Error. the file " << filename
+                  << " is not a Dicom Struct ? (must have 0x0008,0x0060 = RTSTRUCT [RT Structure Set Storage])"
+                  << std::endl;
+        exit(0);
+      }
+
+    gdcm::Attribute<0x20,0x10> studyid;
+    studyid.SetFromDataSet( ds );
+    DD(studyid.GetValue());
+
+    gdcm::Tag tssroisq(0x3006,0x0020);
+    // 0x3006,0x0020 = [ Structure Set ROI Sequence ]
+    bool b = ds.FindDataElement(tssroisq);
+    if (!b) { // FIXME
+      clitkExceptionMacro("Error: tag 0x3006,0x0020 [ Structure Set ROI Sequence ] not found");
     }
+  
+    const gdcm::DataElement &ssroisq = ds.GetDataElement( tssroisq );
+    DD("after ssroisq");
+    gdcm::SmartPointer<gdcm::SequenceOfItems> roi_seq = ssroisq.GetValueAsSQ();
+    assert(roi_seq); // FIXME error message
+  
+    DD(roi_seq->GetNumberOfItems());
+
+    for(unsigned int ridx = 0; ridx < roi_seq->GetNumberOfItems(); ++ridx)
+      {
+        DD(ridx);
+        gdcm::Item & item = roi_seq->GetItem( ridx + 1); // Item starts at 1
+
+        const gdcm::Item & sitem = roi_seq->GetItem(ridx+1); // Item start at #1   
+
+        const gdcm::DataSet& snestedds = sitem.GetNestedDataSet();
+        const gdcm::DataSet& nestedds = item.GetNestedDataSet();
+
+        DD(nestedds.IsEmpty());
+
+        if( snestedds.FindDataElement( gdcm::Tag(0x3006,0x22) ) )
+          {
+            DD("tag found");
+            // const gdcm::DataElement & a = nestedds.GetDataElement(gdcm::Tag(0x3006,0x26));
+            // DD(a.GetValue());
+
+            gdcm::Attribute<0x3006,0x26> roiname;
+            roiname.SetFromDataSet( snestedds );
+            std::string name = roiname.GetValue();      // 0x3006,0x0026 = [ROI Name]
+            DD(name);
+            gdcm::Attribute<0x3006,0x0022> roinumber;
+            roinumber.SetFromDataSet( snestedds );
+            int nb = roinumber.GetValue();  // 0x3006,0x0022 = [ROI Number]
+            DD(nb);
+          
+            roi_names.push_back(make_pair(nb,name));
+          }
+      }
+  
+    delete reader;
+
+  }
+
 #else
   gdcm::File reader;
   reader.SetFileName(filename.c_str());
@@ -132,7 +239,10 @@ std::vector<std::pair<int,std::string> > vvMeshReader::GetROINames()
 #endif
   return roi_names;
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 std::vector<vvMesh::Pointer> vvMeshReader::readSelectedContours()
 {
   std::vector<vvMesh::Pointer> result;
@@ -150,77 +260,77 @@ std::vector<vvMesh::Pointer> vvMeshReader::readSelectedContours()
   assert(rois->GetNumberOfItems() == roi_info->GetNumberOfItems());
 
   for (unsigned ridx = 0; ridx < rois->GetNumberOfItems(); ++ridx)
-  {
-    vtkSmartPointer<vtkAppendPolyData> append=vtkSmartPointer<vtkAppendPolyData>::New();
-    const gdcm::DataSet& ds_rois = rois->GetItem( ridx + 1).GetNestedDataSet();
-    const gdcm::DataSet& ds_roi_info = roi_info->GetItem( ridx + 1).GetNestedDataSet();
-
-    gdcm::Attribute<0x3006,0x84> roinumber;
-    roinumber.SetFromDataSet(ds_rois);
-    if (std::find(selected_contours.begin(), selected_contours.end(), roinumber.GetValue()) != selected_contours.end()) //Only read selected ROIs
     {
-      gdcm::Attribute<0x3006,0x2a> trgb;
-      trgb.SetFromDataSet(ds_rois);
-      vvMesh::Pointer current_roi=vvMesh::New();
-      current_roi->r = trgb[0] / 255.0;
-      current_roi->g = trgb[1] / 255.0;
-      current_roi->b = trgb[2] / 255.0;
+      vtkSmartPointer<vtkAppendPolyData> append=vtkSmartPointer<vtkAppendPolyData>::New();
+      const gdcm::DataSet& ds_rois = rois->GetItem( ridx + 1).GetNestedDataSet();
+      const gdcm::DataSet& ds_roi_info = roi_info->GetItem( ridx + 1).GetNestedDataSet();
 
-      gdcm::Attribute<0x3006,0x26> tstructure_name;
-      tstructure_name.SetFromDataSet(ds_roi_info);
-      current_roi->structure_name = tstructure_name.GetValue();
-
-      gdcm::SmartPointer<gdcm::SequenceOfItems> roi_seq = ds_rois.GetDataElement(gdcm::Tag(0x3006,0x40)).GetValueAsSQ();
-      double z0=-1; //Used to determine spacing between slices, assumed to be constant
-      for (unsigned j = 0; j < roi_seq->GetNumberOfItems(); ++j)
-      {
-        gdcm::Item & item_roi_seq = roi_seq->GetItem(j + 1); // Item starts at 1
-        const gdcm::DataSet& ds_roi_seq = item_roi_seq.GetNestedDataSet();
-        gdcm::Attribute<0x3006,0x42> tcontour_type;
-        tcontour_type.SetFromDataSet(ds_roi_seq);
-        std::string contour_type = tcontour_type.GetValue();
-        if (contour_type=="CLOSED_PLANAR ")
+      gdcm::Attribute<0x3006,0x84> roinumber;
+      roinumber.SetFromDataSet(ds_rois);
+      if (std::find(selected_contours.begin(), selected_contours.end(), roinumber.GetValue()) != selected_contours.end()) //Only read selected ROIs
         {
-          gdcm::Attribute<0x3006,0x46> tpoint_number;
-          tpoint_number.SetFromDataSet(ds_roi_seq);
-          const gdcm::DataElement & points_data = ds_roi_seq.GetDataElement(gdcm::Tag(0x3006,0x50));
-          gdcm::Attribute<0x3006,0x50> tpoints;
-          tpoints.SetFromDataElement(points_data);
-          assert(tpoints.GetNumberOfValues() == static_cast<unsigned int>(tpoint_number.GetValue()) * 3);
-          const double* points = tpoints.GetValues();
-          if (z0 == -1) //First contour
-            z0=points[2];
-          else
-            if (current_roi->GetSpacing()==-1 && points[2] != z0 )
-              current_roi->SetSpacing(points[2]-z0);
-          vtkPolyData * contour=vtkPolyData::New();
-          contour->Allocate(); //for cell structures
-          contour->SetPoints(vtkPoints::New());
-          vtkIdType ids[2];
-          for (unsigned idx = 0; idx < tpoints.GetNumberOfValues(); idx += 3)
-          {
-            contour->GetPoints()->InsertNextPoint(points[idx], points[idx+1], points[idx+2]);
-            ids[0] = idx / 3;
-            ids[1] = (ids[0] + 1) % tpoint_number.GetValue(); //0-1,1-2,...,n-1-0
-            contour->GetLines()->InsertNextCell(2, ids);
-          }
-          append->AddInput(contour);
+          gdcm::Attribute<0x3006,0x2a> trgb;
+          trgb.SetFromDataSet(ds_rois);
+          vvMesh::Pointer current_roi=vvMesh::New();
+          current_roi->r = trgb[0] / 255.0;
+          current_roi->g = trgb[1] / 255.0;
+          current_roi->b = trgb[2] / 255.0;
+
+          gdcm::Attribute<0x3006,0x26> tstructure_name;
+          tstructure_name.SetFromDataSet(ds_roi_info);
+          current_roi->structure_name = tstructure_name.GetValue();
+
+          gdcm::SmartPointer<gdcm::SequenceOfItems> roi_seq = ds_rois.GetDataElement(gdcm::Tag(0x3006,0x40)).GetValueAsSQ();
+          double z0=-1; //Used to determine spacing between slices, assumed to be constant
+          for (unsigned j = 0; j < roi_seq->GetNumberOfItems(); ++j)
+            {
+              gdcm::Item & item_roi_seq = roi_seq->GetItem(j + 1); // Item starts at 1
+              const gdcm::DataSet& ds_roi_seq = item_roi_seq.GetNestedDataSet();
+              gdcm::Attribute<0x3006,0x42> tcontour_type;
+              tcontour_type.SetFromDataSet(ds_roi_seq);
+              std::string contour_type = tcontour_type.GetValue();
+              if (contour_type=="CLOSED_PLANAR ")
+                {
+                  gdcm::Attribute<0x3006,0x46> tpoint_number;
+                  tpoint_number.SetFromDataSet(ds_roi_seq);
+                  const gdcm::DataElement & points_data = ds_roi_seq.GetDataElement(gdcm::Tag(0x3006,0x50));
+                  gdcm::Attribute<0x3006,0x50> tpoints;
+                  tpoints.SetFromDataElement(points_data);
+                  assert(tpoints.GetNumberOfValues() == static_cast<unsigned int>(tpoint_number.GetValue()) * 3);
+                  const double* points = tpoints.GetValues();
+                  if (z0 == -1) //First contour
+                    z0=points[2];
+                  else
+                    if (current_roi->GetSpacing()==-1 && points[2] != z0 )
+                      current_roi->SetSpacing(points[2]-z0);
+                  vtkPolyData * contour=vtkPolyData::New();
+                  contour->Allocate(); //for cell structures
+                  contour->SetPoints(vtkPoints::New());
+                  vtkIdType ids[2];
+                  for (unsigned idx = 0; idx < tpoints.GetNumberOfValues(); idx += 3)
+                    {
+                      contour->GetPoints()->InsertNextPoint(points[idx], points[idx+1], points[idx+2]);
+                      ids[0] = idx / 3;
+                      ids[1] = (ids[0] + 1) % tpoint_number.GetValue(); //0-1,1-2,...,n-1-0
+                      contour->GetLines()->InsertNextCell(2, ids);
+                    }
+                  append->AddInput(contour);
+                }
+              else
+                if (contour_type == "POINT ")
+                  ; // silently ignore POINT type since we don't need them at the moment
+                else
+                  std::cerr << "Warning: contour type " << contour_type << " not handled!" << std::endl;
+            }
+          append->Update();
+          current_roi->AddMesh(append->GetOutput());
+          result.push_back(current_roi);
         }
-        else
-          if (contour_type == "POINT ")
-          ; // silently ignore POINT type since we don't need them at the moment
-          else
-            std::cerr << "Warning: contour type " << contour_type << " not handled!" << std::endl;
-      }
-      append->Update();
-      current_roi->AddMesh(append->GetOutput());
-      result.push_back(current_roi);
+      else
+        {
+          //std::cerr << "Warning: ignoring ROI #" << roi_number << std::endl;
+        }
     }
-    else
-    {
-    //std::cerr << "Warning: ignoring ROI #" << roi_number << std::endl;
-    }
-  }
 #else
   gdcm::File reader;
   reader.SetFileName(filename.c_str());
