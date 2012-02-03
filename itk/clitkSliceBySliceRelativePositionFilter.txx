@@ -78,7 +78,7 @@ clitk::SliceBySliceRelativePositionFilter<ImageType>::
 PrintOptions(std::ostream & os) 
 {
   os << "Slice direction = " << this->GetDirection() << std::endl
-     << "BG value        = " << this->GetBackgroundValue() << std::endl;
+     << "BG value        = " << (int)this->GetBackgroundValue() << std::endl;
   for(int i=0; i<this->GetNumberOfAngles(); i++) {
     os << "Orientation     = " << this->GetOrientationTypeString()[i] << std::endl;
     os << "Angles     = " << clitk::rad2deg(this->GetAngle1InRad(i)) 
