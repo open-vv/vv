@@ -188,15 +188,6 @@ ENDIF(CMAKE_COMPILER_IS_GNUCC)
 ENDIF(NOT APPLE)
 #=========================================================
 
-
-#=========================================================
-# for ITK4 + external GDCM (RT Struct)
-IF (CLITK_USE_SYSTEM_GDCM)
-  FIND_PACKAGE(GDCM REQUIRED)
-  INCLUDE(${GDCM_USE_FILE})
-ENDIF()
-
-
 #=========================================================
 INCLUDE_DIRECTORIES(
   ../common
@@ -241,9 +232,7 @@ ELSE(WIN32)
   ADD_EXECUTABLE(vv vv.cxx)
 ENDIF(WIN32)
 
-#TARGET_LINK_LIBRARIES(vv vvLib)
 TARGET_LINK_LIBRARIES(vv vvLib)
-
 
 #=========================================================
 # Install options (also used by CPack)
