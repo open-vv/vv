@@ -17,12 +17,6 @@
 ===========================================================================**/
 #ifndef CLITKIMAGEARITHM_CXX
 #define CLITKIMAGEARITHM_CXX
-/**
-   -------------------------------------------------
-   * @file   clitkImageArithm.cxx
-   * @author David Sarrut <David.Sarrut@creatis.insa-lyon.fr>
-   * @date   23 Feb 2008 08:37:53
-   -------------------------------------------------*/
 
 // clitk include
 #include "clitkImageArithm_ggo.h"
