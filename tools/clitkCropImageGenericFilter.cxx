@@ -18,17 +18,7 @@
 #ifndef clitkCropImageGenericFilter_cxx
 #define clitkCropImageGenericFilter_cxx
 
-/* =================================================
- * @file   clitkCropImageGenericFilter.cxx
- * @author 
- * @date   
- * 
- * @brief 
- * 
- ===================================================*/
-
 #include "clitkCropImageGenericFilter.h"
-
 
 //-----------------------------------------------------------
 // Constructor
