@@ -173,19 +173,22 @@ GenerateOutputInformation() {
   for(uint i=0; i<mArgsInfoList.size(); i++) {
 
     // clitk::PrintMemory(true, "Start"); 
-    std::string text = "["+s+"] limits ";
+    // remove _S in station name
+    std::string sname = s;
+    clitk::findAndReplace<std::string>(sname, "_S", " ");
+    std::string text = "["+sname+"] ";
     if (mArgsInfoList[i].orientation_given) text += std::string(mArgsInfoList[i].orientation_arg[0])+" ";
     else text = text+"("+toString(mArgsInfoList[i].angle1_arg)+" "+
            toString(mArgsInfoList[i].angle2_arg)+" "+
            (mArgsInfoList[i].inverse_flag?"true":"false")+") ";
     text = text+mArgsInfoList[i].object_arg+" "+toString(mArgsInfoList[i].threshold_arg);
     if (mArgsInfoList[i].sliceBySlice_flag) {
-      text += " slice by slice";
+      text += " SbS";
     }
     else text += " 3D";
-    text += " spacing=" + toString(mArgsInfoList[i].spacing_arg);
+    text += " sp=" + toString(mArgsInfoList[i].spacing_arg)+" ";
 
-    StartNewStep(text);  
+    StartNewStep(text, false); // no endl
     typename RelPosFilterType::Pointer relPosFilter;
 
     // Is it slice by slice or 3D ?
@@ -227,9 +230,8 @@ GenerateOutputInformation() {
       filter->SetInput(0, m_working_input);
       filter->SetInput(1, m_reference);
       filter->Update();
-      std::cout << std::endl;
     }
-    
+    std::cout << std::endl;    
   }
 }
 //--------------------------------------------------------------------
