@@ -214,7 +214,7 @@ namespace clitk
       typename itk::Matrix<double, Dimension+1, Dimension+1> invMatrix( matrix.GetInverse() );
       typename itk::Matrix<double, Dimension, Dimension> invRotMatrix( clitk::GetRotationalPartMatrix(invMatrix) );
       typename itk::Vector<double,Dimension> invTrans =  clitk::GetTranslationPartMatrix(invMatrix);
-
+      
       // Display warning
       if (m_ArgsInfo.spacing_given)
         std::cout << "Warning --spacing ignored (because --transform_grid_flag)" << std::endl;
@@ -283,6 +283,13 @@ namespace clitk
       resampler->SetOutputSpacing( outputSpacing );
       resampler->SetOutputOrigin(  outputOrigin );
 
+    }
+
+    if (m_ArgsInfo.spacinglike_given) {
+      typename InputReaderType::Pointer likeReader=InputReaderType::New();
+      likeReader->SetFileName(m_ArgsInfo.spacinglike_arg);
+      likeReader->Update(); 
+      resampler->SetOutputSpacing( likeReader->GetOutput()->GetSpacing() );
     }
 
     if (m_ArgsInfo.verbose_flag) {

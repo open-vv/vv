@@ -15,6 +15,7 @@ option "transform_grid" -       "Apply affine transform to input grid for output
 section "Options"
 option "size"		-	"New output size if different from input"  	int 	no 	multiple
 option "spacing"	-	"New output spacing if different from input" 	double 	no 	multiple
+option "spacinglike"	-	"New output spacing like this image" 	        string  no
 option "origin"		-	"New output origin if different from input" 	double 	no 	multiple
 option "matrix"		m	"Affine matrix (homogene) filename"		string  no
 option "elastix"	e	"Read EulerTransform from elastix output file"	string  no
