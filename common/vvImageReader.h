@@ -85,6 +85,8 @@ protected:
   //====================================================================
   template<class InputPixelType, unsigned int VImageDimension>
   void UpdateWithDimAndInputPixelType();
+  template<class InputPixelType, unsigned int VImageDimension>
+  void UpdateWithDimAndInputVectorPixelType();
   ///Input dimension and pixel type
   int mDim;
   std::string mInputPixelType;
