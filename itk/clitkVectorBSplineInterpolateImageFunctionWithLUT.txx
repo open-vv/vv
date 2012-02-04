@@ -258,7 +258,7 @@ EvaluateAtContinuousIndex(const ContinuousIndexType & x) const
       indx = (long)vcl_floor(x[l]) - mSplineOrders[l] / 2 ; //this->m_SplineOrder / 2;
       evaluateIndex[l] = indx;
     } else { // Use this index calculation for even splineOrder
-      if (mSplineOrders[l] == 0) evaluateIndex[l] = itk::Math::Round<long,ContinuousIndexType::ValueType>(x[l]);
+      if (mSplineOrders[l] == 0) evaluateIndex[l] = itk::Math::Round<long, typename ContinuousIndexType::ValueType>(x[l]);
       else {
         indx = (long)vcl_floor((x[l]+ 0.5)) - mSplineOrders[l] / 2; //this->m_SplineOrder / 2;
         evaluateIndex[l] = indx;
@@ -358,7 +358,7 @@ EvaluateWeightsAtContinuousIndex(const ContinuousIndexType&  x,  const TCoeffici
       indx = (long)vcl_floor(x[l]) - mSplineOrders[l] / 2 ; //this->m_SplineOrder / 2;
       evaluateIndex[l] = indx;
     } else { // Use this index calculation for even splineOrder
-      if (mSplineOrders[l] == 0) evaluateIndex[l] = itk::Math::Round<long,ContinuousIndexType::ValueType>(x[l]);
+      if (mSplineOrders[l] == 0) evaluateIndex[l] = itk::Math::Round<long, typename ContinuousIndexType::ValueType>(x[l]);
       else {
         indx = (long)vcl_floor((x[l]+ 0.5)) - mSplineOrders[l] / 2; //this->m_SplineOrder / 2;
         evaluateIndex[l] = indx;
