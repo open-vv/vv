@@ -8,7 +8,7 @@ option "verbose"   	v   	"Verbose"			  flag		off
 
 
 section "IO"
-option "input"		i	"Input coefficient image filename"		  string  	yes
+option "input"		i	"Input BLUT-coefficient image filename"		  string  	yes
 option "output"    	o   	"Output image filename"		  string 	yes
 
 
@@ -20,6 +20,7 @@ option "spacing"		-	"Spacing for the output image"			double		multiple no	default
 
 
 section "Transform"
-option "order"    	-   	"Spline order"	 		int	 	multiple 	no 
-option "mask"		-	"Mask image filename"		string		no 
-option "shape"		-	"Transform shape: 0=egg, 1=diamond"		int		no 		default="0"
+option "type" t "Type (0: itk bspline; 1: BLUT)"      int   no  default="0"
+option "order"    	-   	"1: Spline order"	 		int	 	multiple 	no 
+option "mask"		-	"1: Mask image filename"		string		no 
+option "shape"		-	"1: Transform shape: 0=egg, 1=diamond"		int		no 		default="0"

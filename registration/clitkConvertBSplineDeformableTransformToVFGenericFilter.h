@@ -29,22 +29,11 @@
 
 
 // clitk include
-#include "clitkIO.h"
 #include "clitkCommon.h"
-#include "clitkImageCommon.h"
-#include "clitkConvertBSplineDeformableTransformToVF_ggo.h"
-#include "clitkBSplineDeformableTransform.h"
-#include "clitkShapedBLUTSpatioTemporalDeformableTransform.h"
-#include "clitkTransformToDeformationFieldSource.h"
+// #include "clitkConvertBSplineDeformableTransformToVF_ggo.h"
 
 //itk include
 #include "itkLightObject.h"
-#include "itkImageMaskSpatialObject.h"
-#if ITK_VERSION_MAJOR >= 4
-  #include "itkTransformToDisplacementFieldSource.h"
-#else
-  #include "itkTransformToDeformationFieldSource.h"
-#endif
 
 
 namespace clitk 
