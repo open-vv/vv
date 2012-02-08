@@ -1279,20 +1279,29 @@ QString vvMainWindow::GetSizeInBytes(unsigned long size)
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-QString vvMainWindow::Get4x4MatrixDoubleAsString(vtkSmartPointer<vtkMatrix4x4> matrix)
+QString vvMainWindow::Get4x4MatrixDoubleAsString(vtkSmartPointer<vtkMatrix4x4> matrix, const int precision)
 {
   std::ostringstream strmatrix;
 
+  // Figure out the number of digits of the integer part of the largest absolute value
+  // for each column
+  unsigned width[4];
+  for (unsigned int j = 0; j < 4; j++){
+    double absmax = 0.;
+    for (unsigned int i = 0; i < 4; i++)
+      absmax = std::max(absmax, vnl_math_abs(matrix->GetElement(i, j)));
+    unsigned ndigits = (unsigned)std::max(0.,std::log10(absmax))+1;
+    width[j] = precision+ndigits+3;
+  }
+
+  // Output with correct width, aligned to the right
   for (unsigned int i = 0; i < 4; i++) {
     for (unsigned int j = 0; j < 4; j++) {
-      strmatrix.flags(ios::showpos);
-      strmatrix.width(10);
-      strmatrix.precision(3);
       strmatrix.setf(ios::fixed,ios::floatfield);
+      strmatrix.precision(precision);
       strmatrix.fill(' ');
-      strmatrix << std::left << matrix->GetElement(i, j);
-      //strmatrix.width(10);
-      strmatrix << " ";
+      strmatrix.width(width[j]);
+      strmatrix << std::right << matrix->GetElement(i, j);
     }
     strmatrix << std::endl;
   }
