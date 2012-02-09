@@ -28,7 +28,7 @@
  ===================================================*/
 
 #include "itkVectorResampleImageFilter.h"
-#include "clitkCoeffsToDVF.h"
+#include "clitkConvertBLUTCoeffsToVFFilter.h"
 
 namespace clitk
 {
@@ -90,7 +90,13 @@ WarpImageGenericFilter::UpdateWithDimAndPixelType()
   
   typename DeformationFieldType::Pointer deformationField;
   if (m_ArgsInfo.coeff_given) {
-    deformationField = BLUTCoeffsToDVF<DeformationFieldType>(m_ArgsInfo.coeff_arg, m_InputFileName, m_Verbose);
+    typedef ConvertBLUTCoeffsToVFFilter<DeformationFieldType> FilterType;
+    typename FilterType::Pointer filter = FilterType::New();
+    filter->SetInputFileName(m_ArgsInfo.coeff_arg);
+    filter->SetLikeFileName(m_InputFileName);
+    filter->SetVerbose(m_Verbose);
+    filter->Update();
+    deformationField = filter->GetOutput();
   }
   else {
     //Read the deformation field

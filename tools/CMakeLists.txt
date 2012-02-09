@@ -360,11 +360,6 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkCatImage clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkCatImage)
 
-  WRAP_GGO(clitkCoeffsToDVF_GGO_C clitkCoeffsToDVF.ggo)
-  ADD_EXECUTABLE(clitkCoeffsToDVF clitkCoeffsToDVF.cxx ${clitkCoeffsToDVF_GGO_C})
-  TARGET_LINK_LIBRARIES(clitkCoeffsToDVF clitkCommon ${ITK_LIBRARIES})
-  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkCoeffsToDVF)
-
   IF(CLITK_EXPERIMENTAL)
     WRAP_GGO(clitkBinaryImageToMesh_GGO_C clitkBinaryImageToMesh.ggo)
     ADD_EXECUTABLE(clitkBinaryImageToMesh clitkBinaryImageToMesh.cxx ${clitkBinaryImageToMesh_GGO_C})

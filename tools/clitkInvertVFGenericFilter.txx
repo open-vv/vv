@@ -19,7 +19,7 @@
 #define clitkInvertVFGenericFilter_txx
 
 #include "itkVectorResampleImageFilter.h"
-#include "clitkCoeffsToDVF.h"
+#include "clitkConvertBLUTCoeffsToVFFilter.h"
 
 /* =================================================
  * @file   clitkInvertVFGenericFilter.txx
@@ -177,7 +177,13 @@ InvertVFGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     typedef clitk::InvertVFFilter<InputImageType,OutputImageType> FilterType;
     typename FilterType::Pointer filter =FilterType::New();
     if (m_ArgsInfo.like_given) {
-      filter->SetInput(BLUTCoeffsToDVF<OutputImageType>(m_InputFileName, m_ArgsInfo.like_arg));
+      typedef ConvertBLUTCoeffsToVFFilter<InputImageType> VFFilterType;
+      typename VFFilterType::Pointer vf_filter = VFFilterType::New();
+      vf_filter->SetInputFileName(m_InputFileName);
+      vf_filter->SetLikeFileName(m_ArgsInfo.like_arg);
+      vf_filter->SetVerbose(m_Verbose);
+      vf_filter->Update();
+      filter->SetInput(vf_filter->GetOutput());
     }
 
     filter->SetVerbose(m_Verbose);

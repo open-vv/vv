@@ -19,7 +19,7 @@
 #define __clitkComposeVFGenericFilter_txx
 #include "clitkComposeVFGenericFilter.h"
 
-#include "clitkCoeffsToDVF.h"
+#include "clitkConvertBLUTCoeffsToVFFilter.h"
 
 namespace clitk
 {
@@ -47,8 +47,17 @@ namespace clitk
 
     //Define the image type
     if (m_Type == 1) {
-      input1 = BLUTCoeffsToDVF<ImageType>(m_InputName1, m_LikeImage, m_Verbose);
-      input2 = BLUTCoeffsToDVF<ImageType>(m_InputName2, m_LikeImage, m_Verbose);
+      typedef ConvertBLUTCoeffsToVFFilter<ImageType> VFFilterType;
+      typename VFFilterType::Pointer vf_filter = VFFilterType::New();
+      vf_filter->SetInputFileName(m_InputName1);
+      vf_filter->SetLikeFileName(m_LikeImage);
+      vf_filter->SetVerbose(m_Verbose);
+      vf_filter->Update();
+      input1 = vf_filter->GetOutput();
+
+      vf_filter->SetInputFileName(m_InputName2);
+      vf_filter->Update();
+      input2 = vf_filter->GetOutput();
     }
     else {
       //Read the input1

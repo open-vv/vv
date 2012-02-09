@@ -30,7 +30,7 @@
 
 // clitk include
 #include "clitkCommon.h"
-// #include "clitkConvertBSplineDeformableTransformToVF_ggo.h"
+#include "clitkConvertBSplineDeformableTransformToVF_ggo.h"
 
 //itk include
 #include "itkLightObject.h"
