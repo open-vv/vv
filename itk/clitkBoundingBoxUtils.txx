@@ -67,6 +67,24 @@ namespace clitk {
 
   ///--------------------------------------------------------------------
   template<int Dimension>
+  void ComputeBBIntersection(typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbo, 
+                             typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbi1, 
+                             typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbi2, 
+                             int dimension) {
+    typedef itk::BoundingBox<unsigned long, Dimension> BBType;
+    typedef typename BBType::PointType PointType;
+    PointType lastPoint;
+    PointType firstPoint;
+    firstPoint[dimension] = std::max(bbi1->GetMinimum()[dimension], bbi2->GetMinimum()[dimension]);
+    lastPoint[dimension] = std::min(bbi1->GetMaximum()[dimension], bbi2->GetMaximum()[dimension]);
+    bbo->SetMaximum(lastPoint);
+    bbo->SetMinimum(firstPoint);
+  }
+  //--------------------------------------------------------------------
+
+
+  //--------------------------------------------------------------------
+  template<int Dimension>
   void ComputeBBUnion(typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbo, 
                       typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbi1, 
                       typename itk::BoundingBox<unsigned long, Dimension>::Pointer bbi2) {

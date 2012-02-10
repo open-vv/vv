@@ -127,9 +127,13 @@ GenerateOutputInformation()
     PrintOptions();
   }
 
+  //  if (this->GetFuzzyMapOnlyFlag()) this->ComputeFuzzyMapFlagOn();
+
   // Get input pointer
   input = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
   object = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(1));
+  m_working_object = object;
+  m_working_input = input;
 
   //--------------------------------------------------------------------
   // Resample object to the same spacing than input
@@ -138,36 +142,60 @@ GenerateOutputInformation()
     m_working_object = clitk::ResampleImageSpacing<ImageType>(object, input->GetSpacing());
     this->template StopCurrentStep<ImageType>(m_working_object);
   }
-  else {
-    m_working_object = object;
+  
+  //--------------------------------------------------------------------
+  // Resize image according to common area (except in Z)
+  if (!clitk::HaveSameSizeAndSpacing<ImageType, ImageType>(m_working_object, input)) {
+    this->StartNewStep("Resize images (union in XY and like input in Z)");
+    
+    /* OLD STUFF
+    this->StartNewStep("Pad object to the same size than input");
+    m_working_object = clitk::ResizeImageLike<ImageType>(m_working_object, 
+    input, 
+    this->GetObjectBackgroundValue());
+    this->template StopCurrentStep<ImageType>(m_working_object);
+    */
+
+    // Compute union of bounding boxes in X and Y
+    static const unsigned int dim = ImageType::ImageDimension;
+    typedef itk::BoundingBox<unsigned long, dim> BBType;
+    typename BBType::Pointer bb1 = BBType::New();
+    ComputeBBFromImageRegion<ImageType>(m_working_object, m_working_object->GetLargestPossibleRegion(), bb1);
+    typename BBType::Pointer bb2 = BBType::New();
+    ComputeBBFromImageRegion<ImageType>(input, input->GetLargestPossibleRegion(), bb2);
+    typename BBType::Pointer bbo = BBType::New();
+    ComputeBBUnion<dim>(bbo, bb1, bb2);
+
+    //We set Z BB like input
+    typename ImageType::PointType maxs = bbo->GetMaximum();
+    typename ImageType::PointType mins = bbo->GetMinimum();
+    maxs[2] = bb2->GetMaximum()[2];
+    mins[2] = bb2->GetMinimum()[2];
+    bbo->SetMaximum(maxs);
+    bbo->SetMinimum(mins);
+
+    // Crop
+    m_working_input = clitk::ResizeImageLike<ImageType>(input, bbo, this->GetBackgroundValue());    
+    m_working_object = clitk::ResizeImageLike<ImageType>(m_working_object, 
+                                                         m_working_input, 
+                                                         this->GetObjectBackgroundValue());
+    this->template StopCurrentStep<ImageType>(m_working_input);  
   }
   
   //--------------------------------------------------------------------
-  // Pad object to the same size than input
-  if (!clitk::HaveSameSizeAndSpacing<ImageType, ImageType>(m_working_object, input)) {
-    this->StartNewStep("Pad object to the same size than input");
-    m_working_object = clitk::ResizeImageLike<ImageType>(m_working_object, 
-                                                         input, 
-                                                         this->GetObjectBackgroundValue());
-    this->template StopCurrentStep<ImageType>(m_working_object);
-  }
-  else {
-  }
-
-  /*
+  /* Steps : 
     - extract vector of slices in input, in object
     - slice by slice rel position
     - joint result
     - post process
   */
 
-
   //--------------------------------------------------------------------
   // Extract input slices
   this->StartNewStep("Extract input slices");
   typedef clitk::ExtractSliceFilter<ImageType> ExtractSliceFilterType;
   typename ExtractSliceFilterType::Pointer extractSliceFilter = ExtractSliceFilterType::New();
-  extractSliceFilter->SetInput(input);
+  extractSliceFilter->SetInput(m_working_input);
   extractSliceFilter->SetDirection(GetDirection());
   extractSliceFilter->Update();
   typedef typename ExtractSliceFilterType::SliceType SliceType;
@@ -179,7 +207,7 @@ GenerateOutputInformation()
   // Extract object slices
   this->StartNewStep("Extract object slices");
   extractSliceFilter = ExtractSliceFilterType::New();
-  extractSliceFilter->SetInput(m_working_object);//object);
+  extractSliceFilter->SetInput(m_working_object);
   extractSliceFilter->SetDirection(GetDirection());
   extractSliceFilter->Update();
   std::vector<typename SliceType::Pointer> mObjectSlices;
@@ -200,7 +228,7 @@ GenerateOutputInformation()
     int nb=0;
     mObjectSlices[i] = LabelizeAndCountNumberOfObjects<SliceType>(mObjectSlices[i], 0, true, 1, nb);
 
-    // If no object and empty slices :
+    // If no object and empty slices and if we need the full fuzzy map, create a dummy one.
     if ((nb==0) && (this->GetFuzzyMapOnlyFlag())) {
       typename FloatSliceType::Pointer one = FloatSliceType::New();
       one->CopyInformation(mObjectSlices[0]);
@@ -208,10 +236,10 @@ GenerateOutputInformation()
       one->Allocate();
       one->FillBuffer(2.0);
       mFuzzyMapSlices[i] = one;
-    }
+    } // End nb==0 && GetComputeFuzzyMapFlag
     else {
       if ((!GetIgnoreEmptySliceObjectFlag()) || (nb!=0)) {
-
+        
         // Select or not a single CCL ?
         if (GetUseTheLargestObjectCCLFlag()) {
           mObjectSlices[i] = KeepLabels<SliceType>(mObjectSlices[i], 0, 1, 1, 1, true);
@@ -256,20 +284,20 @@ GenerateOutputInformation()
 
         relPosFilter->VerboseStepFlagOff();
         relPosFilter->WriteStepFlagOff();
+        // relPosFilter->VerboseMemoryFlagOn();
+        relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId()+"-"+toString(i));
+        
         relPosFilter->SetBackgroundValue(this->GetBackgroundValue());
         relPosFilter->SetInput(mInputSlices[i]); 
         relPosFilter->SetInputObject(mObjectSlices[i]); 
         relPosFilter->SetRemoveObjectFlag(this->GetRemoveObjectFlag());
+        
         // This flag (InverseOrientation) *must* be set before
         // AddOrientation because AddOrientation can change it.
         relPosFilter->SetInverseOrientationFlag(this->GetInverseOrientationFlag());
         for(int j=0; j<this->GetNumberOfAngles(); j++) {
-          //          relPosFilter->AddOrientationTypeString(this->GetOrientationTypeString(j));
           relPosFilter->AddAnglesInRad(this->GetAngle1InRad(j), this->GetAngle2InRad(j));
-          // DD(this->GetOrientationTypeString(j));
         }
-        // DD(this->GetInverseOrientationFlag());
-        //relPosFilter->SetOrientationType(this->GetOrientationType());
         relPosFilter->SetIntermediateSpacing(this->GetIntermediateSpacing());
         relPosFilter->SetIntermediateSpacingFlag(this->GetIntermediateSpacingFlag());
         relPosFilter->SetFuzzyThreshold(this->GetFuzzyThreshold());
@@ -278,6 +306,7 @@ GenerateOutputInformation()
 
         // should we stop after fuzzy map ?
         relPosFilter->SetFuzzyMapOnlyFlag(this->GetFuzzyMapOnlyFlag());
+        //        relPosFilter->SetComputeFuzzyMapFlag(this->GetComputeFuzzyMapFlag());
       
         // Go !
         relPosFilter->Update();
@@ -287,17 +316,19 @@ GenerateOutputInformation()
           mFuzzyMapSlices[i] = relPosFilter->GetFuzzyMap();
           // writeImage<FloatSliceType>(mFuzzyMapSlices[i], "slice_"+toString(i)+".mha");
         }
-        else  {
+
+        // Set input slices
+        if (!this->GetFuzzyMapOnlyFlag())  {
           mInputSlices[i] = relPosFilter->GetOutput();
           // Select main CC if needed
           if (GetUniqueConnectedComponentBySliceFlag()) {
             mInputSlices[i] = Labelize<SliceType>(mInputSlices[i], 0, true, 1);
             mInputSlices[i] = KeepLabels<SliceType>(mInputSlices[i], 0, 1, 1, 1, true);
-          }
-        
+          }          
         }
 
       }
+
       /*
       // Select unique CC according to the most in a given direction
       if (GetUniqueConnectedComponentBySliceAccordingToADirection()) {
@@ -307,19 +338,21 @@ GenerateOutputInformation()
       ComputeCentroids
       }
       */
-    }
-  }
+
+    } // End nb!=0 || GetComputeFuzzyMapFlagOFF
+
+  } // end for i mInputSlices
+
+  // Join the slices
+  m_working_input = clitk::JoinSlices<ImageType>(mInputSlices, m_working_input, GetDirection());
+  this->template StopCurrentStep<ImageType>(m_working_input);
 
   // Join the fuzzy map if needed
   if (this->GetFuzzyMapOnlyFlag()) {
-    this->m_FuzzyMap = clitk::JoinSlices<FloatImageType>(mFuzzyMapSlices, input, GetDirection());
+    this->m_FuzzyMap = clitk::JoinSlices<FloatImageType>(mFuzzyMapSlices, m_working_input, GetDirection());
     this->template StopCurrentStep<FloatImageType>(this->m_FuzzyMap);
-    return;
+    if (this->GetFuzzyMapOnlyFlag()) return;
   }
-
-  // Join the slices
-  m_working_input = clitk::JoinSlices<ImageType>(mInputSlices, input, GetDirection());
-  this->template StopCurrentStep<ImageType>(m_working_input);
 
   //--------------------------------------------------------------------
   // Step 7: autocrop

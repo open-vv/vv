@@ -37,8 +37,8 @@ class vvROIActor: public QObject {
   void SetROI(clitk::DicomRT_ROI * r);
   clitk::DicomRT_ROI * GetROI() { return mROI; }
   void SetSlicerManager(vvSlicerManager * s);
-  void Update();
-  void Initialize(bool IsVisible=true);
+  void Update(bool force=false);
+  void Initialize(double d=1.0, bool IsVisible=true);
   void SetVisible(bool b);
   void SetContourVisible(bool b);
   bool IsVisible();
@@ -51,9 +51,11 @@ class vvROIActor: public QObject {
   void SetContourColor(double r, double v, double b);
   std::vector<double> & GetContourColor();
   void SetBGMode(bool b) { m_modeBG = b; }
+  void SetDepth(double d);
+  double GetDepth() { return mDepth; }
 
 public slots:
-  void UpdateSlice(int slicer, int slices);
+  void UpdateSlice(int slicer, int slices, bool force=false);
   void UpdateColor();
   void UpdateImage();
 
@@ -70,6 +72,7 @@ public slots:
   int mContourWidth;
   std::vector<double> mContourColor;
   bool m_modeBG;
+  double mDepth;
 
 }; // end class vvROIActor
 //------------------------------------------------------------------------------

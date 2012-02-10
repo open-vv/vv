@@ -1,0 +1,8 @@
+# file DicomRTPlan2Gate
+package "clitk"
+version "1.0"
+purpose "Convert DicomRTPlan to Gate compatible file"
+option "config"         -    "config file"                     string  no
+option "input"          i    "Input dicom file name"           string  yes
+option "output"         o    "Output text file name"           string  yes
+option "verbose"        v    "verbose"                         flag    off

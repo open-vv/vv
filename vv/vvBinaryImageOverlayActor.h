@@ -41,9 +41,10 @@ class vvBinaryImageOverlayActor : public itk::LightObject
   void SetColor(double r, double g, double b);
   void SetOpacity(double d);
   void SetImage(vvImage * image, double bg, bool modeBG=true);
+  void SetDepth(double d) { mDepth = d; }
   void Initialize(bool IsVisible=true);
   void UpdateColor();
-  void UpdateSlice(int slicer, int slice);
+  void UpdateSlice(int slicer, int slice, bool force=false);
   void HideActors();
   void ShowActors();
 
@@ -60,6 +61,7 @@ class vvBinaryImageOverlayActor : public itk::LightObject
   double mForegroundValue;
   bool m_modeBG;
   vtkSmartPointer<vtkLookupTable> mColorLUT;
+  double mDepth;
 
   std::vector<vtkSmartPointer<vtkImageMapToRGBA> > mMapperList;
   std::vector<vtkSmartPointer<vtkImageActor> > mImageActorList;

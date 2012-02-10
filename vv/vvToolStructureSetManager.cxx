@@ -159,6 +159,7 @@ void vvToolStructureSetManager::InputIsSelected(vvSlicerManager *m)
   connect(mContourCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(VisibleContourROIToggled(bool)));  
   connect(mChangeContourColorButton, SIGNAL(clicked()), this, SLOT(ChangeContourColor()));
   connect(mContourWidthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeContourWidth(int)));
+  connect(mDepthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeDepth(int)));
   connect(mReloadButton, SIGNAL(clicked()), this, SLOT(ReloadCurrentROI()));
   connect(mCheckBoxShowAll, SIGNAL(stateChanged(int)), this, SLOT(AllVisibleROIToggled(int)));
   connect(mContourCheckBoxShowAll, SIGNAL(toggled(bool)), this, SLOT(AllVisibleContourROIToggled(bool)));
@@ -188,6 +189,8 @@ void vvToolStructureSetManager::AddRoiInTreeWidget(clitk::DicomRT_ROI * roi, QTr
   QTreeWidgetItem * w = mTreeWidgetList.back().data();
   w->setText(0, QString("%1").arg(roi->GetROINumber()));
   w->setText(1, QString("%1").arg(roi->GetName().c_str()));
+  vvROIActor * actor = mStructureSetActorsList[0]->GetROIActor(roi->GetROINumber());  
+  w->setText(3, QString("%1").arg(actor->GetDepth()));  
   QBrush brush(QColor(roi->GetDisplayColor()[0]*255, roi->GetDisplayColor()[1]*255, roi->GetDisplayColor()[2]*255));
   brush.setStyle(Qt::SolidPattern);
   w->setBackground(2, brush);
@@ -441,24 +444,40 @@ void vvToolStructureSetManager::SelectedItemChangedInTree() {
   mCurrentROI = roi;
   mCurrentROIActor = actor;
 
+  // Warning -> avoid unuseful Render here by disconnect slider 
   // Update GUI
+  disconnect(mTree, SIGNAL(itemSelectionChanged()), this, SLOT(SelectedItemChangedInTree()));
+  disconnect(mCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(VisibleROIToggled(bool)));
+  disconnect(mOpacitySlider, SIGNAL(valueChanged(int)), this, SLOT(OpacityChanged(int)));
+  disconnect(mChangeColorButton, SIGNAL(clicked()), this, SLOT(ChangeColor()));
+  disconnect(mContourCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(VisibleContourROIToggled(bool)));  
+  disconnect(mChangeContourColorButton, SIGNAL(clicked()), this, SLOT(ChangeContourColor()));
+  disconnect(mContourWidthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeContourWidth(int)));
+  disconnect(mDepthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeDepth(int)));
+
   mGroupBoxROI->setEnabled(true);
   mROInameLabel->setText(roi->GetName().c_str());
   mCheckBoxShow->setChecked(actor->IsVisible());
   mContourCheckBoxShow->setChecked(actor->IsContourVisible());
   mContourWidthSpinBox->setValue(actor->GetContourWidth());
-  
-  // Warning -> avoir unuseful Render here by disconnect slider 
-  disconnect(mOpacitySlider, SIGNAL(valueChanged(int)), 
-	     this, SLOT(OpacityChanged(int)));
+  mDepthSpinBox->setValue(actor->GetDepth());
+  w->setText(3, QString("%1").arg(actor->GetDepth()));
   mOpacitySlider->setValue((int)lrint(actor->GetOpacity()*100));
   mOpacitySpinBox->setValue((int)lrint(actor->GetOpacity()*100));
-  connect(mOpacitySlider, SIGNAL(valueChanged(int)), 
-	  this, SLOT(OpacityChanged(int)));
-  actor->Update(); 
 
+  connect(mTree, SIGNAL(itemSelectionChanged()), this, SLOT(SelectedItemChangedInTree()));
+  connect(mCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(VisibleROIToggled(bool)));
+  connect(mOpacitySlider, SIGNAL(valueChanged(int)), this, SLOT(OpacityChanged(int)));
+  connect(mChangeColorButton, SIGNAL(clicked()), this, SLOT(ChangeColor()));
+  connect(mContourCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(VisibleContourROIToggled(bool)));  
+  connect(mChangeContourColorButton, SIGNAL(clicked()), this, SLOT(ChangeContourColor()));
+  connect(mContourWidthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeContourWidth(int)));
+  connect(mDepthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeDepth(int)));
+
+  // is this needed ?
+  //  actor->Update(); 
   // Final rendering
-  mCurrentSlicerManager->Render();
+  // mCurrentSlicerManager->Render();
 }
 //------------------------------------------------------------------------------
 
@@ -593,6 +612,18 @@ void vvToolStructureSetManager::ChangeContourWidth(int n) {
   mCurrentROIActor->SetContourWidth(n);
   mCurrentROIActor->UpdateColor();
   mCurrentSlicerManager->Render();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolStructureSetManager::ChangeDepth(int n) {
+  mCurrentROIActor->SetDepth(n);
+  mCurrentROIActor->UpdateImage();
+  mCurrentSlicerManager->Render();
+  QList<QTreeWidgetItem *> l = mTree->selectedItems();
+  QTreeWidgetItem * w = l[0];
+  w->setText(3, QString("%1").arg(mCurrentROIActor->GetDepth()));
 }
 //------------------------------------------------------------------------------
 

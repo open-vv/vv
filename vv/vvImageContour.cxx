@@ -36,6 +36,7 @@ vvImageContour::vvImageContour()
   mDisplayModeIsPreserveMemory = true;
   SetPreserveMemoryModeEnabled(true);
   mPreviousOrientation = -1;
+  mDepth = 1.0;
 }
 //------------------------------------------------------------------------------
 
@@ -291,8 +292,7 @@ void vvImageContour::UpdateActor(vtkActor * actor,
                                  vtkMarchingSquares * squares, 
                                  vtkImageClip * clipper, 
                                  double threshold, int orientation, int slice) {
-  
-   // Set parameter for the MarchigSquare
+  // Set parameter for the MarchigSquare
   squares->SetValue(0, threshold);
 
   // Get image extent
@@ -312,15 +312,16 @@ void vvImageContour::UpdateActor(vtkActor * actor,
     s = s-mHiddenImage->GetFirstVTKImageData()->GetOrigin()[orientation]; // from corner second image
     s = s/mHiddenImage->GetFirstVTKImageData()->GetSpacing()[orientation]; // in voxel
 
-    if (s == floor(s)) {
-      extent2[orientation*2] = extent2[orientation*2+1] = (int)floor(s);
-    } else {
-      extent2[orientation*2] = (int)floor(s);
-      extent2[orientation*2+1] = extent2[orientation*2];
-    }
+    // Rint to the closest slice
+    extent2[orientation*2+1] = extent2[orientation*2] = (int)lrint(s);
 
     // Do not display a contour if there is no contour on this slice
-    if (extent2[orientation*2+1] > extent3[orientation*2+1]) {
+    // DD(extent2[orientation*2+1]);
+    // DD(extent3[orientation*2+1]);
+    // DD(extent2[orientation*2]);
+    // DD(extent3[orientation*2]);
+    if ((extent2[orientation*2+1] > extent3[orientation*2+1]) ||
+        (extent2[orientation*2] < extent3[orientation*2])) {
       actor->VisibilityOff();
       return;
     }
@@ -338,7 +339,7 @@ void vvImageContour::UpdateActor(vtkActor * actor,
 
   // Move the actor to be visible
   double position[3] = {0, 0, 0};
-  position[orientation] = -1;
+  position[orientation] = -mDepth;
   actor->SetPosition(position);
   
   mapper->Update();
