@@ -1,11 +1,11 @@
 
 #include "clitkConvertBLUTCoeffsToVFFilter.h"
 #include "clitkBSplineDeformableTransform.h"
-#include "clitkTransformToDeformationFieldSource.h"
-#include "clitkShapedBLUTSpatioTemporalDeformableTransform.h"
+//#include "clitkTransformToDeformationFieldSource.h"
+//#include "clitkShapedBLUTSpatioTemporalDeformableTransform.h"
 #include "itkImageMaskSpatialObject.h"
 
-#include "clitkConvertBSplineDeformableTransformToVFGenericFilter.h"
+//#include "clitkConvertBSplineDeformableTransformToVFGenericFilter.h"
 #include "clitkVectorImageToImageFilter.h"
 #if ITK_VERSION_MAJOR >= 4
 #include "itkTransformToDisplacementFieldSource.h"
