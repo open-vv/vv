@@ -1,4 +1,3 @@
-
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
@@ -18,16 +17,12 @@
 ===========================================================================**/
 #ifndef VVTOOLRIGIDREG_H
 #define VVTOOLRIGIDREG_H
-#include <QtDesigner/QDesignerExportWidget>
-#include <QDialog>
 
 #include "vvToolBase.h"
 #include "vvToolWidgetBase.h"
-#include "vvMainWindowBase.h"
 #include "vvMainWindow.h"
 #include "ui_vvToolRigidReg.h"
 #include "vtkMatrix4x4.h"
-#include "clitkAffineRegistration_ggo.h"
 
 //------------------------------------------------------------------------------
 class vvToolRigidReg:
@@ -39,61 +34,31 @@ class vvToolRigidReg:
 public:
   vvToolRigidReg(vvMainWindowBase * parent=0, Qt::WindowFlags f=0);
   ~vvToolRigidReg();
-  virtual void InputIsSelected(std::vector<vvSlicerManager *> & m);
+  static void Initialize();
+  virtual void InputIsSelected(vvSlicerManager *input);
+
 public slots:
   virtual void apply();
   virtual bool close();
   virtual void reject();
-  //-----------------------------------------------------
-  static void Initialize() {
-    SetToolName("Register");
-    SetToolMenuName("Register");
-    SetToolIconFilename(":/common/icons/register.png");
-    SetToolTip("Register Image.");
-    SetToolExperimental(true);
-  }
-  virtual void GetArgsInfoFromGUI();
-  void SetOverlay(vvImage::Pointer Image);
-  void RemoveOverlay();
-  void SetXvalue();
-  void SetYvalue();
-  void SetZvalue();
-  void Render();
-  void UpdateTextEditor(vtkMatrix4x4 *matrix,QTextEdit *textEdit);
-  void UpdateTransform_sliders();
-  void UpdateTransform_sb();
-  void UpdateTransform(bool slider_enabled);  
-  void AutoRegister();
+  void SetTranslationStep(double v);
+  void SetRotationStep(double v);
+  void SliderChange(int newVal);
+  void SpinBoxChange(double newVal);
+  void ToggleSpinBoxAnglesUnit();
   void SaveFile();
-  void ReadFile(bool matrix_given);
   void LoadFile();
+  void ChangeOfRotationCenter();
   void ResetTransform();
-  void SetRotationCenter();
-  void SetSliderRanges();
-  void InitializeSliders(double xtrans,double ytrans, double ztrans, double xrot, double yrot, double zrot,bool sliders);
-  void TransformSelect();
-  void OptimizerSelect();
-  void InterpolatorSelect();
-  void MetricSelect();
-  void OutputSelect();
-  void SaveTextEdit();
-  void CmdlineParser(int override, int initialize);
-  void Presets();
-  void UpdateTextEditor2();
-  void CheckRigidReg(); //Deformable or Rigid
-  void CheckDeformableReg();
-  protected:
+
+protected:
   Ui::vvToolRigidReg ui;
-  vvSlicerManager * mInput1;
-  vvSlicerManager * mInput2;
-  vvMainWindow * mWindow;
-  std::string mConfigFile;
-  bool mTwoInputs;
-  std::vector<int> mImageSize;
-  args_info_clitkAffineRegistration mArgsInfo;
-  double mInitialMatrix[16];
-  void SetTransform(double tX, double tY, double tZ, double aX, double aY, double aZ,bool update);
+  vvSlicerManager * mInput;
+  vtkSmartPointer<vtkMatrix4x4> mInitialMatrix;
   void SetTransform(vtkMatrix4x4 * matrix);
+  void GetSlidersAndSpinBoxes(std::vector<QSlider *>&transSliders, std::vector<QSlider *>&rotSliders,
+                              std::vector<QDoubleSpinBox *>&transSBs, std::vector<QDoubleSpinBox *>&rotSBs);
+  void Render();
 }; // end class vvToolRigidReg
 //------------------------------------------------------------------------------
 
