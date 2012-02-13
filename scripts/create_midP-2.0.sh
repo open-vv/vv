@@ -78,8 +78,8 @@ registration()
 
       # registration
       if [ "$method" == "blutdir" ]; then
-        registration_blutdir $reference_in $target_in $mask_ref_in $mask_targ_in $vf_in $result_in $params $log_in $coeff_in $init_coeff_in
-        registration_blutdir $reference_out $target_out $mask_ref_out $mask_targ_out $vf_out $result_out $params $log_out $coeff_out $init_coeff_out
+        registration_blutdir $reference_in $target_in $mask_ref_in $mask_targ_in $vf_in $result_in $params $log_in $coeff_in 
+        registration_blutdir $reference_out $target_out $mask_ref_out $mask_targ_out $vf_out $result_out $params $log_out $coeff_out 
       elif [ "$method" == "elastix" ]; then
         registration_elastix $reference_in $target_in $mask_ref_in $mask_targ_in $vf_in $result_in $params $log_in
         registration_elastix $reference_out $target_out $mask_ref_out $mask_targ_out $vf_out $result_out $params $log_out
@@ -130,6 +130,10 @@ registration()
   create_mhd_4D_pattern.sh $vf_dir/vf_${ref_phase_nb}_
   create_mhd_4D_pattern.sh $vf_dir/vf_inside_${ref_phase_nb}_
   create_mhd_4D_pattern.sh $vf_dir/vf_outside_${ref_phase_nb}_
+
+  # create 4D coeffs
+  create_mhd_4D_pattern.sh $vf_dir/coeff_inside_${ref_phase_nb}_ _0
+  create_mhd_4D_pattern.sh $vf_dir/coeff_outside_${ref_phase_nb}_ _0
 
   # create 4D result image
   create_mhd_4D_pattern.sh $output_dir/result_inside_${ref_phase_nb}_
@@ -237,16 +241,22 @@ midp_in_out()
   echo "Calculating midp_$phase_nb.mhd..."
   vf_midp_in=$midp_dir/vf_inside_midp_$phase_nb.mhd
   vf_midp_out=$midp_dir/vf_outside_midp_$phase_nb.mhd
+  coeff_midp_in=$midp_dir/coeff_inside_midp_$phase_nb.mhd
+  coeff_midp_out=$midp_dir/coeff_outside_midp_$phase_nb.mhd
   # average the vf's from reference phase to phase
-  clitkAverageTemporalDimension -i $vf_dir/vf_inside_${ref_phase_nb}_4D.mhd -o $vf_midp_in
+  # clitkAverageTemporalDimension -i $vf_dir/vf_inside_${ref_phase_nb}_4D.mhd -o $vf_midp_in
+  clitkAverageTemporalDimension -i $vf_dir/coeff_inside_${ref_phase_nb}_4D_0.mhd -o $coeff_midp_in
   abort_on_error midp $? clean_up_midp
-  clitkAverageTemporalDimension -i $vf_dir/vf_outside_${ref_phase_nb}_4D.mhd -o $vf_midp_out
+  # clitkAverageTemporalDimension -i $vf_dir/vf_outside_${ref_phase_nb}_4D.mhd -o $vf_midp_out
+  clitkAverageTemporalDimension -i $vf_dir/coeff_outside_${ref_phase_nb}_4D_0.mhd -o $coeff_midp_out
   abort_on_error midp $? clean_up_midp
 
-  # invert the vf (why?)
-  clitkInvertVF -i $vf_midp_in -o $vf_midp_in
+  # invert the vf 
+  # clitkInvertVF -i $vf_midp_in -o $vf_midp_in
+  clitkInvertVF -i $coeff_midp_in -o $vf_midp_in --type 1 --like $ref_phase_file
   abort_on_error midp $? clean_up_midp
-  clitkInvertVF -i $vf_midp_out -o $vf_midp_out
+  # clitkInvertVF -i $vf_midp_out -o $vf_midp_out
+  clitkInvertVF -i $coeff_midp_out -o $vf_midp_out --type 1 --like $ref_phase_file
   abort_on_error midp $? clean_up_midp
 
   # combine in and out VF's

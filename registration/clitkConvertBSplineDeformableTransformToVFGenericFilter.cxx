@@ -27,6 +27,11 @@
  * 
  ===================================================*/
 
+// clitk include
+#include "clitkBSplineDeformableTransform.h"
+#include "clitkTransformToDeformationFieldSource.h"
+#include "clitkShapedBLUTSpatioTemporalDeformableTransform.h"
+#include "clitkConvertBLUTCoeffsToVFFilter.h"
 #include "clitkConvertBSplineDeformableTransformToVFGenericFilter.h"
 
 
@@ -49,163 +54,64 @@ namespace clitk
   template<>
   void 
   ConvertBSplineDeformableTransformToVFGenericFilter::UpdateWithDim<3>(std::string PixelType, int Components)
-  {
+{
     // Components
     if (Components !=3)
-      {
-	std::cerr<<"Number of components is "<<Components<<"! Only 3 components is supported."<<std::endl;
-	return;
-      }
+    {
+        std::cerr<<"Number of components is "<<Components<<"! Only 3 components is supported."<<std::endl;
+        return;
+    }
     if (PixelType != "double")
-      {
-	std::cerr<<"PixelType is  "<<PixelType<<"! Only double coefficient images are supported."<<std::endl;
-	std::cerr<<"Reading image as double..."<<std::endl;
-      }
-  
+    {
+        std::cerr<<"PixelType is  "<<PixelType<<"! Only double coefficient images are supported."<<std::endl;
+        std::cerr<<"Reading image as double..."<<std::endl;
+    }
+
     // ImageTypes
     const unsigned int Dimension=3;
     typedef itk::Vector<double, Dimension> InputPixelType;
     typedef itk::Vector<float, Dimension> OutputPixelType;
     typedef itk::Image<InputPixelType, Dimension> InputImageType;
     typedef itk::Image<OutputPixelType, Dimension> OutputImageType;
-  
-    // Read the input
-    typedef itk::ImageFileReader<InputImageType> InputReaderType;
-    InputReaderType::Pointer reader = InputReaderType::New();
-    reader->SetFileName( m_InputFileName);
-    reader->Update();
-    InputImageType::Pointer input= reader->GetOutput();
 
+    typedef ConvertBLUTCoeffsToVFFilter<OutputImageType> FilterType;
+    typename FilterType::Pointer filter = FilterType::New();
+    filter->SetInputFileName(m_InputFileName);
+    filter->SetTransformType(m_ArgsInfo.type_arg);
+    filter->SetVerbose(m_ArgsInfo.verbose_flag);
 
-    // -----------------------------------------------
-    // Filter
-    // -----------------------------------------------
-#if ITK_VERSION_MAJOR >= 4
-    typedef itk::TransformToDisplacementFieldSource<OutputImageType, double> ConvertorType;
-#else
-    typedef itk::TransformToDeformationFieldSource<OutputImageType, double> ConvertorType;
-#endif
-    ConvertorType::Pointer filter= ConvertorType::New();
-
-    //Output image info
-    if (m_ArgsInfo.like_given)
-      {
-	typedef itk::ImageFileReader<OutputImageType> ReaderType;
-	ReaderType::Pointer reader2=ReaderType::New();
-	reader2->SetFileName(m_ArgsInfo.like_arg);
-	reader2->Update();
-
-	OutputImageType::Pointer image=reader2->GetOutput();
-	filter->SetOutputParametersFromImage(image);
+    if (m_ArgsInfo.like_given) {
+      filter->SetLikeFileName(m_ArgsInfo.like_arg);
+    }
+    else {
+      typename FilterType::OutputImagePointType origin;
+      typename FilterType::OutputImageSpacingType spacing;
+      typename FilterType::OutputImageSizeType size;
+      for (unsigned int i = 0; i < Dimension; i++) {
+        origin[i] = m_ArgsInfo.origin_arg[i];
+        spacing[i] = m_ArgsInfo.spacing_arg[i];
+        size[i] = m_ArgsInfo.size_arg[i];
       }
-    else
-      {
-	unsigned int i=0;
-	if(m_ArgsInfo.origin_given)
-	  {
-	    OutputImageType::PointType origin;
-	    for(i=0;i<Dimension;i++)
-	      origin[i]=m_ArgsInfo.origin_arg[i];
-	    filter->SetOutputOrigin(origin);
-	  }
-	if (m_ArgsInfo.spacing_given)
-	  {
-	    OutputImageType::SpacingType spacing;
-	    for(i=0;i<Dimension;i++)
-	      spacing[i]=m_ArgsInfo.spacing_arg[i];
-	    filter->SetOutputSpacing(spacing);
-	  }
-	if (m_ArgsInfo.spacing_given)
-	  {
-	    OutputImageType::SizeType size;
-	    for(i=0;i<Dimension;i++)
-	      size[i]=m_ArgsInfo.size_arg[i];
-	    filter->SetOutputSize(size);
-	  }
+      filter->SetOutputOrigin(origin);
+      filter->SetOutputSpacing(spacing);
+      filter->SetOutputSize(size);
+    }
+    
+    if (m_ArgsInfo.order_given) {
+      typename FilterType::OutputImageSizeType order;
+      for (unsigned int i = 0; i < Dimension; i++) {
+        order[i] = m_ArgsInfo.order_arg[i];
       }
 
-    if (m_Verbose)
-      {
-	std::cout<< "Setting output origin to "<<filter->GetOutputOrigin()<<"..."<<std::endl;
-	std::cout<< "Setting output spacing to "<<filter->GetOutputSpacing()<<"..."<<std::endl;
-	std::cout<< "Setting output size to "<<filter->GetOutputSize()<<"..."<<std::endl;
-      }
-
-
-    // -----------------------------------------------
-    // Transform
-    // -----------------------------------------------
-    typedef clitk::BSplineDeformableTransform< double, Dimension, Dimension> TransformType; 
-    TransformType::Pointer transform=TransformType::New();
-
-    // Spline orders:  Default is cubic splines
-    InputImageType::RegionType::SizeType splineOrders ;
-    splineOrders.Fill(3);
-    if (m_ArgsInfo.order_given)
-      for(unsigned int i=0; i<Dimension;i++) 
-	splineOrders[i]=m_ArgsInfo.order_arg[i];
-    if (m_Verbose) std::cout<<"Setting the spline orders  to "<<splineOrders<<"..."<<std::endl;
-
-    // Mask
-    typedef itk::ImageMaskSpatialObject<  Dimension >   MaskType;
-    MaskType::Pointer  spatialObjectMask=NULL;
+      filter->SetBLUTSplineOrders(order);
+    }
+    
     if (m_ArgsInfo.mask_given)
-      {
-	typedef itk::Image< unsigned char, Dimension >   ImageMaskType;
-	typedef itk::ImageFileReader< ImageMaskType >    MaskReaderType;
-	MaskReaderType::Pointer  maskReader = MaskReaderType::New();
-	maskReader->SetFileName(m_ArgsInfo.mask_arg);
-	
-	try 
-	  { 
-	    maskReader->Update(); 
-	  } 
-	catch( itk::ExceptionObject & err ) 
-	  { 
-	    std::cerr << "ExceptionObject caught while reading mask !" << std::endl; 
-	    std::cerr << err << std::endl; 
-	    return;
-	  } 
-	if (m_Verbose)std::cout <<"Mask was read..." <<std::endl;
-	
-	// Set the image to the spatialObject
-	spatialObjectMask = MaskType::New();
-	spatialObjectMask->SetImage( maskReader->GetOutput() );
-      }
-
-
-    // Samplingfactors
-    InputImageType::SizeType samplingFactors; 
-    for (unsigned int i=0; i< Dimension; i++)
-      {   
-	samplingFactors[i]= (int) ( input->GetSpacing()[i]/ filter->GetOutputSpacing()[i]);
-	if (m_Verbose) std::cout<<"Setting sampling factor "<<i<<" to "<<samplingFactors[i]<<"..."<<std::endl;
-      }
-
-
-    // Set
-    transform->SetSplineOrders(splineOrders);
-    transform->SetMask(spatialObjectMask);
-    transform->SetLUTSamplingFactors(samplingFactors);
-    transform->SetCoefficientImage(input);
-    filter->SetTransform(transform);
-
-
-    // -----------------------------------------------
-    // Update
-    // -----------------------------------------------
-    if (m_Verbose)std::cout<< "Converting the BSpline transform..."<<std::endl;
-    try
-      {
-	filter->Update();
-      }
-    catch (itk::ExceptionObject)
-      {
-	std::cerr<<"Error: Exception thrown during execution convertion filter!"<<std::endl;
-      }
-
+      filter->SetMaskFileName(m_ArgsInfo.mask_arg);
+    
+    filter->Update();
+    
     OutputImageType::Pointer output=filter->GetOutput();
-
 
     // -----------------------------------------------
     // Output
@@ -218,26 +124,26 @@ namespace clitk
 
   }
 
-
+/*
   //-------------------------------------------------------------------
   // Update with the number of dimensions
   //-------------------------------------------------------------------
   template<>
-  void 
-  ConvertBSplineDeformableTransformToVFGenericFilter::UpdateWithDim<4>(std::string PixelType, int Components)
-  {
+void
+ConvertBSplineDeformableTransformToVFGenericFilter::UpdateWithDim<4>(std::string PixelType, int Components)
+{
     // Components
     if (Components !=3)
-      {
-	std::cerr<<"Number of components is "<<Components<<"! Only 3 components is supported."<<std::endl;
-	return;
-      }
+    {
+        std::cerr<<"Number of components is "<<Components<<"! Only 3 components is supported."<<std::endl;
+        return;
+    }
     if (PixelType != "double")
-      {
-	std::cerr<<"PixelType is  "<<PixelType<<"! Only double coefficient images are supported."<<std::endl;
-	std::cerr<<"Reading image as double..."<<std::endl;
-      }
-  
+    {
+        std::cerr<<"PixelType is  "<<PixelType<<"! Only double coefficient images are supported."<<std::endl;
+        std::cerr<<"Reading image as double..."<<std::endl;
+    }
+
     // ImageTypes
     const unsigned int Dimension=4;
     const unsigned int SpaceDimension=3;
@@ -245,7 +151,7 @@ namespace clitk
     typedef itk::Vector<float, SpaceDimension> OutputPixelType;
     typedef itk::Image<InputPixelType, Dimension> InputImageType;
     typedef itk::Image<OutputPixelType, Dimension> OutputImageType;
-  
+
     // Read the input
     typedef itk::ImageFileReader<InputImageType> InputReaderType;
     InputReaderType::Pointer reader = InputReaderType::New();
@@ -262,53 +168,53 @@ namespace clitk
 
     //Output image info
     if (m_ArgsInfo.like_given)
-      {
-	typedef itk::ImageFileReader<OutputImageType> ReaderType;
-	ReaderType::Pointer reader2=ReaderType::New();
-	reader2->SetFileName(m_ArgsInfo.like_arg);
-	reader2->Update();
+    {
+        typedef itk::ImageFileReader<OutputImageType> ReaderType;
+        ReaderType::Pointer reader2=ReaderType::New();
+        reader2->SetFileName(m_ArgsInfo.like_arg);
+        reader2->Update();
 
-	OutputImageType::Pointer image=reader2->GetOutput();
-	filter->SetOutputParametersFromImage(image);
-      }
+        OutputImageType::Pointer image=reader2->GetOutput();
+        filter->SetOutputParametersFromImage(image);
+    }
     else
-      {
-	unsigned int i=0;
-	if(m_ArgsInfo.origin_given)
-	  {
-	    OutputImageType::PointType origin;
-	    for(i=0;i<Dimension;i++)
-	      origin[i]=m_ArgsInfo.origin_arg[i];
-	    filter->SetOutputOrigin(origin);
-	  }
-	if (m_ArgsInfo.spacing_given)
-	  {
-	    OutputImageType::SpacingType spacing;
-	    for(i=0;i<Dimension;i++)
-	      spacing[i]=m_ArgsInfo.spacing_arg[i];
-	    filter->SetOutputSpacing(spacing);
-	  }
-	if (m_ArgsInfo.spacing_given)
-	  {
-	    OutputImageType::SizeType size;
-	    for(i=0;i<Dimension;i++)
-	      size[i]=m_ArgsInfo.size_arg[i];
-	    filter->SetOutputSize(size);
-	  }
-      }
+    {
+        unsigned int i=0;
+        if (m_ArgsInfo.origin_given)
+        {
+            OutputImageType::PointType origin;
+            for (i=0;i<Dimension;i++)
+                origin[i]=m_ArgsInfo.origin_arg[i];
+            filter->SetOutputOrigin(origin);
+        }
+        if (m_ArgsInfo.spacing_given)
+        {
+            OutputImageType::SpacingType spacing;
+            for (i=0;i<Dimension;i++)
+                spacing[i]=m_ArgsInfo.spacing_arg[i];
+            filter->SetOutputSpacing(spacing);
+        }
+        if (m_ArgsInfo.spacing_given)
+        {
+            OutputImageType::SizeType size;
+            for (i=0;i<Dimension;i++)
+                size[i]=m_ArgsInfo.size_arg[i];
+            filter->SetOutputSize(size);
+        }
+    }
     //Output image info
     if (m_Verbose)
-      {
-	std::cout<< "Setting output origin to "<<filter->GetOutputOrigin()<<"..."<<std::endl;
-	std::cout<< "Setting output spacing to "<<filter->GetOutputSpacing()<<"..."<<std::endl;
-	std::cout<< "Setting output size to "<<filter->GetOutputSize()<<"..."<<std::endl;
-      }
+    {
+        std::cout<< "Setting output origin to "<<filter->GetOutputOrigin()<<"..."<<std::endl;
+        std::cout<< "Setting output spacing to "<<filter->GetOutputSpacing()<<"..."<<std::endl;
+        std::cout<< "Setting output size to "<<filter->GetOutputSize()<<"..."<<std::endl;
+    }
 
 
     // -----------------------------------------------
     // Transform
     // -----------------------------------------------
-    typedef clitk::ShapedBLUTSpatioTemporalDeformableTransform< double, Dimension, Dimension > TransformType; 
+    typedef clitk::ShapedBLUTSpatioTemporalDeformableTransform< double, Dimension, Dimension > TransformType;
     TransformType::Pointer transform=TransformType::New();
     transform->SetTransformShape(m_ArgsInfo.shape_arg);
 
@@ -316,46 +222,46 @@ namespace clitk
     InputImageType::RegionType::SizeType splineOrders ;
     splineOrders.Fill(3);
     if (m_ArgsInfo.order_given)
-      for(unsigned int i=0; i<Dimension;i++) 
-	splineOrders[i]=m_ArgsInfo.order_arg[i];
+        for (unsigned int i=0; i<Dimension;i++)
+            splineOrders[i]=m_ArgsInfo.order_arg[i];
     if (m_Verbose) std::cout<<"Setting the spline orders  to "<<splineOrders<<"..."<<std::endl;
 
     // Mask
     typedef itk::ImageMaskSpatialObject<  Dimension >   MaskType;
     MaskType::Pointer  spatialObjectMask=NULL;
     if (m_ArgsInfo.mask_given)
-      {
-	typedef itk::Image< unsigned char, Dimension >   ImageMaskType;
-	typedef itk::ImageFileReader< ImageMaskType >    MaskReaderType;
-	MaskReaderType::Pointer  maskReader = MaskReaderType::New();
-	maskReader->SetFileName(m_ArgsInfo.mask_arg);
-	
-	try 
-	  { 
-	    maskReader->Update(); 
-	  } 
-	catch( itk::ExceptionObject & err ) 
-	  { 
-	    std::cerr << "ExceptionObject caught while reading mask !" << std::endl; 
-	    std::cerr << err << std::endl; 
-	    return;
-	  } 
-	if (m_Verbose)std::cout <<"Mask was read..." <<std::endl;
-	
-	// Set the image to the spatialObject
-	spatialObjectMask = MaskType::New();
-	spatialObjectMask->SetImage( maskReader->GetOutput() );
-      }
+    {
+        typedef itk::Image< unsigned char, Dimension >   ImageMaskType;
+        typedef itk::ImageFileReader< ImageMaskType >    MaskReaderType;
+        MaskReaderType::Pointer  maskReader = MaskReaderType::New();
+        maskReader->SetFileName(m_ArgsInfo.mask_arg);
+
+        try
+        {
+            maskReader->Update();
+        }
+        catch ( itk::ExceptionObject & err )
+        {
+            std::cerr << "ExceptionObject caught while reading mask !" << std::endl;
+            std::cerr << err << std::endl;
+            return;
+        }
+        if (m_Verbose)std::cout <<"Mask was read..." <<std::endl;
+
+        // Set the image to the spatialObject
+        spatialObjectMask = MaskType::New();
+        spatialObjectMask->SetImage( maskReader->GetOutput() );
+    }
 
 
     // Samplingfactors
-    InputImageType::SizeType samplingFactors; 
+    InputImageType::SizeType samplingFactors;
     for (unsigned int i=0; i< Dimension; i++)
-      {   
-	samplingFactors[i]= (int) ( input->GetSpacing()[i]/ filter->GetOutputSpacing()[i]);
-	if (m_Verbose) std::cout<<"Setting sampling factor "<<i<<" to "<<samplingFactors[i]<<"..."<<std::endl;
-      }
-    if( !(m_ArgsInfo.shape_arg%2) )samplingFactors[Dimension-1]=5;
+    {
+        samplingFactors[i]= (int) ( input->GetSpacing()[i]/ filter->GetOutputSpacing()[i]);
+        if (m_Verbose) std::cout<<"Setting sampling factor "<<i<<" to "<<samplingFactors[i]<<"..."<<std::endl;
+    }
+    if ( !(m_ArgsInfo.shape_arg%2) )samplingFactors[Dimension-1]=5;
 
     // Set
     transform->SetSplineOrders(splineOrders);
@@ -370,13 +276,13 @@ namespace clitk
     // -----------------------------------------------
     if (m_Verbose)std::cout<< "Converting the BSpline transform..."<<std::endl;
     try
-      {
-	filter->Update();
-      }
+    {
+        filter->Update();
+    }
     catch (itk::ExceptionObject)
-      {
-	std::cerr<<"Error: Exception thrown during execution convertion filter!"<<std::endl;
-      }
+    {
+        std::cerr<<"Error: Exception thrown during execution convertion filter!"<<std::endl;
+    }
 
     OutputImageType::Pointer output=filter->GetOutput();
 
@@ -390,10 +296,8 @@ namespace clitk
     writer->SetInput(output);
     writer->Update();
 
-  }
-
-
-
+}
+*/
   //-----------------------------------------------------------
   // Update
   //-----------------------------------------------------------
@@ -408,7 +312,7 @@ namespace clitk
     // Call UpdateWithDim
     //if(Dimension==2) UpdateWithDim<2>(PixelType, Components);
     if(Dimension==3) UpdateWithDim<3>(PixelType, Components);
-    else if (Dimension==4) UpdateWithDim<4>(PixelType, Components); 
+    //else if (Dimension==4) UpdateWithDim<4>(PixelType, Components); 
     else 
       {
 	std::cout<<"Error, Only for 3 Dimensions!!!"<<std::endl ;
