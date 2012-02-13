@@ -246,10 +246,7 @@ void vvToolWidgetBase::AddInputSelector(QString s, bool allowSkip)
 //------------------------------------------------------------------------------
 void vvToolWidgetBase::HideInputSelector()
 {
-  QList<int> s;
-  s.push_back(0);
-  s.push_back(1);
-  splitter->setSizes(s);
+  mToolInputSelectionWidget->hide();
 }
 //------------------------------------------------------------------------------
 
