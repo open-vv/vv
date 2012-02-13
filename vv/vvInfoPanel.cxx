@@ -29,6 +29,9 @@ vvInfoPanel::vvInfoPanel(QWidget * parent):QWidget(parent)
 #if CLITK_MEMORY_INFO==0
   memoryUsageLabel->hide();
 #endif
+  QFont font = transformationLabel->font();
+  font.setStyleHint(QFont::TypeWriter);
+  transformationLabel->setFont(font);
 }
 //------------------------------------------------------------------------------
 

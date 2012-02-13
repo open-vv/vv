@@ -362,6 +362,12 @@ p, li { white-space: pre-wrap; }
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="font">
+          <font>
+           <family>Monospace</family>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string/>
          </property>
