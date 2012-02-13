@@ -230,13 +230,13 @@ void vvToolRigidReg::SpinBoxChange(double newVal)
   for(int i=0; i<3; i++) {
     if(transSBs[i] == QObject::sender()) {
       transSliders[i]->blockSignals(true);
-      transSliders[i]->setValue(itk::Math::Round(newVal));
+      transSliders[i]->setValue(itk::Math::Round<double,double>(newVal));
       transSliders[i]->blockSignals(false);
     }
     if(rotSBs[i] == QObject::sender()) {
       double rad = (checkBoxDegrees->checkState()==Qt::Unchecked)?180./itk::Math::pi:1.;
       rotSliders[i]->blockSignals(true);
-      rotSliders[i]->setValue(itk::Math::Round(newVal*rad));
+      rotSliders[i]->setValue(itk::Math::Round<double,double>(newVal*rad));
       rotSliders[i]->blockSignals(false);
     }
   }
@@ -380,14 +380,14 @@ void vvToolRigidReg::SetTransform(vtkMatrix4x4 *matrix)
     transSBs[i]->setValue( euler->GetParameters()[i+3] );
     transSBs[i]->blockSignals(false);
     transSliders[i]->blockSignals(true);
-    transSliders[i]->setValue( itk::Math::Round(euler->GetParameters()[i+3]) );
+    transSliders[i]->setValue( itk::Math::Round<double,double>(euler->GetParameters()[i+3]) );
     transSliders[i]->blockSignals(false);
     double rad = (checkBoxDegrees->checkState()==Qt::Checked)?180./itk::Math::pi:1.;
     rotSBs[i]->blockSignals(true);
     rotSBs[i]->setValue( euler->GetParameters()[i]*rad );
     rotSBs[i]->blockSignals(false);
     rotSliders[i]->blockSignals(true);
-    rotSliders[i]->setValue( itk::Math::Round(euler->GetParameters()[i]*180./itk::Math::pi) );
+    rotSliders[i]->setValue( itk::Math::Round<double,double>(euler->GetParameters()[i]*180./itk::Math::pi) );
     rotSliders[i]->blockSignals(false);
   }
 }
