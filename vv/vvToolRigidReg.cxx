@@ -376,19 +376,29 @@ void vvToolRigidReg::SetTransform(vtkMatrix4x4 *matrix)
   std::vector<QDoubleSpinBox *> transSBs, rotSBs;
   GetSlidersAndSpinBoxes(transSliders, rotSliders, transSBs, rotSBs);
   for(int i=0; i<3; i++) {
+    // Translations
     transSBs[i]->blockSignals(true);
     transSBs[i]->setValue( euler->GetParameters()[i+3] );
     transSBs[i]->blockSignals(false);
     transSliders[i]->blockSignals(true);
     transSliders[i]->setValue( itk::Math::Round<double,double>(euler->GetParameters()[i+3]) );
     transSliders[i]->blockSignals(false);
+
+    // Rotations
     double rad = (checkBoxDegrees->checkState()==Qt::Checked)?180./itk::Math::pi:1.;
-    rotSBs[i]->blockSignals(true);
-    rotSBs[i]->setValue( euler->GetParameters()[i]*rad );
-    rotSBs[i]->blockSignals(false);
-    rotSliders[i]->blockSignals(true);
-    rotSliders[i]->setValue( itk::Math::Round<double,double>(euler->GetParameters()[i]*180./itk::Math::pi) );
-    rotSliders[i]->blockSignals(false);
+    double angleDiff = euler->GetParameters()[i]-rotSBs[i]->value()/rad+2*itk::Math::pi;
+    angleDiff = angleDiff - 2*itk::Math::pi*itk::Math::Round<double,double>(angleDiff/(2*itk::Math::pi));
+    if(angleDiff>1.e-4) {
+      rotSBs[i]->blockSignals(true);
+      rotSBs[i]->setValue( euler->GetParameters()[i]*rad );
+      rotSBs[i]->blockSignals(false);
+    }
+    int iAngle = itk::Math::Round<int,double>(euler->GetParameters()[i]*180./itk::Math::pi);
+    if((iAngle-rotSliders[i]->value()+360)%360!=0) {
+      rotSliders[i]->blockSignals(true);
+      rotSliders[i]->setValue(iAngle);
+      rotSliders[i]->blockSignals(false);
+    }
   }
 }
 //------------------------------------------------------------------------------
