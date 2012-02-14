@@ -75,7 +75,7 @@ namespace clitk
     typedef itk::Image<OutputPixelType, Dimension> OutputImageType;
 
     typedef ConvertBLUTCoeffsToVFFilter<OutputImageType> FilterType;
-    typename FilterType::Pointer filter = FilterType::New();
+    FilterType::Pointer filter = FilterType::New();
     filter->SetInputFileName(m_InputFileName);
     filter->SetTransformType(m_ArgsInfo.type_arg);
     filter->SetVerbose(m_ArgsInfo.verbose_flag);
@@ -84,9 +84,9 @@ namespace clitk
       filter->SetLikeFileName(m_ArgsInfo.like_arg);
     }
     else {
-      typename FilterType::OutputImagePointType origin;
-      typename FilterType::OutputImageSpacingType spacing;
-      typename FilterType::OutputImageSizeType size;
+      FilterType::OutputImagePointType origin;
+      FilterType::OutputImageSpacingType spacing;
+      FilterType::OutputImageSizeType size;
       for (unsigned int i = 0; i < Dimension; i++) {
         origin[i] = m_ArgsInfo.origin_arg[i];
         spacing[i] = m_ArgsInfo.spacing_arg[i];
@@ -98,7 +98,7 @@ namespace clitk
     }
     
     if (m_ArgsInfo.order_given) {
-      typename FilterType::OutputImageSizeType order;
+      FilterType::OutputImageSizeType order;
       for (unsigned int i = 0; i < Dimension; i++) {
         order[i] = m_ArgsInfo.order_arg[i];
       }
