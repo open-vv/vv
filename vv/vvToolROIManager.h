@@ -51,6 +51,17 @@ class vvToolROIManager:
   void AnImageIsBeingClosed(vvSlicerManager *);
   void SelectedImageHasChanged(vvSlicerManager *);
   void OpenBinaryImage();
+  void SelectedItemChangedInTree();
+  void VisibleROIToggled(bool b);
+  void VisibleContourROIToggled(bool b);
+  void OpacityChanged(int v);
+  void ChangeColor();
+  void ChangeContourColor();
+  void ChangeContourWidth(int n);
+  void ChangeDepth(int n);
+  void AllVisibleROIToggled(int b);
+  void AllVisibleContourROIToggled(bool b);
+  void ReloadCurrentROI();  
 
 protected:
   Ui::vvToolROIManager ui;
@@ -72,6 +83,9 @@ protected:
   std::map<clitk::DicomRT_ROI::Pointer, QTreeWidgetItem *> mMapROIToTreeWidget;
   std::map<QTreeWidgetItem *, clitk::DicomRT_ROI::Pointer> mMapTreeWidgetToROI;
   
+  // Data for current selected roi
+  clitk::DicomRT_ROI::Pointer mCurrentROI;
+  QSharedPointer<vvROIActor> mCurrentROIActor;  
  
 }; // end class vvToolROIManager
 //------------------------------------------------------------------------------

@@ -85,6 +85,18 @@ vvToolROIManager::vvToolROIManager(vvMainWindowBase * parent, Qt::WindowFlags f)
           this, SLOT(AnImageIsBeingClosed(vvSlicerManager *)));
   connect(parent, SIGNAL(SelectedImageHasChanged(vvSlicerManager *)), 
           this, SLOT(SelectedImageHasChanged(vvSlicerManager *)));
+  connect(mOpenBinaryButton, SIGNAL(clicked()), this, SLOT(OpenBinaryImage()));
+  connect(mTree, SIGNAL(itemSelectionChanged()), this, SLOT(SelectedItemChangedInTree()));
+  connect(mCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(VisibleROIToggled(bool)));
+  connect(mOpacitySlider, SIGNAL(valueChanged(int)), this, SLOT(OpacityChanged(int)));
+  connect(mChangeColorButton, SIGNAL(clicked()), this, SLOT(ChangeColor()));
+  connect(mContourCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(VisibleContourROIToggled(bool)));  
+  connect(mChangeContourColorButton, SIGNAL(clicked()), this, SLOT(ChangeContourColor()));
+  connect(mContourWidthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeContourWidth(int)));
+  connect(mDepthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeDepth(int)));
+  connect(mReloadButton, SIGNAL(clicked()), this, SLOT(ReloadCurrentROI()));
+  connect(mCheckBoxShowAll, SIGNAL(stateChanged(int)), this, SLOT(AllVisibleROIToggled(int)));
+  connect(mContourCheckBoxShowAll, SIGNAL(toggled(bool)), this, SLOT(AllVisibleContourROIToggled(bool)));
 
   // mMainWindowBase->GetTab()->setTabIcon(mTabNumber, GetToolIcon());
 }
@@ -318,4 +330,214 @@ void vvToolROIManager::UpdateAllROIStatus() {
   connect(mCheckBoxShowAll, SIGNAL(stateChanged(int)), this, SLOT(AllVisibleROIToggled(int)));
 }
 //------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolROIManager::SelectedItemChangedInTree() {
+  
+  // Search which roi is selected
+  QList<QTreeWidgetItem *> l = mTree->selectedItems();
+  if (l.size() == 0) {
+    //    mCurrentROIActor = 0;
+    mCurrentROI = NULL;
+    mGroupBoxROI->setEnabled(false);
+    return;
+  }
+  QTreeWidgetItem * w = l[0];
+  //std::cout << "selected item -> " << w->text(1).toStdString() << std::endl;
+  //std::cout << "m_NumberOfTool -> " << m_NumberOfTool << std::endl;
+  if (mMapTreeWidgetToROI.find(w) == mMapTreeWidgetToROI.end()) {
+    //    mCurrentROIActor = 0;
+    mCurrentROI = NULL;
+    mGroupBoxROI->setEnabled(false);
+    return;
+  }
+  clitk::DicomRT_ROI * roi = mMapTreeWidgetToROI[w];
+  // Get selected roi actor
+  QSharedPointer<vvROIActor> actor = mROIActorsList[roi->GetROINumber()];
+  mCurrentROI = roi;
+  mCurrentROIActor = actor;
+
+  // Warning -> avoid unuseful Render here by disconnect slider 
+  // Update GUI
+  disconnect(mTree, SIGNAL(itemSelectionChanged()), this, SLOT(SelectedItemChangedInTree()));
+  disconnect(mCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(VisibleROIToggled(bool)));
+  disconnect(mOpacitySlider, SIGNAL(valueChanged(int)), this, SLOT(OpacityChanged(int)));
+  disconnect(mChangeColorButton, SIGNAL(clicked()), this, SLOT(ChangeColor()));
+  disconnect(mContourCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(VisibleContourROIToggled(bool)));  
+  disconnect(mChangeContourColorButton, SIGNAL(clicked()), this, SLOT(ChangeContourColor()));
+  disconnect(mContourWidthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeContourWidth(int)));
+  disconnect(mDepthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeDepth(int)));
+
+  mGroupBoxROI->setEnabled(true);
+  mROInameLabel->setText(roi->GetName().c_str());
+  mCheckBoxShow->setChecked(actor->IsVisible());
+  mContourCheckBoxShow->setChecked(actor->IsContourVisible());
+  mContourWidthSpinBox->setValue(actor->GetContourWidth());
+  mDepthSpinBox->setValue(actor->GetDepth());
+  w->setText(3, QString("%1").arg(actor->GetDepth()));
+  mOpacitySlider->setValue((int)lrint(actor->GetOpacity()*100));
+  mOpacitySpinBox->setValue((int)lrint(actor->GetOpacity()*100));
+
+  connect(mTree, SIGNAL(itemSelectionChanged()), this, SLOT(SelectedItemChangedInTree()));
+  connect(mCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(VisibleROIToggled(bool)));
+  connect(mOpacitySlider, SIGNAL(valueChanged(int)), this, SLOT(OpacityChanged(int)));
+  connect(mChangeColorButton, SIGNAL(clicked()), this, SLOT(ChangeColor()));
+  connect(mContourCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(VisibleContourROIToggled(bool)));  
+  connect(mChangeContourColorButton, SIGNAL(clicked()), this, SLOT(ChangeContourColor()));
+  connect(mContourWidthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeContourWidth(int)));
+  connect(mDepthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeDepth(int)));
+
+  // is this needed ?
+  //  actor->Update(); 
+  // Final rendering
+  // mCurrentSlicerManager->Render();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolROIManager::VisibleROIToggled(bool b) {
+  if (mCurrentROIActor == NULL) return;
+  if (b == mCurrentROIActor->IsVisible()) return; // nothing to do
+  mCurrentROIActor->SetVisible(b);
+  UpdateAllROIStatus();
+  mSlicerManager->Render(); 
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolROIManager::VisibleContourROIToggled(bool b) {
+  if (mCurrentROIActor == NULL) return;
+  if (mCurrentROIActor->IsContourVisible() == b) return; // nothing to do
+  mCurrentROIActor->SetContourVisible(b);
+  mCurrentROIActor->UpdateColor();
+  mSlicerManager->Render(); 
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolROIManager::OpacityChanged(int v) {
+  if (mCurrentROIActor == NULL) return;
+  mCurrentROIActor->SetOpacity((double)v/100.0);
+  mCurrentROIActor->UpdateColor();
+  mSlicerManager->Render(); 
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolROIManager::AllVisibleROIToggled(int b) {
+  bool status = false;
+  if ((mCheckBoxShowAll->checkState() == Qt::Checked) ||
+      (mCheckBoxShowAll->checkState() == Qt::PartiallyChecked))  status = true;
+
+  for(uint i=0; i<mROIList.size(); i++) {
+    mROIActorsList[i]->SetVisible(status);
+  }
+  if (status) mCheckBoxShowAll->setCheckState(Qt::Checked);
+  else  mCheckBoxShowAll->setCheckState(Qt::Unchecked);
+  mCheckBoxShow->setChecked(status);
+  mSlicerManager->Render(); 
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolROIManager::AllVisibleContourROIToggled(bool b) {
+  bool status = false;
+  if ((mContourCheckBoxShowAll->checkState() == Qt::Checked) ||
+      (mContourCheckBoxShowAll->checkState() == Qt::PartiallyChecked))  status = true;
+  // Update current 
+  for(uint i=0; i<mROIActorsList.size(); i++) {
+    mROIActorsList[i]->SetContourVisible(status);
+  }
+  // Update current selection
+  if (status) mContourCheckBoxShowAll->setCheckState(Qt::Checked);
+  else  mContourCheckBoxShowAll->setCheckState(Qt::Unchecked);
+  mContourCheckBoxShow->setChecked(status);
+  mSlicerManager->Render(); 
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolROIManager::ChangeColor() {
+  QColor color;
+  color.setRgbF(mCurrentROIActor->GetROI()->GetDisplayColor()[0],
+                mCurrentROIActor->GetROI()->GetDisplayColor()[1],
+                mCurrentROIActor->GetROI()->GetDisplayColor()[2]);
+  QColor c = QColorDialog::getColor(color, this, "Choose the ROI color");
+  mCurrentROIActor->GetROI()->SetDisplayColor(c.redF(), c.greenF(), c.blueF());
+  mCurrentROIActor->UpdateColor();
+
+  QTreeWidgetItem * w = mMapROIToTreeWidget[mCurrentROI];
+  QBrush brush(QColor(mCurrentROI->GetDisplayColor()[0]*255,
+                      mCurrentROI->GetDisplayColor()[1]*255,
+                      mCurrentROI->GetDisplayColor()[2]*255));
+  brush.setStyle(Qt::SolidPattern);
+  w->setBackground(2, brush);
+  // Render
+  mSlicerManager->Render();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolROIManager::ChangeContourColor() {
+  QColor color;
+  color.setRgbF(mCurrentROIActor->GetContourColor()[0], 
+		mCurrentROIActor->GetContourColor()[1], 
+		mCurrentROIActor->GetContourColor()[2]);
+  QColor c = QColorDialog::getColor(color, this, "Choose the contour color");
+  mCurrentROIActor->SetContourColor(c.redF(), c.greenF(), c.blueF());
+  mCurrentROIActor->UpdateColor();
+  mSlicerManager->Render();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolROIManager::ChangeContourWidth(int n) {
+  mCurrentROIActor->SetContourWidth(n);
+  mCurrentROIActor->UpdateColor();
+  mSlicerManager->Render();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolROIManager::ChangeDepth(int n) {
+  mCurrentROIActor->SetDepth(n);
+  mCurrentROIActor->UpdateImage();
+  mSlicerManager->Render();
+  QList<QTreeWidgetItem *> l = mTree->selectedItems();
+  QTreeWidgetItem * w = l[0];
+  w->setText(3, QString("%1").arg(mCurrentROIActor->GetDepth()));
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolROIManager::ReloadCurrentROI() {
+  // Reload image
+  vvImageReader::Pointer reader = vvImageReader::New();
+  reader->SetInputFilename(mCurrentROI->GetFilename());
+  reader->Update(vvImageReader::IMAGE);
+  if (reader->GetLastError() != "") {
+    QMessageBox::information(mMainWindowBase, tr("Sorry, error. Could not reload"), 
+                             reader->GetLastError().c_str());
+    return;
+  }
+  mCurrentROI->GetImage()->GetFirstVTKImageData()->ReleaseData();
+  mCurrentROI->SetImage(reader->GetOutput());
+  
+  // Update visu"
+  mCurrentROIActor->UpdateImage();
+  mSlicerManager->Render();    
+}
+//------------------------------------------------------------------------------
+
 
