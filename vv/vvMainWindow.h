@@ -64,6 +64,7 @@ class vvMainWindow: public vvMainWindowBase,
   void SaveCurrentStateAs(const std::string& stateFile);
   void ReadSavedStateFile(const std::string& stateFile);
 	void LinkAllImages();
+  QString Get4x4MatrixDoubleAsString(vtkSmartPointer<vtkMatrix4x4> matrix, const int precision=3);
 
   virtual void UpdateCurrentSlicer();
   virtual QTabWidget * GetTab();
@@ -194,7 +195,6 @@ private:
   QString GetSizeInBytes(unsigned long size);
   QString GetVectorDoubleAsString(std::vector<double> vectorDouble);
   QString GetVectorIntAsString(std::vector<int> vectorInt);
-  QString Get4x4MatrixDoubleAsString(vtkSmartPointer<vtkMatrix4x4> matrix);
   int GetSlicerIndexFromItem(QTreeWidgetItem* item);
   QTreeWidgetItem* GetItemFromSlicerManager(vvSlicerManager* sm);
   void SaveScreenshot(QVTKWidget *widget);

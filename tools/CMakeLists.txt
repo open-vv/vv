@@ -248,7 +248,7 @@ IF (CLITK_BUILD_TOOLS)
   ENDIF(CLITK_EXPERIMENTAL)
 
   IF(ITK_VERSION_MAJOR VERSION_LESS 4)
-    MESSAGE(WARNING "clitkDicomRTPlan2Gate is not compatible with GDCM<2 (ITK<4). It will not be build.")
+    MESSAGE("clitkDicomRTPlan2Gate is not compatible with GDCM<2 (ITK<4). It will not be built.")
   ELSE(ITK_VERSION_MAJOR VERSION_LESS 4)
     WRAP_GGO(clitkDicomRTPlan2Gate_GGO_C clitkDicomRTPlan2Gate.ggo)
     ADD_EXECUTABLE(clitkDicomRTPlan2Gate clitkDicomRTPlan2Gate.cxx clitkDicomRTPlan2Gate_ggo.c)

@@ -32,8 +32,11 @@
 #include "vvMainWindow.h"
 #include "vvReadState.h"
 #include "vvToolsList.h"
+#include "vvConfiguration.h"
+
 #include <vtkFileOutputWindow.h>
 #include <vtkSmartPointer.h>
+
 #include <itkFileOutputWindow.h>
 #include <itkSmartPointer.h>
 #include <itksys/SystemTools.hxx>
@@ -121,6 +124,27 @@ int main( int argc, char** argv )
           window.LoadImages(sequence_filenames, vvImageReader::MERGEDWITHTIME);
           sequence_filenames.clear();
           parse_mode=P_NORMAL;
+        }
+        if (current=="--help") {
+          std::cout << "vv " << VV_VERSION << ", the 2D, 2D+t, 3D and 3D+t (or 4D) image viewer" << std::endl << std::endl
+                    << "Synopsis: vv file(s) [OPTIONS] file(s)" << std::endl << std::endl
+                    << "Open file(s) for visualization." << std::endl << std::endl
+                    << "OPTIONS may be:" << std::endl
+                    << "--help         \t Print command line help and exit." << std::endl
+                    << "--window number\t Gray scale window width for all images." << std::endl
+                    << "--level number \t Gray scale window level for all images." << std::endl
+                    << "--linkall      \t Link pan, zoom and spatial position of crosshair in images." << std::endl
+                    << "--log          \t Log output messages in vv-log directory." << std::endl
+                    << "--state file   \t Read display parameters from file." << std::endl
+                    << "--sequence file\t Read all file(s) until next option in a single temporal sequence." << std::endl
+                    << std::endl
+                    << "These last options must follow a file name since they overlay something on an image:" << std::endl
+                    << "--vf file      \t Overlay the vector field in file." << std::endl
+                    << "--overlay file \t Overlay the image in file with complementary colors." << std::endl
+                    << "--fusion file  \t Overlay the image in file with alpha blending and colormap." << std::endl
+                    << "--roi file     \t Overlay binary mask images. Option may be repeated on a single base image." << std::endl
+                    << "--contour file \t Overlay DICOM RT-STRUCT contours." << std::endl;
+          exit(0);
         }
         if (current=="--vf") {
           if (!n_image_loaded) load_image_first_error();

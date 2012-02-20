@@ -12,7 +12,7 @@ endif(COMMAND cmake_policy)
 #List of vv tools to compile
 SET(vv_TOOLS
   vvToolMedianFilter
-#  vvToolRigidReg ## Very long to compile
+  vvToolRigidReg
   vvToolCropImage
   vvToolBinarize
   vvToolImageArithm
@@ -32,7 +32,6 @@ SET(vv_TOOLS
 # dependencies of the tools
 # Future issues : when tool depend on other tools ... how to manage that ?
 #  >> add the relevant $_LIBS variable to the tool that has dependencies?
-SET(vvToolRigidReg_LIBS clitkAffineRegistrationLib)
 SET(vvToolBinarize_LIBS clitkBinarizeImageLib)
 SET(vvToolResample_LIBS clitkResampleImageLib)
 SET(vvToolConvert_LIBS clitkImageConvertLib)
