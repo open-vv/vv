@@ -143,7 +143,10 @@ void vvToolROIManager::InputIsSelected(vvSlicerManager *m)
     return;
   }
 
-  // Auto diusplay browser to select new contours 
+  // Change gui
+  mLabelInputInfo->setText(QString("%1").arg(m->GetFileName().c_str()));
+
+  // Auto display browser to select new contours 
   OpenBinaryImage();
 }
 //------------------------------------------------------------------------------
