@@ -43,13 +43,35 @@ class vvToolROIManager:
   static void Initialize();
   virtual void InputIsSelected(vvSlicerManager *m);
 
+  void AddImage(vvImage * binaryImage, std::string filename, double BG, bool m_modeBG=true);
+  void UpdateAllContours();
+  void UpdateAllROIStatus();
+
   public slots:
   void AnImageIsBeingClosed(vvSlicerManager *);
   void SelectedImageHasChanged(vvSlicerManager *);
+  void OpenBinaryImage();
 
 protected:
   Ui::vvToolROIManager ui;
   vvSlicerManager * mSlicerManager;
+  vvImage * mCurrentImage;
+  vvMainWindowBase * mMainWindow;
+  
+  int mNumberOfVisibleROI;
+  int mNumberOfVisibleContourROI;
+
+  vtkSmartPointer<vtkLookupTable> mDefaultLUTColor;
+
+  std::vector<vvImage::Pointer> mOpenedBinaryImage;
+  std::vector<clitk::DicomRT_ROI::Pointer> mROIList;
+  std::vector<QSharedPointer<vvROIActor> > mROIActorsList;
+
+  // Data for the widget Tree
+  std::vector< QSharedPointer<QTreeWidgetItem> > mTreeWidgetList;
+  std::map<clitk::DicomRT_ROI::Pointer, QTreeWidgetItem *> mMapROIToTreeWidget;
+  std::map<QTreeWidgetItem *, clitk::DicomRT_ROI::Pointer> mMapTreeWidgetToROI;
+  
  
 }; // end class vvToolROIManager
 //------------------------------------------------------------------------------
