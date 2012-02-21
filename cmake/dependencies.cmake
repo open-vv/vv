@@ -23,6 +23,7 @@ IF(VTK_FOUND)
       vtkWidgets
       vtkImaging
       vtkHybrid
+      vtkQVTK
       )
   ENDIF(VTK_VERSION VERSION_LESS 5.8.0)
 ELSE(VTK_FOUND)

@@ -50,18 +50,49 @@ SetBackgroundGenericFilter::SetBackgroundGenericFilter()
 void SetBackgroundGenericFilter::Update()
 {
   // Read the Dimension and PixelType
-  int Dimension;
+  int Dimension, Components;
   std::string PixelType;
-  ReadImageDimensionAndPixelType(m_InputFileName, Dimension, PixelType);
+  //ReadImageDimensionAndPixelType(m_InputFileName, Dimension, PixelType);
+  ReadImageDimensionAndPixelType(m_InputFileName, Dimension, PixelType, Components);
 
-
-  // Call UpdateWithDim
-  if(Dimension==2) UpdateWithDim<2>(PixelType);
-  else if(Dimension==3) UpdateWithDim<3>(PixelType);
-  else if (Dimension==4)UpdateWithDim<4>(PixelType);
-  else {
+  if (Dimension > 4) {
     std::cout<<"Error, Only for 2 , 3 or 4 Dimensions!!!"<<std::endl ;
     return;
+  }
+  
+  if (Components > 3) {
+    std::cout<<"Error, Only 1, 2, or 3-component images are supported!!!"<<std::endl ;
+    return;
+  }
+
+  if (Components > 1 && PixelType != "float") {
+    std::cout<<"Error, Only float multi-component images are supported!!!"<<std::endl ;
+    return;
+  }
+
+  switch (Components) {
+    case 1:
+      // Call UpdateWithDim
+      if(Dimension==2) UpdateWithDim<2>(PixelType);
+      else if(Dimension==3) UpdateWithDim<3>(PixelType);
+      else if (Dimension==4)UpdateWithDim<4>(PixelType);
+      break;
+    case 2:
+    {
+      typedef itk::Vector<float, 2> TPixelType;
+      if(Dimension==2) UpdateWithDimAndPixelType<2, TPixelType>();
+      else if(Dimension==3) UpdateWithDimAndPixelType<3, TPixelType>();
+      else if (Dimension==4)UpdateWithDimAndPixelType<4, TPixelType>();
+      break;
+    }
+    case 3:
+    {
+      typedef itk::Vector<float, 3> TPixelType;
+      if(Dimension==2) UpdateWithDimAndPixelType<2, TPixelType>();
+      else if(Dimension==3) UpdateWithDimAndPixelType<3, TPixelType>();
+      else if (Dimension==4)UpdateWithDimAndPixelType<4, TPixelType>();
+      break;
+    }
   }
 }
 

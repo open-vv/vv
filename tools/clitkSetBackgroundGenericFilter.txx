@@ -54,7 +54,6 @@ SetBackgroundGenericFilter::UpdateWithDim(std::string PixelType)
   }
 }
 
-
 //-------------------------------------------------------------------
 // Update with the number of dimensions and the pixeltype
 //-------------------------------------------------------------------
@@ -65,7 +64,7 @@ SetBackgroundGenericFilter::UpdateWithDimAndPixelType()
 
   // ImageTypes
   typedef itk::Image<PixelType, Dimension> InputImageType;
-  typedef itk::Image<float, Dimension> MaskImageType;
+  typedef itk::Image<unsigned char, Dimension> MaskImageType;
 
   // Read the input
   typedef itk::ImageFileReader<InputImageType> InputReaderType;
