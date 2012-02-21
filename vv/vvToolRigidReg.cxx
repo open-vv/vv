@@ -108,9 +108,9 @@ void vvToolRigidReg::InputIsSelected(vvSlicerManager *input)
   imageorigin=mInput->GetImage()->GetOrigin();
   std::vector<int> imageSize = mInput->GetImage()->GetSize();
   std::vector<double> imageSpacing = mInput->GetImage()->GetSpacing();
-  xcord=xcord.setNum(imageorigin[0]+imageSize[0]*imageSpacing[0]/2, 'g', 3);
-  ycord=ycord.setNum(imageorigin[1]+imageSize[1]*imageSpacing[1]/2, 'g', 3);
-  zcord=zcord.setNum(imageorigin[2]+imageSize[2]*imageSpacing[2]/2, 'g', 3);
+  xcord=xcord.setNum(imageorigin[0]+(imageSize[0]-1)*imageSpacing[0]*0.5, 'g', 3);
+  ycord=ycord.setNum(imageorigin[1]+(imageSize[1]-1)*imageSpacing[1]*0.5, 'g', 3);
+  zcord=zcord.setNum(imageorigin[2]+(imageSize[2]-1)*imageSpacing[2]*0.5, 'g', 3);
   Xval->setText(xcord);
   Yval->setText(ycord);
   Zval->setText(zcord);
@@ -369,7 +369,6 @@ void vvToolRigidReg::SetTransform(vtkMatrix4x4 *matrix)
   euler->SetCenter(center);
   euler->SetMatrix(rotMat);
   euler->SetOffset(transVec);
-
 
   // Modify GUI according to the new parameters
   std::vector<QSlider *> transSliders, rotSliders;

@@ -32,14 +32,14 @@ namespace clitk {
     typedef itk::Image< itk::Vector<float, 3u>, 3u > ImageType;
     
     // Read input1
-    typename ImageType::Pointer input1 = this->GetInput<ImageType>(0);
+    ImageType::Pointer input1 = this->GetInput<ImageType>(0);
 
     // Set input image iterator
     typedef itk::ImageRegionIterator<ImageType> IteratorType;
     IteratorType it(input1, input1->GetLargestPossibleRegion());
 
     // typedef input2
-    typename ImageType::Pointer input2 = NULL;
+    ImageType::Pointer input2 = NULL;
     IteratorType it2;
 
     /*
@@ -106,7 +106,7 @@ namespace clitk {
       } else*/ {
         // Create output image
         typedef ImageType OutputImageType;
-        typename OutputImageType::Pointer output = OutputImageType::New();
+        OutputImageType::Pointer output = OutputImageType::New();
         output->SetRegions(input1->GetLargestPossibleRegion());
         output->SetOrigin(input1->GetOrigin());
         output->SetSpacing(input1->GetSpacing());
@@ -134,7 +134,7 @@ namespace clitk {
     ito.GoToBegin();
     it.GoToBegin();
     
-    typedef typename Iter2::PixelType PixelType;
+    typedef Iter2::PixelType PixelType;
 
     PixelType scalar_vector;
     scalar_vector.Fill(mScalar);
@@ -265,7 +265,7 @@ namespace clitk {
     it1.GoToBegin();
     it2.GoToBegin();
     ito.GoToBegin();
-    typedef typename Iter3::PixelType PixelType;
+    typedef Iter3::PixelType PixelType;
 
     switch (mTypeOfOperation) {
     case 0: // Addition
