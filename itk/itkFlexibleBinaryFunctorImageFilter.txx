@@ -98,7 +98,11 @@ template <class TInputImage1, class TInputImage2, class TOutputImage, class TFun
 void
 FlexibleBinaryFunctorImageFilter<TInputImage1, TInputImage2, TOutputImage, TFunction>
 ::ThreadedGenerateData( const OutputImageRegionType &outputRegionForThread,
+#if ITK_VERSION_MAJOR >= 4  
+                        itk::ThreadIdType threadId )
+#else
                         int threadId)
+#endif
 {
   const unsigned int dim = Input1ImageType::ImageDimension;
   
