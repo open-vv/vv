@@ -173,3 +173,37 @@ extract_4d_phases_ref()
     fi
   done
 }
+
+#
+# replacement for clitkCombineImage
+combine_image()
+{
+#  eg: -i $result_in -j $result_out -o $out_result -m $motion_mask
+
+  clitkSetBackground -i $1 -o temp1.mhd -m $4
+  clitkSetBackground -i $2 -o temp2.mhd -m $4 --fg
+
+  clitkImageArithm -i temp1.mhd -j temp2.mhd -o $3
+  rm temp?.*
+}
+
+# 
+# replacement for clitkAverageTemporalDimension
+average_temporal_dimension()
+{
+  # eg: -i $midp_dir/midp_4D.mhd -o $midp_dir/midp_avg.mhd
+
+  local tot=tot.mhd
+
+  local dir=`dirname $1` 
+  local first=`grep raw $1 | sed 's/raw/mhd/g' | head -n 1`
+  clitkImageArithm -i $dir/$first -o $tot -t 1 -s 0
+
+  local nbphases=`grep raw $1 | sed 's/raw/mhd/g' | wc -l`
+  for i in $(grep raw $1 | sed 's/raw/mhd/g'); do
+    clitkImageArithm -i $dir/$i -j $tot -o $tot
+  done
+
+  clitkImageArithm -i $tot -o $2 -t 11 -s $nbphases
+  rm tot.*
+}

@@ -89,19 +89,22 @@ registration()
 
       # combine in and out results
       out_result=$output_dir/result_${ref_phase_nb}_$phase_nb.mhd
-      clitkCombineImage -i $result_in -j $result_out -m $motion_mask -o $out_result
+      # clitkCombineImage -i $result_in -j $result_out -m $motion_mask -o $out_result
+      combine_image $result_in $result_out $out_result $motion_mask 
       abort_on_error registration $? clean_up_registration
 
       # combine in and out vf
       vf_result=$vf_dir/vf_${ref_phase_nb}_$phase_nb.mhd
-      clitkCombineImage -i $vf_in -j $vf_out -m $motion_mask -o $vf_result
+      #clitkCombineImage -i $vf_in -j $vf_out -m $motion_mask -o $vf_result
+      combine_image $vf_in $vf_out $vf_result $motion_mask 
       abort_on_error registration $? clean_up_registration
 
       clitkZeroVF -i $vf_in -o vf_zero.mhd
       abort_on_error registration $? clean_up_registration
 
       patient_mask=$mask_dir/patient_mask_$phase_nb.mhd
-      clitkCombineImage -i $vf_result -j vf_zero.mhd -m $patient_mask -o $vf_result
+      #clitkCombineImage -i $vf_result -j vf_zero.mhd -m $patient_mask -o $vf_result
+      combine_image $vf_result vf_zero.mhd $vf_result $patient_mask 
       abort_on_error registration $? clean_up_registration
 
       rm vf_zero.*
@@ -123,7 +126,8 @@ registration()
   reference_in=$mask_dir/${banded}inside_${ref_phase_nb}.mhd
   reference_out=$mask_dir/${banded}outside_$ref_phase_nb.mhd
   out_result=$output_dir/result_${ref_phase_nb}_${ref_phase_nb}.mhd
-  clitkCombineImage -i $reference_in -j $reference_out -m $motion_mask -o $out_result
+  #clitkCombineImage -i $reference_in -j $reference_out -m $motion_mask -o $out_result
+  combine_image $reference_in $reference_out $out_result $motion_mask 
   abort_on_error registration $? clean_up_registration
 
   # create 4D vf
@@ -164,7 +168,8 @@ midp()
   vf_midp=$midp_dir/vf_midp_$phase_nb.mhd
   midp=$midp_dir/midp_$phase_nb.mhd
   # average the vf's from reference phase to phase
-  clitkAverageTemporalDimension -i $vf_dir/vf_${ref_phase_nb}_4D.mhd -o $vf_midp
+  #clitkAverageTemporalDimension -i $vf_dir/vf_${ref_phase_nb}_4D.mhd -o $vf_midp
+  average_temporal_dimension $vf_dir/vf_${ref_phase_nb}_4D.mhd $vf_midp
   abort_on_error midp $? clean_up_midp
 
   # invert the vf (why?)
@@ -207,7 +212,8 @@ midp()
   create_mhd_4D_pattern.sh $midp_dir/vf_midp_
 
   echo "Calculating midp_avg.mhd..."
-  clitkAverageTemporalDimension -i $midp_dir/midp_4D.mhd -o $midp_dir/midp_avg.mhd
+  #clitkAverageTemporalDimension -i $midp_dir/midp_4D.mhd -o $midp_dir/midp_avg.mhd
+  average_temporal_dimension $midp_dir/midp_4D.mhd $midp_dir/midp_avg.mhd
   abort_on_error midp $? clean_up_midp
 
   echo "Calculating midp_med.mhd..."
@@ -245,10 +251,12 @@ midp_in_out()
   coeff_midp_out=$midp_dir/coeff_outside_midp_$phase_nb.mhd
   # average the vf's from reference phase to phase
   # clitkAverageTemporalDimension -i $vf_dir/vf_inside_${ref_phase_nb}_4D.mhd -o $vf_midp_in
-  clitkAverageTemporalDimension -i $vf_dir/coeff_inside_${ref_phase_nb}_4D_0.mhd -o $coeff_midp_in
+  #clitkAverageTemporalDimension -i $vf_dir/coeff_inside_${ref_phase_nb}_4D_0.mhd -o $coeff_midp_in
+  average_temporal_dimension $vf_dir/coeff_inside_${ref_phase_nb}_4D_0.mhd $coeff_midp_in
   abort_on_error midp $? clean_up_midp
   # clitkAverageTemporalDimension -i $vf_dir/vf_outside_${ref_phase_nb}_4D.mhd -o $vf_midp_out
-  clitkAverageTemporalDimension -i $vf_dir/coeff_outside_${ref_phase_nb}_4D_0.mhd -o $coeff_midp_out
+  #clitkAverageTemporalDimension -i $vf_dir/coeff_outside_${ref_phase_nb}_4D_0.mhd -o $coeff_midp_out
+  average_temporal_dimension $vf_dir/coeff_outside_${ref_phase_nb}_4D_0.mhd $coeff_midp_out
   abort_on_error midp $? clean_up_midp
 
   # invert the vf 
@@ -263,9 +271,11 @@ midp_in_out()
   ref_vf_midp_in=$vf_midp_in
   ref_vf_midp_out=$vf_midp_out
   vf_midp=$midp_dir/vf_midp_$phase_nb.mhd
-  clitkCombineImage -i $vf_midp_in -j $vf_midp_out -o $vf_midp -m $mask_dir/mm_$phase_nb.mhd
+  #clitkCombineImage -i $vf_midp_in -j $vf_midp_out -o $vf_midp -m $mask_dir/mm_$phase_nb.mhd
+  combine_image $vf_midp_in $vf_midp_out $vf_midp $mask_dir/mm_$phase_nb.mhd
   clitkZeroVF -i $vf_midp -o vf_zero.mhd
-  clitkCombineImage -i $vf_midp -j vf_zero.mhd -o $vf_midp -m $mask_dir/patient_mask_$phase_nb.mhd
+  #clitkCombineImage -i $vf_midp -j vf_zero.mhd -o $vf_midp -m $mask_dir/patient_mask_$phase_nb.mhd
+  combine_image $vf_midp vf_zero.mhd $vf_midp $mask_dir/patient_mask_$phase_nb.mhd
 
   # create the midp by warping the reference phase with the reference vf
   midp=$midp_dir/midp_$phase_nb.mhd
@@ -293,9 +303,11 @@ midp_in_out()
 
       # combine in and out VF's
       vf_midp=$midp_dir/vf_midp_$phase_nb.mhd
-      clitkCombineImage -i $vf_midp_in -j $vf_midp_out -o $vf_midp -m $mask_dir/mm_$phase_nb.mhd
+      #clitkCombineImage -i $vf_midp_in -j $vf_midp_out -o $vf_midp -m $mask_dir/mm_$phase_nb.mhd
+      combine_image $vf_midp_in $vf_midp_out $vf_midp $mask_dir/mm_$phase_nb.mhd
       clitkZeroVF -i $vf_midp -o vf_zero.mhd
-      clitkCombineImage -i $vf_midp -j vf_zero.mhd -o $vf_midp -m $mask_dir/patient_mask_$phase_nb.mhd
+      #clitkCombineImage -i $vf_midp -j vf_zero.mhd -o $vf_midp -m $mask_dir/patient_mask_$phase_nb.mhd
+      combine_image $vf_midp vf_zero.mhd $vf_midp $mask_dir/patient_mask_$phase_nb.mhd
       
       midp=$midp_dir/midp_$phase_nb.mhd
       clitkWarpImage -i $phase_file -o $midp --vf=$vf_midp -s 1
@@ -315,7 +327,8 @@ midp_in_out()
   create_mhd_4D_pattern.sh $midp_dir/vf_outside_midp_
 
   echo "Calculating midp_avg.mhd..."
-  clitkAverageTemporalDimension -i $midp_dir/midp_4D.mhd -o $midp_dir/midp_avg.mhd
+  #clitkAverageTemporalDimension -i $midp_dir/midp_4D.mhd -o $midp_dir/midp_avg.mhd
+  average_temporal_dimension $midp_dir/midp_4D.mhd $midp_dir/midp_avg.mhd
   abort_on_error midp $? clean_up_midp
 
   echo "Calculating midp_med.mhd..."
