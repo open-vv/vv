@@ -51,6 +51,7 @@ class vvToolROIManager:
   void AnImageIsBeingClosed(vvSlicerManager *);
   void SelectedImageHasChanged(vvSlicerManager *);
   void OpenBinaryImage();
+  void OpenDicomImage();
   void SelectedItemChangedInTree();
   void VisibleROIToggled(bool b);
   void VisibleContourROIToggled(bool b);

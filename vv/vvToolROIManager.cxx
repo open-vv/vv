@@ -22,6 +22,8 @@
 #include "vvROIActor.h"
 #include "vvSlicer.h"
 #include "vvROIActor.h"
+#include "vvMeshReader.h"
+#include "vvStructSelector.h"
 
 // Qt
 #include <QFileDialog>
@@ -96,6 +98,7 @@ vvToolROIManager::vvToolROIManager(vvMainWindowBase * parent, Qt::WindowFlags f)
   connect(parent, SIGNAL(SelectedImageHasChanged(vvSlicerManager *)), 
           this, SLOT(SelectedImageHasChanged(vvSlicerManager *)));
   connect(mOpenBinaryButton, SIGNAL(clicked()), this, SLOT(OpenBinaryImage()));
+  connect(mOpenDicomButton, SIGNAL(clicked()), this, SLOT(OpenDicomImage()));
   connect(mTree, SIGNAL(itemSelectionChanged()), this, SLOT(SelectedItemChangedInTree()));
   connect(mCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(VisibleROIToggled(bool)));
   connect(mOpacitySlider, SIGNAL(valueChanged(int)), this, SLOT(OpacityChanged(int)));
@@ -226,6 +229,45 @@ void vvToolROIManager::OpenBinaryImage()
 
   // Update the contours
   UpdateAllContours(); 
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolROIManager::OpenDicomImage() 
+{
+  DD("OpenDicomImage");
+  QString Extensions = "Dicom Files ( *.dcm RS*)";
+  Extensions += ";;All Files (*)";
+  QString file = QFileDialog::getOpenFileName(this,tr("Merge Images"), 
+                                              mMainWindow->GetInputPathName(), 
+                                              Extensions);
+  if (file.isNull()) return;
+
+  //  AddDCStructContour(index, file);
+  vvMeshReader reader;
+  reader.SetFilename(file.toStdString());
+  vvStructSelector selector;
+  selector.SetStructures(reader.GetROINames());
+  // selector.EnablePropagationCheckBox(); FIXME Disable
+
+  // FIXME : change text -> allow to save binary image
+
+  if (selector.exec()) {
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    reader.SetSelectedItems(selector.getSelectedItems());
+    reader.SetImage(mSlicerManager->GetImage());
+    reader.Update();
+
+    // std::vector<vvMesh::Pointer> contours=reader.GetOutput();
+    // for (std::vector<vvMesh::Pointer>::iterator i=contours.begin();
+    //      i!=contours.end(); i++)
+    //   AddContour(index,*i,selector.PropagationEnabled());
+    QApplication::restoreOverrideCursor();
+  }
+
+
+
 }
 //------------------------------------------------------------------------------
 
