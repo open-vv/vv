@@ -422,7 +422,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>2</number>
         </property>
         <widget class="QWidget" name="DataTab">
          <attribute name="title">
@@ -879,6 +879,9 @@
    <property name="text">
     <string>Open image(s)</string>
    </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="actionClose_image">
    <property name="text">
@@ -892,6 +895,9 @@
    </property>
    <property name="text">
     <string>Exit</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="actionSave_screenshot">
@@ -945,6 +951,9 @@
    <property name="text">
     <string>Open Dicom</string>
    </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="actionOpen_Multiple_Images_As_One">
    <property name="icon">
@@ -954,6 +963,9 @@
    <property name="text">
     <string>Merge several nD images into a single (n+1)D image</string>
    </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="actionSlice_Image_As_Multiple_Images">
    <property name="icon">
@@ -962,6 +974,9 @@
    </property>
    <property name="text">
     <string>Slice a nD image into several (n-1)D images</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="actionOpen_one_Image_as_Multiple">
@@ -979,6 +994,9 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="actionAdd_VF_to_current_Image">
@@ -1049,6 +1067,9 @@
    <property name="text">
     <string>Open a nD image as a (n-1)D + t image</string>
    </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="actionMerge_images_as_n_dim_t">
    <property name="icon">
@@ -1057,6 +1078,9 @@
    </property>
    <property name="text">
     <string>Open several nD images into a single nD+t image</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="actionAdd_fusion_image">
@@ -1126,6 +1150,9 @@
    <property name="text">
     <string>Open VTK or OBJ contour</string>
    </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="actionNavigation_Help">
    <property name="text">
@@ -1145,6 +1172,9 @@
    </property>
    <property name="text">
     <string>Open Dicom-Struct</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="actionCompute_mid_position_image">
@@ -1184,6 +1214,9 @@
    <property name="toolTip">
     <string>Save current window and file states</string>
    </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="actionRead_saved_state">
    <property name="icon">
@@ -1192,6 +1225,9 @@
    </property>
    <property name="text">
     <string>Read Saved State</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="actionAdd_overlay_image_to_current_image">
