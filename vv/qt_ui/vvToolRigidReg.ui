@@ -369,13 +369,13 @@ p, li { white-space: pre-wrap; }
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
-          <widget class="QLineEdit" name="Zval"/>
+          <widget class="QLineEdit" name="Xval"/>
          </item>
          <item>
           <widget class="QLineEdit" name="Yval"/>
          </item>
          <item>
-          <widget class="QLineEdit" name="Xval"/>
+          <widget class="QLineEdit" name="Zval"/>
          </item>
         </layout>
        </item>

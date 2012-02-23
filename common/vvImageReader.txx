@@ -24,7 +24,7 @@
 #include <itkImageSeriesReader.h>
 #include <itkImageToVTKImageFilter.h>
 #include <itkAnalyzeImageIO.h>
-#include <itkVectorCastImageFilter.h>
+#include <itkFlexibleVectorCastImageFilter.h>
 
 #include <vtkTransform.h>
 
@@ -36,7 +36,12 @@ template<unsigned int VImageDimension>
 void vvImageReader::UpdateWithDim(std::string InputPixelType)
 {
   if (mType == VECTORFIELD || mType == VECTORFIELDWITHTIME)
-    UpdateWithDimAndInputVectorPixelType<itk::Vector<float,VImageDimension>,VImageDimension>();
+  {
+    if (VImageDimension == 4)
+      UpdateWithDimAndInputVectorPixelType<itk::Vector<float,3>,VImageDimension>();
+    else
+      UpdateWithDimAndInputVectorPixelType<itk::Vector<float,VImageDimension>,VImageDimension>();
+  }
   else if (InputPixelType == "short")
     UpdateWithDimAndInputPixelType<short,VImageDimension>();
   else if (InputPixelType == "unsigned_short")
@@ -235,14 +240,15 @@ void vvImageReader::UpdateWithDimAndInputVectorPixelType()
     }
     analyzeImageIO = dynamic_cast<itk::AnalyzeImageIO*>( reader->GetImageIO() );
   }
-
+  
   typedef itk::Image< itk::Vector<float , 3>, VImageDimension > VectorImageType;
-  typedef itk::VectorCastImageFilter<InputImageType, VectorImageType> CasterType;
+  typedef itk::FlexibleVectorCastImageFilter<InputImageType, VectorImageType> CasterType;
   typename VectorImageType::Pointer casted_input;
   typename CasterType::Pointer caster = CasterType::New();
   caster->SetInput(input);
+  caster->Update();
   casted_input = caster->GetOutput();
-
+  
   mImage = vvImageFromITK<VImageDimension, itk::Vector<float, 3> >(casted_input, mType == IMAGEWITHTIME || mType == VECTORFIELDWITHTIME);
 
   // For unknown analyze orientations, we set identity

@@ -29,6 +29,7 @@
 // clitk include
 #include "clitkCommon.h"
 #include "clitkImageToImageGenericFilter.h"
+#include "clitkImageArithm_ggo.h"
 
 // itk include
 #include "itkImage.h"
@@ -95,9 +96,54 @@ namespace clitk {
     //--------------------------------------------------------------------
 
   }; // end class ImageArithmGenericFilter
+
+  // specializations for itk::Vector<float, 3u>, 3u
+  template<> template<>
+  void ImageArithmGenericFilter<args_info_clitkImageArithm>::UpdateWithInputImageType< itk::Image< itk::Vector<float, 3u>, 3u > >();
+  
+  template<> template<>
+  void ImageArithmGenericFilter<args_info_clitkImageArithm>::ComputeImage< 
+    itk::ImageRegionIterator< itk::Image< itk::Vector<float, 3u>, 3u > >, 
+    itk::ImageRegionIterator< itk::Image< itk::Vector<float, 3u>, 3u > > 
+    >
+    (itk::ImageRegionIterator< itk::Image< itk::Vector<float, 3u>, 3u > > it, 
+     itk::ImageRegionIterator< itk::Image< itk::Vector<float, 3u>, 3u > > ito);
+
+  template<> template<>
+  void ImageArithmGenericFilter<args_info_clitkImageArithm>::ComputeImage< 
+    itk::ImageRegionIterator< itk::Image< itk::Vector<float, 3u>, 3u > >, 
+    itk::ImageRegionIterator< itk::Image< itk::Vector<float, 3u>, 3u > >, 
+    itk::ImageRegionIterator< itk::Image< itk::Vector<float, 3u>, 3u > > 
+    >
+    (itk::ImageRegionIterator< itk::Image< itk::Vector<float, 3u>, 3u > > it1, 
+     itk::ImageRegionIterator< itk::Image< itk::Vector<float, 3u>, 3u > > it2, 
+     itk::ImageRegionIterator< itk::Image< itk::Vector<float, 3u>, 3u > > ito);
+  
+  // specializations for itk::Vector<double, 3u>, 3u
+  template<> template<>
+  void ImageArithmGenericFilter<args_info_clitkImageArithm>::UpdateWithInputImageType< itk::Image< itk::Vector<double, 3u>, 3u > >();
+  
+  template<> template<>
+  void ImageArithmGenericFilter<args_info_clitkImageArithm>::ComputeImage< 
+    itk::ImageRegionIterator< itk::Image< itk::Vector<double, 3u>, 3u > >, 
+    itk::ImageRegionIterator< itk::Image< itk::Vector<double, 3u>, 3u > > 
+    >
+    (itk::ImageRegionIterator< itk::Image< itk::Vector<double, 3u>, 3u > > it, 
+     itk::ImageRegionIterator< itk::Image< itk::Vector<double, 3u>, 3u > > ito);
+
+  template<> template<>
+  void ImageArithmGenericFilter<args_info_clitkImageArithm>::ComputeImage< 
+    itk::ImageRegionIterator< itk::Image< itk::Vector<double, 3u>, 3u > >, 
+    itk::ImageRegionIterator< itk::Image< itk::Vector<double, 3u>, 3u > >, 
+    itk::ImageRegionIterator< itk::Image< itk::Vector<double, 3u>, 3u > > 
+    >
+    (itk::ImageRegionIterator< itk::Image< itk::Vector<double, 3u>, 3u > > it1, 
+     itk::ImageRegionIterator< itk::Image< itk::Vector<double, 3u>, 3u > > it2, 
+     itk::ImageRegionIterator< itk::Image< itk::Vector<double, 3u>, 3u > > ito);
 } // end namespace
 //--------------------------------------------------------------------
 
+  
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "clitkImageArithmGenericFilter.txx"
 #endif

@@ -17,7 +17,7 @@
 ===========================================================================**/
 #ifndef __clitkSetBackgroundImageFilter_h
 #define __clitkSetBackgroundImageFilter_h
-#include "itkBinaryFunctorImageFilter.h"
+#include "itkFlexibleBinaryFunctorImageFilter.h"
 #include "itkNumericTraits.h"
 
 
@@ -125,7 +125,7 @@ private:
 template <class TInputImage, class TMaskImage, class TOutputImage=TInputImage>
 class ITK_EXPORT SetBackgroundImageFilter :
     public
-    itk::BinaryFunctorImageFilter<TInputImage,TMaskImage,TOutputImage, 
+    itk::FlexibleBinaryFunctorImageFilter<TInputImage,TMaskImage,TOutputImage, 
                          Functor::SetBackground< 
   typename TInputImage::PixelType, 
   typename TMaskImage::PixelType,
@@ -136,7 +136,7 @@ class ITK_EXPORT SetBackgroundImageFilter :
 public:
   /** Standard class typedefs. */
   typedef SetBackgroundImageFilter           Self;
-  typedef itk::BinaryFunctorImageFilter<TInputImage,TMaskImage,TOutputImage, 
+  typedef itk::FlexibleBinaryFunctorImageFilter<TInputImage,TMaskImage,TOutputImage, 
                                    Functor::SetBackground< 
     typename TInputImage::PixelType, 
     typename TMaskImage::PixelType,
@@ -150,7 +150,7 @@ public:
 
   /** Runtime information support. */
   itkTypeMacro(SetBackgroundImageFilter, 
-               BinaryFunctorImageFilter);
+               FlexibleBinaryFunctorImageFilter);
 
   /** Method to explicitly set the outside value of the mask. Defaults to 0 */
   void SetOutsideValue( const typename TOutputImage::PixelType & outsideValue ) 

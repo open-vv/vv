@@ -284,11 +284,11 @@ void clitk::ImageToImageGenericFilterBase::SetNextOutput<itk::Image<PixelType, D
   template \
    itk::Image<PixelType, Dim>::Pointer clitk::ImageToImageGenericFilterBase::GetInput<itk::Image<PixelType, Dim> >(unsigned int n);
 
-#define DEF_SetNextOutput_And_GetInput_WithCompo(Compo, Dim)   \
+#define DEF_SetNextOutput_And_GetInput_WithCompo(PixelType, Compo, Dim)   \
   template \
-  void clitk::ImageToImageGenericFilterBase::SetNextOutput<itk::Image<itk::Vector<float, Compo>, Dim> >(itk::Image<itk::Vector<float, Compo>,Dim>::Pointer output); \
+  void clitk::ImageToImageGenericFilterBase::SetNextOutput<itk::Image<itk::Vector<PixelType, Compo>, Dim> >(itk::Image<itk::Vector<PixelType, Compo>,Dim>::Pointer output); \
   template \
-  itk::Image<itk::Vector<float,Compo>, Dim>::Pointer clitk::ImageToImageGenericFilterBase::GetInput<itk::Image<itk::Vector<float, Compo>, Dim> >(unsigned int n);
+  itk::Image<itk::Vector<PixelType,Compo>, Dim>::Pointer clitk::ImageToImageGenericFilterBase::GetInput<itk::Image<itk::Vector<PixelType, Compo>, Dim> >(unsigned int n);
 
 DEF_SetNextOutput_And_GetInput(char, 2);
 DEF_SetNextOutput_And_GetInput(unsigned char, 2);
@@ -306,15 +306,25 @@ DEF_SetNextOutput_And_GetInput(int, 3);
 DEF_SetNextOutput_And_GetInput(float, 3);
 DEF_SetNextOutput_And_GetInput(double, 3);
 
-DEF_SetNextOutput_And_GetInput_WithCompo(2, 2);
-DEF_SetNextOutput_And_GetInput_WithCompo(2, 3);
-DEF_SetNextOutput_And_GetInput_WithCompo(2, 4);
-DEF_SetNextOutput_And_GetInput_WithCompo(3, 2);
-DEF_SetNextOutput_And_GetInput_WithCompo(3, 3);
-DEF_SetNextOutput_And_GetInput_WithCompo(3, 4);
-DEF_SetNextOutput_And_GetInput_WithCompo(4, 2);
-DEF_SetNextOutput_And_GetInput_WithCompo(4, 3);
-DEF_SetNextOutput_And_GetInput_WithCompo(4, 4);
+DEF_SetNextOutput_And_GetInput_WithCompo(float, 2, 2);
+DEF_SetNextOutput_And_GetInput_WithCompo(float, 2, 3);
+DEF_SetNextOutput_And_GetInput_WithCompo(float, 2, 4);
+DEF_SetNextOutput_And_GetInput_WithCompo(float, 3, 2);
+DEF_SetNextOutput_And_GetInput_WithCompo(float, 3, 3);
+DEF_SetNextOutput_And_GetInput_WithCompo(float, 3, 4);
+DEF_SetNextOutput_And_GetInput_WithCompo(float, 4, 2);
+DEF_SetNextOutput_And_GetInput_WithCompo(float, 4, 3);
+DEF_SetNextOutput_And_GetInput_WithCompo(float, 4, 4);
+
+DEF_SetNextOutput_And_GetInput_WithCompo(double, 2, 2);
+DEF_SetNextOutput_And_GetInput_WithCompo(double, 2, 3);
+DEF_SetNextOutput_And_GetInput_WithCompo(double, 2, 4);
+DEF_SetNextOutput_And_GetInput_WithCompo(double, 3, 2);
+DEF_SetNextOutput_And_GetInput_WithCompo(double, 3, 3);
+DEF_SetNextOutput_And_GetInput_WithCompo(double, 3, 4);
+DEF_SetNextOutput_And_GetInput_WithCompo(double, 4, 2);
+DEF_SetNextOutput_And_GetInput_WithCompo(double, 4, 3);
+DEF_SetNextOutput_And_GetInput_WithCompo(double, 4, 4);
 
 DEF_SetNextOutput_And_GetInput(char, 4);
 DEF_SetNextOutput_And_GetInput(unsigned char, 4);
