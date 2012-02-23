@@ -62,12 +62,14 @@ class vvToolROIManager:
   void AllVisibleROIToggled(int b);
   void AllVisibleContourROIToggled(bool b);
   void ReloadCurrentROI();  
+  void close();
 
 protected:
   Ui::vvToolROIManager ui;
   vvSlicerManager * mSlicerManager;
   vvImage * mCurrentImage;
   vvMainWindowBase * mMainWindow;
+  int mIndexFirstTab;
   
   int mNumberOfVisibleROI;
   int mNumberOfVisibleContourROI;
@@ -85,7 +87,7 @@ protected:
   
   // Data for current selected roi
   clitk::DicomRT_ROI::Pointer mCurrentROI;
-  QSharedPointer<vvROIActor> mCurrentROIActor;  
+  QSharedPointer<vvROIActor> mCurrentROIActor;
  
 }; // end class vvToolROIManager
 //------------------------------------------------------------------------------

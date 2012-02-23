@@ -41,34 +41,44 @@ ADD_TOOL(vvToolROIManager);
 
 //------------------------------------------------------------------------------
 vvToolROIManager::vvToolROIManager(vvMainWindowBase * parent, Qt::WindowFlags f):
-  // vvToolWidgetBase(parent, f), 
-  // if Qt::Widget -> No dialog in this case (in tab) ; PB = "invisible widget on menu" !
-  // if "f" normal widget
-  QWidget(parent->GetTab()->widget(4)), 
+  QWidget(parent->GetTab()), 
   vvToolBase<vvToolROIManager>(parent),
   Ui::vvToolROIManager()
 {
-  //  Insert the current QWidget into the tab layout (required)
-  QWidget * mother = qFindChild<QWidget*>(parent->GetTab(), "ROItab");
-  mother->layout()->addWidget(this);
+  // Store parent
   mMainWindow = parent;
+  
+  // Assume the initial tab ROI index is 2
+  mIndexFirstTab = 2;
+
+  // Get the ROI Tab
+  QWidget * tab = qFindChild<QWidget*>(parent->GetTab(), "ROItab");
+  
+  // Set it as current
+  parent->GetTab()->setCurrentIndex(mIndexFirstTab);
+  
+  // Check if widget already used
+  if (tab->layout()->isEmpty()) {
+    tab->layout()->addWidget(this);
+  }
+  else {
+    close();
+    return;
+  }
   
   // Build the UI
   Ui_vvToolROIManager::setupUi(this);
   setAttribute(Qt::WA_DeleteOnClose);
   mTree->clear();
   mTree->header()->resizeSection(0, 30);
-  parent->GetTab()->setCurrentIndex(2);
 
   // Set default LUT
   mDefaultLUTColor = vtkSmartPointer<vtkLookupTable>::New();
-  DD(mDefaultLUTColor->GetNumberOfTableValues());
   for(int i=0; i<mDefaultLUTColor->GetNumberOfTableValues(); i++) {
     double r = (rand()/(RAND_MAX+1.0));
     double v = (rand()/(RAND_MAX+1.0));
     double b = (rand()/(RAND_MAX+1.0));
     mDefaultLUTColor->SetTableValue(i, r, v, b);
-    //    std::cout << "mDefaultLUTColor->SetTableValue(" << i << ", " << r << ", " << v << ", " << b << ");" << std::endl;
   }
 #include "vvDefaultLut.h"
 
@@ -97,8 +107,7 @@ vvToolROIManager::vvToolROIManager(vvMainWindowBase * parent, Qt::WindowFlags f)
   connect(mReloadButton, SIGNAL(clicked()), this, SLOT(ReloadCurrentROI()));
   connect(mCheckBoxShowAll, SIGNAL(stateChanged(int)), this, SLOT(AllVisibleROIToggled(int)));
   connect(mContourCheckBoxShowAll, SIGNAL(toggled(bool)), this, SLOT(AllVisibleContourROIToggled(bool)));
-
-  // mMainWindowBase->GetTab()->setTabIcon(mTabNumber, GetToolIcon());
+  connect(mCloseButton, SIGNAL(clicked()), this, SLOT(close()));
 }
 //------------------------------------------------------------------------------
 
@@ -126,11 +135,7 @@ void vvToolROIManager::Initialize() {
 //------------------------------------------------------------------------------
 void vvToolROIManager::InputIsSelected(vvSlicerManager *m)
 {
-  std::cout << "vvToolROIManager::InputIsSelected()" << std::endl;
   mSlicerManager = m;
-
-  // Signal/slot
-  connect(mCloseButton, SIGNAL(clicked()), this, SLOT(close()));
 
   // Initialization
   mSlicerManager = m;
@@ -155,15 +160,31 @@ void vvToolROIManager::InputIsSelected(vvSlicerManager *m)
 //------------------------------------------------------------------------------
 void vvToolROIManager::AnImageIsBeingClosed(vvSlicerManager * m)
 {
-  if (m == mSlicerManager) close();
+  DD("AnImageIsBeingClosed");
+  if (m == mSlicerManager) { 
+    close();
+    return;
+  }
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolROIManager::close()
+{
+  DD("close");
+  QWidget::close();
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::SelectedImageHasChanged(vvSlicerManager * m) {
-  if (m != mSlicerManager) hide();
-  else show();
+  DD("SelectedImageHasChanged");
+  if (m != mSlicerManager) hide(); 
+  else {
+    show();
+  }
 }
 //------------------------------------------------------------------------------
 
@@ -213,8 +234,6 @@ void vvToolROIManager::OpenBinaryImage()
 void vvToolROIManager::AddImage(vvImage * binaryImage, std::string filename, 
                                 double BG, bool modeBG) 
 {
-  DD(modeBG);
-
   // Check Dimension
   int dim = mCurrentImage->GetNumberOfDimensions();
   int bin_dim = binaryImage->GetNumberOfDimensions();
@@ -228,13 +247,11 @@ void vvToolROIManager::AddImage(vvImage * binaryImage, std::string filename,
   
   // Compute roi index
   int n = mROIList.size();
-  DD(n);
   
   // Compute the name of the new ROI
   std::ostringstream oss;
   oss << vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(filename));
   std::string name = oss.str();
-  DD(name);
   
   // Set color
   std::vector<double> color;
@@ -256,7 +273,6 @@ void vvToolROIManager::AddImage(vvImage * binaryImage, std::string filename,
     roi->SetForegroundValueLabelImage(BG);
   
   // Change color
-  DD("color");
   if (n<mDefaultLUTColor->GetNumberOfTableValues ()) {
     double * color = mDefaultLUTColor->GetTableValue(n % mDefaultLUTColor->GetNumberOfTableValues ());
     roi->SetDisplayColor(color[0], color[1], color[2]);
@@ -319,7 +335,6 @@ void vvToolROIManager::UpdateAllROIStatus() {
       nbVisible++;
     }
   }
-  DD(nbVisible);
 
   // change the states
   disconnect(mCheckBoxShowAll, SIGNAL(stateChanged(int)), this, SLOT(AllVisibleROIToggled(int)));  
@@ -347,8 +362,6 @@ void vvToolROIManager::SelectedItemChangedInTree() {
     return;
   }
   QTreeWidgetItem * w = l[0];
-  //std::cout << "selected item -> " << w->text(1).toStdString() << std::endl;
-  //std::cout << "m_NumberOfTool -> " << m_NumberOfTool << std::endl;
   if (mMapTreeWidgetToROI.find(w) == mMapTreeWidgetToROI.end()) {
     //    mCurrentROIActor = 0;
     mCurrentROI = NULL;
@@ -390,6 +403,16 @@ void vvToolROIManager::SelectedItemChangedInTree() {
   connect(mChangeContourColorButton, SIGNAL(clicked()), this, SLOT(ChangeContourColor()));
   connect(mContourWidthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeContourWidth(int)));
   connect(mDepthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeDepth(int)));
+
+  
+  // Set the current color to the selected ROI name
+  mROInameLabel->setAutoFillBackground(true);// # This is important!!
+  mROInameLabel->setStyleSheet("QLabel { background-color : red; color : blue; }");
+  QColor color = QColor(mCurrentROI->GetDisplayColor()[0]*255,
+                        mCurrentROI->GetDisplayColor()[1]*255,
+                        mCurrentROI->GetDisplayColor()[2]*255);
+  QString values = QString("%1, %2, %3").arg(color.red()).arg(color.green()).arg(color.blue());
+  mROInameLabel->setStyleSheet("QLabel { background-color: rgb("+values+"); }");
 
   // is this needed ?
   //  actor->Update(); 
@@ -542,5 +565,3 @@ void vvToolROIManager::ReloadCurrentROI() {
   mSlicerManager->Render();    
 }
 //------------------------------------------------------------------------------
-
-

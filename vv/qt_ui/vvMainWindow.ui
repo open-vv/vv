@@ -928,6 +928,9 @@
    <property name="text">
     <string>About</string>
    </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="actionReload_images">
    <property name="text">
@@ -998,6 +1001,9 @@
    <property name="text">
     <string>Save image in TL</string>
    </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="actionNorth_East_Window">
    <property name="icon">
@@ -1006,6 +1012,9 @@
    </property>
    <property name="text">
     <string>Save image in TR</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="actionSouth_West_Window">
@@ -1016,6 +1025,9 @@
    <property name="text">
     <string>Save image in BL</string>
    </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="actionSouth_East_Window">
    <property name="icon">
@@ -1024,6 +1036,9 @@
    </property>
    <property name="text">
     <string>Save image in BR</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="actionOpen_Image_With_Time">
@@ -1052,10 +1067,16 @@
    <property name="text">
     <string>Add fusion image to current image</string>
    </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="actionSegmentation">
    <property name="text">
     <string>Segmentation</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="actionResampler">
@@ -1067,6 +1088,9 @@
    <property name="text">
     <string>Surface Viewer</string>
    </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="actionDebug">
    <property name="text">
@@ -1077,10 +1101,16 @@
    <property name="text">
     <string>Deformable Registration</string>
    </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="actionWarp_image_with_vector_field">
    <property name="text">
     <string>Verify Registration</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="actionMaximum_Intensity_Projection">
@@ -1104,6 +1134,9 @@
    <property name="shortcut">
     <string>F1</string>
    </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="actionOpen_Dicom_Struct">
    <property name="icon">
@@ -1118,6 +1151,9 @@
    <property name="text">
     <string>Compute mid-position image</string>
    </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="actionExperimental">
    <property name="text">
@@ -1127,6 +1163,9 @@
   <action name="actionRegister_vv">
    <property name="text">
     <string>Register vv</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="actionSave_all_slices">

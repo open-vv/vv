@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>349</width>
-    <height>627</height>
+    <width>350</width>
+    <height>554</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -25,8 +25,8 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_4">
-   <item row="0" column="0">
+  <layout class="QVBoxLayout" name="verticalLayout_5">
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
       <spacer name="horizontalSpacer">
@@ -76,7 +76,7 @@
      </item>
     </layout>
    </item>
-   <item row="1" column="0">
+   <item>
     <widget class="QFrame" name="frame_3">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -84,106 +84,165 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QLabel" name="vectorFieldNameLabel_4">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Load ROI from image</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="mOpenBinaryButton">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>24</width>
-            <height>24</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Open label image</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset resource="../vvIcons.qrc">
-            <normaloff>:/common/icons/fileopen.png</normaloff>:/common/icons/fileopen.png</iconset>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_4">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QLabel" name="dimensionStaticLabel">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>BG</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="mBackgroundValueSpinBox"/>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="mBGModeCheckBox">
-          <property name="toolTip">
-           <string>Tick if you want to consider FG mode instead of BG mode.</string>
-          </property>
-          <property name="text">
-           <string>FG ?</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>2</number>
+      </property>
+      <property name="margin">
+       <number>2</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="vectorFieldNameLabel_4">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Load ROI from image</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="mOpenBinaryButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Open label image</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../vvIcons.qrc">
+          <normaloff>:/common/icons/fileopen.png</normaloff>:/common/icons/fileopen.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="dimensionStaticLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>BG</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="mBackgroundValueSpinBox"/>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="mBGModeCheckBox">
+        <property name="toolTip">
+         <string>Tick if you want to consider FG mode instead of BG mode.</string>
+        </property>
+        <property name="text">
+         <string>FG ?</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item>
+    <widget class="QFrame" name="frame_4">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_10">
+      <property name="spacing">
+       <number>2</number>
+      </property>
+      <property name="margin">
+       <number>2</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="vectorFieldNameLabel_5">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Load DICOM-RT-Struct</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="mOpenDicomButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Open label image</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../vvIcons.qrc">
+          <normaloff>:/common/icons/fileopen.png</normaloff>:/common/icons/fileopen.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_6">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QTreeWidget" name="mTree">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -253,7 +312,7 @@
      </item>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item>
     <widget class="QFrame" name="frame">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -399,6 +458,19 @@
             </widget>
            </item>
            <item>
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
             <layout class="QHBoxLayout" name="horizontalLayout_6">
              <item>
               <widget class="QLabel" name="mROInameLabel_2">
@@ -441,7 +513,7 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>Name : Lung</string>
+              <string>        </string>
              </property>
             </widget>
            </item>
@@ -489,7 +561,7 @@
      </layout>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_7">
      <property name="spacing">
       <number>2</number>
@@ -617,6 +689,25 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>mOpenBinaryButton</tabstop>
+  <tabstop>mBackgroundValueSpinBox</tabstop>
+  <tabstop>mBGModeCheckBox</tabstop>
+  <tabstop>mOpenDicomButton</tabstop>
+  <tabstop>mTree</tabstop>
+  <tabstop>mCheckBoxShow</tabstop>
+  <tabstop>mChangeColorButton</tabstop>
+  <tabstop>mReloadButton</tabstop>
+  <tabstop>mOpacitySlider</tabstop>
+  <tabstop>mOpacitySpinBox</tabstop>
+  <tabstop>mContourCheckBoxShow</tabstop>
+  <tabstop>mChangeContourColorButton</tabstop>
+  <tabstop>mContourWidthSpinBox</tabstop>
+  <tabstop>mDepthSpinBox</tabstop>
+  <tabstop>mCheckBoxShowAll</tabstop>
+  <tabstop>mContourCheckBoxShowAll</tabstop>
+  <tabstop>mCloseButton</tabstop>
+ </tabstops>
  <resources>
   <include location="../vvIcons.qrc"/>
  </resources>
@@ -628,12 +719,12 @@
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>219</x>
-     <y>385</y>
+     <x>289</x>
+     <y>371</y>
     </hint>
     <hint type="destinationlabel">
-     <x>376</x>
-     <y>376</y>
+     <x>413</x>
+     <y>374</y>
     </hint>
    </hints>
   </connection>
@@ -648,8 +739,8 @@
      <y>367</y>
     </hint>
     <hint type="destinationlabel">
-     <x>222</x>
-     <y>373</y>
+     <x>292</x>
+     <y>371</y>
     </hint>
    </hints>
   </connection>
