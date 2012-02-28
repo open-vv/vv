@@ -496,9 +496,9 @@ namespace clitk
         itk::Vector<double,3> finalTranslation = clitk::GetTranslationPartMatrix3D(rigidTransformMatrix);
         rigidTransform->SetTranslation(finalTranslation);
       }
-      else
+      else if (m_ArgsInfo.centre_flag)
       {
-        if(m_Verbose) std::cout<<"No itinial matrix given. Centering all images..."<<std::endl;
+        if(m_Verbose) std::cout<<"No itinial matrix given and \"centre\" flag switched on. Centering all images..."<<std::endl;
         
         rigidTransform=RigidTransformType::New();
         
