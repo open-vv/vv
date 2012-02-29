@@ -44,6 +44,7 @@ IF (${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
 #  MESSAGE("Install libstatgrab (http://www.i-scream.org/libstatgrab/) for memory usage information")
   SET(CLITK_MEMORY_INFO OFF)
 ELSE (${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
+  INCLUDE_DIRECTORIES(${LIBSTATGRAB}/../include)
   SET(CLITK_MEMORY_INFO ON)
 ENDIF (${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")  
 #=========================================================
