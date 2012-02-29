@@ -2781,7 +2781,13 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
       mpg->SetInput(image);
       mpg->SetFileName(fileName.toStdString().c_str());
       mpg->SetQuality(2);
-      mpg->SetRate(5);
+      bool ok;
+      int fps = QInputDialog::getInt(this, tr("Number of frames per second"),
+                                     tr("FPS:"), 5, 0, 1024, 1, &ok);
+      if(!ok)
+	fps = 5;
+      mpg->SetRate(fps);      
+      mpg->SetBitRateTolerance(round(12*1024*1024/fps+1));
       mpg->Start();
 
       vvImage * vvImg = mSlicerManagers[smIndex]->GetImage();
