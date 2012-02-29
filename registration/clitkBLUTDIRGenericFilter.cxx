@@ -29,7 +29,8 @@ It is distributed under dual licence
 
 #include "clitkBLUTDIRGenericFilter.h"
 #include "clitkBLUTDIRCommandIterationUpdateDVF.h"
-
+#include "itkCenteredTransformInitializer.h"
+  
 namespace clitk
 {
 
@@ -494,6 +495,20 @@ namespace clitk
         //Set the translation
         itk::Vector<double,3> finalTranslation = clitk::GetTranslationPartMatrix3D(rigidTransformMatrix);
         rigidTransform->SetTranslation(finalTranslation);
+      }
+      else if (m_ArgsInfo.centre_flag)
+      {
+        if(m_Verbose) std::cout<<"No itinial matrix given and \"centre\" flag switched on. Centering all images..."<<std::endl;
+        
+        rigidTransform=RigidTransformType::New();
+        
+        typedef itk::CenteredTransformInitializer<RigidTransformType, FixedImageType, MovingImageType > TransformInitializerType;
+        typename TransformInitializerType::Pointer initializer = TransformInitializerType::New();
+        initializer->SetTransform( rigidTransform );
+        initializer->SetFixedImage( fixedImage );
+        initializer->SetMovingImage( movingImage );        
+        initializer->GeometryOn();
+        initializer->InitializeTransform();
       }
 
 

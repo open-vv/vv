@@ -34,6 +34,7 @@ option "after"			-	"Difference image after "		string 		no
 section "Transform (Note that only one of --control, --spacing is required. The other will be adjusted to fit the region and allow exact representation. SamplingFactor will be set accordingly"
 
 option "initMatrix"		-	"Prior rigid/affine transform matrix from reference to target space"	string	 	no	
+option "centre"   - "Centre images before starting registration (ignored if initMatrix was given)"  flag    off
 option "initCoeff"		-	"Initial coefficient image"					    	string		no
 option "order"			-	"Spline Order FFD"						int 	  no  	multiple        default="3"
 option "control"		-	"Internal control points for each dimension"			int	  no 	multiple	

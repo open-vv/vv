@@ -46,6 +46,7 @@ void ImageArithmGenericFilter<args_info_type>::InitializeImageType()
 {
   ADD_DEFAULT_IMAGE_TYPES(Dim);
   ADD_VEC_IMAGE_TYPE(3u,3u,float);
+  ADD_VEC_IMAGE_TYPE(3u,3u,double);
 }
 //--------------------------------------------------------------------
 

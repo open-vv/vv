@@ -148,9 +148,15 @@ void vvImageReader::ReadNkiImageTransform()
 //Read transformation in ASCII format
 void vvImageReader::ReadMatImageTransform()
 {
-  std::string filename(itksys::SystemTools::GetFilenameWithoutExtension(mInputFilenames[0]));
-  filename += ".mat";
-
+  std::string filename(mInputFilenames[0]);
+  std::string ext(itksys::SystemTools::GetFilenameLastExtension(filename));
+  if (ext.length() > 0) {
+    size_t pos = filename.rfind(ext);
+    filename.replace(pos, ext.length(), ".mat");
+  }
+  else
+    filename += ".mat";
+    
   std::ifstream f(filename.c_str());
   if(f.is_open()) {
     f.close();
