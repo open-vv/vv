@@ -2786,8 +2786,8 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
                                      tr("FPS:"), 5, 0, 1024, 1, &ok);
       if(!ok)
 	fps = 5;
-      mpg->SetRate(fps);      
-      mpg->SetBitRateTolerance(round(12*1024*1024/fps+1));
+      mpg->SetRate(fps);
+      mpg->SetBitRateTolerance(int(ceil(12.0*1024*1024/fps)));
       mpg->Start();
 
       vvImage * vvImg = mSlicerManagers[smIndex]->GetImage();
