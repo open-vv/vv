@@ -57,7 +57,7 @@ registration_blutdir()
   local init_coeff=${18}
 
   echo "Computing BLUTDIR $reference -> $target ..."
-  blutdir_params="--levels $nb_levels  --metric $metric --optimizer $optimizer --samples $nb_samples --spacing $spacing,$spacing,$spacing --bins $hist_bins --maxIt $nb_iter --interp $interpolator --verbose"
+  blutdir_params="--levels $nb_levels  --metric $metric --optimizer $optimizer --samples $nb_samples --spacing $spacing,$spacing,$spacing --bins $hist_bins --maxIt $nb_iter --interp $interpolator --centre --verbose"
 
   if [ -n "$coeff" ]; then
     coeff="--coeff $coeff"
