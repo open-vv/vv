@@ -946,6 +946,10 @@ MotionMaskGenericFilter::UpdateWithDimAndPixelType()
     distanceMapImageFilter->SetInsideIsPositive(false);
     if (m_Verbose) std::cout<<"Calculating the distance map..."<<std::endl;
     distanceMapImageFilter->Update();
+    if (m_ArgsInfo.writeDistMap_given) {
+      writeImage<LevelSetImageType>(distanceMapImageFilter->GetOutput(), m_ArgsInfo.writeDistMap_arg, m_Verbose);
+      
+    }
 
     //---------------------------------
     // Grow while monitoring detection point
