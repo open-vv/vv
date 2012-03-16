@@ -95,7 +95,9 @@ PrintOptions(std::ostream & os)
      << "ObjectCCLSelectionFlag = " << this->GetObjectCCLSelectionFlag() << std::endl    
      << "ObjectCCLSelectionDimension = " << this->GetObjectCCLSelectionDimension() << std::endl    
      << "ObjectCCLSelectionIgnoreSingleCCLFlag = " << this->GetObjectCCLSelectionIgnoreSingleCCLFlag() << std::endl    
-     << "IgnoreEmptySliceObjectFlag = " << this->GetIgnoreEmptySliceObjectFlag() << std::endl;    
+     << "IgnoreEmptySliceObjectFlag = " << this->GetIgnoreEmptySliceObjectFlag() << std::endl
+     << "(RP) FastFlag              = " << this->GetFastFlag() << std::endl
+     << "(RP) Radius                = " << this->GetRadius() << std::endl;
 }
 //--------------------------------------------------------------------
 
