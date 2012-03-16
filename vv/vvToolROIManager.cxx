@@ -73,6 +73,9 @@ vvToolROIManager::vvToolROIManager(vvMainWindowBase * parent, Qt::WindowFlags f)
   setAttribute(Qt::WA_DeleteOnClose);
   mTree->clear();
   mTree->header()->resizeSection(0, 30);
+  
+  // Temporary disable "Load dicom" button
+  frame_4->hide();
 
   // Set default LUT
   mDefaultLUTColor = vtkSmartPointer<vtkLookupTable>::New();
@@ -183,7 +186,7 @@ void vvToolROIManager::close()
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::SelectedImageHasChanged(vvSlicerManager * m) {
-  DD("SelectedImageHasChanged");
+  //  DD("SelectedImageHasChanged");
   if (m != mSlicerManager) hide(); 
   else {
     show();
