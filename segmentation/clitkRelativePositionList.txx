@@ -87,6 +87,8 @@ Read(std::string filename) {
       std::ofstream os;
       openFileForWriting(os, tmpfilename);
       os << text;
+      os << "input = nothing" << std::endl;
+      os << "output = nothing" << std::endl;
       os.close();
 
       // Create a struct to store options. I use two step to allow to
@@ -97,14 +99,11 @@ Read(std::string filename) {
       std::copy(tmpfilename.begin(), tmpfilename.end(), writable.begin());
       char ** argv = new char*[1];
       argv[0] = new char[1];
-      cmdline_parser_clitkRelativePosition2(1, argv, &args_info, 1, 1, 0);
-      args_info.input_given = 1;
-      args_info.input_arg = new char[1];
-      args_info.output_given = 1;
-      args_info.output_arg = new char[1];
-      cmdline_parser_clitkRelativePosition_configfile(&writable[0], &args_info, 0, 0, 1);
-      
-      // Store the args
+      struct cmdline_parser_clitkRelativePosition_params params;
+      params.override = 0;
+      params.initialize = 1;
+      params.check_required = 0;
+      cmdline_parser_clitkRelativePosition_configfile(&writable[0], &args_info, 1, 1, 1);
       mArgsInfoList.push_back(args_info);
       
       // Delete the temporary file
@@ -157,6 +156,7 @@ GenerateOutputInformation() {
       text += " slice by slice";
     }
     else text += " 3D";
+    text += " spacing=" + toString(mArgsInfoList[i].spacing_arg);
 
     StartNewStep(text);  
     typename RelPosFilterType::Pointer relPosFilter;
