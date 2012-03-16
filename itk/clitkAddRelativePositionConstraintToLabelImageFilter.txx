@@ -63,6 +63,8 @@ AddRelativePositionConstraintToLabelImageFilter():
   VerboseStepFlagOff();
   WriteStepFlagOff();
   FuzzyMapOnlyFlagOff();
+  FastFlagOff();
+  SetRadius(2.0);
 }
 //--------------------------------------------------------------------
 
@@ -380,12 +382,16 @@ GenerateData()
   for(int i=0; i<GetNumberOfAngles(); i++) {
     // Compute fuzzy map
     relPosFilter = RelPosFilterType::New();
+    relPosFilter->SetFast(GetFastFlag());
+    relPosFilter->SetRadius(GetRadius());
     relPosFilter->SetInput(working_image);
     relPosFilter->SetAlpha1(m_Angle1[i]); // xy plane
     relPosFilter->SetAlpha2(m_Angle2[i]);
     relPosFilter->SetK1(M_PI/2.0); // Opening parameter, default = pi/2
-    relPosFilter->SetFast(true);
-    relPosFilter->SetRadius(1); // seems sufficient in this case
+
+    // relPosFilter->SetFast(true);
+    // relPosFilter->SetRadius(1); // seems sufficient in this case
+
     // relPosFilter->SetVerboseProgress(true);
     relPosFilter->Update();
     relPos = relPosFilter->GetOutput();
