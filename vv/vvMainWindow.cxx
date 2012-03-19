@@ -93,7 +93,7 @@
 #define COLUMN_RELOAD_IMAGE 6
 #define COLUMN_IMAGE_NAME 7
 
-#define EXTENSIONS "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN )"
+#define EXTENSIONS "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN *.nii *.nrrd *.nhdr)"
 
 /*Data Tree values
   0,Qt::UserRole full filename
@@ -2257,11 +2257,17 @@ void vvMainWindow::SaveAs()
   } else if (dimension == 3) {
     OutputListeFormat.push_back(".mhd");
     OutputListeFormat.push_back(".mha");
+    OutputListeFormat.push_back(".nii");
+    OutputListeFormat.push_back(".nrrd");
+    OutputListeFormat.push_back(".nhdr");
     OutputListeFormat.push_back(".hdr");
     OutputListeFormat.push_back(".vox");
   } else if (dimension == 4) {
     OutputListeFormat.push_back(".mhd");
     OutputListeFormat.push_back(".mha");
+    OutputListeFormat.push_back(".nii");
+    OutputListeFormat.push_back(".nrrd");
+    OutputListeFormat.push_back(".nhdr");
   }
   QString Extensions = "AllFiles(*.*)";
   for (int i = 0; i < OutputListeFormat.count(); i++) {
