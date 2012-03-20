@@ -47,7 +47,7 @@ AddRelativePositionListFilename(std::string s) {
 template <class TImageType>
 typename clitk::StructuresExtractionFilter<TImageType>::MaskImagePointer
 clitk::StructuresExtractionFilter<TImageType>::
-ApplyRelativePositionList(std::string name, MaskImageType * input) 
+ApplyRelativePositionList(std::string name, MaskImageType * input, bool overlap) 
 { 
   // Create all RelativePositionList
   for(unsigned int i=0; i<mListOfRelativePositionListFilename.size(); i++) {
@@ -71,8 +71,14 @@ ApplyRelativePositionList(std::string name, MaskImageType * input)
     relpos->SetCurrentStepNumber(GetCurrentStepNumber());
     relpos->SetWriteStepFlag(GetWriteStepFlag());
     relpos->SetInput(input);
+    if (overlap) {
+      std::string n = name.substr(8,2);
+      MaskImagePointer ref = this->GetAFDB()->template GetImage <MaskImageType>("S"+n+"_Ref");
+      relpos->SetReferenceImageForOverlapMeasure(ref);
+    }
     relpos->Update();
     input = relpos->GetOutput();
+
     SetCurrentStepNumber(relpos->GetCurrentStepNumber());
   }
   return input;
