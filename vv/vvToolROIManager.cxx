@@ -121,7 +121,6 @@ vvToolROIManager::vvToolROIManager(vvMainWindowBase * parent, Qt::WindowFlags f)
 //------------------------------------------------------------------------------
 vvToolROIManager::~vvToolROIManager()
 {
-  std::cout << "vvToolROIManager::~vvToolROIManager()" << std::endl;
 }
 //------------------------------------------------------------------------------
 
@@ -166,7 +165,6 @@ void vvToolROIManager::InputIsSelected(vvSlicerManager *m)
 //------------------------------------------------------------------------------
 void vvToolROIManager::AnImageIsBeingClosed(vvSlicerManager * m)
 {
-  DD("AnImageIsBeingClosed");
   if (m == mSlicerManager) { 
     close();
     return;
@@ -178,7 +176,8 @@ void vvToolROIManager::AnImageIsBeingClosed(vvSlicerManager * m)
 //------------------------------------------------------------------------------
 void vvToolROIManager::close()
 {
-  DD("close");
+  // Update to delete actors
+  UpdateAllContours();
   QWidget::close();
 }
 //------------------------------------------------------------------------------
@@ -186,7 +185,6 @@ void vvToolROIManager::close()
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::SelectedImageHasChanged(vvSlicerManager * m) {
-  //  DD("SelectedImageHasChanged");
   if (m != mSlicerManager) hide(); 
   else {
     show();
@@ -413,9 +411,12 @@ void vvToolROIManager::SelectedItemChangedInTree() {
     mGroupBoxROI->setEnabled(false);
     return;
   }
+  if (w == NULL) return;
   clitk::DicomRT_ROI * roi = mMapTreeWidgetToROI[w];
+  if (roi == NULL) return; // sometimes it is called while there is no roi anymore
   // Get selected roi actor
-  QSharedPointer<vvROIActor> actor = mROIActorsList[roi->GetROINumber()];
+  int n = roi->GetROINumber();
+  QSharedPointer<vvROIActor> actor = mROIActorsList[n];
   mCurrentROI = roi;
   mCurrentROIActor = actor;
 
@@ -593,6 +594,14 @@ void vvToolROIManager::ChangeDepth(int n) {
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::ReloadCurrentROI() {
+
+  // Remove all contours/overlay first
+  bool visible = mCurrentROIActor->IsVisible();
+  bool cvisible = mCurrentROIActor->IsContourVisible();
+  mCurrentROIActor->SetVisible(false);
+  mCurrentROIActor->SetContourVisible(false);
+  mSlicerManager->Render();
+  
   // Reload image
   vvImageReader::Pointer reader = vvImageReader::New();
   reader->SetInputFilename(mCurrentROI->GetFilename());
@@ -602,11 +611,14 @@ void vvToolROIManager::ReloadCurrentROI() {
                              reader->GetLastError().c_str());
     return;
   }
-  mCurrentROI->GetImage()->GetFirstVTKImageData()->ReleaseData();
+
+  mCurrentROI->GetImage()->Reset();//GetFirstVTKImageData()->ReleaseData();
   mCurrentROI->SetImage(reader->GetOutput());
   
-  // Update visu"
+  // Update visu
   mCurrentROIActor->UpdateImage();
+  mCurrentROIActor->SetVisible(visible);
+  mCurrentROIActor->SetContourVisible(cvisible);
   mSlicerManager->Render();    
 }
 //------------------------------------------------------------------------------
