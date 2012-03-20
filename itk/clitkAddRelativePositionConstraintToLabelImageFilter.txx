@@ -432,7 +432,43 @@ GenerateData()
 
   relPos = m_FuzzyMap;
   StopCurrentStep<FloatImageType>(relPos);
-  if (GetFuzzyMapOnlyFlag()) return;
+  if (GetFuzzyMapOnlyFlag()) {
+    // If the spacing is used, recompute fuzzy map with the input size/spacing
+    if (m_IntermediateSpacingFlag) {
+      StartNewStep("Resample FuzzyMap to come back to the same sampling than input");
+      typedef clitk::ResampleImageWithOptionsFilter<FloatImageType> ResampleFilterType;
+      typename ResampleFilterType::Pointer resampleFilter = ResampleFilterType::New();
+      resampleFilter->SetDefaultPixelValue(0.0); //Default fuzzymap value FIXME
+      resampleFilter->SetInput(relPos);
+      resampleFilter->SetOutputSpacing(input->GetSpacing());
+      resampleFilter->SetGaussianFilteringEnabled(false);
+      resampleFilter->Update();
+      relPos = m_FuzzyMap = resampleFilter->GetOutput();
+
+      // Need to put exactly the same size
+      if (relPos->GetLargestPossibleRegion() != input->GetLargestPossibleRegion()) {
+        StartNewStep("Pad to get the same size than input");
+        typename FloatImageType::Pointer temp = FloatImageType::New();
+        temp->CopyInformation(input);
+        temp->SetRegions(input->GetLargestPossibleRegion()); // Do not forget !!
+        temp->Allocate();
+        temp->FillBuffer(0.0); // Default fuzzymap value FIXME
+        typename PasteFloatFilterType::Pointer padFilter2 = PasteFloatFilterType::New();
+        padFilter2->SetSourceImage(relPos);
+        padFilter2->SetDestinationImage(temp);
+        padFilter2->SetDestinationIndex(input->GetLargestPossibleRegion().GetIndex());
+        padFilter2->SetSourceRegion(relPos->GetLargestPossibleRegion());
+        padFilter2->Update();
+        relPos = padFilter2->GetOutput();
+        StopCurrentStep<FloatImageType>(relPos);
+        m_FuzzyMap = relPos;
+      }     
+    }
+    else {
+      StopCurrentStep<FloatImageType>(relPos);
+    }
+    return;
+  }
                
   //--------------------------------------------------------------------
   //--------------------------------------------------------------------

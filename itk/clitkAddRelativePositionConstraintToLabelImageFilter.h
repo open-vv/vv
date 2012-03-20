@@ -177,6 +177,7 @@ namespace clitk {
     virtual void GenerateData();
 
     typedef itk::PasteImageFilter<ImageType,ImageType> PasteFilterType;
+    typedef itk::PasteImageFilter<FloatImageType,FloatImageType> PasteFloatFilterType;
     typename ImageType::Pointer working_image;
     typename ImageType::Pointer object_resampled;
     typename FloatImageType::Pointer relPos;
