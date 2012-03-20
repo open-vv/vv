@@ -181,6 +181,8 @@ GenerateOutputInformation()
     m_working_object = clitk::ResizeImageLike<ImageType>(m_working_object, 
                                                          m_working_input, 
                                                          this->GetObjectBackgroundValue());
+    
+    // End
     this->template StopCurrentStep<ImageType>(m_working_input);  
   }
   
@@ -223,7 +225,7 @@ GenerateOutputInformation()
 
   //--------------------------------------------------------------------
   // Perform slice by slice relative position
-  this->StartNewStep("Perform slice by slice relative position");
+  this->StartNewStep("Perform slice by slice relative position ("+toString(mInputSlices.size())+")");
   for(unsigned int i=0; i<mInputSlices.size(); i++) {
     
     // Count the number of CCL (allow to ignore empty slice)
@@ -283,17 +285,14 @@ GenerateOutputInformation()
         // Relative position
         typedef clitk::AddRelativePositionConstraintToLabelImageFilter<SliceType> RelPosFilterType;
         typename RelPosFilterType::Pointer relPosFilter = RelPosFilterType::New();
-
         relPosFilter->VerboseStepFlagOff();
         relPosFilter->WriteStepFlagOff();
         // relPosFilter->VerboseMemoryFlagOn();
-        relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId()+"-"+toString(i));
-        
+        relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId()+"-"+toString(i));        
         relPosFilter->SetBackgroundValue(this->GetBackgroundValue());
         relPosFilter->SetInput(mInputSlices[i]); 
         relPosFilter->SetInputObject(mObjectSlices[i]); 
-        relPosFilter->SetRemoveObjectFlag(this->GetRemoveObjectFlag());
-        
+        relPosFilter->SetRemoveObjectFlag(this->GetRemoveObjectFlag());        
         // This flag (InverseOrientation) *must* be set before
         // AddOrientation because AddOrientation can change it.
         relPosFilter->SetInverseOrientationFlag(this->GetInverseOrientationFlag());
@@ -305,11 +304,12 @@ GenerateOutputInformation()
         relPosFilter->SetFuzzyThreshold(this->GetFuzzyThreshold());
         relPosFilter->AutoCropFlagOff(); // important ! because we join the slices after this loop
         relPosFilter->SetCombineWithOrFlag(this->GetCombineWithOrFlag()); 
-
         // should we stop after fuzzy map ?
         relPosFilter->SetFuzzyMapOnlyFlag(this->GetFuzzyMapOnlyFlag());
-        //        relPosFilter->SetComputeFuzzyMapFlag(this->GetComputeFuzzyMapFlag());
-      
+        //        relPosFilter->SetComputeFuzzyMapFlag(this->GetComputeFuzzyMapFlag());      
+        relPosFilter->SetFastFlag(this->GetFastFlag());
+        relPosFilter->SetRadius(this->GetRadius());
+
         // Go !
         relPosFilter->Update();
 
