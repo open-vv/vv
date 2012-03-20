@@ -17,7 +17,7 @@
   ===========================================================================**/
 
 #ifndef CLITKLABELIMAGEOVERLAPMEASUREFILTER_H
-#define CLITKRELATIVEPOSITIONANALYZERFILTER_H
+#define CLITKLABELIMAGEOVERLAPMEASUREFILTER_H
 
 // clitk
 #include "clitkFilterBase.h"

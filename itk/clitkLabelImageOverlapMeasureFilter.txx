@@ -120,7 +120,7 @@ GenerateData()
   statFilter->Update();
   int in2 = statFilter->GetCount(GetLabel1());
 
-  std::cout << in1 << " " << in2 << " " << inter << " " << u << " " << (double)inter/(double)u << std::endl;
+  std::cout << in1 << " " << in2 << " " << inter << " " << u << " " << 2.0*(double)inter/(double)(in1+in2) << std::endl;
 }
 //--------------------------------------------------------------------
 
