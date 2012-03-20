@@ -16,11 +16,24 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
   ======================================================================-====*/
 
+#include "clitkLabelImageOverlapMeasureFilter.h"
 
 //--------------------------------------------------------------------
 template <class TImageType>
 clitk::RelativePositionList<TImageType>::
 RelativePositionList() {
+  ComputeOverlapFlagOff();
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class TImageType>
+void
+clitk::RelativePositionList<TImageType>::
+SetReferenceImageForOverlapMeasure(ImagePointer ref) {
+  m_reference = ref;
+  ComputeOverlapFlagOn();
 }
 //--------------------------------------------------------------------
 
@@ -191,7 +204,16 @@ GenerateOutputInformation() {
     relPosFilter->Update();
     m_working_input = relPosFilter->GetOutput();  
     StopCurrentStep<ImageType>(m_working_input);
-    // clitk::PrintMemory(true, "End"); 
+
+    // Compute overlap with reference if needed
+    if (GetComputeOverlapFlag()) {
+      typedef clitk::LabelImageOverlapMeasureFilter<ImageType> FilterType;
+      typename FilterType::Pointer filter = FilterType::New();
+      filter->SetInput(0, m_working_input);
+      filter->SetInput(1, m_reference);
+      filter->Update();
+    }
+    
   }
 }
 //--------------------------------------------------------------------
