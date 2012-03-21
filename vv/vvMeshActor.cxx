@@ -67,8 +67,8 @@ void vvMeshActor::Init(vvMesh::Pointer mesh,int time_slice,vvImage::Pointer vf)
 
 void vvMeshActor::SetCutSlice(double slice)
 {
-  DD("SetCutSlice");
-  DD(slice);
+  //DD("SetCutSlice");
+  //DD(slice);
   mCutSlice=slice;
   vtkImageData* mask;
   if (static_cast<unsigned int>(mTimeSlice)<mMesh->GetNumberOfMasks())
