@@ -109,6 +109,13 @@ GenerateData()
     // We extrude in the -slice_spacing direction to respect the FOCAL convention 
     extrude->SetVector(0, 0, -m_LikeImage->GetSpacing()[2]);
     sts->SetInput(extrude->GetOutput());
+    
+    // When extrude ScaleFactor indicate the extrusion scaling (default = 1)
+    /*
+      extrude->SetScaleFactor(m_LikeImage->GetSpacing()[2]/2.0);
+      DD(extrude->GetScaleFactor());
+      DD(extrude->GetCapping());
+    */ 
   }
   else
     sts->SetInput(m_Mesh);
