@@ -2751,36 +2751,26 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
     vtkImageData *image = w2i->GetOutput();
 
     const char *ext = fileName.toStdString().c_str() + strlen(fileName.toStdString().c_str()) - 4;
-    if (!strcmp(ext, ".bmp")) {
-      vtkBMPWriter *bmp = vtkBMPWriter::New();
-      bmp->SetInput(image);
-      bmp->SetFileName(fileName.toStdString().c_str());
-      bmp->Write();
-      bmp->Delete();
-    } else if (!strcmp(ext, ".tif")) {
-      vtkTIFFWriter *tif = vtkTIFFWriter::New();
-      tif->SetInput(image);
-      tif->SetFileName(fileName.toStdString().c_str());
-      tif->Write();
-      tif->Delete();
-    } else if (!strcmp(ext, ".ppm")) {
-      vtkPNMWriter *pnm = vtkPNMWriter::New();
-      pnm->SetInput(image);
-      pnm->SetFileName(fileName.toStdString().c_str());
-      pnm->Write();
-      pnm->Delete();
-    } else if (!strcmp(ext, ".png")) {
-      vtkPNGWriter *png = vtkPNGWriter::New();
-      png->SetInput(image);
-      png->SetFileName(fileName.toStdString().c_str());
-      png->Write();
-      png->Delete();
-    } else if (!strcmp(ext, ".jpg")) {
-      vtkJPEGWriter *jpg = vtkJPEGWriter::New();
-      jpg->SetInput(image);
-      jpg->SetFileName(fileName.toStdString().c_str());
-      jpg->Write();
-      jpg->Delete();
+
+    // Image
+    vtkImageWriter *imgwriter = NULL;
+    if (!strcmp(ext, ".bmp"))
+      imgwriter = vtkBMPWriter::New();
+    else if (!strcmp(ext, ".tif"))
+      imgwriter = vtkTIFFWriter::New();
+    else if (!strcmp(ext, ".ppm"))
+      imgwriter = vtkPNMWriter::New();
+    else if (!strcmp(ext, ".png"))
+      imgwriter = vtkPNGWriter::New();
+    else if (!strcmp(ext, ".jpg"))
+      imgwriter = vtkJPEGWriter::New();
+
+    // Snapshot image if not null
+    if(imgwriter!=NULL) {
+      imgwriter->SetInput(image);
+      imgwriter->SetFileName(fileName.toStdString().c_str());
+      imgwriter->Write();
+      return;
 #ifdef VTK_USE_FFMPEG_ENCODER
     } else if (!strcmp(ext, ".avi")) {
       vtkFFMPEGWriter *mpg = vtkFFMPEGWriter::New();
@@ -2791,7 +2781,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
       int fps = QInputDialog::getInt(this, tr("Number of frames per second"),
                                      tr("FPS:"), 5, 0, 1024, 1, &ok);
       if(!ok)
-	fps = 5;
+        fps = 5;
       mpg->SetRate(fps);
       mpg->SetBitRateTolerance(int(ceil(12.0*1024*1024/fps)));
       mpg->Start();
