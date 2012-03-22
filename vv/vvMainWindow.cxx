@@ -71,6 +71,9 @@
 #include <vtkPNGWriter.h>
 #include <vtkJPEGWriter.h>
 #include <vtkGenericMovieWriter.h>
+#ifdef CLITK_EXPERIMENTAL
+#  include <vvAnimatedGIFWriter.h>
+#endif
 #ifdef VTK_USE_VIDEO_FOR_WINDOWS
 #  include <vtkAVIWriter.h>
 #endif
@@ -2735,11 +2738,14 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
   Extensions += "Images( *.bmp);;";
   Extensions += "Images( *.tif);;";
   Extensions += "Images( *.ppm)";
-#ifdef VTK_USE_FFMPEG_ENCODER
-  Extensions += "Images( *.avi)";
+#if defined(VTK_USE_FFMPEG_ENCODER) || defined(VTK_USE_VIDEO_FOR_WINDOWS)
+  Extensions += ";;Video( *.avi)";
 #endif
 #ifdef VTK_USE_MPEG2_ENCODER
-  Extensions += "Images( *.mpg)";
+  Extensions += ";;Video( *.mpg)";
+#endif
+#ifdef CLITK_EXPERIMENTAL
+  Extensions += ";;Video( *.gif)";
 #endif
 
   int smIndex=GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
@@ -2779,6 +2785,25 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 
     // Video
     vtkGenericMovieWriter *vidwriter = NULL;
+#ifdef CLITK_EXPERIMENTAL
+    if (!strcmp(ext, ".gif")) {
+      vvAnimatedGIFWriter *gif = vvAnimatedGIFWriter::New();
+      vidwriter = gif;
+
+      // FPS
+      bool ok;
+      int fps = QInputDialog::getInt(this, tr("Number of frames per second"),
+                                     tr("FPS:"), 5, 0, 1000, 1, &ok);
+      if(ok)
+        gif->SetRate(fps);
+
+      // Loops
+      int loops = QInputDialog::getInt(this, tr("Loops"),
+                                     tr("Number of loops (0 means infinite):"), 0, 0, 1000000000, 1, &ok);
+      if(ok)
+        gif->SetLoops(loops);
+    }
+#endif
 #ifdef VTK_USE_VIDEO_FOR_WINDOWS
     if (!strcmp(ext, ".avi")) {
       vtkAVIWriter *mpg = vtkAVIWriter::New();
