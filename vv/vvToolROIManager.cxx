@@ -73,6 +73,7 @@ vvToolROIManager::vvToolROIManager(vvMainWindowBase * parent, Qt::WindowFlags f)
   setAttribute(Qt::WA_DeleteOnClose);
   mTree->clear();
   mTree->header()->resizeSection(0, 30);
+  mGroupBoxROI->setEnabled(false);
   
   // Temporary disable "Load dicom" button
   frame_4->hide();
@@ -395,7 +396,6 @@ void vvToolROIManager::UpdateAllROIStatus() {
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::SelectedItemChangedInTree() {
-  
   // Search which roi is selected
   QList<QTreeWidgetItem *> l = mTree->selectedItems();
   if (l.size() == 0) {
@@ -460,6 +460,8 @@ void vvToolROIManager::SelectedItemChangedInTree() {
   QString values = QString("%1, %2, %3").arg(color.red()).arg(color.green()).arg(color.blue());
   mROInameLabel->setStyleSheet("QLabel { background-color: rgb("+values+"); }");
 
+
+  mGroupBoxROI->setEnabled(true);
   // is this needed ?
   //  actor->Update(); 
   // Final rendering
@@ -537,6 +539,7 @@ void vvToolROIManager::AllVisibleContourROIToggled(bool b) {
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::ChangeColor() {
+  if (mCurrentROIActor == NULL) return;
   QColor color;
   color.setRgbF(mCurrentROIActor->GetROI()->GetDisplayColor()[0],
                 mCurrentROIActor->GetROI()->GetDisplayColor()[1],
@@ -559,6 +562,7 @@ void vvToolROIManager::ChangeColor() {
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::ChangeContourColor() {
+  if (mCurrentROIActor == NULL) return;
   QColor color;
   color.setRgbF(mCurrentROIActor->GetContourColor()[0], 
 		mCurrentROIActor->GetContourColor()[1], 
@@ -573,6 +577,7 @@ void vvToolROIManager::ChangeContourColor() {
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::ChangeContourWidth(int n) {
+  if (mCurrentROIActor == NULL) return;
   mCurrentROIActor->SetContourWidth(n);
   mCurrentROIActor->UpdateColor();
   mSlicerManager->Render();
@@ -582,6 +587,7 @@ void vvToolROIManager::ChangeContourWidth(int n) {
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::ChangeDepth(int n) {
+  if (mCurrentROIActor == NULL) return;
   mCurrentROIActor->SetDepth(n);
   mCurrentROIActor->UpdateImage();
   mSlicerManager->Render();
