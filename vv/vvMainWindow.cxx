@@ -71,6 +71,9 @@
 #include <vtkPNGWriter.h>
 #include <vtkJPEGWriter.h>
 #include <vtkGenericMovieWriter.h>
+#ifdef VTK_USE_VIDEO_FOR_WINDOWS
+#  include <vtkAVIWriter.h>
+#endif
 #ifdef VTK_USE_FFMPEG_ENCODER
 #  include <vtkFFMPEGWriter.h>
 #endif
@@ -2776,6 +2779,19 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 
     // Video
     vtkGenericMovieWriter *vidwriter = NULL;
+#ifdef VTK_USE_VIDEO_FOR_WINDOWS
+    if (!strcmp(ext, ".avi")) {
+      vtkAVIWriter *mpg = vtkAVIWriter::New();
+      vidwriter = mpg;
+      mpg->SetQuality(2);
+      bool ok;
+      int fps = QInputDialog::getInt(this, tr("Number of frames per second"),
+                                     tr("FPS:"), 5, 0, 1024, 1, &ok);
+      if(!ok)
+        fps = 5;
+      mpg->SetRate(fps);
+    }
+#endif
 #ifdef VTK_USE_FFMPEG_ENCODER
     if (!strcmp(ext, ".avi")) {
       vtkFFMPEGWriter *mpg = vtkFFMPEGWriter::New();
