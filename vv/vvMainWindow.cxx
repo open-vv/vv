@@ -70,6 +70,7 @@
 #include <vtkPNMWriter.h>
 #include <vtkPNGWriter.h>
 #include <vtkJPEGWriter.h>
+#include <vtkGenericMovieWriter.h>
 #ifdef VTK_USE_FFMPEG_ENCODER
 #  include <vtkFFMPEGWriter.h>
 #endif
@@ -2771,11 +2772,14 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
       imgwriter->SetFileName(fileName.toStdString().c_str());
       imgwriter->Write();
       return;
+    }
+
+    // Video
+    vtkGenericMovieWriter *vidwriter = NULL;
 #ifdef VTK_USE_FFMPEG_ENCODER
-    } else if (!strcmp(ext, ".avi")) {
+    if (!strcmp(ext, ".avi")) {
       vtkFFMPEGWriter *mpg = vtkFFMPEGWriter::New();
-      mpg->SetInput(image);
-      mpg->SetFileName(fileName.toStdString().c_str());
+      vidwriter = mpg;
       mpg->SetQuality(2);
       bool ok;
       int fps = QInputDialog::getInt(this, tr("Number of frames per second"),
@@ -2784,28 +2788,20 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
         fps = 5;
       mpg->SetRate(fps);
       mpg->SetBitRateTolerance(int(ceil(12.0*1024*1024/fps)));
-      mpg->Start();
-
-      vvImage * vvImg = mSlicerManagers[smIndex]->GetImage();
-      int nSlice = vvImg->GetVTKImages().size();
-      for(int i=0; i<nSlice; i++) {
-        mSlicerManagers[smIndex]->SetNextTSlice(0);
-        vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
-        w2i->SetInput(widget->GetRenderWindow());
-        w2i->Update();
-        mpg->SetInput(w2i->GetOutput());
-        mpg->Write();
-      }
-      mpg->End();
-      mpg->Delete();
+    }
 #endif
 #ifdef VTK_USE_MPEG2_ENCODER
-    } else if (!strcmp(ext, ".mpg")) {
+    if (!strcmp(ext, ".mpg")) {
       vtkMPEG2Writer *mpg = vtkMPEG2Writer::New();
-      mpg->SetInput(image);
-      mpg->SetFileName(fileName.toStdString().c_str());
-      mpg->Start();
+      vidwriter = mpg;
+    }
+#endif
 
+    // Take video if not null
+    if(vidwriter!=NULL){
+      vidwriter->SetInput(image);
+      vidwriter->SetFileName(fileName.toStdString().c_str());
+      vidwriter->Start();
       vvImage * vvImg = mSlicerManagers[smIndex]->GetImage();
       int nSlice = vvImg->GetVTKImages().size();
       for(int i=0; i<nSlice; i++) {
@@ -2813,15 +2809,15 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
         vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
         w2i->SetInput(widget->GetRenderWindow());
         w2i->Update();
-        mpg->SetInput(w2i->GetOutput());
-        mpg->Write();
+        vidwriter->SetInput(w2i->GetOutput());
+        vidwriter->Write();
       }
-      mpg->End();
-      mpg->Delete();
-#endif
-    } else {
-      QMessageBox::information(this,tr("Problem saving screenshot !"),tr("Cannot save image.\nPlease set a file extension !!!"));
+      vidwriter->End();
+      vidwriter->Delete();
+      return;
     }
+
+    QMessageBox::information(this,tr("Problem saving screenshot !"),tr("Cannot save image.\nPlease set a file extension !!!"));
   }
 }
 //------------------------------------------------------------------------------
