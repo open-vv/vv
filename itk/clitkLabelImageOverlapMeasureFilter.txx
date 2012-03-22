@@ -94,8 +94,8 @@ GenerateData()
   clitk::Or<ImageType>(image_union, input2, GetBackgroundValue());
   clitk::And<ImageType>(image_intersection, input2, GetBackgroundValue());
   
-  writeImage<ImageType>(image_union, "union.mha");
-  writeImage<ImageType>(image_intersection, "intersection.mha");
+  // writeImage<ImageType>(image_union, "union.mha");
+  // writeImage<ImageType>(image_intersection, "intersection.mha");
   
   // Compute size
   typedef itk::LabelStatisticsImageFilter<ImageType, ImageType> StatFilterType;
