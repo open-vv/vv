@@ -2813,13 +2813,13 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 
       // FPS
       bool ok;
-      int fps = QInputDialog::getInt(this, tr("Number of frames per second"),
+      int fps = QInputDialog::getInteger(this, tr("Number of frames per second"),
                                      tr("FPS:"), 5, 0, 1000, 1, &ok);
       if(ok)
         gif->SetRate(fps);
 
       // Loops
-      int loops = QInputDialog::getInt(this, tr("Loops"),
+      int loops = QInputDialog::getInteger(this, tr("Loops"),
                                      tr("Number of loops (0 means infinite):"), 0, 0, 1000000000, 1, &ok);
       if(ok)
         gif->SetLoops(loops);
@@ -2831,7 +2831,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
       vidwriter = mpg;
       mpg->SetQuality(2);
       bool ok;
-      int fps = QInputDialog::getInt(this, tr("Number of frames per second"),
+      int fps = QInputDialog::getInteger(this, tr("Number of frames per second"),
                                      tr("FPS:"), 5, 0, 1024, 1, &ok);
       if(!ok)
         fps = 5;
@@ -2844,7 +2844,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
       vidwriter = mpg;
       mpg->SetQuality(2);
       bool ok;
-      int fps = QInputDialog::getInt(this, tr("Number of frames per second"),
+      int fps = QInputDialog::getInteger(this, tr("Number of frames per second"),
                                      tr("FPS:"), 5, 0, 1024, 1, &ok);
       if(!ok)
         fps = 5;
