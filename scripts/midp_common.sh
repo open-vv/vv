@@ -18,9 +18,9 @@ abort_on_error()
 {
   if [ $2 != 0 ]; then
     echo Aborted at $1 with code $2
-    if [ $# = 3 ]; then
-      eval $3
-    fi
+    #if [ $# = 3 ]; then
+    #  eval $3
+    #fi
 
     exit $2
   fi
@@ -179,12 +179,14 @@ extract_4d_phases_ref()
 combine_image()
 {
 #  eg: -i $result_in -j $result_out -o $out_result -m $motion_mask
+  local tmp1=$RANDOM
+  local tmp2=$RANDOM
 
-  clitkSetBackground -i $1 -o temp1.mhd -m $4
-  clitkSetBackground -i $2 -o temp2.mhd -m $4 --fg
+  clitkSetBackground -i $1 -o $tmp1.mhd -m $4
+  clitkSetBackground -i $2 -o $tmp2.mhd -m $4 --fg
 
-  clitkImageArithm -i temp1.mhd -j temp2.mhd -o $3
-  rm temp?.*
+  clitkImageArithm -i $tmp1.mhd -j $tmp2.mhd -o $3
+  rm $tmp1.* $tmp2.*
 }
 
 # 
@@ -192,8 +194,8 @@ combine_image()
 average_temporal_dimension()
 {
   # eg: -i $midp_dir/midp_4D.mhd -o $midp_dir/midp_avg.mhd
-
-  local tot=tot.mhd
+  local tmp=$RANDOM
+  local tot=$tmp.mhd
 
   local dir=`dirname $1` 
   local first=`grep raw $1 | sed 's/raw/mhd/g' | head -n 1`
@@ -205,5 +207,5 @@ average_temporal_dimension()
   done
 
   clitkImageArithm -i $tot -o $2 -t 11 -s $nbphases
-  rm tot.*
+  rm $tmp.*
 }

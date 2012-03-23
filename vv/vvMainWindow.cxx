@@ -70,6 +70,13 @@
 #include <vtkPNMWriter.h>
 #include <vtkPNGWriter.h>
 #include <vtkJPEGWriter.h>
+#include <vtkGenericMovieWriter.h>
+#ifdef CLITK_EXPERIMENTAL
+#  include <vvAnimatedGIFWriter.h>
+#endif
+#ifdef VTK_USE_VIDEO_FOR_WINDOWS
+#  include <vtkAVIWriter.h>
+#endif
 #ifdef VTK_USE_FFMPEG_ENCODER
 #  include <vtkFFMPEGWriter.h>
 #endif
@@ -93,7 +100,7 @@
 #define COLUMN_RELOAD_IMAGE 6
 #define COLUMN_IMAGE_NAME 7
 
-#define EXTENSIONS "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN )"
+#define EXTENSIONS "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN *.nii *.nrrd *.nhdr)"
 
 /*Data Tree values
   0,Qt::UserRole full filename
@@ -2257,11 +2264,17 @@ void vvMainWindow::SaveAs()
   } else if (dimension == 3) {
     OutputListeFormat.push_back(".mhd");
     OutputListeFormat.push_back(".mha");
+    OutputListeFormat.push_back(".nii");
+    OutputListeFormat.push_back(".nrrd");
+    OutputListeFormat.push_back(".nhdr");
     OutputListeFormat.push_back(".hdr");
     OutputListeFormat.push_back(".vox");
   } else if (dimension == 4) {
     OutputListeFormat.push_back(".mhd");
     OutputListeFormat.push_back(".mha");
+    OutputListeFormat.push_back(".nii");
+    OutputListeFormat.push_back(".nrrd");
+    OutputListeFormat.push_back(".nhdr");
   }
   QString Extensions = "AllFiles(*.*)";
   for (int i = 0; i < OutputListeFormat.count(); i++) {
@@ -2725,11 +2738,14 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
   Extensions += "Images( *.bmp);;";
   Extensions += "Images( *.tif);;";
   Extensions += "Images( *.ppm)";
-#ifdef VTK_USE_FFMPEG_ENCODER
-  Extensions += "Images( *.avi)";
+#if defined(VTK_USE_FFMPEG_ENCODER) || defined(VTK_USE_VIDEO_FOR_WINDOWS)
+  Extensions += ";;Video( *.avi)";
 #endif
 #ifdef VTK_USE_MPEG2_ENCODER
-  Extensions += "Images( *.mpg)";
+  Extensions += ";;Video( *.mpg)";
+#endif
+#ifdef CLITK_EXPERIMENTAL
+  Extensions += ";;Video( *.gif)";
 #endif
 
   int smIndex=GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
@@ -2745,71 +2761,88 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
     vtkImageData *image = w2i->GetOutput();
 
     const char *ext = fileName.toStdString().c_str() + strlen(fileName.toStdString().c_str()) - 4;
-    if (!strcmp(ext, ".bmp")) {
-      vtkBMPWriter *bmp = vtkBMPWriter::New();
-      bmp->SetInput(image);
-      bmp->SetFileName(fileName.toStdString().c_str());
-      bmp->Write();
-      bmp->Delete();
-    } else if (!strcmp(ext, ".tif")) {
-      vtkTIFFWriter *tif = vtkTIFFWriter::New();
-      tif->SetInput(image);
-      tif->SetFileName(fileName.toStdString().c_str());
-      tif->Write();
-      tif->Delete();
-    } else if (!strcmp(ext, ".ppm")) {
-      vtkPNMWriter *pnm = vtkPNMWriter::New();
-      pnm->SetInput(image);
-      pnm->SetFileName(fileName.toStdString().c_str());
-      pnm->Write();
-      pnm->Delete();
-    } else if (!strcmp(ext, ".png")) {
-      vtkPNGWriter *png = vtkPNGWriter::New();
-      png->SetInput(image);
-      png->SetFileName(fileName.toStdString().c_str());
-      png->Write();
-      png->Delete();
-    } else if (!strcmp(ext, ".jpg")) {
-      vtkJPEGWriter *jpg = vtkJPEGWriter::New();
-      jpg->SetInput(image);
-      jpg->SetFileName(fileName.toStdString().c_str());
-      jpg->Write();
-      jpg->Delete();
-#ifdef VTK_USE_FFMPEG_ENCODER
-    } else if (!strcmp(ext, ".avi")) {
-      vtkFFMPEGWriter *mpg = vtkFFMPEGWriter::New();
-      mpg->SetInput(image);
-      mpg->SetFileName(fileName.toStdString().c_str());
+
+    // Image
+    vtkImageWriter *imgwriter = NULL;
+    if (!strcmp(ext, ".bmp"))
+      imgwriter = vtkBMPWriter::New();
+    else if (!strcmp(ext, ".tif"))
+      imgwriter = vtkTIFFWriter::New();
+    else if (!strcmp(ext, ".ppm"))
+      imgwriter = vtkPNMWriter::New();
+    else if (!strcmp(ext, ".png"))
+      imgwriter = vtkPNGWriter::New();
+    else if (!strcmp(ext, ".jpg"))
+      imgwriter = vtkJPEGWriter::New();
+
+    // Snapshot image if not null
+    if(imgwriter!=NULL) {
+      imgwriter->SetInput(image);
+      imgwriter->SetFileName(fileName.toStdString().c_str());
+      imgwriter->Write();
+      return;
+    }
+
+    // Video
+    vtkGenericMovieWriter *vidwriter = NULL;
+#ifdef CLITK_EXPERIMENTAL
+    if (!strcmp(ext, ".gif")) {
+      vvAnimatedGIFWriter *gif = vvAnimatedGIFWriter::New();
+      vidwriter = gif;
+
+      // FPS
+      bool ok;
+      int fps = QInputDialog::getInt(this, tr("Number of frames per second"),
+                                     tr("FPS:"), 5, 0, 1000, 1, &ok);
+      if(ok)
+        gif->SetRate(fps);
+
+      // Loops
+      int loops = QInputDialog::getInt(this, tr("Loops"),
+                                     tr("Number of loops (0 means infinite):"), 0, 0, 1000000000, 1, &ok);
+      if(ok)
+        gif->SetLoops(loops);
+    }
+#endif
+#ifdef VTK_USE_VIDEO_FOR_WINDOWS
+    if (!strcmp(ext, ".avi")) {
+      vtkAVIWriter *mpg = vtkAVIWriter::New();
+      vidwriter = mpg;
       mpg->SetQuality(2);
       bool ok;
       int fps = QInputDialog::getInt(this, tr("Number of frames per second"),
                                      tr("FPS:"), 5, 0, 1024, 1, &ok);
       if(!ok)
-	fps = 5;
+        fps = 5;
+      mpg->SetRate(fps);
+    }
+#endif
+#ifdef VTK_USE_FFMPEG_ENCODER
+    if (!strcmp(ext, ".avi")) {
+      vtkFFMPEGWriter *mpg = vtkFFMPEGWriter::New();
+      vidwriter = mpg;
+      mpg->SetQuality(2);
+      bool ok;
+      int fps = QInputDialog::getInt(this, tr("Number of frames per second"),
+                                     tr("FPS:"), 5, 0, 1024, 1, &ok);
+      if(!ok)
+        fps = 5;
       mpg->SetRate(fps);
       mpg->SetBitRateTolerance(int(ceil(12.0*1024*1024/fps)));
-      mpg->Start();
-
-      vvImage * vvImg = mSlicerManagers[smIndex]->GetImage();
-      int nSlice = vvImg->GetVTKImages().size();
-      for(int i=0; i<nSlice; i++) {
-        mSlicerManagers[smIndex]->SetNextTSlice(0);
-        vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
-        w2i->SetInput(widget->GetRenderWindow());
-        w2i->Update();
-        mpg->SetInput(w2i->GetOutput());
-        mpg->Write();
-      }
-      mpg->End();
-      mpg->Delete();
+    }
 #endif
 #ifdef VTK_USE_MPEG2_ENCODER
-    } else if (!strcmp(ext, ".mpg")) {
+    if (!strcmp(ext, ".mpg")) {
       vtkMPEG2Writer *mpg = vtkMPEG2Writer::New();
-      mpg->SetInput(image);
-      mpg->SetFileName(fileName.toStdString().c_str());
-      mpg->Start();
+      vidwriter = mpg;
+    }
+#endif
 
+    // Take video if not null
+    if(vidwriter!=NULL){
+      vidwriter->SetInput(image);
+      vidwriter->SetFileName(fileName.toStdString().c_str());
+      vidwriter->Start();
       vvImage * vvImg = mSlicerManagers[smIndex]->GetImage();
       int nSlice = vvImg->GetVTKImages().size();
       for(int i=0; i<nSlice; i++) {
@@ -2817,15 +2850,15 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
         vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
         w2i->SetInput(widget->GetRenderWindow());
         w2i->Update();
-        mpg->SetInput(w2i->GetOutput());
-        mpg->Write();
+        vidwriter->SetInput(w2i->GetOutput());
+        vidwriter->Write();
       }
-      mpg->End();
-      mpg->Delete();
-#endif
-    } else {
-      QMessageBox::information(this,tr("Problem saving screenshot !"),tr("Cannot save image.\nPlease set a file extension !!!"));
+      vidwriter->End();
+      vidwriter->Delete();
+      return;
     }
+
+    QMessageBox::information(this,tr("Problem saving screenshot !"),tr("Cannot save image.\nPlease set a file extension !!!"));
   }
 }
 //------------------------------------------------------------------------------

@@ -206,8 +206,18 @@ endforeach(tool)
 SET(foundationLibraries clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
 
 #=========================================================
+# Use CxImage to create animated gifs
+IF(CLITK_EXPERIMENTAL)
+  SET(vvCxImage clitkCxImage)
+  SET(vv_SRCS ${vv_SRCS} vvAnimatedGIFWriter.cxx)
+  INCLUDE_DIRECTORIES(${CLITK_SOURCE_DIR}/utilities/CxImage)
+  ADD_SUBDIRECTORY(${CLITK_SOURCE_DIR}/utilities/CxImage ${PROJECT_BINARY_DIR}/utilities/CxImage)
+ENDIF(CLITK_EXPERIMENTAL)
+#=========================================================
+
+#=========================================================
 #Create binary and libs for tests
-SET(vvExternalLibs ${QT_QTNETWORK_LIBRARY} clitkSegmentationGgoLib clitkDicomRTStruct ${toolLibs} ${foundationLibraries})
+SET(vvExternalLibs ${QT_QTNETWORK_LIBRARY} clitkSegmentationGgoLib clitkDicomRTStruct ${toolLibs} ${foundationLibraries} ${vvCxImage})
 # QtNetwork is required by vvRegisterForm
 
 ADD_LIBRARY(vvLib ${vv_SRCS} ${vv_UI_CXX})

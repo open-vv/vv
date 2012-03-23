@@ -1,7 +1,6 @@
 include_directories(
   ${PROJECT_SOURCE_DIR}/common
   ${PROJECT_SOURCE_DIR}/tools
-  ${GTEST_DIR}/include
 )
 
 SET(BUILDNAME ${BUILDNAME}_tools CACHE INTERNAL DOCSTRING)

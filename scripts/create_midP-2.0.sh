@@ -19,7 +19,7 @@
 
 ######################### includes
 
-source `dirname $0`/create_midP_masks-2.0.sh using-as-lib 2 nn
+source `dirname $0`/create_midP_masks-2.0.sh using-as-lib
 source `dirname $0`/registration.sh
 source `dirname $0`/midp_common.sh
 
@@ -85,7 +85,7 @@ registration()
         registration_elastix $reference_out $target_out $mask_ref_out $mask_targ_out $vf_out $result_out $params $log_out
       fi
 
-      motion_mask=$mask_dir/mm_$phase_nb.mhd
+      motion_mask=$mask_dir/${mask_type}_$phase_nb.mhd
 
       # combine in and out results
       out_result=$output_dir/result_${ref_phase_nb}_$phase_nb.mhd
@@ -122,7 +122,7 @@ registration()
   clitkZeroVF -i $vf_ref -o $vf_out
   abort_on_error registration $? clean_up_registration
 
-  motion_mask=$mask_dir/mm_${ref_phase_nb}.mhd
+  motion_mask=$mask_dir/${mask_type}_${ref_phase_nb}.mhd
   reference_in=$mask_dir/${banded}inside_${ref_phase_nb}.mhd
   reference_out=$mask_dir/${banded}outside_$ref_phase_nb.mhd
   out_result=$output_dir/result_${ref_phase_nb}_${ref_phase_nb}.mhd
@@ -142,6 +142,77 @@ registration()
   # create 4D result image
   create_mhd_4D_pattern.sh $output_dir/result_inside_${ref_phase_nb}_
   create_mhd_4D_pattern.sh $output_dir/result_outside_${ref_phase_nb}_
+  create_mhd_4D_pattern.sh $output_dir/result_${ref_phase_nb}_
+
+  echo
+  echo "-------- Registration done ! --------"
+  end=`date`
+  echo "start: $start"
+  echo "end: $end"
+  echo
+}
+
+registration_no_motion_mask()
+{
+  echo
+  echo "----------- Registration Without Motion Masks ------------"
+  start=`date`
+  echo "start: $start"
+  echo
+
+  mkdir -p $vf_dir
+  mkdir -p $output_dir
+
+  # banded images may be created as separate files,
+  # with the specified preffix, which is interesting for debugging. 
+  # if blank, it means that the original images (those without bands) 
+  # will be used (see create_midP_masks-2.0.sh for details).
+  banded=""
+
+  # params read from conf file
+  use_coeffs=1
+  params="$nb_iter $nb_samples $sampling_algo $nb_hist_bins $nb_levels $bspline_spacing $metric $optimizer $interpolator"
+
+  # register all phases to the reference
+  for i in $( seq 0 $((${#phase_files[@]} - 1))); do
+    phase_file=${phase_files[$i]}
+    phase_nb=${phase_nbs[$i]}
+    
+    if [ "$phase_nb" != "$ref_phase_nb" ]; then
+      # params
+      reference=$mask_dir/patient_$ref_phase_nb.mhd
+      target=$mask_dir/patient_$phase_nb.mhd
+      mask_ref=$mask_dir/patient_mask_$ref_phase_nb.mhd
+      mask_targ=$mask_dir/patient_mask_$phase_nb.mhd
+      vf=$vf_dir/vf_${ref_phase_nb}_$phase_nb.mhd
+      result=$output_dir/result_${ref_phase_nb}_$phase_nb.mhd
+      log=$log_dir/log_${ref_phase_nb}_$phase_nb.log
+      if [ $use_coeffs = 1 ]; then
+        init_coeff=$coeff_in # empty at first iteration
+        coeff=$vf_dir/coeff_${ref_phase_nb}_$phase_nb.mhd
+      fi
+
+      # registration
+      if [ "$method" == "blutdir" ]; then
+        registration_blutdir $reference $target $mask_ref $mask_targ $vf $result $params $log $coeff 
+      elif [ "$method" == "elastix" ]; then
+        registration_elastix $reference $target $mask_ref $mask_targ $vf $result $params $log
+      fi
+
+      # save for later...
+      vf_ref=$vf
+    fi
+  done
+
+  clitkZeroVF -i $vf_ref -o $vf_dir/vf_${ref_phase_nb}_${ref_phase_nb}.mhd
+
+  # create 4D vf
+  create_mhd_4D_pattern.sh $vf_dir/vf_${ref_phase_nb}_
+
+  # create 4D coeffs
+  create_mhd_4D_pattern.sh $vf_dir/coeff_${ref_phase_nb}_ _0
+
+  # create 4D result image
   create_mhd_4D_pattern.sh $output_dir/result_${ref_phase_nb}_
 
   echo
@@ -250,20 +321,14 @@ midp_in_out()
   coeff_midp_in=$midp_dir/coeff_inside_midp_$phase_nb.mhd
   coeff_midp_out=$midp_dir/coeff_outside_midp_$phase_nb.mhd
   # average the vf's from reference phase to phase
-  # clitkAverageTemporalDimension -i $vf_dir/vf_inside_${ref_phase_nb}_4D.mhd -o $vf_midp_in
-  #clitkAverageTemporalDimension -i $vf_dir/coeff_inside_${ref_phase_nb}_4D_0.mhd -o $coeff_midp_in
   average_temporal_dimension $vf_dir/coeff_inside_${ref_phase_nb}_4D_0.mhd $coeff_midp_in
   abort_on_error midp $? clean_up_midp
-  # clitkAverageTemporalDimension -i $vf_dir/vf_outside_${ref_phase_nb}_4D.mhd -o $vf_midp_out
-  #clitkAverageTemporalDimension -i $vf_dir/coeff_outside_${ref_phase_nb}_4D_0.mhd -o $coeff_midp_out
   average_temporal_dimension $vf_dir/coeff_outside_${ref_phase_nb}_4D_0.mhd $coeff_midp_out
   abort_on_error midp $? clean_up_midp
 
   # invert the vf 
-  # clitkInvertVF -i $vf_midp_in -o $vf_midp_in
   clitkInvertVF -i $coeff_midp_in -o $vf_midp_in --type 1 --like $ref_phase_file
   abort_on_error midp $? clean_up_midp
-  # clitkInvertVF -i $vf_midp_out -o $vf_midp_out
   clitkInvertVF -i $coeff_midp_out -o $vf_midp_out --type 1 --like $ref_phase_file
   abort_on_error midp $? clean_up_midp
 
@@ -271,10 +336,8 @@ midp_in_out()
   ref_vf_midp_in=$vf_midp_in
   ref_vf_midp_out=$vf_midp_out
   vf_midp=$midp_dir/vf_midp_$phase_nb.mhd
-  #clitkCombineImage -i $vf_midp_in -j $vf_midp_out -o $vf_midp -m $mask_dir/mm_$phase_nb.mhd
-  combine_image $vf_midp_in $vf_midp_out $vf_midp $mask_dir/mm_$phase_nb.mhd
+  combine_image $vf_midp_in $vf_midp_out $vf_midp $mask_dir/${mask_type}_$phase_nb.mhd
   clitkZeroVF -i $vf_midp -o vf_zero.mhd
-  #clitkCombineImage -i $vf_midp -j vf_zero.mhd -o $vf_midp -m $mask_dir/patient_mask_$phase_nb.mhd
   combine_image $vf_midp vf_zero.mhd $vf_midp $mask_dir/patient_mask_$phase_nb.mhd
 
   # create the midp by warping the reference phase with the reference vf
@@ -303,10 +366,8 @@ midp_in_out()
 
       # combine in and out VF's
       vf_midp=$midp_dir/vf_midp_$phase_nb.mhd
-      #clitkCombineImage -i $vf_midp_in -j $vf_midp_out -o $vf_midp -m $mask_dir/mm_$phase_nb.mhd
-      combine_image $vf_midp_in $vf_midp_out $vf_midp $mask_dir/mm_$phase_nb.mhd
+      combine_image $vf_midp_in $vf_midp_out $vf_midp $mask_dir/${mask_type}_$phase_nb.mhd
       clitkZeroVF -i $vf_midp -o vf_zero.mhd
-      #clitkCombineImage -i $vf_midp -j vf_zero.mhd -o $vf_midp -m $mask_dir/patient_mask_$phase_nb.mhd
       combine_image $vf_midp vf_zero.mhd $vf_midp $mask_dir/patient_mask_$phase_nb.mhd
       
       midp=$midp_dir/midp_$phase_nb.mhd
@@ -327,7 +388,6 @@ midp_in_out()
   create_mhd_4D_pattern.sh $midp_dir/vf_outside_midp_
 
   echo "Calculating midp_avg.mhd..."
-  #clitkAverageTemporalDimension -i $midp_dir/midp_4D.mhd -o $midp_dir/midp_avg.mhd
   average_temporal_dimension $midp_dir/midp_4D.mhd $midp_dir/midp_avg.mhd
   abort_on_error midp $? clean_up_midp
 
@@ -335,9 +395,6 @@ midp_in_out()
   clitkMedianTemporalDimension -i $midp_dir/midp_4D.mhd -o $midp_dir/midp_med.mhd
   abort_on_error midp $? clean_up_midp
 
-  # clean-up
-  #rm $midp_dir/vf_*
-      
   echo
   echo "-------- Mid-position done ! --------"
   end=`date`
@@ -374,14 +431,20 @@ mask_dir="MASK-${mask_interpolation_spacing}mm-$mask_interpolation_algorithm"
 extract_4d_phases_ref $mhd4d $ref_phase
 
 if [ "$step" == "mask" -o "$step" == "all" ]; then
-  motion_mask $mhd4d $mask_interpolation_spacing $mask_interpolation_algorithm 
+    motion_mask $mhd4d $mask_type $mask_interpolation_spacing $mask_interpolation_algorithm 
 fi 
 
 if [ "$step" == "registration" -o "$step" == "all" ]; then
-  registration
+  if [ "$mask_type" == "mm" ]; then
+    registration
+  elif [ "$mask_type" == "lungs" ]; then
+    registration
+  elif [ "$mask_type" == "patient" ]; then
+    registration_no_motion_mask
+    midp_combined_vf=1
+  fi
 fi 
 
-midp_combined_vf=0
 if [ "$step" == "midp" -o "$step" == "all" ]; then
   if [ $midp_combined_vf = 0 ]; then
     midp_in_out
