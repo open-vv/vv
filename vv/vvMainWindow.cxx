@@ -2297,6 +2297,27 @@ void vvMainWindow::SaveAs()
       vvImageWriter::Pointer writer = vvImageWriter::New();
       writer->SetOutputFileName(fileName.toStdString());
       writer->SetInput(mSlicerManagers[index]->GetImage());
+
+      // Check on transform and prompt user
+      writer->SetSaveTransform(false);
+      bool bId = true;
+      for(int i=0; i<4; i++)
+        for(int j=0; j<4; j++) {
+          double elt = mSlicerManagers[index]->GetImage()->GetTransform()->GetMatrix()->GetElement(i,j);
+          if(i==j && elt!=1.)
+            bId = false;
+          if(i!=j && elt!=0.)
+            bId = false;
+        }
+      if( !bId ) {
+        QString warning = "The image has an associated linear transform. Do you want to save it along?";
+        QMessageBox msgBox(QMessageBox::Warning, tr("Save transform"), warning, 0, this);
+        msgBox.addButton(tr("Yes"), QMessageBox::AcceptRole);
+        msgBox.addButton(tr("No"), QMessageBox::RejectRole);
+        if (msgBox.exec() == QMessageBox::AcceptRole)
+          writer->SetSaveTransform(true);
+      }
+
       writer->Update();
       QApplication::restoreOverrideCursor();
       if (writer->GetLastError().size()) {
