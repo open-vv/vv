@@ -48,6 +48,9 @@ public:
     return mLastError;
   }
 
+  bool GetSaveTransform() { return mSaveTransform; }
+  void SetSaveTransform(bool b) { mSaveTransform = b; }
+
   //====================================================================
   // Main function
   void Update() {
@@ -66,6 +69,7 @@ protected:
 
   std::string mLastError;
   bool mUseAnObserver;
+  bool mSaveTransform;
 
   //====================================================================
   template<unsigned int VImageDimension>

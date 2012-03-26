@@ -30,6 +30,7 @@ vvImageWriter::vvImageWriter()
   mOutputFilename = "";
   mLastError = "";
   mUseAnObserver = false;
+  mSaveTransform = false;
 }
 //------------------------------------------------------------------------------
 

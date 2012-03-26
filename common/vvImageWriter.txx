@@ -19,8 +19,8 @@
 #define vvImageWriter_TXX
 
 #include <itkImageFileWriter.h>
+#include <itkChangeInformationImageFilter.h>
 #include "vvToITK.h"
-#include "clitkDD.h"
 
 //====================================================================
 template<unsigned int VImageDimension>
@@ -52,12 +52,50 @@ void vvImageWriter::UpdateWithDim(std::string OutputPixelType)
 template<class OutputPixelType, unsigned int VImageDimension>
 void vvImageWriter::UpdateWithDimAndOutputPixelType()
 {
-  //Create the writer
+  // The ITK image
   typedef itk::Image< OutputPixelType, VImageDimension > OutputImageType;
+  typename OutputImageType::ConstPointer itkimg = vvImageToITK<OutputImageType>(mImage);
+
+  //Create the writer
   typedef itk::ImageFileWriter<OutputImageType> WriterType;
   typename WriterType::Pointer writer = WriterType::New();
   writer->SetFileName(mOutputFilename);
-  writer->SetInput(vvImageToITK<OutputImageType>(mImage));
+
+  //Change information if it must transformation must be saved
+  typedef itk::ChangeInformationImageFilter<OutputImageType> ChangeInfoType;
+  typename ChangeInfoType::Pointer info = ChangeInfoType::New();
+  if(mSaveTransform) {
+    // Set pipeline
+    info->SetInput(itkimg);
+    writer->SetInput(info->GetOutput());
+
+    // Inverse vv matrix
+    itk::Matrix<double, 4, 4> trans;
+    for(int i=0; i<4; i++)
+      for(int j=0; j<4; j++)
+        trans[i][j] = mImage->GetTransform()->GetMatrix()->GetElement(i,j);
+    trans = trans.GetInverse();
+
+    // Direction
+    typename ChangeInfoType::DirectionType direction;
+    for(unsigned int i=0; i<VImageDimension; i++)
+      for(unsigned int j=0; j<VImageDimension; j++)
+        direction[i][j] = trans[i][j];
+    info->SetOutputDirection(direction);
+    info->ChangeDirectionOn();
+
+    // Origin
+    typename ChangeInfoType::PointType origin = itkimg->GetOrigin();
+    origin = direction * origin;
+    for(unsigned int i=0; i<VImageDimension; i++)
+      origin[i] += trans[i][3];
+    info->SetOutputOrigin(origin);
+    info->ChangeOriginOn();
+  }
+  else
+    writer->SetInput(itkimg);
+
+
   if (mUseAnObserver) {
     writer->AddObserver(itk::ProgressEvent(), mObserver);
   }

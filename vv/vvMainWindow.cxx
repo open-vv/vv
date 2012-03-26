@@ -2297,6 +2297,27 @@ void vvMainWindow::SaveAs()
       vvImageWriter::Pointer writer = vvImageWriter::New();
       writer->SetOutputFileName(fileName.toStdString());
       writer->SetInput(mSlicerManagers[index]->GetImage());
+
+      // Check on transform and prompt user
+      writer->SetSaveTransform(false);
+      bool bId = true;
+      for(int i=0; i<4; i++)
+        for(int j=0; j<4; j++) {
+          double elt = mSlicerManagers[index]->GetImage()->GetTransform()->GetMatrix()->GetElement(i,j);
+          if(i==j && elt!=1.)
+            bId = false;
+          if(i!=j && elt!=0.)
+            bId = false;
+        }
+      if( !bId ) {
+        QString warning = "The image has an associated linear transform. Do you want to save it along?";
+        QMessageBox msgBox(QMessageBox::Warning, tr("Save transform"), warning, 0, this);
+        msgBox.addButton(tr("Yes"), QMessageBox::AcceptRole);
+        msgBox.addButton(tr("No"), QMessageBox::RejectRole);
+        if (msgBox.exec() == QMessageBox::AcceptRole)
+          writer->SetSaveTransform(true);
+      }
+
       writer->Update();
       QApplication::restoreOverrideCursor();
       if (writer->GetLastError().size()) {
@@ -2792,13 +2813,13 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 
       // FPS
       bool ok;
-      int fps = QInputDialog::getInt(this, tr("Number of frames per second"),
+      int fps = QInputDialog::getInteger(this, tr("Number of frames per second"),
                                      tr("FPS:"), 5, 0, 1000, 1, &ok);
       if(ok)
         gif->SetRate(fps);
 
       // Loops
-      int loops = QInputDialog::getInt(this, tr("Loops"),
+      int loops = QInputDialog::getInteger(this, tr("Loops"),
                                      tr("Number of loops (0 means infinite):"), 0, 0, 1000000000, 1, &ok);
       if(ok)
         gif->SetLoops(loops);
@@ -2810,7 +2831,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
       vidwriter = mpg;
       mpg->SetQuality(2);
       bool ok;
-      int fps = QInputDialog::getInt(this, tr("Number of frames per second"),
+      int fps = QInputDialog::getInteger(this, tr("Number of frames per second"),
                                      tr("FPS:"), 5, 0, 1024, 1, &ok);
       if(!ok)
         fps = 5;
@@ -2823,7 +2844,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
       vidwriter = mpg;
       mpg->SetQuality(2);
       bool ok;
-      int fps = QInputDialog::getInt(this, tr("Number of frames per second"),
+      int fps = QInputDialog::getInteger(this, tr("Number of frames per second"),
                                      tr("FPS:"), 5, 0, 1024, 1, &ok);
       if(!ok)
         fps = 5;
