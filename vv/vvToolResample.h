@@ -70,10 +70,9 @@ public slots:
 protected:
   Ui::vvToolResample ui;
   vvImage::Pointer mOutput;
-  //clitk::ImageResampleGenericFilter::Pointer mFilter;
   clitk::ResampleImageGenericFilter::Pointer mFilter;
 
-  vvSlicerManager* mCurrentSlicerManager;
+  //  vvSlicerManager* mCurrentSlicerManager;
   vvImage::Pointer mCurrentImage;
   int mCurrentIndex;
 
