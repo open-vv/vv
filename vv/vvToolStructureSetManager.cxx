@@ -116,7 +116,7 @@ vvToolStructureSetManager::~vvToolStructureSetManager()
 //------------------------------------------------------------------------------
 // STATIC
 void vvToolStructureSetManager::Initialize() {
-  SetToolName("ROIManager");
+  SetToolName("ROIManager_OLD");
   SetToolMenuName("Display ROI (binary image)");
   SetToolIconFilename(":/common/icons/tool-roi.png");
   SetToolTip("Display ROI from a binary image.");
