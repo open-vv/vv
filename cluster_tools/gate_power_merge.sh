@@ -10,7 +10,7 @@ exit 1
 warning_count=0
 function warning {
 let "warning_count++"
-echo "WARNING: $1"
+echo "MERGE_WARNING: $1"
 }
 
 function start_bar {
@@ -39,6 +39,16 @@ shift
 echo "  ${indent}entering root merger"
 echo "  ${indent}merger is ${rootMerger}"
 echo "  ${indent}creating ${merged}"
+#echo "######## $#"
+#echo "######## $*"
+
+if test $# -eq 1
+then
+    echo "  ${indent}just one partial file => just copy it"
+    cp "$1" "${merged}"
+    return
+fi
+
 local count=0
 local arguments=" -o ${merged}"
 while test $# -gt 0
@@ -48,13 +58,12 @@ do
     let count++
     local arguments=" -i ${partial} ${arguments}"
 done
-${rootMerger} ${arguments} > /dev/null || { warning "error while calling ${rootMerger}" && return; }
+${rootMerger} ${arguments} > /dev/null || warning "error while calling ${rootMerger}"
 echo "  ${indent}merged ${count} files"
 }
 
 statMerger="mergeStatFile.py"
 test -x "./mergeStatFile.sh" && statMerger="./mergeStatFile.sh"
-test -x "./mergeStatFile.py" && statMerger="./mergeStatFile.py"
 
 function merge_stat {
 local merged="$1"
@@ -78,7 +87,7 @@ do
     fi
 
     update_bar ${count} "adding ${partial}"
-    ${statMerger} -i "${merged}" -j "${partial}" -o "${merged}" 2> /dev/null > /dev/null || { warning "error while calling ${statMerger}" && return; }
+    ${statMerger} -i "${merged}" -j "${partial}" -o "${merged}" 2> /dev/null > /dev/null || warning "error while calling ${statMerger}"
 done
 end_bar
 echo "  ${indent}merged ${count} files"
@@ -111,7 +120,7 @@ do
     update_bar ${count} "adding ${partial}"
     local header="$(cat "${merged}" | head -n 6)"
     local tmp="$(mktemp)"
-    ${txtImageMerger} -i "${partial}" -j "${merged}" -o "${tmp}" 2> /dev/null > /dev/null || { warning "error while calling ${txtImageMerger}" && return; }
+    ${txtImageMerger} -i "${partial}" -j "${merged}" -o "${tmp}" 2> /dev/null > /dev/null || warning "error while calling ${txtImageMerger}"
     echo "${header}" > "${merged}"
     grep -v '## Merge' "${tmp}" >> "${merged}"
     rm "${tmp}"
@@ -148,7 +157,7 @@ do
     fi
 
     update_bar ${count} "adding ${partial}"
-    ${hdrImageMerger} -t 0 -i "${partial}" -j "${merged}" -o "${merged}" 2> /dev/null > /dev/null || { warning "error while calling ${hdrImageMerger}" && return; }
+    ${hdrImageMerger} -t 0 -i "${partial}" -j "${merged}" -o "${merged}" 2> /dev/null > /dev/null || warning "error while calling ${hdrImageMerger}"
 done
 end_bar
 echo "  ${indent}merged ${count} files"
@@ -219,6 +228,8 @@ function merge_dispatcher {
 
     warning "unknown file type"
 }
+
+echo "!!!! this is $0 v0.3f !!!!"
 
 rundir="${1?"provide run dir"}"
 nboutputdirs="$(find "${rundir}" -mindepth 1 -type d -name 'output*' | wc -l)"
