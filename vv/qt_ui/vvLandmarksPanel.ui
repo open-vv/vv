@@ -88,7 +88,7 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="icon">
       <iconset resource="../vvIcons.qrc">
-       <normaloff>:/common/icons/undo.png</normaloff>:/common/icons/undo.png</iconset>
+       <normaloff>:/common/icons/standardbutton-cancel-16.png</normaloff>:/common/icons/standardbutton-cancel-16.png</iconset>
      </property>
     </widget>
    </item>

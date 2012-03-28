@@ -42,7 +42,7 @@ public:
 public slots:
     void Load();
     void Save();
-    void RemoveLastPoint();
+    void RemoveSelectedPoints();
     void AddPoint();
     void CommentsChanged(int row, int column);
 signals:

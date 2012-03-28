@@ -32,12 +32,14 @@ vvLandmarksPanel::vvLandmarksPanel(QWidget * parent):QWidget(parent)
   setupUi(this);
 
   tableWidget->verticalHeader()->hide();
+  tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+  tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
   loadButton->setEnabled(0);
   saveButton->setEnabled(0);
   removeButton->setEnabled(0);
   connect(loadButton, SIGNAL(clicked()),this,SLOT(Load()));
   connect(saveButton, SIGNAL(clicked()),this,SLOT(Save()));
-  connect(removeButton, SIGNAL(clicked()),this,SLOT(RemoveLastPoint()));
+  connect(removeButton, SIGNAL(clicked()),this,SLOT(RemoveSelectedPoints()));
   connect(tableWidget,SIGNAL(cellChanged(int,int)),this,SLOT(CommentsChanged(int,int)));
 }
 
@@ -64,11 +66,19 @@ void vvLandmarksPanel::Save()
   }
 }
 
-void vvLandmarksPanel::RemoveLastPoint()
+void vvLandmarksPanel::RemoveSelectedPoints()
 {
   if (tableWidget->rowCount() > 0) {
-    tableWidget->removeRow(tableWidget->rowCount()-1);
-    mCurrentLandmarks->RemoveLastLandmark();
+    QList<QTableWidgetItem *> items = tableWidget->selectedItems();
+    if (items.empty()) {
+      tableWidget->removeRow(tableWidget->rowCount()-1);
+      mCurrentLandmarks->RemoveLastLandmark();
+    }
+    else {
+      // we're using single-selection mode
+      mCurrentLandmarks->RemoveLandmark(items[0]->row());
+      tableWidget->removeRow(items[0]->row());
+    }
     emit UpdateRenderWindows();
   }
 }
@@ -84,33 +94,33 @@ void vvLandmarksPanel::AddPoint(int landmarksIndex)
   tableWidget->setRowCount(rowIndex+1);
   tableWidget->setRowHeight(rowIndex,20);
   QTableWidgetItem* iItem = new QTableWidgetItem(QString::number(landmarksIndex));
-  iItem->setFlags(Qt::NoItemFlags);
+  iItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
   tableWidget->setItem(rowIndex,0,iItem);
 
   QTableWidgetItem* xItem = new QTableWidgetItem(
     QString::number(mCurrentLandmarks->GetCoordinates(landmarksIndex)[0],'f',1));
-  xItem->setFlags(Qt::NoItemFlags);
+  xItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
   tableWidget->setItem(rowIndex,1,xItem);
 
   QTableWidgetItem* yItem = new QTableWidgetItem(
     QString::number(mCurrentLandmarks->GetCoordinates(landmarksIndex)[1],'f',1));
-  yItem->setFlags(Qt::NoItemFlags);
+  yItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
   tableWidget->setItem(rowIndex,2,yItem);
 
   QTableWidgetItem* zItem = new QTableWidgetItem(
     QString::number(mCurrentLandmarks->GetCoordinates(landmarksIndex)[2],'f',1));
-  zItem->setFlags(Qt::NoItemFlags);
+  zItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
   tableWidget->setItem(rowIndex,3,zItem);
 
   QTableWidgetItem* tItem = new QTableWidgetItem(
     QString::number(mCurrentLandmarks->GetCoordinates(landmarksIndex)[3],'f',1));
-  tItem->setFlags(Qt::NoItemFlags);
+  tItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
   tableWidget->setItem(rowIndex,4,tItem);
 
 
   QTableWidgetItem* vItem = new QTableWidgetItem(
     QString::number(mCurrentLandmarks->GetPixelValue(landmarksIndex),'f',1));
-  vItem->setFlags(Qt::NoItemFlags);
+  vItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
   tableWidget->setItem(rowIndex,5,vItem);
 
   tableWidget->setItem(rowIndex,6, new QTableWidgetItem(mCurrentLandmarks->GetComments(landmarksIndex).c_str()));

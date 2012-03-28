@@ -105,6 +105,25 @@ void vvLandmarks::RemoveLastLandmark()
 
 
 //--------------------------------------------------------------------
+void vvLandmarks::RemoveLandmark(int index)
+{
+  // erase a vtkPoint by shifiting the array .
+  // not a problem here because there are no 
+  // pologyons linking the points
+  int npoints = mPoints[mLandmarks[index].coordinates[3]]->GetNumberOfPoints();
+  int t = mLandmarks[index].coordinates[3];
+  for (int i = index; i < npoints - 1; i++)
+    mPoints[t]->InsertPoint(i, mPoints[t]->GetPoint(i+1));
+  mPoints[t]->SetNumberOfPoints(npoints-1);
+  mPolyData->Modified();
+
+  mLandmarks.erase(mLandmarks.begin() + index);
+  mIds->RemoveLastTuple();
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
 void vvLandmarks::ChangeComments(int index, std::string comments)
 {
   mLandmarks[index].comments = comments;
