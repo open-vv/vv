@@ -76,8 +76,15 @@ void vvLandmarksPanel::RemoveSelectedPoints()
     }
     else {
       // we're using single-selection mode
-      mCurrentLandmarks->RemoveLandmark(items[0]->row());
-      tableWidget->removeRow(items[0]->row());
+      int row = items[0]->row();
+      mCurrentLandmarks->RemoveLandmark(row);
+      tableWidget->removeRow(row);
+      
+      for (int i = row; i < tableWidget->rowCount(); i++) {
+        QTableWidgetItem* iItem = tableWidget->item(i, 0);
+        iItem->setText(QString::number(i));
+      }
+        
     }
     emit UpdateRenderWindows();
   }
