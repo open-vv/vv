@@ -226,10 +226,19 @@ function merge_dispatcher {
         fi
     fi
 
+    if test "${firstpartialoutputextension}" == "txt"
+    then
+        echo "${indent}this is a non specific txt output"
+        local mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}")"
+        echo "  ${indent}catting ${mergedfile}"
+        cat ${partialoutputfiles} > "${mergedfile}" || error "error while merging"
+        return
+    fi
+
     warning "unknown file type"
 }
 
-echo "!!!! this is $0 v0.3f !!!!"
+echo "!!!! this is $0 v0.3g !!!!"
 
 rundir="${1?"provide run dir"}"
 nboutputdirs="$(find "${rundir}" -mindepth 1 -type d -name 'output*' | wc -l)"
@@ -247,7 +256,7 @@ echo "output dir is ${outputdir}"
 test -d "${outputdir}" && rm -r "${outputdir}"
 mkdir "${outputdir}"
 
-for outputfile in $(find "${rundir}" -regextype 'posix-extended' -type f -regex '.*\.(hdr|root|txt)' | awk -F '/' '{ print $NF }' | sort | uniq)
+for outputfile in $(find "${rundir}" -regextype 'posix-extended' -type f -regex "${rundir}/output.*\.(hdr|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
 do
     merge_dispatcher "${outputfile}"
 done
