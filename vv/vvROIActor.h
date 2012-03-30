@@ -22,7 +22,9 @@
 #include "vvBinaryImageOverlayActor.h"
 #include "vvImageContour.h"
 #include "clitkDicomRT_ROI.h"
+
 #include <QObject>
+#include <QSharedPointer>
 
 class vvSlicerManager;
 class vtkActor;
@@ -49,10 +51,14 @@ class vvROIActor: public QObject {
   void SetContourWidth(int n);
   int GetContourWidth() { return mContourWidth; }
   void SetContourColor(double r, double v, double b);
-  std::vector<double> & GetContourColor();
+  std::vector<double> & GetContourColor();  
+  void SetOverlayColor(double r, double v, double b);
+  std::vector<double> & GetOverlayColor();
   void SetBGMode(bool b) { m_modeBG = b; }
   void SetDepth(double d);
   double GetDepth() { return mDepth; }
+  void CopyParameters(QSharedPointer<vvROIActor> roi);
+  void RemoveActors();
 
 public slots:
   void UpdateSlice(int slicer, int slices, bool force=false);
