@@ -35,7 +35,7 @@ public:
   itkNewMacro(Self);
 
   void Print(std::ostream & os = std::cout) const;
-  void SetFromBinaryImage(vvImage * image, int n, 
+  void SetFromBinaryImage(vvImage::Pointer image, int n, 
         std::string name, 
         std::vector<double> color, 
         std::string filename);
@@ -56,7 +56,7 @@ public:
   double GetForegroundValueLabelImage() const;
   void SetForegroundValueLabelImage(double bg);
   
-  void SetImage(vvImage * im);
+  void SetImage(vvImage::Pointer im);
   DicomRT_Contour* GetContour(int n);
 
   // Compute a vtk mesh from the dicom contours
