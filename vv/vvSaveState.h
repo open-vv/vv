@@ -23,6 +23,7 @@ protected:
   void SaveGlobals();
   void SaveGUI();
   void SaveTree();
+  void SaveTools();
   void SaveImage(const QTreeWidgetItem* item, int index);
   void SaveFusion(const QTreeWidgetItem* item, const vvSlicerManager* slicerManager);
   void SaveOverlay(const QTreeWidgetItem* item, const vvSlicerManager* slicerManager);

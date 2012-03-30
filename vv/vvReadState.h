@@ -21,10 +21,12 @@ protected:
   
   void ReadGUI();
   void ReadTree();
-  std::string  ReadImage();
-  std::string  ReadFusion(int index);
-  std::string  ReadOverlay(int index);
-  std::string  ReadVector(int index);
+  void ReadTools();
+  void ReadTool(const std::string & toolname);
+  std::string ReadImage();
+  std::string ReadFusion(int index);
+  std::string ReadOverlay(int index);
+  std::string ReadVector(int index);
 
   std::auto_ptr<QXmlStreamReader> m_XmlReader;
   std::auto_ptr<QFile> m_File;
