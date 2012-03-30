@@ -27,6 +27,8 @@ vvToolCreatorBase::vvToolCreatorBase(QString name): mAction(NULL), mExperimental
   mUseContextMenu = false;
   mToolName = name;
   m_MenuName = "Tools";
+  mReadStateFlag = false;
+  mImageIndex = 0;
   vvToolManager::GetInstance()->AddTool(this);
 }
 //------------------------------------------------------------------------------
