@@ -27,6 +27,7 @@
 
 class QAction;
 class vvToolBaseBase;
+class QXmlStreamReader;
 
 //------------------------------------------------------------------------------
 class vvToolCreatorBase: public QObject {
@@ -43,6 +44,8 @@ class vvToolCreatorBase: public QObject {
   void addMenuToContextMenu(QMenu * m);
   void SetMenuName(std::string m) { m_MenuName = m; }
 
+  std::vector<vvToolBaseBase*> & GetListOfTool() { return mListOfTool; }
+
   QString mToolName;
   QString mToolMenuName;
   QString mToolIconFilename;
@@ -52,6 +55,9 @@ class vvToolCreatorBase: public QObject {
   bool mUseContextMenu;
   QMenu * mToolMenu;
   std::vector<QAction*> mListOfActions;
+  std::auto_ptr<QXmlStreamReader> m_XmlReader;
+  bool mReadStateFlag;
+  int mImageIndex;
 
 public slots:
   virtual void MenuToolSlot();
