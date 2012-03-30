@@ -27,6 +27,7 @@ public:
   static vvToolCreator<ToolType> *&GetInstance();
   virtual void InsertToolInMenu(vvMainWindowBase * m);
   virtual void MenuSpecificToolSlot() { CreateTool<ToolType>(); }
+
 private:
   vvToolCreator():vvToolCreatorBase(mToolCreatorName) {;}
   static vvToolCreator<ToolType> * mSingleton;
