@@ -24,12 +24,14 @@
 #include "vvROIActor.h"
 #include "vvMeshReader.h"
 #include "vvStructSelector.h"
+#include "vvToolManager.h"
 
 // Qt
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QColorDialog>
 #include <QAbstractEventDispatcher>
+#include <QXmlStreamReader>
  
 // vtk
 #include <vtkLookupTable.h>
@@ -53,21 +55,6 @@ vvToolROIManager::vvToolROIManager(vvMainWindowBase * parent, Qt::WindowFlags f)
   // Assume the initial tab ROI index is 2
   mIndexFirstTab = 2;
 
-  // Get the ROI Tab
-  QWidget * tab = qFindChild<QWidget*>(parent->GetTab(), "ROItab");
-  
-  // Set it as current
-  parent->GetTab()->setCurrentIndex(mIndexFirstTab);
-  
-  // Check if widget already used
-  if (tab->layout()->isEmpty()) {
-    tab->layout()->addWidget(this);
-  }
-  else {
-    close();
-    return;
-  }
-  
   // Build the UI
   Ui_vvToolROIManager::setupUi(this);
   setAttribute(Qt::WA_DeleteOnClose);
@@ -89,17 +76,124 @@ vvToolROIManager::vvToolROIManager(vvMainWindowBase * parent, Qt::WindowFlags f)
 #include "vvDefaultLut.h"
 
   // Initialization
+  mCurrentSlicerManager = NULL;
   mNumberOfVisibleROI = 0;
   mNumberOfVisibleContourROI = 0;
+  mOpenFileBrowserFlag = true; // by default, open the file browser when the tool is launched
 
-  // Select the current image as the target
-  int i = parent->GetSlicerManagerCurrentIndex();
-  InputIsSelected(parent->GetSlicerManagers()[i]);
+  // InitializeNewTool must be called to start
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+vvToolROIManager::~vvToolROIManager()
+{
+  mROIActorsList.clear();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+// STATIC
+void vvToolROIManager::Initialize() {
+  SetToolName("ROIManager");
+  SetToolMenuName("Display ROI (binary image)");
+  SetToolIconFilename(":/common/icons/tool-roi.png");
+  SetToolTip("Display ROI from a binary image.");
+  SetToolExperimental(true);
+}
+//------------------------------------------------------------------------------
+
+
+
+//------------------------------------------------------------------------------
+void  vvToolROIManager::InitializeNewTool(bool ReadStateFlag) 
+{
+  // Check if we need to start a new tool or read in the state file to load
+  if (ReadStateFlag == false) {
+    // Select the current image as the target
+    int i = mMainWindow->GetSlicerManagerCurrentIndex();
+    mCurrentSlicerManager = mMainWindow->GetSlicerManagers()[i];
+    // Set it as current (only if not ReadStateFlag)
+    mMainWindow->GetTab()->setCurrentIndex(mIndexFirstTab);
+  }
+  else {
+    // Set the first tab in front to avoid displaying two roimanager
+    // in the same tab. Because toolcreatorBase do show() and I am too
+    // lazy to find another solution now.
+    mMainWindow->GetTab()->setCurrentIndex(0);
+
+    // Read all information in the XML
+    ReadXMLInformation();
+    
+    // Check that a ROI is not already present 
+    mInitialImageIndex += mImageIndex;
+    if (mInitialImageIndex >= mMainWindow->GetSlicerManagers().size()) {
+      QMessageBox::warning(this, "ROIManager tool", QString("Image index %1 not found, abort.").arg(mInitialImageIndex));
+      close();
+      return;
+    }
+    
+    // Set the attached image
+    mCurrentSlicerManager = mMainWindow->GetSlicerManagers()[mInitialImageIndex];
+  }
+
+  // Tab insertion, check that another tool does not already exist for this image
+  std::vector<vvToolBaseBase*> & tools = 
+    vvToolManager::GetInstance()->GetToolCreatorFromName(GetToolName())->GetListOfTool();
+  if (tools.size() > 0) {
+    for(uint i=0; i<tools.size()-1; i++) { // current tool is last
+      vvToolROIManager * t = dynamic_cast<vvToolROIManager*>(tools[i]);
+      if (mCurrentSlicerManager == t->GetCurrentSlicerManager()) {
+        QMessageBox::warning(this, "ROIManager tool", "Already a ROI for this image, abort.");
+        close();
+        return;
+      }
+    }
+  }
+
+  // Display tool in the correct tab
+  QWidget * tab = qFindChild<QWidget*>(mMainWindow->GetTab(), "ROItab");
+  tab->layout()->addWidget(this);
+ 
+  // If not read in a file we start automatically the browser to load
+  // a roi file (binary image)
+  if (ReadStateFlag) {    
+    mOpenFileBrowserFlag = false;
+    InputIsSelected(mCurrentSlicerManager);
+    mOpenFileBrowserFlag = true;
+  }
+  else InputIsSelected(mCurrentSlicerManager);
+
+  // Load ROI (if read in the XML files, empty otherwise)
+  OpenBinaryImage(mROIFilenames);
+
+  // Set the options to the open roi
+  for(uint i=0; i<mROIActorsParamList.size(); i++) {
+    QSharedPointer<vvROIActor> roi = mROIActorsList[i];
+    QSharedPointer<vvROIActor> roi_param = mROIActorsParamList[i];
+    roi->CopyParameters(roi_param);
+
+    // Update Tree
+    QTreeWidgetItem * w = mMapROIToTreeWidget[roi->GetROI()];
+    QBrush brush(QColor(roi->GetROI()->GetDisplayColor()[0]*255,
+                        roi->GetROI()->GetDisplayColor()[1]*255,
+                        roi->GetROI()->GetDisplayColor()[2]*255));
+    brush.setStyle(Qt::SolidPattern);
+    w->setBackground(2, brush);
+    w->setText(3, QString("%1").arg(roi->GetDepth()));  
+    roi->UpdateColor();
+  }
+
+  // Display the ROI
+  UpdateAllContours();
+  UpdateAllROIStatus(); 
 
   // Connect event from mainwindow to this widget
-  connect(parent, SIGNAL(AnImageIsBeingClosed(vvSlicerManager *)), 
+  connect(mMainWindow, SIGNAL(AnImageIsBeingClosed(vvSlicerManager *)), 
           this, SLOT(AnImageIsBeingClosed(vvSlicerManager *)));
-  connect(parent, SIGNAL(SelectedImageHasChanged(vvSlicerManager *)), 
+  connect(mMainWindow, SIGNAL(SelectedImageHasChanged(vvSlicerManager *)), 
           this, SLOT(SelectedImageHasChanged(vvSlicerManager *)));
   connect(mOpenBinaryButton, SIGNAL(clicked()), this, SLOT(OpenBinaryImage()));
   connect(mOpenDicomButton, SIGNAL(clicked()), this, SLOT(OpenDicomImage()));
@@ -120,34 +214,13 @@ vvToolROIManager::vvToolROIManager(vvMainWindowBase * parent, Qt::WindowFlags f)
 
 
 //------------------------------------------------------------------------------
-vvToolROIManager::~vvToolROIManager()
-{
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-// STATIC
-void vvToolROIManager::Initialize() {
-  SetToolName("ROIManager");
-  SetToolMenuName("Display ROI (binary image)");
-  SetToolIconFilename(":/common/icons/tool-roi.png");
-  SetToolTip("Display ROI from a binary image.");
-  SetToolExperimental(true);
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
 void vvToolROIManager::InputIsSelected(vvSlicerManager *m)
 {
-  mSlicerManager = m;
-
   // Initialization
-  mSlicerManager = m;
-  mCurrentImage = mSlicerManager->GetImage();
+  mCurrentSlicerManager = m;
+  mCurrentImage = mCurrentSlicerManager->GetImage();
 
-  // Refuse if 4D
+  // Refuse if non 3D image
   if (mCurrentImage->GetNumberOfDimensions() != 3) {
     QMessageBox::information(this,tr("Sorry only 3D yet"), tr("Sorry only 3D yet"));
     close();
@@ -158,7 +231,7 @@ void vvToolROIManager::InputIsSelected(vvSlicerManager *m)
   mLabelInputInfo->setText(QString("%1").arg(m->GetFileName().c_str()));
 
   // Auto display browser to select new contours 
-  OpenBinaryImage();
+  if (mOpenFileBrowserFlag) OpenBinaryImage();
 }
 //------------------------------------------------------------------------------
 
@@ -166,7 +239,7 @@ void vvToolROIManager::InputIsSelected(vvSlicerManager *m)
 //------------------------------------------------------------------------------
 void vvToolROIManager::AnImageIsBeingClosed(vvSlicerManager * m)
 {
-  if (m == mSlicerManager) { 
+  if (m == mCurrentSlicerManager) { 
     close();
     return;
   }
@@ -177,16 +250,35 @@ void vvToolROIManager::AnImageIsBeingClosed(vvSlicerManager * m)
 //------------------------------------------------------------------------------
 void vvToolROIManager::close()
 {
-  // Update to delete actors
-  UpdateAllContours();
+  disconnect(mTree, SIGNAL(itemSelectionChanged()), this, SLOT(SelectedItemChangedInTree()));
+  disconnect(mCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(VisibleROIToggled(bool)));
+  disconnect(mOpacitySlider, SIGNAL(valueChanged(int)), this, SLOT(OpacityChanged(int)));
+  disconnect(mChangeColorButton, SIGNAL(clicked()), this, SLOT(ChangeColor()));
+  disconnect(mContourCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(VisibleContourROIToggled(bool)));  
+  disconnect(mChangeContourColorButton, SIGNAL(clicked()), this, SLOT(ChangeContourColor()));
+  disconnect(mContourWidthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeContourWidth(int)));
+  disconnect(mDepthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeDepth(int)));
+
+  // Remove actors
+  for (unsigned int i = 0; i < mROIActorsList.size(); i++) {
+    mROIActorsList[i]->RemoveActors();
+  }
+  mROIActorsList.clear();
+
   QWidget::close();
+  for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
+    mCurrentSlicerManager->GetSlicer(i)->Render();
+  }
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::SelectedImageHasChanged(vvSlicerManager * m) {
-  if (m != mSlicerManager) hide(); 
+
+  if (mCurrentSlicerManager == NULL) return;
+  if (m == NULL) return;
+  if (m != mCurrentSlicerManager) hide(); 
   else {
     show();
   }
@@ -203,6 +295,14 @@ void vvToolROIManager::OpenBinaryImage()
   QStringList filename =
     QFileDialog::getOpenFileNames(this,tr("Open binary image"),
 				  mMainWindowBase->GetInputPathName(),Extensions);
+  OpenBinaryImage(filename);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolROIManager::OpenBinaryImage(QStringList & filename) 
+{
   if (filename.size() == 0) return;
   
   // For each selected file, open the image
@@ -226,7 +326,9 @@ void vvToolROIManager::OpenBinaryImage()
     vvImage::Pointer binaryImage = reader->GetOutput();
     AddImage(binaryImage, filename[i].toStdString(), mBackgroundValueSpinBox->value(),
              (!mBGModeCheckBox->isChecked()));
-    mOpenedBinaryImage.push_back(binaryImage);
+    //    mOpenedBinaryImage.push_back(binaryImage);
+    mOpenedBinaryImageFilenames.push_back(filename[i]);
+    //mMapImageToIndex[binaryImage]=mOpenedBinaryImageFilenames.size()-1;
   }
 
   // Update the contours
@@ -258,7 +360,7 @@ void vvToolROIManager::OpenDicomImage()
   if (selector.exec()) {
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     reader.SetSelectedItems(selector.getSelectedItems());
-    reader.SetImage(mSlicerManager->GetImage());
+    reader.SetImage(mCurrentSlicerManager->GetImage());
     reader.Update();
 
     // std::vector<vvMesh::Pointer> contours=reader.GetOutput();
@@ -326,7 +428,7 @@ void vvToolROIManager::AddImage(vvImage * binaryImage, std::string filename,
   QSharedPointer<vvROIActor> actor = QSharedPointer<vvROIActor>(new vvROIActor);
   actor->SetBGMode(modeBG);
   actor->SetROI(roi);
-  actor->SetSlicerManager(mSlicerManager);
+  actor->SetSlicerManager(mCurrentSlicerManager);
   actor->Initialize(n+1); // depth is n+1 to start at 1
   mROIActorsList.push_back(actor);
   
@@ -359,13 +461,14 @@ void vvToolROIManager::AddImage(vvImage * binaryImage, std::string filename,
 //------------------------------------------------------------------------------
 void vvToolROIManager::UpdateAllContours() 
 {
+  if (mCurrentSlicerManager == NULL) return;
   // Render loaded ROIs (the first is sufficient)
   for(unsigned int i=0; i<mROIList.size(); i++) {
     mROIActorsList[i]->Update();
   }
-  for(int i=0; i<mSlicerManager->GetNumberOfSlicers(); i++) {
-    mSlicerManager->GetSlicer(i)->Render();
-  }  
+  for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
+    mCurrentSlicerManager->GetSlicer(i)->Render();
+  }
 }
 //------------------------------------------------------------------------------
 
@@ -405,6 +508,8 @@ void vvToolROIManager::SelectedItemChangedInTree() {
     return;
   }
   QTreeWidgetItem * w = l[0];
+  if (w == NULL) return;
+  if (w == 0) return;
   if (mMapTreeWidgetToROI.find(w) == mMapTreeWidgetToROI.end()) {
     //    mCurrentROIActor = 0;
     mCurrentROI = NULL;
@@ -414,6 +519,7 @@ void vvToolROIManager::SelectedItemChangedInTree() {
   if (w == NULL) return;
   clitk::DicomRT_ROI * roi = mMapTreeWidgetToROI[w];
   if (roi == NULL) return; // sometimes it is called while there is no roi anymore
+
   // Get selected roi actor
   int n = roi->GetROINumber();
   QSharedPointer<vvROIActor> actor = mROIActorsList[n];
@@ -431,7 +537,6 @@ void vvToolROIManager::SelectedItemChangedInTree() {
   disconnect(mContourWidthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeContourWidth(int)));
   disconnect(mDepthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeDepth(int)));
 
-  mGroupBoxROI->setEnabled(true);
   mROInameLabel->setText(roi->GetName().c_str());
   mCheckBoxShow->setChecked(actor->IsVisible());
   mContourCheckBoxShow->setChecked(actor->IsContourVisible());
@@ -453,19 +558,23 @@ void vvToolROIManager::SelectedItemChangedInTree() {
   
   // Set the current color to the selected ROI name
   mROInameLabel->setAutoFillBackground(true);// # This is important!!
-  mROInameLabel->setStyleSheet("QLabel { background-color : red; color : blue; }");
+  // mROInameLabel->setStyleSheet("QLabel { background-color : red; color : blue; }");
   QColor color = QColor(mCurrentROI->GetDisplayColor()[0]*255,
                         mCurrentROI->GetDisplayColor()[1]*255,
                         mCurrentROI->GetDisplayColor()[2]*255);
-  QString values = QString("%1, %2, %3").arg(color.red()).arg(color.green()).arg(color.blue());
-  mROInameLabel->setStyleSheet("QLabel { background-color: rgb("+values+"); }");
+  // QString values = QString("%1, %2, %3").arg(color.red()).arg(color.green()).arg(color.blue());
+  // mROInameLabel->setStyleSheet("QLabel { background-color: rgb("+values+"); }");
 
+  QPalette* palette = new QPalette();
+  QColor colorFG = QColor((1-mCurrentROI->GetDisplayColor()[0])*255,
+                          (1-mCurrentROI->GetDisplayColor()[1])*255,
+                          (1-mCurrentROI->GetDisplayColor()[2])*255);
+  palette->setColor(QPalette::WindowText,colorFG);
+  palette->setColor(QPalette::Background, color);
+  mROInameLabel->setPalette(*palette);	
 
+  // Enable the group box (in case no selection before)
   mGroupBoxROI->setEnabled(true);
-  // is this needed ?
-  //  actor->Update(); 
-  // Final rendering
-  // mCurrentSlicerManager->Render();
 }
 //------------------------------------------------------------------------------
 
@@ -476,7 +585,7 @@ void vvToolROIManager::VisibleROIToggled(bool b) {
   if (b == mCurrentROIActor->IsVisible()) return; // nothing to do
   mCurrentROIActor->SetVisible(b);
   UpdateAllROIStatus();
-  mSlicerManager->Render(); 
+  mCurrentSlicerManager->Render(); 
 }
 //------------------------------------------------------------------------------
 
@@ -487,7 +596,7 @@ void vvToolROIManager::VisibleContourROIToggled(bool b) {
   if (mCurrentROIActor->IsContourVisible() == b) return; // nothing to do
   mCurrentROIActor->SetContourVisible(b);
   mCurrentROIActor->UpdateColor();
-  mSlicerManager->Render(); 
+  mCurrentSlicerManager->Render(); 
 }
 //------------------------------------------------------------------------------
 
@@ -497,7 +606,7 @@ void vvToolROIManager::OpacityChanged(int v) {
   if (mCurrentROIActor == NULL) return;
   mCurrentROIActor->SetOpacity((double)v/100.0);
   mCurrentROIActor->UpdateColor();
-  mSlicerManager->Render(); 
+  mCurrentSlicerManager->Render(); 
 }
 //------------------------------------------------------------------------------
 
@@ -514,7 +623,7 @@ void vvToolROIManager::AllVisibleROIToggled(int b) {
   if (status) mCheckBoxShowAll->setCheckState(Qt::Checked);
   else  mCheckBoxShowAll->setCheckState(Qt::Unchecked);
   mCheckBoxShow->setChecked(status);
-  mSlicerManager->Render(); 
+  mCurrentSlicerManager->Render(); 
 }
 //------------------------------------------------------------------------------
 
@@ -532,7 +641,7 @@ void vvToolROIManager::AllVisibleContourROIToggled(bool b) {
   if (status) mContourCheckBoxShowAll->setCheckState(Qt::Checked);
   else  mContourCheckBoxShowAll->setCheckState(Qt::Unchecked);
   mContourCheckBoxShow->setChecked(status);
-  mSlicerManager->Render(); 
+  mCurrentSlicerManager->Render(); 
 }
 //------------------------------------------------------------------------------
 
@@ -555,7 +664,7 @@ void vvToolROIManager::ChangeColor() {
   brush.setStyle(Qt::SolidPattern);
   w->setBackground(2, brush);
   // Render
-  mSlicerManager->Render();
+  mCurrentSlicerManager->Render();
 }
 //------------------------------------------------------------------------------
 
@@ -567,10 +676,12 @@ void vvToolROIManager::ChangeContourColor() {
   color.setRgbF(mCurrentROIActor->GetContourColor()[0], 
 		mCurrentROIActor->GetContourColor()[1], 
 		mCurrentROIActor->GetContourColor()[2]);
+  //  QColorDialog d(color);
   QColor c = QColorDialog::getColor(color, this, "Choose the contour color");
+  if (!c.isValid()) return; // User cancel
   mCurrentROIActor->SetContourColor(c.redF(), c.greenF(), c.blueF());
   mCurrentROIActor->UpdateColor();
-  mSlicerManager->Render();
+  mCurrentSlicerManager->Render();
 }
 //------------------------------------------------------------------------------
 
@@ -578,9 +689,9 @@ void vvToolROIManager::ChangeContourColor() {
 //------------------------------------------------------------------------------
 void vvToolROIManager::ChangeContourWidth(int n) {
   if (mCurrentROIActor == NULL) return;
-  mCurrentROIActor->SetContourWidth(n);
-  mCurrentROIActor->UpdateColor();
-  mSlicerManager->Render();
+    mCurrentROIActor->SetContourWidth(n);
+    mCurrentROIActor->UpdateColor();
+    mCurrentSlicerManager->Render();
 }
 //------------------------------------------------------------------------------
 
@@ -589,8 +700,8 @@ void vvToolROIManager::ChangeContourWidth(int n) {
 void vvToolROIManager::ChangeDepth(int n) {
   if (mCurrentROIActor == NULL) return;
   mCurrentROIActor->SetDepth(n);
-  mCurrentROIActor->UpdateImage();
-  mSlicerManager->Render();
+  // mCurrentROIActor->UpdateImage(); // FIXME  
+  mCurrentSlicerManager->Render();
   QList<QTreeWidgetItem *> l = mTree->selectedItems();
   QTreeWidgetItem * w = l[0];
   w->setText(3, QString("%1").arg(mCurrentROIActor->GetDepth()));
@@ -606,7 +717,7 @@ void vvToolROIManager::ReloadCurrentROI() {
   bool cvisible = mCurrentROIActor->IsContourVisible();
   mCurrentROIActor->SetVisible(false);
   mCurrentROIActor->SetContourVisible(false);
-  mSlicerManager->Render();
+  mCurrentSlicerManager->Render();
   
   // Reload image
   vvImageReader::Pointer reader = vvImageReader::New();
@@ -618,13 +729,156 @@ void vvToolROIManager::ReloadCurrentROI() {
     return;
   }
 
-  mCurrentROI->GetImage()->Reset();//GetFirstVTKImageData()->ReleaseData();
+  // Free the previous image
+  mCurrentROI->GetImage()->GetFirstVTKImageData()->ReleaseData(); // Needed to free
+  mCurrentROI->GetImage()->Reset();
   mCurrentROI->SetImage(reader->GetOutput());
-  
+
+  mCurrentROIActor->RemoveActors();
+
   // Update visu
   mCurrentROIActor->UpdateImage();
   mCurrentROIActor->SetVisible(visible);
   mCurrentROIActor->SetContourVisible(cvisible);
-  mSlicerManager->Render();    
+  mCurrentSlicerManager->Render();    
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void  vvToolROIManager::SaveState(std::auto_ptr<QXmlStreamWriter> & m_XmlWriter)
+{
+  // Get index of the image
+  int n = mMainWindow->GetSlicerManagers().size();
+  int index=-1;
+  for(int i=0; i<n; i++) {
+    if (mCurrentSlicerManager == mMainWindow->GetSlicerManagers()[i]) index = i;
+  }
+  if (index == -1) {
+    std::cerr << "Error while writing state for ROIManager tool no currentimage founded." << std::endl;
+    return;
+  }
+  m_XmlWriter->writeTextElement("Image_Index", QString::number(index));
+
+
+  // Write ROI
+  for(uint i=0; i<mROIActorsList.size(); i++) {
+    QSharedPointer<vvROIActor> roi = mROIActorsList[i];
+
+    m_XmlWriter->writeStartElement("ROI");
+    m_XmlWriter->writeTextElement("Image", mOpenedBinaryImageFilenames[i]);
+
+    m_XmlWriter->writeStartElement("Overlay");
+    m_XmlWriter->writeAttribute("Red",  QString("%1").arg(roi->GetOverlayColor()[0]));
+    m_XmlWriter->writeAttribute("Green",QString("%1").arg(roi->GetOverlayColor()[1]));
+    m_XmlWriter->writeAttribute("Blue", QString("%1").arg(roi->GetOverlayColor()[2]));
+    m_XmlWriter->writeAttribute("Visible", QString("%1").arg(roi->IsVisible()));
+    m_XmlWriter->writeAttribute("Opacity", QString("%1").arg(roi->GetOpacity()));
+    m_XmlWriter->writeAttribute("Depth", QString("%1").arg(roi->GetDepth()));
+    m_XmlWriter->writeEndElement();
+   
+    m_XmlWriter->writeStartElement("Contour");
+    m_XmlWriter->writeAttribute("Red",  QString("%1").arg(roi->GetContourColor()[0]));
+    m_XmlWriter->writeAttribute("Green",QString("%1").arg(roi->GetContourColor()[1]));
+    m_XmlWriter->writeAttribute("Blue", QString("%1").arg(roi->GetContourColor()[2]));
+    m_XmlWriter->writeAttribute("Visible", QString("%1").arg(roi->IsContourVisible()));
+    m_XmlWriter->writeAttribute("Width", QString("%1").arg(roi->GetContourWidth()));
+    m_XmlWriter->writeEndElement();
+
+    m_XmlWriter->writeEndElement();
+  }
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolROIManager::ReadXMLInformation() 
+{
+  std::string value="";
+  mInitialImageIndex = -1;
+  while (!(m_XmlReader->isEndElement() && value == GetToolName().toStdString())) { 
+    m_XmlReader->readNext();
+    value = m_XmlReader->qualifiedName().toString().toStdString();
+    
+    if (value == "Image_Index") 
+      mInitialImageIndex = m_XmlReader->readElementText().toInt();
+    
+    if (m_XmlReader->isStartElement()) {
+      if (value == "ROI") {
+        ReadXMLInformation_ROI();
+      }      
+    }
+  }
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolROIManager::ReadXMLInformation_ROI() 
+{
+  QString s;
+  std::string value="";
+  QSharedPointer<vvROIActor> param = QSharedPointer<vvROIActor>(new vvROIActor);
+  param->SetVisible(true);
+  clitk::DicomRT_ROI::Pointer roi = clitk::DicomRT_ROI::New();
+  // r->SetDisplayColor(1,1,1);
+  param->SetROI(roi);
+
+  float r=1.0,g=1.0,b=1.0;
+  float cr=1.0,cg=1.0,cb=1.0;
+  float opacity = 0.7;
+  bool visible = true;
+  bool cvisible = true;
+  int width = 1;
+  int depth=1;
+
+  while (!(m_XmlReader->isEndElement() && value == "ROI")) { 
+    m_XmlReader->readNext();
+    value = m_XmlReader->qualifiedName().toString().toStdString();
+    if (value == "Image") {
+      s = m_XmlReader->readElementText();
+    }
+    
+    if (value == "Overlay" && m_XmlReader->isStartElement()) {
+      QXmlStreamAttributes attributes = m_XmlReader->attributes();
+      if (!m_XmlReader->hasError())
+         r = attributes.value("Red").toString().toFloat();
+      if (!m_XmlReader->hasError())
+         g = attributes.value("Green").toString().toFloat();
+      if (!m_XmlReader->hasError())
+         b = attributes.value("Blue").toString().toFloat();
+      if (!m_XmlReader->hasError())
+         visible = attributes.value("Visible").toString().toInt();
+      if (!m_XmlReader->hasError())
+         opacity = attributes.value("Opacity").toString().toFloat();
+     if (!m_XmlReader->hasError())
+         depth = attributes.value("Depth").toString().toFloat();
+    }
+
+
+    if (value == "Contour" && m_XmlReader->isStartElement()) {
+      QXmlStreamAttributes attributes = m_XmlReader->attributes();
+      if (!m_XmlReader->hasError())
+         cr = attributes.value("Red").toString().toFloat();
+      if (!m_XmlReader->hasError())
+         cg = attributes.value("Green").toString().toFloat();
+      if (!m_XmlReader->hasError())
+         cb = attributes.value("Blue").toString().toFloat();
+      if (!m_XmlReader->hasError())
+         cvisible = attributes.value("Visible").toString().toInt();
+      if (!m_XmlReader->hasError())
+         width = attributes.value("Width").toString().toFloat();
+    }
+    param->SetOverlayColor(r,g,b);
+    param->SetVisible(visible);
+    param->SetOpacity(opacity); 
+    param->SetDepth(depth); 
+
+    param->SetContourColor(cr,cg,cb);
+    param->SetContourVisible(cvisible);
+    param->SetContourWidth(width);
+  }
+  mROIFilenames.push_back(s);
+  mROIActorsParamList.push_back(param);
 }
 //------------------------------------------------------------------------------

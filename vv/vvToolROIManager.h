@@ -46,11 +46,14 @@ class vvToolROIManager:
   void AddImage(vvImage * binaryImage, std::string filename, double BG, bool m_modeBG=true);
   void UpdateAllContours();
   void UpdateAllROIStatus();
+  virtual void SaveState(std::auto_ptr<QXmlStreamWriter> & m_XmlWriter);
+  virtual void InitializeNewTool(bool ReadStateFlag);
 
   public slots:
   void AnImageIsBeingClosed(vvSlicerManager *);
   void SelectedImageHasChanged(vvSlicerManager *);
   void OpenBinaryImage();
+  void OpenBinaryImage(QStringList & filenames);
   void OpenDicomImage();
   void SelectedItemChangedInTree();
   void VisibleROIToggled(bool b);
@@ -64,20 +67,22 @@ class vvToolROIManager:
   void AllVisibleContourROIToggled(bool b);
   void ReloadCurrentROI();  
   void close();
+  vvSlicerManager * GetCurrentSlicerManager() { return mCurrentSlicerManager; }
 
 protected:
   Ui::vvToolROIManager ui;
-  vvSlicerManager * mSlicerManager;
+  vvSlicerManager * mCurrentSlicerManager; // need it because do not inherit from vvToolWidgetBase
   vvImage * mCurrentImage;
   vvMainWindowBase * mMainWindow;
   int mIndexFirstTab;
+  bool mOpenFileBrowserFlag;
   
   int mNumberOfVisibleROI;
   int mNumberOfVisibleContourROI;
 
   vtkSmartPointer<vtkLookupTable> mDefaultLUTColor;
 
-  std::vector<vvImage::Pointer> mOpenedBinaryImage;
+  QStringList mOpenedBinaryImageFilenames;
   std::vector<clitk::DicomRT_ROI::Pointer> mROIList;
   std::vector<QSharedPointer<vvROIActor> > mROIActorsList;
 
@@ -89,6 +94,13 @@ protected:
   // Data for current selected roi
   clitk::DicomRT_ROI::Pointer mCurrentROI;
   QSharedPointer<vvROIActor> mCurrentROIActor;
+  
+  // Data for XML Reader
+  void ReadXMLInformation();
+  void ReadXMLInformation_ROI();
+  uint mInitialImageIndex;
+  QStringList mROIFilenames;
+  std::vector<QSharedPointer<vvROIActor> > mROIActorsParamList;
  
 }; // end class vvToolROIManager
 //------------------------------------------------------------------------------
