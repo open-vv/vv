@@ -2806,7 +2806,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 
     // Video
     vtkGenericMovieWriter *vidwriter = NULL;
-#ifdef CLITK_EXPERIMENTAL
+#if CLITK_EXPERIMENTAL == 1
     if (!strcmp(ext, ".gif")) {
       vvAnimatedGIFWriter *gif = vvAnimatedGIFWriter::New();
       vidwriter = gif;
