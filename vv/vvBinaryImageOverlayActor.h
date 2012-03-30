@@ -40,7 +40,7 @@ class vvBinaryImageOverlayActor : public itk::LightObject
   void SetSlicer(vvSlicer * slicer);
   void SetColor(double r, double g, double b);
   void SetOpacity(double d);
-  void SetImage(vvImage * image, double bg, bool modeBG=true);
+  void SetImage(vvImage::Pointer image, double bg, bool modeBG=true);
   void SetDepth(double d) { mDepth = d; }
   void Initialize(bool IsVisible=true);
   void UpdateColor();
@@ -55,7 +55,7 @@ class vvBinaryImageOverlayActor : public itk::LightObject
   int mTSlice;
   int mPreviousTSlice;
   int mPreviousSlice;
-  vvImage * mImage;
+  vvImage::Pointer mImage;
   std::vector<double> mColor;
   double mAlpha;
   double mBackgroundValue;
