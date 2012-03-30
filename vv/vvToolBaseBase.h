@@ -28,10 +28,8 @@ class QXmlStreamReader;
 class vvToolBaseBase {
 public:
   virtual ~vvToolBaseBase() { 
-    DD("destrucotr vvToolBaseBase");
     std::vector<vvToolBaseBase*> & v = mCreator->GetListOfTool();
     v.erase(std::find(v.begin(), v.end(), this));
-    DD("end dest");
   };
   
   virtual void SaveState(std::auto_ptr<QXmlStreamWriter> & m_XmlWriter);
