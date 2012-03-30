@@ -47,6 +47,7 @@ class vvBinaryImageOverlayActor : public itk::LightObject
   void UpdateSlice(int slicer, int slice, bool force=false);
   void HideActors();
   void ShowActors();
+  void RemoveActors();
 
  protected:
   vvSlicer * mSlicer;
