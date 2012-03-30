@@ -16,12 +16,14 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
 
+//------------------------------------------------------------------------------
 template<class ToolType>
 vvToolBase<ToolType>::vvToolBase(vvMainWindowBase * m)
 {
   mMainWindowBase = m;
 }
 //------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 // Default value (to be overwritten)
