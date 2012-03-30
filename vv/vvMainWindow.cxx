@@ -2357,8 +2357,6 @@ void vvMainWindow::SaveCurrentStateAs(const std::string& stateFile)
 {
   vvSaveState save_state;
   save_state.Run(this, stateFile);
-  
-  std::cout << "void vvMainWindow::SaveCurrentState()" << std::endl;
 }
 
 //------------------------------------------------------------------------------
