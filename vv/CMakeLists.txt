@@ -100,6 +100,7 @@ SET(vv_SRCS
   vvBlendImageActor.cxx
   vvToolManager.cxx
   vvToolCreatorBase.cxx
+  vvToolBaseBase.cxx
 )
 
 #=========================================================
