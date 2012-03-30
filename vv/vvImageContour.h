@@ -43,7 +43,8 @@ public:
   void SetLineWidth(double w);
   void SetImage(vvImage * image);
   void SetPreserveMemoryModeEnabled(bool b);
-  void SetDepth(double d) { mDepth = d; }
+  void SetDepth(double d);
+  void RemoveActors();
 
 protected:
   vvSlicer * mSlicer;
