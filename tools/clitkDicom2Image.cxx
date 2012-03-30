@@ -158,7 +158,7 @@ int main(int argc, char * argv[])
     theorigin[0] = -spacing[0]*size[0]/2.0;
     theorigin[1] = -spacing[1]*size[1]/2.0;
     modifier->SetInput(vtk_image);
-    modifier->SetOutputOrigin(theorigin[0], theorigin[1], theorigin[2]);
+    modifier->SetOutputOrigin(theorigin[0], theorigin[1], sliceLocations[sliceIndex[0]]);
     modifier->Update();
     vvImage::Pointer focal_image = vvImage::New();
     focal_image->AddVtkImage(modifier->GetOutput());
