@@ -65,3 +65,27 @@ void vvToolManager::EnableToolsInMenu(vvMainWindowBase * m, bool enable){
     }
   }
 }
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+vvToolCreatorBase * vvToolManager::GetToolCreatorFromName(QString toolTypeName)
+{
+  std::vector<vvToolCreatorBase *> & v = vvToolManager::GetInstance()->GetListOfTools();
+  int index=-1;
+  for(uint i=0; i<v.size(); i++) {
+    // DD(v[i]->mToolName.toStdString());
+    if (v[i]->mToolName == toolTypeName) {
+      index = i;
+    }
+  }
+  if (index == -1) {
+    std::cerr << "Error, ToolCreator named '" << toolTypeName.toStdString() 
+              << "' does not exist. Abort." << std::endl;
+    return NULL;
+  }
+  return v[index];
+}
+//------------------------------------------------------------------------------
+
+
