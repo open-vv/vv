@@ -41,9 +41,10 @@ public:
   void ShowActors();
   void SetColor(double r, double g, double b);
   void SetLineWidth(double w);
-  void SetImage(vvImage * image);
+  void SetImage(vvImage::Pointer image);
   void SetPreserveMemoryModeEnabled(bool b);
-  void SetDepth(double d) { mDepth = d; }
+  void SetDepth(double d);
+  void RemoveActors();
 
 protected:
   vvSlicer * mSlicer;
@@ -53,7 +54,7 @@ protected:
   int mPreviousTSlice;
   double mPreviousValue;
   bool mHiddenImageIsUsed;
-  vvImage * mHiddenImage;
+  vvImage::Pointer mHiddenImage;
   bool mDisplayModeIsPreserveMemory;
   double mDepth;
 

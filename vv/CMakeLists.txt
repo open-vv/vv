@@ -22,7 +22,8 @@ SET(vv_TOOLS
   vvToolStructureSetManager
   vvToolMIP
   vvToolConvert ## with dummy vvToolConvert.ui
-  
+  vvToolROIManager
+
   ## these ones are for tests (not working)
   # vvToolFoo
   # vvToolFooWithWidgetBase
@@ -99,6 +100,7 @@ SET(vv_SRCS
   vvBlendImageActor.cxx
   vvToolManager.cxx
   vvToolCreatorBase.cxx
+  vvToolBaseBase.cxx
 )
 
 #=========================================================

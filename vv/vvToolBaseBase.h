@@ -20,14 +20,28 @@
 #define VVTOOLBASEBASE_H
 
 #include "vvMainWindowBase.h"
+#include "vvToolCreatorBase.h"
+class QXmlStreamWriter;
+class QXmlStreamReader;
 
 //------------------------------------------------------------------------------
 class vvToolBaseBase {
 public:
-  virtual ~vvToolBaseBase() {};
+  virtual ~vvToolBaseBase() { 
+    std::vector<vvToolBaseBase*> & v = mCreator->GetListOfTool();
+    v.erase(std::find(v.begin(), v.end(), this));
+  };
   
+  virtual void SaveState(std::auto_ptr<QXmlStreamWriter> & m_XmlWriter);
+  virtual void InitializeNewTool(bool ReadStateFlag);   
+  void SetCreator(vvToolCreatorBase * m) { mCreator = m; }
+  void SetXmlReader(QXmlStreamReader * r, int index) { m_XmlReader = r; mImageIndex = index;}  
+
 protected:
   vvMainWindowBase * mMainWindowBase;
+  QXmlStreamReader * m_XmlReader;
+  vvToolCreatorBase * mCreator;
+  int mImageIndex;
 };
 //------------------------------------------------------------------------------
 #endif

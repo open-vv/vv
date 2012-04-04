@@ -88,7 +88,7 @@ namespace clitk {
     
     // RelativePositionList management 
     void AddRelativePositionListFilename(std::string s);    
-    MaskImagePointer ApplyRelativePositionList(std::string name, MaskImageType * input);
+    MaskImagePointer ApplyRelativePositionList(std::string name, MaskImageType * input, bool overlap=false);
     
    protected:
     StructuresExtractionFilter();

@@ -1,5 +1,7 @@
 #include "vvSaveState.h"
 #include "vvMainWindow.h"
+#include "vvToolCreatorBase.h"
+#include "vvToolBaseBase.h"
 
 #include <QDir>
 #include <QFile>
@@ -10,14 +12,20 @@
 #include <cassert>
 #include <string>
 
+//------------------------------------------------------------------------------
 vvSaveState::vvSaveState() : m_XmlWriter(new QXmlStreamWriter), m_File(new QFile)
 {
 }
+//------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
 vvSaveState::~vvSaveState()
 {
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSaveState::Run(vvMainWindow* vvWindow, const std::string& file)
 {
   assert(vvWindow);
@@ -36,16 +44,23 @@ void vvSaveState::Run(vvMainWindow* vvWindow, const std::string& file)
   SaveGlobals();
   SaveGUI();
   SaveTree();
+  SaveTools();
   m_XmlWriter->writeEndDocument();
   m_XmlWriter->writeEndElement();
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSaveState::SaveGlobals()
 {
   m_XmlWriter->writeStartElement("Globals");
   m_XmlWriter->writeEndElement();
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSaveState::SaveTree()
 {
   QTreeWidget* tree = m_Window->GetTree();
@@ -58,7 +73,10 @@ void vvSaveState::SaveTree()
   }
   m_XmlWriter->writeEndElement();
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSaveState::SaveImage(const QTreeWidgetItem* item, int index)
 {
   const vvSlicerManager * slicerManager = m_Window->GetSlicerManagers()[index];
@@ -85,9 +103,13 @@ void vvSaveState::SaveImage(const QTreeWidgetItem* item, int index)
       SaveVector(item_child);
   }
 
+  // End
   m_XmlWriter->writeEndElement();
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSaveState::SaveFusion(const QTreeWidgetItem* item, const vvSlicerManager* vvManager)
 {
   m_XmlWriter->writeStartElement("Fusion");
@@ -100,7 +122,10 @@ void vvSaveState::SaveFusion(const QTreeWidgetItem* item, const vvSlicerManager*
   m_XmlWriter->writeTextElement("FusionLevel", QString::number(vvManager->GetFusionLevel()));
   m_XmlWriter->writeEndElement();
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSaveState::SaveOverlay(const QTreeWidgetItem* item, const vvSlicerManager* vvManager)
 {
   m_XmlWriter->writeStartElement("Overlay");
@@ -112,7 +137,10 @@ void vvSaveState::SaveOverlay(const QTreeWidgetItem* item, const vvSlicerManager
   m_XmlWriter->writeTextElement("OverlayColor", QString::number(vvManager->GetOverlayColor()));
   m_XmlWriter->writeEndElement();
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSaveState::SaveVector(const QTreeWidgetItem* item)
 {
   m_XmlWriter->writeStartElement("Vector");
@@ -120,10 +148,36 @@ void vvSaveState::SaveVector(const QTreeWidgetItem* item)
   m_XmlWriter->writeTextElement("FileName", QDir::current().absoluteFilePath(filename.c_str()));
   m_XmlWriter->writeEndElement();
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvSaveState::SaveGUI()
 {
   m_XmlWriter->writeStartElement("GUI");
   m_XmlWriter->writeEndElement();
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
+void vvSaveState::SaveTools()
+{
+
+  m_XmlWriter->writeStartElement("Tools");
+  // Check if a tool is open and need to be store
+  std::vector<vvToolCreatorBase *> & v = vvToolManager::GetInstance()->GetListOfTools();
+  for(uint i=0; i<v.size(); i++) {
+    std::vector<vvToolBaseBase*> & t = v[i]->GetListOfTool();
+    for(uint j=0; j<t.size(); j++) {
+      std::string name = v[i]->mToolName.toStdString();
+      m_XmlWriter->writeStartElement(name.c_str());
+      m_XmlWriter->writeTextElement("ToolType_Index", QString::number(i));
+      m_XmlWriter->writeTextElement("Tool_Index", QString::number(j));
+      t[j]->SaveState(m_XmlWriter);
+      m_XmlWriter->writeEndElement();
+    }
+  }
+  m_XmlWriter->writeEndElement();
+}
+//------------------------------------------------------------------------------

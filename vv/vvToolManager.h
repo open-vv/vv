@@ -21,6 +21,8 @@
 
 class vvToolCreatorBase;
 class vvMainWindowBase;
+class QString;
+class vvToolBaseBase;
 
 //------------------------------------------------------------------------------
 // Manage a list of ToolCreator. Each tool will be automagically
@@ -42,6 +44,10 @@ public:
   
   /// Called in MainWindow, make the tools enabled/disabled
   static void EnableToolsInMenu(vvMainWindowBase * m, bool enable);
+
+  std::vector<vvToolCreatorBase *> & GetListOfTools() { return mListOfTools; }
+
+  vvToolCreatorBase * GetToolCreatorFromName(QString toolTypeName);
 
 protected:
 

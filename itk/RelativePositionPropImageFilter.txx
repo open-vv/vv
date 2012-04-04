@@ -86,8 +86,6 @@ namespace itk
   ::GenerateData()
   {
 
-    // std::cout <<"GenerateData" << std::endl;
-
     this->AllocateOutputs();
     computeDirection();
     typename InputImageType::ConstPointer input = this->GetInput();
@@ -131,7 +129,6 @@ namespace itk
   
     if(!m_Fast)
       {  
-        DD(m_Fast);
         for(int i=0;i<pow((double)2,(int)ImageDimension);i++)
           {
             int orient[ImageDimension];

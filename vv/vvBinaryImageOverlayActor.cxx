@@ -50,8 +50,24 @@ vvBinaryImageOverlayActor::vvBinaryImageOverlayActor()
 //------------------------------------------------------------------------------
 vvBinaryImageOverlayActor::~vvBinaryImageOverlayActor()
 {
+  mImageActorList.clear();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvBinaryImageOverlayActor::RemoveActors()
+{
   for (unsigned int i = 0; i < mImageActorList.size(); i++) {
-    mSlicer->GetRenderer()->RemoveActor(mImageActorList[i]);
+    if (mSlicer != 0) {
+      if (mSlicer != NULL) {
+        if (mSlicer->GetRenderer() != 0) {
+          if (mImageActorList[i] != 0)  {
+            mSlicer->GetRenderer()->RemoveActor(mImageActorList[i]);
+          }
+        }
+      }
+    }
   }
 }
 //------------------------------------------------------------------------------
@@ -173,7 +189,7 @@ void vvBinaryImageOverlayActor::SetOpacity(double d)
 
 
 //------------------------------------------------------------------------------
-void vvBinaryImageOverlayActor::SetImage(vvImage * image, double bg, bool modeBG)
+void vvBinaryImageOverlayActor::SetImage(vvImage::Pointer image, double bg, bool modeBG)
 {
   mImage = image;
   if (modeBG) {

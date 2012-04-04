@@ -41,6 +41,11 @@ vvROIActor::vvROIActor()
   mContourColor.resize(3);
   m_modeBG = true;
   mDepth = 1.0;
+  mROI = 0;
+  mSlicerManager = 0;
+  mContourColor[0] = 1;
+  mContourColor[1] = 1;
+  mContourColor[2] = 1;
 }
 //------------------------------------------------------------------------------
 
@@ -48,6 +53,24 @@ vvROIActor::vvROIActor()
 //------------------------------------------------------------------------------
 vvROIActor::~vvROIActor()
 {
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvROIActor::RemoveActors()
+{
+  for(unsigned int i= 0; i<mOverlayActors.size(); i++) {
+    mOverlayActors[i]->RemoveActors();
+  }
+
+  for(unsigned int i= 0; i<mImageContour.size(); i++) {
+    mImageContour[i]->RemoveActors();
+  }  
+  
+  Update(true);
+  mImageContour.clear();
+  mOverlayActors.clear();
 }
 //------------------------------------------------------------------------------
 
@@ -140,19 +163,13 @@ void vvROIActor::Initialize(double depth, bool IsVisible) {
     mOverlayActors.clear();
     mDepth = depth;
     for(int i=0; i<mSlicerManager->GetNumberOfSlicers(); i++) {
-
       mImageContour.push_back(vvImageContour::New());
       mImageContour[i]->SetSlicer(mSlicerManager->GetSlicer(i));
       mImageContour[i]->SetImage(mROI->GetImage());
-      mContourColor[0] = mROI->GetDisplayColor()[0];
-      mContourColor[1] = mROI->GetDisplayColor()[1];
-      mContourColor[2] = mROI->GetDisplayColor()[2];
       mImageContour[i]->SetColor(mContourColor[0], mContourColor[1], mContourColor[2]);
       mImageContour[i]->SetLineWidth(mContourWidth);
       mImageContour[i]->SetPreserveMemoryModeEnabled(true);
       mImageContour[i]->SetDepth(mDepth);
-      //mImageContour[i]->SetPreserveMemoryModeEnabled(false); // SEG FAULT !!!
-      mImageContour[i]->SetSlicer(mSlicerManager->GetSlicer(i));
       mImageContour[i]->HideActors();
       
       mOverlayActors.push_back(vvBinaryImageOverlayActor::New());
@@ -187,6 +204,7 @@ void vvROIActor::Initialize(double depth, bool IsVisible) {
 void vvROIActor::SetDepth(double d)
 {
   mDepth = d;
+  if (!mSlicerManager) return;
   for(int i=0; i<mSlicerManager->GetNumberOfSlicers(); i++) {  
     mOverlayActors[i]->SetDepth(d);
     mImageContour[i]->SetDepth(d);
@@ -199,6 +217,7 @@ void vvROIActor::SetDepth(double d)
 //------------------------------------------------------------------------------
 void vvROIActor::Update(bool force)
 {
+  if (!mSlicerManager) return;
   for(int i=0; i<mSlicerManager->GetNumberOfSlicers(); i++) {
     UpdateSlice(i, mSlicerManager->GetSlicer(i)->GetSlice(), force);
   }
@@ -244,8 +263,23 @@ void vvROIActor::SetContourColor(double r, double v, double b) {
 
 
 //------------------------------------------------------------------------------
+void vvROIActor::SetOverlayColor(double r, double v, double b) {
+  if (mROI)
+    mROI->SetDisplayColor(r,v,b);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 std::vector<double> & vvROIActor::GetContourColor() { 
   return mContourColor; 
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+std::vector<double> & vvROIActor::GetOverlayColor() { 
+  return mROI->GetDisplayColor();
 }
 //------------------------------------------------------------------------------
 
@@ -294,3 +328,21 @@ void vvROIActor::SetSelected(bool b)
 }
 //------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
+void vvROIActor::CopyParameters(QSharedPointer<vvROIActor> roi)
+{
+  // Overlay
+  SetVisible(roi->IsVisible());
+  SetOpacity(roi->GetOpacity());
+  SetOverlayColor(roi->GetOverlayColor()[0], roi->GetOverlayColor()[1], roi->GetOverlayColor()[2]);
+
+  // Contour
+  SetContourVisible(roi->IsContourVisible());
+  SetContourWidth(roi->GetContourWidth());
+  SetContourColor(roi->GetContourColor()[0], roi->GetContourColor()[1], roi->GetContourColor()[2]);
+  
+  // Global
+  SetDepth(roi->GetDepth());
+}
+//------------------------------------------------------------------------------

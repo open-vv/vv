@@ -1,6 +1,26 @@
+/*=========================================================================
+  Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
+
+  Authors belong to:
+  - University of LYON              http://www.universite-lyon.fr/
+  - Léon Bérard cancer center       http://www.centreleonberard.fr
+  - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the copyright notices for more information.
+
+  It is distributed under dual licence
+
+  - BSD        See included LICENSE.txt file
+  - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+  ===========================================================================**/
+
 #include "vvReadState.h"
 #include "vvMainWindow.h"
 #include "vvSlicerManager.h"
+#include "vvToolCreatorBase.h"
+#include "vvToolBaseBase.h"
 
 #include <qtreewidget.h>
 
@@ -10,15 +30,22 @@
 #include <cassert>
 #include <string>
 
+//------------------------------------------------------------------------------
 vvReadState::vvReadState() : m_XmlReader(new QXmlStreamReader), m_File(new QFile)
 {
   m_NumImages = 0;
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 vvReadState::~vvReadState()
 {
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvReadState::Run(vvMainWindow* vvWindow, const std::string& file)
 {
   assert(vvWindow);
@@ -29,29 +56,38 @@ void vvReadState::Run(vvMainWindow* vvWindow, const std::string& file)
   m_XmlReader->setDevice(m_File.get());
   m_Window = vvWindow;
   QTreeWidget* tree = m_Window->GetTree();
+
+  // Get the number of images already loaded
   m_TreeItemCount = tree->topLevelItemCount();
 
+  // Read elements
   ReadGUI();
   ReadTree();
+  ReadTools();
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvReadState::ReadTree()
 {
   std::string value;
   
-  while (!m_XmlReader->atEnd()) {
+  while (!m_XmlReader->isEndElement() || value != "Images") { 
     m_XmlReader->readNext();
     value = m_XmlReader->qualifiedName().toString().toStdString();
     if (m_XmlReader->isStartElement()) {
-      if (value == "Image") 
-        value = ReadImage();
+      if (value == "Image") value = ReadImage();
     } 
   }
   
   if (m_XmlReader->hasError())
     std::cout << "Error " << m_XmlReader->error() << " XML " << std::endl;
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 std::string  vvReadState::ReadImage()
 {
   std::string value;
@@ -67,7 +103,6 @@ std::string  vvReadState::ReadImage()
   while (!m_XmlReader->isEndElement() || value != "Image") { 
     m_XmlReader->readNext();
     value = m_XmlReader->qualifiedName().toString().toStdString();
-    //std::cout << "Value = " << value << std::endl;
     if (m_XmlReader->isStartElement()) {
       if (value == "FileName") {
         files[0] = m_XmlReader->readElementText().toStdString();
@@ -91,7 +126,10 @@ std::string  vvReadState::ReadImage()
 
   return value;
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 std::string vvReadState::ReadFusion(int index)
 {
   std::string file, value;
@@ -137,7 +175,10 @@ std::string vvReadState::ReadFusion(int index)
   m_Window->ImageInfoChanged();
   return value;
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 std::string vvReadState::ReadOverlay(int index)
 {
   std::string file, value;
@@ -178,7 +219,10 @@ std::string vvReadState::ReadOverlay(int index)
   m_Window->ImageInfoChanged();
   return value;
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 std::string vvReadState::ReadVector(int index)
 {
   std::string file, value;
@@ -195,9 +239,64 @@ std::string vvReadState::ReadVector(int index)
   }
   return value;
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
 void vvReadState::ReadGUI()
 {
 
 }
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
+void vvReadState::ReadTools()
+{
+  std::string value;
+  
+  while ((!m_XmlReader->hasError()) && (!m_XmlReader->isEndElement() || value != "Tools")) { 
+    m_XmlReader->readNext();
+    value = m_XmlReader->qualifiedName().toString().toStdString();
+    if (value != "Tools") {
+      if (m_XmlReader->isStartElement()) {
+        ReadTool(value);
+      } 
+    }
+  }
+  
+  if (m_XmlReader->hasError())
+    std::cout << "Error " << m_XmlReader->error() << " XML " << std::endl;
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvReadState::ReadTool(const std::string & toolname)
+{
+  // Find name into vvToolManager::GetInstance()->GetListOfTools();
+  vvToolCreatorBase * v = vvToolManager::GetInstance()->GetToolCreatorFromName(toolname.c_str());
+  if (v == NULL) {
+    std::cerr << "Error, I do not know the tool named '" << toolname << "' ; ignored." << std::endl;
+    std::string value="";
+    while (!m_XmlReader->isEndElement() || value != toolname) { 
+      m_XmlReader->readNext();
+      value = m_XmlReader->qualifiedName().toString().toStdString();
+      if (m_XmlReader->hasError()) {
+        std::cout << "Error " << m_XmlReader->error() << " XML " << std::endl;
+        return;
+      }
+    }
+    return;
+  }
+
+  // CreateTool
+  // std::vector<vvToolBaseBase*> & tools = v->GetListOfTool();
+  v->m_XmlReader = m_XmlReader;
+  v->mReadStateFlag = true;
+  v->mImageIndex = m_TreeItemCount;
+  v->MenuSpecificToolSlot();
+  v->mReadStateFlag = false;
+  m_XmlReader = v->m_XmlReader; // Need because auto_ptr operator= release on the right.
+}
+//------------------------------------------------------------------------------

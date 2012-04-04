@@ -136,6 +136,13 @@ namespace clitk {
     itkSetMacro(FuzzyMapOnlyFlag, bool);
     itkBooleanMacro(FuzzyMapOnlyFlag);
 
+    itkGetConstMacro(FastFlag, bool);
+    itkSetMacro(FastFlag, bool);
+    itkBooleanMacro(FastFlag);
+
+    itkGetConstMacro(Radius, double);
+    itkSetMacro(Radius, double);
+
     typename FloatImageType::Pointer GetFuzzyMap() { return m_FuzzyMap; }
 
     // I dont want to verify inputs information
@@ -162,12 +169,15 @@ namespace clitk {
     bool m_RemoveObjectFlag;
     bool m_CombineWithOrFlag;
     bool m_FuzzyMapOnlyFlag;
+    bool m_FastFlag;
+    double m_Radius;
 
     virtual void GenerateOutputInformation();
     virtual void GenerateInputRequestedRegion();
     virtual void GenerateData();
 
     typedef itk::PasteImageFilter<ImageType,ImageType> PasteFilterType;
+    typedef itk::PasteImageFilter<FloatImageType,FloatImageType> PasteFloatFilterType;
     typename ImageType::Pointer working_image;
     typename ImageType::Pointer object_resampled;
     typename FloatImageType::Pointer relPos;

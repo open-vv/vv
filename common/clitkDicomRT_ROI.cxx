@@ -242,7 +242,7 @@ void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::SQItem * 
 
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI::SetImage(vvImage * image)
+void clitk::DicomRT_ROI::SetImage(vvImage::Pointer image)
 {
   mImage = image;
 }
@@ -338,7 +338,7 @@ void clitk::DicomRT_ROI::UpdateDicomItem()
 #endif
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_ROI::SetFromBinaryImage(vvImage * image, int n,
+void clitk::DicomRT_ROI::SetFromBinaryImage(vvImage::Pointer image, int n,
                                             std::string name,
                                             std::vector<double> color, 
                                             std::string filename)

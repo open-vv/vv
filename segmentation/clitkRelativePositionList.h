@@ -76,8 +76,13 @@ namespace clitk {
     itkSetMacro(InputName, std::string);
     itkGetConstMacro(InputName, std::string);
 
+    itkGetConstMacro(ComputeOverlapFlag, bool);
+    itkSetMacro(ComputeOverlapFlag, bool);
+    itkBooleanMacro(ComputeOverlapFlag);
+
     void Read(std::string filename);     
     void SetFilterOptions(typename RelPosFilterType::Pointer filter, ArgsInfoType & options);
+    void SetReferenceImageForOverlapMeasure(ImagePointer ref);
 
   protected:
     RelativePositionList();
@@ -97,6 +102,8 @@ namespace clitk {
     typename SliceRelPosFilterType::Pointer mFilter;
     std::vector<ArgsInfoType> mArgsInfoList;
     ImagePointer m_working_input;
+    ImagePointer m_reference;
+    bool m_ComputeOverlapFlag;
 
   }; // end class
   //--------------------------------------------------------------------

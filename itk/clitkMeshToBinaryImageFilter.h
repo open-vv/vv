@@ -76,6 +76,7 @@ namespace clitk {
 
     itkSetMacro(Extrude, bool);
     itkGetMacro(Extrude, bool);
+    itkBooleanMacro(Extrude);    
 
   protected:
     MeshToBinaryImageFilter();

@@ -37,6 +37,7 @@ vvImageContour::vvImageContour()
   SetPreserveMemoryModeEnabled(true);
   mPreviousOrientation = -1;
   mDepth = 1.0;
+  mSlice = 0;
 }
 //------------------------------------------------------------------------------
 
@@ -44,8 +45,24 @@ vvImageContour::vvImageContour()
 //------------------------------------------------------------------------------
 vvImageContour::~vvImageContour()
 {
-  for (unsigned int i = 0; i < mSlicer->GetImage()->GetVTKImages().size(); i++) {
-    mSlicer->GetRenderer()->RemoveActor(mSquaresActorList[i]);
+  mSquaresActorList.clear();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvImageContour::RemoveActors()
+{
+  for (unsigned int i = 0; i < mSquaresActorList.size(); i++) {
+    if (mSlicer != 0) {
+      if (mSlicer!= NULL) {
+        if (mSlicer->GetRenderer() != NULL) {
+          if (mSquaresActorList[i] != NULL)  {
+            mSlicer->GetRenderer()->RemoveActor(mSquaresActorList[i]);
+          }
+        }
+      }   
+    }
   }
 }
 //------------------------------------------------------------------------------
@@ -63,7 +80,7 @@ void vvImageContour::SetSlicer(vvSlicer * slicer) {
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::SetImage(vvImage * image) {
+void vvImageContour::SetImage(vvImage::Pointer image) {
   for (unsigned int numImage = 0; numImage < image->GetVTKImages().size(); numImage++) {
     mClipperList[numImage]->SetInput(image->GetVTKImages()[numImage]);
   }
@@ -133,6 +150,20 @@ void vvImageContour::ShowActors() {
 }
 //------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
+void vvImageContour::SetDepth(double d) 
+{ 
+  mDepth = d+0.5; // FIXME to not be equal to overlay 
+  // Move the actor to be visible
+  double position[3] = {0, 0, 0};
+ int orientation = ComputeCurrentOrientation();
+  position[orientation] = -mDepth;
+
+  for(uint i=0; i<mSquaresActorList.size(); i++)
+    mSquaresActorList[i]->SetPosition(position);
+}
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvImageContour::Update(double value) {
@@ -338,9 +369,11 @@ void vvImageContour::UpdateActor(vtkActor * actor,
   if (mHiddenImageIsUsed) delete extent2;
 
   // Move the actor to be visible
-  double position[3] = {0, 0, 0};
-  position[orientation] = -mDepth;
-  actor->SetPosition(position);
+  SetDepth(mDepth);
+  // double position[3] = {0, 0, 0};
+  // DD(mDepth);
+  // position[orientation] = -mDepth;
+  // actor->SetPosition(position);
   
   mapper->Update();
 }

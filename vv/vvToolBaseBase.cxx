@@ -14,26 +14,23 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-===========================================================================**/
+  ===========================================================================**/
+
+// vv
+#include "vvToolBaseBase.h"
 
 //------------------------------------------------------------------------------
-template<class ToolType>
-vvToolBase<ToolType>::vvToolBase(vvMainWindowBase * m)
-{
-  mMainWindowBase = m;
+void vvToolBaseBase::SaveState(std::auto_ptr<QXmlStreamWriter> & m_XmlWriter) 
+{ 
+  std::cerr << "SaveState not implemented for this tool." << std::endl; 
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-// Default value (to be overwritten)
-template<class ToolType>
-void vvToolBase<ToolType>::Initialize()
-{
-  SetToolName("Unnamed tool (use SetToolName in Initialize())");
-  SetToolMenuName("Unnamed tool");
-  SetToolIconFilename("");
-  SetToolTip("Unamed tool.");
+void vvToolBaseBase::InitializeNewTool(bool ReadStateFlag) { 
+  if (ReadStateFlag == true) {
+    std::cerr << "ReadState not implemented for this tool." << std::endl;
+  }
 }
 //------------------------------------------------------------------------------
-

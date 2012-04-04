@@ -94,8 +94,8 @@ GenerateData()
   clitk::Or<ImageType>(image_union, input2, GetBackgroundValue());
   clitk::And<ImageType>(image_intersection, input2, GetBackgroundValue());
   
-  writeImage<ImageType>(image_union, "union.mha");
-  writeImage<ImageType>(image_intersection, "intersection.mha");
+  // writeImage<ImageType>(image_union, "union.mha");
+  // writeImage<ImageType>(image_intersection, "intersection.mha");
   
   // Compute size
   typedef itk::LabelStatisticsImageFilter<ImageType, ImageType> StatFilterType;
@@ -120,7 +120,7 @@ GenerateData()
   statFilter->Update();
   int in2 = statFilter->GetCount(GetLabel1());
 
-  std::cout << in1 << " " << in2 << " " << inter << " " << u << " " << (double)inter/(double)u << std::endl;
+  std::cout << in1 << " " << in2 << " " << inter << " " << u << " " << 2.0*(double)inter/(double)(in1+in2) << std::endl;
 }
 //--------------------------------------------------------------------
 

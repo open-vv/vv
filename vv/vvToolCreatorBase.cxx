@@ -27,6 +27,8 @@ vvToolCreatorBase::vvToolCreatorBase(QString name): mAction(NULL), mExperimental
   mUseContextMenu = false;
   mToolName = name;
   m_MenuName = "Tools";
+  mReadStateFlag = false;
+  mImageIndex = 0;
   vvToolManager::GetInstance()->AddTool(this);
 }
 //------------------------------------------------------------------------------
@@ -51,9 +53,12 @@ void vvToolCreatorBase::InsertToolInMenu(vvMainWindowBase * m)
   // Create main action
   if (mToolIconFilename == "noicon")
     mAction = new QAction(QString("&").append(mToolMenuName), this);
-  else
+  else {
     mAction = new QAction(QIcon(mToolIconFilename),
                           QString("&").append(mToolMenuName), this);
+    mAction->setIconVisibleInMenu(true);
+  }
+
   mAction->setStatusTip(mToolTip);
   // Connect the action
   connect(mAction, SIGNAL(triggered()), this, SLOT(MenuToolSlot()));

@@ -125,7 +125,7 @@ int main( int argc, char** argv )
           sequence_filenames.clear();
           parse_mode=P_NORMAL;
         }
-        if (current=="--help") {
+        if ((current=="--help") || (current=="-h")) {
           std::cout << "vv " << VV_VERSION << ", the 2D, 2D+t, 3D and 3D+t (or 4D) image viewer" << std::endl << std::endl
                     << "Synopsis: vv file(s) [OPTIONS] file(s)" << std::endl << std::endl
                     << "Open file(s) for visualization." << std::endl << std::endl

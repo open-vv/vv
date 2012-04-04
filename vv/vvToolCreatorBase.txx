@@ -16,6 +16,7 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
 
+//------------------------------------------------------------------------------
 template<class ToolType>
 void vvToolCreatorBase::CreateTool()
 {
@@ -23,11 +24,17 @@ void vvToolCreatorBase::CreateTool()
   mMainWindow->UpdateCurrentSlicer();
   // Create the tool
   ToolType * tool = new ToolType(mMainWindow, Qt::Dialog);
-  tool->setSender(mSender);
   // Put it in the list of open tools
   mListOfTool.push_back(tool);
+
+  // Set some parameters
+  tool->SetCreator(this);
+  tool->setSender(mSender);
+  if (mReadStateFlag) tool->SetXmlReader(m_XmlReader.get(), mImageIndex);
+  tool->InitializeNewTool(mReadStateFlag);
+
   // Go !
-  tool->show();
+  if (tool) tool->show();
 }
 //------------------------------------------------------------------------------
 
