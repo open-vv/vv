@@ -160,7 +160,7 @@ void vvImageContour::SetDepth(double d)
  int orientation = ComputeCurrentOrientation();
   position[orientation] = -mDepth;
 
-  for(uint i=0; i<mSquaresActorList.size(); i++)
+  for(unsigned int i=0; i<mSquaresActorList.size(); i++)
     mSquaresActorList[i]->SetPosition(position);
 }
 //------------------------------------------------------------------------------
