@@ -67,7 +67,7 @@ void ImageArithmGenericFilter<args_info_type>::SetArgsInfo(const args_info_type 
   mArgsInfo=a;
 
   // Set value
-  SetIOVerbose(mArgsInfo.verbose_flag);
+  this->SetIOVerbose(mArgsInfo.verbose_flag);
   mTypeOfOperation = mArgsInfo.operation_arg;
   mDefaultPixelValue = mArgsInfo.pixelValue_arg;
   mScalar = mArgsInfo.scalar_arg;
@@ -75,13 +75,13 @@ void ImageArithmGenericFilter<args_info_type>::SetArgsInfo(const args_info_type 
 
   if (mArgsInfo.imagetypes_flag) this->PrintAvailableImageTypes();
 
-  if (mArgsInfo.input1_given) AddInputFilename(mArgsInfo.input1_arg);
+  if (mArgsInfo.input1_given) this->AddInputFilename(mArgsInfo.input1_arg);
   if (mArgsInfo.input2_given) {
     mIsOperationUseASecondImage = true;
-    AddInputFilename(mArgsInfo.input2_arg);
+    this->AddInputFilename(mArgsInfo.input2_arg);
   }
 
-  if (mArgsInfo.output_given) SetOutputFilename(mArgsInfo.output_arg);
+  if (mArgsInfo.output_given) this->SetOutputFilename(mArgsInfo.output_arg);
 
   // Check type of operation (with scalar or with other image)
   if ((mArgsInfo.input2_given) && (mArgsInfo.scalar_given)) {

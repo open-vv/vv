@@ -63,14 +63,14 @@ template<class args_info_type>
 void FooImageGenericFilter<args_info_type>::SetArgsInfo(const args_info_type & a)
 {
   mArgsInfo=a;
-  SetIOVerbose(mArgsInfo.verbose_flag);
+  this->SetIOVerbose(mArgsInfo.verbose_flag);
   if (mArgsInfo.imagetypes_flag) this->PrintAvailableImageTypes();
 
   if (mArgsInfo.input_given) {
-    SetInputFilename(mArgsInfo.input_arg);
+    this->SetInputFilename(mArgsInfo.input_arg);
   }
   if (mArgsInfo.output_given) {
-    SetOutputFilename(mArgsInfo.output_arg);
+    this->SetOutputFilename(mArgsInfo.output_arg);
   }
 }
 //--------------------------------------------------------------------
