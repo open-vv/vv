@@ -178,7 +178,7 @@ namespace clitk
 
     m_Filter->Update();
 
-    SetNthOutput(0, m_Filter->GetOutput());
+    this->SetNthOutput(0, m_Filter->GetOutput());
   }
 
 
