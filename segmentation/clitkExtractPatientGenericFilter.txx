@@ -47,10 +47,10 @@ template<class ArgsInfoType>
 void clitk::ExtractPatientGenericFilter<ArgsInfoType>::SetArgsInfo(const ArgsInfoType & a) 
 {
   mArgsInfo=a;
-  SetIOVerbose(mArgsInfo.verbose_flag);
+  this->SetIOVerbose(mArgsInfo.verbose_flag);
   if (mArgsInfo.imagetypes_flag) this->PrintAvailableImageTypes();
-  if (mArgsInfo.input_given)  SetInputFilename(mArgsInfo.input_arg);
-  if (mArgsInfo.output_given)  AddOutputFilename(mArgsInfo.output_arg);
+  if (mArgsInfo.input_given)  this->SetInputFilename(mArgsInfo.input_arg);
+  if (mArgsInfo.output_given)  this->AddOutputFilename(mArgsInfo.output_arg);
 }
 //--------------------------------------------------------------------
 

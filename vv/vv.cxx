@@ -142,7 +142,7 @@ int main( int argc, char** argv )
                     << "--vf file      \t Overlay the vector field in file." << std::endl
                     << "--overlay file \t Overlay the image in file with complementary colors." << std::endl
                     << "--fusion file  \t Overlay the image in file with alpha blending and colormap." << std::endl
-                    << "--roi file     \t Overlay binary mask images. Option may be repeated on a single base image." << std::endl
+                    //<< "--roi file     \t Overlay binary mask images. Option may be repeated on a single base image." << std::endl
                     << "--contour file \t Overlay DICOM RT-STRUCT contours." << std::endl;
           exit(0);
         }
@@ -154,11 +154,11 @@ int main( int argc, char** argv )
           if (!n_image_loaded) load_image_first_error();
           window.AddOverlayImage(n_image_loaded-1,argv[i+1]);
           i++; //skip overlay name
-        } else if (current=="--roi") {
+        } /*else if (current=="--roi") {
           if (!n_image_loaded) load_image_first_error();
           window.AddROI(n_image_loaded-1,argv[i+1]);
           i++; //skip roi name
-        } else if (current=="--contour") {
+        }*/ else if (current=="--contour") {
           if (!n_image_loaded) load_image_first_error();
           window.AddDCStructContour(n_image_loaded-1,argv[i+1]);
           i++; //skip roi name

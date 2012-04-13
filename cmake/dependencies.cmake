@@ -23,9 +23,14 @@ IF(VTK_FOUND)
       vtkWidgets
       vtkImaging
       vtkHybrid
-      vtkQVTK
       )
   ENDIF(VTK_VERSION VERSION_LESS 5.8.0)
+  IF(VTK_VERSION VERSION_LESS 5.6.0)
+    SET ( VTK_LIBRARIES
+      ${VTK_LIBRARIES}
+      vtkQVTK
+    )
+  ENDIF(VTK_VERSION VERSION_LESS 5.6.0)
 ELSE(VTK_FOUND)
   MESSAGE(FATAL_ERROR "Please set VTK_DIR.")
 ENDIF(VTK_FOUND)

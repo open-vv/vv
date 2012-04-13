@@ -57,10 +57,10 @@ template<class ArgsInfoType>
 void clitk::ConnectedComponentLabelingGenericFilter<ArgsInfoType>::SetArgsInfo(const ArgsInfoType & a) 
 {
   mArgsInfo=a;
-  SetIOVerbose(mArgsInfo.verbose_flag);
+  this->SetIOVerbose(mArgsInfo.verbose_flag);
   if (mArgsInfo.imagetypes_flag) this->PrintAvailableImageTypes();
-  if (mArgsInfo.input_given)   AddInputFilename(mArgsInfo.input_arg);
-  if (mArgsInfo.output_given)  SetOutputFilename(mArgsInfo.output_arg);
+  if (mArgsInfo.input_given)   this->AddInputFilename(mArgsInfo.input_arg);
+  if (mArgsInfo.output_given)  this->SetOutputFilename(mArgsInfo.output_arg);
 }
 //--------------------------------------------------------------------
 

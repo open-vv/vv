@@ -101,7 +101,7 @@ void vvToolROIManager::Initialize() {
   SetToolMenuName("Display ROI (binary image)");
   SetToolIconFilename(":/common/icons/tool-roi.png");
   SetToolTip("Display ROI from a binary image.");
-  SetToolExperimental(true);
+  SetToolExperimental(false);
 }
 //------------------------------------------------------------------------------
 

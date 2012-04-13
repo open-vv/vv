@@ -53,15 +53,15 @@ template<class args_info_type>
 void CatImageGenericFilter<args_info_type>::SetArgsInfo(const args_info_type & a)
 {
   mArgsInfo=a;
-  SetIOVerbose(mArgsInfo.verbose_flag);
+  this->SetIOVerbose(mArgsInfo.verbose_flag);
   if (mArgsInfo.imagetypes_flag) this->PrintAvailableImageTypes();
 
   if (mArgsInfo.input1_given)
-    AddInputFilename(mArgsInfo.input1_arg);
+    this->AddInputFilename(mArgsInfo.input1_arg);
   if (mArgsInfo.input2_given)
-    AddInputFilename(mArgsInfo.input2_arg);
+    this->AddInputFilename(mArgsInfo.input2_arg);
   if (mArgsInfo.output_given)
-    SetOutputFilename(mArgsInfo.output_arg);
+    this->SetOutputFilename(mArgsInfo.output_arg);
 }
 //--------------------------------------------------------------------
 
