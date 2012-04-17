@@ -1,6 +1,6 @@
 #! /bin/bash +x 
 
-select_contour()
+select_contour_gui()
 {
   local roi_list=$@
   roi=`zenity --list --title="Available Contours" --column="Please choose a contour:" $roi_list`
@@ -26,6 +26,18 @@ select_contour()
   esac
 }
 
+select_contour()
+{
+  local roi_list=$@
+  echo "Available Contours:" 
+  for r in $roi_list; do
+    echo $r
+  done
+
+  echo "Please choose a contour number:"
+  read rtstruct_roi_number
+}
+
 select_roi()
 {
   rtstruct_roi_name_list=( `clitkDicomInfo ${rtstruct_file} | grep "3006|0026" | cut -d '[' -f 4 | sed 's/| V 3006|0026[LO] [ROI Name] \|]//'` )
@@ -35,8 +47,15 @@ select_roi()
     rtstruct_roi_list[$i]=${rtstruct_roi_number_list[$i]}:${rtstruct_roi_name_list[$i]}
   done
 
-  select_contour ${rtstruct_roi_list[@]}
-  rtstruct_roi=`echo ${rtstruct_roi_name} | cut -d ':' -f 1`
+  if [ $gui_mode = 1 ]; then
+    select_contour_gui ${rtstruct_roi_list[@]}
+    rtstruct_roi=`echo ${rtstruct_roi_name} | cut -d ':' -f 1`
+    rtstruct_roi_name=`echo ${rtstruct_roi_name} | cut -d ':' -f 2`
+  else
+    select_contour ${rtstruct_roi_list[@]}
+    rtstruct_roi=$rtstruct_roi_number
+    rtstruct_roi_name=${rtstruct_roi_name_list[$(( $rtstruct_roi_number - 1))]}
+  fi
 }
 
 ############# main 
@@ -56,6 +75,7 @@ if echo $* | grep "\-\-gui" > /dev/null 2>&1; then
     exit -1
   fi
 
+  gui_mode=1
   rtstruct_file=`zenity --file-selection --title="Select RT Struct file."`
   select_roi
   rtstruct_ref_image=`zenity --file-selection --title="Select Reference Image."`
@@ -65,6 +85,7 @@ else
     exit -1
   fi
 
+  gui_mode=0
   rtstruct_file=$1
   rtstruct_ref_image=$2
   select_roi
@@ -85,8 +106,16 @@ roi_mask2=resampled_${roi_mask}
 clitkResampleImage -i ${roi_mask} -o ${roi_mask2} --like ${rtstruct_ref_image}
 
 # calculate stats
-clitkImageStatistics -i ${rtstruct_ref_image} -m ${roi_mask2} --verbose 2> /dev/null | tail -n 8 | zenity --text-info --title "Restuls for \"${rtstruct_roi_name}\""
+clitkImageStatistics -i ${rtstruct_ref_image} -m ${roi_mask2} --verbose 2> /dev/null | tail -n 8 > /tmp/result.txt
+
+if [ $gui_mode = 1 ]; then
+  cat /tmp/result.txt | zenity --text-info --title "Restuls for \"${rtstruct_roi_name}\""
+else
+  echo "Restuls for \"${rtstruct_roi_name}\""
+  cat /tmp/result.txt 
+fi
 
 rm `basename $roi_mask .mhd`.{mhd,raw}
 rm `basename $roi_mask2 .mhd`.{mhd,raw}
 rm /tmp/err.txt
+rm /tmp/result.txt
