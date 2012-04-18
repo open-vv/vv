@@ -817,10 +817,12 @@ void vvSlicer::UpdateDisplayExtent()
 
   // Local copy of extent
   int w_ext[6];
-  copyExtent(GetExtent(), w_ext);
+  int* ext = GetExtent();
+  copyExtent(ext, w_ext);
   // Set slice value
-  w_ext[ this->SliceOrientation*2   ] = this->Slice;
-  w_ext[ this->SliceOrientation*2+1 ] = this->Slice;
+  int s = this->Slice > ext[this->SliceOrientation*2+1] ? ext[this->SliceOrientation*2 + 1] : this->Slice;
+  w_ext[ this->SliceOrientation*2   ] = s;
+  w_ext[ this->SliceOrientation*2+1 ] = s;
   
   // Image actor
   this->ImageActor->SetDisplayExtent(w_ext);
@@ -929,7 +931,8 @@ void vvSlicer::ConvertImageToImageDisplayExtent(vtkImageData *sourceImage, const
     dExtents[i] = (dExtents[i]- targetImage->GetOrigin()[i/2]) / targetImage->GetSpacing()[i/2];
     
     // Round to nearest
-    targetExtent[i] = itk::Math::Round<double>(dExtents[i]);
+    //targetExtent[i] = itk::Math::Round<double>(dExtents[i]);
+    targetExtent[i] = itk::Math::Floor<double>(dExtents[i]);
   }
 }
 //----------------------------------------------------------------------------
@@ -1238,8 +1241,14 @@ double vvSlicer::GetScalarComponentAsDouble(vtkImageData *image, double X, doubl
 //----------------------------------------------------------------------------
 void vvSlicer::Render()
 {
-  if (this->GetWindowLevel()->GetLookupTable() && !this->mOverlay && !this->mFusion) {
+  if (this->mFusion) {
+    legend->SetLookupTable(this->GetFusionMapper()->GetLookupTable());
+    legend->UseOpacityOn();
+    legend->SetVisibility(1);
+  }
+  else if (this->GetWindowLevel()->GetLookupTable()) {// && !this->mOverlay && !this->mFusion) {
     legend->SetLookupTable(this->GetWindowLevel()->GetLookupTable());
+    legend->UseOpacityOff();
     legend->SetVisibility(1);
   } else legend->SetVisibility(0);
 

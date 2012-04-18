@@ -2779,19 +2779,19 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
     w2i->Update();
     vtkImageData *image = w2i->GetOutput();
 
-    const char *ext = fileName.toStdString().c_str() + strlen(fileName.toStdString().c_str()) - 4;
+    std::string ext(itksys::SystemTools::GetFilenameLastExtension(fileName.toStdString()));
 
     // Image
     vtkImageWriter *imgwriter = NULL;
-    if (!strcmp(ext, ".bmp"))
+    if (ext==".bmp")
       imgwriter = vtkBMPWriter::New();
-    else if (!strcmp(ext, ".tif"))
+    else if (ext==".tif")
       imgwriter = vtkTIFFWriter::New();
-    else if (!strcmp(ext, ".ppm"))
+    else if (ext==".ppm")
       imgwriter = vtkPNMWriter::New();
-    else if (!strcmp(ext, ".png"))
+    else if (ext==".png")
       imgwriter = vtkPNGWriter::New();
-    else if (!strcmp(ext, ".jpg"))
+    else if (ext==".jpg")
       imgwriter = vtkJPEGWriter::New();
 
     // Snapshot image if not null
@@ -2805,7 +2805,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
     // Video
     vtkGenericMovieWriter *vidwriter = NULL;
 #if CLITK_EXPERIMENTAL == 1
-    if (!strcmp(ext, ".gif")) {
+    if (ext==".gif") {
       vvAnimatedGIFWriter *gif = vvAnimatedGIFWriter::New();
       vidwriter = gif;
 
@@ -2824,7 +2824,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
     }
 #endif
 #ifdef VTK_USE_VIDEO_FOR_WINDOWS
-    if (!strcmp(ext, ".avi")) {
+    if (ext==".avi") {
       vtkAVIWriter *mpg = vtkAVIWriter::New();
       vidwriter = mpg;
       mpg->SetQuality(2);
@@ -2837,7 +2837,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
     }
 #endif
 #ifdef VTK_USE_FFMPEG_ENCODER
-    if (!strcmp(ext, ".avi")) {
+    if (ext==".avi") {
       vtkFFMPEGWriter *mpg = vtkFFMPEGWriter::New();
       vidwriter = mpg;
       mpg->SetQuality(2);
@@ -2851,7 +2851,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
     }
 #endif
 #ifdef VTK_USE_MPEG2_ENCODER
-    if (!strcmp(ext, ".mpg")) {
+    if (ext==".mpg") {
       vtkMPEG2Writer *mpg = vtkMPEG2Writer::New();
       vidwriter = mpg;
     }
