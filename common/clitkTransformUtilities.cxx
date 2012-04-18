@@ -37,4 +37,16 @@ GetBackwardAffineMatrix<3>(itk::Array<double> transformParameters)
   return GetBackwardAffineMatrix3D(transformParameters);
 }
 
+template <>
+itk::Matrix<double, 2, 2> GetRotationMatrix<2>(itk::Array<double> rotationParameters)
+{
+  return GetRotationMatrix2D(rotationParameters);
+}
+
+template <>
+itk::Matrix<double, 3, 3> GetRotationMatrix<3>(itk::Array<double> rotationParameters)
+{
+  return GetRotationMatrix3D(rotationParameters);
+}
+
 }
