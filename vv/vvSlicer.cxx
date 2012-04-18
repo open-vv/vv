@@ -1241,8 +1241,14 @@ double vvSlicer::GetScalarComponentAsDouble(vtkImageData *image, double X, doubl
 //----------------------------------------------------------------------------
 void vvSlicer::Render()
 {
-  if (this->GetWindowLevel()->GetLookupTable() && !this->mOverlay && !this->mFusion) {
+  if (this->mFusion) {
+    legend->SetLookupTable(this->GetFusionMapper()->GetLookupTable());
+    legend->UseOpacityOn();
+    legend->SetVisibility(1);
+  }
+  else if (this->GetWindowLevel()->GetLookupTable()) {// && !this->mOverlay && !this->mFusion) {
     legend->SetLookupTable(this->GetWindowLevel()->GetLookupTable());
+    legend->UseOpacityOff();
     legend->SetVisibility(1);
   } else legend->SetVisibility(0);
 
