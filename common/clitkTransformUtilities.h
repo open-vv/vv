@@ -32,6 +32,7 @@ namespace clitk
   //============================================================================
   itk::Matrix<double, 3, 3> GetForwardAffineMatrix2D(itk::Array<double> transformParameters);
   itk::Matrix<double, 4, 4> GetForwardAffineMatrix3D(itk::Array<double> transformParameters);
+  template <unsigned int Dimension > itk::Matrix<double, Dimension+1, Dimension+1> GetForwardAffineMatrix(itk::Array<double> transformParameters);
 
   itk::Matrix<double, 3, 3> GetBackwardAffineMatrix2D(itk::Array<double> transformParameters);
   itk::Matrix<double, 4, 4> GetBackwardAffineMatrix3D(itk::Array<double> transformParameters);
