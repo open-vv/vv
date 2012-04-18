@@ -17,6 +17,8 @@ option "size"		-	"New output size if different from input"  	int 	no 	multiple
 option "spacing"	-	"New output spacing if different from input" 	double 	no 	multiple
 option "origin"		-	"New output origin if different from input" 	double 	no 	multiple
 option "matrix"		m	"Affine matrix (homogene) filename"		string  no
+option "rotate"		r	"Rotation to apply (radians)"	                double	no	multiple
+option "translate"	t	"Translation to apply (mm)"		        double  no	multiple
 option "pad"		-	"Edge padding value" 				double 	no 	default="0.0"
 
 section "Interpolation"
