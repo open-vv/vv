@@ -1236,15 +1236,17 @@ void vvSlicerManager::SetColorMap(int colormap)
     double v[4];
     
     // set color table transparency
+    double alpha_range=(double)mFusionThresOpacity/10;
     double range_end = frange[0] + (double)mFusionThresOpacity*(frange[1] - frange[0])/100;
-    double curr_value = frange[0];
+    double curr_value = fusRange[0];
     int nvalues = fusLUT->GetNumberOfTableValues();
-    //for (double i = frange[0]; i <= alpha_range_end; i++) {
     for (double i = 0; curr_value < range_end; i++) {  
       fusLUT->GetTableValue(i, v);
       v[3] = 0;
+      //if (curr_value >= -alpha_range && curr_value <= alpha_range) v[3] = pow(fabs(curr_value/alpha_range),2);
+      //else v[3] = 1;
       fusLUT->SetTableValue(i, v);
-      curr_value += (frange[1] - frange[0])/nvalues;
+      curr_value += (fusRange[1] - fusRange[0])/nvalues;
     }
   }
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
