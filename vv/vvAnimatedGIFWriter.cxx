@@ -65,6 +65,12 @@ void vvAnimatedGIFWriter::End()
   cast->SetOutputScalarTypeToUnsignedChar();
   cast->Update();
 
+  // Create palette for CxImage => Swap r and b in LUT
+  RGBQUAD pal[256];
+  memcpy(pal, (RGBQUAD*)(quant->GetLookupTable()->GetPointer(0)), sizeof(RGBQUAD)*256);
+  for(unsigned int j=0; j<256; j++)
+    std::swap(pal[j].rgbBlue, pal[j].rgbRed);
+
   // Create a stack of CxImages
   DWORD width = cast->GetOutput()->GetExtent()[1]-cast->GetOutput()->GetExtent()[0]+1;
   DWORD height = cast->GetOutput()->GetExtent()[3]-cast->GetOutput()->GetExtent()[2]+1;
@@ -74,11 +80,7 @@ void vvAnimatedGIFWriter::End()
     cximages[i]->CreateFromArray((BYTE *)cast->GetOutput()->GetScalarPointer(0,0,i),
                                  width, height, 8, width, false);
     cximages[i]->SetFrameDelay(100/Rate);
-    cximages[i]->SetPalette((RGBQUAD*)(quant->GetLookupTable()->GetPointer(0)));
-    // Swap r and b in LUT before setting it
-    RGBQUAD *pal = cximages[i]->GetPalette();
-    for(unsigned int j=0; j<256; j++)
-      std::swap(pal[j].rgbBlue, pal[j].rgbRed);
+    cximages[i]->SetPalette(pal);
   }
 
   // Create gif
