@@ -130,6 +130,7 @@ vvSlicer::vvSlicer()
   legend->SetVisibility(0);
   legend->SetLabelFormat("%.1f");
   this->GetRenderer()->AddActor(legend);
+  showFusionLegend = true;
 
   this->WindowLevel->Delete();
   this->WindowLevel = vvImageMapToWLColors::New();
@@ -1241,7 +1242,7 @@ double vvSlicer::GetScalarComponentAsDouble(vtkImageData *image, double X, doubl
 //----------------------------------------------------------------------------
 void vvSlicer::Render()
 {
-  if (this->mFusion) {
+  if (this->mFusion && showFusionLegend) {
     legend->SetLookupTable(this->GetFusionMapper()->GetLookupTable());
     legend->UseOpacityOn();
     legend->SetVisibility(1);

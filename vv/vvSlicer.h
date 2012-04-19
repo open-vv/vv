@@ -80,6 +80,7 @@ public:
   vvImage::Pointer GetFusion() {
     return mFusion;
   }
+  void ShowFusionLegend(bool show) { showFusionLegend = show; }
 
   /**Get/Set an actor's visibility ("overlay, fusion, vf, contour...")
      Overlay index is the index of the overlay by type, eg. if there are
@@ -244,6 +245,7 @@ protected:
   int * mReducedExtent;
   int * mInitialExtent;
   bool mLinkOverlayWindowLevel;
+  bool showFusionLegend;
 
 private:
   void UpdateOrientation();

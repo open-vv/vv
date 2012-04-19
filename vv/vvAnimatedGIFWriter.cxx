@@ -75,11 +75,19 @@ void vvAnimatedGIFWriter::End()
                                  width, height, 8, width, false);
     cximages[i]->SetFrameDelay(100/Rate);
     cximages[i]->SetPalette((RGBQUAD*)(quant->GetLookupTable()->GetPointer(0)));
+    // Swap r and b in LUT before setting it
+    RGBQUAD *pal = cximages[i]->GetPalette();
+    for(unsigned int j=0; j<256; j++)
+      std::swap(pal[j].rgbBlue, pal[j].rgbRed);
   }
 
   // Create gif
   FILE * pFile;
   pFile = fopen (this->FileName, "wb");
+  if(pFile==NULL) {
+    vtkErrorMacro("Error in vvAnimatedGIFWriter::End: could not open " << this->FileName );
+    return;
+  }
   CxImageGIF cximagegif;
   cximagegif.SetLoops(Loops);
   bool result = cximagegif.Encode(pFile,&(cximages[0]), (int)RGBslices.size(), true);

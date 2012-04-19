@@ -47,6 +47,8 @@ public:
     void getCurrentVectorInfo(int visibility, double x, double y, double z, double value);
     void getCurrentOverlayInfo(int visibility,double valueOver, double valueRef);
     void getCurrentFusionInfo(int visibility,double value);
+    
+    bool getShowLegend();
 
 public slots:
     void setVFProperty();
@@ -58,7 +60,7 @@ public slots:
 signals:
     void VFPropertyUpdated(int subsampling, int scale, int log, int width, double r, double g, double b);
     void OverlayPropertyUpdated(int color, int linked, double window, double level);
-    void FusionPropertyUpdated(int opacity, int thresOpacity, int colormap, double window, double level);
+    void FusionPropertyUpdated(int opacity, int thresOpacity, int colormap, double window, double level, bool showLegend);
 
     
 private:

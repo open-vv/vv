@@ -62,7 +62,8 @@ vvSlicerManager::vvSlicerManager(int numberOfSlicers)
   mFusionColorMap = 3;
   mFusionWindow = 1000;
   mFusionLevel = 1000;
-
+  mFusionShowLegend = true;
+  
   mLandmarks = NULL;
   mLinkedId.resize(0);
 
@@ -1279,6 +1280,7 @@ void vvSlicerManager::SetColorMap(int colormap)
     }
     
     if (mSlicers[i]->GetFusion()) {
+      mSlicers[i]->ShowFusionLegend(mFusionShowLegend);
       mSlicers[i]->GetFusionMapper()->SetLookupTable(fusLUT);
       mSlicers[i]->GetFusionActor()->SetOpacity(double(mFusionOpacity)/100);
     }

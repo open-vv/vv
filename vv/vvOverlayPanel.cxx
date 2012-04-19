@@ -38,6 +38,8 @@ vvOverlayPanel::vvOverlayPanel(QWidget * parent):QWidget(parent)
   scaleSpinBox->setEnabled(0);
   lutCheckBox->hide();
   lutCheckBox->setEnabled(0);
+  fusionShowLegendCheckBox->setChecked(true);
+  
   connect(subSamplingSpinBox,SIGNAL(editingFinished()),this,SLOT(setVFProperty()));
   connect(scaleSpinBox,SIGNAL(editingFinished()),this,SLOT(setVFProperty()));
   connect(lutCheckBox,SIGNAL(clicked()),this,SLOT(setVFProperty()));
@@ -51,6 +53,7 @@ vvOverlayPanel::vvOverlayPanel(QWidget * parent):QWidget(parent)
   connect(fusionLevelSpinBox,SIGNAL(valueChanged(double)),this,SLOT(setFusionProperty()));
   connect(fusionOpacitySpin,SIGNAL(valueChanged(double)),this,SLOT(setFusionSpinProperty()));
   connect(fusionThresSpin,SIGNAL(valueChanged(double)),this,SLOT(setFusionSpinProperty()));
+  connect(fusionShowLegendCheckBox,SIGNAL(stateChanged(int)),this,SLOT(setFusionProperty()));
   connect(overlayWindowSpinBox,SIGNAL(valueChanged(double)),this,SLOT(setOverlayProperty()));
   connect(overlayLevelSpinBox,SIGNAL(valueChanged(double)),this,SLOT(setOverlayProperty()));
   connect(overlayLinkCheckBox,SIGNAL(stateChanged(int)),this,SLOT(setOverlayProperty()));
@@ -227,7 +230,7 @@ void vvOverlayPanel::setFusionProperty()
   fusionThresSpin->setValue(thresOpacityHorizontalSlider->value());
 
   emit FusionPropertyUpdated(opacityHorizontalSlider->value(), thresOpacityHorizontalSlider->value(), fusionColorMapComboBox->currentIndex(),
-                             fusionWindowSpinBox->value(), fusionLevelSpinBox->value());
+                             fusionWindowSpinBox->value(), fusionLevelSpinBox->value(), fusionShowLegendCheckBox->isChecked());
 }
 
 void vvOverlayPanel::setFusionSpinProperty()
@@ -254,6 +257,8 @@ void vvOverlayPanel::VFColorChangeRequest()
     vfColorButton->setStyleSheet("* { background-color: " + color.name() + "; border: 0px }");
   this->setVFProperty();
 }
+
+
 
 #endif /* end #define _vvOverlayPanel_CXX */
 
