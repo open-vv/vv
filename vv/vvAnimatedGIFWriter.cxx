@@ -18,6 +18,7 @@ vvAnimatedGIFWriter::vvAnimatedGIFWriter()
 {
   Rate = 5;
   Loops = 0;
+  Dither = false;
 }
 
 //---------------------------------------------------------------------------
@@ -77,10 +78,18 @@ void vvAnimatedGIFWriter::End()
   std::vector<CxImage*> cximages( RGBslices.size() );
   for(unsigned int i=0; i<RGBslices.size(); i++) {
     cximages[i] = new CxImage;
-    cximages[i]->CreateFromArray((BYTE *)cast->GetOutput()->GetScalarPointer(0,0,i),
-                                 width, height, 8, width, false);
     cximages[i]->SetFrameDelay(100/Rate);
-    cximages[i]->SetPalette(pal);
+    if(Dither) {
+      cximages[i]->CreateFromArray((BYTE *)RGBvolume->GetOutput()->GetScalarPointer(0,0,i),
+                                   width, height, 24, width*3, false);
+      cximages[i]->SwapRGB2BGR();
+      cximages[i]->DecreaseBpp(8, true, pal);
+    }
+    else {
+      cximages[i]->CreateFromArray((BYTE *)cast->GetOutput()->GetScalarPointer(0,0,i),
+                                   width, height, 8, width, false);
+      cximages[i]->SetPalette(pal);
+    }
   }
 
   // Create gif

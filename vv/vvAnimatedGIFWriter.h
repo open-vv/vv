@@ -32,12 +32,18 @@ public:
   vtkSetClampMacro(Loops, int, 0, 5000);
   vtkGetMacro(Loops, int);
 
+  // Description:
+  // Set/Get the dithering
+  vtkSetMacro(Dither, bool);
+  vtkGetMacro(Dither, bool);
+
 protected:
   vvAnimatedGIFWriter();
   ~vvAnimatedGIFWriter();
 
   int Rate;
   int Loops;
+  bool Dither;
 
   vtkSmartPointer<vtkImageAppend> RGBvolume;
   std::vector< vtkSmartPointer<vtkImageData> > RGBslices;
