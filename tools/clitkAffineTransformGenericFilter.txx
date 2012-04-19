@@ -143,14 +143,23 @@ AffineTransformGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
       return;
     }
     itk::Array<double> transformParameters(2 * Dimension);
-    int pos = 0;
-    if (Dimension == 2)
-      transformParameters[pos++] = m_ArgsInfo.rotate_arg[0];
-    else
-      for (unsigned int i = 0; i < 3; i++)
-        transformParameters[pos++] = m_ArgsInfo.rotate_arg[i];
-    for (unsigned int i = 0; i < Dimension && i < 3; i++)
-      transformParameters[pos++] = m_ArgsInfo.translate_arg[i];
+    transformParameters.Fill(0.0);
+    if (m_ArgsInfo.rotate_given)
+    {
+      if (Dimension == 2)
+        transformParameters[0] = m_ArgsInfo.rotate_arg[0];
+      else
+        for (unsigned int i = 0; i < 3; i++)
+          transformParameters[i] = m_ArgsInfo.rotate_arg[i];
+    }
+    if (m_ArgsInfo.translate_given)
+    {
+      int pos = 3;
+      if (Dimension == 2)
+        pos = 1;
+      for (unsigned int i = 0; i < Dimension && i < 3; i++)
+        transformParameters[pos++] = m_ArgsInfo.translate_arg[i];
+    }
     if (Dimension == 4)
     {
       matrix.SetIdentity();
@@ -326,14 +335,23 @@ void AffineTransformGenericFilter<args_info_type>::UpdateWithDimAndVectorType()
       return;
     }
     itk::Array<double> transformParameters(2 * Dimension);
-    int pos = 0;
-    if (Dimension == 2)
-      transformParameters[pos++] = m_ArgsInfo.rotate_arg[0];
-    else
-      for (unsigned int i = 0; i < 3; i++)
-        transformParameters[pos++] = m_ArgsInfo.rotate_arg[i];
-    for (unsigned int i = 0; i < Dimension && i < 3; i++)
-      transformParameters[pos++] = m_ArgsInfo.translate_arg[i];
+    transformParameters.Fill(0.0);
+    if (m_ArgsInfo.rotate_given)
+    {
+      if (Dimension == 2)
+        transformParameters[0] = m_ArgsInfo.rotate_arg[0];
+      else
+        for (unsigned int i = 0; i < 3; i++)
+          transformParameters[i] = m_ArgsInfo.rotate_arg[i];
+    }
+    if (m_ArgsInfo.translate_given)
+    {
+      int pos = 3;
+      if (Dimension == 2)
+        pos = 1;
+      for (unsigned int i = 0; i < Dimension && i < 3; i++)
+        transformParameters[pos++] = m_ArgsInfo.translate_arg[i];
+    }
     if (Dimension == 4)
     {
       matrix.SetIdentity();
