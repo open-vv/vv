@@ -32,12 +32,15 @@ namespace clitk
   //============================================================================
   itk::Matrix<double, 3, 3> GetForwardAffineMatrix2D(itk::Array<double> transformParameters);
   itk::Matrix<double, 4, 4> GetForwardAffineMatrix3D(itk::Array<double> transformParameters);
+  template <unsigned int Dimension > itk::Matrix<double, Dimension+1, Dimension+1> GetForwardAffineMatrix(itk::Array<double> transformParameters);
 
   itk::Matrix<double, 3, 3> GetBackwardAffineMatrix2D(itk::Array<double> transformParameters);
   itk::Matrix<double, 4, 4> GetBackwardAffineMatrix3D(itk::Array<double> transformParameters);
   template <unsigned int Dimension > itk::Matrix<double, Dimension+1, Dimension+1> GetBackwardAffineMatrix(itk::Array<double> transformParameters);
 
   itk::Matrix<double, 3, 3> GetRotationMatrix3D(itk::Array<double> rotationParameters);
+  itk::Matrix<double, 2, 2> GetRotationMatrix2D(itk::Array<double> rotationParameters);
+  template <unsigned int Dimension> itk::Matrix<double, Dimension, Dimension> GetRotationMatrix(itk::Array<double> rotationParameters);
   itk::Point<double, 3> GetRotatedPoint3D(itk::Array<double> rotationParameters, itk::Point<double, 3> input);
   itk::Matrix<double, 4, 4> GetCenteredRotationMatrix3D(itk::Array<double> rotationParameters,itk::Point<double,3> centerOfRotation);
   //   itk::Matrix<double, 4, 4> GetComposedMatrix3D(itk::Matrix<double, 4, 4> firstTransform, itk::Matrix<double, 4, 4> secondTransform);
@@ -166,9 +169,17 @@ namespace clitk
     matrix[2][2]= cos(rotationParameters[0])*cos(rotationParameters[1]);
     return matrix;
   }
- 
- 
- 
+
+  inline itk::Matrix<double, 2, 2> GetRotationMatrix2D(itk::Array<double> rotationParameters)
+  {
+    itk::Matrix<double, 2, 2> matrix;
+    matrix[0][0] = cos(rotationParameters[0]);
+    matrix[1][0] = sin(rotationParameters[0]);
+    matrix[0][1] = -matrix[1][0];
+    matrix[1][1] = matrix[0][0];
+    return matrix;
+  }
+
   //========================================================================================
   inline  itk::Point<double, 3> GetRotatedPoint3D(itk::Array<double> rotationParameters, itk::Point<double, 3> input)
   {
