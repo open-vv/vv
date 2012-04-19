@@ -136,6 +136,9 @@ class vvSlicerManager : public QObject {
   void SetFusionLevel(double level) {
     mFusionLevel = level;
   }
+  void SetFusionShowLegend(int show) {
+    mFusionShowLegend = show;
+  }
 
   double GetColorWindow();
   double GetColorLevel();
@@ -245,6 +248,7 @@ protected:
   int mFusionColorMap;
   double mFusionWindow;
   double mFusionLevel;
+  bool mFusionShowLegend;
 
   int mPreset;
   vvImageReader::LoadedImageType mType;

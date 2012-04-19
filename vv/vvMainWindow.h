@@ -154,7 +154,7 @@ public slots:
 
   void SetVFProperty(int subsampling,int scale,int lut, int width, double r, double g, double b);
   void SetOverlayProperty(int color, int linked, double window, double level);
-  void SetFusionProperty(int opacity, int tresOpacity, int colormap,double window,double level);
+  void SetFusionProperty(int opacity, int tresOpacity, int colormap,double window,double level, bool showLegend);
 
   void GoToCursor();
   void PlayPause();
