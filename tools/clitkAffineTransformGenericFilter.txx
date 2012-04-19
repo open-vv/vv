@@ -135,16 +135,50 @@ AffineTransformGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
 
   // Matrix
   typename itk::Matrix<double, Dimension+1, Dimension+1> matrix;
-  if (m_ArgsInfo.matrix_given) {
-    matrix= clitk::ReadMatrix<Dimension>(m_ArgsInfo.matrix_arg);
-    if (m_Verbose) std::cout<<"Reading the matrix..."<<std::endl;
-  } else {
-    matrix.SetIdentity();
+  if (m_ArgsInfo.rotate_given || m_ArgsInfo.translate_given)
+  {
+    if (m_ArgsInfo.matrix_given)
+    {
+      std::cerr << "You must use either rotate/translate or matrix options" << std::cout;
+      return;
+    }
+    itk::Array<double> transformParameters(2 * Dimension);
+    int pos = 0;
+    if (Dimension == 2)
+      transformParameters[pos++] = m_ArgsInfo.rotate_arg[0];
+    else
+      for (unsigned int i = 0; i < 3; i++)
+        transformParameters[pos++] = m_ArgsInfo.rotate_arg[i];
+    for (unsigned int i = 0; i < Dimension && i < 3; i++)
+      transformParameters[pos++] = m_ArgsInfo.translate_arg[i];
+    if (Dimension == 4)
+    {
+      matrix.SetIdentity();
+      itk::Matrix<double, 4, 4> tmp = GetForwardAffineMatrix3D(transformParameters);
+      for (unsigned int i = 0; i < 3; ++i)
+        for (unsigned int j = 0; j < 3; ++j)
+          matrix[i][j] = tmp[i][j];
+      for (unsigned int i = 0; i < 3; ++i)
+        matrix[i][4] = tmp[i][3];
+    }
+    else
+      matrix = GetForwardAffineMatrix<Dimension>(transformParameters);
   }
-  if (m_Verbose) std::cout<<"Using the following matrix:"<<std::endl;
-  if (m_Verbose) std::cout<<matrix<<std::endl;
-  typename itk::Matrix<double, Dimension, Dimension> rotationMatrix=clitk::GetRotationalPartMatrix(matrix);
-  typename itk::Vector<double,Dimension> translationPart= clitk::GetTranslationPartMatrix(matrix);
+  else
+  {
+    if (m_ArgsInfo.matrix_given)
+    {
+      matrix= clitk::ReadMatrix<Dimension>(m_ArgsInfo.matrix_arg);
+      if (m_Verbose) std::cout << "Reading the matrix..." << std::endl;
+    }
+    else
+      matrix.SetIdentity();
+  }
+  if (m_Verbose)
+    std::cout << "Using the following matrix:" << std::endl
+              << matrix << std::endl;
+  typename itk::Matrix<double, Dimension, Dimension> rotationMatrix = clitk::GetRotationalPartMatrix(matrix);
+  typename itk::Vector<double, Dimension> translationPart = clitk::GetTranslationPartMatrix(matrix);
 
   // Transform
   typedef itk::AffineTransform<double, Dimension> AffineTransformType;
@@ -284,14 +318,50 @@ void AffineTransformGenericFilter<args_info_type>::UpdateWithDimAndVectorType()
 
   // Matrix
   typename itk::Matrix<double, Dimension+1, Dimension+1> matrix;
-  if (m_ArgsInfo.matrix_given)
-    matrix= clitk::ReadMatrix<Dimension>(m_ArgsInfo.matrix_arg);
+  if (m_ArgsInfo.rotate_given || m_ArgsInfo.translate_given)
+  {
+    if (m_ArgsInfo.matrix_given)
+    {
+      std::cerr << "You must use either rotate/translate or matrix options" << std::cout;
+      return;
+    }
+    itk::Array<double> transformParameters(2 * Dimension);
+    int pos = 0;
+    if (Dimension == 2)
+      transformParameters[pos++] = m_ArgsInfo.rotate_arg[0];
+    else
+      for (unsigned int i = 0; i < 3; i++)
+        transformParameters[pos++] = m_ArgsInfo.rotate_arg[i];
+    for (unsigned int i = 0; i < Dimension && i < 3; i++)
+      transformParameters[pos++] = m_ArgsInfo.translate_arg[i];
+    if (Dimension == 4)
+    {
+      matrix.SetIdentity();
+      itk::Matrix<double, 4, 4> tmp = GetForwardAffineMatrix3D(transformParameters);
+      for (unsigned int i = 0; i < 3; ++i)
+        for (unsigned int j = 0; j < 3; ++j)
+          matrix[i][j] = tmp[i][j];
+      for (unsigned int i = 0; i < 3; ++i)
+        matrix[i][4] = tmp[i][3];
+    }
+    else
+      matrix = GetForwardAffineMatrix<Dimension>(transformParameters);
+  }
   else
-    matrix.SetIdentity();
-  if (m_Verbose) std::cout<<"Using the following matrix:"<<std::endl;
-  if (m_Verbose) std::cout<<matrix<<std::endl;
-  typename itk::Matrix<double, Dimension, Dimension> rotationMatrix=clitk::GetRotationalPartMatrix(matrix);
-  typename itk::Vector<double, Dimension> translationPart= clitk::GetTranslationPartMatrix(matrix);
+  {
+    if (m_ArgsInfo.matrix_given)
+    {
+      matrix= clitk::ReadMatrix<Dimension>(m_ArgsInfo.matrix_arg);
+      if (m_Verbose) std::cout << "Reading the matrix..." << std::endl;
+    }
+    else
+      matrix.SetIdentity();
+  }
+  if (m_Verbose)
+    std::cout << "Using the following matrix:" << std::endl
+              << matrix << std::endl;
+  typename itk::Matrix<double, Dimension, Dimension> rotationMatrix = clitk::GetRotationalPartMatrix(matrix);
+  typename itk::Vector<double, Dimension> translationPart = clitk::GetTranslationPartMatrix(matrix);
 
   // Transform
   typedef itk::AffineTransform<double, Dimension> AffineTransformType;
