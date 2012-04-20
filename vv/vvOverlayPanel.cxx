@@ -38,7 +38,7 @@ vvOverlayPanel::vvOverlayPanel(QWidget * parent):QWidget(parent)
   scaleSpinBox->setEnabled(0);
   lutCheckBox->hide();
   lutCheckBox->setEnabled(0);
-  fusionShowLegendCheckBox->setChecked(true);
+  fusionShowLegendCheckBox->setChecked(false);
   
   connect(subSamplingSpinBox,SIGNAL(editingFinished()),this,SLOT(setVFProperty()));
   connect(scaleSpinBox,SIGNAL(editingFinished()),this,SLOT(setVFProperty()));
