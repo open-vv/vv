@@ -2822,6 +2822,13 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
                                      tr("Number of loops (0 means infinite):"), 0, 0, 1000000000, 1, &ok);
       if(ok)
         gif->SetLoops(loops);
+
+      // Dithering
+      QString msg = "Would you like to activate dithering?";
+      QMessageBox msgBox(QMessageBox::Question, tr("Dithering"),msg, 0, this);
+      msgBox.addButton(tr("Yes"), QMessageBox::AcceptRole);
+      msgBox.addButton(tr("No"), QMessageBox::RejectRole);
+      gif->SetDither(msgBox.exec() == QMessageBox::AcceptRole);
     }
 #endif
 #ifdef VTK_USE_VIDEO_FOR_WINDOWS
