@@ -1237,8 +1237,8 @@ void vvSlicerManager::SetColorMap(int colormap)
     double v[4];
     
     // set color table transparency
-    double alpha_range=(double)mFusionThresOpacity/10;
-    double range_end = frange[0] + (double)mFusionThresOpacity*(frange[1] - frange[0])/100;
+    //double alpha_range=(double)mFusionThresOpacity/10;
+    double range_end = fusRange[0] + (double)mFusionThresOpacity*(fusRange[1] - fusRange[0])/100;
     double curr_value = fusRange[0];
     int nvalues = fusLUT->GetNumberOfTableValues();
     for (double i = 0; curr_value < range_end; i++) {  
