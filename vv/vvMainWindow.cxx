@@ -316,8 +316,8 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(overlayPanel,SIGNAL(VFPropertyUpdated(int,int,int,int,double,double,double)),this,SLOT(SetVFProperty(int,int,int,int,double,double,double)));
   connect(overlayPanel,SIGNAL(OverlayPropertyUpdated(int,int,double,double)),
           this,SLOT(SetOverlayProperty(int,int,double,double)));
-  connect(overlayPanel,SIGNAL(FusionPropertyUpdated(int,int,int,double,double)),
-          this,SLOT(SetFusionProperty(int,int,int,double,double)));
+  connect(overlayPanel,SIGNAL(FusionPropertyUpdated(int,int,int,double,double, bool)),
+          this,SLOT(SetFusionProperty(int,int,int,double,double, bool)));
   connect(landmarksPanel,SIGNAL(UpdateRenderWindows()),this,SLOT(UpdateRenderWindows()));
 
   playMode = 0;//pause
@@ -2221,7 +2221,7 @@ void vvMainWindow::SetOverlayProperty(int color, int linked, double window, doub
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void vvMainWindow::SetFusionProperty(int opacity, int thresOpacity, int colormap,double window, double level)
+void vvMainWindow::SetFusionProperty(int opacity, int thresOpacity, int colormap,double window, double level, bool showLegend)
 {
   int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
   if (mSlicerManagers[index]->GetSlicer(0)->GetFusion()) {
@@ -2230,6 +2230,7 @@ void vvMainWindow::SetFusionProperty(int opacity, int thresOpacity, int colormap
     mSlicerManagers[index]->SetFusionThresholdOpacity(thresOpacity);
     mSlicerManagers[index]->SetFusionWindow(window);
     mSlicerManagers[index]->SetFusionLevel(level);
+    mSlicerManagers[index]->SetFusionShowLegend(showLegend);
     mSlicerManagers[index]->SetColorMap(0);
     mSlicerManagers[index]->Render();
   }
@@ -2821,6 +2822,13 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
                                      tr("Number of loops (0 means infinite):"), 0, 0, 1000000000, 1, &ok);
       if(ok)
         gif->SetLoops(loops);
+
+      // Dithering
+      QString msg = "Would you like to activate dithering?";
+      QMessageBox msgBox(QMessageBox::Question, tr("Dithering"),msg, 0, this);
+      msgBox.addButton(tr("Yes"), QMessageBox::AcceptRole);
+      msgBox.addButton(tr("No"), QMessageBox::RejectRole);
+      gif->SetDither(msgBox.exec() == QMessageBox::AcceptRole);
     }
 #endif
 #ifdef VTK_USE_VIDEO_FOR_WINDOWS
