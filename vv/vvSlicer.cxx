@@ -1168,33 +1168,38 @@ void vvSlicer::SetOverlayColorLevel(double level)
 
 //----------------------------------------------------------------------------
 // Returns the min an the max value in a 41x41 region around the mouse pointer
-void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max, vtkImageData *image)
+void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max, vtkImageData *image, vtkTransform *transform)
 {
   //Get mouse pointer position in view coordinates
-  double fLocalExtents[6];
+  double corner1[3];
+  double corner2[3];
   for(int i=0; i<3; i++) {
-    fLocalExtents[i*2  ] = mCurrent[i];
-    fLocalExtents[i*2+1] = mCurrent[i];
+    corner1[i] = mCurrent[i];
+    corner2[i] = mCurrent[i];
   }
-  this->Renderer->WorldToView(fLocalExtents[0], fLocalExtents[2], fLocalExtents[4]);
-  this->Renderer->WorldToView(fLocalExtents[1], fLocalExtents[3], fLocalExtents[5]);
-  for(int i=0; i<3; i++) {
-    if (i!=SliceOrientation) { //SR: assumes that SliceOrientation is valid in ViewCoordinates (???)
-      fLocalExtents[i*2  ] -= 0.2;
-      fLocalExtents[i*2+1] += 0.2;
-    }
-  }
-  this->Renderer->ViewToWorld(fLocalExtents[0], fLocalExtents[2], fLocalExtents[4]);
-  this->Renderer->ViewToWorld(fLocalExtents[1], fLocalExtents[3], fLocalExtents[5]);
+  this->Renderer->WorldToView(corner1[0], corner1[1], corner1[2]);
+  this->Renderer->WorldToView(corner2[0], corner2[1], corner2[2]);
+
+  // In view coordinates, x is the slicer width and y is the slicer height are the in-plane axis
+  int w, h;
+  this->Renderer->GetTiledSize(&w, &h);
+  corner1[0] -= 0.2*h/(double)w;
+  corner2[0] += 0.2*h/(double)w;
+  corner1[1] -= 0.2;
+  corner2[1] += 0.2;
+  this->Renderer->ViewToWorld(corner1[0], corner1[1], corner1[2]);
+  this->Renderer->ViewToWorld(corner2[0], corner2[1], corner2[2]);
 
   //Convert to image pixel coordinates (rounded)
+  transform->TransformPoint(corner1, corner1);
+  transform->TransformPoint(corner2, corner2);
   int iLocalExtents[6];
   for(int i=0; i<3; i++) {
-    fLocalExtents[i*2  ] = (fLocalExtents[i*2  ] - image->GetOrigin()[i])/image->GetSpacing()[i];
-    fLocalExtents[i*2+1] = (fLocalExtents[i*2+1] - image->GetOrigin()[i])/image->GetSpacing()[i];
+    corner1[i] = (corner1[i] - image->GetOrigin()[i])/image->GetSpacing()[i];
+    corner2[i] = (corner2[i] - image->GetOrigin()[i])/image->GetSpacing()[i];
 
-    iLocalExtents[i*2  ] = lrint(fLocalExtents[i*2  ]);
-    iLocalExtents[i*2+1] = lrint(fLocalExtents[i*2+1]);
+    iLocalExtents[i*2  ] = lrint(corner1[i]);
+    iLocalExtents[i*2+1] = lrint(corner2[i]);
 
     if(iLocalExtents[i*2  ]>iLocalExtents[i*2+1])
       std::swap(iLocalExtents[i*2], iLocalExtents[i*2+1]);

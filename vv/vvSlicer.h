@@ -154,7 +154,7 @@ public:
   void SetCornerAnnotationVisibility(bool s);
   bool GetCornerAnnotationVisibility();
 
-  void GetExtremasAroundMousePointer(double & min, double & max, vtkImageData *image);
+  void GetExtremasAroundMousePointer(double & min, double & max, vtkImageData *image, vtkTransform *transform);
 
   void UpdateLandmarks();
   void ForceUpdateDisplayExtent();
