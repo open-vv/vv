@@ -252,9 +252,49 @@ void clitk::GateAsciiImageIO::Write(const void* abstract_buffer)
   stream << "# nbVal      = " << nb_value << endl;
   stream << "######################" << endl;
 
-  const double* buffer = static_cast<const double*>(abstract_buffer);
-  for (unsigned long kk=0; kk<nb_value; kk++) {
-    stream << buffer[kk] << endl;
+  if(this->GetComponentType()==itk::ImageIOBase::UCHAR) {
+    const unsigned char* buffer = static_cast<const unsigned char*>(abstract_buffer);
+    for (unsigned long kk=0; kk<nb_value; kk++)
+      stream << buffer[kk] << endl;
+  } else if(this->GetComponentType()==itk::ImageIOBase::CHAR) {
+    const char* buffer = static_cast<const char*>(abstract_buffer);
+    for (unsigned long kk=0; kk<nb_value; kk++)
+      stream << buffer[kk] << endl;
+  } else if(this->GetComponentType()==itk::ImageIOBase::USHORT) {
+    const unsigned short* buffer = static_cast<const unsigned short*>(abstract_buffer);
+    for (unsigned long kk=0; kk<nb_value; kk++)
+      stream << buffer[kk] << endl;
+  } else if(this->GetComponentType()==itk::ImageIOBase::SHORT) {
+    const short* buffer = static_cast<const short*>(abstract_buffer);
+    for (unsigned long kk=0; kk<nb_value; kk++)
+      stream << buffer[kk] << endl;
+  } else if(this->GetComponentType()==itk::ImageIOBase::UINT) {
+    const unsigned int* buffer = static_cast<const unsigned int*>(abstract_buffer);
+    for (unsigned long kk=0; kk<nb_value; kk++)
+      stream << buffer[kk] << endl;
+  } else if(this->GetComponentType()==itk::ImageIOBase::INT) {
+    const int* buffer = static_cast<const int*>(abstract_buffer);
+    for (unsigned long kk=0; kk<nb_value; kk++)
+      stream << buffer[kk] << endl;
+  } else if(this->GetComponentType()==itk::ImageIOBase::ULONG) {
+    const unsigned long* buffer = static_cast<const unsigned long*>(abstract_buffer);
+    for (unsigned long kk=0; kk<nb_value; kk++)
+      stream << buffer[kk] << endl;
+  } else if(this->GetComponentType()==itk::ImageIOBase::LONG) {
+    const long* buffer = static_cast<const long*>(abstract_buffer);
+    for (unsigned long kk=0; kk<nb_value; kk++)
+      stream << buffer[kk] << endl;
+  } else if(this->GetComponentType()==itk::ImageIOBase::FLOAT) {
+    const float* buffer = static_cast<const float*>(abstract_buffer);
+    for (unsigned long kk=0; kk<nb_value; kk++)
+      stream << buffer[kk] << endl;
+  } else if(this->GetComponentType()==itk::ImageIOBase::DOUBLE) {
+    const double* buffer = static_cast<const double*>(abstract_buffer);
+    for (unsigned long kk=0; kk<nb_value; kk++)
+      stream << buffer[kk] << endl;
+  } else {
+    itkGenericExceptionMacro(<< "Unhandled pixel type: " << this->GetComponentTypeAsString(this->GetComponentType()));
+    return;
   }
 
   FILE* handle = fopen(m_FileName.c_str(),"w");
@@ -264,6 +304,5 @@ void clitk::GateAsciiImageIO::Write(const void* abstract_buffer)
   }
 
   fwrite(stream.str().c_str(),1,stream.str().size(),handle);
-
   fclose(handle);
 }
