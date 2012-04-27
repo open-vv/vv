@@ -27,6 +27,8 @@
  *
  ===================================================*/
 
+#include "itkLabelImageToShapeLabelMapFilter.h"
+#include "itkShapeLabelObject.h"
 
 namespace clitk
 {
@@ -480,7 +482,7 @@ MotionMaskGenericFilter::Resample( typename itk::Image<InternalPixelType,Dimensi
 //-------------------------------------------------------------------
 template <unsigned int Dimension, class  PixelType>
 typename itk::Image<MotionMaskGenericFilter::InternalPixelType, Dimension>::Pointer
-MotionMaskGenericFilter::InitializeEllips( typename itk::Vector<double,Dimension> center, typename itk::Image<InternalPixelType,Dimension>::Pointer bones_low )
+MotionMaskGenericFilter::InitializeEllips( typename itk::Vector<double,Dimension> center, typename itk::Image<InternalPixelType,Dimension>::Pointer bones_low, typename itk::Image<InternalPixelType,Dimension>::Pointer lungs_low )
 {
 
   // ImageTypes
@@ -511,24 +513,72 @@ MotionMaskGenericFilter::InitializeEllips( typename itk::Vector<double,Dimension
       std::cout<<"=========================================="<<std::endl;
     }
 
-    //---------------------------------
-    // Offset from center
-    //---------------------------------
-    typename itk::Vector<double,Dimension> offset;
-    if(m_ArgsInfo.offset_given== Dimension) {
-      for(unsigned int i=0; i<Dimension; i++)
-        offset[i]=m_ArgsInfo.offset_arg[i];
-    } else {
-      offset.Fill(0.);
-      offset[1]=-50;
+    itk::Vector<double,Dimension> centerEllips;
+    typename itk::Vector<double, Dimension> axes;
+    if (m_ArgsInfo.ellipseAutoDetect_flag) {
+      if(m_Verbose) {
+        std::cout<<"Auto-detecting intial ellipse..."<<std::endl;
+      }
+
+      // compute statistics of the (mirroed) lung region in order to guess the params of the ellipse
+      typedef itk::LabelImageToShapeLabelMapFilter<InternalImageType>  LabelImageToShapeLabelMapFilter;
+      typename LabelImageToShapeLabelMapFilter::Pointer label_filter = LabelImageToShapeLabelMapFilter::New();
+      label_filter->SetInput(lungs_low);
+      label_filter->Update();
+      
+      typename InternalImageType::SpacingType spacing = lungs_low->GetSpacing();
+      typedef typename LabelImageToShapeLabelMapFilter::OutputImageType::LabelObjectType LabelType;
+      const LabelType* label = dynamic_cast<LabelType*>(label_filter->GetOutput()->GetNthLabelObject(0));
+      
+
+      // try to guess ideal ellipse axes from the lungs' bounding box
+      typename LabelType::RegionType lung_bbox = label->GetRegion();
+      axes[0] = 0.95*lung_bbox.GetSize()[0]*spacing[0]/2;
+      axes[1] = 0.3*lung_bbox.GetSize()[1]*spacing[1]/2;
+      axes[2] = 0.95*lung_bbox.GetSize()[2]*spacing[2]/2;
+
+      // ellipse's center is the center of the lungs' bounding box
+      typename InternalImageType::PointType origin = lungs_low->GetOrigin();
+      centerEllips[0] = origin[0] + (lung_bbox.GetIndex()[0] + lung_bbox.GetSize()[0]/2)*spacing[0];
+      centerEllips[1] = origin[1] + (lung_bbox.GetIndex()[1] + lung_bbox.GetSize()[1]/2)*spacing[1];
+      centerEllips[2] = origin[2] + (lung_bbox.GetIndex()[2] + lung_bbox.GetSize()[2]/2)*spacing[2];
+      
+      if(m_Verbose) {
+        std::cout << "Ellipse center at " << centerEllips << std::endl;
+        std::cout << "Ellipse axes as " << axes << std::endl;
+        std::cout << "Lung's bounding box (index,size) " << lung_bbox.GetIndex() << lung_bbox.GetSize() << std::endl;
+      }
     }
-    itk::Vector<double,Dimension> centerEllips=center+offset;
-    if (m_Verbose) {
-      std::cout<<"Placing the center of the initial ellipsoide at (mm) "<<std::endl;
-      std::cout<<centerEllips[0];
-      for (unsigned int i=1; i<Dimension; i++)
-        std::cout<<" "<<centerEllips[i];
-      std::cout<<std::endl;
+    else {
+      //---------------------------------
+      // Offset from center
+      //---------------------------------
+      typename itk::Vector<double,Dimension> offset;
+      if(m_ArgsInfo.offset_given== Dimension) {
+        for(unsigned int i=0; i<Dimension; i++)
+          offset[i]=m_ArgsInfo.offset_arg[i];
+      } else {
+        offset.Fill(0.);
+        offset[1]=-50;
+      }
+      centerEllips=center+offset;
+      if (m_Verbose) {
+        std::cout<<"Placing the center of the initial ellipsoide at (mm) "<<std::endl;
+        std::cout<<centerEllips[0];
+        for (unsigned int i=1; i<Dimension; i++)
+          std::cout<<" "<<centerEllips[i];
+        std::cout<<std::endl;
+      }
+
+      // Axes
+      if (m_ArgsInfo.axes_given==Dimension)
+        for(unsigned int i=0; i<Dimension; i++)
+          axes[i]=m_ArgsInfo.axes_arg[i];
+      else {
+        axes[0]=100;
+        axes[1]=30;
+        axes[2]=150;
+      }
     }
 
     //---------------------------------
@@ -540,17 +590,6 @@ MotionMaskGenericFilter::InitializeEllips( typename itk::Vector<double,Dimension
     ellips->SetSpacing(bones_low->GetSpacing());
     ellips->Allocate();
     ellips->FillBuffer(0);
-
-    // Axes
-    typename itk::Vector<double, Dimension> axes;
-    if (m_ArgsInfo.axes_given==Dimension)
-      for(unsigned int i=0; i<Dimension; i++)
-        axes[i]=m_ArgsInfo.axes_arg[i];
-    else {
-      axes[0]=100;
-      axes[1]=30;
-      axes[2]=150;
-    }
 
     // Draw an ellips
     IteratorType itEllips(ellips, ellips->GetLargestPossibleRegion());
@@ -727,7 +766,7 @@ MotionMaskGenericFilter::UpdateWithDimAndPixelType()
   //----------------------------------------------------------------------------------------------------
   // Ellipsoide initialization
   //----------------------------------------------------------------------------------------------------
-  typename InternalImageType::Pointer m_Ellips= InitializeEllips<Dimension, PixelType>(center,bones_low);
+  typename InternalImageType::Pointer m_Ellips= InitializeEllips<Dimension, PixelType>(center,bones_low,lungs_low);
 
   //----------------------------------------------------------------------------------------------------
   // Grow ellips
@@ -1075,6 +1114,10 @@ MotionMaskGenericFilter::UpdateWithDimAndPixelType()
     distanceMapImageFilter->SetInsideIsPositive(false);
     if (m_Verbose) std::cout<<"Calculating distance map..."<<std::endl;
     distanceMapImageFilter->Update();
+    if (m_ArgsInfo.writeDistMap_given) {
+      writeImage<LevelSetImageType>(distanceMapImageFilter->GetOutput(), m_ArgsInfo.writeDistMap_arg, m_Verbose);
+      
+    }
 
     //---------------------------------
     // Grow while monitoring lung volume coverage

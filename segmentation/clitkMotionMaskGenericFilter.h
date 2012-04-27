@@ -118,7 +118,7 @@ protected:
   template <unsigned int Dimension, class PixelType>
   typename itk::Image<InternalPixelType, Dimension>::Pointer Resample(typename itk::Image<InternalPixelType, Dimension>::Pointer input );
   template <unsigned int Dimension, class PixelType>
-  typename itk::Image<InternalPixelType, Dimension>::Pointer InitializeEllips( typename itk::Vector<double,Dimension> center, typename itk::Image<InternalPixelType, Dimension>::Pointer bones_low);
+  typename itk::Image<InternalPixelType, Dimension>::Pointer InitializeEllips( typename itk::Vector<double,Dimension> center, typename itk::Image<InternalPixelType, Dimension>::Pointer bones_low, typename itk::Image<InternalPixelType,Dimension>::Pointer lungs_low);
 
 
   template <unsigned int Dimension>  void UpdateWithDim(std::string PixelType);
