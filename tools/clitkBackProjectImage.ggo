@@ -29,6 +29,7 @@ option "axis"   	 	-   	"Specify the source to axis distance in mm"	float		no 	d
 option "angle"   	 	-   	"Specify the projection angle"			float		no 	default="0.0"
 option "matrix"   	 	-   	"Rigid tranform prior to projection (4x4)"	string		no 	
 option "pad"   	 		-   	"Padding value"					float		no 	default="0.0"
+option "panel_shift"            -       "Precise position of the panel in mm"           double          multiple        no
 
 
 section "Output Image"
