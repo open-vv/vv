@@ -236,8 +236,11 @@ ExtractImageFilter<TInputImage,TOutputImage>
 template <class TInputImage, class TOutputImage>
 void 
 ExtractImageFilter<TInputImage,TOutputImage>
-::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread,
-                       int threadId)
+#if ITK_VERSION_MAJOR >= 4
+::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId)
+#else
+::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId)
+#endif
 {
   itkDebugMacro(<<"Actually executing");
 
