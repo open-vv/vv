@@ -103,7 +103,7 @@ do
     fi
     nbph=`find $1 -maxdepth 1 -iname "*${prefix}*[0-9]*${suffix}*.mhd" | wc -l`
     orig=`find $1 -maxdepth 1 -iname "*${prefix}*[0-9]*${suffix}*.mhd" | sort | head -n 1`
-    listph=`find $1 -maxdepth 1 -iname "*${prefix}*[0-9]*${suffix}*.[z*]raw" | sort`
+    listph=`find $1 -maxdepth 1 -iregex ".*${prefix}.*[0-9].*${suffix}.*.z*raw" | sort`
 
     file_name_4D="${prefix}4D${suffix}.mhd"
     
