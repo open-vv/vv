@@ -306,6 +306,56 @@ DEF_SetNextOutput_And_GetInput(int, 3);
 DEF_SetNextOutput_And_GetInput(float, 3);
 DEF_SetNextOutput_And_GetInput(double, 3);
 
+DEF_SetNextOutput_And_GetInput_WithCompo(unsigned char, 2, 2);
+DEF_SetNextOutput_And_GetInput_WithCompo(unsigned char, 2, 3);
+DEF_SetNextOutput_And_GetInput_WithCompo(unsigned char, 2, 4);
+DEF_SetNextOutput_And_GetInput_WithCompo(unsigned char, 3, 2);
+DEF_SetNextOutput_And_GetInput_WithCompo(unsigned char, 3, 3);
+DEF_SetNextOutput_And_GetInput_WithCompo(unsigned char, 3, 4);
+DEF_SetNextOutput_And_GetInput_WithCompo(unsigned char, 4, 2);
+DEF_SetNextOutput_And_GetInput_WithCompo(unsigned char, 4, 3);
+DEF_SetNextOutput_And_GetInput_WithCompo(unsigned char, 4, 4);
+
+DEF_SetNextOutput_And_GetInput_WithCompo(char, 2, 2);
+DEF_SetNextOutput_And_GetInput_WithCompo(char, 2, 3);
+DEF_SetNextOutput_And_GetInput_WithCompo(char, 2, 4);
+DEF_SetNextOutput_And_GetInput_WithCompo(char, 3, 2);
+DEF_SetNextOutput_And_GetInput_WithCompo(char, 3, 3);
+DEF_SetNextOutput_And_GetInput_WithCompo(char, 3, 4);
+DEF_SetNextOutput_And_GetInput_WithCompo(char, 4, 2);
+DEF_SetNextOutput_And_GetInput_WithCompo(char, 4, 3);
+DEF_SetNextOutput_And_GetInput_WithCompo(char, 4, 4);
+
+DEF_SetNextOutput_And_GetInput_WithCompo(unsigned short, 2, 2);
+DEF_SetNextOutput_And_GetInput_WithCompo(unsigned short, 2, 3);
+DEF_SetNextOutput_And_GetInput_WithCompo(unsigned short, 2, 4);
+DEF_SetNextOutput_And_GetInput_WithCompo(unsigned short, 3, 2);
+DEF_SetNextOutput_And_GetInput_WithCompo(unsigned short, 3, 3);
+DEF_SetNextOutput_And_GetInput_WithCompo(unsigned short, 3, 4);
+DEF_SetNextOutput_And_GetInput_WithCompo(unsigned short, 4, 2);
+DEF_SetNextOutput_And_GetInput_WithCompo(unsigned short, 4, 3);
+DEF_SetNextOutput_And_GetInput_WithCompo(unsigned short, 4, 4);
+
+DEF_SetNextOutput_And_GetInput_WithCompo(short, 2, 2);
+DEF_SetNextOutput_And_GetInput_WithCompo(short, 2, 3);
+DEF_SetNextOutput_And_GetInput_WithCompo(short, 2, 4);
+DEF_SetNextOutput_And_GetInput_WithCompo(short, 3, 2);
+DEF_SetNextOutput_And_GetInput_WithCompo(short, 3, 3);
+DEF_SetNextOutput_And_GetInput_WithCompo(short, 3, 4);
+DEF_SetNextOutput_And_GetInput_WithCompo(short, 4, 2);
+DEF_SetNextOutput_And_GetInput_WithCompo(short, 4, 3);
+DEF_SetNextOutput_And_GetInput_WithCompo(short, 4, 4);
+
+DEF_SetNextOutput_And_GetInput_WithCompo(int, 2, 2);
+DEF_SetNextOutput_And_GetInput_WithCompo(int, 2, 3);
+DEF_SetNextOutput_And_GetInput_WithCompo(int, 2, 4);
+DEF_SetNextOutput_And_GetInput_WithCompo(int, 3, 2);
+DEF_SetNextOutput_And_GetInput_WithCompo(int, 3, 3);
+DEF_SetNextOutput_And_GetInput_WithCompo(int, 3, 4);
+DEF_SetNextOutput_And_GetInput_WithCompo(int, 4, 2);
+DEF_SetNextOutput_And_GetInput_WithCompo(int, 4, 3);
+DEF_SetNextOutput_And_GetInput_WithCompo(int, 4, 4);
+
 DEF_SetNextOutput_And_GetInput_WithCompo(float, 2, 2);
 DEF_SetNextOutput_And_GetInput_WithCompo(float, 2, 3);
 DEF_SetNextOutput_And_GetInput_WithCompo(float, 2, 4);
