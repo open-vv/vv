@@ -520,6 +520,12 @@ MotionMaskGenericFilter::InitializeEllips( typename itk::Vector<double,Dimension
         std::cout<<"Auto-detecting intial ellipse..."<<std::endl;
       }
 
+      typename InternalImageType::RegionType region, region_before = lungs_low->GetLargestPossibleRegion();
+      typename InternalImageType::SizeType size = region_before.GetSize();
+      size[2] /= 2;
+      region.SetSize(size);
+      lungs_low->SetRegions(region);
+      
       // compute statistics of the (mirroed) lung region in order to guess the params of the ellipse
       typedef itk::LabelImageToShapeLabelMapFilter<InternalImageType>  LabelImageToShapeLabelMapFilter;
       typename LabelImageToShapeLabelMapFilter::Pointer label_filter = LabelImageToShapeLabelMapFilter::New();
@@ -529,9 +535,12 @@ MotionMaskGenericFilter::InitializeEllips( typename itk::Vector<double,Dimension
       typename InternalImageType::SpacingType spacing = lungs_low->GetSpacing();
       typedef typename LabelImageToShapeLabelMapFilter::OutputImageType::LabelObjectType LabelType;
       const LabelType* label = dynamic_cast<LabelType*>(label_filter->GetOutput()->GetNthLabelObject(0));
-      
 
-      // try to guess ideal ellipse axes from the lungs' bounding box
+      // lungs' barycenter
+      typename LabelType::CentroidType lung_centroid = label->GetCentroid();
+
+      // try to guess ideal ellipse axes from the lungs' bounding box and centroid
+      // with some hard-coded "magic" constants...
 #if ITK_VERSION_MAJOR >= 4
       typename LabelType::RegionType lung_bbox = label->GetBoundingBox();
 #else
@@ -539,15 +548,18 @@ MotionMaskGenericFilter::InitializeEllips( typename itk::Vector<double,Dimension
 #endif
       axes[0] = 0.95*lung_bbox.GetSize()[0]*spacing[0]/2;
       axes[1] = 0.3*lung_bbox.GetSize()[1]*spacing[1]/2;
-      axes[2] = 0.95*lung_bbox.GetSize()[2]*spacing[2]/2;
+      axes[2] = 1.25*fabs(lung_centroid[2] - center[2]);
 
-      // ellipse's center is the center of the lungs' bounding box
+      // ellipse's center in XY is the center of the lungs' bounding box
       typename InternalImageType::PointType origin = lungs_low->GetOrigin();
       centerEllips[0] = origin[0] + (lung_bbox.GetIndex()[0] + lung_bbox.GetSize()[0]/2)*spacing[0];
       centerEllips[1] = origin[1] + (lung_bbox.GetIndex()[1] + lung_bbox.GetSize()[1]/2)*spacing[1];
-      centerEllips[2] = origin[2] + (lung_bbox.GetIndex()[2] + lung_bbox.GetSize()[2]/2)*spacing[2];
+      centerEllips[2] = center[2];
+      
+      lungs_low->SetRegions(region_before);
       
       if(m_Verbose) {
+        std::cout << "Lungs'centroid at " << lung_centroid << std::endl;
         std::cout << "Ellipse center at " << centerEllips << std::endl;
         std::cout << "Ellipse axes as " << axes << std::endl;
         std::cout << "Lung's bounding box (index,size) " << lung_bbox.GetIndex() << lung_bbox.GetSize() << std::endl;
