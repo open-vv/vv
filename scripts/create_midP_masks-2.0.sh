@@ -53,8 +53,12 @@ resample()
   echo "$phase_file -> Resampling..."
   clitkResampleImage -i $mask_dir_tmp/patient_$phase_nb.mhd -o $mask_dir_tmp/patient_$phase_nb.mhd --spacing $resample_spacing --interp $resample_algo
   clitkResampleImage -i $mask_dir_tmp/patient_mask_$phase_nb.mhd -o $mask_dir_tmp/patient_mask_$phase_nb.mhd --spacing $resample_spacing --interp $resample_algo
-  clitkResampleImage -i $mask_dir_tmp/lungs_$phase_nb.mhd -o $mask_dir_tmp/lungs_$phase_nb.mhd --like $mask_dir_tmp/patient_$phase_nb.mhd
-  clitkResampleImage -i $mask_dir_tmp/bones_$phase_nb.mhd -o $mask_dir_tmp/bones_$phase_nb.mhd --like $mask_dir_tmp/patient_$phase_nb.mhd
+  if [ "$mask_type" != "patient" ]; then
+    clitkResampleImage -i $mask_dir_tmp/lungs_$phase_nb.mhd -o $mask_dir_tmp/lungs_$phase_nb.mhd --like $mask_dir_tmp/patient_$phase_nb.mhd
+  fi
+  if [ "$mask_type" == "mm" ]; then
+    clitkResampleImage -i $mask_dir_tmp/bones_$phase_nb.mhd -o $mask_dir_tmp/bones_$phase_nb.mhd --like $mask_dir_tmp/patient_$phase_nb.mhd
+  fi
 }
 
 compute_motion_mask()
@@ -66,7 +70,6 @@ compute_motion_mask()
     FillingLevel=94
   fi
 
-  #clitkMotionMask -i $mask_dir_tmp/patient_$phase_nb.mhd -o $mask_dir_tmp/mm_$phase_nb.mhd --featureLungs $mask_dir_tmp/lungs_$phase_nb.mhd --upperThresholdLungs -400 --fillingLevel $FillingLevel --offsetDetect $MotionMaskOffsetDetect --pad --writeFeature=$mask_dir_tmp/feature_$phase_nb.mhd $MotionMaskExtra
   clitkMotionMask -i $mask_dir_tmp/patient_$phase_nb.mhd -o $mask_dir_tmp/mm_$phase_nb.mhd --featureLungs $mask_dir_tmp/lungs_$phase_nb.mhd --upperThresholdLungs -400 --featureBones $mask_dir_tmp/bones_$phase_nb.mhd --fillingLevel $FillingLevel --offsetDetect $MotionMaskOffsetDetect --pad --writeFeature $mask_dir_tmp/feature_$phase_nb.mhd $MotionMaskExtra  
   #--monitor=$mask_dir_tmp/monitor_$phase_nb.mhd
 }
@@ -130,55 +133,18 @@ create_registration_masks()
   create_banded_mask $mask_dir_tmp/outside_$phase_nb.mhd $mask_dir_tmp/${mask_type}_outside_$phase_nb.mhd $mask_dir_tmp/banded_outside_$phase_nb.mhd $mask_dir_tmp/banded_mask_outside_$phase_nb.mhd 4
 }
 
-create_registration_motion_masks()
-{
-  # extract inside and outside regions from the patient image, 
-  # using the motion mask computed previously
-  echo "$phase_file -> Setting Background..."
-  clitkSetBackground -i $mask_dir_tmp/patient_$phase_nb.mhd -o $mask_dir_tmp/inside_$phase_nb.mhd --mask $mask_dir_tmp/mm_$phase_nb.mhd --outsideValue -1200
-  clitkSetBackground -i $mask_dir_tmp/patient_$phase_nb.mhd -o $mask_dir_tmp/outside_$phase_nb.mhd --mask $mask_dir_tmp/mm_$phase_nb.mhd --outsideValue -1200 --fg
-
-  # the registration masks for inside (and outside) region correspond
-  # to the motion mask (and its complement) plus extra grey value bands,
-  # obtained with morphological dilations.
-  # 
-  echo "$phase_file -> Creating registration masks..."
-  # inside
-  clitkMorphoMath -i $mask_dir_tmp/mm_$phase_nb.mhd -o $mask_dir_tmp/mask_inside_$phase_nb.mhd --type 1 --radius 8
-  create_banded_mask $mask_dir_tmp/inside_$phase_nb.mhd $mask_dir_tmp/mm_$phase_nb.mhd $mask_dir_tmp/banded_inside_$phase_nb.mhd $mask_dir_tmp/banded_mask_inside_$phase_nb.mhd 4
-  # outside 
-  clitkExtractPatient -i $mask_dir_tmp/outside_$phase_nb.mhd -o $mask_dir_tmp/mm_outside_$phase_nb.mhd --noAutoCrop
-  clitkMorphoMath -i $mask_dir_tmp/mm_outside_$phase_nb.mhd -o $mask_dir_tmp/mask_outside_$phase_nb.mhd --type 1 --radius 8
-  create_banded_mask $mask_dir_tmp/outside_$phase_nb.mhd $mask_dir_tmp/mm_outside_$phase_nb.mhd $mask_dir_tmp/banded_outside_$phase_nb.mhd $mask_dir_tmp/banded_mask_outside_$phase_nb.mhd 4
-}
-
-create_registration_lung_masks()
-{
-  # extract inside and outside lung regions from the patient image, 
-  # using the motion mask computed previously
-  echo "$phase_file -> Setting Background..."
-  clitkSetBackground -i $mask_dir_tmp/patient_$phase_nb.mhd -o $mask_dir_tmp/inside_$phase_nb.mhd --mask $mask_dir_tmp/lungs_$phase_nb.mhd --outsideValue -1200
-  clitkSetBackground -i $mask_dir_tmp/patient_$phase_nb.mhd -o $mask_dir_tmp/outside_$phase_nb.mhd --mask $mask_dir_tmp/lungs_$phase_nb.mhd --outsideValue -1200 --fg
-
-  # the registration masks for inside (and outside) region correspond
-  # to the motion mask (and its complement) plus extra grey value bands,
-  # obtained with morphological dilations.
-  # 
-  echo "$phase_file -> Creating registration masks..."
-  # inside
-  clitkMorphoMath -i $mask_dir_tmp/lungs_$phase_nb.mhd -o $mask_dir_tmp/mask_inside_$phase_nb.mhd --type 1 --radius 8
-  create_banded_mask $mask_dir_tmp/inside_$phase_nb.mhd $mask_dir_tmp/lungs_$phase_nb.mhd $mask_dir_tmp/banded_inside_$phase_nb.mhd $mask_dir_tmp/banded_mask_inside_$phase_nb.mhd 4
-  # outside 
-  clitkBinarizeImage -i $mask_dir_tmp/outside_$phase_nb.mhd -o $mask_dir_tmp/lungs_outside_$phase_nb.mhd -l -999 -u 4000 --mode both 
-  clitkMorphoMath -i $mask_dir_tmp/lungs_outside_$phase_nb.mhd -o $mask_dir_tmp/mask_outside_$phase_nb.mhd --type 1 --radius 8
-  create_banded_mask $mask_dir_tmp/outside_$phase_nb.mhd $mask_dir_tmp/lungs_outside_$phase_nb.mhd $mask_dir_tmp/banded_outside_$phase_nb.mhd $mask_dir_tmp/banded_mask_outside_$phase_nb.mhd 4
-}
-
 mm_preprocessing()
 {
   extract_patient
-  extract_bones
-  extract_lungs
+
+  if [ "$mask_type" != "patient" ]; then
+    extract_lungs
+  fi
+
+  if [ "$mask_type" == "mm" ]; then
+    extract_bones
+  fi
+
   # remove_tmp_masks 1
   if [ $resample_spacing -ne 0 ] ; then 
     resample
@@ -233,25 +199,6 @@ wait_mm_creation()
         do_mm=1
       fi
     fi
-#     elif [ "$mask_type" == "lungs" ]; then
-#       nb_mm_masks=`ls $mask_dir/lungs_outside*.mhd | wc -l`
-#       nb_in_masks=`ls $mask_dir/mask_in*.mhd | wc -l`
-#       nb_out_masks=`ls $mask_dir/mask_out*.mhd | wc -l`
-#       if [ $nb_mm_masks != $nb_phases -o $nb_in_masks != $nb_phases -o $nb_out_masks != $nb_phases ]; then
-#         # if the mask dir is invalid, remove it and recreate all masks, just in case.
-#         rm -fr $mask_dir 2> /dev/null
-#         do_mm=1
-#       fi
-#     elif [ "$mask_type" == "mm" ]; then
-#       nb_mm_masks=`ls $mask_dir/mm_outside*.mhd | wc -l`
-#       nb_in_masks=`ls $mask_dir/mask_in*.mhd | wc -l`
-#       nb_out_masks=`ls $mask_dir/mask_out*.mhd | wc -l`
-#       if [ $nb_mm_masks != $nb_phases -o $nb_in_masks != $nb_phases -o $nb_out_masks != $nb_phases ]; then
-#         # if the mask dir is invalid, remove it and recreate all masks, just in case.
-#         rm -fr $mask_dir 2> /dev/null
-#         do_mm=1
-#       fi
-#     fi
   fi
   
   if [ $do_mm = 1 ]; then
@@ -401,7 +348,7 @@ motion_mask()
 
 if [ $# -ne 4 -a $# -ne 2 -a $# -ne 1 ]; then
   echo "Usage: $0 CT_4D TYPE [RESAMPLE_SPACING RESAMPLE_ALGORITHM]"
-  echo "  TYPE: \"motion\" (traditional motion masks); \"lungs\" (lung masks); \"patient\" (patient mask only)"
+  echo "  TYPE: \"mm\" (traditional motion masks); \"lungs\" (lung masks); \"patient\" (patient mask only)"
   exit -1
 fi
 
