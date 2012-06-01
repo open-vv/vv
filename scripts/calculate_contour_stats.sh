@@ -1,94 +1,51 @@
 #! /bin/bash +x 
 
-select_contour_gui()
-{
-  local roi_list=$@
-  roi=`zenity --list --title="Available Contours" --column="Please choose a contour:" $roi_list`
-  case $? in
-    0)
-    if [ -z $roi ]
-    then
-      zenity --warning --text="You must choose one contour."
-      select_contour $roi_list
-    else
-      rtstruct_roi_name=$roi
-    fi;;
-    1)
-    if zenity --question --text="Do you really wish to quit?"
-    then
-      exit
-    else
-      select_contour $roi_list
-    fi;;
-    -1)
-      zenity --error --text="Unexpected error. Please relaunch the application."
-      exit;;
-  esac
-}
+source `dirname $0`/midp_common.sh
 
-select_contour()
-{
-  local roi_list=$@
-  echo "Available Contours:" 
-  for r in $roi_list; do
-    echo $r
-  done
-
-  echo "Please choose a contour number:"
-  read rtstruct_roi_number
-}
-
-select_roi()
-{
-  rtstruct_roi_name_list=( `clitkDicomInfo ${rtstruct_file} | grep "3006|0026" | cut -d '[' -f 4 | sed 's/| V 3006|0026[LO] [ROI Name] \|]//'` )
-  rtstruct_roi_number_list=( `clitkDicomInfo ${rtstruct_file} | grep "3006|0022" | cut -d '[' -f 4 | sed 's/| V 3006|0026[LO] [ROI Number] \|]//'` )
-  rtstruct_roi_list=( )
-  for i in $(seq 0 1 $(( ${#rtstruct_roi_name_list[@]} - 1 ))); do
-    rtstruct_roi_list[$i]=${rtstruct_roi_number_list[$i]}:${rtstruct_roi_name_list[$i]}
-  done
-
-  if [ $gui_mode = 1 ]; then
-    select_contour_gui ${rtstruct_roi_list[@]}
-    rtstruct_roi=`echo ${rtstruct_roi_name} | cut -d ':' -f 1`
-    rtstruct_roi_name=`echo ${rtstruct_roi_name} | cut -d ':' -f 2`
-  else
-    select_contour ${rtstruct_roi_list[@]}
-    rtstruct_roi=$rtstruct_roi_number
-    rtstruct_roi_name=${rtstruct_roi_name_list[$(( $rtstruct_roi_number - 1))]}
-  fi
-}
 
 ############# main 
 
 if echo $* | grep "\-h"; then
-  echo Usage: calculate_motion_amplitude.sh { RTSTRUCT_FILE REFERENCE_IMAGE | --gui }
-
+  echo Usage: calculate_motion_amplitude.sh { REFERENCE_IMAGE RTSTRUCT_FILE [ RTSTRUCT_ROI | --gui ] } | --gui 
+  echo "  RTSTRUCT_REF_IMAGE: mhd of the reference image used in the contour delineation"
+  echo "  RTSTRUCT_FILE: dicom with contours"
+  echo "  RTSTRUCT_ROI: number of the contour whose motion to analyze"
+  echo "  --gui: use GUI to select files"
   exit 0
 fi
 
 
-rtstruct_roi=0
+rtstruct_roi=
 
 if echo $* | grep "\-\-gui" > /dev/null 2>&1; then
-  if [ $# != 1 ]; then
-    echo Invalid arguments. Type \'`basename $0` -h\' for help
-    exit -1
-  fi
-
   gui_mode=1
-  rtstruct_file=`zenity --file-selection --title="Select RT Struct file."`
-  select_roi
-  rtstruct_ref_image=`zenity --file-selection --title="Select Reference Image."`
-else
-  if [ $# != 2 ]; then
+  if [ $# = 1 ]; then
+    rtstruct_ref_image=`zenity --file-selection --title="Select Reference Image."`
+    rtstruct_file=`zenity --file-selection --title="Select RT Struct file."`
+    select_roi
+  elif [ $# = 3 ]; then
+    rtstruct_ref_image=$1
+    rtstruct_file=$2
+    select_roi
+  else
     echo Invalid arguments. Type \'`basename $0` -h\' for help
     exit -1
   fi
 
+else
   gui_mode=0
-  rtstruct_file=$1
-  rtstruct_ref_image=$2
-  select_roi
+  rtstruct_ref_image=$1
+  rtstruct_file=$2
+  if [ $# = 2 ]; then
+    select_roi
+  elif [ $# = 3 ]; then
+    rtstruct_roi=$3
+    rtstruct_roi_name=$rtstruct_roi
+  else
+    echo Invalid arguments. Type \'`basename $0` -h\' for help
+    exit -1
+  fi
+
 fi
 
 

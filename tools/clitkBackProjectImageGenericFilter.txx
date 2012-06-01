@@ -72,6 +72,8 @@ namespace clitk
 	  iso[i]=m_ArgsInfo.iso_arg[i];
 	filter->SetIsoCenter(iso);
       }
+    if (m_ArgsInfo.panel_shift_given)
+      filter->SetPanelShift(m_ArgsInfo.panel_shift_arg[0], m_ArgsInfo.panel_shift_arg[1]);
     filter->SetSourceToScreen(m_ArgsInfo.screen_arg);
     filter->SetSourceToAxis(m_ArgsInfo.axis_arg); 
     filter->SetProjectionAngle(m_ArgsInfo.angle_arg);

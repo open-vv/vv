@@ -32,10 +32,12 @@ option "writeFeature"		-	"Write the combined feature image"			string	no
 section "Ellipsoide initialization"
 
 option	"ellips"	-	"Input ellipsoide image (=1, at half resolution)" 					   string	no
-option	"offset"	-	"Offset for ellips center from body center of gravity (default= 0,-50,0 mm)"  	   double	no	multiple
-option 	"axes"		-	"Half axes of the ellips (default= 100,30,150)"					   double 	no	multiple
 option  "writeEllips"	-	"Write the initial ellipsoide image"			string	no  
 option "writeDistMap"   - "Write the distance map"      string  no  
+#defgroup "EllipseParams" groupdesc="an option of this group is required" required
+option  "ellipseAutoDetect"  - "Auto-detect offset and axes of initial ellipse"          flag  off  
+option  "offset"  - "Offset for ellips center from body center of gravity (default= 0,-50,0 mm)"       double no  multiple
+option  "axes"    - "Half axes of the ellips (default= 100,30,150)"            double   no  multiple
 
 
 section "Ellipsoide growing"

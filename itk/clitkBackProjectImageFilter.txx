@@ -303,7 +303,11 @@ namespace clitk
   template <class InputImageType, class OutputImageType>
   void 
   BackProjectImageFilter<InputImageType, OutputImageType>
+#if ITK_VERSION_MAJOR >= 4
+  ::ThreadedGenerateData( const OutputImageRegionType & outputRegionForThread,  itk::ThreadIdType threadId )
+#else
   ::ThreadedGenerateData( const OutputImageRegionType & outputRegionForThread,  int threadId )
+#endif
   {
     //Projection pointer
     InputImageConstPointer inputPtr=this->GetInput();

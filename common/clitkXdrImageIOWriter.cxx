@@ -97,7 +97,9 @@ void clitk::XdrImageIO::Write(const void* buffer)
 #include <math.h>
 #include <stdlib.h>
 #include <limits.h>
-#include <unistd.h>
+#ifndef _WIN32
+#  include <unistd.h>
+#endif
 #if !defined(unix) && !defined(__APPLE__)
 #include <io.h>
 #endif

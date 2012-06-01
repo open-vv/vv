@@ -25,9 +25,10 @@ clitk::ImageConvertGenericFilter::ImageConvertGenericFilter():
   clitk::ImageToImageGenericFilter<Self>("ImageConvert")
 {
   mOutputPixelTypeName = "NotSpecified";
-  mWarningOccur = false;
-  mWarning = "";
   mDisplayWarning = true;
+  mWarning = "";
+  mWarningOccur = false;
+  
   InitializeImageType<2>();
   InitializeImageType<3>();
   InitializeImageType<4>();
@@ -40,6 +41,10 @@ template<unsigned int Dim>
 void clitk::ImageConvertGenericFilter::InitializeImageType()
 {
   ADD_DEFAULT_IMAGE_TYPES(Dim);
+  ADD_VEC_IMAGE_TYPE(Dim, 2, float);
+  ADD_VEC_IMAGE_TYPE(Dim, 3, float);
+  ADD_VEC_IMAGE_TYPE(Dim, 2, double);
+  ADD_VEC_IMAGE_TYPE(Dim, 3, double);
 }
 //--------------------------------------------------------------------
 
@@ -48,7 +53,6 @@ void clitk::ImageConvertGenericFilter::InitializeImageType()
 template<class InputImageType>
 void clitk::ImageConvertGenericFilter::UpdateWithInputImageType()
 {
-
   // Verbose stuff
   if (m_IOVerbose) {
     if (m_InputFilenames.size() == 1) {
@@ -66,91 +70,57 @@ void clitk::ImageConvertGenericFilter::UpdateWithInputImageType()
     }
   }
 
-
   if ((m_PixelTypeName == mOutputPixelTypeName) || (mOutputPixelTypeName == "NotSpecified")) {
-    //    typename InputImageType::Pointer input = clitk::readImage<InputImageType>(m_InputFilenames);
     typename InputImageType::Pointer input = this->template GetInput<InputImageType>(0);
-    //clitk::writeImage<InputImageType>(input, mOutputFilename, m_IOVerbose);
     this->SetNextOutput<InputImageType>(input);
   } else {
-#define TRY_TYPE(TYPE)							\
-    if (IsSameType<TYPE>(mOutputPixelTypeName)) { UpdateWithOutputType<InputImageType, TYPE>(); return; }
-    TRY_TYPE(char);
-    //    TRY_TYPE(signed char);
-    TRY_TYPE(uchar);
-    TRY_TYPE(short);
-    TRY_TYPE(ushort);
-    TRY_TYPE(int); // no uint ...
-    TRY_TYPE(float);
-    TRY_TYPE(double);
-#undef TRY_TYPE
-
-    std::string list = CreateListOfTypes<char, uchar, short, ushort, int, float, double>();
-    std::cerr << "Error, I don't know the output type '" << mOutputPixelTypeName
-              << "'. " << std::endl << "Known types are " << list << "." << std::endl;
-    exit(0);
+    // "trick" to call independent versions of update according to the 
+    // pixel type (vector or scalar), using partial specializations
+    if (!UpdateWithSelectiveOutputType<InputImageType, ImageConvertTraits<typename InputImageType::PixelType>::IS_VECTOR>::Run(*this, mOutputPixelTypeName))    
+      exit(-1);
   }
 }
 //====================================================================
 
 //====================================================================
-template<class InputImageType, class OutputPixelType>
-void clitk::ImageConvertGenericFilter::UpdateWithOutputType()
+
+template<class PixelType, class OutputPixelType>
+void clitk::ImageConvertGenericFilter::CheckTypes(
+  std::string inType, std::string outType
+)
 {
-  // Read
-  typename InputImageType::Pointer input =this->template GetInput<InputImageType>(0);
-
-  // Typedef
-  typedef typename InputImageType::PixelType PixelType;
-
-  // Warning
   std::ostringstream osstream;
   if (std::numeric_limits<PixelType>::is_signed) {
     if (!std::numeric_limits<OutputPixelType>::is_signed) {
-      osstream << "Warning, input type is signed (" << m_PixelTypeName << ") while output type is not ("
-               << mOutputPixelTypeName << "), use at your own responsability." << std::endl;
-      mWarningOccur = true;
+      osstream << "Warning, input type is signed (";
     }
   }
   if (!std::numeric_limits<PixelType>::is_integer) {
     if (std::numeric_limits<OutputPixelType>::is_integer) {
-      osstream << "Warning, input type is not integer (" << m_PixelTypeName << ") while output type is ("
-               << mOutputPixelTypeName << "), use at your own responsability." << std::endl;
-      mWarningOccur = true;
+      osstream << "Warning, input type is not integer (";
     }
   }
   //  DD(std::numeric_limits<PixelType>::digits10);
   // DD(std::numeric_limits<OutputPixelType>::digits10);
   if (!std::numeric_limits<PixelType>::is_integer) {
     if (std::numeric_limits<OutputPixelType>::is_integer) {
-      osstream << "Warning, input type is not integer (" << m_PixelTypeName << ") while output type is ("
-               << mOutputPixelTypeName << "), use at your own responsability." << std::endl;
-      mWarningOccur = true;
+      osstream << "Warning, input type is not integer (";
     }
   }
   if (std::numeric_limits<PixelType>::digits10 > std::numeric_limits<OutputPixelType>::digits10) {
-    osstream << "Warning, possible loss of precision : input type is (" << m_PixelTypeName << ") while output type is ("
-             << mOutputPixelTypeName << "), use at your own responsability." << std::endl;
+    osstream << "Warning, possible loss of precision : input type is (" ;
+  }
+
+  if (!osstream.str().empty())
+  {
     mWarningOccur = true;
+    osstream << inType << ") while output type is (" << outType << "), use at your own responsability." << std::endl;
+    mWarning = osstream.str();
+    if (mDisplayWarning) {
+      std::cerr << mWarning;
+    }
   }
-
-  mWarning = osstream.str();
-  if (mDisplayWarning) {
-    std::cerr << mWarning;
-  }
-
-  // Cast
-  typedef itk::Image<OutputPixelType,InputImageType::ImageDimension> OutputImageType;
-  typedef itk::CastImageFilter<InputImageType, OutputImageType> FilterType;
-  typename FilterType::Pointer filter = FilterType::New();
-  filter->SetInput(input);
-  filter->Update();
-
-  // Write
-  SetNextOutput<OutputImageType>(filter->GetOutput());
-  //clitk::writeImage<OutputImageType>(filter->GetOutput(), mOutputFilename, m_IOVerbose);
 }
-//====================================================================
 
 
 #endif /* end #define CLITKIMAGECONVERTGENERICFILTER_CXX */

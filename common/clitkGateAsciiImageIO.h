@@ -42,7 +42,6 @@ public:
   typedef GateAsciiImageIO        Self;
   typedef itk::ImageIOBase        Superclass;
   typedef itk::SmartPointer<Self> Pointer;
-  typedef signed short int        PixelType;
 
   struct GateAsciiHeader {
     double matrix_size[3];

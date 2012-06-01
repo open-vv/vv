@@ -5,6 +5,7 @@ SET(SCRIPTS
   ${CLITK_SOURCE_DIR}/scripts/calculate_contour_stats.sh
   ${CLITK_SOURCE_DIR}/scripts/midp_common.sh
   ${CLITK_SOURCE_DIR}/scripts/registration.sh
+  ${CLITK_SOURCE_DIR}/scripts/compress_mhd.sh
   ${CLITK_SOURCE_DIR}/scripts/create_midP.sh
   ${CLITK_SOURCE_DIR}/scripts/create_midP-2.0.sh        
   ${CLITK_SOURCE_DIR}/scripts/create_mhd_4D.sh          

@@ -19,7 +19,9 @@
 // clitk include
 #include "clitkCommon.h"
 #include "clitkMemoryUsage.h"
-#include <unistd.h>
+#ifndef _WIN32
+#  include <unistd.h>
+#endif
 
 void clitk::PrintMemory(bool verbose, std::string s) 
 {
