@@ -92,5 +92,6 @@ tar -czvf fgate_release.tar.gz \
 	$(basename ${G4PIIDATA}) \
         || usage "can't create release zip"
 
+chmod -w fgate_release.tar.gz
 
 
