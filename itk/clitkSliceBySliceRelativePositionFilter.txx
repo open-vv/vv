@@ -42,6 +42,7 @@ SliceBySliceRelativePositionFilter():
   SetObjectCCLSelectionDimension(0);
   SetObjectCCLSelectionDirection(1);
   ObjectCCLSelectionIgnoreSingleCCLFlagOff();
+  VerboseSlicesFlagOff();
 }
 //--------------------------------------------------------------------
 
@@ -158,6 +159,9 @@ GenerateOutputInformation()
     this->template StopCurrentStep<ImageType>(m_working_object);
     */
 
+    DD(input->GetLargestPossibleRegion());
+    DD(m_working_object->GetLargestPossibleRegion());
+
     // Compute union of bounding boxes in X and Y
     static const unsigned int dim = ImageType::ImageDimension;
     typedef itk::BoundingBox<unsigned long, dim> BBType;
@@ -182,6 +186,11 @@ GenerateOutputInformation()
                                                          m_working_input, 
                                                          this->GetObjectBackgroundValue());
     
+    // Index can be negative in some cases, and lead to problem with
+    // some filter. So we correct it.
+    m_working_input = clitk::RemoveNegativeIndexFromRegion<ImageType>(m_working_input);
+    m_working_object = clitk::RemoveNegativeIndexFromRegion<ImageType>(m_working_object);
+
     // End
     this->template StopCurrentStep<ImageType>(m_working_input);  
   }
@@ -286,6 +295,10 @@ GenerateOutputInformation()
         typedef clitk::AddRelativePositionConstraintToLabelImageFilter<SliceType> RelPosFilterType;
         typename RelPosFilterType::Pointer relPosFilter = RelPosFilterType::New();
         relPosFilter->VerboseStepFlagOff();
+        if (GetVerboseSlicesFlag()) {
+          std::cout << "Slice " << i << std::endl;
+          relPosFilter->VerboseStepFlagOn();
+        }
         relPosFilter->WriteStepFlagOff();
         // relPosFilter->VerboseMemoryFlagOn();
         relPosFilter->SetCurrentStepBaseId(this->GetCurrentStepId()+"-"+toString(i));        
