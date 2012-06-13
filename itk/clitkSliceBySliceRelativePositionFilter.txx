@@ -159,9 +159,6 @@ GenerateOutputInformation()
     this->template StopCurrentStep<ImageType>(m_working_object);
     */
 
-    DD(input->GetLargestPossibleRegion());
-    DD(m_working_object->GetLargestPossibleRegion());
-
     // Compute union of bounding boxes in X and Y
     static const unsigned int dim = ImageType::ImageDimension;
     typedef itk::BoundingBox<unsigned long, dim> BBType;
