@@ -65,11 +65,17 @@ namespace clitk {
 
     // Set Get image
     void SetImageFilename(TagType tag, std::string f);
-    template<class ImageType>
+    
+    template<class ImageType> 
     typename ImageType::Pointer GetImage(TagType tag, bool reload=false);
-    template<class ImageType>
+    
+    template<class ImageType> 
+    bool CheckImage(TagType tag); 
+    
+    template<class ImageType> 
     void  SetImage(TagType tag, std::string f, typename ImageType::Pointer image, bool write=false);
-    template<class ImageType>
+    
+    template<class ImageType> 
     void ReleaseImage(TagType tag);
     
     // Set Get Double
