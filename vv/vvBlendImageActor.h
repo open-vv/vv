@@ -21,13 +21,13 @@
 
 #include <vtkActor.h>
 #include <vtkSmartPointer.h>
-#include <vtkOpenGLImageActor.h>
+#include <vtkImageActor.h>
 
-class vvBlendImageActor : public vtkOpenGLImageActor
+class vvBlendImageActor : public vtkImageActor
 {
 public:
   static vvBlendImageActor *New();
-  vtkTypeMacro(vvBlendImageActor, vtkOpenGLImageActor);
+  vtkTypeMacro(vvBlendImageActor, vtkImageActor);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
