@@ -241,6 +241,7 @@ function merge_dispatcher {
 echo "!!!! this is $0 v0.3g !!!!"
 
 rundir="${1?"provide run dir"}"
+rundir="$(echo "${rundir}" | sed 's|/*$||')"
 nboutputdirs="$(find "${rundir}" -mindepth 1 -type d -name 'output*' | wc -l)"
 
 test ${nboutputdirs} -gt 0 || error "no output dir found"
