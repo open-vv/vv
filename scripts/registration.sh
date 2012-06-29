@@ -76,21 +76,29 @@ registration_blutdir()
 ################# ELASTIX #####################
 registration_elastix()
 {
-  reference=$1
-  target=$2
-  mask_ref=$3
-  mask_targ=$4
-  vf=$5
-  result=$6
-  nb_iter=$7
-  nb_samples=$8
-  sampling_algo=$9
-  hist_bins=${10}
-  nb_levels=${11}
-  spacing=${12}
-  metric=${13}
-  optimizer=${14}
-  interpolator=${15}
+  local reference=$1
+  local target=$2
+  local mask_ref=$3
+  local mask_targ=$4
+  local vf=$5
+  local result=$6
+  local nb_iter=$7
+  local nb_samples=$8
+  local sampling_algo=$9
+  local hist_bins=${10}
+  local nb_levels=${11}
+  local spacing=${12}
+  local metric=${13}
+  local optimizer=${14}
+  local interpolator=${15}
+  local log=${16}
+  local coeff=${17}
+  local init_coeff=${18}
+
+# RP 25/06/2012: unused variables (for now at elast)  
+#   local log=${16}
+#   local coeff=${17}
+#   local init_coeff=${18}
   
   ########## register in ##########
   for reg_in in $reg_in_list
@@ -104,38 +112,51 @@ registration_elastix()
   exec_dir=`which elastix`
   exec_dir=`dirname $exec_dir`
   suffix=${nb_samples}_${nb_iter}_${nb_levels}
-  cat $exec_dir/params_BSpline.txt | sed -e "s+<NbIterations>+$nb_iter+" \
-                              -e "s+<LabelsFile>++" \
+  cat $exec_dir/params_elastix_template.txt | sed -e "s+<NbIterations>+$nb_iter+" \
                               -e "s+<HistBins>+$hist_bins+" \
                               -e "s+<Levels>+$nb_levels+" \
-                              -e "s+<NbSamples>+$nb_samples+" \
+                              -e "s+<PctSamples>+$nb_samples+" \
                               -e "s+<SamplerType>+$sampling_algo+" \
-                              -e "s+<Spacing>+$spacing+" > params_BSpline_${suffix}.txt 
+                              -e "s+<Metric>+$metric+" \
+                              -e "s+<Optimizer>+$optimizer+" \
+                              -e "s+<Interpolator>+$interpolator+" \
+                              -e "s+<Spacing>+$spacing+" > params_elastix_${suffix}.txt 
+
+  # set elastix to write out the coefficient images and corresponding DVFs
+  echo "(WriteCoefficientImage \"true\")" >> params_elastix_${suffix}.txt 
+  echo "(WriteDVFFromCoeff \"true\")" >> params_elastix_${suffix}.txt 
 
   vf_dir=`dirname $vf`
   vf_base=`basename $vf .mhd`
+  coeff_dir=`dirname $coeff`
+  coeff_base=`basename $coeff .mhd`
   result_dir=`dirname $result`
   result_base=`basename $result .mhd`
 
   # image registration
-  cmd="elastix -f $reference -m $target -fMask $mask_ref -mMask $mask_targ -out $result_dir -p params_BSpline_${suffix}.txt"
+  cmd="elastix -f $reference -m $target -fMask $mask_ref -mMask $mask_targ -out $result_dir -p params_elastix_${suffix}.txt"
   $cmd  > /dev/null
   abort_on_error registration_elastix $? clean_up_registration
 
   # generate vector field
-  cmd="transformix -tp $result_dir/TransformParameters.0.txt -out $vf_dir -def all"
-  $cmd  > /dev/null
-  abort_on_error registration_elastix $? clean_up_registration
+  # cmd="transformix -tp $result_dir/TransformParameters.0.txt -out $vf_dir -def all"
+  # $cmd  > /dev/null
+  # abort_on_error registration_elastix $? clean_up_registration
 
   # post-processing
-  mv $vf_dir/deformationField.mhd $vf
-  mv $vf_dir/deformationField.raw `echo $vf | sed 's/mhd/raw/'`
-  sed -i "s+deformationField+$vf_base+" $vf
+  local level=$(($nb_levels - 1))
+  mv $result_dir/dvf.0.R$level.mhd $vf
+  mv $result_dir/dvf.0.R$level.raw `echo $vf | sed 's/mhd/raw/'`
+  sed -i "s+dvf.0.R$level+$vf_base+" $vf
+
+  mv $result_dir/coeff.0.R$level.mhd $coeff_dir/${coeff_base}_0.mhd
+  mv $result_dir/coeff.0.R$level.raw $coeff_dir/${coeff_base}_0.raw
+  sed -i "s+coeff.0.R$level+$coeff_base+" $coeff_dir/${coeff_base}_0.mhd
 
   mv $result_dir/result.0.mhd $result
   mv $result_dir/result.0.raw `echo $result | sed 's/mhd/raw/'`
   sed -i "s+result.0+$result_base+" $result
 
-  mv $result_dir/elasitx.log $log
+  mv $result_dir/elastix.log $log
   mv $result_dir/TransformParameters.0.txt $result_dir/${result_base}_TransformParameters.0.txt
 }
