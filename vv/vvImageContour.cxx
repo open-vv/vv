@@ -154,6 +154,7 @@ void vvImageContour::ShowActors() {
 //------------------------------------------------------------------------------
 void vvImageContour::SetDepth(double d) 
 { 
+  mDepth = d;
   // Move the actor to be visible
   double position[3] = {0, 0, 0};
   int orientation = ComputeCurrentOrientation();
