@@ -163,6 +163,40 @@ end_bar
 echo "  ${indent}merged ${count} files"
 }
 
+mhdImageMerger="clitkImageArithm"
+test -x "./clitkImageArithm" && mhdImageMerger="./clitkImageArithm"
+
+function merge_mhd_image {
+local merged="$1"
+local merged_bin="${merged%.*}.img"
+shift
+echo "  ${indent}entering mhd image merger"
+echo "  ${indent}merger is ${mhdImageMerger}"
+echo "  ${indent}creating ${merged}"
+local count=0
+start_bar $#
+while test $# -gt 0
+do
+    local partial="$1"
+    local partial_bin="${partial%.*}.raw"
+    shift
+    let count++
+
+    if test ! -f "${merged}"
+    then
+        update_bar ${count} "copying first partial result ${partial}"
+        cp "${partial}" "${merged}"
+        cp "${partial_bin}" "${merged_bin}"
+        continue
+    fi
+
+    update_bar ${count} "adding ${partial}"
+    ${mhdImageMerger} -t 0 -i "${partial}" -j "${merged}" -o "${merged}" 2> /dev/null > /dev/null || warning "error while calling ${mhdImageMerger}"
+done
+end_bar
+echo "  ${indent}merged ${count} files"
+}
+
 function merge_dispatcher {
     local indent="  ** "
     local outputfile="${1:?"provide output filename"}"
@@ -185,6 +219,14 @@ function merge_dispatcher {
         echo "${indent}this is a analyse image"
         local mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}")"
         merge_hdr_image "${mergedfile}" ${partialoutputfiles} || error "error while merging"
+        return
+    fi
+
+    if test "${firstpartialoutputextension}" == "mhd"
+    then
+        echo "${indent}this is a mhd image"
+        local mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}")"
+        merge_mhd_image "${mergedfile}" ${partialoutputfiles} || error "error while merging"
         return
     fi
 
@@ -238,7 +280,7 @@ function merge_dispatcher {
     warning "unknown file type"
 }
 
-echo "!!!! this is $0 v0.3g !!!!"
+echo "!!!! this is $0 v0.3h !!!!"
 
 rundir="${1?"provide run dir"}"
 rundir="$(echo "${rundir}" | sed 's|/*$||')"
