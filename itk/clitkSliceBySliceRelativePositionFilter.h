@@ -98,6 +98,10 @@ namespace clitk {
     itkSetMacro(ObjectCCLSelectionIgnoreSingleCCLFlag, bool);
     itkBooleanMacro(ObjectCCLSelectionIgnoreSingleCCLFlag);
 
+    itkGetConstMacro(VerboseSlicesFlag, bool);
+    itkSetMacro(VerboseSlicesFlag, bool);
+    itkBooleanMacro(VerboseSlicesFlag);
+
   protected:
     SliceBySliceRelativePositionFilter();
     virtual ~SliceBySliceRelativePositionFilter() {}
@@ -118,6 +122,7 @@ namespace clitk {
     int          m_ObjectCCLSelectionDimension;
     int          m_ObjectCCLSelectionDirection;
     bool         m_ObjectCCLSelectionIgnoreSingleCCLFlag;
+    bool         m_VerboseSlicesFlag;
 
   private:
     SliceBySliceRelativePositionFilter(const Self&); //purposely not implemented

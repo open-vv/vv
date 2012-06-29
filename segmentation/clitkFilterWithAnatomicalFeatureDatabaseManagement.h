@@ -41,24 +41,15 @@ namespace clitk {
     // Run-time type information (and related methods)
     itkTypeMacro(FilterWithAnatomicalFeatureDatabaseManagement, Object);
 
-    // Set/Get filename 
-    // itkBooleanMacro(AFDBFilenameGivenFlag);
-    // itkSetMacro(AFDBFilenameGivenFlag, bool);
-    // itkGetConstMacro(AFDBFilenameGivenFlag, bool);
-    // GGO_DefineOption_Flag(afdb, SetAFDBFilenameGivenFlag);
-
-    // itkBooleanMacro(AFDBPathGivenFlag);
-    // itkSetMacro(AFDBPathGivenFlag, bool);
-    // itkGetConstMacro(AFDBPathGivenFlag, bool);
-    // GGO_DefineOption_Flag(afdb_path, SetAFDBPathGivenFlag);
-
     itkSetMacro(AFDBFilename, std::string);
     itkGetConstMacro(AFDBFilename, std::string);
-    // GGO_DefineOption_WithTest(afdb, SetAFDBFilename, std::string, AFDBFilenameGivenFlag);
 
     itkSetMacro(AFDBPath, std::string);
     itkGetConstMacro(AFDBPath, std::string);
-    // GGO_DefineOption_WithTest(afdb_path, SetAFDBPath, std::string, AFDBPathGivenFlag);
+
+    itkGetConstMacro(DisplayUsedStructuresOnlyFlag, bool);
+    itkSetMacro(DisplayUsedStructuresOnlyFlag, bool);
+    itkBooleanMacro(DisplayUsedStructuresOnlyFlag);
 
     void WriteAFDB();
     void LoadAFDB();
@@ -71,10 +62,13 @@ namespace clitk {
     virtual ~FilterWithAnatomicalFeatureDatabaseManagement() {}    
     
     std::string m_AFDBFilename;
-    // bool m_AFDBFilenameGivenFlag;
     std::string m_AFDBPath;
-    // bool m_AFDBPathGivenFlag;
     clitk::AnatomicalFeatureDatabase::Pointer m_AFDB;
+
+    // For debug: display used structures but do not perform
+    // segmentation
+    bool m_DisplayUsedStructuresOnlyFlag;
+    void AddUsedStructures(std::string station, std::string structure);    
 
   private:
     FilterWithAnatomicalFeatureDatabaseManagement(const Self&); //purposely not implemented

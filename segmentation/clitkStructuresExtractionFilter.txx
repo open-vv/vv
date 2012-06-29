@@ -52,6 +52,7 @@ ApplyRelativePositionList(std::string name, MaskImageType * input, bool overlap)
   // Create all RelativePositionList
   for(unsigned int i=0; i<mListOfRelativePositionListFilename.size(); i++) {
     RelPosListPointer rpl = RelPosListType::New();
+    rpl->SetDisplayUsedStructuresOnlyFlag(this->GetDisplayUsedStructuresOnlyFlag());
     rpl->SetAFDB(GetAFDB());
     rpl->Read(mListOfRelativePositionListFilename[i]);
     std::string s = rpl->GetInputName();
@@ -71,9 +72,9 @@ ApplyRelativePositionList(std::string name, MaskImageType * input, bool overlap)
     relpos->SetCurrentStepNumber(GetCurrentStepNumber());
     relpos->SetWriteStepFlag(GetWriteStepFlag());
     relpos->SetInput(input);
-    if (overlap) {
-      std::string n = name.substr(8,2);
-      MaskImagePointer ref = this->GetAFDB()->template GetImage <MaskImageType>("S"+n+"_Ref");
+    if (!this->GetDisplayUsedStructuresOnlyFlag() && overlap) {
+      std::string n = name.substr(8,3);
+      MaskImagePointer ref = this->GetAFDB()->template GetImage <MaskImageType>(n+"_Ref");
       relpos->SetReferenceImageForOverlapMeasure(ref);
     }
     relpos->Update();

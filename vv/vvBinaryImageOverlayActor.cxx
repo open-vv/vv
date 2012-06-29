@@ -136,7 +136,11 @@ void vvBinaryImageOverlayActor::Initialize(bool IsVisible)
     mOverlayActor->SetInput(mOverlayMapper->GetOutput());
     mOverlayActor->SetPickable(0);
     mOverlayActor->SetVisibility(IsVisible);
-    //mOverlayActor->SetOpacity(1.0);
+    //mOverlayActor->SetOpacity(1.0);	
+
+    // FIXME : by default overlay is not interpolated.
+    // mOverlayActor->SetInterpolate(mSlicer->GetImageActor()->GetInterpolate());
+    mOverlayActor->InterpolateOff();
 
     mMapperList.push_back(mOverlayMapper);
     mImageActorList.push_back(mOverlayActor);

@@ -21,7 +21,11 @@
 //--------------------------------------------------------------------
 template <class TImageType>
 clitk::RelativePositionList<TImageType>::
-RelativePositionList() {
+RelativePositionList():  
+  clitk::FilterBase(),
+  clitk::FilterWithAnatomicalFeatureDatabaseManagement(),
+  itk::ImageToImageFilter<TImageType, TImageType>()
+{
   ComputeOverlapFlagOff();
 }
 //--------------------------------------------------------------------
@@ -154,10 +158,20 @@ GenerateOutputInformation() {
 
   // Get input
   m_working_input = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
+  std::string s = GetInputName();
+
+  // Debug
+  if (GetDisplayUsedStructuresOnlyFlag()) {
+    for(uint i=0; i<mArgsInfoList.size(); i++) {
+      // Check if we only want to display structure name
+      AddUsedStructures(s, mArgsInfoList[i].object_arg);
+    }
+    return;
+  }
 
   // Loop on RelativePositionList of operations
-  std::string s = GetInputName();
   for(uint i=0; i<mArgsInfoList.size(); i++) {
+
     // clitk::PrintMemory(true, "Start"); 
     std::string text = "["+s+"] limits ";
     if (mArgsInfoList[i].orientation_given) text += std::string(mArgsInfoList[i].orientation_arg[0])+" ";
@@ -271,3 +285,5 @@ SetFilterOptions(typename RelPosFilterType::Pointer filter, ArgsInfoType & optio
   filter->SetAutoCropFlag(!options.noAutoCrop_flag); 
 }
 //--------------------------------------------------------------------
+
+

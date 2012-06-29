@@ -154,10 +154,10 @@ void vvImageContour::ShowActors() {
 //------------------------------------------------------------------------------
 void vvImageContour::SetDepth(double d) 
 { 
-  mDepth = d+0.5; // FIXME to not be equal to overlay 
+  mDepth = d;
   // Move the actor to be visible
   double position[3] = {0, 0, 0};
- int orientation = ComputeCurrentOrientation();
+  int orientation = ComputeCurrentOrientation();
   position[orientation] = -mDepth;
 
   for(unsigned int i=0; i<mSquaresActorList.size(); i++)
