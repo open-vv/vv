@@ -66,6 +66,7 @@
 #include <vtkAssignAttribute.h>
 #include <vtkImageAccumulate.h>
 #include <vtkImageReslice.h>
+#include <vtkImageMapper3D.h>
 
 vtkCxxRevisionMacro(vvSlicer, "DummyRevision");
 vtkStandardNewMacro(vvSlicer);
@@ -138,6 +139,10 @@ vvSlicer::vvSlicer()
   this->InstallPipeline();
 
   mLinkOverlayWindowLevel = true;
+
+#if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
+  this->GetImageActor()->GetMapper()->BorderOn();
+#endif
 }
 //------------------------------------------------------------------------------
 
@@ -361,7 +366,10 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
       mOverlayActor->SetPickable(0);
       mOverlayActor->SetVisibility(true);
       mOverlayActor->SetOpacity(0.5);
-    }
+#if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
+      mOverlayActor->GetMapper()->BorderOn();
+#endif
+      }
 
     //stupid but necessary : the Overlay need to be rendered before fusion
     if (mFusionActor) {
@@ -397,7 +405,7 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion)
 
     if (!mFusionMapper)
       mFusionMapper = vtkSmartPointer<vtkImageMapToColors>::New();
-    
+
     vtkSmartPointer<vtkLookupTable> lut = vtkLookupTable::New();
     lut->SetRange(0, 1);
     lut->SetValueRange(0, 1);
@@ -412,6 +420,9 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion)
       mFusionActor->SetPickable(0);
       mFusionActor->SetVisibility(true);
       mFusionActor->SetOpacity(0.7);
+#if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
+      mFusionActor->GetMapper()->BorderOn();
+#endif
       this->GetRenderer()->AddActor(mFusionActor);
     }
 
