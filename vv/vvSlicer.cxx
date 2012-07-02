@@ -671,8 +671,6 @@ void vvSlicer::SetTSlice(int t)
   else if ((unsigned int)t >= mImage->GetVTKImages().size())
     t = mImage->GetVTKImages().size() -1;
 
-  if (mCurrentTSlice == t) return;
-
   mCurrentTSlice = t;
   mImageReslice->SetInput( mImage->GetVTKImages()[mCurrentTSlice] );
   if (mVF && mVFActor->GetVisibility()) {
@@ -1177,6 +1175,7 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max, vtkImag
     corner1[i] = mCurrent[i];
     corner2[i] = mCurrent[i];
   }
+
   this->Renderer->WorldToView(corner1[0], corner1[1], corner1[2]);
   this->Renderer->WorldToView(corner2[0], corner2[1], corner2[2]);
 

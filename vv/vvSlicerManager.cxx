@@ -846,7 +846,8 @@ void vvSlicerManager::Reload()
 //----------------------------------------------------------------------------
 void vvSlicerManager::ReloadFusion()
 {
-  mFusionReader->Update();
+  mFusionReader->Update(mImage->GetNumberOfDimensions(),mFusionComponent.c_str(),mType);
+
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
     mSlicers[i]->SetFusion(mFusionReader->GetOutput());
     mSlicers[i]->Render();
@@ -858,7 +859,7 @@ void vvSlicerManager::ReloadFusion()
 //----------------------------------------------------------------------------
 void vvSlicerManager::ReloadOverlay()
 {
-  mOverlayReader->Update();
+  mOverlayReader->Update(mImage->GetNumberOfDimensions(),mOverlayComponent.c_str(),mType);
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
     mSlicers[i]->SetOverlay(mOverlayReader->GetOutput());
     mSlicers[i]->Render();
