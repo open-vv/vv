@@ -66,7 +66,9 @@
 #include <vtkAssignAttribute.h>
 #include <vtkImageAccumulate.h>
 #include <vtkImageReslice.h>
-#include <vtkImageMapper3D.h>
+#if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
+#  include <vtkImageMapper3D.h>
+#endif
 
 vtkCxxRevisionMacro(vvSlicer, "DummyRevision");
 vtkStandardNewMacro(vvSlicer);
