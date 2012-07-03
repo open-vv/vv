@@ -75,7 +75,7 @@ AddUsedStructures(std::string station, std::string structure)
   bool founded = true;
   bool tag = GetAFDB()->TagExist(structure);
   if (tag) {
-    typedef typename itk::Image<uchar, 3> ImageType;
+    typedef itk::Image<uchar, 3> ImageType;
     founded = GetAFDB()->CheckImage<ImageType>(structure);
     if (!founded) { 
       std::cout << " \t Image not exist in DB ";
