@@ -168,7 +168,7 @@ test -x "./clitkImageArithm" && mhdImageMerger="./clitkImageArithm"
 
 function merge_mhd_image {
 local merged="$1"
-local merged_bin="${merged%.*}.img"
+local merged_bin="${merged%.*}.raw"
 shift
 echo "  ${indent}entering mhd image merger"
 echo "  ${indent}merger is ${mhdImageMerger}"
