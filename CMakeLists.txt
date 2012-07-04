@@ -11,6 +11,8 @@ IF(NOT DEFINED CLITK_SOURCE_DIR)
 ENDIF(NOT DEFINED CLITK_SOURCE_DIR)
 #=========================================================
 
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 #=========================================================
 INCLUDE(${CLITK_SOURCE_DIR}/cmake/common.cmake)
 INCLUDE(${CLITK_SOURCE_DIR}/cmake/dependencies.cmake)
