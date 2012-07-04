@@ -299,7 +299,7 @@ echo "output dir is ${outputdir}"
 test -d "${outputdir}" && rm -r "${outputdir}"
 mkdir "${outputdir}"
 
-for outputfile in $(find "${rundir}" -regextype 'posix-extended' -type f -regex "${rundir}/output.*\.(hdr|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
+for outputfile in $(find "${rundir}" -regextype 'posix-extended' -type f -regex "${rundir}/output.*\.(hdr|mhd|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
 do
     merge_dispatcher "${outputfile}"
 done
