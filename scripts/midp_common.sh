@@ -9,6 +9,9 @@
 #
 ###############################################################################
 
+bin=`dirname $0`
+source $bin/tools.sh
+
 #
 # check return value passed and abort if it represents an error (ie, ret != 0)
 # optionally, a function can be passed as a 3rd parameter, to be called just
@@ -219,7 +222,7 @@ select_contour_gui()
     if [ -z $roi ]
     then
       zenity --warning --text="You must choose one contour."
-      select_contour $roi_list
+      select_contour_gui $roi_list
     else
       rtstruct_roi_name=$roi
     fi;;
@@ -228,7 +231,7 @@ select_contour_gui()
     then
       exit
     else
-      select_contour $roi_list
+      select_contour_gui $roi_list
     fi;;
     -1)
       zenity --error --text="Unexpected error. Please relaunch the application."
@@ -259,8 +262,8 @@ select_contour()
 
 select_roi()
 {
-  rtstruct_roi_name_list=( `clitkDicomInfo ${rtstruct_file} | grep "3006|0026" | cut -d '[' -f 4 | sed 's/| V 3006|0026[LO] [ROI Name] \|]//'` )
-  rtstruct_roi_number_list=( `clitkDicomInfo ${rtstruct_file} | grep "3006|0022" | cut -d '[' -f 4 | sed 's/| V 3006|0026[LO] [ROI Number] \|]//'` )
+  rtstruct_roi_name_list=( `get_dicom_field_value "3006|0026" ${rtstruct_file} all | sed 's/ /_/g'` )
+  rtstruct_roi_number_list=( `get_dicom_field_value "3006|0022" ${rtstruct_file} all | sed 's/ //g'` )
   rtstruct_roi_list=( )
   for i in $(seq 0 1 $(( ${#rtstruct_roi_name_list[@]} - 1 ))); do
     rtstruct_roi_list[$i]=${rtstruct_roi_number_list[$i]}:${rtstruct_roi_name_list[$i]}

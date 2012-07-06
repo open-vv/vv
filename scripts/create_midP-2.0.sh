@@ -81,8 +81,8 @@ registration()
         registration_blutdir $reference_in $target_in $mask_ref_in $mask_targ_in $vf_in $result_in $params $log_in $coeff_in 
         registration_blutdir $reference_out $target_out $mask_ref_out $mask_targ_out $vf_out $result_out $params $log_out $coeff_out 
       elif [ "$method" == "elastix" ]; then
-        registration_elastix $reference_in $target_in $mask_ref_in $mask_targ_in $vf_in $result_in $params $log_in
-        registration_elastix $reference_out $target_out $mask_ref_out $mask_targ_out $vf_out $result_out $params $log_out
+        registration_elastix $reference_in $target_in $mask_ref_in $mask_targ_in $vf_in $result_in $params $log_in $coeff_in
+        registration_elastix $reference_out $target_out $mask_ref_out $mask_targ_out $vf_out $result_out $params $log_out $coeff_out
       fi
 
       motion_mask=$mask_dir/${mask_type}_$phase_nb.mhd
