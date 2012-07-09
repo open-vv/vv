@@ -11,6 +11,8 @@ IF(NOT DEFINED CLITK_SOURCE_DIR)
 ENDIF(NOT DEFINED CLITK_SOURCE_DIR)
 #=========================================================
 
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 #=========================================================
 INCLUDE(${CLITK_SOURCE_DIR}/cmake/common.cmake)
 INCLUDE(${CLITK_SOURCE_DIR}/cmake/dependencies.cmake)
@@ -23,4 +25,3 @@ ADD_SUBDIRECTORY(${CLITK_SOURCE_DIR}/common ${PROJECT_BINARY_DIR}/common)
 ADD_SUBDIRECTORY(${CLITK_SOURCE_DIR}/tools ${PROJECT_BINARY_DIR}/tools)
 ADD_SUBDIRECTORY(${CLITK_SOURCE_DIR}/segmentation ${PROJECT_BINARY_DIR}/segmentation)
 ADD_SUBDIRECTORY(${CLITK_SOURCE_DIR}/registration ${PROJECT_BINARY_DIR}/registration)
-ADD_SUBDIRECTORY(${CLITK_SOURCE_DIR}/scripts ${PROJECT_BINARY_DIR}/scripts)

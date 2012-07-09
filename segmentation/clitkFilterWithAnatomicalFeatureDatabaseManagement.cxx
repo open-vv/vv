@@ -26,6 +26,7 @@ FilterWithAnatomicalFeatureDatabaseManagement()
   m_AFDB = NULL; 
   SetAFDBFilename("default.afdb");
   SetAFDBPath("./");
+  DisplayUsedStructuresOnlyFlagOff();
 }
 //--------------------------------------------------------------------
 
@@ -61,5 +62,27 @@ clitk::AnatomicalFeatureDatabase::Pointer clitk::FilterWithAnatomicalFeatureData
     m_AFDB = clitk::AnatomicalFeatureDatabase::New();
   }
   return m_AFDB;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void clitk::FilterWithAnatomicalFeatureDatabaseManagement::
+AddUsedStructures(std::string station, std::string structure)
+{
+  if (!GetDisplayUsedStructuresOnlyFlag()) return;
+  std::cout << station << "\t" << structure;
+  bool founded = true;
+  bool tag = GetAFDB()->TagExist(structure);
+  if (tag) {
+    typedef itk::Image<uchar, 3> ImageType;
+    founded = GetAFDB()->CheckImage<ImageType>(structure);
+    if (!founded) { 
+      std::cout << " \t Image not exist in DB ";
+      std::cout << "<" << GetAFDB()->GetTagValue(structure) << "> ";
+    }
+  }
+  if (!tag) std::cout << " \t Tag not found in DB";
+  std::cout << std::endl;
 }
 //--------------------------------------------------------------------

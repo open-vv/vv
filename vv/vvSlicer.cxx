@@ -66,6 +66,9 @@
 #include <vtkAssignAttribute.h>
 #include <vtkImageAccumulate.h>
 #include <vtkImageReslice.h>
+#if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
+#  include <vtkImageMapper3D.h>
+#endif
 
 vtkCxxRevisionMacro(vvSlicer, "DummyRevision");
 vtkStandardNewMacro(vvSlicer);
@@ -138,6 +141,10 @@ vvSlicer::vvSlicer()
   this->InstallPipeline();
 
   mLinkOverlayWindowLevel = true;
+
+#if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
+  this->GetImageActor()->GetMapper()->BorderOn();
+#endif
 }
 //------------------------------------------------------------------------------
 
@@ -361,7 +368,10 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
       mOverlayActor->SetPickable(0);
       mOverlayActor->SetVisibility(true);
       mOverlayActor->SetOpacity(0.5);
-    }
+#if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
+      mOverlayActor->GetMapper()->BorderOn();
+#endif
+      }
 
     //stupid but necessary : the Overlay need to be rendered before fusion
     if (mFusionActor) {
@@ -397,7 +407,7 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion)
 
     if (!mFusionMapper)
       mFusionMapper = vtkSmartPointer<vtkImageMapToColors>::New();
-    
+
     vtkSmartPointer<vtkLookupTable> lut = vtkLookupTable::New();
     lut->SetRange(0, 1);
     lut->SetValueRange(0, 1);
@@ -412,6 +422,9 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion)
       mFusionActor->SetPickable(0);
       mFusionActor->SetVisibility(true);
       mFusionActor->SetOpacity(0.7);
+#if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
+      mFusionActor->GetMapper()->BorderOn();
+#endif
       this->GetRenderer()->AddActor(mFusionActor);
     }
 
@@ -670,8 +683,6 @@ void vvSlicer::SetTSlice(int t)
     t = 0;
   else if ((unsigned int)t >= mImage->GetVTKImages().size())
     t = mImage->GetVTKImages().size() -1;
-
-  if (mCurrentTSlice == t) return;
 
   mCurrentTSlice = t;
   mImageReslice->SetInput( mImage->GetVTKImages()[mCurrentTSlice] );
@@ -1177,6 +1188,7 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max, vtkImag
     corner1[i] = mCurrent[i];
     corner2[i] = mCurrent[i];
   }
+
   this->Renderer->WorldToView(corner1[0], corner1[1], corner1[2]);
   this->Renderer->WorldToView(corner2[0], corner2[1], corner2[2]);
 

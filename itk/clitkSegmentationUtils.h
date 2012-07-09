@@ -28,6 +28,7 @@
 // itk
 #include <itkBoundingBox.h>
 #include <itkJoinSeriesImageFilter.h>
+#include <itkChangeInformationImageFilter.h>
 
 /*
   According to 
@@ -486,7 +487,12 @@ namespace clitk {
                       typename ImageType::PixelType & BG);
   //--------------------------------------------------------------------
   
-
+  //--------------------------------------------------------------------
+  template<class ImageType>
+  typename ImageType::Pointer
+  RemoveNegativeIndexFromRegion(ImageType * input);
+  //--------------------------------------------------------------------
+  
 
 } // end clitk namespace
 

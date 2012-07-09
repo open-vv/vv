@@ -49,6 +49,39 @@ GetImage(std::string tag, bool reload)
 
 //--------------------------------------------------------------------
 template<class ImageType>
+bool AnatomicalFeatureDatabase::
+CheckImage(std::string tag)
+{
+  if (m_MapOfTag.find(tag) == m_MapOfTag.end()) {
+    return false;
+  }
+  else {
+    typename ImageType::Pointer image;
+    if (m_MapOfImage[tag]) {
+      image = static_cast<ImageType *>(m_MapOfImage[tag]);
+    }
+    else {
+      std::string s = m_MapOfTag[tag];
+      // Read the file
+      std::string n = GetPath()+"/"+s;
+      //      image = readImage<ImageType>();
+      typedef itk::ImageFileReader<ImageType> ReaderType;
+      typename ReaderType::Pointer reader = ReaderType::New();
+      reader->SetFileName(n.c_str());
+      try {
+        reader->Update();
+      } catch(itk::ExceptionObject & err) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template<class ImageType>
 void AnatomicalFeatureDatabase::
 SetImage(TagType tag, std::string f, typename ImageType::Pointer image, bool write)
 {

@@ -166,10 +166,14 @@ void vvROIActor::Initialize(double depth, bool IsVisible) {
       mImageContour.push_back(vvImageContour::New());
       mImageContour[i]->SetSlicer(mSlicerManager->GetSlicer(i));
       mImageContour[i]->SetImage(mROI->GetImage());
+      // Color of the contour is "complement" of roi color
+      mContourColor[0] = 1-mROI->GetDisplayColor()[0];
+      mContourColor[1] = 1-mROI->GetDisplayColor()[1];
+      mContourColor[2] = 1-mROI->GetDisplayColor()[2];
       mImageContour[i]->SetColor(mContourColor[0], mContourColor[1], mContourColor[2]);
       mImageContour[i]->SetLineWidth(mContourWidth);
       mImageContour[i]->SetPreserveMemoryModeEnabled(true);
-      mImageContour[i]->SetDepth(mDepth);
+      mImageContour[i]->SetDepth(mDepth+0.5);
       mImageContour[i]->HideActors();
       
       mOverlayActors.push_back(vvBinaryImageOverlayActor::New());
@@ -207,7 +211,7 @@ void vvROIActor::SetDepth(double d)
   if (!mSlicerManager) return;
   for(int i=0; i<mSlicerManager->GetNumberOfSlicers(); i++) {  
     mOverlayActors[i]->SetDepth(d);
-    mImageContour[i]->SetDepth(d);
+    mImageContour[i]->SetDepth(d+0.5);
   }
   Update(true);
 }

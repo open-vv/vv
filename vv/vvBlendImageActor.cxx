@@ -47,7 +47,7 @@ void vvBlendImageActor::Render(vtkRenderer *ren)
   }
 
   //Call normal render
-  vtkImageActor::Render(ren);
+  VTK_IMAGE_ACTOR::Render(ren);
 
   //Move back blending to weighted sum
   if (vtkgl::BlendEquationEXT!=0) {

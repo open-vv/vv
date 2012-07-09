@@ -214,9 +214,11 @@ void vvToolBinarize::InputIsSelected(vvSlicerManager * m)
     mImageContour.push_back(vvImageContour::New());
     mImageContour[i]->SetSlicer(mCurrentSlicerManager->GetSlicer(i));
     mImageContour[i]->SetColor(1.0, 0.0, 0.0);
+    mImageContour[i]->SetDepth(100); // to be in front of (whe used with ROI tool)
     mImageContourLower.push_back(vvImageContour::New());
     mImageContourLower[i]->SetSlicer(mCurrentSlicerManager->GetSlicer(i));
     mImageContourLower[i]->SetColor(0.0, 0.0, 1.0);
+    mImageContourLower[i]->SetDepth(100); // to be in front of (whe used with ROI tool)
   }
   valueChangedT1(mThresholdSlider1->GetValue());
 

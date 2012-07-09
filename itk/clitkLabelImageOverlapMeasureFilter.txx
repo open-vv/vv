@@ -51,7 +51,6 @@ void
 clitk::LabelImageOverlapMeasureFilter<ImageType>::
 GenerateInputRequestedRegion() 
 {
-  // DD("GenerateInputRequestedRegion");
   // Call default
   itk::ImageToImageFilter<ImageType, ImageType>::GenerateInputRequestedRegion();
   // Get input pointers and set requested region to common region
@@ -87,6 +86,8 @@ GenerateData()
   // Resize like the union
   ImagePointer input1 = clitk::ResizeImageLike<ImageType>(m_Input1, bbo, GetBackgroundValue());
   ImagePointer input2 = clitk::ResizeImageLike<ImageType>(m_Input2, bbo, GetBackgroundValue());
+  //DD(input1->GetLargestPossibleRegion());
+  //DD(input2->GetLargestPossibleRegion());
 
   // Compute overlap image
   ImagePointer image_union = clitk::Clone<ImageType>(input1);
@@ -94,8 +95,8 @@ GenerateData()
   clitk::Or<ImageType>(image_union, input2, GetBackgroundValue());
   clitk::And<ImageType>(image_intersection, input2, GetBackgroundValue());
   
-  // writeImage<ImageType>(image_union, "union.mha");
-  // writeImage<ImageType>(image_intersection, "intersection.mha");
+  //writeImage<ImageType>(image_union, "union.mha");
+  //writeImage<ImageType>(image_intersection, "intersection.mha");
   
   // Compute size
   typedef itk::LabelStatisticsImageFilter<ImageType, ImageType> StatFilterType;
@@ -120,7 +121,8 @@ GenerateData()
   statFilter->Update();
   int in2 = statFilter->GetCount(GetLabel1());
 
-  std::cout << in1 << " " << in2 << " " << inter << " " << u << " " << 2.0*(double)inter/(double)(in1+in2) << std::endl;
+  std::cout << in1 << " " << in2 << " " << inter << " " << u << " " 
+            << 2.0*(double)inter/(double)(in1+in2) << std::endl;
 }
 //--------------------------------------------------------------------
 

@@ -3,6 +3,12 @@
 
 /////////////////////////////////////////////////////////////////////////////
 // Protability issues
+#ifdef ntohs
+#  undef ntohs
+#endif
+#ifdef ntohl
+#  undef ntohl
+#endif
 #ifndef _tfopen
 #  define _tfopen fopen
 #endif

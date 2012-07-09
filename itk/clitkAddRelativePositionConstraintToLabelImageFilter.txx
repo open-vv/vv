@@ -358,14 +358,14 @@ GenerateData()
   //--------------------------------------------------------------------
   // Step 1 : resample
   if (m_IntermediateSpacingFlag) {
-    StartNewStep("Resample object to intermediate spacing");  
+    StartNewStep("Resample object to intermediate spacing (" + toString(m_IntermediateSpacing) + ")");  
     typedef clitk::ResampleImageWithOptionsFilter<ImageType> ResampleFilterType;
     typename ResampleFilterType::Pointer resampleFilter = ResampleFilterType::New();
     resampleFilter->SetInput(working_image);
     resampleFilter->SetDefaultPixelValue(0);
     resampleFilter->SetOutputIsoSpacing(m_IntermediateSpacing);
     resampleFilter->SetGaussianFilteringEnabled(false);
-    //    resampleFilter->SetVerboseOptions(true);
+    //resampleFilter->SetVerboseOptions(true);
     resampleFilter->Update();
     working_image = resampleFilter->GetOutput();
     StopCurrentStep<ImageType>(working_image);
