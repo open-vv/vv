@@ -272,15 +272,24 @@ function merge_dispatcher {
     then
         echo "${indent}this is a non specific txt output"
         local mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}")"
-        echo "  ${indent}catting ${mergedfile}"
-        cat ${partialoutputfiles} > "${mergedfile}" || error "error while merging"
-        return
+        local nbdifferent="$(md5sum ${partialoutputfiles} | awk '{ print $1; }' | sort | uniq | wc -l)"
+        echo "  ${indent}${nbdifferent} different files"
+        if test ${nbdifferent} -gt 1
+        then
+            echo "  ${indent}catting to ${mergedfile}"
+            cat ${partialoutputfiles} > "${mergedfile}" || error "error while merging"
+            return
+        else
+            echo "  ${indent}moving to ${mergedfile}"
+            cp "${firstpartialoutputfile}" "${mergedfile}" || error "error while merging"
+            return
+        fi
     fi
 
-    warning "unknown file type"
+    error "unknown file type"
 }
 
-echo "!!!! this is $0 v0.3h !!!!"
+echo "!!!! this is $0 v0.3i !!!!"
 
 rundir="${1?"provide run dir"}"
 rundir="$(echo "${rundir}" | sed 's|/*$||')"
