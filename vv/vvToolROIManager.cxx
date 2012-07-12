@@ -361,6 +361,7 @@ void vvToolROIManager::OpenDicomImage(std::string filename)
   reader.SetFilename(filename);
   vvStructSelector selector;
   selector.SetStructures(reader.GetROINames());
+  selector.SetPropagationCheckBoxFlag(false);
   
   if (selector.exec()) { 
     vvProgressDialog p("Reading ROI...", true);

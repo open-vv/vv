@@ -33,6 +33,9 @@ public:
     ///Enables the propagation checkbox
     void EnablePropagationCheckBox() {this->propagateCheckBox->setEnabled(true);
         this->propagateCheckBox->setChecked(true);}
+    void SetPropagationCheckBoxFlag(bool b) {
+      this->propagateCheckBox->setEnabled(b);
+      this->propagateCheckBox->setChecked(b);}
     ///Returns true if contours should be propagated over the sequence using the vf
     bool PropagationEnabled() {return this->propagateCheckBox->isChecked();}
 
