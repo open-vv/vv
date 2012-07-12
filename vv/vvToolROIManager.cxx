@@ -299,7 +299,7 @@ void vvToolROIManager::Open()
   QString Extensions = "Images or Dicom-Struct files ( *.mha *.mhd *.hdr *.his *.dcm RS*)";
   Extensions += ";;All Files (*)";
   QStringList filename =
-    QFileDialog::getOpenFileNames(this,tr("Open binary image"),
+    QFileDialog::getOpenFileNames(this,tr("Open binary image or DICOM RT Struct"),
 				  mMainWindowBase->GetInputPathName(),Extensions);
   if (filename.size() == 0) return;
   if (filename.size() > 1) { OpenBinaryImage(filename); return; }
