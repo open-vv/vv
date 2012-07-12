@@ -55,7 +55,9 @@ class vvToolSegmentation:
   // virtual void closeEvent(QCloseEvent *event);
   Ui::vvToolSegmentation ui;
   QSharedPointer<vvROIActor> mRefMaskActor;
-  vvImage::Pointer mMaskImage;
+  QSharedPointer<vvROIActor> mCurrentMaskActor;
+  vvImage::Pointer mRefMaskImage;
+  vvImage::Pointer mCurrentMaskImage;
   int mKernelValue;
 
 }; // end class vvToolSegmentation

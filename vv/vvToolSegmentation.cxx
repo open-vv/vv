@@ -72,6 +72,10 @@ vvToolSegmentation::vvToolSegmentation(vvMainWindowBase * parent, Qt::WindowFlag
 //------------------------------------------------------------------------------
 vvToolSegmentation::~vvToolSegmentation()
 {
+  DD("destructor");
+  mRefMaskActor->RemoveActors();
+  QWidget::close();  
+  mCurrentSlicerManager->Render();
 }
 //------------------------------------------------------------------------------
 
@@ -79,6 +83,7 @@ vvToolSegmentation::~vvToolSegmentation()
 //------------------------------------------------------------------------------
 bool vvToolSegmentation::close()
 {
+  DD("close");
   mRefMaskActor->RemoveActors();
   QWidget::close();  
   mCurrentSlicerManager->Render();
@@ -149,31 +154,46 @@ void vvToolSegmentation::OpenBinaryImage()
     return;
   }
 
-  mMaskImage = reader->GetOutput();
-  int dim = mMaskImage->GetNumberOfDimensions();
+  mRefMaskImage = reader->GetOutput();
+  int dim = mRefMaskImage->GetNumberOfDimensions();
   if (dim != 3 ) {
     QMessageBox::information(this,tr("Sorry only 3D yet"), tr("Sorry only 3D yet"));
     close();
     return;
   }
 
+  reader = vvImageReader::New();
+  reader->SetInputFilenames(filenames);
+  reader->Update(vvImageReader::IMAGE);
+  mCurrentMaskImage = reader->GetOutput();
+
   // Add a new roi actor
   mRefMaskActor = QSharedPointer<vvROIActor>(new vvROIActor);
+  mCurrentMaskActor = QSharedPointer<vvROIActor>(new vvROIActor);
   std::vector<double> color;
   color.push_back(1);
   color.push_back(0);
   color.push_back(0);
   clitk::DicomRT_ROI::Pointer roi = clitk::DicomRT_ROI::New();
-  roi->SetFromBinaryImage(mMaskImage, 1, std::string("toto"), color, filename.toStdString());
+  roi->SetFromBinaryImage(mRefMaskImage, 1, std::string("toto"), color, filename.toStdString());
   mRefMaskActor->SetBGMode(true);
   mRefMaskActor->SetROI(roi);
   mRefMaskActor->SetSlicerManager(mCurrentSlicerManager);
   mRefMaskActor->Initialize(10, true);
+  mRefMaskActor->SetContourVisible(true);
+  mRefMaskActor->SetVisible(false);
   mRefMaskActor->Update();
 
+  clitk::DicomRT_ROI::Pointer roi2 = clitk::DicomRT_ROI::New();
+  roi2->SetFromBinaryImage(mCurrentMaskImage, 1, std::string("toto"), color, filename.toStdString());
+  mCurrentMaskActor->SetBGMode(true);
+  mCurrentMaskActor->SetROI(roi2);
+  mCurrentMaskActor->SetSlicerManager(mCurrentSlicerManager);
+  mCurrentMaskActor->Initialize(10, true);
+  mCurrentMaskActor->Update();
+
   // Prepare widget to get keyboard event
-  grabKeyboard();
-  //connect(this, SIGNAL(keyPressEvent(QKeyEvent*)), this, SLOT(keyPressed(QKeyEvent*)));
+  grabKeyboard();  
 }
 //------------------------------------------------------------------------------
 
@@ -193,7 +213,7 @@ void vvToolSegmentation::keyPressEvent(QKeyEvent * event)
   if (event->text() == "s") {
     vvImageWriter::Pointer writer = vvImageWriter::New();
     writer->SetOutputFileName("a.mha");
-    writer->SetInput(mMaskImage);
+    writer->SetInput(mCurrentMaskImage);
     writer->Update();
   }
 }
@@ -206,7 +226,7 @@ void vvToolSegmentation::Erode()
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   vtkImageContinuousErode3D* erode = vtkImageContinuousErode3D::New();
   erode->SetKernelSize(mKernelValue,mKernelValue,mKernelValue);
-  vtkImageData* image = mMaskImage->GetVTKImages()[0];
+  vtkImageData* image = mCurrentMaskImage->GetVTKImages()[0];
   erode->SetInput(image);
   erode->Update();
   image->DeepCopy(erode->GetOutput());
@@ -224,7 +244,7 @@ void vvToolSegmentation::Dilate()
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   vtkImageContinuousDilate3D* dilate = vtkImageContinuousDilate3D::New();
   dilate->SetKernelSize(mKernelValue,mKernelValue,mKernelValue);
-  vtkImageData* image = mMaskImage->GetVTKImages()[0];
+  vtkImageData* image = mCurrentMaskImage->GetVTKImages()[0];
   dilate->SetInput(image);
   dilate->Update();
   image->DeepCopy(dilate->GetOutput());
@@ -239,16 +259,16 @@ void vvToolSegmentation::Dilate()
 //------------------------------------------------------------------------------
 void vvToolSegmentation::UpdateAndRender()
 {
-  bool visible = mRefMaskActor->IsVisible();
-  bool cvisible = mRefMaskActor->IsContourVisible();
-  mRefMaskActor->SetVisible(false);
-  mRefMaskActor->SetContourVisible(false);
-  mCurrentSlicerManager->Render();
+  bool visible = mCurrentMaskActor->IsVisible();
+  bool cvisible = mCurrentMaskActor->IsContourVisible();
+  mCurrentMaskActor->SetVisible(false);
+  mCurrentMaskActor->SetContourVisible(false);
+  // mCurrentSlicerManager->Render();
 
-  //mRefMaskActor->RemoveActors();
-  mRefMaskActor->UpdateImage();
-  mRefMaskActor->SetVisible(visible);
-  mRefMaskActor->SetContourVisible(cvisible);
+  //mCurrentMaskActor->RemoveActors();
+  mCurrentMaskActor->UpdateImage();
+  mCurrentMaskActor->SetVisible(visible);
+  mCurrentMaskActor->SetContourVisible(cvisible);
   mCurrentSlicerManager->Render();
 }
 //------------------------------------------------------------------------------
