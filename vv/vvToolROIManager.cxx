@@ -26,6 +26,7 @@
 #include "vvMeshReader.h"
 #include "vvStructSelector.h"
 #include "vvToolManager.h"
+#include "vvProgressDialog.h"
 
 // clitk
 #include "clitkDicomRTStruct2ImageFilter.h"
@@ -67,8 +68,8 @@ vvToolROIManager::vvToolROIManager(vvMainWindowBase * parent, Qt::WindowFlags f)
   mTree->header()->resizeSection(0, 30);
   mGroupBoxROI->setEnabled(false);
   
-  // Temporary disable "Load dicom" button
-  //  frame_4->hide();
+  // Disable "Load dicom" button -> not useful
+  frame_4->hide();
 
   // Set default LUT
   mDefaultLUTColor = vtkSmartPointer<vtkLookupTable>::New();
@@ -200,8 +201,8 @@ void  vvToolROIManager::InitializeNewTool(bool ReadStateFlag)
           this, SLOT(AnImageIsBeingClosed(vvSlicerManager *)));
   connect(mMainWindow, SIGNAL(SelectedImageHasChanged(vvSlicerManager *)), 
           this, SLOT(SelectedImageHasChanged(vvSlicerManager *)));
-  connect(mOpenBinaryButton, SIGNAL(clicked()), this, SLOT(OpenBinaryImage()));
-  connect(mOpenDicomButton, SIGNAL(clicked()), this, SLOT(OpenDicomImage()));
+  connect(mOpenBinaryButton, SIGNAL(clicked()), this, SLOT(Open()));
+  //  connect(mOpenDicomButton, SIGNAL(clicked()), this, SLOT(OpenDicomImage()));
   connect(mTree, SIGNAL(itemSelectionChanged()), this, SLOT(SelectedItemChangedInTree()));
   connect(mCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(VisibleROIToggled(bool)));
   connect(mOpacitySlider, SIGNAL(valueChanged(int)), this, SLOT(OpacityChanged(int)));
@@ -236,7 +237,7 @@ void vvToolROIManager::InputIsSelected(vvSlicerManager *m)
   mLabelInputInfo->setText(QString("%1").arg(m->GetFileName().c_str()));
 
   // Auto display browser to select new contours 
-  if (mOpenFileBrowserFlag) OpenBinaryImage();
+  if (mOpenFileBrowserFlag) Open();
 }
 //------------------------------------------------------------------------------
 
@@ -292,7 +293,7 @@ void vvToolROIManager::SelectedImageHasChanged(vvSlicerManager * m) {
 
 
 //------------------------------------------------------------------------------
-void vvToolROIManager::OpenBinaryImage() 
+void vvToolROIManager::Open() 
 {
   // Open images
   QString Extensions = "Images or Dicom-Struct files ( *.mha *.mhd *.hdr *.his *.dcm RS*)";
@@ -300,9 +301,14 @@ void vvToolROIManager::OpenBinaryImage()
   QStringList filename =
     QFileDialog::getOpenFileNames(this,tr("Open binary image"),
 				  mMainWindowBase->GetInputPathName(),Extensions);
-  if (filename.size() > 1) OpenBinaryImage(filename);
   if (filename.size() == 0) return;
-  
+  if (filename.size() > 1) { OpenBinaryImage(filename); return; }
+
+  // Try to read dicom rt ?
+  clitk::DicomRT_StructureSet::Pointer s = clitk::DicomRT_StructureSet::New();
+  if (s->IsDicomRTStruct(filename[0].toStdString())) OpenDicomImage(filename[0].toStdString());
+  else OpenBinaryImage(filename);
+
 }
 //------------------------------------------------------------------------------
 
@@ -333,9 +339,7 @@ void vvToolROIManager::OpenBinaryImage(QStringList & filename)
     vvImage::Pointer binaryImage = reader->GetOutput();
     AddImage(binaryImage, filename[i].toStdString(), mBackgroundValueSpinBox->value(),
              (!mBGModeCheckBox->isChecked()));
-    //    mOpenedBinaryImage.push_back(binaryImage);
     mOpenedBinaryImageFilenames.push_back(filename[i]);
-    //mMapImageToIndex[binaryImage]=mOpenedBinaryImageFilenames.size()-1;
   }
 
   // Update the contours
@@ -345,81 +349,49 @@ void vvToolROIManager::OpenBinaryImage(QStringList & filename)
 
 
 //------------------------------------------------------------------------------
-void vvToolROIManager::OpenDicomImage() 
+void vvToolROIManager::OpenDicomImage(std::string filename) 
 {
-  DD("OpenDicomImage");
-  QString Extensions = "Dicom Files ( *.dcm RS*)";
-  Extensions += ";;All Files (*)";
-  QString file = QFileDialog::getOpenFileName(this,tr("Merge Images"), 
-                                              mMainWindow->GetInputPathName(), 
-                                              Extensions);
-  if (file.isNull()) return;
-
-  //  AddDCStructContour(index, file);
+  // GUI selector of roi
   vvMeshReader reader;
-  reader.SetFilename(file.toStdString());
+  reader.SetFilename(filename);
   vvStructSelector selector;
   selector.SetStructures(reader.GetROINames());
-  // selector.EnablePropagationCheckBox(); FIXME Disable
-
-  // FIXME : change text -> allow to save binary image
-
+  
   if (selector.exec()) {
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    reader.SetSelectedItems(selector.getSelectedItems());
-    reader.SetImage(mCurrentSlicerManager->GetImage());
-    // reader.Update();
     
-    // Read and display information
+    vvProgressDialog p("Reading ROI...", true);
+    p.SetCancelButtonEnabled(false);
+
+    // Read information
     clitk::DicomRT_StructureSet::Pointer s = clitk::DicomRT_StructureSet::New();
-    s->Read(file.toStdString());
-    s->Print(std::cout);
+    s->Read(filename);
 
-    // FIXME -> selection
+    // Loop on selected struct
+    std::vector<int> list = selector.getSelectedItems();
+    for (uint i=0; i<list.size(); i++) {
+      p.SetProgress(i, list.size());
+      
+      clitk::DicomRTStruct2ImageFilter filter;
+      filter.SetCropMaskEnabled(true);
+      filter.SetImage(mCurrentImage);
+      filter.SetROI(s->GetROIFromROINumber(list[i])); 
+      filter.SetWriteOutputFlag(false);
+      filter.Update();  
 
-    DD("here");
-    clitk::DicomRTStruct2ImageFilter filter;
-    filter.SetCropMaskEnabled(true); // FIXME
-    filter.SetImage(mCurrentImage);  // Used FIXME -> change to set IMAGE
-    filter.SetROI(s->GetROIFromROINumber(1));  // FIXME selection
-    filter.SetWriteOutputFlag(false);
-    filter.Update();  
-
-    DD("debug");
-    typedef itk::Image<unsigned char, 3> ImageType;
-    typedef itk::VTKImageToImageFilter<ImageType> ConnectorType;
-    ConnectorType::Pointer connector = ConnectorType::New();
-    connector->SetInput(filter.GetOutput());
-    connector->Update();
-    clitk::writeImage<ImageType>(connector->GetOutput(), "toto.mha");
-
-    // Get image
-    DD("filter done");
-    vvImage::Pointer binaryImage = vvImage::New();
-    binaryImage->AddVtkImage(filter.GetOutput());
+      // Get image
+      vvImage::Pointer binaryImage = vvImage::New();
+      binaryImage->AddVtkImage(filter.GetOutput());
     
-    // DEBUG  write image
-    DD("write debug");
-    vvImageWriter::Pointer writer = vvImageWriter::New();
-    writer->SetOutputFileName("bidon.mha");
-    writer->SetInput(binaryImage);
-    writer->Update();
-    
-    // Add to gui
-    DD("gui");
-    AddImage(binaryImage, file.toStdString(), mBackgroundValueSpinBox->value(),
-             (!mBGModeCheckBox->isChecked()));
-    mOpenedBinaryImageFilenames.push_back(file);
+      // Add to gui
+      AddImage(binaryImage, s->GetROIFromROINumber(list[i])->GetName(), 0, true);
+      mOpenedBinaryImageFilenames.push_back(filename.c_str());
+    }
 
-    // std::vector<vvMesh::Pointer> contours=reader.GetOutput();
-    // for (std::vector<vvMesh::Pointer>::iterator i=contours.begin();
-    //      i!=contours.end(); i++)
-    //   AddContour(index,*i,selector.PropagationEnabled());
     QApplication::restoreOverrideCursor();
   }
-
-
-
+  // Update the contours
+  UpdateAllContours(); 
 }
 //------------------------------------------------------------------------------
 
@@ -737,9 +709,9 @@ void vvToolROIManager::ChangeContourColor() {
 //------------------------------------------------------------------------------
 void vvToolROIManager::ChangeContourWidth(int n) {
   if (mCurrentROIActor == NULL) return;
-    mCurrentROIActor->SetContourWidth(n);
-    mCurrentROIActor->UpdateColor();
-    mCurrentSlicerManager->Render();
+  mCurrentROIActor->SetContourWidth(n);
+  mCurrentROIActor->UpdateColor();
+  mCurrentSlicerManager->Render();
 }
 //------------------------------------------------------------------------------
 
@@ -772,8 +744,9 @@ void vvToolROIManager::ReloadCurrentROI() {
   reader->SetInputFilename(mCurrentROI->GetFilename());
   reader->Update(vvImageReader::IMAGE);
   if (reader->GetLastError() != "") {
-    QMessageBox::information(mMainWindowBase, tr("Sorry, error. Could not reload"), 
-                             reader->GetLastError().c_str());
+    // No message just ignore (because can be from dicom)
+    // QMessageBox::information(mMainWindowBase, tr("Sorry, error. Could not reload"), 
+    //                          reader->GetLastError().c_str());
     return;
   }
 
@@ -890,32 +863,32 @@ void vvToolROIManager::ReadXMLInformation_ROI()
     if (value == "Overlay" && m_XmlReader->isStartElement()) {
       QXmlStreamAttributes attributes = m_XmlReader->attributes();
       if (!m_XmlReader->hasError())
-         r = attributes.value("Red").toString().toFloat();
+        r = attributes.value("Red").toString().toFloat();
       if (!m_XmlReader->hasError())
-         g = attributes.value("Green").toString().toFloat();
+        g = attributes.value("Green").toString().toFloat();
       if (!m_XmlReader->hasError())
-         b = attributes.value("Blue").toString().toFloat();
+        b = attributes.value("Blue").toString().toFloat();
       if (!m_XmlReader->hasError())
-         visible = attributes.value("Visible").toString().toInt();
+        visible = attributes.value("Visible").toString().toInt();
       if (!m_XmlReader->hasError())
-         opacity = attributes.value("Opacity").toString().toFloat();
-     if (!m_XmlReader->hasError())
-         depth = attributes.value("Depth").toString().toFloat();
+        opacity = attributes.value("Opacity").toString().toFloat();
+      if (!m_XmlReader->hasError())
+        depth = attributes.value("Depth").toString().toFloat();
     }
 
 
     if (value == "Contour" && m_XmlReader->isStartElement()) {
       QXmlStreamAttributes attributes = m_XmlReader->attributes();
       if (!m_XmlReader->hasError())
-         cr = attributes.value("Red").toString().toFloat();
+        cr = attributes.value("Red").toString().toFloat();
       if (!m_XmlReader->hasError())
-         cg = attributes.value("Green").toString().toFloat();
+        cg = attributes.value("Green").toString().toFloat();
       if (!m_XmlReader->hasError())
-         cb = attributes.value("Blue").toString().toFloat();
+        cb = attributes.value("Blue").toString().toFloat();
       if (!m_XmlReader->hasError())
-         cvisible = attributes.value("Visible").toString().toInt();
+        cvisible = attributes.value("Visible").toString().toInt();
       if (!m_XmlReader->hasError())
-         width = attributes.value("Width").toString().toFloat();
+        width = attributes.value("Width").toString().toFloat();
     }
     param->SetOverlayColor(r,g,b);
     param->SetVisible(visible);
