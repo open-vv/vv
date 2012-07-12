@@ -318,17 +318,21 @@ void vvToolROIManager::OpenBinaryImage(QStringList & filename)
 {
   if (filename.size() == 0) return;
   
+  vvProgressDialog p("Reading ROI ...", true);
+  p.SetCancelButtonEnabled(false);
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  
   // For each selected file, open the image
-  for(int i=0; i<filename.size(); i++) {
+  for(int i=0; i<filename.size(); i++) { 
+    p.SetProgress(i, filename.size());
+
     // Open Image
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     vvImageReader::Pointer reader = vvImageReader::New();
     std::vector<std::string> filenames;
     filenames.push_back(filename[i].toStdString());
     reader->SetInputFilenames(filenames);
     reader->Update(vvImageReader::IMAGE);
-    QApplication::restoreOverrideCursor();
-
+  
     if (reader->GetLastError().size() != 0) {
       std::cerr << "Error while reading " << filename[i].toStdString() << std::endl;
       QString error = "Cannot open file \n";
@@ -341,6 +345,7 @@ void vvToolROIManager::OpenBinaryImage(QStringList & filename)
              (!mBGModeCheckBox->isChecked()));
     mOpenedBinaryImageFilenames.push_back(filename[i]);
   }
+  QApplication::restoreOverrideCursor();
 
   // Update the contours
   UpdateAllContours(); 
@@ -357,11 +362,10 @@ void vvToolROIManager::OpenDicomImage(std::string filename)
   vvStructSelector selector;
   selector.SetStructures(reader.GetROINames());
   
-  if (selector.exec()) {
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    
+  if (selector.exec()) { 
     vvProgressDialog p("Reading ROI...", true);
     p.SetCancelButtonEnabled(false);
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
     // Read information
     clitk::DicomRT_StructureSet::Pointer s = clitk::DicomRT_StructureSet::New();
