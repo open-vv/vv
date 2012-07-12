@@ -19,12 +19,17 @@
 // vv
 #include "vvToolROIManager.h"
 #include "vvImageReader.h"
+#include "vvImageWriter.h"
 #include "vvROIActor.h"
 #include "vvSlicer.h"
 #include "vvROIActor.h"
 #include "vvMeshReader.h"
 #include "vvStructSelector.h"
 #include "vvToolManager.h"
+
+// clitk
+#include "clitkDicomRTStruct2ImageFilter.h"
+#include "clitkDicomRT_StructureSet.h"
 
 // Qt
 #include <QFileDialog>
@@ -63,7 +68,7 @@ vvToolROIManager::vvToolROIManager(vvMainWindowBase * parent, Qt::WindowFlags f)
   mGroupBoxROI->setEnabled(false);
   
   // Temporary disable "Load dicom" button
-  frame_4->hide();
+  //  frame_4->hide();
 
   // Set default LUT
   mDefaultLUTColor = vtkSmartPointer<vtkLookupTable>::New();
@@ -290,12 +295,14 @@ void vvToolROIManager::SelectedImageHasChanged(vvSlicerManager * m) {
 void vvToolROIManager::OpenBinaryImage() 
 {
   // Open images
-  QString Extensions = "Images files ( *.mha *.mhd *.hdr *.his)";
+  QString Extensions = "Images or Dicom-Struct files ( *.mha *.mhd *.hdr *.his *.dcm RS*)";
   Extensions += ";;All Files (*)";
   QStringList filename =
     QFileDialog::getOpenFileNames(this,tr("Open binary image"),
 				  mMainWindowBase->GetInputPathName(),Extensions);
-  OpenBinaryImage(filename);
+  if (filename.size() > 1) OpenBinaryImage(filename);
+  if (filename.size() == 0) return;
+  
 }
 //------------------------------------------------------------------------------
 
@@ -361,7 +368,48 @@ void vvToolROIManager::OpenDicomImage()
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     reader.SetSelectedItems(selector.getSelectedItems());
     reader.SetImage(mCurrentSlicerManager->GetImage());
-    reader.Update();
+    // reader.Update();
+    
+    // Read and display information
+    clitk::DicomRT_StructureSet::Pointer s = clitk::DicomRT_StructureSet::New();
+    s->Read(file.toStdString());
+    s->Print(std::cout);
+
+    // FIXME -> selection
+
+    DD("here");
+    clitk::DicomRTStruct2ImageFilter filter;
+    filter.SetCropMaskEnabled(true); // FIXME
+    filter.SetImage(mCurrentImage);  // Used FIXME -> change to set IMAGE
+    filter.SetROI(s->GetROIFromROINumber(1));  // FIXME selection
+    filter.SetWriteOutputFlag(false);
+    filter.Update();  
+
+    DD("debug");
+    typedef itk::Image<unsigned char, 3> ImageType;
+    typedef itk::VTKImageToImageFilter<ImageType> ConnectorType;
+    ConnectorType::Pointer connector = ConnectorType::New();
+    connector->SetInput(filter.GetOutput());
+    connector->Update();
+    clitk::writeImage<ImageType>(connector->GetOutput(), "toto.mha");
+
+    // Get image
+    DD("filter done");
+    vvImage::Pointer binaryImage = vvImage::New();
+    binaryImage->AddVtkImage(filter.GetOutput());
+    
+    // DEBUG  write image
+    DD("write debug");
+    vvImageWriter::Pointer writer = vvImageWriter::New();
+    writer->SetOutputFileName("bidon.mha");
+    writer->SetInput(binaryImage);
+    writer->Update();
+    
+    // Add to gui
+    DD("gui");
+    AddImage(binaryImage, file.toStdString(), mBackgroundValueSpinBox->value(),
+             (!mBGModeCheckBox->isChecked()));
+    mOpenedBinaryImageFilenames.push_back(file);
 
     // std::vector<vvMesh::Pointer> contours=reader.GetOutput();
     // for (std::vector<vvMesh::Pointer>::iterator i=contours.begin();

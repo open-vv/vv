@@ -37,6 +37,7 @@ namespace clitk {
 
     void SetROI(clitk::DicomRT_ROI * roi);
     ///This is used to create a mask with the same characteristics as an input image
+    void SetImage(vvImage::Pointer image);
     void SetImageFilename(std::string s);
     void SetOutputOrigin(const double* origin);
     void SetOutputSpacing(const double* spacing);
@@ -46,6 +47,7 @@ namespace clitk {
     vtkImageData * GetOutput();
     template <int Dimension> typename itk::Image<unsigned char,Dimension>::ConstPointer GetITKOutput();
     void SetCropMaskEnabled(bool b);
+    void SetWriteOutputFlag(bool b);
 
   protected:
     bool ImageInfoIsSet() const;
