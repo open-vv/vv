@@ -276,7 +276,6 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
         return;
       }
 
-      //DD(event);
       // Mouse release HERE
       if (event == vtkCommand::EndPickEvent) {
         //	      DD(VisibleInWindow);
@@ -362,8 +361,12 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
         zWorld = z;
         break;
       }
+
       this->SM->GetSlicer(VisibleInWindow)->SetCurrentPosition(xWorld,yWorld,zWorld,
-          this->SM->GetSlicer(VisibleInWindow)->GetTSlice());
+                                                               this->SM->GetSlicer(VisibleInWindow)->GetTSlice());
+      // We propagate the mouse position
+      this->SM->EmitMousePositionUpdated(VisibleInWindow);
+
       if (newLandmark) {
         this->SM->AddLandmark(xWorld,yWorld,zWorld,
                               this->SM->GetSlicer(VisibleInWindow)->GetTSlice());
