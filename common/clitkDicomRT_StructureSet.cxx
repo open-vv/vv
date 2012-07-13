@@ -408,6 +408,49 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename)
 
 
 //--------------------------------------------------------------------
+bool clitk::DicomRT_StructureSet::IsDicomRTStruct(const std::string & filename)
+{
+  // Open DICOM
+#if GDCM_MAJOR_VERSION == 2
+  // Read gdcm file
+  mReader = new gdcm::Reader;
+  mReader->SetFileName(filename.c_str());
+  mReader->Read();
+  mFile = &(mReader->GetFile());
+  const gdcm::DataSet & ds = mFile->GetDataSet();
+  
+  // Check file type
+  //Verify if the file is a RT-Structure-Set dicom file
+  gdcm::MediaStorage ms;
+  ms.SetFromFile(*mFile);
+  if( ms != gdcm::MediaStorage::RTStructureSetStorage ) return false;
+
+  gdcm::Attribute<0x8,0x60> modality;
+  modality.SetFromDataSet( ds );
+  if( modality.GetValue() != "RTSTRUCT" ) return false;
+  
+  return true;
+
+  //----------------------------------------------------------------------------------------
+#else
+  mFile = new gdcm::File;
+  mFile->SetFileName(filename.c_str());
+  mFile->SetMaxSizeLoadEntry(16384); // Needed ...
+  mFile->SetLoadMode(gdcm::LD_NOSHADOW); // don't load shadow tags (in order to save memory)
+  mFile->Load();
+  
+  // Check file type
+  //Verify if the file is a RT-Structure-Set dicom file
+  if (!gdcm::Util::DicomStringEqual(mFile->GetEntryValue(0x0008,0x0016),"1.2.840.10008.5.1.4.1.1.481.3")) 
+    return false;
+  if (!gdcm::Util::DicomStringEqual(mFile->GetEntryValue(0x0008,0x0060),"RTSTRUCT")) return false;
+
+#endif
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
 int clitk::DicomRT_StructureSet::AddBinaryImageAsNewROI(vvImage * im, std::string n)
 {
   // Search max ROI number

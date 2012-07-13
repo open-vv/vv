@@ -49,10 +49,22 @@ clitk::DicomRTStruct2ImageFilter::~DicomRTStruct2ImageFilter()
 }
 //--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
 bool clitk::DicomRTStruct2ImageFilter::ImageInfoIsSet() const
 {
   return mSize.size() && mSpacing.size() && mOrigin.size();
 }
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void clitk::DicomRTStruct2ImageFilter::SetWriteOutputFlag(bool b)
+{
+  mWriteOutput = b;
+}
+//--------------------------------------------------------------------
+
 
 //--------------------------------------------------------------------
 void clitk::DicomRTStruct2ImageFilter::SetROI(clitk::DicomRT_ROI * roi)
@@ -80,6 +92,25 @@ void clitk::DicomRTStruct2ImageFilter::SetOutputImageFilename(std::string s)
 
 
 //--------------------------------------------------------------------
+void clitk::DicomRTStruct2ImageFilter::SetImage(vvImage::Pointer image)
+{
+  if (image->GetNumberOfDimensions() != 3) {
+    std::cerr << "Error. Please provide a 3D image." << std::endl;
+    exit(0);
+  }
+  mSpacing.resize(3);
+  mOrigin.resize(3);
+  mSize.resize(3);
+  for(unsigned int i=0; i<3; i++) {
+    mSpacing[i] = image->GetSpacing()[i];
+    mOrigin[i] = image->GetOrigin()[i];
+    mSize[i] = image->GetSize()[i];
+  }
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
 void clitk::DicomRTStruct2ImageFilter::SetImageFilename(std::string f)
 {
   itk::ImageIOBase::Pointer header = clitk::readImageHeader(f);
@@ -101,20 +132,30 @@ void clitk::DicomRTStruct2ImageFilter::SetImageFilename(std::string f)
 }
 //--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
 void clitk::DicomRTStruct2ImageFilter::SetOutputOrigin(const double* origin)
 {
   std::copy(origin,origin+3,std::back_inserter(mOrigin));
 }
+//--------------------------------------------------------------------
+
+
 //--------------------------------------------------------------------
 void clitk::DicomRTStruct2ImageFilter::SetOutputSpacing(const double* spacing)
 {
   std::copy(spacing,spacing+3,std::back_inserter(mSpacing));
 }
 //--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
 void clitk::DicomRTStruct2ImageFilter::SetOutputSize(const unsigned long* size)
 {
   std::copy(size,size+3,std::back_inserter(mSize));
 }
+//--------------------------------------------------------------------
+
 
 //--------------------------------------------------------------------
 void clitk::DicomRTStruct2ImageFilter::Update()

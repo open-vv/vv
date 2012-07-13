@@ -33,11 +33,18 @@
 #include "clitkXdrImageIOFactory.h"
 #include "clitkHndImageIOFactory.h"
 #include "clitkGateAsciiImageIOFactory.h"
+#include "clitkConfiguration.h"
+#if CLITK_PRIVATE_FEATURES
+  #include "clitkUsfImageIOFactory.h"
+#endif
 
 //--------------------------------------------------------------------
 // Register factories
 void clitk::RegisterClitkFactories()
 {
+#if CLITK_PRIVATE_FEATURES
+  clitk::UsfImageIOFactory::RegisterOneFactory();
+#endif
   clitk::GateAsciiImageIOFactory::RegisterOneFactory();
   clitk::DicomRTDoseIOFactory::RegisterOneFactory();
 #if ITK_VERSION_MAJOR <= 3
