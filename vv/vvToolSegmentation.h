@@ -25,6 +25,8 @@
 #include "vvROIActor.h"
 #include "ui_vvToolSegmentation.h"
 
+#include "vtkLookupTable.h"
+
 //------------------------------------------------------------------------------
 class vvToolSegmentation:
   public vvToolWidgetBase,
@@ -42,13 +44,17 @@ class vvToolSegmentation:
   void OpenBinaryImage();
   void Erode();
   void Dilate();
-  void UpdateAndRender();
+  void Labelize();
+  void RemoveLabel();
+  void UpdateAndRenderNewMask();
 
   //-----------------------------------------------------
   public slots:
   virtual void apply();
-  virtual void keyPressEvent(QKeyEvent * event);
+  bool eventFilter(QObject *object, QEvent *event);
   virtual bool close();
+  virtual void MousePositionChanged(int slicer);
+  //  virtual void keyPressEvent(QKeyEvent * event);
   // virtual void reject();
 
  protected:
@@ -56,9 +62,16 @@ class vvToolSegmentation:
   Ui::vvToolSegmentation ui;
   QSharedPointer<vvROIActor> mRefMaskActor;
   QSharedPointer<vvROIActor> mCurrentMaskActor;
+  std::vector<QSharedPointer<vvROIActor> > mCurrentCCLActors;
   vvImage::Pointer mRefMaskImage;
   vvImage::Pointer mCurrentMaskImage;
+  vvImage::Pointer mCurrentCCLImage;
   int mKernelValue;
+  vtkSmartPointer<vtkLookupTable> mDefaultLUTColor;
+  enum { Mode_Default, Mode_CCL};
+  int mCurrentMode;
+
+  QSharedPointer<vvROIActor> CreateMaskActor(vvImage::Pointer image, int i, int colorID, bool BGMode=false);
 
 }; // end class vvToolSegmentation
 //------------------------------------------------------------------------------
