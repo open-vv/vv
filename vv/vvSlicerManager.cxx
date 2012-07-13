@@ -418,6 +418,15 @@ void vvSlicerManager::LeftButtonReleaseEvent(int slicer)
 }
 //----------------------------------------------------------------------------
 
+
+//----------------------------------------------------------------------------
+void vvSlicerManager::EmitMousePositionUpdated(int slicer)
+{
+  emit MousePositionUpdatedSignal(slicer);
+}
+//----------------------------------------------------------------------------
+
+
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetSliceOrientation(int slicer, int orientation)
 {
