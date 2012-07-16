@@ -428,6 +428,14 @@ void vvSlicerManager::EmitMousePositionUpdated(int slicer)
 
 
 //----------------------------------------------------------------------------
+void vvSlicerManager::EmitKeyPressed(std::string KeyPress)
+{
+  emit KeyPressedSignal(KeyPress);
+}
+//----------------------------------------------------------------------------
+
+
+//----------------------------------------------------------------------------
 void vvSlicerManager::SetSliceOrientation(int slicer, int orientation)
 {
   mSlicers[slicer]->SetSliceOrientation(orientation);
