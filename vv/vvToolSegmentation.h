@@ -45,13 +45,15 @@ class vvToolSegmentation:
   void Erode();
   void Dilate();
   void Labelize();
+  void Merge();
   void RemoveLabel();
   void UpdateAndRenderNewMask();
 
   //-----------------------------------------------------
   public slots:
   virtual void apply();
-  bool eventFilter(QObject *object, QEvent *event);
+  //  bool eventFilter(QObject *object, QEvent *event);
+  void KeyPressed(std::string KeyPress);
   virtual bool close();
   virtual void MousePositionChanged(int slicer);
   //  virtual void keyPressEvent(QKeyEvent * event);
@@ -68,10 +70,12 @@ class vvToolSegmentation:
   vvImage::Pointer mCurrentCCLImage;
   int mKernelValue;
   vtkSmartPointer<vtkLookupTable> mDefaultLUTColor;
-  enum { Mode_Default, Mode_CCL};
-  int mCurrentMode;
+  enum { State_Default, State_CCL};
+  int mCurrentState;
 
   QSharedPointer<vvROIActor> CreateMaskActor(vvImage::Pointer image, int i, int colorID, bool BGMode=false);
+  
+  double mCurrentLabelUnderMousePointer;
 
 }; // end class vvToolSegmentation
 //------------------------------------------------------------------------------

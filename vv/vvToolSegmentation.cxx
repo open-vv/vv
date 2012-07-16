@@ -14,7 +14,7 @@
 
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-===========================================================================**/
+  ===========================================================================**/
 
 // vv
 #include "vvToolSegmentation.h"
@@ -34,6 +34,7 @@
 // vtk
 #include "vtkImageContinuousErode3D.h"
 #include "vtkImageContinuousDilate3D.h"
+#include "vtkRenderWindow.h"
 
 //------------------------------------------------------------------------------
 // Create the tool and automagically (I like this word) insert it in
@@ -69,7 +70,7 @@ vvToolSegmentation::vvToolSegmentation(vvMainWindowBase * parent, Qt::WindowFlag
   
   // Init
   mRefMaskImage = NULL;
-  mCurrentMode = Mode_Default;
+  mCurrentState = State_Default;
   mKernelValue = 3; // FIXME must be odd. If even -> not symmetrical
   mDefaultLUTColor = vtkSmartPointer<vtkLookupTable>::New();
   mDefaultLUTColor->SetNumberOfTableValues(256);
@@ -90,13 +91,16 @@ vvToolSegmentation::~vvToolSegmentation()
 //------------------------------------------------------------------------------
 bool vvToolSegmentation::close()
 {
-  DD("close");
-  mRefMaskActor->RemoveActors();
-  DD("la");
-  mCurrentMaskActor->RemoveActors();
-  DD("here");
+  DD("remo ref");
+  if (mRefMaskActor) mRefMaskActor->RemoveActors();
+  DD("remo mask");
+  if (mCurrentMaskActor) mCurrentMaskActor->RemoveActors();
+  for(int i=0; i<mCurrentCCLActors.size(); i++) {
+    DD(i);
+    if (mCurrentCCLActors[i]) mCurrentCCLActors[i]->RemoveActors();
+  }
+  DD("wclose");
   QWidget::close();  
-  DD("toto");
   mCurrentSlicerManager->Render();
   return true;
 }
@@ -135,6 +139,8 @@ void vvToolSegmentation::InputIsSelected(vvSlicerManager * m)
   // Connect mouse position
   connect(mCurrentSlicerManager, SIGNAL(MousePositionUpdatedSignal(int)),
           this, SLOT(MousePositionChanged(int)));
+  connect(mCurrentSlicerManager, SIGNAL(KeyPressedSignal(std::string)),
+          this, SLOT(KeyPressed(std::string)));
 }
 //------------------------------------------------------------------------------
 
@@ -191,60 +197,86 @@ void vvToolSegmentation::OpenBinaryImage()
   reader->Update(vvImageReader::IMAGE);
   mCurrentMaskImage = reader->GetOutput();
 
-  // Add a new roi actor
-  mRefMaskActor = CreateMaskActor(mRefMaskImage, 0, 0, true);
+  // Add a new roi actor for the current mask
+  mCurrentMaskActor = CreateMaskActor(mCurrentMaskImage, 1, 0, false);
+  mCurrentMaskActor->Update(); // default color is red
+
+  // Add a mask actor for the reference
+  mRefMaskActor = CreateMaskActor(mRefMaskImage, 0, 1, true);
   mRefMaskActor->SetContourVisible(true);
   mRefMaskActor->SetVisible(false);
   mRefMaskActor->SetContourColor(0,1,0); // green contour
   mRefMaskActor->UpdateColor();
   mRefMaskActor->Update();
-
-  mCurrentMaskActor = CreateMaskActor(mCurrentMaskImage, 1, 1, false);
-  mCurrentMaskActor->SetOverlayColor(1,0,0); // red roi
-  mRefMaskActor->UpdateColor();
-  mCurrentMaskActor->Update();
-
-  // Prepare widget to get keyboard event. With this method, the key
-  //  only work when the mouse focus is on the dialog
-  DD("here installe");
-  this->installEventFilter(this);
-  //grabKeyboard();
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-//void vvToolSegmentation::keyPressEvent(QKeyEvent * event)
-bool vvToolSegmentation::eventFilter(QObject *object, QEvent * e)
+void vvToolSegmentation::KeyPressed(std::string KeyPress)
+{ 
+  if (KeyPress == "e") {
+    Erode();
+  }
+  if (KeyPress == "d") {
+    Dilate(); // FIXME -> extend image BB !!
+  }
+  if (KeyPress == "L") {
+    Labelize(); 
+  }
+  if (KeyPress == "m") {
+    Merge(); 
+  }
+  if (KeyPress == "s") { // Supress "Remove" one label
+    if (mCurrentState == State_CCL) RemoveLabel();
+  }
+  if (KeyPress == "t") { // display remove ref contour
+    mRefMaskActor->SetContourVisible(!mRefMaskActor->IsContourVisible());
+    mRefMaskActor->UpdateColor();
+    mCurrentSlicerManager->Render();
+  }
+  if (KeyPress == "w") {
+    vvImageWriter::Pointer writer = vvImageWriter::New();
+    writer->SetOutputFileName("a.mha");
+    writer->SetInput(mCurrentMaskImage);
+    writer->Update();
+  }
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolSegmentation::Merge()
 {
-  // DD("key");
-  //vvToolWidgetBase::keyPressEvent(event);
+  if (mCurrentState != State_CCL) return;
   
-  if (/*object == form &&*/ e->type() == QEvent::KeyPress) {
-    QKeyEvent * event = static_cast<QKeyEvent *>(e);
-    
-    if (event->text() == "e") {
-      Erode();
+  DD("Merge");
+  // Remove actors
+  for(int i=0; i<mCurrentCCLActors.size(); i++) {
+    if (mCurrentCCLActors[i]) {
+      mCurrentCCLActors[i]->SetVisible(false);
+      mCurrentCCLActors[i]->RemoveActors();
     }
-    if (event->text() == "d") {
-      Dilate(); // FIXME -> extend image BB !!
-    }
-    if (event->text() == "l") {
-      Labelize(); 
-    }
-    if (event->text() == "r") { // "Remove" one label
-      if (mCurrentMode == Mode_CCL) RemoveLabel();
-    }
-    if (event->text() == "s") {
-      vvImageWriter::Pointer writer = vvImageWriter::New();
-      writer->SetOutputFileName("a.mha");
-      writer->SetInput(mCurrentMaskImage);
-      writer->Update();
-    }
-    //mMainWindow->keyPressEvent(event);
-    vvToolWidgetBase::keyPressEvent(event);
-  }         
-  return QObject::eventFilter(object, e);
+  }
+  mCurrentCCLActors.clear();
+
+  // Compute new mask
+  vtkImageData * ccl  = mCurrentCCLImage->GetFirstVTKImageData();
+  vtkImageData * mask = mCurrentMaskImage->GetFirstVTKImageData();
+  int * pCCL = (int*)ccl->GetScalarPointer();
+  char * pPix = (char*)mask->GetScalarPointer();
+  for(uint i=0; i<ccl->GetNumberOfPoints(); i++) {
+    if (pCCL[i] == 0) pPix[i] = 0; // copy BG
+  }
+
+  // Display new mask and remove ccl
+  mCurrentCCLImage->Reset();
+  mCurrentMaskActor->RemoveActors(); // kill it
+  mCurrentMaskActor = CreateMaskActor(mCurrentMaskImage, 1, 0, false); // renew
+  mCurrentMaskActor->Update();
+  mCurrentMaskActor->SetVisible(true); 
+  mCurrentSlicerManager->Render();
+  mCurrentState = State_Default;
 }
 //------------------------------------------------------------------------------
 
@@ -253,6 +285,9 @@ bool vvToolSegmentation::eventFilter(QObject *object, QEvent * e)
 void vvToolSegmentation::Erode()
 {
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  // Merge labels if needed
+  Merge();
+  // Get image and start erosion
   vtkImageContinuousErode3D* erode = vtkImageContinuousErode3D::New();
   erode->SetKernelSize(mKernelValue,mKernelValue,mKernelValue);
   vtkImageData* image = mCurrentMaskImage->GetVTKImages()[0];
@@ -271,6 +306,9 @@ void vvToolSegmentation::Erode()
 void vvToolSegmentation::Dilate()
 {
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  // Merge labels if needed
+  Merge();
+  // Get image and start dilatation
   vtkImageContinuousDilate3D* dilate = vtkImageContinuousDilate3D::New();
   dilate->SetKernelSize(mKernelValue,mKernelValue,mKernelValue);
   vtkImageData* image = mCurrentMaskImage->GetVTKImages()[0];
@@ -303,9 +341,11 @@ void vvToolSegmentation::UpdateAndRenderNewMask()
 //------------------------------------------------------------------------------
 void vvToolSegmentation::Labelize()
 {
+  if (mCurrentState == State_CCL) return; // Do nothing in this case
   DD("Labelize");
   // Waiting cursos
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  mCurrentMaskActor->SetVisible(false);
   
   // Build CCL filter
   vtkImageData* image = mCurrentMaskImage->GetVTKImages()[0];
@@ -318,7 +358,7 @@ void vvToolSegmentation::Labelize()
   typedef clitk::ConnectedComponentLabelingGenericFilter<ArgsInfoType> FilterType;
   FilterType::Pointer filter = FilterType::New();
   filter->SetArgsInfo(a);
-  filter->SetInputVVImage(mCurrentMaskImage);
+  filter->SetInputVVImage(mCurrentMaskImage); // FIXME Check type is ok ? convert float ?
   filter->SetIOVerbose(true);  
   filter->Update();
   DD(filter->GetOriginalNumberOfObjects());
@@ -338,18 +378,17 @@ void vvToolSegmentation::Labelize()
   
   // Create actors 
   int n = filter->GetSizeOfObjectsInPixels().size();
-  for(int i=1; i<std::min(n,10); i++) { // Start at 1 because 0 is BG. FIXME max 10
-    DD(i);
+  mCurrentCCLActors.clear();
+  for(int i=1; i<=std::min(n,10); i++) { // Start at 1 because 0 is BG. FIXME max by gui
     QSharedPointer<vvROIActor> actor = CreateMaskActor(mCurrentCCLImage, i, i+1, false); 
     mCurrentCCLActors.push_back( actor );
     actor->Update();    
   }
-  mCurrentMaskActor->SetVisible(false);
-  mCurrentMaskActor->Update();
+  //  mCurrentMaskActor->Update();
   mCurrentSlicerManager->Render();
   
   // UpdateAndRender();
-  mCurrentMode = Mode_CCL;
+  mCurrentState = State_CCL;
   QApplication::restoreOverrideCursor();
 }
 //------------------------------------------------------------------------------
@@ -371,7 +410,6 @@ QSharedPointer<vvROIActor> vvToolSegmentation::CreateMaskActor(vvImage::Pointer 
     actor->SetBGMode(true);
   }
   else {
-    DD("FG mode");
     roi->SetForegroundValueLabelImage(i); // FG mode
     actor->SetBGMode(false); // FG mode
   }
@@ -388,7 +426,7 @@ QSharedPointer<vvROIActor> vvToolSegmentation::CreateMaskActor(vvImage::Pointer 
 //------------------------------------------------------------------------------
 void vvToolSegmentation::MousePositionChanged(int slicer)
 {
-  if (mCurrentMode == Mode_Default) return; // Do nothing in this case
+  if (mCurrentState == State_Default) return; // Do nothing in this case
 
   double x = mCurrentSlicerManager->GetSlicer(slicer)->GetCurrentPosition()[0];
   double y = mCurrentSlicerManager->GetSlicer(slicer)->GetCurrentPosition()[1];
@@ -405,7 +443,7 @@ void vvToolSegmentation::MousePositionChanged(int slicer)
       Yover <= image->GetWholeExtent()[3] &&
       Zover >= image->GetWholeExtent()[4] &&
       Zover <= image->GetWholeExtent()[5]) {
-    double valueOver = 
+    mCurrentLabelUnderMousePointer = 
       mCurrentSlicerManager->GetSlicer(0)->GetScalarComponentAsDouble(image, Xover, Yover, Zover, ix, iy, iz, 0);
     // DD(Xover); DD(Yover); DD(Zover);
     // DD(ix); DD(iy); DD(iz);
@@ -413,8 +451,9 @@ void vvToolSegmentation::MousePositionChanged(int slicer)
   }
   else {
     // DD("out of mask");
+    mCurrentLabelUnderMousePointer = 0;
   }
-
+  // DD(mCurrentLabelUnderMousePointer);
 }
 //------------------------------------------------------------------------------
 
@@ -422,5 +461,17 @@ void vvToolSegmentation::MousePositionChanged(int slicer)
 //------------------------------------------------------------------------------
 void vvToolSegmentation::RemoveLabel() {
   DD("RemoveLabel");
+  if (mCurrentLabelUnderMousePointer == 0) return;
+  // First actor=0 and is label 1. Label 0 is not an actor, it is BG
+  int actorNumber = mCurrentLabelUnderMousePointer-1; 
+  // Set actor invisible
+  mCurrentCCLActors[actorNumber]->SetVisible(false);
+  mCurrentSlicerManager->Render();
+  // Set image label
+  vtkImageData * image = mCurrentCCLImage->GetFirstVTKImageData();
+  int * pPix = (int*)image->GetScalarPointer();
+  for(uint i=0; i<image->GetNumberOfPoints(); i++) {
+    if (pPix[i] == mCurrentLabelUnderMousePointer) pPix[i] = 0;
+  }
 }
 //------------------------------------------------------------------------------
