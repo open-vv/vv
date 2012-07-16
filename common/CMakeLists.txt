@@ -33,6 +33,12 @@ SET(clitkCommon_SRC
   vvImageReader.cxx
   vvImageWriter.cxx
 )
+IF(CLITK_PRIVATE_FEATURES)
+  SET(clitkCommon_SRC ${clitkCommon_SRC}
+    ${PROJECT_SOURCE_DIR}/private_features/clitkUsfImageIO.cxx
+    ${PROJECT_SOURCE_DIR}/private_features/clitkUsfImageIOFactory.cxx
+    )
+ENDIF(CLITK_PRIVATE_FEATURES)
 
 ### Declare clitkCommon library
 ADD_LIBRARY(clitkCommon STATIC ${clitkCommon_SRC})

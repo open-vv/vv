@@ -23,6 +23,7 @@
 
 #cmakedefine01 CLITK_EXPERIMENTAL
 #cmakedefine01 CLITK_MEMORY_INFO
+#cmakedefine01 CLITK_PRIVATE_FEATURES
 
 // Global environment variables
 #define OS_NAME "@CMAKE_SYSTEM@"
