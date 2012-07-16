@@ -491,9 +491,7 @@ void vvToolROIManager::UpdateAllContours()
   for(unsigned int i=0; i<mROIList.size(); i++) {
     mROIActorsList[i]->Update();
   }
-  for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
-    mCurrentSlicerManager->GetSlicer(i)->Render();
-  }
+  mCurrentSlicerManager->Render();
 }
 //------------------------------------------------------------------------------
 
