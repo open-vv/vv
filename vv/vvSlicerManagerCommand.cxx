@@ -266,6 +266,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
           this->SM->UpdateSliceRange(VisibleInWindow);
         }
 
+        this->SM->EmitKeyPressed(KeyPress);
       }
 
       //All type of mouse events
