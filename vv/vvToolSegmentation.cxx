@@ -515,8 +515,14 @@ void vvToolSegmentation::RemoveLabel() {
   // Set image label
   vtkImageData * image = mCurrentCCLImage->GetFirstVTKImageData();
   int * pPix = (int*)image->GetScalarPointer();
+  int n = 0;
   for(uint i=0; i<image->GetNumberOfPoints(); i++) {
     if (pPix[i] == mCurrentLabelUnderMousePointer) pPix[i] = 0;
+    if (pPix[i] != 0) n++; // count the number of pixels in the foreground
   }
+  // Update mask size
+  mCurrentMaskSizeInPixels = n;
+  mCurrentMaskSizeInCC = mCurrentMaskImage->GetSpacing()[0] * mCurrentMaskImage->GetSpacing()[1] * mCurrentMaskImage->GetSpacing()[2] * n / (10*10*10);
+  UpdateMaskSizeLabels();
 }
 //------------------------------------------------------------------------------
