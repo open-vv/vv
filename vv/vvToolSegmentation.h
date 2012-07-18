@@ -76,6 +76,17 @@ class vvToolSegmentation:
   QSharedPointer<vvROIActor> CreateMaskActor(vvImage::Pointer image, int i, int colorID, bool BGMode=false);
   
   double mCurrentLabelUnderMousePointer;
+  double GetBackgroundValue() { return 0; }
+  double GetForegroundValue() { return 1; }
+  long ComputeNumberOfPixels(vvImage::Pointer image, double value);
+
+  // Compute and store sizes of mask Foreground
+  void   UpdateMaskSize(vvImage::Pointer image, long & pix, double & cc);
+  void   UpdateMaskSizeLabels();
+  long   mRefMaskSizeInPixels;
+  double mRefMaskSizeInCC;
+  long   mCurrentMaskSizeInPixels;
+  double mCurrentMaskSizeInCC;
 
 }; // end class vvToolSegmentation
 //------------------------------------------------------------------------------

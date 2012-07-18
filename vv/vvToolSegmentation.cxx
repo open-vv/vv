@@ -96,7 +96,6 @@ bool vvToolSegmentation::close()
   DD("remo mask");
   if (mCurrentMaskActor) mCurrentMaskActor->RemoveActors();
   for(int i=0; i<mCurrentCCLActors.size(); i++) {
-    DD(i);
     if (mCurrentCCLActors[i]) mCurrentCCLActors[i]->RemoveActors();
   }
   DD("wclose");
@@ -200,6 +199,7 @@ void vvToolSegmentation::OpenBinaryImage()
   // Add a new roi actor for the current mask
   mCurrentMaskActor = CreateMaskActor(mCurrentMaskImage, 1, 0, false);
   mCurrentMaskActor->Update(); // default color is red
+  UpdateMaskSize(mCurrentMaskImage, mCurrentMaskSizeInPixels, mCurrentMaskSizeInCC);  
 
   // Add a mask actor for the reference
   mRefMaskActor = CreateMaskActor(mRefMaskImage, 0, 1, true);
@@ -208,6 +208,48 @@ void vvToolSegmentation::OpenBinaryImage()
   mRefMaskActor->SetContourColor(0,1,0); // green contour
   mRefMaskActor->UpdateColor();
   mRefMaskActor->Update();
+  UpdateMaskSize(mRefMaskImage, mRefMaskSizeInPixels, mRefMaskSizeInCC);  
+
+  // Update GUI
+  UpdateMaskSizeLabels();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolSegmentation::UpdateMaskSizeLabels()
+{
+  QString s("%1 pix (%2 cm3)");
+  s = s.arg(mRefMaskSizeInPixels).arg(mRefMaskSizeInCC);
+  mRefMaskSizeLabel->setText(s);
+  QString s2("%1 pix (%2 cm3)");
+  s2 = s2.arg(mCurrentMaskSizeInPixels).arg(mCurrentMaskSizeInCC);
+  mCurrentMaskSizeLabel->setText(s2);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolSegmentation::UpdateMaskSize(vvImage::Pointer image, long & pix, double & cc)
+{
+  pix = ComputeNumberOfPixels(image, GetForegroundValue());
+  double vol = image->GetSpacing()[0]*image->GetSpacing()[1]*image->GetSpacing()[2];
+  cc = pix * vol / (10*10*10);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+long vvToolSegmentation::ComputeNumberOfPixels(vvImage::Pointer image, double value) 
+{
+  int n=0;
+  vtkImageData * im = image->GetFirstVTKImageData();
+  char * pPix = (char*)im->GetScalarPointer(); // FIXME char ?
+  for(uint i=0; i<im->GetNumberOfPoints(); i++) {
+    if (pPix[i] == value) n++;
+  }
+  DD(n);
+  return n;
 }
 //------------------------------------------------------------------------------
 
@@ -226,6 +268,7 @@ void vvToolSegmentation::KeyPressed(std::string KeyPress)
   }
   if (KeyPress == "m") {
     Merge(); 
+    UpdateAndRenderNewMask();
   }
   if (KeyPress == "s") { // Supress "Remove" one label
     if (mCurrentState == State_CCL) RemoveLabel();
@@ -266,7 +309,7 @@ void vvToolSegmentation::Merge()
   int * pCCL = (int*)ccl->GetScalarPointer();
   char * pPix = (char*)mask->GetScalarPointer();
   for(uint i=0; i<ccl->GetNumberOfPoints(); i++) {
-    if (pCCL[i] == 0) pPix[i] = 0; // copy BG
+    if (pCCL[i] == 0) pPix[i] = GetBackgroundValue(); // copy BG. In CCL BG is always 0
   }
 
   // Display new mask and remove ccl
@@ -275,7 +318,7 @@ void vvToolSegmentation::Merge()
   mCurrentMaskActor = CreateMaskActor(mCurrentMaskImage, 1, 0, false); // renew
   mCurrentMaskActor->Update();
   mCurrentMaskActor->SetVisible(true); 
-  mCurrentSlicerManager->Render();
+  // mCurrentSlicerManager->Render();
   mCurrentState = State_Default;
 }
 //------------------------------------------------------------------------------
@@ -335,6 +378,8 @@ void vvToolSegmentation::UpdateAndRenderNewMask()
   mCurrentMaskActor->SetContourVisible(cvisible);
 
   mCurrentSlicerManager->Render();
+  UpdateMaskSize(mCurrentMaskImage, mCurrentMaskSizeInPixels, mCurrentMaskSizeInCC);
+  UpdateMaskSizeLabels();
 }
 //------------------------------------------------------------------------------
 
@@ -352,7 +397,7 @@ void vvToolSegmentation::Labelize()
   typedef args_info_clitkConnectedComponentLabeling ArgsInfoType;
   ArgsInfoType a;
   cmdline_parser_clitkConnectedComponentLabeling_init(&a);
-  a.inputBG_arg = 0;
+  a.inputBG_arg = GetBackgroundValue();
   a.full_flag = false;  // FIXME set by gui
   a.minSize_arg = 100;  // FIXME set by gui 
   typedef clitk::ConnectedComponentLabelingGenericFilter<ArgsInfoType> FilterType;
@@ -451,7 +496,7 @@ void vvToolSegmentation::MousePositionChanged(int slicer)
   }
   else {
     // DD("out of mask");
-    mCurrentLabelUnderMousePointer = 0;
+    mCurrentLabelUnderMousePointer = 0; // BG is always 0 in CCL
   }
   // DD(mCurrentLabelUnderMousePointer);
 }
