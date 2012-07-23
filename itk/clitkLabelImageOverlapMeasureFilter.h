@@ -29,6 +29,8 @@
 #include <itkImageToImageFilter.h>
 #include <itkLabelStatisticsImageFilter.h>
 
+#include <iomanip>
+
 namespace clitk {
   
   //--------------------------------------------------------------------
