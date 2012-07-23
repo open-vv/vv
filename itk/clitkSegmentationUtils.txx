@@ -1321,11 +1321,11 @@ namespace clitk {
       // Compute dmap for S1 *TO PUT IN FONCTION*
       dmap = clitk::DistanceMap<SliceType>(slices_s1[i], BG);
       dmaps1.push_back(dmap);
-      writeImage<FloatImageType>(dmap, "dmap1.mha");
+      //writeImage<FloatImageType>(dmap, "dmap1.mha");
       // Compute dmap for S2
       dmap = clitk::DistanceMap<SliceType>(slices_s2[i], BG);
       dmaps2.push_back(dmap);
-      writeImage<FloatImageType>(dmap, "dmap2.mha");
+      //writeImage<FloatImageType>(dmap, "dmap2.mha");
       
       // Look in S2 for the point the closest to S1
       typename SliceType::PointType p = ComputeClosestPoint<SliceType>(slices_s1[i], dmaps2[i], BG);
