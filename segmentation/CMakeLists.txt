@@ -1,7 +1,7 @@
 #=========================================================
 
 # Add Libraries used in vv and clitk to avoid recompilation
-FOREACH(clitkTool clitkExtractLung clitkExtractPatient)
+FOREACH(clitkTool clitkExtractLung clitkExtractPatient clitkConnectedComponentLabeling)
     WRAP_GGO(${clitkTool}_GGO_C ${clitkTool}.ggo)
     SET(GGO_C_FILES ${GGO_C_FILES} ${${clitkTool}_GGO_C})
 ENDFOREACH(clitkTool)
