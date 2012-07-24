@@ -69,6 +69,8 @@ vvToolSegmentation::vvToolSegmentation(vvMainWindowBase * parent, Qt::WindowFlag
   AddInputSelector("Select one image");
   
   // Init
+  mCurrentLabelUnderMousePointer = 0.0;
+  mCurrentMousePosition.resize(3);
   mRefMaskImage = NULL;
   mCurrentState = State_Default;
   mKernelValue = 3; // FIXME must be odd. If even -> not symmetrical
@@ -257,6 +259,9 @@ long vvToolSegmentation::ComputeNumberOfPixels(vvImage::Pointer image, double va
 //------------------------------------------------------------------------------
 void vvToolSegmentation::KeyPressed(std::string KeyPress)
 { 
+  if (KeyPress == "g") {
+    RegionGrowing();
+  }
   if (KeyPress == "e") {
     Erode();
   }
@@ -285,6 +290,59 @@ void vvToolSegmentation::KeyPressed(std::string KeyPress)
     writer->Update();
   }
 }
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolSegmentation::RegionGrowing()
+{
+  DD("RegionGrowing");
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  // Merge labels if needed
+  Merge();
+  // Get mouse location
+  DD(mCurrentLabelUnderMousePointer); 
+  DDV(mCurrentMousePosition, 3);
+
+  //   FIXME
+
+ // Build RG filter
+
+clitk.private/deprecated/./mv_to_public.sh ~/src/clitk/clitk.private/tests_dav/ ~/src/clitk/clitk/segmentation/ clitkRegionGrowing.cxx
+
+clitk.private/deprecated/./mv_to_public.sh ~/src/clitk/clitk.private/tests_dav/ ~/src/clitk/clitk/segmentation/ clitkRegionGrowing.cxx
+
+
+git format-patch --stdout --root -- clitkRegionGrowing.cxx >/tmp/patch
+git rm clitkRegionGrowing.cxx
+git commit clitkRegionGrowing.cxx -m "Moved from repository tests_dav to segmentation"
+/home/dsarrut/src/clitk/clitk/segmentation
+
+
+git am /tmp/patch
+git mv clitkRegionGrowing.cxx /home/dsarrut/src/clitk/clitk/segmentation//clitkRegionGrowing.cxx
+git commit clitkRegionGrowing.cxx /home/dsarrut/src/clitk/clitk/segmentation//clitkRegionGrowing.cxx -m Moved from repository tests_dav to segmentation
+
+
+  
+  typedef args_info_clitkConnectedComponentLabeling ArgsInfoType;
+  ArgsInfoType a;
+  cmdline_parser_clitkConnectedComponentLabeling_init(&a);
+  a.inputBG_arg = GetBackgroundValue();
+  a.full_flag = false;  // FIXME set by gui
+  a.minSize_arg = 100;  // FIXME set by gui 
+  typedef clitk::ConnectedComponentLabelingGenericFilter<ArgsInfoType> FilterType;
+  FilterType::Pointer filter = FilterType::New();
+  filter->SetArgsInfo(a);
+  filter->SetInputVVImage(mCurrentMaskImage); // FIXME Check type is ok ? convert float ?
+  filter->SetIOVerbose(true);  
+  filter->Update();
+  DD(filter->GetOriginalNumberOfObjects());
+  DD(filter->GetSizeOfObjectsInPixels().size());
+  mCurrentCCLImage = filter->GetOutputVVImage();
+  DDV(filter->GetSizeOfObjectsInPixels(), filter->GetSizeOfObjectsInPixels().size());
+  DD("filter done");
+}  
 //------------------------------------------------------------------------------
 
 
@@ -471,8 +529,6 @@ QSharedPointer<vvROIActor> vvToolSegmentation::CreateMaskActor(vvImage::Pointer 
 //------------------------------------------------------------------------------
 void vvToolSegmentation::MousePositionChanged(int slicer)
 {
-  if (mCurrentState == State_Default) return; // Do nothing in this case
-
   double x = mCurrentSlicerManager->GetSlicer(slicer)->GetCurrentPosition()[0];
   double y = mCurrentSlicerManager->GetSlicer(slicer)->GetCurrentPosition()[1];
   double z = mCurrentSlicerManager->GetSlicer(slicer)->GetCurrentPosition()[2];
@@ -482,23 +538,30 @@ void vvToolSegmentation::MousePositionChanged(int slicer)
   double Zover = (z - image->GetOrigin()[2]) / image->GetSpacing()[2];
   int ix, iy, iz;
   
+  mCurrentMousePosition[0] = Xover;
+  mCurrentMousePosition[1] = Yover;
+  mCurrentMousePosition[2] = Zover;
+
   if (Xover >= image->GetWholeExtent()[0] &&
       Xover <= image->GetWholeExtent()[1] &&
       Yover >= image->GetWholeExtent()[2] &&
       Yover <= image->GetWholeExtent()[3] &&
       Zover >= image->GetWholeExtent()[4] &&
       Zover <= image->GetWholeExtent()[5]) {
-    mCurrentLabelUnderMousePointer = 
-      mCurrentSlicerManager->GetSlicer(0)->GetScalarComponentAsDouble(image, Xover, Yover, Zover, ix, iy, iz, 0);
-    // DD(Xover); DD(Yover); DD(Zover);
-    // DD(ix); DD(iy); DD(iz);
-    // DD(valueOver);
+    if (mCurrentState == State_Default) { // inside the mask
+      mCurrentLabelUnderMousePointer = 1;
+      return; 
+    }
+    else { // inside the label image
+      mCurrentLabelUnderMousePointer = 
+        mCurrentSlicerManager->GetSlicer(0)->GetScalarComponentAsDouble(image, Xover, Yover, Zover, ix, iy, iz, 0);
+      return;
+    }
   }
   else {
     // DD("out of mask");
     mCurrentLabelUnderMousePointer = 0; // BG is always 0 in CCL
   }
-  // DD(mCurrentLabelUnderMousePointer);
 }
 //------------------------------------------------------------------------------
 

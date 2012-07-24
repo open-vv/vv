@@ -42,6 +42,7 @@ class vvToolSegmentation:
   static void Initialize();
   virtual void InputIsSelected(vvSlicerManager * m);
   void OpenBinaryImage();
+  void RegionGrowing();
   void Erode();
   void Dilate();
   void Labelize();
@@ -52,15 +53,11 @@ class vvToolSegmentation:
   //-----------------------------------------------------
   public slots:
   virtual void apply();
-  //  bool eventFilter(QObject *object, QEvent *event);
   void KeyPressed(std::string KeyPress);
   virtual bool close();
   virtual void MousePositionChanged(int slicer);
-  //  virtual void keyPressEvent(QKeyEvent * event);
-  // virtual void reject();
 
  protected:
-  // virtual void closeEvent(QCloseEvent *event);
   Ui::vvToolSegmentation ui;
   QSharedPointer<vvROIActor> mRefMaskActor;
   QSharedPointer<vvROIActor> mCurrentMaskActor;
@@ -76,6 +73,7 @@ class vvToolSegmentation:
   QSharedPointer<vvROIActor> CreateMaskActor(vvImage::Pointer image, int i, int colorID, bool BGMode=false);
   
   double mCurrentLabelUnderMousePointer;
+  std::vector<double> mCurrentMousePosition;
   double GetBackgroundValue() { return 0; }
   double GetForegroundValue() { return 1; }
   long ComputeNumberOfPixels(vvImage::Pointer image, double value);

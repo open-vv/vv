@@ -23,6 +23,7 @@ SET(vv_TOOLS
   vvToolMIP
   vvToolConvert ## with dummy vvToolConvert.ui
   vvToolROIManager
+  vvToolSegmentation
 
   ## these ones are for tests (not working)
   # vvToolFoo
