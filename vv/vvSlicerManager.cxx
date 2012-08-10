@@ -1099,21 +1099,24 @@ void vvSlicerManager::SetSlicingPreset(SlicingPresetType preset)
   mImage->GetTransform()[this->GetTSlice()]->GetInverse(imageTransformInverse);
 
   for(int i=0; i< this->GetNumberOfSlicers(); i++){
+    vvSlicer *s = this->GetSlicer(i);
     switch(preset)
     {
     case WORLD_SLICING:
-      this->GetSlicer(i)->GetSlicingTransform()->Identity();
+      s->GetSlicingTransform()->Identity();
       break;
     case VOXELS_SLICING:
-      this->GetSlicer(i)->GetSlicingTransform()->SetMatrix(imageTransformInverse);
+      s->GetSlicingTransform()->SetMatrix(imageTransformInverse);
       break;
     default:
       imageTransformInverse->Delete();
       return;
     }
-    this->GetSlicer(i)->ForceUpdateDisplayExtent();
-    this->GetSlicer(i)->ResetCamera();
-    this->GetSlicer(i)->Render();
+    s->ForceUpdateDisplayExtent();
+    s->SetSlice((s->GetInput()->GetWholeExtent()[s->GetSliceOrientation()*2+1]
+                +s->GetInput()->GetWholeExtent()[s->GetSliceOrientation()*2])/2.0);
+    s->ResetCamera();
+    s->Render();
   }
 
   imageTransformInverse->Delete();
