@@ -140,10 +140,11 @@ public:
     return mCursor;
   }
 
+  vtkTransform * GetSlicingTransform() { return mSlicingTransform; }
+  vtkTransform * GetConcatenatedTransform() { return mConcatenatedTransform; }
+
   void SetCurrentPosition(double x, double y, double z, int t);
-  double* GetCurrentPosition() {
-    return mCurrent;
-  }
+  double* GetCurrentPosition();
 
   void UpdateCursorPosition();
   void SetCursorVisibility(bool s);
@@ -207,6 +208,8 @@ protected:
   vvLandmarks* mLandmarks;
 
   vtkSmartPointer<vtkImageReslice> mImageReslice;
+  vtkSmartPointer<vtkTransform> mSlicingTransform;
+  vtkSmartPointer<vtkTransform> mConcatenatedTransform;
   vtkSmartPointer<vtkImageReslice> mOverlayReslice;
   vtkSmartPointer<vtkImageMapToWindowLevelColors> mOverlayMapper;
   vtkSmartPointer<vvBlendImageActor> mOverlayActor;
@@ -235,6 +238,7 @@ protected:
 
   int mCurrentTSlice;
   double mCurrent[3];
+  double mCurrentBeforeSlicingTransform[3];
   double mCursor[4];
   int mSubSampling;
   int mScale;

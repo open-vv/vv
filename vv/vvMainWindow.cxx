@@ -309,9 +309,9 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(levelSpinBox,SIGNAL(editingFinished()),this,SLOT(WindowLevelEdited()));
   connect(colorMapComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(UpdateColorMap()));
   connect(presetComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(UpdateWindowLevel()));
+  connect(slicingPresetComboBox, SIGNAL(currentIndexChanged(int)),this,SLOT(UpdateSlicingPreset()));
   connect(inverseButton,SIGNAL(clicked()),this,SLOT(SwitchWindowLevel()));
   connect(applyWindowLevelToAllButton,SIGNAL(clicked()),this,SLOT(ApplyWindowLevelToAllImages()));
-
 
   connect(this,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(ShowContextMenu(QPoint)));
 
@@ -1176,6 +1176,7 @@ void vvMainWindow::ImageInfoChanged()
       }
     }
     WindowLevelChanged();
+    slicingPresetComboBox->setCurrentIndex(mSlicerManagers[index]->GetSlicingPreset());
 
     if (mSlicerManagers[index]->GetSlicer(0)->GetVF()) {
       overlayPanel->getVFName(mSlicerManagers[index]->GetVFName().c_str());
@@ -1717,6 +1718,16 @@ void vvMainWindow::UpdateWindowLevel()
     mSlicerManagers[index]->SetPreset(presetComboBox->currentIndex());
     mSlicerManagers[index]->Render();
     WindowLevelChanged();
+  }
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::UpdateSlicingPreset()
+{
+  if (DataTree->selectedItems().size()) {
+    int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
+    mSlicerManagers[index]->SetSlicingPreset(slicingPresetComboBox->currentIndex());
   }
 }
 //------------------------------------------------------------------------------

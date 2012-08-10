@@ -151,6 +151,9 @@ class vvSlicerManager : public QObject {
   int GetPreset() {
     return mPreset;
   }
+  int GetSlicingPreset() {
+    return mSlicingPreset;
+  }
   int GetOverlayColor() const {
     return mOverlayColor;
   }
@@ -203,6 +206,7 @@ class vvSlicerManager : public QObject {
   void UpdateSlice(int slicer);
   void UpdateTSlice(int slicer);
   void UpdateSliceRange(int slicer);
+  void SetSlicingPreset(int preset);
 
   vvLandmarks *GetLandmarks();
   void AddLandmark(float x,float y,float z,float t);
@@ -251,6 +255,7 @@ protected:
   bool mFusionShowLegend;
 
   int mPreset;
+  int mSlicingPreset;
   vvImageReader::LoadedImageType mType;
   std::string mVFComponent;
   std::string mOverlayComponent;

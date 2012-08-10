@@ -72,6 +72,7 @@ vvSlicerManager::vvSlicerManager(int numberOfSlicers)
 
   mPreviousSlice.resize(numberOfSlicers);
   mPreviousTSlice.resize(numberOfSlicers);
+  mSlicingPreset = 0;
 }
 //----------------------------------------------------------------------------
 
@@ -570,36 +571,42 @@ void vvSlicerManager::SetOpacity(int i, double factor)
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateViews(int current,int slicer)
 {
-  double x = (mSlicers[slicer]->GetCurrentPosition()[0] - mSlicers[slicer]->GetInput()->GetOrigin()[0])
+  double p[3], pt[3];
+  p[0] = mSlicers[slicer]->GetCurrentPosition()[0];
+  p[1] = mSlicers[slicer]->GetCurrentPosition()[1];
+  p[2] = mSlicers[slicer]->GetCurrentPosition()[2];
+  mSlicers[slicer]->GetSlicingTransform()->GetInverse()->TransformPoint(p, pt);
+
+  double x = (pt[0] - mSlicers[slicer]->GetInput()->GetOrigin()[0])
     /mSlicers[slicer]->GetInput()->GetSpacing()[0];
-  double y = (mSlicers[slicer]->GetCurrentPosition()[1] - mSlicers[slicer]->GetInput()->GetOrigin()[1])
+  double y = (pt[1] - mSlicers[slicer]->GetInput()->GetOrigin()[1])
     /mSlicers[slicer]->GetInput()->GetSpacing()[1];
-  double z = (mSlicers[slicer]->GetCurrentPosition()[2] - mSlicers[slicer]->GetInput()->GetOrigin()[2])
+  double z = (pt[2] - mSlicers[slicer]->GetInput()->GetOrigin()[2])
     /mSlicers[slicer]->GetInput()->GetSpacing()[2];
 
-  if (x >= mSlicers[slicer]->GetInput()->GetWholeExtent()[0] &&
-      x <= mSlicers[slicer]->GetInput()->GetWholeExtent()[1] &&
-      y >= mSlicers[slicer]->GetInput()->GetWholeExtent()[2] &&
-      y <= mSlicers[slicer]->GetInput()->GetWholeExtent()[3] &&
-      z >= mSlicers[slicer]->GetInput()->GetWholeExtent()[4] &&
-      z <= mSlicers[slicer]->GetInput()->GetWholeExtent()[5]) {
+  if (x >= mSlicers[slicer]->GetInput()->GetWholeExtent()[0]-0.5 &&
+      x <= mSlicers[slicer]->GetInput()->GetWholeExtent()[1]+0.5 &&
+      y >= mSlicers[slicer]->GetInput()->GetWholeExtent()[2]-0.5 &&
+      y <= mSlicers[slicer]->GetInput()->GetWholeExtent()[3]+0.5 &&
+      z >= mSlicers[slicer]->GetInput()->GetWholeExtent()[4]-0.5 &&
+      z <= mSlicers[slicer]->GetInput()->GetWholeExtent()[5]+0.5) {
     mSlicers[slicer]->UpdateCursorPosition();
     mSlicers[slicer]->SetCursorColor(10,212,255);
 
     switch (mSlicers[slicer]->GetSliceOrientation()) {
     case vtkImageViewer2::SLICE_ORIENTATION_XY:
-      if (mSlicers[slicer]->GetSlice() != (int)floor(z))
-        mSlicers[slicer]->SetSlice((int)floor(z));
+      if (mSlicers[slicer]->GetSlice() != (int)lrint(z))
+        mSlicers[slicer]->SetSlice((int)lrint(z));
       break;
 
     case vtkImageViewer2::SLICE_ORIENTATION_XZ:
-      if (mSlicers[slicer]->GetSlice() != (int)floor(y))
-        mSlicers[slicer]->SetSlice((int)floor(y));
+      if (mSlicers[slicer]->GetSlice() != (int)lrint(y))
+        mSlicers[slicer]->SetSlice((int)lrint(y));
       break;
 
     case vtkImageViewer2::SLICE_ORIENTATION_YZ:
-      if (mSlicers[slicer]->GetSlice() != (int)floor(x))
-        mSlicers[slicer]->SetSlice((int)floor(x));
+      if (mSlicers[slicer]->GetSlice() != (int)lrint(x))
+        mSlicers[slicer]->SetSlice((int)lrint(x));
       break;
     }
     mSlicers[slicer]->Render();
@@ -609,10 +616,7 @@ void vvSlicerManager::UpdateViews(int current,int slicer)
           && mSlicers[i]->GetRenderer()->GetDraw()
           && mSlicers[i]->GetRenderWindow()->GetSize()[0] > 2
           && mSlicers[i]->GetRenderWindow()->GetSize()[1] > 2) {
-        mSlicers[i]->SetCurrentPosition(mSlicers[slicer]->GetCurrentPosition()[0],
-                                        mSlicers[slicer]->GetCurrentPosition()[1],
-                                        mSlicers[slicer]->GetCurrentPosition()[2],
-                                        mSlicers[slicer]->GetTSlice());
+        mSlicers[i]->SetCurrentPosition(p[0], p[1], p[2], mSlicers[slicer]->GetTSlice());
         mSlicers[i]->UpdateCursorPosition();
         if (current) { //do not display corner annotation if image is the one picked
           mSlicers[i]->SetCurrentPosition(-VTK_DOUBLE_MAX,-VTK_DOUBLE_MAX,
@@ -652,19 +656,21 @@ void vvSlicerManager::UpdateViews(int current,int slicer)
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateLinked(int slicer)
 {
-  double x = (mSlicers[slicer]->GetCurrentPosition()[0] - mSlicers[slicer]->GetInput()->GetOrigin()[0])
-    /mSlicers[slicer]->GetInput()->GetSpacing()[0];
-  double y = (mSlicers[slicer]->GetCurrentPosition()[1] - mSlicers[slicer]->GetInput()->GetOrigin()[1])
-    /mSlicers[slicer]->GetInput()->GetSpacing()[1];
-  double z = (mSlicers[slicer]->GetCurrentPosition()[2] - mSlicers[slicer]->GetInput()->GetOrigin()[2])
-    /mSlicers[slicer]->GetInput()->GetSpacing()[2];
+  double p[3], pt[3];
+  p[0] = mSlicers[slicer]->GetCurrentPosition()[0];
+  p[1] = mSlicers[slicer]->GetCurrentPosition()[1];
+  p[2] = mSlicers[slicer]->GetCurrentPosition()[2];
+  mSlicers[slicer]->GetSlicingTransform()->GetInverse()->TransformPoint(p, pt);
+  double x = (pt[0] - mSlicers[slicer]->GetInput()->GetOrigin()[0]) / mSlicers[slicer]->GetInput()->GetSpacing()[0];
+  double y = (pt[1] - mSlicers[slicer]->GetInput()->GetOrigin()[1]) / mSlicers[slicer]->GetInput()->GetSpacing()[1];
+  double z = (pt[2] - mSlicers[slicer]->GetInput()->GetOrigin()[2]) / mSlicers[slicer]->GetInput()->GetSpacing()[2];
 
-  if (x >= mSlicers[slicer]->GetInput()->GetWholeExtent()[0] &&
-      x <= mSlicers[slicer]->GetInput()->GetWholeExtent()[1] &&
-      y >= mSlicers[slicer]->GetInput()->GetWholeExtent()[2] &&
-      y <= mSlicers[slicer]->GetInput()->GetWholeExtent()[3] &&
-      z >= mSlicers[slicer]->GetInput()->GetWholeExtent()[4] &&
-      z <= mSlicers[slicer]->GetInput()->GetWholeExtent()[5]) {
+  if (x >= mSlicers[slicer]->GetInput()->GetWholeExtent()[0]-0.5 &&
+      x <= mSlicers[slicer]->GetInput()->GetWholeExtent()[1]+0.5 &&
+      y >= mSlicers[slicer]->GetInput()->GetWholeExtent()[2]-0.5 &&
+      y <= mSlicers[slicer]->GetInput()->GetWholeExtent()[3]+0.5 &&
+      z >= mSlicers[slicer]->GetInput()->GetWholeExtent()[4]-0.5 &&
+      z <= mSlicers[slicer]->GetInput()->GetWholeExtent()[5]+0.5) {
     for (std::list<std::string>::const_iterator i = mLinkedId.begin(); i != mLinkedId.end(); i++) {
       emit UpdateLinkManager(*i, slicer,mSlicers[slicer]->GetCurrentPosition()[0],
                              mSlicers[slicer]->GetCurrentPosition()[1],
@@ -682,6 +688,11 @@ void vvSlicerManager::UpdateLinkedNavigation(vvSlicer *refSlicer, bool bPropagat
   refCam->GetPosition(refPosition);
   refCam->GetFocalPoint(refFocal);
   
+  refSlicer->GetSlicingTransform()->TransformPoint(refPosition);
+  refSlicer->GetSlicingTransform()->TransformPoint(refFocal);
+  mSlicers[0]->GetSlicingTransform()->GetInverse()->TransformPoint(refPosition);
+  mSlicers[0]->GetSlicingTransform()->GetInverse()->TransformPoint(refFocal);
+
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
     vtkCamera *camera = mSlicers[i]->GetRenderer()->GetActiveCamera();
     camera->SetParallelScale(refCam->GetParallelScale());
@@ -729,10 +740,13 @@ void vvSlicerManager::UpdateLinkedNavigation(vvSlicer *refSlicer, bool bPropagat
         focal[2]    = refFocal[2];
       }
     }
-
+DD(camera->GetFocalPoint()[0] << ' ' << camera->GetFocalPoint()[1] << ' ' << camera->GetFocalPoint()[2])
     camera->SetFocalPoint(focal);
+DD(camera->GetFocalPoint()[0] << ' ' << camera->GetFocalPoint()[1] << ' ' << camera->GetFocalPoint()[2])
+DD(camera->GetPosition()[0] << ' ' << camera->GetPosition()[1] << ' ' << camera->GetPosition()[2])
     camera->SetPosition(position);
-  
+DD(camera->GetPosition()[0] << ' ' << camera->GetPosition()[1] << ' ' << camera->GetPosition()[2])
+
     //Fix for bug #243
     mSlicers[i]->ForceUpdateDisplayExtent();
   }
@@ -1057,6 +1071,38 @@ void vvSlicerManager::UpdateSliceRange(int slicer)
 }
 //----------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------
+void vvSlicerManager::SetSlicingPreset(int preset)
+{
+  if(mSlicingPreset==preset)
+    return;
+
+  vtkMatrix4x4 *mImageTransformInverse = vtkMatrix4x4::New();
+  mImage->GetTransform()->GetInverse(mImageTransformInverse);
+
+  for(int i=0; i< this->GetNumberOfSlicers(); i++){
+    switch(preset)
+    {
+    case 0: // World
+      this->GetSlicer(i)->GetSlicingTransform()->Identity();
+      break;
+    case 1: // Voxels
+      this->GetSlicer(i)->GetSlicingTransform()->SetMatrix(mImageTransformInverse);
+      break;
+    default:
+      mImageTransformInverse->Delete();
+      return;
+    }
+    this->GetSlicer(i)->ForceUpdateDisplayExtent();
+    this->GetSlicer(i)->ResetCamera();
+    this->GetSlicer(i)->Render();
+  }
+
+  mImageTransformInverse->Delete();
+  mSlicingPreset = preset;
+}
+
+//----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetPreset(int preset)
@@ -1140,7 +1186,7 @@ void vvSlicerManager::SetLocalColorWindowing(const int slicer, const bool bCtrlK
   else {
     this->mSlicers[slicer]->GetExtremasAroundMousePointer(min, max,
                                                           this->mSlicers[slicer]->GetImage()->GetVTKImages()[t],
-                                                          this->mSlicers[slicer]->GetImage()->GetTransform());
+                                                          this->mSlicers[slicer]->GetConcatenatedTransform());
     this->SetColorWindow(max-min);
     this->SetColorLevel(0.5*(min+max));
     this->SetPreset(6);
