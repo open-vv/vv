@@ -118,6 +118,7 @@ public slots:
   void SetWindowLevel(double w, double l);
   void UpdateColorMap();
   void UpdateWindowLevel();
+  void UpdateSlicingPreset();
   void SwitchWindowLevel();
   void ApplyWindowLevelToAllImages();
   void UpdateLinkManager(std::string id, int slicer, double x, double y, double z, int temps);

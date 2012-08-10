@@ -52,6 +52,7 @@ class vvSlicerManager : public QObject {
   Q_OBJECT
 
   public:
+  typedef enum {WORLD_SLICING, VOXELS_SLICING} SlicingPresetType;
   vvSlicerManager(int numberOfSlicers);
   ~vvSlicerManager();
 
@@ -103,6 +104,7 @@ class vvSlicerManager : public QObject {
   void SetFilename(std::string f, int number=0);
 
   void SetSliceOrientation(int slicer, int orientation);
+  int GetTSlice();
   void SetTSlice(int slice);
   void SetNextTSlice(int originating_slicer);
   void SetPreviousTSlice(int originating_slicer);
@@ -150,6 +152,9 @@ class vvSlicerManager : public QObject {
   }
   int GetPreset() {
     return mPreset;
+  }
+  SlicingPresetType GetSlicingPreset() {
+    return mSlicingPreset;
   }
   int GetOverlayColor() const {
     return mOverlayColor;
@@ -203,6 +208,7 @@ class vvSlicerManager : public QObject {
   void UpdateSlice(int slicer);
   void UpdateTSlice(int slicer);
   void UpdateSliceRange(int slicer);
+  void SetSlicingPreset(SlicingPresetType preset);
 
   vvLandmarks *GetLandmarks();
   void AddLandmark(float x,float y,float z,float t);
@@ -251,6 +257,7 @@ protected:
   bool mFusionShowLegend;
 
   int mPreset;
+  SlicingPresetType mSlicingPreset;
   vvImageReader::LoadedImageType mType;
   std::string mVFComponent;
   std::string mOverlayComponent;

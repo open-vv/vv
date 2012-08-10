@@ -92,7 +92,7 @@ protected:
   std::string mInputPixelType;
 
   //====================================================================
-  void ReadNkiImageTransform();
+//  void ReadNkiImageTransform();
   void ReadMatImageTransform();
 private:
   vvImageReader();

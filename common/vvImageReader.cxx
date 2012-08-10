@@ -110,37 +110,37 @@ void vvImageReader::SetInputFilenames(const std::vector<std::string> & filenames
 
 //------------------------------------------------------------------------------
 //Read transformation in NKI format (Xdr, transposed, cm)
-void vvImageReader::ReadNkiImageTransform()
-{
-  bool bRead=false;
-  std::string filename = mInputFilenames[0]+".MACHINEORIENTATION";
-  if(itksys::SystemTools::FileExists(filename.c_str())){
-    typedef itk::ImageFileReader< itk::Image< double, 2 > > MatrixReaderType;
-    MatrixReaderType::Pointer readerTransfo = MatrixReaderType::New();
-    readerTransfo->SetFileName(filename);
-    try {
-      bRead = true;
-      readerTransfo->Update();
-    } catch( itk::ExceptionObject & err ) {
-      bRead=false;
-      std::cerr << "Cannot read " << filename << std::endl
-                << "The error is: " << err << std::endl;
-    }
+//void vvImageReader::ReadNkiImageTransform()
+//{
+//  bool bRead=false;
+//  std::string filename = mInputFilenames[0]+".MACHINEORIENTATION";
+//  if(itksys::SystemTools::FileExists(filename.c_str())){
+//    typedef itk::ImageFileReader< itk::Image< double, 2 > > MatrixReaderType;
+//    MatrixReaderType::Pointer readerTransfo = MatrixReaderType::New();
+//    readerTransfo->SetFileName(filename);
+//    try {
+//      bRead = true;
+//      readerTransfo->Update();
+//    } catch( itk::ExceptionObject & err ) {
+//      bRead=false;
+//      std::cerr << "Cannot read " << filename << std::endl
+//                << "The error is: " << err << std::endl;
+//    }
 
-    if (bRead) {
-      //Transpose matrix (NKI format)
-      for(int j=0; j<4; j++)
-        for(int i=0; i<4; i++)
-          mImage->GetTransform()->GetMatrix()->SetElement(j,i,readerTransfo->GetOutput()->GetBufferPointer()[4*i+j]);
+//    if (bRead) {
+//      //Transpose matrix (NKI format)
+//      for(int j=0; j<4; j++)
+//        for(int i=0; i<4; i++)
+//          mImage->GetTransform()->GetMatrix()->SetElement(j,i,readerTransfo->GetOutput()->GetBufferPointer()[4*i+j]);
 
-      //From cm to mm
-      for(int i=0; i<3; i++)
-        mImage->GetTransform()->GetMatrix()->SetElement(i,3,10*mImage->GetTransform()->GetMatrix()->GetElement(i,3));
+//      //From cm to mm
+//      for(int i=0; i<3; i++)
+//        mImage->GetTransform()->GetMatrix()->SetElement(i,3,10*mImage->GetTransform()->GetMatrix()->GetElement(i,3));
 
-      mImage->GetTransform()->Inverse();
-    }
-  }
-}
+//      mImage->GetTransform()->Inverse();
+//    }
+//  }
+//}
 //------------------------------------------------------------------------------
 
 
@@ -192,9 +192,10 @@ void vvImageReader::ReadMatImageTransform()
       vtkGenericWarningMacro("Matrix in " << filename.c_str() << " cannot be inverted (determinant = 0)");
     }
 
-    mImage->GetTransform()->PostMultiply();
-    mImage->GetTransform()->Concatenate(matrix);
-    mImage->GetTransform()->Update();
+    // TODO SR and BP: check on the list of transforms and not the first only
+    mImage->GetTransform()[0]->PostMultiply();
+    mImage->GetTransform()[0]->Concatenate(matrix);
+    mImage->GetTransform()[0]->Update();
   }
 }
 //------------------------------------------------------------------------------

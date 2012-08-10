@@ -145,6 +145,9 @@ vvSlicer::vvSlicer()
 #if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
   this->GetImageActor()->GetMapper()->BorderOn();
 #endif
+
+  mSlicingTransform = vtkSmartPointer<vtkTransform>::New();
+  mConcatenatedTransform = vtkSmartPointer<vtkTransform>::New();
 }
 //------------------------------------------------------------------------------
 
@@ -290,13 +293,20 @@ vvSlicer::~vvSlicer()
 }
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+double* vvSlicer::GetCurrentPosition()
+{
+  return mCurrentBeforeSlicingTransform;
+}
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetCurrentPosition(double x, double y, double z, int t)
 {
-  mCurrent[0] = x;
-  mCurrent[1] = y;
-  mCurrent[2] = z;
+  mCurrentBeforeSlicingTransform[0]=x;
+  mCurrentBeforeSlicingTransform[1]=y;
+  mCurrentBeforeSlicingTransform[2]=z;
+  mSlicingTransform->GetInverse()->TransformPoint(mCurrentBeforeSlicingTransform,mCurrent);
   mCurrentTSlice = t;
 }
 //------------------------------------------------------------------------------
@@ -314,7 +324,11 @@ void vvSlicer::SetImage(vvImage::Pointer image)
       mImageReslice->AutoCropOutputOn();
       mImageReslice->SetBackgroundColor(-1000,-1000,-1000,1);
     }
-    mImageReslice->SetResliceTransform(mImage->GetTransform());
+
+    mConcatenatedTransform->Identity();
+    mConcatenatedTransform->Concatenate(mImage->GetTransform()[0]);
+    mConcatenatedTransform->Concatenate(mSlicingTransform);
+    mImageReslice->SetResliceTransform(mConcatenatedTransform);
     mImageReslice->SetInput(0, mImage->GetFirstVTKImageData());
     mImageReslice->UpdateInformation();
 
@@ -355,7 +369,7 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
       mOverlayReslice->AutoCropOutputOn();
       mOverlayReslice->SetBackgroundColor(-1000,-1000,-1000,1);
     }
-    mOverlayReslice->SetResliceTransform(mOverlay->GetTransform());
+    mOverlayReslice->SetResliceTransform(mOverlay->GetTransform()[0]);
     mOverlayReslice->SetInput(0, mOverlay->GetFirstVTKImageData());
 
     if (!mOverlayMapper)
@@ -402,7 +416,7 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion)
       mFusionReslice->AutoCropOutputOn();
       mFusionReslice->SetBackgroundColor(-1000,-1000,-1000,1);
     }
-    mFusionReslice->SetResliceTransform(mFusion->GetTransform());
+    mFusionReslice->SetResliceTransform(mFusion->GetTransform()[0]);
     mFusionReslice->SetInput(0, mFusion->GetFirstVTKImageData());
 
     if (!mFusionMapper)
@@ -684,6 +698,12 @@ void vvSlicer::SetTSlice(int t)
   else if ((unsigned int)t >= mImage->GetVTKImages().size())
     t = mImage->GetVTKImages().size() -1;
 
+  // Update transform
+  mConcatenatedTransform->Identity();
+  mConcatenatedTransform->Concatenate(mImage->GetTransform()[t]);
+  mConcatenatedTransform->Concatenate(mSlicingTransform);
+
+  // Update image data
   mCurrentTSlice = t;
   mImageReslice->SetInput( mImage->GetVTKImages()[mCurrentTSlice] );
   if (mVF && mVFActor->GetVisibility()) {
@@ -920,9 +940,8 @@ void vvSlicer::UpdateDisplayExtent()
         double cpos = (double)cam->GetPosition()[this->SliceOrientation];
         double range = fabs(spos - cpos);
         double *spacing = input->GetSpacing();
-        double avg_spacing =
-          ((double)spacing[0] + (double)spacing[1] + (double)spacing[2]) / 3.0;
-        cam->SetClippingRange(range - avg_spacing * 3.0, range + avg_spacing * 3.0);
+        double sumSpacing = spacing[0] + spacing[1] + spacing[2];
+        cam->SetClippingRange(range - sumSpacing, range + sumSpacing);
       }
     }
   }
@@ -1272,34 +1291,29 @@ void vvSlicer::Render()
 
   if (ca->GetVisibility()) {
     std::stringstream worldPos;
-    double X = (mCurrent[0] - this->GetInput()->GetOrigin()[0])/this->GetInput()->GetSpacing()[0];
-    double Y = (mCurrent[1] - this->GetInput()->GetOrigin()[1])/this->GetInput()->GetSpacing()[1];
-    double Z = (mCurrent[2] - this->GetInput()->GetOrigin()[2])/this->GetInput()->GetSpacing()[2];
-    
-//     if (X < this->GetInput()->GetWholeExtent()[0]) X = this->GetInput()->GetWholeExtent()[0];
-//     else if (X > this->GetInput()->GetWholeExtent()[1]) X = this->GetInput()->GetWholeExtent()[1]; 
-//     if (Y < this->GetInput()->GetWholeExtent()[2]) Y = this->GetInput()->GetWholeExtent()[2];
-//     else if (Y > this->GetInput()->GetWholeExtent()[3]) Y = this->GetInput()->GetWholeExtent()[3]; 
-//     if (Z < this->GetInput()->GetWholeExtent()[4]) Z = this->GetInput()->GetWholeExtent()[4];
-//     else if (Z > this->GetInput()->GetWholeExtent()[5]) Z = this->GetInput()->GetWholeExtent()[5]; 
+    double pt[3];
+    mConcatenatedTransform->TransformPoint(mCurrent, pt);
+    double X = (pt[0] - mImage->GetVTKImages()[mCurrentTSlice]->GetOrigin()[0])/mImage->GetVTKImages()[mCurrentTSlice]->GetSpacing()[0];
+    double Y = (pt[1] - mImage->GetVTKImages()[mCurrentTSlice]->GetOrigin()[1])/mImage->GetVTKImages()[mCurrentTSlice]->GetSpacing()[1];
+    double Z = (pt[2] - mImage->GetVTKImages()[mCurrentTSlice]->GetOrigin()[2])/mImage->GetVTKImages()[mCurrentTSlice]->GetSpacing()[2];
 
-    if (X >= this->GetInput()->GetWholeExtent()[0] &&
-        X <= this->GetInput()->GetWholeExtent()[1] &&
-        Y >= this->GetInput()->GetWholeExtent()[2] &&
-        Y <= this->GetInput()->GetWholeExtent()[3] &&
-        Z >= this->GetInput()->GetWholeExtent()[4] &&
-        Z <= this->GetInput()->GetWholeExtent()[5]) {
+    if (X >= mImage->GetVTKImages()[mCurrentTSlice]->GetWholeExtent()[0]-0.5 &&
+        X <= mImage->GetVTKImages()[mCurrentTSlice]->GetWholeExtent()[1]+0.5 &&
+        Y >= mImage->GetVTKImages()[mCurrentTSlice]->GetWholeExtent()[2]-0.5 &&
+        Y <= mImage->GetVTKImages()[mCurrentTSlice]->GetWholeExtent()[3]+0.5 &&
+        Z >= mImage->GetVTKImages()[mCurrentTSlice]->GetWholeExtent()[4]-0.5 &&
+        Z <= mImage->GetVTKImages()[mCurrentTSlice]->GetWholeExtent()[5]+0.5) {
 
       
       int ix, iy, iz;
-      double value = this->GetScalarComponentAsDouble(this->GetInput(), X, Y, Z, ix, iy, iz);
+      double value = this->GetScalarComponentAsDouble(mImage->GetVTKImages()[mCurrentTSlice], X, Y, Z, ix, iy, iz);
 
       if(ImageActor->GetVisibility())
         worldPos << "data value : " << value << std::endl;
 
-      worldPos << "mm : " << lrint(mCurrent[0]) << ' '
-                          << lrint(mCurrent[1]) << ' '
-                          << lrint(mCurrent[2]) << ' '
+      worldPos << "mm : " << lrint(mCurrentBeforeSlicingTransform[0]) << ' '
+                          << lrint(mCurrentBeforeSlicingTransform[1]) << ' '
+                          << lrint(mCurrentBeforeSlicingTransform[2]) << ' '
                           << mCurrentTSlice
                           << std::endl;
       worldPos << "pixel : " << ix << ' '
