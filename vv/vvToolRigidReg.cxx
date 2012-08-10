@@ -118,7 +118,8 @@ void vvToolRigidReg::InputIsSelected(vvSlicerManager *input)
   //backup original matrix
   for(int j=0; j<4; j++)
     for(int i=0; i<4; i++)
-      mInitialMatrix->SetElement(i,j, mCurrentSlicerManager->GetImage()->GetTransform()->GetMatrix()->GetElement(i,j));
+      // TODO SR and BP: check on the list of transforms and not the first only
+      mInitialMatrix->SetElement(i,j, mCurrentSlicerManager->GetImage()->GetTransform()[0]->GetMatrix()->GetElement(i,j));
   QString origTransformString = dynamic_cast<vvMainWindow*>(mMainWindow)->Get4x4MatrixDoubleAsString(mInitialMatrix);
   transformationLabel->setText(origTransformString);
   SetTransform(mInitialMatrix);
@@ -242,7 +243,8 @@ void vvToolRigidReg::SpinBoxChange(double newVal)
   }
 
   // Compute transform and set
-  vtkSmartPointer<vtkTransform> transform_final=mInput->GetImage()->GetTransform();
+  // TODO SR and BP: check on the list of transforms and not the first only
+  vtkSmartPointer<vtkTransform> transform_final=mInput->GetImage()->GetTransform()[0];
   transform_final->Identity();
   transform_final->PostMultiply();
 
@@ -294,7 +296,8 @@ void vvToolRigidReg::SaveFile()
 
   QFile file(filename);
   if (file.open(QFile::WriteOnly | QFile::Truncate)) {
-    vtkMatrix4x4* matrix = mCurrentSlicerManager->GetImage()->GetTransform()->GetMatrix();
+    // TODO SR and BP: check on the list of transforms and not the first only
+    vtkMatrix4x4* matrix = mCurrentSlicerManager->GetImage()->GetTransform()[0]->GetMatrix();
     QString matrixStr = dynamic_cast<vvMainWindow*>(mMainWindow)->Get4x4MatrixDoubleAsString(matrix,16);
     QTextStream out(&file);
     out << matrixStr;
@@ -332,7 +335,8 @@ void vvToolRigidReg::LoadFile()
 //------------------------------------------------------------------------------
 void vvToolRigidReg::ChangeOfRotationCenter()
 {
-  SetTransform(mCurrentSlicerManager->GetImage()->GetTransform()->GetMatrix());
+  // TODO SR and BP: check on the list of transforms and not the first only
+  SetTransform(mCurrentSlicerManager->GetImage()->GetTransform()[0]->GetMatrix());
 }
 //------------------------------------------------------------------------------
 
@@ -347,7 +351,8 @@ void vvToolRigidReg::ResetTransform()
 void vvToolRigidReg::SetTransform(vtkMatrix4x4 *matrix)
 {
   vtkSmartPointer<vtkTransform> transform=vtkSmartPointer<vtkTransform>::New();
-  mCurrentSlicerManager->GetImage()->GetTransform()->SetMatrix(matrix);
+  // TODO SR and BP: check on the list of transforms and not the first only
+  mCurrentSlicerManager->GetImage()->GetTransform()[0]->SetMatrix(matrix);
   transform->Update();
   Render();
   dynamic_cast<vvMainWindow*>(mMainWindow)->ImageInfoChanged();

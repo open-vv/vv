@@ -326,7 +326,7 @@ void vvSlicer::SetImage(vvImage::Pointer image)
     }
 
     mConcatenatedTransform->Identity();
-    mConcatenatedTransform->Concatenate(mImage->GetTransform());
+    mConcatenatedTransform->Concatenate(mImage->GetTransform()[0]);
     mConcatenatedTransform->Concatenate(mSlicingTransform);
     mImageReslice->SetResliceTransform(mConcatenatedTransform);
     mImageReslice->SetInput(0, mImage->GetFirstVTKImageData());
@@ -369,7 +369,7 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
       mOverlayReslice->AutoCropOutputOn();
       mOverlayReslice->SetBackgroundColor(-1000,-1000,-1000,1);
     }
-    mOverlayReslice->SetResliceTransform(mOverlay->GetTransform());
+    mOverlayReslice->SetResliceTransform(mOverlay->GetTransform()[0]);
     mOverlayReslice->SetInput(0, mOverlay->GetFirstVTKImageData());
 
     if (!mOverlayMapper)
@@ -416,7 +416,7 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion)
       mFusionReslice->AutoCropOutputOn();
       mFusionReslice->SetBackgroundColor(-1000,-1000,-1000,1);
     }
-    mFusionReslice->SetResliceTransform(mFusion->GetTransform());
+    mFusionReslice->SetResliceTransform(mFusion->GetTransform()[0]);
     mFusionReslice->SetInput(0, mFusion->GetFirstVTKImageData());
 
     if (!mFusionMapper)
@@ -698,6 +698,12 @@ void vvSlicer::SetTSlice(int t)
   else if ((unsigned int)t >= mImage->GetVTKImages().size())
     t = mImage->GetVTKImages().size() -1;
 
+  // Update transform
+  mConcatenatedTransform->Identity();
+  mConcatenatedTransform->Concatenate(mImage->GetTransform()[t]);
+  mConcatenatedTransform->Concatenate(mSlicingTransform);
+
+  // Update image data
   mCurrentTSlice = t;
   mImageReslice->SetInput( mImage->GetVTKImages()[mCurrentTSlice] );
   if (mVF && mVFActor->GetVisibility()) {

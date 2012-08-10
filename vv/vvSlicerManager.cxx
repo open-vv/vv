@@ -72,7 +72,7 @@ vvSlicerManager::vvSlicerManager(int numberOfSlicers)
 
   mPreviousSlice.resize(numberOfSlicers);
   mPreviousTSlice.resize(numberOfSlicers);
-  mSlicingPreset = 0;
+  mSlicingPreset = WORLD_SLICING;
 }
 //----------------------------------------------------------------------------
 
@@ -428,6 +428,13 @@ void vvSlicerManager::SetSliceOrientation(int slicer, int orientation)
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
+int vvSlicerManager::GetTSlice()
+{
+  return mSlicers[0]->GetTSlice();
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
 void vvSlicerManager::SetTSlice(int slice)
 {
   if (slice < 0)
@@ -439,7 +446,7 @@ void vvSlicerManager::SetTSlice(int slice)
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
     if (slice != mSlicers[i]->GetTSlice()) {
       mSlicers[i]->SetTSlice(slice);
-        UpdateTSlice(i);
+      UpdateTSlice(i);
     }
   }
 }
@@ -498,6 +505,13 @@ void vvSlicerManager::SetTSliceInSlicer(int tslice, int slicer)
     mLandmarks->SetTime(tslice);
 
   if (mSlicers[slicer]->GetTSlice() == tslice) return;
+
+  if(mSlicingPreset==VOXELS_SLICING) {
+    vtkMatrix4x4 *imageTransformInverse = vtkMatrix4x4::New();
+    mImage->GetTransform()[tslice]->GetInverse(imageTransformInverse);
+    this->GetSlicer(slicer)->GetSlicingTransform()->SetMatrix(imageTransformInverse);
+    imageTransformInverse->Delete();
+  }
 
   mSlicers[slicer]->SetTSlice(tslice);
   UpdateTSlice(slicer);
@@ -808,13 +822,17 @@ bool vvSlicerManager::GetLinkOverlayWindowLevel() const
 void vvSlicerManager::ResetTransformationToIdentity(const std::string actorType)
 {
   if(actorType == "image")
-    this->GetImage()->GetTransform()->Identity();
+    for(unsigned int i=0; i<this->GetImage()->GetTransform().size(); i++)
+      this->GetImage()->GetTransform()[i]->Identity();
   else if(actorType == "overlay")
-    this->GetSlicer(0)->GetOverlay()->GetTransform()->Identity();
+    for(unsigned int i=0; i<this->GetImage()->GetTransform().size(); i++)
+      this->GetSlicer(0)->GetOverlay()->GetTransform()[i]->Identity();
   else if(actorType == "fusion")
-    this->GetSlicer(0)->GetFusion()->GetTransform()->Identity();
+    for(unsigned int i=0; i<this->GetImage()->GetTransform().size(); i++)
+      this->GetSlicer(0)->GetFusion()->GetTransform()[i]->Identity();
   else if(actorType == "vf")
-    this->GetVF()->GetTransform()->Identity();
+    for(unsigned int i=0; i<this->GetImage()->GetTransform().size(); i++)
+      this->GetVF()->GetTransform()[i]->Identity();
   else
     return;
 
@@ -1072,25 +1090,25 @@ void vvSlicerManager::UpdateSliceRange(int slicer)
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void vvSlicerManager::SetSlicingPreset(int preset)
+void vvSlicerManager::SetSlicingPreset(SlicingPresetType preset)
 {
   if(mSlicingPreset==preset)
     return;
 
-  vtkMatrix4x4 *mImageTransformInverse = vtkMatrix4x4::New();
-  mImage->GetTransform()->GetInverse(mImageTransformInverse);
+  vtkMatrix4x4 *imageTransformInverse = vtkMatrix4x4::New();
+  mImage->GetTransform()[this->GetTSlice()]->GetInverse(imageTransformInverse);
 
   for(int i=0; i< this->GetNumberOfSlicers(); i++){
     switch(preset)
     {
-    case 0: // World
+    case WORLD_SLICING:
       this->GetSlicer(i)->GetSlicingTransform()->Identity();
       break;
-    case 1: // Voxels
-      this->GetSlicer(i)->GetSlicingTransform()->SetMatrix(mImageTransformInverse);
+    case VOXELS_SLICING:
+      this->GetSlicer(i)->GetSlicingTransform()->SetMatrix(imageTransformInverse);
       break;
     default:
-      mImageTransformInverse->Delete();
+      imageTransformInverse->Delete();
       return;
     }
     this->GetSlicer(i)->ForceUpdateDisplayExtent();
@@ -1098,7 +1116,7 @@ void vvSlicerManager::SetSlicingPreset(int preset)
     this->GetSlicer(i)->Render();
   }
 
-  mImageTransformInverse->Delete();
+  imageTransformInverse->Delete();
   mSlicingPreset = preset;
 }
 
@@ -1162,11 +1180,11 @@ void vvSlicerManager::SetPreset(int preset)
 void vvSlicerManager::SetLocalColorWindowing(const int slicer, const bool bCtrlKey)
 {
   double min, max;
-  int t = this->mSlicers[slicer]->GetTSlice();
+  int t = this->GetTSlice();
   if(bCtrlKey && this->mSlicers[slicer]->GetFusion()) {
     this->mSlicers[slicer]->GetExtremasAroundMousePointer(min, max,
                                                           this->mSlicers[slicer]->GetFusion()->GetVTKImages()[t],
-                                                          this->mSlicers[slicer]->GetFusion()->GetTransform());
+                                                          this->mSlicers[slicer]->GetFusion()->GetTransform()[t]);
     this->SetFusionWindow(max-min);
     this->SetFusionLevel(0.5*(min+max));
     this->SetColorMap(mColorMap);
@@ -1174,7 +1192,7 @@ void vvSlicerManager::SetLocalColorWindowing(const int slicer, const bool bCtrlK
   else if(bCtrlKey && this->mSlicers[slicer]->GetOverlay()) {
     this->mSlicers[slicer]->GetExtremasAroundMousePointer(min, max,
                                                           this->mSlicers[slicer]->GetOverlay()->GetVTKImages()[t],
-                                                          this->mSlicers[slicer]->GetOverlay()->GetTransform());
+                                                          this->mSlicers[slicer]->GetOverlay()->GetTransform()[t]);
     if(this->mSlicers[slicer]->GetLinkOverlayWindowLevel()){
       this->SetColorWindow(max-min);
       this->SetColorLevel(0.5*(min+max));

@@ -952,6 +952,8 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
                 this,SLOT(UpdateSlice(int,int)));
         connect(mSlicerManagers.back(), SIGNAL(UpdateTSlice(int, int)),
                 this,SLOT(UpdateTSlice(int, int)));
+        connect(mSlicerManagers.back(), SIGNAL(UpdateTSlice(int, int)),
+                this,SLOT(ImageInfoChanged()));
         connect(mSlicerManagers.back(), SIGNAL(UpdateSliceRange(int,int,int,int,int)),
                 this,SLOT(UpdateSliceRange(int,int,int,int,int)));
         connect(mSlicerManagers.back(), SIGNAL(UpdateLinkManager(std::string,int,double,double,double,int)),
@@ -1139,7 +1141,7 @@ void vvMainWindow::ImageInfoChanged()
     infoPanel->setOrigin(GetVectorDoubleAsString(origin));
     infoPanel->setSpacing(GetVectorDoubleAsString(inputSpacing));
     infoPanel->setNPixel(QString::number(NPixel)+" ("+inputSizeInBytes+")");
-    transformation = imageSelected->GetTransform()->GetMatrix();
+    transformation = imageSelected->GetTransform()[mSlicerManagers[index]->GetTSlice()]->GetMatrix();
     infoPanel->setTransformation(Get4x4MatrixDoubleAsString(transformation));
 
     landmarksPanel->SetCurrentLandmarks(mSlicerManagers[index]->GetLandmarks(),
@@ -1727,7 +1729,7 @@ void vvMainWindow::UpdateSlicingPreset()
 {
   if (DataTree->selectedItems().size()) {
     int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
-    mSlicerManagers[index]->SetSlicingPreset(slicingPresetComboBox->currentIndex());
+    mSlicerManagers[index]->SetSlicingPreset(vvSlicerManager::SlicingPresetType(slicingPresetComboBox->currentIndex()));
   }
 }
 //------------------------------------------------------------------------------
@@ -2319,7 +2321,8 @@ void vvMainWindow::SaveAs()
       bool bId = true;
       for(int i=0; i<4; i++)
         for(int j=0; j<4; j++) {
-          double elt = mSlicerManagers[index]->GetImage()->GetTransform()->GetMatrix()->GetElement(i,j);
+          // TODO SR and BP: check on the list of transforms and not the first only
+          double elt = mSlicerManagers[index]->GetImage()->GetTransform()[0]->GetMatrix()->GetElement(i,j);
           if(i==j && elt!=1.)
             bId = false;
           if(i!=j && elt!=0.)
@@ -3090,6 +3093,8 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
           this,SLOT(UpdateSlice(int,int)));
   connect(mSlicerManagers.back(), SIGNAL(UpdateTSlice(int, int)),
           this,SLOT(UpdateTSlice(int, int)));
+  connect(mSlicerManagers.back(), SIGNAL(UpdateTSlice(int, int)),
+          this,SLOT(ImageInfoChanged()));
   connect(mSlicerManagers.back(), SIGNAL(UpdateSliceRange(int,int,int,int,int)),
           this,SLOT(UpdateSliceRange(int,int,int,int,int)));
   connect(mSlicerManagers.back(), SIGNAL(UpdateLinkManager(std::string,int,double,double,double,int)),
