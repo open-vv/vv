@@ -698,14 +698,15 @@ void vvSlicerManager::UpdateLinked(int slicer)
 void vvSlicerManager::UpdateLinkedNavigation(vvSlicer *refSlicer, bool bPropagate)
 {
   vtkCamera *refCam = refSlicer->GetRenderer()->GetActiveCamera();
-  double refPosition[3], refFocal[3];
+
+  double refPosition[3];
   refCam->GetPosition(refPosition);
-  refCam->GetFocalPoint(refFocal);
-  
-  refSlicer->GetSlicingTransform()->TransformPoint(refPosition);
-  refSlicer->GetSlicingTransform()->TransformPoint(refFocal);
-  mSlicers[0]->GetSlicingTransform()->GetInverse()->TransformPoint(refPosition);
-  mSlicers[0]->GetSlicingTransform()->GetInverse()->TransformPoint(refFocal);
+  refPosition[refSlicer->GetSliceOrientation()] = refSlicer->GetSlice() *
+      refSlicer->GetInput()->GetSpacing()[refSlicer->GetSliceOrientation()] +
+      refSlicer->GetInput()->GetOrigin()[refSlicer->GetSliceOrientation()];
+
+  refSlicer->GetSlicingTransform()->TransformPoint(refPosition, refPosition);
+  mSlicers[0]->GetSlicingTransform()->GetInverse()->TransformPoint(refPosition, refPosition);
 
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
     vtkCamera *camera = mSlicers[i]->GetRenderer()->GetActiveCamera();
@@ -715,51 +716,15 @@ void vvSlicerManager::UpdateLinkedNavigation(vvSlicer *refSlicer, bool bPropagat
     camera->GetPosition(position);
     camera->GetFocalPoint(focal);
 
-    if(refSlicer->GetSliceOrientation()==mSlicers[i]->GetSliceOrientation()) {
-      for(int i=0; i<3; i++) {
-        position[i] = refPosition[i];
-        focal[i]    = refFocal[i];
+    for(int j=0; j<3; j++) {
+      if(j!=mSlicers[i]->GetSliceOrientation()) {
+        position[j] = refPosition[j];
+        focal[j]    = refPosition[j];
       }
     }
 
-    if(refSlicer->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_XY) {
-      if(mSlicers[i]->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_XZ) {
-        position[0] = refPosition[0];
-        focal[0]    = refFocal[0];
-      }
-      if(mSlicers[i]->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_YZ) {
-        position[1] = refPosition[1];
-        focal[1]    = refFocal[1];
-      }
-    }
-
-    if(refSlicer->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_XZ) {
-      if(mSlicers[i]->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_YZ) {
-        position[2] = refPosition[2];
-        focal[2]    = refFocal[2];
-      }
-      if(mSlicers[i]->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_XY) {
-        position[0] = refPosition[0];
-        focal[0]    = refFocal[0];
-      }
-    }
-
-    if(refSlicer->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_YZ) {
-      if(mSlicers[i]->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_XY) {
-        position[1] = refPosition[1];
-        focal[1]    = refFocal[1];
-      }
-      if(mSlicers[i]->GetSliceOrientation()==vtkImageViewer2::SLICE_ORIENTATION_XZ) {
-        position[2] = refPosition[2];
-        focal[2]    = refFocal[2];
-      }
-    }
-DD(camera->GetFocalPoint()[0] << ' ' << camera->GetFocalPoint()[1] << ' ' << camera->GetFocalPoint()[2])
     camera->SetFocalPoint(focal);
-DD(camera->GetFocalPoint()[0] << ' ' << camera->GetFocalPoint()[1] << ' ' << camera->GetFocalPoint()[2])
-DD(camera->GetPosition()[0] << ' ' << camera->GetPosition()[1] << ' ' << camera->GetPosition()[2])
     camera->SetPosition(position);
-DD(camera->GetPosition()[0] << ' ' << camera->GetPosition()[1] << ' ' << camera->GetPosition()[2])
 
     //Fix for bug #243
     mSlicers[i]->ForceUpdateDisplayExtent();
