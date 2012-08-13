@@ -207,6 +207,16 @@ protected:
 
   vvLandmarks* mLandmarks;
 
+  //                         __________ Image coordinates accounting for spacing and origin
+  //                            Λ  Λ
+  //                            |  | vvImage.GetTransform()
+  //                            |  |
+  // GetConcatenatedTransform() | _|___ VV world coordinates (mm) (displayed in VV)
+  //                            |  Λ
+  //                            |  | GetSlicingTransform()
+  //                            |  |
+  //                         ___|__|___ VTK world coordinates (mm) (never displayed)
+
   vtkSmartPointer<vtkImageReslice> mImageReslice;
   vtkSmartPointer<vtkTransform> mSlicingTransform;
   vtkSmartPointer<vtkTransform> mConcatenatedTransform;
