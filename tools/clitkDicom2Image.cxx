@@ -57,6 +57,8 @@ int main(int argc, char * argv[])
   for(unsigned int i=0; i<args_info.inputs_num; i++) {
     //std::cout << "Reading <" << input_files[i] << std::endl;
 #if GDCM_MAJOR_VERSION == 2
+    if (args_info.verbose_flag)
+      std::cout << "Using GDCM-2.x" << std::endl;
     gdcm::Reader hreader;
     hreader.SetFileName(input_files[i].c_str());
     hreader.Read();
@@ -72,6 +74,8 @@ int main(int argc, char * argv[])
       exit(0);
     }
 #else
+    if (args_info.verbose_flag)
+      std::cout << "Not using GDCM-2.x" << std::endl;
   gdcm::File *header = new gdcm::File();
   header->SetFileName(input_files[i]);
   header->SetMaxSizeLoadEntry(16384); // required ?

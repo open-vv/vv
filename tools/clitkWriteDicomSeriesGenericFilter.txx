@@ -196,10 +196,15 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
       }
     }
 
-    filter->Update();
-    input = filter->GetOutput();
+    try {
+      filter->Update();
+      input = filter->GetOutput();
+    } catch( itk::ExceptionObject & excp ) {
+    std::cerr << "Error: Exception thrown while resampling!!" << std::endl;
+    std::cerr << excp << std::endl;
+    }
   }
-
+  
   //	In some cases, due to resampling approximation issues, 
   //	the number of slices in the MHD file may be different (smaller)
   //	from the number of files in the template dicom directory. 
@@ -208,6 +213,9 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   //	in verbose mode
   const RegionType volumeRegion = input->GetLargestPossibleRegion();
   const SizeType& volumeSize = volumeRegion.GetSize();
+  if (m_Verbose) {
+    std::cout << volumeRegion << volumeSize << std::endl;
+  }
   if (Dimension == 3 && volumeSize[2] < numberOfFilenames) {
     if (m_Verbose)
       std::cout << "Warning: The number of files in " << m_ArgsInfo.inputDir_arg << " (" << filenames_in.size() << " files) is greater than the number of slices in MHD (" << volumeSize[2] << " slices). Using only " << volumeSize[2] << " files." << std::endl;
@@ -233,9 +241,11 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   for (unsigned int i = 0; i < numberOfKeysGiven; i++) {
     std::string entryId(m_ArgsInfo.key_arg[i]  );
     std::string value( m_ArgsInfo.tag_arg[i] );
+    std::cout << entryId << " " << value << std::endl;
     for(unsigned int fni = 0; fni<numberOfFilenames; fni++)
       itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), entryId, value );
   }
+  
 
   // Output directory and filenames
   itksys::SystemTools::MakeDirectory( m_ArgsInfo.outputDir_arg ); // create if it doesn't exist
@@ -251,6 +261,7 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   // Write
   try {
     seriesWriter->Update();
+    std::cerr << "filter update" << std::endl;
   } catch( itk::ExceptionObject & excp ) {
     std::cerr << "Error: Exception thrown while writing the series!!" << std::endl;
     std::cerr << excp << std::endl;
