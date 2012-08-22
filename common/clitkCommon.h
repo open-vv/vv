@@ -38,7 +38,7 @@
 #if defined(unix) || defined(__APPLE__)
 #  include <sys/time.h>
 #  include <sys/resource.h>
-#elif defined(WIN32)
+#elif defined(_WIN32)
 #  include <windows.h>
 #endif
 

@@ -108,7 +108,7 @@ void clitk::XdrImageIO::Write(const void* buffer)
 
 #include <algorithm>
 
-#ifdef WIN32
+#ifdef _WIN32
 // don't use min() and max() macros indirectly defined by windows.h,
 // but use portable std::min() and std:max() instead
 #ifndef NOMINMAX
@@ -256,7 +256,7 @@ static int wxdr_write(int handle, const void * buf, unsigned len)
 {
   // if (handle == 1) // stdout
   if (handle == fileno(stdout)) {
-#ifdef WIN32
+#ifdef _WIN32
     // Behave as C standard library write(): return number of bytes
     // written or -1 and errno set on error.
     fflush(stdout);
@@ -837,6 +837,12 @@ void clitk::XdrImageIO::WriteImage(const char* file, char* headerinfo, char* hea
   char     *buf2;
   size_t   slen;
 
+#ifdef _WIN32
+  int oldFMode;
+  _get_fmode(&oldFMode);
+  _set_fmode(O_BINARY); /* default binary i/o */
+#endif
+
   if (bLittleEndian)
     swap_test = 0x00000001;
 
@@ -1203,5 +1209,10 @@ WRITE_COORDS:
     if (f != fileno(stdout)) close(f);
 
   if (getsize) return;
+
+#ifdef _WIN32
+  _set_fmode(oldFMode ? oldFMode : _O_TEXT); /* restore default binary i/o */
+#endif
+
   return AVS_OK;
 }
