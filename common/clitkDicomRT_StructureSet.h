@@ -49,6 +49,7 @@ public:
 
   void Print(std::ostream & os = std::cout) const;
   void Read(const std::string & filename);
+  bool IsDicomRTStruct(const std::string & filename);
   void Write(const std::string & filename);
 
   clitk::DicomRT_ROI * GetROIFromROINumber(int n);

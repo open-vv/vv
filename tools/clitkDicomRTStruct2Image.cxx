@@ -41,7 +41,7 @@ int main(int argc, char * argv[]) {
   if (args_info.roi_arg != -1) {
     filter.SetROI(s->GetROIFromROINumber(args_info.roi_arg)); 
     filter.SetOutputImageFilename(args_info.output_arg);
-  filter.Update();  
+    filter.Update();  
   }
   else {
     clitk::DicomRT_StructureSet::ROIConstIteratorType iter;

@@ -19,12 +19,12 @@
 #define clitkDD_h
 
 #include <iostream>
-#ifdef WIN32
+#ifdef _WIN32
 # include <windows.h>
 #endif
 // David's debug
 
-#ifdef WIN32
+#ifdef _WIN32
 # define DD(a) { \
     std::ostringstream ossDD; \
     ossDD << #a " = [ " << a << " ]" << std::endl; \

@@ -52,9 +52,9 @@ class vvToolROIManager:
   public slots:
   void AnImageIsBeingClosed(vvSlicerManager *);
   void SelectedImageHasChanged(vvSlicerManager *);
-  void OpenBinaryImage();
+  void Open();
   void OpenBinaryImage(QStringList & filenames);
-  void OpenDicomImage();
+  void OpenDicomImage(std::string filaneme);
   void SelectedItemChangedInTree();
   void VisibleROIToggled(bool b);
   void VisibleContourROIToggled(bool b);
