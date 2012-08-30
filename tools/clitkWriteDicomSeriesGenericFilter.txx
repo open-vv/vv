@@ -82,10 +82,10 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDim(std::string PixelTy
     if (m_Verbose) std::cout << "Launching filter in "<< Dimension <<"D and signed short..." << std::endl;
     UpdateWithDimAndPixelType<Dimension, signed short>();
   }
-  //    else if(PixelType == "unsigned_short"){
-  //       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_short..." << std::endl;
-  //       UpdateWithDimAndPixelType<Dimension, unsigned short>();
-  //     }
+  else if(PixelType == "unsigned_short"){
+    if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_short..." << std::endl;
+    UpdateWithDimAndPixelType<Dimension, unsigned short>();
+  }
 
   else if (PixelType == "unsigned_char") {
     if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_char..." << std::endl;
@@ -96,6 +96,10 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDim(std::string PixelTy
   //       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and signed_char..." << std::endl;
   //       UpdateWithDimAndPixelType<Dimension, signed char>();
   //     }
+  else if (PixelType == "double") {
+    if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and double..." << std::endl;
+    UpdateWithDimAndPixelType<Dimension, double>();
+  }
   else {
     if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and float..." << std::endl;
     UpdateWithDimAndPixelType<Dimension, float>();
@@ -230,13 +234,7 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   const std::vector<DictionaryType*>* dictionary = reader->GetMetaDataDictionaryArray();
 
   // Get keys
-  unsigned int numberOfKeysGiven=0;
-  if(m_ArgsInfo.midP_flag && m_ArgsInfo.key_given)
-    std::cerr<<"Error: both keys and midP option are given"<<std::endl;
-  else if (m_ArgsInfo.midP_flag)
-    numberOfKeysGiven=1;
-  else
-    numberOfKeysGiven=m_ArgsInfo.key_given;
+  unsigned int numberOfKeysGiven=m_ArgsInfo.key_given;
 
   for (unsigned int i = 0; i < numberOfKeysGiven; i++) {
     std::string entryId(m_ArgsInfo.key_arg[i]  );
@@ -261,7 +259,6 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   // Write
   try {
     seriesWriter->Update();
-    std::cerr << "filter update" << std::endl;
   } catch( itk::ExceptionObject & excp ) {
     std::cerr << "Error: Exception thrown while writing the series!!" << std::endl;
     std::cerr << excp << std::endl;
