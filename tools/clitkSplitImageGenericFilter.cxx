@@ -36,13 +36,54 @@ clitk::SplitImageGenericFilter::SplitImageGenericFilter():
 }
 //--------------------------------------------------------------------
 
-
 //--------------------------------------------------------------------
 template<unsigned int Dim>
 void clitk::SplitImageGenericFilter::InitializeImageType()
 {
   ADD_DEFAULT_IMAGE_TYPES(Dim);
-  //ADD_VEC_IMAGE_TYPE(Dim, 3,float);
+  ADD_VEC_IMAGE_TYPE(Dim, 3,float);
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+template <class ImageType>
+typename clitk::SplitImageGenericFilter::PngConversion<ImageType>::OutputPngImagePointer
+clitk::SplitImageGenericFilter::PngConversion<ImageType>::Do(double window,
+                                                             double level,
+                                                             ImagePointer input)
+{
+  static const unsigned int PixelDimension = itk::PixelTraits<typename ImageType::PixelType>::Dimension;
+  return this->Do(window, level, input, static_cast< PixelDimType<PixelDimension> *>(NULL) );
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+template <class ImageType>
+template<unsigned int Dim>
+typename clitk::SplitImageGenericFilter::PngConversion<ImageType>::OutputPngImagePointer
+clitk::SplitImageGenericFilter::PngConversion<ImageType>::Do(double window,
+                                                             double level,
+                                                             ImagePointer input,
+                                                             PixelDimType<Dim> *)
+{
+  clitkExceptionMacro("Png conversion is not implemented for vector fields");
+  return NULL;
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+template <class ImageType>
+typename clitk::SplitImageGenericFilter::PngConversion<ImageType>::OutputPngImagePointer
+clitk::SplitImageGenericFilter::PngConversion<ImageType>::Do(double window,
+                                                             double level,
+                                                             ImagePointer input,
+                                                             PixelDimType<1> *)
+{
+  typedef itk::IntensityWindowingImageFilter< ImageType, OutputPngImageType > CastFilterType;
+  typename CastFilterType::Pointer cast = CastFilterType::New();
+  cast->SetWindowLevel(window, level);
+  cast->SetInput(input);
+  return cast->GetOutput();
 }
 //--------------------------------------------------------------------
 
@@ -80,13 +121,11 @@ void clitk::SplitImageGenericFilter::UpdateWithInputImageType()
     filter->SetExtractionRegion(extracted_region);
     filter->Update();
     if(this->m_Png){
-      typedef itk::Image< unsigned char, ImageType::ImageDimension-1 > OutputPngImageType;
-      typedef itk::IntensityWindowingImageFilter< OutputImageType, OutputPngImageType > CastFilterType;
-      typename CastFilterType::Pointer cast = CastFilterType::New();
-      cast->SetWindowLevel(this->m_Window, this->m_Level);
-      cast->SetInput(filter->GetOutput());
+      PngConversion<OutputImageType> png;
       SetOutputFilename(base_filename+"_"+ss.str()+".png");
-      SetNextOutput<OutputPngImageType>(cast->GetOutput());
+      typename PngConversion<OutputImageType>::OutputPngImagePointer output;
+      output = png.Do(this->m_Window, this->m_Level, filter->GetOutput());
+      this->template SetNextOutput<typename PngConversion<OutputImageType>::OutputPngImageType>(output);
     }
     else {
       SetOutputFilename(base_filename+"_"+ss.str()+".mhd");
