@@ -67,6 +67,23 @@ namespace clitk {
     void UpdateWithInputImageType();
 
   protected:  
+    template <class ImageType>
+    class PngConversion
+    {
+    public:
+      typedef typename ImageType::Pointer ImagePointer;
+      typedef itk::Image< unsigned char, ImageType::ImageDimension > OutputPngImageType;
+      typedef typename OutputPngImageType::Pointer OutputPngImagePointer;
+      OutputPngImagePointer Do(double window, double level, ImagePointer input);
+    private:
+      template<unsigned int> struct PixelDimType {};
+      template<unsigned int Dim> OutputPngImagePointer Do(double window,
+                                                          double level,
+                                                          ImagePointer input,
+                                                          PixelDimType<Dim> *);
+      OutputPngImagePointer Do(double window, double level, ImagePointer input, PixelDimType<1> *);
+    };
+
     template<unsigned int Dim> void InitializeImageType();
     int  mSplitDimension;
     bool m_Verbose;
