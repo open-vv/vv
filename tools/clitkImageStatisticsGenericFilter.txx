@@ -41,20 +41,28 @@ namespace clitk
       if (m_Verbose) std::cout << "Launching filter in "<< Dimension <<"D and signed short..." << std::endl;
       UpdateWithDimAndPixelType<Dimension, signed short, Components>(); 
     }
-    //    else if(PixelType == "unsigned_short"){  
-    //       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_short..." << std::endl;
-    //       UpdateWithDimAndPixelType<Dimension, unsigned short>(); 
-    //     }
+    else if(PixelType == "unsigned_short"){  
+      if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_short..." << std::endl;
+      UpdateWithDimAndPixelType<Dimension, unsigned short, Components>(); 
+    }
     
     else if (PixelType == "unsigned_char"){ 
       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_char..." << std::endl;
       UpdateWithDimAndPixelType<Dimension, unsigned char, Components>();
     }
     
+//     else if (PixelType == "unsigned_int"){ 
+//       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_int..." << std::endl;
+//       UpdateWithDimAndPixelType<Dimension, unsigned int, Components>();
+//     }
     //     else if (PixelType == "char"){ 
     //       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and signed_char..." << std::endl;
     //       UpdateWithDimAndPixelType<Dimension, signed char>();
     //     }
+    else if(PixelType == "double"){  
+      if (m_Verbose) std::cout << "Launching filter in "<< Dimension <<"D and double..." << std::endl;
+      UpdateWithDimAndPixelType<Dimension, double, Components>(); 
+    }
     else {
       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and float..." << std::endl;
       UpdateWithDimAndPixelType<Dimension, float, Components>();
