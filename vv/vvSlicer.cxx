@@ -725,15 +725,25 @@ void vvSlicer::SetTSlice(int t)
       mVOIFilter->SetInput(mVF->GetVTKImages()[mCurrentTSlice]);
   }
   if (mOverlay && mOverlayActor->GetVisibility()) {
-    if (mOverlay->GetVTKImages().size() > (unsigned int)mCurrentTSlice) {
-      mCurrentOverlayTSlice = mCurrentTSlice;
+    if (mOverlay->GetVTKImages().size() > (unsigned int)t) {
+      mCurrentOverlayTSlice = t;
       mOverlayReslice->SetInput( mOverlay->GetVTKImages()[mCurrentOverlayTSlice] );
+
+      // Update overlay transform
+      mConcatenatedOverlayTransform->Identity();
+      mConcatenatedOverlayTransform->Concatenate(mOverlay->GetTransform()[mCurrentOverlayTSlice]);
+      mConcatenatedOverlayTransform->Concatenate(mSlicingTransform);
     }
   }
   if (mFusion && mFusionActor->GetVisibility()) {
-    if (mFusion->GetVTKImages().size() > (unsigned int)mCurrentTSlice) {
-      mCurrentFusionTSlice = mCurrentTSlice;
+    if (mFusion->GetVTKImages().size() > (unsigned int)t) {
+      mCurrentFusionTSlice = t;
       mFusionReslice->SetInput( mFusion->GetVTKImages()[mCurrentFusionTSlice]);
+
+      // Update fusion transform
+      mConcatenatedFusionTransform->Identity();
+      mConcatenatedFusionTransform->Concatenate(mFusion->GetTransform()[mCurrentFusionTSlice]);
+      mConcatenatedFusionTransform->Concatenate(mSlicingTransform);
     }
   }
   if (mSurfaceCutActors.size() > 0)
