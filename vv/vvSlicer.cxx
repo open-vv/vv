@@ -307,7 +307,7 @@ void vvSlicer::SetCurrentPosition(double x, double y, double z, int t)
   mCurrentBeforeSlicingTransform[1]=y;
   mCurrentBeforeSlicingTransform[2]=z;
   mSlicingTransform->GetInverse()->TransformPoint(mCurrentBeforeSlicingTransform,mCurrent);
-  mCurrentTSlice = t;
+  SetTSlice(t);
 }
 //------------------------------------------------------------------------------
 

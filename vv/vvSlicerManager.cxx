@@ -686,9 +686,7 @@ void vvSlicerManager::UpdateLinked(int slicer)
       z >= mSlicers[slicer]->GetInput()->GetWholeExtent()[4]-0.5 &&
       z <= mSlicers[slicer]->GetInput()->GetWholeExtent()[5]+0.5) {
     for (std::list<std::string>::const_iterator i = mLinkedId.begin(); i != mLinkedId.end(); i++) {
-      emit UpdateLinkManager(*i, slicer,mSlicers[slicer]->GetCurrentPosition()[0],
-                             mSlicers[slicer]->GetCurrentPosition()[1],
-                             mSlicers[slicer]->GetCurrentPosition()[2],mSlicers[slicer]->GetTSlice());
+      emit UpdateLinkManager(*i, slicer, p[0], p[1], p[2], mSlicers[slicer]->GetTSlice());
     }
   }
 }
