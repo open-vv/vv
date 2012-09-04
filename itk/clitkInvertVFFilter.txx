@@ -75,7 +75,11 @@ protected:
 
   //the actual processing
   void BeforeThreadedGenerateData();
+#if ITK_VERSION_MAJOR >= 4
+  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId );
+#else
   void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId );
+#endif
 
   //member data
   typename  WeightsImageType::Pointer m_Weights;
@@ -113,7 +117,11 @@ void HelperClass1<InputImageType, OutputImageType>::BeforeThreadedGenerateData()
 //=========================================================================================================================
 //update the output for the outputRegionForThread
 template<class InputImageType, class OutputImageType>
+#if ITK_VERSION_MAJOR >= 4
+void HelperClass1<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId )
+#else
 void HelperClass1<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId )
+#endif
 {
   //std::cout << "HelperClass1::ThreadedGenerateData - IN" << std::endl;
   //Get pointer to the input
@@ -285,8 +293,11 @@ protected:
 
 
   //the actual processing
+#if ITK_VERSION_MAJOR >= 4
+  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId );
+#else
   void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId );
-
+#endif
 
   //member data
   typename     WeightsImageType::Pointer m_Weights;
@@ -311,7 +322,11 @@ template<class InputImageType, class OutputImageType > HelperClass2<InputImageTy
 
 //=========================================================================================================================
 //update the output for the outputRegionForThread
+#if ITK_VERSION_MAJOR >= 4
+template<class InputImageType, class OutputImageType > void HelperClass2<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId )
+#else
 template<class InputImageType, class OutputImageType > void HelperClass2<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId )
+#endif
 {
   //std::cout << "HelperClass2::ThreadedGenerateData - IN" << std::endl;
   
