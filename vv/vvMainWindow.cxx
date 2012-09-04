@@ -1858,21 +1858,28 @@ void vvMainWindow::SelectOverlayImage()
 
   QString Extensions = EXTENSIONS;
   Extensions += ";;All Files (*)";
-  QString file = QFileDialog::getOpenFileName(this,tr("Load Overlay image"),mInputPathName,Extensions);
-  if (!file.isEmpty())
-    AddOverlayImage(index,file);
+  QStringList files = QFileDialog::getOpenFileNames(this,tr("Load Overlay image"),mInputPathName,Extensions);
+  if (files.isEmpty())
+    return;
+
+  std::vector<std::string> vecFileNames;
+  for (int i = 0; i < files.size(); i++) {
+    vecFileNames.push_back(files[i].toStdString());
+  }
+  AddOverlayImage(index,vecFileNames);
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void vvMainWindow::AddOverlayImage(int index, QString file)
+void vvMainWindow::AddOverlayImage(int index, std::vector<std::string> fileNames)
 {
+  QString file(fileNames[0].c_str());
   if (QFile::exists(file))
   {
     mInputPathName = itksys::SystemTools::GetFilenamePath(file.toStdString()).c_str();
     itk::ImageIOBase::Pointer reader = itk::ImageIOFactory::CreateImageIO(
         file.toStdString().c_str(), itk::ImageIOFactory::ReadMode);
-    reader->SetFileName(file.toStdString().c_str());
+    reader->SetFileName(fileNames[0].c_str());
     reader->ReadImageInformation();
     std::string component = reader->GetComponentTypeAsString(reader->GetComponentType());
     int dimension = reader->GetNumberOfDimensions();
@@ -1881,7 +1888,7 @@ void vvMainWindow::AddOverlayImage(int index, QString file)
     qApp->processEvents();
 
     std::string filename = itksys::SystemTools::GetFilenameWithoutExtension(file.toStdString()).c_str();
-    if (mSlicerManagers[index]->SetOverlay(file.toStdString(),dimension, component)) {
+    if (mSlicerManagers[index]->SetOverlay(fileNames,dimension, component)) {
       //create an item in the tree with good settings
       QTreeWidgetItem *item = new QTreeWidgetItem();
       item->setData(0,Qt::UserRole,file.toStdString().c_str());
