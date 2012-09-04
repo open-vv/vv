@@ -1146,19 +1146,20 @@ void vvSlicerManager::SetPreset(int preset)
 void vvSlicerManager::SetLocalColorWindowing(const int slicer, const bool bCtrlKey)
 {
   double min, max;
-  int t = this->GetTSlice();
   if(bCtrlKey && this->mSlicers[slicer]->GetFusion()) {
+    int t = mSlicers[slicer]->GetFusionTSlice();
     this->mSlicers[slicer]->GetExtremasAroundMousePointer(min, max,
                                                           this->mSlicers[slicer]->GetFusion()->GetVTKImages()[t],
-                                                          this->mSlicers[slicer]->GetFusion()->GetTransform()[t]);
+                                                          this->mSlicers[slicer]->GetConcatenatedFusionTransform());
     this->SetFusionWindow(max-min);
     this->SetFusionLevel(0.5*(min+max));
     this->SetColorMap(mColorMap);
   }
   else if(bCtrlKey && this->mSlicers[slicer]->GetOverlay()) {
+    int t = mSlicers[slicer]->GetOverlayTSlice();
     this->mSlicers[slicer]->GetExtremasAroundMousePointer(min, max,
                                                           this->mSlicers[slicer]->GetOverlay()->GetVTKImages()[t],
-                                                          this->mSlicers[slicer]->GetOverlay()->GetTransform()[t]);
+                                                          this->mSlicers[slicer]->GetConcatenatedOverlayTransform());
     if(this->mSlicers[slicer]->GetLinkOverlayWindowLevel()){
       this->SetColorWindow(max-min);
       this->SetColorLevel(0.5*(min+max));
@@ -1168,6 +1169,7 @@ void vvSlicerManager::SetLocalColorWindowing(const int slicer, const bool bCtrlK
     }
   }
   else {
+    int t = this->GetTSlice();
     this->mSlicers[slicer]->GetExtremasAroundMousePointer(min, max,
                                                           this->mSlicers[slicer]->GetImage()->GetVTKImages()[t],
                                                           this->mSlicers[slicer]->GetConcatenatedTransform());

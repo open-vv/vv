@@ -82,6 +82,8 @@ vvSlicer::vvSlicer()
   mImage = NULL;
   mReducedExtent = new int[6];
   mCurrentTSlice = 0;
+  mCurrentFusionTSlice = 0;
+  mCurrentOverlayTSlice = 0;
   mUseReducedExtent = false;
 
   mCurrent[0] = -VTK_DOUBLE_MAX;
@@ -148,6 +150,8 @@ vvSlicer::vvSlicer()
 
   mSlicingTransform = vtkSmartPointer<vtkTransform>::New();
   mConcatenatedTransform = vtkSmartPointer<vtkTransform>::New();
+  mConcatenatedFusionTransform = vtkSmartPointer<vtkTransform>::New();
+  mConcatenatedOverlayTransform = vtkSmartPointer<vtkTransform>::New();
 }
 //------------------------------------------------------------------------------
 
@@ -369,8 +373,13 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
       mOverlayReslice->AutoCropOutputOn();
       mOverlayReslice->SetBackgroundColor(-1000,-1000,-1000,1);
     }
-    mOverlayReslice->SetResliceTransform(mOverlay->GetTransform()[0]);
+
+    mConcatenatedOverlayTransform->Identity();
+    mConcatenatedOverlayTransform->Concatenate(mOverlay->GetTransform()[0]);
+    mConcatenatedOverlayTransform->Concatenate(mSlicingTransform);
+    mOverlayReslice->SetResliceTransform(mConcatenatedOverlayTransform);
     mOverlayReslice->SetInput(0, mOverlay->GetFirstVTKImageData());
+    mImageReslice->UpdateInformation();
 
     if (!mOverlayMapper)
       mOverlayMapper = vtkSmartPointer<vtkImageMapToWindowLevelColors>::New();
@@ -416,8 +425,13 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion)
       mFusionReslice->AutoCropOutputOn();
       mFusionReslice->SetBackgroundColor(-1000,-1000,-1000,1);
     }
-    mFusionReslice->SetResliceTransform(mFusion->GetTransform()[0]);
+
+    mConcatenatedFusionTransform->Identity();
+    mConcatenatedFusionTransform->Concatenate(mFusion->GetTransform()[0]);
+    mConcatenatedFusionTransform->Concatenate(mSlicingTransform);
+    mFusionReslice->SetResliceTransform(mConcatenatedFusionTransform);
     mFusionReslice->SetInput(0, mFusion->GetFirstVTKImageData());
+    mFusionReslice->UpdateInformation();
 
     if (!mFusionMapper)
       mFusionMapper = vtkSmartPointer<vtkImageMapToColors>::New();
@@ -711,12 +725,16 @@ void vvSlicer::SetTSlice(int t)
       mVOIFilter->SetInput(mVF->GetVTKImages()[mCurrentTSlice]);
   }
   if (mOverlay && mOverlayActor->GetVisibility()) {
-    if (mOverlay->GetVTKImages().size() > (unsigned int)mCurrentTSlice)
-      mOverlayReslice->SetInput( mOverlay->GetVTKImages()[mCurrentTSlice] );
+    if (mOverlay->GetVTKImages().size() > (unsigned int)mCurrentTSlice) {
+      mCurrentOverlayTSlice = mCurrentTSlice;
+      mOverlayReslice->SetInput( mOverlay->GetVTKImages()[mCurrentOverlayTSlice] );
+    }
   }
   if (mFusion && mFusionActor->GetVisibility()) {
-    if (mFusion->GetVTKImages().size() > (unsigned int)mCurrentTSlice)
-      mFusionReslice->SetInput( mFusion->GetVTKImages()[mCurrentTSlice]);
+    if (mFusion->GetVTKImages().size() > (unsigned int)mCurrentTSlice) {
+      mCurrentFusionTSlice = mCurrentTSlice;
+      mFusionReslice->SetInput( mFusion->GetVTKImages()[mCurrentFusionTSlice]);
+    }
   }
   if (mSurfaceCutActors.size() > 0)
     for (std::vector<vvMeshActor*>::iterator i=mSurfaceCutActors.begin();
@@ -731,6 +749,20 @@ void vvSlicer::SetTSlice(int t)
 int vvSlicer::GetTSlice()
 {
   return mCurrentTSlice;
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+int vvSlicer::GetFusionTSlice()
+{
+  return mCurrentFusionTSlice;
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+int vvSlicer::GetOverlayTSlice()
+{
+  return mCurrentOverlayTSlice;
 }
 //------------------------------------------------------------------------------
 
@@ -1197,7 +1229,7 @@ void vvSlicer::SetOverlayColorLevel(double level)
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-// Returns the min an the max value in a 41x41 region around the mouse pointer
+// Returns the min an the max value in a 20%x20% region around the mouse pointer
 void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max, vtkImageData *image, vtkTransform *transform)
 {
   //Get mouse pointer position in view coordinates
