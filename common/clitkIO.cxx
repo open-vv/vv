@@ -36,6 +36,7 @@
 #include "clitkConfiguration.h"
 #if CLITK_PRIVATE_FEATURES
   #include "clitkUsfImageIOFactory.h"
+  #include "clitkUSVoxImageIOFactory.h"
 #endif
 
 //--------------------------------------------------------------------
@@ -44,6 +45,7 @@ void clitk::RegisterClitkFactories()
 {
 #if CLITK_PRIVATE_FEATURES
   clitk::UsfImageIOFactory::RegisterOneFactory();
+  clitk::USVoxImageIOFactory::RegisterOneFactory();
 #endif
   clitk::GateAsciiImageIOFactory::RegisterOneFactory();
   clitk::DicomRTDoseIOFactory::RegisterOneFactory();
