@@ -242,18 +242,18 @@ bool vvSlicerManager::SetImages(std::vector<std::string> filenames, vvImageReade
 
 
 //----------------------------------------------------------------------------
-bool vvSlicerManager::SetOverlay(std::vector<std::string> filenames,int dim, std::string component)
+bool vvSlicerManager::SetOverlay(std::vector<std::string> filenames,int dim, std::string component, vvImageReader::LoadedImageType type)
 {
   mOverlayName = filenames[0];
   mOverlayComponent = component;
   if (dim > mImage->GetNumberOfDimensions()) {
-    mLastError = " Overlay dimension cannot be greater then reference image!";
+    mLastError = " Overlay dimension cannot be greater than reference image!";
     return false;
   }
   if (mOverlayReader.IsNull())
     mOverlayReader = vvImageReader::New();
   mOverlayReader->SetInputFilenames(filenames);
-  mOverlayReader->Update(mImage->GetNumberOfDimensions(),component.c_str(),mType);
+  mOverlayReader->Update(type);
   if (mOverlayReader->GetLastError().size() == 0) {
     for ( unsigned int i = 0; i < mSlicers.size(); i++) {
       mSlicers[i]->SetOverlay(mOverlayReader->GetOutput());

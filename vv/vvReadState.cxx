@@ -195,7 +195,7 @@ std::string vvReadState::ReadOverlay(int index)
           // TODO: manage sequence of images
           std::vector<std::string> vec;
           vec.push_back(file.c_str());
-          m_Window->AddOverlayImage(index, vec);
+          m_Window->AddOverlayImage(index, vec, vvImageReader::IMAGE);
         }
       }
       if (value == "OverlayColorWindow") {

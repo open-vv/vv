@@ -127,8 +127,8 @@ int main( int argc, char** argv )
           if(open_mode==O_BASE)
             window.LoadImages(sequence_filenames, vvImageReader::MERGEDWITHTIME);
           else if (open_mode==O_OVERLAY)
-            window.AddOverlayImage(n_image_loaded-1,sequence_filenames);
-          else{
+            window.AddOverlayImage(n_image_loaded-1,sequence_filenames,vvImageReader::IMAGE);
+          else {
             std::cerr << "Sequences are not managed for opening " << open_mode_names[open_mode] << std::endl;
             exit(1);
           }
@@ -176,9 +176,9 @@ int main( int argc, char** argv )
         } else if (current == "--level") {
           parse_mode=P_LEVEL;
         } else if (current == "--linkall") {
-					link_images = true;
-				}
-				else if (current == "--log") {
+	  link_images = true;
+	}
+	else if (current == "--log") {
           std::string log_dir = QDir::tempPath().toStdString() + std::string("/vv-log");
 
           if(itksys::SystemTools::FileExists(log_dir.c_str()) &&
@@ -229,7 +229,7 @@ int main( int argc, char** argv )
         else if (open_mode==O_VF)
           window.AddField(current.c_str(), n_image_loaded-1);
         else if (open_mode==O_OVERLAY)
-          window.AddOverlayImage(n_image_loaded-1,image);
+          window.AddOverlayImage(n_image_loaded-1,image,vvImageReader::IMAGE);
         else if (open_mode==O_CONTOUR)
           window.AddDCStructContour(n_image_loaded-1,current.c_str());
         else if (open_mode==O_FUSION)
@@ -241,8 +241,8 @@ int main( int argc, char** argv )
       if(open_mode==O_BASE)
         window.LoadImages(sequence_filenames, vvImageReader::MERGEDWITHTIME);
       else if (open_mode==O_OVERLAY)
-        window.AddOverlayImage(n_image_loaded-1,sequence_filenames);
-      else{
+        window.AddOverlayImage(n_image_loaded-1,sequence_filenames, vvImageReader::MERGEDWITHTIME);
+      else {
         std::cerr << "Sequences are not managed for opening " << open_mode_names[open_mode] << std::endl;
         exit(1);
       }
@@ -256,8 +256,8 @@ int main( int argc, char** argv )
     window.ApplyWindowLevelToAllImages();
   }
 
-	if (link_images)
-		window.LinkAllImages();
+  if (link_images)
+    window.LinkAllImages();
 
   int ret = app.exec();
   

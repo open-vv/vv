@@ -1866,12 +1866,12 @@ void vvMainWindow::SelectOverlayImage()
   for (int i = 0; i < files.size(); i++) {
     vecFileNames.push_back(files[i].toStdString());
   }
-  AddOverlayImage(index,vecFileNames);
+  AddOverlayImage(index,vecFileNames,vvImageReader::IMAGE);
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void vvMainWindow::AddOverlayImage(int index, std::vector<std::string> fileNames)
+void vvMainWindow::AddOverlayImage(int index, std::vector<std::string> fileNames, vvImageReader::LoadedImageType type)
 {
   QString file(fileNames[0].c_str());
   if (QFile::exists(file))
@@ -1888,7 +1888,7 @@ void vvMainWindow::AddOverlayImage(int index, std::vector<std::string> fileNames
     qApp->processEvents();
 
     std::string filename = itksys::SystemTools::GetFilenameWithoutExtension(file.toStdString()).c_str();
-    if (mSlicerManagers[index]->SetOverlay(fileNames,dimension, component)) {
+    if (mSlicerManagers[index]->SetOverlay(fileNames,dimension, component,type)) {
       //create an item in the tree with good settings
       QTreeWidgetItem *item = new QTreeWidgetItem();
       item->setData(0,Qt::UserRole,file.toStdString().c_str());
