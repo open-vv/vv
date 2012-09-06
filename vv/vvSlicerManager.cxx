@@ -442,7 +442,7 @@ void vvSlicerManager::SetTSlice(int slice)
   if (mLandmarks)
     mLandmarks->SetTime(slice);
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
-    if (slice != mSlicers[i]->GetTSlice()) {
+    if (slice != mSlicers[i]->GetMaxCurrentTSlice()) {
       mSlicers[i]->SetTSlice(slice);
       UpdateTSlice(i);
     }
@@ -454,7 +454,7 @@ void vvSlicerManager::SetTSlice(int slice)
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetNextTSlice(int originating_slicer)
 {
-  int t = mSlicers[0]->GetTSlice();
+  int t = mSlicers[0]->GetMaxCurrentTSlice();
   t++;
   if (t > mSlicers[0]->GetTMax())
     t = 0;
@@ -467,7 +467,7 @@ void vvSlicerManager::SetNextTSlice(int originating_slicer)
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetPreviousTSlice(int originating_slicer)
 {
-  int t = mSlicers[0]->GetTSlice();
+  int t = mSlicers[0]->GetMaxCurrentTSlice();
   t--;
   if (t < 0)
     t = mSlicers[0]->GetTMax();
@@ -502,16 +502,17 @@ void vvSlicerManager::SetTSliceInSlicer(int tslice, int slicer)
   if (mLandmarks)
     mLandmarks->SetTime(tslice);
 
-  if (mSlicers[slicer]->GetTSlice() == tslice) return;
+  if (mSlicers[slicer]->GetMaxCurrentTSlice() == tslice) return;
+
+  mSlicers[slicer]->SetTSlice(tslice);
 
   if(mSlicingPreset==VOXELS_SLICING) {
     vtkMatrix4x4 *imageTransformInverse = vtkMatrix4x4::New();
-    mImage->GetTransform()[tslice]->GetInverse(imageTransformInverse);
+    mImage->GetTransform()[mSlicers[slicer]->GetTSlice()]->GetInverse(imageTransformInverse);
     this->GetSlicer(slicer)->GetSlicingTransform()->SetMatrix(imageTransformInverse);
     imageTransformInverse->Delete();
   }
 
-  mSlicers[slicer]->SetTSlice(tslice);
   UpdateTSlice(slicer);
 }
 //----------------------------------------------------------------------------
@@ -628,11 +629,11 @@ void vvSlicerManager::UpdateViews(int current,int slicer)
           && mSlicers[i]->GetRenderer()->GetDraw()
           && mSlicers[i]->GetRenderWindow()->GetSize()[0] > 2
           && mSlicers[i]->GetRenderWindow()->GetSize()[1] > 2) {
-        mSlicers[i]->SetCurrentPosition(p[0], p[1], p[2], mSlicers[slicer]->GetTSlice());
+        mSlicers[i]->SetCurrentPosition(p[0], p[1], p[2], mSlicers[slicer]->GetMaxCurrentTSlice());
         mSlicers[i]->UpdateCursorPosition();
         if (current) { //do not display corner annotation if image is the one picked
           mSlicers[i]->SetCurrentPosition(-VTK_DOUBLE_MAX,-VTK_DOUBLE_MAX,
-                                          -VTK_DOUBLE_MAX, mSlicers[slicer]->GetTSlice());
+                                          -VTK_DOUBLE_MAX, mSlicers[slicer]->GetMaxCurrentTSlice());
           mSlicers[i]->SetCursorColor(255,10,212);
         } else {
           mSlicers[i]->SetCursorColor(150,10,282);
@@ -684,7 +685,7 @@ void vvSlicerManager::UpdateLinked(int slicer)
       z >= mSlicers[slicer]->GetInput()->GetWholeExtent()[4]-0.5 &&
       z <= mSlicers[slicer]->GetInput()->GetWholeExtent()[5]+0.5) {
     for (std::list<std::string>::const_iterator i = mLinkedId.begin(); i != mLinkedId.end(); i++) {
-      emit UpdateLinkManager(*i, slicer, p[0], p[1], p[2], mSlicers[slicer]->GetTSlice());
+      emit UpdateLinkManager(*i, slicer, p[0], p[1], p[2], mSlicers[slicer]->GetMaxCurrentTSlice());
     }
   }
 }
@@ -939,7 +940,7 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
 
     if (mSlicers[slicer]->GetVFActor() ) {
       displayVec = 1;
-      unsigned int currentTime = mSlicers[slicer]->GetTSlice();
+      unsigned int currentTime = mSlicers[slicer]->GetMaxCurrentTSlice();
       vtkImageData *vf = NULL;
 
       if (mSlicers[slicer]->GetVF()->GetVTKImages().size() > currentTime)
@@ -1026,7 +1027,7 @@ void vvSlicerManager::UpdateSlice(int slicer)
 void vvSlicerManager::UpdateTSlice(int slicer)
 {
   int slice = mSlicers[slicer]->GetSlice();
-  int tslice = mSlicers[slicer]->GetTSlice();
+  int tslice = mSlicers[slicer]->GetMaxCurrentTSlice();
   if (mPreviousSlice[slicer] == slice) {
     if (mPreviousTSlice[slicer] == tslice) {
       //      DD("************** NOTHING ***********");

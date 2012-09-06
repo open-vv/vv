@@ -1086,7 +1086,8 @@ void vvMainWindow::ImageInfoChanged()
     QString inputSizeInBytes;
     QString image = DataTree->selectedItems()[0]->data(COLUMN_IMAGE_NAME,Qt::DisplayRole).toString();
 
-    if (mSlicerManagers[index]->GetSlicer(0)->GetImage()->GetVTKImages().size() > 1 || playMode == 1) {
+    int nframes = mSlicerManagers[index]->GetSlicer(0)->GetTMax();
+    if (nframes > 1 || playMode == 1) {
       playButton->setEnabled(1);
       frameRateLabel->setEnabled(1);
       frameRateSpinBox->setEnabled(1);
@@ -1500,17 +1501,12 @@ void vvMainWindow::DisplaySliders(int slicer, int window)
   int tRange[2];
   tRange[0] = 0;
   tRange[1] = mSlicerManagers[slicer]->GetSlicer(window)->GetTMax();
-  int tPosition = mSlicerManagers[slicer]->GetSlicer(window)->GetTSlice();
+  int tPosition = mSlicerManagers[slicer]->GetSlicer(window)->GetMaxCurrentTSlice();
   bool showHorizontal = false;
   bool showVertical = false;
-  if (mSlicerManagers[slicer]->GetSlicer(window)->GetImage()->GetNumberOfDimensions() > 3
-      || (mSlicerManagers[slicer]->GetSlicer(window)->GetImage()->GetNumberOfDimensions() > 2
-          && mSlicerManagers[slicer]->GetType() != vvImageReader::IMAGEWITHTIME
-          && mSlicerManagers[slicer]->GetType() != vvImageReader::MERGEDWITHTIME))
+  if (range[1]>0)
     showVertical = true;
-  if (mSlicerManagers[slicer]->GetSlicer(window)->GetImage()->GetNumberOfDimensions() > 3
-      || mSlicerManagers[slicer]->GetType() == vvImageReader::IMAGEWITHTIME
-      || mSlicerManagers[slicer]->GetType() == vvImageReader::MERGEDWITHTIME)
+  if (tRange[1]>0)
     showHorizontal = true;
 
   if (showVertical)
@@ -1932,6 +1928,10 @@ void vvMainWindow::AddOverlayImage(int index, std::vector<std::string> fileNames
       qApp->processEvents();
       ImageInfoChanged();
       QApplication::restoreOverrideCursor();
+
+      // Update the display to update, e.g., the sliders
+      for(int i=0; i<4; i++)
+        DisplaySliders(index, i);
     } else {
       QApplication::restoreOverrideCursor();
       QString error = "Cannot import the new image.\n";
@@ -2895,9 +2895,8 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
       vidwriter->SetInput(image);
       vidwriter->SetFileName(fileName.toStdString().c_str());
       vidwriter->Start();
-      vvImage * vvImg = mSlicerManagers[smIndex]->GetImage();
-      int nSlice = vvImg->GetVTKImages().size();
-      for(int i=0; i<nSlice; i++) {
+      int nSlice = mSlicerManagers[smIndex]->GetSlicer(0)->GetTMax();
+      for(int i=0; i<=nSlice; i++) {
         mSlicerManagers[smIndex]->SetNextTSlice(0);
         vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
         w2i->SetInput(widget->GetRenderWindow());
@@ -2945,7 +2944,7 @@ void vvMainWindow::PlayPause()
     int image_number=DataTree->topLevelItemCount();
     bool has_temporal;
     for (int i=0; i<image_number; i++)
-      if (mSlicerManagers[i]->GetImage()->GetVTKImages().size() > 1) {
+      if (mSlicerManagers[i]->GetSlicer(0)->GetTMax() > 0) {
         has_temporal=true;
         break;
       }
@@ -2966,7 +2965,7 @@ void vvMainWindow::PlayNext()
     ///Only play one slicer per SM, and only if the SM is being displayed
     for (int i=0; i<image_number; i++)
       for (int j=0; j<4; j++)
-        if (mSlicerManagers[i]->GetImage()->GetVTKImages().size() > 1 &&
+        if (mSlicerManagers[i]->GetSlicer(0)->GetTMax() > 0 &&
             DataTree->topLevelItem(i)->data(j+1,Qt::CheckStateRole).toInt() > 0) {
           mSlicerManagers[i]->SetNextTSlice(j);
           break;

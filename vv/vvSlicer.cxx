@@ -708,17 +708,18 @@ void vvSlicer::SetVFLog(int log)
 void vvSlicer::SetTSlice(int t)
 {
   if (t < 0)
-    t = 0;
+    mCurrentTSlice = 0;
   else if ((unsigned int)t >= mImage->GetVTKImages().size())
-    t = mImage->GetVTKImages().size() -1;
+    mCurrentTSlice = mImage->GetVTKImages().size() -1;
+  else
+    mCurrentTSlice = t;
 
   // Update transform
   mConcatenatedTransform->Identity();
-  mConcatenatedTransform->Concatenate(mImage->GetTransform()[t]);
+  mConcatenatedTransform->Concatenate(mImage->GetTransform()[mCurrentTSlice]);
   mConcatenatedTransform->Concatenate(mSlicingTransform);
 
   // Update image data
-  mCurrentTSlice = t;
   mImageReslice->SetInput( mImage->GetVTKImages()[mCurrentTSlice] );
   if (mVF && mVFActor->GetVisibility()) {
     if (mVF->GetVTKImages().size() > (unsigned int)mCurrentTSlice)
@@ -759,6 +760,18 @@ void vvSlicer::SetTSlice(int t)
 int vvSlicer::GetTSlice()
 {
   return mCurrentTSlice;
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+int vvSlicer::GetMaxCurrentTSlice()
+{
+  int t = mCurrentTSlice;
+  if(mOverlay)
+    t = std::max(t, mCurrentOverlayTSlice);
+  if(mFusion)
+    t = std::max(t, mCurrentFusionTSlice);
+  return t;
 }
 //------------------------------------------------------------------------------
 
@@ -1467,6 +1480,14 @@ void vvSlicer::SetSlice(int slice)
 }
 //----------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------
+int vvSlicer::GetTMax() {
+  int tmax = (int)mImage->GetVTKImages().size() - 1;
+  if(mOverlay)
+    tmax = std::max(tmax, (int)mOverlay->GetVTKImages().size()-1);
+  return tmax;
+}
+//----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetContourSlice()

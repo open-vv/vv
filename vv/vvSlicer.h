@@ -101,11 +101,10 @@ public:
   int GetTSlice();
   int GetFusionTSlice();
   int GetOverlayTSlice();
+  int GetMaxCurrentTSlice();
   ///Reimplemented from vtkImageViewer2 to add polydata support
   void SetSlice(int s);
-  int GetTMax() {
-    return (unsigned int)mImage->GetVTKImages().size() - 1;
-  }
+  int GetTMax();
 
   void SetOpacity(double s);
   void SetRenderWindow(int orientation, vtkRenderWindow * rw);
