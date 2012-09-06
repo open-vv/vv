@@ -45,6 +45,9 @@
 #include <sys/stat.h>
 #include <errno.h>
 
+typedef enum {O_BASE,O_OVERLAY,O_FUSION,O_VF,O_CONTOUR} OpenModeType;
+typedef enum {P_NORMAL,P_SEQUENCE,P_WINDOW,P_LEVEL} ParseModeType;
+
 void load_image_first_error()
 {
   std::cerr << "You need to load an image before adding an overlay!" << std::endl;
@@ -63,6 +66,28 @@ std::string create_timed_string()
   strftime(st, size, "%Y%m%d-%H%M%S", pt);
 
   return st;
+}
+
+void open_sequence(vvMainWindow &window,
+                   OpenModeType &open_mode,
+                   ParseModeType &parse_mode,
+                   std::vector<std::string> &sequence_filenames,
+                   int n_image_loaded)
+{
+  const std::string open_mode_names[] = {"base", "overlay", "fusion", "vf", "contour"};
+  if(open_mode==O_BASE)
+    window.LoadImages(sequence_filenames, vvImageReader::MERGEDWITHTIME);
+  else if (open_mode==O_OVERLAY)
+    window.AddOverlayImage(n_image_loaded-1,sequence_filenames,vvImageReader::IMAGE);
+  else {
+    std::cerr << "Sequences are not managed for opening " << open_mode_names[open_mode] << std::endl;
+    exit(1);
+  }
+
+  // Reset
+  sequence_filenames.clear();
+  parse_mode=P_NORMAL;
+  open_mode=O_BASE;
 }
 
 //------------------------------------------------------------------------------
@@ -110,11 +135,8 @@ int main( int argc, char** argv )
   window.show();
 
   std::vector<std::string> sequence_filenames;
-  enum {P_NORMAL,P_SEQUENCE,P_WINDOW,P_LEVEL} parse_mode;
-  parse_mode=P_NORMAL;
-  enum {O_BASE,O_OVERLAY,O_FUSION,O_VF,O_CONTOUR} open_mode;
-  std::string open_mode_names[] = {"base", "overlay", "fusion", "vf", "contour"};
-  open_mode=O_BASE;
+  ParseModeType parse_mode = P_NORMAL;
+  OpenModeType open_mode = O_BASE;
   int n_image_loaded=0;
   std::string win(""), lev("");
 
@@ -124,16 +146,7 @@ int main( int argc, char** argv )
       std::string current = argv[i];
       if (!current.compare(0,2,"--")) { //We are parsing an option
         if (parse_mode == P_SEQUENCE) {//First finish the current sequence
-          if(open_mode==O_BASE)
-            window.LoadImages(sequence_filenames, vvImageReader::MERGEDWITHTIME);
-          else if (open_mode==O_OVERLAY)
-            window.AddOverlayImage(n_image_loaded-1,sequence_filenames,vvImageReader::IMAGE);
-          else {
-            std::cerr << "Sequences are not managed for opening " << open_mode_names[open_mode] << std::endl;
-            exit(1);
-          }
-          sequence_filenames.clear();
-          parse_mode=P_NORMAL;
+          open_sequence(window, open_mode, parse_mode, sequence_filenames, n_image_loaded);
         }
         if ((current=="--help") || (current=="-h")) {
           std::cout << "vv " << VV_VERSION << ", the 2D, 2D+t, 3D and 3D+t (or 4D) image viewer" << std::endl << std::endl
@@ -238,16 +251,7 @@ int main( int argc, char** argv )
       }
     }
     if (parse_mode == P_SEQUENCE) { //Finish any current sequence
-      if(open_mode==O_BASE)
-        window.LoadImages(sequence_filenames, vvImageReader::MERGEDWITHTIME);
-      else if (open_mode==O_OVERLAY)
-        window.AddOverlayImage(n_image_loaded-1,sequence_filenames, vvImageReader::MERGEDWITHTIME);
-      else {
-        std::cerr << "Sequences are not managed for opening " << open_mode_names[open_mode] << std::endl;
-        exit(1);
-      }
-      sequence_filenames.clear();
-      parse_mode=P_NORMAL;
+      open_sequence(window, open_mode, parse_mode, sequence_filenames, n_image_loaded);
     }
   }
 
