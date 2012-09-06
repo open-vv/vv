@@ -78,7 +78,7 @@ void open_sequence(vvMainWindow &window,
   if(open_mode==O_BASE)
     window.LoadImages(sequence_filenames, vvImageReader::MERGEDWITHTIME);
   else if (open_mode==O_OVERLAY)
-    window.AddOverlayImage(n_image_loaded-1,sequence_filenames,vvImageReader::IMAGE);
+    window.AddOverlayImage(n_image_loaded-1,sequence_filenames,vvImageReader::MERGEDWITHTIME);
   else {
     std::cerr << "Sequences are not managed for opening " << open_mode_names[open_mode] << std::endl;
     exit(1);
