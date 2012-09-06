@@ -30,6 +30,78 @@ unset count_max
 #echo -ne '\n'
 }
 
+function check_interfile {
+local input_interfile="${1:?"provide input interfile"}"
+
+grep -qs '!INTERFILE :=' "${input_interfile}" || return 1
+
+local header_byte_size=$(awk -F' ' '
+BEGIN { zsize = 0; }
+/matrix size/ && $3 == "[1]" { xsize = $5; }
+/matrix size/ && $3 == "[2]" { ysize = $5; }
+/number of projections/ { zsize += $5; }
+/number of bytes per pixel/ { byte_per_pixel = $7; }
+END { print xsize * ysize * zsize * byte_per_pixel; }' "${input_interfile}")
+
+local raw_interfile="$(dirname "${input_interfile}")/$(awk -F' := ' '/name of data file/ { print $2; }' "${input_interfile}")"
+
+test -f "${raw_interfile}" || return 1
+test $(stat -c%s "${raw_interfile}") -eq ${header_byte_size} || return 1
+}
+
+function write_mhd_header {
+local input_interfile="${1:?"provide input interfile"}"
+local output_mhd="$(dirname "${input_interfile}")/$(basename "${input_interfile}" ".hdr").mhd"
+
+check_interfile "${input_interfile}" || error "${input_interfile} isn't an interfile image"
+
+local header_start='ObjectType = Image
+NDims = 3
+AcquisitionDate = none
+BinaryData = True
+BinaryDataByteOrderMSB = False
+CompressedData = False
+TransformMatrix = 1 0 0 0 1 0 0 0 1
+Offset = 0 0 0
+CenterOfRotation = 0 0 0
+DistanceUnits = mm
+AnatomicalOrientation = RIP'
+
+echo "${header_start}" > "${output_mhd}"
+
+awk -F' ' '
+/scaling factor/ && $4 == "[1]" { xspacing = $6; }
+/scaling factor/ && $4 == "[2]" { yspacing = $6; }
+END { print "ElementSpacing = " xspacing " " yspacing " 1"; }' "${input_interfile}" >> "${output_mhd}"
+
+awk -F' ' '
+BEGIN { zsize = 0; }
+/matrix size/ && $3 == "[1]" { xsize = $5; }
+/matrix size/ && $3 == "[2]" { ysize = $5; }
+/number of projections/ { zsize += $5; }
+END { print "DimSize = " xsize " " ysize " " zsize; }' "${input_interfile}" >> "${output_mhd}"
+
+awk -F' := ' '
+/number format/ { format = $2; }
+/number of bytes per pixel/ { byte_per_pixel = $2 }
+END {
+if (format == "unsigned integer" && byte_per_pixel == 8) { print "ElementType = MET_ULONG"; exit };
+if (format == "unsigned integer" && byte_per_pixel == 4) { print "ElementType = MET_UINT"; exit };
+if (format == "unsigned integer" && byte_per_pixel == 2) { print "ElementType = MET_USHORT"; exit };
+if (format == "unsigned integer" && byte_per_pixel == 1) { print "ElementType = MET_UCHAR"; exit };
+if (format == "integer" && byte_per_pixel == 8) { print "ElementType = MET_LONG"; exit };
+if (format == "integer" && byte_per_pixel == 4) { print "ElementType = MET_INT"; exit };
+if (format == "integer" && byte_per_pixel == 2) { print "ElementType = MET_SHORT"; exit };
+if (format == "integer" && byte_per_pixel == 1) { print "ElementType = MET_CHAR"; exit };
+if (format == "float" && byte_per_pixel == 8) { print "ElementType = MET_FLOAT"; exit };
+if (format == "float" && byte_per_pixel == 4) { print "ElementType = MET_DOUBLE"; exit };
+print "ElementType = MET_INT";
+}' "${input_interfile}" >> "${output_mhd}"
+
+awk -F' := ' '
+/name of data file/ { print "ElementDataFile = " $2; }' "${input_interfile}" >> "${output_mhd}"
+}
+
 rootMerger="clitkMergeRootFiles"
 test -x "./clitkMergeRootFiles" && rootMerger="./clitkMergeRootFiles"
 
@@ -178,7 +250,7 @@ start_bar $#
 while test $# -gt 0
 do
     local partial="$1"
-    local partial_bin="${partial%.*}.raw"
+    local partial_bin="$(dirname "${partial}")/$(awk -F' = ' '/ElementDataFile/ { print $2; }' "${partial}")"
     shift
     let count++
 
@@ -186,12 +258,14 @@ do
     then
         update_bar ${count} "copying first partial result ${partial}"
         cp "${partial}" "${merged}"
-        cp "${partial_bin}" "${merged_bin}"
+        cp "${partial_bin}" "${merged_bin%.*}.${partial_bin##*.}"
         continue
     fi
 
     update_bar ${count} "adding ${partial}"
     ${mhdImageMerger} -t 0 -i "${partial}" -j "${merged}" -o "${merged}" 2> /dev/null > /dev/null || warning "error while calling ${mhdImageMerger}"
+    mv "${merged_bin}" "${merged_bin%.*}.${partial_bin##*.}"
+    sed -i "s/$(basename "${merged_bin}")/$(basename "${merged_bin%.*}.${partial_bin##*.}")/" "${merged}"
 done
 end_bar
 echo "  ${indent}merged ${count} files"
@@ -213,6 +287,22 @@ function merge_dispatcher {
     local firstpartialoutputfile="$(echo "${partialoutputfiles}" | head -n 1)"
     local firstpartialoutputextension="${firstpartialoutputfile##*.}"
     echo "${indent}testing file type on ${firstpartialoutputfile}"
+
+    if test "${firstpartialoutputextension}" == "hdr" && grep -qs 'INTERFILE' "${firstpartialoutputfile}"
+    then
+        echo "${indent}this is a interfile image"
+        echo "${indent}creating mhd headers"
+        for partialoutputfile in $partialoutputfiles; do write_mhd_header "${partialoutputfile}"; done
+        local mhd_partialoutputfiles="$(for partialoutputfile in $partialoutputfiles; do echo "${partialoutputfile%.*}.mhd"; done)"
+        local mhd_mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}" ".hdr").mhd"
+        merge_mhd_image "${mhd_mergedfile}" ${mhd_partialoutputfiles} || error "error while merging"
+        echo "${indent}cleaning mhd headers"
+        for mhd_partialoutputfile in $mhd_partialoutputfiles; do rm "${mhd_partialoutputfile}"; done
+        rm "${mhd_mergedfile}"
+        echo "${indent}copy interfile header"
+        cp "${firstpartialoutputfile}" "${outputdir}"
+        return
+    fi
 
     if test "${firstpartialoutputextension}" == "hdr"
     then
@@ -238,7 +328,7 @@ function merge_dispatcher {
         return
     fi
 
-    if test "${firstpartialoutputextension}" == "txt" && grep 'NumberOfEvent' "${firstpartialoutputfile}" > /dev/null
+    if test "${firstpartialoutputextension}" == "txt" && grep -qs 'NumberOfEvent' "${firstpartialoutputfile}"
     then
         echo "${indent}this is a stat file"
         local mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}")"
@@ -246,7 +336,7 @@ function merge_dispatcher {
         return
     fi
 
-    if test "${firstpartialoutputextension}" == "txt" && grep 'Resol' "${firstpartialoutputfile}" > /dev/null
+    if test "${firstpartialoutputextension}" == "txt" && grep -qs 'Resol' "${firstpartialoutputfile}"
     then
         local resol="$(sed -nr '/Resol/s/^.*=\s+\((.+)\)\s*$/\1/p' "${firstpartialoutputfile}")"
         local resolx="$(echo "${resol}" | cut -d',' -f1)"
@@ -289,7 +379,7 @@ function merge_dispatcher {
     error "unknown file type"
 }
 
-echo "!!!! this is $0 v0.3i !!!!"
+echo "!!!! this is $0 v0.3j !!!!"
 
 rundir="${1?"provide run dir"}"
 rundir="$(echo "${rundir}" | sed 's|/*$||')"
