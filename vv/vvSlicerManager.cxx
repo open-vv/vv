@@ -1081,9 +1081,9 @@ void vvSlicerManager::SetPreset(int preset)
     window = 400;
     level = 20;
     break;
-  case 3:
-    window = 1500;
-    level = -500;
+  case 3: // lungs (same as FOCAL)
+    window = 1700;
+    level = -300;
     break;
   case 4:
     window = 1000;
