@@ -812,7 +812,7 @@ TracheaRegionGrowing()
   f->SetUpper(GetUpperThresholdForTrachea());
   f->SetMinimumLowerThreshold(-2000);
   //  f->SetMaximumUpperThreshold(0); // MAYBE TO CHANGE ???
-  f->SetMaximumUpperThreshold(-700); // MAYBE TO CHANGE ???
+  f->SetMaximumUpperThreshold(-300); // MAYBE TO CHANGE ???
   f->SetAdaptLowerBorder(false);
   f->SetAdaptUpperBorder(true);
   f->SetMinimumSize(5000); 

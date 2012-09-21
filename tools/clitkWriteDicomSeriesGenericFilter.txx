@@ -29,6 +29,12 @@
 
 // clitk
 #include "clitkResampleImageWithOptionsFilter.h"
+#if GDCM_MAJOR_VERSION >= 2
+#include "gdcmUIDGenerator.h"
+#else
+#include "gdcmFile.h"
+#include "gdcmUtil.h"
+#endif
 
 
 namespace clitk
@@ -236,12 +242,66 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   // Get keys
   unsigned int numberOfKeysGiven=m_ArgsInfo.key_given;
 
-  for (unsigned int i = 0; i < numberOfKeysGiven; i++) {
-    std::string entryId(m_ArgsInfo.key_arg[i]  );
-    std::string value( m_ArgsInfo.tag_arg[i] );
-    std::cout << entryId << " " << value << std::endl;
-    for(unsigned int fni = 0; fni<numberOfFilenames; fni++)
+  std::string seriesUID;
+  std::string frameOfReferenceUID;
+  if (m_ArgsInfo.newSeriesUID_flag) {
+#if GDCM_MAJOR_VERSION >= 2
+    gdcm::UIDGenerator suid;
+    seriesUID = suid.Generate();
+    gdcm::UIDGenerator fuid;
+    frameOfReferenceUID = fuid.Generate();
+#else
+    seriesUID = gdcm::Util::CreateUniqueUID( gdcmIO->GetUIDPrefix());
+    frameOfReferenceUID = gdcm::Util::CreateUniqueUID( gdcmIO->GetUIDPrefix());
+#endif
+    if (m_ArgsInfo.verbose_flag)
+    {
+      DD(seriesUID);
+      DD(frameOfReferenceUID);
+    }
+  }
+  
+
+  std::string studyUID;
+  if (m_ArgsInfo.newStudyUID_flag) {
+#if GDCM_MAJOR_VERSION >= 2
+    gdcm::UIDGenerator suid;
+    studyUID = suid.Generate();
+#else
+    studyUID = gdcm::Util::CreateUniqueUID( gdcmIO->GetUIDPrefix());
+#endif
+    if (m_ArgsInfo.verbose_flag)
+      DD(studyUID);
+  }
+  
+  std::string seriesUIDkey = "0020|000e";
+  std::string frameOfReferenceUIDKey = "0020|0052";
+  std::string studyUIDKey = "0020|000d";
+  for(unsigned int fni = 0; fni<numberOfFilenames; fni++) {
+    bool series_id_given = false;
+    bool study_id_given = false;
+    for (unsigned int i = 0; i < numberOfKeysGiven; i++) {
+      std::string entryId(m_ArgsInfo.key_arg[i]  );
+      std::string value( m_ArgsInfo.tag_arg[i] );
+
       itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), entryId, value );
+      if (entryId ==  seriesUIDkey || entryId ==  frameOfReferenceUIDKey)
+        series_id_given = true;
+      if (entryId == studyUIDKey)
+        study_id_given = true;
+    }
+    
+    if (!series_id_given) {
+      if (m_ArgsInfo.newSeriesUID_flag) {
+        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), seriesUIDkey, seriesUID );
+        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), frameOfReferenceUIDKey, frameOfReferenceUID );
+      }
+    }
+    
+    if (!study_id_given) {
+      if (m_ArgsInfo.newStudyUID_flag) 
+        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), studyUIDKey, studyUID );
+    }
   }
   
 
