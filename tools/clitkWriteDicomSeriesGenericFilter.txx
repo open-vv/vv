@@ -273,6 +273,10 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     if (m_ArgsInfo.verbose_flag)
       DD(studyUID);
   }
+#if GDCM_MAJOR_VERSION < 2
+  else
+    gdcmIO->KeepOriginalUID();
+#endif
   
   std::string seriesUIDkey = "0020|000e";
   std::string frameOfReferenceUIDKey = "0020|0052";
