@@ -306,6 +306,18 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
       if (m_ArgsInfo.newStudyUID_flag) 
         itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), studyUIDKey, studyUID );
     }
+
+    if (m_ArgsInfo.newSeriesUID_flag || m_ArgsInfo.newStudyUID_flag || series_id_given || study_id_given) {
+      std::string fileUID;
+#if GDCM_MAJOR_VERSION >= 2
+      gdcm::UIDGenerator fid;
+      fileUID = fid.Generate();
+#else
+      fileUID = gdcm::Util::CreateUniqueUID( gdcmIO->GetUIDPrefix());
+#endif
+      itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), "0008|0018", fileUID );
+      itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), "0002|0003", fileUID );
+    }
   }
   
 
