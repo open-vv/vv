@@ -33,6 +33,7 @@ lfnfile="${1:?"provide lfn to file"}"
 lfc-ls ${lfnfile} 2>&1 > /dev/null
 }
 
+
 # upload file to grid storage element
 # source can be a relative or an absolute path to the source file 
 # dest must be the lfn to the target **file** (not the directory) 
@@ -48,7 +49,52 @@ if file_exists "${destlfn}"; then
 	lcg-del -a "lfn:${destlfn}" || error "lcg-del error"
 fi
 echo "lets roll"
-lcg-cr -v -d ccsrm02.in2p3.fr -l "lfn:${destlfn}" "file:${sourcefile}" || error "lcg-cr error"
+
+local pending_ses=${SES}
+local registered=false
+while [ "x${pending_ses}" != "x" ]
+do 
+  #select a se from list
+  local S=`echo ${pending_ses} | awk '{print $1}'`
+  #update list of SEs
+  local new_list=""
+  for i in `echo ${pending_ses}`
+    do
+    if [ "$i" != "${S}" ]
+	then
+	new_list="${new_list} ${i}"
+    fi
+  done
+  pending_ses=${new_list}
+  local TEMP=`mktemp lcg-XXXXX`
+  if [ "${registered}" = "false" ]
+      then
+      echo -n "Registering release to ${S}..."
+      lcg-cr -v -d ${S} -l "lfn:${destlfn}" "file:${sourcefile}" &>${TEMP}
+      if [ $? != 0 ]
+	  then
+	  echo -e "\t [\033[31m  FAILED  \033[0m]"
+	  cat ${TEMP}
+	  \rm ${TEMP}
+	  else
+	  echo -e "\t [\033[32m  OK  \033[0m]"
+	  registered=true
+	  \rm ${TEMP}
+      fi
+  else
+      echo -n "Replicating release to ${S}..."
+      lcg-rep -v -d ${S} "lfn:${destlfn}" &>${TEMP}
+      if [ $? != 0 ]
+	  then
+	  echo -e "\t [\033[31m  FAILED  \033[0m]"
+	  cat ${TEMP}
+	  \rm ${TEMP}
+	  else
+	  echo -e "\t [\033[32m  OK  \033[0m]"
+	  \rm ${TEMP}
+      fi
+  fi
+done
 }
 
 
@@ -59,6 +105,11 @@ lfnworkflow="${lfnbase}workflow/"
 lfngasw="${lfnbase}gasw/"
 lfnscript="${lfnbase}bin/"
 
+#list of SEs used for storage. Don't modify this list unless you know
+# what you're doing. Replicating the release in a bad place (e.g. on a
+# remote continent) can dramatically slow down the transfers
+SES="ccsrm02.in2p3.fr sbgse1.in2p3.fr marsedpm.in2p3.fr"
+ 
 # define the prefix for uploaded file
 # default to local machine username
 prefix="${USER:?"USER must be set"}_"
