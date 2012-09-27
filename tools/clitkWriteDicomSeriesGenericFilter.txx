@@ -294,14 +294,15 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
 
   // check if file UIDs will be be preserved
   bool useInputFileUID = true;
-  if (m_ArgsInfo.newSeriesUID_flag || m_ArgsInfo.newStudyUID_flag || seriesUIDGiven || studyUIDGiven)
-      useInputFileUID = false;
-  else {
-    namesGenerator->SetOutputDirectory( m_ArgsInfo.outputDir_arg  );
-    filenames_out = namesGenerator->GetOutputFileNames();
+  if (m_ArgsInfo.newSeriesUID_flag || m_ArgsInfo.newStudyUID_flag || seriesUIDGiven || studyUIDGiven) {
+    useInputFileUID = false;
 #if GDCM_MAJOR_VERSION < 2
     gdcmIO->SetKeepOriginalUID(true);
 #endif
+  }
+  else {
+    namesGenerator->SetOutputDirectory( m_ArgsInfo.outputDir_arg  );
+    filenames_out = namesGenerator->GetOutputFileNames();
   }
   
   filenames_out.resize(numberOfFilenames);
