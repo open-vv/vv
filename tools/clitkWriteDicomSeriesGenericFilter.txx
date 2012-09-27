@@ -294,8 +294,13 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
         DD(studyUID);
     }
 #if GDCM_MAJOR_VERSION < 2
+<<<<<<< Updated upstream
     else
       gdcmIO->KeepOriginalUID();
+=======
+  else
+    gdcmIO->SetKeepOriginalUID(true);
+>>>>>>> Stashed changes
 #endif
   }
 
