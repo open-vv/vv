@@ -139,7 +139,7 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   namesGenerator->SetInputDirectory( m_ArgsInfo.inputDir_arg );
   namesGenerator->SetOutputDirectory( m_ArgsInfo.outputDir_arg  );
   typename   ReaderType::FileNamesContainer filenames_in = namesGenerator->GetInputFileNames();
-  typename   ReaderType::FileNamesContainer filenames_out = namesGenerator->GetOutputFileNames();
+  typename   ReaderType::FileNamesContainer filenames_out;
 
   // Output the dicom files
   unsigned int numberOfFilenames =  filenames_in.size();
@@ -241,6 +241,8 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
 
   // Get keys
   unsigned int numberOfKeysGiven=m_ArgsInfo.key_given;
+    if (m_ArgsInfo.verbose_flag) 
+      DD(numberOfKeysGiven);
 
   std::string seriesUID;
   std::string frameOfReferenceUID;
@@ -254,38 +256,34 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   bool studyUIDGiven = false;
   for (unsigned int i = 0; i < numberOfKeysGiven; i++) {
     std::string entryId( m_ArgsInfo.key_arg[i] );
+    if (m_ArgsInfo.verbose_flag) 
+      DD(entryId);
     
     seriesUIDGiven = (entryId ==  seriesUIDkey || entryId ==  frameOfReferenceUIDKey);
-    if (seriesUIDGiven)
-    {
-      if (entryId ==  seriesUIDkey) 
-        seriesUID = m_ArgsInfo.tag_arg[i];
-      else
-        frameOfReferenceUID = m_ArgsInfo.tag_arg[i];
-    }
-    else if (m_ArgsInfo.newSeriesUID_flag) {
-#if GDCM_MAJOR_VERSION >= 2
-      gdcm::UIDGenerator suid;
-      seriesUID = suid.Generate();
-      gdcm::UIDGenerator fuid;
-      frameOfReferenceUID = fuid.Generate();
-#else
-      seriesUID = gdcm::Util::CreateUniqueUID( gdcmIO->GetUIDPrefix());
-      frameOfReferenceUID = gdcm::Util::CreateUniqueUID( gdcmIO->GetUIDPrefix());
-#endif
-    }
-  
     studyUIDGiven = (entryId == studyUIDKey);
-    if (studyUIDGiven) 
-      studyUID = m_ArgsInfo.tag_arg[i];
-    else if (m_ArgsInfo.newStudyUID_flag) {
+  }
+
+  // force the creation of a new series if a new study was specified
+  if (!studyUIDGiven && m_ArgsInfo.newStudyUID_flag) {
+    m_ArgsInfo.newSeriesUID_flag = true;
 #if GDCM_MAJOR_VERSION >= 2
-      gdcm::UIDGenerator suid;
-      studyUID = suid.Generate();
+    gdcm::UIDGenerator suid;
+    studyUID = suid.Generate();
 #else
-      studyUID = gdcm::Util::CreateUniqueUID( gdcmIO->GetUIDPrefix());
+    studyUID = gdcm::Util::CreateUniqueUID( gdcmIO->GetUIDPrefix());
 #endif
-    }
+  }
+    
+  if (!seriesUIDGiven && m_ArgsInfo.newSeriesUID_flag) {
+#if GDCM_MAJOR_VERSION >= 2
+    gdcm::UIDGenerator suid;
+    seriesUID = suid.Generate();
+    gdcm::UIDGenerator fuid;
+    frameOfReferenceUID = fuid.Generate();
+#else
+    seriesUID = gdcm::Util::CreateUniqueUID( gdcmIO->GetUIDPrefix());
+    frameOfReferenceUID = gdcm::Util::CreateUniqueUID( gdcmIO->GetUIDPrefix());
+#endif
   }
 
   if (m_ArgsInfo.verbose_flag) {
