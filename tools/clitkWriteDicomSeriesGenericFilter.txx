@@ -250,17 +250,29 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   
   // one pass through the keys given on the cmd-line, to check what will be recreated
   std::string seriesUIDkey = "0020|000e";
+  std::string seriesNumberKey = "0020|0011";
+  std::string seriesDescriptionKey = "0008|103e";
   std::string frameOfReferenceUIDKey = "0020|0052";
   std::string studyUIDKey = "0020|000d";
+  std::string studyIDKey = "0020|0010";
+  std::string studyDescriptionKey = "0008|1030";
   bool seriesUIDGiven = false;
+  bool seriesNumberGiven = false;
+  bool seriesDescriptionGiven = false;
   bool studyUIDGiven = false;
+  bool studyIDGiven = false;
+  bool studyDescriptionGiven = false;
   for (unsigned int i = 0; i < numberOfKeysGiven; i++) {
     std::string entryId( m_ArgsInfo.key_arg[i] );
     if (m_ArgsInfo.verbose_flag) 
       DD(entryId);
     
     seriesUIDGiven = (entryId ==  seriesUIDkey || entryId ==  frameOfReferenceUIDKey);
+    seriesNumberGiven = (entryId == seriesNumberKey);
+    seriesDescriptionGiven = (entryId == seriesDescriptionKey);
     studyUIDGiven = (entryId == studyUIDKey);
+    studyIDGiven = (entryId == studyIDKey);
+    studyDescriptionGiven = (entryId == studyDescriptionKey);
   }
 
   // force the creation of a new series if a new study was specified
@@ -307,6 +319,17 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   
   filenames_out.resize(numberOfFilenames);
   
+  time_t t;
+  t = time(&t);
+  struct tm* instanceDateTimeTm = localtime(&t);
+  char datetime[16];
+  strftime(datetime, 16, "%Y%m%d", instanceDateTimeTm);
+  std::ostringstream instanceDate;
+  instanceDate << datetime;
+  std::ostringstream instanceTime;
+  strftime(datetime, 16, "%H%M%S", instanceDateTimeTm);
+  instanceTime << datetime;
+  
   // update output dicom keys/tags
   for(unsigned int fni = 0; fni<numberOfFilenames; fni++) {
     for (unsigned int i = 0; i < numberOfKeysGiven; i++) {
@@ -316,7 +339,7 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
       itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), entryId, value );
     }
 
-    // 
+    // series UID
     if (!seriesUIDGiven) {
       if (m_ArgsInfo.newSeriesUID_flag) {
         itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), seriesUIDkey, seriesUID );
@@ -324,9 +347,32 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
       }
     }
     
+    // study UID
     if (!studyUIDGiven) {
       if (m_ArgsInfo.newStudyUID_flag) 
         itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), studyUIDKey, studyUID );
+    }
+    
+    // study description
+    if (studyUIDGiven || m_ArgsInfo.newStudyUID_flag) {
+      if (!studyIDGiven)
+        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), studyIDKey, m_ArgsInfo.outputDir_arg );
+      if (!studyDescriptionGiven)
+        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), studyDescriptionKey, m_ArgsInfo.outputDir_arg );
+      
+      itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), "0008|0020", instanceDate.str() );
+      itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), "0008|0030", instanceTime.str() );
+    }
+    
+    // series description/number
+    if (seriesUIDGiven || m_ArgsInfo.newSeriesUID_flag) {
+      if (!seriesDescriptionGiven)
+        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), seriesDescriptionKey, m_ArgsInfo.outputDir_arg );
+      if (!seriesNumberGiven)
+        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), seriesNumberKey, m_ArgsInfo.outputDir_arg );
+
+      itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), "0008|0012", instanceDate.str() );
+      itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), "0008|0013", instanceTime.str() );
     }
 
     // file UIDs are recreated for new studies or series
@@ -341,6 +387,7 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
 #endif
       itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), "0008|0018", fileUID );
       itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), "0002|0003", fileUID );
+      
       filenames_out[fni] = itksys::SystemTools::CollapseFullPath(fileUID.c_str(), m_ArgsInfo.outputDir_arg) + std::string(".dcm"); 
     }
   }
