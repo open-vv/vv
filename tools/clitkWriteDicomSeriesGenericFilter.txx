@@ -273,11 +273,6 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
       seriesUID = gdcm::Util::CreateUniqueUID( gdcmIO->GetUIDPrefix());
       frameOfReferenceUID = gdcm::Util::CreateUniqueUID( gdcmIO->GetUIDPrefix());
 #endif
-      if (m_ArgsInfo.verbose_flag)
-      {
-        DD(seriesUID);
-        DD(frameOfReferenceUID);
-      }
     }
   
     studyUIDGiven = (entryId == studyUIDKey);
@@ -290,18 +285,13 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
 #else
       studyUID = gdcm::Util::CreateUniqueUID( gdcmIO->GetUIDPrefix());
 #endif
-      if (m_ArgsInfo.verbose_flag)
-        DD(studyUID);
     }
-#if GDCM_MAJOR_VERSION < 2
-<<<<<<< Updated upstream
-    else
-      gdcmIO->KeepOriginalUID();
-=======
-  else
-    gdcmIO->SetKeepOriginalUID(true);
->>>>>>> Stashed changes
-#endif
+  }
+
+  if (m_ArgsInfo.verbose_flag) {
+    DD(seriesUID);
+    DD(frameOfReferenceUID);
+    DD(studyUID);
   }
 
   // check if file UIDs will be be preserved
@@ -311,6 +301,9 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   else {
     namesGenerator->SetOutputDirectory( m_ArgsInfo.outputDir_arg  );
     filenames_out = namesGenerator->GetOutputFileNames();
+#if GDCM_MAJOR_VERSION < 2
+    gdcmIO->SetKeepOriginalUID(true);
+#endif
   }
   
   filenames_out.resize(numberOfFilenames);
