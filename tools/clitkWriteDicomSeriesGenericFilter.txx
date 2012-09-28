@@ -267,12 +267,12 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     if (m_ArgsInfo.verbose_flag) 
       DD(entryId);
     
-    seriesUIDGiven = (entryId ==  seriesUIDkey || entryId ==  frameOfReferenceUIDKey);
-    seriesNumberGiven = (entryId == seriesNumberKey);
-    seriesDescriptionGiven = (entryId == seriesDescriptionKey);
-    studyUIDGiven = (entryId == studyUIDKey);
-    studyIDGiven = (entryId == studyIDKey);
-    studyDescriptionGiven = (entryId == studyDescriptionKey);
+    seriesUIDGiven |= (entryId ==  seriesUIDkey || entryId ==  frameOfReferenceUIDKey);
+    seriesNumberGiven |= (entryId == seriesNumberKey);
+    seriesDescriptionGiven |= (entryId == seriesDescriptionKey);
+    studyUIDGiven |= (entryId == studyUIDKey);
+    studyIDGiven |= (entryId == studyIDKey);
+    studyDescriptionGiven |= (entryId == studyDescriptionKey);
   }
 
   // force the creation of a new series if a new study was specified
@@ -367,7 +367,7 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     // series description/number
     if (seriesUIDGiven || m_ArgsInfo.newSeriesUID_flag) {
       if (!seriesDescriptionGiven)
-        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), seriesDescriptionKey, m_ArgsInfo.outputDir_arg );
+        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), seriesDescriptionKey, "blabla");//m_ArgsInfo.outputDir_arg );
       if (!seriesNumberGiven)
         itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), seriesNumberKey, m_ArgsInfo.outputDir_arg );
 
