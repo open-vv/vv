@@ -356,9 +356,9 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     // study description
     if (studyUIDGiven || m_ArgsInfo.newStudyUID_flag) {
       if (!studyIDGiven)
-        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), studyIDKey, m_ArgsInfo.outputDir_arg );
+        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), studyIDKey,itksys::SystemTools::GetFilenameName( m_ArgsInfo.outputDir_arg ));
       if (!studyDescriptionGiven)
-        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), studyDescriptionKey, m_ArgsInfo.outputDir_arg );
+        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), studyDescriptionKey,itksys::SystemTools::GetFilenameName( m_ArgsInfo.outputDir_arg ));
       
       itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), "0008|0020", instanceDate.str() );
       itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), "0008|0030", instanceTime.str() );
@@ -367,9 +367,9 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     // series description/number
     if (seriesUIDGiven || m_ArgsInfo.newSeriesUID_flag) {
       if (!seriesDescriptionGiven)
-        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), seriesDescriptionKey, "blabla");//m_ArgsInfo.outputDir_arg );
+        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), seriesDescriptionKey, itksys::SystemTools::GetFilenameName(m_ArgsInfo.outputDir_arg) );
       if (!seriesNumberGiven)
-        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), seriesNumberKey, m_ArgsInfo.outputDir_arg );
+        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), seriesNumberKey, itksys::SystemTools::GetFilenameName(m_ArgsInfo.outputDir_arg) );
 
       itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), "0008|0012", instanceDate.str() );
       itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), "0008|0013", instanceTime.str() );
