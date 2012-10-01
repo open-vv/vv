@@ -119,7 +119,7 @@ int main( int argc, char** argv )
   if (argc >1) {
     for (int i = 1; i < argc; i++) {
       std::string current = argv[i];
-      if (!current.compare(0,2,"--")) { //We are parsing an option
+      if (!current.compare(0,1,"-")) { // && !current.compare(0,2,"--")) { //We are parsing an option
         if (parse_mode == P_SEQUENCE) {//First finish the current sequence
           window.LoadImages(sequence_filenames, vvImageReader::MERGEDWITHTIME);
           sequence_filenames.clear();
