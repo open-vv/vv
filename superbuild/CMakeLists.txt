@@ -69,7 +69,7 @@ SET(qmake_executable "${build_prefix}/QT/bin/qmake")
 
 #=========================================================
 # VTK
-SET(VTK_CMAKE_CXX_STANDARD_LIBRARIES "${VTK_CMAKE_CXX_STANDARD_LIBRARIES}")
+SET(VTK_CMAKE_CXX_STANDARD_LIBRARIES "${CMAKE_CXX_STANDARD_LIBRARIES}")
 IF(MSVC)
   SET(VTK_CMAKE_CXX_STANDARD_LIBRARIES "${VTK_CMAKE_CXX_STANDARD_LIBRARIES} Imm32.lib Winmm.lib Ws2_32.lib")
 ENDIF(MSVC)
@@ -140,13 +140,18 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   SET(VV_CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
+SET(MAKE_COMMAND "make")
+if(MSVC)
+  SET(MAKE_COMMAND "nmake")
+endif(MSVC)
+
 ExternalProject_Add(
   VV
   DEPENDS QT VTK ITK
   SOURCE_DIR ${source_prefix}/vv
   GIT_REPOSITORY git://git.creatis.insa-lyon.fr/clitk
-  GIT_TAG HEAD
-  INSTALL_COMMAND ""
+  GIT_TAG v1.3.0
+  INSTALL_COMMAND ${MAKE_COMMAND} package
   CMAKE_ARGS
     -DQT_QMAKE_EXECUTABLE:FILEPATH=${qmake_executable}
     -DITK_DIR:PATH=${ITK_DIR}
