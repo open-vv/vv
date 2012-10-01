@@ -124,6 +124,15 @@ int main( int argc, char** argv )
           window.LoadImages(sequence_filenames, vvImageReader::MERGEDWITHTIME);
           sequence_filenames.clear();
           parse_mode=P_NORMAL;
+        } 
+        else if (parse_mode == P_WINDOW) { // handle negative window values
+          win=current;
+          parse_mode=P_NORMAL;
+          continue;
+        } else if (parse_mode == P_LEVEL) { // handle negative level values
+          lev=current;
+          parse_mode=P_NORMAL;
+          continue;
         }
         if ((current=="--help") || (current=="-h")) {
           std::cout << "vv " << VV_VERSION << ", the 2D, 2D+t, 3D and 3D+t (or 4D) image viewer" << std::endl << std::endl
@@ -145,8 +154,7 @@ int main( int argc, char** argv )
                     //<< "--roi file     \t Overlay binary mask images. Option may be repeated on a single base image." << std::endl
                     << "--contour file \t Overlay DICOM RT-STRUCT contours." << std::endl;
           exit(0);
-        }
-        if (current=="--vf") {
+        } else if (current=="--vf") {
           if (!n_image_loaded) load_image_first_error();
           window.AddField(argv[i+1],n_image_loaded-1);
           i++; //skip vf name
@@ -174,9 +182,9 @@ int main( int argc, char** argv )
         } else if (current == "--level") {
           parse_mode=P_LEVEL;
         } else if (current == "--linkall") {
-					link_images = true;
-				}
-				else if (current == "--log") {
+	  link_images = true;
+	}
+	else if (current == "--log") {
           std::string log_dir = QDir::tempPath().toStdString() + std::string("/vv-log");
 
           if(itksys::SystemTools::FileExists(log_dir.c_str()) &&
@@ -236,8 +244,8 @@ int main( int argc, char** argv )
     window.ApplyWindowLevelToAllImages();
   }
 
-	if (link_images)
-		window.LinkAllImages();
+  if (link_images)
+    window.LinkAllImages();
 
   int ret = app.exec();
   
