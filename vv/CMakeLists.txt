@@ -252,7 +252,7 @@ ENDIF(UNIX OR APPLE)
 
 IF(WIN32)
   #INCLUDE(InstallRequiredSystemLibraries)
-  INSTALL(FILES ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}/vv.exe DESTINATION .)
+  INSTALL(FILES ${EXECUTABLE_OUTPUT_PATH}/vv.exe DESTINATION .)
   #INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/icons/ducky.png DESTINATION .)
 ENDIF(WIN32)
 #=========================================================
@@ -275,7 +275,7 @@ IF(WIN32)
   # There is a bug in NSI that does not handle full unix paths properly. Make
   # sure there is at least one set of four (4) backlasshes.
   SET(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}\\\\icons\\\\ducky.ico")
-  SET(CPACK_NSIS_INSTALLED_ICON_NAME "${CMAKE_BUILD_TYPE}\\\\vv.exe")
+  SET(CPACK_NSIS_INSTALLED_ICON_NAME "vv.exe")
   SET(CPACK_NSIS_DISPLAY_NAME "vv - The 4D slicer")
   SET(CPACK_NSIS_HELP_LINK "http://www.creatis.insa-lyon.fr/rio/vv")
   SET(CPACK_NSIS_URL_INFO_ABOUT "http://www.creatis.insa-lyon.fr/rio")
