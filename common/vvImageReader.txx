@@ -187,12 +187,13 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
                           0.,0.,1.,0.,
                           0.,-1.,0.,0.,
                           0.,0.,0.,1.};
+    // TODO SR and BP: check on the list of transforms and not the first only
     int i;
-    for(i=0; i<16 && m[i]==mImage->GetTransform()->GetMatrix()->GetElement(i%4, i/4); i++);
+    for(i=0; i<16 && m[i]==mImage->GetTransform()[0]->GetMatrix()->GetElement(i%4, i/4); i++);
     if(i==16) {
       itkWarningMacro(<< "Analyze image file format detected with unknown orientation. "
                       << "Forcing identity orientation, use other file format if not ok.");
-      mImage->GetTransform()->Identity();
+      mImage->GetTransform()[0]->Identity();
     }
   }
 }
@@ -259,13 +260,13 @@ void vvImageReader::UpdateWithDimAndInputVectorPixelType()
                           0.,-1.,0.,0.,
                           0.,0.,0.,1.};
     int i;
-    for (i = 0; i < 16 && m[i] == mImage->GetTransform()->GetMatrix()->GetElement(i % 4, i / 4); i++)
+    for (i = 0; i < 16 && m[i] == mImage->GetTransform()[0]->GetMatrix()->GetElement(i % 4, i / 4); i++)
       ;
     if (i == 16)
     {
       itkWarningMacro(<< "Analyze image file format detected with unknown orientation. "
                       << "Forcing identity orientation, use other file format if not ok.");
-      mImage->GetTransform()->Identity();
+      mImage->GetTransform()[0]->Identity();
     }
   }
 }

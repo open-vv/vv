@@ -309,9 +309,9 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(levelSpinBox,SIGNAL(editingFinished()),this,SLOT(WindowLevelEdited()));
   connect(colorMapComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(UpdateColorMap()));
   connect(presetComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(UpdateWindowLevel()));
+  connect(slicingPresetComboBox, SIGNAL(currentIndexChanged(int)),this,SLOT(UpdateSlicingPreset()));
   connect(inverseButton,SIGNAL(clicked()),this,SLOT(SwitchWindowLevel()));
   connect(applyWindowLevelToAllButton,SIGNAL(clicked()),this,SLOT(ApplyWindowLevelToAllImages()));
-
 
   connect(this,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(ShowContextMenu(QPoint)));
 
@@ -952,6 +952,8 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
                 this,SLOT(UpdateSlice(int,int)));
         connect(mSlicerManagers.back(), SIGNAL(UpdateTSlice(int, int)),
                 this,SLOT(UpdateTSlice(int, int)));
+        connect(mSlicerManagers.back(), SIGNAL(UpdateTSlice(int, int)),
+                this,SLOT(ImageInfoChanged()));
         connect(mSlicerManagers.back(), SIGNAL(UpdateSliceRange(int,int,int,int,int)),
                 this,SLOT(UpdateSliceRange(int,int,int,int,int)));
         connect(mSlicerManagers.back(), SIGNAL(UpdateLinkManager(std::string,int,double,double,double,int)),
@@ -1084,7 +1086,8 @@ void vvMainWindow::ImageInfoChanged()
     QString inputSizeInBytes;
     QString image = DataTree->selectedItems()[0]->data(COLUMN_IMAGE_NAME,Qt::DisplayRole).toString();
 
-    if (mSlicerManagers[index]->GetSlicer(0)->GetImage()->GetVTKImages().size() > 1 || playMode == 1) {
+    int nframes = mSlicerManagers[index]->GetSlicer(0)->GetTMax();
+    if (nframes > 1 || playMode == 1) {
       playButton->setEnabled(1);
       frameRateLabel->setEnabled(1);
       frameRateSpinBox->setEnabled(1);
@@ -1139,7 +1142,7 @@ void vvMainWindow::ImageInfoChanged()
     infoPanel->setOrigin(GetVectorDoubleAsString(origin));
     infoPanel->setSpacing(GetVectorDoubleAsString(inputSpacing));
     infoPanel->setNPixel(QString::number(NPixel)+" ("+inputSizeInBytes+")");
-    transformation = imageSelected->GetTransform()->GetMatrix();
+    transformation = imageSelected->GetTransform()[mSlicerManagers[index]->GetTSlice()]->GetMatrix();
     infoPanel->setTransformation(Get4x4MatrixDoubleAsString(transformation));
 
     landmarksPanel->SetCurrentLandmarks(mSlicerManagers[index]->GetLandmarks(),
@@ -1176,6 +1179,7 @@ void vvMainWindow::ImageInfoChanged()
       }
     }
     WindowLevelChanged();
+    slicingPresetComboBox->setCurrentIndex(mSlicerManagers[index]->GetSlicingPreset());
 
     if (mSlicerManagers[index]->GetSlicer(0)->GetVF()) {
       overlayPanel->getVFName(mSlicerManagers[index]->GetVFName().c_str());
@@ -1497,17 +1501,12 @@ void vvMainWindow::DisplaySliders(int slicer, int window)
   int tRange[2];
   tRange[0] = 0;
   tRange[1] = mSlicerManagers[slicer]->GetSlicer(window)->GetTMax();
-  int tPosition = mSlicerManagers[slicer]->GetSlicer(window)->GetTSlice();
+  int tPosition = mSlicerManagers[slicer]->GetSlicer(window)->GetMaxCurrentTSlice();
   bool showHorizontal = false;
   bool showVertical = false;
-  if (mSlicerManagers[slicer]->GetSlicer(window)->GetImage()->GetNumberOfDimensions() > 3
-      || (mSlicerManagers[slicer]->GetSlicer(window)->GetImage()->GetNumberOfDimensions() > 2
-          && mSlicerManagers[slicer]->GetType() != vvImageReader::IMAGEWITHTIME
-          && mSlicerManagers[slicer]->GetType() != vvImageReader::MERGEDWITHTIME))
+  if (range[1]>0)
     showVertical = true;
-  if (mSlicerManagers[slicer]->GetSlicer(window)->GetImage()->GetNumberOfDimensions() > 3
-      || mSlicerManagers[slicer]->GetType() == vvImageReader::IMAGEWITHTIME
-      || mSlicerManagers[slicer]->GetType() == vvImageReader::MERGEDWITHTIME)
+  if (tRange[1]>0)
     showHorizontal = true;
 
   if (showVertical)
@@ -1722,6 +1721,16 @@ void vvMainWindow::UpdateWindowLevel()
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+void vvMainWindow::UpdateSlicingPreset()
+{
+  if (DataTree->selectedItems().size()) {
+    int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
+    mSlicerManagers[index]->SetSlicingPreset(vvSlicerManager::SlicingPresetType(slicingPresetComboBox->currentIndex()));
+  }
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 void vvMainWindow::UpdateColorMap()
 {
   if (DataTree->selectedItems().size()) {
@@ -1845,21 +1854,28 @@ void vvMainWindow::SelectOverlayImage()
 
   QString Extensions = EXTENSIONS;
   Extensions += ";;All Files (*)";
-  QString file = QFileDialog::getOpenFileName(this,tr("Load Overlay image"),mInputPathName,Extensions);
-  if (!file.isEmpty())
-    AddOverlayImage(index,file);
+  QStringList files = QFileDialog::getOpenFileNames(this,tr("Load Overlay image"),mInputPathName,Extensions);
+  if (files.isEmpty())
+    return;
+
+  std::vector<std::string> vecFileNames;
+  for (int i = 0; i < files.size(); i++) {
+    vecFileNames.push_back(files[i].toStdString());
+  }
+  AddOverlayImage(index,vecFileNames,vvImageReader::IMAGE);
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void vvMainWindow::AddOverlayImage(int index, QString file)
+void vvMainWindow::AddOverlayImage(int index, std::vector<std::string> fileNames, vvImageReader::LoadedImageType type)
 {
+  QString file(fileNames[0].c_str());
   if (QFile::exists(file))
   {
     mInputPathName = itksys::SystemTools::GetFilenamePath(file.toStdString()).c_str();
     itk::ImageIOBase::Pointer reader = itk::ImageIOFactory::CreateImageIO(
         file.toStdString().c_str(), itk::ImageIOFactory::ReadMode);
-    reader->SetFileName(file.toStdString().c_str());
+    reader->SetFileName(fileNames[0].c_str());
     reader->ReadImageInformation();
     std::string component = reader->GetComponentTypeAsString(reader->GetComponentType());
     int dimension = reader->GetNumberOfDimensions();
@@ -1868,7 +1884,7 @@ void vvMainWindow::AddOverlayImage(int index, QString file)
     qApp->processEvents();
 
     std::string filename = itksys::SystemTools::GetFilenameWithoutExtension(file.toStdString()).c_str();
-    if (mSlicerManagers[index]->SetOverlay(file.toStdString(),dimension, component)) {
+    if (mSlicerManagers[index]->SetOverlay(fileNames,dimension, component,type)) {
       //create an item in the tree with good settings
       QTreeWidgetItem *item = new QTreeWidgetItem();
       item->setData(0,Qt::UserRole,file.toStdString().c_str());
@@ -1912,6 +1928,10 @@ void vvMainWindow::AddOverlayImage(int index, QString file)
       qApp->processEvents();
       ImageInfoChanged();
       QApplication::restoreOverrideCursor();
+
+      // Update the display to update, e.g., the sliders
+      for(int i=0; i<4; i++)
+        DisplaySliders(index, i);
     } else {
       QApplication::restoreOverrideCursor();
       QString error = "Cannot import the new image.\n";
@@ -2308,7 +2328,8 @@ void vvMainWindow::SaveAs()
       bool bId = true;
       for(int i=0; i<4; i++)
         for(int j=0; j<4; j++) {
-          double elt = mSlicerManagers[index]->GetImage()->GetTransform()->GetMatrix()->GetElement(i,j);
+          // TODO SR and BP: check on the list of transforms and not the first only
+          double elt = mSlicerManagers[index]->GetImage()->GetTransform()[0]->GetMatrix()->GetElement(i,j);
           if(i==j && elt!=1.)
             bId = false;
           if(i!=j && elt!=0.)
@@ -2874,9 +2895,8 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
       vidwriter->SetInput(image);
       vidwriter->SetFileName(fileName.toStdString().c_str());
       vidwriter->Start();
-      vvImage * vvImg = mSlicerManagers[smIndex]->GetImage();
-      int nSlice = vvImg->GetVTKImages().size();
-      for(int i=0; i<nSlice; i++) {
+      int nSlice = mSlicerManagers[smIndex]->GetSlicer(0)->GetTMax();
+      for(int i=0; i<=nSlice; i++) {
         mSlicerManagers[smIndex]->SetNextTSlice(0);
         vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
         w2i->SetInput(widget->GetRenderWindow());
@@ -2924,7 +2944,7 @@ void vvMainWindow::PlayPause()
     int image_number=DataTree->topLevelItemCount();
     bool has_temporal;
     for (int i=0; i<image_number; i++)
-      if (mSlicerManagers[i]->GetImage()->GetVTKImages().size() > 1) {
+      if (mSlicerManagers[i]->GetSlicer(0)->GetTMax() > 0) {
         has_temporal=true;
         break;
       }
@@ -2945,7 +2965,7 @@ void vvMainWindow::PlayNext()
     ///Only play one slicer per SM, and only if the SM is being displayed
     for (int i=0; i<image_number; i++)
       for (int j=0; j<4; j++)
-        if (mSlicerManagers[i]->GetImage()->GetVTKImages().size() > 1 &&
+        if (mSlicerManagers[i]->GetSlicer(0)->GetTMax() > 0 &&
             DataTree->topLevelItem(i)->data(j+1,Qt::CheckStateRole).toInt() > 0) {
           mSlicerManagers[i]->SetNextTSlice(j);
           break;
@@ -3079,6 +3099,8 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
           this,SLOT(UpdateSlice(int,int)));
   connect(mSlicerManagers.back(), SIGNAL(UpdateTSlice(int, int)),
           this,SLOT(UpdateTSlice(int, int)));
+  connect(mSlicerManagers.back(), SIGNAL(UpdateTSlice(int, int)),
+          this,SLOT(ImageInfoChanged()));
   connect(mSlicerManagers.back(), SIGNAL(UpdateSliceRange(int,int,int,int,int)),
           this,SLOT(UpdateSliceRange(int,int,int,int,int)));
   connect(mSlicerManagers.back(), SIGNAL(UpdateLinkManager(std::string,int,double,double,double,int)),

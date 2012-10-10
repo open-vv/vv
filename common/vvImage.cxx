@@ -32,7 +32,7 @@
 #include <cassert>
 
 //--------------------------------------------------------------------
-vvImage::vvImage():mTransform(vtkSmartPointer<vtkTransform>::New())
+vvImage::vvImage()
 {
   Init();
 }
@@ -251,7 +251,7 @@ bool vvImage::IsScalarTypeInteger(int t)
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
-vtkSmartPointer<vtkTransform> vvImage::GetTransform()
+const std::vector< vtkSmartPointer<vtkTransform> >& vvImage::GetTransform()
 {
   return this->mTransform;
 }

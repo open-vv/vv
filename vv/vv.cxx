@@ -45,6 +45,9 @@
 #include <sys/stat.h>
 #include <errno.h>
 
+typedef enum {O_BASE,O_OVERLAY,O_FUSION,O_VF,O_CONTOUR} OpenModeType;
+typedef enum {P_NORMAL,P_SEQUENCE,P_WINDOW,P_LEVEL} ParseModeType;
+
 void load_image_first_error()
 {
   std::cerr << "You need to load an image before adding an overlay!" << std::endl;
@@ -63,6 +66,28 @@ std::string create_timed_string()
   strftime(st, size, "%Y%m%d-%H%M%S", pt);
 
   return st;
+}
+
+void open_sequence(vvMainWindow &window,
+                   OpenModeType &open_mode,
+                   ParseModeType &parse_mode,
+                   std::vector<std::string> &sequence_filenames,
+                   int n_image_loaded)
+{
+  const std::string open_mode_names[] = {"base", "overlay", "fusion", "vf", "contour"};
+  if(open_mode==O_BASE)
+    window.LoadImages(sequence_filenames, vvImageReader::MERGEDWITHTIME);
+  else if (open_mode==O_OVERLAY)
+    window.AddOverlayImage(n_image_loaded-1,sequence_filenames,vvImageReader::MERGEDWITHTIME);
+  else {
+    std::cerr << "Sequences are not managed for opening " << open_mode_names[open_mode] << std::endl;
+    exit(1);
+  }
+
+  // Reset
+  sequence_filenames.clear();
+  parse_mode=P_NORMAL;
+  open_mode=O_BASE;
 }
 
 //------------------------------------------------------------------------------
@@ -110,8 +135,8 @@ int main( int argc, char** argv )
   window.show();
 
   std::vector<std::string> sequence_filenames;
-  enum {P_NORMAL,P_SEQUENCE,P_WINDOW,P_LEVEL};
-  int parse_mode=P_NORMAL;
+  ParseModeType parse_mode = P_NORMAL;
+  OpenModeType open_mode = O_BASE;
   int n_image_loaded=0;
   std::string win(""), lev("");
 
@@ -121,9 +146,7 @@ int main( int argc, char** argv )
       std::string current = argv[i];
       if (!current.compare(0,1,"-")) { // && !current.compare(0,2,"--")) { //We are parsing an option
         if (parse_mode == P_SEQUENCE) {//First finish the current sequence
-          window.LoadImages(sequence_filenames, vvImageReader::MERGEDWITHTIME);
-          sequence_filenames.clear();
-          parse_mode=P_NORMAL;
+          open_sequence(window, open_mode, parse_mode, sequence_filenames, n_image_loaded);
         } 
         else if (parse_mode == P_WINDOW) { // handle negative window values
           win=current;
@@ -156,26 +179,18 @@ int main( int argc, char** argv )
           exit(0);
         } else if (current=="--vf") {
           if (!n_image_loaded) load_image_first_error();
-          window.AddField(argv[i+1],n_image_loaded-1);
-          i++; //skip vf name
+          open_mode = O_VF;
         } else if (current=="--overlay") {
           if (!n_image_loaded) load_image_first_error();
-          window.AddOverlayImage(n_image_loaded-1,argv[i+1]);
-          i++; //skip overlay name
-        } /*else if (current=="--roi") {
+          open_mode = O_OVERLAY;
+        } else if (current=="--contour") {
           if (!n_image_loaded) load_image_first_error();
-          window.AddROI(n_image_loaded-1,argv[i+1]);
-          i++; //skip roi name
-        }*/ else if (current=="--contour") {
-          if (!n_image_loaded) load_image_first_error();
-          window.AddDCStructContour(n_image_loaded-1,argv[i+1]);
-          i++; //skip roi name
+          open_mode = O_CONTOUR;
         } else if (current=="--fusion") {
           if (!n_image_loaded) load_image_first_error();
-          window.AddFusionImage(n_image_loaded-1,argv[i+1]);
-          i++; //skip fusion name
+          open_mode = O_FUSION;
         } else if (current == "--sequence") {
-          n_image_loaded++; //count only one for the sequence
+          if(open_mode==O_BASE) n_image_loaded++; //count only one for the whole sequence
           parse_mode=P_SEQUENCE;
         } else if (current == "--window") {
           parse_mode=P_WINDOW;
@@ -228,14 +243,23 @@ int main( int argc, char** argv )
       } else {
         std::vector<std::string> image;
         image.push_back(current);
-        window.LoadImages(image, vvImageReader::IMAGE);
-        n_image_loaded++;
+        if(open_mode==O_BASE) {
+          window.LoadImages(image, vvImageReader::IMAGE);
+          n_image_loaded++;
+        }
+        else if (open_mode==O_VF)
+          window.AddField(current.c_str(), n_image_loaded-1);
+        else if (open_mode==O_OVERLAY)
+          window.AddOverlayImage(n_image_loaded-1,image,vvImageReader::IMAGE);
+        else if (open_mode==O_CONTOUR)
+          window.AddDCStructContour(n_image_loaded-1,current.c_str());
+        else if (open_mode==O_FUSION)
+          window.AddFusionImage(n_image_loaded-1,current.c_str());
+        open_mode = O_BASE;
       }
     }
     if (parse_mode == P_SEQUENCE) { //Finish any current sequence
-      window.LoadImages(sequence_filenames, vvImageReader::MERGEDWITHTIME);
-      sequence_filenames.clear();
-      parse_mode=P_NORMAL;
+      open_sequence(window, open_mode, parse_mode, sequence_filenames, n_image_loaded);
     }
   }
 

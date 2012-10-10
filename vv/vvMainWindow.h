@@ -54,7 +54,7 @@ class vvMainWindow: public vvMainWindowBase,
   void LoadImages(std::vector<std::string> filenames, vvImageReader::LoadedImageType type);
   vvSlicerManager * AddImage(vvImage::Pointer image,std::string filename);
   void AddField(QString file,int index);
-  void AddOverlayImage(int index, QString filename);
+  void AddOverlayImage(int index, std::vector<std::string> fileNames, vvImageReader::LoadedImageType type);
   void AddFusionImage(int index, QString filename);
   void AddROI(int index, QString filename);
   ///Adds a mesh to a SlicerManager, with optional warping by vector field
@@ -118,6 +118,7 @@ public slots:
   void SetWindowLevel(double w, double l);
   void UpdateColorMap();
   void UpdateWindowLevel();
+  void UpdateSlicingPreset();
   void SwitchWindowLevel();
   void ApplyWindowLevelToAllImages();
   void UpdateLinkManager(std::string id, int slicer, double x, double y, double z, int temps);

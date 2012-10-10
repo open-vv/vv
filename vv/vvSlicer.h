@@ -99,11 +99,12 @@ public:
   void SetSliceOrientation(int orientation);
   void AdjustResliceToSliceOrientation(vtkImageReslice *reslice);
   int GetTSlice();
+  int GetFusionTSlice();
+  int GetOverlayTSlice();
+  int GetMaxCurrentTSlice();
   ///Reimplemented from vtkImageViewer2 to add polydata support
   void SetSlice(int s);
-  int GetTMax() {
-    return (unsigned int)mImage->GetVTKImages().size() - 1;
-  }
+  int GetTMax();
 
   void SetOpacity(double s);
   void SetRenderWindow(int orientation, vtkRenderWindow * rw);
@@ -140,10 +141,13 @@ public:
     return mCursor;
   }
 
+  vtkTransform * GetSlicingTransform() { return mSlicingTransform; }
+  vtkTransform * GetConcatenatedTransform() { return mConcatenatedTransform; }
+  vtkTransform * GetConcatenatedFusionTransform() { return mConcatenatedFusionTransform; }
+  vtkTransform * GetConcatenatedOverlayTransform() { return mConcatenatedOverlayTransform; }
+
   void SetCurrentPosition(double x, double y, double z, int t);
-  double* GetCurrentPosition() {
-    return mCurrent;
-  }
+  double* GetCurrentPosition();
 
   void UpdateCursorPosition();
   void SetCursorVisibility(bool s);
@@ -206,11 +210,25 @@ protected:
 
   vvLandmarks* mLandmarks;
 
+  //                         __________ Image coordinates accounting for spacing and origin
+  //                            Λ  Λ
+  //                            |  | vvImage.GetTransform()
+  //                            |  |
+  // GetConcatenatedTransform() | _|___ VV world coordinates (mm) (displayed in VV)             mCurrentBeforeSlicingTransform
+  //                            |  Λ
+  //                            |  | GetSlicingTransform()
+  //                            |  |
+  //                         ___|__|___ VTK world coordinates (mm) (never displayed)            mCurrent
+
+  vtkSmartPointer<vtkTransform> mSlicingTransform;
   vtkSmartPointer<vtkImageReslice> mImageReslice;
+  vtkSmartPointer<vtkTransform> mConcatenatedTransform;
   vtkSmartPointer<vtkImageReslice> mOverlayReslice;
+  vtkSmartPointer<vtkTransform> mConcatenatedOverlayTransform;
   vtkSmartPointer<vtkImageMapToWindowLevelColors> mOverlayMapper;
   vtkSmartPointer<vvBlendImageActor> mOverlayActor;
   vtkSmartPointer<vtkImageReslice> mFusionReslice;
+  vtkSmartPointer<vtkTransform> mConcatenatedFusionTransform;
   vtkSmartPointer<vtkImageMapToColors> mFusionMapper;
   vtkSmartPointer<vtkImageActor> mFusionActor;
   vtkSmartPointer<vtkCornerAnnotation> ca;
@@ -234,7 +252,10 @@ protected:
   std::vector<vvMeshActor*> mSurfaceCutActors;
 
   int mCurrentTSlice;
+  int mCurrentFusionTSlice;
+  int mCurrentOverlayTSlice;
   double mCurrent[3];
+  double mCurrentBeforeSlicingTransform[3];
   double mCursor[4];
   int mSubSampling;
   int mScale;

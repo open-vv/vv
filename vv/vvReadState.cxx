@@ -191,8 +191,12 @@ std::string vvReadState::ReadOverlay(int index)
     if (m_XmlReader->isStartElement()) {
       if (value == "FileName") {
         file = m_XmlReader->readElementText().toStdString();
-        if (!m_XmlReader->hasError())
-          m_Window->AddOverlayImage(index, file.c_str());
+        if (!m_XmlReader->hasError()) {
+          // TODO: manage sequence of images
+          std::vector<std::string> vec;
+          vec.push_back(file.c_str());
+          m_Window->AddOverlayImage(index, vec, vvImageReader::IMAGE);
+        }
       }
       if (value == "OverlayColorWindow") {
         vald = m_XmlReader->readElementText().toDouble();
