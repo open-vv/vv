@@ -144,9 +144,18 @@ int main( int argc, char** argv )
   if (argc >1) {
     for (int i = 1; i < argc; i++) {
       std::string current = argv[i];
-      if (!current.compare(0,2,"--")) { //We are parsing an option
+      if (!current.compare(0,1,"-")) { // && !current.compare(0,2,"--")) { //We are parsing an option
         if (parse_mode == P_SEQUENCE) {//First finish the current sequence
           open_sequence(window, open_mode, parse_mode, sequence_filenames, n_image_loaded);
+        } 
+        else if (parse_mode == P_WINDOW) { // handle negative window values
+          win=current;
+          parse_mode=P_NORMAL;
+          continue;
+        } else if (parse_mode == P_LEVEL) { // handle negative level values
+          lev=current;
+          parse_mode=P_NORMAL;
+          continue;
         }
         if ((current=="--help") || (current=="-h")) {
           std::cout << "vv " << VV_VERSION << ", the 2D, 2D+t, 3D and 3D+t (or 4D) image viewer" << std::endl << std::endl
@@ -168,8 +177,7 @@ int main( int argc, char** argv )
                     //<< "--roi file     \t Overlay binary mask images. Option may be repeated on a single base image." << std::endl
                     << "--contour file \t Overlay DICOM RT-STRUCT contours." << std::endl;
           exit(0);
-        }
-        if (current=="--vf") {
+        } else if (current=="--vf") {
           if (!n_image_loaded) load_image_first_error();
           open_mode = O_VF;
         } else if (current=="--overlay") {
