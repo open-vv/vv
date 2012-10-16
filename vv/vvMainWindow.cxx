@@ -1237,25 +1237,57 @@ void vvMainWindow::ShowHelpDialog()
 //------------------------------------------------------------------------------
 void vvMainWindow::ChangeViewMode()
 {
-  QList<int> size;
+  typedef struct _SIZE{
+    QSplitter* splitter;
+    QList<int> size1, size2;
+  }SplitterSize;
+  SplitterSize sizes[4];
+  sizes[0].splitter = OSplitter;
+  sizes[0].size1.push_back(1);
+  sizes[0].size1.push_back(0);
+  sizes[0].size2.push_back(1);
+  sizes[0].size2.push_back(0);
+
+  sizes[1].splitter = ESplitter;
+  sizes[1].size1.push_back(0);
+  sizes[1].size1.push_back(1);
+  sizes[1].size2.push_back(1);
+  sizes[1].size2.push_back(0);
+
+  sizes[2].splitter = OSplitter;
+  sizes[2].size1.push_back(1);
+  sizes[2].size1.push_back(0);
+  sizes[2].size2.push_back(0);
+  sizes[2].size2.push_back(1);
+
+  sizes[3].splitter = ESplitter;
+  sizes[3].size1.push_back(0);
+  sizes[3].size1.push_back(1);
+  sizes[3].size2.push_back(0);
+  sizes[3].size2.push_back(1);
+  
+  int slicer = mSlicerManagers[mCurrentPickedImageIndex]->GetSelectedSlicer();
   if (viewMode == 1) {
-    viewMode = 0;
-    size.push_back(1);
-    size.push_back(0);
-    splitter_3->setSizes(size);
-    OSplitter->setSizes(size);
-    DataTree->setColumnHidden(2,1);
-    DataTree->setColumnHidden(3,1);
-    DataTree->setColumnHidden(4,1);
+    if (slicer >= 0) {
+      viewMode = 0;
+      splitter_3->setSizes(sizes[slicer].size1);
+      sizes[slicer].splitter->setSizes(sizes[slicer].size2);
+      DataTree->setColumnHidden(2,1);
+      DataTree->setColumnHidden(3,1);
+      DataTree->setColumnHidden(4,1);
+    }
   } else {
-    viewMode = 1;
-    size.push_back(1);
-    size.push_back(1);
-    splitter_3->setSizes(size);
-    OSplitter->setSizes(size);
-    DataTree->setColumnHidden(2,0);
-    DataTree->setColumnHidden(3,0);
-    DataTree->setColumnHidden(4,0);
+    QList<int> size;
+    if (slicer >= 0) {
+      viewMode = 1;
+      size.push_back(1);
+      size.push_back(1);
+      splitter_3->setSizes(size);
+      sizes[slicer].splitter->setSizes(size);
+      DataTree->setColumnHidden(2,0);
+      DataTree->setColumnHidden(3,0);
+      DataTree->setColumnHidden(4,0);
+    }
   }
   UpdateRenderWindows();
   /*
@@ -1263,10 +1295,12 @@ void vvMainWindow::ChangeViewMode()
   ** the associated Slicer to redraw crosses.
   */
   for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
-    if (DataTree->topLevelItem(i)->data(COLUMN_UL_VIEW,Qt::CheckStateRole).toInt() > 1)
+//     if (DataTree->topLevelItem(i)->data(COLUMN_UL_VIEW,Qt::CheckStateRole).toInt() > 1)
       mSlicerManagers[i]->GetSlicer(0)->Render();
-    if (DataTree->topLevelItem(i)->data(COLUMN_DL_VIEW,Qt::CheckStateRole).toInt() > 1)
+      mSlicerManagers[i]->GetSlicer(1)->Render();
+//     if (DataTree->topLevelItem(i)->data(COLUMN_DL_VIEW,Qt::CheckStateRole).toInt() > 1)
       mSlicerManagers[i]->GetSlicer(2)->Render();
+      mSlicerManagers[i]->GetSlicer(3)->Render();
   }
 }
 //------------------------------------------------------------------------------

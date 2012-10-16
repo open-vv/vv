@@ -86,6 +86,10 @@ class vvSlicerManager : public QObject {
   ///Switch between nearest neighbor and linear interpolation
   void ToggleInterpolation();
   vvSlicer* GetSlicer(int i);
+  int GetSelectedSlicer() {
+    return mSelectedSlicer;
+  }
+  
   void UpdateSlicer(int num, bool state);
   void SetSlicerWindow(int i, vtkRenderWindow* RW);
   void SetInteractorStyleNavigator(int i,vtkInteractorStyle* style);
@@ -240,6 +244,7 @@ signals :
 
 protected:
   std::vector< vtkSmartPointer<vvSlicer> > mSlicers;
+  int mSelectedSlicer;
   vvImageReader::Pointer mReader;
   vvImageReader::Pointer mOverlayReader;
   vvImageReader::Pointer mFusionReader;

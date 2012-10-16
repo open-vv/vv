@@ -69,7 +69,8 @@ vvSlicerManager::vvSlicerManager(int numberOfSlicers)
 
   for ( int i = 0; i < numberOfSlicers; i++)
     mSlicers.push_back(vtkSmartPointer<vvSlicer>::New());
-
+  mSelectedSlicer = -1;
+  
   mPreviousSlice.resize(numberOfSlicers);
   mPreviousTSlice.resize(numberOfSlicers);
   mSlicingPreset = WORLD_SLICING;
@@ -605,6 +606,7 @@ void vvSlicerManager::UpdateViews(int current,int slicer)
       z <= mSlicers[slicer]->GetInput()->GetWholeExtent()[5]+0.5) {
     mSlicers[slicer]->UpdateCursorPosition();
     mSlicers[slicer]->SetCursorColor(10,212,255);
+    mSelectedSlicer = slicer;
 
     switch (mSlicers[slicer]->GetSliceOrientation()) {
     case vtkImageViewer2::SLICE_ORIENTATION_XY:
