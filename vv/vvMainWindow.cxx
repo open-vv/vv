@@ -2705,23 +2705,24 @@ void vvMainWindow::UpdateTSlice(int slicer, int slice)
 //------------------------------------------------------------------------------
 void vvMainWindow::UpdateSliceRange(int slicer, int min, int max, int tmin, int tmax)
 {
-  int position = int((min+max)/2);
+  //int position = int((min+max)/2);
+  int position = mSlicerManagers[mCurrentPickedImageIndex]->GetSlicer(slicer)->GetSlice();
   if (slicer == 0) {
-    NOVerticalSlider->setValue(position);
     NOVerticalSlider->setRange(min,max);
     NOHorizontalSlider->setRange(tmin,tmax);
+    NOVerticalSlider->setValue(position);
   } else if (slicer == 1) {
-    NEVerticalSlider->setValue(position);
     NEVerticalSlider->setRange(min,max);
     NEHorizontalSlider->setRange(tmin,tmax);
+    NEVerticalSlider->setValue(position);
   } else if (slicer == 2) {
-    SOVerticalSlider->setValue(position);
     SOVerticalSlider->setRange(min,max);
     SOHorizontalSlider->setRange(tmin,tmax);
+    SOVerticalSlider->setValue(position);
   } else if (slicer == 3) {
-    SEVerticalSlider->setValue(position);
     SEVerticalSlider->setRange(min,max);
     SEHorizontalSlider->setRange(tmin,tmax);
+    SEVerticalSlider->setValue(position);
   }
 }
 //------------------------------------------------------------------------------

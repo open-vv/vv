@@ -90,10 +90,10 @@ vvSlicer::vvSlicer()
   mCurrent[1] = -VTK_DOUBLE_MAX;
   mCurrent[2] = -VTK_DOUBLE_MAX;
 
-  mCursor[0] = -VTK_DOUBLE_MAX;
-  mCursor[1] = -VTK_DOUBLE_MAX;
-  mCursor[2] = -VTK_DOUBLE_MAX;
-  mCursor[3] = -VTK_DOUBLE_MAX;
+  mCursor[0] = 0;//-VTK_DOUBLE_MAX;
+  mCursor[1] = 0;//-VTK_DOUBLE_MAX;
+  mCursor[2] = 0;//-VTK_DOUBLE_MAX;
+  mCursor[3] = 0;//-VTK_DOUBLE_MAX;
 
   mSubSampling = 5;
   mScale = 1;
@@ -813,14 +813,21 @@ void vvSlicer::SetSliceOrientation(int orientation)
     AdjustResliceToSliceOrientation(mOverlayReslice);
 
   // Update the viewer
-  int *range = this->GetSliceRange();
-  if (range)
-    this->Slice = static_cast<int>((range[0] + range[1]) * 0.5);
-
+  
   // Go to current cursor position
   // double* cursorPos = GetCursorPosition();
   // DDV(cursorPos, 3);
   // SetCurrentPosition(cursorPos[0],cursorPos[1],cursorPos[2],cursorPos[3]);
+
+  if (this->Renderer && this->GetInput()) {
+    double s = mCursor[orientation];
+    double sCursor = (s - this->GetInput()->GetOrigin()[orientation])/this->GetInput()->GetSpacing()[orientation];
+    this->Slice = static_cast<int>(sCursor);
+  }
+  
+//   int *range = this->GetSliceRange();
+//   if (range)
+//     this->Slice = static_cast<int>((range[0] + range[1]) * 0.5);
 
   this->UpdateOrientation();
   this->UpdateDisplayExtent();
