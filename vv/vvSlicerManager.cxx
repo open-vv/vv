@@ -737,7 +737,7 @@ void vvSlicerManager::UpdateLinkedNavigation(vvSlicer *refSlicer, bool bPropagat
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-double vvSlicerManager::GetColorWindow()
+double vvSlicerManager::GetColorWindow() const
 {
   if (mSlicers.size())
     return mSlicers[0]->GetColorWindow();
@@ -747,7 +747,7 @@ double vvSlicerManager::GetColorWindow()
 
 
 //----------------------------------------------------------------------------
-double vvSlicerManager::GetColorLevel()
+double vvSlicerManager::GetColorLevel() const
 {
   if (mSlicers.size())
     return mSlicers[0]->GetColorLevel();

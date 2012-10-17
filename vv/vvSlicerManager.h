@@ -146,15 +146,15 @@ class vvSlicerManager : public QObject {
     mFusionShowLegend = show;
   }
 
-  double GetColorWindow();
-  double GetColorLevel();
+  double GetColorWindow() const;
+  double GetColorLevel() const;
   double GetOverlayColorWindow() const;
   double GetOverlayColorLevel() const;
   bool GetLinkOverlayWindowLevel() const;
   int GetColorMap() {
     return mColorMap;
   }
-  int GetPreset() {
+  int GetPreset() const {
     return mPreset;
   }
   SlicingPresetType GetSlicingPreset() {
