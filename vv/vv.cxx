@@ -140,6 +140,8 @@ int main( int argc, char** argv )
   int n_image_loaded=0;
   std::string win(""), lev("");
 
+  int first_of_wl_set = -1;
+  bool new_wl_set = false;
 	bool link_images = false;
   if (argc >1) {
     for (int i = 1; i < argc; i++) {
@@ -150,11 +152,15 @@ int main( int argc, char** argv )
         } 
         else if (parse_mode == P_WINDOW) { // handle negative window values
           win=current;
+          window.ApplyWindowToSetOfImages(atof(win.c_str()), first_of_wl_set, n_image_loaded-1);
           parse_mode=P_NORMAL;
+          new_wl_set = false;
           continue;
         } else if (parse_mode == P_LEVEL) { // handle negative level values
           lev=current;
+          window.ApplyLevelToSetOfImages(atof(lev.c_str()), first_of_wl_set, n_image_loaded-1);
           parse_mode=P_NORMAL;
+          new_wl_set = false;
           continue;
         }
         if ((current=="--help") || (current=="-h")) {
@@ -192,14 +198,18 @@ int main( int argc, char** argv )
         } else if (current == "--sequence") {
           if(open_mode==O_BASE) n_image_loaded++; //count only one for the whole sequence
           parse_mode=P_SEQUENCE;
+          if (!new_wl_set) {
+            new_wl_set = true;
+            first_of_wl_set = n_image_loaded-1;
+          }
         } else if (current == "--window") {
           parse_mode=P_WINDOW;
         } else if (current == "--level") {
           parse_mode=P_LEVEL;
         } else if (current == "--linkall") {
-	  link_images = true;
-	}
-	else if (current == "--log") {
+          link_images = true;
+        }
+        else if (current == "--log") {
           std::string log_dir = QDir::tempPath().toStdString() + std::string("/vv-log");
 
           if(itksys::SystemTools::FileExists(log_dir.c_str()) &&
@@ -236,16 +246,24 @@ int main( int argc, char** argv )
         sequence_filenames.push_back(current);
       } else if (parse_mode == P_WINDOW) {
         win=current;
+        window.ApplyWindowToSetOfImages(atof(win.c_str()), first_of_wl_set, n_image_loaded-1);
         parse_mode=P_NORMAL;
+        new_wl_set = false;
       } else if (parse_mode == P_LEVEL) {
         lev=current;
+        window.ApplyLevelToSetOfImages(atof(lev.c_str()), first_of_wl_set, n_image_loaded-1);
         parse_mode=P_NORMAL;
+        new_wl_set = false;
       } else {
         std::vector<std::string> image;
         image.push_back(current);
         if(open_mode==O_BASE) {
           window.LoadImages(image, vvImageReader::IMAGE);
           n_image_loaded++;
+          if (!new_wl_set) {
+            new_wl_set = true;
+            first_of_wl_set = n_image_loaded-1;
+          }
         }
         else if (open_mode==O_VF)
           window.AddField(current.c_str(), n_image_loaded-1);
@@ -263,10 +281,10 @@ int main( int argc, char** argv )
     }
   }
 
-  if(win!="" && lev!="") {
-    window.SetWindowLevel(atof(win.c_str()), atof(lev.c_str()));
-    window.ApplyWindowLevelToAllImages();
-  }
+//   if(win!="" && lev!="") {
+//     window.SetWindowLevel(atof(win.c_str()), atof(lev.c_str()));
+//     window.ApplyWindowLevelToAllImages();
+//   }
 
   if (link_images)
     window.LinkAllImages();

@@ -1804,6 +1804,32 @@ void vvMainWindow::ApplyWindowLevelToAllImages()
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+void vvMainWindow::ApplyWindowToSetOfImages(double window, unsigned int indexMin, unsigned int indexMax)
+{
+  for (unsigned int i = indexMin; i <= indexMax && i < mSlicerManagers.size(); i++) {
+    if (mSlicerManagers[i] == NULL)
+      continue;
+    mSlicerManagers[i]->SetColorWindow(window);
+    mSlicerManagers[i]->SetPreset(6);
+    mSlicerManagers[i]->Render();
+  }
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::ApplyLevelToSetOfImages(double level, unsigned int indexMin, unsigned int indexMax)
+{
+  for (unsigned int i = indexMin; i <= indexMax && i < mSlicerManagers.size(); i++) {
+    if (mSlicerManagers[i] == NULL)
+      continue;
+    mSlicerManagers[i]->SetColorLevel(level);
+    mSlicerManagers[i]->SetPreset(6);
+    mSlicerManagers[i]->Render();
+  }
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 void vvMainWindow::UpdateLinkManager(std::string id, int slicer, double x, double y, double z, int temps)
 {
   for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
