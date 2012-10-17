@@ -50,7 +50,8 @@ void vvImage::AddItkImage(TItkImageType *input)
   // GetDirection provides the forward transform, vtkImageReslice wants the inverse
   matrix->Invert();
 
-  mTransform->SetMatrix(matrix);
+  mTransform.push_back(vtkSmartPointer<vtkTransform>::New());
+  mTransform.back()->SetMatrix(matrix);
 }
 //--------------------------------------------------------------------
 

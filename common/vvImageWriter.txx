@@ -73,7 +73,8 @@ void vvImageWriter::UpdateWithDimAndOutputPixelType()
     itk::Matrix<double, 4, 4> trans;
     for(int i=0; i<4; i++)
       for(int j=0; j<4; j++)
-        trans[i][j] = mImage->GetTransform()->GetMatrix()->GetElement(i,j);
+        // TODO SR and BP: check on the list of transforms and not the first only
+        trans[i][j] = mImage->GetTransform()[0]->GetMatrix()->GetElement(i,j);
     trans = trans.GetInverse();
 
     // Direction

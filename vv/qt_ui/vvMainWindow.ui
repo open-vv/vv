@@ -67,19 +67,6 @@
        <property name="spacing">
         <number>2</number>
        </property>
-       <item row="0" column="17">
-        <spacer>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
        <item row="0" column="0">
         <widget class="QPushButton" name="goToCursorPushButton">
          <property name="sizePolicy">
@@ -330,7 +317,7 @@
          </item>
         </widget>
        </item>
-       <item row="0" column="19">
+       <item row="0" column="21">
         <widget class="QPushButton" name="viewButton">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -353,13 +340,6 @@
          <property name="icon">
           <iconset resource="../vvIcons.qrc">
            <normaloff>:/common/icons/adjustsize.png</normaloff>:/common/icons/adjustsize.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="18">
-        <widget class="Line" name="line_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
          </property>
         </widget>
        </item>
@@ -401,6 +381,40 @@
           <string>All</string>
          </property>
         </widget>
+       </item>
+       <item row="0" column="19">
+        <widget class="QComboBox" name="slicingPresetComboBox">
+         <item>
+          <property name="text">
+           <string>World</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Voxels</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="0" column="18">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Slice to</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="17">
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>
@@ -791,7 +805,7 @@
      <x>0</x>
      <y>0</y>
      <width>1008</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="defaultUp">

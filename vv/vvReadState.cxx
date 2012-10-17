@@ -111,7 +111,23 @@ std::string  vvReadState::ReadImage()
         }
       }
       else if (current_index >= 0) {
-        if (value == "Fusion")
+        vvSlicerManager* slicerManager = m_Window->GetSlicerManagers()[current_index];
+        if (value == "Preset") {
+          double vali = m_XmlReader->readElementText().toInt();
+          if (!m_XmlReader->hasError())
+            slicerManager->SetPreset(vali);
+        }
+        else if (value == "Window") {
+          double vald = m_XmlReader->readElementText().toDouble();
+          if (!m_XmlReader->hasError())
+            slicerManager->SetColorWindow(vald);
+        }
+        else if (value == "Level") {
+          double vald = m_XmlReader->readElementText().toDouble();
+          if (!m_XmlReader->hasError())
+            slicerManager->SetColorLevel(vald);
+        }
+        else if (value == "Fusion")
           value = ReadFusion(current_index);
         else if (value == "Overlay")
           value = ReadOverlay(current_index);
@@ -191,8 +207,12 @@ std::string vvReadState::ReadOverlay(int index)
     if (m_XmlReader->isStartElement()) {
       if (value == "FileName") {
         file = m_XmlReader->readElementText().toStdString();
-        if (!m_XmlReader->hasError())
-          m_Window->AddOverlayImage(index, file.c_str());
+        if (!m_XmlReader->hasError()) {
+          // TODO: manage sequence of images
+          std::vector<std::string> vec;
+          vec.push_back(file.c_str());
+          m_Window->AddOverlayImage(index, vec, vvImageReader::IMAGE);
+        }
       }
       if (value == "OverlayColorWindow") {
         vald = m_XmlReader->readElementText().toDouble();

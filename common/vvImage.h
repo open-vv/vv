@@ -56,7 +56,7 @@ public :
   bool IsTimeSequence() const;
   bool IsScalarTypeInteger();
   bool IsScalarTypeInteger(int t);
-  vtkSmartPointer<vtkTransform> GetTransform();
+  const std::vector< vtkSmartPointer<vtkTransform> >& GetTransform();
   void SetTimeSpacing(double s) { mTimeSpacing = s; }
   void SetTimeOrigin(double o) { mTimeOrigin = o; }
   bool HaveSameSizeAndSpacingThan(vvImage * other);
@@ -66,8 +66,8 @@ private:
   ~vvImage();
 
   std::vector< ConverterPointer > mItkToVtkConverters;
-  std::vector<vtkImageData*> mVtkImages;
-  vtkSmartPointer<vtkTransform> mTransform;
+  std::vector< vtkImageData* > mVtkImages;
+  std::vector< vtkSmartPointer<vtkTransform> > mTransform;
 
   double mTimeOrigin;
   double mTimeSpacing;

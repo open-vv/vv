@@ -82,14 +82,20 @@ void vvSaveState::SaveImage(const QTreeWidgetItem* item, int index)
   const vvSlicerManager * slicerManager = m_Window->GetSlicerManagers()[index];
   m_XmlWriter->writeStartElement("Image");
 
-  std::ostringstream indexStr;
-  indexStr.str("");
-  indexStr << index;
-  m_XmlWriter->writeAttribute("Index", indexStr.str().c_str());
+  std::ostringstream valueStr;
+  valueStr.str("");
+  valueStr << index;
+  m_XmlWriter->writeAttribute("Index", valueStr.str().c_str());
 
   std::string filename = item->data(0, Qt::UserRole).toString().toStdString();
   m_XmlWriter->writeTextElement("FileName", QDir::current().absoluteFilePath(filename.c_str()));
-
+  int preset = slicerManager->GetPreset();
+  m_XmlWriter->writeTextElement("Preset", QString::number(preset));
+  if (preset == 6) {
+    m_XmlWriter->writeTextElement("Window", QString::number(slicerManager->GetColorWindow()));
+    m_XmlWriter->writeTextElement("Level", QString::number(slicerManager->GetColorLevel()));
+  }
+  
   QTreeWidgetItem* item_child;
   std::string role;
   for (int i = 0; i < item->childCount(); i++) {
