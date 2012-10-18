@@ -169,8 +169,8 @@ int main( int argc, char** argv )
                     << "Open file(s) for visualization." << std::endl << std::endl
                     << "OPTIONS may be:" << std::endl
                     << "--help         \t Print command line help and exit." << std::endl
-                    << "--window number\t Gray scale window width for all images." << std::endl
-                    << "--level number \t Gray scale window level for all images." << std::endl
+                    << "--window number\t Gray scale window width for set of images appearing before in the cmd line (may appear more than once)." << std::endl
+                    << "--level number \t Gray scale window level for set of images appearing before in the cmd line (may appear more than once)." << std::endl
                     << "--linkall      \t Link pan, zoom and spatial position of crosshair in images." << std::endl
                     << "--log          \t Log output messages in vv-log directory." << std::endl
                     << "--state file   \t Read display parameters from file." << std::endl

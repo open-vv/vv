@@ -249,7 +249,10 @@ void vvInteractorStyleNavigator::OnLeftButtonDown()
 
   // Redefine this button to handle pick
   this->GrabFocus(this->EventCallbackCommand);
-  if (!this->Interactor->GetShiftKey() && !this->Interactor->GetControlKey()) {
+  if (this->Interactor->GetShiftKey()) {
+    this->OnMiddleButtonDown();
+  }
+  else if (!this->Interactor->GetControlKey()) {
     this->StartPick();
   }
 
@@ -270,6 +273,9 @@ void vvInteractorStyleNavigator::OnLeftButtonUp()
     if ( this->Interactor ) {
       this->ReleaseFocus();
     }
+    break;
+  case VTKIS_PAN:
+    this->OnMiddleButtonUp();
     break;
   }
 
