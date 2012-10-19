@@ -35,7 +35,7 @@ vvROIActor::vvROIActor()
 {
   mIsVisible = true;
   mIsContourVisible = false;
-  mOpacity = 0.7;
+  mOpacity = 0.5;
   mIsSelected = false;
   mContourWidth = 1;
   mContourColor.resize(3);
