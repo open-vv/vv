@@ -97,8 +97,9 @@ namespace clitk {
     autoCropFilter->SetInput(imageToLabelFilter->GetOutput());
     //    autoCropFilter->ReleaseDataFlagOff(); 
     if (GetUseBorder()) {
-      DD("UseBorder seems buggy ?");
-      exit(0);
+      DD("Crop UseBorder : not correctly implemented do not use (use PadLabelMapFilter)");
+      // http://www.itk.org/Doxygen/html/classitk_1_1AutoCropLabelMapFilter.html#a54f49fdff8d9f2d2313134109d510285
+      exit(0); 
       typename ImageType::SizeType s;
       for(uint i=0; i<ImageType::ImageDimension; i++) s[i] = 1;
       autoCropFilter->SetCropBorder(s);
