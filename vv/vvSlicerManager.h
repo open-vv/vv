@@ -99,7 +99,7 @@ class vvSlicerManager : public QObject {
   vvImage::Pointer GetVF()     { return mVF; }
   int GetType()                { return mType; }
   void SetId(std::string id)   { mId = id; }
-  std::string GetId()          { return mId; }
+  std::string GetId()  const        { return mId; }
   int GetDimension() {
     if (mImage) return mImage->GetNumberOfDimensions();
     else return -1;
@@ -191,6 +191,10 @@ class vvSlicerManager : public QObject {
   }
   void RemoveLink(std::string oldId) {
     mLinkedId.remove(oldId); 
+  }
+  
+  std::list<std::string> GetLinks() const {
+    return mLinkedId;
   }
   
   bool IsLinked() {

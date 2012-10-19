@@ -27,6 +27,7 @@ protected:
   std::string ReadFusion(int index);
   std::string ReadOverlay(int index);
   std::string ReadVector(int index);
+  std::string ReadLink();
 
   std::auto_ptr<QXmlStreamReader> m_XmlReader;
   std::auto_ptr<QFile> m_File;

@@ -315,7 +315,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
 
   connect(this,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(ShowContextMenu(QPoint)));
 
-  connect(linkPanel,SIGNAL(addLink(QString,QString)),this,SLOT(AddLink(QString,QString)));
+  connect(linkPanel,SIGNAL(addLink(QString,QString,bool)),this,SLOT(AddLink(QString,QString,bool)));
   connect(linkPanel,SIGNAL(removeLink(QString,QString)),this,SLOT(RemoveLink(QString,QString)));
   connect(overlayPanel,SIGNAL(VFPropertyUpdated(int,int,int,int,double,double,double)),this,SLOT(SetVFProperty(int,int,int,int,double,double,double)));
   connect(overlayPanel,SIGNAL(OverlayPropertyUpdated(int,int,double,double)),
@@ -928,7 +928,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
         DataTree->setItemWidget(item, COLUMN_RELOAD_IMAGE, rButton);
 
         //set the id of the image
-        QString id = files[i].c_str() + QString::number(mSlicerManagers.size()-1);
+        QString id = QDir::current().absoluteFilePath(files[i].c_str()) + QString::number(mSlicerManagers.size()-1);
         item->setData(COLUMN_IMAGE_NAME,Qt::UserRole,id.toStdString().c_str());
         mSlicerManagers.back()->SetId(id.toStdString());
 
@@ -2486,8 +2486,14 @@ void vvMainWindow::LinkAllImages()
 }
 
 //------------------------------------------------------------------------------
-void vvMainWindow::AddLink(QString image1,QString image2)
+void vvMainWindow::AddLink(QString image1,QString image2,bool fromPanel)
 {
+  if (!fromPanel) {
+    // delegate to linkPanel if call came from elsewhere...
+    linkPanel->addLinkFromIds(image1, image2);
+    return;
+  }
+  
   unsigned int sm1 = 0;
   unsigned int sm2 = 0;
 
@@ -3148,7 +3154,7 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
   DataTree->setItemWidget(item, COLUMN_RELOAD_IMAGE, rButton);
 
   //set the id of the image
-  QString id = slicer_manager->GetFileName().c_str() + QString::number(mSlicerManagers.size()-1);
+  QString id = QDir::current().absoluteFilePath(slicer_manager->GetFileName().c_str()) + QString::number(mSlicerManagers.size()-1);
   item->setData(COLUMN_IMAGE_NAME,Qt::UserRole,id.toStdString().c_str());
   mSlicerManagers.back()->SetId(id.toStdString());
 
