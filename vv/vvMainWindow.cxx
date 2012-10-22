@@ -1541,33 +1541,28 @@ void vvMainWindow::InitDisplay()
 //------------------------------------------------------------------------------
 void vvMainWindow::DisplaySliders(int slicer, int window)
 {
+  if(!mSlicerManagers[slicer]->GetSlicer(window)->GetRenderer()->GetDraw())
+    return;
+
   int range[2];
   mSlicerManagers[slicer]->GetSlicer(window)->GetSliceRange(range);
   int position = mSlicerManagers[slicer]->GetSlicer(window)->GetSlice();
-
-  int tRange[2];
-  tRange[0] = 0;
-  tRange[1] = mSlicerManagers[slicer]->GetSlicer(window)->GetTMax();
-  int tPosition = mSlicerManagers[slicer]->GetSlicer(window)->GetMaxCurrentTSlice();
-  bool showHorizontal = false;
-  bool showVertical = false;
   if (range[1]>0)
-    showVertical = true;
-  if (tRange[1]>0)
-    showHorizontal = true;
-
-  if (showVertical)
     verticalSliders[window]->show();
   else
     verticalSliders[window]->hide();
   verticalSliders[window]->setRange(range[0],range[1]);
   verticalSliders[window]->setValue(position);
 
-  if (showHorizontal)
+  int tRange[2];
+  tRange[0] = 0;
+  tRange[1] = mSlicerManagers[slicer]->GetSlicer(window)->GetTMax();
+  if (tRange[1]>0)
     horizontalSliders[window]->show();
   else
     horizontalSliders[window]->hide();
   horizontalSliders[window]->setRange(tRange[0],tRange[1]);
+  int tPosition = mSlicerManagers[slicer]->GetSlicer(window)->GetMaxCurrentTSlice();
   horizontalSliders[window]->setValue(tPosition);
 }
 //------------------------------------------------------------------------------
