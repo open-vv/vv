@@ -152,6 +152,29 @@ void vvLinkPanel::linkAll()
 }
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+void vvLinkPanel::addLinkFromIds(QString id1, QString id2)
+{
+  int index1 = -1, index2 = -1;
+  size_t s1 = image1Ids.size();
+  size_t s2 = image2Ids.size();
+  for (size_t i = 0; i < s1 && index1 == -1; i++)
+    if (image1Ids[i] == id1.toStdString())
+      index1 = i;
+
+  if (index1 >= 0)
+    image1ComboBox->setCurrentIndex(index1);
+    
+  for (size_t i = 0; i < s2 && index2 == -1; i++)
+    if (image2Ids[i] == id2.toStdString())
+      index2 = i;
+  
+  if (index1 >= 0 && index2 >= 0) {
+    image2ComboBox->setCurrentIndex(index2);
+    addLink();
+  }
+}
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvLinkPanel::addLink()
@@ -182,7 +205,9 @@ void vvLinkPanel::addLink()
     linkTableWidget->setRowHeight(row,17);
 
     emit addLink(image1Ids[image1ComboBox->currentIndex()].c_str(),
-                 image2Ids[image2ComboBox->currentIndex()].c_str());
+                 image2Ids[image2ComboBox->currentIndex()].c_str(),
+                 true
+                );
     UpdateComboBox2(image1ComboBox->currentIndex());
   }
 

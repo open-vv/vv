@@ -72,6 +72,13 @@ void vvSaveState::SaveTree()
     SaveImage(item, i);
   }
   m_XmlWriter->writeEndElement();
+
+  m_XmlWriter->writeStartElement("Links");
+  for (int i = 0; i < tree->topLevelItemCount(); i++) {
+    const vvSlicerManager * slicerManager = m_Window->GetSlicerManagers()[i];
+    SaveLink(slicerManager);
+  }
+  m_XmlWriter->writeEndElement();
 }
 //------------------------------------------------------------------------------
 
@@ -156,6 +163,24 @@ void vvSaveState::SaveVector(const QTreeWidgetItem* item)
 }
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+void vvSaveState::SaveLink(const vvSlicerManager* vvManager)
+{
+  typedef std::list<std::string> LinkListType;
+  LinkListType links = vvManager->GetLinks();
+  if (!links.empty()) {
+    std::string my_id = vvManager->GetId();
+    m_XmlWriter->writeStartElement("LinkedFrom");
+    m_XmlWriter->writeAttribute("Id", my_id.c_str());
+    typename LinkListType::iterator i;
+    for (i = links.begin(); i != links.end(); i++) {
+      std::string link_id = *i;
+      m_XmlWriter->writeTextElement("LinkedTo", link_id.c_str());
+    }
+    m_XmlWriter->writeEndElement();
+  }
+}
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvSaveState::SaveGUI()

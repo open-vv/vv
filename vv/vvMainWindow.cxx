@@ -315,7 +315,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
 
   connect(this,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(ShowContextMenu(QPoint)));
 
-  connect(linkPanel,SIGNAL(addLink(QString,QString)),this,SLOT(AddLink(QString,QString)));
+  connect(linkPanel,SIGNAL(addLink(QString,QString,bool)),this,SLOT(AddLink(QString,QString,bool)));
   connect(linkPanel,SIGNAL(removeLink(QString,QString)),this,SLOT(RemoveLink(QString,QString)));
   connect(overlayPanel,SIGNAL(VFPropertyUpdated(int,int,int,int,double,double,double)),this,SLOT(SetVFProperty(int,int,int,int,double,double,double)));
   connect(overlayPanel,SIGNAL(OverlayPropertyUpdated(int,int,double,double)),
@@ -928,7 +928,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
         DataTree->setItemWidget(item, COLUMN_RELOAD_IMAGE, rButton);
 
         //set the id of the image
-        QString id = files[i].c_str() + QString::number(mSlicerManagers.size()-1);
+        QString id = QDir::current().absoluteFilePath(files[i].c_str()) + QString::number(mSlicerManagers.size()-1);
         item->setData(COLUMN_IMAGE_NAME,Qt::UserRole,id.toStdString().c_str());
         mSlicerManagers.back()->SetId(id.toStdString());
 
@@ -1541,33 +1541,28 @@ void vvMainWindow::InitDisplay()
 //------------------------------------------------------------------------------
 void vvMainWindow::DisplaySliders(int slicer, int window)
 {
+  if(!mSlicerManagers[slicer]->GetSlicer(window)->GetRenderer()->GetDraw())
+    return;
+
   int range[2];
   mSlicerManagers[slicer]->GetSlicer(window)->GetSliceRange(range);
   int position = mSlicerManagers[slicer]->GetSlicer(window)->GetSlice();
-
-  int tRange[2];
-  tRange[0] = 0;
-  tRange[1] = mSlicerManagers[slicer]->GetSlicer(window)->GetTMax();
-  int tPosition = mSlicerManagers[slicer]->GetSlicer(window)->GetMaxCurrentTSlice();
-  bool showHorizontal = false;
-  bool showVertical = false;
   if (range[1]>0)
-    showVertical = true;
-  if (tRange[1]>0)
-    showHorizontal = true;
-
-  if (showVertical)
     verticalSliders[window]->show();
   else
     verticalSliders[window]->hide();
   verticalSliders[window]->setRange(range[0],range[1]);
   verticalSliders[window]->setValue(position);
 
-  if (showHorizontal)
+  int tRange[2];
+  tRange[0] = 0;
+  tRange[1] = mSlicerManagers[slicer]->GetSlicer(window)->GetTMax();
+  if (tRange[1]>0)
     horizontalSliders[window]->show();
   else
     horizontalSliders[window]->hide();
   horizontalSliders[window]->setRange(tRange[0],tRange[1]);
+  int tPosition = mSlicerManagers[slicer]->GetSlicer(window)->GetMaxCurrentTSlice();
   horizontalSliders[window]->setValue(tPosition);
 }
 //------------------------------------------------------------------------------
@@ -2486,8 +2481,14 @@ void vvMainWindow::LinkAllImages()
 }
 
 //------------------------------------------------------------------------------
-void vvMainWindow::AddLink(QString image1,QString image2)
+void vvMainWindow::AddLink(QString image1,QString image2,bool fromPanel)
 {
+  if (!fromPanel) {
+    // delegate to linkPanel if call came from elsewhere...
+    linkPanel->addLinkFromIds(image1, image2);
+    return;
+  }
+  
   unsigned int sm1 = 0;
   unsigned int sm2 = 0;
 
@@ -3148,7 +3149,7 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
   DataTree->setItemWidget(item, COLUMN_RELOAD_IMAGE, rButton);
 
   //set the id of the image
-  QString id = slicer_manager->GetFileName().c_str() + QString::number(mSlicerManagers.size()-1);
+  QString id = QDir::current().absoluteFilePath(slicer_manager->GetFileName().c_str()) + QString::number(mSlicerManagers.size()-1);
   item->setData(COLUMN_IMAGE_NAME,Qt::UserRole,id.toStdString().c_str());
   mSlicerManagers.back()->SetId(id.toStdString());
 

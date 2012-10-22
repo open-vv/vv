@@ -125,7 +125,7 @@ public slots:
   void ApplyLevelToSetOfImages(double level, unsigned int indexMin, unsigned int indexMax);
   void UpdateLinkManager(std::string id, int slicer, double x, double y, double z, int temps);
   void UpdateLinkedNavigation(std::string id, vvSlicerManager *sm, vvSlicer* refSlicer);
-  void AddLink(QString image1,QString image2);
+  void AddLink(QString image1,QString image2,bool fromPanel = true);
   void RemoveLink(QString image1,QString image2);
   void ChangeImageWithIndexOffset(vvSlicerManager *sm, int slicer, int offset);
 
