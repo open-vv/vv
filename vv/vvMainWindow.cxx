@@ -315,7 +315,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
 
   connect(this,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(ShowContextMenu(QPoint)));
 
-  connect(linkPanel,SIGNAL(addLink(QString,QString)),this,SLOT(AddLink(QString,QString)));
+  connect(linkPanel,SIGNAL(addLink(QString,QString,bool)),this,SLOT(AddLink(QString,QString,bool)));
   connect(linkPanel,SIGNAL(removeLink(QString,QString)),this,SLOT(RemoveLink(QString,QString)));
   connect(overlayPanel,SIGNAL(VFPropertyUpdated(int,int,int,int,double,double,double)),this,SLOT(SetVFProperty(int,int,int,int,double,double,double)));
   connect(overlayPanel,SIGNAL(OverlayPropertyUpdated(int,int,double,double)),
@@ -928,7 +928,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
         DataTree->setItemWidget(item, COLUMN_RELOAD_IMAGE, rButton);
 
         //set the id of the image
-        QString id = files[i].c_str() + QString::number(mSlicerManagers.size()-1);
+        QString id = QDir::current().absoluteFilePath(files[i].c_str()) + QString::number(mSlicerManagers.size()-1);
         item->setData(COLUMN_IMAGE_NAME,Qt::UserRole,id.toStdString().c_str());
         mSlicerManagers.back()->SetId(id.toStdString());
 
@@ -1237,25 +1237,70 @@ void vvMainWindow::ShowHelpDialog()
 //------------------------------------------------------------------------------
 void vvMainWindow::ChangeViewMode()
 {
-  QList<int> size;
+  typedef struct _SIZE{
+    QSplitter* splitter;
+    QList<int> size1, size2;
+    int cols[3];
+  }SplitterSize;
+  SplitterSize sizes[4];
+  sizes[0].splitter = OSplitter;
+  sizes[0].size1.push_back(1);
+  sizes[0].size1.push_back(0);
+  sizes[0].size2.push_back(1);
+  sizes[0].size2.push_back(0);
+  sizes[0].cols[0] = 2;
+  sizes[0].cols[1] = 3;
+  sizes[0].cols[2] = 4;
+
+  sizes[1].splitter = ESplitter;
+  sizes[1].size1.push_back(0);
+  sizes[1].size1.push_back(1);
+  sizes[1].size2.push_back(1);
+  sizes[1].size2.push_back(0);
+  sizes[1].cols[0] = 1;
+  sizes[1].cols[1] = 3;
+  sizes[1].cols[2] = 4;
+
+  sizes[2].splitter = OSplitter;
+  sizes[2].size1.push_back(1);
+  sizes[2].size1.push_back(0);
+  sizes[2].size2.push_back(0);
+  sizes[2].size2.push_back(1);
+  sizes[2].cols[0] = 1;
+  sizes[2].cols[1] = 2;
+  sizes[2].cols[2] = 4;
+
+  sizes[3].splitter = ESplitter;
+  sizes[3].size1.push_back(0);
+  sizes[3].size1.push_back(1);
+  sizes[3].size2.push_back(0);
+  sizes[3].size2.push_back(1);
+  sizes[3].cols[0] = 1;
+  sizes[3].cols[1] = 2;
+  sizes[3].cols[2] = 3;
+  
+  int slicer = mSlicerManagers[mCurrentPickedImageIndex]->GetSelectedSlicer();
   if (viewMode == 1) {
-    viewMode = 0;
-    size.push_back(1);
-    size.push_back(0);
-    splitter_3->setSizes(size);
-    OSplitter->setSizes(size);
-    DataTree->setColumnHidden(2,1);
-    DataTree->setColumnHidden(3,1);
-    DataTree->setColumnHidden(4,1);
+    if (slicer >= 0) {
+      viewMode = 0;
+      splitter_3->setSizes(sizes[slicer].size1);
+      sizes[slicer].splitter->setSizes(sizes[slicer].size2);
+      DataTree->setColumnHidden(sizes[slicer].cols[0],1);
+      DataTree->setColumnHidden(sizes[slicer].cols[1],1);
+      DataTree->setColumnHidden(sizes[slicer].cols[2],1);
+    }
   } else {
-    viewMode = 1;
-    size.push_back(1);
-    size.push_back(1);
-    splitter_3->setSizes(size);
-    OSplitter->setSizes(size);
-    DataTree->setColumnHidden(2,0);
-    DataTree->setColumnHidden(3,0);
-    DataTree->setColumnHidden(4,0);
+    QList<int> size;
+    if (slicer >= 0) {
+      viewMode = 1;
+      size.push_back(1);
+      size.push_back(1);
+      splitter_3->setSizes(size);
+      sizes[slicer].splitter->setSizes(size);
+      DataTree->setColumnHidden(sizes[slicer].cols[0],0);
+      DataTree->setColumnHidden(sizes[slicer].cols[1],0);
+      DataTree->setColumnHidden(sizes[slicer].cols[2],0);
+    }
   }
   UpdateRenderWindows();
   /*
@@ -1263,10 +1308,12 @@ void vvMainWindow::ChangeViewMode()
   ** the associated Slicer to redraw crosses.
   */
   for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
-    if (DataTree->topLevelItem(i)->data(COLUMN_UL_VIEW,Qt::CheckStateRole).toInt() > 1)
+//     if (DataTree->topLevelItem(i)->data(COLUMN_UL_VIEW,Qt::CheckStateRole).toInt() > 1)
       mSlicerManagers[i]->GetSlicer(0)->Render();
-    if (DataTree->topLevelItem(i)->data(COLUMN_DL_VIEW,Qt::CheckStateRole).toInt() > 1)
+      mSlicerManagers[i]->GetSlicer(1)->Render();
+//     if (DataTree->topLevelItem(i)->data(COLUMN_DL_VIEW,Qt::CheckStateRole).toInt() > 1)
       mSlicerManagers[i]->GetSlicer(2)->Render();
+      mSlicerManagers[i]->GetSlicer(3)->Render();
   }
 }
 //------------------------------------------------------------------------------
@@ -1762,6 +1809,32 @@ void vvMainWindow::ApplyWindowLevelToAllImages()
     if (mSlicerManagers[i] == NULL)
       continue;
     mSlicerManagers[i]->SetColorWindow(window);
+    mSlicerManagers[i]->SetColorLevel(level);
+    mSlicerManagers[i]->SetPreset(6);
+    mSlicerManagers[i]->Render();
+  }
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::ApplyWindowToSetOfImages(double window, unsigned int indexMin, unsigned int indexMax)
+{
+  for (unsigned int i = indexMin; i <= indexMax && i < mSlicerManagers.size(); i++) {
+    if (mSlicerManagers[i] == NULL)
+      continue;
+    mSlicerManagers[i]->SetColorWindow(window);
+    mSlicerManagers[i]->SetPreset(6);
+    mSlicerManagers[i]->Render();
+  }
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::ApplyLevelToSetOfImages(double level, unsigned int indexMin, unsigned int indexMax)
+{
+  for (unsigned int i = indexMin; i <= indexMax && i < mSlicerManagers.size(); i++) {
+    if (mSlicerManagers[i] == NULL)
+      continue;
     mSlicerManagers[i]->SetColorLevel(level);
     mSlicerManagers[i]->SetPreset(6);
     mSlicerManagers[i]->Render();
@@ -2413,8 +2486,14 @@ void vvMainWindow::LinkAllImages()
 }
 
 //------------------------------------------------------------------------------
-void vvMainWindow::AddLink(QString image1,QString image2)
+void vvMainWindow::AddLink(QString image1,QString image2,bool fromPanel)
 {
+  if (!fromPanel) {
+    // delegate to linkPanel if call came from elsewhere...
+    linkPanel->addLinkFromIds(image1, image2);
+    return;
+  }
+  
   unsigned int sm1 = 0;
   unsigned int sm2 = 0;
 
@@ -2671,23 +2750,24 @@ void vvMainWindow::UpdateTSlice(int slicer, int slice)
 //------------------------------------------------------------------------------
 void vvMainWindow::UpdateSliceRange(int slicer, int min, int max, int tmin, int tmax)
 {
-  int position = int((min+max)/2);
+  //int position = int((min+max)/2);
+  int position = mSlicerManagers[mCurrentPickedImageIndex]->GetSlicer(slicer)->GetSlice();
   if (slicer == 0) {
-    NOVerticalSlider->setValue(position);
     NOVerticalSlider->setRange(min,max);
     NOHorizontalSlider->setRange(tmin,tmax);
+    NOVerticalSlider->setValue(position);
   } else if (slicer == 1) {
-    NEVerticalSlider->setValue(position);
     NEVerticalSlider->setRange(min,max);
     NEHorizontalSlider->setRange(tmin,tmax);
+    NEVerticalSlider->setValue(position);
   } else if (slicer == 2) {
-    SOVerticalSlider->setValue(position);
     SOVerticalSlider->setRange(min,max);
     SOHorizontalSlider->setRange(tmin,tmax);
+    SOVerticalSlider->setValue(position);
   } else if (slicer == 3) {
-    SEVerticalSlider->setValue(position);
     SEVerticalSlider->setRange(min,max);
     SEHorizontalSlider->setRange(tmin,tmax);
+    SEVerticalSlider->setValue(position);
   }
 }
 //------------------------------------------------------------------------------
@@ -3074,7 +3154,7 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
   DataTree->setItemWidget(item, COLUMN_RELOAD_IMAGE, rButton);
 
   //set the id of the image
-  QString id = slicer_manager->GetFileName().c_str() + QString::number(mSlicerManagers.size()-1);
+  QString id = QDir::current().absoluteFilePath(slicer_manager->GetFileName().c_str()) + QString::number(mSlicerManagers.size()-1);
   item->setData(COLUMN_IMAGE_NAME,Qt::UserRole,id.toStdString().c_str());
   mSlicerManagers.back()->SetId(id.toStdString());
 

@@ -86,6 +86,10 @@ class vvSlicerManager : public QObject {
   ///Switch between nearest neighbor and linear interpolation
   void ToggleInterpolation();
   vvSlicer* GetSlicer(int i);
+  int GetSelectedSlicer() {
+    return mSelectedSlicer;
+  }
+  
   void UpdateSlicer(int num, bool state);
   void SetSlicerWindow(int i, vtkRenderWindow* RW);
   void SetInteractorStyleNavigator(int i,vtkInteractorStyle* style);
@@ -95,7 +99,7 @@ class vvSlicerManager : public QObject {
   vvImage::Pointer GetVF()     { return mVF; }
   int GetType()                { return mType; }
   void SetId(std::string id)   { mId = id; }
-  std::string GetId()          { return mId; }
+  std::string GetId()  const        { return mId; }
   int GetDimension() {
     if (mImage) return mImage->GetNumberOfDimensions();
     else return -1;
@@ -142,15 +146,15 @@ class vvSlicerManager : public QObject {
     mFusionShowLegend = show;
   }
 
-  double GetColorWindow();
-  double GetColorLevel();
+  double GetColorWindow() const;
+  double GetColorLevel() const;
   double GetOverlayColorWindow() const;
   double GetOverlayColorLevel() const;
   bool GetLinkOverlayWindowLevel() const;
   int GetColorMap() {
     return mColorMap;
   }
-  int GetPreset() {
+  int GetPreset() const {
     return mPreset;
   }
   SlicingPresetType GetSlicingPreset() {
@@ -187,6 +191,10 @@ class vvSlicerManager : public QObject {
   }
   void RemoveLink(std::string oldId) {
     mLinkedId.remove(oldId); 
+  }
+  
+  std::list<std::string> GetLinks() const {
+    return mLinkedId;
   }
   
   bool IsLinked() {
@@ -240,6 +248,7 @@ signals :
 
 protected:
   std::vector< vtkSmartPointer<vvSlicer> > mSlicers;
+  int mSelectedSlicer;
   vvImageReader::Pointer mReader;
   vvImageReader::Pointer mOverlayReader;
   vvImageReader::Pointer mFusionReader;
