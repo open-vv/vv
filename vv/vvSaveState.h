@@ -28,6 +28,7 @@ protected:
   void SaveFusion(const QTreeWidgetItem* item, const vvSlicerManager* slicerManager);
   void SaveOverlay(const QTreeWidgetItem* item, const vvSlicerManager* slicerManager);
   void SaveVector(const QTreeWidgetItem* item);
+  void SaveLink(const vvSlicerManager* slicerManager);
 
   std::auto_ptr<QXmlStreamWriter> m_XmlWriter;
   std::auto_ptr<QFile> m_File;

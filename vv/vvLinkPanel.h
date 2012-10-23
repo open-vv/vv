@@ -34,6 +34,7 @@ public:
     ~vvLinkPanel() {}
 
     void addImage(std::string name, std::string id);
+    void addLinkFromIds(QString id1, QString id2);
     void removeImage(int i);
     bool isLinkAll();
 
@@ -44,7 +45,7 @@ public slots :
     void linkAll();
 
 signals:
-    void addLink(QString image1,QString image2);
+    void addLink(QString image1,QString image2,bool);
     void removeLink(QString image1,QString image2);
 
 private:

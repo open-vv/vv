@@ -73,6 +73,7 @@ void vvReadState::ReadTree()
 {
   std::string value;
   
+  // read images
   while (!m_XmlReader->isEndElement() || value != "Images") { 
     m_XmlReader->readNext();
     value = m_XmlReader->qualifiedName().toString().toStdString();
@@ -81,6 +82,15 @@ void vvReadState::ReadTree()
     } 
   }
   
+  // read links
+  while (!m_XmlReader->isEndElement() || value != "Links") { 
+    m_XmlReader->readNext();
+    value = m_XmlReader->qualifiedName().toString().toStdString();
+    if (m_XmlReader->isStartElement()) {
+      if (value == "LinkedFrom") value = ReadLink();
+    } 
+  }
+
   if (m_XmlReader->hasError())
     std::cout << "Error " << m_XmlReader->error() << " XML " << std::endl;
 }
@@ -111,7 +121,23 @@ std::string  vvReadState::ReadImage()
         }
       }
       else if (current_index >= 0) {
-        if (value == "Fusion")
+        vvSlicerManager* slicerManager = m_Window->GetSlicerManagers()[current_index];
+        if (value == "Preset") {
+          double vali = m_XmlReader->readElementText().toInt();
+          if (!m_XmlReader->hasError())
+            slicerManager->SetPreset(vali);
+        }
+        else if (value == "Window") {
+          double vald = m_XmlReader->readElementText().toDouble();
+          if (!m_XmlReader->hasError())
+            slicerManager->SetColorWindow(vald);
+        }
+        else if (value == "Level") {
+          double vald = m_XmlReader->readElementText().toDouble();
+          if (!m_XmlReader->hasError())
+            slicerManager->SetColorLevel(vald);
+        }
+        else if (value == "Fusion")
           value = ReadFusion(current_index);
         else if (value == "Overlay")
           value = ReadOverlay(current_index);
@@ -245,6 +271,33 @@ std::string vvReadState::ReadVector(int index)
 }
 //------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
+std::string  vvReadState::ReadLink()
+{
+  std::string id_from, id_to, value;
+  
+  QXmlStreamAttributes attributes = m_XmlReader->attributes();
+  if (!m_XmlReader->hasError()) {
+    id_from = attributes.value("Id").toString().toStdString();
+  }
+
+  while (!m_XmlReader->isEndElement() || value != "LinkedFrom") { 
+    m_XmlReader->readNext();
+    value = m_XmlReader->qualifiedName().toString().toStdString();
+    if (m_XmlReader->isStartElement()) {
+      if (value == "LinkedTo") {
+        id_to = m_XmlReader->readElementText().toStdString();
+        if (!m_XmlReader->hasError()) {
+          m_Window->AddLink(id_from.c_str(), id_to.c_str(), false);
+        }
+      }
+    }
+  }
+  
+  return value;
+}
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvReadState::ReadGUI()
