@@ -21,7 +21,6 @@
 #include "vvSlicerManagerCommand.h"
 #include "vvGlyphSource.h"
 #include "vvGlyph2D.h"
-#include "vvImageMapToWLColors.h"
 
 #include <vtkTextProperty.h>
 #include <vtkTextActor.h>
@@ -137,9 +136,6 @@ vvSlicer::vvSlicer()
   legend->SetLabelFormat("%.1f");
   this->GetRenderer()->AddActor(legend);
   showFusionLegend = false;
-
-  this->WindowLevel->Delete();
-  this->WindowLevel = vvImageMapToWLColors::New();
 
   this->InstallPipeline();
 
