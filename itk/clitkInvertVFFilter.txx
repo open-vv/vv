@@ -123,7 +123,7 @@ void HelperClass1<InputImageType, OutputImageType>::ThreadedGenerateData(const O
 void HelperClass1<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId )
 #endif
 {
-  //std::cout << "HelperClass1::ThreadedGenerateData - IN" << std::endl;
+//   std::cout << "HelperClass1::ThreadedGenerateData - IN " << threadId << std::endl;
   //Get pointer to the input
   typename InputImageType::ConstPointer inputPtr = this->GetInput();
 
@@ -145,6 +145,8 @@ void HelperClass1<InputImageType, OutputImageType>::ThreadedGenerateData(const O
   typedef typename OutputImageType::PixelType DisplacementType;
   DisplacementType displacement;
   inputIt.GoToBegin();
+  
+  typename OutputImageType::SizeType size = outputPtr->GetLargestPossibleRegion().GetSize();
 
   //define some temp variables
   signed long baseIndex[ImageDimension];
@@ -197,8 +199,10 @@ void HelperClass1<InputImageType, OutputImageType>::ThreadedGenerateData(const O
             overlap *= 1.0 - distance[dim];
           }
           upper >>= 1;
+          
+          if (neighIndex[dim] >= size[dim])
+            neighIndex[dim] = size[dim] - 1;
         }
-
 
 
         //Set neighbor value only if overlap is not zero
@@ -243,7 +247,7 @@ void HelperClass1<InputImageType, OutputImageType>::ThreadedGenerateData(const O
     ++inputIt;
   }
 
-  //std::cout << "HelperClass1::ThreadedGenerateData - OUT" << std::endl;
+//   std::cout << "HelperClass1::ThreadedGenerateData - OUT " << threadId << std::endl;
 }
 
 
@@ -328,7 +332,7 @@ template<class InputImageType, class OutputImageType > void HelperClass2<InputIm
 template<class InputImageType, class OutputImageType > void HelperClass2<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId )
 #endif
 {
-  //std::cout << "HelperClass2::ThreadedGenerateData - IN" << std::endl;
+//   std::cout << "HelperClass2::ThreadedGenerateData - IN " << threadId << std::endl;
   
   //Get pointer to the input
   typename InputImageType::ConstPointer inputPtr = this->GetInput();
@@ -380,7 +384,7 @@ template<class InputImageType, class OutputImageType > void HelperClass2<InputIm
 
   }//end while
   
-  //std::cout << "HelperClass2::ThreadedGenerateData - OUT" << std::endl;
+//   std::cout << "HelperClass2::ThreadedGenerateData - OUT " << threadId << std::endl;
   
 }//end member
 
@@ -410,7 +414,7 @@ InvertVFFilter<InputImageType, OutputImageType>::InvertVFFilter()
 //Update
 template <class InputImageType, class OutputImageType> void InvertVFFilter<InputImageType, OutputImageType>::GenerateData()
 {
-  //std::cout << "InvertVFFilter::GenerateData - IN" << std::endl;
+  // std::cout << "InvertVFFilter::GenerateData - IN" << std::endl;
 
   //Get the properties of the input
   typename InputImageType::ConstPointer inputPtr=this->GetInput();
@@ -472,6 +476,7 @@ template <class InputImageType, class OutputImageType> void InvertVFFilter<Input
   typename HelperClass2Type::Pointer helper2=HelperClass2Type::New();
 
   //Set temporary output as input
+  if(m_NumberOfThreadsIsGiven)helper2->SetNumberOfThreads(m_NumberOfThreads);
   helper2->SetInput(temp);
   helper2->SetWeights(weights);
   helper2->SetEdgePaddingValue(m_EdgePaddingValue);
@@ -482,6 +487,8 @@ template <class InputImageType, class OutputImageType> void InvertVFFilter<Input
 
   //Set the output
   this->SetNthOutput(0, helper2->GetOutput());
+  
+  //std::cout << "InvertVFFilter::GenerateData - OUT" << std::endl;
 }
 
 
