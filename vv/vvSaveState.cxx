@@ -172,7 +172,7 @@ void vvSaveState::SaveLink(const vvSlicerManager* vvManager)
     std::string my_id = vvManager->GetId();
     m_XmlWriter->writeStartElement("LinkedFrom");
     m_XmlWriter->writeAttribute("Id", my_id.c_str());
-    typename LinkListType::iterator i;
+    LinkListType::iterator i;
     for (i = links.begin(); i != links.end(); i++) {
       std::string link_id = *i;
       m_XmlWriter->writeTextElement("LinkedTo", link_id.c_str());
