@@ -123,7 +123,7 @@ FlexibleBinaryFunctorImageFilter<TInputImage1, TInputImage2, TOutputImage, TFunc
   typename Input2ImageType::PointType point2;
 
   ImageRegionConstIterator<TInputImage1> inputIt1(inputPtr1, outputRegionForThread);
-  ImageRegionConstIterator<TInputImage2> inputIt2(inputPtr2, outputRegionForThread);
+  ImageRegionConstIterator<TInputImage2> inputIt2(inputPtr2, region2);
 
   ImageRegionIterator<TOutputImage> outputIt(outputPtr, outputRegionForThread);
 
@@ -139,11 +139,12 @@ FlexibleBinaryFunctorImageFilter<TInputImage1, TInputImage2, TOutputImage, TFunc
   outputIt.GoToBegin();
 
   while( !inputIt1.IsAtEnd() ) {
-    
-    if (region2.IsInside(index2))
+    if (region2.IsInside(index2)) {
       outputIt.Set( m_Functor( inputIt1.Get(), inputIt2.Get() ) );
-    else
+    }
+    else {
       outputIt.Set(inputIt1.Get());
+    }
     
     ++inputIt1;
     index1 = inputIt1.GetIndex();

@@ -1100,21 +1100,28 @@ void vvMainWindow::ImageInfoChanged()
     //read image header
     int NPixel = 1;
 
+    int tSlice = 0;
     vvImage::Pointer imageSelected;
     if (DataTree->topLevelItem(index) == DataTree->selectedItems()[0]) {
       imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetImage();
+      tSlice = mSlicerManagers[index]->GetSlicer(0)->GetTSlice();
     } else if (DataTree->selectedItems()[0]->data(1,Qt::UserRole).toString() == "vector") {
       imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetVF();
+      tSlice = mSlicerManagers[index]->GetSlicer(0)->GetOverlayTSlice();
     } else if (DataTree->selectedItems()[0]->data(1,Qt::UserRole).toString() == "overlay") {
       imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetOverlay();
+      tSlice = mSlicerManagers[index]->GetSlicer(0)->GetOverlayTSlice();
     } else if (DataTree->selectedItems()[0]->data(1,Qt::UserRole).toString() == "fusion") {
       imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetFusion();
+      tSlice = mSlicerManagers[index]->GetSlicer(0)->GetFusionTSlice();
     }
     else if (DataTree->selectedItems()[0]->data(1,Qt::UserRole).toString() == "contour") {
       imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetImage();
+      tSlice = mSlicerManagers[index]->GetSlicer(0)->GetTSlice();
     }
     else {
       imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetImage();
+      tSlice = mSlicerManagers[index]->GetSlicer(0)->GetTSlice();
     }
 
     dimension = imageSelected->GetNumberOfDimensions();
@@ -1142,7 +1149,7 @@ void vvMainWindow::ImageInfoChanged()
     infoPanel->setOrigin(GetVectorDoubleAsString(origin));
     infoPanel->setSpacing(GetVectorDoubleAsString(inputSpacing));
     infoPanel->setNPixel(QString::number(NPixel)+" ("+inputSizeInBytes+")");
-    transformation = imageSelected->GetTransform()[mSlicerManagers[index]->GetTSlice()]->GetMatrix();
+    transformation = imageSelected->GetTransform()[tSlice]->GetMatrix();
     infoPanel->setTransformation(Get4x4MatrixDoubleAsString(transformation));
 
     landmarksPanel->SetCurrentLandmarks(mSlicerManagers[index]->GetLandmarks(),

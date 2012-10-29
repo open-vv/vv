@@ -23,7 +23,6 @@
 #include "vvInteractorStyleNavigator.h"
 #include "vvLandmarks.h"
 #include "vvMesh.h"
-#include "vvImageMapToWLColors.h"
 #include "vvBlendImageActor.h"
 
 #include <vtkImageActor.h>
@@ -1322,15 +1321,11 @@ void vvSlicerManager::SetColorMap(int colormap)
       invLUT->SetSaturationRange(1,1);
       invLUT->SetHueRange(double((mOverlayColor+180)%360)/360,double((mOverlayColor+180)%360)/360);
       invLUT->Build();
-      dynamic_cast<vvImageMapToWLColors*>(mSlicers[i]->GetWindowLevel())
-        ->SetWindowLevelMode(true);
       mSlicers[i]->GetWindowLevel()->SetLookupTable(supLUT);
       mSlicers[i]->GetOverlayMapper()->SetLookupTable(invLUT);
       invLUT->Delete();
       supLUT->Delete();
     } else if (mSlicers[i]->GetOverlay()) {
-      //dynamic_cast<vvImageMapToWLColors*>(mSlicers[i]->GetWindowLevel())
-      //->SetWindowLevelMode(false);
       mSlicers[i]->GetWindowLevel()->SetLookupTable(LUT);
     } else {
       mSlicers[i]->GetWindowLevel()->SetLookupTable(LUT);
