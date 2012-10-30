@@ -909,15 +909,15 @@ void vvSlicer::UpdateDisplayExtent()
     return;
   }
   input->UpdateInformation();
+  this->SetSlice( this->GetSlice() ); //SR: make sure the update let the slice in extents
 
   // Local copy of extent
   int w_ext[6];
   int* ext = GetExtent();
   copyExtent(ext, w_ext);
   // Set slice value
-  int s = this->Slice > ext[this->SliceOrientation*2+1] ? ext[this->SliceOrientation*2 + 1] : this->Slice;
-  w_ext[ this->SliceOrientation*2   ] = s;
-  w_ext[ this->SliceOrientation*2+1 ] = s;
+  w_ext[ this->SliceOrientation*2   ] = this->Slice;
+  w_ext[ this->SliceOrientation*2+1 ] = this->Slice;
   
   // Image actor
   this->ImageActor->SetDisplayExtent(w_ext);
