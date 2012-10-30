@@ -39,6 +39,8 @@ IF(CLITK_PRIVATE_FEATURES)
     ${PROJECT_SOURCE_DIR}/private_features/clitkUsfImageIOFactory.cxx
     ${PROJECT_SOURCE_DIR}/private_features/clitkUSVoxImageIO.cxx
     ${PROJECT_SOURCE_DIR}/private_features/clitkUSVoxImageIOFactory.cxx
+    ${PROJECT_SOURCE_DIR}/private_features/clitkSvlImageIO.cxx
+    ${PROJECT_SOURCE_DIR}/private_features/clitkSvlImageIOFactory.cxx
     )
 ENDIF(CLITK_PRIVATE_FEATURES)
 
