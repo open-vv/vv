@@ -79,6 +79,7 @@ SET(vv_SRCS
   vvSlicer.cxx
   vvLandmarks.cxx
   vvLandmarksGlyph.cxx
+  vvClipPolyData.cxx
   vvGlyphSource.cxx
   vvGlyph2D.cxx
   vvSlicerManager.cxx
@@ -89,8 +90,6 @@ SET(vv_SRCS
   vvMeshActor.cxx
   vvMeshReader.cxx
   vvMidPosition.cxx
-  vvImageMapToWLColors.cxx
-  vvThreadedFilter.cxx
   vvImageContour.cxx
   vvBinaryImageOverlayActor.cxx
   vvStructureSetActor.cxx
@@ -114,7 +113,6 @@ QT4_WRAP_CPP(vv_SRCS
   vvHelpDialog.h  
   vvQDicomSeriesSelector.h 
   vvSlicerManager.h
-  vvThreadedFilter.h
   vvStructureSetActor.h
   vvROIActor.h
   vvToolCreatorBase.h
