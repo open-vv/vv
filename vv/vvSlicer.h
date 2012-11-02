@@ -24,11 +24,13 @@
 #include "vvImage.h"
 #include "vvMesh.h"
 #include "vvMeshActor.h"
+#include "vvClipPolyData.h"
 
 #include <vtkSmartPointer.h>
 #include <vtkImageViewer2.h>
 #include <vtkImageReslice.h>
 #include <vtkImageMapToColors.h>
+#include <vtkCaptionActor2D.h>
 
 class vtkActor;
 class vtkActor2D;
@@ -244,9 +246,10 @@ protected:
   vtkSmartPointer<vtkActor> mVFActor;
   vtkSmartPointer<vtkGlyph3D> mLandGlyph;
   vtkSmartPointer<vtkCursor3D> mCross;
-  vtkSmartPointer<vtkClipPolyData> mLandClipper;
+  vtkSmartPointer<vvClipPolyData> mLandClipper;
   vtkSmartPointer<vtkPolyDataMapper> mLandMapper;
   vtkSmartPointer<vtkActor> mLandActor;
+  std::vector<vtkSmartPointer<vtkCaptionActor2D> > mLandLabelActors;
   vtkSmartPointer<vtkBox> mClipBox;
   vtkSmartPointer<vtkScalarBarActor> legend;
   std::vector<vvMeshActor*> mSurfaceCutActors;

@@ -100,11 +100,10 @@
 #define COLUMN_RELOAD_IMAGE 6
 #define COLUMN_IMAGE_NAME 7
 
-#if CLITK_PRIVATE_FEATURES
-  #define EXTENSIONS "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN *.nii *.nrrd *.nhdr *.nii.gz *.usf)"
+#define EXTENSIONS "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN *.nii *.nrrd *.nhdr *.refscan *.nii.gz *.usf)"
 #else
-  #define EXTENSIONS "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN *.nii *.nrrd *.nhdr *.nii.gz)"
-#endif
+#define EXTENSIONS "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN *.nii *.nrrd *.nhdr *.refscan *.nii.gz)"
+
 
 /*Data Tree values
   0,Qt::UserRole full filename
@@ -3070,6 +3069,12 @@ void vvMainWindow::ShowLastImage()
 //------------------------------------------------------------------------------
 void vvMainWindow::UpdateRenderWindows()
 {
+  for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
+    mSlicerManagers[i]->GetSlicer(0)->UpdateLandmarks();
+    mSlicerManagers[i]->GetSlicer(1)->UpdateLandmarks();
+    mSlicerManagers[i]->GetSlicer(2)->UpdateLandmarks();
+    mSlicerManagers[i]->GetSlicer(3)->UpdateLandmarks();
+  }
   if (NOViewWidget->GetRenderWindow()) NOViewWidget->GetRenderWindow()->Render();
   if (NEViewWidget->GetRenderWindow()) NEViewWidget->GetRenderWindow()->Render();
   if (SOViewWidget->GetRenderWindow()) SOViewWidget->GetRenderWindow()->Render();

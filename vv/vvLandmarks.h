@@ -24,6 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkPoints.h"
 #include "vvLandmarksGlyph.h"
+#include "vtkStringArray.h"
 
 //typedef
 struct vvLandmark {
@@ -67,6 +68,7 @@ private:
     std::vector<vtkPoints*> mPoints;
     vtkFloatArray* mIds;
     //std::vector<vvLandmarksGlyph*> mText;
+    vtkStringArray* mLabels;
     std::string mFilename;
     int mFormatVersion;
 };

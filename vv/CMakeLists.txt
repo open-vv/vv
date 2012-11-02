@@ -80,6 +80,7 @@ SET(vv_SRCS
   vvSlicer.cxx
   vvLandmarks.cxx
   vvLandmarksGlyph.cxx
+  vvClipPolyData.cxx
   vvGlyphSource.cxx
   vvGlyph2D.cxx
   vvSlicerManager.cxx

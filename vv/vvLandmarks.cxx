@@ -41,6 +41,8 @@ vvLandmarks::vvLandmarks(int size)
   }
   mPolyData = vtkPolyData::New();
   mIds = vtkFloatArray::New();
+  mLabels = vtkStringArray::New();
+  mLabels->SetName("labels");
 }
 //--------------------------------------------------------------------
 
@@ -58,6 +60,8 @@ vvLandmarks::~vvLandmarks()
     mIds->Delete();
   if (mPolyData)
     mPolyData->Delete();
+  if (mLabels)
+    mLabels->Delete();
 }
 //--------------------------------------------------------------------
 
@@ -66,14 +70,21 @@ vvLandmarks::~vvLandmarks()
 void vvLandmarks::AddLandmark(float x,float y,float z,float t,double value)
 {
   vvLandmark point;
+  vtkIdType idPoint;
   point.coordinates[0] = x;
   point.coordinates[1] = y;
   point.coordinates[2] = z;
   point.coordinates[3] = t;
   point.pixel_value=value;
   mLandmarks.push_back(point);
-  mPoints[int(t)]->InsertNextPoint(x,y,z);
-  
+
+  idPoint = mPoints[int(t)]->InsertNextPoint(x,y,z);
+  std::string str_vtkIdType;	    // string which will contain the result
+  std::ostringstream convert;	    // stream used for the conversion
+  convert << idPoint;	    		// insert the textual representation of 'idPoint' in the characters in the stream
+  str_vtkIdType = convert.str();    // set 'str_vtkIdType' to the contents of the stream
+  mLabels->InsertNextValue(str_vtkIdType.c_str());
+
   std::stringstream numberVal;
   numberVal << (mLandmarks.size()-1);
   /*
@@ -96,10 +107,12 @@ void vvLandmarks::RemoveLastLandmark()
 {
   mPoints[mLandmarks.back().coordinates[3]]->SetNumberOfPoints(
                                                                mPoints[mLandmarks.back().coordinates[3]]->GetNumberOfPoints()-1);
-  mPolyData->Modified();
   //  mText.pop_back();
   mLandmarks.pop_back();
   mIds->RemoveLastTuple();
+  mLabels->SetNumberOfValues(mLabels->GetNumberOfValues()-1);
+  mLabels->Modified();
+  mPolyData->Modified();
 }
 //--------------------------------------------------------------------
 
@@ -112,9 +125,17 @@ void vvLandmarks::RemoveLandmark(int index)
   // pologyons linking the points
   int npoints = mPoints[mLandmarks[index].coordinates[3]]->GetNumberOfPoints();
   int t = mLandmarks[index].coordinates[3];
-  for (int i = index; i < npoints - 1; i++)
+  for (int i = index; i < npoints - 1; i++) {
     mPoints[t]->InsertPoint(i, mPoints[t]->GetPoint(i+1));
+	std::string str_i;		     // string which will contain the result
+	std::ostringstream convert;	 // stream used for the conversion
+	convert << i;			     // insert the textual representation of 'i' in the characters in the stream
+	str_i = convert.str();		 // set 'str_i' to the contents of the stream
+	mLabels->SetValue(i,str_i.c_str());
+    }
   mPoints[t]->SetNumberOfPoints(npoints-1);
+  mLabels->SetNumberOfValues(npoints-1);
+  mLabels->Modified();
   mPolyData->Modified();
 
   mLandmarks.erase(mLandmarks.begin() + index);
@@ -165,6 +186,7 @@ void vvLandmarks::LoadFile(std::string filename)
   }
   mFilename = filename;
   mLandmarks.clear();
+  vtkIdType idPoint;
   char line[255];
   for (unsigned int i = 0; i < mPoints.size(); i++)
     mPoints[i]->SetNumberOfPoints(0);
@@ -246,8 +268,13 @@ void vvLandmarks::LoadFile(std::string filename)
       //      DD(point.comments);
       mLandmarks.push_back(point);
       mIds->InsertNextTuple1(0.55);
-      mPoints[int(point.coordinates[3])]->InsertNextPoint(
+     idPoint = mPoints[int(point.coordinates[3])]->InsertNextPoint(
                                                           point.coordinates[0],point.coordinates[1],point.coordinates[2]);
+     std::string str_vtkIdType;	    // string which will contain the result
+     std::ostringstream convert;	// stream used for the conversion
+     convert << idPoint;		    // insert the textual representation of 'idPoint' in the characters in the stream
+     str_vtkIdType = convert.str(); // set 'str_vtkIdType' to the contents of the stream
+     mLabels->InsertNextValue(str_vtkIdType.c_str());
     }
   }
   SetTime(0);
@@ -301,6 +328,7 @@ void vvLandmarks::SetTime(int time)
   if (time >= 0 && time <= ((int)mPoints.size() -1)) {
     mPolyData->SetPoints(mPoints[time]);
     mPolyData->GetPointData()->SetScalars(mIds);
+    mPolyData->GetPointData()->AddArray(mLabels);
     mPolyData->Modified();
     mPolyData->Update();
   }
