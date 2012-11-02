@@ -100,9 +100,11 @@
 #define COLUMN_RELOAD_IMAGE 6
 #define COLUMN_IMAGE_NAME 7
 
+#ifdef CLITK_PRIVATE_FEATURES
 #define EXTENSIONS "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN *.nii *.nrrd *.nhdr *.refscan *.nii.gz *.usf)"
 #else
 #define EXTENSIONS "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN *.nii *.nrrd *.nhdr *.refscan *.nii.gz)"
+#endif
 
 
 /*Data Tree values
