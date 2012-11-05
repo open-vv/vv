@@ -25,6 +25,8 @@
 #include "vvROIActor.h"
 #include "ui_vvToolSegmentation.h"
 
+#include "vtkLookupTable.h"
+
 //------------------------------------------------------------------------------
 class vvToolSegmentation:
   public vvToolWidgetBase,
@@ -40,23 +42,50 @@ class vvToolSegmentation:
   static void Initialize();
   virtual void InputIsSelected(vvSlicerManager * m);
   void OpenBinaryImage();
+  void RegionGrowing();
   void Erode();
   void Dilate();
-  void UpdateAndRender();
+  void Labelize();
+  void Merge();
+  void RemoveLabel();
+  void UpdateAndRenderNewMask();
 
   //-----------------------------------------------------
   public slots:
   virtual void apply();
-  virtual void keyPressEvent(QKeyEvent * event);
+  void KeyPressed(std::string KeyPress);
   virtual bool close();
-  // virtual void reject();
+  virtual void MousePositionChanged(int slicer);
 
  protected:
-  // virtual void closeEvent(QCloseEvent *event);
   Ui::vvToolSegmentation ui;
   QSharedPointer<vvROIActor> mRefMaskActor;
-  vvImage::Pointer mMaskImage;
+  QSharedPointer<vvROIActor> mCurrentMaskActor;
+  std::vector<QSharedPointer<vvROIActor> > mCurrentCCLActors;
+  vvImage::Pointer mRefMaskImage;
+  vvImage::Pointer mCurrentMaskImage;
+  vvImage::Pointer mCurrentCCLImage;
   int mKernelValue;
+  vtkSmartPointer<vtkLookupTable> mDefaultLUTColor;
+  enum { State_Default, State_CCL};
+  int mCurrentState;
+
+  QSharedPointer<vvROIActor> CreateMaskActor(vvImage::Pointer image, int i, int colorID, bool BGMode=false);
+  
+  double mCurrentLabelUnderMousePointer;
+  std::vector<double> mCurrentMousePositionInMM;
+  //std::vector<double> mCurrentMousePositionInPixel;
+  double GetBackgroundValue() { return 0; }
+  double GetForegroundValue() { return 1; }
+  long ComputeNumberOfPixels(vvImage::Pointer image, double value);
+
+  // Compute and store sizes of mask Foreground
+  void   UpdateMaskSize(vvImage::Pointer image, long & pix, double & cc);
+  void   UpdateMaskSizeLabels();
+  long   mRefMaskSizeInPixels;
+  double mRefMaskSizeInCC;
+  long   mCurrentMaskSizeInPixels;
+  double mCurrentMaskSizeInCC;
 
 }; // end class vvToolSegmentation
 //------------------------------------------------------------------------------

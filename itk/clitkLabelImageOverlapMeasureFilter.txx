@@ -121,8 +121,13 @@ GenerateData()
   statFilter->Update();
   int in2 = statFilter->GetCount(GetLabel1());
 
-  std::cout << in1 << " " << in2 << " " << inter << " " << u << " " 
-            << 2.0*(double)inter/(double)(in1+in2) << std::endl;
+  double dice = 2.0*(double)inter/(double)(in1+in2);
+  int width = 6;
+  std::cout << std::setw(width) << in1 << " "
+            << std::setw(width) << in2 << " "
+            << std::setw(width) << inter  << " "
+            << std::setw(width) << u  << " "
+            << std::setw(width) << dice << " "; //std::endl;
 }
 //--------------------------------------------------------------------
 

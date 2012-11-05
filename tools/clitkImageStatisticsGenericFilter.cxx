@@ -18,17 +18,7 @@
 #ifndef clitkImageStatisticsGenericFilter_cxx
 #define clitkImageStatisticsGenericFilter_cxx
 
-/* =================================================
- * @file   clitkImageStatisticsGenericFilter.cxx
- * @author 
- * @date   
- * 
- * @brief 
- * 
- ===================================================*/
-
 #include "clitkImageStatisticsGenericFilter.h"
-
 
 namespace clitk
 {
@@ -42,7 +32,8 @@ namespace clitk
     m_Verbose=false;
     m_InputFileName="";
   }
-
+  //-----------------------------------------------------------
+  
 
   //-----------------------------------------------------------
   // Update

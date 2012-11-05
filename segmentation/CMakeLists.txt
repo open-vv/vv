@@ -1,7 +1,7 @@
 #=========================================================
 
 # Add Libraries used in vv and clitk to avoid recompilation
-FOREACH(clitkTool clitkExtractLung clitkExtractPatient)
+FOREACH(clitkTool clitkExtractLung clitkExtractPatient clitkConnectedComponentLabeling clitkRegionGrowing)
     WRAP_GGO(${clitkTool}_GGO_C ${clitkTool}.ggo)
     SET(GGO_C_FILES ${GGO_C_FILES} ${${clitkTool}_GGO_C})
 ENDFOREACH(clitkTool)
@@ -46,6 +46,10 @@ IF(CLITK_BUILD_SEGMENTATION)
     TARGET_LINK_LIBRARIES(clitkMotionMask clitkCommon ${ITK_LIBRARIES})
     SET(SEGMENTATION_INSTALL ${SEGMENTATION_INSTALL} clitkMotionMask)
     
+    WRAP_GGO(clitkRegionGrowing_GGO_C clitkRegionGrowing.ggo)
+    ADD_EXECUTABLE(clitkRegionGrowing clitkRegionGrowing.cxx ${clitkRegionGrowing_GGO_C} ${clitkRelativePosition_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkRegionGrowing clitkCommon ${ITK_LIBRARIES})
+
     SET_TARGET_PROPERTIES(${SEGMENTATION_INSTALL} PROPERTIES INSTALL_RPATH "${VTK_DIR}:${ITK_DIR}" )  
     INSTALL (TARGETS ${SEGMENTATION_INSTALL} DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
 

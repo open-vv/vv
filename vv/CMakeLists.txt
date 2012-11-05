@@ -23,6 +23,7 @@ SET(vv_TOOLS
   vvToolMIP
   vvToolConvert ## with dummy vvToolConvert.ui
   vvToolROIManager
+  vvToolSegmentation
 
   ## these ones are for tests (not working)
   # vvToolFoo
@@ -79,6 +80,7 @@ SET(vv_SRCS
   vvSlicer.cxx
   vvLandmarks.cxx
   vvLandmarksGlyph.cxx
+  vvClipPolyData.cxx
   vvGlyphSource.cxx
   vvGlyph2D.cxx
   vvSlicerManager.cxx

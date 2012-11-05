@@ -40,6 +40,7 @@
 #include <vtkDataArray.h>
 #include <vtkFloatArray.h>
 #include <vtkClipPolyData.h>
+#include <vtkActor2DCollection.h>
 #include <vtkGlyph3D.h>
 #include <vtkMath.h>
 #include <vtkCursor3D.h>
@@ -576,36 +577,40 @@ void vvSlicer::SetLandmarks(vvLandmarks* landmarks)
 
     if (!mCross)
       mCross = vtkSmartPointer<vtkCursor3D>::New();
+	if (!mClipBox)
+      mClipBox = vtkSmartPointer<vtkBox>::New();
+    if (!mLandClipper)
+      mLandClipper = vtkSmartPointer<vvClipPolyData>::New();
+    if (!mLandGlyph)
+      mLandGlyph = vtkSmartPointer<vtkGlyph3D>::New();
+    if (!mLandMapper)
+      mLandMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    if (!mLandActor)
+      mLandActor = vtkSmartPointer<vtkActor>::New();
+
     mCross->SetFocalPoint(0.0,0.0,0.0);
     mCross->SetModelBounds(-10,10,-10,10,-10,10);
     mCross->AllOff();
     mCross->AxesOn();
 
-    if (!mLandGlyph)
-      mLandGlyph = vtkSmartPointer<vtkGlyph3D>::New();
-    mLandGlyph->SetSource(mCross->GetOutput());
-    mLandGlyph->SetInput(landmarks->GetOutput());
-    //mLandGlyph->SetIndexModeToScalar();
-    mLandGlyph->SetRange(0,1);
-    mLandGlyph->ScalingOff();
-
-    mLandGlyph->SetColorModeToColorByScalar();
-
-    if (!mClipBox)
-      mClipBox = vtkSmartPointer<vtkBox>::New();
-    if (!mLandClipper)
-      mLandClipper = vtkSmartPointer<vtkClipPolyData>::New();
-    mLandClipper->InsideOutOn();
-    mLandClipper->SetInput(mLandGlyph->GetOutput());
     mLandClipper->SetClipFunction(mClipBox);
+    mLandClipper->InsideOutOn();
+    mLandClipper->SetInput(mLandmarks->GetOutput());
 
-    if (!mLandMapper)
-      mLandMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    mLandMapper->SetInputConnection(mLandClipper->GetOutputPort());
+    mLandGlyph->SetSource(mCross->GetOutput());
+    mLandGlyph->SetInput(mLandClipper->GetOutput());
+    //mLandGlyph->SetIndexModeToScalar();
+    //mLandGlyph->SetRange(0,1);
+    //mLandGlyph->ScalingOff();
+
+    //mLandGlyph->SetColorModeToColorByScalar();
+    
+    mLandGlyph->SetScaleModeToDataScalingOff();
+    mLandGlyph->SetIndexModeToOff();
+
+    mLandMapper->SetInputConnection(mLandGlyph->GetOutputPort());
     //mLandMapper->ScalarVisibilityOff();
 
-    if (!mLandActor)
-      mLandActor = vtkSmartPointer<vtkActor>::New();
     mLandActor->SetMapper(mLandMapper);
     mLandActor->GetProperty()->SetColor(255,10,212);
     mLandActor->SetPickable(0);
@@ -904,15 +909,15 @@ void vvSlicer::UpdateDisplayExtent()
     return;
   }
   input->UpdateInformation();
+  this->SetSlice( this->GetSlice() ); //SR: make sure the update let the slice in extents
 
   // Local copy of extent
   int w_ext[6];
   int* ext = GetExtent();
   copyExtent(ext, w_ext);
   // Set slice value
-  int s = this->Slice > ext[this->SliceOrientation*2+1] ? ext[this->SliceOrientation*2 + 1] : this->Slice;
-  w_ext[ this->SliceOrientation*2   ] = s;
-  w_ext[ this->SliceOrientation*2+1 ] = s;
+  w_ext[ this->SliceOrientation*2   ] = this->Slice;
+  w_ext[ this->SliceOrientation*2+1 ] = this->Slice;
   
   // Image actor
   this->ImageActor->SetDisplayExtent(w_ext);
@@ -1444,13 +1449,38 @@ void vvSlicer::UpdateLandmarks()
 {
   vtkPolyData *pd = static_cast<vtkPolyData*>(mLandClipper->GetInput());
   if (pd->GetPoints()) {
-    mLandGlyph->SetRange(0,1);
-    mLandGlyph->Modified();
-    mLandGlyph->Update();
+    //mLandGlyph->SetRange(0,1);
+    //mLandGlyph->Modified();
+    //mLandGlyph->Update();
 
     mClipBox->Modified();
     mLandClipper->Update();
     mLandMapper->Update();
+    //Let's add the captions
+    //First remove all captions:
+    for(unsigned int i=0;i<mLandLabelActors.size();i++) {
+	this->Renderer->RemoveActor2D(mLandLabelActors[i]);
+	//allActors2D->Remove (mLandLabelActors[i]);
+    }
+    mLandLabelActors.clear();
+    //Next add the captions to the displayed points
+    for (vtkIdType id=0; id<mLandClipper->GetOutput()->GetNumberOfPoints(); id++) {
+	  double *position = mLandClipper->GetOutput()->GetPoint(id);
+      vtkStdString label = static_cast<vtkStringArray*>(mLandClipper->GetOutput()->GetPointData()->GetAbstractArray("labels"))->GetValue(id);
+      vtkSmartPointer<vtkCaptionActor2D> label_actor = vtkSmartPointer<vtkCaptionActor2D>::New();
+      label_actor->SetCaption(label);
+      label_actor->SetAttachmentPoint(position);
+      label_actor->GetCaptionTextProperty()->SetColor(1,0,0);
+      label_actor->GetCaptionTextProperty()->SetOrientation(33.333333);
+      label_actor->GetCaptionTextProperty()->SetFontFamilyToTimes();
+      label_actor->GetCaptionTextProperty()->SetBold(0);
+      label_actor->GetCaptionTextProperty()->SetFontSize(6);
+      label_actor->BorderOff();
+      label_actor->LeaderOff();
+      label_actor->ThreeDimensionalLeaderOff();
+      mLandLabelActors.push_back(label_actor);
+      this->Renderer->AddActor2D(mLandLabelActors[id]);
+     }
   }
 
 }
