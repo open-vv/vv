@@ -233,7 +233,7 @@ IF (CLITK_BUILD_TOOLS)
   IF(CLITK_EXPERIMENTAL)
     WRAP_GGO(clitkBinaryImageToMesh_GGO_C clitkBinaryImageToMesh.ggo)
     ADD_EXECUTABLE(clitkBinaryImageToMesh clitkBinaryImageToMesh.cxx ${clitkBinaryImageToMesh_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkBinaryImageToMesh ${ITK_LIBRARIES} ${VTK_LIBRARIES})
+    TARGET_LINK_LIBRARIES(clitkBinaryImageToMesh itksys ${VTK_LIBRARIES})
     SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkBinaryImageToMesh)
 
     WRAP_GGO(clitkMeshToBinaryImage_GGO_C clitkMeshToBinaryImage.ggo)

@@ -162,9 +162,9 @@ std::vector<vvMesh::Pointer> vvMeshReader::readSelectedContours()
       gdcm::Attribute<0x3006,0x2a> trgb;
       trgb.SetFromDataSet(ds_rois);
       vvMesh::Pointer current_roi=vvMesh::New();
-      current_roi->r = trgb[0] / 255;
-      current_roi->g = trgb[1] / 255;
-      current_roi->b = trgb[2] / 255;
+      current_roi->r = trgb[0] / 255.0;
+      current_roi->g = trgb[1] / 255.0;
+      current_roi->b = trgb[2] / 255.0;
 
       gdcm::Attribute<0x3006,0x26> tstructure_name;
       tstructure_name.SetFromDataSet(ds_roi_info);

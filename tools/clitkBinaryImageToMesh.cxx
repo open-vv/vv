@@ -16,7 +16,7 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================*/
 #include "clitkBinaryImageToMesh_ggo.h"
-#include "clitkImageToImageGenericFilter.h"
+#include "clitkCommon.h"
 
 #include "vtkMetaImageReader.h"
 #include "vtkContourFilter.h"
