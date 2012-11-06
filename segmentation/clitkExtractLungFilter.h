@@ -175,6 +175,10 @@ namespace clitk {
     itkGetConstMacro(VerboseRegionGrowingFlag, bool);
     itkBooleanMacro(VerboseRegionGrowingFlag);    
 
+    itkSetMacro(RemoveSmallLabelBeforeSeparationFlag, bool);
+    itkGetConstMacro(RemoveSmallLabelBeforeSeparationFlag, bool);
+    itkBooleanMacro(RemoveSmallLabelBeforeSeparationFlag);    
+
     // Step 3 options ExtractLung
     itkSetMacro(NumberOfHistogramBins, int);
     itkGetConstMacro(NumberOfHistogramBins, int);
@@ -234,6 +238,7 @@ namespace clitk {
     MaskImagePixelType m_ForegroundValue;
     int m_MinimalComponentSize;
     bool m_AutoCrop;
+    bool m_RemoveSmallLabelBeforeSeparationFlag;
 
     // Step 1
     InputImagePixelType m_UpperThreshold;
