@@ -67,5 +67,5 @@ option "dir"    	        d  "Directions (axes) to perform filling (defaults to 2
 
 section "Step 7 : lung separation (labelling)"
 option "doNotSeparateLungs"   -  "Do not separate lungs if set"                 flag off
-
+option "removeSmallLabel"     -  "Remove small label (stomach?) before separation"  flag on
 option "noAutoCrop"	- 	"If set : do no crop final mask to BoundingBox"	                        flag 	off
