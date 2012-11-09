@@ -2177,7 +2177,11 @@ void vvMainWindow::OpenField()
 
   QString Extensions = "Images ( *.mhd)";
   Extensions += ";;Images ( *.mha)";
-  Extensions += ";;Images ( *.vf)";
+  Extensions += ";;VF Images ( *.vf)";
+  Extensions += ";;nii Images ( *.nii)";
+  Extensions += ";;nrrd Images ( *.nrrd)";
+  Extensions += ";;nhdr Images ( *.nhdr)";
+  Extensions += ";;All Files (*)";
   QString file = QFileDialog::getOpenFileName(this,tr("Load deformation field"),mInputPathName,Extensions);
   if (!file.isEmpty())
     AddField(file,index);
