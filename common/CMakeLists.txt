@@ -24,6 +24,9 @@ SET(clitkCommon_SRC
   rtkHndImageIOFactory.cxx
   rtkEdfImageIO.cxx
   rtkEdfImageIOFactory.cxx
+  clitkEsrfHstImageIO.cxx  
+  clitkEsrfHstImageIOFactory.cxx
+  clitkEsrfHstXMLFileReader.cxx
   clitkDicomRTDoseIO.cxx
   clitkDicomRTDoseIOFactory.cxx
   clitkOrientation.cxx

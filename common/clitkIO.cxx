@@ -33,6 +33,7 @@
 #include "rtkHisImageIOFactory.h"
 #include "rtkHndImageIOFactory.h"
 #include "rtkEdfImageIOFactory.h"
+#include "clitkEsrfHstImageIOFactory.h"
 #include "clitkGateAsciiImageIOFactory.h"
 #include "clitkConfiguration.h"
 #if CLITK_PRIVATE_FEATURES
@@ -61,5 +62,6 @@ void clitk::RegisterClitkFactories()
   rtk::HisImageIOFactory::RegisterOneFactory();
   rtk::HndImageIOFactory::RegisterOneFactory();
   rtk::EdfImageIOFactory::RegisterOneFactory();
+  clitk::EsrfHstImageIOFactory::RegisterOneFactory();
 } ////
 
