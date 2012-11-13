@@ -20,8 +20,8 @@ SET(clitkCommon_SRC
   clitkXdrImageIOReader.cxx  
   clitkXdrImageIOWriter.cxx  
   clitkXdrImageIOFactory.cxx
-  clitkHndImageIO.cxx
-  clitkHndImageIOFactory.cxx
+  rtkHndImageIO.cxx
+  rtkHndImageIOFactory.cxx
   clitkDicomRTDoseIO.cxx
   clitkDicomRTDoseIOFactory.cxx
   clitkOrientation.cxx
