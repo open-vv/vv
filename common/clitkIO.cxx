@@ -28,9 +28,9 @@
 #include "clitkImageCommon.h"
 #include "clitkDicomRTDoseIOFactory.h"
 #include "clitkVoxImageIOFactory.h"
-#include "clitkHisImageIOFactory.h"
 #include "clitkVfImageIOFactory.h"
 #include "clitkXdrImageIOFactory.h"
+#include "rtkHisImageIOFactory.h"
 #include "rtkHndImageIOFactory.h"
 #include "clitkGateAsciiImageIOFactory.h"
 #include "clitkConfiguration.h"
@@ -56,8 +56,8 @@ void clitk::RegisterClitkFactories()
 #endif
   clitk::VoxImageIOFactory::RegisterOneFactory();
   clitk::VfImageIOFactory::RegisterOneFactory();
-  clitk::HisImageIOFactory::RegisterOneFactory();
   clitk::XdrImageIOFactory::RegisterOneFactory();
+  rtk::HisImageIOFactory::RegisterOneFactory();
   rtk::HndImageIOFactory::RegisterOneFactory();
 } ////
 

@@ -15,11 +15,11 @@ SET(clitkCommon_SRC
   clitkVoxImageIOFactory.cxx
   clitkVfImageIO.cxx  
   clitkVfImageIOFactory.cxx
-  clitkHisImageIO.cxx  
-  clitkHisImageIOFactory.cxx
   clitkXdrImageIOReader.cxx  
   clitkXdrImageIOWriter.cxx  
   clitkXdrImageIOFactory.cxx
+  rtkHisImageIO.cxx  
+  rtkHisImageIOFactory.cxx
   rtkHndImageIO.cxx
   rtkHndImageIOFactory.cxx
   clitkDicomRTDoseIO.cxx
