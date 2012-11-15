@@ -15,13 +15,18 @@ SET(clitkCommon_SRC
   clitkVoxImageIOFactory.cxx
   clitkVfImageIO.cxx  
   clitkVfImageIOFactory.cxx
-  clitkHisImageIO.cxx  
-  clitkHisImageIOFactory.cxx
   clitkXdrImageIOReader.cxx  
   clitkXdrImageIOWriter.cxx  
   clitkXdrImageIOFactory.cxx
-  clitkHndImageIO.cxx
-  clitkHndImageIOFactory.cxx
+  rtkHisImageIO.cxx  
+  rtkHisImageIOFactory.cxx
+  rtkHndImageIO.cxx
+  rtkHndImageIOFactory.cxx
+  rtkEdfImageIO.cxx
+  rtkEdfImageIOFactory.cxx
+  clitkEsrfHstImageIO.cxx  
+  clitkEsrfHstImageIOFactory.cxx
+  clitkEsrfHstXMLFileReader.cxx
   clitkDicomRTDoseIO.cxx
   clitkDicomRTDoseIOFactory.cxx
   clitkOrientation.cxx

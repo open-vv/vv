@@ -3,7 +3,7 @@
 
   Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
-  - LÃ©on BÃ©rard cancer center       http://www.centreleonberard.fr
+  - Léon Bérard cancer center       http://www.centreleonberard.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
 
   This software is distributed WITHOUT ANY WARRANTY; without even
@@ -15,33 +15,16 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
-#ifndef CLITKHISIMAGEIOFACTORY_CXX
-#define CLITKHISIMAGEIOFACTORY_CXX
-/**
- =================================================
- * @file   clitkHisImageIOFactory.cxx
- * @author Simon Rit <simon.rit@gmail.com>
- * @date   16 Feb 2010
- *
- * @brief
- *
- *
- =================================================*/
 
-#include "clitkHisImageIOFactory.h"
-
-#include <fstream>
+#include "clitkEsrfHstImageIOFactory.h"
 
 //====================================================================
-clitk::HisImageIOFactory::HisImageIOFactory()
+clitk::EsrfHstImageIOFactory::EsrfHstImageIOFactory()
 {
   this->RegisterOverride("itkImageIOBase",
-                         "HisImageIO",
-                         "His Image IO",
+                         "EsrfHstImageIO",
+                         "Esrf Hst Image IO",
                          1,
-                         itk::CreateObjectFunction<HisImageIO>::New());
+                         itk::CreateObjectFunction<EsrfHstImageIO>::New());
 }
-
-
-#endif /* end #define CLITKHISIMAGEIOFACTORY_CXX */
 
