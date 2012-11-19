@@ -269,7 +269,10 @@ clitk::ResizeImageLike(const ImageType * input,
 {
   typename ImageType::Pointer output = ImageType::New();
   output->CopyInformation(input);
-  output->SetRegions(region);
+  typename ImageType::RegionType reg;
+  reg.SetIndex(region->GetIndex());
+  reg.SetSize(region->GetSize());
+  output->SetRegions(reg);
   output->Allocate();
   return clitk::ResizeImageLike<ImageType>(input, output, backgroundValue);
 }

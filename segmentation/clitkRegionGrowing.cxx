@@ -15,38 +15,27 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
-#ifndef CLITKIMAGEUTILITIES_H
-#define CLITKIMAGEUTILITIES_H
-/**
- ===================================================================
- * @file   clitkImageUtilities.h
- * @author David Sarrut <David.Sarrut@creatis.insa-lyon.fr>
- * @date   22 Sep 2006 10:38:36
-
- * @brief  
-
- ===================================================================*/
 
 // clitk
-#include "clitkCommon.h"
-#include "clitkImageCommon.h"
+#include "clitkRegionGrowing_ggo.h"
+#include "clitkIO.h"
+#include "clitkRegionGrowingGenericFilter.h"
 
-// std
-#include <vector>
-#include <map>
-#include <set>
+//--------------------------------------------------------------------
+int main(int argc, char * argv[]) {
 
-// itk
-#include "itkImageRegionConstIterator.h"
+  // Init command line
+  GGO(clitkRegionGrowing, args_info);
+  CLITK_INIT;
 
-namespace clitk {
+  // Filter
+  typedef clitk::RegionGrowingGenericFilter<args_info_clitkRegionGrowing> FilterType;
+  FilterType::Pointer genericFilter = FilterType::New();
   
-  template<class ImageType>
-  int ComputeHowManyDifferentIntensity(const typename ImageType::Pointer & image, 
-									   std::vector<typename ImageType::PixelType> & listOfIntensities);
-  #include "clitkImageUtilities.txx"
+  genericFilter->SetArgsInfo(args_info);
+  genericFilter->Update();
 
-} // end namespace
+  return EXIT_SUCCESS;
+}// end main
 
-#endif /* end #define CLITKIMAGEUTILITIES_H */
-
+//--------------------------------------------------------------------

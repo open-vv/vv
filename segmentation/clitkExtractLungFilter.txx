@@ -47,6 +47,8 @@
 #include "itkOrientImageFilter.h"
 #include "itkSpatialOrientationAdapter.h"
 #include "itkImageDuplicator.h"
+#include "itkRelabelComponentImageFilter.h"
+
 #include <fcntl.h>
 
 //--------------------------------------------------------------------
@@ -67,6 +69,7 @@ ExtractLungFilter():
   SetForegroundValue(1);
   SetMinimalComponentSize(100);
   VerboseRegionGrowingFlagOff();
+  RemoveSmallLabelBeforeSeparationFlagOn();
 
   // Step 1 default values
   SetUpperThreshold(-300);
@@ -436,7 +439,7 @@ GenerateOutputInformation()
     //--------------------------------------------------------------------
     //--------------------------------------------------------------------
     StartNewStep("Separate Left/Right lungs");
-      PrintMemory(GetVerboseMemoryFlag(), "Before Separate");
+    PrintMemory(GetVerboseMemoryFlag(), "Before Separate");
     // Initial label
     working_mask = Labelize<MaskImageType>(working_mask, 
                                           GetBackgroundValue(), 
@@ -451,9 +454,33 @@ GenerateOutputInformation()
     statisticsImageFilter->SetInput(working_mask);
     statisticsImageFilter->Update();
     unsigned int initialNumberOfLabels = statisticsImageFilter->GetMaximum();
-    working_mask = statisticsImageFilter->GetOutput();	
-    
+    working_mask = statisticsImageFilter->GetOutput();	    
     PrintMemory(GetVerboseMemoryFlag(), "After count label");
+
+    // If already 2 labels, but a too big differences, remove the
+    // smalest one (sometimes appends with the stomach
+    if (initialNumberOfLabels >1) {
+      if (GetRemoveSmallLabelBeforeSeparationFlag()) {
+        DD(GetRemoveSmallLabelBeforeSeparationFlag());
+        typedef itk::RelabelComponentImageFilter<MaskImageType, MaskImageType> RelabelFilterType;
+        typename RelabelFilterType::Pointer relabelFilter = RelabelFilterType::New();
+        relabelFilter->SetInput(working_mask);
+        relabelFilter->SetMinimumObjectSize(10);
+        relabelFilter->Update();
+        const std::vector<float> & a = relabelFilter->GetSizeOfObjectsInPhysicalUnits();
+        std::vector<MaskImagePixelType> remove_label;
+        for(unsigned int i=1; i<a.size(); i++) {
+          if (a[i] < 0.5*a[0]) { // more than 0.5 difference
+            remove_label.push_back(i+1); // label zero is BG
+          }
+        }
+        working_mask = 
+          clitk::RemoveLabels<MaskImageType>(working_mask, GetBackgroundValue(), remove_label);
+        statisticsImageFilter->SetInput(working_mask);
+        statisticsImageFilter->Update();
+        initialNumberOfLabels = statisticsImageFilter->GetMaximum();
+      }
+    }
   
     // Decompose the first label
     if (initialNumberOfLabels<2) {
@@ -631,6 +658,9 @@ SearchForTracheaSeed2(int numberOfSlices)
     opening->Update();
     
     typename SlicerFilterType::Pointer slicer = SlicerFilterType::New();
+#if ITK_VERSION_MAJOR >= 4
+    slicer->SetDirectionCollapseToIdentity();
+#endif
     slicer->SetInput(opening->GetOutput());
     
     // label result

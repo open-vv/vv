@@ -16,16 +16,6 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
 
-/* =================================================
- * @file   clitkImageStatistics.cxx
- * @author 
- * @date   
- * 
- * @brief 
- * 
- ===================================================*/
-
-
 // clitk
 #include "clitkImageStatistics_ggo.h"
 #include "clitkIO.h"
@@ -43,7 +33,7 @@ int main(int argc, char * argv[]) {
   clitk::ImageStatisticsGenericFilter::Pointer genericFilter=clitk::ImageStatisticsGenericFilter::New();
   
   genericFilter->SetArgsInfo(args_info);
-  genericFilter->Update();
+  CLITK_TRY_CATCH_EXIT(genericFilter->Update());
 
   return EXIT_SUCCESS;
 }// end main

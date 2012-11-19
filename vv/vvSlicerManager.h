@@ -212,6 +212,8 @@ class vvSlicerManager : public QObject {
   void Activated();
   void Picked();
   void UpdateInfoOnCursorPosition(int slicer);
+  void EmitMousePositionUpdated(int slicer);
+  void EmitKeyPressed(std::string keyPress);
   void UpdateWindowLevel();
   void UpdateSlice(int slicer);
   void UpdateTSlice(int slicer);
@@ -234,6 +236,8 @@ signals :
   void UpdateVector(int display, double x, double y, double z, double value);
   void UpdateOverlay(int display, double valueOver, double valueRef);
   void UpdateFusion(int display, double valueFus);
+  void MousePositionUpdatedSignal(int slicer);
+  void KeyPressedSignal(std::string KeyPressed);
   void UpdateOrientation(int slicer, int orientation);
   void UpdateSlice(int slicer, int slice);
   void UpdateTSlice(int slicer, int slice);

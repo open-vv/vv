@@ -100,11 +100,12 @@
 #define COLUMN_RELOAD_IMAGE 6
 #define COLUMN_IMAGE_NAME 7
 
-#if CLITK_PRIVATE_FEATURES
-  #define EXTENSIONS "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN *.nii *.nrrd *.nhdr *.refscan *.usf *.svl)"
+#ifdef CLITK_PRIVATE_FEATURES
+#define EXTENSIONS "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN *.nii *.nrrd *.nhdr *.refscan *.nii.gz *.usf)"
 #else
-  #define EXTENSIONS "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN *.nii *.nrrd *.nhdr *.refscan)"
+#define EXTENSIONS "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN *.nii *.nrrd *.nhdr *.refscan *.nii.gz)"
 #endif
+
 
 /*Data Tree values
   0,Qt::UserRole full filename
@@ -2176,7 +2177,11 @@ void vvMainWindow::OpenField()
 
   QString Extensions = "Images ( *.mhd)";
   Extensions += ";;Images ( *.mha)";
-  Extensions += ";;Images ( *.vf)";
+  Extensions += ";;VF Images ( *.vf)";
+  Extensions += ";;nii Images ( *.nii)";
+  Extensions += ";;nrrd Images ( *.nrrd)";
+  Extensions += ";;nhdr Images ( *.nhdr)";
+  Extensions += ";;All Files (*)";
   QString file = QFileDialog::getOpenFileName(this,tr("Load deformation field"),mInputPathName,Extensions);
   if (!file.isEmpty())
     AddField(file,index);

@@ -417,6 +417,23 @@ void vvSlicerManager::LeftButtonReleaseEvent(int slicer)
 }
 //----------------------------------------------------------------------------
 
+
+//----------------------------------------------------------------------------
+void vvSlicerManager::EmitMousePositionUpdated(int slicer)
+{
+  emit MousePositionUpdatedSignal(slicer);
+}
+//----------------------------------------------------------------------------
+
+
+//----------------------------------------------------------------------------
+void vvSlicerManager::EmitKeyPressed(std::string KeyPress)
+{
+  emit KeyPressedSignal(KeyPress);
+}
+//----------------------------------------------------------------------------
+
+
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetSliceOrientation(int slicer, int orientation)
 {
@@ -641,18 +658,18 @@ void vvSlicerManager::UpdateViews(int current,int slicer)
         }
         switch (mSlicers[i]->GetSliceOrientation()) {
         case vtkImageViewer2::SLICE_ORIENTATION_XY:
-          if (mSlicers[i]->GetSlice() != (int)floor(z))
-            mSlicers[i]->SetSlice((int)floor(z));
+          if (mSlicers[i]->GetSlice() != (int)lrint(z))
+            mSlicers[i]->SetSlice((int)lrint(z));
           break;
 
         case vtkImageViewer2::SLICE_ORIENTATION_XZ:
-          if (mSlicers[i]->GetSlice() != (int)floor(y))
-            mSlicers[i]->SetSlice((int)floor(y));
+          if (mSlicers[i]->GetSlice() != (int)lrint(y))
+            mSlicers[i]->SetSlice((int)lrint(y));
           break;
 
         case vtkImageViewer2::SLICE_ORIENTATION_YZ:
-          if (mSlicers[i]->GetSlice() != (int)floor(x))
-            mSlicers[i]->SetSlice((int)floor(x));
+          if (mSlicers[i]->GetSlice() != (int)lrint(x))
+            mSlicers[i]->SetSlice((int)lrint(x));
           break;
         }
         

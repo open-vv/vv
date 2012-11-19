@@ -150,7 +150,6 @@ ExternalProject_Add(
   DEPENDS QT VTK ITK
   SOURCE_DIR ${source_prefix}/vv
   GIT_REPOSITORY git://git.creatis.insa-lyon.fr/clitk
-  GIT_TAG v1.3.0
   INSTALL_COMMAND ${MAKE_COMMAND} package
   CMAKE_ARGS
     -DQT_QMAKE_EXECUTABLE:FILEPATH=${qmake_executable}

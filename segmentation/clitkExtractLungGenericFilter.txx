@@ -113,6 +113,8 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   else
     f->SetFillHolesFlag(true);
 
+  f->SetRemoveSmallLabelBeforeSeparationFlag(mArgsInfo.removeSmallLabel_flag);
+
   if (mArgsInfo.doNotSeparateLungs_given)
     f->SetSeparateLungsFlag(false);
   else

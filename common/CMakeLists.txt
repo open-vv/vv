@@ -15,13 +15,18 @@ SET(clitkCommon_SRC
   clitkVoxImageIOFactory.cxx
   clitkVfImageIO.cxx  
   clitkVfImageIOFactory.cxx
-  clitkHisImageIO.cxx  
-  clitkHisImageIOFactory.cxx
   clitkXdrImageIOReader.cxx  
   clitkXdrImageIOWriter.cxx  
   clitkXdrImageIOFactory.cxx
-  clitkHndImageIO.cxx
-  clitkHndImageIOFactory.cxx
+  rtkHisImageIO.cxx  
+  rtkHisImageIOFactory.cxx
+  rtkHndImageIO.cxx
+  rtkHndImageIOFactory.cxx
+  rtkEdfImageIO.cxx
+  rtkEdfImageIOFactory.cxx
+  clitkEsrfHstImageIO.cxx  
+  clitkEsrfHstImageIOFactory.cxx
+  clitkEsrfHstXMLFileReader.cxx
   clitkDicomRTDoseIO.cxx
   clitkDicomRTDoseIOFactory.cxx
   clitkOrientation.cxx
@@ -51,7 +56,25 @@ IF(NOT ${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
   TARGET_LINK_LIBRARIES(clitkCommon statgrab)
 ENDIF(NOT ${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
 
-TARGET_LINK_LIBRARIES(clitkCommon vtkCommon vtkImaging ${ITK_LIBRARIES})
+### Check if ITK was compiled with SYSTEM_GDCM = ON and set the gdcm libraries accordingly
+SET(CLITK_USE_SYSTEM_GDCM FALSE)
+IF(ITK_VERSION_MAJOR LESS "4")
+  IF(ITK_USE_SYSTEM_GDCM)
+    SET(CLITK_USE_SYSTEM_GDCM TRUE) 
+  ENDIF(ITK_USE_SYSTEM_GDCM)
+ELSE(ITK_VERSION_MAJOR LESS "4")
+  SET(GDCM_INCLUDE_INSTALL ".*include/gdcm-.*")
+  SET(GDCM_INCLUDE_BUILD ".*/Source/MediaStorageAndFileFormat")
+  IF(ITKGDCM_INCLUDE_DIRS MATCHES ${GDCM_INCLUDE_BUILD} OR ITKGDCM_INCLUDE_DIRS MATCHES ${GDCM_INCLUDE_INSTALL})
+    SET(CLITK_USE_SYSTEM_GDCM TRUE)
+  ENDIF(ITKGDCM_INCLUDE_DIRS MATCHES ${GDCM_INCLUDE_BUILD} OR ITKGDCM_INCLUDE_DIRS MATCHES ${GDCM_INCLUDE_INSTALL})
+ENDIF(ITK_VERSION_MAJOR LESS "4")
+
+IF(CLITK_USE_SYSTEM_GDCM)
+  SET(CLITK_GDCM_LIBRARIES gdcmDSED) 
+ENDIF(CLITK_USE_SYSTEM_GDCM)
+
+TARGET_LINK_LIBRARIES(clitkCommon vtkCommon vtkImaging ${ITK_LIBRARIES} ${CLITK_GDCM_LIBRARIES})
 
 ADD_LIBRARY(clitkDicomRTStruct STATIC
   clitkDicomRT_Contour.cxx
@@ -60,7 +83,7 @@ ADD_LIBRARY(clitkDicomRTStruct STATIC
   clitkDicomRTStruct2ImageFilter.cxx
 )
 
-TARGET_LINK_LIBRARIES(clitkDicomRTStruct vtkHybrid) 
+TARGET_LINK_LIBRARIES(clitkDicomRTStruct vtkHybrid ${CLITK_GDCM_LIBRARIES}) 
 
 #ADD_LIBRARY(clitkCommonShared SHARED ${clitkCommon_SRC})
 #SET_TARGET_PROPERTIES(clitkCommonShared PROPERTIES COMPILE_FLAGS -fPIC)
