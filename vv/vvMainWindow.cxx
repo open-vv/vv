@@ -704,51 +704,8 @@ void vvMainWindow::MergeImagesWithTime()
   mInputPathName = itksys::SystemTools::GetFilenamePath(files[0].toStdString()).c_str();
   std::vector<std::string> vector;
 
-  unsigned int currentDim = 0;
-  std::vector<double> currentSpacing;
-  std::vector<int> currentSize;
-  std::vector<double> currentOrigin;
-
-  for (int i = 0; i < files.size(); i++) {
-    itk::ImageIOBase::Pointer reader = itk::ImageIOFactory::CreateImageIO(
-                                         files[i].toStdString().c_str(), itk::ImageIOFactory::ReadMode);
-    if (reader) {
-      reader->SetFileName(files[i].toStdString().c_str());
-      reader->ReadImageInformation();
-      if (i == 0)
-        currentDim = reader->GetNumberOfDimensions();
-      bool IsOk = true;
-      for (unsigned int j = 0; j < currentDim; j++) {
-        if (i == 0) {
-          if (j == 0) {
-            currentSpacing.resize(currentDim);
-            currentSize.resize(currentDim);
-            currentOrigin.resize(currentDim);
-          }
-          currentOrigin[j] = reader->GetOrigin(j);
-          currentSpacing[j] = reader->GetSpacing(j);
-          currentSize[j] = reader->GetDimensions(j);
-        } else if (currentDim != reader->GetNumberOfDimensions()
-                   || currentSpacing[j] != reader->GetSpacing(j)
-                   || currentSize[j] != (int)reader->GetDimensions(j)
-                   || currentOrigin[j] != reader->GetOrigin(j)) {
-          QString error = "Cannot read file (too different from others ";
-          error += files[i].toStdString().c_str();
-          QMessageBox::information(this,tr("Reading problem"),error);
-          IsOk = false;
-          break;
-        }
-      }
-      if (IsOk)
-        vector.push_back(files[i].toStdString());
-    } else {
-      QString error = "Cannot read file info for ";
-      error += files[i].toStdString().c_str();
-      error += "\n";
-      error += "Maybe you're trying to open an image in an unsupported format?\n";
-      QMessageBox::information(this,tr("Reading problem"),error);
-    }
-  }
+  for (int i = 0; i < files.size(); i++)
+    vector.push_back(files[i].toStdString());
   sort(vector.begin(),vector.end());
   if (vector.size() > 1)
     LoadImages(vector, vvImageReader::MERGEDWITHTIME);
