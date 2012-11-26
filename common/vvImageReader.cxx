@@ -193,7 +193,7 @@ void vvImageReader::ReadMatImageTransform()
     }
 
     // TODO SR and BP: check on the list of transforms and not the first only
-    mImage->GetTransform()[0]->PostMultiply();
+    mImage->GetTransform()[0]->PreMultiply();
     mImage->GetTransform()[0]->Concatenate(matrix);
     mImage->GetTransform()[0]->Update();
   }
