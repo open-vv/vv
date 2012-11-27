@@ -443,7 +443,10 @@ bool clitk::DicomRT_StructureSet::IsDicomRTStruct(const std::string & filename)
   //Verify if the file is a RT-Structure-Set dicom file
   if (!gdcm::Util::DicomStringEqual(mFile->GetEntryValue(0x0008,0x0016),"1.2.840.10008.5.1.4.1.1.481.3")) 
     return false;
-  if (!gdcm::Util::DicomStringEqual(mFile->GetEntryValue(0x0008,0x0060),"RTSTRUCT")) return false;
+  if (!gdcm::Util::DicomStringEqual(mFile->GetEntryValue(0x0008,0x0060),"RTSTRUCT"))
+    return false;
+
+  return true;
 
 #endif
 }

@@ -658,6 +658,9 @@ SearchForTracheaSeed2(int numberOfSlices)
     opening->Update();
     
     typename SlicerFilterType::Pointer slicer = SlicerFilterType::New();
+#if ITK_VERSION_MAJOR >= 4
+    slicer->SetDirectionCollapseToIdentity();
+#endif
     slicer->SetInput(opening->GetOutput());
     
     // label result

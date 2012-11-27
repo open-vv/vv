@@ -28,10 +28,13 @@
 #include "clitkImageCommon.h"
 #include "clitkDicomRTDoseIOFactory.h"
 #include "clitkVoxImageIOFactory.h"
-#include "clitkHisImageIOFactory.h"
 #include "clitkVfImageIOFactory.h"
 #include "clitkXdrImageIOFactory.h"
-#include "clitkHndImageIOFactory.h"
+#include "rtkHisImageIOFactory.h"
+#include "rtkHndImageIOFactory.h"
+#include "rtkEdfImageIOFactory.h"
+#include "rtkImagXImageIOFactory.h"
+#include "clitkEsrfHstImageIOFactory.h"
 #include "clitkGateAsciiImageIOFactory.h"
 #include "clitkConfiguration.h"
 #if CLITK_PRIVATE_FEATURES
@@ -56,8 +59,11 @@ void clitk::RegisterClitkFactories()
 #endif
   clitk::VoxImageIOFactory::RegisterOneFactory();
   clitk::VfImageIOFactory::RegisterOneFactory();
-  clitk::HisImageIOFactory::RegisterOneFactory();
   clitk::XdrImageIOFactory::RegisterOneFactory();
-  clitk::HndImageIOFactory::RegisterOneFactory();
+  rtk::HisImageIOFactory::RegisterOneFactory();
+  rtk::HndImageIOFactory::RegisterOneFactory();
+  rtk::EdfImageIOFactory::RegisterOneFactory();
+  rtk::ImagXImageIOFactory::RegisterOneFactory();
+  clitk::EsrfHstImageIOFactory::RegisterOneFactory();
 } ////
 
