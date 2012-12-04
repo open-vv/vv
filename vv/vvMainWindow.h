@@ -57,6 +57,9 @@ class vvMainWindow: public vvMainWindowBase,
   void AddOverlayImage(int index, std::vector<std::string> fileNames, vvImageReader::LoadedImageType type);
   void AddFusionImage(int index, QString filename);
   void AddROI(int index, QString filename);
+  //Process the sequence for fusion:
+  void AddFusionSequence(int index, std::vector<std::string> fileNames, vvImageReader::LoadedImageType type);
+
   ///Adds a mesh to a SlicerManager, with optional warping by vector field
   void AddContour(int image_index, vvMesh::Pointer contour, bool propagation);
   ///This is used to show an image when opened or computed
@@ -107,6 +110,7 @@ public slots:
   void VectorChanged(int visibility, double x, double y, double z, double value);
   void OverlayChanged(int visibility, double valueOver, double valueRef);
   void FusionChanged(int visibility, double value);
+  //void FusionSequenceChanged(int visibility, double value);
   void SegmentationOnCurrentImage();
   void SurfaceViewerLaunch();
 
@@ -153,11 +157,15 @@ public slots:
   void OpenField();
   void SelectOverlayImage();
   void SelectFusionImage();
+  //select the file(s) from the disk containing the image sequence to fuse
+  void SelectFusionSequence();
+
   void ResetTransformationToIdentity();
 
   void SetVFProperty(int subsampling,int scale,int lut, int width, double r, double g, double b);
   void SetOverlayProperty(int color, int linked, double window, double level);
   void SetFusionProperty(int opacity, int tresOpacity, int colormap,double window,double level, bool showLegend);
+  void SetFusionSequenceProperty(int fusionSequenceFrameIndex, bool spatialSyncFlag, unsigned int fusionSequenceNbFrames);
 
   void GoToCursor();
   void PlayPause();

@@ -44,9 +44,12 @@ public:
     void getFusionProperty(int opacity, int thresOpacity, int colormap, double window, double level);
     void getFusionName(QString name);
 
-    void getCurrentVectorInfo(int visibility, double x, double y, double z, double value);
+    void getFusionSequenceProperty(int sequenceFrameIndex, bool spatialSync, unsigned int sequenceLength);
+
+	void getCurrentVectorInfo(int visibility, double x, double y, double z, double value);
     void getCurrentOverlayInfo(int visibility,double valueOver, double valueRef);
     void getCurrentFusionInfo(int visibility,double value);
+    //void getCurrentFusionSequenceInfo(int visibility,double value);
     
     bool getShowLegend();
 
@@ -56,15 +59,18 @@ public slots:
     void setFusionProperty();
     void setFusionSpinProperty();
     void VFColorChangeRequest();
+    void setFusionSequenceProperty();
 
 signals:
     void VFPropertyUpdated(int subsampling, int scale, int log, int width, double r, double g, double b);
     void OverlayPropertyUpdated(int color, int linked, double window, double level);
     void FusionPropertyUpdated(int opacity, int thresOpacity, int colormap, double window, double level, bool showLegend);
+    void FusionSequencePropertyUpdated(int sequenceFrameIndex, bool spatialSync, unsigned int sequenceLength);
 
     
 private:
     bool disableFusionSignals;
+	bool disableFusionSequenceSignals;
     
 }; // end class vvOverlayPanel
 //====================================================================

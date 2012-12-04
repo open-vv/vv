@@ -20,6 +20,9 @@
 #include <iostream>
 #include <vector>
 
+#include <QString> //TODO delete
+#include <QMessageBox>
+
 #include "vvLandmarks.h"
 #include "vvImage.h"
 #include "vvMesh.h"
@@ -98,6 +101,9 @@ public:
 
   void SetLandmarks(vvLandmarks* landmarks);
   void SetTSlice(int t);
+
+  void SetFusionSequenceTSlice(int t);
+
   void SetSliceOrientation(int orientation);
   void AdjustResliceToSliceOrientation(vtkImageReslice *reslice);
   int GetTSlice();

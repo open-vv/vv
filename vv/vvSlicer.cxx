@@ -475,7 +475,7 @@ bool vvSlicer::GetActorVisibility(const std::string& actor_type, int overlay_ind
   else if (actor_type == "overlay") {
     vis = this->mOverlayActor->GetVisibility();
   }
-  else if (actor_type == "fusion") {
+  else if ( (actor_type == "fusion") || (actor_type == "fusionSequence") ){
     vis = this->mFusionActor->GetVisibility();
   }
   else if (actor_type == "contour")
@@ -497,7 +497,7 @@ void vvSlicer::SetActorVisibility(const std::string& actor_type, int overlay_ind
   else if (actor_type == "overlay") {
     this->mOverlayActor->SetVisibility(vis);
   }
-  else if (actor_type == "fusion") {
+  else if ( (actor_type == "fusion") || (actor_type == "fusionSequence") ){
     this->mFusionActor->SetVisibility(vis);
   }
   else if (actor_type == "contour")
@@ -641,7 +641,7 @@ void vvSlicer::RemoveActor(const std::string& actor_type, int overlay_index)
     mOverlayActor = NULL;
     mOverlayMapper = NULL;
   }
-  if (actor_type == "fusion") {
+  if ( (actor_type == "fusion") || (actor_type == "fusionSequence") ) {
     Renderer->RemoveActor(mFusionActor);
     mFusion = NULL;
     mFusionActor = NULL;
@@ -726,6 +726,7 @@ void vvSlicer::SetTSlice(int t)
     if (mVF->GetVTKImages().size() > (unsigned int)mCurrentTSlice)
       mVOIFilter->SetInput(mVF->GetVTKImages()[mCurrentTSlice]);
   }
+//also temporarilly disabled...
   if (mOverlay && mOverlayActor->GetVisibility()) {
     if (mOverlay->GetVTKImages().size() > (unsigned int)t) {
       mCurrentOverlayTSlice = t;
@@ -737,6 +738,32 @@ void vvSlicer::SetTSlice(int t)
       mConcatenatedOverlayTransform->Concatenate(mSlicingTransform);
     }
   }
+//temporarilly disabled for testing fusionSequence
+  //if (mFusion && mFusionActor->GetVisibility()) {
+  //  if (mFusion->GetVTKImages().size() > (unsigned int)t) {
+  //    mCurrentFusionTSlice = t;
+  //    mFusionReslice->SetInput( mFusion->GetVTKImages()[mCurrentFusionTSlice]);
+
+  //    // Update fusion transform
+  //    mConcatenatedFusionTransform->Identity();
+  //    mConcatenatedFusionTransform->Concatenate(mFusion->GetTransform()[mCurrentFusionTSlice]);
+  //    mConcatenatedFusionTransform->Concatenate(mSlicingTransform);
+  //  }
+  //}
+  if (mSurfaceCutActors.size() > 0)
+    for (std::vector<vvMeshActor*>::iterator i=mSurfaceCutActors.begin();
+         i!=mSurfaceCutActors.end(); i++)
+      (*i)->SetTimeSlice(mCurrentTSlice);
+  UpdateDisplayExtent();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvSlicer::SetFusionSequenceTSlice(int t)
+{
+//QMessageBox::information(NULL, "vvSlicer::SetFusionSequenceTSlice", "ENTER, t = " + QString::number(t) + ", currentFusionTSlice = " + QString::number(mCurrentFusionTSlice));
+  //fusionSequence data is stored behind standard fusion data...
   if (mFusion && mFusionActor->GetVisibility()) {
     if (mFusion->GetVTKImages().size() > (unsigned int)t) {
       mCurrentFusionTSlice = t;
@@ -748,10 +775,7 @@ void vvSlicer::SetTSlice(int t)
       mConcatenatedFusionTransform->Concatenate(mSlicingTransform);
     }
   }
-  if (mSurfaceCutActors.size() > 0)
-    for (std::vector<vvMeshActor*>::iterator i=mSurfaceCutActors.begin();
-         i!=mSurfaceCutActors.end(); i++)
-      (*i)->SetTimeSlice(mCurrentTSlice);
+
   UpdateDisplayExtent();
 }
 //------------------------------------------------------------------------------
@@ -770,8 +794,9 @@ int vvSlicer::GetMaxCurrentTSlice()
   int t = mCurrentTSlice;
   if(mOverlay)
     t = std::max(t, mCurrentOverlayTSlice);
-  if(mFusion)
-    t = std::max(t, mCurrentFusionTSlice);
+  //TODO temporarily desactivated...
+  //if(mFusion)
+  //  t = std::max(t, mCurrentFusionTSlice);
   return t;
 }
 //------------------------------------------------------------------------------
@@ -1008,7 +1033,6 @@ void vvSlicer::UpdateDisplayExtent()
       }
     }
   }
-  
 }
 //----------------------------------------------------------------------------
 
