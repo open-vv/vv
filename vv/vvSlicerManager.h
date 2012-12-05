@@ -110,7 +110,7 @@ class vvSlicerManager : public QObject {
 
   void SetSliceOrientation(int slicer, int orientation);
   int GetTSlice();
-  void SetTSlice(int slice);
+  void SetTSlice(int slice, bool updateLinkedImages = true);
   void SetNextTSlice(int originating_slicer);
   void SetPreviousTSlice(int originating_slicer);
   void SetTSliceInSlicer(int tslice, int slicer);
@@ -163,7 +163,9 @@ class vvSlicerManager : public QObject {
 		tmpMat->DeepCopy(mat);
 		mFusionSequenceListInitialTransformMatrices.push_back( tmpMat );
   }
+  void SetFusionSequenceIndexOfLinkedManager(int index) { mFusionSequenceIndexLinkedManager = index; }
 
+  int GetFusionSequenceIndexOfLinkedManager() { return mFusionSequenceIndexLinkedManager; }
   int GetFusionSequenceFrameIndex() { return mFusionSequenceFrameIndex; }
   bool GetFusionSequenceSpatialSyncFlag() { return mFusionSequenceSpatialSyncFlag; }
   unsigned int GetFusionSequenceNbFrames() { return mFusionSequenceNbFrames; }
@@ -301,6 +303,7 @@ protected:
   bool mFusionShowLegend;
 
   //fusionSequence related data
+  int mFusionSequenceIndexLinkedManager;
   int mFusionSequenceFrameIndex;
   bool mFusionSequenceSpatialSyncFlag;
   unsigned int mFusionSequenceNbFrames;

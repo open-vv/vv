@@ -16,6 +16,9 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
   ===========================================================================**/
 
+#include <QMessageBox>
+#include <QString>
+
 #include "vvSlicer.h"
 #include "vvImage.h"
 #include "vvSlicerManagerCommand.h"
@@ -78,6 +81,7 @@ static void copyExtent(int* in, int* to){
 //------------------------------------------------------------------------------
 vvSlicer::vvSlicer()
 {
+	mFusionSequenceFlag = false;
   this->UnInstallPipeline();
   mImage = NULL;
   mReducedExtent = new int[6];
@@ -411,8 +415,9 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
 
 
 //------------------------------------------------------------------------------
-void vvSlicer::SetFusion(vvImage::Pointer fusion)
+void vvSlicer::SetFusion(vvImage::Pointer fusion, bool fusionSequenceFlag)
 {
+	mFusionSequenceFlag = fusionSequenceFlag;
   if (fusion->GetVTKImages().size()) {
     mFusion = fusion;
 
@@ -706,8 +711,19 @@ void vvSlicer::SetVFLog(int log)
 
 
 //------------------------------------------------------------------------------
-void vvSlicer::SetTSlice(int t)
+void vvSlicer::SetTSlice(int t, bool updateLinkedImages)
 {
+	if (!updateLinkedImages) {
+		mCurrentTSlice = t;
+		mImageReslice->SetInput( mImage->GetVTKImages()[mCurrentTSlice] );
+		// Update transform
+		mConcatenatedTransform->Identity();
+		mConcatenatedTransform->Concatenate(mImage->GetTransform()[mCurrentTSlice]);
+		mConcatenatedTransform->Concatenate(mSlicingTransform);
+		UpdateDisplayExtent();
+		return;
+	}
+
   if (t < 0)
     mCurrentTSlice = 0;
   else if ((unsigned int)t >= mImage->GetVTKImages().size())
@@ -726,7 +742,7 @@ void vvSlicer::SetTSlice(int t)
     if (mVF->GetVTKImages().size() > (unsigned int)mCurrentTSlice)
       mVOIFilter->SetInput(mVF->GetVTKImages()[mCurrentTSlice]);
   }
-//also temporarilly disabled...
+  //update the overlay
   if (mOverlay && mOverlayActor->GetVisibility()) {
     if (mOverlay->GetVTKImages().size() > (unsigned int)t) {
       mCurrentOverlayTSlice = t;
@@ -738,18 +754,18 @@ void vvSlicer::SetTSlice(int t)
       mConcatenatedOverlayTransform->Concatenate(mSlicingTransform);
     }
   }
-//temporarilly disabled for testing fusionSequence
-  //if (mFusion && mFusionActor->GetVisibility()) {
-  //  if (mFusion->GetVTKImages().size() > (unsigned int)t) {
-  //    mCurrentFusionTSlice = t;
-  //    mFusionReslice->SetInput( mFusion->GetVTKImages()[mCurrentFusionTSlice]);
+  //update the fusion ; except in case this is a fusionSequence, in which case both 'times' should be independent.
+  if (mFusion && mFusionActor->GetVisibility() && !mFusionSequenceFlag) {
+    if (mFusion->GetVTKImages().size() > (unsigned int)t) {
+      mCurrentFusionTSlice = t;
+      mFusionReslice->SetInput( mFusion->GetVTKImages()[mCurrentFusionTSlice]);
 
-  //    // Update fusion transform
-  //    mConcatenatedFusionTransform->Identity();
-  //    mConcatenatedFusionTransform->Concatenate(mFusion->GetTransform()[mCurrentFusionTSlice]);
-  //    mConcatenatedFusionTransform->Concatenate(mSlicingTransform);
-  //  }
-  //}
+      // Update fusion transform
+      mConcatenatedFusionTransform->Identity();
+      mConcatenatedFusionTransform->Concatenate(mFusion->GetTransform()[mCurrentFusionTSlice]);
+      mConcatenatedFusionTransform->Concatenate(mSlicingTransform);
+    }
+  }
   if (mSurfaceCutActors.size() > 0)
     for (std::vector<vvMeshActor*>::iterator i=mSurfaceCutActors.begin();
          i!=mSurfaceCutActors.end(); i++)
@@ -762,16 +778,13 @@ void vvSlicer::SetTSlice(int t)
 //------------------------------------------------------------------------------
 void vvSlicer::SetFusionSequenceTSlice(int t)
 {
-//QMessageBox::information(NULL, "vvSlicer::SetFusionSequenceTSlice", "ENTER, t = " + QString::number(t) + ", currentFusionTSlice = " + QString::number(mCurrentFusionTSlice));
-  //fusionSequence data is stored behind standard fusion data...
-  if (mFusion && mFusionActor->GetVisibility()) {
+  if (mFusion && mFusionActor->GetVisibility() && mFusionSequenceFlag) {
     if (mFusion->GetVTKImages().size() > (unsigned int)t) {
       mCurrentFusionTSlice = t;
-      mFusionReslice->SetInput( mFusion->GetVTKImages()[mCurrentFusionTSlice]);
-
+      mFusionReslice->SetInput( mFusion->GetVTKImages()[mCurrentFusionTSlice] );
       // Update fusion transform
       mConcatenatedFusionTransform->Identity();
-      mConcatenatedFusionTransform->Concatenate(mFusion->GetTransform()[mCurrentFusionTSlice]);
+      mConcatenatedFusionTransform->Concatenate(mFusion->GetTransform()[mCurrentFusionTSlice]); //not really useful...
       mConcatenatedFusionTransform->Concatenate(mSlicingTransform);
     }
   }
@@ -794,9 +807,8 @@ int vvSlicer::GetMaxCurrentTSlice()
   int t = mCurrentTSlice;
   if(mOverlay)
     t = std::max(t, mCurrentOverlayTSlice);
-  //TODO temporarily desactivated...
-  //if(mFusion)
-  //  t = std::max(t, mCurrentFusionTSlice);
+  if(mFusion&& (!mFusionSequenceFlag)) //ignore fusionSequence data: for these, the times are not to be related (this way)
+    t = std::max(t, mCurrentFusionTSlice);
   return t;
 }
 //------------------------------------------------------------------------------
@@ -1348,6 +1360,9 @@ double vvSlicer::GetScalarComponentAsDouble(vtkImageData *image, double X, doubl
   ix = lrint(X);
   iy = lrint(Y);
   iz = lrint(Z);
+
+  image->UpdateInformation();
+
   if (ix < image->GetWholeExtent()[0] ||
       ix > image->GetWholeExtent()[1] ||
       iy < image->GetWholeExtent()[2] ||

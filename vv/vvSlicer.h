@@ -81,7 +81,7 @@ public:
   vtkActor* GetVFActor() ;
   vtkCornerAnnotation* GetAnnotation();
     
-  void SetFusion(vvImage::Pointer inputFusion);
+  void SetFusion(vvImage::Pointer inputFusion, bool fusionSequenceFlag = false);
   vvImage::Pointer GetFusion() {
     return mFusion;
   }
@@ -100,7 +100,7 @@ public:
   }
 
   void SetLandmarks(vvLandmarks* landmarks);
-  void SetTSlice(int t);
+  void SetTSlice(int t, bool updateLinkedImages = true);
 
   void SetFusionSequenceTSlice(int t);
 
@@ -217,6 +217,8 @@ protected:
   vvImage::Pointer mVF;
 
   vvLandmarks* mLandmarks;
+
+  bool mFusionSequenceFlag; //flag used to indicate whether the 'fusion' data is actually a 'fusionSequence'
 
   //                         __________ Image coordinates accounting for spacing and origin
   //                            Λ  Λ

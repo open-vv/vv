@@ -1062,7 +1062,8 @@ void vvMainWindow::ImageInfoChanged()
     QString image = DataTree->selectedItems()[0]->data(COLUMN_IMAGE_NAME,Qt::DisplayRole).toString();
 
 	int nframes = mSlicerManagers[index]->GetSlicer(0)->GetTMax();
-    if (nframes > 1 || playMode == 1) {
+
+	if (nframes > 1 || playMode == 1) {
       playButton->setEnabled(1);
       frameRateLabel->setEnabled(1);
       frameRateSpinBox->setEnabled(1);
@@ -1117,7 +1118,7 @@ void vvMainWindow::ImageInfoChanged()
       NPixel *= inputSize[i];
     }
     inputSizeInBytes = GetSizeInBytes(imageSelected->GetActualMemorySize()*1000);
-   
+
     QString dim = QString::number(dimension) + " (";
     dim += pixelType + ")";
 
@@ -1165,9 +1166,9 @@ void vvMainWindow::ImageInfoChanged()
         break;
       }
     }
-
 	WindowLevelChanged();
-    slicingPresetComboBox->setCurrentIndex(mSlicerManagers[index]->GetSlicingPreset());
+
+	slicingPresetComboBox->setCurrentIndex(mSlicerManagers[index]->GetSlicingPreset());
 
 	if (mSlicerManagers[index]->GetSlicer(0)->GetVF()) {
       overlayPanel->getVFName(mSlicerManagers[index]->GetVFName().c_str());
@@ -1717,6 +1718,18 @@ void vvMainWindow::WindowLevelChanged()
 		  mSlicerManagers[index]->GetFusionSequenceSpatialSyncFlag(), 
 		  mSlicerManagers[index]->GetFusionSequenceNbFrames());
   }
+  else if ( mSlicerManagers[index]->GetFusionSequenceIndexOfLinkedManager()>=0 ) {
+	  //if the image is involved in a fusion sequence, preserve the overlay panel!
+	  int ind = mSlicerManagers[index]->GetFusionSequenceIndexOfLinkedManager();
+	  overlayPanel->getFusionProperty(mSlicerManagers[index]->GetFusionOpacity(),
+		  mSlicerManagers[ind]->GetFusionThresholdOpacity(),
+		  mSlicerManagers[ind]->GetFusionColorMap(),
+		  mSlicerManagers[ind]->GetFusionWindow(),
+		  mSlicerManagers[ind]->GetFusionLevel());
+	  overlayPanel->getFusionSequenceProperty(mSlicerManagers[ind]->GetFusionSequenceFrameIndex(),
+		  mSlicerManagers[ind]->GetFusionSequenceSpatialSyncFlag(), 
+		  mSlicerManagers[ind]->GetFusionSequenceNbFrames());
+  }
   else
   {
 	  overlayPanel->getFusionProperty(-1, -1, -1, -1, -1);
@@ -1841,7 +1854,10 @@ void vvMainWindow::UpdateLinkManager(std::string id, int slicer, double x, doubl
   for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
     if (mSlicerManagers[i]->GetId() == id) {
       //mSlicerManagers[i]->SetTSlice(temps);
-      mSlicerManagers[i]->GetSlicer(slicer)->SetCurrentPosition(x,y,z,temps);
+		if (temps<0) { //for fusionSequence, special input used to avoid any automatic time synchronization...
+			mSlicerManagers[i]->GetSlicer(slicer)->SetCurrentPosition( x,y,z, mSlicerManagers[i]->GetSlicer(slicer)->GetTSlice() );
+		}
+	else mSlicerManagers[i]->GetSlicer(slicer)->SetCurrentPosition(x,y,z,temps);
       mSlicerManagers[i]->UpdateViews(0,slicer);
       break;
     }
@@ -2428,12 +2444,30 @@ void vvMainWindow::AddFusionSequence(int index, std::vector<std::string> fileNam
 			item->setData(COLUMN_IMAGE_NAME,Qt::UserRole,id.toStdString().c_str());
 			UpdateTree();
 			qApp->processEvents();
+
 			ImageInfoChanged();
 
 			QApplication::restoreOverrideCursor();
 			// Update the display to update, e.g., the sliders
 			for(int i=0; i<4; i++)
 				DisplaySliders(index, i);
+
+
+			//TEST: also add the image as normal image, link it, and store its index in the SlicerManagersArray for tying it to the fusionSequence
+			LoadImages(fileNames, type);
+			//reset the transforms to identiy
+			for (unsigned i=0 ; i<mSlicerManagers.back()->GetImage()->GetTransform().size() ; i++) {
+				mSlicerManagers.back()->GetImage()->GetTransform()[i]->Identity();
+				mSlicerManagers.back()->GetImage()->GetTransform()[i]->Update();
+			}
+
+			//automatically link both images...
+			AddLink(mSlicerManagers[indexParent]->GetId().c_str(), mSlicerManagers.back()->GetId().c_str(), false);
+
+			//store the index ; this is also used as a flag to indicate that the images are involved in a fusionSequence...
+			//TODO: reset these when exiting the visualization mode (unloading one of the images)
+			mSlicerManagers[indexParent]->SetFusionSequenceIndexOfLinkedManager(mSlicerManagers.size()-1);
+			mSlicerManagers.back()->SetFusionSequenceIndexOfLinkedManager(indexParent);
 
 		} else {
 			QApplication::restoreOverrideCursor();
@@ -2443,8 +2477,11 @@ void vvMainWindow::AddFusionSequence(int index, std::vector<std::string> fileNam
 		}
 		WindowLevelChanged();
 	}
-	else
+	else {
 		QMessageBox::information(this,tr("Problem reading fusion sequence !"),"File doesn't exist!");
+		return;
+	}
+
 }
 //------------------------------------------------------------------------------
 
@@ -2453,16 +2490,41 @@ void vvMainWindow::AddFusionSequence(int index, std::vector<std::string> fileNam
 void vvMainWindow::SetFusionSequenceProperty(int fusionSequenceFrameIndex, bool spatialSyncFlag, unsigned int fusionSequenceNbFrames)
 {
 	int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
+
+	//check if the focus moved to the linked sequence, and in this case, select the master sequence instead
+	if ( (!mSlicerManagers[index]->GetSlicer(0)->GetFusion()) && mSlicerManagers[index]->GetFusionSequenceIndexOfLinkedManager()>=0 ) {
+		index = mSlicerManagers[index]->GetFusionSequenceIndexOfLinkedManager();
+	}
+
 	if (mSlicerManagers[index]->GetSlicer(0)->GetFusion()) {
 		int indexParent = GetSlicerIndexFromItem( DataTree->topLevelItem(index) );
 
+		//if the button is unchecked, then reposition the parent sequence (CT) in its original coordinate frame
+		if ( (!spatialSyncFlag) && (mSlicerManagers[index]->GetFusionSequenceSpatialSyncFlag()) ) {
+			for ( unsigned i=0 ; i<mSlicerManagers[indexParent]->GetSlicer(0)->GetImage()->GetTransform().size() ; i++ ) {
+				mSlicerManagers[indexParent]->GetSlicer(0)->GetImage()->GetTransform()[i]->SetMatrix( mSlicerManagers[index]->GetFusionSequenceMainTransformMatrix() );
+				mSlicerManagers[indexParent]->GetSlicer(0)->GetImage()->GetTransform()[i]->Update();
+			}
+
+			for (int i=0; i<mSlicerManagers[indexParent]->GetNumberOfSlicers(); i++) {
+				mSlicerManagers[indexParent]->GetSlicer(i)->ForceUpdateDisplayExtent();
+				mSlicerManagers[indexParent]->GetSlicer(i)->Render();
+			}
+		}
+
+		//update the property values in the slicer manager
 		mSlicerManagers[index]->SetFusionSequenceLength(fusionSequenceNbFrames);
 		mSlicerManagers[index]->SetFusionSequenceSpatialSyncFlag(spatialSyncFlag);
 		mSlicerManagers[index]->SetFusionSequenceFrameIndex(fusionSequenceFrameIndex);
 
+		//show the right frame of the US sequence
+		mSlicerManagers[index]->SetFusionSequenceTSlice(fusionSequenceFrameIndex);
+		//update the linked sequence if possible
+		if (mSlicerManagers[index]->GetFusionSequenceIndexOfLinkedManager()>0) {
+			mSlicerManagers[ mSlicerManagers[index]->GetFusionSequenceIndexOfLinkedManager() ]->SetTSlice(fusionSequenceFrameIndex, false);
+		}
+
 		if (spatialSyncFlag) { //reslice the CT
-			//show the right frame of the US sequence
-			mSlicerManagers[index]->SetFusionSequenceTSlice(fusionSequenceFrameIndex);
 
 			//Set the transform matrix of the parent sequence (typically CT / 4DCT)
 			vtkSmartPointer<vtkMatrix4x4> tmpMat = vtkSmartPointer<vtkMatrix4x4>::New();
@@ -2479,13 +2541,7 @@ void vvMainWindow::SetFusionSequenceProperty(int fusionSequenceFrameIndex, bool 
 				mSlicerManagers[indexParent]->GetSlicer(i)->Render();
 			}
 		}
-		else { //flag is off.
-			//rather use a different method for switching on/off... or check whether the matrix is the same...
-			//TODO: reset the CT to its original state, as well as the US
-		}
 
-		//TODO: recenter the view so that the US frame is visible?
-		//or when adding the sequence, also add the sequence as an independent image that is automatically linked, to guide the views...
 	}
 }
 //------------------------------------------------------------------------------
