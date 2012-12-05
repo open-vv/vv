@@ -130,7 +130,7 @@ do
     let count++
     local arguments=" -i ${partial} ${arguments}"
 done
-${rootMerger} ${arguments} > /dev/null || warning "error while calling ${rootMerger}"
+${rootMerger} ${arguments} > /dev/null || error "error while calling ${rootMerger}"
 echo "  ${indent}merged ${count} files"
 }
 
@@ -379,7 +379,7 @@ function merge_dispatcher {
     error "unknown file type"
 }
 
-echo "!!!! this is $0 v0.3j !!!!"
+echo "!!!! this is $0 v0.3k !!!!"
 
 rundir="${1?"provide run dir"}"
 rundir="$(echo "${rundir}" | sed 's|/*$||')"
