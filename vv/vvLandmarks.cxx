@@ -28,6 +28,7 @@
 #include "vtkFloatArray.h"
 #include "vtkPointData.h"
 #include "clitkCommon.h"
+#include <itksys/SystemTools.hxx>
 
 //--------------------------------------------------------------------
 vvLandmarks::vvLandmarks(int size)
@@ -177,12 +178,24 @@ std::string vvLandmarks::GetComments(int index)
 
 
 //--------------------------------------------------------------------
-void vvLandmarks::LoadFile(std::string filename)
+bool vvLandmarks::LoadFile(std::string filename)
+{
+  std::string extension = itksys::SystemTools::GetFilenameExtension(filename);
+  if (extension == ".txt")
+    return LoadTxtFile(filename);
+  else if (extension == ".pts")
+    return LoadPtsFile(filename);
+
+  return false;
+}
+
+//--------------------------------------------------------------------
+bool vvLandmarks::LoadTxtFile(std::string filename)
 {
   std::ifstream fp(filename.c_str(), std::ios::in|std::ios::binary);
   if (!fp.is_open()) {
     std::cerr <<"Unable to open file " << filename << std::endl;
-    return;
+    return false;
   }
   mFilename = filename;
   mLandmarks.clear();
@@ -278,9 +291,102 @@ void vvLandmarks::LoadFile(std::string filename)
     }
   }
   SetTime(0);
+  
+  return true;
 }
 //--------------------------------------------------------------------
 
+//--------------------------------------------------------------------
+bool vvLandmarks::LoadPtsFile(std::string filename)
+{
+  std::ifstream fp(filename.c_str(), std::ios::in|std::ios::binary);
+  if (!fp.is_open()) {
+    std::cerr <<"Unable to open file " << filename << std::endl;
+    return false;
+  }
+  mFilename = filename;
+  mLandmarks.clear();
+  vtkIdType idPoint;
+  char line[255];
+  for (unsigned int i = 0; i < mPoints.size(); i++)
+    mPoints[i]->SetNumberOfPoints(0);
+  bool first_line=true;
+  while (fp.getline(line,255)) {
+    //    DD(line);
+    std::string stringline = line;
+    if (stringline.size() > 1) {
+      vvLandmark point;
+      int previousSpace = 0;
+      int space=0;
+      
+      if (stringline[0] == '#') // comments
+        continue;
+      
+      space = stringline.find("\t", previousSpace+1);
+      if (space < -1 || space > (int)stringline.size()) {
+        ErrorMsg(mLandmarks.size(),"x position");
+        continue;
+      }
+      point.coordinates[0] = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
+      //      DD(point.coordinates[0]);
+      previousSpace = space;
+      space = stringline.find("\t", previousSpace+1);
+      if (space < -1 || space > (int)stringline.size()) {
+        ErrorMsg(mLandmarks.size(),"y position");
+        continue;
+      }
+      point.coordinates[1] = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
+      //      DD(point.coordinates[1]);
+      previousSpace = space;
+      space = stringline.find("\t", previousSpace+1);
+      if (space < -1 || space > (int)stringline.size()) {
+        ErrorMsg(mLandmarks.size(),"z position");
+        continue;
+      }
+      point.coordinates[2] = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
+      previousSpace = space;
+      if (mFormatVersion>0) {
+        space = stringline.find("\t", previousSpace+1);
+        if (space < -1 || space > (int)stringline.size()) {
+          ErrorMsg(mLandmarks.size(),"t position");
+          continue;
+        }
+        point.coordinates[3] = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
+        previousSpace = space;
+        space = stringline.find("\t", previousSpace+1);
+        if (space < -1 || space > (int)stringline.size()) {
+          ErrorMsg(mLandmarks.size(),"pixel value");
+          continue;
+        }
+        point.pixel_value = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
+        //        DD(point.pixel_value);
+      } else {
+        point.pixel_value=0.; //Not in file
+        point.coordinates[3]=0.;
+      }
+      previousSpace = space;
+      //this is the maximum size of comments
+      space = (stringline.find("\n", previousSpace+1) < 254 ? stringline.find("\n", previousSpace+1) : 254);
+      if (previousSpace != -1) {
+        point.comments = stringline.substr(previousSpace,space - (previousSpace)).c_str();
+      }
+      //      DD(point.comments);
+      mLandmarks.push_back(point);
+      mIds->InsertNextTuple1(0.55);
+     idPoint = mPoints[int(point.coordinates[3])]->InsertNextPoint(
+                                                          point.coordinates[0],point.coordinates[1],point.coordinates[2]);
+     std::string str_vtkIdType;     // string which will contain the result
+     std::ostringstream convert;  // stream used for the conversion
+     convert << idPoint;        // insert the textual representation of 'idPoint' in the characters in the stream
+     str_vtkIdType = convert.str(); // set 'str_vtkIdType' to the contents of the stream
+     mLabels->InsertNextValue(str_vtkIdType.c_str());
+    }
+  }
+  SetTime(0);
+  
+  return true;
+}
+//--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
 bool vvLandmarks::ErrorMsg(int num,const char * text)
