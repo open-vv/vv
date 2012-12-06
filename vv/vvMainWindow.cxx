@@ -2159,7 +2159,18 @@ void vvMainWindow::AddFusionImage(int index, QString file)
     QMessageBox::information(this,tr("Problem reading Fusion !"),"File doesn't exist!");
 }
 //------------------------------------------------------------------------------
-
+//------------------------------------------------------------------------------
+void vvMainWindow::AddLandmarks(int index, QString file)
+{
+  if (QFile::exists(file))
+  {
+    landmarksPanel->LoadFromFile(file.toStdString());
+    landmarksPanel->SetCurrentPath(mInputPathName.toStdString());
+    landmarksPanel->SetCurrentImage(mSlicerManagers[index]->GetFileName().c_str());
+  }
+  else
+    QMessageBox::information(this,tr("Problem reading Landmarks !"),"File doesn't exist!");
+}
 
 //------------------------------------------------------------------------------
 void vvMainWindow::OpenField()

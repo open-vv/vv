@@ -45,7 +45,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 
-typedef enum {O_BASE,O_OVERLAY,O_FUSION,O_VF,O_CONTOUR} OpenModeType;
+typedef enum {O_BASE,O_OVERLAY,O_FUSION,O_VF,O_CONTOUR,O_LANDMARKS} OpenModeType;
 typedef enum {P_NORMAL,P_SEQUENCE,P_WINDOW,P_LEVEL} ParseModeType;
 
 void load_image_first_error()
@@ -195,6 +195,9 @@ int main( int argc, char** argv )
         } else if (current=="--fusion") {
           if (!n_image_loaded) load_image_first_error();
           open_mode = O_FUSION;
+        } else if (current=="--landmarks") {
+          if (!n_image_loaded) load_image_first_error();
+          open_mode = O_LANDMARKS;
         } else if (current == "--sequence") {
           if(open_mode==O_BASE) n_image_loaded++; //count only one for the whole sequence
           parse_mode=P_SEQUENCE;
@@ -273,6 +276,8 @@ int main( int argc, char** argv )
           window.AddDCStructContour(n_image_loaded-1,current.c_str());
         else if (open_mode==O_FUSION)
           window.AddFusionImage(n_image_loaded-1,current.c_str());
+        else if (open_mode==O_LANDMARKS)
+          window.AddLandmarks(n_image_loaded-1,current.c_str());
         open_mode = O_BASE;
       }
     }
