@@ -181,7 +181,8 @@ int main( int argc, char** argv )
                     << "--overlay file \t Overlay the image in file with complementary colors." << std::endl
                     << "--fusion file  \t Overlay the image in file with alpha blending and colormap." << std::endl
                     //<< "--roi file     \t Overlay binary mask images. Option may be repeated on a single base image." << std::endl
-                    << "--contour file \t Overlay DICOM RT-STRUCT contours." << std::endl;
+                    << "--contour file \t Overlay DICOM RT-STRUCT contours." << std::endl
+                    << "--landmarks file  \t Overlay the landmarks in file (.txt or .pts)." << std::endl;
           exit(0);
         } else if (current=="--vf") {
           if (!n_image_loaded) load_image_first_error();
