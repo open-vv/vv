@@ -39,7 +39,7 @@ public :
     vvLandmarks(int size);
     ~vvLandmarks();
 
-    void LoadFile(std::string filename);
+    bool LoadFile(std::string filename);
     void SaveFile(std::string filename);
 
     void AddLandmark(float x,float y,float z,float t,double value);
@@ -71,6 +71,10 @@ private:
     vtkStringArray* mLabels;
     std::string mFilename;
     int mFormatVersion;
+
+    bool LoadTxtFile(std::string filename);
+    bool LoadPtsFile(std::string filename);
+  
 };
 
 #endif

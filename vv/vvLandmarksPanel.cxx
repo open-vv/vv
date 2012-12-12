@@ -46,9 +46,14 @@ vvLandmarksPanel::vvLandmarksPanel(QWidget * parent):QWidget(parent)
 void vvLandmarksPanel::Load()
 {
   QString file = QFileDialog::getOpenFileName(this,tr("Load Landmarks"),
-                 mCurrentPath.c_str(),tr("Landmarks ( *.txt)"));
+                 mCurrentPath.c_str(),tr("Landmarks ( *.txt *.pts)"));
   if (!file.isEmpty())
-    mCurrentLandmarks->LoadFile(file.toStdString());
+    LoadFromFile(file.toStdString());
+}
+
+void vvLandmarksPanel::LoadFromFile(std::string file)
+{
+  mCurrentLandmarks->LoadFile(file);
   SetCurrentLandmarks(mCurrentLandmarks,2);
   emit UpdateRenderWindows();
 }

@@ -41,6 +41,7 @@ public:
 
 public slots:
     void Load();
+    void LoadFromFile(std::string file);
     void Save();
     void RemoveSelectedPoints();
     void AddPoint();
