@@ -41,6 +41,7 @@ vvLandmarksPanel::vvLandmarksPanel(QWidget * parent):QWidget(parent)
   connect(loadButton, SIGNAL(clicked()),this,SLOT(Load()));
   connect(saveButton, SIGNAL(clicked()),this,SLOT(Save()));
   connect(removeButton, SIGNAL(clicked()),this,SLOT(RemoveSelectedPoints()));
+  connect(removeAllButton, SIGNAL(clicked()),this,SLOT(RemoveAllPoints()));
   connect(tableWidget,SIGNAL(cellChanged(int,int)),this,SLOT(CommentsChanged(int,int)));
 }
 
@@ -99,6 +100,14 @@ void vvLandmarksPanel::RemoveSelectedPoints()
     }
     emit UpdateRenderWindows();
   }
+}
+
+void vvLandmarksPanel::RemoveAllPoints()
+{
+  mCurrentLandmarks->RemoveAll();
+  tableWidget->clearContents();
+  tableWidget->setRowCount(0);
+  emit UpdateRenderWindows();
 }
 
 void vvLandmarksPanel::AddPoint()

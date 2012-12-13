@@ -45,6 +45,8 @@ public :
     void AddLandmark(float x,float y,float z,float t,double value);
     void RemoveLastLandmark();
     void RemoveLandmark(int index);
+    void RemoveAll();
+    
     void ChangeComments(int index, std::string comments);
     float* GetCoordinates(int index);
     double GetPixelValue(int index);

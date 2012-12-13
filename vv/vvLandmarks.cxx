@@ -143,6 +143,17 @@ void vvLandmarks::RemoveLandmark(int index)
 }
 //--------------------------------------------------------------------
 
+//--------------------------------------------------------------------
+void vvLandmarks::RemoveAll()
+{
+  for (unsigned int i = 0; i < mLandmarks.size(); i++) {
+    mLandmarks[i].clear();
+    mPoints[i]->SetNumberOfPoints(0);
+    mLabels[i]->SetNumberOfValues(0);
+    mIds[i]->SetNumberOfValues(0);
+  }
+}
+//--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
 void vvLandmarks::ChangeComments(int index, std::string comments)

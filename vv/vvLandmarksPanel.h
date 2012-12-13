@@ -44,6 +44,7 @@ public slots:
     bool LoadFromFile(std::vector<std::string> file);
     void Save();
     void RemoveSelectedPoints();
+    void RemoveAllPoints();
     void AddPoint();
     void CommentsChanged(int row, int column);
 signals:
