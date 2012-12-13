@@ -324,6 +324,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(overlayPanel,SIGNAL(FusionPropertyUpdated(int,int,int,double,double, bool)),
           this,SLOT(SetFusionProperty(int,int,int,double,double, bool)));
   connect(landmarksPanel,SIGNAL(UpdateRenderWindows()),this,SLOT(UpdateRenderWindows()));
+  connect(landmarksPanel,SIGNAL(SelectedPointChanged()),this,SLOT(GoToLandmark()));
 
   playMode = 0;//pause
   mFrameRate = 10;
@@ -2980,6 +2981,23 @@ void vvMainWindow::GoToCursor()
   for (int column = 1; column < 5; column++) {
     if (DataTree->selectedItems()[0]->data(column,Qt::CheckStateRole).toInt() > 1) {
       double* cursorPos = mSlicerManagers[index]->GetSlicer(column-1)->GetCursorPosition();
+      mSlicerManagers[index]->GetSlicer(column-1)->SetCurrentPosition(
+        cursorPos[0],cursorPos[1],cursorPos[2],cursorPos[3]);
+      mSlicerManagers[index]->UpdateViews(1,column-1);
+      mSlicerManagers[index]->UpdateLinked(column-1);
+      break;
+    }
+  }
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::GoToLandmark()
+{
+  int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
+  for (int column = 1; column < 5; column++) {
+    if (DataTree->selectedItems()[0]->data(column,Qt::CheckStateRole).toInt() > 1) {
+      double* cursorPos = landmarksPanel->GetSelectedPoint();
       mSlicerManagers[index]->GetSlicer(column-1)->SetCurrentPosition(
         cursorPos[0],cursorPos[1],cursorPos[2],cursorPos[3]);
       mSlicerManagers[index]->UpdateViews(1,column-1);

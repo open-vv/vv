@@ -43,6 +43,7 @@ vvLandmarksPanel::vvLandmarksPanel(QWidget * parent):QWidget(parent)
   connect(removeButton, SIGNAL(clicked()),this,SLOT(RemoveSelectedPoints()));
   connect(removeAllButton, SIGNAL(clicked()),this,SLOT(RemoveAllPoints()));
   connect(tableWidget,SIGNAL(cellChanged(int,int)),this,SLOT(CommentsChanged(int,int)));
+  connect(tableWidget,SIGNAL(doubleClicked(const QModelIndex &)),this,SLOT(SelectPoint()));
 }
 
 void vvLandmarksPanel::Load()
@@ -77,6 +78,25 @@ void vvLandmarksPanel::Save()
     mCurrentLandmarks->SaveFile(filename.c_str());
   }
 }
+
+void vvLandmarksPanel::SelectPoint()
+{
+  if (tableWidget->rowCount() > 0) {
+    QList<QTableWidgetItem *> items = tableWidget->selectedItems();
+    if (!items.empty()) {
+      // we're using single-selection mode
+      int row = items[0]->row();
+      mSelectedPoint[0] = mCurrentLandmarks->GetCoordinates(row)[0];
+      mSelectedPoint[1] = mCurrentLandmarks->GetCoordinates(row)[1];
+      mSelectedPoint[2] = mCurrentLandmarks->GetCoordinates(row)[2];
+      mSelectedPoint[3] = mCurrentLandmarks->GetCoordinates(row)[3];
+        
+      emit SelectedPointChanged();
+    }
+  }
+
+}
+
 
 void vvLandmarksPanel::RemoveSelectedPoints()
 {

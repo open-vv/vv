@@ -161,6 +161,7 @@ public slots:
   void SetFusionProperty(int opacity, int tresOpacity, int colormap,double window,double level, bool showLegend);
 
   void GoToCursor();
+  void GoToLandmark();
   void PlayPause();
   void PlayNext();
   void ChangeFrameRate(int rate) {
