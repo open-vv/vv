@@ -79,6 +79,8 @@ void open_sequence(vvMainWindow &window,
     window.LoadImages(sequence_filenames, vvImageReader::MERGEDWITHTIME);
   else if (open_mode==O_OVERLAY)
     window.AddOverlayImage(n_image_loaded-1,sequence_filenames,vvImageReader::MERGEDWITHTIME);
+  else if (open_mode==O_LANDMARKS)
+    window.AddLandmarks(n_image_loaded-1,sequence_filenames);
   else {
     std::cerr << "Sequences are not managed for opening " << open_mode_names[open_mode] << std::endl;
     exit(1);
@@ -182,7 +184,7 @@ int main( int argc, char** argv )
                     << "--fusion file  \t Overlay the image in file with alpha blending and colormap." << std::endl
                     //<< "--roi file     \t Overlay binary mask images. Option may be repeated on a single base image." << std::endl
                     << "--contour file \t Overlay DICOM RT-STRUCT contours." << std::endl
-                    << "--landmarks file  \t Overlay the landmarks in file (.txt or .pts)." << std::endl;
+                    << "--landmarks [--sequence] file(s)  \t Overlay the landmarks in file(s) (.txt or .pts)." << std::endl;
           exit(0);
         } else if (current=="--vf") {
           if (!n_image_loaded) load_image_first_error();
@@ -278,7 +280,7 @@ int main( int argc, char** argv )
         else if (open_mode==O_FUSION)
           window.AddFusionImage(n_image_loaded-1,current.c_str());
         else if (open_mode==O_LANDMARKS)
-          window.AddLandmarks(n_image_loaded-1,current.c_str());
+          window.AddLandmarks(n_image_loaded-1,image);
         open_mode = O_BASE;
       }
     }

@@ -25,6 +25,7 @@
 #include "vvLandmarks.h"
 
 #include <vtksys/SystemTools.hxx>
+#include <clitkDD.h>
 
 //====================================================================
 vvLandmarksPanel::vvLandmarksPanel(QWidget * parent):QWidget(parent)
@@ -47,15 +48,20 @@ void vvLandmarksPanel::Load()
 {
   QString file = QFileDialog::getOpenFileName(this,tr("Load Landmarks"),
                  mCurrentPath.c_str(),tr("Landmarks ( *.txt *.pts)"));
-  if (!file.isEmpty())
-    LoadFromFile(file.toStdString());
+  if (!file.isEmpty()) {
+    std::vector<std::string> files(1, file.toStdString());
+    LoadFromFile(files);
+  }
 }
 
-void vvLandmarksPanel::LoadFromFile(std::string file)
+bool vvLandmarksPanel::LoadFromFile(std::vector<std::string> files)
 {
-  mCurrentLandmarks->LoadFile(file);
+  if (!mCurrentLandmarks->LoadFile(files))
+    return false;
+  
   SetCurrentLandmarks(mCurrentLandmarks,2);
   emit UpdateRenderWindows();
+  return true;
 }
 
 void vvLandmarksPanel::Save()
@@ -102,10 +108,11 @@ void vvLandmarksPanel::AddPoint()
 
 void vvLandmarksPanel::AddPoint(int landmarksIndex)
 {
-  int rowIndex = landmarksIndex; //tableWidget->rowCount();
+  int rowIndex = tableWidget->rowCount();
+//   DD(rowIndex);
   tableWidget->setRowCount(rowIndex+1);
   tableWidget->setRowHeight(rowIndex,20);
-  QTableWidgetItem* iItem = new QTableWidgetItem(QString::number(landmarksIndex));
+  QTableWidgetItem* iItem = new QTableWidgetItem(QString::number(rowIndex));
   iItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
   tableWidget->setItem(rowIndex,0,iItem);
 
@@ -140,14 +147,18 @@ void vvLandmarksPanel::AddPoint(int landmarksIndex)
 
 void vvLandmarksPanel::SetCurrentLandmarks(vvLandmarks* lm,int time)
 {
+  if (time != lm->GetTime())
+    return;
+  
   loadButton->setEnabled(1);
   saveButton->setEnabled(1);
   removeButton->setEnabled(1);
   mCurrentLandmarks = lm;
   tableWidget->clearContents();
-  tableWidget->setRowCount(mCurrentLandmarks->GetNumberOfPoints());
-  for (unsigned int i = 0; i < mCurrentLandmarks->GetNumberOfPoints(); i++)
-    AddPoint(i);
+  tableWidget->setRowCount(0);
+  for (unsigned int i = 0; i < mCurrentLandmarks->GetNumberOfPoints(); i++) {
+      AddPoint(i);
+  }
   //if (time > 1)
   //tableWidget->setColumnHidden(4,1);
   //else

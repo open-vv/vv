@@ -39,7 +39,7 @@ public :
     vvLandmarks(int size);
     ~vvLandmarks();
 
-    bool LoadFile(std::string filename);
+    bool LoadFile(std::vector<std::string> filename);
     void SaveFile(std::string filename);
 
     void AddLandmark(float x,float y,float z,float t,double value);
@@ -49,7 +49,7 @@ public :
     float* GetCoordinates(int index);
     double GetPixelValue(int index);
     std::string GetComments(int index);
-    unsigned int GetNumberOfPoints() { return (unsigned int) mLandmarks.size(); }
+    unsigned int GetNumberOfPoints() { return (unsigned int) mLandmarks[mTime].size(); }
     //int GetNumberOfSources(){return mText.size();}
 
     vtkPolyData* GetOutput() {
@@ -57,23 +57,28 @@ public :
     }
     //vtkPolyData* GetSources(int i){return mText[i]->GetOutput();}
     void SetTime(int time);
+    int GetTime() {return mTime; }
 
     bool ErrorMsg(int num,const char * text);
 
 private:
     ///Helper function to tackle the use of the comma as the decimal separator
     std::string replace_dots(std::string input);
-    std::vector<vvLandmark> mLandmarks;
+    
+    typedef std::vector<vvLandmark> LandmarkContainerType;
+    std::vector<LandmarkContainerType> mLandmarks;
+    
     vtkPolyData *mPolyData;
     std::vector<vtkPoints*> mPoints;
-    vtkFloatArray* mIds;
+    std::vector<vtkFloatArray*> mIds;
     //std::vector<vvLandmarksGlyph*> mText;
-    vtkStringArray* mLabels;
-    std::string mFilename;
+    std::vector<vtkStringArray*> mLabels;
+    std::vector<std::string> mFilenames;
     int mFormatVersion;
+    int mTime;
 
-    bool LoadTxtFile(std::string filename);
-    bool LoadPtsFile(std::string filename);
+    bool LoadTxtFile(std::vector<std::string> filenames);
+    bool LoadPtsFile(std::vector<std::string> filenames);
   
 };
 

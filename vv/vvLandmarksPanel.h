@@ -41,7 +41,7 @@ public:
 
 public slots:
     void Load();
-    void LoadFromFile(std::string file);
+    bool LoadFromFile(std::vector<std::string> file);
     void Save();
     void RemoveSelectedPoints();
     void AddPoint();
