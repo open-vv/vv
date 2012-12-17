@@ -38,21 +38,27 @@ public:
         mCurrentPath = path;
     }
     void SetCurrentImage(std::string filename);
+    double* GetSelectedPoint() { return mSelectedPoint; }
 
 public slots:
     void Load();
-    void LoadFromFile(std::string file);
+    bool LoadFromFile(std::vector<std::string> file);
     void Save();
     void RemoveSelectedPoints();
+    void RemoveAllPoints();
     void AddPoint();
+    void SelectPoint();
     void CommentsChanged(int row, int column);
 signals:
     void UpdateRenderWindows();
+    void SelectedPointChanged();
 
 private:
     void AddPoint(int);
+
     vvLandmarks* mCurrentLandmarks;
     std::string mCurrentPath;
+    double mSelectedPoint[4];
 }; // end class vvLandmarksPanel
 //====================================================================
 

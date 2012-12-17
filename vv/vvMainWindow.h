@@ -57,7 +57,7 @@ class vvMainWindow: public vvMainWindowBase,
   void AddOverlayImage(int index, std::vector<std::string> fileNames, vvImageReader::LoadedImageType type);
   void AddFusionImage(int index, QString filename);
   void AddROI(int index, QString filename);
-  void AddLandmarks(int index, QString file);
+  void AddLandmarks(int index, std::vector<std::string>);
 ///Adds a mesh to a SlicerManager, with optional warping by vector field
   void AddContour(int image_index, vvMesh::Pointer contour, bool propagation);
   ///This is used to show an image when opened or computed
@@ -161,6 +161,7 @@ public slots:
   void SetFusionProperty(int opacity, int tresOpacity, int colormap,double window,double level, bool showLegend);
 
   void GoToCursor();
+  void GoToLandmark();
   void PlayPause();
   void PlayNext();
   void ChangeFrameRate(int rate) {

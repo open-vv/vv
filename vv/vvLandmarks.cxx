@@ -33,17 +33,19 @@
 //--------------------------------------------------------------------
 vvLandmarks::vvLandmarks(int size)
 {
-  mLandmarks.resize(0);
-  mFilename = "";
+  mLandmarks.resize(size);
+  mFilenames.resize(0);
+  mTime = 0;
 
   for (int i = 0; i < size; i++) {
+    mLandmarks[i].resize(0);
     vtkPoints *points = vtkPoints::New();
     mPoints.push_back(points);
+    mIds.push_back(vtkFloatArray::New());
+    mLabels.push_back(vtkStringArray::New());
+    mLabels.back()->SetName("labels");
   }
   mPolyData = vtkPolyData::New();
-  mIds = vtkFloatArray::New();
-  mLabels = vtkStringArray::New();
-  mLabels->SetName("labels");
 }
 //--------------------------------------------------------------------
 
@@ -53,16 +55,14 @@ vvLandmarks::~vvLandmarks()
 {
   for (unsigned int i = 0; i < mPoints.size(); i++) {
     mPoints[i]->Delete();
+    mIds[i]->Delete();
+    mLabels[i]->Delete();
   }
   /*for(unsigned int i = 0; i < mText.size(); i++) {
     mText[i]->Delete();
     }*/
-  if (mIds)
-    mIds->Delete();
   if (mPolyData)
     mPolyData->Delete();
-  if (mLabels)
-    mLabels->Delete();
 }
 //--------------------------------------------------------------------
 
@@ -77,14 +77,14 @@ void vvLandmarks::AddLandmark(float x,float y,float z,float t,double value)
   point.coordinates[2] = z;
   point.coordinates[3] = t;
   point.pixel_value=value;
-  mLandmarks.push_back(point);
+  mLandmarks[mTime].push_back(point);
 
   idPoint = mPoints[int(t)]->InsertNextPoint(x,y,z);
   std::string str_vtkIdType;	    // string which will contain the result
   std::ostringstream convert;	    // stream used for the conversion
   convert << idPoint;	    		// insert the textual representation of 'idPoint' in the characters in the stream
   str_vtkIdType = convert.str();    // set 'str_vtkIdType' to the contents of the stream
-  mLabels->InsertNextValue(str_vtkIdType.c_str());
+  mLabels[mTime]->InsertNextValue(str_vtkIdType.c_str());
 
   std::stringstream numberVal;
   numberVal << (mLandmarks.size()-1);
@@ -96,7 +96,7 @@ void vvLandmarks::AddLandmark(float x,float y,float z,float t,double value)
   mText.push_back(number);
   */
 
-  mIds->InsertNextTuple1(0.55);
+  mIds[mTime]->InsertNextTuple1(0.55);
   //mIds->InsertTuple1(mLandmarks.size(),mLandmarks.size());
   SetTime(int(t));
 }
@@ -106,13 +106,12 @@ void vvLandmarks::AddLandmark(float x,float y,float z,float t,double value)
 //--------------------------------------------------------------------
 void vvLandmarks::RemoveLastLandmark()
 {
-  mPoints[mLandmarks.back().coordinates[3]]->SetNumberOfPoints(
-                                                               mPoints[mLandmarks.back().coordinates[3]]->GetNumberOfPoints()-1);
+  mPoints[mTime]->SetNumberOfPoints(mPoints[mTime]->GetNumberOfPoints()-1);
   //  mText.pop_back();
-  mLandmarks.pop_back();
-  mIds->RemoveLastTuple();
-  mLabels->SetNumberOfValues(mLabels->GetNumberOfValues()-1);
-  mLabels->Modified();
+  mLandmarks[mTime].pop_back();
+  mIds[mTime]->RemoveLastTuple();
+  mLabels[mTime]->SetNumberOfValues(mLabels[mTime]->GetNumberOfValues()-1);
+  mLabels[mTime]->Modified();
   mPolyData->Modified();
 }
 //--------------------------------------------------------------------
@@ -124,31 +123,42 @@ void vvLandmarks::RemoveLandmark(int index)
   // erase a vtkPoint by shifiting the array .
   // not a problem here because there are no 
   // pologyons linking the points
-  int npoints = mPoints[mLandmarks[index].coordinates[3]]->GetNumberOfPoints();
-  int t = mLandmarks[index].coordinates[3];
+  int t = mTime;//mLandmarks[index].coordinates[3];
+  int npoints = mPoints[t]->GetNumberOfPoints();
   for (int i = index; i < npoints - 1; i++) {
     mPoints[t]->InsertPoint(i, mPoints[t]->GetPoint(i+1));
 	std::string str_i;		     // string which will contain the result
 	std::ostringstream convert;	 // stream used for the conversion
 	convert << i;			     // insert the textual representation of 'i' in the characters in the stream
 	str_i = convert.str();		 // set 'str_i' to the contents of the stream
-	mLabels->SetValue(i,str_i.c_str());
+	mLabels[t]->SetValue(i,str_i.c_str());
     }
   mPoints[t]->SetNumberOfPoints(npoints-1);
-  mLabels->SetNumberOfValues(npoints-1);
-  mLabels->Modified();
+  mLabels[t]->SetNumberOfValues(npoints-1);
+  mLabels[t]->Modified();
   mPolyData->Modified();
 
-  mLandmarks.erase(mLandmarks.begin() + index);
-  mIds->RemoveLastTuple();
+  mLandmarks[t].erase(mLandmarks[t].begin() + index);
+  mIds[t]->RemoveLastTuple();
 }
 //--------------------------------------------------------------------
 
+//--------------------------------------------------------------------
+void vvLandmarks::RemoveAll()
+{
+  for (unsigned int i = 0; i < mLandmarks.size(); i++) {
+    mLandmarks[i].clear();
+    mPoints[i]->SetNumberOfPoints(0);
+    mLabels[i]->SetNumberOfValues(0);
+    mIds[i]->SetNumberOfValues(0);
+  }
+}
+//--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
 void vvLandmarks::ChangeComments(int index, std::string comments)
 {
-  mLandmarks[index].comments = comments;
+  mLandmarks[mTime][index].comments = comments;
 }
 //--------------------------------------------------------------------
 
@@ -156,7 +166,7 @@ void vvLandmarks::ChangeComments(int index, std::string comments)
 //--------------------------------------------------------------------
 double vvLandmarks::GetPixelValue(int index)
 {
-  return mLandmarks[index].pixel_value;
+  return mLandmarks[mTime][index].pixel_value;
 }
 //--------------------------------------------------------------------
 
@@ -164,7 +174,7 @@ double vvLandmarks::GetPixelValue(int index)
 //--------------------------------------------------------------------
 float* vvLandmarks::GetCoordinates(int index)
 {
-  return mLandmarks[index].coordinates;
+  return mLandmarks[mTime][index].coordinates;
 }
 //--------------------------------------------------------------------
 
@@ -172,124 +182,136 @@ float* vvLandmarks::GetCoordinates(int index)
 //--------------------------------------------------------------------
 std::string vvLandmarks::GetComments(int index)
 {
-  return mLandmarks[index].comments;
+  return mLandmarks[mTime][index].comments;
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
-bool vvLandmarks::LoadFile(std::string filename)
+bool vvLandmarks::LoadFile(std::vector<std::string> filenames)
 {
-  std::string extension = itksys::SystemTools::GetFilenameExtension(filename);
+  // all files in the sequence must be of the same type
+  std::string extension = itksys::SystemTools::GetFilenameExtension(filenames[0]);
   if (extension == ".txt")
-    return LoadTxtFile(filename);
+    return LoadTxtFile(filenames);
   else if (extension == ".pts")
-    return LoadPtsFile(filename);
+    return LoadPtsFile(filenames);
 
   return false;
 }
 
 //--------------------------------------------------------------------
-bool vvLandmarks::LoadTxtFile(std::string filename)
+bool vvLandmarks::LoadTxtFile(std::vector<std::string> filenames)
 {
-  std::ifstream fp(filename.c_str(), std::ios::in|std::ios::binary);
-  if (!fp.is_open()) {
-    std::cerr <<"Unable to open file " << filename << std::endl;
-    return false;
-  }
-  mFilename = filename;
-  mLandmarks.clear();
-  vtkIdType idPoint;
-  char line[255];
-  for (unsigned int i = 0; i < mPoints.size(); i++)
+  mFilenames = filenames;
+  for (unsigned int i = 0; i < mPoints.size(); i++) {
+    mLandmarks[i].clear();
     mPoints[i]->SetNumberOfPoints(0);
-  bool first_line=true;
-  while (fp.getline(line,255)) {
-    //    DD(line);
-    std::string stringline = line;
-    if (first_line) {
-      first_line=false;
-      ///New landmark format: first line is "LANDMARKSXX", where XX is the version number
-      if (stringline.size() >= 10 && stringline.compare(0,9,"LANDMARKS")==0) {
-        std::istringstream ss(stringline.c_str()+9);
-        ss >> mFormatVersion;
-        continue; //skip first line
-      } else
-        mFormatVersion=0;
+  }
+
+  int err = 0;
+  for (unsigned int f = 0; f < filenames.size(); f++) {
+    std::ifstream fp(filenames[f].c_str(), std::ios::in|std::ios::binary);
+    if (!fp.is_open()) {
+      std::cerr <<"Unable to open file " << filenames[f] << std::endl;
+      err++;
     }
-    if (stringline.size() > 1) {
-      vvLandmark point;
-      int previousSpace = 0;
-      int space=0;
-      if (mFormatVersion>0) {
+    vtkIdType idPoint;
+    char line[255];
+    bool first_line=true;
+    while (fp.getline(line,255)) {
+      //    DD(line);
+      std::string stringline = line;
+      stringline += "\n";
+      
+      if (first_line) {
+        first_line=false;
+        ///New landmark format: first line is "LANDMARKSXX", where XX is the version number
+        if (stringline.size() >= 10 && stringline.compare(0,9,"LANDMARKS")==0) {
+          std::istringstream ss(stringline.c_str()+9);
+          ss >> mFormatVersion;
+          continue; //skip first line
+        } else
+          mFormatVersion=0;
+      }
+      if (stringline.size() > 1) {
+        vvLandmark point;
+        int previousSpace = 0;
+        int space=0;
+        if (mFormatVersion>0) {
+          space = stringline.find(" ", previousSpace+1);
+          if (space < -1 || space > (int)stringline.size()) {
+            ErrorMsg(mLandmarks.size(),"index");
+            continue;
+          }
+          //int index = atoi(stringline.substr(previousSpace,space - previousSpace).c_str());
+          previousSpace = space;
+        }
         space = stringline.find(" ", previousSpace+1);
         if (space < -1 || space > (int)stringline.size()) {
-          ErrorMsg(mLandmarks.size(),"index");
+          ErrorMsg(mLandmarks.size(),"x position");
           continue;
         }
-        //int index = atoi(stringline.substr(previousSpace,space - previousSpace).c_str());
-        previousSpace = space;
-      }
-      space = stringline.find(" ", previousSpace+1);
-      if (space < -1 || space > (int)stringline.size()) {
-        ErrorMsg(mLandmarks.size(),"x position");
-        continue;
-      }
-      point.coordinates[0] = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
-      //      DD(point.coordinates[0]);
-      previousSpace = space;
-      space = stringline.find(" ", previousSpace+1);
-      if (space < -1 || space > (int)stringline.size()) {
-        ErrorMsg(mLandmarks.size(),"y position");
-        continue;
-      }
-      point.coordinates[1] = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
-      //      DD(point.coordinates[1]);
-      previousSpace = space;
-      space = stringline.find(" ", previousSpace+1);
-      if (space < -1 || space > (int)stringline.size()) {
-        ErrorMsg(mLandmarks.size(),"z position");
-        continue;
-      }
-      point.coordinates[2] = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
-      previousSpace = space;
-      if (mFormatVersion>0) {
-        space = stringline.find(" ", previousSpace+1);
-        if (space < -1 || space > (int)stringline.size()) {
-          ErrorMsg(mLandmarks.size(),"t position");
-          continue;
-        }
-        point.coordinates[3] = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
+        point.coordinates[0] = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
+        //      DD(point.coordinates[0]);
         previousSpace = space;
         space = stringline.find(" ", previousSpace+1);
         if (space < -1 || space > (int)stringline.size()) {
-          ErrorMsg(mLandmarks.size(),"pixel value");
+          ErrorMsg(mLandmarks.size(),"y position");
           continue;
         }
-        point.pixel_value = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
-        //        DD(point.pixel_value);
-      } else {
-        point.pixel_value=0.; //Not in file
-        point.coordinates[3]=0.;
+        point.coordinates[1] = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
+        //      DD(point.coordinates[1]);
+        previousSpace = space;
+        space = stringline.find(" ", previousSpace+1);
+        if (space < -1 || space > (int)stringline.size()) {
+          ErrorMsg(mLandmarks.size(),"z position");
+          continue;
+        }
+        point.coordinates[2] = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
+        previousSpace = space;
+        if (mFormatVersion>0) {
+          space = stringline.find(" ", previousSpace+1);
+          if (space < -1 || space > (int)stringline.size()) {
+            ErrorMsg(mLandmarks.size(),"t position");
+            continue;
+          }
+          point.coordinates[3] = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
+          previousSpace = space;
+          space = stringline.find(" ", previousSpace+1);
+          if (space < -1 || space > (int)stringline.size()) {
+            ErrorMsg(mLandmarks.size(),"pixel value");
+            continue;
+          }
+          point.pixel_value = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
+          //        DD(point.pixel_value);
+        } else {
+          point.pixel_value=0.; //Not in file
+          point.coordinates[3]=(float)f;
+        }
+        previousSpace = space;
+        //this is the maximum size of comments
+        space = (stringline.find("\n", previousSpace+1) < 254 ? stringline.find("\n", previousSpace+1) : 254);
+        if (previousSpace != -1) {
+          point.comments = stringline.substr(previousSpace,space - (previousSpace)).c_str();
+        }
+        //      DD(point.comments);
+        mLandmarks[int(point.coordinates[3])].push_back(point);
+        mIds[int(point.coordinates[3])]->InsertNextTuple1(0.55);
+        idPoint = mPoints[int(point.coordinates[3])]->InsertNextPoint(
+                                                            point.coordinates[0],point.coordinates[1],point.coordinates[2]);
+        std::string str_vtkIdType;	    // string which will contain the result
+        std::ostringstream convert;	// stream used for the conversion
+        convert << idPoint;		    // insert the textual representation of 'idPoint' in the characters in the stream
+        str_vtkIdType = convert.str(); // set 'str_vtkIdType' to the contents of the stream
+        mLabels[int(point.coordinates[3])]->InsertNextValue(str_vtkIdType.c_str());
       }
-      previousSpace = space;
-      //this is the maximum size of comments
-      space = (stringline.find("\n", previousSpace+1) < 254 ? stringline.find("\n", previousSpace+1) : 254);
-      if (previousSpace != -1) {
-        point.comments = stringline.substr(previousSpace,space - (previousSpace)).c_str();
-      }
-      //      DD(point.comments);
-      mLandmarks.push_back(point);
-      mIds->InsertNextTuple1(0.55);
-     idPoint = mPoints[int(point.coordinates[3])]->InsertNextPoint(
-                                                          point.coordinates[0],point.coordinates[1],point.coordinates[2]);
-     std::string str_vtkIdType;	    // string which will contain the result
-     std::ostringstream convert;	// stream used for the conversion
-     convert << idPoint;		    // insert the textual representation of 'idPoint' in the characters in the stream
-     str_vtkIdType = convert.str(); // set 'str_vtkIdType' to the contents of the stream
-     mLabels->InsertNextValue(str_vtkIdType.c_str());
     }
   }
+
+  if (err > 0 && err == filenames.size())
+    return false;
+  
   SetTime(0);
   
   return true;
@@ -297,92 +319,83 @@ bool vvLandmarks::LoadTxtFile(std::string filename)
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
-bool vvLandmarks::LoadPtsFile(std::string filename)
+bool vvLandmarks::LoadPtsFile(std::vector<std::string> filenames)
 {
-  std::ifstream fp(filename.c_str(), std::ios::in|std::ios::binary);
-  if (!fp.is_open()) {
-    std::cerr <<"Unable to open file " << filename << std::endl;
-    return false;
-  }
-  mFilename = filename;
-  mLandmarks.clear();
-  vtkIdType idPoint;
-  char line[255];
-  for (unsigned int i = 0; i < mPoints.size(); i++)
+  mFilenames = filenames;
+  for (unsigned int i = 0; i < mPoints.size(); i++) {
     mPoints[i]->SetNumberOfPoints(0);
-  bool first_line=true;
-  while (fp.getline(line,255)) {
-    //    DD(line);
-    std::string stringline = line;
-    if (stringline.size() > 1) {
-      vvLandmark point;
-      int previousSpace = 0;
-      int space=0;
+    mLandmarks[i].clear();
+  }
+
+  int err = 0;
+  for (unsigned int f = 0; f < filenames.size(); f++) {
+    std::ifstream fp(filenames[f].c_str(), std::ios::in|std::ios::binary);
+    if (!fp.is_open()) {
+      std::cerr <<"Unable to open file " << filenames[f] << std::endl;
+      err++;
+    }
+    vtkIdType idPoint;
+    char line[255];
+    bool first_line=true;
+    while (fp.getline(line,255)) {
+      std::string stringline = line;
+      stringline += "\n";
       
-      if (stringline[0] == '#') // comments
-        continue;
-      
-      space = stringline.find("\t", previousSpace+1);
-      if (space < -1 || space > (int)stringline.size()) {
-        ErrorMsg(mLandmarks.size(),"x position");
-        continue;
-      }
-      point.coordinates[0] = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
-      //      DD(point.coordinates[0]);
-      previousSpace = space;
-      space = stringline.find("\t", previousSpace+1);
-      if (space < -1 || space > (int)stringline.size()) {
-        ErrorMsg(mLandmarks.size(),"y position");
-        continue;
-      }
-      point.coordinates[1] = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
-      //      DD(point.coordinates[1]);
-      previousSpace = space;
-      space = stringline.find("\t", previousSpace+1);
-      if (space < -1 || space > (int)stringline.size()) {
-        ErrorMsg(mLandmarks.size(),"z position");
-        continue;
-      }
-      point.coordinates[2] = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
-      previousSpace = space;
-      if (mFormatVersion>0) {
-        space = stringline.find("\t", previousSpace+1);
-        if (space < -1 || space > (int)stringline.size()) {
-          ErrorMsg(mLandmarks.size(),"t position");
+      std::string separators = "\t\n\r ";
+      if (stringline.size() > 1) {
+        vvLandmark point;
+        int previousSpace = 0;
+        int space=0;
+
+        if (stringline[0] == '#') // comments
+          continue;
+        
+        space = stringline.find_first_of(separators, previousSpace+1);
+        if (space == std::string::npos) {
+          ErrorMsg(mLandmarks.size(),"x position");
           continue;
         }
-        point.coordinates[3] = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
+        point.coordinates[0] = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
+        //      DD(point.coordinates[0]);
         previousSpace = space;
-        space = stringline.find("\t", previousSpace+1);
-        if (space < -1 || space > (int)stringline.size()) {
-          ErrorMsg(mLandmarks.size(),"pixel value");
+        space = stringline.find_first_of(separators, previousSpace+1);
+        if (space == std::string::npos) {
+          ErrorMsg(mLandmarks.size(),"y position");
           continue;
         }
-        point.pixel_value = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
-        //        DD(point.pixel_value);
-      } else {
+        point.coordinates[1] = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
+        //      DD(point.coordinates[1]);
+        previousSpace = space;
+        space = stringline.find_first_of(separators, previousSpace+1);
+        if (space == std::string::npos) {
+          ErrorMsg(mLandmarks.size(),"z position");
+          continue;
+        }
+        point.coordinates[2] = atof(replace_dots(stringline.substr(previousSpace,space - previousSpace)).c_str());
+        previousSpace = space;
         point.pixel_value=0.; //Not in file
-        point.coordinates[3]=0.;
+        point.coordinates[3]=(float)f;  //Not in file
+        point.comments = "";  //Not in file
+
+        //      DD(point.comments);
+        mLandmarks[int(point.coordinates[3])].push_back(point);
+        mIds[int(point.coordinates[3])]->InsertNextTuple1(0.55);
+        idPoint = mPoints[int(point.coordinates[3])]->InsertNextPoint(
+                                                            point.coordinates[0],point.coordinates[1],point.coordinates[2]);
+        std::string str_vtkIdType;     // string which will contain the result
+        std::ostringstream convert;  // stream used for the conversion
+        convert << idPoint;        // insert the textual representation of 'idPoint' in the characters in the stream
+        str_vtkIdType = convert.str(); // set 'str_vtkIdType' to the contents of the stream
+        mLabels[int(point.coordinates[3])]->InsertNextValue(str_vtkIdType.c_str());
       }
-      previousSpace = space;
-      //this is the maximum size of comments
-      space = (stringline.find("\n", previousSpace+1) < 254 ? stringline.find("\n", previousSpace+1) : 254);
-      if (previousSpace != -1) {
-        point.comments = stringline.substr(previousSpace,space - (previousSpace)).c_str();
-      }
-      //      DD(point.comments);
-      mLandmarks.push_back(point);
-      mIds->InsertNextTuple1(0.55);
-     idPoint = mPoints[int(point.coordinates[3])]->InsertNextPoint(
-                                                          point.coordinates[0],point.coordinates[1],point.coordinates[2]);
-     std::string str_vtkIdType;     // string which will contain the result
-     std::ostringstream convert;  // stream used for the conversion
-     convert << idPoint;        // insert the textual representation of 'idPoint' in the characters in the stream
-     str_vtkIdType = convert.str(); // set 'str_vtkIdType' to the contents of the stream
-     mLabels->InsertNextValue(str_vtkIdType.c_str());
     }
   }
+  
   SetTime(0);
+  DD("vvLandmarks::LoadPtsFile")
+  if (err > 0 && err == filenames.size())
+    return false;
+
   
   return true;
 }
@@ -401,21 +414,23 @@ bool vvLandmarks::ErrorMsg(int num,const char * text)
 void vvLandmarks::SaveFile(std::string filename)
 {
   std::string fileContent = "LANDMARKS1\n"; //File format version identification
-  for (unsigned int i = 0; i < mLandmarks.size(); i++) {
-    std::stringstream out;
-    out.imbue(std::locale("C")); //This is to specify that the dot is to be used as the decimal separator
-    out << i << " "
-        << mLandmarks[i].coordinates[0] << " "
-        << mLandmarks[i].coordinates[1] << " "
-        << mLandmarks[i].coordinates[2] << " "
-        << mLandmarks[i].coordinates[3] << " "
-        << mLandmarks[i].pixel_value << " ";
-    fileContent += out.str();
-    if (mLandmarks[i].comments.size() == 0)
-      fileContent += " ";
-    else
-      fileContent += mLandmarks[i].comments;
-    fileContent += "\n";
+  for (unsigned int t = 0; t < mLandmarks.size(); t++) {
+    for (unsigned int i = 0; i < mLandmarks[t].size(); i++) {
+      std::stringstream out;
+      out.imbue(std::locale("C")); //This is to specify that the dot is to be used as the decimal separator
+      out << i << " "
+          << mLandmarks[t][i].coordinates[0] << " "
+          << mLandmarks[t][i].coordinates[1] << " "
+          << mLandmarks[t][i].coordinates[2] << " "
+          << mLandmarks[t][i].coordinates[3] << " "
+          << mLandmarks[t][i].pixel_value << " ";
+      fileContent += out.str();
+      if (mLandmarks[t][i].comments.size() == 0)
+        fileContent += " ";
+      else
+        fileContent += mLandmarks[t][i].comments;
+      fileContent += "\n";
+    }
   }
   std::ofstream fp(filename.c_str(), std::ios::trunc);
   if ( !fp ) {
@@ -433,10 +448,11 @@ void vvLandmarks::SetTime(int time)
 {
   if (time >= 0 && time <= ((int)mPoints.size() -1)) {
     mPolyData->SetPoints(mPoints[time]);
-    mPolyData->GetPointData()->SetScalars(mIds);
-    mPolyData->GetPointData()->AddArray(mLabels);
+    mPolyData->GetPointData()->SetScalars(mIds[time]);
+    mPolyData->GetPointData()->AddArray(mLabels[time]);
     mPolyData->Modified();
     mPolyData->Update();
+    mTime = time;
   }
 }
 //--------------------------------------------------------------------

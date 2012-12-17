@@ -7,20 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>325</width>
-    <height>131</height>
+    <height>214</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout">
-   <property name="margin">
-    <number>2</number>
-   </property>
-   <property name="spacing">
-    <number>2</number>
-   </property>
-   <item row="0" column="0" colspan="4">
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="nameLabel">
      <property name="text">
       <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -30,7 +24,14 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="4">
+   <item row="1" column="0" colspan="2">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Coordinates are in mm</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="5">
     <widget class="QTableWidget" name="tableWidget">
      <property name="columnCount">
       <number>7</number>
@@ -84,7 +85,7 @@ p, li { white-space: pre-wrap; }
       <string>remove last landmark.</string>
      </property>
      <property name="text">
-      <string/>
+      <string>1</string>
      </property>
      <property name="icon">
       <iconset resource="../vvIcons.qrc">
@@ -93,19 +94,30 @@ p, li { white-space: pre-wrap; }
     </widget>
    </item>
    <item row="3" column="1">
-    <spacer>
+    <widget class="QPushButton" name="removeAllButton">
+     <property name="text">
+      <string>All</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../vvIcons.qrc">
+       <normaloff>:/common/icons/standardbutton-cancel-16.png</normaloff>:/common/icons/standardbutton-cancel-16.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <spacer name="spacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>40</width>
+       <width>39</width>
        <height>20</height>
       </size>
      </property>
     </spacer>
    </item>
-   <item row="3" column="2">
+   <item row="3" column="3">
     <widget class="QPushButton" name="loadButton">
      <property name="text">
       <string>Load</string>
@@ -116,7 +128,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="3" column="3">
+   <item row="3" column="4">
     <widget class="QPushButton" name="saveButton">
      <property name="text">
       <string>Save</string>
@@ -124,13 +136,6 @@ p, li { white-space: pre-wrap; }
      <property name="icon">
       <iconset resource="../vvIcons.qrc">
        <normaloff>:/common/icons/filesave.png</normaloff>:/common/icons/filesave.png</iconset>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Coordinates are in mm</string>
      </property>
     </widget>
    </item>
