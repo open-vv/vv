@@ -324,6 +324,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(overlayPanel,SIGNAL(FusionPropertyUpdated(int,int,int,double,double, bool)),
           this,SLOT(SetFusionProperty(int,int,int,double,double, bool)));
   connect(landmarksPanel,SIGNAL(UpdateRenderWindows()),this,SLOT(UpdateRenderWindows()));
+  connect(landmarksPanel,SIGNAL(SelectedPointChanged()),this,SLOT(GoToLandmark()));
 
   playMode = 0;//pause
   mFrameRate = 10;
@@ -704,51 +705,8 @@ void vvMainWindow::MergeImagesWithTime()
   mInputPathName = itksys::SystemTools::GetFilenamePath(files[0].toStdString()).c_str();
   std::vector<std::string> vector;
 
-  unsigned int currentDim = 0;
-  std::vector<double> currentSpacing;
-  std::vector<int> currentSize;
-  std::vector<double> currentOrigin;
-
-  for (int i = 0; i < files.size(); i++) {
-    itk::ImageIOBase::Pointer reader = itk::ImageIOFactory::CreateImageIO(
-                                         files[i].toStdString().c_str(), itk::ImageIOFactory::ReadMode);
-    if (reader) {
-      reader->SetFileName(files[i].toStdString().c_str());
-      reader->ReadImageInformation();
-      if (i == 0)
-        currentDim = reader->GetNumberOfDimensions();
-      bool IsOk = true;
-      for (unsigned int j = 0; j < currentDim; j++) {
-        if (i == 0) {
-          if (j == 0) {
-            currentSpacing.resize(currentDim);
-            currentSize.resize(currentDim);
-            currentOrigin.resize(currentDim);
-          }
-          currentOrigin[j] = reader->GetOrigin(j);
-          currentSpacing[j] = reader->GetSpacing(j);
-          currentSize[j] = reader->GetDimensions(j);
-        } else if (currentDim != reader->GetNumberOfDimensions()
-                   || currentSpacing[j] != reader->GetSpacing(j)
-                   || currentSize[j] != (int)reader->GetDimensions(j)
-                   || currentOrigin[j] != reader->GetOrigin(j)) {
-          QString error = "Cannot read file (too different from others ";
-          error += files[i].toStdString().c_str();
-          QMessageBox::information(this,tr("Reading problem"),error);
-          IsOk = false;
-          break;
-        }
-      }
-      if (IsOk)
-        vector.push_back(files[i].toStdString());
-    } else {
-      QString error = "Cannot read file info for ";
-      error += files[i].toStdString().c_str();
-      error += "\n";
-      error += "Maybe you're trying to open an image in an unsupported format?\n";
-      QMessageBox::information(this,tr("Reading problem"),error);
-    }
-  }
+  for (int i = 0; i < files.size(); i++)
+    vector.push_back(files[i].toStdString());
   sort(vector.begin(),vector.end());
   if (vector.size() > 1)
     LoadImages(vector, vvImageReader::MERGEDWITHTIME);
@@ -1022,6 +980,12 @@ void vvMainWindow::CurrentImageChanged(std::string id)
   }
   DataTree->topLevelItem(selected)->setSelected(1);
   mCurrentSelectedImageId = id;
+
+  landmarksPanel->SetCurrentLandmarks(mSlicerManagers[selected]->GetLandmarks(),
+                                      mSlicerManagers[selected]->GetTSlice());
+  landmarksPanel->SetCurrentPath(mInputPathName.toStdString());
+  landmarksPanel->SetCurrentImage(mSlicerManagers[selected]->GetFileName().c_str());
+  
   emit SelectedImageHasChanged(mSlicerManagers[selected]);
 }
 //------------------------------------------------------------------------------
@@ -1154,7 +1118,7 @@ void vvMainWindow::ImageInfoChanged()
     infoPanel->setTransformation(Get4x4MatrixDoubleAsString(transformation));
 
     landmarksPanel->SetCurrentLandmarks(mSlicerManagers[index]->GetLandmarks(),
-                                        mSlicerManagers[index]->GetSlicer(0)->GetImage()->GetVTKImages().size());
+                                        mSlicerManagers[index]->GetTSlice());
     landmarksPanel->SetCurrentPath(mInputPathName.toStdString());
     landmarksPanel->SetCurrentImage(mSlicerManagers[index]->GetFileName().c_str());
 
@@ -1166,26 +1130,26 @@ void vvMainWindow::ImageInfoChanged()
       }
     }
 
-    infoPanel->setFileName(image);
-    infoPanel->setDimension(dim);
-    infoPanel->setSizePixel(GetVectorIntAsString(inputSize));
-    infoPanel->setSizeMM(GetVectorDoubleAsString(sizeMM));
-    infoPanel->setOrigin(GetVectorDoubleAsString(origin));
-    infoPanel->setSpacing(GetVectorDoubleAsString(inputSpacing));
-    infoPanel->setNPixel(QString::number(NPixel)+" ("+inputSizeInBytes+")");
-
-    landmarksPanel->SetCurrentLandmarks(mSlicerManagers[index]->GetLandmarks(),
-                                        mSlicerManagers[index]->GetSlicer(0)->GetImage()->GetVTKImages().size());
-    landmarksPanel->SetCurrentPath(mInputPathName.toStdString());
-    landmarksPanel->SetCurrentImage(mSlicerManagers[index]->GetFileName().c_str());
-
-    overlayPanel->getCurrentImageName(mSlicerManagers[index]->GetFileName().c_str());
-    for (int i = 0; i < 4; i++) {
-      if (DataTree->selectedItems()[0]->data(i+1,Qt::CheckStateRole).toInt() > 0 || i == 3) {
-        mSlicerManagers[index]->UpdateInfoOnCursorPosition(i);
-        break;
-      }
-    }
+//     infoPanel->setFileName(image);
+//     infoPanel->setDimension(dim);
+//     infoPanel->setSizePixel(GetVectorIntAsString(inputSize));
+//     infoPanel->setSizeMM(GetVectorDoubleAsString(sizeMM));
+//     infoPanel->setOrigin(GetVectorDoubleAsString(origin));
+//     infoPanel->setSpacing(GetVectorDoubleAsString(inputSpacing));
+//     infoPanel->setNPixel(QString::number(NPixel)+" ("+inputSizeInBytes+")");
+// 
+//     landmarksPanel->SetCurrentLandmarks(mSlicerManagers[index]->GetLandmarks(),
+//                                         mSlicerManagers[index]->GetTSlice());
+//     landmarksPanel->SetCurrentPath(mInputPathName.toStdString());
+//     landmarksPanel->SetCurrentImage(mSlicerManagers[index]->GetFileName().c_str());
+// 
+//     overlayPanel->getCurrentImageName(mSlicerManagers[index]->GetFileName().c_str());
+//     for (int i = 0; i < 4; i++) {
+//       if (DataTree->selectedItems()[0]->data(i+1,Qt::CheckStateRole).toInt() > 0 || i == 3) {
+//         mSlicerManagers[index]->UpdateInfoOnCursorPosition(i);
+//         break;
+//       }
+//     }
     WindowLevelChanged();
     slicingPresetComboBox->setCurrentIndex(mSlicerManagers[index]->GetSlicingPreset());
 
@@ -2159,7 +2123,15 @@ void vvMainWindow::AddFusionImage(int index, QString file)
     QMessageBox::information(this,tr("Problem reading Fusion !"),"File doesn't exist!");
 }
 //------------------------------------------------------------------------------
-
+//------------------------------------------------------------------------------
+void vvMainWindow::AddLandmarks(int index, std::vector<std::string> files)
+{
+    if (!landmarksPanel->LoadFromFile(files))
+      QMessageBox::information(this,tr("Problem reading Landmarks !"),"File doesn't exist!");
+    
+    landmarksPanel->SetCurrentPath(mInputPathName.toStdString());
+    landmarksPanel->SetCurrentImage(mSlicerManagers[index]->GetFileName().c_str());
+}
 
 //------------------------------------------------------------------------------
 void vvMainWindow::OpenField()
@@ -3009,6 +2981,23 @@ void vvMainWindow::GoToCursor()
   for (int column = 1; column < 5; column++) {
     if (DataTree->selectedItems()[0]->data(column,Qt::CheckStateRole).toInt() > 1) {
       double* cursorPos = mSlicerManagers[index]->GetSlicer(column-1)->GetCursorPosition();
+      mSlicerManagers[index]->GetSlicer(column-1)->SetCurrentPosition(
+        cursorPos[0],cursorPos[1],cursorPos[2],cursorPos[3]);
+      mSlicerManagers[index]->UpdateViews(1,column-1);
+      mSlicerManagers[index]->UpdateLinked(column-1);
+      break;
+    }
+  }
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::GoToLandmark()
+{
+  int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
+  for (int column = 1; column < 5; column++) {
+    if (DataTree->selectedItems()[0]->data(column,Qt::CheckStateRole).toInt() > 1) {
+      double* cursorPos = landmarksPanel->GetSelectedPoint();
       mSlicerManagers[index]->GetSlicer(column-1)->SetCurrentPosition(
         cursorPos[0],cursorPos[1],cursorPos[2],cursorPos[3]);
       mSlicerManagers[index]->UpdateViews(1,column-1);
