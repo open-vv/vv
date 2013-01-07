@@ -81,7 +81,7 @@ static void copyExtent(int* in, int* to){
 //------------------------------------------------------------------------------
 vvSlicer::vvSlicer()
 {
-	mFusionSequenceFlag = false;
+	mFusionSequenceCode = -1;
   this->UnInstallPipeline();
   mImage = NULL;
   mReducedExtent = new int[6];
@@ -312,7 +312,7 @@ void vvSlicer::SetCurrentPosition(double x, double y, double z, int t)
   mCurrentBeforeSlicingTransform[1]=y;
   mCurrentBeforeSlicingTransform[2]=z;
   mSlicingTransform->GetInverse()->TransformPoint(mCurrentBeforeSlicingTransform,mCurrent);
-  SetTSlice(t);
+  if (t>=0) SetTSlice(t);
 }
 //------------------------------------------------------------------------------
 
@@ -415,9 +415,9 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
 
 
 //------------------------------------------------------------------------------
-void vvSlicer::SetFusion(vvImage::Pointer fusion, bool fusionSequenceFlag)
+void vvSlicer::SetFusion(vvImage::Pointer fusion, int fusionSequenceCode)
 {
-	mFusionSequenceFlag = fusionSequenceFlag;
+	mFusionSequenceCode = fusionSequenceCode;
   if (fusion->GetVTKImages().size()) {
     mFusion = fusion;
 
@@ -755,7 +755,7 @@ void vvSlicer::SetTSlice(int t, bool updateLinkedImages)
     }
   }
   //update the fusion ; except in case this is a fusionSequence, in which case both 'times' should be independent.
-  if (mFusion && mFusionActor->GetVisibility() && !mFusionSequenceFlag) {
+  if (mFusion && mFusionActor->GetVisibility() && (mFusionSequenceCode<0)) {
     if (mFusion->GetVTKImages().size() > (unsigned int)t) {
       mCurrentFusionTSlice = t;
       mFusionReslice->SetInput( mFusion->GetVTKImages()[mCurrentFusionTSlice]);
@@ -778,7 +778,7 @@ void vvSlicer::SetTSlice(int t, bool updateLinkedImages)
 //------------------------------------------------------------------------------
 void vvSlicer::SetFusionSequenceTSlice(int t)
 {
-  if (mFusion && mFusionActor->GetVisibility() && mFusionSequenceFlag) {
+  if (mFusion && mFusionActor->GetVisibility() && (mFusionSequenceCode>=0)) {
     if (mFusion->GetVTKImages().size() > (unsigned int)t) {
       mCurrentFusionTSlice = t;
       mFusionReslice->SetInput( mFusion->GetVTKImages()[mCurrentFusionTSlice] );
@@ -807,7 +807,7 @@ int vvSlicer::GetMaxCurrentTSlice()
   int t = mCurrentTSlice;
   if(mOverlay)
     t = std::max(t, mCurrentOverlayTSlice);
-  if(mFusion&& (!mFusionSequenceFlag)) //ignore fusionSequence data: for these, the times are not to be related (this way)
+  if(mFusion&& (mFusionSequenceCode<0)) //ignore fusionSequence data: for these, the times are not to be related (this way)
     t = std::max(t, mCurrentFusionTSlice);
   return t;
 }
@@ -1183,9 +1183,8 @@ void vvSlicer::ResetCamera()
 //----------------------------------------------------------------------------
 void vvSlicer::SetDisplayMode(bool i)
 {
-  this->GetRenderer()->SetDraw(i);
-  if (i)
-    UpdateDisplayExtent();
+	this->GetRenderer()->SetDraw(i);
+	if (i) UpdateDisplayExtent();
 }
 //----------------------------------------------------------------------------
 
@@ -1360,8 +1359,6 @@ double vvSlicer::GetScalarComponentAsDouble(vtkImageData *image, double X, doubl
   ix = lrint(X);
   iy = lrint(Y);
   iz = lrint(Z);
-
-  image->UpdateInformation();
 
   if (ix < image->GetWholeExtent()[0] ||
       ix > image->GetWholeExtent()[1] ||

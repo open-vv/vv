@@ -159,13 +159,14 @@ public slots:
   void SelectFusionImage();
   //select the file(s) from the disk containing the image sequence to fuse
   void SelectFusionSequence();
+  void SelectFusionSequenceTemporalSignal();
 
   void ResetTransformationToIdentity();
 
   void SetVFProperty(int subsampling,int scale,int lut, int width, double r, double g, double b);
   void SetOverlayProperty(int color, int linked, double window, double level);
   void SetFusionProperty(int opacity, int tresOpacity, int colormap,double window,double level, bool showLegend);
-  void SetFusionSequenceProperty(int fusionSequenceFrameIndex, bool spatialSyncFlag, unsigned int fusionSequenceNbFrames);
+  void SetFusionSequenceProperty(int fusionSequenceFrameIndex, bool spatialSyncFlag, unsigned int fusionSequenceNbFrames, bool temporalSyncFlag);
 
   void GoToCursor();
   void PlayPause();
@@ -206,7 +207,7 @@ private:
   QString GetSizeInBytes(unsigned long size);
   QString GetVectorDoubleAsString(std::vector<double> vectorDouble);
   QString GetVectorIntAsString(std::vector<int> vectorInt);
-  int GetSlicerIndexFromItem(QTreeWidgetItem* item);
+  int GetSlicerIndexFromItem(QTreeWidgetItem* item); //this actually returns the SlicerManager index TODO: rename it to GetSlicerManagerIndexFromItem
   QTreeWidgetItem* GetItemFromSlicerManager(vvSlicerManager* sm);
   void SaveScreenshot(QVTKWidget *widget);
   int GetImageDuplicateFilenameNumber(std::string filename);

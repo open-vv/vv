@@ -40,6 +40,7 @@
 #include <vtkCamera.h>
 
 #include <qfileinfo.h>
+#include <QMessageBox>
 //----------------------------------------------------------------------------
 vvSlicerManager::vvSlicerManager(int numberOfSlicers)
 {
@@ -62,10 +63,12 @@ vvSlicerManager::vvSlicerManager(int numberOfSlicers)
   mFusionLevel = 1000;
   mFusionShowLegend = true;
   
-  mFusionSequenceFrameIndex = -1;
-  mFusionSequenceSpatialSyncFlag = false;
-  mFusionSequenceNbFrames = 0;
+  mFusionSequenceInvolvementCode = -1;
   mFusionSequenceIndexLinkedManager = -1;
+  mFusionSequenceFrameIndex = -1;
+  mFusionSequenceNbFrames = 0;
+  mFusionSequenceSpatialSyncFlag = false;
+  mFusionSequenceTemporalSyncFlag = false;
 
   mLandmarks = NULL;
   mLinkedId.resize(0);
@@ -307,8 +310,11 @@ bool vvSlicerManager::SetFusion(std::string filename,int dim, std::string compon
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-bool vvSlicerManager::SetFusionSequence(std::vector<std::string> filenames,int dim, std::string component, vvImageReader::LoadedImageType type)
+//this function is called by vvMainWindow::AddFusionSequence for the primary sequence (CT), while the given files constitute the secondary sequence.
+bool vvSlicerManager::SetFusionSequence(std::vector<std::string> filenames, int dim, std::string component, vvImageReader::LoadedImageType type)
 {
+	mFusionSequenceInvolvementCode = 0;
+
 	mFusionName = filenames[0];
 	mFusionComponent = component;
 
@@ -326,7 +332,7 @@ bool vvSlicerManager::SetFusionSequence(std::vector<std::string> filenames,int d
 
 	if (mFusionSequenceReader->GetLastError().size() == 0) {
 		for ( unsigned int i = 0; i < mSlicers.size(); i++) {
-			mSlicers[i]->SetFusion(mFusionSequenceReader->GetOutput(), true);
+			mSlicers[i]->SetFusion(mFusionSequenceReader->GetOutput(), mFusionSequenceInvolvementCode);
 		}
 	} else {
 		mLastError = mFusionSequenceReader->GetLastError();
@@ -411,8 +417,9 @@ vvSlicer* vvSlicerManager::GetSlicer(int i)
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateSlicer(int num, bool state)
 {
-  if (mSlicers[num]->GetImage())
+  if (mSlicers[num]->GetImage()) {
     mSlicers[num]->SetDisplayMode(state);
+  }
 }
 //----------------------------------------------------------------------------
 
@@ -777,8 +784,9 @@ void vvSlicerManager::UpdateLinked(int slicer)
       z >= mSlicers[slicer]->GetInput()->GetWholeExtent()[4]-0.5 &&
       z <= mSlicers[slicer]->GetInput()->GetWholeExtent()[5]+0.5) {
     for (std::list<std::string>::const_iterator i = mLinkedId.begin(); i != mLinkedId.end(); i++) {
-		if (mFusionSequenceIndexLinkedManager>0) {
+		if (this->IsInvolvedInFusionSequence()) {
 			//this SlicerManager is involved in fusionSequence => do not synchronize the times
+      //TODO: check is something more specific should be done ...
 			emit UpdateLinkManager(*i, slicer, p[0], p[1], p[2], -1);
 		}
 		else {
@@ -935,8 +943,8 @@ void vvSlicerManager::Reload()
     mSlicers[i]->SetImage(mImage);
   }
   
-  //check if this image is involved in a fusion sequence, then the main transform matrix should be updated.
-  if (mFusionSequenceReader.IsNotNull()) {
+  //if this image is the primary sequence of a fusion sequence, then the main transform matrix should be updated.
+  if (this->IsMainSequenceOfFusionSequence()) {
 	  SetFusionSequenceMainTransformMatrix( mImage->GetTransform()[0]->GetMatrix() );
   }
 }
@@ -956,12 +964,13 @@ void vvSlicerManager::ReloadFusion()
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
+//the secondary sequence is being reloaded.
 void vvSlicerManager::ReloadFusionSequence()
 {
   mFusionSequenceReader->Update(mImage->GetNumberOfDimensions(),mFusionComponent.c_str(),vvImageReader::MERGEDWITHTIME);
 
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
-    mSlicers[i]->SetFusion(mFusionSequenceReader->GetOutput(), true);
+    mSlicers[i]->SetFusion(mFusionSequenceReader->GetOutput(), 1);
     mSlicers[i]->Render();
   }
 
@@ -972,7 +981,6 @@ void vvSlicerManager::ReloadFusionSequence()
   }
 
   //Update the list of initial transforms
-  //Warning, the main transform will not be updated on reload.........
   mFusionSequenceListInitialTransformMatrices.clear();
   for (unsigned i=0 ; i<mFusionSequenceNbFrames ; i++) {
 	  this->AddFusionSequenceInitialTransformMatrices( mFusionSequenceReader->GetOutput()->GetTransform()[i]->GetMatrix() );
@@ -1113,7 +1121,9 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
 		double Zover = (z - fusion->GetOrigin()[2]) / fusion->GetSpacing()[2];
 		valueFus = this->GetScalarComponentAsDouble(fusion, Xover, Yover, Zover);
 	}
-	else if (mFusionSequenceIndexLinkedManager>=0) {
+	else if (this->IsInvolvedInFusionSequence()) { 
+    //if the cursor moves over the 'independent' version of the secondary sequence
+    //do not update the panel, just keep it as it is.
 		displayFus = 1;
 		valueFus = std::numeric_limits<double>::quiet_NaN();
 	}
@@ -1171,9 +1181,9 @@ void vvSlicerManager::UpdateSlice(int slicer)
 void vvSlicerManager::UpdateTSlice(int slicer)
 {
   int slice = mSlicers[slicer]->GetSlice();
+
   int tslice = mSlicers[slicer]->GetMaxCurrentTSlice();
-  
-  if (mFusionSequenceIndexLinkedManager>=0) tslice = mSlicers[slicer]->GetTSlice();
+  if (this->IsInvolvedInFusionSequence()) tslice = mSlicers[slicer]->GetTSlice();
 
   if (mPreviousSlice[slicer] == slice) {
     if (mPreviousTSlice[slicer] == tslice) {
@@ -1183,8 +1193,6 @@ void vvSlicerManager::UpdateTSlice(int slicer)
   }
   mPreviousSlice[slicer] = slice;
   mPreviousTSlice[slicer] = tslice;
-
-  if (mFusionSequenceIndexLinkedManager>=0) return;
 
   emit UpdateTSlice(slicer, tslice);
 }
@@ -1392,18 +1400,22 @@ void vvSlicerManager::SetColorMap(int colormap)
     LUT->Build();
   }
   vtkWindowLevelLookupTable* fusLUT = NULL;
+
+  //FUSION / FUSION SEQUENCE
   if (mSlicers[0]->GetFusion()) { // && mFusionColorMap >= 0) {
-	fusLUT = vtkWindowLevelLookupTable::New();
+    fusLUT = vtkWindowLevelLookupTable::New();
     double fusRange [2];
     fusRange[0] = mFusionLevel - mFusionWindow/2;
     fusRange[1] = mFusionLevel + mFusionWindow/2;
 
-	//check whether it is actually a fusionSequence or a fusion, before invoking mFusionReader...
-	double* frange;
-	if (mFusionReader.IsNull()) frange = mFusionSequenceReader->GetOutput()->GetVTKImages()[0]->GetScalarRange();
-    else                        frange = mFusionReader->GetOutput()->GetVTKImages()[0]->GetScalarRange();
+    //check whether it is actually a fusionSequence or a fusion, before invoking mFusionReader...
+    double* frange;
+    if (this->IsInvolvedInFusionSequence()) 
+      frange = mFusionSequenceReader->GetOutput()->GetVTKImages()[0]->GetScalarRange();
+    else
+      frange = mFusionReader->GetOutput()->GetVTKImages()[0]->GetScalarRange();
 
-	fusLUT->SetTableRange(frange);
+    fusLUT->SetTableRange(frange);
     fusLUT->SetValueRange(1,1);
     fusLUT->SetSaturationRange(1,1);
     fusLUT->SetAlphaRange(1, 1);
@@ -1425,10 +1437,10 @@ void vvSlicerManager::SetColorMap(int colormap)
       fusLUT->SetValueRange(0,1);
       fusLUT->SetSaturationRange(0,0);
     }
-    
+
     fusLUT->ForceBuild();
     double v[4];
-    
+
     // set color table transparency
     //double alpha_range=(double)mFusionThresOpacity/10;
     double range_end = fusRange[0] + (double)mFusionThresOpacity*(fusRange[1] - fusRange[0])/100;
@@ -1444,7 +1456,7 @@ void vvSlicerManager::SetColorMap(int colormap)
     }
   }
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
-    
+
     if (mSlicers[i]->GetOverlay()) {
       vtkLookupTable* supLUT = vtkLookupTable::New();
       supLUT->SetTableRange(range[0],range[1]);
@@ -1467,7 +1479,7 @@ void vvSlicerManager::SetColorMap(int colormap)
     } else {
       mSlicers[i]->GetWindowLevel()->SetLookupTable(LUT);
     }
-    
+
     if (mSlicers[i]->GetFusion()) {
       mSlicers[i]->ShowFusionLegend(mFusionShowLegend);
       mSlicers[i]->GetFusionMapper()->SetLookupTable(fusLUT);

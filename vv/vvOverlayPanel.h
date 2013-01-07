@@ -44,14 +44,15 @@ public:
     void getFusionProperty(int opacity, int thresOpacity, int colormap, double window, double level);
     void getFusionName(QString name);
 
-    void getFusionSequenceProperty(int sequenceFrameIndex, bool spatialSync, unsigned int sequenceLength);
+    void getFusionSequenceProperty(int sequenceFrameIndex, bool spatialSync, unsigned int sequenceLength, bool temporalSync);
 
 	void getCurrentVectorInfo(int visibility, double x, double y, double z, double value);
     void getCurrentOverlayInfo(int visibility,double valueOver, double valueRef);
     void getCurrentFusionInfo(int visibility,double value);
-    //void getCurrentFusionSequenceInfo(int visibility,double value);
     
     bool getShowLegend();
+
+	void updateFusionSequenceSliderValueFromWindow(int val, bool updateVisualization);
 
 public slots:
     void setVFProperty();
@@ -60,13 +61,14 @@ public slots:
     void setFusionSpinProperty();
     void VFColorChangeRequest();
     void setFusionSequenceProperty();
+	void enableFusionSequenceTemporalSync();
 
 signals:
     void VFPropertyUpdated(int subsampling, int scale, int log, int width, double r, double g, double b);
     void OverlayPropertyUpdated(int color, int linked, double window, double level);
     void FusionPropertyUpdated(int opacity, int thresOpacity, int colormap, double window, double level, bool showLegend);
-    void FusionSequencePropertyUpdated(int sequenceFrameIndex, bool spatialSync, unsigned int sequenceLength);
-
+    void FusionSequencePropertyUpdated(int sequenceFrameIndex, bool spatialSync, unsigned int sequenceLength, bool temporalSync);
+	void FusionSequenceSignalButtonPressed();
     
 private:
     bool disableFusionSignals;
