@@ -77,8 +77,8 @@ vvSlicerManager::vvSlicerManager(int numberOfSlicers)
     mSlicers.push_back(vtkSmartPointer<vvSlicer>::New());
   mSelectedSlicer = -1;
   
-  mPreviousSlice.resize(numberOfSlicers);
-  mPreviousTSlice.resize(numberOfSlicers);
+  mPreviousSlice.resize(numberOfSlicers, 0);
+  mPreviousTSlice.resize(numberOfSlicers, 0);
   mSlicingPreset = WORLD_SLICING;
 
   
@@ -513,14 +513,13 @@ int vvSlicerManager::GetTSlice()
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetTSlice(int slice, bool updateLinkedImages)
 {
-	if (!updateLinkedImages) {
+	if (!updateLinkedImages) { //for fusionSequence, TMax / MaxCurrentTSlice are irrelevant.
 		for ( unsigned int i = 0; i < mSlicers.size(); i++) {
 			mSlicers[i]->SetTSlice(slice, updateLinkedImages);
 			UpdateTSlice(i);
 		}
 		return;
 	}
-
 
   if (slice < 0)
     slice = 0;
@@ -557,7 +556,7 @@ void vvSlicerManager::SetNextTSlice(int originating_slicer)
   if (t > mSlicers[0]->GetTMax())
     t = 0;
   //std::cout << "vvSlicerManager::SetNextTSlice" << std::endl;
-  emit UpdateTSlice(originating_slicer,t);
+  emit UpdateTSlice(originating_slicer,t, mFusionSequenceInvolvementCode);
 }
 //----------------------------------------------------------------------------
 
@@ -570,7 +569,7 @@ void vvSlicerManager::SetPreviousTSlice(int originating_slicer)
   if (t < 0)
     t = mSlicers[0]->GetTMax();
   //std::cout << "vvSlicerManager::SetPreviousTSlice" << std::endl;
-  emit UpdateTSlice(originating_slicer,t);
+  emit UpdateTSlice(originating_slicer,t, mFusionSequenceInvolvementCode);
 }
 //----------------------------------------------------------------------------
 
@@ -1057,7 +1056,6 @@ void vvSlicerManager::RemoveActors()
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
 {
-//TODO: this is probably here that I shall prevent the overlayPanel to disappear when the mouse goes over the linked sequence!
   //  int view = mSlicers[slicer]->GetSliceOrientation();
   //  int slice = mSlicers[slicer]->GetSlice();
   double x = mSlicers[slicer]->GetCursorPosition()[0];
@@ -1183,7 +1181,7 @@ void vvSlicerManager::UpdateTSlice(int slicer)
   int slice = mSlicers[slicer]->GetSlice();
 
   int tslice = mSlicers[slicer]->GetMaxCurrentTSlice();
-  if (this->IsInvolvedInFusionSequence()) tslice = mSlicers[slicer]->GetTSlice();
+  //if (this->IsInvolvedInFusionSequence()) tslice = mSlicers[slicer]->GetTSlice(); //actually, this is handled by the Slicer
 
   if (mPreviousSlice[slicer] == slice) {
     if (mPreviousTSlice[slicer] == tslice) {
@@ -1194,7 +1192,7 @@ void vvSlicerManager::UpdateTSlice(int slicer)
   mPreviousSlice[slicer] = slice;
   mPreviousTSlice[slicer] = tslice;
 
-  emit UpdateTSlice(slicer, tslice);
+  emit UpdateTSlice(slicer, tslice, mFusionSequenceInvolvementCode);
 }
 //----------------------------------------------------------------------------
 

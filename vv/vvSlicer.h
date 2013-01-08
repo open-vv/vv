@@ -206,6 +206,8 @@ public:
   }
   void SetVFColor(double r, double g, double b);
 
+  //necessary to flag the secondary sequence
+  void SetFusionSequenceCode(int code) {mFusionSequenceCode=code;}
 protected:
   vvSlicer();
   ~vvSlicer();

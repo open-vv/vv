@@ -282,7 +282,7 @@ signals :
   void KeyPressedSignal(std::string KeyPressed);
   void UpdateOrientation(int slicer, int orientation);
   void UpdateSlice(int slicer, int slice);
-  void UpdateTSlice(int slicer, int slice);
+  void UpdateTSlice(int slicer, int slice, int code);
   void UpdateSliceRange(int slice, int min, int max, int tmin, int tmax);
   void WindowLevelChanged();
   void UpdateLinkManager(std::string, int slicer, double x, double y, double z, int temps);

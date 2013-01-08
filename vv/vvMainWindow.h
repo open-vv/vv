@@ -116,7 +116,7 @@ public slots:
 
   void WindowLevelChanged();
   void UpdateSlice(int slicer, int slice);
-  void UpdateTSlice(int slicer, int slice);
+  void UpdateTSlice(int slicer, int slice, int code=-1);
   void UpdateSliceRange(int slicer, int min, int max, int tmin, int tmax);
   void WindowLevelEdited();
   void SetWindowLevel(double w, double l);
