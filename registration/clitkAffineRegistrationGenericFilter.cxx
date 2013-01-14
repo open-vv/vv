@@ -541,7 +541,11 @@ void AffineRegistrationGenericFilter::UpdateWithInputImageType()
   if (m_Verbose) std::cout << "Starting the registration now..." << std::endl;
 
   try {
+#if ITK_VERSION_MAJOR < 4 || (ITK_VERSION_MAJOR == 4 && ITK_VERSION_MINOR <= 2)
     registration->StartRegistration();
+#else
+    registration->Update();
+#endif
   } catch ( itk::ExceptionObject & err ) {
     std::cerr << "ExceptionObject caught !" << std::endl;
     std::cerr << err << std::endl;
