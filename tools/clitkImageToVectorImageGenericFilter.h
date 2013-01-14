@@ -36,7 +36,6 @@
 
 //itk include
 #include "itkLightObject.h"
-#include "itkCompose3DVectorImageFilter.h"
 
 namespace clitk 
 {
