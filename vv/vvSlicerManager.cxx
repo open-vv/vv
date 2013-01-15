@@ -785,7 +785,6 @@ void vvSlicerManager::UpdateLinked(int slicer)
     for (std::list<std::string>::const_iterator i = mLinkedId.begin(); i != mLinkedId.end(); i++) {
 		if (this->IsInvolvedInFusionSequence()) {
 			//this SlicerManager is involved in fusionSequence => do not synchronize the times
-      //TODO: check is something more specific should be done ...
 			emit UpdateLinkManager(*i, slicer, p[0], p[1], p[2], -1);
 		}
 		else {

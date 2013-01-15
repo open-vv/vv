@@ -181,8 +181,10 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   contextMenu.addAction(actionAdd_fusion_image);
   contextActions.push_back(actionAdd_fusion_image);
 
+#ifdef CLITK_EXPERIMENTAL
   contextMenu.addAction(actionAdd_USSequence_toCT);
   contextActions.push_back(actionAdd_USSequence_toCT);
+#endif
 
 
   contextMenu.addSeparator();
@@ -1581,12 +1583,17 @@ void vvMainWindow::CloseImage(QTreeWidgetItem* item, int column)
       }
       if (overlay_type=="fusionSequence") {
         //removing the overlay sequence in a fusion sequence visualization mode 
-        //TODO: remove the synchronization (transform matrices, etc...)
+        //reset the transforms
+        overlayPanel->getFusionSequenceProperty(-1, false, 0, false);
 
-        //=> unlink and untie the slicer managers
+        //unlink and untie the slicer managers
         RemoveLink(mSlicerManagers[index]->GetId().c_str(), mSlicerManagers[mSlicerManagers[index]->GetFusionSequenceIndexOfLinkedManager()]->GetId().c_str());
         mSlicerManagers[index]->SetFusionSequenceInvolvmentCode(-1);
         mSlicerManagers[mSlicerManagers[index]->GetFusionSequenceIndexOfLinkedManager()]->SetFusionSequenceInvolvmentCode(-1);
+        for (unsigned i=0 ; i<4 ; i++) {
+            mSlicerManagers[index]->GetSlicer(i)->SetFusionSequenceCode(-1);
+            mSlicerManagers[mSlicerManagers[index]->GetFusionSequenceIndexOfLinkedManager()]->GetSlicer(i)->SetFusionSequenceCode(-1);
+        }
 
       }
       mSlicerManagers[index]->RemoveActor(overlay_type, overlay_index-1);
@@ -1622,17 +1629,25 @@ void vvMainWindow::CloseImage(QTreeWidgetItem* item, int column)
       for (int i = 0; i < index; i++) {
         Manageriter++;
       }
-      linkPanel->removeImage(index);
-      mSlicerManagers[index]->RemoveActors();
-
       //if the slicer manager was involved in a fusion sequence visualization...
-      if ( item->data(1,Qt::UserRole).toString().toStdString() == "fusionSequence" ) {
-        //TODO
-        //make sure both SlicerManager exit the FusionSequence visualization mode
-        //disable the temporal and spatial sync? make sure we reset the spatial transforms to their initial states...
+      if ( mSlicerManagers[index]->IsInvolvedInFusionSequence() ) {
+        //reset the transforms
+        overlayPanel->getFusionSequenceProperty(-1, false, 0, false);
+
+        //unlink and untie the slicer managers
+        RemoveLink(mSlicerManagers[index]->GetId().c_str(), mSlicerManagers[mSlicerManagers[index]->GetFusionSequenceIndexOfLinkedManager()]->GetId().c_str());
         mSlicerManagers[index]->SetFusionSequenceInvolvmentCode(-1);
         mSlicerManagers[mSlicerManagers[index]->GetFusionSequenceIndexOfLinkedManager()]->SetFusionSequenceInvolvmentCode(-1);
+        for (unsigned i=0 ; i<4 ; i++) {
+            mSlicerManagers[index]->GetSlicer(i)->SetFusionSequenceCode(-1);
+            mSlicerManagers[mSlicerManagers[index]->GetFusionSequenceIndexOfLinkedManager()]->GetSlicer(i)->SetFusionSequenceCode(-1);
+        }
+        
+        //TODO: also remove the image overlaid with the main sequence, as it is becoming invalid...
       }
+
+      linkPanel->removeImage(index);
+      mSlicerManagers[index]->RemoveActors();
 
       //remove the slicer manager
       delete mSlicerManagers[index];
