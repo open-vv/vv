@@ -336,6 +336,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(overlayPanel,SIGNAL(FusionPropertyUpdated(int,int,int,double,double, bool)),
     this,SLOT(SetFusionProperty(int,int,int,double,double, bool)));
   connect(landmarksPanel,SIGNAL(UpdateRenderWindows()),this,SLOT(UpdateRenderWindows()));
+  connect(landmarksPanel,SIGNAL(SelectedPointChanged()),this,SLOT(GoToLandmark()));
 
   connect(overlayPanel,SIGNAL(FusionSequencePropertyUpdated(int, bool, unsigned int, bool)),
     this,SLOT(SetFusionSequenceProperty(int, bool,unsigned int, bool)));
@@ -997,6 +998,12 @@ void vvMainWindow::CurrentImageChanged(std::string id)
   }
   DataTree->topLevelItem(selected)->setSelected(1);
   mCurrentSelectedImageId = id;
+
+  landmarksPanel->SetCurrentLandmarks(mSlicerManagers[selected]->GetLandmarks(),
+                                      mSlicerManagers[selected]->GetTSlice());
+  landmarksPanel->SetCurrentPath(mInputPathName.toStdString());
+  landmarksPanel->SetCurrentImage(mSlicerManagers[selected]->GetFileName().c_str());
+  
   emit SelectedImageHasChanged(mSlicerManagers[selected]);
 }
 //------------------------------------------------------------------------------
@@ -1137,7 +1144,7 @@ void vvMainWindow::ImageInfoChanged()
     infoPanel->setTransformation(Get4x4MatrixDoubleAsString(transformation));
 
     landmarksPanel->SetCurrentLandmarks(mSlicerManagers[index]->GetLandmarks(),
-      mSlicerManagers[index]->GetSlicer(0)->GetImage()->GetVTKImages().size());
+                                        mSlicerManagers[index]->GetTSlice());
     landmarksPanel->SetCurrentPath(mInputPathName.toStdString());
     landmarksPanel->SetCurrentImage(mSlicerManagers[index]->GetFileName().c_str());
 
@@ -1149,26 +1156,26 @@ void vvMainWindow::ImageInfoChanged()
       }
     }
 
-    infoPanel->setFileName(image);
-    infoPanel->setDimension(dim);
-    infoPanel->setSizePixel(GetVectorIntAsString(inputSize));
-    infoPanel->setSizeMM(GetVectorDoubleAsString(sizeMM));
-    infoPanel->setOrigin(GetVectorDoubleAsString(origin));
-    infoPanel->setSpacing(GetVectorDoubleAsString(inputSpacing));
-    infoPanel->setNPixel(QString::number(NPixel)+" ("+inputSizeInBytes+")");
-
-    landmarksPanel->SetCurrentLandmarks(mSlicerManagers[index]->GetLandmarks(),
-      mSlicerManagers[index]->GetSlicer(0)->GetImage()->GetVTKImages().size());
-    landmarksPanel->SetCurrentPath(mInputPathName.toStdString());
-    landmarksPanel->SetCurrentImage(mSlicerManagers[index]->GetFileName().c_str());
-
-    overlayPanel->getCurrentImageName(mSlicerManagers[index]->GetFileName().c_str());
-    for (int i = 0; i < 4; i++) {
-      if (DataTree->selectedItems()[0]->data(i+1,Qt::CheckStateRole).toInt() > 0 || i == 3) {
-        mSlicerManagers[index]->UpdateInfoOnCursorPosition(i);
-        break;
-      }
-    }
+//     infoPanel->setFileName(image);
+//     infoPanel->setDimension(dim);
+//     infoPanel->setSizePixel(GetVectorIntAsString(inputSize));
+//     infoPanel->setSizeMM(GetVectorDoubleAsString(sizeMM));
+//     infoPanel->setOrigin(GetVectorDoubleAsString(origin));
+//     infoPanel->setSpacing(GetVectorDoubleAsString(inputSpacing));
+//     infoPanel->setNPixel(QString::number(NPixel)+" ("+inputSizeInBytes+")");
+// 
+//     landmarksPanel->SetCurrentLandmarks(mSlicerManagers[index]->GetLandmarks(),
+//                                         mSlicerManagers[index]->GetTSlice());
+//     landmarksPanel->SetCurrentPath(mInputPathName.toStdString());
+//     landmarksPanel->SetCurrentImage(mSlicerManagers[index]->GetFileName().c_str());
+// 
+//     overlayPanel->getCurrentImageName(mSlicerManagers[index]->GetFileName().c_str());
+//     for (int i = 0; i < 4; i++) {
+//       if (DataTree->selectedItems()[0]->data(i+1,Qt::CheckStateRole).toInt() > 0 || i == 3) {
+//         mSlicerManagers[index]->UpdateInfoOnCursorPosition(i);
+//         break;
+//       }
+//     }
     WindowLevelChanged();
 
     slicingPresetComboBox->setCurrentIndex(mSlicerManagers[index]->GetSlicingPreset());
@@ -2211,7 +2218,15 @@ void vvMainWindow::AddFusionImage(int index, QString file)
     QMessageBox::information(this,tr("Problem reading Fusion !"),"File doesn't exist!");
 }
 //------------------------------------------------------------------------------
-
+//------------------------------------------------------------------------------
+void vvMainWindow::AddLandmarks(int index, std::vector<std::string> files)
+{
+    if (!landmarksPanel->LoadFromFile(files))
+      QMessageBox::information(this,tr("Problem reading Landmarks !"),"File doesn't exist!");
+    
+    landmarksPanel->SetCurrentPath(mInputPathName.toStdString());
+    landmarksPanel->SetCurrentImage(mSlicerManagers[index]->GetFileName().c_str());
+}
 
 //------------------------------------------------------------------------------
 void vvMainWindow::OpenField()
@@ -3379,6 +3394,23 @@ void vvMainWindow::GoToCursor()
   for (int column = 1; column < 5; column++) {
     if (DataTree->selectedItems()[0]->data(column,Qt::CheckStateRole).toInt() > 1) {
       double* cursorPos = mSlicerManagers[index]->GetSlicer(column-1)->GetCursorPosition();
+      mSlicerManagers[index]->GetSlicer(column-1)->SetCurrentPosition(
+        cursorPos[0],cursorPos[1],cursorPos[2],cursorPos[3]);
+      mSlicerManagers[index]->UpdateViews(1,column-1);
+      mSlicerManagers[index]->UpdateLinked(column-1);
+      break;
+    }
+  }
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::GoToLandmark()
+{
+  int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
+  for (int column = 1; column < 5; column++) {
+    if (DataTree->selectedItems()[0]->data(column,Qt::CheckStateRole).toInt() > 1) {
+      double* cursorPos = landmarksPanel->GetSelectedPoint();
       mSlicerManagers[index]->GetSlicer(column-1)->SetCurrentPosition(
         cursorPos[0],cursorPos[1],cursorPos[2],cursorPos[3]);
       mSlicerManagers[index]->UpdateViews(1,column-1);

@@ -45,7 +45,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 
-typedef enum {O_BASE,O_OVERLAY,O_FUSION,O_VF,O_CONTOUR} OpenModeType;
+typedef enum {O_BASE,O_OVERLAY,O_FUSION,O_VF,O_CONTOUR,O_LANDMARKS} OpenModeType;
 typedef enum {P_NORMAL,P_SEQUENCE,P_WINDOW,P_LEVEL} ParseModeType;
 
 void load_image_first_error()
@@ -79,6 +79,8 @@ void open_sequence(vvMainWindow &window,
     window.LoadImages(sequence_filenames, vvImageReader::MERGEDWITHTIME);
   else if (open_mode==O_OVERLAY)
     window.AddOverlayImage(n_image_loaded-1,sequence_filenames,vvImageReader::MERGEDWITHTIME);
+  else if (open_mode==O_LANDMARKS)
+    window.AddLandmarks(n_image_loaded-1,sequence_filenames);
   else {
     std::cerr << "Sequences are not managed for opening " << open_mode_names[open_mode] << std::endl;
     exit(1);
@@ -181,7 +183,8 @@ int main( int argc, char** argv )
                     << "--overlay file \t Overlay the image in file with complementary colors." << std::endl
                     << "--fusion file  \t Overlay the image in file with alpha blending and colormap." << std::endl
                     //<< "--roi file     \t Overlay binary mask images. Option may be repeated on a single base image." << std::endl
-                    << "--contour file \t Overlay DICOM RT-STRUCT contours." << std::endl;
+                    << "--contour file \t Overlay DICOM RT-STRUCT contours." << std::endl
+                    << "--landmarks [--sequence] file(s)  \t Overlay the landmarks in file(s) (.txt or .pts)." << std::endl;
           exit(0);
         } else if (current=="--vf") {
           if (!n_image_loaded) load_image_first_error();
@@ -195,6 +198,9 @@ int main( int argc, char** argv )
         } else if (current=="--fusion") {
           if (!n_image_loaded) load_image_first_error();
           open_mode = O_FUSION;
+        } else if (current=="--landmarks") {
+          if (!n_image_loaded) load_image_first_error();
+          open_mode = O_LANDMARKS;
         } else if (current == "--sequence") {
           if(open_mode==O_BASE) n_image_loaded++; //count only one for the whole sequence
           parse_mode=P_SEQUENCE;
@@ -273,6 +279,8 @@ int main( int argc, char** argv )
           window.AddDCStructContour(n_image_loaded-1,current.c_str());
         else if (open_mode==O_FUSION)
           window.AddFusionImage(n_image_loaded-1,current.c_str());
+        else if (open_mode==O_LANDMARKS)
+          window.AddLandmarks(n_image_loaded-1,image);
         open_mode = O_BASE;
       }
     }

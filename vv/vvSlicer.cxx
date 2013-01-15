@@ -1432,12 +1432,12 @@ void vvSlicer::Render()
     double yCursor = (y - this->GetInput()->GetOrigin()[1])/this->GetInput()->GetSpacing()[1];
     double zCursor = (z - this->GetInput()->GetOrigin()[2])/this->GetInput()->GetSpacing()[2];
 
-    if (xCursor >= this->GetImageActor()->GetDisplayExtent()[0] &&
-        xCursor < this->GetImageActor()->GetDisplayExtent()[1]+1 &&
-        yCursor >= this->GetImageActor()->GetDisplayExtent()[2] &&
-        yCursor < this->GetImageActor()->GetDisplayExtent()[3]+1 &&
-        zCursor >= this->GetImageActor()->GetDisplayExtent()[4] &&
-        zCursor < this->GetImageActor()->GetDisplayExtent()[5]+1 ) {
+    if (xCursor >= this->GetImageActor()->GetDisplayExtent()[0]-0.5 &&
+        xCursor < this->GetImageActor()->GetDisplayExtent()[1]+0.5 &&
+        yCursor >= this->GetImageActor()->GetDisplayExtent()[2]-0.5 &&
+        yCursor < this->GetImageActor()->GetDisplayExtent()[3]+0.5 &&
+        zCursor >= this->GetImageActor()->GetDisplayExtent()[4]-0.5 &&
+        zCursor < this->GetImageActor()->GetDisplayExtent()[5]+0.5 ) {
       vtkRenderer * renderer = this->Renderer;
 
       renderer->WorldToView(x,y,z);
