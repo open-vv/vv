@@ -23,7 +23,6 @@
 #include <itkImageFileReader.h>
 #include <itkImageSeriesReader.h>
 #include <itkImageToVTKImageFilter.h>
-#include <itkAnalyzeImageIO.h>
 #include <itkFlexibleVectorCastImageFilter.h>
 
 #include <vtkTransform.h>
@@ -73,8 +72,6 @@ void vvImageReader::UpdateWithDim(std::string InputPixelType)
 template<class InputPixelType, unsigned int VImageDimension>
 void vvImageReader::UpdateWithDimAndInputPixelType()
 {
-  itk::AnalyzeImageIO *analyzeImageIO = NULL;
-
   if (mType == MERGEDWITHTIME)   // In this case we can load the images
     // one at the time to avoid excessive
     // memory use
@@ -97,7 +94,6 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
         mLastError = error.str();
         return;
       }
-      analyzeImageIO = dynamic_cast<itk::AnalyzeImageIO*>( reader->GetImageIO() );
     }
   } else if (mType == SLICED) {
     mImage=vvImage::New();
@@ -134,7 +130,6 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
                 << "(slice #" << mSlice << ") " << err << std::endl;
       return;
     }
-    analyzeImageIO = dynamic_cast<itk::AnalyzeImageIO*>( reader->GetImageIO() );
   } else {
     if (mInputFilenames.size() > 1) {
       typedef itk::Image< InputPixelType, VImageDimension > InputImageType;
@@ -177,23 +172,6 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
         mLastError = error.str();
         return;
       }
-      analyzeImageIO = dynamic_cast<itk::AnalyzeImageIO*>( reader->GetImageIO() );
-    }
-  }
-
-  // For unknown analyze orientations, we set identity
-  if(analyzeImageIO) {
-    const double m[16] = {1.,0.,0.,0.,
-                          0.,0.,1.,0.,
-                          0.,-1.,0.,0.,
-                          0.,0.,0.,1.};
-    // TODO SR and BP: check on the list of transforms and not the first only
-    int i;
-    for(i=0; i<16 && m[i]==mImage->GetTransform()[0]->GetMatrix()->GetElement(i%4, i/4); i++);
-    if(i==16) {
-      itkWarningMacro(<< "Analyze image file format detected with unknown orientation. "
-                      << "Forcing identity orientation, use other file format if not ok.");
-      mImage->GetTransform()[0]->Identity();
     }
   }
 }
@@ -203,8 +181,6 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
 template<class InputPixelType, unsigned int VImageDimension>
 void vvImageReader::UpdateWithDimAndInputVectorPixelType()
 {
-  itk::AnalyzeImageIO *analyzeImageIO = NULL;
-
   typedef itk::Image< InputPixelType, VImageDimension > InputImageType;
   typename InputImageType::Pointer input;
 
@@ -239,7 +215,6 @@ void vvImageReader::UpdateWithDimAndInputVectorPixelType()
       mLastError = error.str();
       return;
     }
-    analyzeImageIO = dynamic_cast<itk::AnalyzeImageIO*>( reader->GetImageIO() );
   }
   
   typedef itk::Image< itk::Vector<float , 3>, VImageDimension > VectorImageType;
@@ -251,24 +226,6 @@ void vvImageReader::UpdateWithDimAndInputVectorPixelType()
   casted_input = caster->GetOutput();
   
   mImage = vvImageFromITK<VImageDimension, itk::Vector<float, 3> >(casted_input, mType == IMAGEWITHTIME || mType == VECTORFIELDWITHTIME);
-
-  // For unknown analyze orientations, we set identity
-  if (analyzeImageIO)
-  {
-    const double m[16] = {1.,0.,0.,0.,
-                          0.,0.,1.,0.,
-                          0.,-1.,0.,0.,
-                          0.,0.,0.,1.};
-    int i;
-    for (i = 0; i < 16 && m[i] == mImage->GetTransform()[0]->GetMatrix()->GetElement(i % 4, i / 4); i++)
-      ;
-    if (i == 16)
-    {
-      itkWarningMacro(<< "Analyze image file format detected with unknown orientation. "
-                      << "Forcing identity orientation, use other file format if not ok.");
-      mImage->GetTransform()[0]->Identity();
-    }
-  }
 }
 //----------------------------------------------------------------------------
 
