@@ -74,7 +74,7 @@ void open_sequence(vvMainWindow &window,
                    std::vector<std::string> &sequence_filenames,
                    int n_image_loaded)
 {
-  const std::string open_mode_names[] = {"base", "overlay", "fusion", "vf", "contour"};
+  const std::string open_mode_names[] = {"base", "overlay", "fusion", "vf", "contour", "fusionSequence"};
   if(open_mode==O_BASE)
     window.LoadImages(sequence_filenames, vvImageReader::MERGEDWITHTIME);
   else if (open_mode==O_OVERLAY)

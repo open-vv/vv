@@ -436,7 +436,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="DataTab">
          <attribute name="title">
@@ -805,7 +805,7 @@
      <x>0</x>
      <y>0</y>
      <width>1008</width>
-     <height>25</height>
+     <height>29</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -826,6 +826,7 @@
     <addaction name="actionAdd_VF_to_current_Image"/>
     <addaction name="actionAdd_overlay_image_to_current_image"/>
     <addaction name="actionAdd_fusion_image"/>
+    <addaction name="actionAdd_USSequence_toCT"/>
    </widget>
    <widget class="QMenu" name="menuScreenshots">
     <property name="title">
@@ -1251,6 +1252,18 @@
    </property>
    <property name="text">
     <string>Add overlay image to current image</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionAdd_USSequence_toCT">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/rotateright.png</normaloff>:/common/icons/rotateright.png</iconset>
+   </property>
+   <property name="text">
+    <string>Test / Fusion of US &amp; CT sequences</string>
    </property>
    <property name="iconVisibleInMenu">
     <bool>true</bool>

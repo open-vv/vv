@@ -16,6 +16,9 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
   ===========================================================================**/
 
+#include <QMessageBox>
+#include <QString>
+
 #include "vvSlicer.h"
 #include "vvImage.h"
 #include "vvSlicerManagerCommand.h"
@@ -78,6 +81,7 @@ static void copyExtent(int* in, int* to){
 //------------------------------------------------------------------------------
 vvSlicer::vvSlicer()
 {
+	mFusionSequenceCode = -1;
   this->UnInstallPipeline();
   mImage = NULL;
   mReducedExtent = new int[6];
@@ -308,7 +312,7 @@ void vvSlicer::SetCurrentPosition(double x, double y, double z, int t)
   mCurrentBeforeSlicingTransform[1]=y;
   mCurrentBeforeSlicingTransform[2]=z;
   mSlicingTransform->GetInverse()->TransformPoint(mCurrentBeforeSlicingTransform,mCurrent);
-  SetTSlice(t);
+  if (t>=0) SetTSlice(t);
 }
 //------------------------------------------------------------------------------
 
@@ -411,8 +415,9 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
 
 
 //------------------------------------------------------------------------------
-void vvSlicer::SetFusion(vvImage::Pointer fusion)
+void vvSlicer::SetFusion(vvImage::Pointer fusion, int fusionSequenceCode)
 {
+	mFusionSequenceCode = fusionSequenceCode;
   if (fusion->GetVTKImages().size()) {
     mFusion = fusion;
 
@@ -475,7 +480,7 @@ bool vvSlicer::GetActorVisibility(const std::string& actor_type, int overlay_ind
   else if (actor_type == "overlay") {
     vis = this->mOverlayActor->GetVisibility();
   }
-  else if (actor_type == "fusion") {
+  else if ( (actor_type == "fusion") || (actor_type == "fusionSequence") ){
     vis = this->mFusionActor->GetVisibility();
   }
   else if (actor_type == "contour")
@@ -497,7 +502,7 @@ void vvSlicer::SetActorVisibility(const std::string& actor_type, int overlay_ind
   else if (actor_type == "overlay") {
     this->mOverlayActor->SetVisibility(vis);
   }
-  else if (actor_type == "fusion") {
+  else if ( (actor_type == "fusion") || (actor_type == "fusionSequence") ){
     this->mFusionActor->SetVisibility(vis);
   }
   else if (actor_type == "contour")
@@ -641,7 +646,7 @@ void vvSlicer::RemoveActor(const std::string& actor_type, int overlay_index)
     mOverlayActor = NULL;
     mOverlayMapper = NULL;
   }
-  if (actor_type == "fusion") {
+  if ( (actor_type == "fusion") || (actor_type == "fusionSequence") ) {
     Renderer->RemoveActor(mFusionActor);
     mFusion = NULL;
     mFusionActor = NULL;
@@ -706,8 +711,19 @@ void vvSlicer::SetVFLog(int log)
 
 
 //------------------------------------------------------------------------------
-void vvSlicer::SetTSlice(int t)
+void vvSlicer::SetTSlice(int t, bool updateLinkedImages)
 {
+	if (!updateLinkedImages) {
+		mCurrentTSlice = t;
+		mImageReslice->SetInput( mImage->GetVTKImages()[mCurrentTSlice] );
+		// Update transform
+		mConcatenatedTransform->Identity();
+		mConcatenatedTransform->Concatenate(mImage->GetTransform()[mCurrentTSlice]);
+		mConcatenatedTransform->Concatenate(mSlicingTransform);
+		UpdateDisplayExtent();
+		return;
+	}
+
   if (t < 0)
     mCurrentTSlice = 0;
   else if ((unsigned int)t >= mImage->GetVTKImages().size())
@@ -726,6 +742,7 @@ void vvSlicer::SetTSlice(int t)
     if (mVF->GetVTKImages().size() > (unsigned int)mCurrentTSlice)
       mVOIFilter->SetInput(mVF->GetVTKImages()[mCurrentTSlice]);
   }
+  //update the overlay
   if (mOverlay && mOverlayActor->GetVisibility()) {
     if (mOverlay->GetVTKImages().size() > (unsigned int)t) {
       mCurrentOverlayTSlice = t;
@@ -737,7 +754,8 @@ void vvSlicer::SetTSlice(int t)
       mConcatenatedOverlayTransform->Concatenate(mSlicingTransform);
     }
   }
-  if (mFusion && mFusionActor->GetVisibility()) {
+  //update the fusion ; except in case this is a fusionSequence, in which case both 'times' should be independent.
+  if (mFusion && mFusionActor->GetVisibility() && (mFusionSequenceCode<0)) {
     if (mFusion->GetVTKImages().size() > (unsigned int)t) {
       mCurrentFusionTSlice = t;
       mFusionReslice->SetInput( mFusion->GetVTKImages()[mCurrentFusionTSlice]);
@@ -758,6 +776,25 @@ void vvSlicer::SetTSlice(int t)
 
 
 //------------------------------------------------------------------------------
+void vvSlicer::SetFusionSequenceTSlice(int t)
+{
+  if (mFusion && mFusionActor->GetVisibility() && (mFusionSequenceCode>=0)) {
+    if (mFusion->GetVTKImages().size() > (unsigned int)t) {
+      mCurrentFusionTSlice = t;
+      mFusionReslice->SetInput( mFusion->GetVTKImages()[mCurrentFusionTSlice] );
+      // Update fusion transform
+      mConcatenatedFusionTransform->Identity();
+      mConcatenatedFusionTransform->Concatenate(mFusion->GetTransform()[mCurrentFusionTSlice]); //not really useful...
+      mConcatenatedFusionTransform->Concatenate(mSlicingTransform);
+    }
+  }
+
+  UpdateDisplayExtent();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 int vvSlicer::GetTSlice()
 {
   return mCurrentTSlice;
@@ -770,7 +807,7 @@ int vvSlicer::GetMaxCurrentTSlice()
   int t = mCurrentTSlice;
   if(mOverlay)
     t = std::max(t, mCurrentOverlayTSlice);
-  if(mFusion)
+  if(mFusion&& (mFusionSequenceCode<0)) //ignore fusionSequence data: for these, the times are not to be related (this way)
     t = std::max(t, mCurrentFusionTSlice);
   return t;
 }
@@ -1008,7 +1045,6 @@ void vvSlicer::UpdateDisplayExtent()
       }
     }
   }
-  
 }
 //----------------------------------------------------------------------------
 
@@ -1147,9 +1183,8 @@ void vvSlicer::ResetCamera()
 //----------------------------------------------------------------------------
 void vvSlicer::SetDisplayMode(bool i)
 {
-  this->GetRenderer()->SetDraw(i);
-  if (i)
-    UpdateDisplayExtent();
+	this->GetRenderer()->SetDraw(i);
+	if (i) UpdateDisplayExtent();
 }
 //----------------------------------------------------------------------------
 
@@ -1324,6 +1359,7 @@ double vvSlicer::GetScalarComponentAsDouble(vtkImageData *image, double X, doubl
   ix = lrint(X);
   iy = lrint(Y);
   iz = lrint(Z);
+
   if (ix < image->GetWholeExtent()[0] ||
       ix > image->GetWholeExtent()[1] ||
       iy < image->GetWholeExtent()[2] ||
@@ -1396,12 +1432,12 @@ void vvSlicer::Render()
     double yCursor = (y - this->GetInput()->GetOrigin()[1])/this->GetInput()->GetSpacing()[1];
     double zCursor = (z - this->GetInput()->GetOrigin()[2])/this->GetInput()->GetSpacing()[2];
 
-    if (xCursor >= this->GetImageActor()->GetDisplayExtent()[0] &&
-        xCursor < this->GetImageActor()->GetDisplayExtent()[1]+1 &&
-        yCursor >= this->GetImageActor()->GetDisplayExtent()[2] &&
-        yCursor < this->GetImageActor()->GetDisplayExtent()[3]+1 &&
-        zCursor >= this->GetImageActor()->GetDisplayExtent()[4] &&
-        zCursor < this->GetImageActor()->GetDisplayExtent()[5]+1 ) {
+    if (xCursor >= this->GetImageActor()->GetDisplayExtent()[0]-0.5 &&
+        xCursor < this->GetImageActor()->GetDisplayExtent()[1]+0.5 &&
+        yCursor >= this->GetImageActor()->GetDisplayExtent()[2]-0.5 &&
+        yCursor < this->GetImageActor()->GetDisplayExtent()[3]+0.5 &&
+        zCursor >= this->GetImageActor()->GetDisplayExtent()[4]-0.5 &&
+        zCursor < this->GetImageActor()->GetDisplayExtent()[5]+0.5 ) {
       vtkRenderer * renderer = this->Renderer;
 
       renderer->WorldToView(x,y,z);
