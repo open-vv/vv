@@ -8,7 +8,7 @@
 
 class vtkImageAppend;
 
-class VTK_IO_EXPORT vvAnimatedGIFWriter : public vtkGenericMovieWriter
+class vvAnimatedGIFWriter : public vtkGenericMovieWriter //test this if link error...
 {
 public:
   static vvAnimatedGIFWriter *New();

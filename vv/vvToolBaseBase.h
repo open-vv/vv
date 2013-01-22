@@ -19,6 +19,7 @@
 #ifndef VVTOOLBASEBASE_H
 #define VVTOOLBASEBASE_H
 
+#include <algorithm>
 #include "vvMainWindowBase.h"
 #include "vvToolCreatorBase.h"
 class QXmlStreamWriter;

@@ -66,6 +66,7 @@ class vvSlicerManager : public QObject {
 
   bool SetOverlay(std::vector<std::string> filenames, int dim, std::string component, vvImageReader::LoadedImageType type);
   bool SetFusion(std::string filename, int dim, std::string component);
+  bool SetFusionSequence(std::vector<std::string> filenames, int dim, std::string component, vvImageReader::LoadedImageType type);
   ///Set a VF by loading it from the disk
   bool SetVF(std::string filename);
   ///Set a VF from memory
@@ -109,10 +110,12 @@ class vvSlicerManager : public QObject {
 
   void SetSliceOrientation(int slicer, int orientation);
   int GetTSlice();
-  void SetTSlice(int slice);
+  void SetTSlice(int slice, bool updateLinkedImages = true);
   void SetNextTSlice(int originating_slicer);
   void SetPreviousTSlice(int originating_slicer);
   void SetTSliceInSlicer(int tslice, int slicer);
+
+  void SetFusionSequenceTSlice(int slice);
 
   void GenerateDefaultLookupTable();
   void SetColorWindow(double s);
@@ -145,6 +148,42 @@ class vvSlicerManager : public QObject {
   void SetFusionShowLegend(int show) {
     mFusionShowLegend = show;
   }
+
+
+  //set/get fusionSequence related data
+  void SetFusionSequenceFrameIndex(int sequenceFrameIndex) { mFusionSequenceFrameIndex = sequenceFrameIndex; }
+  void SetFusionSequenceSpatialSyncFlag(bool spatialSync) { mFusionSequenceSpatialSyncFlag = spatialSync; }
+  void SetFusionSequenceTemporalSyncFlag(bool temporalSync) { mFusionSequenceTemporalSyncFlag = temporalSync; }
+  void SetFusionSequenceLength(unsigned int fusionSequenceNbFrames) { mFusionSequenceNbFrames = fusionSequenceNbFrames; }
+  void SetFusionSequenceMainTransformMatrix(vtkSmartPointer<vtkMatrix4x4> mat) { 
+	  mFusionSequenceMainTransform = vtkSmartPointer<vtkMatrix4x4>::New();
+	  mFusionSequenceMainTransform->DeepCopy(mat);
+  }
+  void AddFusionSequenceInitialTransformMatrices(vtkSmartPointer<vtkMatrix4x4> mat) { 
+		vtkSmartPointer<vtkMatrix4x4> tmpMat = vtkSmartPointer<vtkMatrix4x4>::New();
+		tmpMat->DeepCopy(mat);
+		mFusionSequenceListInitialTransformMatrices.push_back( tmpMat );
+  }
+  void SetFusionSequenceIndexOfLinkedManager(int index) { mFusionSequenceIndexLinkedManager = index; }
+  void SetFusionSequenceTemporalSignal(std::vector<double> s) { mFusionSequenceTemporalSignal = s; }
+  
+  void SetFusionSequenceInvolvmentCode(int code) { mFusionSequenceInvolvementCode=code; }
+  int GetFusionSequenceInvolvmentCode() { return mFusionSequenceInvolvementCode;}
+  bool IsInvolvedInFusionSequence() {return (!(mFusionSequenceInvolvementCode==-1));}
+  bool IsMainSequenceOfFusionSequence() {return (mFusionSequenceInvolvementCode==0);}
+  bool IsSecondarySequenceOfFusionSequence() {return (mFusionSequenceInvolvementCode==1);}
+
+  int GetFusionSequenceIndexOfLinkedManager() { return mFusionSequenceIndexLinkedManager; }
+  int GetFusionSequenceFrameIndex() { return mFusionSequenceFrameIndex; }
+  bool GetFusionSequenceSpatialSyncFlag() { return mFusionSequenceSpatialSyncFlag; }
+  bool GetFusionSequenceTemporalSyncFlag() { return mFusionSequenceTemporalSyncFlag; }
+  unsigned int GetFusionSequenceNbFrames() { return mFusionSequenceNbFrames; }
+  const vtkSmartPointer<vtkMatrix4x4>& GetFusionSequenceMainTransformMatrix() {return mFusionSequenceMainTransform;}
+  const std::vector< vtkSmartPointer<vtkMatrix4x4> >& GetFusionSequenceInitialTransformMatrices() {return mFusionSequenceListInitialTransformMatrices;}
+  const vtkSmartPointer<vtkMatrix4x4>& GetFusionSequenceInitialTransformMatrixAtFrame(unsigned i) {
+	  return mFusionSequenceListInitialTransformMatrices[i];
+  }
+  const std::vector<double>& GetFusionSequenceTemporalSignal() {return mFusionSequenceTemporalSignal;}
 
   double GetColorWindow() const;
   double GetColorLevel() const;
@@ -179,6 +218,7 @@ class vvSlicerManager : public QObject {
     return mFusionLevel;
   }
 
+
   void SetCursorAndCornerAnnotationVisibility(int s);
   void UpdateViews(int current, int slicer);
   void UpdateLinked(int slicer);
@@ -207,6 +247,7 @@ class vvSlicerManager : public QObject {
   void Reload();
   void ReloadOverlay();
   void ReloadFusion();
+  void ReloadFusionSequence();
   void ReloadVF();
 
   void Activated();
@@ -236,11 +277,12 @@ signals :
   void UpdateVector(int display, double x, double y, double z, double value);
   void UpdateOverlay(int display, double valueOver, double valueRef);
   void UpdateFusion(int display, double valueFus);
+  void UpdateFusionSequence(int fusionSequenceFrameIndex, bool fusionSequenceSpatialSyncFlag, unsigned int fusionSequenceNbFrames);
   void MousePositionUpdatedSignal(int slicer);
   void KeyPressedSignal(std::string KeyPressed);
   void UpdateOrientation(int slicer, int orientation);
   void UpdateSlice(int slicer, int slice);
-  void UpdateTSlice(int slicer, int slice);
+  void UpdateTSlice(int slicer, int slice, int code);
   void UpdateSliceRange(int slice, int min, int max, int tmin, int tmax);
   void WindowLevelChanged();
   void UpdateLinkManager(std::string, int slicer, double x, double y, double z, int temps);
@@ -256,6 +298,7 @@ protected:
   vvImageReader::Pointer mReader;
   vvImageReader::Pointer mOverlayReader;
   vvImageReader::Pointer mFusionReader;
+  vvImageReader::Pointer mFusionSequenceReader;
   vvImageReader::Pointer mVectorReader;
   vvImage::Pointer mImage;
   vvImage::Pointer mVF;
@@ -269,6 +312,16 @@ protected:
   double mFusionLevel;
   bool mFusionShowLegend;
 
+  //Fusion of sequences related data
+  int mFusionSequenceInvolvementCode; //-1: not involved, 0: main sequence(CT), 1: secondary sequence (US)
+  int mFusionSequenceIndexLinkedManager; //index of the other sequence involved in the visualization
+  int mFusionSequenceFrameIndex; //temporal index of the current image in the sequence (<->TSlice)
+  unsigned int mFusionSequenceNbFrames; //number of frames in the temporal sequence
+  bool mFusionSequenceSpatialSyncFlag, mFusionSequenceTemporalSyncFlag; //flags indicating whether the spatial/temporal synchronization are actives
+  vtkSmartPointer<vtkMatrix4x4> mFusionSequenceMainTransform;
+  std::vector< vtkSmartPointer<vtkMatrix4x4> > mFusionSequenceListInitialTransformMatrices;
+  std::vector<double> mFusionSequenceTemporalSignal;
+  
   int mPreset;
   SlicingPresetType mSlicingPreset;
   vvImageReader::LoadedImageType mType;
