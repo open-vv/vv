@@ -77,13 +77,13 @@ void vvImageReader::Update(int dim,std::string inputPixelType, LoadedImageType t
   switch(mDim)     {
   case 2:
     UpdateWithDim<2>(mInputPixelType);
-    break;;
+    break;
   case 3:
     UpdateWithDim<3>(mInputPixelType);
-    break;;
+    break;
   case 4:
     UpdateWithDim<4>(mInputPixelType);
-    break;;
+    break;
   default:
     std::cerr << "dimension unknown in Update ! " << std::endl;
   }
@@ -196,6 +196,18 @@ void vvImageReader::ReadMatImageTransform()
     mImage->GetTransform()[0]->PreMultiply();
     mImage->GetTransform()[0]->Concatenate(matrix);
     mImage->GetTransform()[0]->Update();
+
+    //for image sequences, apply the transform to each images of the sequence
+    if (mImage->IsTimeSequence())
+    {
+    	for (unsigned i = 1 ; i<mImage->GetTransform().size() ; i++)
+        {
+            mImage->GetTransform()[i]->PreMultiply();
+            mImage->GetTransform()[i]->Concatenate(matrix);
+            mImage->GetTransform()[i]->Update();
+        }
+    }
+
   }
 }
 //------------------------------------------------------------------------------

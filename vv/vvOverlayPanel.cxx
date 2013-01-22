@@ -29,17 +29,21 @@
 //====================================================================
 vvOverlayPanel::vvOverlayPanel(QWidget * parent):QWidget(parent)
 {
+  disableFusionSignals = true;
+  disableFusionSequenceSignals = true;
+
   setupUi(this);
 
   vFFrame->hide();
   compareFrame->hide();
   fusionFrame->hide();
+  fCTUSFrame->hide();
   subSamplingSpinBox->setEnabled(0);
   scaleSpinBox->setEnabled(0);
   lutCheckBox->hide();
   lutCheckBox->setEnabled(0);
   fusionShowLegendCheckBox->setChecked(false);
-  
+
   connect(subSamplingSpinBox,SIGNAL(editingFinished()),this,SLOT(setVFProperty()));
   connect(scaleSpinBox,SIGNAL(editingFinished()),this,SLOT(setVFProperty()));
   connect(lutCheckBox,SIGNAL(clicked()),this,SLOT(setVFProperty()));
@@ -58,7 +62,10 @@ vvOverlayPanel::vvOverlayPanel(QWidget * parent):QWidget(parent)
   connect(overlayLevelSpinBox,SIGNAL(valueChanged(double)),this,SLOT(setOverlayProperty()));
   connect(overlayLinkCheckBox,SIGNAL(stateChanged(int)),this,SLOT(setOverlayProperty()));
 
-  disableFusionSignals = false;
+  connect(fCTUSSlider,SIGNAL(valueChanged(int)),this,SLOT(setFusionSequenceProperty()));
+  connect(fCTUSActivateSpaceSyncCheckBox,SIGNAL(stateChanged(int)),this,SLOT(setFusionSequenceProperty()));
+  connect(fCTUSActivateTimeSyncCheckBox,SIGNAL(stateChanged(int)),this,SLOT(setFusionSequenceProperty()));
+  connect(fCTUSLoadSignalPushButton,SIGNAL(clicked()),this,SIGNAL(FusionSequenceSignalButtonPressed()));
 }
 
 void vvOverlayPanel::getCurrentImageName(QString name)
@@ -225,7 +232,7 @@ void vvOverlayPanel::setFusionProperty()
 {
   if (disableFusionSignals)
     return;
-  
+
   fusionOpacitySpin->setValue(opacityHorizontalSlider->value()); 
   fusionThresSpin->setValue(thresOpacityHorizontalSlider->value());
 
@@ -246,6 +253,68 @@ void vvOverlayPanel::getCurrentFusionInfo(int visibility,double value)
     fusionValue += QString::number(value,'f',1);
   }
   valueFusionnedLabel->setText(fusionValue);
+}
+
+
+void vvOverlayPanel::getFusionSequenceProperty(int sequenceFrameIndex, bool spatialSync, unsigned int sequenceLenth, bool temporalSync)
+{
+	if (sequenceFrameIndex > -1) {
+		disableFusionSequenceSignals = true;
+		fCTUSFrame->show();		
+		fCTUSFrame->setEnabled(1);
+		fCTUSSlider->setEnabled(1);
+		fCTUSSlider->setValue(sequenceFrameIndex);
+		fCTUSSlider->setMaximum(sequenceLenth);
+		if (spatialSync) fCTUSActivateSpaceSyncCheckBox->setCheckState(Qt::Checked);
+		else             fCTUSActivateSpaceSyncCheckBox->setCheckState(Qt::Unchecked);		
+		if (fCTUSActivateTimeSyncCheckBox->isEnabled()) {
+			if ( temporalSync ) fCTUSActivateTimeSyncCheckBox->setCheckState(Qt::Checked);
+			else                fCTUSActivateTimeSyncCheckBox->setCheckState(Qt::Unchecked);
+		}
+		disableFusionSequenceSignals = false;
+		setFusionSequenceProperty();
+	} else {
+    disableFusionSequenceSignals = true;
+		fCTUSFrame->hide();
+		fCTUSFrame->setEnabled(0);
+		fCTUSSlider->setEnabled(0);
+		fCTUSSlider->setValue(0);
+		fCTUSSlider->setMaximum(0);
+		fCTUSActivateSpaceSyncCheckBox->setCheckState(Qt::Unchecked);
+		fCTUSActivateTimeSyncCheckBox->setCheckState(Qt::Unchecked);
+    disableFusionSequenceSignals = false;
+    setFusionSequenceProperty();
+	}
+}
+
+
+void vvOverlayPanel::setFusionSequenceProperty()
+{
+  if (disableFusionSequenceSignals)
+    return;
+  emit FusionSequencePropertyUpdated(fCTUSSlider->value(), fCTUSActivateSpaceSyncCheckBox->isChecked(), fCTUSSlider->maximum(), fCTUSActivateTimeSyncCheckBox->isChecked());
+}
+
+void vvOverlayPanel::enableFusionSequenceTemporalSync() {
+  bool backup = disableFusionSequenceSignals;
+  disableFusionSequenceSignals=true; //not sure this is necessary, but just in case...
+	fCTUSActivateTimeSyncCheckBox->setEnabled(1);
+	fCTUSActivateTimeSyncCheckBox->setChecked(true);
+  disableFusionSequenceSignals = backup; //
+	
+	if (disableFusionSequenceSignals) return;
+	emit FusionSequencePropertyUpdated(fCTUSSlider->value(), fCTUSActivateSpaceSyncCheckBox->isChecked(), fCTUSSlider->maximum(), fCTUSActivateTimeSyncCheckBox->isChecked());
+}
+
+void vvOverlayPanel::updateFusionSequenceSliderValueFromWindow(int val, bool updateVisualization) {
+  if (fCTUSSlider->value()==val) return;
+
+  disableFusionSequenceSignals = true; //not sure this is necessary, but just in case...
+	fCTUSSlider->setValue(val); 
+  disableFusionSequenceSignals = false;
+
+  if (disableFusionSequenceSignals) return;
+	if (updateVisualization) emit FusionSequencePropertyUpdated(fCTUSSlider->value(), fCTUSActivateSpaceSyncCheckBox->isChecked(), fCTUSSlider->maximum(), fCTUSActivateTimeSyncCheckBox->isChecked());
 }
 
 void vvOverlayPanel::VFColorChangeRequest()
