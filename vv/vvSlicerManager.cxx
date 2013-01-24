@@ -1273,12 +1273,16 @@ void vvSlicerManager::SetPreset(int preset)
     level = 500;
     break;
   case 5:
+    window = 200;
+    level = 70;
+    break;
+  case 6:
     window = 1;
     level = 0.5;
     break;
-  case 6:
-    break;
   case 7:
+    break;
+  case 8:
     window=1.;
     level=0.;
     break;
