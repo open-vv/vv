@@ -6,7 +6,7 @@ import re
 import datetime
 
 linere = re.compile(r'''^#\s+([a-zA-Z]+)\s+=\s(.*)$''')
-mergedlines = ['NumberOfRun', 'NumberOfEvents', 'NumberOfTracks', 'NumberOfSteps', 'NumberOfGeometricalSteps', 'NumberOfPhysicalSteps', 'ElapsedTime', 'StartDate', 'EndDate']
+mergedlines = ['NumberOfRun', 'NumberOfEvents', 'NumberOfTracks', 'NumberOfSteps', 'NumberOfGeometricalSteps', 'NumberOfPhysicalSteps', 'ElapsedTimeWoInit', 'ElapsedTime', 'StartDate', 'EndDate']
 
 assert(len(sys.argv)==7)
 assert(sys.argv[1]=="-i")
