@@ -276,7 +276,7 @@ function merge_dispatcher {
     local outputfile="${1:?"provide output filename"}"
     echo "merging ${outputfile}"
 
-    local partialoutputfiles="$(find "${rundir}" -type f -name "${outputfile}")"
+    local partialoutputfiles="$(find "${rundir}" -mindepth 2 -type f -name "${outputfile}")"
     local nboutputfiles="$(echo "${partialoutputfiles}" | wc -l)"
     if test ${nboutputdirs} -ne ${nboutputfiles}
     then
