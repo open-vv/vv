@@ -47,10 +47,10 @@ void clitk::LabelImageOverlapMeasureGenericFilter<ArgsInfoType>::
 SetArgsInfo(const ArgsInfoType & a) 
 {
   mArgsInfo=a;
-  SetIOVerbose(mArgsInfo.verbose_flag);
+  this->SetIOVerbose(mArgsInfo.verbose_flag);
   if (mArgsInfo.imagetypes_flag) this->PrintAvailableImageTypes();
-  if (mArgsInfo.input1_given) AddInputFilename(mArgsInfo.input1_arg);
-  if (mArgsInfo.input2_given) AddInputFilename(mArgsInfo.input2_arg);
+  if (mArgsInfo.input1_given) this->AddInputFilename(mArgsInfo.input1_arg);
+  if (mArgsInfo.input2_given) this->AddInputFilename(mArgsInfo.input2_arg);
 }
 //--------------------------------------------------------------------
 
