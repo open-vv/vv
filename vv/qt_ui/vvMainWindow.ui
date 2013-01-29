@@ -256,6 +256,11 @@
          </item>
          <item>
           <property name="text">
+           <string>Head/Brain</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
            <string>[0,1] Scale</string>
           </property>
          </item>
@@ -805,7 +810,7 @@
      <x>0</x>
      <y>0</y>
      <width>1008</width>
-     <height>29</height>
+     <height>18</height>
     </rect>
    </property>
    <property name="defaultUp">

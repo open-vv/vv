@@ -113,33 +113,33 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
           return;
         }
         if (KeyPress == "0") {
-          this->SM->SetPreset(0);
+          this->SM->SetPreset(WL_AUTO);
           this->SM->UpdateWindowLevel();
           return;
         }
         if (KeyPress == "1") {
-          this->SM->SetPreset(1);
+          this->SM->SetPreset(WL_HOUNSFIELD);
           this->SM->UpdateWindowLevel();
           return;
         }
         if (KeyPress == "2") {
-          this->SM->SetPreset(2);
+          this->SM->SetPreset(WL_SOFTTISSUE);
           this->SM->UpdateWindowLevel();
 
           return;
         }
         if (KeyPress == "3") {
-          this->SM->SetPreset(3);
+          this->SM->SetPreset(WL_LUNGS);
           this->SM->UpdateWindowLevel();
           return;
         }
         if (KeyPress == "4") {
-          this->SM->SetPreset(4);
+          this->SM->SetPreset(WL_BONES);
           this->SM->UpdateWindowLevel();
           return;
         }
         if (KeyPress == "5") {
-          this->SM->SetPreset(5);
+          this->SM->SetPreset(WL_HEAD);
           this->SM->UpdateWindowLevel();
           return;
         }
@@ -164,7 +164,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
           return;
         }
         if (KeyPress == "equal") { //keycodes are in vtkWin32RenderWindowInteractor
-          this->SM->SetPreset(7);
+          this->SM->SetPreset(WL_VENTILATION);
           //this->SM->SetColorMap(1);
           this->SM->UpdateWindowLevel();
           return;
@@ -420,7 +420,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
 
       this->SM->SetColorWindow(window*dx);
       this->SM->SetColorLevel(level-dy);
-      this->SM->SetPreset(6);
+      this->SM->SetPreset(WL_USER);
       this->SM->Render();
       this->SM->UpdateWindowLevel();
       return;

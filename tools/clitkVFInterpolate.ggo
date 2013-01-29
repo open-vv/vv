@@ -1,0 +1,15 @@
+#File clitkImageInterpolate.ggo
+package "clitkImageInterpolate"
+version "1.0"
+purpose "Interpolate an image. You can specify the interpolation, you can apply a Gaussian filter before."
+
+option "config"	  	-	"Config file"			  string  	no
+option "input1"		i	"Input image filename"		  string  	yes
+option "input2"    j "Input image filename"      string    yes
+option "output"    	o   	"Output image filename"		  string 	yes
+option "distance"     d     "Distance (d in [0,1])"     float  yes
+option "verbose"   	v   	"Verbose"			  flag		off
+option "interp"	 	-	"Interpolation type: {nn, linear}"  string  no default="nn"
+#option "order"       	b   	"BSpline ordre (range 0-5)"	  	int 	no 	default="3"
+#option "sampling"	s      	"BLUT sampling value"	  		int 	no 	default="30"
+

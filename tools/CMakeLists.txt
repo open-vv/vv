@@ -54,6 +54,11 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkVFResample clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkVFResample)
 
+  WRAP_GGO(clitkVFInterpolate_GGO_C clitkVFInterpolate.ggo)
+  ADD_EXECUTABLE(clitkVFInterpolate clitkVFInterpolate.cxx clitkVFInterpolateGenericFilter.cxx ${clitkVFInterpolate_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkVFInterpolate clitkCommon ${ITK_LIBRARIES})
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkVFInterpolate)
+
   WRAP_GGO(clitkImageCreate_GGO_C clitkImageCreate.ggo)
   ADD_EXECUTABLE(clitkImageCreate clitkImageCreate.cxx ${clitkImageCreate_GGO_C})
   TARGET_LINK_LIBRARIES(clitkImageCreate clitkCommon  ${ITK_LIBRARIES})
