@@ -71,6 +71,7 @@
 #include <vtkImageReslice.h>
 #if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
 #  include <vtkImageMapper3D.h>
+#  include <vtkImageSliceMapper.h>
 #endif
 
 vtkCxxRevisionMacro(vvSlicer, "DummyRevision");
@@ -958,7 +959,11 @@ void vvSlicer::UpdateDisplayExtent()
   
   // Image actor
   this->ImageActor->SetDisplayExtent(w_ext);
-  
+#if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
+  // Fix for bug #1882
+  dynamic_cast<vtkImageSliceMapper *>(this->ImageActor->GetMapper())->SetOrientation(this->GetOrientation());
+#endif
+
   // Overlay image actor
   if (mOverlay && mOverlayActor->GetVisibility()) {
     AdjustResliceToSliceOrientation(mOverlayReslice);
@@ -966,6 +971,10 @@ void vvSlicer::UpdateDisplayExtent()
     this->ConvertImageToImageDisplayExtent(input, w_ext, mOverlayReslice->GetOutput(), overExtent);
     ClipDisplayedExtent(overExtent, mOverlayMapper->GetInput()->GetWholeExtent());
     mOverlayActor->SetDisplayExtent( overExtent );
+#if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
+    // Fix for bug #1882
+    dynamic_cast<vtkImageSliceMapper *>(mOverlayActor->GetMapper())->SetOrientation(this->GetOrientation());
+#endif
   }
 
   // Fusion image actor
@@ -975,6 +984,10 @@ void vvSlicer::UpdateDisplayExtent()
     this->ConvertImageToImageDisplayExtent(input, w_ext, mFusionReslice->GetOutput(), fusExtent);
     ClipDisplayedExtent(fusExtent, mFusionMapper->GetInput()->GetWholeExtent());
     mFusionActor->SetDisplayExtent(fusExtent);
+#if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
+    // Fix for bug #1882
+    dynamic_cast<vtkImageSliceMapper *>(mFusionActor->GetMapper())->SetOrientation(this->GetOrientation());
+#endif
   }
 
   // Vector field actor
