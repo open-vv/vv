@@ -197,7 +197,7 @@ public:
   void EnableReducedExtent(bool b);
   void SetReducedExtent(int * ext);
 
-  void ClipDisplayedExtent(int extent[6], int refExtent[6]);
+  bool ClipDisplayedExtent(int extent[6], int refExtent[6]);
   int GetOrientation();
   int * GetExtent();
 
@@ -289,6 +289,13 @@ private:
   ///Sets the surfaces to be cut on the image slice: update the vtkCutter
   void SetContourSlice();
 
-
+  // Visibility of the different elements that can be set from outside the object.
+  // Note that vvSlicer also check if the element is to be displayed according to
+  // the extent of the displayed object.
+  // These members have been introduced to fix Bug #1883.
+  bool mImageVisibility;
+  bool mOverlayVisibility;
+  bool mFusionVisibility;
+  bool mVFVisibility;
 };
 #endif
