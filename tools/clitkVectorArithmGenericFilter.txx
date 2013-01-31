@@ -431,7 +431,9 @@ void clitk::VectorArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it, It
   case 12: // normalize
     while (!it.IsAtEnd()) {
       PixelType n = it.Get();
-      n.Normalize();
+      if (n.GetNorm() != 0)
+        n.Normalize();
+      
       ito.Set(n);
       ++it;
       ++ito;
