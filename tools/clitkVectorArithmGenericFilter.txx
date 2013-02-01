@@ -15,8 +15,8 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
-#ifndef CLITKIMAGEARITHMGENERICFILTER_TXX
-#define CLITKIMAGEARITHMGENERICFILTER_TXX
+#ifndef CLITKVectorArithmGENERICFILTER_TXX
+#define CLITKVectorArithmGENERICFILTER_TXX
 
 #include "clitkImageCommon.h"
 
@@ -27,13 +27,12 @@ namespace clitk
 
 //--------------------------------------------------------------------
 template<class args_info_type>
-ImageArithmGenericFilter<args_info_type>::ImageArithmGenericFilter()
-  :ImageToImageGenericFilter<Self>("ImageArithmGenericFilter"),mTypeOfOperation(0)
+VectorArithmGenericFilter<args_info_type>::VectorArithmGenericFilter()
+  :ImageToImageGenericFilter<Self>("VectorArithmGenericFilter"),mTypeOfOperation(0)
 {
-  InitializeImageType<2>();
   InitializeImageType<3>();
-  InitializeImageType<4>();
   mIsOperationUseASecondImage = false;
+  mIsOutputScalar = false;
   mOverwriteInputImage = true;
 }
 //--------------------------------------------------------------------
@@ -42,16 +41,19 @@ ImageArithmGenericFilter<args_info_type>::ImageArithmGenericFilter()
 //--------------------------------------------------------------------
 template<class args_info_type>
 template<unsigned int Dim>
-void ImageArithmGenericFilter<args_info_type>::InitializeImageType()
+void VectorArithmGenericFilter<args_info_type>::InitializeImageType()
 {
-  ADD_DEFAULT_IMAGE_TYPES(Dim);
+  ADD_VEC_IMAGE_TYPE(Dim,3u,float);
+  ADD_VEC_IMAGE_TYPE(Dim,3u,double);
+  ADD_VEC_IMAGE_TYPE(Dim,2u,float);
+  ADD_VEC_IMAGE_TYPE(Dim,2u,double);
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
 template<class args_info_type>
-void ImageArithmGenericFilter<args_info_type>::EnableOverwriteInputImage(bool b)
+void VectorArithmGenericFilter<args_info_type>::EnableOverwriteInputImage(bool b)
 {
   mOverwriteInputImage = b;
 }
@@ -60,7 +62,7 @@ void ImageArithmGenericFilter<args_info_type>::EnableOverwriteInputImage(bool b)
 
 //--------------------------------------------------------------------
 template<class args_info_type>
-void ImageArithmGenericFilter<args_info_type>::SetArgsInfo(const args_info_type & a)
+void VectorArithmGenericFilter<args_info_type>::SetArgsInfo(const args_info_type & a)
 {
   mArgsInfo=a;
 
@@ -77,7 +79,11 @@ void ImageArithmGenericFilter<args_info_type>::SetArgsInfo(const args_info_type 
   if (mArgsInfo.input2_given) {
     mIsOperationUseASecondImage = true;
     this->AddInputFilename(mArgsInfo.input2_arg);
-  }
+    if (mArgsInfo.operation_arg == 1)
+      mIsOutputScalar = true;
+  } 
+  else if (mArgsInfo.operation_arg == 5 || mArgsInfo.operation_arg == 6)
+    mIsOutputScalar = true;
 
   if (mArgsInfo.output_given) this->SetOutputFilename(mArgsInfo.output_arg);
 
@@ -99,7 +105,7 @@ void ImageArithmGenericFilter<args_info_type>::SetArgsInfo(const args_info_type 
 //--------------------------------------------------------------------
 template<class args_info_type>
 template<class ImageType>
-void ImageArithmGenericFilter<args_info_type>::UpdateWithInputImageType()
+void VectorArithmGenericFilter<args_info_type>::UpdateWithInputImageType()
 {
   // Read input1
   typename ImageType::Pointer input1 = this->template GetInput<ImageType>(0);
@@ -113,6 +119,7 @@ void ImageArithmGenericFilter<args_info_type>::UpdateWithInputImageType()
   IteratorType it2;
 
   // Special case for normalisation
+  /*
   if (mTypeOfOperation == 12) {
     typedef itk::MinimumMaximumImageCalculator<ImageType> MinMaxFilterType;
     typename MinMaxFilterType::Pointer ff = MinMaxFilterType::New();
@@ -121,6 +128,7 @@ void ImageArithmGenericFilter<args_info_type>::UpdateWithInputImageType()
     mScalar = ff->GetMaximum();
     mTypeOfOperation = 11; // divide
   }
+  */
 
   if (mIsOperationUseASecondImage) {
       // Read input2
@@ -146,7 +154,7 @@ void ImageArithmGenericFilter<args_info_type>::UpdateWithInputImageType()
   }
 
   // ---------------- Overwrite input Image ---------------------
-  if (mOverwriteInputImage) {
+  if (mOverwriteInputImage && !mIsOutputScalar) {
     // Set output iterator (to input1)
     IteratorType ito = IteratorType(input1, input1->GetLargestPossibleRegion());
     if (mIsOperationUseASecondImage) ComputeImage(it, it2, ito);
@@ -156,22 +164,8 @@ void ImageArithmGenericFilter<args_info_type>::UpdateWithInputImageType()
 
   // ---------------- Create new output Image ---------------------
   else {
-    if (mOutputIsFloat) {
-      // Create output image
-      typedef itk::Image<float,ImageType::ImageDimension> OutputImageType;
-      typename OutputImageType::Pointer output = OutputImageType::New();
-      output->SetRegions(input1->GetLargestPossibleRegion());
-      output->SetOrigin(input1->GetOrigin());
-      output->SetSpacing(input1->GetSpacing());
-      output->Allocate();
-      // Set output iterator
-      typedef itk::ImageRegionIterator<OutputImageType> IteratorOutputType;
-      IteratorOutputType ito = IteratorOutputType(output, output->GetLargestPossibleRegion());
-      if (mIsOperationUseASecondImage) ComputeImage(it, it2, ito);
-      else ComputeImage(it, ito);
-      this->template SetNextOutput<OutputImageType>(output);
-    } else {
-      // Create output image
+    // Create output image
+    if (!mIsOutputScalar) {
       typedef ImageType OutputImageType;
       typename OutputImageType::Pointer output = OutputImageType::New();
       output->SetRegions(input1->GetLargestPossibleRegion());
@@ -185,6 +179,21 @@ void ImageArithmGenericFilter<args_info_type>::UpdateWithInputImageType()
       else ComputeImage(it, ito);
       this->template SetNextOutput<OutputImageType>(output);
     }
+    else {
+      // Create scalar output image
+      typedef itk::Image<typename ImageType::PixelType::ValueType, ImageType::ImageDimension> OutputImageType;
+      typename OutputImageType::Pointer output = OutputImageType::New();
+      output->SetRegions(input1->GetLargestPossibleRegion());
+      output->SetOrigin(input1->GetOrigin());
+      output->SetSpacing(input1->GetSpacing());
+      output->Allocate();
+      // Set output iterator
+      typedef itk::ImageRegionIterator<OutputImageType> IteratorOutputType;
+      IteratorOutputType ito = IteratorOutputType(output, output->GetLargestPossibleRegion());
+      if (mIsOperationUseASecondImage) ComputeScalarImage(it, it2, ito);
+      else ComputeScalarImage(it, ito);
+      this->template SetNextOutput<OutputImageType>(output);
+    }
   }
 }
 //--------------------------------------------------------------------
@@ -192,7 +201,7 @@ void ImageArithmGenericFilter<args_info_type>::UpdateWithInputImageType()
 //--------------------------------------------------------------------
 template<class args_info_type>
 template<class Iter1, class Iter2, class Iter3>
-void  ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it1, Iter2 it2, Iter3 ito)
+void  VectorArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it1, Iter2 it2, Iter3 ito)
 {
   it1.GoToBegin();
   it2.GoToBegin();
@@ -202,24 +211,27 @@ void  ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it1, Iter2 it
   switch (mTypeOfOperation) {
   case 0: // Addition
     while (!ito.IsAtEnd()) {
-      ito.Set(PixelTypeDownCast<double, PixelType>((double)it1.Get() + (double)it2.Get()) );
+      ito.Set(it1.Get() + it2.Get());
       ++it1;
       ++it2;
       ++ito;
     }
     break;
+    /*
   case 1: // Multiply
     while (!ito.IsAtEnd()) {
-      ito.Set(PixelTypeDownCast<double, PixelType>((double)it1.Get() * (double)it2.Get()) );
+      ito.Set(it1.Get() * it2.Get()) );
       ++it1;
       ++it2;
       ++ito;
     }
     break;
+    */
+    /*
   case 2: // Divide
     while (!ito.IsAtEnd()) {
       if (it1.Get() != 0)
-        ito.Set(PixelTypeDownCast<double, PixelType>((double)it1.Get() / (double)it2.Get()));
+        ito.Set(it1.Get() / it2.Get()));
       else ito.Set(mDefaultPixelValue);
       ++it1;
       ++it2;
@@ -228,7 +240,7 @@ void  ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it1, Iter2 it
     break;
   case 3: // Max
     while (!ito.IsAtEnd()) {
-      if (it1.Get() < it2.Get()) ito.Set(PixelTypeDownCast<double, PixelType>(it2.Get()));
+      if (it1.Get() < it2.Get()) ito.Set(it2.Get());
       ++it1;
       ++it2;
       ++ito;
@@ -236,36 +248,42 @@ void  ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it1, Iter2 it
     break;
   case 4: // Min
     while (!ito.IsAtEnd()) {
-      if (it1.Get() > it2.Get()) ito.Set(PixelTypeDownCast<double, PixelType>(it2.Get()));
+      if (it1.Get() > it2.Get()) ito.Set(it2.Get());
       ++it1;
       ++it2;
       ++ito;
     }
     break;
+    */
+    /*
   case 5: // Absolute difference
     while (!ito.IsAtEnd()) {
-      ito.Set(PixelTypeDownCast<double, PixelType>(fabs((double)it2.Get()-(double)it1.Get())));
+      ito.Set(it2.Get()-it1.Get());
       ++it1;
       ++it2;
       ++ito;
     }
     break;
+    */
+    /*
   case 6: // Squared differences
     while (!ito.IsAtEnd()) {
-      ito.Set(PixelTypeDownCast<double, PixelType>(pow((double)it1.Get()-(double)it2.Get(),2)));
+      ito.Set(pow(it1.Get()-it2.Get(),2)));
       ++it1;
       ++it2;
       ++ito;
     }
     break;
+    */
   case 7: // Difference
     while (!ito.IsAtEnd()) {
-      ito.Set(PixelTypeDownCast<double, PixelType>((double)it1.Get()-(double)it2.Get()));
+      ito.Set(it1.Get()-it2.Get());
       ++it1;
       ++it2;
       ++ito;
     }
     break;
+    /*
   case 8: // Relative Difference
     while (!ito.IsAtEnd()) {
       if (it1.Get() != 0) ito.Set(PixelTypeDownCast<double, PixelType>(((double)it1.Get()-(double)it2.Get()))/(double)it1.Get());
@@ -275,6 +293,17 @@ void  ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it1, Iter2 it
       ++ito;
     }
     break;
+    */
+    /*
+  case 9: // CrossProduct
+    while (!ito.IsAtEnd()) {
+      ito.Set(it1.Get()^it2.Get());
+      ++it1;
+      ++it2;
+      ++ito;
+    }
+    break;
+    */
   default: // error ?
     std::cerr << "ERROR : the operation number (" << mTypeOfOperation << ") is not known." << std::endl;
     exit(-1);
@@ -286,32 +315,37 @@ void  ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it1, Iter2 it
 //--------------------------------------------------------------------
 template<class args_info_type>
 template<class Iter1, class Iter2>
-void clitk::ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it, Iter2 ito)
+void clitk::VectorArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it, Iter2 ito)
 {
   ito.GoToBegin();
   it.GoToBegin();
-  typedef typename Iter2::PixelType PixelType;
+  
+  typedef typename Iter1::PixelType PixelType;
 
+  PixelType scalar_vector;
+  scalar_vector.Fill(mScalar);
+  
   // Perform operation
   switch (mTypeOfOperation) {
   case 0: // Addition
     while (!it.IsAtEnd()) {
-      ito.Set(clitk::PixelTypeDownCast<double, PixelType>((double)it.Get() + mScalar) );
+      ito.Set(it.Get() + scalar_vector);
       ++it;
       ++ito;
     }
     break;
   case 1: // Multiply
     while (!it.IsAtEnd()) {
-      ito.Set(PixelTypeDownCast<double, PixelType>((double)it.Get() * mScalar) );
+      ito.Set(it.Get() * mScalar);
       ++it;
       ++ito;
     }
     break;
+    /*
   case 2: // Inverse
     while (!it.IsAtEnd()) {
       if (it.Get() != 0)
-        ito.Set(PixelTypeDownCast<double, PixelType>(mScalar / (double)it.Get()));
+        ito.Set(mScalar / it.Get()));
       else ito.Set(mDefaultPixelValue);
       ++it;
       ++ito;
@@ -333,22 +367,24 @@ void clitk::ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it, Ite
       ++ito;
     }
     break;
+    */
+    /*
   case 5: // Absolute value
     while (!it.IsAtEnd()) {
-      if (it.Get() <= 0) ito.Set(PixelTypeDownCast<double, PixelType>(-it.Get()));
-      // <= zero to avoid warning for unsigned types
-      else ito.Set(PixelTypeDownCast<double, PixelType>(it.Get()));
+      ito.Set(PixelTypeDownCast<double, PixelType>(it.GetNorm()));
       ++it;
       ++ito;
     }
     break;
   case 6: // Squared value
     while (!it.IsAtEnd()) {
-      ito.Set(PixelTypeDownCast<double, PixelType>((double)it.Get()*(double)it.Get()));
+      ito.Set(PixelTypeDownCast<double, PixelType>(it.GetSquaredNorm());
       ++it;
       ++ito;
     }
     break;
+    */
+    /*
   case 7: // Log
     while (!it.IsAtEnd()) {
       if (it.Get() > 0)
@@ -384,21 +420,81 @@ void clitk::ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it, Ite
       ++ito;
     }
     break;
+    */
   case 11: // divide
     while (!it.IsAtEnd()) {
-      ito.Set(PixelTypeDownCast<double, PixelType>((double)it.Get() / mScalar) );
+      ito.Set(it.Get() / mScalar);
       ++it;
       ++ito;
     }
     break;
-  case 13: // -ln I/I0
+  case 12: // normalize
     while (!it.IsAtEnd()) {
-      if (it.Get() == 0) { // special case for fluence image with 0 value in a pixel -> consider 0.5
-        ito.Set(-log(0.5 / mScalar) );
-      }
-      else {
-        ito.Set(-log(PixelTypeDownCast<double, PixelType>((double)it.Get() / mScalar)) );
-      }
+      PixelType n = it.Get();
+      if (n.GetNorm() != 0)
+        n.Normalize();
+      
+      ito.Set(n);
+      ++it;
+      ++ito;
+    }
+    break;
+  default: // error ?
+    std::cerr << "ERROR : the operation number (" << mTypeOfOperation << ") is not known." << std::endl;
+    exit(-1);
+  }
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+template<class args_info_type>
+template<class Iter1, class Iter2, class Iter3>
+void  VectorArithmGenericFilter<args_info_type>::ComputeScalarImage(Iter1 it1, Iter2 it2, Iter3 ito)
+{
+  it1.GoToBegin();
+  it2.GoToBegin();
+  ito.GoToBegin();
+  typedef typename Iter3::PixelType PixelType;
+
+  switch (mTypeOfOperation) {
+  case 1: // Multiply
+    while (!ito.IsAtEnd()) {
+      ito.Set(it1.Get() * it2.Get());
+      ++it1;
+      ++it2;
+      ++ito;
+    }
+    break;
+  default: // error ?
+    std::cerr << "ERROR : the operation number (" << mTypeOfOperation << ") is not known." << std::endl;
+    exit(-1);
+  }
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+template<class args_info_type>
+template<class Iter1, class Iter2>
+void clitk::VectorArithmGenericFilter<args_info_type>::ComputeScalarImage(Iter1 it, Iter2 ito)
+{
+  ito.GoToBegin();
+  it.GoToBegin();
+  
+  typedef typename Iter2::PixelType PixelType;
+
+ 
+  // Perform operation
+  switch (mTypeOfOperation) {
+  case 5: // Absolute value
+    while (!it.IsAtEnd()) {
+      ito.Set(PixelTypeDownCast<double, PixelType>(it.Get().GetNorm()));
+      ++it;
+      ++ito;
+    }
+    break;
+  case 6: // Squared value
+    while (!it.IsAtEnd()) {
+      ito.Set(PixelTypeDownCast<double, PixelType>(it.Get().GetSquaredNorm()));
       ++it;
       ++ito;
     }
@@ -411,7 +507,6 @@ void clitk::ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it, Ite
 //--------------------------------------------------------------------
 
 
-
 } // end namespace
 
-#endif  //#define CLITKIMAGEARITHMGENERICFILTER_TXX
+#endif  //#define CLITKVectorArithmGENERICFILTER_TXX
