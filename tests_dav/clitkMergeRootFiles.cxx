@@ -11,10 +11,15 @@
 #include "clitkMergeRootFiles_ggo.h"
 #include "clitkCommon.h"
 #include <string> 
-#include "TROOT.h"
-#include "TPluginManager.h"
-#include "TFile.h"
-#include "TFileMerger.h"
+#include <TROOT.h>
+#include <TPluginManager.h>
+#include <TFile.h>
+#include <TFileMerger.h>
+#include <TTree.h>
+#include <iostream>
+
+using std::endl;
+using std::cout;
 
 //-----------------------------------------------------------------------------
 int main(int argc, char * argv[]) {
@@ -29,6 +34,20 @@ int main(int argc, char * argv[]) {
   if (args_info.input_given < 2) {
     FATAL("Error, please provide at least two inputs files");
   }
+
+  // Detect Pet output
+  bool is_pet_output = true;
+  for (uint i=0; i<args_info.input_given; i++) 
+  {
+	  const char* filename = args_info.input_arg[i];
+	  TFile* handle = TFile::Open(filename,"READ");
+	  TTree* hits = dynamic_cast<TTree*>(handle->Get("Hits"));
+	  cout << "testing " << filename << " " << hits << endl;
+	  handle->Close();
+	  delete handle;
+	  is_pet_output &= (hits==NULL);
+  }
+  cout << "is_pet_output " << is_pet_output << endl;
 
   // Merge
   TFileMerger * merger = new TFileMerger;
