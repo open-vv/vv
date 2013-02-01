@@ -36,18 +36,20 @@ int main(int argc, char * argv[]) {
   }
 
   // Detect Pet output
-  bool is_pet_output = true;
+  bool all_pet_output = true;
   for (uint i=0; i<args_info.input_given; i++) 
   {
 	  const char* filename = args_info.input_arg[i];
 	  TFile* handle = TFile::Open(filename,"READ");
 	  TTree* hits = dynamic_cast<TTree*>(handle->Get("Hits"));
-	  cout << "testing " << filename << " " << hits << endl;
+	  TTree* singles = dynamic_cast<TTree*>(handle->Get("Singles"));
+	  const bool is_pet_output = (hits!=NULL) && (singles!=NULL);
+	  cout << "testing " << filename << " is_pet_output " << is_pet_output << endl;
 	  handle->Close();
 	  delete handle;
-	  is_pet_output &= (hits==NULL);
+	  all_pet_output &= is_pet_output;
   }
-  cout << "is_pet_output " << is_pet_output << endl;
+  cout << "all_pet_output " << all_pet_output << endl;
 
   // Merge
   TFileMerger * merger = new TFileMerger;
