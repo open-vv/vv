@@ -901,9 +901,8 @@ void vvSlicer::AdjustResliceToSliceOrientation(vtkImageReslice *reslice)
   // Step 1: from world coordinates to image coordinates
   origin[this->SliceOrientation] -= mImageReslice->GetOutput()->GetOrigin()[this->SliceOrientation];
   origin[this->SliceOrientation] /= mImageReslice->GetOutput()->GetSpacing()[this->SliceOrientation];
-  // Step 2: round to inferior grid positionInc. This makes sense because a border is used to interpolate
-  // the original image (SR).
-  origin[this->SliceOrientation] = itk::Math::Floor<double>(origin[this->SliceOrientation]);
+  // Step 2: round to superior grid positionInc.
+  origin[this->SliceOrientation] = itk::Math::Ceil<double>(origin[this->SliceOrientation]);
   // Step 3: back to world coordinates
   origin[this->SliceOrientation] *= mImageReslice->GetOutput()->GetSpacing()[this->SliceOrientation];
   origin[this->SliceOrientation] += mImageReslice->GetOutput()->GetOrigin()[this->SliceOrientation];
