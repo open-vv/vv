@@ -1244,41 +1244,46 @@ void vvSlicerManager::SetSlicingPreset(SlicingPresetType preset)
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetPreset(int preset)
 {
+
   //vtkLookupTable* LUT = static_cast<vtkLookupTable*>(mSlicers[0]->GetWindowLevel()->GetLookupTable());
   double window = mSlicers[0]->GetColorWindow();
   double level = mSlicers[0]->GetColorLevel();
 
   std::string component_type=mImage->GetScalarTypeAsITKString();
   switch (preset) {
-  case 0:
+  case WL_AUTO:
     double range[2];
     mImage->GetScalarRange(range);
     window = range[1] - range[0];
     level = (range[1] + range[0])* 0.5;
     break;
-  case 1:
+  case WL_HOUNSFIELD:
     window = 2000;
     level = 0;
     break;
-  case 2:
+  case WL_SOFTTISSUE:
     window = 400;
     level = 20;
     break;
-  case 3: // lungs (same as FOCAL)
+  case WL_LUNGS: // lungs (same as FOCAL)
     window = 1700;
     level = -300;
     break;
-  case 4:
+  case WL_BONES:
     window = 1000;
     level = 500;
     break;
-  case 5:
+  case WL_HEAD:
+    window = 200;
+    level = 70;
+    break;
+  case WL_BINARY:
     window = 1;
     level = 0.5;
     break;
-  case 6:
+  case WL_USER:
     break;
-  case 7:
+  case WL_VENTILATION:
     window=1.;
     level=0.;
     break;
@@ -1328,7 +1333,7 @@ void vvSlicerManager::SetLocalColorWindowing(const int slicer, const bool bCtrlK
                                                           this->mSlicers[slicer]->GetConcatenatedTransform());
     this->SetColorWindow(max-min);
     this->SetColorLevel(0.5*(min+max));
-    this->SetPreset(6);
+    this->SetPreset(WL_USER);
   }
   this->Render();
   this->UpdateWindowLevel();

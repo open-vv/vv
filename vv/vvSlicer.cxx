@@ -71,6 +71,7 @@
 #include <vtkImageReslice.h>
 #if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
 #  include <vtkImageMapper3D.h>
+#  include <vtkImageSliceMapper.h>
 #endif
 
 vtkCxxRevisionMacro(vvSlicer, "DummyRevision");
@@ -144,6 +145,7 @@ vvSlicer::vvSlicer()
   this->InstallPipeline();
 
   mLinkOverlayWindowLevel = true;
+  mImageVisibility = true;
 
 #if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
   this->GetImageActor()->GetMapper()->BorderOn();
@@ -367,6 +369,7 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
 {
   if (overlay->GetVTKImages().size()) {
     mOverlay = overlay;
+    mOverlayVisibility = true;
     
     if (!mOverlayReslice) {
       mOverlayReslice = vtkSmartPointer<vtkImageReslice>::New();
@@ -420,6 +423,7 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion, int fusionSequenceCode)
 	mFusionSequenceCode = fusionSequenceCode;
   if (fusion->GetVTKImages().size()) {
     mFusion = fusion;
+    mFusionVisibility = true;
 
     if (!mFusionReslice) {
       mFusionReslice = vtkSmartPointer<vtkImageReslice>::New();
@@ -471,21 +475,16 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion, int fusionSequenceCode)
 bool vvSlicer::GetActorVisibility(const std::string& actor_type, int overlay_index)
 {
   bool vis = false;
-  if (actor_type == "image") {
-    vis = this->ImageActor->GetVisibility();
-  }
-  else if (actor_type == "vector") {
-    vis = this->mVFActor->GetVisibility();
-  }
-  else if (actor_type == "overlay") {
-    vis = this->mOverlayActor->GetVisibility();
-  }
-  else if ( (actor_type == "fusion") || (actor_type == "fusionSequence") ){
-    vis = this->mFusionActor->GetVisibility();
-  }
+  if (actor_type == "image")
+    vis = mImageVisibility;
+  else if (actor_type == "vector")
+    vis = mVFVisibility;
+  else if (actor_type == "overlay")
+    vis = mOverlayVisibility;
+  else if ( (actor_type == "fusion") || (actor_type == "fusionSequence") )
+    vis = mFusionVisibility;
   else if (actor_type == "contour")
     vis = this->mSurfaceCutActors[overlay_index]->GetActor()->GetVisibility();
-
   return vis;
 }
 //------------------------------------------------------------------------------
@@ -493,18 +492,14 @@ bool vvSlicer::GetActorVisibility(const std::string& actor_type, int overlay_ind
 //------------------------------------------------------------------------------
 void vvSlicer::SetActorVisibility(const std::string& actor_type, int overlay_index ,bool vis)
 {
-  if (actor_type == "image") {
-    this->ImageActor->SetVisibility(vis);
-  }
-  else if (actor_type == "vector") {
-    this->mVFActor->SetVisibility(vis);
-  }
-  else if (actor_type == "overlay") {
-    this->mOverlayActor->SetVisibility(vis);
-  }
-  else if ( (actor_type == "fusion") || (actor_type == "fusionSequence") ){
-    this->mFusionActor->SetVisibility(vis);
-  }
+  if (actor_type == "image")
+    mImageVisibility = vis;
+  else if (actor_type == "vector")
+    mVFVisibility = vis;
+  else if (actor_type == "overlay")
+    mOverlayVisibility = vis;
+  else if ( (actor_type == "fusion") || (actor_type == "fusionSequence") )
+    mFusionVisibility = vis;
   else if (actor_type == "contour")
     this->mSurfaceCutActors[overlay_index]->GetActor()->SetVisibility(vis);
   UpdateDisplayExtent();
@@ -516,6 +511,7 @@ void vvSlicer::SetVF(vvImage::Pointer vf)
 {
   if (vf->GetVTKImages().size()) {
     mVF = vf;
+    mVFVisibility = true;
 
     if (!mAAFilter) {
       mAAFilter= vtkSmartPointer<vtkAssignAttribute>::New();
@@ -905,8 +901,13 @@ void vvSlicer::AdjustResliceToSliceOrientation(vtkImageReslice *reslice)
   // Step 1: from world coordinates to image coordinates
   origin[this->SliceOrientation] -= mImageReslice->GetOutput()->GetOrigin()[this->SliceOrientation];
   origin[this->SliceOrientation] /= mImageReslice->GetOutput()->GetSpacing()[this->SliceOrientation];
-  // Step 2: round to superior grid positionInc
-  origin[this->SliceOrientation] = itk::Math::Ceil<double>(origin[this->SliceOrientation]);
+
+  // Step 2: round to nearest grid positionInc. This has been validated as the only
+  // way to have something consistent with the thickness of a 2D slice visible on the
+  // other slices. The thickness is accounted for so if the 2D slice is to thin and
+  // between two slices, one will never be able to see this 2D slice (bug #1883).
+  origin[this->SliceOrientation] = itk::Math::Round<double>(origin[this->SliceOrientation]);
+
   // Step 3: back to world coordinates
   origin[this->SliceOrientation] *= mImageReslice->GetOutput()->GetSpacing()[this->SliceOrientation];
   origin[this->SliceOrientation] += mImageReslice->GetOutput()->GetOrigin()[this->SliceOrientation];
@@ -957,25 +958,44 @@ void vvSlicer::UpdateDisplayExtent()
   w_ext[ this->SliceOrientation*2+1 ] = this->Slice;
   
   // Image actor
+  this->ImageActor->SetVisibility(mImageVisibility);
   this->ImageActor->SetDisplayExtent(w_ext);
-  
+#if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
+  // Fix for bug #1882
+  dynamic_cast<vtkImageSliceMapper *>(this->ImageActor->GetMapper())->SetOrientation(this->GetOrientation());
+#endif
+
   // Overlay image actor
-  if (mOverlay && mOverlayActor->GetVisibility()) {
+  if (mOverlay && mOverlayVisibility) {
     AdjustResliceToSliceOrientation(mOverlayReslice);
     int overExtent[6];
     this->ConvertImageToImageDisplayExtent(input, w_ext, mOverlayReslice->GetOutput(), overExtent);
-    ClipDisplayedExtent(overExtent, mOverlayMapper->GetInput()->GetWholeExtent());
+    bool out = ClipDisplayedExtent(overExtent, mOverlayMapper->GetInput()->GetWholeExtent());
+    mOverlayActor->SetVisibility(!out);
     mOverlayActor->SetDisplayExtent( overExtent );
+#if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
+    // Fix for bug #1882
+    dynamic_cast<vtkImageSliceMapper *>(mOverlayActor->GetMapper())->SetOrientation(this->GetOrientation());
+#endif
   }
+  else if(mOverlay)
+    mOverlayActor->SetVisibility(false);
 
   // Fusion image actor
-  if (mFusion && mFusionActor->GetVisibility()) {
+  if (mFusion && mFusionVisibility) {
     AdjustResliceToSliceOrientation(mFusionReslice);
     int fusExtent[6];
     this->ConvertImageToImageDisplayExtent(input, w_ext, mFusionReslice->GetOutput(), fusExtent);
-    ClipDisplayedExtent(fusExtent, mFusionMapper->GetInput()->GetWholeExtent());
-    mFusionActor->SetDisplayExtent(fusExtent);
+    bool out = ClipDisplayedExtent(fusExtent, mFusionMapper->GetInput()->GetWholeExtent());
+    mFusionActor->SetVisibility(!out);
+    mFusionActor->SetDisplayExtent( fusExtent );
+#if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
+    // Fix for bug #1882
+    dynamic_cast<vtkImageSliceMapper *>(mFusionActor->GetMapper())->SetOrientation(this->GetOrientation());
+#endif
   }
+  else if(mFusion)
+    mFusionActor->SetVisibility(false);
 
   // Vector field actor
   double* camera = Renderer->GetActiveCamera()->GetPosition();
@@ -995,11 +1015,12 @@ void vvSlicer::UpdateDisplayExtent()
   if (camera[this->SliceOrientation] < image_bounds[this->SliceOrientation*2])
     offset = -1;
   
-  if (mVF && mVFActor->GetVisibility()) {
+  if (mVF && mVFVisibility) {
     int vfExtent[6];
     mVF->GetVTKImages()[0]->UpdateInformation();
     this->ConvertImageToImageDisplayExtent(input, w_ext, mVF->GetVTKImages()[0], vfExtent);
-    ClipDisplayedExtent(vfExtent, mVOIFilter->GetInput()->GetWholeExtent());
+    bool out = ClipDisplayedExtent(vfExtent, mVOIFilter->GetInput()->GetWholeExtent());
+    mVFActor->SetVisibility(!out);
     mVOIFilter->SetVOI(vfExtent);
     int orientation[3] = {1,1,1};
     orientation[this->SliceOrientation] = 0;
@@ -1009,7 +1030,9 @@ void vvSlicer::UpdateDisplayExtent()
     position[this->SliceOrientation] += offset;
     mVFActor->SetPosition(position);
   }
-  
+  else if(mVF)
+    mVFActor->SetVisibility(false);
+
   // Landmarks actor
   if (mLandActor) {
     if (mClipBox) {
@@ -1060,25 +1083,22 @@ void vvSlicer::ConvertImageToImageDisplayExtent(vtkImageData *sourceImage, const
     // From world coordinates to floating point target voxel coordinates
     dExtents[i] = (dExtents[i]- targetImage->GetOrigin()[i/2]) / targetImage->GetSpacing()[i/2];
     
-    // Round to nearest
-    //targetExtent[i] = itk::Math::Round<double>(dExtents[i]);
-    targetExtent[i] = itk::Math::Floor<double>(dExtents[i]);
+    // Round to current slice or larger extent
+    if(i/2==this->GetOrientation())
+      targetExtent[i] = itk::Math::Round<double>(dExtents[i]);
+    else if(i%2==1)
+      targetExtent[i] = itk::Math::Ceil<double>(dExtents[i]);
+    else
+      targetExtent[i] = itk::Math::Floor<double>(dExtents[i]);
   }
 }
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void vvSlicer::ClipDisplayedExtent(int extent[6], int refExtent[6])
+bool vvSlicer::ClipDisplayedExtent(int extent[6], int refExtent[6])
 {
   bool out = false;
   int maxBound = 6;
-
-  //2D overlay on 3D image specific case
-  if (refExtent[4] == refExtent[5]) {
-    maxBound = 4;
-    extent[4] = refExtent[4];
-    extent[5] = refExtent[5];
-  }
 
   for (int i = 0; i < maxBound; i = i+2) {
     //if we are totally outside the image
@@ -1087,16 +1107,17 @@ void vvSlicer::ClipDisplayedExtent(int extent[6], int refExtent[6])
       break;
     }
     //crop to the limit of the image
-    extent[i] = (extent[i] > refExtent[i]) ? extent[i] : refExtent[i];
-    extent[i] = (extent[i] < refExtent[i+1]) ? extent[i] : refExtent[i+1];
-    extent[i+1] = (extent[i+1] > refExtent[i]) ? extent[i+1] : refExtent[i];
-    extent[i+1] = (extent[i+1] < refExtent[i+1]) ? extent[i+1] : refExtent[i+1];
+    extent[i] = std::max(extent[i], refExtent[i]);
+    extent[i] = std::min(extent[i], refExtent[i+1]);;
+    extent[i+1] = std::max(extent[i+1], refExtent[i]);
+    extent[i+1] = std::min(extent[i+1], refExtent[i+1]);;
   }
   if (out)
     for (int i = 0; i < maxBound; i = i+2) {
       extent[i] = refExtent[i];
       extent[i+1] = refExtent[i];
     }
+  return out;
 }
 //----------------------------------------------------------------------------
 

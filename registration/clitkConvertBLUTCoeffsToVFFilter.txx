@@ -162,8 +162,23 @@ namespace clitk
           component_filter[i]->Update();
           coefficient_images[i] = component_filter[i]->GetOutput();
       }
+
 #if ITK_VERSION_MAJOR >= 4
-      m_ITKTransform->SetCoefficientImages(coefficient_images);
+      // RP: 16/01/2013
+      // ATTENTION: Apparently, there's a bug in the SetCoefficientImages function of ITK 4.x
+      // I needed to use SetParametersByValue instead.
+      //
+      typename ITKTransformType::ParametersType params(input->GetPixelContainer()->Size() * BLUTCoefficientImageType::ImageDimension);
+      for (unsigned int i=0; i < BLUTCoefficientImageType::ImageDimension; i++) {
+        for (unsigned int j=0; j < coefficient_images[i]->GetPixelContainer()->Size(); j++)
+          params[input->GetPixelContainer()->Size() * i + j] = coefficient_images[i]->GetPixelContainer()->GetBufferPointer()[j]; 
+      }
+
+      m_ITKTransform->SetGridOrigin(input->GetOrigin());
+      m_ITKTransform->SetGridDirection(input->GetDirection());
+      m_ITKTransform->SetGridRegion(input->GetLargestPossibleRegion());
+      m_ITKTransform->SetGridSpacing(input->GetSpacing());
+      m_ITKTransform->SetParametersByValue(params);
 #else
       m_ITKTransform->SetCoefficientImage(coefficient_images);
 #endif

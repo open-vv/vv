@@ -958,7 +958,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
     double range[2];
     mSlicerManagers.back()->GetImage()->GetFirstVTKImageData()->GetScalarRange(range);
     if ((range[0] == 0) && (range[1] == 1)) {
-      presetComboBox->setCurrentIndex(5);// binary
+      presetComboBox->setCurrentIndex(WL_BINARY);// binary
     } else {
       // TODO
     }
@@ -1797,7 +1797,7 @@ void vvMainWindow::WindowLevelChanged()
 //------------------------------------------------------------------------------
 void vvMainWindow::WindowLevelEdited()
 {
-  presetComboBox->setCurrentIndex(6);
+  presetComboBox->setCurrentIndex(WL_USER);
   UpdateWindowLevel();
 }
 //------------------------------------------------------------------------------
@@ -1807,7 +1807,7 @@ void vvMainWindow::SetWindowLevel(double w, double l)
 {
   windowSpinBox->setValue(w);
   levelSpinBox->setValue(l);
-  presetComboBox->setCurrentIndex(6);
+  presetComboBox->setCurrentIndex(WL_USER);
   colorMapComboBox->setCurrentIndex(0);
   UpdateWindowLevel();
 }
@@ -1817,7 +1817,7 @@ void vvMainWindow::SetWindowLevel(double w, double l)
 void vvMainWindow::UpdateWindowLevel()
 {
   if (DataTree->selectedItems().size()) {
-    if (presetComboBox->currentIndex() == 7) //For ventilation
+    if (presetComboBox->currentIndex() == WL_VENTILATION) //For ventilation
       colorMapComboBox->setCurrentIndex(5);
     int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
     mSlicerManagers[index]->SetColorWindow(windowSpinBox->value());
@@ -1853,7 +1853,7 @@ void vvMainWindow::SwitchWindowLevel()
 {
   int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
   int window = mSlicerManagers[index]->GetColorWindow();
-  presetComboBox->setCurrentIndex(6);
+  presetComboBox->setCurrentIndex(WL_USER);
   windowSpinBox->setValue(-window);
   UpdateWindowLevel();
 }
@@ -1872,7 +1872,7 @@ void vvMainWindow::ApplyWindowLevelToAllImages()
       continue;
     mSlicerManagers[i]->SetColorWindow(window);
     mSlicerManagers[i]->SetColorLevel(level);
-    mSlicerManagers[i]->SetPreset(6);
+    mSlicerManagers[i]->SetPreset(WL_USER);
     mSlicerManagers[i]->Render();
   }
 }
@@ -1885,7 +1885,7 @@ void vvMainWindow::ApplyWindowToSetOfImages(double window, unsigned int indexMin
     if (mSlicerManagers[i] == NULL)
       continue;
     mSlicerManagers[i]->SetColorWindow(window);
-    mSlicerManagers[i]->SetPreset(6);
+    mSlicerManagers[i]->SetPreset(WL_USER);
     mSlicerManagers[i]->Render();
   }
 }
@@ -1898,7 +1898,7 @@ void vvMainWindow::ApplyLevelToSetOfImages(double level, unsigned int indexMin, 
     if (mSlicerManagers[i] == NULL)
       continue;
     mSlicerManagers[i]->SetColorLevel(level);
-    mSlicerManagers[i]->SetPreset(6);
+    mSlicerManagers[i]->SetPreset(WL_USER);
     mSlicerManagers[i]->Render();
   }
 }

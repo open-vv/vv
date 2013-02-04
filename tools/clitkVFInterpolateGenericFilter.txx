@@ -15,17 +15,20 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
-#ifndef CLITKIMAGEARITHMGENERICFILTER_CXX
-#define CLITKIMAGEARITHMGENERICFILTER_CXX
+#ifndef CLITKVFRESAMPLEGENERICFILTER_TXX
+#define CLITKVFRESAMPLEGENERICFILTER_TXX
+/**
+   ------------------------------------------------=
+   * @file   clitkVFInterpolateGenericFilter.txx
+   * @author David Sarrut <david.sarrut@creatis.insa-lyon.fr>
+   * @date   23 Feb 2008 08:40:11
+   *
+   * @brief
+   *
+   *
+   ------------------------------------------------=*/
 
-#include "clitkImageArithmGenericFilter.h"
+//--------------------------------------------------------------------
 
-namespace clitk {
-  // Specialisation
-//   template<>
-//   class ImageArithmGenericFilter<args_info_clitkImageArithm>;
+#endif /* end #define CLITKVFRESAMPLEGENERICFILTER_TXX */
 
-
-}
-
-#endif //define CLITKIMAGEARITHMGENERICFILTER_CXX

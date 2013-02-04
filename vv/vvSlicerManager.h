@@ -47,6 +47,18 @@ class vvImageReader;
 class vvImageReader;
 class vvLandmarks;
 
+enum WindowLevelPreset {
+  WL_AUTO,
+  WL_HOUNSFIELD,
+  WL_SOFTTISSUE,
+  WL_LUNGS,
+  WL_BONES,
+  WL_HEAD,
+  WL_BINARY,
+  WL_USER,
+  WL_VENTILATION
+};
+
 //------------------------------------------------------------------------------
 class vvSlicerManager : public QObject {
   Q_OBJECT
