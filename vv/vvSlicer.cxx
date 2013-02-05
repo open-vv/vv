@@ -901,9 +901,13 @@ void vvSlicer::AdjustResliceToSliceOrientation(vtkImageReslice *reslice)
   // Step 1: from world coordinates to image coordinates
   origin[this->SliceOrientation] -= mImageReslice->GetOutput()->GetOrigin()[this->SliceOrientation];
   origin[this->SliceOrientation] /= mImageReslice->GetOutput()->GetSpacing()[this->SliceOrientation];
-  // Step 2: round to inferior grid positionInc. This makes sense because a border is used to interpolate
-  // the original image (SR).
-  origin[this->SliceOrientation] = itk::Math::Floor<double>(origin[this->SliceOrientation]);
+
+  // Step 2: round to nearest grid positionInc. This has been validated as the only
+  // way to have something consistent with the thickness of a 2D slice visible on the
+  // other slices. The thickness is accounted for so if the 2D slice is to thin and
+  // between two slices, one will never be able to see this 2D slice (bug #1883).
+  origin[this->SliceOrientation] = itk::Math::Round<double>(origin[this->SliceOrientation]);
+
   // Step 3: back to world coordinates
   origin[this->SliceOrientation] *= mImageReslice->GetOutput()->GetSpacing()[this->SliceOrientation];
   origin[this->SliceOrientation] += mImageReslice->GetOutput()->GetOrigin()[this->SliceOrientation];

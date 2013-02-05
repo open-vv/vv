@@ -8,13 +8,7 @@
 # This module defines a number of key variables and macros.
 
 
-MESSAGE("Looking for Root...")
 MESSAGE(STATUS "Looking for Root...")
-
-SET(ROOT_CONFIG_SEARCHPATH
-  ${SIMPATH}/tools/root/bin
-  $ENV{ROOTSYS}/bin
-)
 
 SET(ROOT_DEFINITIONS "")
 
@@ -22,16 +16,14 @@ SET(ROOT_INSTALLED_VERSION_TOO_OLD FALSE)
 
 SET(ROOT_CONFIG_EXECUTABLE ROOT_CONFIG_EXECUTABLE-NOTFOUND)
 
-FIND_PROGRAM(ROOT_CONFIG_EXECUTABLE NAMES root-config PATHS
-   ${ROOT_CONFIG_SEARCHPATH}
-   NO_SYSTEM_ENVIRONMENT_PATH)
+FIND_PROGRAM(ROOT_CONFIG_EXECUTABLE NAMES root-config PATHS)
     
 IF (${ROOT_CONFIG_EXECUTABLE} MATCHES "ROOT_CONFIG_EXECUTABLE-NOTFOUND")
   MESSAGE( FATAL_ERROR "ROOT not installed in the searchpath and ROOTSYS is not set. Please
  set ROOTSYS or add the path to your ROOT installation in the Macro FindROOT.cmake in the
  subdirectory cmake/modules.")
 ELSE (${ROOT_CONFIG_EXECUTABLE} MATCHES "ROOT_CONFIG_EXECUTABLE-NOTFOUND")
-  MESSAGE("root-config found")
+		MESSAGE(STATUS "root-config found")
   STRING(REGEX REPLACE "(^.*)/bin/root-config" "\\1" test ${ROOT_CONFIG_EXECUTABLE}) 
   SET( ENV{ROOTSYS} ${test})
   set( ROOTSYS ${test})
@@ -46,9 +38,6 @@ IF (ROOT_CONFIG_EXECUTABLE)
 
   MESSAGE(STATUS "Looking for Root... - found $ENV{ROOTSYS}/bin/root")
   MESSAGE(STATUS "Looking for Root... - version ${ROOTVERSION} ")   
-
-  MESSAGE( "Looking for Root... - found $ENV{ROOTSYS}/bin/root")
-  MESSAGE( "Looking for Root... - version ${ROOTVERSION} ")   
 
   # we need at least version 5.00/00
   IF (NOT ROOT_MIN_VERSION)
