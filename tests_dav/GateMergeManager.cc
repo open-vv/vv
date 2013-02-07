@@ -123,9 +123,8 @@ void GateMergeManager::FastMergeRoot()
       exit(0);
    }
    //we try to recover the last_event_ID in all root files
-   filearr=new TFile*[nfiles];
    for(int i=0;i<nfiles;i++) {
-      filearr[i] = TFile::Open(m_vRootFileNames[i].c_str(),"OLD");
+      filearr.push_back(TFile::Open(m_vRootFileNames[i].c_str(),"OLD"));
       if(filearr[i]==NULL){
          cout<<"Not a readable file "<<m_vRootFileNames[i]<<" - exit!"<<endl;   
          exit(0);

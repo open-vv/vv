@@ -31,26 +31,14 @@ public:
      m_outDir       =       outDir;
      m_CompLevel    =            1;
      m_fastMerge    =    fastMerge;
-
-     //check if a .Gate directory can be found
-     if (!getenv("GC_DOT_GATE_DIR")) {
-        cout<<"Environment variable GC_DOT_GATE_DIR not set !"<<endl;
-        exit(1);
-     }
-     m_dir=getenv("GC_DOT_GATE_DIR");
-     if (m_dir.substr(m_dir.length()-1,m_dir.length())=="/") m_dir=m_dir+".Gate/";
-     else m_dir=m_dir+"/.Gate/";
-     ifstream dirstream(m_dir.c_str());
-     if (!dirstream) {
-        cout<<"Failed to open .Gate directory"<<endl;
-        exit(1);
-     }
-     dirstream.close();
-
   };
   ~GateMergeManager()
   {
-   if (filearr) delete filearr;
+	  for (std::vector<TFile*>::const_iterator iter=filearr.begin(); iter!=filearr.end(); iter++)
+	  {
+		  (*iter)->Close();
+		  delete *iter;
+	  }
   }
 
 
@@ -74,10 +62,9 @@ private:
   bool FastMergeCoin(string name); 
   bool           m_forced;             // if to overwrite existing files
   int      m_verboseLevel;  
-  TFile**         filearr;
+  std::vector<TFile*>         filearr;
   Long64_t      m_maxRoot;             // maximum size of root output file
   int         m_CompLevel;             // compression level for root output
-  string            m_dir;             // .Gate directory path 
   string         m_outDir;             // where to save the output files
   int            m_Nfiles;             // number of files to mergw
   vector<int> m_lastEvents;            // latestevent from al files
