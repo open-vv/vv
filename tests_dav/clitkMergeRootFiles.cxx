@@ -17,6 +17,7 @@
 #include <TKey.h>
 #include <TFileMerger.h>
 #include <TTree.h>
+#include <TChain.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <iostream>
@@ -28,6 +29,43 @@ using std::cout;
 typedef std::list<std::string> Strings;
 typedef std::list<TFile*> Handles;
 typedef std::set<std::string> StringsSet;
+
+void mergeSingleTree(TChain* chain, TFile* output_handle, const std::string& tree_name)
+{
+	assert(chain->FindBranch("runID"));
+	assert(chain->FindBranch("eventID"));
+	assert(chain->FindBranch("time"));
+
+	int eventID = -1;
+	int runID = -1;
+	double time = -1;
+
+	chain->SetBranchAddress("eventID",&eventID);
+	chain->SetBranchAddress("runID",&runID);
+	chain->SetBranchAddress("time",&time);
+
+	output_handle->cd();
+	TTree* output_tree = chain->CloneTree(0);
+
+	const long int nentries = chain->GetEntries();
+	for (long int kk=0; kk<nentries; kk++)
+	{
+		chain->GetEntry(kk);
+		//cout << kk << "/" << chain->GetTreeNumber() << endl;
+		output_tree->Fill();
+	}
+
+	output_tree->Write();
+	delete output_tree;
+}
+
+void mergeGateTree(TChain* chain, TFile* output_handle, const std::string& tree_name)
+{
+}
+
+void mergeCoinTree(TChain* chain, TFile* output_handle, const std::string& tree_name)
+{
+}
 
 void mergePetRoot(const Strings& input_filenames, const std::string& output_filename)
 {
@@ -50,21 +88,40 @@ void mergePetRoot(const Strings& input_filenames, const std::string& output_file
 			const bool is_h1 = key->ReadObj()->InheritsFrom("TH1");
 			const bool is_h2 = key->ReadObj()->InheritsFrom("TH2");
 			if (is_tree) tree_names.insert(name);
-			if (is_h1) h1_names.insert(name);
+			if (is_h1) { h1_names.insert(name); cout << name << "## " << static_cast<TH1D*>(key->ReadObj())->GetMean() << endl; }
 			if (is_h2) h2_names.insert(name);
 		}
 
 		input_handles.push_back(handle);
 	}
 
-	cout << "found " << tree_names.size() << " tree "<< h1_names.size() << " histo1d " << h2_names.size() << " histo2d" << endl;
-
-
 	for (Handles::const_iterator iter=input_handles.begin(); iter!=input_handles.end(); iter++)
 	{
 		(*iter)->Close();
 		delete *iter;
 	}
+
+	cout << "found " << tree_names.size() << " tree "<< h1_names.size() << " histo1d " << h2_names.size() << " histo2d" << endl;
+
+	{
+		cout << "merging trees" << endl;
+		for (StringsSet::const_iterator iter_tree=tree_names.begin(); iter_tree!=tree_names.end(); iter_tree++)
+		{
+			cout << "  tree " << *iter_tree;
+			TChain* chain = new TChain(iter_tree->c_str());
+			for (Strings::const_iterator iter_filename=input_filenames.begin(); iter_filename!=input_filenames.end(); iter_filename++)
+				chain->Add(iter_filename->c_str());
+			cout << " nentries " << chain->GetEntries() << endl;
+
+			if ((*iter_tree) == "Singles" || (*iter_tree) == "Hits") mergeSingleTree(chain,output_handle,*iter_tree);
+			if ((*iter_tree) == "Gate") mergeGateTree(chain,output_handle,*iter_tree);
+			if ((*iter_tree) == "Coincidences") mergeCoinTree(chain,output_handle,*iter_tree);
+
+			delete chain;
+		}
+	}
+
+
 }
 
 
