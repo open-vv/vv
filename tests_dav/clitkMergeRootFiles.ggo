@@ -8,5 +8,6 @@ purpose "Merge several ROOT files"
 option "config"                -  "Config file"               string no
 option "input"                 i  "Input ROOT filenames"      string multiple yes
 option "output"                o  "Output ROOT filename"      string yes
-
+option "fastmerge"             f  "Fast merge"                optional
+option "verbose"               v  "Verbose level"             int optional
 
