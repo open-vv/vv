@@ -26,9 +26,6 @@
 using std::endl;
 using std::cout;
 
-typedef std::list<std::string> Strings;
-
-
 //-----------------------------------------------------------------------------
 int main(int argc, char * argv[]) {
 
@@ -64,8 +61,8 @@ int main(int argc, char * argv[]) {
 
 	  if (all_pet_output)
 	  {
-		  GateMergeManager* manager = new GateMergeManager(args_info.fastmerge_given,args_info.verbose_arg,true,0,".");
-		  delete manager;
+		  GateMergeManager manager(args_info.fastmerge_given,args_info.verbose_arg,true,0,"");
+		  manager.StartMergingFromFilenames(input_filenames,args_info.output_arg);
 		  return 0;
 	  }
   }
