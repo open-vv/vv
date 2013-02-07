@@ -17,8 +17,10 @@ See GATE/LICENSE.txt for further details
 #include <TFile.h>
 #include <TChain.h>
 #include <cstdlib>
+#include <list>
 
 using namespace std;
+typedef list<string> Strings;
 
 class GateMergeManager
 {
@@ -43,6 +45,7 @@ public:
 
 
   void StartMerging(string splitfileName);
+  void StartMergingFromFilenames(Strings filenames, string outputfile);
   void ReadSplitFile(string splitfileName);
   bool MergeTree(string name);
   bool MergeGate(TChain* chain);

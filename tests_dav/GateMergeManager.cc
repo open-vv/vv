@@ -29,6 +29,7 @@ See GATE/LICENSE.txt for further details
 #include <vector>
 #include <cstdlib>
 #include <cmath>
+#include <list>
 
 #include "GateMergeManager.hh"
 
@@ -48,6 +49,22 @@ void GateMergeManager::StartMerging(string splitfileName){
   //string ready = "touch "+dir+"/ready_for_delete";
   //const int res=system(ready.c_str());
   //if(res) cout<<"Strange?? Can't mark "<<dir<<" as done!"<<endl;
+};
+
+void GateMergeManager::StartMergingFromFilenames(Strings filenames, string outputfile)
+{
+	for (Strings::const_iterator iter=filenames.begin(); iter!=filenames.end(); iter++)
+	{
+		m_vRootFileNames.push_back(*iter);
+		if(m_verboseLevel>2) cout<<"Root input file name: "<<m_vRootFileNames.back()<<endl;
+	}
+
+	m_Nfiles = m_vRootFileNames.size();
+	m_RootTargetName=m_outDir+outputfile;
+	if(m_verboseLevel>2) cout<<"Root output file name: "<<m_RootTargetName<<endl;
+
+	if (m_fastMerge==true) FastMergeRoot();
+	else MergeRoot();
 };
 
 // to process the splitfile
