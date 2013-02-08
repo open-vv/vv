@@ -118,6 +118,101 @@ clitk::DicomRT_ROI* clitk::DicomRT_StructureSet::GetROIFromROINumber(int n)
 }
 //--------------------------------------------------------------------
 
+//--------------------------------------------------------------------
+clitk::DicomRT_ROI* clitk::DicomRT_StructureSet::GetROIFromROIName(const std::string& name)
+{
+  std::map<int, std::string>::iterator it = mMapOfROIName.begin();
+  int number = -1;
+  while (it != mMapOfROIName.end() && number == -1) {
+    if (it->second == name)
+      number = it->first;
+    else
+      it++;
+  }
+
+  if (number == -1) {
+    std::cerr << "No ROI name " << name << std::endl;
+    return NULL;
+  }
+  
+  return mROIs[number];
+}
+//--------------------------------------------------------------------
+/*
+// RP: 08/02/2013
+// RegEx version shall be available when C++x11 supports it propely
+//
+//--------------------------------------------------------------------
+clitk::DicomRT_ROI* clitk::DicomRT_StructureSet::GetROIFromROINameRegEx(const std::string& regEx)
+{
+  std::map<int, std::string>::iterator it = mMapOfROIName.begin();
+  int number = -1;
+
+  while (it != mMapOfROIName.end() && number == -1) {
+    if (std::tr1::regex_match (it->second, std::tr1::regex(regEx)))
+      number = it->first;
+    else
+      it++;
+  }
+
+  if (number == -1) {
+    std::cerr << "No ROI name " << number << std::endl;
+    return NULL;
+  }
+  
+  return mROIs[number];
+}
+//--------------------------------------------------------------------
+*/
+//--------------------------------------------------------------------
+clitk::DicomRT_ROI* clitk::DicomRT_StructureSet::GetROIFromROINameSubstr(const std::string& s)
+{
+  std::map<int, std::string>::iterator it = mMapOfROIName.begin();
+  int number = -1;
+
+  while (it != mMapOfROIName.end() && number == -1) {
+    if (it->second.find(s) != std::string::npos)
+      number = it->first;
+    else
+      it++;
+  }
+
+  if (number == -1) {
+    std::cerr << "No ROI name " << s << std::endl;
+    return NULL;
+  }
+  
+  return mROIs[number];
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+clitk::DicomRT_StructureSet::ROIMapContainer * 
+clitk::DicomRT_StructureSet::GetROIsFromROINameSubstr(const std::string& s)
+{
+  static ROIMapContainer rois;
+  rois.clear();
+  
+  ROIMapContainer::iterator it = mROIs.begin();
+  int number = -1;
+
+  while (it != mROIs.end()) {
+    if (it->second->GetName().find(s) != std::string::npos) {
+      number = it->first;
+      rois[number] = it->second;
+    }
+    it++;
+  }
+
+  if (number == -1) {
+    std::cerr << "No ROI name " << s << std::endl;
+    return NULL;
+  }
+  
+  return &rois;
+  
+}
+//--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
 void clitk::DicomRT_StructureSet::Print(std::ostream & os) const
