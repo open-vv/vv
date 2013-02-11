@@ -7,8 +7,12 @@ option "verbose"         v "Verbose"			     flag	off
 option "verboseFile"     - "Verbose file content"            flag	off
 option "input"		 i "Input Dicom file"		     string	yes
 option "image"		 j "Used to read image info (spacing, origin)"    string	yes
-option "roi"		 r "ROI to binarize (if -1 = all roi)"	          int    no default="-1"
 option "output"		 o "Output image filename"	 string	yes
+
+defgroup "ROIoption" groupdesc="an option of this group is required" 
+groupoption "roi"     r "ROI to binarize (if -1 = all roi)"            int    no default="-1" group="ROIoption"
+groupoption "roiName"     n "ROI name to binarize (be wary of spaces in ROI names; if blank, use given 'roi' value)"            string    no default="" group="ROIoption"
+groupoption "roiNameSubstr"     s "Substring of ROI name to binarize (reuturns all matches; if blank, use given 'roiName' value)"            string    no default="" group="ROIoption"
 
 option "crop"		 c "Crop binary mask"	         flag off
 

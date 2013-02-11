@@ -77,9 +77,6 @@ int main(int argc, char * argv[])
     
     series_numbers.insert(series_number);
     theorigin[series_number] = gdcm::ImageHelper::GetOriginValue(hreader.GetFile());
-    std::cout << "theorigin[series_number][0] " << theorigin[series_number][0] << std::endl;
-    std::cout << "theorigin[series_number][1] " << theorigin[series_number][1] << std::endl;
-    std::cout << "theorigin[series_number][2] " << theorigin[series_number][2] << std::endl;
     sliceLocations[series_number].push_back(theorigin[series_number][2]);
     seriesFiles[series_number].push_back(input_files[i]);
     
