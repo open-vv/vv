@@ -251,7 +251,7 @@ ENDIF(UNIX OR APPLE)
 
 IF(WIN32)
   #INCLUDE(InstallRequiredSystemLibraries)
-  INSTALL(FILES ${EXECUTABLE_OUTPUT_PATH}/vv.exe DESTINATION .)
+  INSTALL(TARGETS vv DESTINATION bin)
   #INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/icons/ducky.png DESTINATION .)
 ENDIF(WIN32)
 #=========================================================

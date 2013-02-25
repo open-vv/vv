@@ -57,6 +57,10 @@ class vvMainWindow: public vvMainWindowBase,
   void AddOverlayImage(int index, std::vector<std::string> fileNames, vvImageReader::LoadedImageType type);
   void AddFusionImage(int index, QString filename);
   void AddROI(int index, QString filename);
+
+  //Process the sequence for fusion:
+  void AddFusionSequence(int index, std::vector<std::string> fileNames, vvImageReader::LoadedImageType type);
+
   void AddLandmarks(int index, std::vector<std::string>);
 ///Adds a mesh to a SlicerManager, with optional warping by vector field
   void AddContour(int image_index, vvMesh::Pointer contour, bool propagation);
@@ -108,12 +112,13 @@ public slots:
   void VectorChanged(int visibility, double x, double y, double z, double value);
   void OverlayChanged(int visibility, double valueOver, double valueRef);
   void FusionChanged(int visibility, double value);
+  //void FusionSequenceChanged(int visibility, double value);
   void SegmentationOnCurrentImage();
   void SurfaceViewerLaunch();
 
   void WindowLevelChanged();
   void UpdateSlice(int slicer, int slice);
-  void UpdateTSlice(int slicer, int slice);
+  void UpdateTSlice(int slicer, int slice, int code=-1);
   void UpdateSliceRange(int slicer, int min, int max, int tmin, int tmax);
   void WindowLevelEdited();
   void SetWindowLevel(double w, double l);
@@ -154,11 +159,16 @@ public slots:
   void OpenField();
   void SelectOverlayImage();
   void SelectFusionImage();
+  //select the file(s) from the disk containing the image sequence to fuse
+  void SelectFusionSequence();
+  void SelectFusionSequenceTemporalSignal();
+
   void ResetTransformationToIdentity();
 
   void SetVFProperty(int subsampling,int scale,int lut, int width, double r, double g, double b);
   void SetOverlayProperty(int color, int linked, double window, double level);
   void SetFusionProperty(int opacity, int tresOpacity, int colormap,double window,double level, bool showLegend);
+  void SetFusionSequenceProperty(int fusionSequenceFrameIndex, bool spatialSyncFlag, unsigned int fusionSequenceNbFrames, bool temporalSyncFlag);
 
   void GoToCursor();
   void GoToLandmark();
@@ -200,7 +210,7 @@ private:
   QString GetSizeInBytes(unsigned long size);
   QString GetVectorDoubleAsString(std::vector<double> vectorDouble);
   QString GetVectorIntAsString(std::vector<int> vectorInt);
-  int GetSlicerIndexFromItem(QTreeWidgetItem* item);
+  int GetSlicerIndexFromItem(QTreeWidgetItem* item); //this actually returns the SlicerManager index TODO: rename it to GetSlicerManagerIndexFromItem
   QTreeWidgetItem* GetItemFromSlicerManager(vvSlicerManager* sm);
   void SaveScreenshot(QVTKWidget *widget);
   int GetImageDuplicateFilenameNumber(std::string filename);

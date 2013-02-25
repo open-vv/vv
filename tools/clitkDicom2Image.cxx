@@ -30,6 +30,8 @@
   #include <gdcmReader.h>
 #endif
 
+#include <set>
+
 //====================================================================
 int main(int argc, char * argv[])
 {
@@ -52,8 +54,11 @@ int main(int argc, char * argv[])
 
   //===========================================
   /// Get slices locations ...
-  std::vector<double> theorigin(3);
-  std::vector<double> sliceLocations;
+  int series_number = -1;
+  std::set<int> series_numbers;
+  std::map< int, std::vector<double> > theorigin;
+  std::map< int, std::vector<double> > sliceLocations;
+  std::map< int, std::vector<std::string> > seriesFiles;
   for(unsigned int i=0; i<args_info.inputs_num; i++) {
     //std::cout << "Reading <" << input_files[i] << std::endl;
 #if GDCM_MAJOR_VERSION == 2
@@ -62,10 +67,20 @@ int main(int argc, char * argv[])
     gdcm::Reader hreader;
     hreader.SetFileName(input_files[i].c_str());
     hreader.Read();
-    theorigin = gdcm::ImageHelper::GetOriginValue(hreader.GetFile());
-    sliceLocations.push_back(theorigin[2]);
-    gdcm::Attribute<0x28, 0x100> pixel_size;
     gdcm::DataSet& ds = hreader.GetFile().GetDataSet();
+
+    if (args_info.extract_series_flag) {
+      gdcm::Attribute<0x20,0x11> series_number_att;
+      series_number_att.SetFromDataSet(hreader.GetFile().GetDataSet());
+      series_number = series_number_att.GetValue();
+    }
+    
+    series_numbers.insert(series_number);
+    theorigin[series_number] = gdcm::ImageHelper::GetOriginValue(hreader.GetFile());
+    sliceLocations[series_number].push_back(theorigin[series_number][2]);
+    seriesFiles[series_number].push_back(input_files[i]);
+    
+    gdcm::Attribute<0x28, 0x100> pixel_size;
     pixel_size.SetFromDataSet(ds);
     if (pixel_size.GetValue() != 16)
     {
@@ -80,10 +95,18 @@ int main(int argc, char * argv[])
   header->SetFileName(input_files[i]);
   header->SetMaxSizeLoadEntry(16384); // required ?
   header->Load();
-  theorigin[0] = header->GetXOrigin();
-  theorigin[1] = header->GetYOrigin();
-  theorigin[2] = header->GetZOrigin();
-  sliceLocations.push_back(theorigin[2]);
+
+  if (args_info.extract_series_flag) {
+    series_number = atoi(header->GetEntryValue(0x20,0x11).c_str());
+  }
+  
+  series_numbers.insert(series_number);
+  theorigin[series_number].resize(3);
+  theorigin[series_number][0] = header->GetXOrigin();
+  theorigin[series_number][1] = header->GetYOrigin();
+  theorigin[series_number][2] = header->GetZOrigin();
+  sliceLocations[series_number].push_back(theorigin[series_number][2]);
+  seriesFiles[series_number].push_back(input_files[i]);
   if (header->GetPixelSize() != 2) {
     std::cerr << "Pixel type 2 bytes ! " << std::endl;
     std::cerr << "In file " << input_files[i] << std::endl;
@@ -94,87 +117,103 @@ int main(int argc, char * argv[])
 
   //===========================================
   // Sort slices locations ...
-  std::vector<int> sliceIndex;
-  clitk::GetSortedIndex(sliceLocations, sliceIndex);
-  if (args_info.verboseSliceLocation_flag) {
-    std::cout << sliceLocations[sliceIndex[0]] << " -> "
-              << sliceIndex[0] << " / " << 0 << " => "
-              << "0 mm "
-              << input_files[sliceIndex[0]]
-              << std::endl;
-    for(unsigned int i=1; i<sliceIndex.size(); i++) {
-      std::cout << sliceLocations[sliceIndex[i]] << " -> "
-                << sliceIndex[i] << " / " << i << " => "
-                << sliceLocations[sliceIndex[i]] - sliceLocations[sliceIndex[i-1]]
-                << "mm "
-                << input_files[sliceIndex[i]]
+  std::set<int>::iterator sn = series_numbers.begin();
+  while ( sn != series_numbers.end() ) {
+    std::vector<double> locs = sliceLocations[*sn];
+    std::vector<double> origin = theorigin[*sn];
+    std::vector<std::string> files = seriesFiles[*sn];
+    std::vector<int> sliceIndex;
+    clitk::GetSortedIndex(locs, sliceIndex);
+    if (args_info.verboseSliceLocation_flag) {
+      std::cout << locs[sliceIndex[0]] << " -> "
+                << sliceIndex[0] << " / " << 0 << " => "
+                << "0 mm "
+                << files[sliceIndex[0]]
                 << std::endl;
-    }
-  }
-
-  //===========================================
-  // Analyze slices locations ...
-  double currentDist;
-  double dist=0;
-  double tolerance = args_info.tolerance_arg;
-  double previous = sliceLocations[sliceIndex[0]];
-  for(unsigned int i=1; i<sliceIndex.size(); i++) {
-    currentDist = sliceLocations[sliceIndex[i]]-previous;
-    if (i!=1) {
-      if (fabs(dist-currentDist) > tolerance) {
-        std::cout << "ERROR : " << std::endl
-                  << "Current slice pos is  = " << sliceLocations[sliceIndex[i]] << std::endl
-                  << "Previous slice pos is = " << previous << std::endl
-                  << "Current file is       = " << input_files[sliceIndex[i]] << std::endl
-                  << "Current index is      = " << i << std::endl
-                  << "Current sortindex is  = " << sliceIndex[i] << std::endl
-                  << "Current slice diff    = " << dist << std::endl
-                  << "Current error         = " << fabs(dist-currentDist) << std::endl;
-        exit(1);
+      for(unsigned int i=1; i<sliceIndex.size(); i++) {
+        std::cout << locs[sliceIndex[i]] << " -> "
+                  << sliceIndex[i] << " / " << i << " => "
+                  << locs[sliceIndex[i]] - locs[sliceIndex[i-1]]
+                  << "mm "
+                  << files[sliceIndex[i]]
+                  << std::endl;
       }
-    } else dist = currentDist;
-    previous = sliceLocations[sliceIndex[i]];
-  }
+    }
 
-  //===========================================
-  // Create ordered vector of filenames
-  std::vector<std::string> sorted_files;
-  sorted_files.resize(sliceIndex.size());
-  for(unsigned int i=0; i<sliceIndex.size(); i++)
-    sorted_files[i] = input_files[ sliceIndex[i] ];
+    //===========================================
+    // Analyze slices locations ...
+    double currentDist;
+    double dist=0;
+    double tolerance = args_info.tolerance_arg;
+    double previous = locs[sliceIndex[0]];
+    for(unsigned int i=1; i<sliceIndex.size(); i++) {
+      currentDist = locs[sliceIndex[i]]-previous;
+      if (i!=1) {
+        if (fabs(dist-currentDist) > tolerance) {
+          std::cout << "ERROR : " << std::endl
+                    << "Current slice pos is  = " << locs[sliceIndex[i]] << std::endl
+                    << "Previous slice pos is = " << previous << std::endl
+                    << "Current file is       = " << files[sliceIndex[i]] << std::endl
+                    << "Current index is      = " << i << std::endl
+                    << "Current sortindex is  = " << sliceIndex[i] << std::endl
+                    << "Current slice diff    = " << dist << std::endl
+                    << "Current error         = " << fabs(dist-currentDist) << std::endl;
+          exit(1);
+        }
+      } else dist = currentDist;
+      previous = locs[sliceIndex[i]];
+    }
 
-  //===========================================
-  // Read write serie
-  vvImageReader::Pointer reader = vvImageReader::New();
-  reader->SetInputFilenames(sorted_files);
-  reader->Update(vvImageReader::DICOM);
-  if (reader->GetLastError().size() != 0) {
-    std::cerr << reader->GetLastError() << std::endl;
-    return 1;
+    //===========================================
+    // Create ordered vector of filenames
+    std::vector<std::string> sorted_files;
+    sorted_files.resize(sliceIndex.size());
+    for(unsigned int i=0; i<sliceIndex.size(); i++)
+      sorted_files[i] = files[ sliceIndex[i] ];
+
+    //===========================================
+    // Read write serie
+    vvImageReader::Pointer reader = vvImageReader::New();
+    reader->SetInputFilenames(sorted_files);
+    reader->Update(vvImageReader::DICOM);
+    if (reader->GetLastError().size() != 0) {
+      std::cerr << reader->GetLastError() << std::endl;
+      return 1;
+    }
+    
+    vvImage::Pointer image = reader->GetOutput();
+    vtkImageData* vtk_image = image->GetFirstVTKImageData();
+    vtkImageChangeInformation* modifier = vtkImageChangeInformation::New();
+    if  (args_info.focal_origin_given) {
+      std::vector<double> spacing = image->GetSpacing();
+      std::vector<int> size = image->GetSize();
+      origin[0] = -spacing[0]*size[0]/2.0;
+      origin[1] = -spacing[1]*size[1]/2.0;
+      modifier->SetInput(vtk_image);
+      modifier->SetOutputOrigin(origin[0], origin[1], locs[sliceIndex[0]]);
+      modifier->Update();
+      vvImage::Pointer focal_image = vvImage::New();
+      focal_image->AddVtkImage(modifier->GetOutput());
+      image = focal_image;
+    }
+
+    std::string outfile;
+    if (series_numbers.size() == 1)
+      outfile = args_info.output_arg;
+    else {
+      std::ostringstream name;
+      name << *sn << "_" << args_info.output_arg;
+      outfile = name.str();
+    }
+    vvImageWriter::Pointer writer = vvImageWriter::New();
+    writer->SetInput(image);
+    writer->SetOutputFileName(outfile);
+    writer->Update();
+
+    modifier->Delete();
+    
+    sn++;
   }
   
-  vvImage::Pointer image = reader->GetOutput();
-  vtkImageData* vtk_image = image->GetFirstVTKImageData();
-  vtkImageChangeInformation* modifier = vtkImageChangeInformation::New();
-  if  (args_info.focal_origin_given) {
-    std::vector<double> spacing = image->GetSpacing();
-    std::vector<int> size = image->GetSize();
-    theorigin[0] = -spacing[0]*size[0]/2.0;
-    theorigin[1] = -spacing[1]*size[1]/2.0;
-    modifier->SetInput(vtk_image);
-    modifier->SetOutputOrigin(theorigin[0], theorigin[1], sliceLocations[sliceIndex[0]]);
-    modifier->Update();
-    vvImage::Pointer focal_image = vvImage::New();
-    focal_image->AddVtkImage(modifier->GetOutput());
-    image = focal_image;
-  }
-
-  vvImageWriter::Pointer writer = vvImageWriter::New();
-  writer->SetInput(image);
-  writer->SetOutputFileName(args_info.output_arg);
-  writer->Update();
-
-  modifier->Delete();
-
   return 0;
 }

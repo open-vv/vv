@@ -139,7 +139,7 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   namesGenerator->SetInputDirectory( m_ArgsInfo.inputDir_arg );
   namesGenerator->SetOutputDirectory( m_ArgsInfo.outputDir_arg  );
   typename   ReaderType::FileNamesContainer filenames_in = namesGenerator->GetInputFileNames();
-  typename   ReaderType::FileNamesContainer filenames_out;
+  typename   ReaderType::FileNamesContainer filenames_out = namesGenerator->GetOutputFileNames();
 
   // Output the dicom files
   unsigned int numberOfFilenames =  filenames_in.size();
@@ -314,7 +314,6 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     gdcmIO->SetKeepOriginalUID(true);
 #endif
     namesGenerator->SetOutputDirectory( m_ArgsInfo.outputDir_arg  );
-    filenames_out = namesGenerator->GetOutputFileNames();
   }
   
   filenames_out.resize(numberOfFilenames);
@@ -378,6 +377,9 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     // file UIDs are recreated for new studies or series
     if (!useInputFileUID)
     {
+      if (m_ArgsInfo.verbose_flag)
+        std::cout << "Recreating file UIDs" << std::endl;
+
       std::string fileUID;
 #if GDCM_MAJOR_VERSION >= 2
       gdcm::UIDGenerator fid;
@@ -405,6 +407,8 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
 
   // Write
   try {
+    if (m_ArgsInfo.verbose_flag)
+      std::cout << seriesWriter << std::endl;
     seriesWriter->Update();
   } catch( itk::ExceptionObject & excp ) {
     std::cerr << "Error: Exception thrown while writing the series!!" << std::endl;

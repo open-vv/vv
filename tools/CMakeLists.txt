@@ -11,6 +11,9 @@ ADD_LIBRARY(clitkBinarizeImageLib clitkBinarizeImageGenericFilter.cxx ${clitkBin
 WRAP_GGO(clitkImageArithm_GGO_C clitkImageArithm.ggo)
 ADD_LIBRARY(clitkImageArithmImageLib clitkImageArithmGenericFilter.cxx ${clitkImageArithm_GGO_C})
 
+WRAP_GGO(clitkVectorArithm_GGO_C clitkVectorArithm.ggo)
+ADD_LIBRARY(clitkVectorArithmLib clitkVectorArithmGenericFilter.cxx ${clitkVectorArithm_GGO_C})
+
 WRAP_GGO(clitkResampleImage_GGO_C clitkResampleImage.ggo)
 ADD_LIBRARY(clitkResampleImageLib clitkResampleImageGenericFilter.cxx ${clitkResampleImage_GGO_C})
 
@@ -53,6 +56,11 @@ IF (CLITK_BUILD_TOOLS)
   ADD_EXECUTABLE(clitkVFResample clitkVFResample.cxx clitkVFResampleGenericFilter.cxx ${clitkVFResample_GGO_C})
   TARGET_LINK_LIBRARIES(clitkVFResample clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkVFResample)
+
+  WRAP_GGO(clitkVFInterpolate_GGO_C clitkVFInterpolate.ggo)
+  ADD_EXECUTABLE(clitkVFInterpolate clitkVFInterpolate.cxx clitkVFInterpolateGenericFilter.cxx ${clitkVFInterpolate_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkVFInterpolate clitkCommon ${ITK_LIBRARIES})
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkVFInterpolate)
 
   WRAP_GGO(clitkImageCreate_GGO_C clitkImageCreate.ggo)
   ADD_EXECUTABLE(clitkImageCreate clitkImageCreate.cxx ${clitkImageCreate_GGO_C})
@@ -108,6 +116,10 @@ IF (CLITK_BUILD_TOOLS)
   ADD_EXECUTABLE(clitkImageArithm clitkImageArithm.cxx)
   TARGET_LINK_LIBRARIES(clitkImageArithm clitkImageArithmImageLib clitkCommon ${ITK_LIBRARIES} )
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageArithm)
+
+  ADD_EXECUTABLE(clitkVectorArithm clitkVectorArithm.cxx)
+  TARGET_LINK_LIBRARIES(clitkVectorArithm clitkVectorArithmLib clitkCommon ${ITK_LIBRARIES} )
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkVectorArithm)
 
   WRAP_GGO(clitkUnsharpMask_GGO_C clitkUnsharpMask.ggo)
   ADD_EXECUTABLE(clitkUnsharpMask clitkUnsharpMask.cxx ${clitkUnsharpMask_GGO_C})
@@ -233,7 +245,7 @@ IF (CLITK_BUILD_TOOLS)
   IF(CLITK_EXPERIMENTAL)
     WRAP_GGO(clitkBinaryImageToMesh_GGO_C clitkBinaryImageToMesh.ggo)
     ADD_EXECUTABLE(clitkBinaryImageToMesh clitkBinaryImageToMesh.cxx ${clitkBinaryImageToMesh_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkBinaryImageToMesh itksys ${VTK_LIBRARIES})
+    TARGET_LINK_LIBRARIES(clitkBinaryImageToMesh itksys ${ITK_LIBRARIES} ${VTK_LIBRARIES})
     SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkBinaryImageToMesh)
 
     WRAP_GGO(clitkMeshToBinaryImage_GGO_C clitkMeshToBinaryImage.ggo)
@@ -243,7 +255,7 @@ IF (CLITK_BUILD_TOOLS)
 
     WRAP_GGO(clitkMeshViewer_GGO_C clitkMeshViewer.ggo)
     ADD_EXECUTABLE(clitkMeshViewer clitkMeshViewer.cxx ${clitkMeshViewer_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkMeshViewer ${VTK_LIBRARIES})
+    TARGET_LINK_LIBRARIES(clitkMeshViewer ${ITK_LIBRARIES} ${VTK_LIBRARIES})
     SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMeshViewer)
   ENDIF(CLITK_EXPERIMENTAL)
 

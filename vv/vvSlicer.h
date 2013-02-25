@@ -20,6 +20,9 @@
 #include <iostream>
 #include <vector>
 
+#include <QString> //TODO delete
+#include <QMessageBox>
+
 #include "vvLandmarks.h"
 #include "vvImage.h"
 #include "vvMesh.h"
@@ -78,7 +81,7 @@ public:
   vtkActor* GetVFActor() ;
   vtkCornerAnnotation* GetAnnotation();
     
-  void SetFusion(vvImage::Pointer inputFusion);
+  void SetFusion(vvImage::Pointer inputFusion, int fusionSequenceCode = -1);
   vvImage::Pointer GetFusion() {
     return mFusion;
   }
@@ -97,7 +100,10 @@ public:
   }
 
   void SetLandmarks(vvLandmarks* landmarks);
-  void SetTSlice(int t);
+  void SetTSlice(int t, bool updateLinkedImages = true);
+
+  void SetFusionSequenceTSlice(int t);
+
   void SetSliceOrientation(int orientation);
   void AdjustResliceToSliceOrientation(vtkImageReslice *reslice);
   int GetTSlice();
@@ -191,7 +197,7 @@ public:
   void EnableReducedExtent(bool b);
   void SetReducedExtent(int * ext);
 
-  void ClipDisplayedExtent(int extent[6], int refExtent[6]);
+  bool ClipDisplayedExtent(int extent[6], int refExtent[6]);
   int GetOrientation();
   int * GetExtent();
 
@@ -200,6 +206,8 @@ public:
   }
   void SetVFColor(double r, double g, double b);
 
+  //necessary to flag the secondary sequence
+  void SetFusionSequenceCode(int code) {mFusionSequenceCode=code;}
 protected:
   vvSlicer();
   ~vvSlicer();
@@ -211,6 +219,8 @@ protected:
   vvImage::Pointer mVF;
 
   vvLandmarks* mLandmarks;
+
+  int mFusionSequenceCode; //-1: not involved in a fusion sequence, 0: main sequence (CT), 1: secondary sequence (US)
 
   //                         __________ Image coordinates accounting for spacing and origin
   //                            Λ  Λ
@@ -279,6 +289,13 @@ private:
   ///Sets the surfaces to be cut on the image slice: update the vtkCutter
   void SetContourSlice();
 
-
+  // Visibility of the different elements that can be set from outside the object.
+  // Note that vvSlicer also check if the element is to be displayed according to
+  // the extent of the displayed object.
+  // These members have been introduced to fix Bug #1883.
+  bool mImageVisibility;
+  bool mOverlayVisibility;
+  bool mFusionVisibility;
+  bool mVFVisibility;
 };
 #endif

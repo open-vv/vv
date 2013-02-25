@@ -13,6 +13,11 @@ ENDIF(NOT DEFINED CLITK_SOURCE_DIR)
 
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+IF(MSVC)
+  SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj" )
+  SET( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /bigobj" )
+ENDIF(MSVC)
+
 #=========================================================
 INCLUDE(${CLITK_SOURCE_DIR}/cmake/common.cmake)
 INCLUDE(${CLITK_SOURCE_DIR}/cmake/dependencies.cmake)
