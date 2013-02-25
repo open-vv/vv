@@ -11,8 +11,8 @@ option "imagetypes" - "Display allowed image types"     flag          off
 
 section "Input"
 
-option "input"  i "Input grid filename"  string yes
-option "output" o "Output grid filename" string yes
+option "input"  i "Input image filename"  string yes
+option "output" o "Output image filename" string yes
 
 
 section "Processing Parameters"
