@@ -88,6 +88,7 @@ It is distributed under dual licence
 
 // Standard includes
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <iomanip>
 
@@ -294,7 +295,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(actionDocumentation,SIGNAL(triggered()),this,SLOT(ShowDocumentation()));
   connect(actionRegister_vv,SIGNAL(triggered()),this,SLOT(PopupRegisterForm()));
 
-  connect(overlayPanel, SIGNAL(FusionSequenceSignalButtonPressed()), this, SLOT(SelectFusionSequenceTemporalSignal()));
+  connect(overlayPanel, SIGNAL(FusionSequenceCorrespondancesButtonPressed()), this, SLOT(SelectFusionSequenceCorrespondances()));
 
 
   ///////////////////////////////////////////////
@@ -1651,6 +1652,7 @@ void vvMainWindow::CloseImage(QTreeWidgetItem* item, int column)
         }
         
         //TODO: also remove the image overlaid with the main sequence, as it is becoming invalid...
+        //this shall be done by calling this->CloseImage() with the correct index;...
       }
 
       linkPanel->removeImage(index);
@@ -2443,7 +2445,7 @@ void vvMainWindow::SelectFusionSequence()
 
 
 //------------------------------------------------------------------------------
-void vvMainWindow::SelectFusionSequenceTemporalSignal() {
+void vvMainWindow::SelectFusionSequenceCorrespondances() {
 
   //make sure the index is right?
   //in the end, I should attach the temporal data to the right sequence!
@@ -2454,34 +2456,50 @@ void vvMainWindow::SelectFusionSequenceTemporalSignal() {
   }
 
   //open a dialog box to find a file
-  QString Extensions = EXTENSIONS;
-  Extensions += ";;All Files (*)";
+  //QString Extensions = EXTENSIONS;
+  QString Extensions = ";;All Files (*)";
   QString fileName = QFileDialog::getOpenFileName(this,tr("Load respiratory signal for fused sequence"),mInputPathName,Extensions);
   if (fileName.isNull())
     return;
 
   //read it as a vector of values
-  std::vector<double> signal;
-  //...TODO, look for itk functions that can do that... vnl in the worst case.
-  signal.push_back(1);signal.push_back(2);
+  vnl_vector<double> tmpVect;
 
-  //TODO: instead: if the loaded signal is longer, just crop it...
-  //this allows loading only the first few frames when testing.
-  //->maybe raise a message that this behavior may be unsafe...
+  std::ifstream file;
+  file.open(fileName.toStdString().c_str());
+  tmpVect.read_ascii(file);
+  file.close();
 
-  //if compatible with the fused image sequence (number of images = number of entries), enable the temporalSync
-  if ( signal.size() >= mSlicerManagers[index]->GetFusionSequenceNbFrames()) {
-    //for convenience, associate this sequence to both the current slicer manager, and to the linked one
-    mSlicerManagers[index]->SetFusionSequenceTemporalSignal(signal);
-    mSlicerManagers[ mSlicerManagers[index]->GetFusionSequenceIndexOfLinkedManager() ]->SetFusionSequenceTemporalSignal(signal);
-    overlayPanel->enableFusionSequenceTemporalSync();
-    QMessageBox::information(this,tr("Adding signal"),"would add the signal from file: "+ fileName);
+  //if compatible with the fused image sequence (number of entries = nb of entries in main sequence + nb of entries in joint sequence), enable the temporalSync
+  bool signalOK = true;
+  unsigned nbFrameMain = mSlicerManagers[index]->GetImage()->GetTransform().size();
+  unsigned nbFrameSecondary = mSlicerManagers[index]->GetFusionSequenceNbFrames();
+
+  std::vector<unsigned> temporalCorrespondances;
+  if ( tmpVect.size() == nbFrameMain + nbFrameSecondary ) {
+    for (unsigned i=0 ; i<tmpVect.size() ; i++) {
+      if (i<nbFrameMain) { //first part of the file: i -> index in secondary seq.
+        if ( tmpVect(i)<nbFrameSecondary ) temporalCorrespondances.push_back(tmpVect(i));
+        else { signalOK=false; break; } //pointing outside the secondary sequence...
+      }
+      else { //first part of the file -> index in secondary seq.
+        if ( tmpVect(i)<nbFrameMain ) temporalCorrespondances.push_back(tmpVect(i));
+        else { signalOK=false; break; } //pointing outside the secondary sequence...      
+      }      
+    }
   }
-  else {//else, send a message to signal the failure...
-    QString error = "The provided signal doesn't have the same duration as the sequence\n";
+  else {signalOK=false;}
+  if (!signalOK) {//else, send a message to signal the failure...
+    QString error = "The provided temporal correspondances is invalid - check tooltip.\n";
     error += "Ignoring file: " + fileName;
-    QMessageBox::information(this,tr("Problem adding signal!"),error);
+    QMessageBox::information(this,tr("Problem adding temporal correspondances!"),error);
     return;
+  }
+  else {
+    //for convenience, associate this sequence to both the current slicer manager, and to the linked one
+    mSlicerManagers[index]->SetFusionSequenceCorrespondances(temporalCorrespondances);
+    mSlicerManagers[ mSlicerManagers[index]->GetFusionSequenceIndexOfLinkedManager() ]->SetFusionSequenceCorrespondances(temporalCorrespondances);
+    overlayPanel->enableFusionSequenceTemporalSync();
   }
 
 }
@@ -2651,21 +2669,13 @@ void vvMainWindow::SetFusionSequenceProperty(int fusionSequenceFrameIndex, bool 
     if (spatialSyncFlag) { //reslice the CT
 
       if (temporalSyncFlag) { //do the temporal synchronisation
-        //TODO: add the temporal synchronisation stuff
-        //if the button is checked, get the phase of the requested US frame from the available signal
-        //and select the corresponding one in the CT. (check the one just before, and the one just after, and select the closest)
-
-        //TODO: do it also the other way around, when modifying the time index related to CT, select a close frame
-        //this should not be done here directly, but the code should be inspired from the one here
-        //->find a good US frame such that when calling this function with this US frame, it produces the expected result
-
-
-        //TODO: select the right CT image to display
         int mainSequenceFrameIndex=0;
         //estimate the TSlice to set to the CT
-
+        unsigned nbFramesMain = mSlicerManagers[index]->GetImage()->GetTransform().size();
+        mainSequenceFrameIndex = mSlicerManagers[index]->GetFusionSequenceCorrespondances()[ nbFramesMain + fusionSequenceFrameIndex];
         //and set it!
         mSlicerManagers[index]->SetTSlice(mainSequenceFrameIndex, false);
+        //warning, there is a loopback, and modification of the TSlice in main sequence forces an update of the TSlice in secondary, etc... 
       }
 
 
@@ -2921,12 +2931,13 @@ void vvMainWindow::HorizontalSliderMoved(int value,int column, int slicer_index)
           if (mSlicerManagers[i]->GetFusionSequenceTemporalSyncFlag()) {            
             //WARNING: for some obscure reason, there are problems when accessing mSlicerManagers[mSlicerManagers[i]->GetFusionSequenceIndexOfLinkedManager()]->GetFusionSequenceFrameIndex();
 
-            //int estimatedValue=mSlicerManagers[mSlicerManagers[i]->GetFusionSequenceIndexOfLinkedManager()]->GetFusionSequenceFrameIndex();
             int estimatedValue=0;
-            //TODO: if temporal sync is active
             //estimate a corresponding time index for the secondary (US) sequence, and update it accordingly.
-            //estimatedValue = ...
-            overlayPanel->updateFusionSequenceSliderValueFromWindow(estimatedValue, true);
+            estimatedValue = mSlicerManagers[i]->GetFusionSequenceCorrespondances()[ value ];       
+            //TODO: at the moment, there is a loop in TSlice modifications
+            //modifying sequence 1 causes seq 2 to update, which in turns update seq1...
+            //I disable control on seq1 at the moment.
+            //overlayPanel->updateFusionSequenceSliderValueFromWindow(estimatedValue, true);
           }
         }
       }

@@ -281,10 +281,28 @@ void clitk::DicomRTDoseIO::Read(void * buffer)
   /* PixelData */
 #if GDCM_MAJOR_VERSION == 2
   gdcm::Image &i = m_GdcmImageReader.GetImage();
-  i.GetBuffer((char*)buffer);
-  // WARNING: GetBuffer return the pixel values as stored on disk not the real pixel value
-  // we still need to multiply by m_DoseScaling
-  // An alternate solution would be to use vtkGDCMImageReader...
+  
+  char* image_data = new char[i.GetBufferLength()];
+  i.GetBuffer(image_data);
+
+  gdcm::DataSet& ds = m_GdcmImageReader.GetFile().GetDataSet();
+  float *img = (float*) buffer;
+  
+  gdcm::Attribute<0x28, 0x100> pixel_size;
+  pixel_size.SetFromDataSet(ds);
+  if (pixel_size.GetValue() == 16)  {
+    unsigned short* image_data2 = (unsigned short*) image_data ;
+    dose_copy_raw (img, image_data2, npix, m_DoseScaling);
+  }
+  else if (pixel_size.GetValue() == 32)  {
+    unsigned long* image_data2 = (unsigned long*) image_data;
+    dose_copy_raw (img, image_data2, npix, m_DoseScaling);
+  } else {
+    itkExceptionMacro(<< "Error RTDOSE not type 16U and 32U (type="
+                      << pixel_size.GetValue() << ")");
+  }
+  
+  delete [] image_data;
 #else
   float *img = (float*) buffer;
 
