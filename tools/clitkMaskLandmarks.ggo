@@ -1,0 +1,10 @@
+package "clitkMaskLandmarks"
+version "1.0"
+purpose "Remove landmarks outside of a given mask also remove their corresponding points if multiple input are given."
+
+option "config"     - "Config file"       string    no
+option "verbose"    v     "Verbose"       flag    off
+
+option "input"  i   "Input landmarks filename"      string  yes     multiple
+option "mask"   m   "Input mask"                    string  yes
+option "output" o   "Output landmarks filename"	    string  yes     multiple

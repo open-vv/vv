@@ -12,8 +12,9 @@ option "input"		i	"Input image filename"		  string  	yes
 option "output"    	o   	"Output image filename"		  string 	yes
 
 section "Used determined padding"
-option "lower"    	l   	"Size of the lower crop region (multiple values)"	  int 	no  multiple
-option "upper"    	u   	"Size of the upper crop region (multiple values)"	  int 	no  multiple
+option "lower"         l       "Size of the lower bound padding (multiple values=number of image dimension)"     int   no  multiple
+option "upper"         u       "Size of the upper bound padding (multiple values=number of image dimension)"     int   no  multiple
+
 
 section "Pad like another image"
 option "like"		-	"Pad like this image (must have the same spacing and bounding box must be larger)"   string no

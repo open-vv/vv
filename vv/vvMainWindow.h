@@ -161,7 +161,7 @@ public slots:
   void SelectFusionImage();
   //select the file(s) from the disk containing the image sequence to fuse
   void SelectFusionSequence();
-  void SelectFusionSequenceTemporalSignal();
+  void SelectFusionSequenceCorrespondances();
 
   void ResetTransformationToIdentity();
 
