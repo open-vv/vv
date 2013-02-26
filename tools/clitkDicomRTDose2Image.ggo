@@ -1,0 +1,8 @@
+# file clitkDicomRTDose2Image.ggo
+package "clitk"
+version "Try to convert a DICOM RTDOSE file into an image (.hdr, .vox...)"
+
+option "config"	  	 -	"Config file"		 string  	no
+option "verbose"	 v "Verbose"		 	 flag off
+option "input"      i "Input image filename"    string  yes
+option "output"      o "Output image filename"		string 	yes
