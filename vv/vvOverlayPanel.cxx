@@ -65,7 +65,7 @@ vvOverlayPanel::vvOverlayPanel(QWidget * parent):QWidget(parent)
   connect(fCTUSSlider,SIGNAL(valueChanged(int)),this,SLOT(setFusionSequenceProperty()));
   connect(fCTUSActivateSpaceSyncCheckBox,SIGNAL(stateChanged(int)),this,SLOT(setFusionSequenceProperty()));
   connect(fCTUSActivateTimeSyncCheckBox,SIGNAL(stateChanged(int)),this,SLOT(setFusionSequenceProperty()));
-  connect(fCTUSLoadSignalPushButton,SIGNAL(clicked()),this,SIGNAL(FusionSequenceSignalButtonPressed()));
+  connect(fCTUSLoadCorrespondancesPushButton,SIGNAL(clicked()),this,SIGNAL(FusionSequenceCorrespondancesButtonPressed()));
 }
 
 void vvOverlayPanel::getCurrentImageName(QString name)

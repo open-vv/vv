@@ -68,7 +68,7 @@ signals:
   void OverlayPropertyUpdated(int color, int linked, double window, double level);
   void FusionPropertyUpdated(int opacity, int thresOpacity, int colormap, double window, double level, bool showLegend);
   void FusionSequencePropertyUpdated(int sequenceFrameIndex, bool spatialSync, unsigned int sequenceLength, bool temporalSync);
-  void FusionSequenceSignalButtonPressed();
+  void FusionSequenceCorrespondancesButtonPressed();
 
 private:
   bool disableFusionSignals;

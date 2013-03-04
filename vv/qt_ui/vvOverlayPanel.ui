@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>444</width>
-    <height>612</height>
+    <width>446</width>
+    <height>679</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -65,9 +65,9 @@ p, li { white-space: pre-wrap; }
       </property>
       <property name="geometry">
        <rect>
-        <x>220</x>
+        <x>230</x>
         <y>60</y>
-        <width>80</width>
+        <width>91</width>
         <height>17</height>
        </rect>
       </property>
@@ -78,9 +78,9 @@ p, li { white-space: pre-wrap; }
      <widget class="QCheckBox" name="fCTUSActivateSpaceSyncCheckBox">
       <property name="geometry">
        <rect>
-        <x>220</x>
+        <x>270</x>
         <y>10</y>
-        <width>61</width>
+        <width>81</width>
         <height>17</height>
        </rect>
       </property>
@@ -115,7 +115,7 @@ p, li { white-space: pre-wrap; }
        <rect>
         <x>30</x>
         <y>0</y>
-        <width>171</width>
+        <width>231</width>
         <height>32</height>
        </rect>
       </property>
@@ -141,7 +141,7 @@ p, li { white-space: pre-wrap; }
        <rect>
         <x>130</x>
         <y>36</y>
-        <width>151</width>
+        <width>201</width>
         <height>20</height>
        </rect>
       </property>
@@ -149,17 +149,20 @@ p, li { white-space: pre-wrap; }
        <enum>Qt::Horizontal</enum>
       </property>
      </widget>
-     <widget class="QPushButton" name="fCTUSLoadSignalPushButton">
+     <widget class="QPushButton" name="fCTUSLoadCorrespondancesPushButton">
       <property name="geometry">
        <rect>
         <x>20</x>
         <y>60</y>
-        <width>131</width>
+        <width>171</width>
         <height>23</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Load a file indicating the correspondances between time indices between both sequences.&lt;/p&gt;&lt;p&gt;The format needs to be the following:&lt;/p&gt;&lt;p&gt;let nt1 the number of frames in sequence 1, resp. nt2 and seq. 2 &lt;/p&gt;&lt;p&gt;The file must contain nt1 + nt2 entries.&lt;/p&gt;&lt;p&gt;entry i (i&amp;lt;=nt1) indicates for the i-th frame of sequence 1 the index to display for sequence 2.&lt;/p&gt;&lt;p&gt;resp. i&amp;gt;nt1 indicate corresp from seq. 2 to seq. 1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
-       <string>Load Fused Seq. Signal</string>
+       <string>Load Correspondances</string>
       </property>
      </widget>
     </widget>

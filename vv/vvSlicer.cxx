@@ -155,6 +155,7 @@ vvSlicer::vvSlicer()
   mConcatenatedTransform = vtkSmartPointer<vtkTransform>::New();
   mConcatenatedFusionTransform = vtkSmartPointer<vtkTransform>::New();
   mConcatenatedOverlayTransform = vtkSmartPointer<vtkTransform>::New();
+  mFirstSetSliceOrientation = true;
 }
 //------------------------------------------------------------------------------
 
@@ -853,15 +854,17 @@ void vvSlicer::SetSliceOrientation(int orientation)
   // DDV(cursorPos, 3);
   // SetCurrentPosition(cursorPos[0],cursorPos[1],cursorPos[2],cursorPos[3]);
 
-  if (this->Renderer && this->GetInput()) {
+  if (mFirstSetSliceOrientation) {
+    int *range = this->GetSliceRange();
+    if (range)
+      this->Slice = static_cast<int>((range[0] + range[1]) * 0.5);
+    mFirstSetSliceOrientation = false;
+  }
+  else if (this->Renderer && this->GetInput()) {
     double s = mCursor[orientation];
     double sCursor = (s - this->GetInput()->GetOrigin()[orientation])/this->GetInput()->GetSpacing()[orientation];
     this->Slice = static_cast<int>(sCursor);
   }
-  
-//   int *range = this->GetSliceRange();
-//   if (range)
-//     this->Slice = static_cast<int>((range[0] + range[1]) * 0.5);
 
   this->UpdateOrientation();
   this->UpdateDisplayExtent();

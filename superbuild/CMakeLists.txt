@@ -62,6 +62,7 @@ ExternalProject_Add(
                                                   -no-libtiff
                                                   -no-libjpeg
                                                   -no-libmng
+                                                  -no-glib
   INSTALL_COMMAND ""
 )
 SET(qmake_executable "${build_prefix}/QT/bin/qmake")
