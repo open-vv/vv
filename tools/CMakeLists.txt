@@ -34,11 +34,6 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkDicom2Image clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkDicom2Image)
 
-  WRAP_GGO(clitkDicomRTDose2Image_GGO_C clitkDicomRTDose2Image.ggo)
-  ADD_EXECUTABLE(clitkDicomRTDose2Image clitkDicomRTDose2Image.cxx ${clitkDicomRTDose2Image_GGO_C})
-  TARGET_LINK_LIBRARIES(clitkDicomRTDose2Image clitkCommon ${ITK_LIBRARIES})
-  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkDicomRTDose2Image)
-
   WRAP_GGO(clitkDicomWave2Text_GGO_C clitkDicomWave2Text.ggo)
   ADD_EXECUTABLE(clitkDicomWave2Text clitkDicomWave2Text.cxx ${clitkDicomWave2Text_GGO_C})
   TARGET_LINK_LIBRARIES(clitkDicomWave2Text clitkCommon ${ITK_LIBRARIES})
