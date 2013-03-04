@@ -223,6 +223,11 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkTransformLandmarks clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkTransformLandmarks)
 
+  WRAP_GGO(clitkMaskLandmarks_GGO_C clitkMaskLandmarks.ggo)
+  ADD_EXECUTABLE(clitkMaskLandmarks clitkMaskLandmarks.cxx ${clitkMaskLandmarks_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkMaskLandmarks clitkCommon ${ITK_LIBRARIES})
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMaskLandmarks)
+
   ADD_EXECUTABLE(clitkMakeSphereImage clitkMakeSphereImage.cxx) # clitkLineProfileGenericFilter.cxx ${clitkLineProfile_GGO_C})
   TARGET_LINK_LIBRARIES(clitkMakeSphereImage clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMakeSphereImage)
