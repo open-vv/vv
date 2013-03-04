@@ -235,23 +235,8 @@ TARGET_LINK_LIBRARIES(vv vvLib)
 
 #=========================================================
 # Install options (also used by CPack)
-IF(UNIX OR APPLE)
-  INSTALL (TARGETS vv DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
-  #  INSTALL (FILES ${CMAKE_CURRENT_SOURCE_DIR}/icons/ducky.png DESTINATION .)
+INSTALL (TARGETS vv DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
 
-  #QT
-  #FOREACH(LIB QtCore QtGui QtOpenGL QtNetwork QtSql)
-  #  INSTALL(FILES "${QT_LIBRARY_DIR}/lib${LIB}.so.${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}"
-  #          RENAME "lib${LIB}.so.${QT_VERSION_MAJOR}"
-  #          DESTINATION .)
-  #ENDFOREACH(LIB)
-ENDIF(UNIX OR APPLE)
-
-IF(WIN32)
-  #INCLUDE(InstallRequiredSystemLibraries)
-  INSTALL(TARGETS vv DESTINATION bin)
-  #INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/icons/ducky.png DESTINATION .)
-ENDIF(WIN32)
 #=========================================================
 
 #=========================================================
@@ -281,7 +266,7 @@ IF(WIN32)
   SET(CPACK_NSIS_HELP_LINK "http://www.creatis.insa-lyon.fr/rio/vv")
   SET(CPACK_NSIS_URL_INFO_ABOUT "http://www.creatis.insa-lyon.fr/rio")
   SET(CPACK_NSIS_CONTACT "vv@creatis.insa-lyon.fr")
-  SET(CPACK_NSIS_CREATE_ICONS_EXTRA "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\vv.lnk\\\" \\\"$INSTDIR\\\\vv.exe\\\" ")
+  SET(CPACK_NSIS_CREATE_ICONS_EXTRA "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\vv.lnk\\\" \\\"$INSTDIR\\\\bin\\\\vv.exe\\\" ")
   SET(CPACK_NSIS_DELETE_ICONS_EXTRA "Delete \\\"$SMPROGRAMS\\\\$MUI_TEMP\\\\vv.lnk\\\" ")
   #SET(CPACK_NSIS_MODIFY_PATH ON) SR: buggy, wait for cmake updates for a fix
   #SET(CPACK_BINARY_ZIP ON)
