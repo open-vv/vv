@@ -223,6 +223,11 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkTransformLandmarks clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkTransformLandmarks)
 
+  WRAP_GGO(clitkMaskLandmarks_GGO_C clitkMaskLandmarks.ggo)
+  ADD_EXECUTABLE(clitkMaskLandmarks clitkMaskLandmarks.cxx ${clitkMaskLandmarks_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkMaskLandmarks clitkCommon ${ITK_LIBRARIES})
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMaskLandmarks)
+
   ADD_EXECUTABLE(clitkMakeSphereImage clitkMakeSphereImage.cxx) # clitkLineProfileGenericFilter.cxx ${clitkLineProfile_GGO_C})
   TARGET_LINK_LIBRARIES(clitkMakeSphereImage clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMakeSphereImage)
@@ -268,7 +273,6 @@ IF (CLITK_BUILD_TOOLS)
     SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkDicomRTPlan2Gate)
   ENDIF(ITK_VERSION_MAJOR VERSION_LESS 4)
 
-#   SET_TARGET_PROPERTIES(${TOOLS_INSTALL} PROPERTIES INSTALL_RPATH "${VTK_DIR}:${ITK_DIR}" )  
   INSTALL (TARGETS ${TOOLS_INSTALL} DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
 ENDIF(CLITK_BUILD_TOOLS)
