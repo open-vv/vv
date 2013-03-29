@@ -32,6 +32,7 @@ public:
 
     void setTransformation(QString text);
     void setFileName(QString text);
+    void setImageCreationTime(QString text);
     void setSizeMM(QString text);
     void setOrigin(QString text);
     void setSpacing(QString text);

@@ -60,6 +60,8 @@ public :
   void SetTimeSpacing(double s) { mTimeSpacing = s; }
   void SetTimeOrigin(double o) { mTimeOrigin = o; }
   bool HaveSameSizeAndSpacingThan(vvImage * other);
+  //META DATA
+  itk::MetaDataDictionary* GetFirstMetaDataDictionary();
 
 private:
   vvImage();
@@ -68,6 +70,8 @@ private:
   std::vector< ConverterPointer > mItkToVtkConverters;
   std::vector< vtkImageData* > mVtkImages;
   std::vector< vtkSmartPointer<vtkTransform> > mTransform;
+  //META DATA
+  std::vector< itk::MetaDataDictionary* > mDictionary;
 
   double mTimeOrigin;
   double mTimeSpacing;

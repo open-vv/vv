@@ -36,6 +36,8 @@ template<unsigned int Dim>
 void clitk::ExtractPatientGenericFilter<ArgsInfoType>::InitializeImageType() 
 {  
   ADD_IMAGE_TYPE(Dim, short);
+  ADD_IMAGE_TYPE(Dim, unsigned short);
+  ADD_IMAGE_TYPE(Dim, float);
   // ADD_IMAGE_TYPE(Dim, int);
   // ADD_IMAGE_TYPE(Dim, float);
 }
