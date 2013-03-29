@@ -269,6 +269,11 @@ bool vvImage::HaveSameSizeAndSpacingThan(vvImage * other)
   return same;
 }
 //--------------------------------------------------------------------
+itk::MetaDataDictionary* vvImage::GetFirstMetaDataDictionary()
+{
+    return mDictionary[0];
+}
+//--------------------------------------------------------------------
 
 
 #endif // VVIMAGE_CXX
