@@ -65,6 +65,7 @@ AddRelativePositionConstraintToLabelImageFilter():
   FuzzyMapOnlyFlagOff();
   FastFlagOff();
   SetRadius(2.0);
+  SetK1(vcl_acos(-1.0)/2);
 }
 //--------------------------------------------------------------------
 
@@ -387,12 +388,9 @@ GenerateData()
     relPosFilter->SetInput(working_image);
     relPosFilter->SetAlpha1(m_Angle1[i]); // xy plane
     relPosFilter->SetAlpha2(m_Angle2[i]);
-    relPosFilter->SetK1(M_PI/2.0); // Opening parameter, default = pi/2
-
-    // relPosFilter->SetFast(true);
-    // relPosFilter->SetRadius(1); // seems sufficient in this case
-
+    relPosFilter->SetK1(GetK1());// M_PI/2.0); // Opening parameter, default = pi/2
     // relPosFilter->SetVerboseProgress(true);
+
     relPosFilter->Update();
     relPos = relPosFilter->GetOutput();
 
@@ -444,6 +442,7 @@ GenerateData()
       resampleFilter->SetGaussianFilteringEnabled(false);
       resampleFilter->Update();
       relPos = m_FuzzyMap = resampleFilter->GetOutput();
+      StopCurrentStep<FloatImageType>(relPos);
 
       // Need to put exactly the same size
       if (relPos->GetLargestPossibleRegion() != input->GetLargestPossibleRegion()) {

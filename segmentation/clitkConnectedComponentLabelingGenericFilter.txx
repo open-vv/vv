@@ -46,6 +46,7 @@ void clitk::ConnectedComponentLabelingGenericFilter<ArgsInfoType>::InitializeIma
 {  
   ADD_IMAGE_TYPE(Dim, uchar);
   ADD_IMAGE_TYPE(Dim, short);
+  ADD_IMAGE_TYPE(Dim, ushort);
   // ADD_IMAGE_TYPE(Dim, int);
   ADD_IMAGE_TYPE(Dim, float);
 }

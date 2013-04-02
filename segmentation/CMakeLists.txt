@@ -8,6 +8,7 @@ ENDFOREACH(clitkTool)
 ADD_LIBRARY(clitkSegmentationGgoLib
             clitkFilterWithAnatomicalFeatureDatabaseManagement.cxx
             clitkAnatomicalFeatureDatabase.cxx
+            clitkSliceBySliceRelativePositionFilter_uchar.cxx
             ${GGO_C_FILES})
 
 #=========================================================

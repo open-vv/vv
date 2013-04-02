@@ -235,5 +235,22 @@ void MapToVecSecond(const  M & m, V & v) {
 }
 //--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
+//http://stackoverflow.com/questions/1494399/how-do-i-search-find-and-replace-in-a-standard-string
+template<class T>
+int inline findAndReplace(T& source, const T& find, const T& replace)
+{
+  int num=0;
+  int fLen = find.size();
+  int rLen = replace.size();
+  for (int pos=0; (pos=source.find(find, pos))!=T::npos; pos+=rLen) {
+    num++;
+    source.replace(pos, fLen, replace);
+  }
+  return num;
+}
+//--------------------------------------------------------------------
+
 #endif /* end #define CLITKCOMMON_TXX */
 

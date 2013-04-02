@@ -354,7 +354,7 @@ namespace clitk {
       ++iter;
     }
     if (!found) return false;
-    input->TransformIndexToPhysicalPoint(max, point);
+    input->TransformIndexToPhysicalPoint(max, point); // half of the pixel
     return true;
   }
   //--------------------------------------------------------------------
@@ -382,14 +382,12 @@ namespace clitk {
                  int dim, double max, bool autoCrop,
                  typename ImageType::PixelType BG) 
   {
-    typename ImageType::PointType p;
+    typename ImageType::PointType p; 
+    
     image->TransformIndexToPhysicalPoint(image->GetLargestPossibleRegion().GetIndex()+
                                          image->GetLargestPossibleRegion().GetSize(), p);
-    // Add GetSpacing because remove Lower or equal than
-    // DD(max);
-    // DD(p);
-    // DD(max+image->GetSpacing()[dim]);
-    return CropImageAlongOneAxis<ImageType>(image, dim, max+image->GetSpacing()[dim], p[dim], autoCrop, BG);
+
+    return CropImageAlongOneAxis<ImageType>(image, dim, max, p[dim], autoCrop, BG);
   }
   //--------------------------------------------------------------------
 
@@ -404,16 +402,24 @@ namespace clitk {
     // Compute region size
     typename ImageType::RegionType region;
     typename ImageType::SizeType size = image->GetLargestPossibleRegion().GetSize();
-    typename ImageType::PointType p = image->GetOrigin();
+    
+    // Starting index
+    typename ImageType::PointType p = image->GetOrigin(); // not at pixel center !
     if (min > p[dim]) p[dim] = min; // Check if not outside the image
     typename ImageType::IndexType start;
     image->TransformPhysicalPointToIndex(p, start);
-    double m = image->GetOrigin()[dim] + size[dim]*image->GetSpacing()[dim];
+
+    // Size of the region
+    // -1 because last point is size -1
+    double m = image->GetOrigin()[dim] + (size[dim]-1)*image->GetSpacing()[dim];
     if (max > m) p[dim] = m; // Check if not outside the image
     else p[dim] = max;
+
     typename ImageType::IndexType end;
     image->TransformPhysicalPointToIndex(p, end);
-    size[dim] = abs(end[dim]-start[dim]);
+    size[dim] = abs(end[dim]-start[dim])+1;// +1 because we want to include the point. 
+    
+    // Set region
     region.SetIndex(start);
     region.SetSize(size);
   
@@ -762,9 +768,24 @@ namespace clitk {
                                               std::vector<typename ImageType::PointType> & lB, 
                                               typename ImageType::PixelType BG, 
                                               int mainDirection, 
-                                              double offsetToKeep)
+                                              double offsetToKeep,
+                                              bool keepIfEqual)
   {
     assert((mainDirection==0) || (mainDirection==1));
+    typename ImageType::PointType offset;
+    offset[0] = offset[1] = offset[2] = 0.0;
+    offset[mainDirection] = offsetToKeep;
+    SliceBySliceSetBackgroundFromLineSeparation_pt<ImageType>(input, lA, lB, BG, offset, keepIfEqual);
+  }
+  template<class ImageType>
+  void 
+  SliceBySliceSetBackgroundFromLineSeparation_pt(ImageType * input, 
+                                                 std::vector<typename ImageType::PointType> & lA, 
+                                                 std::vector<typename ImageType::PointType> & lB, 
+                                                 typename ImageType::PixelType BG, 
+                                                 typename ImageType::PointType offsetToKeep,
+                                                 bool keepIfEqual)
+  {
     typedef itk::ImageSliceIteratorWithIndex<ImageType> SliceIteratorType;
     SliceIteratorType siter = SliceIteratorType(input, input->GetLargestPossibleRegion());
     siter.SetFirstDirection(0);
@@ -779,6 +800,8 @@ namespace clitk {
       // Check that the current slice correspond to the current point
       input->TransformIndexToPhysicalPoint(siter.GetIndex(), C);
       if ((fabs(C[2] - lA[i][2]))>0.01) { // is !equal with a tolerance of 0.01 mm
+        // FIXME : if not the same slices, should advance i or slice (not done yet)
+        //        clitkExceptionMacro("Error list of point and slice do not start at the same location");
       }
       else {
         // Define A,B,C points
@@ -789,20 +812,27 @@ namespace clitk {
         bool p = (A[0] == B[0]) && (A[1] == B[1]);
       
         if (!p) {
-          C[mainDirection] += offsetToKeep; // I know I must keep this point
+          //C[mainDirection] += offsetToKeep; // I know I must keep this point
+          C[0] += offsetToKeep[0];
+          C[1] += offsetToKeep[1];
+          //C[2] += offsetToKeep[2]; 
           double s = (B[0] - A[0]) * (C[1] - A[1]) - (B[1] - A[1]) * (C[0] - A[0]);
           bool isPositive = s<0;
           while (!siter.IsAtEndOfSlice()) {
             while (!siter.IsAtEndOfLine()) {
-              // Very slow, I know ... but image should be very small
-              input->TransformIndexToPhysicalPoint(siter.GetIndex(), C);
-              double s = (B[0] - A[0]) * (C[1] - A[1]) - (B[1] - A[1]) * (C[0] - A[0]);
-              if (s == 0) siter.Set(BG); // on the line, we decide to remove
-              if (isPositive) {
-                if (s > 0) siter.Set(BG);
-              }
-              else {
-                if (s < 0) siter.Set(BG); 
+              if (siter.Get() != BG) { // do only if not BG
+                // Very slow, I know ... but image should be very small
+                input->TransformIndexToPhysicalPoint(siter.GetIndex(), C);
+                double s = (B[0] - A[0]) * (C[1] - A[1]) - (B[1] - A[1]) * (C[0] - A[0]);
+                if (s == 0) {
+                  if (!keepIfEqual) siter.Set(BG); // on the line, we decide to remove
+                }
+                if (isPositive) {
+                  if (s > 0) siter.Set(BG);
+                }
+                else {
+                  if (s < 0) siter.Set(BG); 
+                }
               }
               ++siter;
             }
@@ -1340,14 +1370,14 @@ namespace clitk {
 
     }
 
-    // Debug dmap
     /*
-      typedef itk::Image<float,3> FT;
-      FT::Pointer f = FT::New();
-      typename FT::Pointer d1 = clitk::JoinSlices<FT>(dmaps1, S1, 2);
-      typename FT::Pointer d2 = clitk::JoinSlices<FT>(dmaps2, S2, 2);
-      writeImage<FT>(d1, "d1.mha");
-      writeImage<FT>(d2, "d2.mha");
+    // Debug dmap
+    typedef itk::Image<float,3> FT;
+    FT::Pointer f = FT::New();
+    typename FT::Pointer d1 = clitk::JoinSlices<FT>(dmaps1, S1, 2);
+    typename FT::Pointer d2 = clitk::JoinSlices<FT>(dmaps2, S2, 2);
+    writeImage<FT>(d1, "d1.mha");
+    writeImage<FT>(d2, "d2.mha");
     */
   }
   //--------------------------------------------------------------------

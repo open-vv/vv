@@ -50,15 +50,7 @@ namespace clitk
       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_char..." << std::endl;
       UpdateWithDimAndPixelType<Dimension, unsigned char, Components>();
     }
-    
-//     else if (PixelType == "unsigned_int"){ 
-//       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_int..." << std::endl;
-//       UpdateWithDimAndPixelType<Dimension, unsigned int, Components>();
-//     }
-    //     else if (PixelType == "char"){ 
-    //       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and signed_char..." << std::endl;
-    //       UpdateWithDimAndPixelType<Dimension, signed char>();
-    //     }
+        
     else if(PixelType == "double"){  
       if (m_Verbose) std::cout << "Launching filter in "<< Dimension <<"D and double..." << std::endl;
       UpdateWithDimAndPixelType<Dimension, double, Components>(); 
@@ -148,12 +140,19 @@ namespace clitk
             typename ResamplerType::Pointer resampler = ResamplerType::New();
             resampler->SetInput(labelImage);
             resampler->SetOutputSpacing(input->GetSpacing());
+            resampler->SetGaussianFilteringEnabled(false);
             resampler->Update();
             labelImage = resampler->GetOutput();
+            //writeImage<LabelImageType>(labelImage, "test1.mha");
+            
+            typedef clitk::CropLikeImageFilter<LabelImageType> FilterType;
+            typename FilterType::Pointer crop = FilterType::New();
+            crop->SetInput(labelImage);
+            crop->SetCropLikeImage(input);
+            crop->Update();
+            labelImage = crop->GetOutput();                        
+            //writeImage<LabelImageType>(labelImage, "test2.mha");
 
-            typename itk::ImageBase<LabelImageType::ImageDimension>::RegionType reg 
-              = input->GetLargestPossibleRegion();
-            labelImage = ResizeImageLike<LabelImageType>(labelImage, &reg, 0);
           }
           else {
             std::cerr << "Mask image has a different size/spacing than input. Abort" << std::endl;

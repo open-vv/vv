@@ -739,7 +739,7 @@ void vvMainWindow::OpenDicom()
 {
   std::vector<std::string> files;
 
-  std::cout << "dicomSeriesSelector " << std::endl;
+  //std::cout << "dicomSeriesSelector " << std::endl;
   if (dicomSeriesSelector->exec() == QDialog::Accepted) {
     files = *(dicomSeriesSelector->GetFilenames());
     LoadImages(files, vvImageReader::DICOM);
