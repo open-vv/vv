@@ -24,6 +24,8 @@ SET(clitkCommon_SRC
   rtkHndImageIOFactory.cxx
   rtkEdfImageIO.cxx
   rtkEdfImageIOFactory.cxx
+  rtkXRadImageIO.cxx
+  rtkXRadImageIOFactory.cxx
   rtkImagXImageIO.cxx
   rtkImagXImageIOFactory.cxx
   rtkImagXXMLFileReader.cxx

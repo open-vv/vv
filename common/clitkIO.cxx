@@ -34,6 +34,7 @@
 #include "rtkHndImageIOFactory.h"
 #include "rtkEdfImageIOFactory.h"
 #include "rtkImagXImageIOFactory.h"
+#include "rtkXRadImageIOFactory.h"
 #include "clitkEsrfHstImageIOFactory.h"
 #include "clitkGateAsciiImageIOFactory.h"
 #include "clitkConfiguration.h"
@@ -76,6 +77,7 @@ void clitk::RegisterClitkFactories()
   rtk::HndImageIOFactory::RegisterOneFactory();
   rtk::EdfImageIOFactory::RegisterOneFactory();
   rtk::ImagXImageIOFactory::RegisterOneFactory();
+  rtk::XRadImageIOFactory::RegisterOneFactory();
   clitk::EsrfHstImageIOFactory::RegisterOneFactory();
 #if ITK_VERSION_MAJOR >= 4
   itk::GDCMImageIOFactory::RegisterOneFactory();

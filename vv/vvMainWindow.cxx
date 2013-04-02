@@ -1134,6 +1134,9 @@ void vvMainWindow::ImageInfoChanged()
     dim += pixelType + ")";
 
     infoPanel->setFileName(image);
+    std::string creationImageTimeValue("No creation time");
+    itk::ExposeMetaData< std::string > (*imageSelected->GetFirstMetaDataDictionary(), "creationImageTime", creationImageTimeValue);
+    infoPanel->setImageCreationTime(QString(creationImageTimeValue.c_str()));
     infoPanel->setDimension(dim);
     infoPanel->setSizePixel(GetVectorIntAsString(inputSize));
     infoPanel->setSizeMM(GetVectorDoubleAsString(sizeMM));
