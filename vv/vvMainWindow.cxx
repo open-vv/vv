@@ -2474,7 +2474,7 @@ void vvMainWindow::SelectFusionSequenceCorrespondances() {
   bool signalOK = true;
   unsigned nbFrameMain = mSlicerManagers[index]->GetImage()->GetTransform().size();
   unsigned nbFrameSecondary = mSlicerManagers[index]->GetFusionSequenceNbFrames();
-
+std::cout<<"nbFrameMain = "<<nbFrameMain<<", nbFrameSecondary= "<<nbFrameSecondary<<", signal size: "<<tmpVect.size()<<std::endl;
   std::vector<unsigned> temporalCorrespondances;
   if ( tmpVect.size() == nbFrameMain + nbFrameSecondary ) {
     for (unsigned i=0 ; i<tmpVect.size() ; i++) {
@@ -2517,6 +2517,7 @@ void vvMainWindow::AddFusionSequence(int index, std::vector<std::string> fileNam
     mInputPathName = itksys::SystemTools::GetFilenamePath(file.toStdString()).c_str();
     itk::ImageIOBase::Pointer reader = itk::ImageIOFactory::CreateImageIO(
       file.toStdString().c_str(), itk::ImageIOFactory::ReadMode);
+    std::sort (fileNames.begin(), fileNames.end());//make sure the files are sorted.
     reader->SetFileName(fileNames[0].c_str());
     reader->ReadImageInformation();
     std::string component = reader->GetComponentTypeAsString(reader->GetComponentType());

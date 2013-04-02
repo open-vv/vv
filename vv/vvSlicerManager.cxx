@@ -351,7 +351,7 @@ bool vvSlicerManager::SetFusionSequence(std::vector<std::string> filenames, int 
 	}
 
 	//adjust the time slider in the overlay panel
-	mFusionSequenceNbFrames = mFusionSequenceReader->GetOutput()->GetTransform().size()-1; //actually, this is the maximum index...
+	mFusionSequenceNbFrames = mFusionSequenceReader->GetOutput()->GetTransform().size(); 
 	mFusionSequenceFrameIndex = std::max<int>( 0, std::min<int>(mFusionSequenceFrameIndex, mFusionSequenceNbFrames));
 
 	return true;
