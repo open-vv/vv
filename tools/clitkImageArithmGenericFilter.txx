@@ -391,6 +391,18 @@ void clitk::ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it, Ite
       ++ito;
     }
     break;
+  case 13: // -ln I/I0
+    while (!it.IsAtEnd()) {
+      if (it.Get() == 0) { // special case for fluence image with 0 value in a pixel -> consider 0.5
+        ito.Set(-log(0.5 / mScalar) );
+      }
+      else {
+        ito.Set(-log(PixelTypeDownCast<double, PixelType>((double)it.Get() / mScalar)) );
+      }
+      ++it;
+      ++ito;
+    }
+    break;
   default: // error ?
     std::cerr << "ERROR : the operation number (" << mTypeOfOperation << ") is not known." << std::endl;
     exit(-1);

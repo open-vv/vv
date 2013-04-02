@@ -79,7 +79,7 @@ bool clitk::EsrfHstImageIO::CanReadFile(const char* FileNameToRead)
 
   std::string firstLine;
   std::getline(is, firstLine);
-  if(firstLine != std::string("<!-- PyHST VOLUME XML FILE -->") )
+  if(firstLine.find( std::string("<!-- PyHST VOLUME XML FILE -->") ) == std::string::npos)
     return false;
 
   return true;

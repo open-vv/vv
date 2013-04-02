@@ -314,12 +314,23 @@ void vvBinaryImageOverlayActor::ComputeExtent(int orientation,
 //----------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::ComputeExtent(int * inExtent, int * outExtent, vtkImageData * image, vtkImageData * overlay)
 {
+  for(int i=0; i<3; i++) {
+    double a = (image->GetOrigin()[i] + inExtent[i*2]*image->GetSpacing()[i] - 
+                overlay->GetOrigin()[i]) / overlay->GetSpacing()[i];
+    double b = (image->GetOrigin()[i] + inExtent[i*2+1]*image->GetSpacing()[i] - 
+                overlay->GetOrigin()[i]) / overlay->GetSpacing()[i];
+    outExtent[i*2] = lrint(a);
+    outExtent[i*2+1] = lrint(b);
+  }
+
+  /* // FIXME (original)
   outExtent[0] = (int)lrint(((image->GetOrigin()[0] + inExtent[0]*image->GetSpacing()[0]) - overlay->GetOrigin()[0]) / overlay->GetSpacing()[0]);
   outExtent[1] = (int)lrint(((image->GetOrigin()[0] + inExtent[1]*image->GetSpacing()[0]) - overlay->GetOrigin()[0]) / overlay->GetSpacing()[0]);
   outExtent[2] = (int)lrint(((image->GetOrigin()[1] + inExtent[2]*image->GetSpacing()[1]) - overlay->GetOrigin()[1]) / overlay->GetSpacing()[1]);
   outExtent[3] = (int)lrint(((image->GetOrigin()[1] + inExtent[3]*image->GetSpacing()[1]) - overlay->GetOrigin()[1]) / overlay->GetSpacing()[1]);
   outExtent[4] = (int)lrint(((image->GetOrigin()[2] + inExtent[4]*image->GetSpacing()[2]) - overlay->GetOrigin()[2]) / overlay->GetSpacing()[2]);
   outExtent[5] = (int)lrint(((image->GetOrigin()[2] + inExtent[5]*image->GetSpacing()[2]) - overlay->GetOrigin()[2]) / overlay->GetSpacing()[2]);
+  */
 }
 //----------------------------------------------------------------------------
 

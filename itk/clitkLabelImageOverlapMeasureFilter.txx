@@ -94,9 +94,17 @@ GenerateData()
   ImagePointer image_intersection = clitk::Clone<ImageType>(input1);
   clitk::Or<ImageType>(image_union, input2, GetBackgroundValue());
   clitk::And<ImageType>(image_intersection, input2, GetBackgroundValue());
+
+  ImagePointer image_1NotIn2 = clitk::Clone<ImageType>(input1);
+  clitk::AndNot<ImageType>(image_1NotIn2, input2, GetBackgroundValue());
   
+  ImagePointer image_2NotIn1 = clitk::Clone<ImageType>(input2);
+  clitk::AndNot<ImageType>(image_2NotIn1, input1, GetBackgroundValue());
+
   //writeImage<ImageType>(image_union, "union.mha");
   //writeImage<ImageType>(image_intersection, "intersection.mha");
+  //writeImage<ImageType>(image_1NotIn2, "image_1NotIn2.mha");
+  //writeImage<ImageType>(image_2NotIn1, "image_2NotIn1.mha");
   
   // Compute size
   typedef itk::LabelStatisticsImageFilter<ImageType, ImageType> StatFilterType;
@@ -121,12 +129,24 @@ GenerateData()
   statFilter->Update();
   int in2 = statFilter->GetCount(GetLabel1());
 
+  statFilter->SetInput(image_1NotIn2);
+  statFilter->SetLabelInput(image_1NotIn2);
+  statFilter->Update();
+  int l1notIn2 = statFilter->GetCount(GetLabel1());
+
+  statFilter->SetInput(image_2NotIn1);
+  statFilter->SetLabelInput(image_2NotIn1);
+  statFilter->Update();
+  int l2notIn1 = statFilter->GetCount(GetLabel1());
+
   double dice = 2.0*(double)inter/(double)(in1+in2);
   int width = 6;
   std::cout << std::setw(width) << in1 << " "
             << std::setw(width) << in2 << " "
             << std::setw(width) << inter  << " "
             << std::setw(width) << u  << " "
+            << std::setw(width) << l1notIn2  << " "
+            << std::setw(width) << l2notIn1  << " "
             << std::setw(width) << dice << " "; //std::endl;
 }
 //--------------------------------------------------------------------

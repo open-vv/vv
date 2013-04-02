@@ -8,6 +8,7 @@ ENDFOREACH(clitkTool)
 ADD_LIBRARY(clitkSegmentationGgoLib
             clitkFilterWithAnatomicalFeatureDatabaseManagement.cxx
             clitkAnatomicalFeatureDatabase.cxx
+            clitkSliceBySliceRelativePositionFilter_uchar.cxx
             ${GGO_C_FILES})
 
 #=========================================================
@@ -50,7 +51,6 @@ IF(CLITK_BUILD_SEGMENTATION)
     ADD_EXECUTABLE(clitkRegionGrowing clitkRegionGrowing.cxx ${clitkRegionGrowing_GGO_C} ${clitkRelativePosition_GGO_C})
     TARGET_LINK_LIBRARIES(clitkRegionGrowing clitkCommon ${ITK_LIBRARIES})
 
-#    SET_TARGET_PROPERTIES(${SEGMENTATION_INSTALL} PROPERTIES INSTALL_RPATH "${VTK_DIR}:${ITK_DIR}" )  
     INSTALL (TARGETS ${SEGMENTATION_INSTALL} DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
 
 ENDIF(CLITK_BUILD_SEGMENTATION)

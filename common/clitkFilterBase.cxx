@@ -49,7 +49,7 @@ void clitk::FilterBase::SetWarning(std::string e)
 
 
 //--------------------------------------------------------------------
-void clitk::FilterBase::StartNewStep(std::string s) 
+void clitk::FilterBase::StartNewStep(std::string s, bool endl) 
 {
   if (Cancelled()) {
     throw clitk::ExceptionObject("Filter is canceled.");
@@ -69,7 +69,8 @@ void clitk::FilterBase::StartNewStep(std::string s)
 
   m_CurrentStepName = "Step "+GetCurrentStepId()+" -- "+s;
   if (GetVerboseStepFlag()) {
-    std::cout << m_CurrentStepName << std::endl;
+    std::cout << m_CurrentStepName;
+    if (endl) std::cout << std::endl;
     //"Step " << GetCurrentStepId() << " -- " << s << std::endl;
   }
 }

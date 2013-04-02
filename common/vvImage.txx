@@ -52,6 +52,8 @@ void vvImage::AddItkImage(TItkImageType *input)
 
   mTransform.push_back(vtkSmartPointer<vtkTransform>::New());
   mTransform.back()->SetMatrix(matrix);
+  //META DATA
+  mDictionary.push_back(&(input->GetMetaDataDictionary()));
 }
 //--------------------------------------------------------------------
 

@@ -52,6 +52,10 @@ void vvInfoPanel::setFileName(QString text)
 }
 //------------------------------------------------------------------------------
 
+void vvInfoPanel::setImageCreationTime(QString text)
+{
+  creationTimeLabel->setText(text);
+}
 
 //------------------------------------------------------------------------------
 void vvInfoPanel::setDimension(QString text)

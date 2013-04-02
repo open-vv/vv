@@ -173,19 +173,22 @@ GenerateOutputInformation() {
   for(uint i=0; i<mArgsInfoList.size(); i++) {
 
     // clitk::PrintMemory(true, "Start"); 
-    std::string text = "["+s+"] limits ";
+    // remove _S in station name
+    std::string sname = s;
+    clitk::findAndReplace<std::string>(sname, "_S", " ");
+    std::string text = "["+sname+"] ";
     if (mArgsInfoList[i].orientation_given) text += std::string(mArgsInfoList[i].orientation_arg[0])+" ";
     else text = text+"("+toString(mArgsInfoList[i].angle1_arg)+" "+
            toString(mArgsInfoList[i].angle2_arg)+" "+
            (mArgsInfoList[i].inverse_flag?"true":"false")+") ";
     text = text+mArgsInfoList[i].object_arg+" "+toString(mArgsInfoList[i].threshold_arg);
     if (mArgsInfoList[i].sliceBySlice_flag) {
-      text += " slice by slice";
+      text += " SbS";
     }
     else text += " 3D";
-    text += " spacing=" + toString(mArgsInfoList[i].spacing_arg);
+    text += " sp=" + toString(mArgsInfoList[i].spacing_arg)+" ";
 
-    StartNewStep(text);  
+    StartNewStep(text, false); // no endl
     typename RelPosFilterType::Pointer relPosFilter;
 
     // Is it slice by slice or 3D ?
@@ -198,6 +201,7 @@ GenerateOutputInformation() {
       f->SetUniqueConnectedComponentBySliceFlag(mArgsInfoList[i].uniqueCCL_flag);
       f->SetObjectCCLSelectionFlag(mArgsInfoList[i].uniqueObjectCCL_flag);
       f->IgnoreEmptySliceObjectFlagOn();
+      f->SetVerboseSlicesFlag(mArgsInfoList[i].verboseSlices_flag);
       //f->SetObjectCCLSelectionDimension(0);
       //f->SetObjectCCLSelectionDirection(-1);
       //f->SetAutoCropFlag(false);
@@ -227,7 +231,7 @@ GenerateOutputInformation() {
       filter->SetInput(1, m_reference);
       filter->Update();
     }
-    
+    std::cout << std::endl;    
   }
 }
 //--------------------------------------------------------------------
@@ -260,9 +264,12 @@ SetFilterOptions(typename RelPosFilterType::Pointer filter, ArgsInfoType & optio
   ImagePointer object = GetAFDB()->template GetImage<ImageType>(options.object_arg);
   filter->SetInputObject(object);
   filter->WriteStepFlagOff();
+  filter->SetRadius(options.radius_arg);
+  if (options.writeStep_flag) filter->WriteStepFlagOn();
   filter->SetVerboseImageSizeFlag(GetVerboseImageSizeFlag());
   filter->SetFuzzyThreshold(options.threshold_arg);
   filter->SetInverseOrientationFlag(options.inverse_flag); // MUST BE BEFORE AddOrientationTypeString
+  filter->SetFastFlag(options.fastFlag_flag);
 
   if (options.orientation_given == 1)  {
     for(uint i=0; i<options.orientation_given; i++) 

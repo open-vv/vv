@@ -24,6 +24,8 @@ SET(clitkCommon_SRC
   rtkHndImageIOFactory.cxx
   rtkEdfImageIO.cxx
   rtkEdfImageIOFactory.cxx
+  rtkXRadImageIO.cxx
+  rtkXRadImageIOFactory.cxx
   rtkImagXImageIO.cxx
   rtkImagXImageIOFactory.cxx
   rtkImagXXMLFileReader.cxx
@@ -55,9 +57,9 @@ ENDIF(CLITK_PRIVATE_FEATURES)
 ### Declare clitkCommon library
 ADD_LIBRARY(clitkCommon STATIC ${clitkCommon_SRC})
 
-IF(NOT ${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
+IF(CLITK_MEMORY_INFO)
   TARGET_LINK_LIBRARIES(clitkCommon statgrab)
-ENDIF(NOT ${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
+ENDIF(CLITK_MEMORY_INFO)
 
 ### Check if ITK was compiled with SYSTEM_GDCM = ON and set the gdcm libraries accordingly
 SET(CLITK_USE_SYSTEM_GDCM FALSE)

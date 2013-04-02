@@ -118,7 +118,7 @@ namespace clitk {
   protected:
     FilterBase();
     virtual ~FilterBase() {}    
-    void StartNewStep(std::string s);
+    void StartNewStep(std::string s, bool endl=true);
     template<class TInternalImageType>
     void StopCurrentStep(typename TInternalImageType::Pointer p, std::string txt="");
     void StopCurrentStep();
