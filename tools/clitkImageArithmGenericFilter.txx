@@ -397,7 +397,7 @@ void clitk::ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it, Ite
         ito.Set(-log(0.5 / mScalar) );
       }
       else {
-        ito.Set(-log(PixelTypeDownCast<double, PixelType>((double)it.Get() / mScalar)) );
+        ito.Set(PixelTypeDownCast<double, PixelType>(-log((double)it.Get() / mScalar)) );
       }
       ++it;
       ++ito;
