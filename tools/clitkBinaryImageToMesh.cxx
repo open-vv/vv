@@ -33,6 +33,7 @@
 #include "itksys/SystemTools.hxx"
 
 #include "vtkPolyDataWriter.h"
+#include "vtkSmoothPolyDataFilter.h"
 
 void run(const args_info_clitkBinaryImageToMesh& argsInfo);
 
@@ -57,12 +58,20 @@ void run(const args_info_clitkBinaryImageToMesh& argsInfo)
     vtkSmartPointer<vtkContourFilter> pcontour = vtkContourFilter::New();
     pcontour->SetValue(0, 0.5);
     pcontour->SetInputConnection(pbmp_reader->GetOutputPort());
-    
-    vtkSmartPointer<vtkDecimatePro> psurface = vtkDecimatePro::New();
-    psurface->SetInputConnection(pcontour->GetOutputPort());
 
+    vtkAlgorithmOutput *data = pcontour->GetOutputPort();
+
+    if ( (argsInfo.decimate_arg>=0) && (argsInfo.decimate_arg<=1) ) {
+      vtkSmartPointer<vtkDecimatePro> psurface = vtkDecimatePro::New();
+      psurface->SetInputConnection(pcontour->GetOutputPort());
+      psurface->SetTargetReduction(argsInfo.decimate_arg);
+
+      data = psurface->GetOutputPort();
+    }
+
+	
     vtkSmartPointer<vtkPolyDataMapper> skinMapper = vtkPolyDataMapper::New();
-    skinMapper->SetInputConnection(psurface->GetOutputPort());
+    skinMapper->SetInputConnection(data); //psurface->GetOutputPort()
     skinMapper->ScalarVisibilityOff();
       
     vtkSmartPointer<vtkActor> skin = vtkActor::New();
@@ -97,7 +106,7 @@ void run(const args_info_clitkBinaryImageToMesh& argsInfo)
     }
     if (writeVTK) {
       vtkSmartPointer<vtkPolyDataWriter> wr = vtkSmartPointer<vtkPolyDataWriter>::New();
-      wr->SetInputConnection(psurface->GetOutputPort());
+      wr->SetInputConnection(data); //psurface->GetOutputPort()
       wr->SetFileName(output.c_str());
       wr->Update();
       wr->Write();
