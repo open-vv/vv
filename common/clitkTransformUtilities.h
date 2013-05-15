@@ -23,7 +23,8 @@
 #include "itkPoint.h"
 #include "clitkImageCommon.h"
 #include "clitkCommon.h"
- 
+#include <vtkMatrix4x4.h>
+#include <vtkSmartPointer.h>
  
 namespace clitk
 {
@@ -278,6 +279,29 @@ namespace clitk
     return matrix; 
   }
  
+  inline vtkMatrix4x4* ReadVTKMatrix3D(std::string fileName) {
+    // read input matrix
+    std::ifstream is;
+    openFileForReading(is, fileName);
+    std::vector<double> nb;
+    double x;
+    skipComment(is);
+    is >> x;
+    while (!is.eof()) {
+      nb.push_back(x);
+      skipComment(is);
+      is >> x;
+    }
+
+    vtkSmartPointer<vtkMatrix4x4> matrix = vtkSmartPointer<vtkMatrix4x4>::New();
+    unsigned int index=0;
+    for (unsigned int i=0;i<4;i++)
+      for (unsigned int j=0;j<4;j++)
+         matrix->SetElement(i,j, nb[index++]);
+
+    return matrix;
+  }
+
   inline itk::Matrix<double, 3, 3> ReadMatrix2D(std::string fileName)
   {
     // read input matrix

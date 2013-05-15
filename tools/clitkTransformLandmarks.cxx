@@ -23,6 +23,14 @@
 #include <iostream>
 #include <fstream>
 
+#include <vtkSmartPointer.h>
+#include <vtkPoints.h>
+#include <vtkPolyData.h>
+#include "vtkPolyDataReader.h"
+#include "vtkPolyDataWriter.h"
+#include <vtkTransform.h>
+#include <vtkTransformFilter.h>
+
 typedef itk::Matrix<double, 4, 4> MatrixType;
 typedef itk::Point<double, 4> PointType;
 typedef std::vector<PointType> PointArrayType;
@@ -51,6 +59,32 @@ int main(int argc, char** argv)
   PointArrayType inputPoints;
   if (strcmp(args_info.type_arg, "txt") == 0) {
     read_points_txt(args_info.input_arg, inputPoints, data);
+  }
+  else if (strcmp(args_info.type_arg, "vtk") == 0) {
+    vtkSmartPointer<vtkPolyDataReader> reader = vtkSmartPointer<vtkPolyDataReader>::New();
+    reader->SetFileName(args_info.input_arg);
+    reader->Update();
+    vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
+    writer->SetFileName( args_info.output_arg );
+
+    if (args_info.matrix_given) {
+      vtkSmartPointer<vtkTransformFilter> transformFilter = vtkSmartPointer<vtkTransformFilter>::New();
+      vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+      vtkMatrix4x4* matrix = clitk::ReadVTKMatrix3D(args_info.matrix_arg);
+      vtkSmartPointer<vtkMatrix4x4> matrixT = vtkSmartPointer<vtkMatrix4x4>::New();
+      vtkMatrix4x4::Invert(matrix, matrixT); //not sure why, but this seems necessary for using the same .mat as when loading file with vv (probably due to the inversion trick performed in the vv reader...)
+      transform->SetMatrix(matrixT);
+      transformFilter->SetInputConnection(reader->GetOutputPort());
+      transformFilter->SetTransform(transform);
+      writer->SetInputConnection(transformFilter->GetOutputPort());
+
+    }
+    else { //just write the output
+      writer->SetInputConnection( reader->GetOutputPort() );
+    }
+
+    writer->Write();
+    return 0;
   }
   else {
     read_points_pts(args_info.input_arg, inputPoints);
