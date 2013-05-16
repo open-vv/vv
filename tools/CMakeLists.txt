@@ -220,7 +220,7 @@ IF (CLITK_BUILD_TOOLS)
 
   WRAP_GGO(clitkTransformLandmarks_GGO_C clitkTransformLandmarks.ggo)
   ADD_EXECUTABLE(clitkTransformLandmarks clitkTransformLandmarks.cxx ${clitkTransformLandmarks_GGO_C})
-  TARGET_LINK_LIBRARIES(clitkTransformLandmarks clitkCommon ${ITK_LIBRARIES})
+  TARGET_LINK_LIBRARIES(clitkTransformLandmarks clitkCommon ${ITK_LIBRARIES} ${VTK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkTransformLandmarks)
 
   WRAP_GGO(clitkMaskLandmarks_GGO_C clitkMaskLandmarks.ggo)
