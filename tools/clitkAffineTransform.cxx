@@ -16,16 +16,6 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
 
-/* =================================================
- * @file   clitkAffineTransform.cxx
- * @author
- * @date
- *
- * @brief
- *
- ===================================================*/
-
-
 // clitk
 #include "clitkAffineTransform_ggo.h"
 #include "clitkIO.h"

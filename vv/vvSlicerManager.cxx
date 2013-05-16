@@ -351,7 +351,7 @@ bool vvSlicerManager::SetFusionSequence(std::vector<std::string> filenames, int 
 	}
 
 	//adjust the time slider in the overlay panel
-	mFusionSequenceNbFrames = mFusionSequenceReader->GetOutput()->GetTransform().size()-1; //actually, this is the maximum index...
+	mFusionSequenceNbFrames = mFusionSequenceReader->GetOutput()->GetTransform().size(); 
 	mFusionSequenceFrameIndex = std::max<int>( 0, std::min<int>(mFusionSequenceFrameIndex, mFusionSequenceNbFrames));
 
 	return true;
@@ -965,6 +965,10 @@ void vvSlicerManager::ReloadFusion()
 //the secondary sequence is being reloaded.
 void vvSlicerManager::ReloadFusionSequence()
 {
+  //  this is to keep the slice thickness, which needs to be artificially increased for visualization
+  double sp_x, sp_y, sp_z;
+  this->GetImage()->GetVTKImages()[0]->GetSpacing(sp_x, sp_y, sp_z);
+
   mFusionSequenceReader->Update(mImage->GetNumberOfDimensions(),mFusionComponent.c_str(),vvImageReader::MERGEDWITHTIME);
 
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
@@ -982,6 +986,13 @@ void vvSlicerManager::ReloadFusionSequence()
   mFusionSequenceListInitialTransformMatrices.clear();
   for (unsigned i=0 ; i<mFusionSequenceNbFrames ; i++) {
 	  this->AddFusionSequenceInitialTransformMatrices( mFusionSequenceReader->GetOutput()->GetTransform()[i]->GetMatrix() );
+  }
+
+  //  also update the slice thickness
+  for (unsigned i=0 ; i<this->GetImage()->GetTransform().size() ; i++) {
+    sp_x = this->GetImage()->GetVTKImages()[i]->GetSpacing()[0];
+    sp_y = this->GetImage()->GetVTKImages()[i]->GetSpacing()[1];
+    this->GetImage()->GetVTKImages()[i]->SetSpacing( sp_x, sp_y, sp_z);
   }
 
 }

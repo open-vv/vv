@@ -137,9 +137,4 @@ namespace clitk {
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "clitkSliceBySliceRelativePositionFilter.txx"
 #endif
-
-typedef unsigned char                    PixelType_uchar;
-typedef itk::Image<PixelType_uchar, 3>   ImageType_uchar;    
-extern template class clitk::SliceBySliceRelativePositionFilter<ImageType_uchar>;
-
 #endif

@@ -1642,6 +1642,24 @@ void vvMainWindow::CloseImage(QTreeWidgetItem* item, int column)
       }
       //if the slicer manager was involved in a fusion sequence visualization...
       if ( mSlicerManagers[index]->IsInvolvedInFusionSequence() ) {
+        //in both cases, close the overlay: find it... and close it
+        //ideally, I should duplicate the code, and avoid calling CloseImage, since this pops up another interactive box
+        QTreeWidgetItem* overlayItem;
+        if (mSlicerManagers[index]->IsMainSequenceOfFusionSequence()) {
+          for (unsigned i=0 ; i<item->childCount() ; i++) {
+            overlayItem = item->child(i);
+            this->CloseImage( overlayItem, 0 );
+          }
+        }
+        else {
+          QTreeWidgetItem* linkedItem = this->GetItemFromSlicerManager( mSlicerManagers[mSlicerManagers[index]->GetFusionSequenceIndexOfLinkedManager()] );
+          for (unsigned i=0 ; i<linkedItem->childCount() ; i++) {
+            overlayItem = linkedItem->child(i);
+            this->CloseImage( overlayItem, 0 );
+          }
+        }
+
+        /* -- this is normally already done when closing the overlay.
         //reset the transforms
         overlayPanel->getFusionSequenceProperty(-1, false, 0, false);
 
@@ -1653,9 +1671,7 @@ void vvMainWindow::CloseImage(QTreeWidgetItem* item, int column)
             mSlicerManagers[index]->GetSlicer(i)->SetFusionSequenceCode(-1);
             mSlicerManagers[mSlicerManagers[index]->GetFusionSequenceIndexOfLinkedManager()]->GetSlicer(i)->SetFusionSequenceCode(-1);
         }
-        
-        //TODO: also remove the image overlaid with the main sequence, as it is becoming invalid...
-        //this shall be done by calling this->CloseImage() with the correct index;...
+        */
       }
 
       linkPanel->removeImage(index);
@@ -2477,7 +2493,7 @@ void vvMainWindow::SelectFusionSequenceCorrespondances() {
   bool signalOK = true;
   unsigned nbFrameMain = mSlicerManagers[index]->GetImage()->GetTransform().size();
   unsigned nbFrameSecondary = mSlicerManagers[index]->GetFusionSequenceNbFrames();
-
+std::cout<<"nbFrameMain = "<<nbFrameMain<<", nbFrameSecondary= "<<nbFrameSecondary<<", signal size: "<<tmpVect.size()<<std::endl;
   std::vector<unsigned> temporalCorrespondances;
   if ( tmpVect.size() == nbFrameMain + nbFrameSecondary ) {
     for (unsigned i=0 ; i<tmpVect.size() ; i++) {
@@ -2520,6 +2536,7 @@ void vvMainWindow::AddFusionSequence(int index, std::vector<std::string> fileNam
     mInputPathName = itksys::SystemTools::GetFilenamePath(file.toStdString()).c_str();
     itk::ImageIOBase::Pointer reader = itk::ImageIOFactory::CreateImageIO(
       file.toStdString().c_str(), itk::ImageIOFactory::ReadMode);
+    std::sort (fileNames.begin(), fileNames.end());//make sure the files are sorted.
     reader->SetFileName(fileNames[0].c_str());
     reader->ReadImageInformation();
     std::string component = reader->GetComponentTypeAsString(reader->GetComponentType());
@@ -2587,8 +2604,15 @@ void vvMainWindow::AddFusionSequence(int index, std::vector<std::string> fileNam
 
       //This loads the secondary sequence (US) as an independent sequence
       LoadImages(fileNames, type);
-      //reset the transforms to identiy
+      //reset the transforms to identity
+      //FIX -- and set the thickness of the US slices to a large value (necessary for visualization purposes...)
+      double sp_x, sp_y, sp_z;
+      mSlicerManagers[indexParent]->GetImage()->GetVTKImages()[0]->GetSpacing(sp_x, sp_y, sp_z);
+      sp_z = std::max(sp_x, std::max(sp_y, sp_z)) + 0.5; //
       for (unsigned i=0 ; i<mSlicerManagers.back()->GetImage()->GetTransform().size() ; i++) {
+        sp_x = mSlicerManagers.back()->GetImage()->GetVTKImages()[i]->GetSpacing()[0];
+        sp_y = mSlicerManagers.back()->GetImage()->GetVTKImages()[i]->GetSpacing()[1];
+        mSlicerManagers.back()->GetImage()->GetVTKImages()[i]->SetSpacing( sp_x, sp_y, sp_z);
         mSlicerManagers.back()->GetImage()->GetTransform()[i]->Identity();
         mSlicerManagers.back()->GetImage()->GetTransform()[i]->Update();
       }
@@ -2611,7 +2635,7 @@ void vvMainWindow::AddFusionSequence(int index, std::vector<std::string> fileNam
       error += mSlicerManagers[index]->GetLastError().c_str();
       QMessageBox::information(this,tr("Problem reading image !"),error);
     }
-    //WindowLevelChanged();
+    WindowLevelChanged();
     ImageInfoChanged(); //this internally calls WindowLevelChanged...
   }
   else {
