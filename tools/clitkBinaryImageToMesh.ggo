@@ -8,4 +8,5 @@ option "verbose"  v     "Verbose"   flag  off
 
 option "input"    i "Input image"   string  yes
 option "output"   o "Output mesh file prefix (if empty, use input file's base name as prefix; if a directoy, output to it using input file's base name as prefix; otherwise, use given name as prefix ; if names ends with .vtk the output is written as a vtkPolyData file"  string  no
-option "view"	 - "View result"	flag	off
+option "decimate" d "Decimate mesh (value in [0-1] is the target reduction percentage, outside this range means NO decimation)"	double 	no	default="-1"
+option "view"	  - "View result"	flag	off
