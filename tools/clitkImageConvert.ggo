@@ -1,11 +1,11 @@
 # file clitkImageConvert.ggo
 package "clitkImageConvert"
 version "1.0"
-purpose "Convert an image into another image.\n\tAllow to change the file format and/or the pixel type. \n\tKnown file formats 2D: jpeg png bmp tif mhd hdr vox dcm \n\tKnown file formats 3D: mhd vox hdr dcm\n\tKnown file formats 4D: mhd \n\tKnown images: 2D 3D or 4D, schar, uchar, short, ushort, int, float and double \nYou can also specify multiple inputs (i.e. \"-i a.mhd,b.mhd,c.mhd\" or \"a.mhd b.mhd ...\" without the '-i' option) having the same size and dimension to build a (n+1)D image."
+purpose "Convert an image into another image.\n\tAllow to change the file format and/or the pixel type. \n\tKnown file formats 2D: jpeg png bmp tif mhd hdr vox dcm \n\tKnown file formats 3D: mhd vox hdr dcm\n\tKnown file formats 4D: mhd \n\tKnown images: 2D 3D or 4D, schar, uchar, short, ushort, int, float and double\n\nIf the -o option is not given, the last parameter of the command line is used as output."
 
-option "config"		-  "Config file"		  		string  no
-option "input"		i  "Input image filename"			string  no multiple
-option "output"      	o  "Output image filename"			string 	yes
-option "type"   	t  "Output type (float, ushort ...)"		string 	no
-option "verbose"   	v  "Verbose"			  		flag	off
-option "compression"    c  "Compress output"			  		flag	off
+option "config"      - "Config file"                     string no
+option "input"       i "Input image filename"            string no
+option "output"      o "Output image filename"           string no
+option "type"        t "Output type (float, ushort ...)" string no
+option "verbose"     v "Verbose"                         flag   off
+option "compression" c "Compress output"                 flag   off
