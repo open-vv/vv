@@ -5,9 +5,10 @@ version "Convert (binary) image to DICOM RT Structure Set (contours)"
 option "config"	  	 - "Config file"		     string  	no
 option "verbose"         v "Verbose"			     flag	off
 
-option "input"		 i "Input image file (binary image"  string	yes
-option "output"		 o "Output DicomRT filename"	     string	yes
-
+option "input"		 i "Input image file (binary image) to be converted into contours"  string	yes
+option "rtstruct"	 r "Input rt struct"                  string	yes
+option "dicom"	         d "Input folder where the initial dicom ct is"                 string	yes
+option "output"		 o "Output DicomRT filename"	      string	yes
 
 # option "image"		 j "Used to read image info (spacing, origin)"    string	yes
 # option "roi"		 r "ROI to binarize (if -1 = all roi)"	          int    no default="-1"
