@@ -497,7 +497,7 @@ namespace clitk
   template<class args_info_type>
   template<unsigned int Dimension, class PixelType>
   typename itk::Matrix<double, Dimension+1, Dimension+1>
-  AffineTransformGenericFilter<args_info_type>::createMatrixFromElastixFile(std::vector<std::string> & filename)
+                                                           AffineTransformGenericFilter<args_info_type>::createMatrixFromElastixFile(std::vector<std::string> & filename)
   {
     if (Dimension != 3) {
       FATAL("Only 3D yet" << std::endl);
@@ -566,9 +566,11 @@ namespace clitk
           std::cout << "Composed rotation      (deg) : " << rad2deg(mat->GetAngleX()) << " " << rad2deg(mat->GetAngleY()) << " " << rad2deg(mat->GetAngleZ()) << std::endl;
           std::cout << "Composed center of rot (phy) : " << mat->GetCenter() << std::endl;
           std::cout << "Compsoed translation   (phy) : " << mat->GetTranslation() << std::endl;
+        }
       }
-      }
-      previous = mat->Clone();
+      // previous = mat->Clone(); // ITK4
+      previous = itk::CenteredEuler3DTransform<double>::New();
+      previous->SetParameters(mat->GetParameters());
     }
 
     mat = previous;
