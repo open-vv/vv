@@ -7,6 +7,13 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 #=========================================================
 
+#=========================================================
+IF (CLITK_USE_SYSTEM_GDCM)
+  FIND_PACKAGE(GDCM REQUIRED)
+  SET(ITK_LIBRARIES ${ITK_LIBRARIES} gdcmDICT gdcmMSFF)
+ENDIF()
+#=========================================================
+  
 
 #=========================================================
 #List of vv tools to compile
@@ -232,7 +239,8 @@ ELSE(WIN32)
   ADD_EXECUTABLE(vv vv.cxx)
 ENDIF(WIN32)
 
-TARGET_LINK_LIBRARIES(vv vvLib  ${CLITK_GDCM_LIBRARIES})
+TARGET_LINK_LIBRARIES(vv vvLib)
+#${CLITK_GDCM_LIBRARIES})
 
 #=========================================================
 # Install options (also used by CPack)
