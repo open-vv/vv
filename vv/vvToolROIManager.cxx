@@ -104,9 +104,9 @@ vvToolROIManager::~vvToolROIManager()
 // STATIC
 void vvToolROIManager::Initialize() {
   SetToolName("ROIManager");
-  SetToolMenuName("Display ROI (binary image)");
+  SetToolMenuName("Open ROI (binary image or RT-STRUCT)");
   SetToolIconFilename(":/common/icons/tool-roi.png");
-  SetToolTip("Display ROI from a binary image.");
+  SetToolTip("Display ROI from a binary image or a RT-struct file.");
   SetToolExperimental(false);
 }
 //------------------------------------------------------------------------------
@@ -317,7 +317,7 @@ void vvToolROIManager::Open()
 void vvToolROIManager::OpenBinaryImage(QStringList & filename) 
 {
   if (filename.size() == 0) return;
-  
+ 
   vvProgressDialog p("Reading ROI ...", true);
   p.SetCancelButtonEnabled(false);
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -359,6 +359,7 @@ void vvToolROIManager::OpenDicomImage(std::string filename)
   // GUI selector of roi
   vvMeshReader reader;
   reader.SetFilename(filename);
+  
   vvStructSelector selector;
   selector.SetStructures(reader.GetROINames());
   selector.SetPropagationCheckBoxFlag(false);
@@ -375,8 +376,8 @@ void vvToolROIManager::OpenDicomImage(std::string filename)
     // Loop on selected struct
     std::vector<int> list = selector.getSelectedItems();
     for (uint i=0; i<list.size(); i++) {
-      p.SetProgress(i, list.size());
-      
+      p.SetProgress(i, list.size());      
+       
       clitk::DicomRTStruct2ImageFilter filter;
       filter.SetCropMaskEnabled(true);
       filter.SetImage(mCurrentImage);
@@ -736,6 +737,9 @@ void vvToolROIManager::ChangeDepth(int n) {
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::ReloadCurrentROI() {
+  if (mCurrentROI->GetImage()) {
+    return; // do nothing (contour from rt struct do not reload)
+  }
 
   // Remove all contours/overlay first
   bool visible = mCurrentROIActor->IsVisible();

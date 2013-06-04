@@ -17,19 +17,19 @@ SET(vv_TOOLS
   vvToolBinarize
   vvToolImageArithm
   vvToolResample
-#   vvToolExtractPatient
-#  vvToolExtractLung
-  vvToolStructureSetManager
   vvToolMIP
   vvToolConvert ## with dummy vvToolConvert.ui
   vvToolROIManager
   vvToolSegmentation
-
   ## these ones are for tests (not working)
   # vvToolFoo
   # vvToolFooWithWidgetBase
   # vvToolPlastimatch
   # vvToolConnectedComponentLabeling  
+  ## these ones are old ones
+  # vvToolExtractPatient
+  # vvToolExtractLung
+  # vvToolStructureSetManager
 )
 # dependencies of the tools
 # Future issues : when tool depend on other tools ... how to manage that ?
@@ -43,6 +43,7 @@ SET(vvToolCropImage_LIBS clitkCropImageLib)
 SET(vvToolMIP_LIBS clitkMIPLib)
 SET(vvToolMedianFilter_LIBS clitkMedianImageFilterLib)
 SET(vvToolImageArithm_LIBS clitkImageArithmImageLib)
+SET(vvToolROIManager_LIBS clitkDicomRTStruct)
 
 #=========================================================
 # List of vv source files
@@ -195,11 +196,13 @@ INCLUDE_DIRECTORIES(
   )
 
 LINK_DIRECTORIES(${QT_LIBRARY_DIR})
+
 #=========================================================
 #Add each tool's dependencies
 foreach(tool ${vv_TOOLS})
   SET(toolLibs ${toolLibs} ${${tool}_LIBS})
 endforeach(tool)
+
 #=========================================================
 #Add Foundation Libraries (this should be after our libraries, since we depend
 #on them)
@@ -217,7 +220,7 @@ ENDIF(CLITK_EXPERIMENTAL)
 
 #=========================================================
 #Create binary and libs for tests
-SET(vvExternalLibs ${QT_QTNETWORK_LIBRARY} clitkSegmentationGgoLib clitkDicomRTStruct ${toolLibs} ${foundationLibraries} ${vvCxImage})
+SET(vvExternalLibs ${QT_QTNETWORK_LIBRARY} clitkSegmentationGgoLib ${toolLibs} ${foundationLibraries} ${vvCxImage})
 # QtNetwork is required by vvRegisterForm
 
 ADD_LIBRARY(vvLib ${vv_SRCS} ${vv_UI_CXX})
@@ -229,9 +232,7 @@ ELSE(WIN32)
   ADD_EXECUTABLE(vv vv.cxx)
 ENDIF(WIN32)
 
-#TARGET_LINK_LIBRARIES(vv vvLib)
-TARGET_LINK_LIBRARIES(vv vvLib)
-
+TARGET_LINK_LIBRARIES(vv vvLib  ${CLITK_GDCM_LIBRARIES})
 
 #=========================================================
 # Install options (also used by CPack)

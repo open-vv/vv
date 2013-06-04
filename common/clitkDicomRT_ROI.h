@@ -23,6 +23,12 @@
 #include "clitkDicomRT_Contour.h"
 #include "vvImage.h"
 
+#include "clitkConfiguration.h"
+#if CLITK_USE_SYSTEM_GDCM == 1
+#include <vtkGDCMPolyDataReader.h>
+#include <vtkRTStructSetProperties.h>
+#endif
+
 namespace clitk {
 
 //--------------------------------------------------------------------
@@ -74,6 +80,10 @@ public:
   void UpdateDicomItem();
 #else
   void Read(std::map<int, std::string> & rois, gdcm::SQItem * item);
+#endif
+
+#if CLITK_USE_SYSTEM_GDCM == 1
+  void Read(vtkSmartPointer<vtkGDCMPolyDataReader> & reader, int roiindex);
 #endif
 
 protected:

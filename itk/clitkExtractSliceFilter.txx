@@ -105,8 +105,11 @@ GenerateData() {
   m_size[GetDirection()] = 0;
   m_region.SetSize(m_size);
   int start = m_index[GetDirection()];
+#if ITK_VERSION_MAJOR >= 4
+  this->SetNumberOfIndexedInputs(m_NumberOfSlices);
+#else
   this->SetNumberOfOutputs(m_NumberOfSlices);
-  // deprecated : use SetNumberOfIndexedInputs ? FIXME
+#endif
 
   //--------------------------------------------------------------------
   // loop ExtractImageFilter with region updated, push_back

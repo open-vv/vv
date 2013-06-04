@@ -170,13 +170,10 @@ void clitk::DicomRTStruct2ImageFilter::Update()
   }
 
   // Get Mesh
-  vtkPolyData * mesh = mROI->GetMesh();
+  vtkPolyData * mesh = mROI->GetMesh();  
 
   // Get bounds
   double *bounds=mesh->GetBounds();
-  // for(int i=0; i<6; i++){
-//     DD(bounds[i]);
-//   }
 
   // Compute origin
   std::vector<double> origin;
@@ -210,11 +207,6 @@ void clitk::DicomRTStruct2ImageFilter::Update()
                           0, extend[2]);
   mBinaryImage->AllocateScalars();
 
-  // for(int i=0; i<3; i++){
-  //     DD(origin[i]);
-  //     DD(extend[i]);
-  //     DD(mBinaryImage->GetDimensions()[i]);
-  //   }
   memset(mBinaryImage->GetScalarPointer(), 0,
          mBinaryImage->GetDimensions()[0]*mBinaryImage->GetDimensions()[1]*mBinaryImage->GetDimensions()[2]*sizeof(unsigned char));
 

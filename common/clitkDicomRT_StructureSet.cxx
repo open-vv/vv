@@ -248,7 +248,6 @@ int clitk::DicomRT_StructureSet::ReadROINumber(const gdcm::Item & item)
 void clitk::DicomRT_StructureSet::Write(const std::string & filename)
 {
 #if GDCM_MAJOR_VERSION == 2
-  DD("DCM RT Writer");
 
   // Assert that the gdcm file is still open (we can write only if it was readed)
   if (mFile == NULL) {
@@ -257,8 +256,10 @@ void clitk::DicomRT_StructureSet::Write(const std::string & filename)
   }
 
   // Loop and update each ROI 
+  int i=0;
   for(ROIIteratorType iter = mROIs.begin(); iter != mROIs.end(); iter++) {
     iter->second->UpdateDicomItem();
+    i++;
   }
 
   // Write [ Structure Set ROI Sequence ] = 0x3006,0x0020
@@ -310,8 +311,37 @@ void clitk::DicomRT_StructureSet::Write(const std::string & filename)
 //--------------------------------------------------------------------
 void clitk::DicomRT_StructureSet::Read(const std::string & filename)
 {
+#if CLITK_USE_SYSTEM_GDCM == 1
+  vtkSmartPointer<vtkGDCMPolyDataReader> reader = vtkGDCMPolyDataReader::New();
+  reader->SetFileName(filename.c_str());
+  reader->Update();
+  
+  // Get global information
+  vtkRTStructSetProperties * p = reader->GetRTStructSetProperties();  
+  mStudyID   = p->GetStudyInstanceUID();
+  mStudyDate = p->GetStructureSetDate();
+  mLabel     = p->GetStructureSetLabel();
+  mName      = p->GetStructureSetName();
+  mTime      = p->GetStructureSetTime();
+
+  int n = p->GetNumberOfStructureSetROIs();
+  for(unsigned int i=0; i<n; i++) {
+    // Get the roi number
+    int roinumber = p->GetStructureSetROINumber(i);
+    // Create the roi
+    DicomRT_ROI::Pointer roi = DicomRT_ROI::New();
+    roi->Read(reader, i);
+    // Insert in the map
+    mROIs[roinumber] = roi;
+  }
+  return;
+#endif // END version with system gdcm (vtkGDCMPolyDataReader)
+
+
   // Open DICOM
 #if GDCM_MAJOR_VERSION == 2
+  FATAL("Error : compile vv with itk4 + external gdcm");
+
   // Read gdcm file
   mReader = new gdcm::Reader;
   mReader->SetFileName(filename.c_str());
@@ -365,6 +395,16 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename)
   // Temporary store the list of items
   std::map<int, gdcm::Item*> mMapOfROIInfo;
   std::map<int, gdcm::Item*> mMapOfROIContours;
+ 
+std::map<int, clitk::DicomRT_ROI::Pointer> mROIs;
+  std::map<int, std::string> mMapOfROIName;
+#if GDCM_MAJOR_VERSION == 2
+  gdcm::Reader * mReader;
+  gdcm::SmartPointer<gdcm::SequenceOfItems> mROIInfoSequenceOfItems;
+  gdcm::SmartPointer<gdcm::SequenceOfItems> mROIContoursSequenceOfItems;  
+#endif
+  gdcm::File * mFile;
+
 
   //----------------------------------
   // Read all ROI Names and number

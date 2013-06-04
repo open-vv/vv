@@ -810,7 +810,7 @@
      <x>0</x>
      <y>0</y>
      <width>1008</width>
-     <height>18</height>
+     <height>20</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -871,7 +871,6 @@
     <addaction name="actionOpen_Multiple_Images_As_One"/>
     <addaction name="separator"/>
     <addaction name="actionOpen_Dicom"/>
-    <addaction name="actionOpen_Dicom_Struct"/>
     <addaction name="actionOpen_VTK_contour"/>
     <addaction name="separator"/>
     <addaction name="actionSave_As"/>

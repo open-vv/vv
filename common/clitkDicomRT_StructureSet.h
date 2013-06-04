@@ -28,7 +28,15 @@
 #include "vvImage.h"
 
 // gdcm
+#include "clitkConfiguration.h"
+#if CLITK_USE_SYSTEM_GDCM == 1
+#include <vtkGDCMPolyDataReader.h>
+#include <vtkRTStructSetProperties.h>
+#endif
+
+// gdcm
 #if GDCM_MAJOR_VERSION == 2
+// This is not use if CLITK_USE_SYSTEM_GDCM==1
 #include "gdcmReader.h"
 #include "gdcmWriter.h"
 #include "gdcmAttribute.h"
