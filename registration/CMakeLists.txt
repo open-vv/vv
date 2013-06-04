@@ -1,3 +1,9 @@
+#=========================================================
+IF (CLITK_USE_SYSTEM_GDCM)
+  FIND_PACKAGE(GDCM REQUIRED)
+  SET(ITK_LIBRARIES ${ITK_LIBRARIES} gdcmDICT gdcmMSFF)
+ENDIF()
+
 #ADD_LIBRARY(clitkLBGSB STATIC clitkLBGSBOptimizer.cxx)
 #=========================================================
 

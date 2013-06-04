@@ -1,4 +1,10 @@
 #=========================================================
+IF (CLITK_USE_SYSTEM_GDCM)
+  FIND_PACKAGE(GDCM REQUIRED)
+  SET(ITK_LIBRARIES ${ITK_LIBRARIES} gdcmDICT gdcmMSFF)
+ENDIF()
+  
+#=========================================================
 
 # Add Libraries used in vv and clitk to avoid recompilation
 FOREACH(clitkTool clitkExtractLung clitkExtractPatient clitkConnectedComponentLabeling clitkRegionGrowing)

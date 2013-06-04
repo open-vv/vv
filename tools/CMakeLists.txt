@@ -1,3 +1,12 @@
+
+#=========================================================
+IF (CLITK_USE_SYSTEM_GDCM)
+  FIND_PACKAGE(GDCM REQUIRED)
+  SET(ITK_LIBRARIES ${ITK_LIBRARIES} gdcmDICT gdcmMSFF)
+ENDIF()
+  
+
+#=========================================================
 # Add Libraries used in vv and clitk to avoid recompilation
 WRAP_GGO(clitkCropImage_GGO_C clitkCropImage.ggo)
 ADD_LIBRARY(clitkCropImageLib clitkCropImageGenericFilter.cxx ${clitkCropImage_GGO_C})
@@ -27,6 +36,10 @@ IF (CLITK_BUILD_TOOLS)
   WRAP_GGO(clitkDicomInfo_GGO_C clitkDicomInfo.ggo)
   ADD_EXECUTABLE(clitkDicomInfo clitkDicomInfo.cxx ${clitkDicomInfo_GGO_C})
   TARGET_LINK_LIBRARIES(clitkDicomInfo clitkCommon ${ITK_LIBRARIES})
+  # set_target_properties(clitkDicomInfo
+  #   PROPERTIES
+  #   LINK_INTERFACE_LIBRARIES ""
+  #   )
   SET(TOOLS_INSTALL clitkDicomInfo)
 
   WRAP_GGO(clitkDicom2Image_GGO_C clitkDicom2Image.ggo)
@@ -95,7 +108,7 @@ IF (CLITK_BUILD_TOOLS)
 
   WRAP_GGO(clitkInvertVF_GGO_C clitkInvertVF.ggo)
   ADD_EXECUTABLE(clitkInvertVF clitkInvertVF.cxx ${clitkInvertVF_GGO_C})
-  TARGET_LINK_LIBRARIES(clitkInvertVF clitkCommon ${ITK_LIBRARIES} )
+  TARGET_LINK_LIBRARIES(clitkInvertVF clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkInvertVF)
 
   WRAP_GGO(clitkAffineTransform_GGO_C clitkAffineTransform.ggo)
@@ -155,6 +168,12 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkDicomRTStruct2Image clitkDicomRTStruct clitkCommon ${ITK_LIBRARIES} )
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkDicomRTStruct2Image)
 
+  IF(CLITK_USE_SYSTEM_GDCM)
+    WRAP_GGO(clitkImage2DicomRTStruct_GGO_C clitkImage2DicomRTStruct.ggo)
+    ADD_EXECUTABLE(clitkImage2DicomRTStruct clitkImage2DicomRTStruct.cxx ${clitkImage2DicomRTStruct_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkImage2DicomRTStruct clitkDicomRTStruct clitkCommon ${ITK_LIBRARIES} ${CLITK_GDCM_LIBRARIES})
+  ENDIF()
+
   WRAP_GGO(clitkComposeVF_GGO_C clitkComposeVF.ggo)
   ADD_EXECUTABLE(clitkComposeVF clitkComposeVFGenericFilter.cxx clitkComposeVF.cxx ${clitkComposeVF_GGO_C})
   TARGET_LINK_LIBRARIES(clitkComposeVF ${ITK_LIBRARIES} clitkCommon)
@@ -167,7 +186,7 @@ IF (CLITK_BUILD_TOOLS)
 
   WRAP_GGO(clitkBackProjectImage_GGO_C clitkBackProjectImage.ggo)
   ADD_EXECUTABLE(clitkBackProjectImage clitkBackProjectImage.cxx clitkBackProjectImageGenericFilter.cxx ${clitkBackProjectImage_GGO_C})
-  TARGET_LINK_LIBRARIES(clitkBackProjectImage ${ITK_LIBRARIES} clitkCommon )
+  TARGET_LINK_LIBRARIES(clitkBackProjectImage clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkBackProjectImage)
 
   ADD_EXECUTABLE(clitkCropImage clitkCropImage.cxx ${clitkCropImage_GGO_C})
