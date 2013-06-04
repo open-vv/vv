@@ -40,14 +40,25 @@ int main(int argc, char * argv[])
 
   // Get list of filenames
   std::vector<std::string> l;
-  for(unsigned int i=0; i<args_info.input_given; i++) {
-    l.push_back(args_info.input_arg[i]);
+  unsigned int nCmdLineInputs = args_info.inputs_num;
+  std::string output;
+  if(args_info.output_given)
+    output = args_info.output_arg;
+  else if(nCmdLineInputs--)
+    output = args_info.inputs[nCmdLineInputs];
+  else {
+    std::cerr << "Error, you should give the --output option or one image filename on the commande line." << std::endl;
+    exit(0);
   }
-  for(unsigned int i=0; i<args_info.inputs_num; i++) {
-    l.push_back(args_info.inputs[i]);
+
+  if(args_info.input_given) {
+    l.push_back(args_info.input_arg);
+  }
+  if(nCmdLineInputs==1) {
+    l.push_back(args_info.inputs[0]);
   }
   if (l.size() < 1) {
-    std::cerr << "Error, you should give at least one --input option or one image filename on the commande line." << std::endl;
+    std::cerr << "Error, you should give the --input option or one image filename on the commande line." << std::endl;
     exit(0);
   }
 
@@ -55,7 +66,7 @@ int main(int argc, char * argv[])
   clitk::ImageConvertGenericFilter::Pointer filter = clitk::ImageConvertGenericFilter::New();
   filter->SetInputFilenames(l);
   filter->SetIOVerbose(args_info.verbose_flag);
-  filter->SetOutputFilename(args_info.output_arg);
+  filter->SetOutputFilename(output);
   filter->EnableWriteCompression(args_info.compression_flag);
   if (args_info.type_given) filter->SetOutputPixelType(args_info.type_arg);
 
