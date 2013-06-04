@@ -1,6 +1,6 @@
 # file clitkImage2DicomRTStruct.ggo
 package "clitk"
-version "Convert (binary) image to DICOM RT Structure Set (contours)"
+version "Add a (binary) image inside a DICOM RT Structure Set (contours)"
 
 option "config"	  	 - "Config file"		     string  	no
 option "verbose"         v "Verbose"			     flag	off
@@ -10,12 +10,7 @@ option "rtstruct"	 r "Input rt struct"                  string	yes
 option "dicom"	         d "Input folder where the initial dicom ct is"                 string	yes
 option "output"		 o "Output DicomRT filename"	      string	yes
 
-# option "image"		 j "Used to read image info (spacing, origin)"    string	yes
-# option "roi"		 r "ROI to binarize (if -1 = all roi)"	          int    no default="-1"
-
-# option "crop"		 c "Crop binary mask"	         flag off
-
-#option "roi"		 r "ROI to print (ID)"		 int		no
-#option "contour"	 c "contour to print (ID)"	 int            no
-#option "offset"		 o "to display points as image offsets" flag	off
+option "threshold"       t "Threshold for binary image"                         float   no default = "0.5"
+option "roiname"	 - "Name of the roi added into the rt-struct"           string	yes
+option "roitype"	 - "Name of the type of roi added into the rt-struct"   string	no default = "ORGAN"
 
