@@ -62,19 +62,15 @@ IF(CLITK_MEMORY_INFO)
 ENDIF(CLITK_MEMORY_INFO)
 
 
-### Set add libraries if system GDCM 
+#=========================================================
 IF (CLITK_USE_SYSTEM_GDCM)
   FIND_PACKAGE(GDCM REQUIRED)
-  #DD(GDCM_USE_FILE)
-  #DD(GDCM_INCLUDE_DIRS)
-  #DD(GDCM_LIBRARY_DIRS)
-  #DD(CLITK_GDCM_LIBRARIES)
-  #FIND_LIBRARY(A gdcmDICT ${GDCM_LIBRARY_DIRS})
-  #FIND_LIBRARY(B gdcmMSFF ${GDCM_LIBRARY_DIRS})
-  #FIND_LIBRARY(C vtkgdcm ${GDCM_LIBRARY_DIRS})
+  include(${GDCM_USE_FILE})
+  TARGET_LINK_LIBRARIES(clitkCommon vtkgdcm gdcmDICT gdcmMSFF)
 ENDIF()
+#=========================================================
 
-TARGET_LINK_LIBRARIES(clitkCommon vtkCommon vtkImaging ${ITK_LIBRARIES})
+TARGET_LINK_LIBRARIES(clitkCommon ${VTK_LIBRARIES} ${ITK_LIBRARIES})
 
 ADD_LIBRARY(clitkDicomRTStruct STATIC
   clitkDicomRT_Contour.cxx
@@ -83,11 +79,7 @@ ADD_LIBRARY(clitkDicomRTStruct STATIC
   clitkDicomRTStruct2ImageFilter.cxx
   )
 
-IF (CLITK_USE_SYSTEM_GDCM)
-  TARGET_LINK_LIBRARIES(clitkDicomRTStruct vtkHybrid vtkgdcm)
-ELSE()
-  TARGET_LINK_LIBRARIES(clitkDicomRTStruct vtkHybrid)
-ENDIF()
+TARGET_LINK_LIBRARIES(clitkDicomRTStruct clitkCommon)
 
 #ADD_LIBRARY(clitkCommonShared SHARED ${clitkCommon_SRC})
 #SET_TARGET_PROPERTIES(clitkCommonShared PROPERTIES COMPILE_FLAGS -fPIC)
