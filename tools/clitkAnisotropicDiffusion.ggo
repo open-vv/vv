@@ -1,0 +1,15 @@
+#File clitkAnisotropicDiffusion.ggo
+package "clitkAnisotropicDiffusion"
+version "1.0"
+purpose "Performs gradient or curvature anisotropic diffusion filtering"
+
+option "config"     - "Config file"                 string no
+option "verbose"    v "Verbose"                     flag   off
+option "imagetypes" - "Display allowed image types" flag   off
+
+option "input"       i "Input image filename"    string                             yes
+option "output"      o "Output image filename"   string                             yes
+option "type"        - "Type of filtering"       values="Gradient","Curvature" enum no default="Gradient"
+option "niterations" n "Number of iterations"    int                                no default="5"
+option "conductance" c "Conductance"             double                             no default="3"
+option "timestep"    t "Time step"               double                             no default="0.01"
