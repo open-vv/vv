@@ -83,6 +83,7 @@ clitk::SplitImageGenericFilter::PngConversion<ImageType>::Do(double window,
   typename CastFilterType::Pointer cast = CastFilterType::New();
   cast->SetWindowLevel(window, level);
   cast->SetInput(input);
+  cast->Update();
   return cast->GetOutput();
 }
 //--------------------------------------------------------------------
