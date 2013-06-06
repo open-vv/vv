@@ -61,7 +61,15 @@ namespace clitk
     {
       m_ArgsInfo=a;
       m_Verbose=m_ArgsInfo.verbose_flag;
-      m_InputFileName=m_ArgsInfo.input_arg[0];
+
+      if(m_ArgsInfo.input_given)
+        m_InputFileName=m_ArgsInfo.input_arg[0];
+      else if(m_ArgsInfo.inputs_num>0)
+        m_InputFileName=m_ArgsInfo.inputs[0];
+      else {
+        std::cerr << "You must give an input file name" << std::endl;
+        exit(1);
+      }
     }
     
     
