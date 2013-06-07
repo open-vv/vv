@@ -239,10 +239,6 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkMaskLandmarks clitkCommon)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMaskLandmarks)
 
-  ADD_EXECUTABLE(clitkMakeSphereImage clitkMakeSphereImage.cxx) # clitkLineProfileGenericFilter.cxx ${clitkLineProfile_GGO_C})
-  TARGET_LINK_LIBRARIES(clitkMakeSphereImage clitkCommon)
-  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMakeSphereImage)
-
   WRAP_GGO(clitkJacobianImage_GGO_C clitkJacobianImage.ggo)
   ADD_EXECUTABLE(clitkJacobianImage clitkJacobianImage.cxx clitkJacobianImageGenericFilter.cxx ${clitkJacobianImage_GGO_C})
   TARGET_LINK_LIBRARIES(clitkJacobianImage clitkCommon)
