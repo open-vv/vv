@@ -261,6 +261,13 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkAnisotropicDiffusion clitkCommon)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkAnisotropicDiffusion)
 
+  WRAP_GGO(clitkChangeImageInfo_GGO_C clitkChangeImageInfo.ggo)
+  ADD_EXECUTABLE(clitkChangeImageInfo clitkChangeImageInfo.cxx
+                                      clitkChangeImageInfoGenericFilter.cxx
+                                      ${clitkChangeImageInfo_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkChangeImageInfo clitkCommon)
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkChangeImageInfo)
+
   IF(CLITK_EXPERIMENTAL)
     WRAP_GGO(clitkBinaryImageToMesh_GGO_C clitkBinaryImageToMesh.ggo)
     ADD_EXECUTABLE(clitkBinaryImageToMesh clitkBinaryImageToMesh.cxx ${clitkBinaryImageToMesh_GGO_C})

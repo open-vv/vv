@@ -1,0 +1,14 @@
+#File clitkChangeImageInfo.ggo
+package "clitkChangeImageInfo"
+version "1.0"
+purpose "Change the information (spacing, origin, direction...) of an image"
+
+option "config"      - "Config file"                 string          no
+option "verbose"     v "Verbose"                     flag   off
+option "imagetypes"  - "Display allowed image types" flag   off
+
+option "input"       i "Input image filename"        string          yes
+option "output"      o "Output image filename"       string          yes
+option "spacing"     s "Spacing"                     double multiple no
+option "origin"      - "Origin"                      double multiple no
+option "direction"   d "Direction"                   double multiple no
