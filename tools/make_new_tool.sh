@@ -4,4 +4,10 @@ cp clitkBinarizeImage.cxx clitk$1.cxx
 cp clitkBinarizeImageGenericFilter.h clitk$1GenericFilter.h
 cp clitkBinarizeImageGenericFilter.cxx clitk$1GenericFilter.cxx
 
-sed -i "s/BinarizeImage/$1/g" clitk$1*
+if test "$(uname)" = "Darwin"
+then
+  sed -i "" "s/BinarizeImage/$1/g" clitk$1*
+else
+  sed -i "s/BinarizeImage/$1/g" clitk$1*
+fi
+
