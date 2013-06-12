@@ -341,7 +341,11 @@ void vvToolROIManager::OpenBinaryImage(QStringList & filename)
       return;
     }
     vvImage::Pointer binaryImage = reader->GetOutput();
-    AddImage(binaryImage, filename[i].toStdString(), mBackgroundValueSpinBox->value(),
+    std::ostringstream oss;
+    oss << vtksys::SystemTools::
+      GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(filename[i].toStdString()));
+    std::string name = oss.str();
+    AddImage(binaryImage, name, filename[i].toStdString(), mBackgroundValueSpinBox->value(),
              (!mBGModeCheckBox->isChecked()));
     mOpenedBinaryImageFilenames.push_back(filename[i]);
   }
@@ -390,7 +394,7 @@ void vvToolROIManager::OpenDicomImage(std::string filename)
       binaryImage->AddVtkImage(filter.GetOutput());
     
       // Add to gui
-      AddImage(binaryImage, s->GetROIFromROINumber(list[i])->GetName(), 0, true);
+      AddImage(binaryImage, s->GetROIFromROINumber(list[i])->GetName(), "", 0, true); // "" = no filename
       mOpenedBinaryImageFilenames.push_back(filename.c_str());
     }
 
@@ -403,7 +407,9 @@ void vvToolROIManager::OpenDicomImage(std::string filename)
 
 
 //------------------------------------------------------------------------------
-void vvToolROIManager::AddImage(vvImage * binaryImage, std::string filename, 
+void vvToolROIManager::AddImage(vvImage * binaryImage, 
+                                std::string name, 
+                                std::string filename, 
                                 double BG, bool modeBG) 
 {
   // Check Dimension
@@ -421,9 +427,9 @@ void vvToolROIManager::AddImage(vvImage * binaryImage, std::string filename,
   int n = mROIList.size();
   
   // Compute the name of the new ROI
-  std::ostringstream oss;
-  oss << vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(filename));
-  std::string name = oss.str();
+  // std::ostringstream oss;
+  // oss << vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(filename));
+  // std::string name = oss.str();
   
   // Set color
   std::vector<double> color;
@@ -737,7 +743,7 @@ void vvToolROIManager::ChangeDepth(int n) {
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::ReloadCurrentROI() {
-  if (mCurrentROI->GetImage()) {
+  if (mCurrentROI->GetFilename() == "") {
     return; // do nothing (contour from rt struct do not reload)
   }
 

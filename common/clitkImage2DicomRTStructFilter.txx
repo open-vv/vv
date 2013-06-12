@@ -88,10 +88,22 @@ clitk::Image2DicomRTStructFilter<PixelType>::SetROIName(std::string name, std::s
 template<class PixelType>
 void clitk::Image2DicomRTStructFilter<PixelType>::Update() 
 {
+  // Check this is a RT-Struct
+  gdcm::Reader gdcm_reader;
+  gdcm_reader.SetFileName(m_StructureSetFilename.c_str());
+  if (!gdcm_reader.Read()) {
+    clitkExceptionMacro("Error could not open the file '" << m_StructureSetFilename << std::endl);
+  }
+  gdcm::MediaStorage ms;
+  ms.SetFromFile(gdcm_reader.GetFile());
+  if (ms != gdcm::MediaStorage::RTStructureSetStorage) {
+    clitkExceptionMacro("File '" << m_StructureSetFilename << "' is not a DICOM-RT-Struct file." << std::endl);
+  }
+
   // Read rt struct
   vtkSmartPointer<vtkGDCMPolyDataReader> reader = vtkGDCMPolyDataReader::New();
   reader->SetFileName(m_StructureSetFilename.c_str());
-  reader->Update();
+  reader->Update();  
 
   // Get properties
   vtkRTStructSetProperties * p = reader->GetRTStructSetProperties();
