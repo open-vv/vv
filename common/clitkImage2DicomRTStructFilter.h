@@ -41,25 +41,23 @@ namespace clitk {
     typedef typename clitk::DicomRT_StructureSet::Pointer DicomRTStructPointer;
 
     // Set inputs
-    itkSetMacro(Input, ImagePointer);
-    itkGetConstMacro(Input, ImagePointer);
+    itkSetMacro(InputFilenames, std::vector<std::string> );
     itkSetMacro(StructureSetFilename, std::string);
     itkSetMacro(DicomFolder, std::string);
     itkSetMacro(OutputFilename, std::string);
-    void SetROIName(std::string name, std::string type);
+    void SetROIType(std::string type);
     itkSetMacro(ThresholdValue, PixelType);
     
     // Run filter
     void Update();    
     
   protected:
-    ImagePointer m_Input;
     std::string m_StructureSetFilename;
     std::string m_DicomFolder;
     std::string m_OutputFilename;
-    std::string m_ROIName;
     std::string m_ROIType;
     PixelType m_ThresholdValue;
+    std::vector<std::string> m_InputFilenames;
   };
   //--------------------------------------------------------------------
 

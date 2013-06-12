@@ -27,19 +27,20 @@ int main(int argc, char * argv[]) {
   // Init command line
   GGO(clitkImage2DicomRTStruct, args_info);
 
-  // Read initial 3D image
-  typedef float PixelType;
-  typedef itk::Image<PixelType, 3> ImageType;
-  ImageType::Pointer input = clitk::readImage<ImageType>(args_info.input_arg, args_info.verbose_flag);
+  // Set initial 3D image filenames
+  std::vector<std::string> filenames;
+  for(unsigned int i=0; i< args_info.input_given; i++)
+    filenames.push_back(args_info.input_arg[i]);
 
   // Create a filter to convert image into dicomRTStruct and write to disk
+  typedef float PixelType;
   clitk::Image2DicomRTStructFilter<PixelType> filter;
   filter.SetVerboseFlag(args_info.verbose_flag);
-  filter.SetInput(input);
+  filter.SetInputFilenames(filenames);
   filter.SetDicomFolder(args_info.dicom_arg);
   filter.SetStructureSetFilename(args_info.rtstruct_arg);
   filter.SetOutputFilename(args_info.output_arg);
-  filter.SetROIName(args_info.roiname_arg, args_info.roitype_arg);
+  filter.SetROIType(args_info.roitype_arg);
   filter.SetThresholdValue(args_info.threshold_arg);
   filter.Update();
 

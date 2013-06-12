@@ -5,12 +5,11 @@ version "Add a (binary) image inside a DICOM RT Structure Set (contours)"
 option "config"	  	 - "Config file"		     string  	no
 option "verbose"         v "Verbose"			     flag	off
 
-option "input"		 i "Input image file (binary image) to be converted into contours"  string	yes
+option "input"		 i "Input image file (binary image) to be converted into contours"  string multiple yes
 option "rtstruct"	 r "Input rt struct"                  string	yes
 option "dicom"	         d "Input folder where the initial dicom ct is"                 string	yes
 option "output"		 o "Output DicomRT filename"	      string	yes
 
 option "threshold"       t "Threshold for binary image"                         float   no default = "0.5"
-option "roiname"	 - "Name of the roi added into the rt-struct"           string	yes
 option "roitype"	 - "Name of the type of roi added into the rt-struct"   string	no default = "ORGAN"
 
