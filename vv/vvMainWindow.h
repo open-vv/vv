@@ -55,7 +55,7 @@ class vvMainWindow: public vvMainWindowBase,
   vvSlicerManager * AddImage(vvImage::Pointer image,std::string filename);
   void AddField(QString file,int index);
   void AddOverlayImage(int index, std::vector<std::string> fileNames, vvImageReader::LoadedImageType type);
-  void AddFusionImage(int index, QString filename);
+  void AddFusionImage(int index, std::vector<std::string> fileNames, vvImageReader::LoadedImageType type);
   void AddROI(int index, QString filename);
 
   //Process the sequence for fusion:

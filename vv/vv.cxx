@@ -81,6 +81,8 @@ void open_sequence(vvMainWindow &window,
     window.AddOverlayImage(n_image_loaded-1,sequence_filenames,vvImageReader::MERGEDWITHTIME);
   else if (open_mode==O_LANDMARKS)
     window.AddLandmarks(n_image_loaded-1,sequence_filenames);
+  else if (open_mode==O_FUSION)
+    window.AddFusionImage(n_image_loaded-1,sequence_filenames,vvImageReader::MERGEDWITHTIME);
   else {
     std::cerr << "Sequences are not managed for opening " << open_mode_names[open_mode] << std::endl;
     exit(1);
@@ -278,7 +280,7 @@ int main( int argc, char** argv )
         else if (open_mode==O_CONTOUR)
           window.AddDCStructContour(n_image_loaded-1,current.c_str());
         else if (open_mode==O_FUSION)
-          window.AddFusionImage(n_image_loaded-1,current.c_str());
+          window.AddFusionImage(n_image_loaded-1,image,vvImageReader::IMAGE);
         else if (open_mode==O_LANDMARKS)
           window.AddLandmarks(n_image_loaded-1,image);
         open_mode = O_BASE;

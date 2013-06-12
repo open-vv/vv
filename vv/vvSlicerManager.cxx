@@ -279,20 +279,18 @@ bool vvSlicerManager::SetOverlay(std::vector<std::string> filenames,int dim, std
 
 
 //----------------------------------------------------------------------------
-bool vvSlicerManager::SetFusion(std::string filename,int dim, std::string component)
+bool vvSlicerManager::SetFusion(std::vector<std::string> filenames,int dim, std::string component, vvImageReader::LoadedImageType type)
 {
-  mFusionName = filename;
+  mFusionName = filenames[0];
   mFusionComponent = component;
   if (dim > mImage->GetNumberOfDimensions()) {
-    mLastError = " Overlay dimension cannot be greater then reference image!";
+    mLastError = " Fusion dimension cannot be greater than reference image!";
     return false;
   }
   if (mFusionReader.IsNull())
     mFusionReader = vvImageReader::New();
-  std::vector<std::string> filenames;
-  filenames.push_back(filename);
   mFusionReader->SetInputFilenames(filenames);
-  mFusionReader->Update(mImage->GetNumberOfDimensions(),component.c_str(),mType);
+  mFusionReader->Update(type);
   if (mFusionReader->GetLastError().size() == 0) {
     for ( unsigned int i = 0; i < mSlicers.size(); i++) {
       mSlicers[i]->SetFusion(mFusionReader->GetOutput());
