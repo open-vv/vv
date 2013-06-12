@@ -43,7 +43,7 @@ class vvToolROIManager:
   static void Initialize();
   virtual void InputIsSelected(vvSlicerManager *m);
 
-  void AddImage(vvImage * binaryImage, std::string filename, double BG, bool m_modeBG=true);
+  void AddImage(vvImage * binaryImage, std::string name, std::string filename, double BG, bool m_modeBG=true);
   void UpdateAllContours();
   void UpdateAllROIStatus();
   virtual void SaveState(std::auto_ptr<QXmlStreamWriter> & m_XmlWriter);
