@@ -168,8 +168,12 @@ std::string vvReadState::ReadFusion(int index)
     if (m_XmlReader->isStartElement()) {
       if (value == "FileName") {
         file = m_XmlReader->readElementText().toStdString();
-        if (!m_XmlReader->hasError())
-          m_Window->AddFusionImage(index, file.c_str());
+        if (!m_XmlReader->hasError()) {
+          // TODO: manage sequence of images
+          std::vector<std::string> vec;
+          vec.push_back(file.c_str());
+          m_Window->AddFusionImage(index, vec, vvImageReader::IMAGE);
+        }
       }
       if (value == "FusionOpacity") {
         vali = m_XmlReader->readElementText().toInt();

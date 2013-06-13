@@ -77,7 +77,7 @@ class vvSlicerManager : public QObject {
   bool SetImages(std::vector<std::string> filenames, vvImageReader::LoadedImageType type, int n=0);
 
   bool SetOverlay(std::vector<std::string> filenames, int dim, std::string component, vvImageReader::LoadedImageType type);
-  bool SetFusion(std::string filename, int dim, std::string component);
+  bool SetFusion(std::vector<std::string> filenames,int dim, std::string component, vvImageReader::LoadedImageType type);
   bool SetFusionSequence(std::vector<std::string> filenames, int dim, std::string component, vvImageReader::LoadedImageType type);
   ///Set a VF by loading it from the disk
   bool SetVF(std::string filename);
