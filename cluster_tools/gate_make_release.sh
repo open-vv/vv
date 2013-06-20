@@ -1,9 +1,9 @@
 #!/bin/bash
 
 function usage {
-echo "ERROR: $1"
-echo "$(basename $0) [name]"
-exit 1
+    echo "ERROR: $1"
+    echo "$(basename $0) [name]"
+    exit 1
 }
 
 GATENAME="${1:-Gate}"
@@ -39,14 +39,14 @@ rm -fr test_libs fgate_shared_libs.tar.gz fgate_release.tar.gz
 
 echo "Copying libraries"
 function get_deps {
-ldd $1 | while read library; do
+    ldd $1 | while read library; do
 	libfile="$(echo ${library} | awk -F' ' '/=> \// {print $3}')"
 	test $libfile || continue # didn't macht regex
 	test -f "test_libs/$(basename ${libfile})" && continue # already exists
 	echo "${libfile}"
 	cp "${libfile}" "test_libs/$(basename ${libfile})"
 	get_deps "${libfile}"
-done
+    done
 }
 
 mkdir test_libs
@@ -62,8 +62,8 @@ rm -f test_libs/libc.so*
 
 echo "Zipping libraries"
 (
-	cd test_libs
-	tar -czvf ../fgate_shared_libs.tar.gz **
+    cd test_libs
+    tar -czvf ../fgate_shared_libs.tar.gz **
 ) || usage "can't create libraries tar"
 
 echo "Copying binary"
@@ -81,16 +81,16 @@ cp -r "${G4PIIDATA}" .
 
 echo "Making release"
 tar -czvf fgate_release.tar.gz \
-	${GATENAME} fgate_shared_libs.tar.gz \
-	$(basename ${G4NEUTRONHPDATA}) \
-	$(basename ${G4LEVELGAMMADATA}) \
-	$(basename ${G4RADIOACTIVEDATA}) \
-	$(basename ${G4ABLADATA}) \
-	$(basename ${G4LEDATA}) \
-	$(basename ${G4REALSURFACEDATA}) \
-	$(basename ${G4NEUTRONXSDATA}) \
-	$(basename ${G4PIIDATA}) \
-        || usage "can't create release zip"
+    ${GATENAME} fgate_shared_libs.tar.gz \
+    $(basename ${G4NEUTRONHPDATA}) \
+    $(basename ${G4LEVELGAMMADATA}) \
+    $(basename ${G4RADIOACTIVEDATA}) \
+    $(basename ${G4ABLADATA}) \
+    $(basename ${G4LEDATA}) \
+    $(basename ${G4REALSURFACEDATA}) \
+    $(basename ${G4NEUTRONXSDATA}) \
+    $(basename ${G4PIIDATA}) \
+    || usage "can't create release zip"
 
 chmod -w fgate_release.tar.gz
 
