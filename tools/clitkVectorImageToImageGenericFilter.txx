@@ -42,8 +42,13 @@ namespace clitk
 
     if (Components==3)
       {
-	  if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and 3D float..." << std::endl;
-	  UpdateWithDimAndPixelType<Dimension, itk::Vector<float, 3> >();
+        if (PixelType == "unsigned_char")
+            UpdateWithDimAndPixelType<Dimension, itk::Vector<unsigned char, 3> >();
+        else
+        {
+            if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and 3D float..." << std::endl;
+            UpdateWithDimAndPixelType<Dimension, itk::Vector<float, 3> >();
+        }
       }
     else std::cerr<<"Number of components is "<<Components<<", not supported!"<<std::endl;
   }
