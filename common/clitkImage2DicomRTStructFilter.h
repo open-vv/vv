@@ -47,6 +47,7 @@ namespace clitk {
     itkSetMacro(OutputFilename, std::string);
     void SetROIType(std::string type);
     itkSetMacro(ThresholdValue, PixelType);
+    itkSetMacro(SkipInitialStructuresFlag, bool);
     
     // Run filter
     void Update();    
@@ -58,6 +59,7 @@ namespace clitk {
     std::string m_ROIType;
     PixelType m_ThresholdValue;
     std::vector<std::string> m_InputFilenames;
+    bool m_SkipInitialStructuresFlag;
   };
   //--------------------------------------------------------------------
 

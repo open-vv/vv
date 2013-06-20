@@ -62,6 +62,7 @@ clitk::Image2DicomRTStructFilter<PixelType>::Image2DicomRTStructFilter()
   m_DicomFolder = "";
   m_OutputFilename = "default-output.dcm";
   m_ThresholdValue = 0.5;
+  m_SkipInitialStructuresFlag = false;
 }
 //--------------------------------------------------------------------
 
@@ -119,6 +120,11 @@ void clitk::Image2DicomRTStructFilter<PixelType>::Update()
   // Init writer
   vtkGDCMPolyDataWriter * writer = vtkGDCMPolyDataWriter::New();
   int numMasks = reader->GetNumberOfOutputPorts() + m;
+
+  if (m_SkipInitialStructuresFlag) {
+    numMasks = m;
+  }
+
   writer->SetNumberOfInputPorts(numMasks);    
   writer->SetFileName(m_OutputFilename.c_str());
   writer->SetMedicalImageProperties(reader->GetMedicalImageProperties());

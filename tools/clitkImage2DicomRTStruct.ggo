@@ -11,5 +11,6 @@ option "dicom"	         d "Input folder where the initial dicom ct is"          
 option "output"		 o "Output DicomRT filename"	      string	yes
 
 option "threshold"       t "Threshold for binary image"                         float   no default = "0.5"
+option "skip"	         s "Do not write in output the structures that was in input"   flag off
 option "roitype"	 - "Name of the type of roi added into the rt-struct"   string	no default = "ORGAN"
 

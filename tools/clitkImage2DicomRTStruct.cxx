@@ -42,6 +42,7 @@ int main(int argc, char * argv[]) {
   filter.SetOutputFilename(args_info.output_arg);
   filter.SetROIType(args_info.roitype_arg);
   filter.SetThresholdValue(args_info.threshold_arg);
+  filter.SetSkipInitialStructuresFlag(args_info.skip_flag);
   filter.Update();
 
   // This is the end my friend 
