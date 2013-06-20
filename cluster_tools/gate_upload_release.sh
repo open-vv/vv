@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. common.sh
+. gate_common.sh
 
 releasearchive="${1:?"provide path to release archive"}"
 test -f ${releasearchive} || error "file ${releasearchive} doesn't exist"
