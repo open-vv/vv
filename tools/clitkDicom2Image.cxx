@@ -207,7 +207,6 @@ int main(int argc, char * argv[])
       name << *sn << "_" << args_info.output_arg;
       outfile = name.str();
     }
-    DD("before write");
     vvImageWriter::Pointer writer = vvImageWriter::New();
     writer->SetInput(image);
     writer->SetOutputFileName(outfile);
