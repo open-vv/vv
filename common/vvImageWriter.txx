@@ -38,6 +38,8 @@ void vvImageWriter::UpdateWithDim(std::string OutputPixelType)
     UpdateWithDimAndOutputPixelType<unsigned char,VImageDimension>();
   } else if (OutputPixelType == "int") {
     UpdateWithDimAndOutputPixelType<int,VImageDimension>();
+  } else if (OutputPixelType == "unsigned_int") {
+    UpdateWithDimAndOutputPixelType<unsigned int,VImageDimension>();
   } else if (OutputPixelType == "double") {
     UpdateWithDimAndOutputPixelType<double,VImageDimension>();
   } else if (OutputPixelType == "float") {
