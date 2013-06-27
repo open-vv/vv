@@ -4,7 +4,6 @@
 # MACROFILE
 # RELEASEDIR
 # OUTPUTDIR
-# SCRIPTDIR
 # INDEX
 # INDEXMAX
 # PARAM
@@ -36,26 +35,32 @@ echo "MACRODIR=${MACRODIR:?"unknown MACRODIR"}"
 echo "MACROFILE=${MACROFILE:?"unknown MACROFILE"}"
 echo "RELEASEDIR=${RELEASEDIR:?"unknown RELEASEDIR"}"
 echo "OUTPUTDIR=${OUTPUTDIR:?"unknown OUTPUTDIR"}"
-echo "SCRIPTDIR=${SCRIPTDIR:?"unknown SCRIPTDIR"}"
 echo "PBS_JOBID=${PBS_JOBID}"
 echo "INDEX=${INDEX}"
 echo "INDEXMAX=${INDEX}"
 echo "PARAM=${PARAM}"
-test -d "${RELEASEDIR}" || error "can't find release"
-test -d "${MACRODIR}" && test -d "${MACRODIR}/mac" || error "invalid macro"
-md5sum ${RELEASEDIR}/Gate
-test -f ${RELEASEDIR}/libGate.so && md5sum ${RELEASEDIR}/libGate.so
 
-echo "Finding libraries"
-ROOTLIBS="${RELEASEDIR}/libCore.so:${RELEASEDIR}/libCint.so:${RELEASEDIR}/libRIO.so:${RELEASEDIR}/libNet.so:${RELEASEDIR}/libHist.so:${RELEASEDIR}/libGraf.so:${RELEASEDIR}/libGraf3d.so:${RELEASEDIR}/libGpad.so:${RELEASEDIR}/libTree.so:${RELEASEDIR}/libRint.so:${RELEASEDIR}/libPostscript.so:${RELEASEDIR}/libMatrix.so:${RELEASEDIR}/libPhysics.so:${RELEASEDIR}/libMathCore.so:${RELEASEDIR}/libThread.so:"
-echo "ROOTLIBS=${ROOTLIBS}"
-G4LIBS="$(for library in $(find "${RELEASEDIR}" -maxdepth 1 -name 'libG4*.so'); do echo -n "${library}:"; done)"
-echo "G4LIBS=${G4LIBS}"
-CLHEPLIBS="$(for library in $(find "${RELEASEDIR}" -maxdepth 1 -name 'libCLHEP*.so'); do echo -n "${library}:"; done)"
-echo "CLHEPLIBS=${CLHEPLIBS}"
-GATELIBS=""
-test -f ${RELEASEDIR}/libGate.so && GATELIBS="${RELEASEDIR}/libGate.so:"
-echo "GATELIBS=${GATELIBS}"
+if test "$RELEASEDIR" = "NONE"
+then
+	echo Using $(which Gate)
+	ldd $(which Gate)
+else
+	test -d "${RELEASEDIR}" || error "can't find release"
+	md5sum ${RELEASEDIR}/Gate
+	test -f ${RELEASEDIR}/libGate.so && md5sum ${RELEASEDIR}/libGate.so
+
+	echo "Finding libraries"
+	ROOTLIBS="${RELEASEDIR}/libCore.so:${RELEASEDIR}/libCint.so:${RELEASEDIR}/libRIO.so:${RELEASEDIR}/libNet.so:${RELEASEDIR}/libHist.so:${RELEASEDIR}/libGraf.so:${RELEASEDIR}/libGraf3d.so:${RELEASEDIR}/libGpad.so:${RELEASEDIR}/libTree.so:${RELEASEDIR}/libRint.so:${RELEASEDIR}/libPostscript.so:${RELEASEDIR}/libMatrix.so:${RELEASEDIR}/libPhysics.so:${RELEASEDIR}/libMathCore.so:${RELEASEDIR}/libThread.so:"
+	echo "ROOTLIBS=${ROOTLIBS}"
+	G4LIBS="$(for library in $(find "${RELEASEDIR}" -maxdepth 1 -name 'libG4*.so'); do echo -n "${library}:"; done)"
+	echo "G4LIBS=${G4LIBS}"
+	CLHEPLIBS="$(for library in $(find "${RELEASEDIR}" -maxdepth 1 -name 'libCLHEP*.so'); do echo -n "${library}:"; done)"
+	echo "CLHEPLIBS=${CLHEPLIBS}"
+	GATELIBS=""
+	test -f ${RELEASEDIR}/libGate.so && GATELIBS="${RELEASEDIR}/libGate.so:"
+	echo "GATELIBS=${GATELIBS}"
+fi
+test -d "${MACRODIR}" && test -d "${MACRODIR}/mac" || error "invalid macro"
 
 
 echo "Copying inputs"
@@ -64,35 +69,24 @@ cd ${LOCALMACRODIR}
 cp -r -L "${MACRODIR}"/{data,mac} .
 mkdir output
 
-#echo "Search for param generation script"
-#if [ -x "${MACRODIR}/generate_placements.py" -a ! -z "${PARAM}" ]; then
-#    echo "found generate_placements.py and non null param"
-#    cp "${MACRODIR}/generate_placements.py" .
-#    ./generate_placements.py ${PARAM}
-#fi
-
 echo "Lauching macro"
 date
-LD_PRELOAD="${ROOTLIBS}${G4LIBS}${CLHEPLIBS}${GATELIBS}" \
-G4LEVELGAMMADATA="${RELEASEDIR}/PhotonEvaporation2.1" \
-G4RADIOACTIVEDATA="${RELEASEDIR}/RadioactiveDecay3.3" \
-G4LEDATA="${RELEASEDIR}/G4EMLOW6.19" \
-G4NEUTRONHPDATA="${RELEASEDIR}/G4NDL3.14" \
-G4ABLADATA="${RELEASEDIR}/G4ABLA3.0" \
-G4REALSURFACEDATA="${RELEASEDIR}/RealSurface1.0" \
-G4NEUTRONXSDATA="${RELEASEDIR}/G4NEUTRONXS1.0" \
-G4PIIDATA="${RELEASEDIR}/G4PII1.2" \
-/usr/bin/time --format="real %es\nuser %Us\nsys %Ss\nmaxmem %Mk" \
-${RELEASEDIR}/Gate ${PARAM} ${MACROFILE} \
-|| error "gate failed"
-
-#echo "Convert to energy"
-#${SCRIPTDIR}/phsptoenergy.py output/phspTarget.root output/energyTarget.mat || warning "convertion failed"
-
-if test $(find output -name '*-detected.root' | wc -l) -ne 0
+if test "$RELEASEDIR" = "NONE"
 then
-    echo "Parsing detected particle"
-    ${SCRIPTDIR}/phspdetected.py output || warning "detection failed"
+	Gate ${PARAM} ${MACROFILE} || error "gate failed"
+else
+	LD_PRELOAD="${ROOTLIBS}${G4LIBS}${CLHEPLIBS}${GATELIBS}" \
+	G4LEVELGAMMADATA="${RELEASEDIR}/PhotonEvaporation2.1" \
+	G4RADIOACTIVEDATA="${RELEASEDIR}/RadioactiveDecay3.3" \
+	G4LEDATA="${RELEASEDIR}/G4EMLOW6.19" \
+	G4NEUTRONHPDATA="${RELEASEDIR}/G4NDL3.14" \
+	G4ABLADATA="${RELEASEDIR}/G4ABLA3.0" \
+	G4REALSURFACEDATA="${RELEASEDIR}/RealSurface1.0" \
+	G4NEUTRONXSDATA="${RELEASEDIR}/G4NEUTRONXS1.0" \
+	G4PIIDATA="${RELEASEDIR}/G4PII1.2" \
+	/usr/bin/time --format="real %es\nuser %Us\nsys %Ss\nmaxmem %Mk" \
+	${RELEASEDIR}/Gate ${PARAM} ${MACROFILE} \
+	|| error "gate failed"
 fi
 
 echo "Copying data back"

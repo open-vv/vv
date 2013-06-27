@@ -9,24 +9,31 @@ usage
 exit 1
 }
 
-DEFAULTRELEASESUFFIX="07b"
+DEFAULTRELEASESUFFIX="NONE"
 DEFAULTNUMBEROFJOBS="10"
 
 function usage {
 echo "${SCRIPTNAME} mac/main.mac njobs releasesuffix paramtogate"
 echo "default njobs = ${DEFAULTNUMBEROFJOBS}"
-echo "default releasesuffix = ${DEFAULTRELEASESUFFIX}"
+echo "default releasesuffix = ${DEFAULTRELEASESUFFIX} (NONE means use Gate in PATH)"
 }
 
 test $# -eq 0 && usage && exit 0
 
 SCRIPTDIR="${HOME}/git/gate-tests/bin"
-RELEASEDIR="${HOME}/releases/grid_release${3:-"${DEFAULTRELEASESUFFIX}"}"
+RELEASESUFFIX=${3:-"${DEFAULTRELEASESUFFIX}"}
+RELEASEDIR="${HOME}/releases/grid_release${RELEASESUFFIX}"
 JOBFILE="$(dirname $0)/gate_job_cluster.job"
 
 echo "Checking stuff"
 test -f ${JOBFILE} || error "can't find job file ${JOBFILE}"
-test -d ${RELEASEDIR} || error "invalid release dir ${RELEASEDIR}"
+if test "${RELEASESUFFIX}" = "${DEFAULTRELEASESUFFIX}"
+then
+	RELEASEDIR="NONE"
+	which Gate 2>&1 >/dev/null || error "there is no Gate in the PATH"
+else
+	test -d ${RELEASEDIR} || error "invalid release dir ${RELEASEDIR}"
+fi
 MACRODIR=$(pwd)
 test -d ${MACRODIR}/mac && test -d ${MACRODIR}/data || error "invalid path"
 MACROFILE=${1:?"provide relative macro path"}
@@ -42,7 +49,12 @@ echo "Lets roll!!"
 echo "runid is ${RUNID}"
 echo "qsub is $(which qsub)"
 test -z "${PARAM}" && echo "no param" || echo "param is ${PARAM}"
-echo "using release $(basename ${RELEASEDIR})"
+if test "$RELEASESUFFIX" = "$DEFAULTRELEASESUFFIX"
+then
+	echo "using $(which Gate)"
+else
+	echo "using release $(basename ${RELEASEDIR})"
+fi
 echo "submitting ${NJOBS} jobs"
 
 PARAMFILE="${OUTPUTDIR}/params.txt"
