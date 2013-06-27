@@ -69,6 +69,9 @@ cd ${LOCALMACRODIR}
 cp -r -L "${MACRODIR}"/{data,mac} .
 mkdir output
 
+# Enforce one thread
+ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1
+
 echo "Lauching macro"
 date
 if test "$RELEASEDIR" = "NONE"
