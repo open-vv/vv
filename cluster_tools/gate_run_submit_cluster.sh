@@ -22,7 +22,7 @@ test $# -eq 0 && usage && exit 0
 
 SCRIPTDIR="${HOME}/git/gate-tests/bin"
 RELEASEDIR="${HOME}/releases/grid_release${3:-"${DEFAULTRELEASESUFFIX}"}"
-JOBFILE="${HOME}/git/gate-tests/job_cluster.job"
+JOBFILE="$(dirname $0)/gate_job_cluster.job"
 
 echo "Checking stuff"
 test -f ${JOBFILE} || error "can't find job file ${JOBFILE}"
