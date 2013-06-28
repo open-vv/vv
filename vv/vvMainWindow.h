@@ -91,6 +91,7 @@ public slots:
   void SliceImages();
   void MergeImagesWithTime();
   void OpenDicom();
+  void PacsConnection();
   ///Open a vtkPolyData surface mesh and display it over the current image
   void OpenVTKContour();
   void SaveAs();
@@ -193,6 +194,7 @@ private:
   vvHelpDialog *help_dialog;
   vvDocumentation *documentation;
   vvDicomSeriesSelector *dicomSeriesSelector;
+  vvPacsConnection *PacsConnection;
 
   bool viewMode;
   bool playMode;

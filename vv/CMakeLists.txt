@@ -71,6 +71,7 @@ SET(vv_COMMON_WITH_UI
 SET(vv_SRCS
   vvQProgressDialogITKCommand.cxx
   vvQDicomSeriesSelector.cxx
+  vvQPacsConnection.cxx
   QTreePushButton.cxx
   vvMainWindowBase.cxx
   vvImageWarp.cxx
@@ -113,6 +114,7 @@ QT4_WRAP_CPP(vv_SRCS
   vvDocumentation.h  
   vvHelpDialog.h  
   vvQDicomSeriesSelector.h 
+  vvQPacsConnection.h
   vvSlicerManager.h
   vvStructureSetActor.h
   vvROIActor.h
@@ -123,6 +125,7 @@ QT4_WRAP_UI(vv_UI_CXX
   qt_ui/vvHelpDialog.ui 
   qt_ui/vvDocumentation.ui 
   qt_ui/vvDicomSeriesSelector.ui 
+   qt_ui/vvPacsConnection.ui 
   qt_ui/vvDummyWindow.ui #For testing
   )
 
