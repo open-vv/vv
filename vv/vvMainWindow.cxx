@@ -235,7 +235,9 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   documentation = new vvDocumentation();
   help_dialog = new vvHelpDialog();
   dicomSeriesSelector = new vvDicomSeriesSelector();
+#ifdef vvPacsConnection
   PacsConnection = new vvPacsConnection();
+#endif
 
   inverseButton->setEnabled(0);
   actionAdd_overlay_image_to_current_image->setEnabled(0);
@@ -745,8 +747,10 @@ void vvMainWindow::OpenDicom()
     files = *(dicomSeriesSelector->GetFilenames());
     LoadImages(files, vvImageReader::DICOM);
   }
+}
 
-  void vvMainWindow::ConnectPacs()
+#ifdef vvPacsConnection
+void vvMainWindow::ConnectPacs()
 {
   std::vector<std::string> files;
 
@@ -757,6 +761,7 @@ void vvMainWindow::OpenDicom()
   }
 
 }
+#endif
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------

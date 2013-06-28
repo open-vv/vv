@@ -71,7 +71,6 @@ SET(vv_COMMON_WITH_UI
 SET(vv_SRCS
   vvQProgressDialogITKCommand.cxx
   vvQDicomSeriesSelector.cxx
-  vvQPacsConnection.cxx
   QTreePushButton.cxx
   vvMainWindowBase.cxx
   vvImageWarp.cxx
@@ -87,7 +86,6 @@ SET(vv_SRCS
   vvSlicerManager.cxx
   vvSlicerManagerCommand.cxx
   vvUtils.cxx
-#  vvMaximumIntensityProjection.cxx
   vvMesh.cxx
   vvMeshActor.cxx
   vvMeshReader.cxx
@@ -114,7 +112,6 @@ QT4_WRAP_CPP(vv_SRCS
   vvDocumentation.h  
   vvHelpDialog.h  
   vvQDicomSeriesSelector.h 
-  vvQPacsConnection.h
   vvSlicerManager.h
   vvStructureSetActor.h
   vvROIActor.h
@@ -124,12 +121,18 @@ QT4_WRAP_CPP(vv_SRCS
 QT4_WRAP_UI(vv_UI_CXX 
   qt_ui/vvHelpDialog.ui 
   qt_ui/vvDocumentation.ui 
-  qt_ui/vvDicomSeriesSelector.ui 
-   qt_ui/vvPacsConnection.ui 
-  qt_ui/vvDummyWindow.ui #For testing
+  qt_ui/vvDicomSeriesSelector.ui
   )
 
 QT4_ADD_RESOURCES(vv_SRCS vvIcons.qrc)
+
+# Add DICOM gui selector if the adequate GDCM is available
+IF(CLITK_USE_SYSTEM_GDCM)
+  SET(vv_SRCS ${vv_SRCS}
+      vvQPacsConnection.cxx)
+  QT4_WRAP_CPP(vv_SRCS vvQPacsConnection.cxx)
+  QT4_WRAP_UI(vv_UI_CXX qt_ui/vvPacsConnection.ui)
+ENDIF(CLITK_USE_SYSTEM_GDCM)
 
 # Add the autotools in the header vvToolsList.h for initialization of the dummy
 # variables in vv.cxx for the tools contained in vvLib
@@ -144,15 +147,15 @@ endif(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt IS_NEWER_THAN ${CMAKE_CURRENT_B
 
 # Add the autotools and the common files ui
 foreach(tool ${vv_TOOLS} ${vv_COMMON_WITH_UI})
-    SET(vv_SRCS ${vv_SRCS} ${tool}.cxx)
-    QT4_WRAP_CPP(vv_SRCS ${tool}.h)
-    QT4_WRAP_UI(vv_UI_CXX qt_ui/${tool}.ui)
+  SET(vv_SRCS ${vv_SRCS} ${tool}.cxx)
+  QT4_WRAP_CPP(vv_SRCS ${tool}.h)
+  QT4_WRAP_UI(vv_UI_CXX qt_ui/${tool}.ui)
 endforeach(tool)
 
 # Add the common source files
 foreach(tool ${vv_COMMON})
-    SET(vv_SRCS ${vv_SRCS} ${tool}.cxx)
-    QT4_WRAP_CPP(vv_SRCS ${tool}.h)
+  SET(vv_SRCS ${vv_SRCS} ${tool}.cxx)
+  QT4_WRAP_CPP(vv_SRCS ${tool}.h)
 endforeach(tool)
 
 # if Windows and Qt was built as a static lib then don't set QT_DLL flag
