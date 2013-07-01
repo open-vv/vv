@@ -3,3 +3,6 @@ package "clitk"
 version "read and print Dicom header"
 
 option "config"	  	 -	"Config file"		 string  	no
+option "studyID"	 s	"Only display Study UID" flag           off
+option "uniq"	         u	"Do not display if same study UID"      flag           off
+option "filename"	 f	"Display filename"       flag           off
