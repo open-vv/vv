@@ -810,7 +810,7 @@
      <x>0</x>
      <y>0</y>
      <width>1008</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -881,6 +881,7 @@
     <addaction name="actionExit"/>
     <addaction name="separator"/>
     <addaction name="separator"/>
+    <addaction name="actionConnect_Pacs"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuOverlay"/>
@@ -1271,6 +1272,11 @@
    </property>
    <property name="iconVisibleInMenu">
     <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionConnect_Pacs">
+   <property name="text">
+    <string>Connect Pacs</string>
    </property>
   </action>
  </widget>

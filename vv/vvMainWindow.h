@@ -39,6 +39,7 @@ class vtkImageData;
 class vtkRenderer;
 class vtkMatrix4x4;
 class vvDicomSeriesSelector;
+class vvQPacsConnection;
 class vvSlicer;
 class QTreeWidget;
 
@@ -91,7 +92,7 @@ public slots:
   void SliceImages();
   void MergeImagesWithTime();
   void OpenDicom();
-  void PacsConnection();
+  void ConnectPacs();
   ///Open a vtkPolyData surface mesh and display it over the current image
   void OpenVTKContour();
   void SaveAs();
@@ -194,7 +195,7 @@ private:
   vvHelpDialog *help_dialog;
   vvDocumentation *documentation;
   vvDicomSeriesSelector *dicomSeriesSelector;
-  vvPacsConnection *PacsConnection;
+  vvQPacsConnection *pacsconnect;
 
   bool viewMode;
   bool playMode;

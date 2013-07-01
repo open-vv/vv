@@ -1,34 +1,37 @@
+#ifndef _VVPACSCONNECTION_CXX
+#define _VVPACSCONNECTION_CXX
 #include "vvQPacsConnection.h"
 #include "gdcmCompositeNetworkFunctions.h"
 #include <QtGui/qlistview.h>
 #include <qfile.h>
 #include <QDate>
+#include <QIcon>
 #include <QDateTime>
 
 
 	vvQPacsConnection::vvQPacsConnection(QWidget *i_parent)
-		:QWidget(i_parent)
+		:QDialog(i_parent)
 	{
-		 setupUi(this);
-		 setWindowTitle(QString::fromUtf8("DCM API PACS"));
+		 ui.setupUi(this);
+		 setWindowTitle(QString::fromUtf8("PACS CONNECTION"));
 		 createTreeView();
-		 tabFilter->setTabText(0,QString(tr("Modality")));
-		 tabFilter->setTabText(1,QString(tr("Date")));
+		 ui.tabFilter->setTabText(0,QString(tr("Modality")));
+		 ui.tabFilter->setTabText(1,QString(tr("Date")));
 
-		 tabNetwork->setTabText(0,QString(tr("Network")));
-		 tabNetwork->setTabText(1,QString(tr("Configuration")));
-		 check_ModAll->setChecked(true);
-		 on_check_ModAll_clicked(true);
+		ui. tabNetwork->setTabText(0,QString(tr("Network")));
+		ui. tabNetwork->setTabText(1,QString(tr("Configuration")));
+		 //ui.setChecked(true);
+		 //ui.on_check_ModAll_clicked(true);
 		 QIcon icon;
 		 icon.addFile("basket_download.png",QSize(),QIcon::Normal,QIcon::Off);
-		 importButton->setIcon(icon);
+		 ui.importButton->setIcon(icon);
 		 icon.addFile("file_upload.png",QSize(),QIcon::Normal,QIcon::Off);
 		// exportButton->setIcon(icon);
 		 icon.addFile("email_forward.png",QSize(),QIcon::Normal,QIcon::Off);
 		 icon.addFile("edit.png",QSize(),QIcon::Normal,QIcon::Off);
-		 optionsButton->setIcon(icon);
+		 ui.optionsButton->setIcon(icon);
 		 icon.addFile("bullet_info.png",QSize(),QIcon::Normal,QIcon::Off);
-		 helpButton->setIcon(icon);
+		 ui.helpButton->setIcon(icon);
 		 update();
 	}
 
@@ -126,7 +129,7 @@
 	void vvQPacsConnection::on_importButton_clicked()
 	{
 		QModelIndex index;
-		QVariant elt= Patientmodel->data(index.sibling(patientTreeView->selectionModel()->selectedRows().first().row(),1));
+		QVariant elt= Patientmodel->data(index.sibling(ui.patientTreeView->selectionModel()->selectedRows().first().row(),1));
 		
 		gdcm::EQueryLevel theLevel = gdcm::ePatient;
 		gdcm::ERootType theRoot  = gdcm::ePatientRootType;//ePatientRootType;
@@ -196,9 +199,9 @@
 		Patientlist.push_back(tr("PATIENT NAME"));
 		Patientlist.push_back(tr("PATIENT ID"));
 		Patientmodel->setHorizontalHeaderLabels(Patientlist);
-		patientTreeView->setModel(Patientmodel);
-		patientTreeView->setEnabled(true);
-		connect(patientTreeView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectStudies(QModelIndex)));
+		ui.patientTreeView->setModel(Patientmodel);
+		ui.patientTreeView->setEnabled(true);
+		connect(ui.patientTreeView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectStudies(QModelIndex)));
 		
 		// Study Tree View
 		Studymodel = new QStandardItemModel(0,3,this); 
@@ -207,8 +210,8 @@
 		Studylist.push_back(tr("DATE"));
 		Studylist.push_back(tr("HOUR"));
 		Studymodel->setHorizontalHeaderLabels(Studylist);
-		studyTreeView->setModel(Studymodel);
-		connect(studyTreeView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectSeries(QModelIndex)));
+		ui.studyTreeView->setModel(Studymodel);
+		connect(ui.studyTreeView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectSeries(QModelIndex)));
 
 
 		// Series Tree View
@@ -218,15 +221,15 @@
 		Serieslist.push_back(tr("DESCRIPTION"));
 		Serieslist.push_back(tr("no. accept."));
 		Seriesmodel->setHorizontalHeaderLabels(Serieslist);
-		seriesTreeView->setModel(Seriesmodel);
-		connect(seriesTreeView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectImages(QModelIndex)));
+		ui.seriesTreeView->setModel(Seriesmodel);
+		connect(ui.seriesTreeView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectImages(QModelIndex)));
 
 		// Images Tree View
 		Imagesmodel = new QStandardItemModel(0,1,this); 
 		QStringList Imageslist;
 		Imageslist.push_back(tr("instance number"));
 		Imagesmodel->setHorizontalHeaderLabels(Imageslist);
-		imagesTreeView->setModel(Imagesmodel);
+		ui.imagesTreeView->setModel(Imagesmodel);
 
 		//model->setHeaderData(0, Qt::Horizontal,tr("test"),Qt::DisplayRole);
 		/*QFileSystemModel *filemodel = new   QFileSystemModel;
@@ -268,7 +271,7 @@
 	{
 		Seriesmodel->removeRows(0, Seriesmodel->rowCount(),QModelIndex());
 		QVariant elt= Studymodel->data(index.sibling(index.row(),3));
-		QVariant elt2= Patientmodel->data(index.sibling(patientTreeView->selectionModel()->selectedRows().first().row(),1));
+		QVariant elt2= Patientmodel->data(index.sibling(ui.patientTreeView->selectionModel()->selectedRows().first().row(),1));
 
 		//manageImagesFilter(true);
 		gdcm::EQueryLevel theLevel = gdcm::eSeries;
@@ -309,10 +312,10 @@
 	{
 		Imagesmodel->removeRows(0, Imagesmodel->rowCount(),QModelIndex());
 		QVariant elt= Seriesmodel->data(index.sibling(index.row(),2));
-		QVariant elt2= Patientmodel->data(index.sibling(patientTreeView->selectionModel()->selectedRows().first().row(),1));
+		QVariant elt2= Patientmodel->data(index.sibling(ui.patientTreeView->selectionModel()->selectedRows().first().row(),1));
 
 		//manageImagesFilter(true);
-		gdcm::EQueryLevel theLevel = gdcm::eImageOrFrame;
+		gdcm::EQueryLevel theLevel = gdcm::eImage;
 		gdcm::ERootType theRoot  = gdcm::ePatientRootType;//ePatientRootType;
 		std::vector<gdcm::DataSet> theDataSet;
 		std::vector< std::pair<gdcm::Tag, std::string> > keys;
@@ -343,15 +346,15 @@
 
 	void vvQPacsConnection::manageStudiesFilter(bool i_enable)
 	{
-		text_PHYS->setEnabled(i_enable);
-		text_SDESC->setEnabled(i_enable);
-		dateTab->setEnabled(i_enable);
+		ui.text_PHYS->setEnabled(i_enable);
+		ui.text_SDESC->setEnabled(i_enable);
+		ui.dateTab->setEnabled(i_enable);
 
 	}
 
 	void vvQPacsConnection::manageSeriesFilter(bool i_enable)
 	{
-		modalityTab->setEnabled(i_enable);
+		ui.modalityTab->setEnabled(i_enable);
 	}
 
 	std::vector< std::pair<gdcm::Tag, std::string> > vvQPacsConnection::getPatientKeys(const std::string i_val)
@@ -445,38 +448,39 @@
 
 	void vvQPacsConnection::on_check_ModAll_clicked(bool state)
 	{
-		check_MR->setEnabled(!state);
-		check_CR->setEnabled(!state);
-		check_OT->setEnabled(!state);
-		check_RF->setEnabled(!state);
-		check_SC->setEnabled(!state);
-		check_CT->setEnabled(!state);
-		check_US->setEnabled(!state);
-		check_NM->setEnabled(!state);
-		check_DR->setEnabled(!state);
-		check_US->setEnabled(!state);
-		check_NM->setEnabled(!state);
-		check_DR->setEnabled(!state);
-		check_SR->setEnabled(!state);
-		check_XA->setEnabled(!state);
-		check_MG->setEnabled(!state);
+		ui.check_MR->setEnabled(!state);
+		ui.check_CR->setEnabled(!state);
+		ui.check_OT->setEnabled(!state);
+		ui.check_RF->setEnabled(!state);
+		ui.check_SC->setEnabled(!state);
+		ui.check_CT->setEnabled(!state);
+		ui.check_US->setEnabled(!state);
+		ui.check_NM->setEnabled(!state);
+		ui.check_DR->setEnabled(!state);
+		ui.check_US->setEnabled(!state);
+		ui.check_NM->setEnabled(!state);
+		ui.check_DR->setEnabled(!state);
+		ui.check_SR->setEnabled(!state);
+		ui.check_XA->setEnabled(!state);
+		ui.check_MG->setEnabled(!state);
 		if(state)
 		{
-			check_MR->setChecked(state);
-			check_CR->setChecked(state);
-			check_OT->setChecked(state);
-			check_RF->setChecked(state);
-			check_SC->setChecked(state);
-			check_CT->setChecked(state);
-			check_US->setChecked(state);
-			check_NM->setChecked(state);
-			check_DR->setChecked(state);
-			check_US->setChecked(state);
-			check_NM->setChecked(state);
-			check_DR->setChecked(state);
-			check_SR->setChecked(state);
-			check_XA->setChecked(state);
-			check_MG->setChecked(state);
+			ui.check_MR->setChecked(state);
+			ui.check_CR->setChecked(state);
+			ui.check_OT->setChecked(state);
+			ui.check_RF->setChecked(state);
+			ui.check_SC->setChecked(state);
+			ui.check_CT->setChecked(state);
+			ui.check_US->setChecked(state);
+			ui.check_NM->setChecked(state);
+			ui.check_DR->setChecked(state);
+			ui.check_US->setChecked(state);
+			ui.check_NM->setChecked(state);
+			ui.check_DR->setChecked(state);
+			ui.check_SR->setChecked(state);
+			ui.check_XA->setChecked(state);
+			ui.check_MG->setChecked(state);
 		}
 
 	}
+#endif

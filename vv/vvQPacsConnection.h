@@ -6,19 +6,19 @@
 #include "gdcmCompositeNetworkFunctions.h"
 #include <QtGui/QStandardItemModel.h>
 #include <QtGui/QStringListModel.h>
-
+#include <QFileDialog>
 
   /**
    * \ingroup GUI
    */
   //=====================================================================
- //=====================================================================
-  class vvQPacsConnection : public QWidget , public Ui_vvPacsConnection
+ //======================================================================
+  class vvQPacsConnection : public QDialog 
   {
 	  Q_OBJECT
   public:
-	  vvQPacsConnection(){}    
-	  vvQPacsConnection(QWidget *parent);
+	  //vvQPacsConnection(){}    
+	  vvQPacsConnection(QWidget *parent=0);
     
 	  ~vvQPacsConnection(){}
 	///Queries the PACS
@@ -35,6 +35,7 @@ public slots:
 
 
   private :
+	  Ui::vvPacsConnection ui;
 	std::vector< std::pair<gdcm::Tag, std::string> > getKeys();
 	std::vector< std::pair<gdcm::Tag, std::string> > getPatientKeys(const std::string );
 	std::vector< std::pair<gdcm::Tag, std::string> > getStudyKeys(const std::string);

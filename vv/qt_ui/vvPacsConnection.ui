@@ -197,16 +197,16 @@
    <property name="title">
     <string>Studies</string>
    </property>
-  </widget>
-  <widget class="QTreeView" name="studyTreeView">
-   <property name="geometry">
-    <rect>
-     <x>410</x>
-     <y>150</y>
-     <width>411</width>
-     <height>231</height>
-    </rect>
-   </property>
+   <widget class="QTreeView" name="studyTreeView">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>20</y>
+      <width>411</width>
+      <height>231</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QTreeView" name="seriesTreeView">
    <property name="geometry">
