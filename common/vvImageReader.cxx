@@ -161,7 +161,15 @@ void vvImageReader::ReadMatImageTransform()
   if(f.is_open()) {
     f.close();
 
-    itk::Matrix<double, 4, 4> itkMat = clitk::ReadMatrix3D(filename);
+    itk::Matrix<double, 4, 4> itkMat;
+    itkMat.SetIdentity();
+    try {
+      itkMat = clitk::ReadMatrix3D(filename);
+    }
+    catch (itk::ExceptionObject & err) {
+      itkWarningMacro(<< "Found " << filename
+                      << " but this is not a 4x4 matrix so it is ignored.");
+    }
 
     vtkSmartPointer<vtkMatrix4x4> matrix = vtkSmartPointer<vtkMatrix4x4>::New();
     matrix->Identity();
