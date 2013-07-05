@@ -134,7 +134,7 @@ ${rootMerger} ${arguments} > /dev/null || error "error while calling ${rootMerge
 echo "  ${indent}merged ${count} files"
 }
 
-statMerger="mergeStatFile.sh"
+statMerger="mergeStatFile.py"
 test -x "./mergeStatFile.sh" && statMerger="./mergeStatFile.sh"
 
 function merge_stat {
