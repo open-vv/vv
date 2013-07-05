@@ -131,7 +131,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>basket_download.png</normaloff>basket_download.png</iconset>
+     <normaloff>../icons/basket_download.png</normaloff>../icons/basket_download.png</iconset>
    </property>
    <property name="iconSize">
     <size>
@@ -710,7 +710,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>edit.png</normaloff>edit.png</iconset>
+     <normaloff>../icons/edit.png</normaloff>../icons/edit.png</iconset>
    </property>
    <property name="iconSize">
     <size>
@@ -735,6 +735,7 @@
     <string>Options</string>
    </property>
   </widget>
+  <zorder>groupBox_4</zorder>
   <zorder>groupBox_3</zorder>
   <zorder>label_ID</zorder>
   <zorder>text_ID</zorder>
@@ -747,7 +748,6 @@
   <zorder>groupBox_2</zorder>
   <zorder>seriesTreeView</zorder>
   <zorder>imagesTreeView</zorder>
-  <zorder>groupBox_4</zorder>
   <zorder>text_PHYS</zorder>
   <zorder>label_PHYS</zorder>
   <zorder>label_SDESC</zorder>
@@ -761,7 +761,7 @@
   <zorder>label_email_2</zorder>
  </widget>
  <resources>
-  <include location="icones.qrc"/>
+  <include location="../vvIcons.qrc"/>
  </resources>
  <connections/>
 </ui>

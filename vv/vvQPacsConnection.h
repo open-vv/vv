@@ -32,6 +32,7 @@ public slots:
 	void on_clearButton_clicked();
 	void on_optionsButton_clicked();
 	void on_check_ModAll_clicked(bool state);
+	void on_importButton_clicked();
  void connectServer(int index);
 
   private :
