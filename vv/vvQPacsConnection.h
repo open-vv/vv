@@ -21,8 +21,8 @@
 	  vvQPacsConnection(QWidget *parent=0);
     
 	  ~vvQPacsConnection(){}
-	///Queries the PACS
-	 //void OnQueryPACS(wxCommandEvent& event);  
+	void refreshNetworks();
+
 public slots:
 	void selectStudies(const QModelIndex &index);
 	void selectSeries(const QModelIndex &index);
@@ -30,9 +30,9 @@ public slots:
   private slots:
     void on_scanButton_clicked();
 	void on_clearButton_clicked();
-	void on_importButton_clicked();
+	void on_optionsButton_clicked();
 	void on_check_ModAll_clicked(bool state);
-
+ void connectServer(int index);
 
   private :
 	  Ui::vvPacsConnection ui;
@@ -43,6 +43,7 @@ public slots:
 	std::vector< std::pair<gdcm::Tag, std::string> > getImageKeys(const std::string i_val);
 	void manageStudiesFilter(bool i_enable);
 	void createTreeView();
+	void setNewPacs();
 	QStandardItemModel *Patientmodel;
 	QStandardItemModel *Studymodel;
 	QStandardItemModel *Seriesmodel;
@@ -53,11 +54,11 @@ public slots:
 	std::string m_study;
 	std::string m_series;
 	
-	std::string m_ip;
+	std::string m_port;
 	std::string m_aetitle;
 	std::string m_adress;
-	std::string m_name;
-	//wxDialog* dialog;
+	std::string m_nickname;
+
 	
   }; // class vvQPacsConnection
   //=====================================================================

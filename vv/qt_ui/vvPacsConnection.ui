@@ -350,7 +350,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="modalityTab">
     <property name="enabled">
@@ -538,36 +538,20 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="networkSelect">
     <attribute name="title">
      <string>Network</string>
     </attribute>
-    <widget class="QCheckBox" name="checkBox">
+    <widget class="QComboBox" name="networkCombo">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>101</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>HCL Neuro</string>
-     </property>
-    </widget>
-    <widget class="QCheckBox" name="checkBox_2">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
+       <x>20</x>
        <y>40</y>
-       <width>70</width>
-       <height>17</height>
+       <width>191</width>
+       <height>22</height>
       </rect>
-     </property>
-     <property name="text">
-      <string>conquest</string>
      </property>
     </widget>
    </widget>
@@ -588,13 +572,13 @@
       <string>OK</string>
      </property>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>0</x>
        <y>0</y>
        <width>179</width>
-       <height>100</height>
+       <height>120</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout">
@@ -610,16 +594,6 @@
       </item>
       <item row="0" column="1">
        <widget class="QLineEdit" name="NameEdit"/>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_ID_2">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>AE Title</string>
-        </property>
-       </widget>
       </item>
       <item row="1" column="1">
        <widget class="QLineEdit" name="AETitleEdit"/>
@@ -649,6 +623,16 @@
       </item>
       <item row="3" column="1">
        <widget class="QLineEdit" name="PortEdit"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_ID_2">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>AE Title</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

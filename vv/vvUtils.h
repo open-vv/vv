@@ -33,4 +33,11 @@ QString getVVSettingsPath();
 ///by default nativeFormat
 QSettings::Format getSettingsOptionFormat();
 
+/// Add a Dicom Server to settings
+void AddDicomServer(std::string nickname, std::string aetitle, std::string adress, std::string port);
+
+// get List of Dicom Servers
+QStringList getDicomServers();
+
+std::map <std::string,std::string > getDicomServer(QString nickname);
 #endif

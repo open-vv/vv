@@ -754,10 +754,10 @@ void vvMainWindow::OpenDicom()
   std::vector<std::string> files;
 
   //std::cout << "dicomSeriesSelector " << std::endl;
-  /*if (pacsconnect->exec() == QDialog::Accepted) {
-    files = *(pacsconnect->GetFilenames());
-    LoadImages(files, vvImageReader::DICOM);
-  }*/
+if (pacsconnect->exec() == QDialog::Accepted) {
+//    files = *(pacsconnect->GetFilenames());
+   // LoadImages(files, vvImageReader::DICOM);
+  }
   }
 
 

@@ -48,6 +48,50 @@ FileListType GetRecentlyOpenedImages()
   return result;
 }
 
+/// Add new Dicom Server
+void AddDicomServer(std::string nickname, std::string aetitle, std::string adress, std::string port)
+{
+	QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
+	 settings.beginGroup(QString::fromStdString("DICOMSERVER"));
+	 settings.beginWriteArray(QString::fromStdString(nickname));
+	 settings.setValue("nickname",QString::fromStdString(nickname));
+	 settings.setValue("AETITLE",QString::fromStdString(aetitle));
+	 settings.setValue("ADRESS",QString::fromStdString(adress));
+	 settings.setValue("PORT",QString::fromStdString(port));
+	 settings.endGroup();
+}
+
+
+//std::map <std::string, std::vector<std::string> > getDicomServers()
+QStringList getDicomServers()
+{
+
+	QStringList list;
+	QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
+	 settings.beginGroup(QString::fromStdString("DICOMSERVER"));
+	 QStringList  keys = settings.allKeys();
+	 for(int i =0; i < keys.size(); i++)
+	 {
+		 QString val = keys.at(i);
+		 if (val.contains("nickname"))
+			 list.push_back(settings.value(val).toString());
+	 }
+	 return list;
+}
+
+std::map <std::string,std::string > getDicomServer(QString nickname)
+{
+		std::map< std::string, std::string  >results;
+		QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
+	 settings.beginGroup(QString::fromStdString("DICOMSERVER"));
+	 settings.beginReadArray(nickname);
+	   QStringList keys = settings.childKeys();
+	   for (int i = 0; i <keys.size(); i++)
+		   results[keys.at(i).toStdString()] = settings.value(keys.at(i)).toString().toStdString();
+	   return results;
+
+}
+
 ///Adds an image to the list of recently opened images
 void AddToRecentlyOpenedImages(std::string filename)
 {
