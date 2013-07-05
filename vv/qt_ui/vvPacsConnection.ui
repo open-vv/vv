@@ -735,6 +735,30 @@
     <string>Options</string>
    </property>
   </widget>
+  <zorder>groupBox_3</zorder>
+  <zorder>label_ID</zorder>
+  <zorder>text_ID</zorder>
+  <zorder>scanButton</zorder>
+  <zorder>clearButton</zorder>
+  <zorder>text_NAME</zorder>
+  <zorder>label_NAME</zorder>
+  <zorder>importButton</zorder>
+  <zorder>groupBox</zorder>
+  <zorder>groupBox_2</zorder>
+  <zorder>seriesTreeView</zorder>
+  <zorder>imagesTreeView</zorder>
+  <zorder>groupBox_4</zorder>
+  <zorder>text_PHYS</zorder>
+  <zorder>label_PHYS</zorder>
+  <zorder>label_SDESC</zorder>
+  <zorder>text_SDESC</zorder>
+  <zorder>tabFilter</zorder>
+  <zorder>tabNetwork</zorder>
+  <zorder>label_2</zorder>
+  <zorder>label_help</zorder>
+  <zorder>helpButton</zorder>
+  <zorder>optionsButton</zorder>
+  <zorder>label_email_2</zorder>
  </widget>
  <resources>
   <include location="icones.qrc"/>

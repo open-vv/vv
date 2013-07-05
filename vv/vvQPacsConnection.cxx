@@ -353,7 +353,7 @@ void vvQPacsConnection::selectImages(const QModelIndex &index)
 
 
 	gdcm::CompositeNetworkFunctions::CFind(m_adress.c_str(), atoi(m_port.c_str()), theQuery, theDataSet, "CREATIS", m_nickname.c_str());
-	convertDataSet(theDataSet, Seriesmodel, keys);
+	convertDataSet(theDataSet, Imagesmodel, keys);
 }
 
 
