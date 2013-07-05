@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://www.centreleonberard.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -39,7 +39,9 @@ class vtkImageData;
 class vtkRenderer;
 class vtkMatrix4x4;
 class vvDicomSeriesSelector;
+#ifdef CLITK_USE_SYSTEM_GDCM
 class vvQPacsConnection;
+#endif
 class vvSlicer;
 class QTreeWidget;
 
@@ -92,7 +94,9 @@ public slots:
   void SliceImages();
   void MergeImagesWithTime();
   void OpenDicom();
+#ifdef CLITK_USE_SYSTEM_GDCM
   void ConnectPacs();
+#endif
   ///Open a vtkPolyData surface mesh and display it over the current image
   void OpenVTKContour();
   void SaveAs();
@@ -195,7 +199,10 @@ private:
   vvHelpDialog *help_dialog;
   vvDocumentation *documentation;
   vvDicomSeriesSelector *dicomSeriesSelector;
-  vvQPacsConnection *pacsconnect;
+
+#ifdef CLITK_USE_SYSTEM_GDCM
+  vvQPacsConnection *PacsConnection;
+#endif
 
   bool viewMode;
   bool playMode;

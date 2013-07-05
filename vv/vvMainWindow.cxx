@@ -47,7 +47,9 @@ It is distributed under dual licence
 #include "vvMeshReader.h"
 #include "vvSaveState.h"
 #include "vvReadState.h"
+#ifdef CLITK_USE_SYSTEM_GDCM
 #include "vvQPacsConnection.h"
+#endif
 #include "clitkConfiguration.h"
 
 // ITK include
@@ -236,7 +238,9 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   documentation = new vvDocumentation();
   help_dialog = new vvHelpDialog();
   dicomSeriesSelector = new vvDicomSeriesSelector();
-  pacsconnect = new vvQPacsConnection(this);
+#ifdef CLITK_USE_SYSTEM_GDCM
+     PacsConnection = new vvQPacsConnection();
+#endif
 
   inverseButton->setEnabled(0);
   actionAdd_overlay_image_to_current_image->setEnabled(0);
@@ -279,8 +283,9 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(actionWarp_image_with_vector_field,SIGNAL(triggered()),this,SLOT(WarpImage()));
   connect(actionLoad_images,SIGNAL(triggered()),this,SLOT(OpenImages()));
   connect(actionOpen_Dicom,SIGNAL(triggered()),this,SLOT(OpenDicom()));
+  #ifdef CLITK_USE_SYSTEM_GDCM
 connect(actionConnect_Pacs,SIGNAL(triggered()),this,SLOT(ConnectPacs()));
-
+#endif
   //  connect(actionOpen_Dicom_Struct,SIGNAL(triggered()),this,SLOT(OpenDCStructContour()));
   connect(actionOpen_VTK_contour,SIGNAL(triggered()),this,SLOT(OpenVTKContour()));
   connect(actionOpen_Multiple_Images_As_One,SIGNAL(triggered()),this,SLOT(MergeImages()));
@@ -748,19 +753,20 @@ void vvMainWindow::OpenDicom()
     files = *(dicomSeriesSelector->GetFilenames());
     LoadImages(files, vvImageReader::DICOM);
   }
-}
-  void vvMainWindow::ConnectPacs()
+}  
+#ifdef CLITK_USE_SYSTEM_GDCM
+void vvMainWindow::ConnectPacs()
 {
   std::vector<std::string> files;
 
   //std::cout << "dicomSeriesSelector " << std::endl;
-if (pacsconnect->exec() == QDialog::Accepted) {
+if (PacsConnection->exec() == QDialog::Accepted) {
 //    files = *(pacsconnect->GetFilenames());
    // LoadImages(files, vvImageReader::DICOM);
   }
   }
 
-
+#endif
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
