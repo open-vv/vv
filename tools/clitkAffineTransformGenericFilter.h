@@ -87,6 +87,11 @@ namespace clitk
     //----------------------------------------  
     void Update();
 
+    template<unsigned int Dimension, class PixelType>
+      static
+      typename itk::Matrix<double, Dimension+1, Dimension+1>
+      createMatrixFromElastixFile(std::vector<std::string> & filename, bool verbose=true);
+
   protected:
 
     //----------------------------------------  
@@ -103,13 +108,9 @@ namespace clitk
     template <unsigned int Dimension, class PixelType>  void UpdateWithDimAndPixelType();
     template <unsigned int Dimension, class PixelType>  void UpdateWithDimAndVectorType();
 
-    template<unsigned int Dimension, class PixelType>
-      typename itk::Matrix<double, Dimension+1, Dimension+1>
-      createMatrixFromElastixFile(std::vector<std::string> & filename);
-
-    bool GetElastixValueFromTag(std::ifstream & is, std::string tag, std::string & value); 
-    void GetValuesFromValue(const std::string & s, 
-                            std::vector<std::string> & values);
+    static bool GetElastixValueFromTag(std::ifstream & is, std::string tag, std::string & value); 
+    static void GetValuesFromValue(const std::string & s, 
+                                   std::vector<std::string> & values);
 
     //----------------------------------------  
     // Data members

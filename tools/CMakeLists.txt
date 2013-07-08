@@ -108,6 +108,12 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkAffineTransform clitkCommon )
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkAffineTransform)
 
+  WRAP_GGO(clitkElastixTransformToMatrix_GGO_C clitkElastixTransformToMatrix.ggo)
+  ADD_EXECUTABLE(clitkElastixTransformToMatrix clitkElastixTransformToMatrix.cxx ${clitkElastixTransformToMatrix_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkElastixTransformToMatrix clitkCommon )
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkElastixTransformToMatrix)
+
+
   WRAP_GGO(clitkSetBackground_GGO_C clitkSetBackground.ggo)
   ADD_EXECUTABLE(clitkSetBackground clitkSetBackground.cxx clitkSetBackgroundGenericFilter.cxx ${clitkSetBackground_GGO_C})
   TARGET_LINK_LIBRARIES(clitkSetBackground clitkCommon)
