@@ -1,7 +1,4 @@
-VV
-==
 
-VV 4D image viewer.
 
-See : vv.creatis.insa-lyon.fr
+VV, a 4D image viewer, see : http://vv.creatis.insa-lyon.fr
 
