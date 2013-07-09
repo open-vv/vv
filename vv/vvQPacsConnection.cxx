@@ -22,28 +22,44 @@ vvQPacsConnection::vvQPacsConnection(QWidget *i_parent)
 	ui. tabNetwork->setTabText(1,QString(tr("Configuration")));
 	//ui.setChecked(true);
 	//ui.on_check_ModAll_clicked(true);
-	QIcon icon;
-	icon.addFile("basket_download.png",QSize(),QIcon::Normal,QIcon::Off);
-	ui.importButton->setIcon(icon);
-	icon.addFile("file_upload.png",QSize(),QIcon::Normal,QIcon::Off);
-	// exportButton->setIcon(icon);
-	icon.addFile("email_forward.png",QSize(),QIcon::Normal,QIcon::Off);
-	icon.addFile("edit.png",QSize(),QIcon::Normal,QIcon::Off);
-	ui.optionsButton->setIcon(icon);
-	icon.addFile("bullet_info.png",QSize(),QIcon::Normal,QIcon::Off);
-	ui.helpButton->setIcon(icon);
-
+	
+	
+	ui.networkCombo->addItem("");
 	ui.networkCombo->addItems(getDicomServers());
-	connect(ui.networkCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(connectServer(int)));
+	
+	connect(ui.networkCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(chooseServer(int)));
 	connect(ui.scanButton,SIGNAL(clicked()),this,SLOT(on_scanButton_clicked()));
+	connect(ui.importButton, SIGNAL(clicked()), this, SLOT(on_importButton_clicked()));
+	connect(ui.removeNetworkButton,SIGNAL(clicked()),this,SLOT(removeServer()));
+	connect(ui.NetworkButton,SIGNAL(clicked()),this,SLOT(modifyServer()));
 	update();
 }
+
+void vvQPacsConnection::removeServer()
+{
+	removeDicomServer(m_nickname);
+	ui.networkCombo->removeItem(ui.networkCombo->findText(QString(m_nickname.c_str())));
+	m_nickname="";
+	refreshNetworks();
+}
+
+void vvQPacsConnection::modifyServer()
+{
+	AddDicomServer(ui.NameEdit->text().toStdString(),ui.AETitleEdit->text().toStdString(),ui.AdressEdit->text().toStdString(),ui.PortEdit->text().toStdString());
+	removeServer();
+}
+
 
 void vvQPacsConnection::refreshNetworks()
 {
 	ui.networkCombo->clear();
+	ui.networkCombo->addItem(QString());
 	ui.networkCombo->addItems(getDicomServers());
-	//ui.networkCombo->show();
+	ui.NameEdit->setText(QString());
+	ui.AETitleEdit->setText(QString());
+	ui.AdressEdit->setText(QString());
+	ui.PortEdit->setText(QString());
+	ui.tabNetwork->setCurrentIndex(0);
 }
 
 void vvQPacsConnection::on_clearButton_clicked()
@@ -59,45 +75,48 @@ void vvQPacsConnection::on_scanButton_clicked()
 
 	manageStudiesFilter(true);
 	bool didItWork = gdcm::CompositeNetworkFunctions::CEcho(m_adress.c_str(), atoi(m_port.c_str()),	"CREATIS", m_nickname.c_str() );
-	std::vector< std::pair<gdcm::Tag, std::string> > keys = getKeys();
-
-	gdcm::EQueryLevel theLevel = gdcm::eStudy;
-	gdcm::ERootType theRoot  = gdcm::eStudyRootType;//ePatientRootType;
-	
-	std::vector<gdcm::DataSet> theDataSet;
-	theLevel = gdcm::ePatient;
-	theRoot  = gdcm::ePatientRootType;//ePatientRootType;
-	gdcm::SmartPointer<gdcm::BaseRootQuery> theQuery =  gdcm::CompositeNetworkFunctions::ConstructQuery(theRoot, theLevel ,getPatientKeys(""));
-	gdcm::CompositeNetworkFunctions::CFind(m_adress.c_str(), atoi(m_port.c_str()), theQuery, theDataSet, 	"CREATIS", m_nickname.c_str());
-	std::vector<gdcm::DataSet>::iterator it_ds = theDataSet.begin();
-
-	for(; it_ds != theDataSet.end(); it_ds++)
+	if (didItWork)
 	{
-		QList<QStandardItem *> items;
-		const gdcm::DataSet ds = (*it_ds);
-		std::vector< std::pair<gdcm::Tag, std::string> >::iterator it_key = keys.begin();
-		int ind = 0;
-		for(; it_key != keys.end(); it_key++, ind++)
+		std::vector< std::pair<gdcm::Tag, std::string> > keys = getKeys();
+
+		gdcm::EQueryLevel theLevel = gdcm::eStudy;
+		gdcm::ERootType theRoot  = gdcm::eStudyRootType;//ePatientRootType;
+	
+		std::vector<gdcm::DataSet> theDataSet;
+		theLevel = gdcm::ePatient;
+		theRoot  = gdcm::ePatientRootType;//ePatientRootType;
+		gdcm::SmartPointer<gdcm::BaseRootQuery> theQuery =  gdcm::CompositeNetworkFunctions::ConstructQuery(theRoot, theLevel ,getPatientKeys(""));
+		gdcm::CompositeNetworkFunctions::CFind(m_adress.c_str(), atoi(m_port.c_str()), theQuery, theDataSet, 	"CREATIS", m_nickname.c_str());
+		std::vector<gdcm::DataSet>::iterator it_ds = theDataSet.begin();
+
+		for(; it_ds != theDataSet.end(); it_ds++)
 		{
-			gdcm::DataElement de = ds.GetDataElement((*it_key).first);
-			QStandardItem *item = new QStandardItem;
-			const gdcm::ByteValue *bv = (de).GetByteValue();
-			if( !de.IsEmpty() )
+			QList<QStandardItem *> items;
+			const gdcm::DataSet ds = (*it_ds);
+			std::vector< std::pair<gdcm::Tag, std::string> >::iterator it_key = keys.begin();
+			int ind = 0;
+			for(; it_key != keys.end(); it_key++, ind++)
 			{
-				std::string buffer = std::string( bv->GetPointer(), bv->GetLength() );
-				item->setText(tr(buffer.c_str()));
+				gdcm::DataElement de = ds.GetDataElement((*it_key).first);
+				QStandardItem *item = new QStandardItem;
+				const gdcm::ByteValue *bv = (de).GetByteValue();
+				if( !de.IsEmpty() )
+				{
+					std::string buffer = std::string( bv->GetPointer(), bv->GetLength() );
+					item->setText(tr(buffer.c_str()));
+				}
+				else
+				{
+					item->setText(tr(""));
+				}
+				if(ind ==0)
+				{
+					item->setCheckable(true);
+				}
+				items.push_back(item);
 			}
-			else
-			{
-				item->setText(tr(""));
-			}
-			if(ind ==0)
-			{
-				item->setCheckable(true);
-			}
-			items.push_back(item);
+			Patientmodel->appendRow(items);
 		}
-		Patientmodel->appendRow(items);
 	}
 }
 
@@ -152,7 +171,7 @@ void vvQPacsConnection::convertDataSet(std::vector<gdcm::DataSet> i_ds, QStandar
 
 }
 
-
+// TreeViews creation
 void vvQPacsConnection::createTreeView()
 {
 	// Patient Tree View
@@ -437,7 +456,7 @@ void vvQPacsConnection::on_check_ModAll_clicked(bool state)
 
 }
 
-void vvQPacsConnection::connectServer(int index)
+void vvQPacsConnection::chooseServer(int index)
 {
 	std::map < std::string, std:: string> values = getDicomServer(ui.networkCombo->currentText());
 	m_port = values["PORT"];
@@ -452,6 +471,7 @@ void vvQPacsConnection::connectServer(int index)
 
 void vvQPacsConnection::on_importButton_clicked()
 	{
+	
 		QModelIndex index;
 		QVariant elt= Patientmodel->data(index.sibling(ui.patientTreeView->selectionModel()->selectedRows().first().row(),1));
 		
@@ -467,5 +487,5 @@ void vvQPacsConnection::on_importButton_clicked()
 	//	gdcm::CompositeNetworkFunctions::CFind("127.0.0.1", 5678, theQuery, theDataSet, "CREATIS", "CONQUESTSRV1");
 	
 		 bool didItWork =  gdcm::CompositeNetworkFunctions::CMove(m_adress.c_str(),atoi(m_port.c_str()), theQuery, 0,
-       "CREATIS", m_nickname.c_str(), "d:\\temp_pacs_import\\" );
+       "CREATIS", m_nickname.c_str() );
 	}

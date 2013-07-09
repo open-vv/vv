@@ -86,7 +86,8 @@ SET(vv_SRCS
   vvSlicerManager.cxx
   vvSlicerManagerCommand.cxx
   vvUtils.cxx
-#  vvMaximumIntensityProjection.cxx  vvMesh.cxx
+#  vvMaximumIntensityProjection.cxx 
+ vvMesh.cxx
   vvMeshActor.cxx
   vvMeshReader.cxx
   vvMidPosition.cxx
@@ -122,20 +123,22 @@ QT4_WRAP_UI(vv_UI_CXX
   qt_ui/vvHelpDialog.ui 
   qt_ui/vvDocumentation.ui 
   qt_ui/vvDicomSeriesSelector.ui
-qt_ui/vvDummyWindow.ui #For testing  )
+qt_ui/vvDummyWindow.ui 	 #For testing 
+qt_ui/vvPacsConnection.ui
+     qt_ui/vvPacsSettingsDialog.ui
+)
 
 QT4_ADD_RESOURCES(vv_SRCS vvIcons.qrc)
 
 # Add DICOM SERVER gui selector if the adequate GDCM is available
 #IF(CLITK_USE_SYSTEM_GDCM)
-message("ololoa")
   SET(vv_SRCS ${vv_SRCS}
       vvQPacsConnection.cxx
 	  vvPacsSettingsDialog.cxx)
-  QT4_WRAP_CPP(vv_SRCS vvQPacsConnection.cxx
-     vvPacsSettingsDialog.cxx)
-  QT4_WRAP_UI(vv_UI_CXX qt_ui/vvPacsConnection.ui
-     qt_ui/vvPacsSettingsDialog.ui)
+  QT4_WRAP_CPP(vv_SRCS vvQPacsConnection.h
+     vvPacsSettingsDialog.h)
+  #QT4_WRAP_UI(vv_UI_CXX qt_ui/vvPacsConnection.ui
+   #  qt_ui/vvPacsSettingsDialog.ui)
 #ENDIF(CLITK_USE_SYSTEM_GDCM)
 
 # Add the autotools in the header vvToolsList.h for initialization of the dummy

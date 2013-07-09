@@ -48,7 +48,7 @@ FileListType GetRecentlyOpenedImages()
   return result;
 }
 
-/// Add new Dicom Server
+/// Add a new Dicom Server
 void AddDicomServer(std::string nickname, std::string aetitle, std::string adress, std::string port)
 {
 	QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
@@ -61,8 +61,23 @@ void AddDicomServer(std::string nickname, std::string aetitle, std::string adres
 	 settings.endGroup();
 }
 
+/// Remove a Dicom Server
+void removeDicomServer(std::string nickname)
+{
+	QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
+	 settings.beginGroup(QString::fromStdString("DICOMSERVER"));
+	 std::string temp = nickname + "//";
+	 settings.remove(QString::fromStdString(temp + "nickname"));
+	 settings.remove(QString::fromStdString(temp + "AETITLE"));
+	  settings.remove(QString::fromStdString(temp + "ADRESS"));
+	   settings.remove(QString::fromStdString(temp + "PORT"));
+	 settings.endGroup();
+}
 
-//std::map <std::string, std::vector<std::string> > getDicomServers()
+
+
+
+/// get the list of a Dicom Server
 QStringList getDicomServers()
 {
 
@@ -79,6 +94,7 @@ QStringList getDicomServers()
 	 return list;
 }
 
+/// get needed Infos for a Dicom Server
 std::map <std::string,std::string > getDicomServer(QString nickname)
 {
 		std::map< std::string, std::string  >results;

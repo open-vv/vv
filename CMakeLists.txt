@@ -24,7 +24,7 @@ INCLUDE(${CLITK_SOURCE_DIR}/cmake/dependencies.cmake)
 INCLUDE(${CLITK_SOURCE_DIR}/cmake/build_opt.cmake)
 #=========================================================
 #=========================================================
-
+SET(vvPacsConnection true)
 # Select what is compiled
 ADD_SUBDIRECTORY(${CLITK_SOURCE_DIR}/common ${PROJECT_BINARY_DIR}/common)
 ADD_SUBDIRECTORY(${CLITK_SOURCE_DIR}/tools ${PROJECT_BINARY_DIR}/tools)

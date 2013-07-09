@@ -36,6 +36,9 @@ QSettings::Format getSettingsOptionFormat();
 /// Add a Dicom Server to settings
 void AddDicomServer(std::string nickname, std::string aetitle, std::string adress, std::string port);
 
+/// Remove a Dicom Server to settings
+void removeDicomServer(std::string nickname);
+
 // get List of Dicom Servers
 QStringList getDicomServers();
 

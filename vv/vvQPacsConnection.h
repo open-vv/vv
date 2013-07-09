@@ -33,7 +33,9 @@ public slots:
 	void on_optionsButton_clicked();
 	void on_check_ModAll_clicked(bool state);
 	void on_importButton_clicked();
- void connectServer(int index);
+ void chooseServer(int index);
+ void removeServer();
+ void modifyServer();
 
   private :
 	  Ui::vvPacsConnection ui;

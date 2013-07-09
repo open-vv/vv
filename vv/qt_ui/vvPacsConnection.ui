@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>923</width>
-    <height>783</height>
+    <width>933</width>
+    <height>802</height>
    </rect>
   </property>
   <property name="font">
@@ -130,8 +130,8 @@
     <string notr="true">...</string>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/basket_download.png</normaloff>../icons/basket_download.png</iconset>
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/basket_download.png</normaloff>:/common/icons/basket_download.png</iconset>
    </property>
    <property name="iconSize">
     <size>
@@ -143,8 +143,8 @@
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
-     <x>70</x>
-     <y>130</y>
+     <x>90</x>
+     <y>140</y>
      <width>311</width>
      <height>271</height>
     </rect>
@@ -183,8 +183,8 @@
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
     <rect>
-     <x>390</x>
-     <y>130</y>
+     <x>410</x>
+     <y>150</y>
      <width>451</width>
      <height>271</height>
     </rect>
@@ -211,8 +211,8 @@
   <widget class="QTreeView" name="seriesTreeView">
    <property name="geometry">
     <rect>
-     <x>90</x>
-     <y>440</y>
+     <x>110</x>
+     <y>450</y>
      <width>281</width>
      <height>311</height>
     </rect>
@@ -221,8 +221,8 @@
   <widget class="QTreeView" name="imagesTreeView">
    <property name="geometry">
     <rect>
-     <x>410</x>
-     <y>440</y>
+     <x>450</x>
+     <y>450</y>
      <width>411</width>
      <height>311</height>
     </rect>
@@ -231,8 +231,8 @@
   <widget class="QGroupBox" name="groupBox_3">
    <property name="geometry">
     <rect>
-     <x>70</x>
-     <y>420</y>
+     <x>90</x>
+     <y>430</y>
      <width>321</width>
      <height>341</height>
     </rect>
@@ -249,8 +249,8 @@
   <widget class="QGroupBox" name="groupBox_4">
    <property name="geometry">
     <rect>
-     <x>380</x>
-     <y>420</y>
+     <x>420</x>
+     <y>430</y>
      <width>451</width>
      <height>341</height>
     </rect>
@@ -350,7 +350,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="modalityTab">
     <property name="enabled">
@@ -533,12 +533,12 @@
     <rect>
      <x>680</x>
      <y>0</y>
-     <width>231</width>
-     <height>131</height>
+     <width>251</width>
+     <height>151</height>
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="networkSelect">
     <attribute name="title">
@@ -563,13 +563,13 @@
      <property name="geometry">
       <rect>
        <x>180</x>
-       <y>40</y>
-       <width>41</width>
+       <y>90</y>
+       <width>61</width>
        <height>23</height>
       </rect>
      </property>
      <property name="text">
-      <string>OK</string>
+      <string>Save</string>
      </property>
     </widget>
     <widget class="QWidget" name="layoutWidget">
@@ -636,6 +636,19 @@
       </item>
      </layout>
     </widget>
+    <widget class="QPushButton" name="removeNetworkButton">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>10</y>
+       <width>61</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Remove</string>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QLabel" name="label_2">
@@ -686,8 +699,8 @@
     <string notr="true">...</string>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>bullet_info.png</normaloff>bullet_info.png</iconset>
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/bullet_info.png</normaloff>:/common/icons/bullet_info.png</iconset>
    </property>
    <property name="iconSize">
     <size>
@@ -706,11 +719,11 @@
     </rect>
    </property>
    <property name="text">
-    <string notr="true">...</string>
+    <string notr="true"/>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/edit.png</normaloff>../icons/edit.png</iconset>
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/edit.png</normaloff>:/common/icons/edit.png</iconset>
    </property>
    <property name="iconSize">
     <size>
@@ -760,6 +773,46 @@
   <zorder>optionsButton</zorder>
   <zorder>label_email_2</zorder>
  </widget>
+ <tabstops>
+  <tabstop>scanButton</tabstop>
+  <tabstop>text_ID</tabstop>
+  <tabstop>clearButton</tabstop>
+  <tabstop>text_NAME</tabstop>
+  <tabstop>importButton</tabstop>
+  <tabstop>seriesTreeView</tabstop>
+  <tabstop>imagesTreeView</tabstop>
+  <tabstop>text_PHYS</tabstop>
+  <tabstop>text_SDESC</tabstop>
+  <tabstop>tabFilter</tabstop>
+  <tabstop>tabNetwork</tabstop>
+  <tabstop>helpButton</tabstop>
+  <tabstop>optionsButton</tabstop>
+  <tabstop>patientTreeView</tabstop>
+  <tabstop>studyTreeView</tabstop>
+  <tabstop>check_MR</tabstop>
+  <tabstop>check_CR</tabstop>
+  <tabstop>check_OT</tabstop>
+  <tabstop>check_RF</tabstop>
+  <tabstop>check_SC</tabstop>
+  <tabstop>check_CT</tabstop>
+  <tabstop>check_US</tabstop>
+  <tabstop>check_NM</tabstop>
+  <tabstop>check_DR</tabstop>
+  <tabstop>check_SR</tabstop>
+  <tabstop>check_XA</tabstop>
+  <tabstop>check_MG</tabstop>
+  <tabstop>check_ModAll</tabstop>
+  <tabstop>comboDate</tabstop>
+  <tabstop>dateEdit</tabstop>
+  <tabstop>dateBetweenEdit</tabstop>
+  <tabstop>networkCombo</tabstop>
+  <tabstop>NetworkButton</tabstop>
+  <tabstop>NameEdit</tabstop>
+  <tabstop>AETitleEdit</tabstop>
+  <tabstop>AdressEdit</tabstop>
+  <tabstop>PortEdit</tabstop>
+  <tabstop>removeNetworkButton</tabstop>
+ </tabstops>
  <resources>
   <include location="../vvIcons.qrc"/>
  </resources>

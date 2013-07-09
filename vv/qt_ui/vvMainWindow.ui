@@ -872,6 +872,7 @@
     <addaction name="separator"/>
     <addaction name="actionOpen_Dicom"/>
     <addaction name="actionOpen_VTK_contour"/>
+    <addaction name="actionConnect_Pacs"/>
     <addaction name="separator"/>
     <addaction name="actionSave_As"/>
     <addaction name="separator"/>
@@ -881,7 +882,6 @@
     <addaction name="actionExit"/>
     <addaction name="separator"/>
     <addaction name="separator"/>
-    <addaction name="actionConnect_Pacs"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuOverlay"/>
