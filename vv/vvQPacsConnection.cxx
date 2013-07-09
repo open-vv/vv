@@ -28,7 +28,7 @@ vvQPacsConnection::vvQPacsConnection(QWidget *i_parent)
 	ui.networkCombo->addItems(getDicomServers());
 	
 	connect(ui.networkCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(chooseServer(int)));
-	connect(ui.scanButton,SIGNAL(clicked()),this,SLOT(on_scanButton_clicked()));
+	//connect(ui.scanButton,SIGNAL(clicked()),this,SLOT(on_scanButton_clicked()));
 	connect(ui.importButton, SIGNAL(clicked()), this, SLOT(on_importButton_clicked()));
 	connect(ui.removeNetworkButton,SIGNAL(clicked()),this,SLOT(removeServer()));
 	connect(ui.NetworkButton,SIGNAL(clicked()),this,SLOT(modifyServer()));
@@ -86,38 +86,41 @@ void vvQPacsConnection::on_scanButton_clicked()
 		theLevel = gdcm::ePatient;
 		theRoot  = gdcm::ePatientRootType;//ePatientRootType;
 		gdcm::SmartPointer<gdcm::BaseRootQuery> theQuery =  gdcm::CompositeNetworkFunctions::ConstructQuery(theRoot, theLevel ,getPatientKeys(""));
-		gdcm::CompositeNetworkFunctions::CFind(m_adress.c_str(), atoi(m_port.c_str()), theQuery, theDataSet, 	"CREATIS", m_nickname.c_str());
-		std::vector<gdcm::DataSet>::iterator it_ds = theDataSet.begin();
-
-		for(; it_ds != theDataSet.end(); it_ds++)
+		bool cfindWork = gdcm::CompositeNetworkFunctions::CFind(m_adress.c_str(), atoi(m_port.c_str()), theQuery, theDataSet, 	"CREATIS", m_nickname.c_str());
+		if( cfindWork)
 		{
-			QList<QStandardItem *> items;
-			const gdcm::DataSet ds = (*it_ds);
-			std::vector< std::pair<gdcm::Tag, std::string> >::iterator it_key = keys.begin();
-			int ind = 0;
-			for(; it_key != keys.end(); it_key++, ind++)
+			std::vector<gdcm::DataSet>::iterator it_ds = theDataSet.begin();
+
+			for(; it_ds != theDataSet.end(); it_ds++)
 			{
-				gdcm::DataElement de = ds.GetDataElement((*it_key).first);
-				QStandardItem *item = new QStandardItem;
-				const gdcm::ByteValue *bv = (de).GetByteValue();
-				if( !de.IsEmpty() )
+				QList<QStandardItem *> items;
+				const gdcm::DataSet ds = (*it_ds);
+				std::vector< std::pair<gdcm::Tag, std::string> >::iterator it_key = keys.begin();
+				int ind = 0;
+				for(; it_key != keys.end(); it_key++, ind++)
 				{
-					std::string buffer = std::string( bv->GetPointer(), bv->GetLength() );
-					item->setText(tr(buffer.c_str()));
+					gdcm::DataElement de = ds.GetDataElement((*it_key).first);
+					QStandardItem *item = new QStandardItem;
+					const gdcm::ByteValue *bv = (de).GetByteValue();
+					if( !de.IsEmpty() )
+					{
+						std::string buffer = std::string( bv->GetPointer(), bv->GetLength() );
+						item->setText(tr(buffer.c_str()));
+					}
+					else
+					{
+						item->setText(tr(""));
+					}
+					if(ind ==0)
+					{
+						item->setCheckable(true);
+					}
+					items.push_back(item);
 				}
-				else
-				{
-					item->setText(tr(""));
-				}
-				if(ind ==0)
-				{
-					item->setCheckable(true);
-				}
-				items.push_back(item);
+				Patientmodel->appendRow(items);
 			}
-			Patientmodel->appendRow(items);
-		}
-	}
+		} // end cfindwork
+	} // end didItwork
 }
 
 
