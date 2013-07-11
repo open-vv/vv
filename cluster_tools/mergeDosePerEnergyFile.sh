@@ -26,7 +26,7 @@ do
 	V2=`awk -v P=${PARAM} '$3 == P {print $4}' ${IN2} `
         V1=`echo ${V1} | sed -e 's/[eE]+*/\*10\^/'`
         V2=`echo ${V2} | sed -e 's/[eE]+*/\*10\^/'`
-	R=`echo "${V1} + ${V2}" | bc -l`
+	R=`echo "scale=30; ${V1} + ${V2}" | bc -l`
         test -z "${R}" && continue
         echo "# energydose ${PARAM} ${R}" >> ${TMP}
 done
