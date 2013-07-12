@@ -7,6 +7,7 @@
 #include <QtGui/QStandardItemModel.h>
 #include <QtGui/QStringListModel.h>
 #include <QFileDialog>
+#include "vvDicomServerQueryFactory.h"
 
   /**
    * \ingroup GUI
@@ -22,6 +23,7 @@
     
 	  ~vvQPacsConnection(){}
 	void refreshNetworks();
+	std::vector <std::string> getFileNames();
 
 public slots:
 	void selectStudies(const QModelIndex &index);
@@ -53,15 +55,17 @@ public slots:
 	QStandardItemModel *Imagesmodel;
 	void convertDataSet(std::vector<gdcm::DataSet> i_ds, QStandardItemModel *i_model, std::vector< std::pair<gdcm::Tag, std::string> > keys);
 	void manageSeriesFilter(bool i_enable);
+	std::vector< std::pair<gdcm::Tag, std::string> > fillMoveKeys();
 	std::string m_patient;
 	std::string m_study;
 	std::string m_series;
-	
+	gdcm::EQueryLevel m_level;
 	std::string m_port;
 	std::string m_aetitle;
 	std::string m_adress;
 	std::string m_nickname;
-
+	vvDicomServerQueryFactory mquery;
+	 gdcm::Directory::FilenamesType m_files;
 	
   }; // class vvQPacsConnection
   //=====================================================================

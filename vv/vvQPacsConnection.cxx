@@ -9,6 +9,7 @@
 #include "vvUtils.h"
 
 
+
 vvQPacsConnection::vvQPacsConnection(QWidget *i_parent)
 	:QDialog(i_parent)
 {
@@ -20,8 +21,8 @@ vvQPacsConnection::vvQPacsConnection(QWidget *i_parent)
 
 	ui. tabNetwork->setTabText(0,QString(tr("Network")));
 	ui. tabNetwork->setTabText(1,QString(tr("Configuration")));
-	//ui.setChecked(true);
-	//ui.on_check_ModAll_clicked(true);
+	ui.check_ModAll->setEnabled(true);
+	//on_check_ModAll_clicked(true);
 	
 	
 	ui.networkCombo->addItem("");
@@ -29,7 +30,7 @@ vvQPacsConnection::vvQPacsConnection(QWidget *i_parent)
 	
 	connect(ui.networkCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(chooseServer(int)));
 	//connect(ui.scanButton,SIGNAL(clicked()),this,SLOT(on_scanButton_clicked()));
-	connect(ui.importButton, SIGNAL(clicked()), this, SLOT(on_importButton_clicked()));
+	//connect(ui.importButton, SIGNAL(clicked()), this, SLOT(on_importButton_clicked()));
 	connect(ui.removeNetworkButton,SIGNAL(clicked()),this,SLOT(removeServer()));
 	connect(ui.NetworkButton,SIGNAL(clicked()),this,SLOT(modifyServer()));
 	update();
@@ -79,12 +80,10 @@ void vvQPacsConnection::on_scanButton_clicked()
 	{
 		std::vector< std::pair<gdcm::Tag, std::string> > keys = getKeys();
 
-		gdcm::EQueryLevel theLevel = gdcm::eStudy;
-		gdcm::ERootType theRoot  = gdcm::eStudyRootType;//ePatientRootType;
-	
+		m_level =gdcm::ePatient;
 		std::vector<gdcm::DataSet> theDataSet;
-		theLevel = gdcm::ePatient;
-		theRoot  = gdcm::ePatientRootType;//ePatientRootType;
+		gdcm::EQueryLevel theLevel = gdcm::ePatient;
+		gdcm::ERootType theRoot  = gdcm::ePatientRootType;//ePatientRootType;
 		gdcm::SmartPointer<gdcm::BaseRootQuery> theQuery =  gdcm::CompositeNetworkFunctions::ConstructQuery(theRoot, theLevel ,getPatientKeys(""));
 		bool cfindWork = gdcm::CompositeNetworkFunctions::CFind(m_adress.c_str(), atoi(m_port.c_str()), theQuery, theDataSet, 	"CREATIS", m_nickname.c_str());
 		if( cfindWork)
@@ -212,48 +211,37 @@ void vvQPacsConnection::createTreeView()
 	Imagesmodel = new QStandardItemModel(0,1,this); 
 	QStringList Imageslist;
 	Imageslist.push_back(tr("instance number"));
+	Imageslist.push_back(tr("sopuid"));
 	Imagesmodel->setHorizontalHeaderLabels(Imageslist);
 	ui.imagesTreeView->setModel(Imagesmodel);
 }
 
 void vvQPacsConnection::selectStudies(const QModelIndex &index)
 {
+	m_level =gdcm::ePatient;
 	Studymodel->removeRows(0, Studymodel->rowCount(),QModelIndex());
 	QVariant elt= Patientmodel->data(index.sibling(index.row(),1));
+	QVariant elt2= Patientmodel->data(index.sibling(index.row(),1));
 	m_patient=elt.toString().toStdString();
 	manageSeriesFilter(true);
-	gdcm::EQueryLevel theLevel = gdcm::eStudy;
-	gdcm::ERootType theRoot  = gdcm::ePatientRootType;//ePatientRootType;
+	
 	std::vector<gdcm::DataSet> theDataSet;
-	std::vector< std::pair<gdcm::Tag, std::string> > keys;
-
-	// Study Description
-	gdcm::Tag tagsd(0x0010,0x0020);
-	keys.push_back(std::make_pair(tagsd, m_patient));
-	// Study Description
-	gdcm::Tag tagsdc(0x0008,0x1030);
-	keys.push_back(std::make_pair(tagsdc, ""));
-	// Study date
-	gdcm::Tag tagdb(0x0008,0x0020);
-	keys.push_back(std::make_pair(tagdb, ""));
-	// Study Hour
-	gdcm::Tag tagsdh(0x0008,0x0030);
-	keys.push_back(std::make_pair(tagsdh, ""));
-	gdcm::SmartPointer<gdcm::BaseRootQuery> theQuery =  gdcm::CompositeNetworkFunctions::ConstructQuery(theRoot, theLevel ,keys);
-	gdcm::CompositeNetworkFunctions::CFind(m_adress.c_str(), atoi(m_port.c_str()), theQuery, theDataSet, "CREATIS", m_nickname.c_str());
-	convertDataSet(theDataSet, Studymodel, getStudyKeys(""));
+	if (  gdcm::CompositeNetworkFunctions::CFind(m_adress.c_str(), atoi(m_port.c_str()), 
+		mquery.composeQueryStudy(m_patient), theDataSet, "CREATIS", m_nickname.c_str()) )
+	{
+		convertDataSet(theDataSet, Studymodel, getStudyKeys(""));
+	}
 }
 
 
 void vvQPacsConnection::selectSeries(const QModelIndex &index)
 {
+	m_level =gdcm::eImage;
 	Seriesmodel->removeRows(0, Seriesmodel->rowCount(),QModelIndex());
 	QVariant elt= Studymodel->data(index.sibling(index.row(),3));
 	QVariant elt2= Patientmodel->data(index.sibling(ui.patientTreeView->selectionModel()->selectedRows().first().row(),1));
 
-	//manageImagesFilter(true);
-	gdcm::EQueryLevel theLevel = gdcm::eSeries;
-	gdcm::ERootType theRoot  = gdcm::ePatientRootType;//ePatientRootType;
+
 	std::vector<gdcm::DataSet> theDataSet;
 	std::vector< std::pair<gdcm::Tag, std::string> > keys;
 
@@ -270,22 +258,23 @@ void vvQPacsConnection::selectSeries(const QModelIndex &index)
 	keys.push_back(std::make_pair(gdcm::Tag(0x0008,0x0060), elt.toString().toStdString()));
 	// Acceptance NUmber????
 	keys.push_back(std::make_pair(gdcm::Tag(0x0020,0x000e), elt.toString().toStdString()));
-
-	gdcm::SmartPointer<gdcm::BaseRootQuery> theQuery =  gdcm::CompositeNetworkFunctions::ConstructQuery(theRoot, theLevel ,keys);
-	keys.clear();
+	
+	if ( gdcm::CompositeNetworkFunctions::CFind(m_adress.c_str(), atoi(m_port.c_str()), mquery.composeQuerySeries(keys), theDataSet, "CREATIS", m_nickname.c_str()), "C:\\Boost")
+	{
+		keys.clear();
 	// Modality
 	keys.push_back(std::make_pair(gdcm::Tag(0x0008,0x0060), elt.toString().toStdString()));
 	// Description
 	keys.push_back(std::make_pair(gdcm::Tag(0x0008,0x0060), elt.toString().toStdString()));
 	// Acceptance NUmber????
 	keys.push_back(std::make_pair(gdcm::Tag(0x0020,0x000e), elt.toString().toStdString()));
-
-	gdcm::CompositeNetworkFunctions::CFind(m_adress.c_str(), atoi(m_port.c_str()), theQuery, theDataSet, "CREATIS", m_nickname.c_str());
-	convertDataSet(theDataSet, Seriesmodel, keys);
+		convertDataSet(theDataSet, Seriesmodel, getSeriesKeys(""));
+	}
 }
 
 void vvQPacsConnection::selectImages(const QModelIndex &index)
 {
+	m_level = gdcm::eImage;
 	Imagesmodel->removeRows(0, Imagesmodel->rowCount(),QModelIndex());
 	QVariant elt= Seriesmodel->data(index.sibling(index.row(),2));
 	QVariant elt2= Patientmodel->data(index.sibling(ui.patientTreeView->selectionModel()->selectedRows().first().row(),1));
@@ -303,16 +292,22 @@ void vvQPacsConnection::selectImages(const QModelIndex &index)
 	keys.push_back(std::make_pair(tagss, elt.toString().toStdString()));
 	//= getStudyKeys(elt.toString().toStdString());
 
-	// Study Description
+	// Image Description
 	gdcm::Tag tagsdc(0x0020,0x0013);
 	keys.push_back(std::make_pair(tagsdc, ""));
+		gdcm::Tag tagsic(0x0008,0x0018);
 
+
+	keys.push_back(std::make_pair(tagsic, ""));
 
 	gdcm::SmartPointer<gdcm::BaseRootQuery> theQuery =  gdcm::CompositeNetworkFunctions::ConstructQuery(theRoot, theLevel ,keys);
 	keys.clear();
-	// Study Description
+	// SOP Instance UID 
+	
+
 
 	keys.push_back(std::make_pair(tagsdc, ""));
+keys.push_back(std::make_pair(tagsic, ""));
 
 	gdcm::CompositeNetworkFunctions::CFind(m_adress.c_str(), atoi(m_port.c_str()), theQuery, theDataSet, "CREATIS", m_nickname.c_str());
 	convertDataSet(theDataSet, Imagesmodel, keys);
@@ -474,21 +469,57 @@ void vvQPacsConnection::chooseServer(int index)
 
 void vvQPacsConnection::on_importButton_clicked()
 	{
-	
+		int sel = 0;
+		//QModelIndexList list = ui.imagesTreeView-selectedIndexes();
+		QModelIndexList indices =  ui.imagesTreeView->selectionModel()->selectedRows(); 
+		QModelIndexList::iterator it = indices.begin();
+		for(; it != indices.end(); it++)
+			sel = it->row();
 		QModelIndex index;
 		QVariant elt= Patientmodel->data(index.sibling(ui.patientTreeView->selectionModel()->selectedRows().first().row(),1));
 		
-		gdcm::EQueryLevel theLevel = gdcm::ePatient;
+
 		gdcm::ERootType theRoot  = gdcm::ePatientRootType;//ePatientRootType;
 		std::vector<gdcm::DataSet> theDataSet;
 		std::vector< std::pair<gdcm::Tag, std::string> > keys;
-		
+
+
 		// Study Description
-		gdcm::Tag tagsdc(0x0010,0x0020);
-		keys.push_back(std::make_pair(tagsdc, elt.toString().toStdString()));
-				gdcm::SmartPointer<gdcm::BaseRootQuery> theQuery =  gdcm::CompositeNetworkFunctions::ConstructQuery(theRoot, theLevel ,keys);
-	//	gdcm::CompositeNetworkFunctions::CFind("127.0.0.1", 5678, theQuery, theDataSet, "CREATIS", "CONQUESTSRV1");
+	//	gdcm::Tag tagsdc(0x0010,0x0020);
+		//keys.push_back(std::make_pair(tagsdc, elt.toString().toStdString()));
+
 	
-		 bool didItWork =  gdcm::CompositeNetworkFunctions::CMove(m_adress.c_str(),atoi(m_port.c_str()), theQuery, 0,
-       "CREATIS", m_nickname.c_str() );
+	// Study Description
+
+
+		gdcm::SmartPointer<gdcm::BaseRootQuery> theQuery =  gdcm::CompositeNetworkFunctions::ConstructQuery(theRoot, m_level ,fillMoveKeys(), true);
+
+		bool didItWork =  gdcm::CompositeNetworkFunctions::CMove(m_adress.c_str(),atoi(m_port.c_str()), theQuery, 1234,
+       "VVCREATIS", m_aetitle.c_str(),"D:\\move" );
+		 gdcm::Directory theDir;
+		theDir.Load("D:\\move");
+	   m_files =	theDir.GetFilenames();
+	   accept();
 	}
+
+std::vector <std::string> vvQPacsConnection::getFileNames()
+{
+	std::vector <std::string> filenames;
+	gdcm::Directory::FilenamesType::iterator it = m_files.begin();
+	for (;it != m_files.end(); it++)
+		filenames.push_back(it->c_str());
+	return filenames;
+}
+std::vector< std::pair<gdcm::Tag, std::string> > vvQPacsConnection::fillMoveKeys()
+{
+	std::vector< std::pair<gdcm::Tag, std::string> > keys;
+	switch(m_level)
+	{
+	case gdcm::ePatient:
+			keys.push_back(std::make_pair(gdcm::Tag(0x0010,0x0020), m_patient));
+		//Patientmodel->data(index.sibling(index.row(),1)).toString().toStdString();
+		break;
+	}
+
+	return keys;
+}

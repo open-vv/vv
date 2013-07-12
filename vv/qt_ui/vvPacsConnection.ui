@@ -341,6 +341,9 @@
    </property>
   </widget>
   <widget class="QTabWidget" name="tabFilter">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>390</x>
@@ -350,7 +353,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="modalityTab">
     <property name="enabled">
@@ -376,12 +379,18 @@
           <property name="text">
            <string>MR</string>
           </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item>
          <widget class="QCheckBox" name="check_CR">
           <property name="text">
            <string>CR</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -390,12 +399,18 @@
           <property name="text">
            <string>OT</string>
           </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item>
          <widget class="QCheckBox" name="check_RF">
           <property name="text">
            <string>RF</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -404,12 +419,18 @@
           <property name="text">
            <string>SC</string>
           </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item>
          <widget class="QCheckBox" name="check_CT">
           <property name="text">
            <string>CT</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -422,12 +443,18 @@
           <property name="text">
            <string>US</string>
           </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item>
          <widget class="QCheckBox" name="check_NM">
           <property name="text">
            <string>NM</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -436,12 +463,18 @@
           <property name="text">
            <string>DR</string>
           </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item>
          <widget class="QCheckBox" name="check_SR">
           <property name="text">
            <string>SR</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -450,6 +483,9 @@
           <property name="text">
            <string>XA</string>
           </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item>
@@ -457,12 +493,18 @@
           <property name="text">
            <string>MG</string>
           </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
        </layout>
       </item>
       <item>
        <widget class="QCheckBox" name="check_ModAll">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>All</string>
         </property>
@@ -538,7 +580,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="networkSelect">
     <attribute name="title">
