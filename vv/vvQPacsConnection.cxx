@@ -74,63 +74,26 @@ void vvQPacsConnection::on_scanButton_clicked()
 {
 	cleanTree();
 	manageStudiesFilter(true);
+
+	// test first if echo works
 	bool didItWork = gdcm::CompositeNetworkFunctions::CEcho(m_adress.c_str(), atoi(m_port.c_str()),	"CREATIS", m_nickname.c_str() );
 	if (didItWork)
 	{
-		std::vector< std::pair<gdcm::Tag, std::string> > keys = getKeys();
-
 		m_level =gdcm::ePatient;
 		std::vector<gdcm::DataSet> theDataSet;
 		gdcm::EQueryLevel theLevel = gdcm::ePatient;
 		gdcm::ERootType theRoot  = gdcm::ePatientRootType;//ePatientRootType;
-		m_query =  gdcm::CompositeNetworkFunctions::ConstructQuery(theRoot, theLevel ,getPatientKeys(ui.patientName->toPlainText().toStdString(), 
-					ui.patientID->toPlainText().toStdString()));
+		m_query =  gdcm::CompositeNetworkFunctions::ConstructQuery(theRoot, theLevel ,
+							getPatientKeys(ui.patientName->toPlainText().toStdString(), 	ui.patientID->toPlainText().toStdString()));
 		bool cfindWork = gdcm::CompositeNetworkFunctions::CFind(m_adress.c_str(), atoi(m_port.c_str()), m_query, theDataSet, 	"CREATIS", m_nickname.c_str());
 		if( cfindWork)
 		{
 			convertDataSet(theDataSet,Patientmodel,getPatientKeys("",""));
-			std::vector<gdcm::DataSet>::iterator it_ds = theDataSet.begin();
-/*
-			for(; it_ds != theDataSet.end(); it_ds++)
-			{
-				QList<QStandardItem *> items;
-				const gdcm::DataSet ds = (*it_ds);
-				std::vector< std::pair<gdcm::Tag, std::string> >::iterator it_key = keys.begin();
-				int ind = 0;
-				for(; it_key != keys.end(); it_key++, ind++)
-				{
-					gdcm::DataElement de = ds.GetDataElement((*it_key).first);
-					QStandardItem *item = new QStandardItem;
-					const gdcm::ByteValue *bv = (de).GetByteValue();
-					if( !de.IsEmpty() )
-					{
-						std::string buffer = std::string( bv->GetPointer(), bv->GetLength() );
-						item->setText(tr(buffer.c_str()));
-					}
-					else
-					{
-						item->setText(tr(""));
-					}
-					if(ind ==0)
-					{
-						item->setCheckable(true);
-					}
-					items.push_back(item);
-				}
-				Patientmodel->appendRow(items);
-			}*/
 		} // end cfindwork
 	} // end didItwork
 }
 
-void vvQPacsConnection::cleanTree()
-{
-	Patientmodel->removeRows(0,Patientmodel->rowCount());
-	Studymodel->removeRows(0,Patientmodel->rowCount());
-	Seriesmodel->removeRows(0,Patientmodel->rowCount());
-	Imagesmodel->removeRows(0,Patientmodel->rowCount());
 
-}
 
 void vvQPacsConnection::on_optionsButton_clicked()
 {
@@ -140,7 +103,6 @@ void vvQPacsConnection::on_optionsButton_clicked()
 
 void vvQPacsConnection::convertDataSet(std::vector<gdcm::DataSet> i_ds, QStandardItemModel *i_model, std::vector< std::pair<gdcm::Tag, std::string> > keys)
 {
-	gdcm::Tag tagdb(0x0008,0x0020);
 	std::vector<gdcm::DataSet>::iterator it_ds = i_ds.begin();
 	for(; it_ds != i_ds.end(); it_ds++)
 	{
@@ -156,16 +118,7 @@ void vvQPacsConnection::convertDataSet(std::vector<gdcm::DataSet> i_ds, QStandar
 			if( !de.IsEmpty() )
 			{
 				std::string buffer = std::string( bv->GetPointer(), bv->GetLength() );
-				/*if((*it_key).first == tagdb)
-				{
-				QDate date;
-				date.fromString(tr(buffer.c_str()),"yyyy'MM'd");
-				item->setText(date.toString());
-				}
-				else
-				{*/
 				item->setText(tr(buffer.c_str()));
-				//}
 			}
 			else
 			{
@@ -179,7 +132,6 @@ void vvQPacsConnection::convertDataSet(std::vector<gdcm::DataSet> i_ds, QStandar
 		}
 		i_model->appendRow(items);
 	}
-
 }
 
 // TreeViews creation
@@ -223,6 +175,16 @@ void vvQPacsConnection::createTreeView()
 	Imageslist.push_back(tr("sopuid"));
 	Imagesmodel->setHorizontalHeaderLabels(Imageslist);
 	ui.imagesTreeView->setModel(Imagesmodel);
+}
+
+// clean the different model Trees
+void vvQPacsConnection::cleanTree()
+{
+	Patientmodel->removeRows(0,Patientmodel->rowCount());
+	Studymodel->removeRows(0,Patientmodel->rowCount());
+	Seriesmodel->removeRows(0,Patientmodel->rowCount());
+	Imagesmodel->removeRows(0,Patientmodel->rowCount());
+
 }
 
 void vvQPacsConnection::selectStudies(const QModelIndex &index)
