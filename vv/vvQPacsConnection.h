@@ -42,12 +42,13 @@ public slots:
   private :
 	  Ui::vvPacsConnection ui;
 	std::vector< std::pair<gdcm::Tag, std::string> > getKeys();
-	std::vector< std::pair<gdcm::Tag, std::string> > getPatientKeys(const std::string );
+	std::vector< std::pair<gdcm::Tag, std::string> > getPatientKeys(const std::string , const std::string );
 	std::vector< std::pair<gdcm::Tag, std::string> > getStudyKeys(const std::string);
 	std::vector< std::pair<gdcm::Tag, std::string> > getSeriesKeys(const std::string i_val);
 	std::vector< std::pair<gdcm::Tag, std::string> > getImageKeys(const std::string i_val);
 	void manageStudiesFilter(bool i_enable);
 	void createTreeView();
+	void cleanTree();
 	void setNewPacs();
 	QStandardItemModel *Patientmodel;
 	QStandardItemModel *Studymodel;
@@ -65,6 +66,7 @@ public slots:
 	std::string m_adress;
 	std::string m_nickname;
 	vvDicomServerQueryFactory mquery;
+	gdcm::SmartPointer<gdcm::BaseRootQuery> m_query;
 	 gdcm::Directory::FilenamesType m_files;
 	
   }; // class vvQPacsConnection

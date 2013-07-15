@@ -37,7 +37,7 @@
     <string>Patient ID</string>
    </property>
   </widget>
-  <widget class="QTextEdit" name="text_ID">
+  <widget class="QTextEdit" name="patientID">
    <property name="geometry">
     <rect>
      <x>110</x>
@@ -82,7 +82,7 @@
     <string>CLEAR</string>
    </property>
   </widget>
-  <widget class="QTextEdit" name="text_NAME">
+  <widget class="QTextEdit" name="patientName">
    <property name="geometry">
     <rect>
      <x>250</x>
@@ -793,10 +793,10 @@
   <zorder>groupBox_4</zorder>
   <zorder>groupBox_3</zorder>
   <zorder>label_ID</zorder>
-  <zorder>text_ID</zorder>
+  <zorder>patientID</zorder>
   <zorder>scanButton</zorder>
   <zorder>clearButton</zorder>
-  <zorder>text_NAME</zorder>
+  <zorder>patientName</zorder>
   <zorder>label_NAME</zorder>
   <zorder>importButton</zorder>
   <zorder>groupBox</zorder>
@@ -817,9 +817,9 @@
  </widget>
  <tabstops>
   <tabstop>scanButton</tabstop>
-  <tabstop>text_ID</tabstop>
+  <tabstop>patientID</tabstop>
   <tabstop>clearButton</tabstop>
-  <tabstop>text_NAME</tabstop>
+  <tabstop>patientName</tabstop>
   <tabstop>importButton</tabstop>
   <tabstop>seriesTreeView</tabstop>
   <tabstop>imagesTreeView</tabstop>
