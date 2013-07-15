@@ -125,7 +125,7 @@ It is distributed under dual licence
 vvMainWindow::vvMainWindow():vvMainWindowBase()
 {
   setupUi(this); // this sets up the GUI
-
+  setDicomClient();
   mInputPathName = "";
   mMenuTools = menuTools;
   //  mMenuSegmentation = menuSegmentation;

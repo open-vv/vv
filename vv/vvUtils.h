@@ -42,5 +42,14 @@ void removeDicomServer(std::string nickname);
 // get List of Dicom Servers
 QStringList getDicomServers();
 
+// Set parameters for VV (AETITLE, port-scu) to allow c-move.
+void setDicomClient();
+
+// get VV-AETITLE  for c-move parameters.
+std::string getDicomClientAETitle();
+
+// get VV-PORT-SCU  for c-move parameters.
+int getDicomClientPort();
+
 std::map <std::string,std::string > getDicomServer(QString nickname);
 #endif

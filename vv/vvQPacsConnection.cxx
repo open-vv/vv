@@ -494,8 +494,8 @@ void vvQPacsConnection::on_importButton_clicked()
 
 		gdcm::SmartPointer<gdcm::BaseRootQuery> theQuery =  gdcm::CompositeNetworkFunctions::ConstructQuery(theRoot, m_level ,fillMoveKeys(), true);
 
-		bool didItWork =  gdcm::CompositeNetworkFunctions::CMove(m_adress.c_str(),atoi(m_port.c_str()), theQuery, 1234,
-       "VVCREATIS", m_aetitle.c_str(),"D:\\move" );
+		bool didItWork =  gdcm::CompositeNetworkFunctions::CMove(m_adress.c_str(),atoi(m_port.c_str()), theQuery, getDicomClientPort(),
+      getDicomClientAETitle().c_str(), m_aetitle.c_str(),"D:\\move" );
 		 gdcm::Directory theDir;
 		theDir.Load("D:\\move");
 	   m_files =	theDir.GetFilenames();

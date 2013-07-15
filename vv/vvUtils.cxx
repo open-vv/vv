@@ -48,6 +48,39 @@ FileListType GetRecentlyOpenedImages()
   return result;
 }
 
+// Set parameters for VV (AETITLE, port-scu) to allow c-move.
+void setDicomClient()
+{
+	QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
+	 settings.beginGroup(QString::fromStdString("DICOMCLIENT"));
+	 settings.setValue("AETITLE",QString::fromStdString("VVDICOMSCU"));
+	 settings.setValue("port",QString::number(1234));
+	 settings.endGroup();
+}
+
+// get VV-AETITLE  for c-move. parameters
+std::string getDicomClientAETitle()
+{	
+	 std::string result ="";
+	QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
+	 settings.beginGroup(QString::fromStdString("DICOMCLIENT"));
+	 result = settings.value("AETITLE").toString().toStdString();
+	 settings.endGroup();
+	 return result;
+}
+
+
+// get VV-PORT-SCU  for c-move. parameters
+int getDicomClientPort()
+{	
+	int result;
+	QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
+	 settings.beginGroup(QString::fromStdString("DICOMCLIENT"));
+	 result = settings.value("port").toString().toInt();
+	 settings.endGroup();
+	 return result;
+}
+
 /// Add a new Dicom Server
 void AddDicomServer(std::string nickname, std::string aetitle, std::string adress, std::string port)
 {
