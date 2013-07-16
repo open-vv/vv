@@ -14,6 +14,13 @@
    */
   //=====================================================================
  //======================================================================
+
+struct vvQuery{
+	gdcm::ERootType theRoot;
+	gdcm::EQueryLevel theLevel;
+	std::vector< std::pair<gdcm::Tag, std::string> > keys;
+};
+
   class vvQPacsConnection : public QDialog 
   {
 	  Q_OBJECT
@@ -40,6 +47,10 @@ public slots:
  void modifyServer();
 
   private :
+
+	  	 vvQuery getQueryPatient(const std::string i_patname, const std::string i_patid);
+
+
 	  Ui::vvPacsConnection ui;
 	std::vector< std::pair<gdcm::Tag, std::string> > getKeys();
 	std::vector< std::pair<gdcm::Tag, std::string> > getPatientKeys(const std::string , const std::string );
@@ -66,8 +77,14 @@ public slots:
 	std::string m_adress;
 	std::string m_nickname;
 	vvDicomServerQueryFactory mquery;
-	gdcm::SmartPointer<gdcm::BaseRootQuery> m_query;
+	vvQuery m_query;
+	vvQuery f_query;
 	 gdcm::Directory::FilenamesType m_files;
+
+	 vvQuery getQueryforSeries(const std::string study_id);
+
+	 vvQuery getQueryforStudy(const std::string patient_id);
+	 std::vector< std::pair<gdcm::Tag, std::string> > getQueryKeysforStudy(const std::string patient_id);
 	
   }; // class vvQPacsConnection
   //=====================================================================
