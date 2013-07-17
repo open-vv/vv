@@ -15,11 +15,7 @@
   //=====================================================================
  //======================================================================
 
-struct vvQuery{
-	gdcm::ERootType theRoot;
-	gdcm::EQueryLevel theLevel;
-	std::vector< std::pair<gdcm::Tag, std::string> > keys;
-};
+
 
   class vvQPacsConnection : public QDialog 
   {
@@ -48,17 +44,12 @@ public slots:
 
   private :
 
-	  	 vvQuery getQueryPatient(const std::string i_patname, const std::string i_patid);
-
-
+	  	
 	  Ui::vvPacsConnection ui;
 	std::vector< std::pair<gdcm::Tag, std::string> > getKeys();
-	std::vector< std::pair<gdcm::Tag, std::string> > getPatientKeys(const std::string , const std::string );
 	std::vector< std::pair<gdcm::Tag, std::string> > getStudyKeys(const std::string);
-	std::vector< std::pair<gdcm::Tag, std::string> > getSeriesKeys(const std::string patient_id, const std::string study_id, bool bdisplay);
+	std::vector<gdcm::DataSet> findQuery(vvQuery i_query);
 
-std::vector< std::pair<gdcm::Tag, std::string> > getQueryKeysforImages(const std::string patient_id, const std::string study_id, const std::string series_id,bool bdisplay);
-vvQuery getQueryforImages(const std::string patient_id, const std::string study_id, const std::string series_id,bool bdisplay);
 	void manageStudiesFilter(bool i_enable);
 	void createTreeView();
 	void cleanTree();
@@ -78,15 +69,12 @@ vvQuery getQueryforImages(const std::string patient_id, const std::string study_
 	std::string m_aetitle;
 	std::string m_adress;
 	std::string m_nickname;
-	vvDicomServerQueryFactory mquery;
+	vvDicomServerQueryFactory mQFactory;
 	vvQuery m_query;
 	vvQuery f_query;
 	 gdcm::Directory::FilenamesType m_files;
 
-	 vvQuery getQueryforSeries(const std::string patient_id, const std::string study_id, bool bdisplay);
 
-	 vvQuery getQueryforStudy(const std::string patient_id, bool bdisplay);
-	 std::vector< std::pair<gdcm::Tag, std::string> > getQueryKeysforStudy(const std::string patient_id, bool bdisplay);
 	
   }; // class vvQPacsConnection
   //=====================================================================

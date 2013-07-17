@@ -81,14 +81,14 @@ void vvQPacsConnection::on_scanButton_clicked()
 	{
 		m_level =gdcm::ePatient;
 		std::vector<gdcm::DataSet> theDataSet;
-		f_query = getQueryPatient(ui.patientName->toPlainText().toStdString(), 	ui.patientID->toPlainText().toStdString());
+		f_query = mQFactory.getQueryPatient(ui.patientName->toPlainText().toStdString(), 	ui.patientID->toPlainText().toStdString());
 
 		bool cfindWork = gdcm::CompositeNetworkFunctions::CFind(m_adress.c_str(), atoi(m_port.c_str()), 
 			gdcm::CompositeNetworkFunctions::ConstructQuery(f_query.theRoot, f_query.theLevel ,f_query.keys),
 			theDataSet, getDicomClientAETitle().c_str()	, m_nickname.c_str());
 		if( cfindWork)
 		{
-			convertDataSet(theDataSet,Patientmodel,getPatientKeys("",""));
+			convertDataSet(theDataSet,Patientmodel,mQFactory.getPatientKeys("",""));
 		} // end cfindwork
 	} // end didItwork
 }
@@ -182,35 +182,23 @@ void vvQPacsConnection::createTreeView()
 // clean the different model Trees
 void vvQPacsConnection::cleanTree()
 {
-	Patientmodel->removeRows(0,Patientmodel->rowCount());
-	Studymodel->removeRows(0,Patientmodel->rowCount());
-	Seriesmodel->removeRows(0,Patientmodel->rowCount());
-	Imagesmodel->removeRows(0,Patientmodel->rowCount());
+	Patientmodel->removeRows(0,Patientmodel->rowCount(),QModelIndex());
+	Studymodel->removeRows(0,Patientmodel->rowCount(),QModelIndex());
+	Seriesmodel->removeRows(0,Patientmodel->rowCount(),QModelIndex());
+	Imagesmodel->removeRows(0,Patientmodel->rowCount(),QModelIndex());
 
 }
 
 void vvQPacsConnection::selectStudies(const QModelIndex &index)
 {
 
-			
+		m_patient= Patientmodel->data(index.sibling(index.row(),1)).toString().toStdString();		
 	Studymodel->removeRows(0, Studymodel->rowCount(),QModelIndex());
 	Seriesmodel->removeRows(0, Seriesmodel->rowCount(),QModelIndex());
 	Imagesmodel->removeRows(0, Imagesmodel->rowCount(),QModelIndex());
-	QVariant elt= Patientmodel->data(index.sibling(index.row(),1));
-	m_patient=elt.toString().toStdString();
 	manageSeriesFilter(true);
-	
-	std::vector<gdcm::DataSet> theDataSet;
-		 m_query = getQueryPatient("",m_patient);
-	 f_query = getQueryforStudy(m_patient, false);
-	 	 
-		 
-	if (  gdcm::CompositeNetworkFunctions::CFind(m_adress.c_str(), atoi(m_port.c_str()), 
-		gdcm::CompositeNetworkFunctions::ConstructQuery(f_query.theRoot, f_query.theLevel ,f_query.keys)
-		, theDataSet, getDicomClientAETitle().c_str(), m_nickname.c_str()) )
-	{
-		convertDataSet(theDataSet, Studymodel, getQueryKeysforStudy("",true));
-	}
+	 m_query = mQFactory.getQueryPatient("",m_patient);
+	convertDataSet( findQuery( mQFactory.getQueryforStudy(m_patient, false)) , Studymodel, mQFactory.getQueryKeysforStudy("",true));
 }
 
 
@@ -221,41 +209,29 @@ void vvQPacsConnection::selectSeries(const QModelIndex &index)
 	m_study= Studymodel->data(index.sibling(index.row(),3)).toString().toStdString();
 	Seriesmodel->removeRows(0, Seriesmodel->rowCount());
 	Imagesmodel->removeRows(0, Imagesmodel->rowCount());
-
-
-	std::vector<gdcm::DataSet> theDataSet;
+	m_query = mQFactory.getQueryforSeries(m_patient,m_study, false);
+    convertDataSet( findQuery( mQFactory.getQueryforSeries(m_patient,m_study, false)), Seriesmodel, mQFactory.getSeriesKeys("","",true));
 	
-	 m_query = getQueryforSeries(m_patient,m_study, false);
-	f_query =getQueryforSeries(m_patient,m_study, false);
-	if ( gdcm::CompositeNetworkFunctions::CFind(m_adress.c_str(), atoi(m_port.c_str()), 
-		gdcm::CompositeNetworkFunctions::ConstructQuery(f_query.theRoot, f_query.theLevel ,f_query.keys), theDataSet, 
-		 getDicomClientAETitle().c_str(), m_nickname.c_str()))
-	{
-	
-		convertDataSet(theDataSet, Seriesmodel, getSeriesKeys("","",true));
-	}
 }
 
 void vvQPacsConnection::selectImages(const QModelIndex &index)
 {
 	m_series = Seriesmodel->data(index.sibling(index.row(),2)).toString().toStdString();
 	Imagesmodel->removeRows(0, Imagesmodel->rowCount(),QModelIndex());
-
-
-	//manageImagesFilter(true);
-	
-	std::vector<gdcm::DataSet> theDataSet;
-	std::vector< std::pair<gdcm::Tag, std::string> > keys;
-	f_query =getQueryforImages(m_patient,m_study, m_series, false);
-		m_query =getQueryforImages(m_patient,m_study, m_series, false);
- if(	gdcm::CompositeNetworkFunctions::CFind(m_adress.c_str(), atoi(m_port.c_str()), 
-		gdcm::CompositeNetworkFunctions::ConstructQuery(f_query.theRoot, f_query.theLevel ,f_query.keys), theDataSet,  
-		getDicomClientAETitle().c_str(), m_nickname.c_str()))
- {
-	convertDataSet(theDataSet, Imagesmodel, getQueryKeysforImages("","","",true));
- }
+	m_query = mQFactory.getQueryforImages(m_patient,m_study, m_series, false);
+	convertDataSet( findQuery( mQFactory.getQueryforImages(m_patient,m_study, m_series, false) ),  Imagesmodel, mQFactory.getQueryKeysforImages("","","",true));
+ 
 }
 
+
+std::vector<gdcm::DataSet> vvQPacsConnection::findQuery(vvQuery i_query)
+{
+	   std::vector<gdcm::DataSet> theDataSet;
+	   gdcm::CompositeNetworkFunctions::CFind(m_adress.c_str(), atoi(m_port.c_str()), 
+		gdcm::CompositeNetworkFunctions::ConstructQuery(i_query.theRoot, i_query.theLevel,i_query.keys), theDataSet,  
+		getDicomClientAETitle().c_str(), m_nickname.c_str());
+	return theDataSet;
+}
 
 void vvQPacsConnection::manageStudiesFilter(bool i_enable)
 {
@@ -270,28 +246,6 @@ void vvQPacsConnection::manageSeriesFilter(bool i_enable)
 	ui.modalityTab->setEnabled(i_enable);
 }
 
-vvQuery vvQPacsConnection::getQueryPatient(const std::string i_patname, const std::string i_patid)
-{
-	vvQuery query;
-	query.theRoot = gdcm::ePatientRootType;
-	query.theLevel = gdcm::ePatient;
-	query.keys = getPatientKeys(i_patname, i_patid);
-	return query;
-
-}
-
-std::vector< std::pair<gdcm::Tag, std::string> > vvQPacsConnection::getPatientKeys(const std::string i_patname, const std::string i_patid)
-{
-	std::vector< std::pair<gdcm::Tag, std::string> > keys;
-	// Patient Name
-	gdcm::Tag tag(0x0010,0x0010);
-	keys.push_back(std::make_pair(tag, i_patname));
-
-	//// Patient ID
-	gdcm::Tag tagpid(0x0010,0x0020);
-	keys.push_back(std::make_pair(tagpid, i_patid));
-	return keys;
-}
 
 std::vector< std::pair<gdcm::Tag, std::string> > vvQPacsConnection::getStudyKeys(const std::string i_val)
 {
@@ -312,36 +266,6 @@ std::vector< std::pair<gdcm::Tag, std::string> > vvQPacsConnection::getStudyKeys
 	return keys;
 }
 
-vvQuery vvQPacsConnection::getQueryforSeries(const std::string patient_id, const std::string series_id, bool bdisplay)
-{
-	vvQuery query;
-	query.theRoot = gdcm::ePatientRootType;
-	query.theLevel = gdcm::eSeries;
-	query.keys = getSeriesKeys(patient_id, series_id, bdisplay);
-	return query;
-}
-std::vector< std::pair<gdcm::Tag, std::string> > vvQPacsConnection::getSeriesKeys(const std::string patient_id, const std::string study_id, bool bdisplay)
-{
-	std::vector< std::pair<gdcm::Tag, std::string> > keys;
-	// Modality
-  keys.push_back(std::make_pair(gdcm::Tag(0x0008,0x0060), ""));
-	// Study date
-	
-	keys.push_back(std::make_pair(gdcm::Tag(0x0008,0x103e),""));
-// Series Instance UID
-	keys.push_back(std::make_pair(gdcm::Tag(0x0020,0x000e), ""));
-
-
-
-	if(!bdisplay)
-	{
-		// Study Instance UID
-		gdcm::Tag tagsid(0x0020,0x1209);
-		keys.push_back(std::make_pair(tagsid, study_id));
-	}
-
-	return keys;
-}
 std::vector< std::pair<gdcm::Tag, std::string> > vvQPacsConnection::getKeys()
 {
 	std::vector< std::pair<gdcm::Tag, std::string> > keys;
@@ -435,8 +359,8 @@ void vvQPacsConnection::on_importButton_clicked()
 	{
 	
 		bool didItWork =  gdcm::CompositeNetworkFunctions::CMove(m_adress.c_str(),atoi(m_port.c_str()),
-			gdcm::CompositeNetworkFunctions::ConstructQuery(m_query.theRoot, m_query.theLevel ,m_query.keys,true), getDicomClientPort(),
-			 getDicomClientAETitle().c_str(), m_aetitle.c_str(),"D:\\move" );
+			gdcm::CompositeNetworkFunctions::ConstructQuery(mQFactory.getMoveQuery().theRoot, mQFactory.getMoveQuery().theLevel ,mQFactory.getMoveQuery().keys,true),
+			getDicomClientPort(),  getDicomClientAETitle().c_str(), m_aetitle.c_str(),"D:\\move" );
 		gdcm::Directory theDir;
 		theDir.Load("D:\\move");
 	   m_files =	theDir.GetFilenames();
@@ -461,76 +385,5 @@ std::vector< std::pair<gdcm::Tag, std::string> > vvQPacsConnection::fillMoveKeys
 			break;
 	}
 
-	return keys;
-}
-
-vvQuery vvQPacsConnection::getQueryforStudy(const  std::string patient_id, bool bdisplay)
-{
-	vvQuery query;
-	query.keys = getQueryKeysforStudy( patient_id, bdisplay);
-	query.theRoot = gdcm::ePatientRootType;
-	query.theLevel = gdcm::eStudy;
-	return query;
-}
-
-std::vector< std::pair<gdcm::Tag, std::string> > vvQPacsConnection::getQueryKeysforStudy(const std::string patient_id, bool bdisplay)
-{
-	std::vector< std::pair<gdcm::Tag, std::string> > keys;
-
-
-	// Study Description
-	gdcm::Tag tagsdc(0x0008,0x1030);
-	keys.push_back(std::make_pair(tagsdc, ""));
-	// Study date
-	gdcm::Tag tagdb(0x0008,0x0020);
-	keys.push_back(std::make_pair(tagdb, ""));
-	// Study Hour
-	gdcm::Tag tagsdh(0x0008,0x0030);
-	keys.push_back(std::make_pair(tagsdh, ""));
-
-	// Study UID
-	gdcm::Tag tagsid(0x020,0x000d);
-	keys.push_back(std::make_pair(tagsid, ""));
-
-	if (!bdisplay)
-	{
-			// Patient ID
-	gdcm::Tag tagsd(0x0010,0x0020);
-	keys.push_back(std::make_pair(tagsd, patient_id));
-	}
-
-	return keys;
-}
-
-vvQuery vvQPacsConnection::getQueryforImages(const std::string patient_id, const std::string study_id, const std::string series_id,bool bdisplay)
-{
-	vvQuery query;
-	query.keys = getQueryKeysforImages( patient_id, study_id, series_id, bdisplay);
-	query.theRoot = gdcm::ePatientRootType;
-	query.theLevel = gdcm::eImage;
-	return query;
-}
-
-std::vector< std::pair<gdcm::Tag, std::string> > vvQPacsConnection::getQueryKeysforImages(const std::string patient_id, const std::string study_id, const std::string series_id,bool bdisplay)
-{
-
-	std::vector< std::pair<gdcm::Tag, std::string> > keys;
-
-	if (!bdisplay)
-	{
-		//Patient UID
-		keys.push_back(std::make_pair(gdcm::Tag (0x0010,0x0020), patient_id));
-
-		//Study UID
-	//	keys.push_back(std::make_pair(gdcm::Tag(0x0020,0x000d), study_id));
-	
-		//Series UID
-		keys.push_back(std::make_pair(gdcm::Tag(0x0020,0x000e), series_id));
-	}
-	// Image Description
-
-	keys.push_back(std::make_pair(gdcm::Tag(0x0020,0x0013), ""));
-	//SOP Instance UID
-	keys.push_back(std::make_pair(gdcm::Tag(0x0008,0x0018), ""));
 	return keys;
 }
