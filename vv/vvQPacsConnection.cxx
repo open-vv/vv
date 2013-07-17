@@ -364,15 +364,34 @@ void vvQPacsConnection::chooseServer(int index)
 
 void vvQPacsConnection::on_importButton_clicked()
 	{
-	
+		setCursor(QCursor(Qt::WaitCursor));
+		QString path = QDir::homePath() +QString::fromStdString("/.move");
+		QDir dirpath (path);
+		if (dirpath.exists())
+		{
+			QFileInfoList list = dirpath.entryInfoList( QDir::Files);
+			QFileInfoList::iterator it_file = dirpath.entryInfoList( QDir::Files).begin();
+			for(int i = 0; i < list.length() ; i++)
+			{
+					QFile::remove(list.at(i).filePath());
+			}
+		}
+		else
+		{
+			dirpath.mkdir(path);
+		}
 		bool didItWork =  gdcm::CompositeNetworkFunctions::CMove(m_adress.c_str(),atoi(m_port.c_str()),
 			gdcm::CompositeNetworkFunctions::ConstructQuery(mQFactory.getMoveQuery().theRoot, mQFactory.getMoveQuery().theLevel ,mQFactory.getMoveQuery().keys,true),
-			getDicomClientPort(),  getDicomClientAETitle().c_str(), m_aetitle.c_str(), gets(CLITK_PACS_MOVE_PATH) );
+			getDicomClientPort(),  getDicomClientAETitle().c_str(), m_aetitle.c_str(), path.toStdString().c_str() );
 		gdcm::Directory theDir;
-		theDir.Load(gets(CLITK_PACS_MOVE_PATH));
+		theDir.Load(path.toStdString().c_str());
 	   m_files =	theDir.GetFilenames();
+	   
 	   accept();
+	  setCursor(QCursor(Qt::ArrowCursor));
 	}
+
+
 
 std::vector <std::string> vvQPacsConnection::getFileNames()
 {

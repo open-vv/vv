@@ -7,11 +7,6 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 #=========================================================
 OPTION(CLITK_USE_PACS_CONNECTION "USE PACS CONNECTION"       OFF)
-IF (CLITK_USE_PACS_CONNECTION)
-	SET(CLITK_PACS_MOVE_PATH ${PROJECT_BINARY_DIR}/move)
-	file(MAKE_DIRECTORY ${CLITK_PACS_MOVE_PATH})
-	add_definitions( -DPACS_MOVE_PATH=${LIBINTERFACE_VERSION} )
-ENDIF()
 #=========================================================
 #List of vv tools to compile
 SET(vv_TOOLS
