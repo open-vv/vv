@@ -27,6 +27,7 @@
 	  ~vvQPacsConnection(){}
 	void refreshNetworks();
 	std::vector <std::string> getFileNames();
+	void clearMove();
 
 public slots:
 	void selectStudies(const QModelIndex &index);

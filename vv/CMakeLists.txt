@@ -6,7 +6,12 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
 #=========================================================
-
+OPTION(CLITK_USE_PACS_CONNECTION "USE PACS CONNECTION"       OFF)
+IF (CLITK_USE_PACS_CONNECTION)
+	SET(CLITK_PACS_MOVE_PATH ${PROJECT_BINARY_DIR}/move)
+	file(MAKE_DIRECTORY ${CLITK_PACS_MOVE_PATH})
+	add_definitions( -DPACS_MOVE_PATH=${LIBINTERFACE_VERSION} )
+ENDIF()
 #=========================================================
 #List of vv tools to compile
 SET(vv_TOOLS
@@ -124,22 +129,25 @@ QT4_WRAP_UI(vv_UI_CXX
   qt_ui/vvDocumentation.ui 
   qt_ui/vvDicomSeriesSelector.ui
 qt_ui/vvDummyWindow.ui 	 #For testing 
-qt_ui/vvPacsConnection.ui
-     qt_ui/vvPacsSettingsDialog.ui
+#qt_ui/vvPacsConnection.ui
+ #    qt_ui/vvPacsSettingsDialog.ui
 )
 
 QT4_ADD_RESOURCES(vv_SRCS vvIcons.qrc)
 
 # Add DICOM SERVER gui selector if the adequate GDCM is available
-#IF(CLITK_USE_SYSTEM_GDCM)
+IF(CLITK_USE_PACS_CONNECTION)
   SET(vv_SRCS ${vv_SRCS}
       vvQPacsConnection.cxx
-	  vvPacsSettingsDialog.cxx)
+	  vvPacsSettingsDialog.cxx
+	  vvDicomServerQueryFactory.cxx
+	  )
   QT4_WRAP_CPP(vv_SRCS vvQPacsConnection.h
      vvPacsSettingsDialog.h)
-  #QT4_WRAP_UI(vv_UI_CXX qt_ui/vvPacsConnection.ui
-   #  qt_ui/vvPacsSettingsDialog.ui)
-#ENDIF(CLITK_USE_SYSTEM_GDCM)
+  QT4_WRAP_UI(vv_UI_CXX 
+	qt_ui/vvPacsConnection.ui
+     qt_ui/vvPacsSettingsDialog.ui)
+ENDIF(CLITK_USE_PACS_CONNECTION)
 
 # Add the autotools in the header vvToolsList.h for initialization of the dummy
 # variables in vv.cxx for the tools contained in vvLib

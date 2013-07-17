@@ -39,7 +39,7 @@ class vtkImageData;
 class vtkRenderer;
 class vtkMatrix4x4;
 class vvDicomSeriesSelector;
-#ifdef CLITK_USE_SYSTEM_GDCM
+#ifdef CLITK_USE_PACS_CONNECTION
 class vvQPacsConnection;
 #endif
 class vvSlicer;
@@ -94,7 +94,7 @@ public slots:
   void SliceImages();
   void MergeImagesWithTime();
   void OpenDicom();
-#ifdef CLITK_USE_SYSTEM_GDCM
+#ifdef CLITK_USE_PACS_CONNECTION
   void ConnectPacs();
 #endif
   ///Open a vtkPolyData surface mesh and display it over the current image
@@ -200,7 +200,7 @@ private:
   vvDocumentation *documentation;
   vvDicomSeriesSelector *dicomSeriesSelector;
 
-#ifdef CLITK_USE_SYSTEM_GDCM
+#ifdef CLITK_USE_PACS_CONNECTION
   vvQPacsConnection *PacsConnection;
 #endif
 

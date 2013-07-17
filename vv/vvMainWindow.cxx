@@ -47,7 +47,7 @@ It is distributed under dual licence
 #include "vvMeshReader.h"
 #include "vvSaveState.h"
 #include "vvReadState.h"
-#ifdef CLITK_USE_SYSTEM_GDCM
+#ifdef CLITK_USE_PACS_CONNECTION
 #include "vvQPacsConnection.h"
 #endif
 #include "clitkConfiguration.h"
@@ -238,7 +238,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   documentation = new vvDocumentation();
   help_dialog = new vvHelpDialog();
   dicomSeriesSelector = new vvDicomSeriesSelector();
-#ifdef CLITK_USE_SYSTEM_GDCM
+#ifdef CLITK_USE_PACS_CONNECTION
      PacsConnection = new vvQPacsConnection();
 #endif
 
@@ -283,7 +283,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(actionWarp_image_with_vector_field,SIGNAL(triggered()),this,SLOT(WarpImage()));
   connect(actionLoad_images,SIGNAL(triggered()),this,SLOT(OpenImages()));
   connect(actionOpen_Dicom,SIGNAL(triggered()),this,SLOT(OpenDicom()));
-  #ifdef CLITK_USE_SYSTEM_GDCM
+  #ifdef CLITK_USE_PACS_CONNECTION
 connect(actionConnect_Pacs,SIGNAL(triggered()),this,SLOT(ConnectPacs()));
 #endif
   //  connect(actionOpen_Dicom_Struct,SIGNAL(triggered()),this,SLOT(OpenDCStructContour()));
@@ -754,7 +754,7 @@ void vvMainWindow::OpenDicom()
     LoadImages(files, vvImageReader::DICOM);
   }
 }  
-#ifdef CLITK_USE_SYSTEM_GDCM
+#ifdef CLITK_USE_PACS_CONNECTION
 void vvMainWindow::ConnectPacs()
 {
   std::vector<std::string> files;
@@ -763,6 +763,7 @@ void vvMainWindow::ConnectPacs()
 if (PacsConnection->exec() == QDialog::Accepted) {
 	files = PacsConnection->getFileNames();
     LoadImages(files, vvImageReader::DICOM);
+	PacsConnection->clearMove();
   }
   }
 

@@ -182,10 +182,10 @@ void vvQPacsConnection::createTreeView()
 // clean the different model Trees
 void vvQPacsConnection::cleanTree()
 {
-	Patientmodel->removeRows(0,Patientmodel->rowCount(),QModelIndex());
-	Studymodel->removeRows(0,Patientmodel->rowCount(),QModelIndex());
-	Seriesmodel->removeRows(0,Patientmodel->rowCount(),QModelIndex());
-	Imagesmodel->removeRows(0,Patientmodel->rowCount(),QModelIndex());
+	Patientmodel->removeRows(0,Patientmodel->rowCount());
+	Studymodel->removeRows(0,Patientmodel->rowCount());
+	Seriesmodel->removeRows(0,Patientmodel->rowCount());
+	Imagesmodel->removeRows(0,Patientmodel->rowCount());
 
 }
 
@@ -197,19 +197,20 @@ void vvQPacsConnection::selectStudies(const QModelIndex &index)
 	Seriesmodel->removeRows(0, Seriesmodel->rowCount(),QModelIndex());
 	Imagesmodel->removeRows(0, Imagesmodel->rowCount(),QModelIndex());
 	manageSeriesFilter(true);
-	 m_query = mQFactory.getQueryPatient("",m_patient);
 	convertDataSet( findQuery( mQFactory.getQueryforStudy(m_patient, false)) , Studymodel, mQFactory.getQueryKeysforStudy("",true));
 }
 
 
+void vvQPacsConnection::clearMove()
+{
 
+}
 
 void vvQPacsConnection::selectSeries(const QModelIndex &index)
 {
 	m_study= Studymodel->data(index.sibling(index.row(),3)).toString().toStdString();
 	Seriesmodel->removeRows(0, Seriesmodel->rowCount());
 	Imagesmodel->removeRows(0, Imagesmodel->rowCount());
-	m_query = mQFactory.getQueryforSeries(m_patient,m_study, false);
     convertDataSet( findQuery( mQFactory.getQueryforSeries(m_patient,m_study, false)), Seriesmodel, mQFactory.getSeriesKeys("","",true));
 	
 }
@@ -218,7 +219,6 @@ void vvQPacsConnection::selectImages(const QModelIndex &index)
 {
 	m_series = Seriesmodel->data(index.sibling(index.row(),2)).toString().toStdString();
 	Imagesmodel->removeRows(0, Imagesmodel->rowCount(),QModelIndex());
-	m_query = mQFactory.getQueryforImages(m_patient,m_study, m_series, false);
 	convertDataSet( findQuery( mQFactory.getQueryforImages(m_patient,m_study, m_series, false) ),  Imagesmodel, mQFactory.getQueryKeysforImages("","","",true));
  
 }
@@ -367,9 +367,9 @@ void vvQPacsConnection::on_importButton_clicked()
 	
 		bool didItWork =  gdcm::CompositeNetworkFunctions::CMove(m_adress.c_str(),atoi(m_port.c_str()),
 			gdcm::CompositeNetworkFunctions::ConstructQuery(mQFactory.getMoveQuery().theRoot, mQFactory.getMoveQuery().theLevel ,mQFactory.getMoveQuery().keys,true),
-			getDicomClientPort(),  getDicomClientAETitle().c_str(), m_aetitle.c_str(),"D:\\move" );
+			getDicomClientPort(),  getDicomClientAETitle().c_str(), m_aetitle.c_str(), gets(CLITK_PACS_MOVE_PATH) );
 		gdcm::Directory theDir;
-		theDir.Load("D:\\move");
+		theDir.Load(gets(CLITK_PACS_MOVE_PATH));
 	   m_files =	theDir.GetFilenames();
 	   accept();
 	}
