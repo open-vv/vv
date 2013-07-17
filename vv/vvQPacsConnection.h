@@ -55,8 +55,10 @@ public slots:
 	std::vector< std::pair<gdcm::Tag, std::string> > getKeys();
 	std::vector< std::pair<gdcm::Tag, std::string> > getPatientKeys(const std::string , const std::string );
 	std::vector< std::pair<gdcm::Tag, std::string> > getStudyKeys(const std::string);
-	std::vector< std::pair<gdcm::Tag, std::string> > getSeriesKeys(const std::string i_val);
-	std::vector< std::pair<gdcm::Tag, std::string> > getImageKeys(const std::string i_val);
+	std::vector< std::pair<gdcm::Tag, std::string> > getSeriesKeys(const std::string patient_id, const std::string study_id, bool bdisplay);
+
+std::vector< std::pair<gdcm::Tag, std::string> > getQueryKeysforImages(const std::string patient_id, const std::string study_id, const std::string series_id,bool bdisplay);
+vvQuery getQueryforImages(const std::string patient_id, const std::string study_id, const std::string series_id,bool bdisplay);
 	void manageStudiesFilter(bool i_enable);
 	void createTreeView();
 	void cleanTree();
@@ -81,10 +83,10 @@ public slots:
 	vvQuery f_query;
 	 gdcm::Directory::FilenamesType m_files;
 
-	 vvQuery getQueryforSeries(const std::string study_id);
+	 vvQuery getQueryforSeries(const std::string patient_id, const std::string study_id, bool bdisplay);
 
-	 vvQuery getQueryforStudy(const std::string patient_id);
-	 std::vector< std::pair<gdcm::Tag, std::string> > getQueryKeysforStudy(const std::string patient_id);
+	 vvQuery getQueryforStudy(const std::string patient_id, bool bdisplay);
+	 std::vector< std::pair<gdcm::Tag, std::string> > getQueryKeysforStudy(const std::string patient_id, bool bdisplay);
 	
   }; // class vvQPacsConnection
   //=====================================================================
