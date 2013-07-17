@@ -32,6 +32,7 @@ public slots:
 	void selectStudies(const QModelIndex &index);
 	void selectSeries(const QModelIndex &index);
 	void selectImages(const QModelIndex &index);
+	void selectImage(const QModelIndex &index);
   private slots:
     void on_scanButton_clicked();
 	void on_clearButton_clicked();

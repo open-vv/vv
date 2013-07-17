@@ -15,7 +15,7 @@ vvQuery vvDicomServerQueryFactory::getQueryforStudy(const  std::string patient_i
 	query.keys = getQueryKeysforStudy( patient_id, bdisplay);
 	query.theRoot = gdcm::ePatientRootType;
 	query.theLevel = gdcm::eStudy;
-	m_query = query;
+	m_query = getQueryPatient("",patient_id);
 	return query;
 }
 
@@ -133,10 +133,43 @@ std::vector< std::pair<gdcm::Tag, std::string> > vvDicomServerQueryFactory::getS
 
 	if(!bdisplay)
 	{
+		//Patient UID
+		keys.push_back(std::make_pair(gdcm::Tag (0x0010,0x0020), patient_id));
+
+		//Study UID
+		keys.push_back(std::make_pair(gdcm::Tag(0x0020,0x000d), study_id));
 		// Study Instance UID
 		gdcm::Tag tagsid(0x0020,0x1209);
-		keys.push_back(std::make_pair(tagsid, study_id));
+	//	keys.push_back(std::make_pair(tagsid, study_id));
 	}
 
+	return keys;
+}
+
+void vvDicomServerQueryFactory::setQueryforImage(const std::string patient_id, const std::string study_id, const std::string series_id,const std::string image_id)
+{
+	vvQuery query;
+	query.theRoot = gdcm::ePatientRootType;
+	query.theLevel = gdcm::eImage;
+	query.keys = getQueryKeysforImage(patient_id, study_id, series_id, image_id);
+	m_query = query;
+}
+
+std::vector< std::pair<gdcm::Tag, std::string> > vvDicomServerQueryFactory::getQueryKeysforImage(const std::string patient_id, const std::string study_id, const std::string series_id,const std::string image_id)
+{
+
+	std::vector< std::pair<gdcm::Tag, std::string> > keys;
+
+		//Patient UID
+		keys.push_back(std::make_pair(gdcm::Tag (0x0010,0x0020), patient_id));
+
+		//Study UID
+		keys.push_back(std::make_pair(gdcm::Tag(0x0020,0x000d), study_id));
+	
+		//Series UID
+		keys.push_back(std::make_pair(gdcm::Tag(0x0020,0x000e), series_id));
+	
+	//SOP Instance UID
+	keys.push_back(std::make_pair(gdcm::Tag(0x0008,0x0018), image_id));
 	return keys;
 }

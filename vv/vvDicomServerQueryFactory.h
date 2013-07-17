@@ -24,13 +24,15 @@ public:
 	 vvQuery getQueryforSeries(const std::string patient_id, const std::string study_id, bool bdisplay);
 	vvQuery getQueryforStudy(const std::string patient_id, bool bdisplay);
 	 vvQuery getQueryPatient(const std::string i_patname, const std::string i_patid);
-
+	 void setQueryforImage(const std::string patient_id,  const std::string study_id,const std::string series_id,const std::string image_id);
 
 
    std::vector< std::pair<gdcm::Tag, std::string> > getQueryKeysforStudy(const std::string patient_id, bool bdisplay);
    	std::vector< std::pair<gdcm::Tag, std::string> > getPatientKeys(const std::string , const std::string );
    	std::vector< std::pair<gdcm::Tag, std::string> > getSeriesKeys(const std::string patient_id, const std::string study_id, bool bdisplay);
 	std::vector< std::pair<gdcm::Tag, std::string> > getQueryKeysforImages(const std::string patient_id, const std::string study_id, const std::string series_id,bool bdisplay);
+	std::vector< std::pair<gdcm::Tag, std::string> > getQueryKeysforImage(const std::string patient_id, const std::string study_id, const std::string series_id,const std::string image_id);
+
 
 	vvQuery getMoveQuery() { return m_query;}
 

@@ -169,7 +169,7 @@ void vvQPacsConnection::createTreeView()
 	Seriesmodel->setHorizontalHeaderLabels(Serieslist);
 	ui.seriesTreeView->setModel(Seriesmodel);
 	connect(ui.seriesTreeView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectImages(QModelIndex)));
-
+		connect(ui.imagesTreeView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectImage(QModelIndex)));
 	// Images Tree View
 	Imagesmodel = new QStandardItemModel(0,1,this); 
 	QStringList Imageslist;
@@ -221,6 +221,13 @@ void vvQPacsConnection::selectImages(const QModelIndex &index)
 	m_query = mQFactory.getQueryforImages(m_patient,m_study, m_series, false);
 	convertDataSet( findQuery( mQFactory.getQueryforImages(m_patient,m_study, m_series, false) ),  Imagesmodel, mQFactory.getQueryKeysforImages("","","",true));
  
+}
+
+void vvQPacsConnection::selectImage(const QModelIndex &index)
+{
+	std::string _image = Imagesmodel->data(index.sibling(index.row(),1)).toString().toStdString();
+	mQFactory.setQueryforImage(m_patient,m_study, m_series, _image);
+	
 }
 
 
