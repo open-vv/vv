@@ -194,6 +194,8 @@ void vvQPacsConnection::selectStudies(const QModelIndex &index)
 
 			
 	Studymodel->removeRows(0, Studymodel->rowCount(),QModelIndex());
+	Seriesmodel->removeRows(0, Seriesmodel->rowCount(),QModelIndex());
+	Imagesmodel->removeRows(0, Imagesmodel->rowCount(),QModelIndex());
 	QVariant elt= Patientmodel->data(index.sibling(index.row(),1));
 	m_patient=elt.toString().toStdString();
 	manageSeriesFilter(true);
@@ -216,16 +218,15 @@ void vvQPacsConnection::selectStudies(const QModelIndex &index)
 
 void vvQPacsConnection::selectSeries(const QModelIndex &index)
 {
-	m_level =gdcm::eSeries;
-	Seriesmodel->removeRows(0, Seriesmodel->rowCount(),QModelIndex());
-	QVariant elt= Studymodel->data(index.sibling(index.row(),3));
-	QVariant elt2= Patientmodel->data(index.sibling(ui.patientTreeView->selectionModel()->selectedRows().first().row(),1));
+	m_study= Studymodel->data(index.sibling(index.row(),3)).toString().toStdString();
+	Seriesmodel->removeRows(0, Seriesmodel->rowCount());
+	Imagesmodel->removeRows(0, Imagesmodel->rowCount());
 
 
 	std::vector<gdcm::DataSet> theDataSet;
 	
-	 m_query = getQueryforSeries(elt.toString().toStdString(),elt2.toString().toStdString(), false);
-	f_query =getQueryforSeries(elt.toString().toStdString(),elt2.toString().toStdString(), false);
+	 m_query = getQueryforSeries(m_patient,m_study, false);
+	f_query =getQueryforSeries(m_patient,m_study, false);
 	if ( gdcm::CompositeNetworkFunctions::CFind(m_adress.c_str(), atoi(m_port.c_str()), 
 		gdcm::CompositeNetworkFunctions::ConstructQuery(f_query.theRoot, f_query.theLevel ,f_query.keys), theDataSet, 
 		 getDicomClientAETitle().c_str(), m_nickname.c_str()))
@@ -237,18 +238,16 @@ void vvQPacsConnection::selectSeries(const QModelIndex &index)
 
 void vvQPacsConnection::selectImages(const QModelIndex &index)
 {
-	m_level = gdcm::eImage;
+	m_series = Seriesmodel->data(index.sibling(index.row(),2)).toString().toStdString();
 	Imagesmodel->removeRows(0, Imagesmodel->rowCount(),QModelIndex());
-	QVariant elt3= Seriesmodel->data(index.sibling(index.row(),2));
-	QVariant elt2= Studymodel->data(index.sibling(ui.studyTreeView->selectionModel()->selectedRows().first().row(),3));
-	QVariant elt= Patientmodel->data(index.sibling(ui.patientTreeView->selectionModel()->selectedRows().first().row(),1));
+
 
 	//manageImagesFilter(true);
 	
 	std::vector<gdcm::DataSet> theDataSet;
 	std::vector< std::pair<gdcm::Tag, std::string> > keys;
-	f_query =getQueryforImages(elt.toString().toStdString(),elt2.toString().toStdString(), elt3.toString().toStdString(),false);
-		m_query =getQueryforImages(elt.toString().toStdString(),elt2.toString().toStdString(), elt3.toString().toStdString(),false);
+	f_query =getQueryforImages(m_patient,m_study, m_series, false);
+		m_query =getQueryforImages(m_patient,m_study, m_series, false);
  if(	gdcm::CompositeNetworkFunctions::CFind(m_adress.c_str(), atoi(m_port.c_str()), 
 		gdcm::CompositeNetworkFunctions::ConstructQuery(f_query.theRoot, f_query.theLevel ,f_query.keys), theDataSet,  
 		getDicomClientAETitle().c_str(), m_nickname.c_str()))
