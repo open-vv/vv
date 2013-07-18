@@ -35,7 +35,7 @@ rm -fr $(basename ${G4RADIOACTIVEDATA})
 rm -fr $(basename ${G4ABLADATA})
 rm -fr $(basename ${G4LEDATA})
 rm -fr $(basename ${G4REALSURFACEDATA})
-rm -fr test_libs fgate_shared_libs.tar.gz fgate_release.tar.gz
+rm -fr test_libs gate_shared_libs.tar.gz gate_release.tar.gz
 
 echo "Copying libraries"
 function get_deps {
@@ -63,7 +63,7 @@ rm -f test_libs/libc.so*
 echo "Zipping libraries"
 (
     cd test_libs
-    tar -czvf ../fgate_shared_libs.tar.gz **
+    tar -czvf ../gate_shared_libs.tar.gz **
 ) || usage "can't create libraries tar"
 
 echo "Copying binary"
@@ -80,8 +80,8 @@ cp -r "${G4NEUTRONXSDATA}" .
 cp -r "${G4PIIDATA}" .
 
 echo "Making release"
-tar -czvf fgate_release.tar.gz \
-    ${GATENAME} fgate_shared_libs.tar.gz \
+tar -czvf gate_release.tar.gz \
+    ${GATENAME} gate_shared_libs.tar.gz \
     $(basename ${G4NEUTRONHPDATA}) \
     $(basename ${G4LEVELGAMMADATA}) \
     $(basename ${G4RADIOACTIVEDATA}) \
@@ -92,6 +92,6 @@ tar -czvf fgate_release.tar.gz \
     $(basename ${G4PIIDATA}) \
     || usage "can't create release zip"
 
-chmod -w fgate_release.tar.gz
+chmod -w gate_release.tar.gz
 
 
