@@ -165,6 +165,37 @@ end_bar
 echo "  ${indent}merged ${count} files"
 }
 
+doseMerger="mergeDosePerEnegryFile.sh"
+test -x "./mergeDosePerEnergyFile.sh" && doseMerger="./mergeDosePerEnergyFile.sh"
+
+function merge_dose {
+local merged="$1"
+shift
+echo "  ${indent}entering dose merger"
+echo "  ${indent}merger is ${doseMerger}"
+echo "  ${indent}creating ${merged}"
+local count=0
+start_bar $#
+while test $# -gt 0
+do
+    local partial="$1"
+    shift
+    let count++
+
+    if test ! -f "${merged}"
+    then
+        update_bar ${count} "copying first partial result ${partial}"
+        cp "${partial}" "${merged}"
+        continue
+    fi
+
+    update_bar ${count} "adding ${partial}"
+    ${doseMerger} -i "${merged}" -j "${partial}" -o "${merged}" 2> /dev/null > /dev/null || warning "error while calling ${doseMerger}"
+done
+end_bar
+echo "  ${indent}merged ${count} files"
+}
+
 txtImageMerger="clitkMergeAsciiDoseActor"
 test -f "./clitkMergeAsciiDoseActor" && txtImageMerger="./clitkMergeAsciiDoseActor"
 
@@ -335,6 +366,16 @@ function merge_dispatcher {
         merge_stat "${mergedfile}" ${partialoutputfiles} || error "error while merging"
         return
     fi
+
+    if test "${firstpartialoutputextension}" == "txt" && grep -qs 'energydose' "${firstpartialoutputfile}"
+    then
+        echo "${indent}this is a dose file"
+        local mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}")"
+        merge_dose "${mergedfile}" ${partialoutputfiles} || error "error while merging"
+        return
+    fi
+
+
 
     if test "${firstpartialoutputextension}" == "txt" && grep -qs 'Resol' "${firstpartialoutputfile}"
     then

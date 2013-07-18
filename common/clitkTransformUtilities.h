@@ -255,29 +255,7 @@ namespace clitk
     return matrix; 
   }
    
-  inline itk::Matrix<double, 4, 4> ReadMatrix3D(std::string fileName)
-  {
-    // read input matrix
-    std::ifstream is;
-    openFileForReading(is, fileName);
-    std::vector<double> nb;
-    double x;
-    skipComment(is);
-    is >> x;
-    while (!is.eof()) {
-      nb.push_back(x);
-      skipComment(is);
-      is >> x;  
-    }
-     
-    //copy it to the matrix
-    itk::Matrix<double, 4, 4> matrix;
-    unsigned int index=0;
-    for (unsigned int i=0;i<4;i++)
-      for (unsigned int j=0;j<4;j++)
- 	matrix[i][j]=nb[index++];
-    return matrix; 
-  }
+  itk::Matrix<double, 4, 4> ReadMatrix3D(std::string fileName);
  
   inline vtkMatrix4x4* ReadVTKMatrix3D(std::string fileName) {
     // read input matrix

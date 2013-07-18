@@ -65,7 +65,7 @@ test -d "${MACRODIR}" && test -d "${MACRODIR}/mac" || error "invalid macro"
 
 echo "Copying inputs"
 LOCALMACRODIR=$(mktemp -d)
-trap "rm -rf ${LOCALMACRODIR} ; exit 1" 1 2 3 15
+trap "mv output ${OUTPUTDIR}/output.${PBS_JOBID%%.*} ; rm -r ${LOCALMACRODIR} ; exit 1" 1 2 3 15
 cd ${LOCALMACRODIR}
 cp -r -L "${MACRODIR}"/{data,mac} .
 mkdir output
