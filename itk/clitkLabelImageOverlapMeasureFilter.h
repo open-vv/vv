@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://www.centreleonberard.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -23,24 +23,24 @@
 #include "clitkFilterBase.h"
 #include "clitkCropLikeImageFilter.h"
 #include "clitkSegmentationUtils.h"
-// #include "itkLabelOverlapMeasuresImageFilter.h"
 
 // itk
 #include <itkImageToImageFilter.h>
 #include <itkLabelStatisticsImageFilter.h>
+#include <itkLabelOverlapMeasuresImageFilter.h>
 
 #include <iomanip>
 
 namespace clitk {
-  
+
   //--------------------------------------------------------------------
   /*
     Analyze the relative position of a Target (mask image) according
     to some Object, in a given Support. Indicate the main important
-    position of this Target according the Object. 
+    position of this Target according the Object.
   */
   //--------------------------------------------------------------------
-  
+
   template <class ImageType>
   class LabelImageOverlapMeasureFilter:
     public virtual FilterBase,
@@ -53,30 +53,30 @@ namespace clitk {
     typedef LabelImageOverlapMeasureFilter<ImageType>          Self;
     typedef itk::SmartPointer<Self>                            Pointer;
     typedef itk::SmartPointer<const Self>                      ConstPointer;
-       
+
     /** Method for creation through the object factory. */
     itkNewMacro(Self);
-    
+
     /** Run-time type information (and related methods). */
     itkTypeMacro(LabelImageOverlapMeasureFilter, ImageToImageFilter);
 
     /** Some convenient typedefs. */
     typedef typename ImageType::ConstPointer ImageConstPointer;
     typedef typename ImageType::Pointer      ImagePointer;
-    typedef typename ImageType::RegionType   RegionType; 
+    typedef typename ImageType::RegionType   RegionType;
     typedef typename ImageType::PixelType    PixelType;
     typedef typename ImageType::SpacingType  SpacingType;
     typedef typename ImageType::SizeType     SizeType;
     typedef typename ImageType::IndexType    IndexType;
     typedef typename ImageType::PointType    PointType;
-    
+
     /** ImageDimension constants */
     itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
     FILTERBASE_INIT;
- 
+
     // Options
     itkGetConstMacro(BackgroundValue, PixelType);
-    itkSetMacro(BackgroundValue, PixelType);
+    //itkSetMacro(BackgroundValue, PixelType);
 
     itkGetConstMacro(Label1, PixelType);
     itkSetMacro(Label1, PixelType);
@@ -84,18 +84,28 @@ namespace clitk {
     itkGetConstMacro(Label2, PixelType);
     itkSetMacro(Label2, PixelType);
 
+    itkSetMacro(VerboseFlag, bool);
+    itkGetConstMacro(VerboseFlag, bool);
+    itkBooleanMacro(VerboseFlag);
+
+    itkSetMacro(LongFlag, bool);
+    itkGetConstMacro(LongFlag, bool);
+    itkBooleanMacro(LongFlag);
+
     // I dont want to verify inputs information
     virtual void VerifyInputInformation() { }
-    
+
    protected:
     LabelImageOverlapMeasureFilter();
     virtual ~LabelImageOverlapMeasureFilter() {}
-    
+
     PixelType m_BackgroundValue;
     PixelType m_Label1;
     PixelType m_Label2;
     ImagePointer m_Input1;
     ImagePointer m_Input2;
+    bool m_VerboseFlag;
+    bool m_LongFlag;
 
     virtual void GenerateOutputInformation();
     virtual void GenerateInputRequestedRegion();
@@ -104,7 +114,7 @@ namespace clitk {
   private:
     LabelImageOverlapMeasureFilter(const Self&); //purposely not implemented
     void operator=(const Self&); //purposely not implemented
-    
+
   }; // end class
   //--------------------------------------------------------------------
 
