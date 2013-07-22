@@ -134,12 +134,12 @@ IF (CLITK_BUILD_TOOLS)
 
   WRAP_GGO(clitkUnsharpMask_GGO_C clitkUnsharpMask.ggo)
   ADD_EXECUTABLE(clitkUnsharpMask clitkUnsharpMask.cxx ${clitkUnsharpMask_GGO_C})
-  TARGET_LINK_LIBRARIES(clitkUnsharpMask clitkCommon ) 
+  TARGET_LINK_LIBRARIES(clitkUnsharpMask clitkCommon )
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkUnsharpMask)
 
   WRAP_GGO(clitkFooImage_GGO_C clitkFooImage.ggo)
   ADD_EXECUTABLE(clitkFooImage clitkFooImage.cxx ${clitkFooImage_GGO_C})
-  TARGET_LINK_LIBRARIES(clitkFooImage clitkCommon ) 
+  TARGET_LINK_LIBRARIES(clitkFooImage clitkCommon )
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkFooImage)
 
   #WRAP_GGO(clitkMedianImageFilter_GGO_C clitkMedianImageFilter.ggo)
@@ -195,7 +195,7 @@ IF (CLITK_BUILD_TOOLS)
   # ADD_EXECUTABLE(clitkExtractSlice clitkExtractSlice.cxx clitkExtractSliceGenericFilter.cxx ${clitkExtractSlice_GGO_C})
   # TARGET_LINK_LIBRARIES(clitkExtractSlice clitkCommon)
   #SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkExtractSlice)
-  
+
   WRAP_GGO(clitkFlipImage_GGO_C clitkFlipImage.ggo)
   ADD_EXECUTABLE(clitkFlipImage clitkFlipImage.cxx clitkFlipImageGenericFilter.cxx ${clitkFlipImage_GGO_C})
   TARGET_LINK_LIBRARIES(clitkFlipImage clitkCommon)
@@ -240,6 +240,11 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkTransformLandmarks clitkCommon)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkTransformLandmarks)
 
+  WRAP_GGO(clitkDice_GGO_C clitkDice.ggo)
+  ADD_EXECUTABLE(clitkDice clitkDice.cxx ${clitkDice_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkDice clitkSegmentationGgoLib clitkCommon ${ITK_LIBRARIES} )
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkDice)
+
   WRAP_GGO(clitkMaskLandmarks_GGO_C clitkMaskLandmarks.ggo)
   ADD_EXECUTABLE(clitkMaskLandmarks clitkMaskLandmarks.cxx ${clitkMaskLandmarks_GGO_C})
   TARGET_LINK_LIBRARIES(clitkMaskLandmarks clitkCommon)
@@ -249,7 +254,7 @@ IF (CLITK_BUILD_TOOLS)
   ADD_EXECUTABLE(clitkJacobianImage clitkJacobianImage.cxx clitkJacobianImageGenericFilter.cxx ${clitkJacobianImage_GGO_C})
   TARGET_LINK_LIBRARIES(clitkJacobianImage clitkCommon)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkJacobianImage)
-  
+
   WRAP_GGO(clitkPadImage_GGO_C clitkPadImage.ggo)
   ADD_EXECUTABLE(clitkPadImage clitkPadImage.cxx clitkPadImageGenericFilter.cxx ${clitkPadImage_GGO_C})
   TARGET_LINK_LIBRARIES(clitkPadImage clitkCommon)
@@ -303,4 +308,3 @@ IF (CLITK_BUILD_TOOLS)
   INSTALL (TARGETS ${TOOLS_INSTALL} DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
 ENDIF(CLITK_BUILD_TOOLS)
-
