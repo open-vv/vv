@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://www.centreleonberard.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -19,14 +19,14 @@
 #ifndef CLITKLABELIMAGEOVERLAPMEASUREGENERICFILTER_H
 #define CLITKLABELIMAGEOVERLAPMEASUREGENERICFILTER_H
 
-// clitk 
+// clitk
 #include "clitkImageToImageGenericFilter.h"
 #include "clitkLabelImageOverlapMeasureFilter.h"
 #include "clitkBoundingBoxUtils.h"
 #include "clitkCropLikeImageFilter.h"
 
 //--------------------------------------------------------------------
-namespace clitk 
+namespace clitk
 {
 
   template<class ArgsInfoType>
@@ -36,25 +36,25 @@ namespace clitk
   public:
     //--------------------------------------------------------------------
     LabelImageOverlapMeasureGenericFilter();
-  
+
     //--------------------------------------------------------------------
     typedef ImageToImageGenericFilter<LabelImageOverlapMeasureGenericFilter<ArgsInfoType> > Superclass;
     typedef LabelImageOverlapMeasureGenericFilter Self;
     typedef itk::SmartPointer<Self>       Pointer;
     typedef itk::SmartPointer<const Self> ConstPointer;
-   
+
     //--------------------------------------------------------------------
-    itkNewMacro(Self);  
+    itkNewMacro(Self);
     itkTypeMacro(LabelImageOverlapMeasureGenericFilter, LightObject);
 
     //--------------------------------------------------------------------
     void SetArgsInfo(const ArgsInfoType & a);
-    template<class FilterType> 
+    template<class FilterType>
       void SetOptionsFromArgsInfoToFilter(FilterType * f) ;
 
     //--------------------------------------------------------------------
     // Main function called each time the filter is updated
-    template<class ImageType>  
+    template<class ImageType>
     void UpdateWithInputImageType();
 
   protected:
@@ -64,7 +64,7 @@ namespace clitk
   private:
     LabelImageOverlapMeasureGenericFilter(const Self&); //purposely not implemented
     void operator=(const Self&); //purposely not implemented
-    
+
   };// end class
   //--------------------------------------------------------------------
 } // end namespace clitk

@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://www.centreleonberard.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -23,7 +23,7 @@ LabelImageOverlapMeasureGenericFilter():
   ImageToImageGenericFilter<Self>("LabelImageOverlapMeasure")
 {
   // Default values
-  cmdline_parser_clitkLabelImageOverlapMeasure_init(&mArgsInfo);
+  cmdline_parser_clitkDice_init(&mArgsInfo);
   //InitializeImageType<2>();
   InitializeImageType<3>();
 }
@@ -34,20 +34,20 @@ LabelImageOverlapMeasureGenericFilter():
 template<class ArgsInfoType>
 template<unsigned int Dim>
 void clitk::LabelImageOverlapMeasureGenericFilter<ArgsInfoType>::
-InitializeImageType() 
-{  
+InitializeImageType()
+{
   ADD_IMAGE_TYPE(Dim, uchar);
 }
 //--------------------------------------------------------------------
-  
+
 
 //--------------------------------------------------------------------
 template<class ArgsInfoType>
 void clitk::LabelImageOverlapMeasureGenericFilter<ArgsInfoType>::
-SetArgsInfo(const ArgsInfoType & a) 
+SetArgsInfo(const ArgsInfoType & a)
 {
   mArgsInfo=a;
-  this->SetIOVerbose(mArgsInfo.verbose_flag);
+  //this->SetIOVerbose(mArgsInfo.verbose_flag);
   if (mArgsInfo.imagetypes_flag) this->PrintAvailableImageTypes();
   if (mArgsInfo.input1_given) this->AddInputFilename(mArgsInfo.input1_arg);
   if (mArgsInfo.input2_given) this->AddInputFilename(mArgsInfo.input2_arg);
@@ -61,11 +61,15 @@ SetArgsInfo(const ArgsInfoType & a)
 template<class ArgsInfoType>
 template<class FilterType>
 void clitk::LabelImageOverlapMeasureGenericFilter<ArgsInfoType>::
-SetOptionsFromArgsInfoToFilter(FilterType * f) 
+SetOptionsFromArgsInfoToFilter(FilterType * f)
 {
-  f->SetLabel1(mArgsInfo.label1_arg);  
-  f->SetLabel2(mArgsInfo.label2_arg);  
+  f->SetLabel1(mArgsInfo.label1_arg);
+  f->SetLabel2(mArgsInfo.label2_arg);
+  f->SetVerboseFlag(mArgsInfo.verbose_flag);
+  f->SetLongFlag(mArgsInfo.long_flag);
 }
+//--------------------------------------------------------------------
+
 
 //--------------------------------------------------------------------
 // Update with the number of dimensions and the pixeltype
@@ -73,8 +77,8 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
 template<class ArgsInfoType>
 template<class ImageType>
 void clitk::LabelImageOverlapMeasureGenericFilter<ArgsInfoType>::
-UpdateWithInputImageType() 
-{ 
+UpdateWithInputImageType()
+{
   // Reading input
   typename ImageType::Pointer input1 = this->template GetInput<ImageType>(0);
   typename ImageType::Pointer input2 = this->template GetInput<ImageType>(1);
@@ -82,19 +86,17 @@ UpdateWithInputImageType()
   // Create filter
   typedef clitk::LabelImageOverlapMeasureFilter<ImageType> FilterType;
   typename FilterType::Pointer filter = FilterType::New();
-  
-  // Set global Options 
+
+  // Set global Options
   filter->SetInput(0, input1);
   filter->SetInput(1, input2);
   SetOptionsFromArgsInfoToFilter<FilterType>(filter);
 
   // Go !
   filter->Update();
-  
+
   // Write/Save results
   // typename ImageType::Pointer output = filter->GetOutput();
-  // this->template SetNextOutput<ImageType>(output); 
+  // this->template SetNextOutput<ImageType>(output);
 }
 //--------------------------------------------------------------------
-
-
