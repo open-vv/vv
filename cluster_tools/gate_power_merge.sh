@@ -343,7 +343,7 @@ function merge_dispatcher {
         return
     fi
 
-    if test "${firstpartialoutputextension}" == "mhd"
+    if test "${firstpartialoutputextension}" == "mhd" || test "${firstpartialoutputextension}" == "mha"
     then
         echo "${indent}this is a mhd image"
         local mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}")"
@@ -439,7 +439,7 @@ echo "output dir is ${outputdir}"
 test -d "${outputdir}" && rm -r "${outputdir}"
 mkdir "${outputdir}"
 
-for outputfile in $(find "${rundir}" -regextype 'posix-extended' -type f -regex "${rundir}/output.*\.(hdr|mhd|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
+for outputfile in $(find "${rundir}" -regextype 'posix-extended' -type f -regex "${rundir}/output.*\.(hdr|mhd|mha|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
 do
     merge_dispatcher "${outputfile}"
 done
