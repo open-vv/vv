@@ -90,8 +90,7 @@ ExtractLungFilter():
   TracheaVolumeMustBeCheckedFlagOn();
   SetNumSlices(50);
   SetMaxElongation(0.5);
-  SetSeedPreProcessingThreshold(-400);
- 
+  SetSeedPreProcessingThreshold(-400); 
   
   // Step 3 default values
   SetNumberOfHistogramBins(500);
@@ -135,7 +134,19 @@ SetInput(const ImageType * image)
 template <class ImageType>
 void 
 clitk::ExtractLungFilter<ImageType>::
-AddSeed(InternalIndexType s) 
+//AddSeed(InternalIndexType s) 
+AddSeed(InputImagePointType s) 
+{ 
+  m_SeedsInMM.push_back(s);
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+template <class ImageType>
+void 
+clitk::ExtractLungFilter<ImageType>::
+AddSeedInPixels(InternalIndexType s) 
 { 
   m_Seeds.push_back(s);
 }
@@ -461,7 +472,6 @@ GenerateOutputInformation()
     // smalest one (sometimes appends with the stomach
     if (initialNumberOfLabels >1) {
       if (GetRemoveSmallLabelBeforeSeparationFlag()) {
-        DD(GetRemoveSmallLabelBeforeSeparationFlag());
         typedef itk::RelabelComponentImageFilter<MaskImageType, MaskImageType> RelabelFilterType;
         typename RelabelFilterType::Pointer relabelFilter = RelabelFilterType::New();
         relabelFilter->SetInput(working_mask);
@@ -577,7 +587,7 @@ SearchForTracheaSeed(int skip)
       it.GoToBegin();
       while (!it.IsAtEnd()) {
         if(it.Get() < GetUpperThresholdForTrachea() ) {
-          AddSeed(it.GetIndex());
+          AddSeedInPixels(it.GetIndex());
           // DD(it.GetIndex());
         }
         ++it;
@@ -853,7 +863,7 @@ TracheaRegionGrowing()
   f->SetVerbose(GetVerboseRegionGrowingFlag());
   for(unsigned int i=0; i<m_Seeds.size();i++) {
     f->AddSeed(m_Seeds[i]);
-    // DD(m_Seeds[i]);
+    //DD(m_Seeds[i]);
   }  
   f->Update();
   PrintMemory(GetVerboseMemoryFlag(), "After RG update");
@@ -906,6 +916,15 @@ SearchForTrachea()
   // when seed found : perform region growing
   // compute trachea volume
   // if volume not plausible  -> skip more slices and restart 
+
+  // If initial seed, convert from mm to pixels
+  if (m_SeedsInMM.size() > 0) {
+    for(unsigned int i=0; i<m_SeedsInMM.size(); i++) {
+      InputImageIndexType index;
+      working_input->TransformPhysicalPointToIndex(m_SeedsInMM[i], index);
+      m_Seeds.push_back(index);
+    }
+  }
 
   bool has_seed;
   bool stop = false;

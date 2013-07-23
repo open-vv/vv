@@ -164,7 +164,8 @@ namespace clitk {
     itkSetMacro(SeedPreProcessingThreshold, int);
     itkGetConstMacro(SeedPreProcessingThreshold, int);
 
-    void AddSeed(InternalIndexType s);
+    void AddSeedInPixels(InternalIndexType s);
+    void AddSeed(InputImagePointType s);
     std::vector<InternalIndexType> & GetSeeds() { return  m_Seeds; }
 
     itkSetMacro(TracheaVolumeMustBeCheckedFlag, bool);
@@ -252,6 +253,7 @@ namespace clitk {
     InputImagePixelType m_ThresholdStepSizeForTrachea;
     double m_MultiplierForTrachea;
     std::vector<InternalIndexType> m_Seeds;
+    std::vector<InputImagePointType> m_SeedsInMM;
     int m_NumberOfSlicesToSkipBeforeSearchingSeed;
     bool m_TracheaVolumeMustBeCheckedFlag;
     bool m_VerboseRegionGrowingFlag;

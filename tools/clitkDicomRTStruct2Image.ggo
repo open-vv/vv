@@ -7,7 +7,7 @@ option "verbose"         v "Verbose"			     flag	off
 option "verboseFile"     - "Verbose file content"            flag	off
 option "input"		 i "Input Dicom file"		     string	yes
 option "image"		 j "Used to read image info (spacing, origin)"    string	yes
-option "output"		 o "Output image filename"	 string	yes
+option "output"		 o "Output image base filename (roi number and extension will be append)"	 string	yes
 
 defgroup "ROIoption" groupdesc="an option of this group is required" 
 groupoption "roi"     r "ROI to binarize (if -1 = all roi)"            int    no default="-1" group="ROIoption"

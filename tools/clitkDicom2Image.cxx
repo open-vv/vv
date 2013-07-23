@@ -82,12 +82,13 @@ int main(int argc, char * argv[])
     
     gdcm::Attribute<0x28, 0x100> pixel_size;
     pixel_size.SetFromDataSet(ds);
-    if (pixel_size.GetValue() != 16)
-    {
-      std::cerr << "Pixel type 2 bytes ! " << std::endl;
-      std::cerr << "In file " << input_files[i] << std::endl;
-      exit(0);
-    }
+    /* if (pixel_size.GetValue() != 16)
+       {
+       std::cerr << "Pixel type not 2 bytes ! " << std::endl;
+       std::cerr << "In file " << input_files[i] << std::endl;
+       exit(0);
+       }
+    */
 #else
     if (args_info.verbose_flag)
       std::cout << "Not using GDCM-2.x" << std::endl;
@@ -107,11 +108,12 @@ int main(int argc, char * argv[])
   theorigin[series_number][2] = header->GetZOrigin();
   sliceLocations[series_number].push_back(theorigin[series_number][2]);
   seriesFiles[series_number].push_back(input_files[i]);
-  if (header->GetPixelSize() != 2) {
+  /*if (header->GetPixelSize() != 2) {
     std::cerr << "Pixel type 2 bytes ! " << std::endl;
     std::cerr << "In file " << input_files[i] << std::endl;
     exit(0);
   }
+  */
 #endif
   }
 

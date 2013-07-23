@@ -475,6 +475,16 @@ void clitk::DicomRT_ROI::Read(vtkSmartPointer<vtkGDCMPolyDataReader> & reader, i
 
   //mColor = //FIXME !!  
 
+  // gdcm::Attribute<0x3006,0x002a> color = {};
+  
+  // const gdcm::DataSet & nestedds = mItemContour->GetNestedDataSet();
+  // color.SetFromDataSet( nestedds );
+  // assert( color.GetNumberOfValues() == 3 );
+  // mColor[0] = color.GetValue(0);
+  // mColor[1] = color.GetValue(1);
+  // mColor[2] = color.GetValue(2);
+
+
   SetDicomUptodateFlag(true);
   // Get the contour
   mMesh =  reader->GetOutput(roiindex);  

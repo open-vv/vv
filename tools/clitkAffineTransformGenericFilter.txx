@@ -183,7 +183,7 @@ namespace clitk
           if (m_ArgsInfo.elastix_given) {
             std::vector<std::string> s;
             for(uint i=0; i<m_ArgsInfo.elastix_given; i++) s.push_back(m_ArgsInfo.elastix_arg[i]);
-            matrix = createMatrixFromElastixFile<Dimension,PixelType>(s);
+            matrix = createMatrixFromElastixFile<Dimension,PixelType>(s, m_Verbose);
           }
           else 
             matrix.SetIdentity();
@@ -497,7 +497,7 @@ namespace clitk
   template<class args_info_type>
   template<unsigned int Dimension, class PixelType>
   typename itk::Matrix<double, Dimension+1, Dimension+1>
-                                                           AffineTransformGenericFilter<args_info_type>::createMatrixFromElastixFile(std::vector<std::string> & filename)
+                                                           AffineTransformGenericFilter<args_info_type>::createMatrixFromElastixFile(std::vector<std::string> & filename, bool verbose)
   {
     if (Dimension != 3) {
       FATAL("Only 3D yet" << std::endl);
@@ -509,7 +509,7 @@ namespace clitk
     for(uint j=0; j<filename.size(); j++) {
       
       // Open file
-      if (m_Verbose) std::cout << "Read elastix parameters in " << filename[j] << std::endl;
+      if (verbose) std::cout << "Read elastix parameters in " << filename[j] << std::endl;
       std::ifstream is;
       clitk::openFileForReading(is, filename[j]);
       
@@ -553,7 +553,7 @@ namespace clitk
         p[i+6] = atof(results[i+3].c_str()); // Translation
       mat->SetParameters(p);
     
-      if (m_Verbose) {
+      if (verbose) {
         std::cout << "Rotation      (deg) : " << rad2deg(p[0]) << " " << rad2deg(p[1]) << " " << rad2deg(p[2]) << std::endl;
         std::cout << "Center of rot (phy) : " << p[3] << " " << p[4] << " " << p[5] << std::endl;
         std::cout << "Translation   (phy) : " << p[6] << " " << p[7] << " " << p[8] << std::endl;
@@ -562,7 +562,7 @@ namespace clitk
       // Compose with previous if needed
       if (j!=0) {
         mat->Compose(previous);
-        if (m_Verbose) {
+        if (verbose) {
           std::cout << "Composed rotation      (deg) : " << rad2deg(mat->GetAngleX()) << " " << rad2deg(mat->GetAngleY()) << " " << rad2deg(mat->GetAngleZ()) << std::endl;
           std::cout << "Composed center of rot (phy) : " << mat->GetCenter() << std::endl;
           std::cout << "Compsoed translation   (phy) : " << mat->GetTranslation() << std::endl;
