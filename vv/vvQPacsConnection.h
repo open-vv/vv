@@ -1,11 +1,11 @@
 #ifndef __vvQPacsConnection_h_INCLUDED__
 #define __vvQPacsConnection_h_INCLUDED__
 
-#include <QTGUI/QWidget>
+#include <QWidget>
 #include "ui_vvPacsConnection.h"
 #include "gdcmCompositeNetworkFunctions.h"
-#include <QtGui/QStandardItemModel.h>
-#include <QtGui/QStringListModel.h>
+#include <QStandardItemModel>
+#include <QStringListModel>
 #include <QFileDialog>
 #include "vvDicomServerQueryFactory.h"
 
@@ -17,10 +17,10 @@
 
 
 
-  class vvQPacsConnection : public QDialog 
-  {
+class vvQPacsConnection : public QDialog
+{
 	  Q_OBJECT
-  public:
+public:
 	  //vvQPacsConnection(){}    
 	  vvQPacsConnection(QWidget *parent=0);
     
