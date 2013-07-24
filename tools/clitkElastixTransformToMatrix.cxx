@@ -19,6 +19,7 @@
 // clitk
 #include "clitkElastixTransformToMatrix_ggo.h"
 #include "clitkAffineTransformGenericFilter.h"
+#include "clitkElastix.h"
 
 //--------------------------------------------------------------------
 int main(int argc, char * argv[])
@@ -29,11 +30,9 @@ int main(int argc, char * argv[])
   CLITK_INIT;
 
   // Use static fct of AffineTransformGenericFilter
-  typedef clitk::AffineTransformGenericFilter<args_info_clitkElastixTransformToMatrix> FilterType;
   std::vector<std::string> l;
   l.push_back(args_info.input_arg);
-  itk::Matrix<double, 4, 4> m = 
-    FilterType::createMatrixFromElastixFile<3, int>(l, args_info.verbose_flag);
+  itk::Matrix<double, 4, 4> m = clitk::createMatrixFromElastixFile<3>(l, args_info.verbose_flag);
 
   // Print matrix
   std::ofstream os;
