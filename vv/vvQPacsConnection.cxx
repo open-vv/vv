@@ -7,7 +7,7 @@
 #include <QDateTime>
 #include "vvPacsSettingsDialog.h"
 #include "vvUtils.h"
-
+#include <algorithm>
 
 
 vvQPacsConnection::vvQPacsConnection(QWidget *i_parent)
