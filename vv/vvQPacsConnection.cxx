@@ -386,6 +386,7 @@ void vvQPacsConnection::on_importButton_clicked()
 		gdcm::Directory theDir;
 		theDir.Load(path.toStdString().c_str());
 	   m_files =	theDir.GetFilenames();
+	   	std::sort (m_files.begin(), m_files.end()); // make sure names are in lexicographical order
 	   
 	   accept();
 	  setCursor(QCursor(Qt::ArrowCursor));
