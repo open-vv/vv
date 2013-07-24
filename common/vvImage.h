@@ -23,6 +23,7 @@
 #include <itkObjectFactory.h>
 #include <itkProcessObject.h>
 
+#define VTK_EXCLUDE_STRSTREAM_HEADERS
 #include <vtkSmartPointer.h>
 #include <vtkTransform.h>
 
