@@ -94,10 +94,10 @@ SetOptionsFromArgsInfoToFilter(FilterType * f)
   f->SetMaxElongation(mArgsInfo.maxElongation_arg);
   f->SetSeedPreProcessingThreshold(mArgsInfo.seedPreProcessingThreshold_arg);
 
-  typename FilterType::InputImageIndexType s;
+  typename FilterType::InputImagePointType s;
   if (mArgsInfo.seed_given) {
     ConvertOptionMacro(mArgsInfo.seed, s, 3, false);
-  f->AddSeed(s);
+    f->AddSeed(s);
   }
 
   f->SetMinimalComponentSize(mArgsInfo.minSize_arg);

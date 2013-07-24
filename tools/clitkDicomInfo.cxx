@@ -29,8 +29,10 @@
 // itk (gdcm) include
 #include "gdcmFile.h"
 #if GDCM_MAJOR_VERSION == 2
-  #include "gdcmReader.h"
-  #include "gdcmPrinter.h"
+#include "gdcmReader.h"
+#include "gdcmPrinter.h"
+#include "gdcmDict.h"
+#include "gdcmStringFilter.h"
 #endif
 
 //--------------------------------------------------------------------
@@ -43,8 +45,46 @@ int main(int argc, char * argv[])
   // check arg
   if (args_info.inputs_num == 0) return 0;
 
+  // Study ID
+ #if GDCM_MAJOR_VERSION == 2
+ if (args_info.studyID_flag) {
+    std::set<std::string> l;
+    for(unsigned int i=0; i<args_info.inputs_num; i++) {
+      gdcm::Reader reader;
+      reader.SetFileName(args_info.inputs[i]);
+      std::set<gdcm::Tag> tags;
+      gdcm::Tag StudyInstanceUIDTag(0x0020, 0x000d);
+      gdcm::Tag SeriesDateTag(0x0008, 0x0021);
+      tags.insert(StudyInstanceUIDTag);
+      tags.insert(SeriesDateTag);
+      if (reader.ReadSelectedTags(tags)) {
+        gdcm::StringFilter sf;
+        sf.SetFile(reader.GetFile());
+        std::pair<std::string, std::string> p = sf.ToStringPair(StudyInstanceUIDTag);
+        std::pair<std::string, std::string> d = sf.ToStringPair(SeriesDateTag);
+        if (args_info.uniq_flag) {
+          if (l.insert(p.second).second == true) {
+            if (args_info.filename_flag)
+              std::cout << args_info.inputs[i] << " " << p.second << " " << d.second << std::endl;
+            else
+              std::cout << p.second << std::endl;
+          }
+        }
+        else {
+          if (args_info.filename_flag)
+            std::cout << args_info.inputs[i] << " " << p.second << " " << d.second << std::endl;
+          else
+            std::cout << p.second << std::endl;
+        }
+      } // tag not found
+    }
+  }
+#endif
+
   // Loop files
+ if (!args_info.studyID_flag)
   for(unsigned int i=0; i<args_info.inputs_num; i++) {
+    if (args_info.filename_flag) std::cout << args_info.inputs[i] << std::endl;
 #if GDCM_MAJOR_VERSION == 2
     gdcm::Reader reader;
     reader.SetFileName(args_info.inputs[i]);

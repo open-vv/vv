@@ -2,7 +2,7 @@
 #define __vvPacsSettingsDialog_H
 #include "ui_vvPacsSettingsDialog.h"
 #include <QFileDialog>
-#include <QTGUI/QWidget>
+#include <QWidget>
 
  class vvPacsSettingsDialog : public QDialog 
   {

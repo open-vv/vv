@@ -108,6 +108,12 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkAffineTransform clitkCommon )
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkAffineTransform)
 
+  WRAP_GGO(clitkElastixTransformToMatrix_GGO_C clitkElastixTransformToMatrix.ggo)
+  ADD_EXECUTABLE(clitkElastixTransformToMatrix clitkElastixTransformToMatrix.cxx ${clitkElastixTransformToMatrix_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkElastixTransformToMatrix clitkCommon )
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkElastixTransformToMatrix)
+
+
   WRAP_GGO(clitkSetBackground_GGO_C clitkSetBackground.ggo)
   ADD_EXECUTABLE(clitkSetBackground clitkSetBackground.cxx clitkSetBackgroundGenericFilter.cxx ${clitkSetBackground_GGO_C})
   TARGET_LINK_LIBRARIES(clitkSetBackground clitkCommon)
@@ -271,7 +277,7 @@ IF (CLITK_BUILD_TOOLS)
   IF(CLITK_EXPERIMENTAL)
     WRAP_GGO(clitkBinaryImageToMesh_GGO_C clitkBinaryImageToMesh.ggo)
     ADD_EXECUTABLE(clitkBinaryImageToMesh clitkBinaryImageToMesh.cxx ${clitkBinaryImageToMesh_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkBinaryImageToMesh itksys ${ITK_LIBRARIES} ${VTK_LIBRARIES})
+    TARGET_LINK_LIBRARIES(clitkBinaryImageToMesh clitkCommon)
     SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkBinaryImageToMesh)
 
     WRAP_GGO(clitkMeshToBinaryImage_GGO_C clitkMeshToBinaryImage.ggo)
@@ -281,7 +287,7 @@ IF (CLITK_BUILD_TOOLS)
 
     WRAP_GGO(clitkMeshViewer_GGO_C clitkMeshViewer.ggo)
     ADD_EXECUTABLE(clitkMeshViewer clitkMeshViewer.cxx ${clitkMeshViewer_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkMeshViewer ${ITK_LIBRARIES} ${VTK_LIBRARIES})
+    TARGET_LINK_LIBRARIES(clitkMeshViewer clitkCommon)
     SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMeshViewer)
   ENDIF(CLITK_EXPERIMENTAL)
 

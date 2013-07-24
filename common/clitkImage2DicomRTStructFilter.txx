@@ -45,6 +45,7 @@
 #include "vtkCamera.h"
 #include "vtkProperty.h"
 #include "vtkProperty2D.h"
+#include <vtksys/SystemTools.hxx>
 
 // itk
 #include <itkImage.h>
@@ -61,6 +62,7 @@ clitk::Image2DicomRTStructFilter<PixelType>::Image2DicomRTStructFilter()
   m_DicomFolder = "";
   m_OutputFilename = "default-output.dcm";
   m_ThresholdValue = 0.5;
+  m_SkipInitialStructuresFlag = false;
 }
 //--------------------------------------------------------------------
 
@@ -76,9 +78,8 @@ clitk::Image2DicomRTStructFilter<PixelType>::~Image2DicomRTStructFilter()
 //--------------------------------------------------------------------
 template<class PixelType>
 void
-clitk::Image2DicomRTStructFilter<PixelType>::SetROIName(std::string name, std::string type)
+clitk::Image2DicomRTStructFilter<PixelType>::SetROIType(std::string type)
 {
-  m_ROIName = name;
   m_ROIType = type;
 }
 //--------------------------------------------------------------------
@@ -112,9 +113,18 @@ void clitk::Image2DicomRTStructFilter<PixelType>::Update()
               << p->GetNumberOfStructureSetROIs() << std::endl;
   }
   
+
+  // number of additional contours
+  int m = m_InputFilenames.size();
+
   // Init writer
   vtkGDCMPolyDataWriter * writer = vtkGDCMPolyDataWriter::New();
-  int numMasks = reader->GetNumberOfOutputPorts() + 1;//add one more
+  int numMasks = reader->GetNumberOfOutputPorts() + m;
+
+  if (m_SkipInitialStructuresFlag) {
+    numMasks = m;
+  }
+
   writer->SetNumberOfInputPorts(numMasks);    
   writer->SetFileName(m_OutputFilename.c_str());
   writer->SetMedicalImageProperties(reader->GetMedicalImageProperties());
@@ -128,18 +138,46 @@ void clitk::Image2DicomRTStructFilter<PixelType>::Update()
   roiTypes->SetNumberOfValues(numMasks);
   
   // Convert the image into a mesh
-  typedef clitk::BinaryImageToMeshFilter<ImageType> BinaryImageToMeshFilterType;
-  typename BinaryImageToMeshFilterType::Pointer convert = BinaryImageToMeshFilterType::New();
-  convert->SetThresholdValue(m_ThresholdValue);
-  convert->SetInput(m_Input);
-  convert->Update();
-  vtkPolyData* mesh = convert->GetOutputMesh();
-  if (GetVerboseFlag()) {
-    std::cout << "Mesh has " << mesh->GetNumberOfLines() << " lines." << std::endl;
-  }
+  std::vector<vtkSmartPointer<vtkPolyData> > meshes;
+  std::vector<std::string> m_ROINames;
+  meshes.resize(m);
+  m_ROINames.resize(m);
+  for(unsigned int i=0; i<m; i++) {
+    
+    // read image
+    //    typedef float PixelType;
+    //typedef itk::Image<PixelType, 3> ImageType;
+    ImagePointer input = clitk::readImage<ImageType>(m_InputFilenames[i], false);
 
+    std::ostringstream oss;
+    oss << vtksys::SystemTools::
+      GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(m_InputFilenames[i]));
+    std::string name = oss.str();
+    m_ROINames[i] = name;
+    
+    // convert to mesh
+    typedef clitk::BinaryImageToMeshFilter<ImageType> BinaryImageToMeshFilterType;
+    typename BinaryImageToMeshFilterType::Pointer convert = BinaryImageToMeshFilterType::New();
+    convert->SetThresholdValue(m_ThresholdValue);
+    convert->SetInput(input);
+    convert->Update();
+    meshes[i] = convert->GetOutputMesh();
+    if (GetVerboseFlag()) {
+      std::cout << "Mesh has " << meshes[i]->GetNumberOfLines() << " lines." << std::endl;
+    }
+    
+    /*
+    // debug mesh write  FIXME
+    vtkSmartPointer<vtkPolyDataWriter> wr = vtkSmartPointer<vtkPolyDataWriter>::New();
+    wr->SetInputConnection(convert->GetOutputPort()); //psurface->GetOutputPort()
+    wr->SetFileName("bidon.obj");
+    wr->Update();
+    wr->Write();
+    */
+  }
+    
   // Copy previous contours
-  for (unsigned int i = 0; i < numMasks-1; ++i) {
+  for (unsigned int i = 0; i < numMasks-m; ++i) {
     writer->SetInput(i, reader->GetOutput(i));
     std::string theString = reader->GetRTStructSetProperties()->GetStructureSetROIName(i);
     roiNames->InsertValue(i, theString);
@@ -149,13 +187,14 @@ void clitk::Image2DicomRTStructFilter<PixelType>::Update()
     roiTypes->InsertValue(i, theString);
   }  
 
-  // Add new one
-  int last = numMasks-1;
-  writer->SetInput(last, mesh);
-  roiNames->InsertValue(last, m_ROIName);
-  roiAlgorithms->InsertValue(last, "CLITK_CREATED");
-  roiTypes->InsertValue(last, m_ROIType);
-
+  // Add new ones
+  for (unsigned int i = numMasks-m; i < numMasks; ++i) {
+    writer->SetInput(i, meshes[i-numMasks+m]);
+    roiNames->InsertValue(i, m_ROINames[i-numMasks+m]);
+    roiAlgorithms->InsertValue(i, "CLITK_CREATED");
+    roiTypes->InsertValue(i, m_ROIType);
+  }
+    
   /*
   //  Visu DEBUG
   vtkPolyDataMapper *cubeMapper = vtkPolyDataMapper::New();

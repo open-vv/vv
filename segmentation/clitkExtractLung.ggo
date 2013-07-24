@@ -36,7 +36,7 @@ option "skipslices"                  -  "0: Number of slices to skip before sear
 option "upperThresholdForTrachea"    -	"0: Initial upper threshold for trachea"  double	no  default="-900"
 option "multiplierForTrachea"	     -	"0: Multiplier for the region growing"    double	no  default="5"
 option "thresholdStepSizeForTrachea" -	"0: Threshold step size"	               int      no  default="64"
-option "seed"                        -	"0,1: Index of the trachea seed point (in pixel, not in mm)"      int	no  multiple
+option "seed"                        -	"0,1: Index of the trachea seed point (in mm  NOT IN PIXELS)"      float	no  multiple
 option "doNotCheckTracheaVolume"     -  "0,1: If set, do not check the trachea volume" flag off
 option "verboseRG"                   -  "0,1: Verbose RegionGrowing"   flag off
 option "maxElongation"               -  "1: Maximum allowed elongation of candidate regions for the trachea" float no default="0.5"
@@ -63,7 +63,7 @@ option "opencloseRadius"   	-  "OpenClose radius"	                        int no
 
 section "Step 6 : fill holes"
 option "doNotFillHoles"		-  "Do not fill holes if set"                 flag on
-option "dir"    	        d  "Directions (axes) to perform filling (defaults to 2,1,0)"	int multiple no
+#option "dir"    	        d  "Directions (axes) to perform filling (defaults to 2,1,0)"	int multiple no
 
 section "Step 7 : lung separation (labelling)"
 option "doNotSeparateLungs"   -  "Do not separate lungs if set"                 flag off

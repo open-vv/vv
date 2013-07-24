@@ -1,0 +1,9 @@
+#File clitkElastixTransformToMatrix.ggo
+package "clitkElastixTransformToMatrix"
+version "1.0"
+purpose ""
+
+option "config"	  	-	"Config file"			  string  	optional
+option "verbose"   	v   	"Verbose"			  flag		off
+option "input"		i	"Input elastix filename"	  string  	required
+option "output"		o	"Output matrix filename"	  string  	required
