@@ -16,32 +16,23 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
 
-// clitk
-#include "clitkElastixTransformToMatrix_ggo.h"
-#include "clitkAffineTransformGenericFilter.h"
-#include "clitkElastix.h"
-#include "clitkMatrix.h"
+#ifndef clitkMatrix_h
+#define clitkMatrix_h
+
+#include <itkMatrix.h>
+#include <vtkMatrix4x4.h>
+#include <vtkSmartPointer.h>
 
 //--------------------------------------------------------------------
-int main(int argc, char * argv[])
-{
+namespace clitk {
+std::string
+Get4x4MatrixDoubleAsString(vtkMatrix4x4 *matrix,
+                           const int precision=3);
 
-  // Init command line
-  GGO(clitkElastixTransformToMatrix, args_info);
-  CLITK_INIT;
+std::string
+Get4x4MatrixDoubleAsString(itk::Matrix<double, 4, 4> m,
+                           const int precision=3);
+}
+//-------------------------------------------------------------------
 
-  // Use static fct of AffineTransformGenericFilter
-  std::vector<std::string> l;
-  l.push_back(args_info.input_arg);
-  itk::Matrix<double, 4, 4> m = clitk::createMatrixFromElastixFile<3>(l, args_info.verbose_flag);
-
-  // Print matrix
-  std::ofstream os;
-  clitk::openFileForWriting(os, args_info.output_arg);
-  os << clitk::Get4x4MatrixDoubleAsString(m, 16);
-  os.close();
-
-  return EXIT_SUCCESS;
-}// end main
-
-//--------------------------------------------------------------------
+#endif
