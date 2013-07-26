@@ -1,0 +1,8 @@
+#File clitkMatrixToElastixTransform.ggo
+package "clitkMatrixInverse"
+version "1.0"
+purpose ""
+
+option "config"  - "Config file"            string optional
+option "input"   i "Input matrix filename"  string required
+option "output"  o "Output matrix filename" string required

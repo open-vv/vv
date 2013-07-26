@@ -48,6 +48,7 @@ It is distributed under dual licence
 #include "vvSaveState.h"
 #include "vvReadState.h"
 #include "clitkConfiguration.h"
+#include "clitkMatrix.h"
 
 // ITK include
 #include <itkImage.h>
@@ -1145,7 +1146,7 @@ void vvMainWindow::ImageInfoChanged()
     infoPanel->setNPixel(QString::number(NPixel)+" ("+inputSizeInBytes+")");
 
     transformation = imageSelected->GetTransform()[tSlice]->GetMatrix();
-    infoPanel->setTransformation(Get4x4MatrixDoubleAsString(transformation));
+    infoPanel->setTransformation(clitk::Get4x4MatrixDoubleAsString(transformation).c_str());
 
     landmarksPanel->SetCurrentLandmarks(mSlicerManagers[index]->GetLandmarks(),
                                         mSlicerManagers[index]->GetTSlice());
@@ -1339,38 +1340,6 @@ QString vvMainWindow::GetSizeInBytes(unsigned long size)
     result += QString::number(size);
     result += "kb";//)";
   }
-  return result;
-}
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-QString vvMainWindow::Get4x4MatrixDoubleAsString(vtkSmartPointer<vtkMatrix4x4> matrix, const int precision)
-{
-  std::ostringstream strmatrix;
-
-  // Figure out the number of digits of the integer part of the largest absolute value
-  // for each column
-  unsigned width[4];
-  for (unsigned int j = 0; j < 4; j++){
-    double absmax = 0.;
-    for (unsigned int i = 0; i < 4; i++)
-      absmax = std::max(absmax, vnl_math_abs(matrix->GetElement(i, j)));
-    unsigned ndigits = (unsigned)std::max(0.,std::log10(absmax))+1;
-    width[j] = precision+ndigits+3;
-  }
-
-  // Output with correct width, aligned to the right
-  for (unsigned int i = 0; i < 4; i++) {
-    for (unsigned int j = 0; j < 4; j++) {
-      strmatrix.setf(ios::fixed,ios::floatfield);
-      strmatrix.precision(precision);
-      strmatrix.fill(' ');
-      strmatrix.width(width[j]);
-      strmatrix << std::right << matrix->GetElement(i, j);
-    }
-    strmatrix << std::endl;
-  }
-  QString result = strmatrix.str().c_str();
   return result;
 }
 //------------------------------------------------------------------------------
