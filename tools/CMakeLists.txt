@@ -294,6 +294,11 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkMergeAsciiDoseActor ITKCommon clitkCommon)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMergeAsciiDoseActor)
 
+  WRAP_GGO(clitkImageUncertainty_GGO_C clitkImageUncertainty.ggo)
+  ADD_EXECUTABLE(clitkImageUncertainty clitkImageUncertainty.cxx clitkImageUncertainty_ggo.c)
+  TARGET_LINK_LIBRARIES(clitkImageUncertainty clitkCommon ${ITK_LIBRARIES})
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageUncertainty)
+
   #=========================================================
   option(CLITK_USE_ROOT "Build experimental tools using root" OFF)
   if (CLITK_USE_ROOT)
