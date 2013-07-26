@@ -26,7 +26,8 @@ public:
     
 	  ~vvQPacsConnection(){}
 	void refreshNetworks();
-	std::vector <std::string> getFileNames();
+	std::vector <std::string> getFileNames(int i_series);
+	int getSeriesCount() { return m_fileseries.size();}
 	void clearMove();
 
 public slots:
@@ -75,6 +76,7 @@ public slots:
 	vvQuery m_query;
 	vvQuery f_query;
 	 gdcm::Directory::FilenamesType m_files;
+	 std::vector < gdcm::Directory::FilenamesType> m_fileseries;
 
 
 	

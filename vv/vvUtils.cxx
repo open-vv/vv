@@ -52,10 +52,14 @@ FileListType GetRecentlyOpenedImages()
 void setDicomClient()
 {
 	QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
-	 settings.beginGroup(QString::fromStdString("DICOMCLIENT"));
-	 settings.setValue("AETITLE",QString::fromStdString("VVDICOMSCU"));
-	 settings.setValue("port",QString::number(1234));
-	 settings.endGroup();
+	if (! settings.childGroups().contains("DICOMCLIENT"))
+	{
+		 settings.beginGroup(QString::fromStdString("DICOMCLIENT"));
+		 settings.setValue("AETITLE",QString::fromStdString("VVDICOMSCU"));
+		 settings.setValue("port",QString::number(1234));
+		 settings.setValue("directory",QDir::homePath() +QString::fromStdString("/.move"));
+		 settings.endGroup();
+	}
 }
 
 // get VV-AETITLE  for c-move. parameters
@@ -69,6 +73,16 @@ std::string getDicomClientAETitle()
 	 return result;
 }
 
+// get the directory where the dicom files will be stored during c-move action.
+std::string getCMoveDirectory()
+{
+	 std::string result ="";
+	QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
+	 settings.beginGroup(QString::fromStdString("DICOMCLIENT"));
+	 result = settings.value("directory").toString().toStdString();
+	 settings.endGroup();
+	 return result;
+}
 
 // get VV-PORT-SCU  for c-move. parameters
 int getDicomClientPort()

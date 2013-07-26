@@ -367,7 +367,7 @@ void vvQPacsConnection::chooseServer(int index)
 void vvQPacsConnection::on_importButton_clicked()
 	{
 		setCursor(QCursor(Qt::WaitCursor));
-		QString path = QDir::homePath() +QString::fromStdString("/.move");
+		QString path = QString::fromStdString(getCMoveDirectory());
 		QDir dirpath (path);
 		if (dirpath.exists())
 		{
@@ -402,16 +402,11 @@ void vvQPacsConnection::on_importButton_clicked()
        std::map<std::string, std::vector<std::string>* > mListOfSeriesFilenames;
 
 
+	   m_fileseries.clear();
+	   
      for (unsigned int i=0; i<seriesUID.size(); i++) {
-
-         // store filenames
-         std::vector<std::string> * filenames = new std::vector<std::string>;
-         m_files = nameGenerator->GetFileNames(seriesUID[i]);
-       /*  for (unsigned int j=0; j<temp.size(); j++) {
-           m_files->push_back(temp[j]);
-         }*/
-
-       }
+		m_fileseries.push_back( nameGenerator->GetFileNames(seriesUID[i]));
+        }
 	   
 	   accept();
 	  setCursor(QCursor(Qt::ArrowCursor));
@@ -419,11 +414,11 @@ void vvQPacsConnection::on_importButton_clicked()
 
 
 
-std::vector <std::string> vvQPacsConnection::getFileNames()
+std::vector <std::string> vvQPacsConnection::getFileNames(int i_series)
 {
 	std::vector <std::string> filenames;
-	gdcm::Directory::FilenamesType::iterator it = m_files.begin();
-	for (;it != m_files.end(); it++)
+	gdcm::Directory::FilenamesType::iterator it = m_fileseries[i_series].begin();
+	for (;it != m_fileseries[i_series].end(); it++)
 		filenames.push_back(it->c_str());
 	return filenames;
 }

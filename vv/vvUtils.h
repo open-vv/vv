@@ -51,5 +51,8 @@ std::string getDicomClientAETitle();
 // get VV-PORT-SCU  for c-move parameters.
 int getDicomClientPort();
 
+// get the directory where the dicom files will be stored during c-move action.
+std::string getCMoveDirectory()
+
 std::map <std::string,std::string > getDicomServer(QString nickname);
 #endif

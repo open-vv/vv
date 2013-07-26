@@ -762,8 +762,11 @@ void vvMainWindow::ConnectPacs()
 
   //std::cout << "dicomSeriesSelector " << std::endl;
 if (PacsConnection->exec() == QDialog::Accepted) {
-	files = PacsConnection->getFileNames();
-    LoadImages(files, vvImageReader::DICOM);
+	for (int i = 0; i < PacsConnection->getSeriesCount(); i++)
+	{
+		files = PacsConnection->getFileNames(i);
+		LoadImages(files, vvImageReader::DICOM);
+	}
 	PacsConnection->clearMove();
   }
   }
