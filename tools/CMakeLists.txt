@@ -292,6 +292,26 @@ IF (CLITK_BUILD_TOOLS)
   ADD_EXECUTABLE(clitkMergeAsciiDoseActor clitkMergeAsciiDoseActor.cxx ${clitkMergeAsciiDoseActor_GGO_C})
   TARGET_LINK_LIBRARIES(clitkMergeAsciiDoseActor ITKCommon clitkCommon)
 
+  #=========================================================
+  option(CLITK_USE_ROOT "Build experimental tools using root" OFF)
+  if (CLITK_USE_ROOT)
+    FIND_PACKAGE(ROOT REQUIRED)
+    if(ROOT_FOUND)
+      MESSAGE(STATUS "ROOT found : ${ROOT_LIBRARY_DIR} ${ROOT_INCLUDE_DIR} ${ROOT_LIBRARIES}")
+    ELSE(ROOT_FOUND)
+      MESSAGE(FATAL_ERROR
+        "Cannot build without ROOT.  Please set ROOTSYS environement variable.")
+    endif(ROOT_FOUND)
+    INCLUDE_DIRECTORIES(${ROOT_INCLUDE_DIR})
+    LINK_DIRECTORIES(${ROOT_LIBRARY_DIR})
+    WRAP_GGO(clitkMergeRootFiles_GGO_C clitkMergeRootFiles.ggo)
+    ADD_EXECUTABLE(clitkMergeRootFiles clitkMergeRootFiles.cxx GateMergeManager.cc ${clitkMergeRootFiles_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkMergeRootFiles ${ROOT_LIBRARIES})
+  endif()
+  #=========================================================
+
+
+  #=========================================================
   IF(CLITK_EXPERIMENTAL)
     WRAP_GGO(clitkBinaryImageToMesh_GGO_C clitkBinaryImageToMesh.ggo)
     ADD_EXECUTABLE(clitkBinaryImageToMesh clitkBinaryImageToMesh.cxx ${clitkBinaryImageToMesh_GGO_C})
@@ -308,7 +328,10 @@ IF (CLITK_BUILD_TOOLS)
     TARGET_LINK_LIBRARIES(clitkMeshViewer clitkCommon)
     SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMeshViewer)
   ENDIF(CLITK_EXPERIMENTAL)
+  #=========================================================
 
+
+  #=========================================================
   IF(ITK_VERSION_MAJOR VERSION_LESS 4)
     MESSAGE("clitkDicomRTPlan2Gate is not compatible with GDCM<2 (ITK<4). It will not be built.")
   ELSE(ITK_VERSION_MAJOR VERSION_LESS 4)
@@ -317,6 +340,8 @@ IF (CLITK_BUILD_TOOLS)
     TARGET_LINK_LIBRARIES(clitkDicomRTPlan2Gate clitkCommon)
     SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkDicomRTPlan2Gate)
   ENDIF(ITK_VERSION_MAJOR VERSION_LESS 4)
+  #=========================================================
+
 
   INSTALL (TARGETS ${TOOLS_INSTALL} DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
