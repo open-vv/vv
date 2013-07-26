@@ -20,6 +20,7 @@
 #define clitkElastix_h
 
 #include <itkEuler3DTransform.h>
+#include <iterator>
 
 //--------------------------------------------------------------------
 namespace clitk {
