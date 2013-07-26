@@ -8,6 +8,8 @@
 #include "vvPacsSettingsDialog.h"
 #include "vvUtils.h"
 #include <algorithm>
+#include <itkGDCMImageIO.h>
+#include <itkGDCMSeriesFileNames.h>
 
 
 vvQPacsConnection::vvQPacsConnection(QWidget *i_parent)
@@ -385,8 +387,31 @@ void vvQPacsConnection::on_importButton_clicked()
 			getDicomClientPort(),  getDicomClientAETitle().c_str(), m_aetitle.c_str(), path.toStdString().c_str() );
 		gdcm::Directory theDir;
 		theDir.Load(path.toStdString().c_str());
-	   m_files =	theDir.GetFilenames();
-	   	std::sort (m_files.begin(), m_files.end()); // make sure names are in lexicographical order
+     //m_files =	theDir.GetFilenames();
+
+     typedef itk::GDCMSeriesFileNames NamesGeneratorType;
+     NamesGeneratorType::Pointer nameGenerator = NamesGeneratorType::New();
+     nameGenerator->SetUseSeriesDetails(true);
+
+     //ds gérer recursive moi-meme pour progress ...
+     nameGenerator->SetInputDirectory(path.toStdString());
+
+     // insert in table
+     typedef std::vector<std::string> SeriesIdContainer;
+     const SeriesIdContainer & seriesUID = nameGenerator->GetSeriesUIDs();
+       std::map<std::string, std::vector<std::string>* > mListOfSeriesFilenames;
+
+
+     for (unsigned int i=0; i<seriesUID.size(); i++) {
+
+         // store filenames
+         std::vector<std::string> * filenames = new std::vector<std::string>;
+         m_files = nameGenerator->GetFileNames(seriesUID[i]);
+       /*  for (unsigned int j=0; j<temp.size(); j++) {
+           m_files->push_back(temp[j]);
+         }*/
+
+       }
 	   
 	   accept();
 	  setCursor(QCursor(Qt::ArrowCursor));
