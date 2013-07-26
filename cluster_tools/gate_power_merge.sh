@@ -420,6 +420,69 @@ function merge_dispatcher {
     error "unknown file type"
 }
 
+function merge_dispatcher_uncertainty {
+    local indent="  ** "
+    local outputfile="${1:?"provide output filename"}"
+
+    local partialoutputfiles="$(find "${rundir}" -mindepth 2 -type f -name "${outputfile}")"
+    local nboutputfiles="$(echo "${partialoutputfiles}" | wc -l)"
+    if test ${nboutputdirs} -ne ${nboutputfiles}
+    then
+        warning "missing files"
+        return
+    fi
+
+    local firstpartialoutputfile="$(echo "${partialoutputfiles}" | head -n 1)"
+    local firstpartialoutputextension="${firstpartialoutputfile##*.}"
+
+    if [[ "${firstpartialoutputfile}" == *Uncertainty* ]]
+    then
+        if test "${firstpartialoutputextension}" == "mhd"
+        then
+            echo "${indent}Uncertainty file found: ${firstpartialoutputfile}"
+            ## search for sum
+            local mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}")"
+            summed_merged_file=${mergedfile//-Uncertainty/}
+            if [ ! -f ${summed_merged_file} ];
+            then
+                warning "${summed_merged_file} does not exist. Error, no uncertainty computed"
+                return;
+            fi
+            echo "${indent}${summed_merged_file} found"
+            ## search for Squared
+            squared_merged_file=${mergedfile//-Uncertainty/-Squared}
+            if [ ! -f ${squared_merged_file} ];
+            then
+                warning "${squared_merged_file} does not exist. Error, no uncertainty computed"
+                return;
+            fi
+            echo "${indent}${squared_merged_file} found"
+            ## search for NumberOfEvent
+            totalEvents=0;
+            for outputfile in $(find "${rundir}" -regextype 'posix-extended' -type f -regex "${rundir}/output.*\.(hdr|mhd|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
+            do
+                #echo $outputfile
+                if grep -q 'NumberOfEvent' "${outputdir}/${outputfile}"
+                then
+                    totalEvents="$(grep "NumberOfEvents" "${outputdir}/${outputfile}" | cut -d' ' -f4)"
+                    echo "${indent}Find the NumberOfEvent in $outputfile: ${totalEvents}"
+                fi
+            done
+
+            if test ${totalEvents} -gt 0
+            then
+                uncerImageMerger="clitkImageUncertainty"
+                test -x "./clitkImageUncertainty" && uncerImageMerger="./clitkImageUncertainty"
+                ${uncerImageMerger} -i ${summed_merged_file} -s ${squared_merged_file} -o ${mergedfile} -n ${totalEvents}
+            else
+                warning "${totalEvents} not positive. A at least one stat file (SimulationStatisticActor) must be provided. Error, no uncertainty computed"
+                return;
+            fi
+        fi
+    fi
+
+}
+
 echo "!!!! this is $0 v0.3k !!!!"
 
 rundir="${1?"provide run dir"}"
@@ -436,12 +499,20 @@ then
 fi
 outputdir="$(basename "${outputdir}")"
 echo "output dir is ${outputdir}"
+
 test -d "${outputdir}" && rm -r "${outputdir}"
 mkdir "${outputdir}"
 
 for outputfile in $(find "${rundir}" -regextype 'posix-extended' -type f -regex "${rundir}/output.*\.(hdr|mhd|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
 do
     merge_dispatcher "${outputfile}"
+done
+
+echo ""
+echo "Merging done. Special case for statistical uncertainty"
+for outputfile in $(find "${outputdir}" -regextype 'posix-extended' -type f -regex "${outputdir}/output.*\.(hdr|mhd|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
+do
+    merge_dispatcher_uncertainty "${outputfile}"
 done
 
 if [ -f "${rundir}/params.txt" ]
