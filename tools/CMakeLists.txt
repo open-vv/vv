@@ -24,6 +24,7 @@ ADD_LIBRARY(clitkMIPLib clitkMIPGenericFilter.cxx ${clitkMIP_GGO_C})
 WRAP_GGO(clitkMedianImageFilter_GGO_C clitkMedianImageFilter.ggo)
 ADD_LIBRARY(clitkMedianImageFilterLib clitkMedianImageGenericFilter.cxx ${clitkMedianImageFilter_GGO_C})
 
+#=========================================================
 IF (CLITK_BUILD_TOOLS)
   WRAP_GGO(clitkDicomInfo_GGO_C clitkDicomInfo.ggo)
   ADD_EXECUTABLE(clitkDicomInfo clitkDicomInfo.cxx ${clitkDicomInfo_GGO_C})
@@ -89,7 +90,7 @@ IF (CLITK_BUILD_TOOLS)
 
   WRAP_GGO(clitkMedianTemporalDimension_GGO_C clitkMedianTemporalDimension.ggo)
   ADD_EXECUTABLE(clitkMedianTemporalDimension clitkMedianTemporalDimension.cxx
-      ${clitkMedianTemporalDimension_GGO_C})
+    ${clitkMedianTemporalDimension_GGO_C})
   TARGET_LINK_LIBRARIES(clitkMedianTemporalDimension clitkCommon )
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMedianTemporalDimension)
 
@@ -128,7 +129,7 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkSetBackground clitkCommon)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkSetBackground)
 
- WRAP_GGO(clitkGammaIndex_GGO_C clitkGammaIndex.ggo)
+  WRAP_GGO(clitkGammaIndex_GGO_C clitkGammaIndex.ggo)
   ADD_EXECUTABLE(clitkGammaIndex clitkGammaIndex.cxx ${clitkGammaIndex_GGO_C})
   TARGET_LINK_LIBRARIES(clitkGammaIndex clitkCommon)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkGammaIndex)
@@ -276,21 +277,22 @@ IF (CLITK_BUILD_TOOLS)
 
   WRAP_GGO(clitkAnisotropicDiffusion_GGO_C clitkAnisotropicDiffusion.ggo)
   ADD_EXECUTABLE(clitkAnisotropicDiffusion clitkAnisotropicDiffusion.cxx
-                                           clitkAnisotropicDiffusionGenericFilter.cxx
-                                           ${clitkAnisotropicDiffusion_GGO_C})
+    clitkAnisotropicDiffusionGenericFilter.cxx
+    ${clitkAnisotropicDiffusion_GGO_C})
   TARGET_LINK_LIBRARIES(clitkAnisotropicDiffusion clitkCommon)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkAnisotropicDiffusion)
 
   WRAP_GGO(clitkChangeImageInfo_GGO_C clitkChangeImageInfo.ggo)
   ADD_EXECUTABLE(clitkChangeImageInfo clitkChangeImageInfo.cxx
-                                      clitkChangeImageInfoGenericFilter.cxx
-                                      ${clitkChangeImageInfo_GGO_C})
+    clitkChangeImageInfoGenericFilter.cxx
+    ${clitkChangeImageInfo_GGO_C})
   TARGET_LINK_LIBRARIES(clitkChangeImageInfo clitkCommon)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkChangeImageInfo)
 
   WRAP_GGO(clitkMergeAsciiDoseActor_GGO_C clitkMergeAsciiDoseActor.ggo)
   ADD_EXECUTABLE(clitkMergeAsciiDoseActor clitkMergeAsciiDoseActor.cxx ${clitkMergeAsciiDoseActor_GGO_C})
   TARGET_LINK_LIBRARIES(clitkMergeAsciiDoseActor ITKCommon clitkCommon)
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMergeAsciiDoseActor)
 
   #=========================================================
   option(CLITK_USE_ROOT "Build experimental tools using root" OFF)
@@ -307,6 +309,7 @@ IF (CLITK_BUILD_TOOLS)
     WRAP_GGO(clitkMergeRootFiles_GGO_C clitkMergeRootFiles.ggo)
     ADD_EXECUTABLE(clitkMergeRootFiles clitkMergeRootFiles.cxx GateMergeManager.cc ${clitkMergeRootFiles_GGO_C})
     TARGET_LINK_LIBRARIES(clitkMergeRootFiles ${ROOT_LIBRARIES})
+    SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMergeRootFiles)
   endif()
   #=========================================================
 
