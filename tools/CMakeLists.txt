@@ -288,6 +288,10 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkChangeImageInfo clitkCommon)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkChangeImageInfo)
 
+  WRAP_GGO(clitkMergeAsciiDoseActor_GGO_C clitkMergeAsciiDoseActor.ggo)
+  ADD_EXECUTABLE(clitkMergeAsciiDoseActor clitkMergeAsciiDoseActor.cxx ${clitkMergeAsciiDoseActor_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkMergeAsciiDoseActor ITKCommon clitkCommon)
+
   IF(CLITK_EXPERIMENTAL)
     WRAP_GGO(clitkBinaryImageToMesh_GGO_C clitkBinaryImageToMesh.ggo)
     ADD_EXECUTABLE(clitkBinaryImageToMesh clitkBinaryImageToMesh.cxx ${clitkBinaryImageToMesh_GGO_C})
