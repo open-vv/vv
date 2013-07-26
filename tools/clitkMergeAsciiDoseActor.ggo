@@ -1,0 +1,10 @@
+# file clitkMergeAsciiDoseActor.ggo
+package "clitk"
+version "Add values from two ASCII files (must contains list of numbers)"
+
+option "config"	  	 - "Config file"		 string  	no
+option "input1"		 i "Input ASCII file"		 string		yes
+option "input2"		 j "Input ASCII file"		 string		yes
+option "output"		 o "Output ASCII file"		 string		yes
+
+

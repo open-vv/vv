@@ -24,6 +24,7 @@ ADD_LIBRARY(clitkMIPLib clitkMIPGenericFilter.cxx ${clitkMIP_GGO_C})
 WRAP_GGO(clitkMedianImageFilter_GGO_C clitkMedianImageFilter.ggo)
 ADD_LIBRARY(clitkMedianImageFilterLib clitkMedianImageGenericFilter.cxx ${clitkMedianImageFilter_GGO_C})
 
+#=========================================================
 IF (CLITK_BUILD_TOOLS)
   WRAP_GGO(clitkDicomInfo_GGO_C clitkDicomInfo.ggo)
   ADD_EXECUTABLE(clitkDicomInfo clitkDicomInfo.cxx ${clitkDicomInfo_GGO_C})
@@ -89,7 +90,7 @@ IF (CLITK_BUILD_TOOLS)
 
   WRAP_GGO(clitkMedianTemporalDimension_GGO_C clitkMedianTemporalDimension.ggo)
   ADD_EXECUTABLE(clitkMedianTemporalDimension clitkMedianTemporalDimension.cxx
-      ${clitkMedianTemporalDimension_GGO_C})
+    ${clitkMedianTemporalDimension_GGO_C})
   TARGET_LINK_LIBRARIES(clitkMedianTemporalDimension clitkCommon )
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMedianTemporalDimension)
 
@@ -118,12 +119,17 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkMatrixToElastixTransform clitkCommon )
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMatrixToElastixTransform)
 
+  WRAP_GGO(clitkMatrixInverse_GGO_C clitkMatrixInverse.ggo)
+  ADD_EXECUTABLE(clitkMatrixInverse clitkMatrixInverse.cxx ${clitkMatrixInverse_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkMatrixInverse clitkCommon )
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMatrixInverse)
+
   WRAP_GGO(clitkSetBackground_GGO_C clitkSetBackground.ggo)
   ADD_EXECUTABLE(clitkSetBackground clitkSetBackground.cxx clitkSetBackgroundGenericFilter.cxx ${clitkSetBackground_GGO_C})
   TARGET_LINK_LIBRARIES(clitkSetBackground clitkCommon)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkSetBackground)
 
- WRAP_GGO(clitkGammaIndex_GGO_C clitkGammaIndex.ggo)
+  WRAP_GGO(clitkGammaIndex_GGO_C clitkGammaIndex.ggo)
   ADD_EXECUTABLE(clitkGammaIndex clitkGammaIndex.cxx ${clitkGammaIndex_GGO_C})
   TARGET_LINK_LIBRARIES(clitkGammaIndex clitkCommon)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkGammaIndex)
@@ -138,12 +144,12 @@ IF (CLITK_BUILD_TOOLS)
 
   WRAP_GGO(clitkUnsharpMask_GGO_C clitkUnsharpMask.ggo)
   ADD_EXECUTABLE(clitkUnsharpMask clitkUnsharpMask.cxx ${clitkUnsharpMask_GGO_C})
-  TARGET_LINK_LIBRARIES(clitkUnsharpMask clitkCommon ) 
+  TARGET_LINK_LIBRARIES(clitkUnsharpMask clitkCommon )
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkUnsharpMask)
 
   WRAP_GGO(clitkFooImage_GGO_C clitkFooImage.ggo)
   ADD_EXECUTABLE(clitkFooImage clitkFooImage.cxx ${clitkFooImage_GGO_C})
-  TARGET_LINK_LIBRARIES(clitkFooImage clitkCommon ) 
+  TARGET_LINK_LIBRARIES(clitkFooImage clitkCommon )
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkFooImage)
 
   #WRAP_GGO(clitkMedianImageFilter_GGO_C clitkMedianImageFilter.ggo)
@@ -199,7 +205,7 @@ IF (CLITK_BUILD_TOOLS)
   # ADD_EXECUTABLE(clitkExtractSlice clitkExtractSlice.cxx clitkExtractSliceGenericFilter.cxx ${clitkExtractSlice_GGO_C})
   # TARGET_LINK_LIBRARIES(clitkExtractSlice clitkCommon)
   #SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkExtractSlice)
-  
+
   WRAP_GGO(clitkFlipImage_GGO_C clitkFlipImage.ggo)
   ADD_EXECUTABLE(clitkFlipImage clitkFlipImage.cxx clitkFlipImageGenericFilter.cxx ${clitkFlipImage_GGO_C})
   TARGET_LINK_LIBRARIES(clitkFlipImage clitkCommon)
@@ -244,6 +250,11 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkTransformLandmarks clitkCommon)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkTransformLandmarks)
 
+  WRAP_GGO(clitkDice_GGO_C clitkDice.ggo)
+  ADD_EXECUTABLE(clitkDice clitkDice.cxx ${clitkDice_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkDice clitkSegmentationGgoLib clitkCommon ${ITK_LIBRARIES} )
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkDice)
+
   WRAP_GGO(clitkMaskLandmarks_GGO_C clitkMaskLandmarks.ggo)
   ADD_EXECUTABLE(clitkMaskLandmarks clitkMaskLandmarks.cxx ${clitkMaskLandmarks_GGO_C})
   TARGET_LINK_LIBRARIES(clitkMaskLandmarks clitkCommon)
@@ -253,7 +264,7 @@ IF (CLITK_BUILD_TOOLS)
   ADD_EXECUTABLE(clitkJacobianImage clitkJacobianImage.cxx clitkJacobianImageGenericFilter.cxx ${clitkJacobianImage_GGO_C})
   TARGET_LINK_LIBRARIES(clitkJacobianImage clitkCommon)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkJacobianImage)
-  
+
   WRAP_GGO(clitkPadImage_GGO_C clitkPadImage.ggo)
   ADD_EXECUTABLE(clitkPadImage clitkPadImage.cxx clitkPadImageGenericFilter.cxx ${clitkPadImage_GGO_C})
   TARGET_LINK_LIBRARIES(clitkPadImage clitkCommon)
@@ -266,18 +277,44 @@ IF (CLITK_BUILD_TOOLS)
 
   WRAP_GGO(clitkAnisotropicDiffusion_GGO_C clitkAnisotropicDiffusion.ggo)
   ADD_EXECUTABLE(clitkAnisotropicDiffusion clitkAnisotropicDiffusion.cxx
-                                           clitkAnisotropicDiffusionGenericFilter.cxx
-                                           ${clitkAnisotropicDiffusion_GGO_C})
+    clitkAnisotropicDiffusionGenericFilter.cxx
+    ${clitkAnisotropicDiffusion_GGO_C})
   TARGET_LINK_LIBRARIES(clitkAnisotropicDiffusion clitkCommon)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkAnisotropicDiffusion)
 
   WRAP_GGO(clitkChangeImageInfo_GGO_C clitkChangeImageInfo.ggo)
   ADD_EXECUTABLE(clitkChangeImageInfo clitkChangeImageInfo.cxx
-                                      clitkChangeImageInfoGenericFilter.cxx
-                                      ${clitkChangeImageInfo_GGO_C})
+    clitkChangeImageInfoGenericFilter.cxx
+    ${clitkChangeImageInfo_GGO_C})
   TARGET_LINK_LIBRARIES(clitkChangeImageInfo clitkCommon)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkChangeImageInfo)
 
+  WRAP_GGO(clitkMergeAsciiDoseActor_GGO_C clitkMergeAsciiDoseActor.ggo)
+  ADD_EXECUTABLE(clitkMergeAsciiDoseActor clitkMergeAsciiDoseActor.cxx ${clitkMergeAsciiDoseActor_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkMergeAsciiDoseActor ITKCommon clitkCommon)
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMergeAsciiDoseActor)
+
+  #=========================================================
+  option(CLITK_USE_ROOT "Build experimental tools using root" OFF)
+  if (CLITK_USE_ROOT)
+    FIND_PACKAGE(ROOT REQUIRED)
+    if(ROOT_FOUND)
+      MESSAGE(STATUS "ROOT found : ${ROOT_LIBRARY_DIR} ${ROOT_INCLUDE_DIR} ${ROOT_LIBRARIES}")
+    ELSE(ROOT_FOUND)
+      MESSAGE(FATAL_ERROR
+        "Cannot build without ROOT.  Please set ROOTSYS environement variable.")
+    endif(ROOT_FOUND)
+    INCLUDE_DIRECTORIES(${ROOT_INCLUDE_DIR})
+    LINK_DIRECTORIES(${ROOT_LIBRARY_DIR})
+    WRAP_GGO(clitkMergeRootFiles_GGO_C clitkMergeRootFiles.ggo)
+    ADD_EXECUTABLE(clitkMergeRootFiles clitkMergeRootFiles.cxx GateMergeManager.cc ${clitkMergeRootFiles_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkMergeRootFiles ${ROOT_LIBRARIES})
+    SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMergeRootFiles)
+  endif()
+  #=========================================================
+
+
+  #=========================================================
   IF(CLITK_EXPERIMENTAL)
     WRAP_GGO(clitkBinaryImageToMesh_GGO_C clitkBinaryImageToMesh.ggo)
     ADD_EXECUTABLE(clitkBinaryImageToMesh clitkBinaryImageToMesh.cxx ${clitkBinaryImageToMesh_GGO_C})
@@ -294,7 +331,10 @@ IF (CLITK_BUILD_TOOLS)
     TARGET_LINK_LIBRARIES(clitkMeshViewer clitkCommon)
     SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMeshViewer)
   ENDIF(CLITK_EXPERIMENTAL)
+  #=========================================================
 
+
+  #=========================================================
   IF(ITK_VERSION_MAJOR VERSION_LESS 4)
     MESSAGE("clitkDicomRTPlan2Gate is not compatible with GDCM<2 (ITK<4). It will not be built.")
   ELSE(ITK_VERSION_MAJOR VERSION_LESS 4)
@@ -303,8 +343,9 @@ IF (CLITK_BUILD_TOOLS)
     TARGET_LINK_LIBRARIES(clitkDicomRTPlan2Gate clitkCommon)
     SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkDicomRTPlan2Gate)
   ENDIF(ITK_VERSION_MAJOR VERSION_LESS 4)
+  #=========================================================
+
 
   INSTALL (TARGETS ${TOOLS_INSTALL} DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
 ENDIF(CLITK_BUILD_TOOLS)
-

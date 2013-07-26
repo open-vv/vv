@@ -19,6 +19,9 @@
 #ifndef clitkElastix_h
 #define clitkElastix_h
 
+#include <itkEuler3DTransform.h>
+#include <iterator>
+
 //--------------------------------------------------------------------
 namespace clitk {
 
@@ -69,8 +72,8 @@ createMatrixFromElastixFile(std::vector<std::string> & filename, bool verbose=tr
   }
   typename itk::Matrix<double, Dimension+1, Dimension+1> matrix;
 
-  itk::CenteredEuler3DTransform<double>::Pointer mat = itk::CenteredEuler3DTransform<double>::New();
-  itk::CenteredEuler3DTransform<double>::Pointer previous;
+  itk::Euler3DTransform<double>::Pointer mat = itk::Euler3DTransform<double>::New();
+  itk::Euler3DTransform<double>::Pointer previous;
   for(uint j=0; j<filename.size(); j++) {
 
     // Open file
@@ -98,6 +101,14 @@ createMatrixFromElastixFile(std::vector<std::string> & filename, bool verbose=tr
     }
     std::vector<std::string> cor;
     GetValuesFromValue(s, cor);
+    itk::Euler3DTransform<double>::CenterType c;
+    for(uint i=0; i<3; i++)
+      c[i] = atof(cor[i].c_str());
+    mat->SetCenter(c);
+
+    // Get Transformparameters
+    GetElastixValueFromTag(is, "ComputeZYX ", s); // space is needed
+    mat->SetComputeZYX( s==std::string("true") );
 
     // Get Transformparameters
     GetElastixValueFromTag(is, "TransformParameters ", s); // space is needed
@@ -108,20 +119,18 @@ createMatrixFromElastixFile(std::vector<std::string> & filename, bool verbose=tr
     GetValuesFromValue(s, results);
 
     // construct a stream from the string
-    itk::CenteredEuler3DTransform<double>::ParametersType p;
-    p.SetSize(9);
+    itk::Euler3DTransform<double>::ParametersType p;
+    p.SetSize(6);
     for(uint i=0; i<3; i++)
       p[i] = atof(results[i].c_str()); // Rotation
     for(uint i=0; i<3; i++)
-      p[i+3] = atof(cor[i].c_str()); // Centre of rotation
-    for(uint i=0; i<3; i++)
-      p[i+6] = atof(results[i+3].c_str()); // Translation
+      p[i+3] = atof(results[i+3].c_str()); // Translation
     mat->SetParameters(p);
 
     if (verbose) {
       std::cout << "Rotation      (deg) : " << rad2deg(p[0]) << " " << rad2deg(p[1]) << " " << rad2deg(p[2]) << std::endl;
-      std::cout << "Center of rot (phy) : " << p[3] << " " << p[4] << " " << p[5] << std::endl;
-      std::cout << "Translation   (phy) : " << p[6] << " " << p[7] << " " << p[8] << std::endl;
+      std::cout << "Center of rot (phy) : " << c[0] << " " << c[1] << " " << c[2] << std::endl;
+      std::cout << "Translation   (phy) : " << p[3] << " " << p[4] << " " << p[5] << std::endl;
     }
 
     // Compose with previous if needed
@@ -134,8 +143,10 @@ createMatrixFromElastixFile(std::vector<std::string> & filename, bool verbose=tr
       }
     }
     // previous = mat->Clone(); // ITK4
-    previous = itk::CenteredEuler3DTransform<double>::New();
+    previous = itk::Euler3DTransform<double>::New();
     previous->SetParameters(mat->GetParameters());
+    previous->SetCenter(c);
+    previous->SetComputeZYX(mat->GetComputeZYX());
   }
 
   mat = previous;

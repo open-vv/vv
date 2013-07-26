@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://www.centreleonberard.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -26,17 +26,19 @@ LabelImageOverlapMeasureFilter():
   this->SetNumberOfRequiredInputs(2);
   SetLabel1(1);
   SetLabel2(1);
-  SetBackgroundValue(0);
+  m_BackgroundValue = 0;
+  SetVerboseFlag(false);
+  SetLongFlag(false);
 }
 //--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------
 template <class ImageType>
-void 
+void
 clitk::LabelImageOverlapMeasureFilter<ImageType>::
-GenerateOutputInformation() 
-{ 
+GenerateOutputInformation()
+{
   // DD("GenerateOutputInformation");
   //ImagePointer input = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
   // ImagePointer outputImage = this->GetOutput(0);
@@ -47,9 +49,9 @@ GenerateOutputInformation()
 
 //--------------------------------------------------------------------
 template <class ImageType>
-void 
+void
 clitk::LabelImageOverlapMeasureFilter<ImageType>::
-GenerateInputRequestedRegion() 
+GenerateInputRequestedRegion()
 {
   // Call default
   itk::ImageToImageFilter<ImageType, ImageType>::GenerateInputRequestedRegion();
@@ -63,12 +65,10 @@ GenerateInputRequestedRegion()
 
 //--------------------------------------------------------------------
 template <class ImageType>
-void 
+void
 clitk::LabelImageOverlapMeasureFilter<ImageType>::
-GenerateData() 
+GenerateData()
 {
-  // DD("GenerateData");
-
   // Get input pointer
   m_Input1 = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(0));
   m_Input2 = dynamic_cast<ImageType*>(itk::ProcessObject::GetInput(1));
@@ -86,60 +86,14 @@ GenerateData()
   // Resize like the union
   ImagePointer input1 = clitk::ResizeImageLike<ImageType>(m_Input1, bbo, GetBackgroundValue());
   ImagePointer input2 = clitk::ResizeImageLike<ImageType>(m_Input2, bbo, GetBackgroundValue());
-  //DD(input1->GetLargestPossibleRegion());
-  //DD(input2->GetLargestPossibleRegion());
+  /*
+    if (GetVerboseFlag()) {
+    std::cout << "Resize images to the union of bounding boxes: "
+    <<  input1->GetLargestPossibleRegion().GetSize() << std::endl;
+    }
+  */
 
-  // Compute overlap image
-  ImagePointer image_union = clitk::Clone<ImageType>(input1);
-  ImagePointer image_intersection = clitk::Clone<ImageType>(input1);
-  clitk::Or<ImageType>(image_union, input2, GetBackgroundValue());
-  clitk::And<ImageType>(image_intersection, input2, GetBackgroundValue());
-
-  ImagePointer image_1NotIn2 = clitk::Clone<ImageType>(input1);
-  clitk::AndNot<ImageType>(image_1NotIn2, input2, GetBackgroundValue());
-  
-  ImagePointer image_2NotIn1 = clitk::Clone<ImageType>(input2);
-  clitk::AndNot<ImageType>(image_2NotIn1, input1, GetBackgroundValue());
-
-  //writeImage<ImageType>(image_union, "union.mha");
-  //writeImage<ImageType>(image_intersection, "intersection.mha");
-  //writeImage<ImageType>(image_1NotIn2, "image_1NotIn2.mha");
-  //writeImage<ImageType>(image_2NotIn1, "image_2NotIn1.mha");
-  
-  // Compute size
-  typedef itk::LabelStatisticsImageFilter<ImageType, ImageType> StatFilterType;
-  typename StatFilterType::Pointer statFilter = StatFilterType::New();
-  statFilter->SetInput(image_union);
-  statFilter->SetLabelInput(image_union);
-  statFilter->Update();
-  int u = statFilter->GetCount(GetLabel1());
-
-  statFilter->SetInput(image_intersection);
-  statFilter->SetLabelInput(image_intersection);
-  statFilter->Update();
-  int inter = statFilter->GetCount(GetLabel1());
-  
-  statFilter->SetInput(m_Input1);
-  statFilter->SetLabelInput(m_Input1);
-  statFilter->Update();
-  int in1 = statFilter->GetCount(GetLabel1());
-
-  statFilter->SetInput(m_Input2);
-  statFilter->SetLabelInput(m_Input2);
-  statFilter->Update();
-  int in2 = statFilter->GetCount(GetLabel1());
-
-  statFilter->SetInput(image_1NotIn2);
-  statFilter->SetLabelInput(image_1NotIn2);
-  statFilter->Update();
-  int l1notIn2 = statFilter->GetCount(GetLabel1());
-
-  statFilter->SetInput(image_2NotIn1);
-  statFilter->SetLabelInput(image_2NotIn1);
-  statFilter->Update();
-  int l2notIn1 = statFilter->GetCount(GetLabel1());
-
-  double dice = 2.0*(double)inter/(double)(in1+in2);
+  /*
   int width = 6;
   std::cout << std::setw(width) << in1 << " "
             << std::setw(width) << in2 << " "
@@ -148,6 +102,38 @@ GenerateData()
             << std::setw(width) << l1notIn2  << " "
             << std::setw(width) << l2notIn1  << " "
             << std::setw(width) << dice << " "; //std::endl;
+  */
+
+  // Compute overlap, dice
+  typedef itk::LabelOverlapMeasuresImageFilter<ImageType> FilterType;
+  typename FilterType::Pointer diceFilter = FilterType::New();
+  diceFilter->SetSourceImage(input1);
+  diceFilter->SetTargetImage(input2);
+  diceFilter->Update();
+
+  // Display information
+  if (!GetLongFlag()) {
+    if (GetVerboseFlag()) {
+      std::cout << "Dice : ";
+    }
+    std::cout << diceFilter->GetDiceCoefficient() << std::endl;
+  }
+  else { // long options
+    if (GetVerboseFlag()) {
+      std::cout << "Dice     Jaccard   Source Target Inter  Union   SrComp TarComp" << std::endl;
+    }
+    typename FilterType::MapType m = diceFilter->GetLabelSetMeasures();
+    int width = 6;
+    std::cout << std::setw(width) << diceFilter->GetDiceCoefficient() << " "
+              << std::setw(width) << diceFilter->GetJaccardCoefficient() << " "
+              << std::setw(width) << m[m_Label1].m_Source << " "
+              << std::setw(width) << m[m_Label2].m_Target << " "
+              << std::setw(width) << m[m_Label1].m_Intersection << " "
+              << std::setw(width) << m[m_Label1].m_Union << " "
+              << std::setw(width) << m[m_Label1].m_SourceComplement << " "
+              << std::setw(width) << m[m_Label2].m_TargetComplement << " "
+              << std::endl;
+  }
+
 }
 //--------------------------------------------------------------------
-

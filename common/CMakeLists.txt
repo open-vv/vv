@@ -39,6 +39,7 @@ SET(clitkCommon_SRC
   clitkExceptionObject.cxx
   clitkFilterBase.cxx
   clitkMemoryUsage.cxx
+  clitkMatrix.cxx
   vvImage.cxx
   vvImageReader.cxx
   vvImageWriter.cxx

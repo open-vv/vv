@@ -17,28 +17,35 @@
 ===========================================================================**/
 
 // clitk
-#include "clitkElastixTransformToMatrix_ggo.h"
-#include "clitkAffineTransformGenericFilter.h"
-#include "clitkElastix.h"
+#include "clitkMatrixInverse_ggo.h"
+#include "clitkTransformUtilities.h"
+#include "clitkIO.h"
 #include "clitkMatrix.h"
 
 //--------------------------------------------------------------------
 int main(int argc, char * argv[])
 {
-
   // Init command line
-  GGO(clitkElastixTransformToMatrix, args_info);
+  GGO(clitkMatrixInverse, args_info);
   CLITK_INIT;
 
-  // Use static fct of AffineTransformGenericFilter
-  std::vector<std::string> l;
-  l.push_back(args_info.input_arg);
-  itk::Matrix<double, 4, 4> m = clitk::createMatrixFromElastixFile<3>(l, args_info.verbose_flag);
+  // Read matrix
+  itk::Matrix<double, 4, 4> matrix;
+  try {
+    matrix = clitk::ReadMatrix3D(args_info.input_arg);
+  }
+  catch (itk::ExceptionObject & err) {
+    std::cerr << "Error reading " << args_info.input_arg << std::endl;
+    std::cerr << err.GetDescription() << std::endl;
+    exit(-1);
+  }
+
+  matrix = matrix.GetInverse();
 
   // Print matrix
   std::ofstream os;
   clitk::openFileForWriting(os, args_info.output_arg);
-  os << clitk::Get4x4MatrixDoubleAsString(m, 16);
+  os << clitk::Get4x4MatrixDoubleAsString(matrix, 16);
   os.close();
 
   return EXIT_SUCCESS;
