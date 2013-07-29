@@ -109,7 +109,7 @@ SET(VTK_DIR ${build_prefix}/VTK)
    GDCM
    SOURCE_DIR ${source_prefix}/gdcm
    GIT_REPOSITORY git://git.code.sf.net/p/gdcm/gdcm 
-   GIT_TAG v2.2.3
+   GIT_TAG v2.2.4
    INSTALL_COMMAND ""
    CMAKE_ARGS
    -DQT_QMAKE_EXECUTABLE:FILEPATH=${qmake_executable}
@@ -175,7 +175,8 @@ ExternalProject_Add(
   DEPENDS QT VTK ITK GDCM
   SOURCE_DIR ${source_prefix}/vv
   GIT_REPOSITORY git://git.creatis.insa-lyon.fr/clitk
-  INSTALL_COMMAND ${MAKE_COMMAND} package
+  INSTALL_DIR ${install_prefix}
+  INSTALL_COMMAND  make install 
   CMAKE_ARGS
     -DQT_QMAKE_EXECUTABLE:FILEPATH=${qmake_executable}
     -DGDCM_DIR:PATH=${GDCM_DIR}
