@@ -39,7 +39,7 @@
 #include "itkImageRegionConstIterator.h"
 #include "itkImageRegionIterator.h"
 
-#include <cmath> // for isfinite
+#include <limits>
 
 //====================================================================
 int main(int argc, char * argv[]) {
@@ -79,7 +79,7 @@ int main(int argc, char * argv[]) {
 	double squared = pii.Get();
 	double mean = pi.Get();
 	double uncert = sqrt((NumberOfEvents*squared - mean*mean) / ((NumberOfEvents-1)*(mean*mean)));
-	if (!std::isnormal(uncert)) uncert = 1.;
+        if (uncert != uncert || uncert == std::numeric_limits<double>::infinity() || uncert == -std::numeric_limits<double>::infinity()) uncert = 1.;
 	po.Set(uncert);
 	++pi;
 	++pii;
