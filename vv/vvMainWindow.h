@@ -69,7 +69,6 @@ class vvMainWindow: public vvMainWindowBase,
   void SaveCurrentStateAs(const std::string& stateFile);
   void ReadSavedStateFile(const std::string& stateFile);
 	void LinkAllImages();
-  QString Get4x4MatrixDoubleAsString(vtkSmartPointer<vtkMatrix4x4> matrix, const int precision=3);
 
   virtual void UpdateCurrentSlicer();
   virtual QTabWidget * GetTab();

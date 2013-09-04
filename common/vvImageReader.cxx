@@ -22,6 +22,7 @@
 #include "vvImageReader.h"
 #include "vvImageReader.txx"
 #include "clitkTransformUtilities.h"
+#include "clitkElastix.h"
 
 //------------------------------------------------------------------------------
 vvImageReader::vvImageReader()
@@ -150,18 +151,20 @@ void vvImageReader::ReadMatImageTransform()
 {
   std::string filename(mInputFilenames[0]);
   std::string ext(itksys::SystemTools::GetFilenameLastExtension(filename));
+
+  // Try a ".mat" extension
   if (ext.length() > 0) {
     size_t pos = filename.rfind(ext);
     filename.replace(pos, ext.length(), ".mat");
   }
   else
     filename += ".mat";
-    
   std::ifstream f(filename.c_str());
+  itk::Matrix<double, 4, 4> itkMat;
+  bool itkMatRead = false;
   if(f.is_open()) {
-    f.close();
+    itkMatRead = true;
 
-    itk::Matrix<double, 4, 4> itkMat;
     itkMat.SetIdentity();
     try {
       itkMat = clitk::ReadMatrix3D(filename);
@@ -169,8 +172,29 @@ void vvImageReader::ReadMatImageTransform()
     catch (itk::ExceptionObject & err) {
       itkWarningMacro(<< "Found " << filename
                       << " but this is not a 4x4 matrix so it is ignored.");
+      itkMatRead = false;
     }
+  }
+  f.close();
 
+  // Try a ".elx" extension
+  filename = mInputFilenames[0];
+  if (ext.length() > 0) {
+    size_t pos = filename.rfind(ext);
+    filename.replace(pos, ext.length(), ".elx");
+  }
+  else
+    filename += ".elx";
+  f.open(filename.c_str());
+  if(!itkMatRead && f.is_open()) {
+    itkMatRead = true;
+    std::vector<std::string> l;
+    l.push_back(filename);
+    itkMat = clitk::createMatrixFromElastixFile<3>(l, true);
+  }
+  f.close();
+
+  if(itkMatRead) {
     vtkSmartPointer<vtkMatrix4x4> matrix = vtkSmartPointer<vtkMatrix4x4>::New();
     matrix->Identity();
     for(int j=0; j<4; j++)
@@ -208,12 +232,12 @@ void vvImageReader::ReadMatImageTransform()
     //for image sequences, apply the transform to each images of the sequence
     if (mImage->IsTimeSequence())
     {
-    	for (unsigned i = 1 ; i<mImage->GetTransform().size() ; i++)
-        {
-            mImage->GetTransform()[i]->PreMultiply();
-            mImage->GetTransform()[i]->Concatenate(matrix);
-            mImage->GetTransform()[i]->Update();
-        }
+      for (unsigned i = 1 ; i<mImage->GetTransform().size() ; i++)
+      {
+        mImage->GetTransform()[i]->PreMultiply();
+        mImage->GetTransform()[i]->Concatenate(matrix);
+        mImage->GetTransform()[i]->Update();
+      }
     }
 
   }

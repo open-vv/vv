@@ -104,12 +104,35 @@ SET(VTK_DIR ${build_prefix}/VTK)
 #=========================================================
 
 #=========================================================
+# GDCM
+   ExternalProject_Add(
+   GDCM
+   SOURCE_DIR ${source_prefix}/gdcm
+   GIT_REPOSITORY git://git.code.sf.net/p/gdcm/gdcm 
+   GIT_TAG v2.2.4
+   INSTALL_COMMAND ""
+   CMAKE_ARGS
+   -DCMAKE_C_FLAGS_DEBUG:STRING=${CMAKE_C_FLAGS_DEBUG}
+   -DCMAKE_C_FLAGS_MINSIZEREL:STRING=${CMAKE_C_FLAGS_MINSIZEREL}
+   -DCMAKE_C_FLAGS_RELEASE:STRING=${CMAKE_C_FLAGS_RELEASE}
+   -DCMAKE_C_FLAGS_RELWITHDEBINFO:STRING=${CMAKE_C_FLAGS_RELWITHDEBINFO}
+   -DCMAKE_CXX_FLAGS_DEBUG:STRING=${CMAKE_CXX_FLAGS_DEBUG}
+   -DCMAKE_CXX_FLAGS_MINSIZEREL:STRING=${CMAKE_CXX_FLAGS_MINSIZEREL}
+   -DCMAKE_CXX_FLAGS_RELEASE:STRING=${CMAKE_CXX_FLAGS_RELEASE}
+   -DCMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING=${CMAKE_CXX_FLAGS_RELWITHDEBINFO}
+   -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_PREFIX}
+   -DCMAKE_BUILD_TYPE:STRING=${build_type}
+)
+SET(GDCM_DIR ${build_prefix}/GDCM)
+#=========================================================
+
+#=========================================================
 # ITK
 ExternalProject_Add(
   ITK
   SOURCE_DIR ${source_prefix}/itk
   GIT_REPOSITORY git://itk.org/ITK.git
-  GIT_TAG v4.2.0
+  GIT_TAG v4.4.0
   INSTALL_COMMAND ""
   CMAKE_ARGS
     -DCMAKE_C_FLAGS_DEBUG:STRING=${CMAKE_C_FLAGS_DEBUG}
@@ -148,12 +171,14 @@ endif(MSVC)
 
 ExternalProject_Add(
   VV
-  DEPENDS QT VTK ITK
+  DEPENDS QT VTK ITK GDCM
   SOURCE_DIR ${source_prefix}/vv
   GIT_REPOSITORY git://git.creatis.insa-lyon.fr/clitk
-  INSTALL_COMMAND ${MAKE_COMMAND} package
+  INSTALL_DIR ${install_prefix}
+  INSTALL_COMMAND  make install 
   CMAKE_ARGS
     -DQT_QMAKE_EXECUTABLE:FILEPATH=${qmake_executable}
+    -DGDCM_DIR:PATH=${GDCM_DIR}
     -DITK_DIR:PATH=${ITK_DIR}
     -DVTK_DIR:PATH=${VTK_DIR}
     -DCMAKE_C_FLAGS_DEBUG:STRING=${CMAKE_C_FLAGS_DEBUG}

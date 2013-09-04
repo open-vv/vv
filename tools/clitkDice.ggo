@@ -1,0 +1,17 @@
+#File clitkDice.ggo
+package "clitkDice"
+version "1.0"
+purpose "Compute Dice between labeled images. Background must be 0."
+
+section "General options"
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+option "imagetypes"     -       "Display allowed image types"     flag          off
+option "long"           l       "Long display (not only dice)"    flag          off
+
+section "Input"
+option "input1"         i	"Input mask 1"          string  	yes
+option "input2"		j	"Input mask 2"	        string  	yes
+
+option "label1"		-	"Label in input1"	int          no      default="1"
+option "label2"		-	"Label in input2"	int          no      default="1"

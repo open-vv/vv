@@ -23,6 +23,7 @@
 #include "itkPoint.h"
 #include "clitkImageCommon.h"
 #include "clitkCommon.h"
+#define VTK_EXCLUDE_STRSTREAM_HEADERS
 #include <vtkMatrix4x4.h>
 #include <vtkSmartPointer.h>
  

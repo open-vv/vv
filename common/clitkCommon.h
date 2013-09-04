@@ -43,6 +43,8 @@
 #  include <stdint.h>
 #endif
 
+#define VTK_EXCLUDE_STRSTREAM_HEADERS
+
 //--------------------------------------------------------------------
 namespace clitk {
 

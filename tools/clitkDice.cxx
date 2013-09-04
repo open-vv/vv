@@ -17,31 +17,31 @@
 ===========================================================================**/
 
 // clitk
-#include "clitkElastixTransformToMatrix_ggo.h"
-#include "clitkAffineTransformGenericFilter.h"
-#include "clitkElastix.h"
-#include "clitkMatrix.h"
+#include "clitkIO.h"
+#include "clitkDice_ggo.h"
+
+#include "clitkLabelImageOverlapMeasureGenericFilter.h"
 
 //--------------------------------------------------------------------
-int main(int argc, char * argv[])
-{
+int main(int argc, char * argv[]) {
 
   // Init command line
-  GGO(clitkElastixTransformToMatrix, args_info);
+  GGO(clitkDice, args_info);
   CLITK_INIT;
 
-  // Use static fct of AffineTransformGenericFilter
-  std::vector<std::string> l;
-  l.push_back(args_info.input_arg);
-  itk::Matrix<double, 4, 4> m = clitk::createMatrixFromElastixFile<3>(l, args_info.verbose_flag);
+  // Filter
+  typedef clitk::LabelImageOverlapMeasureGenericFilter<args_info_clitkDice> FilterType;
+  FilterType::Pointer filter = FilterType::New();
 
-  // Print matrix
-  std::ofstream os;
-  clitk::openFileForWriting(os, args_info.output_arg);
-  os << clitk::Get4x4MatrixDoubleAsString(m, 16);
-  os.close();
+  filter->SetArgsInfo(args_info);
+
+  try {
+    filter->Update();
+  } catch(std::runtime_error e) {
+    std::cout << e.what() << std::endl;
+    return EXIT_FAILURE;
+  }
 
   return EXIT_SUCCESS;
-}// end main
-
+} // This is the end, my friend
 //--------------------------------------------------------------------

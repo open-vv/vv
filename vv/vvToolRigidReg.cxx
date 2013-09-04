@@ -30,6 +30,7 @@
 
 // clitk
 #include "clitkTransformUtilities.h"
+#include "clitkMatrix.h"
 
 // qt
 #include <QMessageBox>
@@ -120,7 +121,7 @@ void vvToolRigidReg::InputIsSelected(vvSlicerManager *input)
     for(int i=0; i<4; i++)
       // TODO SR and BP: check on the list of transforms and not the first only
       mInitialMatrix->SetElement(i,j, mCurrentSlicerManager->GetImage()->GetTransform()[0]->GetMatrix()->GetElement(i,j));
-  QString origTransformString = dynamic_cast<vvMainWindow*>(mMainWindow)->Get4x4MatrixDoubleAsString(mInitialMatrix);
+  QString origTransformString(clitk::Get4x4MatrixDoubleAsString(mInitialMatrix).c_str());
   transformationLabel->setText(origTransformString);
   SetTransform(mInitialMatrix);
 
@@ -298,7 +299,7 @@ void vvToolRigidReg::SaveFile()
   if (file.open(QFile::WriteOnly | QFile::Truncate)) {
     // TODO SR and BP: check on the list of transforms and not the first only
     vtkMatrix4x4* matrix = mCurrentSlicerManager->GetImage()->GetTransform()[0]->GetMatrix();
-    QString matrixStr = dynamic_cast<vvMainWindow*>(mMainWindow)->Get4x4MatrixDoubleAsString(matrix,16);
+    QString matrixStr = clitk::Get4x4MatrixDoubleAsString(matrix,16).c_str();
     QTextStream out(&file);
     out << matrixStr;
   }
