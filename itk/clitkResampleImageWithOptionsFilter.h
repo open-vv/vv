@@ -60,6 +60,8 @@ namespace clitk {
   typedef typename OutputImageType::PixelType    OutputImagePixelType;
   typedef typename OutputImageType::SpacingType  OutputImageSpacingType;
   typedef typename OutputImageType::SizeType     OutputImageSizeType;
+  typedef typename OutputImageType::PointType    OutputImageOriginType;
+  typedef typename OutputImageType::DirectionType        OutputImageDirectionType;
     
   typedef itk::AffineTransform<double, InputImageType::ImageDimension> TransformType;
   typedef typename InputImageType::SpacingType                         GaussianSigmaType;
@@ -96,6 +98,10 @@ namespace clitk {
   itkGetMacro(OutputSpacing, OutputImageSpacingType);
   itkSetMacro(OutputSize, OutputImageSizeType);
   itkGetMacro(OutputSize, OutputImageSizeType);
+  itkSetMacro(OutputOrigin, OutputImageOriginType);
+  itkGetMacro(OutputOrigin, OutputImageOriginType);
+  itkSetMacro(OutputDirection, OutputImageDirectionType);
+  itkGetMacro(OutputDirection, OutputImageDirectionType);
   itkGetMacro(InterpolationType, InterpolationTypeEnumeration);
   itkSetMacro(InterpolationType, InterpolationTypeEnumeration);    
   itkGetMacro(GaussianFilteringEnabled, bool);
@@ -124,7 +130,9 @@ namespace clitk {
   int m_BSplineOrder;
   int m_BLUTSamplingFactor;    
   OutputImageSizeType m_OutputSize;
-  OutputImageSpacingType m_OutputSpacing;  
+  OutputImageSpacingType m_OutputSpacing;
+  OutputImageOriginType    m_OutputOrigin;
+  OutputImageDirectionType m_OutputDirection;
   typename TransformType::Pointer m_Transform;
   GaussianSigmaType m_GaussianSigma;
   OutputImagePixelType m_DefaultPixelValue;
