@@ -18,7 +18,7 @@ option "spacing"	-	"New output spacing if different from input" 	double 	no 	mul
 option "spacinglike"	-	"New output spacing like this image" 	        string  no
 option "origin"		-	"New output origin if different from input" 	double 	no 	multiple
 option "matrix"		m	"Affine matrix (homogene) filename"		string  no
-option "elastix"	e	"Read EulerTransform from elastix output file (combine if multiple)"	string  no      multiple
+option "elastix"	e	"Read EulerTransform from elastix output file (combine if multiple)"	string  no
 option "rotate"		r	"Rotation to apply (radians)"	                double	no	multiple
 option "translate"	t	"Translation to apply (mm)"		        double  no	multiple
 option "pad"		-	"Edge padding value" 				double 	no 	default="0.0"

@@ -182,9 +182,8 @@ namespace clitk
           }
         else {
           if (m_ArgsInfo.elastix_given) {
-            std::vector<std::string> s;
-            for(uint i=0; i<m_ArgsInfo.elastix_given; i++) s.push_back(m_ArgsInfo.elastix_arg[i]);
-            matrix = createMatrixFromElastixFile<Dimension>(s, m_Verbose);
+            std::string filename(m_ArgsInfo.elastix_arg);
+            matrix = createMatrixFromElastixFile<Dimension>(filename, m_Verbose);
           }
           else 
             matrix.SetIdentity();
