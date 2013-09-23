@@ -272,6 +272,7 @@ test -x "./clitkImageArithm" && mhdImageMerger="./clitkImageArithm"
 function merge_mhd_image {
     local merged="$1"
     local merged_bin="${merged%.*}.raw"
+    local last_character=${merged#${merged%?}}
     shift
     echo "  ${indent}entering mhd image merger"
     echo "  ${indent}merger is ${mhdImageMerger}"
@@ -289,14 +290,20 @@ function merge_mhd_image {
         then
             update_bar ${count} "copying first partial result ${partial}"
             cp "${partial}" "${merged}"
-            cp "${partial_bin}" "${merged_bin%.*}.${partial_bin##*.}"
+            if test "$last_character" = "d" 
+            then
+                cp "${partial_bin}" "${merged_bin%.*}.${partial_bin##*.}"
+            fi
             continue
         fi
 
         update_bar ${count} "adding ${partial}"
         ${mhdImageMerger} -t 0 -i "${partial}" -j "${merged}" -o "${merged}" 2> /dev/null > /dev/null || warning "error while calling ${mhdImageMerger}"
-        mv "${merged_bin}" "${merged_bin%.*}.${partial_bin##*.}"
-        sed -i "s/$(basename "${merged_bin}")/$(basename "${merged_bin%.*}.${partial_bin##*.}")/" "${merged}"
+        if test "$last_character" = "d" 
+        then
+            mv "${merged_bin}" "${merged_bin%.*}.${partial_bin##*.}"
+            sed -i "s/$(basename "${merged_bin}")/$(basename "${merged_bin%.*}.${partial_bin##*.}")/" "${merged}"
+        fi
     done
     end_bar
     echo "  ${indent}merged ${count} files"
