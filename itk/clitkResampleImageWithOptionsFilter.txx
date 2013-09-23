@@ -54,6 +54,8 @@ ResampleImageWithOptionsFilter():itk::ImageToImageFilter<InputImageType, OutputI
     m_OutputSpacing[i] = -1;
     m_GaussianSigma[i] = -1;
   }
+  m_OutputOrigin.Fill(0);
+  m_OutputDirection.SetIdentity();
   m_VerboseOptions = false;
   SetDefaultPixelValue(0);
 }
@@ -234,10 +236,10 @@ GenerateData()
   filter->SetTransform(m_Transform);
   filter->SetSize(m_OutputSize);
   filter->SetOutputSpacing(m_OutputSpacing);
-  filter->SetOutputOrigin(origin);
+  filter->SetOutputOrigin(m_OutputOrigin);
   filter->SetDefaultPixelValue(m_DefaultPixelValue);
   filter->SetNumberOfThreads(this->GetNumberOfThreads()); 
-  filter->SetOutputDirection(input->GetDirection()); // <-- NEEDED if we want to keep orientation (in case of PermutAxes for example)
+  filter->SetOutputDirection(m_OutputDirection); // <-- NEEDED if we want to keep orientation (in case of PermutAxes for example)
 
   // Select interpolator
   switch (m_InterpolationType) {

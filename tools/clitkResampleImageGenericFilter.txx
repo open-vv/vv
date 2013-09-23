@@ -49,6 +49,8 @@ clitk::ResampleImageGenericFilter::UpdateWithInputImageType()
   static const unsigned int dim = OutputImageType::ImageDimension;
   typename OutputImageType::SpacingType spacing;
   typename OutputImageType::SizeType size;
+  typename OutputImageType::PointType origin;
+  typename OutputImageType::DirectionType direction;
 
   if (mArgsInfo.like_given) {
     itk::ImageIOBase::Pointer header = clitk::readImageHeader(mArgsInfo.like_arg);
@@ -56,9 +58,17 @@ clitk::ResampleImageGenericFilter::UpdateWithInputImageType()
       for(unsigned int i=0; i<dim; i++){
         spacing[i] = header->GetSpacing(i);
         size[i] = header->GetDimensions(i);
+        origin[i] = header->GetOrigin(i);
+      }
+      for(unsigned int i=0; i<dim; i++) {
+        for(unsigned int j=0;j<dim;j++) {
+            direction(i,j) = header->GetDirection(i)[j];
+        }
       }
       filter->SetOutputSpacing(spacing);
       filter->SetOutputSize(size);
+      filter->SetOutputOrigin(origin);
+      filter->SetOutputDirection(direction);
     }
     else {
       std::cerr << "*** Warning : I could not read '" << mArgsInfo.like_arg << "' ***" << std::endl;
@@ -91,6 +101,17 @@ clitk::ResampleImageGenericFilter::UpdateWithInputImageType()
         size[i] = mArgsInfo.size_arg[i];
       filter->SetOutputSize(size);
     }
+    itk::ImageIOBase::Pointer header = clitk::readImageHeader(mArgsInfo.input_arg);
+    for(unsigned int i=0; i<dim; i++){
+      origin[i] = header->GetOrigin(i);
+    }
+    for(unsigned int i=0; i<dim; i++) {
+      for(unsigned int j=0;j<dim;j++) {
+          direction(i,j) = header->GetDirection(i)[j];
+      }
+    }
+    filter->SetOutputOrigin(origin);
+    filter->SetOutputDirection(direction);
   }
 
   // Set temporal dimension

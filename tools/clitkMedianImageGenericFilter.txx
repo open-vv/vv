@@ -89,28 +89,26 @@ MedianImageGenericFilter<args_info_type>::UpdateWithInputImageType()
 
   // typedef itk::Image<PixelType,InputImageType::ImageDimension> OutputImageType;
 
-  // Main filter
-  typedef itk::Image<PixelType, InputImageType::ImageDimension> OutputImageType;
-  typename InputImageType::SizeType indexRadius;
-
   // Filter
-  typedef itk::MedianImageFilter<InputImageType, OutputImageType> MedianImageFilterType;
-  typename MedianImageFilterType::Pointer thresholdFilter=MedianImageFilterType::New();
-  thresholdFilter->SetInput(input);
+  typedef itk::MedianImageFilter<InputImageType, InputImageType> MedianImageFilterType;
+  typename MedianImageFilterType::Pointer medianFilter=MedianImageFilterType::New();
+  typename MedianImageFilterType::InputSizeType radius;
+  radius.Fill(1);
+  medianFilter->SetInput(input);
 
-  for (unsigned i = 0; i < InputImageType::ImageDimension; ++i)
-    indexRadius[i]=mArgsInfo.radius_arg[i];
+  if(mArgsInfo.radius_given) {
+      for (unsigned i = 0; i < InputImageType::ImageDimension; ++i)
+          radius[i]=mArgsInfo.radius_arg[i];
+  }
+  //
+  std::cout<<"radius median filter= "<<radius<<std::endl;
+  //
+  medianFilter->SetRadius( radius );
 
-  // indexRadius[0] = 1;
-  // indexRadius[1] = 1;
-
-  thresholdFilter->SetRadius( indexRadius );
-
-  typename OutputImageType::Pointer outputImage = thresholdFilter->GetOutput();
-  thresholdFilter->Update();
-
+  medianFilter->Update();
   // Write/Save results
-  this->template SetNextOutput<OutputImageType>(outputImage);
+  typename InputImageType::Pointer outputImage = medianFilter->GetOutput();
+  this->template SetNextOutput<InputImageType>(outputImage);
 }
 
 //--------------------------------------------------------------------
