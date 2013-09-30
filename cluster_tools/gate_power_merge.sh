@@ -517,7 +517,7 @@ done
 
 echo ""
 echo "Merging done. Special case for statistical uncertainty"
-for outputfile in $(find "${outputdir}" -regextype 'posix-extended' -type f -regex "${outputdir}/output.*\.(hdr|mhd|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
+for outputfile in $(find "${outputdir}" -regextype 'posix-extended' -type f -regex "${outputdir}/.*\.(hdr|mhd|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
 do
     merge_dispatcher_uncertainty "${outputfile}"
 done
