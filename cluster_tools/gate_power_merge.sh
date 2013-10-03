@@ -299,7 +299,7 @@ function merge_mhd_image {
 
         update_bar ${count} "adding ${partial}"
         ${mhdImageMerger} -t 0 -i "${partial}" -j "${merged}" -o "${merged}" 2> /dev/null > /dev/null || warning "error while calling ${mhdImageMerger}"
-        if test "$last_character" = "d" 
+        if test "$last_character" = "d" && test "${merged_bin}" != "${merged_bin%.*}.${partial_bin##*.}"
         then
             mv "${merged_bin}" "${merged_bin%.*}.${partial_bin##*.}"
             sed -i "s/$(basename "${merged_bin}")/$(basename "${merged_bin%.*}.${partial_bin##*.}")/" "${merged}"
