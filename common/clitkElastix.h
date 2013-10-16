@@ -66,88 +66,80 @@ GetValuesFromValue(const std::string & s,
 //-------------------------------------------------------------------
 template<unsigned int Dimension>
 typename itk::Matrix<double, Dimension+1, Dimension+1>
-createMatrixFromElastixFile(std::vector<std::string> & filename, bool verbose=true) {
+createMatrixFromElastixFile(std::string& filename, bool verbose=true) {
   if (Dimension != 3) {
     FATAL("Only 3D yet" << std::endl);
   }
-  typename itk::Matrix<double, Dimension+1, Dimension+1> matrix;
+  typename itk::Matrix<double, Dimension+1, Dimension+1> matrix, init;
 
   itk::Euler3DTransform<double>::Pointer mat = itk::Euler3DTransform<double>::New();
   itk::Euler3DTransform<double>::Pointer previous;
-  for(uint j=0; j<filename.size(); j++) {
 
-    // Open file
-    if (verbose) std::cout << "Read elastix parameters in " << filename[j] << std::endl;
-    std::ifstream is;
-    clitk::openFileForReading(is, filename[j]);
+  // Open file
+  if (verbose) std::cout << "Read elastix parameters in " << filename << std::endl;
+  std::ifstream is;
+  clitk::openFileForReading(is, filename);
 
-    // Check Transform
-    std::string s;
-    bool b = GetElastixValueFromTag(is, "Transform ", s);
-    if (!b) {
-      FATAL("Error must read 'Transform' in " << filename[j] << std::endl);
-    }
-    if (s != "EulerTransform") {
-      FATAL("Sorry only 'EulerTransform'" << std::endl);
-    }
-
-    // FIXME check
-    //    (InitialTransformParametersFilename[j] "NoInitialTransform")
-
-    // Get CenterOfRotationPoint
-    GetElastixValueFromTag(is, "CenterOfRotationPoint ", s); // space is needed
-    if (!b) {
-      FATAL("Error must read 'CenterOfRotationPoint' in " << filename[j] << std::endl);
-    }
-    std::vector<std::string> cor;
-    GetValuesFromValue(s, cor);
-    itk::Euler3DTransform<double>::CenterType c;
-    for(uint i=0; i<3; i++)
-      c[i] = atof(cor[i].c_str());
-    mat->SetCenter(c);
-
-    // Get Transformparameters
-    GetElastixValueFromTag(is, "ComputeZYX ", s); // space is needed
-    mat->SetComputeZYX( s==std::string("true") );
-
-    // Get Transformparameters
-    GetElastixValueFromTag(is, "TransformParameters ", s); // space is needed
-    if (!b) {
-      FATAL("Error must read 'TransformParameters' in " << filename[j] << std::endl);
-    }
-    std::vector<std::string> results;
-    GetValuesFromValue(s, results);
-
-    // construct a stream from the string
-    itk::Euler3DTransform<double>::ParametersType p;
-    p.SetSize(6);
-    for(uint i=0; i<3; i++)
-      p[i] = atof(results[i].c_str()); // Rotation
-    for(uint i=0; i<3; i++)
-      p[i+3] = atof(results[i+3].c_str()); // Translation
-    mat->SetParameters(p);
-
-    if (verbose) {
-      std::cout << "Rotation      (deg) : " << rad2deg(p[0]) << " " << rad2deg(p[1]) << " " << rad2deg(p[2]) << std::endl;
-      std::cout << "Center of rot (phy) : " << c[0] << " " << c[1] << " " << c[2] << std::endl;
-      std::cout << "Translation   (phy) : " << p[3] << " " << p[4] << " " << p[5] << std::endl;
-    }
-
-    // Compose with previous if needed
-    if (j!=0) {
-      mat->Compose(previous);
-      if (verbose) {
-        std::cout << "Composed rotation      (deg) : " << rad2deg(mat->GetAngleX()) << " " << rad2deg(mat->GetAngleY()) << " " << rad2deg(mat->GetAngleZ()) << std::endl;
-        std::cout << "Composed center of rot (phy) : " << mat->GetCenter() << std::endl;
-        std::cout << "Compsoed translation   (phy) : " << mat->GetTranslation() << std::endl;
-      }
-    }
-    // previous = mat->Clone(); // ITK4
-    previous = itk::Euler3DTransform<double>::New();
-    previous->SetParameters(mat->GetParameters());
-    previous->SetCenter(c);
-    previous->SetComputeZYX(mat->GetComputeZYX());
+  // Check Transform
+  std::string s;
+  bool b = GetElastixValueFromTag(is, "Transform ", s);
+  if (!b) {
+    FATAL("Error must read 'Transform' in " << filename << std::endl);
   }
+  if (s != "EulerTransform") {
+    FATAL("Sorry only 'EulerTransform'" << std::endl);
+  }
+
+  // Get previous
+  b = GetElastixValueFromTag(is, "InitialTransformParametersFileName ", s);
+  if(s == "NoInitialTransform")
+    init.SetIdentity();
+  else
+    init = createMatrixFromElastixFile<Dimension>(s, verbose);
+
+  // Get CenterOfRotationPoint
+  GetElastixValueFromTag(is, "CenterOfRotationPoint ", s); // space is needed
+  if (!b) {
+    FATAL("Error must read 'CenterOfRotationPoint' in " << filename << std::endl);
+  }
+  std::vector<std::string> cor;
+  GetValuesFromValue(s, cor);
+  itk::Euler3DTransform<double>::CenterType c;
+  for(uint i=0; i<3; i++)
+    c[i] = atof(cor[i].c_str());
+  mat->SetCenter(c);
+
+  // Get Transformparameters
+  GetElastixValueFromTag(is, "ComputeZYX ", s); // space is needed
+  mat->SetComputeZYX( s==std::string("true") );
+
+  // Get Transformparameters
+  GetElastixValueFromTag(is, "TransformParameters ", s); // space is needed
+  if (!b) {
+    FATAL("Error must read 'TransformParameters' in " << filename << std::endl);
+  }
+  std::vector<std::string> results;
+  GetValuesFromValue(s, results);
+
+  // construct a stream from the string
+  itk::Euler3DTransform<double>::ParametersType p;
+  p.SetSize(6);
+  for(uint i=0; i<3; i++)
+    p[i] = atof(results[i].c_str()); // Rotation
+  for(uint i=0; i<3; i++)
+    p[i+3] = atof(results[i+3].c_str()); // Translation
+  mat->SetParameters(p);
+
+  if (verbose) {
+    std::cout << "Rotation      (deg) : " << rad2deg(p[0]) << " " << rad2deg(p[1]) << " " << rad2deg(p[2]) << std::endl;
+    std::cout << "Center of rot (phy) : " << c[0] << " " << c[1] << " " << c[2] << std::endl;
+    std::cout << "Translation   (phy) : " << p[3] << " " << p[4] << " " << p[5] << std::endl;
+  }
+
+  previous = itk::Euler3DTransform<double>::New();
+  previous->SetParameters(mat->GetParameters());
+  previous->SetCenter(c);
+  previous->SetComputeZYX(mat->GetComputeZYX());
 
   mat = previous;
   for(uint i=0; i<3; i++)
@@ -159,7 +151,7 @@ createMatrixFromElastixFile(std::vector<std::string> & filename, bool verbose=tr
   matrix[2][3] = mat->GetOffset()[2];
   matrix[3][3] = 1;
 
-  return matrix;
+  return matrix*init;
 }
 }
 //-------------------------------------------------------------------

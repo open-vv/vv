@@ -27,10 +27,6 @@ ADD_LIBRARY(clitkMedianImageFilterLib clitkMedianImageGenericFilter.cxx ${clitkM
 #=========================================================
 IF (CLITK_BUILD_TOOLS)
 
-  #=========================================================
-  # install scripts
-  ADD_SUBDIRECTORY(${CLITK_SOURCE_DIR}/cluster_tools ${PROJECT_BINARY_DIR}/cluster_tools)
-
   WRAP_GGO(clitkDicomInfo_GGO_C clitkDicomInfo.ggo)
   ADD_EXECUTABLE(clitkDicomInfo clitkDicomInfo.cxx ${clitkDicomInfo_GGO_C})
   TARGET_LINK_LIBRARIES(clitkDicomInfo clitkCommon)
