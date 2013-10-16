@@ -304,6 +304,12 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkImageUncertainty clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageUncertainty)
 
+  WRAP_GGO(clitkImageGradientMagnitude_GGO_C clitkImageGradientMagnitude.ggo)
+  ADD_EXECUTABLE(clitkImageGradientMagnitude clitkImageGradientMagnitude.cxx ${clitkImageGradientMagnitude_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkImageGradientMagnitude clitkCommon )
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageGradientMagnitude)
+
+
   #=========================================================
   option(CLITK_USE_ROOT "Build experimental tools using root" OFF)
   if (CLITK_USE_ROOT)
