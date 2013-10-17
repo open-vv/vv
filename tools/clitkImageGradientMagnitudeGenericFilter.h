@@ -57,6 +57,9 @@ protected:
     template<unsigned int Dim> void InitializeImageType();
     args_info_type mArgsInfo;
 
+private:
+    bool m_NormalizeOutput;
+
 }; // end class
 //--------------------------------------------------------------------
 
