@@ -29,7 +29,7 @@
 
 // itk include
 #include "itkGradientMagnitudeImageFilter.h"
-#include "itkLabelStatisticsImageFilter.h""
+#include "itkLabelStatisticsImageFilter.h"
 #include "itkMaskImageFilter.h"
 #include "itkMaskNegatedImageFilter.h"
 #include <clitkCommon.h>
