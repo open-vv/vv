@@ -251,11 +251,6 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkTransformLandmarks clitkCommon)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkTransformLandmarks)
 
-  WRAP_GGO(clitkDice_GGO_C clitkDice.ggo)
-  ADD_EXECUTABLE(clitkDice clitkDice.cxx ${clitkDice_GGO_C})
-  TARGET_LINK_LIBRARIES(clitkDice clitkSegmentationGgoLib clitkCommon ${ITK_LIBRARIES} )
-  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkDice)
-
   WRAP_GGO(clitkMaskLandmarks_GGO_C clitkMaskLandmarks.ggo)
   ADD_EXECUTABLE(clitkMaskLandmarks clitkMaskLandmarks.cxx ${clitkMaskLandmarks_GGO_C})
   TARGET_LINK_LIBRARIES(clitkMaskLandmarks clitkCommon)
@@ -353,8 +348,14 @@ IF (CLITK_BUILD_TOOLS)
 
   #=========================================================
   IF(ITK_VERSION_MAJOR VERSION_LESS 4)
+    MESSAGE("clitkDice is not compatible with ITK<4. It will not be built.")
     MESSAGE("clitkDicomRTPlan2Gate is not compatible with GDCM<2 (ITK<4). It will not be built.")
   ELSE(ITK_VERSION_MAJOR VERSION_LESS 4)
+    WRAP_GGO(clitkDice_GGO_C clitkDice.ggo)
+    ADD_EXECUTABLE(clitkDice clitkDice.cxx ${clitkDice_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkDice clitkSegmentationGgoLib clitkCommon ${ITK_LIBRARIES} )
+    SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkDice)
+
     WRAP_GGO(clitkDicomRTPlan2Gate_GGO_C clitkDicomRTPlan2Gate.ggo)
     ADD_EXECUTABLE(clitkDicomRTPlan2Gate clitkDicomRTPlan2Gate.cxx clitkDicomRTPlan2Gate_ggo.c)
     TARGET_LINK_LIBRARIES(clitkDicomRTPlan2Gate clitkCommon)
