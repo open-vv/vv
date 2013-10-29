@@ -2,7 +2,7 @@
   Program:         vv http://www.creatis.insa-lyon.fr/rio/vv
   Main authors :   XX XX XX
 
-  Authors belongs to: 
+  Authors belongs to:
   - University of LYON           http://www.universite-lyon.fr/
   - Léon Bérard cancer center    http://www.centreleonberard.fr
   - CREATIS CNRS laboratory      http://www.creatis.insa-lyon.fr
@@ -31,7 +31,7 @@ namespace clitk {
   //--------------------------------------------------------------------
   template<class PixelType>
   class Image2DicomRTStructFilter: public clitk::FilterBase {
-    
+
   public:
     Image2DicomRTStructFilter();
     ~Image2DicomRTStructFilter();
@@ -41,17 +41,24 @@ namespace clitk {
     typedef typename clitk::DicomRT_StructureSet::Pointer DicomRTStructPointer;
 
     // Set inputs
-    itkSetMacro(InputFilenames, std::vector<std::string> );
+    virtual void SetInputFilenames (const std::vector<std::string> _arg)
+    {
+      if ( this->m_InputFilenames != _arg )
+      {
+        this->m_InputFilenames = _arg;
+        this->Modified();
+      }
+    }
     itkSetMacro(StructureSetFilename, std::string);
     itkSetMacro(DicomFolder, std::string);
     itkSetMacro(OutputFilename, std::string);
     void SetROIType(std::string type);
     itkSetMacro(ThresholdValue, PixelType);
     itkSetMacro(SkipInitialStructuresFlag, bool);
-    
+
     // Run filter
-    void Update();    
-    
+    void Update();
+
   protected:
     std::string m_StructureSetFilename;
     std::string m_DicomFolder;
