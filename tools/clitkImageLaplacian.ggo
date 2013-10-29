@@ -12,3 +12,4 @@ option "input"		i	"Input image filename"		  string  	required
 option "mask"		m	"Mask input image filename"       string  	optional
 option "output"    	o   	"Output image filename"		  string 	required
 option "normalize"      n       "Normalize the output image between 0 and 1"    flag off
+option "gaussian_filter" g      "Gaussian filtering"              flag          on
