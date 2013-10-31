@@ -120,6 +120,11 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkMatrixToElastixTransform clitkCommon )
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMatrixToElastixTransform)
 
+  WRAP_GGO(clitkMatrixMultiply_GGO_C clitkMatrixMultiply.ggo)
+  ADD_EXECUTABLE(clitkMatrixMultiply clitkMatrixMultiply.cxx ${clitkMatrixMultiply_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkMatrixMultiply clitkCommon )
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMatrixMultiply)
+
   WRAP_GGO(clitkMatrixInverse_GGO_C clitkMatrixInverse.ggo)
   ADD_EXECUTABLE(clitkMatrixInverse clitkMatrixInverse.cxx ${clitkMatrixInverse_GGO_C})
   TARGET_LINK_LIBRARIES(clitkMatrixInverse clitkCommon )

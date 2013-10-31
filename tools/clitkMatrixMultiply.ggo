@@ -1,0 +1,8 @@
+package "clitkMatrixMultiply"
+version "1.0"
+purpose "Multiply two 4x4 matrices. In matrice notations, does input2*input"
+
+option "config"  - "Config file"            string optional
+option "input1"  i "Input matrix filename"  string required
+option "input2"  j "Input matrix filename"  string required
+option "output"  o "Output matrix filename" string required
