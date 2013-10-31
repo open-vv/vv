@@ -30,6 +30,7 @@
 // itk include
 #include "itkCastImageFilter.h"
 #include "itkLaplacianImageFilter.h"
+#include "itkLaplacianRecursiveGaussianImageFilter.h"
 #include "itkLabelStatisticsImageFilter.h"
 #include "itkMaskImageFilter.h"
 #include "itkMaskNegatedImageFilter.h"
@@ -127,13 +128,26 @@ ImageLaplacianGenericFilter<args_info_type>::UpdateWithInputImageType()
     IteratorOutputType ito = IteratorOutputType(outputImage, outputImage->GetLargestPossibleRegion());
 
     // Filter
-    typedef itk::LaplacianImageFilter<FloatImageType, FloatImageType> LaplacianImageFilterType;
-    typename LaplacianImageFilterType::Pointer laplacianFilter=LaplacianImageFilterType::New();
-    laplacianFilter->SetInput(castFilter->GetOutput());
-    laplacianFilter->Update();
+    typename FloatImageType::Pointer outputLaplacianFilter;
+    if (mArgsInfo.gaussian_filter_flag == 0) {
+        //std::cout<<"gaussian filter flag == 0"<<std::endl;
+        typedef itk::LaplacianImageFilter<FloatImageType, FloatImageType> LaplacianImageFilterType;
+        typename LaplacianImageFilterType::Pointer laplacianFilter=LaplacianImageFilterType::New();
+        laplacianFilter->SetInput(castFilter->GetOutput());
+        laplacianFilter->Update();
+        outputLaplacianFilter = laplacianFilter->GetOutput();
+    }
+    else {
+        //std::cout<<"gaussian filter flag == 1"<<std::endl;
+        typedef itk::LaplacianRecursiveGaussianImageFilter< FloatImageType, FloatImageType >  LaplacianImageFilterType;
+        typename LaplacianImageFilterType::Pointer laplacianFilter=LaplacianImageFilterType::New();
+        laplacianFilter->SetInput(castFilter->GetOutput());
+        laplacianFilter->Update();
+        outputLaplacianFilter = laplacianFilter->GetOutput();
+    }
     // Set iterator
     typedef itk::ImageRegionIterator<FloatImageType> IteratorType;
-    IteratorType it(laplacianFilter->GetOutput(), laplacianFilter->GetOutput()->GetLargestPossibleRegion());
+    IteratorType it(outputLaplacianFilter, outputLaplacianFilter->GetLargestPossibleRegion());
 
     // Set mask iterator
     typedef itk::ImageRegionIterator<MaskImageType> IteratorMaskType;
@@ -146,7 +160,7 @@ ImageLaplacianGenericFilter<args_info_type>::UpdateWithInputImageType()
     typedef itk::LabelStatisticsImageFilter< FloatImageType, MaskImageType > LabelStatisticsImageFilterType;
     typename LabelStatisticsImageFilterType::Pointer labelStatisticsImageFilter = LabelStatisticsImageFilterType::New();
     labelStatisticsImageFilter->SetLabelInput( mask );
-    labelStatisticsImageFilter->SetInput(laplacianFilter->GetOutput());
+    labelStatisticsImageFilter->SetInput(outputLaplacianFilter);
     labelStatisticsImageFilter->Update();
 
     //std::cout << "Number of labels: " << labelStatisticsImageFilter->GetNumberOfLabels() << std::endl;
