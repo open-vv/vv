@@ -314,7 +314,7 @@ function merge_dispatcher {
     local outputfile="${1:?"provide output filename"}"
     echo "merging ${outputfile}"
 
-    local partialoutputfiles="$(find "${rundir}" -mindepth 2 -type f -name "${outputfile}")"
+    local partialoutputfiles="$(find -L "${rundir}" -mindepth 2 -type f -name "${outputfile}")"
     local nboutputfiles="$(echo "${partialoutputfiles}" | wc -l)"
     if test ${nboutputdirs} -ne ${nboutputfiles}
     then
@@ -431,7 +431,7 @@ function merge_dispatcher_uncertainty {
     local indent="  ** "
     local outputfile="${1:?"provide output filename"}"
 
-    local partialoutputfiles="$(find "${rundir}" -mindepth 2 -type f -name "${outputfile}")"
+    local partialoutputfiles="$(find -L "${rundir}" -mindepth 2 -type f -name "${outputfile}")"
     local nboutputfiles="$(echo "${partialoutputfiles}" | wc -l)"
     if test ${nboutputdirs} -ne ${nboutputfiles}
     then
@@ -466,7 +466,7 @@ function merge_dispatcher_uncertainty {
             echo "${indent}${squared_merged_file} found"
             ## search for NumberOfEvent
             totalEvents=0;
-            for outputfile in $(find "${rundir}" -regextype 'posix-extended' -type f -regex "${rundir}/output.*\.(hdr|mhd|mha|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
+            for outputfile in $(find -L "${rundir}" -regextype 'posix-extended' -type f -regex "${rundir}/output.*\.(hdr|mhd|mha|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
             do
                 #echo $outputfile
                 if grep -q 'NumberOfEvent' "${outputdir}/${outputfile}"
@@ -496,7 +496,7 @@ echo "!!!! this is $0 v0.3k !!!!"
 
 rundir="${1?"provide run dir"}"
 rundir="$(echo "${rundir}" | sed 's|/*$||')"
-nboutputdirs="$(find "${rundir}" -mindepth 1 -type d -name 'output*' | wc -l)"
+nboutputdirs="$(find "${rundir}" -mindepth 1 -type d -o -type l -name 'output*' | wc -l)"
 
 test ${nboutputdirs} -gt 0 || error "no output dir found"
 echo "found ${nboutputdirs} partial output dirs"
@@ -511,15 +511,15 @@ echo "output dir is ${outputdir}"
 
 test -d "${outputdir}" && rm -r "${outputdir}"
 mkdir "${outputdir}"
-
-for outputfile in $(find "${rundir}" -regextype 'posix-extended' -type f -regex "${rundir}/output.*\.(hdr|mhd|mha|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
+ls ${rundir}/
+for outputfile in $(find -L "${rundir}" -regextype 'posix-extended' -type f -regex "${rundir}/output.*\.(hdr|mhd|mha|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
 do
     merge_dispatcher "${outputfile}"
 done
 
 echo ""
 echo "Merging done. Special case for statistical uncertainty"
-for outputfile in $(find "${outputdir}" -regextype 'posix-extended' -type f -regex "${outputdir}/.*\.(hdr|mhd|mha|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
+for outputfile in $(find -L "${outputdir}" -regextype 'posix-extended' -type f -regex "${outputdir}/.*\.(hdr|mhd|mha|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
 do
     merge_dispatcher_uncertainty "${outputfile}"
 done
