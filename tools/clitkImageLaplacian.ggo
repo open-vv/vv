@@ -1,0 +1,15 @@
+#File clitkImageLaplacian.ggo
+package "clitkImageLaplacian"
+version "1.0"
+purpose ""
+
+option "config"	  	-	"Config file"			  string  	optional
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "imagetypes" 	-   	"Display allowed image types"	  flag		off
+
+option "input"		i	"Input image filename"		  string  	required
+option "mask"		m	"Mask input image filename"       string  	optional
+option "output"    	o   	"Output image filename"		  string 	required
+option "normalize"      n       "Normalize the output image between 0 and 1"    flag off
+option "gaussian_filter" g      "Gaussian filtering"              flag          on

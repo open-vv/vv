@@ -27,10 +27,6 @@ ADD_LIBRARY(clitkMedianImageFilterLib clitkMedianImageGenericFilter.cxx ${clitkM
 #=========================================================
 IF (CLITK_BUILD_TOOLS)
 
-  #=========================================================
-  # install scripts
-  ADD_SUBDIRECTORY(${CLITK_SOURCE_DIR}/cluster_tools ${PROJECT_BINARY_DIR}/cluster_tools)
-
   WRAP_GGO(clitkDicomInfo_GGO_C clitkDicomInfo.ggo)
   ADD_EXECUTABLE(clitkDicomInfo clitkDicomInfo.cxx ${clitkDicomInfo_GGO_C})
   TARGET_LINK_LIBRARIES(clitkDicomInfo clitkCommon)
@@ -123,6 +119,11 @@ IF (CLITK_BUILD_TOOLS)
   ADD_EXECUTABLE(clitkMatrixToElastixTransform clitkMatrixToElastixTransform.cxx ${clitkMatrixToElastixTransform_GGO_C})
   TARGET_LINK_LIBRARIES(clitkMatrixToElastixTransform clitkCommon )
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMatrixToElastixTransform)
+
+  WRAP_GGO(clitkMatrixMultiply_GGO_C clitkMatrixMultiply.ggo)
+  ADD_EXECUTABLE(clitkMatrixMultiply clitkMatrixMultiply.cxx ${clitkMatrixMultiply_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkMatrixMultiply clitkCommon )
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMatrixMultiply)
 
   WRAP_GGO(clitkMatrixInverse_GGO_C clitkMatrixInverse.ggo)
   ADD_EXECUTABLE(clitkMatrixInverse clitkMatrixInverse.cxx ${clitkMatrixInverse_GGO_C})
@@ -255,11 +256,6 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkTransformLandmarks clitkCommon)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkTransformLandmarks)
 
-  WRAP_GGO(clitkDice_GGO_C clitkDice.ggo)
-  ADD_EXECUTABLE(clitkDice clitkDice.cxx ${clitkDice_GGO_C})
-  TARGET_LINK_LIBRARIES(clitkDice clitkSegmentationGgoLib clitkCommon ${ITK_LIBRARIES} )
-  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkDice)
-
   WRAP_GGO(clitkMaskLandmarks_GGO_C clitkMaskLandmarks.ggo)
   ADD_EXECUTABLE(clitkMaskLandmarks clitkMaskLandmarks.cxx ${clitkMaskLandmarks_GGO_C})
   TARGET_LINK_LIBRARIES(clitkMaskLandmarks clitkCommon)
@@ -304,6 +300,17 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkImageUncertainty clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageUncertainty)
 
+  WRAP_GGO(clitkImageGradientMagnitude_GGO_C clitkImageGradientMagnitude.ggo)
+  ADD_EXECUTABLE(clitkImageGradientMagnitude clitkImageGradientMagnitude.cxx ${clitkImageGradientMagnitude_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkImageGradientMagnitude clitkCommon )
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageGradientMagnitude)
+
+  WRAP_GGO(clitkImageLaplacian_GGO_C clitkImageLaplacian.ggo)
+  ADD_EXECUTABLE(clitkImageLaplacian clitkImageLaplacian.cxx ${clitkImageLaplacian_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkImageLaplacian clitkCommon )
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageLaplacian)
+
+
   #=========================================================
   option(CLITK_USE_ROOT "Build experimental tools using root" OFF)
   if (CLITK_USE_ROOT)
@@ -346,8 +353,14 @@ IF (CLITK_BUILD_TOOLS)
 
   #=========================================================
   IF(ITK_VERSION_MAJOR VERSION_LESS 4)
+    MESSAGE("clitkDice is not compatible with ITK<4. It will not be built.")
     MESSAGE("clitkDicomRTPlan2Gate is not compatible with GDCM<2 (ITK<4). It will not be built.")
   ELSE(ITK_VERSION_MAJOR VERSION_LESS 4)
+    WRAP_GGO(clitkDice_GGO_C clitkDice.ggo)
+    ADD_EXECUTABLE(clitkDice clitkDice.cxx ${clitkDice_GGO_C})
+    TARGET_LINK_LIBRARIES(clitkDice clitkSegmentationGgoLib clitkCommon ${ITK_LIBRARIES} )
+    SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkDice)
+
     WRAP_GGO(clitkDicomRTPlan2Gate_GGO_C clitkDicomRTPlan2Gate.ggo)
     ADD_EXECUTABLE(clitkDicomRTPlan2Gate clitkDicomRTPlan2Gate.cxx clitkDicomRTPlan2Gate_ggo.c)
     TARGET_LINK_LIBRARIES(clitkDicomRTPlan2Gate clitkCommon)
