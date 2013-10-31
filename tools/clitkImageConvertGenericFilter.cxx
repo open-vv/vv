@@ -19,6 +19,8 @@
 #define CLITKIMAGECONVERTGENERICFILTER_CXX
 
 #include "clitkImageConvertGenericFilter.h"
+#include "vvImageReader.h"
+#include "vvImageWriter.h"
 
 //--------------------------------------------------------------------
 clitk::ImageConvertGenericFilter::ImageConvertGenericFilter():
@@ -70,7 +72,24 @@ void clitk::ImageConvertGenericFilter::UpdateWithInputImageType()
     }
   }
 
-  if ((m_PixelTypeName == mOutputPixelTypeName) || (mOutputPixelTypeName == "NotSpecified")) {
+  if(mVV) {
+    if (mOutputPixelTypeName != "NotSpecified" || m_WriteCompression) {
+      std::cerr << "--vv is not compatible with --compression and --type options." << std::endl;
+      exit(-1);
+    }
+
+    vvImageReader::Pointer reader = vvImageReader::New();
+    reader->SetInputFilenames(m_InputFilenames);
+    reader->Update(vvImageReader::IMAGE);
+
+    vvImageWriter::Pointer writer = vvImageWriter::New();
+    writer->SetOutputFileName(m_OutputFilenames.front());
+    writer->SetSaveTransform(true);
+    writer->SetInput(reader->GetOutput());
+    writer->Update();
+    return;
+  }
+  else if ((m_PixelTypeName == mOutputPixelTypeName) || (mOutputPixelTypeName == "NotSpecified")) {
     typename InputImageType::Pointer input = this->template GetInput<InputImageType>(0);
     this->SetNextOutput<InputImageType>(input);
   } else {
