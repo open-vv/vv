@@ -1307,14 +1307,16 @@ double vvSlicer::GetOverlayColorLevel()
 //----------------------------------------------------------------------------
 void vvSlicer::SetOverlayColorWindow(double window)
 {
-  mOverlayMapper->SetWindow(window);
+  if(mOverlayMapper)
+    mOverlayMapper->SetWindow(window);
 }
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetOverlayColorLevel(double level)
 {
-  mOverlayMapper->SetLevel(level);
+  if(mOverlayMapper)
+    mOverlayMapper->SetLevel(level);
 }
 //----------------------------------------------------------------------------
 

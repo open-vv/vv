@@ -1857,12 +1857,22 @@ void vvMainWindow::ApplyWindowLevelToAllImages()
   double window = mSlicerManagers[index]->GetColorWindow();
   double level = mSlicerManagers[index]->GetColorLevel();
 
+  double fusWindow = mSlicerManagers[index]->GetFusionWindow();
+  double fusLevel = mSlicerManagers[index]->GetFusionLevel();
+
+  double overWindow = mSlicerManagers[index]->GetOverlayColorWindow();
+  double overLevel = mSlicerManagers[index]->GetOverlayColorLevel();
+
   for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
     if (mSlicerManagers[i] == NULL)
       continue;
     mSlicerManagers[i]->SetColorWindow(window);
     mSlicerManagers[i]->SetColorLevel(level);
     mSlicerManagers[i]->SetPreset(WL_USER);
+    mSlicerManagers[i]->SetFusionWindow(fusWindow);
+    mSlicerManagers[i]->SetFusionLevel(fusLevel);
+    mSlicerManagers[i]->SetOverlayColorWindow(overWindow);
+    mSlicerManagers[i]->SetOverlayColorLevel(overLevel);
     mSlicerManagers[i]->Render();
   }
 }
