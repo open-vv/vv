@@ -73,6 +73,7 @@ namespace clitk {
     std::string GetInputPixelTypeName() { return m_PixelTypeName; }
     std::string GetOutputPixelTypeName() { return mOutputPixelTypeName; }
     void SetOutputPixelType(std::string p) { mOutputPixelTypeName = p; }
+    void SetVV(bool b) { mVV = b; }
     bool IsWarningOccur() { return mWarningOccur; }
     std::string & GetWarning() { return mWarning; }
     void EnableDisplayWarning(bool b) { mDisplayWarning = b; }
@@ -92,6 +93,7 @@ namespace clitk {
     std::string mWarning;
     bool mWarningOccur;
     bool mDisplayWarning;
+    bool mVV;
 
   private:
     template <class InputImageType, bool isVector>
