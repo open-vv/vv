@@ -182,8 +182,8 @@ int main( int argc, char** argv )
                     << std::endl
                     << "These last options must follow a file name since they overlay something on an image:" << std::endl
                     << "--vf file      \t Overlay the vector field in file." << std::endl
-                    << "--overlay file \t Overlay the image in file with complementary colors." << std::endl
-                    << "--fusion file  \t Overlay the image in file with alpha blending and colormap." << std::endl
+                    << "--overlay [--sequence] file(s) \t Overlay the image in file with complementary colors." << std::endl
+                    << "--fusion [--sequence] file(s)  \t Overlay the image in file with alpha blending and colormap." << std::endl
                     //<< "--roi file     \t Overlay binary mask images. Option may be repeated on a single base image." << std::endl
                     << "--contour file \t Overlay DICOM RT-STRUCT contours." << std::endl
                     << "--landmarks [--sequence] file(s)  \t Overlay the landmarks in file(s) (.txt or .pts)." << std::endl;
