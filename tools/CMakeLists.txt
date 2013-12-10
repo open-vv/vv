@@ -310,6 +310,11 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkImageLaplacian clitkCommon )
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageLaplacian)
 
+  WRAP_GGO(clitkImageIntensityWindowing_GGO_C clitkImageIntensityWindowing.ggo)
+  ADD_EXECUTABLE(clitkImageIntensityWindowing clitkImageIntensityWindowing.cxx ${clitkImageIntensityWindowing_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkImageIntensityWindowing clitkCommon )
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageIntensityWindowing)
+
 
   #=========================================================
   option(CLITK_USE_ROOT "Build experimental tools using root" OFF)

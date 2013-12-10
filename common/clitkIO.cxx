@@ -45,6 +45,7 @@
 #endif
 #if ITK_VERSION_MAJOR >= 4
   #include "itkGDCMImageIOFactory.h"
+  #include "itkPNGImageIOFactory.h"
 #endif
 
 //--------------------------------------------------------------------
@@ -57,6 +58,14 @@ void clitk::RegisterClitkFactories()
     if (dynamic_cast<itk::GDCMImageIOFactory *>(*it))
     {
       itk::GDCMImageIOFactory::UnRegisterFactory(*it);
+      break;
+    }
+
+  std::list< itk::ObjectFactoryBase * > flpng = itk::PNGImageIOFactory::GetRegisteredFactories();
+  for (std::list< itk::ObjectFactoryBase * >::iterator it = flpng.begin(); it != flpng.end(); ++it)
+    if (dynamic_cast<itk::PNGImageIOFactory *>(*it))
+    {
+      itk::PNGImageIOFactory::UnRegisterFactory(*it);
       break;
     }
 #endif
@@ -81,6 +90,7 @@ void clitk::RegisterClitkFactories()
   clitk::EsrfHstImageIOFactory::RegisterOneFactory();
 #if ITK_VERSION_MAJOR >= 4
   itk::GDCMImageIOFactory::RegisterOneFactory();
+  itk::PNGImageIOFactory::RegisterOneFactory();
 #endif
 } ////
 

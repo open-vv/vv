@@ -101,11 +101,11 @@ void clitk::printImageHeader(itk::ImageIOBase::Pointer header, std::ostream & os
     for(unsigned int i=0; i< dim-1; i++)
       os << inputSize[i] << "x";
     os << inputSize[dim-1]
-       << "  ";
+       << " ";
     for(unsigned int i=0; i< dim-1; i++)
       os << inputSpacing[i] << "x";
     os << inputSpacing[dim-1]
-       << "  ";
+       << " ";
     for(unsigned int i=0; i< dim-1; i++)
       os << inputOrigin[i] << "x";
     os << inputOrigin[dim-1] << " ";
