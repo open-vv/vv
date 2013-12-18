@@ -131,20 +131,24 @@ GenerateOutputInformation()
         itkExceptionMacro( << "Input and output spacings don't have the same signs, can't cope with that" );
       m_OutputSize[i] = (int)floor(inputSize[i]*inputSpacing[i]/m_OutputSpacing[i]);
     }
-  } else {
+  }
+  else if(m_OutputSpacing[0]==-1 ||  m_OutputSize[0]==0){
     if (m_OutputSpacing[0] != -1) { // apply spacing, compute size
       for(unsigned int i=0; i<dim; i++) {
-        if(inputSpacing[i]*m_OutputSpacing[i]<0)
+        if(inputSpacing[i]*m_OutputSpacing[i]<0) {
           itkExceptionMacro( << "Input and output spacings don't have the same signs, can't cope with that" );
-	// see comment above for the use of floor()
-	m_OutputSize[i] = (int)floor(inputSize[i]*inputSpacing[i]/m_OutputSpacing[i]);
+        }
+        // see comment above for the use of floor()
+        m_OutputSize[i] = (int)floor(inputSize[i]*inputSpacing[i]/m_OutputSpacing[i]);
       }
-    } else {
+    }
+    else {
       if (m_OutputSize[0] != 0) { // apply size, compute spacing
         for(unsigned int i=0; i<dim; i++) {
           m_OutputSpacing[i] = (double)inputSize[i]*inputSpacing[i]/(double)m_OutputSize[i];
         }
-      } else { // copy input size/spacing ... (no resampling)
+      }
+      else { // copy input size/spacing ... (no resampling)
         m_OutputSize = inputSize;
         m_OutputSpacing = inputSpacing;
       }
@@ -306,12 +310,7 @@ GenerateData()
   filter->Update();
 
   // Set output
-  // DD("before Graft");
-
-  //this->GraftOutput(filter->GetOutput());
-  this->SetNthOutput(0, filter->GetOutput());
-
-  // DD("after Graft");
+  this->GraftOutput(filter->GetOutput());
 }
 //--------------------------------------------------------------------
 
