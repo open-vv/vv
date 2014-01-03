@@ -41,7 +41,6 @@
 //From portdefs.h
 #if defined(unix) || defined(__APPLE__)
 #define O_BINARY 0
-#define setmode(a,b) 0
 #endif
 
 #ifndef __LARGE__
