@@ -300,6 +300,11 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkImageUncertainty clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageUncertainty)
 
+  WRAP_GGO(clitkNormalizeImageFilter_GGO_C clitkNormalizeImageFilter.ggo)
+  ADD_EXECUTABLE(clitkNormalizeImageFilter clitkNormalizeImageFilter.cxx ${clitkNormalizeImageFilter_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkNormalizeImageFilter clitkCommon )
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkNormalizeImageFilter)
+
   WRAP_GGO(clitkImageGradientMagnitude_GGO_C clitkImageGradientMagnitude.ggo)
   ADD_EXECUTABLE(clitkImageGradientMagnitude clitkImageGradientMagnitude.cxx ${clitkImageGradientMagnitude_GGO_C})
   TARGET_LINK_LIBRARIES(clitkImageGradientMagnitude clitkCommon )
