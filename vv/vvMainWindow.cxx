@@ -103,9 +103,9 @@ It is distributed under dual licence
 #define COLUMN_IMAGE_NAME 7
 
 #ifdef CLITK_PRIVATE_FEATURES
-#define EXTENSIONS "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN *.nii *.nrrd *.nhdr *.refscan *.nii.gz *.usf *.svl)"
+#define EXTENSIONS "Images ( *.bmp *.dcm *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN *.nii *.nrrd *.nhdr *.refscan *.nii.gz *.usf *.svl)"
 #else
-#define EXTENSIONS "Images ( *.bmp *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN *.nii *.nrrd *.nhdr *.refscan *.nii.gz)"
+#define EXTENSIONS "Images ( *.bmp *.dcm *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN *.nii *.nrrd *.nhdr *.refscan *.nii.gz)"
 #endif
 
 
@@ -1005,7 +1005,7 @@ void vvMainWindow::CurrentImageChanged(std::string id)
                                       mSlicerManagers[selected]->GetTSlice());
   landmarksPanel->SetCurrentPath(mInputPathName.toStdString());
   landmarksPanel->SetCurrentImage(mSlicerManagers[selected]->GetFileName().c_str());
-  
+
   emit SelectedImageHasChanged(mSlicerManagers[selected]);
 }
 //------------------------------------------------------------------------------
@@ -1168,12 +1168,12 @@ void vvMainWindow::ImageInfoChanged()
 //     infoPanel->setOrigin(GetVectorDoubleAsString(origin));
 //     infoPanel->setSpacing(GetVectorDoubleAsString(inputSpacing));
 //     infoPanel->setNPixel(QString::number(NPixel)+" ("+inputSizeInBytes+")");
-// 
+//
 //     landmarksPanel->SetCurrentLandmarks(mSlicerManagers[index]->GetLandmarks(),
 //                                         mSlicerManagers[index]->GetTSlice());
 //     landmarksPanel->SetCurrentPath(mInputPathName.toStdString());
 //     landmarksPanel->SetCurrentImage(mSlicerManagers[index]->GetFileName().c_str());
-// 
+//
 //     overlayPanel->getCurrentImageName(mSlicerManagers[index]->GetFileName().c_str());
 //     for (int i = 0; i < 4; i++) {
 //       if (DataTree->selectedItems()[0]->data(i+1,Qt::CheckStateRole).toInt() > 0 || i == 3) {
@@ -1444,7 +1444,7 @@ void vvMainWindow::DisplayChanged(QTreeWidgetItem *clickedItem, int column)
       clickedParentItem->setData(column, Qt::CheckStateRole, vis?2:0);
 
       // Children
-      std::map<std::string, int> actorTypeCounts;      
+      std::map<std::string, int> actorTypeCounts;
       for (int iChild = 0; iChild < clickedParentItem->childCount(); iChild++) {
         QTreeWidgetItem* currentChildItem = clickedParentItem->child(iChild);
         std::string actorType = currentChildItem->data(1,Qt::UserRole).toString().toStdString();
@@ -1562,7 +1562,7 @@ void vvMainWindow::CloseImage(QTreeWidgetItem* item, int column)
         if (DataTree->topLevelItem(index)->child(child) == item) break;
       }
       if (overlay_type=="fusionSequence") {
-        //removing the overlay sequence in a fusion sequence visualization mode 
+        //removing the overlay sequence in a fusion sequence visualization mode
         //reset the transforms
         overlayPanel->getFusionSequenceProperty(-1, false, 0, false);
 
@@ -1684,12 +1684,12 @@ void vvMainWindow::ReloadImage(QTreeWidgetItem* item, int column)
   else if (role == "fusionSequence") {
     //both versions of the secondary sequence must be updated.
     mSlicerManagers[index]->ReloadFusionSequence();
-    mSlicerManagers[mSlicerManagers[index]->GetFusionSequenceIndexOfLinkedManager()]->Reload(); 
+    mSlicerManagers[mSlicerManagers[index]->GetFusionSequenceIndexOfLinkedManager()]->Reload();
   }
   else {
     mSlicerManagers[index]->Reload();
     //if we update the secondary sequence, then the overlay of the main sequence should also be updated
-    if (mSlicerManagers[index]->IsSecondarySequenceOfFusionSequence()) mSlicerManagers[mSlicerManagers[index]->GetFusionSequenceIndexOfLinkedManager()]->ReloadFusionSequence(); 
+    if (mSlicerManagers[index]->IsSecondarySequenceOfFusionSequence()) mSlicerManagers[mSlicerManagers[index]->GetFusionSequenceIndexOfLinkedManager()]->ReloadFusionSequence();
   }
   // Update view and info
   ImageInfoChanged();
@@ -1758,7 +1758,7 @@ void vvMainWindow::WindowLevelChanged()
       mSlicerManagers[index]->GetFusionLevel());
     if (mSlicerManagers[index]->IsMainSequenceOfFusionSequence()) {
       overlayPanel->getFusionSequenceProperty(mSlicerManagers[index]->GetFusionSequenceFrameIndex(),
-        mSlicerManagers[index]->GetFusionSequenceSpatialSyncFlag(), 
+        mSlicerManagers[index]->GetFusionSequenceSpatialSyncFlag(),
         mSlicerManagers[index]->GetFusionSequenceNbFrames(),
         mSlicerManagers[index]->GetFusionSequenceTemporalSyncFlag());
     }
@@ -1772,7 +1772,7 @@ void vvMainWindow::WindowLevelChanged()
       mSlicerManagers[ind]->GetFusionWindow(),
       mSlicerManagers[ind]->GetFusionLevel());
     overlayPanel->getFusionSequenceProperty(mSlicerManagers[ind]->GetFusionSequenceFrameIndex(),
-      mSlicerManagers[ind]->GetFusionSequenceSpatialSyncFlag(), 
+      mSlicerManagers[ind]->GetFusionSequenceSpatialSyncFlag(),
       mSlicerManagers[ind]->GetFusionSequenceNbFrames(),
       mSlicerManagers[ind]->GetFusionSequenceTemporalSyncFlag());
   }
@@ -2230,7 +2230,7 @@ void vvMainWindow::AddLandmarks(int index, std::vector<std::string> files)
 {
     if (!landmarksPanel->LoadFromFile(files))
       QMessageBox::information(this,tr("Problem reading Landmarks !"),"File doesn't exist!");
-    
+
     landmarksPanel->SetCurrentPath(mInputPathName.toStdString());
     landmarksPanel->SetCurrentImage(mSlicerManagers[index]->GetFileName().c_str());
 }
@@ -2249,12 +2249,12 @@ void vvMainWindow::OpenField()
       return;
     }
 
-    QString Extensions = "Images ( *.mhd)";
-    Extensions += ";;Images ( *.mha)";
-    Extensions += ";;VF Images ( *.vf)";
-    Extensions += ";;nii Images ( *.nii)";
-    Extensions += ";;nrrd Images ( *.nrrd)";
-    Extensions += ";;nhdr Images ( *.nhdr)";
+    QString Extensions = "Images ( *.mhd *.mha *.vf *.nii *.nrrd *.nhdr)";
+    // Extensions += ";;Images ( *.mha)";
+    // Extensions += ";;VF Images ( *.vf)";
+    // Extensions += ";;nii Images ( *.nii)";
+    // Extensions += ";;nrrd Images ( *.nrrd)";
+    // Extensions += ";;nhdr Images ( *.nhdr)";
     Extensions += ";;All Files (*)";
     QString file = QFileDialog::getOpenFileName(this,tr("Load deformation field"),mInputPathName,Extensions);
     if (!file.isEmpty())
@@ -2489,8 +2489,8 @@ std::cout<<"nbFrameMain = "<<nbFrameMain<<", nbFrameSecondary= "<<nbFrameSeconda
       }
       else { //first part of the file -> index in secondary seq.
         if ( tmpVect(i)<nbFrameMain ) temporalCorrespondances.push_back(tmpVect(i));
-        else { signalOK=false; break; } //pointing outside the secondary sequence...      
-      }      
+        else { signalOK=false; break; } //pointing outside the secondary sequence...
+      }
     }
   }
   else {signalOK=false;}
@@ -2639,7 +2639,7 @@ void vvMainWindow::SetFusionSequenceProperty(int fusionSequenceFrameIndex, bool 
 {
   int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
 
-  if (!mSlicerManagers[index]->IsInvolvedInFusionSequence()) return; 
+  if (!mSlicerManagers[index]->IsInvolvedInFusionSequence()) return;
 
   //check if the focus moved to the linked sequence, and in this case, select the master sequence instead
   if (!mSlicerManagers[index]->IsMainSequenceOfFusionSequence()) {
@@ -2647,8 +2647,8 @@ void vvMainWindow::SetFusionSequenceProperty(int fusionSequenceFrameIndex, bool 
   }
   int secondaryIndex = mSlicerManagers[index]->GetFusionSequenceIndexOfLinkedManager();
   if (secondaryIndex==-1) return; //this should never happen
-  if ( (!mSlicerManagers[index]->IsMainSequenceOfFusionSequence()) || 
-    (!mSlicerManagers[secondaryIndex]->IsSecondarySequenceOfFusionSequence()) ) 
+  if ( (!mSlicerManagers[index]->IsMainSequenceOfFusionSequence()) ||
+    (!mSlicerManagers[secondaryIndex]->IsSecondarySequenceOfFusionSequence()) )
   {return;} //this should never happen, raise an exception?
 
   if (mSlicerManagers[index]->GetSlicer(0)->GetFusion()) {
@@ -2688,7 +2688,7 @@ void vvMainWindow::SetFusionSequenceProperty(int fusionSequenceFrameIndex, bool 
         mainSequenceFrameIndex = mSlicerManagers[index]->GetFusionSequenceCorrespondances()[ nbFramesMain + fusionSequenceFrameIndex];
         //and set it!
         mSlicerManagers[index]->SetTSlice(mainSequenceFrameIndex, false);
-        //warning, there is a loopback, and modification of the TSlice in main sequence forces an update of the TSlice in secondary, etc... 
+        //warning, there is a loopback, and modification of the TSlice in main sequence forces an update of the TSlice in secondary, etc...
       }
 
 
@@ -2937,16 +2937,16 @@ void vvMainWindow::HorizontalSliderMoved(int value,int column, int slicer_index)
       //i is the SlicerManager that is in charge of this slicer.
       if (mSlicerManagers[i]->IsInvolvedInFusionSequence()) {
         //if the slicerManager is involved in a fusionSequence as the secondary sequence, then update the slider position in the overlay panel and everything accordingly
-        if (mSlicerManagers[i]->IsSecondarySequenceOfFusionSequence()) { 
-          overlayPanel->updateFusionSequenceSliderValueFromWindow(value, true); 
+        if (mSlicerManagers[i]->IsSecondarySequenceOfFusionSequence()) {
+          overlayPanel->updateFusionSequenceSliderValueFromWindow(value, true);
         }
         else { //if this is the primary sequence that has been modified
-          if (mSlicerManagers[i]->GetFusionSequenceTemporalSyncFlag()) {            
+          if (mSlicerManagers[i]->GetFusionSequenceTemporalSyncFlag()) {
             //WARNING: for some obscure reason, there are problems when accessing mSlicerManagers[mSlicerManagers[i]->GetFusionSequenceIndexOfLinkedManager()]->GetFusionSequenceFrameIndex();
 
             int estimatedValue=0;
             //estimate a corresponding time index for the secondary (US) sequence, and update it accordingly.
-            estimatedValue = mSlicerManagers[i]->GetFusionSequenceCorrespondances()[ value ];       
+            estimatedValue = mSlicerManagers[i]->GetFusionSequenceCorrespondances()[ value ];
             //TODO: at the moment, there is a loop in TSlice modifications
             //modifying sequence 1 causes seq 2 to update, which in turns update seq1...
             //I disable control on seq1 at the moment.
@@ -3245,9 +3245,9 @@ void vvMainWindow::SaveScreenshotAllSlices()
     // Change the slice
     slicer->SetSlice(i); // -> change the slice of the current slicer
     SM->UpdateSlice(0); // --> this one emit UpdateSlice
-    QCoreApplication::flush(); // -> needed to force display of contours 
+    QCoreApplication::flush(); // -> needed to force display of contours
 
-    // Screenshot  
+    // Screenshot
     vtkSmartPointer<vtkWindowToImageFilter> windowToImageFilter = vtkSmartPointer<vtkWindowToImageFilter>::New();
     windowToImageFilter->SetInput(renderWindow);
     windowToImageFilter->SetMagnification(1);
@@ -3261,7 +3261,7 @@ void vvMainWindow::SaveScreenshotAllSlices()
     if (i<100) num = "0"+num;
     if (i<1000) num = "0"+num;
 
-    fn = itksys::SystemTools::GetFilenamePath(filename.toStdString()) + "/"+ fn 
+    fn = itksys::SystemTools::GetFilenamePath(filename.toStdString()) + "/"+ fn
       + "_" + num + itksys::SystemTools::GetFilenameLastExtension(filename.toStdString());
     writer->SetFileName(fn.c_str());
     writer->SetInput(windowToImageFilter->GetOutput());
@@ -3657,4 +3657,3 @@ void vvMainWindow::UpdateCurrentSlicer()
   mSlicerManagerCurrentIndex = index;
 }
 //------------------------------------------------------------------------------
-
