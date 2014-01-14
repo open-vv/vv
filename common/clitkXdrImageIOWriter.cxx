@@ -41,6 +41,7 @@
 //From portdefs.h
 #if defined(unix) || defined(__APPLE__)
 #define O_BINARY 0
+//#define setmode(a,b) 0 // comment by ds
 #endif
 
 #ifndef __LARGE__
@@ -956,7 +957,7 @@ void clitk::XdrImageIO::WriteImage(const char* file, char* headerinfo, char* hea
 
   for (i=0; i<GetNumberOfDimensions(); i++) {
     if (!raw) {
-      sprintf(temp, "dim%d=%d\n", i+1, GetDimensions(i));
+      sprintf(temp, "dim%d=%lu\n", i+1, GetDimensions(i));
       slen = strlen(temp);
       if (!checked_write(f, temp, slen, buffer)) {
         free(pCompressed);
