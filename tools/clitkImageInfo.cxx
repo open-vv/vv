@@ -30,6 +30,7 @@
 #include "clitkIO.h"
 #include "clitkImageCommon.h"
 #include "clitkCommon.h"
+#include "vvImageReader.h"
 
 //====================================================================
 int main(int argc, char * argv[])
@@ -61,7 +62,29 @@ int main(int argc, char * argv[])
     else {
       std::cerr << "*** Warning : I could not read '" << args_info.inputs[i] << "' ***" << std::endl;
     }
-  }
+
+    if (args_info.matrix_flag) {
+      vvImageReader::Pointer r = vvImageReader::New();
+      r->SetInputFilename(args_info.inputs[i]);
+      r->Update(vvImageReader::IMAGE);
+      vtkMatrix4x4 * m = r->GetOutput()->GetTransform()[0]->GetMatrix();
+      for(int i=0; i<4; i++) {
+        for(int j=0; j<4; j++)
+          std::cout << m->GetElement(i,j) << " ";
+        std::cout << std::endl;
+      }
+
+      // inverse
+      m->Invert();
+      for(int i=0; i<4; i++) {
+        for(int j=0; j<4; j++)
+          std::cout << m->GetElement(i,j) << " ";
+        std::cout << std::endl;
+      }
+
+    }
+  } // end for
+
 
   // this is the end my friend
   return 0;
