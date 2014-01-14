@@ -1,4 +1,4 @@
-#!/usr/bin/env bash 
+#!/usr/bin/env bash
 
 set -u
 SCRIPTNAME="$(basename "${0}")"
@@ -74,10 +74,19 @@ echo "njobs = ${NJOBS}" >> "${PARAMFILE}"
 echo "macro = ${MACROFILE}" >> "${PARAMFILE}"
 test -z "${PARAM}" || echo "param = ${PARAM}" >> "${PARAMFILE}"
 
+# Copy macros files (for log)
+mkdir ${OUTPUTDIR}/mac
+cp ${MACROFILE} ${OUTPUTDIR}/mac
+files=`grep "control/execute" ${MACROFILE} | cut -d " " -f 2`
+for i in $files
+do
+    cp $i ${OUTPUTDIR}/mac
+done
+
 while test $NJOBS -gt 0; do
 
     if test "${QSUB}" = "noqsub"
-    then 
+    then
         echo "Launching Gate log in ${OUTPUTDIR}/gate_${NJOBS}.log"
         PARAM=\"${PARAM}\" INDEX=${NJOBS} INDEXMAX=${NJOBSMAX} SCRIPTDIR=${SCRIPTDIR} OUTPUTDIR=${OUTPUTDIR}  RELEASEDIR=${RELEASEDIR} MACROFILE=${MACROFILE} MACRODIR=${MACRODIR} PBS_JOBID="local_${NJOBS}" bash "${JOBFILE}" > ${OUTPUTDIR}/gate_${NJOBS}.log &
     else
