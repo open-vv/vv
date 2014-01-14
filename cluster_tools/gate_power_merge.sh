@@ -290,7 +290,7 @@ function merge_mhd_image {
         then
             update_bar ${count} "copying first partial result ${partial}"
             cp "${partial}" "${merged}"
-            if test "$last_character" = "d" 
+            if test "$last_character" = "d"
             then
                 cp "${partial_bin}" "${merged_bin%.*}.${partial_bin##*.}"
             fi
@@ -496,7 +496,7 @@ echo "!!!! this is $0 v0.3k !!!!"
 
 rundir="${1?"provide run dir"}"
 rundir="$(echo "${rundir}" | sed 's|/*$||')"
-nboutputdirs="$(find "${rundir}" -mindepth 1 -type d -o -type l -name 'output*' | wc -l)"
+nboutputdirs="$(find "${rundir}" -mindepth 1 -name 'output*' -type d -o -type l  | wc -l)"
 
 test ${nboutputdirs} -gt 0 || error "no output dir found"
 echo "found ${nboutputdirs} partial output dirs"
