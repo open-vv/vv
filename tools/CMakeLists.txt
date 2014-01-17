@@ -320,6 +320,10 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkImageIntensityWindowing clitkCommon )
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageIntensityWindowing)
 
+  WRAP_GGO(clitkBlurImage_GGO_C clitkBlurImage.ggo)
+  ADD_EXECUTABLE(clitkBlurImage clitkBlurImage.cxx ${clitkBlurImage_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkBlurImage clitkCommon )
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkBlurImage)
 
   #=========================================================
   option(CLITK_USE_ROOT "Build experimental tools using root" OFF)

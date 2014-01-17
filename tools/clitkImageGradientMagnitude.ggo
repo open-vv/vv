@@ -1,7 +1,7 @@
 #File clitkImageGradientMagnitude.ggo
 package "clitkImageGradientMagnitude"
 version "1.0"
-purpose ""
+purpose "Compute the gradient magnitude of the input image"
 
 option "config"	  	-	"Config file"			  string  	optional
 option "verbose"   	v   	"Verbose"			  flag		off
@@ -12,3 +12,4 @@ option "input"		i	"Input image filename"		  string  	required
 option "mask"		m	"Mask input image filename"       string  	optional
 option "output"    	o   	"Output image filename"		  string 	required
 option "normalize"      n       "Normalize the output image between 0 and 1"    flag off
+option "gaussian_filter" g      "Gaussian filtering"              flag          off
