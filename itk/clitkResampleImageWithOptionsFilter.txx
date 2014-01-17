@@ -240,7 +240,7 @@ GenerateData()
   filter->SetTransform(m_Transform);
   filter->SetSize(m_OutputSize);
   filter->SetOutputSpacing(m_OutputSpacing);
-  filter->SetOutputOrigin(origin);
+  filter->SetOutputOrigin(m_OutputOrigin);
   filter->SetDefaultPixelValue(m_DefaultPixelValue);
   filter->SetNumberOfThreads(this->GetNumberOfThreads());
   filter->SetOutputDirection(m_OutputDirection); // <-- NEEDED if we want to keep orientation (in case of PermutAxes for example)
