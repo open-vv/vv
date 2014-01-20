@@ -29,6 +29,7 @@
 
 // itk include
 #include "itkGradientMagnitudeImageFilter.h"
+#include "itkGradientMagnitudeRecursiveGaussianImageFilter.h"
 #include "itkLabelStatisticsImageFilter.h"
 #include "itkMaskImageFilter.h"
 #include "itkMaskNegatedImageFilter.h"
@@ -127,13 +128,24 @@ namespace clitk
         IteratorOutputType ito = IteratorOutputType(outputImage, outputImage->GetLargestPossibleRegion());
 
         // Filter
+        typename OutputImageType::Pointer outputGradientFilter;
+        if (mArgsInfo.gaussian_filter_flag == 0) {
         typedef itk::GradientMagnitudeImageFilter<InputImageType, OutputImageType> GradientMagnitudeImageFilterType;
         typename GradientMagnitudeImageFilterType::Pointer gradientFilter=GradientMagnitudeImageFilterType::New();
         gradientFilter->SetInput(input);
         gradientFilter->Update();
+        outputGradientFilter = gradientFilter->GetOutput();
+        }
+        else {
+            typedef itk::GradientMagnitudeRecursiveGaussianImageFilter<InputImageType, OutputImageType> GradientMagnitudeImageFilterType;
+            typename GradientMagnitudeImageFilterType::Pointer gradientFilter=GradientMagnitudeImageFilterType::New();
+            gradientFilter->SetInput(input);
+            gradientFilter->Update();
+            outputGradientFilter = gradientFilter->GetOutput();
+        }
         // Set iterator
         typedef itk::ImageRegionIterator<OutputImageType> IteratorType;
-        IteratorType it(gradientFilter->GetOutput(), gradientFilter->GetOutput()->GetLargestPossibleRegion());
+        IteratorType it(outputGradientFilter, outputGradientFilter->GetLargestPossibleRegion());
 
         // Set mask iterator
         typedef itk::ImageRegionIterator<MaskImageType> IteratorMaskType;
@@ -141,12 +153,12 @@ namespace clitk
 
         //typedef itk::MinimumMaximumImageCalculator <OutputImageType> ImageCalculatorFilterType;
         //typename ImageCalculatorFilterType::Pointer imageCalculatorFilter = ImageCalculatorFilterType::New();
-        //imageCalculatorFilter->SetImage(gradientFilter->GetOutput());
+        //imageCalculatorFilter->SetImage(outputGradientFilter);
         //imageCalculatorFilter->Compute();
         typedef itk::LabelStatisticsImageFilter< OutputImageType, MaskImageType > LabelStatisticsImageFilterType;
         typename LabelStatisticsImageFilterType::Pointer labelStatisticsImageFilter = LabelStatisticsImageFilterType::New();
         labelStatisticsImageFilter->SetLabelInput( mask );
-        labelStatisticsImageFilter->SetInput(gradientFilter->GetOutput());
+        labelStatisticsImageFilter->SetInput(outputGradientFilter);
         labelStatisticsImageFilter->Update();
 
         //std::cout << "Number of labels: " << labelStatisticsImageFilter->GetNumberOfLabels() << std::endl;
@@ -172,7 +184,7 @@ namespace clitk
             ++itm;
         }
 
-        //typename OutputImageType::Pointer outputImage = gradientFilter->GetOutput();
+        //typename OutputImageType::Pointer outputImage = outputGradientFilter;
         this->template SetNextOutput<OutputImageType>(outputImage);
     }
     //--------------------------------------------------------------------

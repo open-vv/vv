@@ -1,7 +1,7 @@
 #File clitkImageLaplacian.ggo
 package "clitkImageLaplacian"
 version "1.0"
-purpose ""
+purpose "Compute the laplacian of the input image"
 
 option "config"	  	-	"Config file"			  string  	optional
 option "verbose"   	v   	"Verbose"			  flag		off
