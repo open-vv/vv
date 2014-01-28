@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://www.centreleonberard.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -32,28 +32,28 @@ namespace clitk
   // Update with the number of dimensions
   //-------------------------------------------------------------------
   template<unsigned int Dimension, unsigned int Components>
-  void 
+  void
   ImageStatisticsGenericFilter::UpdateWithDim(std::string PixelType)
   {
     if (m_Verbose) std::cout << "Image was detected to be "<<Dimension<<"D and "<< PixelType<<" with " << Components << " channel(s)..."<<std::endl;
 
-    if(PixelType == "short"){  
+    if(PixelType == "short"){
       if (m_Verbose) std::cout << "Launching filter in "<< Dimension <<"D and signed short..." << std::endl;
-      UpdateWithDimAndPixelType<Dimension, signed short, Components>(); 
+      UpdateWithDimAndPixelType<Dimension, signed short, Components>();
     }
-    else if(PixelType == "unsigned_short"){  
+    else if(PixelType == "unsigned_short"){
       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_short..." << std::endl;
-      UpdateWithDimAndPixelType<Dimension, unsigned short, Components>(); 
+      UpdateWithDimAndPixelType<Dimension, unsigned short, Components>();
     }
-    
-    else if (PixelType == "unsigned_char"){ 
+
+    else if (PixelType == "unsigned_char"){
       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_char..." << std::endl;
       UpdateWithDimAndPixelType<Dimension, unsigned char, Components>();
     }
-        
-    else if(PixelType == "double"){  
+
+    else if(PixelType == "double"){
       if (m_Verbose) std::cout << "Launching filter in "<< Dimension <<"D and double..." << std::endl;
-      UpdateWithDimAndPixelType<Dimension, double, Components>(); 
+      UpdateWithDimAndPixelType<Dimension, double, Components>();
     }
     else {
       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and float..." << std::endl;
@@ -65,8 +65,8 @@ namespace clitk
   //-------------------------------------------------------------------
   // Update with the number of dimensions and the pixeltype
   //-------------------------------------------------------------------
-  template <unsigned int Dimension, class  PixelType, unsigned int Components> 
-  void 
+  template <unsigned int Dimension, class  PixelType, unsigned int Components>
+  void
   ImageStatisticsGenericFilter::UpdateWithDimAndPixelType()
   {
 
@@ -74,20 +74,20 @@ namespace clitk
     typedef unsigned char LabelPixelType;
     typedef itk::Image<itk::Vector<PixelType, Components>, Dimension> InputImageType;
     typedef itk::Image<LabelPixelType, Dimension> LabelImageType;
-    
+
     // Read the input
     typedef itk::ImageFileReader<InputImageType> InputReaderType;
     typename InputReaderType::Pointer reader = InputReaderType::New();
     reader->SetFileName( m_InputFileName);
     reader->Update();
     typename InputImageType::Pointer input= reader->GetOutput();
-    
+
     typedef itk::NthElementImageAdaptor<InputImageType, PixelType> InputImageAdaptorType;
     typedef itk::Image<PixelType, Dimension> OutputImageType;
 
     typename InputImageAdaptorType::Pointer input_adaptor = InputImageAdaptorType::New();
     input_adaptor->SetImage(input);
-    
+
     // Filter
     typedef itk::LabelStatisticsImageFilter<InputImageAdaptorType, LabelImageType> StatisticsImageFilterType;
     typename StatisticsImageFilterType::Pointer statisticsFilter=StatisticsImageFilterType::New();
@@ -104,13 +104,13 @@ namespace clitk
         // Due to a limitation of filter itk::LabelStatisticsImageFilter, InputImageType and LabelImageType
         // must have the same image dimension. However, we want to support label images with Dl = Di - 1,
         // so we need to replicate the label image as many times as the size along dimension Di.
-        if (m_Verbose) 
+        if (m_Verbose)
           std::cout << "Replicating label image to match input image's dimension... " << std::endl;
-        
+
         typedef itk::Image<LabelPixelType, Dimension - 1> ReducedLabelImageType;
         typedef itk::ImageFileReader<ReducedLabelImageType> LabelImageReaderType;
         typedef itk::JoinSeriesImageFilter<ReducedLabelImageType, LabelImageType> JoinImageFilterType;
-        
+
         typename LabelImageReaderType::Pointer labelImageReader=LabelImageReaderType::New();
         labelImageReader->SetFileName(m_ArgsInfo.mask_arg);
         labelImageReader->Update();
@@ -119,7 +119,7 @@ namespace clitk
         typename InputImageType::SizeType size = input->GetLargestPossibleRegion().GetSize();
         for (unsigned int i = 0; i < size[Dimension - 1]; i++)
           joinFilter->PushBackInput(labelImageReader->GetOutput());
-        
+
         joinFilter->Update();
         labelImage = joinFilter->GetOutput();
       }
@@ -140,17 +140,18 @@ namespace clitk
             typename ResamplerType::Pointer resampler = ResamplerType::New();
             resampler->SetInput(labelImage);
             resampler->SetOutputSpacing(input->GetSpacing());
+            resampler->SetOutputOrigin(labelImage->GetOrigin());
             resampler->SetGaussianFilteringEnabled(false);
             resampler->Update();
             labelImage = resampler->GetOutput();
             //writeImage<LabelImageType>(labelImage, "test1.mha");
-            
+
             typedef clitk::CropLikeImageFilter<LabelImageType> FilterType;
             typename FilterType::Pointer crop = FilterType::New();
             crop->SetInput(labelImage);
             crop->SetCropLikeImage(input);
             crop->Update();
-            labelImage = crop->GetOutput();                        
+            labelImage = crop->GetOutput();
             //writeImage<LabelImageType>(labelImage, "test2.mha");
 
           }
@@ -163,7 +164,7 @@ namespace clitk
       }
 
     }
-    else { 
+    else {
       labelImage=LabelImageType::New();
       labelImage->SetRegions(input->GetLargestPossibleRegion());
       labelImage->SetOrigin(input->GetOrigin());
@@ -183,20 +184,20 @@ namespace clitk
 
     unsigned int firstComponent = 0, lastComponent = 0;
     if (m_ArgsInfo.channel_arg == -1) {
-      firstComponent = 0; 
+      firstComponent = 0;
       lastComponent = Components - 1;
     }
     else {
       firstComponent = m_ArgsInfo.channel_arg;
       lastComponent = m_ArgsInfo.channel_arg;
     }
-    
+
     for (unsigned int c=firstComponent; c<=lastComponent; c++) {
       if (m_Verbose) std::cout << std::endl << "Processing channel " << c << std::endl;
-      
+
       input_adaptor->SelectNthElement(c);
       input_adaptor->Update();
-      
+
       for (unsigned int k=0; k< numberOfLabels; k++) {
         label=m_ArgsInfo.label_arg[k];
 
@@ -235,7 +236,7 @@ namespace clitk
           std::cout<<statisticsFilter->GetSum(label)<<std::endl;
 
         if (m_Verbose) std::cout<<"Bounding box: ";
-        
+
         for(unsigned int i =0; i <statisticsFilter->GetBoundingBox(label).size(); i++)
           std::cout<<statisticsFilter->GetBoundingBox(label)[i]<<" ";
         std::cout<<std::endl;
@@ -267,8 +268,8 @@ namespace clitk
     return;
 
   }
-  
-  
+
+
 }//end clitk
 
 #endif //#define clitkImageStatisticsGenericFilter_txx
