@@ -229,10 +229,9 @@ GenerateData()
   }
 
   // Compute origin based on image corner
-  typename FilterType::OriginPointType origin = input->GetOrigin();
   for(unsigned int i=0; i<OutputImageType::ImageDimension; i++) {
-    origin[i] -= 0.5 * input->GetSpacing()[i];
-    origin[i] += 0.5 * m_OutputSpacing[i];
+    m_OutputOrigin[i] -= 0.5 * input->GetSpacing()[i];
+    m_OutputOrigin[i] += 0.5 * m_OutputSpacing[i];
   }
 
   // Instance of the transform object to be passed to the resample
