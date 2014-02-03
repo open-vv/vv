@@ -75,20 +75,17 @@ int main(int argc, char * argv[])
 
 
 
-  //pojedyncza zaczytana wartosc
+  //reading first line of input file to chck thw dimension of data
   double x = 0;
   //clitk::skipComment(is);
   is >> x;
 
-  //typ piksela - bo wykorzystujemy strukture itk::Image
-  typedef   unsigned char  PixelType;
+    typedef   unsigned char  PixelType;
 
 
 
 
 
-    //Ddefinicja typu obrazu: zawiera rozmiar danych, typ piksela
-    //rozmiarowosc danych
     unsigned int Dimension_temp = (unsigned int)x;
 
 
@@ -110,13 +107,11 @@ int main(int argc, char * argv[])
             typedef LandmarkBasedTransformInitializerType::LandmarkPointContainer     LandmarkContainerType;
             typedef LandmarkBasedTransformInitializerType::LandmarkPointType          LandmarkPointType;
 
-            //bufory na zaczyt wspolrzedncyh
             LandmarkContainerType imageLandmarks;
             LandmarkContainerType trackerLandmarks;
 
-            //bufory na pojedyncze punkty
-            LandmarkPointType imagePoint; // dane z CT
-            LandmarkPointType trackerPoint; //dane z tracking system
+            LandmarkPointType imagePoint;
+            LandmarkPointType trackerPoint;
 
             is >> x;
 
@@ -124,11 +119,10 @@ int main(int argc, char * argv[])
             while (is && !is.eof()) {
                 trackerPoint[0] = x;
                 is >> trackerPoint[1];
-                //is >> trackerPoint[2];
+
 
                 is >> imagePoint[0];
                 is >> imagePoint[1];
-                //is >> imagePoint[2];
 
                 imageLandmarks.push_back(imagePoint );
                 trackerLandmarks.push_back(trackerPoint );
@@ -146,7 +140,6 @@ int main(int argc, char * argv[])
 
             transform->SetIdentity();
 
-            // Versor rotacji i macierz translacji
             landmarkBasedTransformInitializer->SetTransform(transform);
             landmarkBasedTransformInitializer->InitializeTransform();
 
@@ -167,7 +160,6 @@ int main(int argc, char * argv[])
         else if (Dimension_temp==3)
         {
 
-            std::cout << "to ja";
             const     unsigned int   Dimension = 3;
             typedef   itk::Image< PixelType, Dimension > ImageType;
             typedef   float          VectorComponentType;
@@ -183,13 +175,11 @@ int main(int argc, char * argv[])
             typedef LandmarkBasedTransformInitializerType::LandmarkPointContainer     LandmarkContainerType;
             typedef LandmarkBasedTransformInitializerType::LandmarkPointType          LandmarkPointType;
 
-            //bufory na zaczyt wspolrzedncyh
             LandmarkContainerType imageLandmarks;
             LandmarkContainerType trackerLandmarks;
 
-            //bufory na pojedyncze punkty
-            LandmarkPointType imagePoint; // dane z CT
-            LandmarkPointType trackerPoint; //dane z tracking system
+            LandmarkPointType imagePoint;
+            LandmarkPointType trackerPoint;
 
             is >> x;
 
@@ -217,7 +207,6 @@ int main(int argc, char * argv[])
 
             transform->SetIdentity();
 
-            // Versor rotacji i macierz translacji
             landmarkBasedTransformInitializer->SetTransform(transform);
             landmarkBasedTransformInitializer->InitializeTransform();
 
