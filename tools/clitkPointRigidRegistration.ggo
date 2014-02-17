@@ -9,5 +9,6 @@ option "verbose"   	v   	"Verbose"			  flag		off
 
 
 
-option "input"		i	"Corresponding points' positions filename"		  string  	required
+option "input"		i	"Corresponding points' positions filename"        string  	required
 option "output"    	o   	"Output transformation filename"		  string 	required
+option "error"		e       "Output error filename"				  string        optional

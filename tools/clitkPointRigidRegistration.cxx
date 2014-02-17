@@ -27,7 +27,7 @@
 
 // clitk
 #include "clitkPointRigidRegistration_ggo.h"
-#include "clitkPointRigidRegistrationGenericFilter.h"
+//#include "clitkPointRigidRegistrationGenericFilter.h"
 
 //paste from RigidRegistration
 #include "itkImageFileReader.h"
@@ -40,10 +40,10 @@
 #include "itkVersorRigid3DTransform.h"
 #include <iostream>
 
-//paste from /home/dspinczyk/dev/clitk_superbuild_Agata/Source/clitk/common/clitkTransformUtilities.h
+
 #include "itkMatrix.h"
 #include "itkArray.h"
-#include "itkPoint.h"
+//#include "itkPoint.h"
 #include "clitkImageCommon.h"
 #include "clitkCommon.h"
 //#define VTK_EXCLUDE_STRSTREAM_HEADERS
@@ -117,12 +117,12 @@ int main(int argc, char * argv[])
 
 
             while (is && !is.eof()) {
-                trackerPoint[0] = x;
-                is >> trackerPoint[1];
-
-
-                is >> imagePoint[0];
+                imagePoint[0] = x;
                 is >> imagePoint[1];
+
+
+                is >> trackerPoint[0];
+                is >> trackerPoint[1];
 
                 imageLandmarks.push_back(imagePoint );
                 trackerLandmarks.push_back(trackerPoint );
@@ -156,7 +156,136 @@ int main(int argc, char * argv[])
               out.close();
 
 
-        }
+
+              // Write result
+             if (args_info.error_arg != 0)
+             {
+                std::ofstream error;
+                clitk::openFileForWriting(error, args_info.error_arg);
+
+
+              //imagePoints
+              int nImagePoints = imageLandmarks.size();
+              double  imagePoints[3][nImagePoints];
+              double  trackerPoints[3][nImagePoints];
+              double  imagePointstoTrackerCoordinate[3][nImagePoints];
+              double FRE = 0;
+              double PointEuclideanDistance = 0;
+              double SumofPointsEuclideanDistance = 0;
+
+
+              for(int n= 0; n < imageLandmarks.size(); n++)
+              {
+                  for(int j= 0; j < 2; j++)
+                  {
+                      imagePoints[j][n] = imageLandmarks[n][j];
+                      trackerPoints[j][n] = trackerLandmarks[n][j];
+
+
+
+
+//                      imagePoints[j][n] = trackerLandmarks[n][j];
+//                      trackerPoints[j][n] = imageLandmarks[n][j];
+                      imagePointstoTrackerCoordinate[j][n] = 0;
+
+                  }
+                  imagePoints[2][n] = 1.0;
+                  trackerPoints[2][n] = 1.0;
+                  imagePointstoTrackerCoordinate[2][n] = 0;
+              }
+
+
+              //transformation matrix
+              double RigidTransformationImagetoTracker[4][4];
+
+
+              for(int i = 0; i < 2; i++)
+                for(int j = 0; j < 2; j++)
+                    RigidTransformationImagetoTracker[i][j] = matrix[i][j];
+
+
+              for(int i = 0; i < 2; i++)
+                  RigidTransformationImagetoTracker[i][2] = offset[i];
+
+              RigidTransformationImagetoTracker[2][0] = 0.0;
+              RigidTransformationImagetoTracker[2][1] = 0.0;
+              RigidTransformationImagetoTracker[2][2] = 1.0;
+
+
+              //writing results
+              error << "ImagePoints:    CorrespondingTrackerPoints:     ImagePointstoTrackerCoordinateSystem:  PointsDistanceafterRigidRegistration:" << std::endl;
+
+
+
+
+
+              //Calculate FRE
+
+              for(int n= 0; n < imageLandmarks.size(); n++)
+              {
+
+
+                   //Calculate imagePointstoTrackerCoordinate
+                   for(int i = 0; i < 3; i++)
+                   {
+
+                       for(int k = 0; k < 3; k++)
+                       {
+                            imagePointstoTrackerCoordinate[i][n] = imagePointstoTrackerCoordinate[i][n] + RigidTransformationImagetoTracker[i][k]*imagePoints[k][n];
+
+                       }
+
+                   }
+
+
+                   //writing results
+
+                   for(int i = 0; i < 2; i++)
+                            error << imagePoints[i][n] << ' ';
+
+                   error << "    ";
+
+                   for(int i = 0; i < 2; i++)
+                            error << trackerPoints[i][n] << ' ';
+
+                   error << "   ";
+
+                   for(int i = 0; i < 2; i++)
+                            error << imagePointstoTrackerCoordinate[i][n] << ' ';
+
+
+
+                   //calculate PointEuclideanDistance
+                   PointEuclideanDistance = 0;
+                   for(int i=0; i < 2;i++)
+                   {
+                       PointEuclideanDistance = PointEuclideanDistance + std::pow((trackerPoints[i][n] - imagePointstoTrackerCoordinate[i][n]),2);
+                   }
+                   PointEuclideanDistance = std::sqrt(PointEuclideanDistance);
+                   error << "   " <<   PointEuclideanDistance   << "   ";
+
+                   SumofPointsEuclideanDistance = SumofPointsEuclideanDistance +  std::pow(PointEuclideanDistance,2);
+
+
+
+
+
+
+                   error << std::endl;
+
+
+
+
+
+              } //end loop via points
+
+              error << std::endl;
+              SumofPointsEuclideanDistance = std::sqrt(SumofPointsEuclideanDistance/nImagePoints);
+              error << "Fiducial Registration Error:   " <<  SumofPointsEuclideanDistance;
+              error.close();
+
+            } //end if (args_info.error_arg != null)
+        } //end Dimension == 2 case
         else if (Dimension_temp==3)
         {
 
@@ -177,6 +306,8 @@ int main(int argc, char * argv[])
 
             LandmarkContainerType imageLandmarks;
             LandmarkContainerType trackerLandmarks;
+            LandmarkContainerType imageLandmarksTotrackerCoordinate;
+
 
             LandmarkPointType imagePoint;
             LandmarkPointType trackerPoint;
@@ -184,13 +315,13 @@ int main(int argc, char * argv[])
             is >> x;
 
             while (is && !is.eof()) {
-                trackerPoint[0] = x;
-                is >> trackerPoint[1];
-                is >> trackerPoint[2];
-
-                is >> imagePoint[0];
+                imagePoint[0] = x;
                 is >> imagePoint[1];
                 is >> imagePoint[2];
+
+                is >> trackerPoint[0];
+                is >> trackerPoint[1];
+                is >> trackerPoint[2];
 
                 imageLandmarks.push_back(imagePoint );
                 trackerLandmarks.push_back(trackerPoint );
@@ -224,14 +355,144 @@ int main(int argc, char * argv[])
               out.close();
 
 
+              if (args_info.error_arg != 0)
+              {
+              // Write result
+                std::ofstream error;
+                clitk::openFileForWriting(error, args_info.error_arg);
 
-        }
+
+              //imagePoints
+              int nImagePoints = imageLandmarks.size();
+              double  imagePoints[4][nImagePoints];
+              double  trackerPoints[4][nImagePoints];
+              double  imagePointstoTrackerCoordinate[4][nImagePoints];
+              double FRE = 0;
+              double PointEuclideanDistance = 0;
+              double SumofPointsEuclideanDistance = 0;
+
+
+              for(int n= 0; n < imageLandmarks.size(); n++)
+              {
+                  for(int j= 0; j < 3; j++)
+                  {
+                      imagePoints[j][n] = imageLandmarks[n][j];
+                      trackerPoints[j][n] = trackerLandmarks[n][j];
+
+
+
+
+//                      imagePoints[j][n] = trackerLandmarks[n][j];
+//                      trackerPoints[j][n] = imageLandmarks[n][j];
+                      imagePointstoTrackerCoordinate[j][n] = 0;
+
+                  }
+                  imagePoints[3][n] = 1.0;
+                  trackerPoints[3][n] = 1.0;
+                  imagePointstoTrackerCoordinate[3][n] = 0;
+              }
+
+
+              //transformation matrix
+              double RigidTransformationImagetoTracker[4][4];
+
+
+              for(int i = 0; i < 3; i++)
+                for(int j = 0; j < 3; j++)
+                    RigidTransformationImagetoTracker[i][j] = matrix[i][j];
+
+
+              for(int i = 0; i < 3; i++)
+                  RigidTransformationImagetoTracker[i][3] = offset[i];
+
+              RigidTransformationImagetoTracker[3][0] = 0.0;
+              RigidTransformationImagetoTracker[3][1] = 0.0;
+              RigidTransformationImagetoTracker[3][2] = 0.0;
+              RigidTransformationImagetoTracker[3][3] = 1.0;
+
+              //writing results
+              error << "ImagePoints:    CorrespondingTrackerPoints:     ImagePointstoTrackerCoordinateSystem:  PointsDistanceafterRigidRegistration:" << std::endl;
+
+
+
+
+
+              //Calculate FRE
+
+              for(int n= 0; n < imageLandmarks.size(); n++)
+              {
+
+
+                   //Calculate imagePointstoTrackerCoordinate
+                   for(int i = 0; i < 4; i++)
+                   {
+
+                       for(int k = 0; k < 4; k++)
+                       {
+                            imagePointstoTrackerCoordinate[i][n] = imagePointstoTrackerCoordinate[i][n] + RigidTransformationImagetoTracker[i][k]*imagePoints[k][n];
+
+                       }
+
+                   }
+
+
+                   //writing results
+
+                   for(int i = 0; i < 3; i++)
+                            error << imagePoints[i][n] << ' ';
+
+                   error << "    ";
+
+                   for(int i = 0; i < 3; i++)
+                            error << trackerPoints[i][n] << ' ';
+
+                   error << "   ";
+
+                   for(int i = 0; i < 3; i++)
+                            error << imagePointstoTrackerCoordinate[i][n] << ' ';
+
+
+
+                   //calculate PointEuclideanDistance
+                   PointEuclideanDistance = 0;
+                   for(int i=0; i < 3;i++)
+                   {
+                       PointEuclideanDistance = PointEuclideanDistance + std::pow((trackerPoints[i][n] - imagePointstoTrackerCoordinate[i][n]),2);
+                   }
+                   PointEuclideanDistance = std::sqrt(PointEuclideanDistance);
+                   error << "   " <<   PointEuclideanDistance   << "   ";
+
+                   SumofPointsEuclideanDistance = SumofPointsEuclideanDistance +  std::pow(PointEuclideanDistance,2);
+
+
+
+
+
+
+                   error << std::endl;
+
+
+
+
+
+              } //end loop via points
+
+              error << std::endl;
+              SumofPointsEuclideanDistance = std::sqrt(SumofPointsEuclideanDistance/nImagePoints);
+              error << "Fiducial Registration Error:   " <<  SumofPointsEuclideanDistance;
+              error.close();
+
+
+              } //end if (args_info.error_arg != null)
+          } //end Dimension == 3 case
         else
         {
               is.close();
               return EXIT_FAILURE;
 
         }
+
+
 
 
 
