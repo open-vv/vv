@@ -27,7 +27,7 @@
 
 // clitk
 #include "clitkPointRigidRegistration_ggo.h"
-//#include "clitkPointRigidRegistrationGenericFilter.h"
+
 
 //paste from RigidRegistration
 #include "itkImageFileReader.h"
