@@ -20,12 +20,14 @@
 #include "clitkDicomRTStruct2ImageFilter.h"
 #include "clitkDicomRT_StructureSet.h"
 #include "clitkDicomRTStruct2Image_ggo.h"
+#include "clitkIO.h"
 
 //--------------------------------------------------------------------
 int main(int argc, char * argv[]) {
 
   // Init command line
   GGO(clitkDicomRTStruct2Image, args_info);
+  CLITK_INIT;
 
   // Read and display information
   clitk::DicomRT_StructureSet::Pointer s = clitk::DicomRT_StructureSet::New();
