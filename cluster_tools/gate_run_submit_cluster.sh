@@ -24,10 +24,14 @@ function usage {
 
 test $# -eq 0 && usage && exit 0
 
-SCRIPTDIR="${HOME}/git/gate-tests/bin"
 RELEASESUFFIX=${3:-"${DEFAULTRELEASESUFFIX}"}
 RELEASEDIR="${HOME}/releases/grid_release${RELEASESUFFIX}"
-JOBFILE="$(dirname $0)/gate_job_cluster.job"
+if test "$(dnsdomainname)" = "in2p3.fr"
+then
+    JOBFILE="$(dirname $0)/gate_job_ccin2p3.job"
+else
+    JOBFILE="$(dirname $0)/gate_job_cluster.job"
+fi
 
 echo "Checking stuff"
 test -f ${JOBFILE} || error "can't find job file ${JOBFILE}"
@@ -42,7 +46,13 @@ MACRODIR=$(pwd)
 test -d ${MACRODIR}/mac && test -d ${MACRODIR}/data || error "invalid path"
 MACROFILE=${1:?"provide relative macro path"}
 test -f ${MACRODIR}/${MACROFILE} || error "invalid macro"
-OUTPUTDIR=$(mktemp --tmpdir=${MACRODIR} -d run.XXXX || error "can't create temp dir")
+if test "$(dnsdomainname)" = "in2p3.fr"
+then
+    OUTPUTDIR=$(mktemp -d -p "${MACRODIR}" run.XXXX || error "can't create temp dir")
+    ssh -i ${HOME}/.ssh/ccin2p3 linux1.dg.creatis.insa-lyon.fr mkdir -p "cc/$(basename ${OUTPUTDIR})"
+else
+    OUTPUTDIR=$(mktemp --tmpdir=${MACRODIR} -d run.XXXX || error "can't create temp dir")
+fi
 test -d ${OUTPUTDIR} || error "can't locate output dir"
 RUNID=${OUTPUTDIR##*.}
 NJOBS=${2:-"${DEFAULTNUMBEROFJOBS}"}
@@ -88,10 +98,17 @@ while test $NJOBS -gt 0; do
     if test "${QSUB}" = "noqsub"
     then
         echo "Launching Gate log in ${OUTPUTDIR}/gate_${NJOBS}.log"
-        PARAM=\"${PARAM}\" INDEX=${NJOBS} INDEXMAX=${NJOBSMAX} SCRIPTDIR=${SCRIPTDIR} OUTPUTDIR=${OUTPUTDIR}  RELEASEDIR=${RELEASEDIR} MACROFILE=${MACROFILE} MACRODIR=${MACRODIR} PBS_JOBID="local_${NJOBS}" bash "${JOBFILE}" > ${OUTPUTDIR}/gate_${NJOBS}.log &
+        PARAM=\"${PARAM}\" INDEX=${NJOBS} INDEXMAX=${NJOBSMAX} OUTPUTDIR=${OUTPUTDIR}  RELEASEDIR=${RELEASEDIR} MACROFILE=${MACROFILE} MACRODIR=${MACRODIR} PBS_JOBID="local_${NJOBS}" bash "${JOBFILE}" > ${OUTPUTDIR}/gate_${NJOBS}.log &
+    elif test "$(dnsdomainname)" = "in2p3.fr"
+    then
+        PROJECTGROUP=creatis 
+        qsub -o "${OUTPUTDIR}" \
+             -N "gate.${RUNID}" \
+             -v "PARAM=\"${PARAM}\",INDEX=${NJOBS},INDEXMAX=${NJOBSMAX},OUTPUTDIR=${OUTPUTDIR},RELEASEDIR=${RELEASEDIR},MACROFILE=${MACROFILE},MACRODIR=${MACRODIR}" \
+             "${JOBFILE}" || error "submission error"
     else
         qsub -N "gatejob.${RUNID}" -o "${OUTPUTDIR}" \
-	    -v "PARAM=\"${PARAM}\",INDEX=${NJOBS},INDEXMAX=${NJOBSMAX},SCRIPTDIR=${SCRIPTDIR},OUTPUTDIR=${OUTPUTDIR},RELEASEDIR=${RELEASEDIR},MACROFILE=${MACROFILE},MACRODIR=${MACRODIR}" \
+	    -v "PARAM=\"${PARAM}\",INDEX=${NJOBS},INDEXMAX=${NJOBSMAX},OUTPUTDIR=${OUTPUTDIR},RELEASEDIR=${RELEASEDIR},MACROFILE=${MACROFILE},MACRODIR=${MACRODIR}" \
 	    "${JOBFILE}" || error "submission error"
     fi
 
@@ -99,3 +116,7 @@ while test $NJOBS -gt 0; do
 done
 
 echo "runid is ${RUNID}"
+if test "$(dnsdomainname)" = "in2p3.fr"
+then
+    rsync -av --remove-source-files -e "ssh -i ${HOME}/.ssh/ccin2p3" ${OUTPUTDIR}/ "linux1.dg.creatis.insa-lyon.fr:./cc/$(basename ${OUTPUTDIR})"
+fi
