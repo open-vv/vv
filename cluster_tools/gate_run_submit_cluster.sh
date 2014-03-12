@@ -118,5 +118,5 @@ done
 echo "runid is ${RUNID}"
 if test "$(dnsdomainname)" = "in2p3.fr"
 then
-    rsync -av --remove-source-files -e "ssh -i ${HOME}/.ssh/ccin2p3" ${OUTPUTDIR}/ "linux1.dg.creatis.insa-lyon.fr:./cc/$(basename ${OUTPUTDIR})"
+    rsync -av --remove-source-files -e "ssh -i ${HOME}/.ssh/ccin2p3" ${OUTPUTDIR}/ "linux1.dg.creatis.insa-lyon.fr:./cc/$(basename ${OUTPUTDIR})" --exclude '.__afs*' --exclude "${OUTPUTDIR}/gatejob.*.o*"
 fi
