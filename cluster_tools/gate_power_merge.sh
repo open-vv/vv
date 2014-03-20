@@ -496,7 +496,7 @@ echo "!!!! this is $0 v0.3k !!!!"
 
 rundir="${1?"provide run dir"}"
 rundir="$(echo "${rundir}" | sed 's|/*$||')"
-nboutputdirs="$(find "${rundir}" -mindepth 1 -name 'output*' -type d -o -type l  | wc -l)"
+nboutputdirs="$(find "${rundir}" -mindepth 1 -type d -name 'output*' -o -type l -name 'output*' | wc -l)"
 
 test ${nboutputdirs} -gt 0 || error "no output dir found"
 echo "found ${nboutputdirs} partial output dirs"
@@ -511,7 +511,6 @@ echo "output dir is ${outputdir}"
 
 test -d "${outputdir}" && rm -r "${outputdir}"
 mkdir "${outputdir}"
-ls ${rundir}/
 for outputfile in $(find -L "${rundir}" -regextype 'posix-extended' -type f -regex "${rundir}/output.*\.(hdr|mhd|mha|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
 do
     merge_dispatcher "${outputfile}"
@@ -528,6 +527,12 @@ if [ -f "${rundir}/params.txt" ]
 then
     echo "copying params file"
     cp "${rundir}/params.txt" "${outputdir}/params.txt"
+fi
+
+if [ -d "${rundir}/mac" ]
+then
+    echo "copying mac folder"
+    cp -r "${rundir}/mac" "${outputdir}/mac"
 fi
 
 echo "these was ${warning_count} warning(s)"

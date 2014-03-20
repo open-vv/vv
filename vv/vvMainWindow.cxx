@@ -1473,6 +1473,7 @@ void vvMainWindow::InitSlicers()
     mSlicerManagers.back()->SetSlicerWindow(1,NEViewWidget->GetRenderWindow());
     mSlicerManagers.back()->SetSlicerWindow(2,SOViewWidget->GetRenderWindow());
     mSlicerManagers.back()->SetSlicerWindow(3,SEViewWidget->GetRenderWindow());
+    mSlicerManagers.back()->Render(); // SR: displayed #slice is wrong without this
   }
 }
 

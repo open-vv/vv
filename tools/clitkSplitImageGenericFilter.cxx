@@ -106,7 +106,7 @@ void clitk::SplitImageGenericFilter::UpdateWithInputImageType()
   typename ImageType::RegionType extracted_region;
   extracted_region.SetSize(size);
 #if ITK_VERSION_MAJOR >= 4
-  filter->SetDirectionCollapseToSubmatrix();
+  filter->SetDirectionCollapseToIdentity();
 #endif
   filter->SetExtractionRegion(extracted_region);
   filter->Update();

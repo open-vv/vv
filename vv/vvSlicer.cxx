@@ -1170,7 +1170,6 @@ void vvSlicer::SetRenderWindow(int orientation, vtkRenderWindow * rw)
   this->SetupInteractor(rw->GetInteractor());
   ca->SetImageActor(this->GetImageActor());
   ca->SetWindowLevel(this->GetWindowLevel());
-  ca->SetText(2, "<slice>");
   ca->SetText(3, "<window>\n<level>");
 
   double bounds[6];
@@ -1448,6 +1447,10 @@ void vvSlicer::Render()
                              << std::endl;
     }
     ca->SetText(1,worldPos.str().c_str());
+
+    std::stringstream slicePos;
+    slicePos << "Slice: " << this->GetSlice();
+    ca->SetText(2, slicePos.str().c_str());
   }
 
   if (pdmA->GetVisibility()) {
