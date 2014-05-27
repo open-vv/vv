@@ -1,0 +1,22 @@
+#File clitkDVH.ggo
+package "clitkDVH"
+version "2.0"
+purpose "Dose volume histogram"
+
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"		i	"Input image filename"		  string  	yes multiple
+option "channel"    c "Image channel to be used in statistics (-1 to process all channels)"  int no default="-1"
+option "mask"		m	"Mask image filename (uchar)"		  string  	yes
+option "label"		l	"Label(s) in the mask image to consider"	int  	no 	multiple 	default="1"
+option "histogram"	-	"Compute histogram, allows median calculation"	string  no
+option "dvhistogram" -	"Compute dose volume histogram "	string  no
+option "bins"		-	"Number of histogram bins"	  		int  	no 	default="80"
+option "lower"		-	"Lower histogram bound"	double 	no default="0"
+option "upper"		-	"Upper histogram bound"	double 	no default="80"
+option "allow_resize"   	r   	"Resize mask if different from input"			  flag		off
+
+
+

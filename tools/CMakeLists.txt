@@ -36,11 +36,6 @@ IF (CLITK_BUILD_TOOLS)
   #   )
   SET(TOOLS_INSTALL clitkDicomInfo)
 
-  WRAP_GGO(clitkPointRigidRegistration_GGO_C clitkPointRigidRegistration.ggo)
-  ADD_EXECUTABLE(clitkPointRigidRegistration clitkPointRigidRegistration.cxx ${clitkPointRigidRegistration_GGO_C})
-  TARGET_LINK_LIBRARIES(clitkPointRigidRegistration clitkCommon)
-  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkPointRigidRegistration)
-
   WRAP_GGO(clitkDicom2Image_GGO_C clitkDicom2Image.ggo)
   ADD_EXECUTABLE(clitkDicom2Image clitkDicom2Image.cxx ${clitkDicom2Image_GGO_C})
   TARGET_LINK_LIBRARIES(clitkDicom2Image clitkCommon)
@@ -237,6 +232,11 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkImageStatistics clitkCommon)
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageStatistics)
 
+  WRAP_GGO(clitkDVH_GGO_C clitkDVH.ggo)
+  ADD_EXECUTABLE(clitkDVH clitkDVH.cxx clitkDVHGenericFilter.cxx ${clitkDVH_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkDVH clitkVectorArithmLib clitkCommon)
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkDVH)
+
   WRAP_GGO(clitkVFConvert_GGO_C clitkVFConvert.ggo)
   ADD_EXECUTABLE(clitkVFConvert clitkVFConvert.cxx clitkVFConvertGenericFilter.cxx ${clitkVFConvert_GGO_C})
   TARGET_LINK_LIBRARIES(clitkVFConvert clitkCommon )
@@ -305,11 +305,6 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkImageUncertainty clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageUncertainty)
 
-  WRAP_GGO(clitkNormalizeImageFilter_GGO_C clitkNormalizeImageFilter.ggo)
-  ADD_EXECUTABLE(clitkNormalizeImageFilter clitkNormalizeImageFilter.cxx ${clitkNormalizeImageFilter_GGO_C})
-  TARGET_LINK_LIBRARIES(clitkNormalizeImageFilter clitkCommon )
-  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkNormalizeImageFilter)
-
   WRAP_GGO(clitkImageGradientMagnitude_GGO_C clitkImageGradientMagnitude.ggo)
   ADD_EXECUTABLE(clitkImageGradientMagnitude clitkImageGradientMagnitude.cxx ${clitkImageGradientMagnitude_GGO_C})
   TARGET_LINK_LIBRARIES(clitkImageGradientMagnitude clitkCommon )
@@ -325,10 +320,6 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkImageIntensityWindowing clitkCommon )
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageIntensityWindowing)
 
-  WRAP_GGO(clitkBlurImage_GGO_C clitkBlurImage.ggo)
-  ADD_EXECUTABLE(clitkBlurImage clitkBlurImage.cxx ${clitkBlurImage_GGO_C})
-  TARGET_LINK_LIBRARIES(clitkBlurImage clitkCommon )
-  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkBlurImage)
 
   #=========================================================
   option(CLITK_USE_ROOT "Build experimental tools using root" OFF)
