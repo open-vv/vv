@@ -40,10 +40,7 @@ find_package(Git REQUIRED)
 
 #=========================================================
 # QT
-SET(QtWinSpecFiles "${source_prefix}/qt/mkspecs/win32-msvc2003/qmake.conf";
-                   "${source_prefix}/qt/mkspecs/win32-msvc2005/qmake.conf";
-                   "${source_prefix}/qt/mkspecs/win32-msvc2008/qmake.conf";
-                   "${source_prefix}/qt/mkspecs/win32-msvc2010/qmake.conf")
+SET(QtWinSpecFiles "${source_prefix}/qt/mkspecs/win32-msvc2003/qmake.conf;${source_prefix}/qt/mkspecs/win32-msvc2005/qmake.conf;${source_prefix}/qt/mkspecs/win32-msvc2008/qmake.conf;${source_prefix}/qt/mkspecs/win32-msvc2010/qmake.conf")
 ExternalProject_Add(
   QT
   SOURCE_DIR ${source_prefix}/qt
@@ -79,7 +76,7 @@ ExternalProject_Add(
   DEPENDS QT
   SOURCE_DIR ${source_prefix}/vtk
   GIT_REPOSITORY git://vtk.org/VTK.git
-  GIT_TAG v5.10.0
+  GIT_TAG v5.10.1
   INSTALL_COMMAND ""
   CMAKE_ARGS
     -DQT_QMAKE_EXECUTABLE:FILEPATH=${qmake_executable}
@@ -132,7 +129,7 @@ ExternalProject_Add(
   ITK
   SOURCE_DIR ${source_prefix}/itk
   GIT_REPOSITORY git://itk.org/ITK.git
-  GIT_TAG v4.4.0
+  GIT_TAG v4.5.2
   INSTALL_COMMAND ""
   CMAKE_ARGS
     -DCMAKE_C_FLAGS_DEBUG:STRING=${CMAKE_C_FLAGS_DEBUG}
