@@ -305,6 +305,11 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkImageUncertainty clitkCommon ${ITK_LIBRARIES})
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageUncertainty)
 
+  WRAP_GGO(clitkNormalizeImageFilter_GGO_C clitkNormalizeImageFilter.ggo)
+  ADD_EXECUTABLE(clitkNormalizeImageFilter clitkNormalizeImageFilter.cxx ${clitkNormalizeImageFilter_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkNormalizeImageFilter clitkCommon )
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkNormalizeImageFilter)
+
   WRAP_GGO(clitkImageGradientMagnitude_GGO_C clitkImageGradientMagnitude.ggo)
   ADD_EXECUTABLE(clitkImageGradientMagnitude clitkImageGradientMagnitude.cxx ${clitkImageGradientMagnitude_GGO_C})
   TARGET_LINK_LIBRARIES(clitkImageGradientMagnitude clitkCommon )
@@ -320,6 +325,10 @@ IF (CLITK_BUILD_TOOLS)
   TARGET_LINK_LIBRARIES(clitkImageIntensityWindowing clitkCommon )
   SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageIntensityWindowing)
 
+  WRAP_GGO(clitkBlurImage_GGO_C clitkBlurImage.ggo)
+  ADD_EXECUTABLE(clitkBlurImage clitkBlurImage.cxx ${clitkBlurImage_GGO_C})
+  TARGET_LINK_LIBRARIES(clitkBlurImage clitkCommon )
+  SET(TOOLS_INSTALL ${TOOLS_INSTALL} clitkBlurImage)
 
   #=========================================================
   option(CLITK_USE_ROOT "Build experimental tools using root" OFF)
