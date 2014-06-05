@@ -9,9 +9,9 @@ set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Build configuration type"
 set(build_type ${CMAKE_BUILD_TYPE})
 
 #=========================================================
-MACRO (DD in)
-    MESSAGE(${in}=${${in}})
-ENDMACRO(DD)
+macro(DD in)
+    message(${in}=${${in}})
+endmacro(DD)
 #=========================================================
 
 project(SuperBuild_VV)
@@ -42,7 +42,7 @@ if( 1 EQUAL 1)
 #=========================================================
 # QT
 if(WIN32)
-SET(QtWinSpecFiles "${source_prefix}/qt/mkspecs/win32-msvc2003/qmake.conf;${source_prefix}/qt/mkspecs/win32-msvc2005/qmake.conf;${source_prefix}/qt/mkspecs/win32-msvc2008/qmake.conf;${source_prefix}/qt/mkspecs/win32-msvc2010/qmake.conf")
+set(QtWinSpecFiles "${source_prefix}/qt/mkspecs/win32-msvc2003/qmake.conf;${source_prefix}/qt/mkspecs/win32-msvc2005/qmake.conf;${source_prefix}/qt/mkspecs/win32-msvc2008/qmake.conf;${source_prefix}/qt/mkspecs/win32-msvc2010/qmake.conf")
 set(WINPATCH "sed -i \"s/\\-MD/-MT/g\" ${QtWinSpecFiles}")
 else()
 set(WINPATCH "")
@@ -54,7 +54,7 @@ ExternalProject_Add(
   GIT_TAG v4.8.6
   PATCH_COMMAND ${WINPATCH}
   CONFIGURE_COMMAND ${source_prefix}/qt/configure -confirm-license
-                                                  -static 
+                                                  -static
                                                   -fast
                                                   -opensource
                                                   -release
@@ -68,7 +68,7 @@ ExternalProject_Add(
                                                   -no-glib
   INSTALL_COMMAND ""
 )
-SET(qmake_executable "${build_prefix}/QT/bin/qmake")
+set(qmake_executable "${build_prefix}/QT/bin/qmake")
 set(VTK_DEPEND_QT QT)
 
 else()
@@ -79,12 +79,12 @@ endif()
 
 #=========================================================
 # VTK
-SET(VTK_CMAKE_CXX_STANDARD_LIBRARIES "${CMAKE_CXX_STANDARD_LIBRARIES}")
-IF(MSVC)
-  SET(VTK_CMAKE_CXX_STANDARD_LIBRARIES "${VTK_CMAKE_CXX_STANDARD_LIBRARIES} Imm32.lib Winmm.lib Ws2_32.lib")
-ENDIF(MSVC)
+set(VTK_CMAKE_CXX_STANDARD_LIBRARIES "${CMAKE_CXX_STANDARD_LIBRARIES}")
+if(MSVC)
+  set(VTK_CMAKE_CXX_STANDARD_LIBRARIES "${VTK_CMAKE_CXX_STANDARD_LIBRARIES} Imm32.lib Winmm.lib Ws2_32.lib")
+endif(MSVC)
 ExternalProject_Add(
-  VTK 
+  VTK
   DEPENDS ${VTK_DEPEND_QT}
   SOURCE_DIR ${source_prefix}/vtk
   GIT_REPOSITORY git://vtk.org/VTK.git
@@ -109,7 +109,7 @@ ExternalProject_Add(
     -DVTK_USE_QVTK_QTOPENGL:BOOL=ON
     -DCMAKE_CXX_STANDARD_LIBRARIES:STRING=${VTK_CMAKE_CXX_STANDARD_LIBRARIES}
 )
-SET(VTK_DIR ${build_prefix}/VTK)
+set(VTK_DIR ${build_prefix}/VTK)
 #=========================================================
 
 #=========================================================
@@ -117,7 +117,7 @@ SET(VTK_DIR ${build_prefix}/VTK)
    ExternalProject_Add(
    GDCM
    SOURCE_DIR ${source_prefix}/gdcm
-   GIT_REPOSITORY git://git.code.sf.net/p/gdcm/gdcm 
+   GIT_REPOSITORY git://git.code.sf.net/p/gdcm/gdcm
    GIT_TAG v2.2.4
    INSTALL_COMMAND ""
    CMAKE_ARGS
@@ -132,7 +132,7 @@ SET(VTK_DIR ${build_prefix}/VTK)
    -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_PREFIX}
    -DCMAKE_BUILD_TYPE:STRING=${build_type}
 )
-SET(GDCM_DIR ${build_prefix}/GDCM)
+set(GDCM_DIR ${build_prefix}/GDCM)
 #=========================================================
 
 #=========================================================
@@ -158,24 +158,24 @@ ExternalProject_Add(
     -DBUILD_EXAMPLES:BOOL=OFF
     -DBUILD_TESTING:BOOL=OFF
 )
-SET(ITK_DIR ${build_prefix}/ITK)
+set(ITK_DIR ${build_prefix}/ITK)
 #=========================================================
 
 #=========================================================
 # VV
-SET(VV_CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+set(VV_CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 if(MSVC)
-  SET(VV_CMAKE_CXX_FLAGS "${VV_CMAKE_CXX_FLAGS} /bigobj")
+  set(VV_CMAKE_CXX_FLAGS "${VV_CMAKE_CXX_FLAGS} /bigobj")
 endif(MSVC)
 
-SET(VV_CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS})
+set(VV_CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS})
 if(CMAKE_COMPILER_IS_GNUCXX)
-  SET(VV_CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+  set(VV_CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
-SET(MAKE_COMMAND "make")
+set(MAKE_COMMAND "make")
 if(MSVC)
-  SET(MAKE_COMMAND "nmake")
+  set(MAKE_COMMAND "nmake")
 endif(MSVC)
 
 ExternalProject_Add(
@@ -184,7 +184,7 @@ ExternalProject_Add(
   SOURCE_DIR ${source_prefix}/vv
   GIT_REPOSITORY git://git.creatis.insa-lyon.fr/clitk
   INSTALL_DIR ${install_prefix}
-  INSTALL_COMMAND  make install 
+  INSTALL_COMMAND  make install
   CMAKE_ARGS
     -DQT_QMAKE_EXECUTABLE:FILEPATH=${qmake_executable}
     -DGDCM_DIR:PATH=${GDCM_DIR}

@@ -1,24 +1,24 @@
 # Gengetopt: http://www.gnu.org/software/gengetopt/
 
-ADD_DEFINITIONS(-DPACKAGE=\"gengetopt\")
-ADD_DEFINITIONS(-DVERSION=\"2.22.4\")
-ADD_DEFINITIONS(-DHAVE_SSTREAM)
-ADD_DEFINITIONS(-DHAVE_NAMESPACES)
+add_definitions(-DPACKAGE=\"gengetopt\")
+add_definitions(-DVERSION=\"2.22.4\")
+add_definitions(-DHAVE_SSTREAM)
+add_definitions(-DHAVE_NAMESPACES)
 
 # Remove compiler warnings
-STRING(REPLACE "/W3" "/w" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-STRING(REPLACE "/W3" "/w" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-STRING(REPLACE "-Wall" "-w" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-STRING(REPLACE "-Wall" "-w" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+string(REPLACE "/W3" "/w" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+string(REPLACE "/W3" "/w" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+string(REPLACE "-Wall" "-w" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+string(REPLACE "-Wall" "-w" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
 
 # MSVC specific issues
-IF(MSVC)
-  ADD_DEFINITIONS(-DHAVE_STRING_H)
-  ADD_DEFINITIONS(-DYY_NO_UNISTD_H)
-  ADD_DEFINITIONS(-Disatty=!)
-ENDIF(MSVC)
+if(MSVC)
+  add_definitions(-DHAVE_STRING_H)
+  add_definitions(-DYY_NO_UNISTD_H)
+  add_definitions(-Disatty=!)
+endif(MSVC)
 
-ADD_EXECUTABLE(gengetopt 
+add_executable(gengetopt
   ./cmdline.c
   ./ggos.cpp
   ./scanner.cc
@@ -64,6 +64,6 @@ ADD_EXECUTABLE(gengetopt
   ./yyerror.cc
   ./parser.cc)
 
-INCLUDE_DIRECTORIES(.)
-INCLUDE_DIRECTORIES(skels)
-#INCLUDE_DIRECTORIES(includes)
+include_directories(.)
+include_directories(skels)
+#include_directories(includes)

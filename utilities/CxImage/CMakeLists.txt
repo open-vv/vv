@@ -1,6 +1,6 @@
-INCLUDE(../../cmake/common.cmake)
+include(../../cmake/common.cmake)
 
-ADD_LIBRARY(clitkCxImage STATIC
+add_library(clitkCxImage STATIC
     ximaenc.cpp
     ximatran.cpp
     ximath.cpp
@@ -14,5 +14,5 @@ ADD_LIBRARY(clitkCxImage STATIC
     ximasel.cpp
     xmemfile.cpp
     )
-INCLUDE_DIRECTORIES(.)
+include_directories(.)
 

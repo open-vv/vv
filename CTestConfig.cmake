@@ -1,8 +1,8 @@
-MACRO(SET_IF_NOT_SET var val)
-  IF(NOT DEFINED "${var}")
-    SET("${var}" "${val}")
-  ENDIF(NOT DEFINED "${var}")
-ENDMACRO(SET_IF_NOT_SET)
+macro(SET_IF_NOT_SET var val)
+  if(NOT DEFINED "${var}")
+    set("${var}" "${val}")
+  endif(NOT DEFINED "${var}")
+endmacro(SET_IF_NOT_SET)
 
 # Those are set for running a classical make Experimental
 SET_IF_NOT_SET(CTEST_DROP_METHOD "http")
