@@ -7,6 +7,7 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 #=========================================================
 
+
 #=========================================================
 #List of vv tools to compile
 SET(vv_TOOLS
@@ -106,6 +107,8 @@ SET(vv_SRCS
 #=========================================================
 # Qt related commands
 FIND_PACKAGE(Qt4 REQUIRED)
+LINK_DIRECTORIES(${QT_LIBRARY_DIR})
+
 
 QT4_WRAP_CPP(vv_SRCS 
   vvMainWindowBase.h 
@@ -194,8 +197,6 @@ INCLUDE_DIRECTORIES(
   ../segmentation
   )
 
-LINK_DIRECTORIES(${QT_LIBRARY_DIR})
-
 #=========================================================
 #Add each tool's dependencies
 foreach(tool ${vv_TOOLS})
@@ -217,9 +218,25 @@ IF(CLITK_EXPERIMENTAL)
 ENDIF(CLITK_EXPERIMENTAL)
 #=========================================================
 
+#-----------------------------------------------------------------------------
+# Avoid linker bug in Mac OS 10.5
+# See http://wiki.finkproject.org/index.php/Fink:Packaging:Preparing_for_10.5#OpenGL_Bug
+#
+if(APPLE)
+  FIND_LIBRARY(CoreFoundation_LIBRARY CoreFoundation REQUIRED)
+  FIND_LIBRARY(ApplicationServices_LIBRARY ApplicationServices REQUIRED)
+  FIND_LIBRARY(SystemConfiguration_LIBRARY SystemConfiguration REQUIRED)
+  FIND_LIBRARY(Security_LIBRARY Security REQUIRED)
+  set(APPLE_FRAMEWORKS ${CoreFoundation_LIBRARY} 
+    ${ApplicationServices_LIBRARY} 
+    ${SystemConfiguration_LIBRARY}
+    ${Security_LIBRARY}
+    )
+  message(STATUS "===== ${APPLE_FRAMEWORKS}")
+endif()
 #=========================================================
 #Create binary and libs for tests
-SET(vvExternalLibs ${QT_QTNETWORK_LIBRARY} clitkSegmentationGgoLib ${toolLibs} ${foundationLibraries} ${vvCxImage})
+SET(vvExternalLibs clitkSegmentationGgoLib ${toolLibs} ${foundationLibraries} ${vvCxImage} ${QT_LIBRARIES} ${QT_QTNETWORK_LIBRARY} ${APPLE_FRAMEWORKS})
 # QtNetwork is required by vvRegisterForm
 
 ADD_LIBRARY(vvLib ${vv_SRCS} ${vv_UI_CXX})

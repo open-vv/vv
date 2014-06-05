@@ -38,15 +38,21 @@ set(install_prefix ${base}/Install)
 
 find_package(Git REQUIRED)
 
+if( 1 EQUAL 1)
 #=========================================================
 # QT
+if(WIN32)
 SET(QtWinSpecFiles "${source_prefix}/qt/mkspecs/win32-msvc2003/qmake.conf;${source_prefix}/qt/mkspecs/win32-msvc2005/qmake.conf;${source_prefix}/qt/mkspecs/win32-msvc2008/qmake.conf;${source_prefix}/qt/mkspecs/win32-msvc2010/qmake.conf")
+set(WINPATCH "sed -i \"s/\\-MD/-MT/g\" ${QtWinSpecFiles}")
+else()
+set(WINPATCH "")
+endif()
 ExternalProject_Add(
   QT
   SOURCE_DIR ${source_prefix}/qt
   GIT_REPOSITORY git://gitorious.org/qt/qt.git
-  GIT_TAG v4.8.3
-  PATCH_COMMAND sed -i "s/\\-MD/-MT/g" ${QtWinSpecFiles}
+  GIT_TAG v4.8.6
+  PATCH_COMMAND ${WINPATCH}
   CONFIGURE_COMMAND ${source_prefix}/qt/configure -confirm-license
                                                   -static 
                                                   -fast
@@ -63,6 +69,12 @@ ExternalProject_Add(
   INSTALL_COMMAND ""
 )
 SET(qmake_executable "${build_prefix}/QT/bin/qmake")
+set(VTK_DEPEND_QT QT)
+
+else()
+  find_package(qt4 REQUIRED)
+  set(VTK_DEPEND_QT "")
+endif()
 #=========================================================
 
 #=========================================================
@@ -73,10 +85,10 @@ IF(MSVC)
 ENDIF(MSVC)
 ExternalProject_Add(
   VTK 
-  DEPENDS QT
+  DEPENDS ${VTK_DEPEND_QT}
   SOURCE_DIR ${source_prefix}/vtk
   GIT_REPOSITORY git://vtk.org/VTK.git
-  GIT_TAG v5.10.1
+  GIT_TAG release-5.10
   INSTALL_COMMAND ""
   CMAKE_ARGS
     -DQT_QMAKE_EXECUTABLE:FILEPATH=${qmake_executable}
@@ -168,7 +180,7 @@ endif(MSVC)
 
 ExternalProject_Add(
   VV
-  DEPENDS QT VTK ITK GDCM
+  DEPENDS ${VTK_DEPEND_QT} VTK ITK GDCM
   SOURCE_DIR ${source_prefix}/vv
   GIT_REPOSITORY git://git.creatis.insa-lyon.fr/clitk
   INSTALL_DIR ${install_prefix}
