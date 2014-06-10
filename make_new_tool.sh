@@ -12,6 +12,8 @@ do
     cp $i ${i/FooImage/$1}
     if test "$(uname)" = "Darwin"
     then
+        echo $(pwd)
+        echo sed -i "" "s/FooImage/$1/g" ${i/FooImage/$1}
         sed -i "" "s/FooImage/$1/g" ${i/FooImage/$1}
     else
         sed -i "s/FooImage/$1/ig" ${i/FooImage/$1}

@@ -1,20 +1,20 @@
 #=========================================================
 # Find ITK (required)
-FIND_PACKAGE(ITK)
-IF(ITK_FOUND)
-  INCLUDE("${ITK_USE_FILE}")
-ELSE(ITK_FOUND)
-  MESSAGE(FATAL_ERROR "Cannot build without ITK.  Please set ITK_DIR.")
-ENDIF(ITK_FOUND)
+find_package(ITK)
+if(ITK_FOUND)
+  include("${ITK_USE_FILE}")
+else(ITK_FOUND)
+  message(FATAL_ERROR "Cannot build without ITK.  Please set ITK_DIR.")
+endif(ITK_FOUND)
 #=========================================================
 
 #=========================================================
 # Find VTK (required)
-FIND_PACKAGE(VTK REQUIRED)
-IF(VTK_FOUND)
-  INCLUDE("${VTK_USE_FILE}")
-  IF(VTK_VERSION VERSION_LESS 5.8.0)
-    SET ( VTK_LIBRARIES
+find_package(VTK REQUIRED)
+if(VTK_FOUND)
+  include("${VTK_USE_FILE}")
+  if(VTK_VERSION VERSION_LESS 5.8.0)
+    set( VTK_LIBRARIES
       vtkCommon
       vtkRendering
       vtkIO
@@ -24,50 +24,50 @@ IF(VTK_FOUND)
       vtkImaging
       vtkHybrid
       )
-  ENDIF(VTK_VERSION VERSION_LESS 5.8.0)
-  IF(VTK_VERSION VERSION_LESS 5.6.0)
-    SET ( VTK_LIBRARIES
+  endif(VTK_VERSION VERSION_LESS 5.8.0)
+  if(VTK_VERSION VERSION_LESS 5.6.0)
+    set( VTK_LIBRARIES
       ${VTK_LIBRARIES}
       vtkQVTK
     )
-  ENDIF(VTK_VERSION VERSION_LESS 5.6.0)
-ELSE(VTK_FOUND)
-  MESSAGE(FATAL_ERROR "Please set VTK_DIR.")
-ENDIF(VTK_FOUND)
+  endif(VTK_VERSION VERSION_LESS 5.6.0)
+else(VTK_FOUND)
+  message(FATAL_ERROR "Please set VTK_DIR.")
+endif(VTK_FOUND)
 #=========================================================
 
 #=========================================================
 # Find gengetopt, will create a target exe if not found
-SET(CMAKE_MODULE_PATH "${CLITK_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
-FIND_PACKAGE(Gengetopt)
+set(CMAKE_MODULE_PATH "${CLITK_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+find_package(Gengetopt)
 #=========================================================
 
 #=========================================================
 # Find libstatgrab is installed, add clitkMemoryUsage.cxx in the library
-IF (NOT DEFINED CLITK_MEMORY_INFO OR CLITK_MEMORY_INFO)
-  FIND_LIBRARY(LIBSTATGRAB NAMES statgrab PATHS)
-  IF (${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
-#  MESSAGE("Install libstatgrab (http://www.i-scream.org/libstatgrab/) for memory usage information")
-    SET(CLITK_MEMORY_INFO OFF)
-  ELSE (${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
-    SET(CLITK_MEMORY_INFO ON)
-  ENDIF (${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")  
-ENDIF()
+if(NOT DEFINED CLITK_MEMORY_INFO OR CLITK_MEMORY_INFO)
+  find_library(LIBSTATGRAB NAMES statgrab PATHS)
+  if(${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
+#  message("Install libstatgrab (http://www.i-scream.org/libstatgrab/) for memory usage information")
+    set(CLITK_MEMORY_INFO OFF)
+  else(${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
+    set(CLITK_MEMORY_INFO ON)
+  endif(${LIBSTATGRAB} MATCHES "LIBSTATGRAB-NOTFOUND")
+endif()
 #=========================================================
 
 
 #=========================================================
 ### Check if ITK was compiled with SYSTEM_GDCM = ON
-SET(CLITK_USE_SYSTEM_GDCM FALSE)
-IF(ITK_VERSION_MAJOR LESS "4")
-  IF(ITK_USE_SYSTEM_GDCM)
-    SET(CLITK_USE_SYSTEM_GDCM TRUE) 
-  ENDIF(ITK_USE_SYSTEM_GDCM)
-ELSE()
+set(CLITK_USE_SYSTEM_GDCM FALSE)
+if(ITK_VERSION_MAJOR LESS "4")
+  if(ITK_USE_SYSTEM_GDCM)
+    set(CLITK_USE_SYSTEM_GDCM TRUE)
+  endif(ITK_USE_SYSTEM_GDCM)
+else()
   # ITK4 creates a target for each gdcm library when it compiles GDCM
   get_target_property(GDCMDICTTARG gdcmDICT TYPE )
-  IF(NOT GDCMDICTTARG)
-    SET(CLITK_USE_SYSTEM_GDCM TRUE)
-  ENDIF()
-ENDIF()
+  if(NOT GDCMDICTTARG)
+    set(CLITK_USE_SYSTEM_GDCM TRUE)
+  endif()
+endif()
 

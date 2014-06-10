@@ -141,6 +141,7 @@ namespace clitk
             typename GradientMagnitudeImageFilterType::Pointer gradientFilter=GradientMagnitudeImageFilterType::New();
             gradientFilter->SetInput(input);
             gradientFilter->Update();
+            //std::cout<<"sigma value="<<gradientFilter->GetSigma()<<std::endl;
             outputGradientFilter = gradientFilter->GetOutput();
         }
         // Set iterator

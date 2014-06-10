@@ -1,7 +1,7 @@
-IF (CLITK_BUILD_TOOLS)
+if(CLITK_BUILD_TOOLS)
   #=========================================================
   # Install scripts when running make install
-  SET(SCRIPTS
+  set(SCRIPTS
     gate_job_cluster.job
     gate_make_merge_release.sh
     gate_make_release.sh
@@ -13,6 +13,6 @@ IF (CLITK_BUILD_TOOLS)
     mergeStatFile.sh
     )
 
-  INSTALL (FILES ${SCRIPTS} DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
+  install(FILES ${SCRIPTS} DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
 
-ENDIF(CLITK_BUILD_TOOLS)
+endif(CLITK_BUILD_TOOLS)

@@ -143,6 +143,7 @@ ImageLaplacianGenericFilter<args_info_type>::UpdateWithInputImageType()
         typename LaplacianImageFilterType::Pointer laplacianFilter=LaplacianImageFilterType::New();
         laplacianFilter->SetInput(castFilter->GetOutput());
         laplacianFilter->Update();
+        //std::cout<<"sigma value="<<laplacianFilter->GetSigma()<<std::endl;
         outputLaplacianFilter = laplacianFilter->GetOutput();
     }
     // Set iterator

@@ -1,24 +1,24 @@
 #
 # Build the documentation
 #
-INCLUDE (${CMAKE_ROOT}/Modules/Documentation.cmake)
+include(${CMAKE_ROOT}/Modules/Documentation.cmake)
 
-IF (BUILD_DOXYGEN)
+if(BUILD_DOXYGEN)
 
   #
   # Configure the script and the doxyfile, then add target
   #
-  CONFIGURE_FILE(${CLITK_SOURCE_DIR}/Doxygen/doxygen.config.in
+  configure_file(${CLITK_SOURCE_DIR}/Doxygen/doxygen.config.in
                  ${PROJECT_BINARY_DIR}/Doxygen/doxygen.config)
 
-               CONFIGURE_FILE(${CLITK_SOURCE_DIR}/Doxygen/itkdoxygen.pl.in
+               configure_file(${CLITK_SOURCE_DIR}/Doxygen/itkdoxygen.pl.in
                  ${PROJECT_BINARY_DIR}/Doxygen/itkdoxygen.pl)
 
-  ADD_CUSTOM_TARGET(Documentation 
+  add_custom_target(Documentation
     COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxygen/doxygen.config
     MAIN_DEPENDENCY ${PROJECT_BINARY_DIR}/Doxygen/doxygen.config
     DEPENDS         ${PROJECT_BINARY_DIR}/Doxygen/itkdoxygen.pl
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/Doxygen
     )
 
-ENDIF (BUILD_DOXYGEN)
+endif(BUILD_DOXYGEN)

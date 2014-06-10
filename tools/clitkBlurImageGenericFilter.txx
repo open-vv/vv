@@ -86,14 +86,21 @@ BlurImageGenericFilter<args_info_type>::UpdateWithInputImageType()
 
   //std::cout<<"mArgsInfo.variance_given"<<mArgsInfo.variance_given<<std::endl;
 
-  if (mArgsInfo.variance_given != dim) {
-    std::cerr << "The number of variance parameters must be equal to the image dimension." << std::endl;
-    return;
-  }
 
+  //if (mArgsInfo.variance_given != dim) {
+  //  std::cerr << "The number of variance parameters must be equal to the image dimension." << std::endl;
+  //  return;
+  //}
+
+  if (mArgsInfo.variance_given && mArgsInfo.variance_given == dim) {
   for (unsigned int i = 0; i < dim; i++) {
     //std::cout<<"mArgsInfo.variance_arg[i]"<<mArgsInfo.variance_arg[i]<<std::endl;
     varianceArray[i] = mArgsInfo.variance_arg[i];
+  }
+  } else {
+      for (unsigned int i = 0; i < dim; i++) {
+          varianceArray[i] = 1.0;
+      }
   }
   // Reading input
   typename InputImageType::Pointer input = this->template GetInput<InputImageType>(0);
@@ -108,6 +115,8 @@ BlurImageGenericFilter<args_info_type>::UpdateWithInputImageType()
   gaussianFilter->SetInput(input);
   gaussianFilter->SetVariance(varianceArray);
   gaussianFilter->Update();
+
+  //std::cout<<"variance value="<<gaussianFilter->GetVariance()<<std::endl;
 
   // Write/Save results
   this->template SetNextOutput<OutputImageType>(gaussianFilter->GetOutput());
