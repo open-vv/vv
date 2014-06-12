@@ -232,11 +232,6 @@ if(CLITK_BUILD_TOOLS)
   target_link_libraries(clitkImageStatistics clitkCommon)
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageStatistics)
 
-  WRAP_GGO(clitkDVH_GGO_C clitkDVH.ggo)
-  add_executable(clitkDVH clitkDVH.cxx clitkDVHGenericFilter.cxx ${clitkDVH_GGO_C})
-  target_link_libraries(clitkDVH clitkVectorArithmLib clitkCommon)
-  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkDVH)
-
   WRAP_GGO(clitkVFConvert_GGO_C clitkVFConvert.ggo)
   add_executable(clitkVFConvert clitkVFConvert.cxx clitkVFConvertGenericFilter.cxx ${clitkVFConvert_GGO_C})
   target_link_libraries(clitkVFConvert clitkCommon )
