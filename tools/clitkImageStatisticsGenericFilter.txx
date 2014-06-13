@@ -204,7 +204,7 @@ namespace clitk
 
         std::cout<<std::endl;
         if (m_Verbose) std::cout<<"-------------"<<std::endl;
-        if (m_Verbose) std::cout<<"| Label: "<<label<<"  |"<<std::endl;
+        if (m_Verbose) std::cout<<"| Label: "<< (int) label<<"  |"<<std::endl;
         if (m_Verbose) std::cout<<"-------------"<<std::endl;
 
         // Histograms
