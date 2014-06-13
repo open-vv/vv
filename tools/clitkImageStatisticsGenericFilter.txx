@@ -293,7 +293,7 @@ namespace clitk
             for( int i =0; i <m_ArgsInfo.bins_arg; i++)
             {
               double popCumulativeVolume = 0;
-              for(int j=0; j<=i; j++)
+              for(int j=0; j<i; j++)
               {
                  popCumulativeVolume+=(dvhistogram->GetFrequency(j));
               }
@@ -327,7 +327,7 @@ namespace clitk
             for( int i =0; i <m_ArgsInfo.bins_arg; i++)
             {
                double popCumulativeVolume = 0;
-               for(int j=0; j<=i; j++)
+               for(int j=0; j<i; j++)
                {
                  popCumulativeVolume+=(dvhistogram->GetFrequency(j));
                }
