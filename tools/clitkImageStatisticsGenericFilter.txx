@@ -156,7 +156,7 @@ namespace clitk
 
           }
           else {
-            std::cerr << "Mask image has a different size/spacing than input. Abort" << std::endl;
+            std::cerr << "Mask image has a different size/spacing than input. Abort. (Use option to resize)" << std::endl;
             exit(-1);
           }
         }
@@ -169,6 +169,7 @@ namespace clitk
       labelImage->SetRegions(input->GetLargestPossibleRegion());
       labelImage->SetOrigin(input->GetOrigin());
       labelImage->SetSpacing(input->GetSpacing());
+      labelImage->SetDirection(input->GetDirection());
       labelImage->Allocate();
       labelImage->FillBuffer(m_ArgsInfo.label_arg[0]);
     }
