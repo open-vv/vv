@@ -64,13 +64,15 @@ void clitk::Timer::Stop(bool accumulate)
     mElapsed += (mEnd.ru_utime.tv_usec - mBegin.ru_utime.tv_usec)+
                 (mEnd.ru_utime.tv_sec - mBegin.ru_utime.tv_sec)*1000000;
   }
+  else
 #elif defined(_WIN32)
   QueryPerformanceCounter((LARGE_INTEGER*)&mEnd);
   if (accumulate) {
     mElapsed += ((mEnd-mBegin)*1000000)/(long double)mFrequency;
   }
+  else
 #endif
-  else {
+  {
     mNumberOfCall--;
   }
 }
@@ -114,4 +116,3 @@ void clitk::Timer::Reset()
 
 // #endif // If UNIX
 #endif /* end #define CLITKTIMER_CXX */
-
