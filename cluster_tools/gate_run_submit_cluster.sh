@@ -58,7 +58,7 @@ test -d ${OUTPUTDIR} || error "can't locate output dir"
 RUNID=${OUTPUTDIR##*.}
 NJOBS=${2:-"${DEFAULTNUMBEROFJOBS}"}
 NJOBSMAX=${NJOBS}
-PARAM="${4:-""}"
+PARAM="${4:-\"\"}"
 
 echo "Lets roll!!"
 echo "runid is ${RUNID}"
