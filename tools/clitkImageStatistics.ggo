@@ -12,6 +12,7 @@ option "channel"    c "Image channel to be used in statistics (-1 to process all
 option "mask"		m	"Mask image filename (uchar)"		  string  	no
 option "label"		l	"Label(s) in the mask image to consider"	int  	no 	multiple 	default="1"
 option "histogram"	-	"Compute histogram, allows median calculation"	string  no
+option "dvhistogram" -	"Compute dose volume histogram"	string  no
 option "bins"		-	"Number of histogram bins"	  		int  	no 	default="100"
 option "lower"		-	"Lower histogram bound"	double 	no default="-1000"	
 option "upper"		-	"Upper histogram bound"	double 	no default="1000"		

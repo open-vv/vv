@@ -19,6 +19,7 @@ function usage {
     echo "${SCRIPTNAME} mac/main.mac njobs releasesuffix paramtogate"
     echo "default njobs = ${DEFAULTNUMBEROFJOBS}"
     echo "default releasesuffix = ${DEFAULTRELEASESUFFIX} (NONE means use Gate in PATH)"
+    echo "default paramtogate = \"\" (use \"\" around params and \\ in front of commas)"
 }
 # -------------------------------------------------
 
@@ -57,7 +58,7 @@ test -d ${OUTPUTDIR} || error "can't locate output dir"
 RUNID=${OUTPUTDIR##*.}
 NJOBS=${2:-"${DEFAULTNUMBEROFJOBS}"}
 NJOBSMAX=${NJOBS}
-PARAM="${4:-""}"
+PARAM="${4:-\"\"}"
 
 echo "Lets roll!!"
 echo "runid is ${RUNID}"
@@ -107,8 +108,8 @@ while test $NJOBS -gt 0; do
              -v "PARAM=\"${PARAM}\",INDEX=${NJOBS},INDEXMAX=${NJOBSMAX},OUTPUTDIR=${OUTPUTDIR},RELEASEDIR=${RELEASEDIR},MACROFILE=${MACROFILE},MACRODIR=${MACRODIR}" \
              "${JOBFILE}" || error "submission error"
     else
-        qsub -N "gatejob.${RUNID}" -o "${OUTPUTDIR}" \
-	    -v "PARAM=\"${PARAM}\",INDEX=${NJOBS},INDEXMAX=${NJOBSMAX},OUTPUTDIR=${OUTPUTDIR},RELEASEDIR=${RELEASEDIR},MACROFILE=${MACROFILE},MACRODIR=${MACRODIR}" \
+	qsub -N "gatejob.${RUNID}" -o "${OUTPUTDIR}" \
+	    -v "PARAM=${PARAM},INDEX=${NJOBS},INDEXMAX=${NJOBSMAX},OUTPUTDIR=${OUTPUTDIR},RELEASEDIR=${RELEASEDIR},MACROFILE=${MACROFILE},MACRODIR=${MACRODIR}" \
 	    "${JOBFILE}" || error "submission error"
     fi
 

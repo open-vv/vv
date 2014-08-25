@@ -175,6 +175,15 @@ namespace clitk
     }
     statisticsFilter->SetLabelInput(labelImage);
 
+    // Check/compute spacing
+    const typename LabelImageType::SpacingType& spacing = input->GetSpacing();
+    double spacing_cc = (spacing[0]*spacing[1]*spacing[2])/1000;
+    // std::cout<<"Spacing x : " << spacing[0]<<std::endl;
+    // std::cout<<"Spacing y :  " << spacing[1]<<std::endl;
+    // std::cout<<"Spacing z :  " << spacing[2]<<std::endl;
+    // std::cout <<"spacing_cc : " << spacing_cc << std::endl;
+
+
     // For each Label
     typename LabelImageType::PixelType label;
     unsigned int numberOfLabels;
@@ -212,34 +221,34 @@ namespace clitk
           statisticsFilter->SetUseHistograms(true);
           statisticsFilter->SetHistogramParameters(m_ArgsInfo.bins_arg, m_ArgsInfo.lower_arg, m_ArgsInfo.upper_arg);
         }
+
+        // DVH
+        if(m_ArgsInfo.dvhistogram_given)
+        {
+          statisticsFilter->SetUseHistograms(true);
+          statisticsFilter->SetHistogramParameters(m_ArgsInfo.bins_arg, m_ArgsInfo.lower_arg, m_ArgsInfo.upper_arg);
+        }
+
         statisticsFilter->Update();
 
         // Output
-        if (m_Verbose) std::cout<<"N° of pixels: ";
-          std::cout<<statisticsFilter->GetCount(label)<<std::endl;
-
+       if (m_Verbose) std::cout<<"N° of pixels: ";
+        std::cout<<statisticsFilter->GetCount(label)<<std::endl;
         if (m_Verbose) std::cout<<"Mean: ";
-          std::cout<<statisticsFilter->GetMean(label)<<std::endl;
-
+        std::cout<<statisticsFilter->GetMean(label)<<std::endl;
         if (m_Verbose) std::cout<<"SD: ";
-          std::cout<<statisticsFilter->GetSigma(label)<<std::endl;
-
+        std::cout<<statisticsFilter->GetSigma(label)<<std::endl;
         if (m_Verbose) std::cout<<"Variance: ";
-          std::cout<<statisticsFilter->GetVariance(label)<<std::endl;
-
+        std::cout<<statisticsFilter->GetVariance(label)<<std::endl;
         if (m_Verbose) std::cout<<"Min: ";
-          std::cout<<statisticsFilter->GetMinimum(label)<<std::endl;
-
+        std::cout<<statisticsFilter->GetMinimum(label)<<std::endl;
         if (m_Verbose) std::cout<<"Max: ";
-          std::cout<<statisticsFilter->GetMaximum(label)<<std::endl;
-
+        std::cout<<statisticsFilter->GetMaximum(label)<<std::endl;
         if (m_Verbose) std::cout<<"Sum: ";
-          std::cout<<statisticsFilter->GetSum(label)<<std::endl;
-
+        std::cout<<statisticsFilter->GetSum(label)<<std::endl;
         if (m_Verbose) std::cout<<"Bounding box: ";
-
         for(unsigned int i =0; i <statisticsFilter->GetBoundingBox(label).size(); i++)
-          std::cout<<statisticsFilter->GetBoundingBox(label)[i]<<" ";
+            std::cout<<statisticsFilter->GetBoundingBox(label)[i]<<" ";
         std::cout<<std::endl;
 
         // Histogram
@@ -262,6 +271,79 @@ namespace clitk
           histogramFile<<"#MinBin\tMidBin\tMaxBin\tFrequency"<<std::endl;
           for( int i =0; i <m_ArgsInfo.bins_arg; i++)
             histogramFile<<histogram->GetBinMin(0,i)<<"\t"<<histogram->GetMeasurement(i,0)<<"\t"<<histogram->GetBinMax(0,i)<<"\t"<<histogram->GetFrequency(i)<<std::endl;
+        }
+
+        // DVH
+        if(m_ArgsInfo.dvhistogram_given)
+        {
+            typename StatisticsImageFilterType::HistogramPointer dvhistogram = statisticsFilter->GetHistogram(label);
+
+            // Screen
+            std::cout<<"# Total volume : ";
+            std::cout<<statisticsFilter->GetCount(label)<<" [No. of voxels]"<<std::endl;
+            std::cout<<"# Total volume : ";
+            std::cout<<((statisticsFilter->GetCount(label))*spacing_cc)<<" [cc]"<<std::endl;
+            std::cout<<"# Dose mean: ";
+            std::cout<<statisticsFilter->GetMean(label)<<" [Gy]"<<std::endl;
+            std::cout<<"# Dose min: ";
+            std::cout<<statisticsFilter->GetMinimum(label)<<" [Gy]"<<std::endl;
+            std::cout<<"# Dose max: ";
+            std::cout<<statisticsFilter->GetMaximum(label)<<" [Gy]"<<std::endl;
+            std::cout<<" "<<std::endl;
+            std::cout<<"#Dose_diff[Gy] Volume_diff[No. of voxels] Volume_diff[%] Volume_diff[cc] #Dose_cumul[Gy] Volume_cumul[No. of voxels] Volume_cumul[%] Volume_cumul[cc]"<<std::endl;
+            for( int i =0; i <m_ArgsInfo.bins_arg; i++)
+            {
+              double popCumulativeVolume = 0;
+              for(int j=0; j<i; j++)
+              {
+                 popCumulativeVolume+=(dvhistogram->GetFrequency(j));
+              }
+              double cumulativeVolume = popCumulativeVolume + (dvhistogram->GetFrequency(i));
+              double percentCumulativeVolume =(cumulativeVolume*100)/(statisticsFilter->GetCount(label)) ;
+              double ccCumulativeVolume = (popCumulativeVolume + (dvhistogram->GetFrequency(i)))*spacing_cc;
+              double percentDiffVolume = dvhistogram->GetFrequency(i)*100/(statisticsFilter->GetCount(label));
+              if(i == 0)
+              {
+                 std::cout<<dvhistogram->GetBinMax(0,i)<<"\t  "<<dvhistogram->GetFrequency(i)<<"\t  "<<percentDiffVolume<<"\t "<<((dvhistogram->GetFrequency(i))*spacing_cc)<<"\t "<<m_ArgsInfo.bins_arg<<"\t "<<cumulativeVolume<<"\t  "<<percentCumulativeVolume<<"\t  "<<ccCumulativeVolume<<"\t "<<std::endl;
+              }else
+              {
+                 std::cout<<dvhistogram->GetBinMax(0,i)<<"\t  "<<dvhistogram->GetFrequency(i)<<"\t  "<<percentDiffVolume<<"\t "<<((dvhistogram->GetFrequency(i))*spacing_cc)<<"\t "<<dvhistogram->GetBinMin(0,m_ArgsInfo.bins_arg-i)<<"\t "<<cumulativeVolume<<"\t  "<<percentCumulativeVolume<<"\t  "<<ccCumulativeVolume<<"\t "<<std::endl;
+              }
+            }
+
+            // Add to the file
+            std::ofstream dvhistogramFile(m_ArgsInfo.dvhistogram_arg);
+            dvhistogramFile<<"# Total volume : ";
+            dvhistogramFile<<statisticsFilter->GetCount(label)<<" [No. of voxels]"<<std::endl;
+            dvhistogramFile<<"# Total volume : ";
+            dvhistogramFile<<((statisticsFilter->GetCount(label))*spacing_cc)<<" [cc]"<<std::endl;
+            dvhistogramFile<<"# Dose mean: ";
+            dvhistogramFile<<statisticsFilter->GetMean(label)<<" [Gy]"<<std::endl;
+            dvhistogramFile<<"# Dose min: ";
+            dvhistogramFile<<statisticsFilter->GetMinimum(label)<<" [Gy]"<<std::endl;
+            dvhistogramFile<<"# Dose max: ";
+            dvhistogramFile<<statisticsFilter->GetMaximum(label)<<" [Gy]"<<std::endl;
+            dvhistogramFile<<"  "<<std::endl;
+            dvhistogramFile<<"#Dose_diff[Gy] Volume_diff[No. of voxels] Volume_diff[%] Volume_diff[cc] #Dose_cumulative[Gy] Volume_cumul[No. of voxels] Volume_cumul[%] Volume_cumul[cc]"<<std::endl;
+            for( int i =0; i <m_ArgsInfo.bins_arg; i++)
+            {
+               double popCumulativeVolume = 0;
+               for(int j=0; j<i; j++)
+               {
+                 popCumulativeVolume+=(dvhistogram->GetFrequency(j));
+               }
+               double cumulativeVolume = popCumulativeVolume + (dvhistogram->GetFrequency(i));
+               double percentCumulativeVolume =(cumulativeVolume*100)/(statisticsFilter->GetCount(label)) ;
+               double ccCumulativeVolume = (popCumulativeVolume + (dvhistogram->GetFrequency(i)))*spacing_cc;
+               double percentDiffVolume = ((dvhistogram->GetFrequency(i))*100)/(statisticsFilter->GetCount(label));
+               if(i == 0)
+               {
+                 dvhistogramFile<<dvhistogram->GetBinMax(0,i)<<"\t  "<<dvhistogram->GetFrequency(i)<<"\t  "<<percentDiffVolume<<"\t "<<((dvhistogram->GetFrequency(i))*spacing_cc)<<"\t "<<m_ArgsInfo.bins_arg<<"\t "<<cumulativeVolume<<"\t  "<<percentCumulativeVolume<<"\t  "<<ccCumulativeVolume<<std::endl;
+               }else
+               {
+                 dvhistogramFile<<dvhistogram->GetBinMax(0,i)<<"\t  "<<dvhistogram->GetFrequency(i)<<"\t  "<<percentDiffVolume<<"\t "<<((dvhistogram->GetFrequency(i))*spacing_cc)<<"\t "<<dvhistogram->GetBinMin(0,m_ArgsInfo.bins_arg-i)<<"\t "<<cumulativeVolume<<"\t  "<<percentCumulativeVolume<<"\t  "<<ccCumulativeVolume<<std::endl;
+               }
+           }
         }
       }
     }
