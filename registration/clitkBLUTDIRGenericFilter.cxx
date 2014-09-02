@@ -30,7 +30,16 @@ It is distributed under dual licence
 #include "clitkBLUTDIRGenericFilter.h"
 #include "clitkBLUTDIRCommandIterationUpdateDVF.h"
 #include "itkCenteredTransformInitializer.h"
-  
+#if ITK_VERSION_MAJOR >= 4
+#  if ITK_VERSION_MINOR < 6
+#    include "itkTransformToDisplacementFieldSource.h"
+#  else
+#    include "itkTransformToDisplacementFieldFilter.h"
+#  endif
+#else
+#  include "itkTransformToDeformationFieldSource.h"
+#endif
+
 namespace clitk
 {
 
@@ -793,7 +802,11 @@ namespace clitk
       typedef itk::Vector< float, SpaceDimension >  DisplacementType;
       typedef itk::Image< DisplacementType, InputImageType::ImageDimension >  DisplacementFieldType;
 #if ITK_VERSION_MAJOR >= 4
+#  if ITK_VERSION_MINOR < 6
       typedef itk::TransformToDisplacementFieldSource<DisplacementFieldType, double> ConvertorType;
+#  else
+      typedef itk::TransformToDisplacementFieldFilter<DisplacementFieldType, double> ConvertorType;
+#  endif
 #else
       typedef itk::TransformToDeformationFieldSource<DisplacementFieldType, double> ConvertorType;
 #endif
@@ -804,7 +817,11 @@ namespace clitk
       else
         transform->SetBulkTransform(NULL);
       filter->SetTransform(regTransform);
+#if ITK_VERSION_MAJOR > 4 || (ITK_VERSION_MAJOR == 4 && ITK_VERSION_MINOR >= 6)
+      filter->SetReferenceImage(fixedImage);
+#else
       filter->SetOutputParametersFromImage(fixedImage);
+#endif
       filter->Update();
       typename DisplacementFieldType::Pointer field = filter->GetOutput();
 

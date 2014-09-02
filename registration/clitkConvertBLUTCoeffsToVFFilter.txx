@@ -7,11 +7,6 @@
 
 //#include "clitkConvertBSplineDeformableTransformToVFGenericFilter.h"
 #include "clitkVectorImageToImageFilter.h"
-#if ITK_VERSION_MAJOR >= 4
-#include "itkTransformToDisplacementFieldSource.h"
-#else
-#include "itkTransformToDeformationFieldSource.h"
-#endif
 #include "itkBSplineDeformableTransform.h"
 
 namespace clitk 
@@ -186,9 +181,13 @@ namespace clitk
       m_GenericTransform = m_ITKTransform;
     }
 
+#if ITK_VERSION_MAJOR > 4 || (ITK_VERSION_MAJOR == 4 && ITK_VERSION_MINOR >= 6)
+    m_Filter->SetReferenceImage(output);
+#else
     m_Filter->SetOutputOrigin(output->GetOrigin());
     m_Filter->SetOutputSpacing(output->GetSpacing());
     m_Filter->SetOutputSize(output->GetLargestPossibleRegion().GetSize());
+#endif
     m_Filter->SetTransform(m_GenericTransform);
 
     m_Filter->Update();
