@@ -17,7 +17,7 @@
   ======================================================================-====*/
 
 #ifndef CLITKBINARYIMAGETOMESHFILTER_H
-#define CLITKMESHTOBINARYIMAGEFILTER_H
+#define CLITKBINARYIMAGETOMESHFILTER_H
 
 // clitk
 #include "clitkCommon.h"
