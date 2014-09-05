@@ -79,10 +79,15 @@ namespace clitk
     
     // Filter
 #if ITK_VERSION_MAJOR >= 4
+#  if ITK_VERSION_MINOR < 6
     typedef itk::TransformToDisplacementFieldSource<OutputImageType, double> ConvertorType;
+#  else
+    typedef itk::TransformToDisplacementFieldFilter<OutputImageType, double> ConvertorType;
+#  endif
 #else
     typedef itk::TransformToDeformationFieldSource<OutputImageType, double> ConvertorType;
 #endif
+
     typename   ConvertorType::Pointer filter= ConvertorType::New();
 
     // Output image info
@@ -94,7 +99,11 @@ namespace clitk
 	reader2->Update();
 
 	typename OutputImageType::Pointer image=reader2->GetOutput();
-	filter->SetOutputParametersFromImage(image);
+#if ITK_VERSION_MAJOR > 4 || (ITK_VERSION_MAJOR == 4 && ITK_VERSION_MINOR >= 6)
+    filter->SetReferenceImage(image);
+#else
+    filter->SetOutputParametersFromImage(image);
+#endif
       }
     else
       {
@@ -118,8 +127,12 @@ namespace clitk
 	    typename OutputImageType::SizeType size;
 	    for(i=0;i<Dimension;i++)
 	      size[i]=m_ArgsInfo.size_arg[i];
-	    filter->SetOutputSize(size);
-	  }
+#if ITK_VERSION_MAJOR > 4 || (ITK_VERSION_MAJOR == 4 && ITK_VERSION_MINOR >= 6)
+        filter->SetSize(size);
+#else
+        filter->SetOutputSize(size);
+#endif
+      }
       }
     
     // Transform

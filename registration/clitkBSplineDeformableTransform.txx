@@ -16,7 +16,7 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
 #ifndef __clitkBSplineDeformableTransform_txx
-#define __clitkBSplineDeformableTransform_tx
+#define __clitkBSplineDeformableTransform_txx
 #include "clitkBSplineDeformableTransform.h"
 
 //itk

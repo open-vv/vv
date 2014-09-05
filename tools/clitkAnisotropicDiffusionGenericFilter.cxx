@@ -90,6 +90,7 @@ AnisotropicDiffusionGenericFilter::UpdateWithInputImageType()
     gadFilter->SetConductanceParameter(mArgsInfo.conductance_arg);
     gadFilter->Update();
     this->template SetNextOutput<InputImageType>(gadFilter->GetOutput());
+    break;
   case type_arg_Curvature:
     cadFilter->SetInput(input);
     cadFilter->SetNumberOfIterations(mArgsInfo.niterations_arg);
@@ -97,6 +98,10 @@ AnisotropicDiffusionGenericFilter::UpdateWithInputImageType()
     cadFilter->SetConductanceParameter(mArgsInfo.conductance_arg);
     cadFilter->Update();
     this->template SetNextOutput<InputImageType>(cadFilter->GetOutput());
+    break;
+  default:
+    itkGenericExceptionMacro("Unhandled type");
+    break;
   }
 }
 //--------------------------------------------------------------------

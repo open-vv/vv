@@ -46,7 +46,7 @@ private :
     vtkPolyDataMapper* mMapper;
     vtkActor* mActor;
     vtkRenderer * mRenderer;
-    unsigned int mCurrentTime;
+    int mCurrentTime;
 
 }; // end class vvSurfaceViewerDialog
 //====================================================================
