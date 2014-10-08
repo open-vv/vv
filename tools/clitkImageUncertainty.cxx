@@ -53,9 +53,9 @@ int main(int argc, char * argv[]) {
 
   // Read images
   ImageType::Pointer input =
-	clitk::readImage<ImageType>(args_info.input_arg, args_info.verbose_flag);
+    clitk::readImage<ImageType>(args_info.input_arg, args_info.verbose_flag);
   ImageType::Pointer inputSquared =
-	clitk::readImage<ImageType>(args_info.inputSquared_arg, args_info.verbose_flag);
+    clitk::readImage<ImageType>(args_info.inputSquared_arg, args_info.verbose_flag);
 
   // Create Output
   ImageType::Pointer output = ImageType::New();
@@ -75,39 +75,36 @@ int main(int argc, char * argv[]) {
 
   int NumberOfEvents = args_info.NumberOfEvents_arg;
   while ( !pi.IsAtEnd() ) {
-	double squared = pii.Get();
-	double mean = pi.Get();
-	double uncert = sqrt((NumberOfEvents*squared - mean*mean) / ((NumberOfEvents-1)*(mean*mean)));
-	if (!IsNormal(uncert)) uncert = 1.;
-	po.Set(uncert);
-	++pi;
-	++pii;
-	++po;
+    double squared = pii.Get();
+    double mean = pi.Get();
+    double uncert = sqrt((NumberOfEvents*squared - mean*mean) / (NumberOfEvents-1));
+    if(!args_info.absolute_flag)
+      uncert /= std::abs(mean);
+    if (!IsNormal(uncert)) uncert = args_info.default_arg;
+    po.Set(uncert);
+    ++pi;
+    ++pii;
+    ++po;
   }
-// 	  *po = sqrt( (NumberOfEvents*squared - mean*mean) /
-// ((NumberOfEvents-1)*(mean*mean)) );
-// 	  ++po;
-
-
 
   // Write output image
   // DD(clitk::GetExtension(args_info.output_arg));
   if (clitk::GetExtension(args_info.output_arg) != "txt") {
-	clitk::writeImage<ImageType>(output, args_info.output_arg, args_info.verbose_flag);
+    clitk::writeImage<ImageType>(output, args_info.output_arg, args_info.verbose_flag);
   }
   else {
-	std::ofstream os;
-	clitk::openFileForWriting(os, args_info.output_arg);
-	typedef itk::ImageRegionConstIterator<ImageType> IteratorType;
-	IteratorType pi(output, output->GetLargestPossibleRegion());
-	pi.GoToBegin();
-	os << "# Image size = " << output->GetLargestPossibleRegion().GetSize() << std::endl;
-	os << "# Image spacing = " << output->GetSpacing() << std::endl;
-	os << "# Number of events = " << NumberOfEvents << std::endl;
-	while (!pi.IsAtEnd()) {
-	  os << pi.Get() << std::endl;
-	  ++pi;
-	}
+    std::ofstream os;
+    clitk::openFileForWriting(os, args_info.output_arg);
+    typedef itk::ImageRegionConstIterator<ImageType> IteratorType;
+    IteratorType pi(output, output->GetLargestPossibleRegion());
+    pi.GoToBegin();
+    os << "# Image size = " << output->GetLargestPossibleRegion().GetSize() << std::endl;
+    os << "# Image spacing = " << output->GetSpacing() << std::endl;
+    os << "# Number of events = " << NumberOfEvents << std::endl;
+    while (!pi.IsAtEnd()) {
+      os << pi.Get() << std::endl;
+      ++pi;
+    }
   }
 }
 
