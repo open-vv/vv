@@ -319,7 +319,10 @@ function merge_dispatcher {
     if test ${nboutputdirs} -ne ${nboutputfiles}
     then
         warning "missing files"
-        return
+        if ! test "${2}" == "--force"
+        then
+            return
+        fi
     fi
 
     local firstpartialoutputfile="$(echo "${partialoutputfiles}" | head -n 1)"
@@ -436,7 +439,10 @@ function merge_dispatcher_uncertainty {
     if test ${nboutputdirs} -ne ${nboutputfiles}
     then
         warning "missing files"
-        return
+        if ! test "${2}" == "--force"
+        then
+            return
+        fi
     fi
 
     local firstpartialoutputfile="$(echo "${partialoutputfiles}" | head -n 1)"
@@ -493,8 +499,11 @@ function merge_dispatcher_uncertainty {
 }
 
 echo "!!!! this is $0 v0.3k !!!!"
+echo "Usage: gate_power_merge.sh run.dir [--force]"
+echo "   where --force allows to merge files even if the file is missing in some output directories"
 
 rundir="${1?"provide run dir"}"
+force=${2:-""}
 rundir="$(echo "${rundir}" | sed 's|/*$||')"
 nboutputdirs="$(find "${rundir}" -mindepth 1 -type d -name 'output*' -o -type l -name 'output*' | wc -l)"
 
@@ -513,14 +522,14 @@ test -d "${outputdir}" && rm -r "${outputdir}"
 mkdir "${outputdir}"
 for outputfile in $(find -L "${rundir}" -regextype 'posix-extended' -type f -regex "${rundir}/output.*\.(hdr|mhd|mha|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
 do
-    merge_dispatcher "${outputfile}"
+    merge_dispatcher "${outputfile}" "${force}"
 done
 
 echo ""
 echo "Merging done. Special case for statistical uncertainty"
 for outputfile in $(find -L "${outputdir}" -regextype 'posix-extended' -type f -regex "${outputdir}/.*\.(hdr|mhd|mha|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
 do
-    merge_dispatcher_uncertainty "${outputfile}"
+    merge_dispatcher_uncertainty "${outputfile}" "${force}"
 done
 
 if [ -f "${rundir}/params.txt" ]
