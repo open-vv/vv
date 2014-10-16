@@ -276,12 +276,14 @@ namespace clitk
         if(m_ArgsInfo.dvhistogram_given)
         {
             typename StatisticsImageFilterType::HistogramPointer dvhistogram = statisticsFilter->GetHistogram(label);
+            double totalVolumeCC = ((statisticsFilter->GetCount(label))*spacing_cc);
+            double totalVolume = statisticsFilter->GetCount(label);
 
             // Screen
             std::cout<<"# Total volume : ";
-            std::cout<<statisticsFilter->GetCount(label)<<" [No. of voxels]"<<std::endl;
+            std::cout<<totalVolume<<" [No. of voxels]"<<std::endl;
             std::cout<<"# Total volume : ";
-            std::cout<<((statisticsFilter->GetCount(label))*spacing_cc)<<" [cc]"<<std::endl;
+            std::cout<<totalVolumeCC<<" [cc]"<<std::endl;
             std::cout<<"# Dose mean: ";
             std::cout<<statisticsFilter->GetMean(label)<<" [Gy]"<<std::endl;
             std::cout<<"# Dose min: ";
@@ -289,7 +291,7 @@ namespace clitk
             std::cout<<"# Dose max: ";
             std::cout<<statisticsFilter->GetMaximum(label)<<" [Gy]"<<std::endl;
             std::cout<<" "<<std::endl;
-            std::cout<<"#Dose_diff[Gy] Volume_diff[No. of voxels] Volume_diff[%] Volume_diff[cc] #Dose_cumul[Gy] Volume_cumul[No. of voxels] Volume_cumul[%] Volume_cumul[cc]"<<std::endl;
+            std::cout<<"#Dose_diff[Gy] Volume_diff[No. of voxels] Volume_diff[%] Volume_diff[cc] Volume_cumul[No. of voxels] Volume_cumul[%] Volume_cumul[cc]"<<std::endl;
             for( int i =0; i <m_ArgsInfo.bins_arg; i++)
             {
               double popCumulativeVolume = 0;
@@ -297,16 +299,16 @@ namespace clitk
               {
                  popCumulativeVolume+=(dvhistogram->GetFrequency(j));
               }
-              double cumulativeVolume = popCumulativeVolume + (dvhistogram->GetFrequency(i));
+              double cumulativeVolume = (totalVolume - (popCumulativeVolume + (dvhistogram->GetFrequency(i))));
               double percentCumulativeVolume =(cumulativeVolume*100)/(statisticsFilter->GetCount(label)) ;
-              double ccCumulativeVolume = (popCumulativeVolume + (dvhistogram->GetFrequency(i)))*spacing_cc;
+              double ccCumulativeVolume = (totalVolumeCC -((popCumulativeVolume + (dvhistogram->GetFrequency(i)))*spacing_cc));
               double percentDiffVolume = dvhistogram->GetFrequency(i)*100/(statisticsFilter->GetCount(label));
               if(i == 0)
               {
-                 std::cout<<dvhistogram->GetBinMax(0,i)<<"\t  "<<dvhistogram->GetFrequency(i)<<"\t  "<<percentDiffVolume<<"\t "<<((dvhistogram->GetFrequency(i))*spacing_cc)<<"\t "<<m_ArgsInfo.bins_arg<<"\t "<<cumulativeVolume<<"\t  "<<percentCumulativeVolume<<"\t  "<<ccCumulativeVolume<<"\t "<<std::endl;
+                 std::cout<<dvhistogram->GetBinMax(0,i)<<"\t  "<<dvhistogram->GetFrequency(i)<<"\t  "<<percentDiffVolume<<"\t "<<((dvhistogram->GetFrequency(i))*spacing_cc)<<"\t "<<cumulativeVolume<<"\t  "<<percentCumulativeVolume<<"\t  "<<ccCumulativeVolume<<"\t "<<std::endl;
               }else
               {
-                 std::cout<<dvhistogram->GetBinMax(0,i)<<"\t  "<<dvhistogram->GetFrequency(i)<<"\t  "<<percentDiffVolume<<"\t "<<((dvhistogram->GetFrequency(i))*spacing_cc)<<"\t "<<dvhistogram->GetBinMin(0,m_ArgsInfo.bins_arg-i)<<"\t "<<cumulativeVolume<<"\t  "<<percentCumulativeVolume<<"\t  "<<ccCumulativeVolume<<"\t "<<std::endl;
+                 std::cout<<dvhistogram->GetBinMax(0,i)<<"\t  "<<dvhistogram->GetFrequency(i)<<"\t  "<<percentDiffVolume<<"\t "<<((dvhistogram->GetFrequency(i))*spacing_cc)<<"\t "<<"\t "<<cumulativeVolume<<"\t  "<<percentCumulativeVolume<<"\t  "<<ccCumulativeVolume<<"\t "<<std::endl;
               }
             }
 
@@ -315,7 +317,7 @@ namespace clitk
             dvhistogramFile<<"# Total volume : ";
             dvhistogramFile<<statisticsFilter->GetCount(label)<<" [No. of voxels]"<<std::endl;
             dvhistogramFile<<"# Total volume : ";
-            dvhistogramFile<<((statisticsFilter->GetCount(label))*spacing_cc)<<" [cc]"<<std::endl;
+            dvhistogramFile<<totalVolumeCC<<" [cc]"<<std::endl;
             dvhistogramFile<<"# Dose mean: ";
             dvhistogramFile<<statisticsFilter->GetMean(label)<<" [Gy]"<<std::endl;
             dvhistogramFile<<"# Dose min: ";
@@ -323,7 +325,7 @@ namespace clitk
             dvhistogramFile<<"# Dose max: ";
             dvhistogramFile<<statisticsFilter->GetMaximum(label)<<" [Gy]"<<std::endl;
             dvhistogramFile<<"  "<<std::endl;
-            dvhistogramFile<<"#Dose_diff[Gy] Volume_diff[No. of voxels] Volume_diff[%] Volume_diff[cc] #Dose_cumulative[Gy] Volume_cumul[No. of voxels] Volume_cumul[%] Volume_cumul[cc]"<<std::endl;
+            dvhistogramFile<<"#Dose_diff[Gy] Volume_diff[No. of voxels] Volume_diff[%] Volume_diff[cc] Volume_cumul[No. of voxels] Volume_cumul[%] Volume_cumul[cc]"<<std::endl;
             for( int i =0; i <m_ArgsInfo.bins_arg; i++)
             {
                double popCumulativeVolume = 0;
@@ -331,16 +333,16 @@ namespace clitk
                {
                  popCumulativeVolume+=(dvhistogram->GetFrequency(j));
                }
-               double cumulativeVolume = popCumulativeVolume + (dvhistogram->GetFrequency(i));
-               double percentCumulativeVolume =(cumulativeVolume*100)/(statisticsFilter->GetCount(label)) ;
-               double ccCumulativeVolume = (popCumulativeVolume + (dvhistogram->GetFrequency(i)))*spacing_cc;
+               double cumulativeVolume = (totalVolume - (popCumulativeVolume + (dvhistogram->GetFrequency(i))));
+               double percentCumulativeVolume =(cumulativeVolume*100)/(statisticsFilter->GetCount(label));
+               double ccCumulativeVolume = (totalVolumeCC -((popCumulativeVolume + (dvhistogram->GetFrequency(i)))*spacing_cc));
                double percentDiffVolume = ((dvhistogram->GetFrequency(i))*100)/(statisticsFilter->GetCount(label));
                if(i == 0)
                {
-                 dvhistogramFile<<dvhistogram->GetBinMax(0,i)<<"\t  "<<dvhistogram->GetFrequency(i)<<"\t  "<<percentDiffVolume<<"\t "<<((dvhistogram->GetFrequency(i))*spacing_cc)<<"\t "<<m_ArgsInfo.bins_arg<<"\t "<<cumulativeVolume<<"\t  "<<percentCumulativeVolume<<"\t  "<<ccCumulativeVolume<<std::endl;
+                 dvhistogramFile<<dvhistogram->GetBinMax(0,i)<<"\t  "<<dvhistogram->GetFrequency(i)<<"\t  "<<percentDiffVolume<<"\t "<<((dvhistogram->GetFrequency(i))*spacing_cc)<<"\t "<<cumulativeVolume<<"\t "<<percentCumulativeVolume<<"\t  "<<ccCumulativeVolume<<std::endl;
                }else
                {
-                 dvhistogramFile<<dvhistogram->GetBinMax(0,i)<<"\t  "<<dvhistogram->GetFrequency(i)<<"\t  "<<percentDiffVolume<<"\t "<<((dvhistogram->GetFrequency(i))*spacing_cc)<<"\t "<<dvhistogram->GetBinMin(0,m_ArgsInfo.bins_arg-i)<<"\t "<<cumulativeVolume<<"\t  "<<percentCumulativeVolume<<"\t  "<<ccCumulativeVolume<<std::endl;
+                 dvhistogramFile<<dvhistogram->GetBinMax(0,i)<<"\t  "<<dvhistogram->GetFrequency(i)<<"\t  "<<percentDiffVolume<<"\t "<<((dvhistogram->GetFrequency(i))*spacing_cc)<<"\t "<<cumulativeVolume<<"\t "<<percentCumulativeVolume<<"\t  "<<ccCumulativeVolume<<std::endl;
                }
            }
         }
