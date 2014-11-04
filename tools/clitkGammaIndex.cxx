@@ -15,6 +15,15 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================*/
+
+#include "clitkGammaIndex_ggo.h"
+#include "clitkIO.h"
+#include "clitkDD.h"
+
+#include <iostream>
+#include <cmath>
+#include <cassert>
+
 #include <vtkPoints.h>
 #include <vtkCellArray.h>
 #include <vtkPointData.h>
@@ -24,15 +33,7 @@
 #include <vtkPNGReader.h>
 #include <vtkPolyData.h>
 #include <vtkCellLocator.h>
-#include <iostream>
-#include <cmath>
-#include <cassert>
-using std::endl;
-using std::cout;
 
-#include "clitkGammaIndex_ggo.h"
-
-#include <clitkIO.h>
 #include <vvImage.h>
 #include <vvImageReader.h>
 #include <vvImageWriter.h>
@@ -41,6 +42,9 @@ using std::cout;
 #include <itkImageRegionIterator.h>
 typedef itk::Image<double> OutputImageType;
 typedef itk::ImageRegionIterator<OutputImageType> OutputImageIterator;
+
+using std::endl;
+using std::cout;
 
 vtkImageData* loadImage(const std::string& filename)
 {
@@ -224,7 +228,7 @@ int main(int argc,char * argv[])
     // load reference
     vtkImageData* reference = loadImage(reference_filename);
     assert(reference);
- 
+
     // translate target with arguments values
     // reference is translated instead of target so that the output space stay the same as target
     {
@@ -248,10 +252,13 @@ int main(int argc,char * argv[])
 
     vtkAbstractCellLocator *locator = vtkCellLocator::New();
     locator->SetDataSet(data);
-    data->Delete();
+    DD("here");
+    //    data->Delete();
     locator->CacheCellBoundsOn();
     locator->AutomaticOn();
+    DD("BuildLocator");
     locator->BuildLocator();
+    DD("end BuildLocator");
 
     // load target
     vtkImageData* target = loadImage(target_filename);
@@ -277,6 +284,7 @@ int main(int argc,char * argv[])
     unsigned long over_one = 0;
     OutputImageIterator iter(output,output->GetLargestPossibleRegion());
     iter.GoToBegin();
+    DD("loop");
     while (!iter.IsAtEnd()) {
 	double *point = target->GetPoint(kk);
 	double value = target->GetPointData()->GetScalars()->GetTuple1(kk);
@@ -315,4 +323,3 @@ int main(int argc,char * argv[])
 
     return 0;
 }
-
