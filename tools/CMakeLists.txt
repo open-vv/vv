@@ -325,11 +325,6 @@ if(CLITK_BUILD_TOOLS)
   target_link_libraries(clitkBlurImage clitkCommon )
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkBlurImage)
 
-  WRAP_GGO(clitkImageBarycenter_GGO_C clitkImageBarycenter.ggo)
-  add_executable(clitkImageBarycenter clitkImageBarycenter.cxx ${clitkImageBarycenter_GGO_C})
-  target_link_libraries(clitkImageBarycenter clitkCommon )
-  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkBlurImage)
-
   #=========================================================
   option(CLITK_USE_ROOT "Build experimental tools using root" OFF)
   if (CLITK_USE_ROOT)
