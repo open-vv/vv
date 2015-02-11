@@ -100,4 +100,5 @@ rsync -av --remove-source-files -e "ssh -i ${HOME}/.ssh/ccin2p3" output/ "linux1
 echo "Cleanup"
 rm -r ${LOCALMACRODIR}
 date
+
 echo "Success!!!"
