@@ -1,4 +1,4 @@
-#!/bin/env bash -x
+#! /usr/local/bin/bash -lx
 #
 # MACRODIR
 # MACROFILE
