@@ -1,4 +1,4 @@
-#!/usr/bin/env bash -x
+#! /usr/local/bin/bash -lx
 #
 # MACRODIR
 # MACROFILE
@@ -92,11 +92,13 @@ else
 	|| error "gate failed"
 fi
 
+date
 echo "Copying data back"
 ssh -i ${HOME}/.ssh/ccin2p3 linux1.dg.creatis.insa-lyon.fr "mkdir cc/$(basename ${OUTPUTDIR})/output.${JOB_ID%%.*}"
 rsync -av --remove-source-files -e "ssh -i ${HOME}/.ssh/ccin2p3" output/ "linux1.dg.creatis.insa-lyon.fr:./cc/$(basename ${OUTPUTDIR})/output.${JOB_ID%%.*}"
 
 echo "Cleanup"
 rm -r ${LOCALMACRODIR}
+date
 
 echo "Success!!!"
