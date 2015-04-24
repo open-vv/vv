@@ -24,6 +24,9 @@
 #include "clitkImageToImageGenericFilter.h"
 #include "clitkPadImage_ggo.h"
 
+#ifdef ERR_SUCCESS
+#  undef ERR_SUCCESS
+#endif
 
 //--------------------------------------------------------------------
 namespace clitk
