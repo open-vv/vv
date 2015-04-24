@@ -155,7 +155,7 @@ namespace clitk
     SpacingType spacing = input->GetSpacing(), like_spacing = like_image->GetSpacing(); 
     if (spacing != like_spacing) {
       std::cerr << "Like-image must have same spacing as input: " << spacing << " " << like_spacing << std::endl;
-      return ERR_NOT_SAME_SPACING;
+      return PAD_ERR_NOT_SAME_SPACING;
     }
     
     SizeType size = input->GetLargestPossibleRegion().GetSize(), like_size = like_image->GetLargestPossibleRegion().GetSize();
@@ -175,7 +175,7 @@ namespace clitk
 
       if (auxl < 0 || auxu < 0) {
         std::cerr << "Like-image's bounding box must be larger than input's" << std::endl;
-        return ERR_NOT_LIKE_LARGER;
+        return PAD_ERR_NOT_LIKE_LARGER;
       }
 
       padLower[i] = (PadBoundType)auxl;
@@ -184,7 +184,7 @@ namespace clitk
     
     if (mArgsInfo.verbose_flag)
       std::cout << "PadLike - OUT" << std::endl;
-    return ERR_SUCCESS;
+    return PAD_ERR_SUCCESS;
   }
 } //end clitk
 

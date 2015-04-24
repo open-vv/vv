@@ -24,10 +24,6 @@
 #include "clitkImageToImageGenericFilter.h"
 #include "clitkPadImage_ggo.h"
 
-#ifdef ERR_SUCCESS
-#  undef ERR_SUCCESS
-#endif
-
 //--------------------------------------------------------------------
 namespace clitk
 {
@@ -38,9 +34,9 @@ namespace clitk
   public:
     enum
     {
-      ERR_SUCCESS = 0,
-      ERR_NOT_SAME_SPACING = -1,
-      ERR_NOT_LIKE_LARGER = -2
+      PAD_ERR_SUCCESS = 0,
+      PAD_ERR_NOT_SAME_SPACING = -1,
+      PAD_ERR_NOT_LIKE_LARGER = -2
     };
 
     //--------------------------------------------------------------------
