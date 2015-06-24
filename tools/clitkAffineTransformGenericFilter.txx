@@ -212,6 +212,7 @@ namespace clitk
       likeReader->SetFileName(m_ArgsInfo.like_arg);
       likeReader->Update();
       resampler->SetOutputParametersFromImage(likeReader->GetOutput());
+      resampler->SetOutputDirection(likeReader->GetOutput()->GetDirection());
     } else if(m_ArgsInfo.transform_grid_flag) {
       typename itk::Matrix<double, Dimension+1, Dimension+1> invMatrix( matrix.GetInverse() );
       typename itk::Matrix<double, Dimension, Dimension> invRotMatrix( clitk::GetRotationalPartMatrix(invMatrix) );
