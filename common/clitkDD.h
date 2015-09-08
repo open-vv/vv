@@ -38,6 +38,6 @@
   template<class T>
     void _print_container(T const& a)
     { for(typename T::const_iterator i=a.begin();i!=a.end();++i) { std::cout << *i << " "; };}
-#define DDS(a) { std::cout << #a " = [ "; _print_container(a) ; std::cout << " ]" << std::endl;std::cout.flush():}
+#define DDS(a) { std::cout << #a " = [ "; _print_container(a) ; std::cout << " ]" << std::endl;std::cout.flush();}
 
 #endif

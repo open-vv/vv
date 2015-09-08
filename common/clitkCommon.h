@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://www.centreleonberard.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -34,7 +34,7 @@
 #include <fstream>
 
 // Include for "rusage"
-#include <ctime> 
+#include <ctime>
 #if defined(unix) || defined(__APPLE__)
 #  include <sys/time.h>
 #  include <sys/resource.h>
@@ -51,7 +51,7 @@ namespace clitk {
   typedef unsigned char uchar;
   typedef unsigned short ushort;
   typedef unsigned int uint;
-  
+
 #define CLITK_TRY_CATCH_EXIT(func) \
   try { \
     func; \
@@ -68,13 +68,13 @@ namespace clitk {
     std::cout << "Unknown excpetion" << std::endl; \
     exit(-3); \
   }
-    
+
 
   //--------------------------------------------------------------------
   // when everything goes wrong
 #define WHEREAMI "[ " << __FILE__  << " ] line " << __LINE__
-#define FATAL(a) std::cerr << "ERROR in " << WHEREAMI << ": " << a; exit(0);
-  
+#define FATAL(a) { std::cerr << "ERROR in " << WHEREAMI << ": " << a; exit(0); }
+
   //--------------------------------------------------------------------
   // GGO with modified struct name
 #define GGO(ggo_filename, args_info)                                    \
@@ -82,7 +82,7 @@ namespace clitk {
   cmdline_parser_##ggo_filename##2(argc, argv, &args_info, 1, 1, 0);			\
   if (args_info.config_given)						\
     cmdline_parser_##ggo_filename##_configfile (args_info.config_arg, &args_info, 0, 0, 1); \
-  else cmdline_parser_##ggo_filename(argc, argv, &args_info);  
+  else cmdline_parser_##ggo_filename(argc, argv, &args_info);
 
   //--------------------------------------------------------------------
   // skip line with #
@@ -95,15 +95,15 @@ namespace clitk {
   //--------------------------------------------------------------------
   // Return filename extension
   std::string GetExtension(const std::string& filename);
-  
+
   //--------------------------------------------------------------------
   // Convert float, double ... to string
   template<class T> std::string toString(const T & t);
   template<class T> std::string toStringVector(const T * t, const int n);
   template<class T> std::string toStringVector(const T & t, const int n);
   template<class T> std::string toStringVector(const std::vector<T> & t);
-  template <class T> bool fromString(T& t, 
-                                     const std::string& s, 
+  template <class T> bool fromString(T& t,
+                                     const std::string& s,
                                      std::ios_base& (*f)(std::ios_base&)=std::dec);
 
   //--------------------------------------------------------------------
@@ -131,7 +131,7 @@ namespace clitk {
   // Return the name of a type as a string
   template<class TPixel>
   std::string GetTypeAsString();
-  
+
   //--------------------------------------------------------------------
   // Convert radian / degree
   double rad2deg(double anglerad);
@@ -154,13 +154,13 @@ namespace clitk {
   std::string CreateListOfTypes(bool last=true) {
     return GetTypeAsString<T1>();
   }
-  
+
   template<class T1, class T2>
   std::string CreateListOfTypes(bool last=true) {
     if (last) return CreateListOfTypes<T1>()+" and "+CreateListOfTypes<T2>();
     else return CreateListOfTypes<T1>()+", "+CreateListOfTypes<T2>();
   }
-  
+
   template<class T1, class T2, class T3>
   std::string CreateListOfTypes(bool last=true) {
     if (last) return CreateListOfTypes<T1,T2>(false)+" and "+CreateListOfTypes<T3>();
@@ -197,7 +197,7 @@ namespace clitk {
     else return CreateListOfTypes<T1,T2,T3,T4,T5,T6,T7>(false)+", "+CreateListOfTypes<T8>();
   }
   //--------------------------------------------------------------------
-  
+
   //--------------------------------------------------------------------
   void FindAndReplace(std::string & line, const std::string & tofind, const std::string & replacement);
   void FindAndReplace(std::string & line, const std::vector<std::string> & tofind, const std::vector<std::string> & toreplace);
@@ -205,8 +205,8 @@ namespace clitk {
   //--------------------------------------------------------------------
 
   //--------------------------------------------------------------------
-  double ComputeEuclideanDistanceFromPointToPlane(const itk::ContinuousIndex<double, 3> point, 
-						  const itk::ContinuousIndex<double, 3> pointInPlane, 
+  double ComputeEuclideanDistanceFromPointToPlane(const itk::ContinuousIndex<double, 3> point,
+						  const itk::ContinuousIndex<double, 3> pointInPlane,
 						  const itk::ContinuousIndex<double, 3> normalPlane);
 
   //--------------------------------------------------------------------
@@ -234,9 +234,9 @@ namespace clitk {
 
   //--------------------------------------------------------------------
   // Convert a map to a vector
-  template <typename M, typename V> 
+  template <typename M, typename V>
   void MapToVecFirst(const M & m, V & v);
-  template <typename M, typename V> 
+  template <typename M, typename V>
   void MapToVecSecond(const M & m, V & v);
 
   //--------------------------------------------------------------------
@@ -249,4 +249,3 @@ namespace clitk {
 } // end namespace
 
 #endif /* end #define CLITKCOMMON_H */
-
