@@ -117,6 +117,8 @@ namespace clitk {
   TPixelDown PixelTypeDownCast(const TPixelUp & x);
   template<>
   float PixelTypeDownCast(const double & x);
+  template<>
+  double PixelTypeDownCast(const double & x);
 
   //--------------------------------------------------------------------
   // Return the indexes of sorted values in a vector
