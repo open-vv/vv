@@ -54,7 +54,7 @@ public:
   itkFactorylessNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(EsrfHstImageIOFactory, ObjectFactoryBase);
+  itkTypeMacro(ImagXImageIOFactory, ObjectFactoryBase);
 
   /** Register one factory of this type  */
   static void RegisterOneFactory(void) {
@@ -75,4 +75,3 @@ private:
 } // end namespace
 
 #endif
-
