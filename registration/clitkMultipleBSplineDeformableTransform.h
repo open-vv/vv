@@ -289,7 +289,7 @@ namespace clitk
 
 }  // namespace clitk
 
-#if ITK_TEMPLATE_TXX
+#ifndef ITK_MANUAL_INSTANTIATION
 # include "clitkMultipleBSplineDeformableTransform.txx"
 #endif
 

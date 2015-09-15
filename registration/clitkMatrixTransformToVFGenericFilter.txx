@@ -101,6 +101,7 @@ namespace clitk
 	typename OutputImageType::Pointer image=reader2->GetOutput();
 #if ITK_VERSION_MAJOR > 4 || (ITK_VERSION_MAJOR == 4 && ITK_VERSION_MINOR >= 6)
     filter->SetReferenceImage(image);
+    filter->UseReferenceImageOn();
 #else
     filter->SetOutputParametersFromImage(image);
 #endif
