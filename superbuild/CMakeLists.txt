@@ -50,7 +50,7 @@ endif()
 ExternalProject_Add(
   QT
   SOURCE_DIR ${source_prefix}/qt
-  GIT_REPOSITORY git://gitorious.org/qt/qt.git
+  GIT_REPOSITORY git://code.qt.io/qt/qt.git
   GIT_TAG v4.8.6
   PATCH_COMMAND ${WINPATCH}
   CONFIGURE_COMMAND ${source_prefix}/qt/configure -confirm-license
