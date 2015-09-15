@@ -11,7 +11,7 @@
 #PBS -r n
 #PBS -l walltime=100:00:00
 #PBS -j oe
-
+#PBS -l mem=3Gb
 
 
 function error {
