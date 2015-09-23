@@ -172,7 +172,8 @@ itk::Image<itk::Vector<float,3>,3>::Pointer AverageField(itk::Image<itk::Vector<
 
   // Average
   VFPixelType vector;
-  VFPixelType zeroVector=itk::NumericTraits<VFPixelType>::Zero;
+  VFPixelType zeroVector;//=itk::NumericTraits<VFPixelType>::Zero;
+  for(unsigned int i=0;i <VFPixelType::Dimension; i++) zeroVector[i] = 0.0;
 
   while (!(iterators[0]).IsAtEnd()) {
     vector=zeroVector;
@@ -194,4 +195,3 @@ void vvMidPosition::update_progress()
   p_bar.setValue(progress);
   p_bar.show();
 }
-

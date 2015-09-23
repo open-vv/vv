@@ -10,3 +10,4 @@ option "type"        t "Output type (float, ushort ...)"                        
 option "verbose"     v "Verbose"                                                    flag   off
 option "compression" c "Compress output"                                            flag   off
 option "vv"          - "Read image as in vv and save transform in meta information" flag   off
+option "correct"     - "Correct dicom with negative Z spacing"                      flag   off
