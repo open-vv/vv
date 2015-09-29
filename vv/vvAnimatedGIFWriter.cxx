@@ -1,14 +1,14 @@
 #include "vvAnimatedGIFWriter.h"
 #include "clitkDD.h"
 
-#include "ximagif.h"
-
 #include <vtkImageData.h>
 #include <vtkImageQuantizeRGBToIndex.h>
 #include <vtkImageAppend.h>
 #include <vtkImageCast.h>
 #include <vtkObjectFactory.h>
 #include <vtkLookupTable.h>
+
+#include "ximagif.h"
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vvAnimatedGIFWriter);
