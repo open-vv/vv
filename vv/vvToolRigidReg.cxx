@@ -19,6 +19,7 @@
 // vv
 #include "vvToolRigidReg.h"
 #include "vvSlicer.h"
+#include <vvBlendImageActor.h>
 
 // vtk
 #include <vtkImageData.h>
@@ -460,6 +461,8 @@ void vvToolRigidReg::ExtentMax(const double pointExtent[8][4], double maxExtent[
 void vvToolRigidReg::Render()
 { //out << __func__ << endl;
 #if VTK_MAJOR_VERSION > 5
+double translationValues[4], translationValuesUpdate[4];
+mCurrentSlicerManager->GetImage()->GetTransform()[0]->Print(cout);
 vtkMatrix4x4* matrix = mCurrentSlicerManager->GetImage()->GetTransform()[0]->GetMatrix();
 vtkMatrix4x4* matrixTranspose = matrix->NewInstance();
 for (int i=0; i<3; ++i) {
@@ -468,15 +471,21 @@ for (int i=0; i<3; ++i) {
         matrixTranspose->SetElement(i,j,matrix->GetElement(j,i));
     }
 }
+for (int j=0; j<3; ++j)
+{
+    translationValues[j] = matrix->GetElement(j,3);
+}
+translationValues[3] = 0.0;
+matrix->MultiplyPoint(translationValues, translationValuesUpdate);
+for (int i=0; i<3; ++i) {
+   matrixTranspose->SetElement(i,3,translationValuesUpdate[i]);
+}
 for (int i=0; i<4; ++i) {
    matrixTranspose->SetElement(3,i,matrix->GetElement(3,i));
 }
-for (int i=0; i<4; ++i) {
-   matrixTranspose->SetElement(i,3,matrix->GetElement(i,3));
-}
+
 #endif
-  for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++)
-    {
+for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
 #if VTK_MAJOR_VERSION > 5 
     double pointExtent[8][4], pointExtentUpdate[8][4];
     std::vector<int> w_ext;
@@ -517,21 +526,23 @@ for (int i=0; i<4; ++i) {
 	for (int k=0; k<8; ++k) {
 	    for (int j=0; j<3; ++j)
 	    {
-	        pointExtent[k][j] = mCurrentSlicerManager->GetImage()->GetOrigin()[j] + mCurrentSlicerManager->GetImage()->GetSpacing()[j] * pointExtent[k][j];
+	        pointExtent[k][j] = mCurrentSlicerManager->GetImage()->GetSpacing()[j] * pointExtent[k][j];
 	    }
 	    matrixTranspose->MultiplyPoint(pointExtent[k], pointExtentUpdate[k]);
 		for (int j=0; j<3; ++j)
 	    {
-	        pointExtentUpdate[k][j] = (pointExtentUpdate[k][j] - mCurrentSlicerManager->GetImage()->GetOrigin()[j])/mCurrentSlicerManager->GetImage()->GetSpacing()[j];
+	        pointExtentUpdate[k][j] = (pointExtentUpdate[k][j])/mCurrentSlicerManager->GetImage()->GetSpacing()[j];
+	        cout << pointExtentUpdate[k][j] << " ";
 	    }
+	    cout << endl;
     }
-double extUpdateTemp[2][3];
-int extUpdate[6];
-ExtentMax(pointExtentUpdate, extUpdateTemp);
-for (int j=0; j<3; ++j) {
-    extUpdate[2*j] = 0;
-    extUpdate[2*j+1] = itk::Math::Round<double>(extUpdateTemp[1][j] - extUpdateTemp[0][j]);
-}
+    double extUpdateTemp[2][3];
+    int extUpdate[6];
+    ExtentMax(pointExtentUpdate, extUpdateTemp);
+    for (int j=0; j<3; ++j) {
+        extUpdate[2*j] = 0;
+        extUpdate[2*j+1] = itk::Math::Round<double>(extUpdateTemp[1][j] - extUpdateTemp[0][j]);
+    }
     mCurrentSlicerManager->GetSlicer(i)->SetRegisterExtent(extUpdate);
     extUpdate[2*mCurrentSlicerManager->GetSlicer(i)->GetOrientation()] = mCurrentSlicerManager->GetSlicer(i)->GetSlice();
     extUpdate[2*mCurrentSlicerManager->GetSlicer(i)->GetOrientation()+1] = mCurrentSlicerManager->GetSlicer(i)->GetSlice();
@@ -544,11 +555,39 @@ for (int j=0; j<3; ++j) {
 		std::cerr << "Conversion error" << std::endl;
 		return;
 	}
+	cout << extUpdate[0] << " " << extUpdate[1] << " " << extUpdate[2] << " " << extUpdate[3] << " " << extUpdate[4] << " " << extUpdate[5] << endl;
 	mapperOpenGL->SetCroppingRegion(extUpdate);
+	
+	if (mCurrentSlicerManager->GetSlicer(i)->GetOverlay() && mCurrentSlicerManager->GetSlicer(i)->GetOverlayActor()->GetVisibility()) {
+	    int extOverlayUpdate[6];
+	    for (int j=0; j<3; ++j) {
+	        if (0 < extUpdateTemp[0][j]) {
+	            extOverlayUpdate[2*j] = itk::Math::Round<double>(extUpdateTemp[0][j]);
+	        } else {
+	            extOverlayUpdate[2*j] = 0;
+	        }
+	        if (extUpdateTemp[1][j] < w_ext[j]-1) {
+	            extOverlayUpdate[2*j+1] = itk::Math::Round<double>(extUpdateTemp[1][j]);
+	        } else {
+	            extOverlayUpdate[2*j+1] = w_ext[j]-1;
+	        }
+	    }
+	    extOverlayUpdate[2*mCurrentSlicerManager->GetSlicer(i)->GetOrientation()] += mCurrentSlicerManager->GetSlicer(i)->GetSlice();
+        extOverlayUpdate[2*mCurrentSlicerManager->GetSlicer(i)->GetOrientation()+1] = extOverlayUpdate[2*mCurrentSlicerManager->GetSlicer(i)->GetOrientation()];
+	    vtkSmartPointer<vtkOpenGLImageSliceMapper> mapperOpenGL= vtkSmartPointer<vtkOpenGLImageSliceMapper>::New();
+	    try {
+            mapperOpenGL = dynamic_cast<vtkOpenGLImageSliceMapper*>(mCurrentSlicerManager->GetSlicer(i)->GetOverlayActor()->GetMapper());
+        } catch (const std::bad_cast& e) {
+		    std::cerr << e.what() << std::endl;
+		    std::cerr << "Conversion error" << std::endl;
+		    return;
+	    }
+	    mapperOpenGL->SetCroppingRegion(extOverlayUpdate);
+	}
 #endif
     mCurrentSlicerManager->GetSlicer(i)->ForceUpdateDisplayExtent();
     mCurrentSlicerManager->GetSlicer(i)->Render();
-    }
+}
 }
 //------------------------------------------------------------------------------
 

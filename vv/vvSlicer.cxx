@@ -1072,7 +1072,7 @@ int vvSlicer::GetOrientation()
 
 //----------------------------------------------------------------------------
 void vvSlicer::UpdateDisplayExtent()
-{ //out << __func__ << endl;
+{ cout << __func__ << endl;
   vtkImageData *input = this->GetInput();
   
   if (!input || !this->ImageActor) {
@@ -1101,11 +1101,11 @@ void vvSlicer::UpdateDisplayExtent()
 #else
   vtkSmartPointer<vtkOpenGLImageSliceMapper> mapperOpenGL= vtkSmartPointer<vtkOpenGLImageSliceMapper>::New();
   try {
-        mapperOpenGL = dynamic_cast<vtkOpenGLImageSliceMapper*>(GetImageActor()->GetMapper());
+    mapperOpenGL = dynamic_cast<vtkOpenGLImageSliceMapper*>(GetImageActor()->GetMapper());
   } catch (const std::bad_cast& e) {
-		std::cerr << e.what() << std::endl;
-		std::cerr << "Conversion error" << std::endl;
-		return;
+    std::cerr << e.what() << std::endl;
+	std::cerr << "Conversion error" << std::endl;
+	return;
   }
   if (mFirstSetSliceOrientation) {
     copyExtent(ext, mRegisterExtent);
@@ -1118,7 +1118,7 @@ void vvSlicer::UpdateDisplayExtent()
     w_croppingRegion[ this->SliceOrientation*2+1 ] = this->Slice;
     mapperOpenGL->SetCroppingRegion(w_croppingRegion);
   }
-#endif 
+#endif
   
 #if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
   // Fix for bug #1882
@@ -1127,6 +1127,7 @@ void vvSlicer::UpdateDisplayExtent()
 
   // Overlay image actor
   if (mOverlay && mOverlayVisibility) {
+    //mOverlayMapper->GetOutput()->Print(cout);
     AdjustResliceToSliceOrientation(mOverlayReslice);
     int overExtent[6];
     this->ConvertImageToImageDisplayExtent(input, w_ext, mOverlayReslice->GetOutput(), overExtent);
@@ -1592,7 +1593,7 @@ double vvSlicer::GetScalarComponentAsDouble(vtkImageData *image, double X, doubl
 
 //----------------------------------------------------------------------------
 void vvSlicer::Render()
-{ //out << __func__ << endl;
+{ cout << __func__ << endl;
   if (this->mFusion && mFusionActor->GetVisibility() && showFusionLegend) {
     legend->SetLookupTable(this->GetFusionMapper()->GetLookupTable());
     legend->UseOpacityOn();
@@ -1605,6 +1606,7 @@ void vvSlicer::Render()
   } else legend->SetVisibility(0);
 
   if (ca->GetVisibility()) {
+
     std::stringstream worldPos(" ");
     double pt[3];
     mConcatenatedTransform->TransformPoint(mCurrent, pt);
@@ -1644,7 +1646,7 @@ void vvSlicer::Render()
         Y <= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[3]+0.5 &&
         Z >= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[4]-0.5 &&
         Z <= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[5]+0.5) {
-      
+
       int ix, iy, iz;
       double value = this->GetScalarComponentAsDouble(mImage->GetVTKImages()[mCurrentTSlice], X, Y, Z, ix, iy, iz);
 
@@ -1706,6 +1708,7 @@ void vvSlicer::Render()
 		std::cerr << "Conversion error" << std::endl;
 		return;
 	}
+
     if (xCursor >= mapperOpenGL->GetCroppingRegion()[0]-0.5 &&
         xCursor < mapperOpenGL->GetCroppingRegion()[1]+0.5 &&
         yCursor >= mapperOpenGL->GetCroppingRegion()[2]-0.5 &&
@@ -1736,6 +1739,7 @@ void vvSlicer::Render()
 #else
     mOverlayMapper->SetUpdateExtent(mOverlayActor->GetDisplayExtent());
 #endif
+	mOverlayActor->Print(cout);
     mOverlayMapper->Update();
   }
   if (mFusion && mFusionActor->GetVisibility()) {
