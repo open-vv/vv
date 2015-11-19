@@ -191,8 +191,10 @@ void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer)
   }
 
 //   Set initial sliders values
-  std::vector<int> imsize = mCurrentSlicerManager->GetImage()->GetSize();
+  int w_ext[6], imsize[3];
+  mCurrentSlicerManager->GetSlicer(0)->GetRegisterExtent(w_ext);
   for(int dim=0; dim<slicer->GetDimension() && dim<3; ++dim){
+    imsize[dim] = w_ext[2*dim+1] - w_ext[2*dim] +1;
     mSliders[dim*2]->setMaximum(imsize[dim]-1);
     mSliders[dim*2+1]->setMaximum(imsize[dim]-1);
     mSliders[dim*2+1]->setValue(imsize[dim]-1);

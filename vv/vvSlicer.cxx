@@ -1099,6 +1099,7 @@ void vvSlicer::UpdateDisplayExtent()
 #if VTK_MAJOR_VERSION <= 5
   this->ImageActor->SetDisplayExtent(w_ext);
 #else
+  cout << mReducedExtent[0] << " " << mReducedExtent[1] << " " << mReducedExtent[2] << " " << mReducedExtent[3] << " " << mReducedExtent[4] << " " << mReducedExtent[5] << endl;
   vtkSmartPointer<vtkOpenGLImageSliceMapper> mapperOpenGL= vtkSmartPointer<vtkOpenGLImageSliceMapper>::New();
   try {
         mapperOpenGL = dynamic_cast<vtkOpenGLImageSliceMapper*>(GetImageActor()->GetMapper());
