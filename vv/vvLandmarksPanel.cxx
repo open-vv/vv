@@ -21,6 +21,7 @@
 
 #include <QtGui>
 #include <Qt>
+#include <QFileDialog>
 #include "QTreePushButton.h"
 #include "vvLandmarks.h"
 

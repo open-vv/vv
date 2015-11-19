@@ -17,7 +17,7 @@
 ===========================================================================**/
 #ifndef VVTOOLSIMPLEINPUTSELECTORWIDGET_H
 #define VVTOOLSIMPLEINPUTSELECTORWIDGET_H
-#include <QtDesigner/QDesignerExportWidget>
+#include <QtUiPlugin/QDesignerExportWidget>
 #include <QDialog>
 #include "ui_vvToolSimpleInputSelectorWidget.h"
 

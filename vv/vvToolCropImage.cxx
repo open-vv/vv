@@ -33,6 +33,9 @@
 #include <QSignalMapper>
 
 // vtk
+#include <vtkVersion.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkInformation.h>
 #include <vtkImageClip.h>
 #include <vtkImageTranslateExtent.h>
 #include <vtkImageData.h>
@@ -173,8 +176,11 @@ void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer)
     spin_zmin->setHidden(true);
     spin_zmax->setHidden(true);
   }
-
+#if VTK_MAJOR_VERSION <= 5
   int *a = mCurrentImage->GetFirstVTKImageData()->GetWholeExtent();
+#else
+  int *a = mCurrentImage->GetFirstVTKImageData()->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
+#endif
   for(int i=0; i<6; i++){
     mInitialExtent[i] = a[i];
     mReducedExtent[i] = a[i];

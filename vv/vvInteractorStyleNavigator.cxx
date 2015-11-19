@@ -29,8 +29,6 @@
 #include <vtkRendererCollection.h>
 #include "clitkCommon.h"
 
-
-vtkCxxRevisionMacro(vvInteractorStyleNavigator, "DummyRevision");
 vtkStandardNewMacro(vvInteractorStyleNavigator);
 
 //----------------------------------------------------------------------------

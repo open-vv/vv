@@ -27,6 +27,9 @@
 #include "vvInteractorStyleNavigator.h"
 #include "vvSlicer.h"
 
+#include <vtkVersion.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkInformation.h>
 #include "vtkMarchingCubes.h"
 #include "vtkMarchingSquares.h"
 #include "vtkImageClip.h"
@@ -56,6 +59,7 @@
 #include <vtkPolyDataWriter.h>
 
 #include <QMessageBox>
+#include <QFileDialog>
 
 //====================================================================
 vvSegmentationDialog::vvSegmentationDialog(QWidget * parent, Qt::WindowFlags f)
@@ -188,14 +192,27 @@ void vvSegmentationDialog::SetImage(vvImage::Pointer image)
   clipping1Slider->setValue(range[0]);
   clipping2Slider->setValue(range[1]);
 
+#if VTK_MAJOR_VERSION <= 5
   mClipper->SetInput(mManager->GetSlicer(0)->GetInput());
+#else
+  mClipper->SetInputData(mManager->GetSlicer(0)->GetInput());
+#endif
   mSquares1->SetValue(0,clipping1Slider->value());
   mSquares2->SetValue(0,clipping2Slider->value());
+
+#if VTK_MAJOR_VERSION <= 5
   mSquares1->SetInput(mClipper->GetOutput());
   mSquares2->SetInput(mClipper->GetOutput());
 
   mSquaresMapper1->SetInput(mSquares1->GetOutput());
   mSquaresMapper2->SetInput(mSquares2->GetOutput());
+#else
+  mSquares1->SetInputData(mClipper->GetOutput());
+  mSquares2->SetInputData(mClipper->GetOutput());
+
+  mSquaresMapper1->SetInputData(mSquares1->GetOutput());
+  mSquaresMapper2->SetInputData(mSquares2->GetOutput());
+#endif
   mSquaresMapper1->ScalarVisibilityOff();
   mSquaresMapper2->ScalarVisibilityOff();
 
@@ -225,7 +242,11 @@ void vvSegmentationDialog::UpdateSlice(int slicer,int slices)
 {
   int slice = mManager->GetSlicer(0)->GetSlice();
   int tslice = mManager->GetSlicer(0)->GetTSlice();
+#if VTK_MAJOR_VERSION <= 5
   mClipper->SetInput(mManager->GetSlicer(0)->GetInput());
+#else
+  mClipper->SetInputData(mManager->GetSlicer(0)->GetInput());
+#endif
   int* extent = mManager->GetSlicer(0)->GetImageActor()->GetDisplayExtent();
   mClipper->SetOutputWholeExtent(extent[0],extent[1],extent[2],extent[3],extent[4],extent[5]);
   int i;
@@ -320,7 +341,11 @@ void vvSegmentationDialog::BinariseSurface()
   for (unsigned int numImage = 0; numImage < mManager->GetSlicer(0)->GetImage()->GetVTKImages().size(); numImage++) {
     vtkImageData* image = mManager->GetSlicer(0)->GetImage()->GetVTKImages()[numImage];
     int ext[6];
+#if VTK_MAJOR_VERSION <= 5
     image->GetWholeExtent(ext);
+#else
+    image->GetExtent(ext);
+#endif
     void *in1Ptr;
     in1Ptr = image->GetScalarPointerForExtent(ext);
 
@@ -337,17 +362,34 @@ void vvSegmentationDialog::BinariseSurface()
     outputImage->SetExtent(ext);
     outputImage->SetOrigin(image->GetOrigin());
     outputImage->SetSpacing(image->GetSpacing());
+#if VTK_MAJOR_VERSION <= 5
     outputImage->SetScalarTypeToUnsignedChar();
+#else
+    outputImage->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
+#endif
     outputImage->CopyAndCastFrom(image,ext);
+#if VTK_MAJOR_VERSION <= 5
     outputImage->Update();
+#else
+    //outputImage->Update();
+#endif
 
     image->DeepCopy(outputImage);
+#if VTK_MAJOR_VERSION <= 5
     image->UpdateInformation();
     image->PropagateUpdateExtent();
+#else
+    //image->UpdateInformation();
+    //image->PropagateUpdateExtent();
+#endif
 
     vtkImageData* imageBin = vtkImageData::New();
     imageBin->DeepCopy(image);
+#if VTK_MAJOR_VERSION <= 5
     imageBin->Update();
+#else
+    //imageBin->Update();
+#endif
     mBinaireImages.push_back(imageBin);
   }
 
@@ -366,10 +408,19 @@ void vvSegmentationDialog::Erode()
   erode->SetKernelSize(mKernelValue,mKernelValue,mKernelValue);
   for (unsigned int numImage = 0; numImage < mManager->GetSlicer(0)->GetImage()->GetVTKImages().size(); numImage++) {
     vtkImageData* image = mManager->GetSlicer(0)->GetImage()->GetVTKImages()[numImage];
+#if VTK_MAJOR_VERSION <= 5
     erode->SetInput(image);
     erode->Update();
+#else
+    erode->SetInputData(image);
+    //erode->Update();
+#endif
     image->DeepCopy(erode->GetOutput());
+#if VTK_MAJOR_VERSION <= 5
     image->Update();
+#else
+    //image->Update();
+#endif
   }
   erode->Delete();
   dilateButton->setEnabled(1);
@@ -386,13 +437,26 @@ void vvSegmentationDialog::Dilate()
   dilate->SetKernelSize(mKernelValue,mKernelValue,mKernelValue);
   for (unsigned int numImage = 0; numImage < mManager->GetSlicer(0)->GetImage()->GetVTKImages().size(); numImage++) {
     vtkImageData* image = mManager->GetSlicer(0)->GetImage()->GetVTKImages()[numImage];
+#if VTK_MAJOR_VERSION <= 5
     dilate->SetInput(image);
+#else
+    dilate->SetInputData(image);
+#endif
     vtkImageData* mask = mBinaireImages[numImage];
+#if VTK_MAJOR_VERSION <= 5
     And->SetInput1(dilate->GetOutput());
     And->SetInput2(mask);
+#else
+    And->SetInput1Data(dilate->GetOutput());
+    And->SetInput2Data(mask);
+#endif
     And->Update();
     image->DeepCopy(And->GetOutput());
+#if VTK_MAJOR_VERSION <= 5
     image->Update();
+#else
+    //image->Update();
+#endif
   }
   And->Delete();
   dilate->Delete();
@@ -425,10 +489,18 @@ void vvSegmentationDialog::InsertSeed()
 
   for (unsigned int numImage = 0; numImage < mManager->GetSlicer(0)->GetImage()->GetVTKImages().size(); numImage++) {
     vtkImageData* image = mManager->GetSlicer(0)->GetImage()->GetVTKImages()[numImage];
+#if VTK_MAJOR_VERSION <= 5
     seed->SetInput(image);
+#else
+    seed->SetInputData(image);
+#endif
     seed->Update();
     image->DeepCopy(seed->GetOutput());
+#if VTK_MAJOR_VERSION <= 5
     image->Update();
+#else
+    //image->Update();
+#endif
   }
 
   seed->Delete();
@@ -444,11 +516,19 @@ void vvSegmentationDialog::ChangeDimRendering()
       m3DExtractor->SetValue(0,0.5);
       for (unsigned int numImage = 0; numImage < mManager->GetSlicer(0)->GetImage()->GetVTKImages().size(); numImage++) {
         vtkActor* actor = vtkActor::New();
+#if VTK_MAJOR_VERSION <= 5
         m3DExtractor->SetInput(mManager->GetSlicer(0)->GetImage()->GetVTKImages()[numImage]);
+#else
+        m3DExtractor->SetInputData(mManager->GetSlicer(0)->GetImage()->GetVTKImages()[numImage]);
+#endif
         m3DExtractor->Update();
 
         vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
+#if VTK_MAJOR_VERSION <= 5
         mapper->SetInput(m3DExtractor->GetOutput());
+#else
+        mapper->SetInputData(m3DExtractor->GetOutput());
+#endif
         m3DMappers.push_back(mapper);
 
         actor->SetMapper(mapper);
@@ -503,7 +583,11 @@ void vvSegmentationDialog::Save()
                        "Mesh Files (*.vtk *.vtp)");
     if (!fileName.isEmpty()) {
       vtkSmartPointer<vtkPolyDataWriter> w = vtkSmartPointer<vtkPolyDataWriter>::New();
+#if VTK_MAJOR_VERSION <= 5
       w->SetInput(m3DExtractor->GetOutput());
+#else
+      w->SetInputData(m3DExtractor->GetOutput());
+#endif
       w->SetFileName(fileName.toStdString().c_str());
       w->Write();
     }

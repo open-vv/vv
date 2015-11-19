@@ -24,7 +24,7 @@
 class vtkVOXImageWriter : public vtkImageWriter
 {
 public:
-    vtkTypeRevisionMacro(vtkVOXImageWriter,vtkImageWriter);
+    vtkTypeMacro(vtkVOXImageWriter,vtkImageWriter);
     void PrintSelf(ostream& os, vtkIndent indent);
 
     // Description:

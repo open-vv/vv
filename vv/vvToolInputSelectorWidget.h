@@ -19,7 +19,7 @@
 #define VVTOOLINPUTSELECTORWIDGET_H
 
 // qt
-#include <QtDesigner/QDesignerExportWidget>
+#include <QtUiPlugin/QDesignerExportWidget>
 #include <QDialog>
 
 // vv

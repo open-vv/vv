@@ -62,7 +62,7 @@ class vvSlicer: public vtkImageViewer2
 {
 public:
   static vvSlicer *New();
-  vtkTypeRevisionMacro(vvSlicer,vtkImageViewer2);
+  vtkTypeMacro(vvSlicer,vtkImageViewer2);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetImage(vvImage::Pointer inputImages);
@@ -205,9 +205,12 @@ public:
     return mVFColor;
   }
   void SetVFColor(double r, double g, double b);
-
+  
   //necessary to flag the secondary sequence
   void SetFusionSequenceCode(int code) {mFusionSequenceCode=code;}
+  void SetRegisterExtent(int [6]);
+  void GetRegisterExtent(int [6]);
+  
 protected:
   vvSlicer();
   ~vvSlicer();
@@ -277,7 +280,7 @@ protected:
   double mVFColor[3];
   bool mUseReducedExtent;
   int * mReducedExtent;
-  int * mInitialExtent;
+  int * mRegisterExtent;
   bool mLinkOverlayWindowLevel;
   bool showFusionLegend;
 

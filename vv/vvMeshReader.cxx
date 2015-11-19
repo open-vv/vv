@@ -34,6 +34,7 @@
 #endif
 
 // vtk
+#include <vtkVersion.h>
 #include <vtkSmartPointer.h>
 #include <vtkAppendPolyData.h>
 #include <vtkCellArray.h>
@@ -297,7 +298,11 @@ std::vector<vvMesh::Pointer> vvMeshReader::readSelectedContours()
                       ids[1] = (ids[0] + 1) % tpoint_number.GetValue(); //0-1,1-2,...,n-1-0
                       contour->GetLines()->InsertNextCell(2, ids);
                     }
+#if VTK_MAJOR_VERSION <= 5
                   append->AddInput(contour);
+#else
+                  append->AddInputData(contour);
+#endif
                 }
               else
                 if (contour_type == "POINT ")

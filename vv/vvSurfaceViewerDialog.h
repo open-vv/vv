@@ -23,7 +23,7 @@ class vtkPolyDataMapper;
 class vtkActor;
 class vtkOBJReader;
 
-#include <QtDesigner/QDesignerExportWidget>
+#include <QtUiPlugin/QDesignerExportWidget>
 #include <QTreeWidget>
 
 //====================================================================

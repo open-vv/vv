@@ -18,6 +18,7 @@
 
 #include "vvImageContour.h"
 #include "vvImage.h"
+#include <vtkVersion.h>
 #include <vtkImageActor.h>
 #include <vtkCamera.h>
 #include <vtkRenderer.h>
@@ -82,7 +83,11 @@ void vvImageContour::SetSlicer(vvSlicer * slicer) {
 //------------------------------------------------------------------------------
 void vvImageContour::SetImage(vvImage::Pointer image) {
   for (unsigned int numImage = 0; numImage < image->GetVTKImages().size(); numImage++) {
+#if VTK_MAJOR_VERSION <= 5
     mClipperList[numImage]->SetInput(image->GetVTKImages()[numImage]);
+#else
+    mClipperList[numImage]->SetInputData(image->GetVTKImages()[numImage]);
+#endif
   }
   mHiddenImageIsUsed = true;
   mHiddenImage = image;
@@ -295,13 +300,27 @@ void vvImageContour::CreateNewActor(int numImage) {
   vtkSmartPointer<vtkMarchingSquares> squares = vtkSmartPointer<vtkMarchingSquares>::New();
   vtkSmartPointer<vtkPolyDataMapper> squaresMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
 
-  if (mHiddenImageIsUsed)
+  if (mHiddenImageIsUsed) {
+#if VTK_MAJOR_VERSION <= 5
     clipper->SetInput(mHiddenImage->GetVTKImages()[0]);
-  else
+#else
+    clipper->SetInputData(mHiddenImage->GetVTKImages()[0]);
+#endif
+  } else {
+#if VTK_MAJOR_VERSION <= 5
     clipper->SetInput(mSlicer->GetImage()->GetVTKImages()[numImage]);
-  
+#else
+    clipper->SetInputData(mSlicer->GetImage()->GetVTKImages()[numImage]);
+#endif
+  }
+
+#if VTK_MAJOR_VERSION <= 5
   squares->SetInput(clipper->GetOutput());
   squaresMapper->SetInput(squares->GetOutput());
+#else
+  squares->SetInputData(clipper->GetOutput());
+  squaresMapper->SetInputData(squares->GetOutput());
+#endif
   squaresMapper->ScalarVisibilityOff();
   squaresActor->SetMapper(squaresMapper);
   squaresActor->GetProperty()->SetColor(1.0,0,0);

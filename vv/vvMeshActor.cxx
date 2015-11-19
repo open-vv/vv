@@ -17,6 +17,7 @@
 ===========================================================================**/
 #include "vvMeshActor.h"
 #include "clitkCommon.h"
+#include <vtkVersion.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkMarchingSquares.h>
 #include <vtkImageData.h>
@@ -45,15 +46,28 @@ void vvMeshActor::Init(vvMesh::Pointer mesh,int time_slice,vvImage::Pointer vf)
 
   mMarching=vtkMarchingSquares::New();
   mTimeSlice=time_slice;
-  if (static_cast<unsigned int>(time_slice)<mMesh->GetNumberOfMeshes())
+  if (static_cast<unsigned int>(time_slice)<mMesh->GetNumberOfMeshes()) {
+#if VTK_MAJOR_VERSION <= 5
     mMarching->SetInput(mMesh->GetMask(time_slice));
-  else
+#else
+    mMarching->SetInputData(mMesh->GetMask(time_slice));
+#endif
+  } else {
+#if VTK_MAJOR_VERSION <= 5
     mMarching->SetInput(mMesh->GetMask(0));
+#else
+    mMarching->SetInputData(mMesh->GetMask(0));
+#endif
+  }
   mMarching->SetValue(0,0.5);
   //mMarching->Update();
 
   mMapper=vtkPolyDataMapper::New();
+#if VTK_MAJOR_VERSION <= 5
   mMapper->SetInput(mMarching->GetOutput());
+#else
+  mMapper->SetInputData(mMarching->GetOutput());
+#endif
   //The following line allows to display the contour over the image
   //(http://www.nabble.com/What-happens-when-two-actors-are-at-the-same-depth--td23175458.html)
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
@@ -96,10 +110,19 @@ void vvMeshActor::SetCutSlice(double slice)
 void vvMeshActor::SetTimeSlice(int time)
 {
   mTimeSlice=time;
-  if (static_cast<unsigned int>(time)<mMesh->GetNumberOfMasks())
+  if (static_cast<unsigned int>(time)<mMesh->GetNumberOfMasks()) {
+#if VTK_MAJOR_VERSION <= 5
     mMarching->SetInput(mMesh->GetMask(time));
-  else
+#else
+    mMarching->SetInputData(mMesh->GetMask(time));
+#endif
+  } else {
+#if VTK_MAJOR_VERSION <= 5
     mMarching->SetInput(mMesh->GetMask(0));
+#else
+    mMarching->SetInputData(mMesh->GetMask(0));
+#endif
+ }
   SetCutSlice(mCutSlice); //We need to find the new mask cut slice,
   //since masks do not all have the same origin
 }

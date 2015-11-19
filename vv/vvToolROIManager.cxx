@@ -160,7 +160,7 @@ void  vvToolROIManager::InitializeNewTool(bool ReadStateFlag)
   }
 
   // Display tool in the correct tab
-  QWidget * tab = qFindChild<QWidget*>(mMainWindow->GetTab(), "ROItab");
+  QWidget * tab = mMainWindow->GetTab()->findChild<QWidget*>("ROItab");
   tab->layout()->addWidget(this);
 
   // If not read in a file we start automatically the browser to load

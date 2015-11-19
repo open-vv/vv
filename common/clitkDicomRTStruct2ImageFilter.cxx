@@ -25,11 +25,13 @@
 #include "clitkImageCommon.h"
 
 // vtk
+#include <vtkVersion.h>
 #include <vtkPolyDataToImageStencil.h>
 #include <vtkSmartPointer.h>
 #include <vtkImageStencil.h>
 #include <vtkLinearExtrusionFilter.h>
 #include <vtkMetaImageWriter.h>
+#include <vtkVersion.h>
 
 
 //--------------------------------------------------------------------
@@ -199,6 +201,7 @@ void clitk::DicomRTStruct2ImageFilter::Update()
 
   // Create new output image
   mBinaryImage = vtkSmartPointer<vtkImageData>::New();
+#if VTK_MAJOR_VERSION <= 5
   mBinaryImage->SetScalarTypeToUnsignedChar();
   mBinaryImage->SetOrigin(&origin[0]);
   mBinaryImage->SetSpacing(&mSpacing[0]);
@@ -206,13 +209,25 @@ void clitk::DicomRTStruct2ImageFilter::Update()
                           0, extend[1],
                           0, extend[2]);
   mBinaryImage->AllocateScalars();
+#else
+  mBinaryImage->SetOrigin(&origin[0]);
+  mBinaryImage->SetSpacing(&mSpacing[0]);
+  mBinaryImage->SetExtent(0, extend[0],
+                          0, extend[1],
+                          0, extend[2]);
+  mBinaryImage->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
+#endif
 
   memset(mBinaryImage->GetScalarPointer(), 0,
          mBinaryImage->GetDimensions()[0]*mBinaryImage->GetDimensions()[1]*mBinaryImage->GetDimensions()[2]*sizeof(unsigned char));
 
   // Extrude
   vtkSmartPointer<vtkLinearExtrusionFilter> extrude=vtkSmartPointer<vtkLinearExtrusionFilter>::New();
+#if VTK_MAJOR_VERSION <= 5
   extrude->SetInput(mesh);
+#else
+  extrude->SetInputData(mesh);
+#endif
   ///We extrude in the -slice_spacing direction to respect the FOCAL convention (NEEDED !)
   extrude->SetVector(0, 0, -mSpacing[2]);
 
@@ -222,12 +237,24 @@ void clitk::DicomRTStruct2ImageFilter::Update()
   //http://www.nabble.com/Bug-in-vtkPolyDataToImageStencil--td23368312.html#a23370933
   sts->SetTolerance(0);
   sts->SetInformationInput(mBinaryImage);
+#if VTK_MAJOR_VERSION <= 5
   sts->SetInput(extrude->GetOutput());
+#else
+  sts->SetInputData(extrude->GetOutput());
+#endif
   //sts->SetInput(mesh);
 
   vtkSmartPointer<vtkImageStencil> stencil=vtkSmartPointer<vtkImageStencil>::New();
+#if VTK_MAJOR_VERSION <= 5
   stencil->SetStencil(sts->GetOutput());
+#else
+  stencil->SetStencilData(sts->GetOutput());
+#endif
+#if VTK_MAJOR_VERSION <= 5
   stencil->SetInput(mBinaryImage);
+#else
+  stencil->SetInputData(mBinaryImage);
+#endif
   stencil->ReverseStencilOn();
   stencil->Update();
 

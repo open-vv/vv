@@ -31,7 +31,7 @@
 #include "vvToolBase.h"
 
 // qt
-#include <QtDesigner/QDesignerExportWidget>
+#include <QtUiPlugin/QDesignerExportWidget>
 #include <QTreeWidget>
 
 //------------------------------------------------------------------------------

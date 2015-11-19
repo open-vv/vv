@@ -38,7 +38,6 @@
 #include "vtkTransform.h"
 
 #include <cmath>
-
 //------------------------------------------------------------------------------
 vvSlicerManagerCommand::vvSlicerManagerCommand()
 {

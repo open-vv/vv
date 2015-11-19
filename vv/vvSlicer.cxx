@@ -25,6 +25,12 @@
 #include "vvGlyphSource.h"
 #include "vvGlyph2D.h"
 
+#include <vtkVersion.h>
+#include <vtkExtentTranslator.h>
+#include <vtkAlgorithm.h>
+#include <vtkExecutive.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkInformation.h>
 #include <vtkTextProperty.h>
 #include <vtkTextActor.h>
 #include <vtkTextSource.h>
@@ -69,23 +75,27 @@
 #include <vtkAssignAttribute.h>
 #include <vtkImageAccumulate.h>
 #include <vtkImageReslice.h>
+#include <vtkOpenGLImageSliceMapper.h>
 #if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
 #  include <vtkImageMapper3D.h>
 #  include <vtkImageSliceMapper.h>
 #endif
 
-vtkCxxRevisionMacro(vvSlicer, "DummyRevision");
 vtkStandardNewMacro(vvSlicer);
 static void copyExtent(int* in, int* to){
- for(int i=0; i<6; ++i) to[i]=in[i]; 
+ for(int i=0; i<6; ++i) 
+ {
+	to[i]=in[i];
+ } 
 }
 //------------------------------------------------------------------------------
 vvSlicer::vvSlicer()
-{
+{ //out << __func__ << endl;
 	mFusionSequenceCode = -1;
   this->UnInstallPipeline();
   mImage = NULL;
   mReducedExtent = new int[6];
+  mRegisterExtent = new int[6];
   mCurrentTSlice = 0;
   mCurrentFusionTSlice = 0;
   mCurrentOverlayTSlice = 0;
@@ -115,7 +125,11 @@ vvSlicer::vvSlicer()
   crossCursor->SetRadius(2);
 
   pdm = vtkSmartPointer<vtkPolyDataMapper2D>::New();
+#if VTK_MAJOR_VERSION <= 5
   pdm->SetInput(crossCursor->GetOutput());
+#else
+  pdm->SetInputData(crossCursor->GetOutput());
+#endif
 
   pdmA = vtkSmartPointer<vtkActor2D>::New();
   pdmA->SetMapper(pdm);
@@ -162,7 +176,7 @@ vvSlicer::vvSlicer()
 
 //------------------------------------------------------------------------------
 vtkImageMapToWindowLevelColors* vvSlicer::GetOverlayMapper()
-{
+{ //out << __func__ << endl;
   return mOverlayMapper.GetPointer();
 }
 //------------------------------------------------------------------------------
@@ -170,7 +184,7 @@ vtkImageMapToWindowLevelColors* vvSlicer::GetOverlayMapper()
 
 //------------------------------------------------------------------------------
 vvBlendImageActor* vvSlicer::GetOverlayActor()
-{
+{ //out << __func__ << endl;
   return mOverlayActor.GetPointer();
 }
 //------------------------------------------------------------------------------
@@ -178,7 +192,7 @@ vvBlendImageActor* vvSlicer::GetOverlayActor()
 
 //------------------------------------------------------------------------------
 vtkImageMapToColors* vvSlicer::GetFusionMapper()
-{
+{ //out << __func__ << endl;
   return mFusionMapper.GetPointer();
 }
 //------------------------------------------------------------------------------
@@ -186,7 +200,7 @@ vtkImageMapToColors* vvSlicer::GetFusionMapper()
 
 //------------------------------------------------------------------------------
 vtkImageActor* vvSlicer::GetFusionActor()
-{
+{ //out << __func__ << endl;
   return mFusionActor.GetPointer();
 }
 //------------------------------------------------------------------------------
@@ -194,7 +208,7 @@ vtkImageActor* vvSlicer::GetFusionActor()
 
 //------------------------------------------------------------------------------
 vtkActor* vvSlicer::GetVFActor()
-{
+{ //out << __func__ << endl;
   return mVFActor.GetPointer();
 }
 //------------------------------------------------------------------------------
@@ -202,7 +216,7 @@ vtkActor* vvSlicer::GetVFActor()
 
 //------------------------------------------------------------------------------
 vtkCornerAnnotation* vvSlicer::GetAnnotation()
-{
+{ //out << __func__ << endl;
   return ca.GetPointer();
 }
 //------------------------------------------------------------------------------
@@ -210,7 +224,7 @@ vtkCornerAnnotation* vvSlicer::GetAnnotation()
 
 //------------------------------------------------------------------------------
 void vvSlicer::EnableReducedExtent(bool b)
-{
+{ //out << __func__ << endl;
   mUseReducedExtent = b;
 }
 //------------------------------------------------------------------------------
@@ -218,7 +232,7 @@ void vvSlicer::EnableReducedExtent(bool b)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetReducedExtent(int * ext)
-{
+{ //out << __func__ << endl;
   copyExtent(ext, mReducedExtent);
 }
 //------------------------------------------------------------------------------
@@ -226,7 +240,7 @@ void vvSlicer::SetReducedExtent(int * ext)
 
 //------------------------------------------------------------------------------
 void vvSlicer::AddContour(vvMesh::Pointer contour,bool propagate)
-{
+{ //out << __func__ << endl;
 
   mSurfaceCutActors.push_back(new vvMeshActor());
   if (propagate)
@@ -243,7 +257,7 @@ void vvSlicer::AddContour(vvMesh::Pointer contour,bool propagate)
 
 //------------------------------------------------------------------------------
 void vvSlicer::ToggleContourSuperposition()
-{
+{ //out << __func__ << endl;
   for (std::vector<vvMeshActor*>::iterator i=mSurfaceCutActors.begin();
        i!=mSurfaceCutActors.end(); i++)
     (*i)->ToggleSuperposition();
@@ -253,7 +267,7 @@ void vvSlicer::ToggleContourSuperposition()
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetCursorColor(int r,int g, int b)
-{
+{ //out << __func__ << endl;
   pdmA->GetProperty()->SetColor(r,g,b);
 }
 //------------------------------------------------------------------------------
@@ -261,7 +275,7 @@ void vvSlicer::SetCursorColor(int r,int g, int b)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetCursorVisibility(bool s)
-{
+{ //out << __func__ << endl;
   pdmA->SetVisibility(s);
 }
 //------------------------------------------------------------------------------
@@ -269,7 +283,7 @@ void vvSlicer::SetCursorVisibility(bool s)
 
 //------------------------------------------------------------------------------
 bool vvSlicer::GetCursorVisibility()
-{
+{ //out << __func__ << endl;
   return pdmA->GetVisibility();
 }
 //------------------------------------------------------------------------------
@@ -277,7 +291,7 @@ bool vvSlicer::GetCursorVisibility()
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetCornerAnnotationVisibility(bool s)
-{
+{ //out << __func__ << endl;
   ca->SetVisibility(s);
 }
 //------------------------------------------------------------------------------
@@ -285,7 +299,7 @@ void vvSlicer::SetCornerAnnotationVisibility(bool s)
 
 //------------------------------------------------------------------------------
 bool vvSlicer::GetCornerAnnotationVisibility()
-{
+{ //out << __func__ << endl;
   return ca->GetVisibility();
 }
 //------------------------------------------------------------------------------
@@ -293,24 +307,25 @@ bool vvSlicer::GetCornerAnnotationVisibility()
 
 //------------------------------------------------------------------------------
 vvSlicer::~vvSlicer()
-{
+{ //out << __func__ << endl;
   for (std::vector<vvMeshActor*>::iterator i=mSurfaceCutActors.begin();
        i!=mSurfaceCutActors.end(); i++)
     delete (*i);
   delete [] mReducedExtent;
+  delete [] mRegisterExtent;
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 double* vvSlicer::GetCurrentPosition()
-{
+{ //out << __func__ << endl;
   return mCurrentBeforeSlicingTransform;
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetCurrentPosition(double x, double y, double z, int t)
-{
+{ //out << __func__ << endl;
   mCurrentBeforeSlicingTransform[0]=x;
   mCurrentBeforeSlicingTransform[1]=y;
   mCurrentBeforeSlicingTransform[2]=z;
@@ -322,7 +337,7 @@ void vvSlicer::SetCurrentPosition(double x, double y, double z, int t)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetImage(vvImage::Pointer image)
-{
+{ //out << __func__ << endl;
   if (image->GetVTKImages().size()) {
     mImage = image;
 
@@ -337,13 +352,26 @@ void vvSlicer::SetImage(vvImage::Pointer image)
     mConcatenatedTransform->Concatenate(mImage->GetTransform()[0]);
     mConcatenatedTransform->Concatenate(mSlicingTransform);
     mImageReslice->SetResliceTransform(mConcatenatedTransform);
+#if VTK_MAJOR_VERSION <= 5
     mImageReslice->SetInput(0, mImage->GetFirstVTKImageData());
+#else
+    mImageReslice->SetInputData(0, mImage->GetFirstVTKImageData());
+#endif
     mImageReslice->UpdateInformation();
 
+#if VTK_MAJOR_VERSION <= 5
     this->Superclass::SetInput(mImageReslice->GetOutput());
+#else
+    this->Superclass::SetInputConnection(mImageReslice->GetOutputPort());
+#endif
 
     int extent[6];
+#if VTK_MAJOR_VERSION <= 5
     this->GetInput()->GetWholeExtent(extent);
+#else
+    int* ext = mImageReslice->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+    copyExtent(ext, extent);
+#endif
 
     // Prevent crash when reload -> change slice if outside extent
     if (Slice < extent[SliceOrientation*2] || Slice>=extent[SliceOrientation*2+1]) {
@@ -352,9 +380,15 @@ void vvSlicer::SetImage(vvImage::Pointer image)
 
     // Make sure that the required part image has been computed
     extent[SliceOrientation*2] = Slice;
-    extent[SliceOrientation*2+1] = Slice;
+    extent[SliceOrientation*2+1] = Slice;    
+
+#if VTK_MAJOR_VERSION <= 5
     mImageReslice->GetOutput()->SetUpdateExtent(extent);
     mImageReslice->GetOutput()->Update();
+#else
+    mImageReslice->SetUpdateExtent(extent);
+    mImageReslice->Update();
+#endif
 
     this->UpdateDisplayExtent();
 
@@ -367,7 +401,7 @@ void vvSlicer::SetImage(vvImage::Pointer image)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetOverlay(vvImage::Pointer overlay)
-{
+{ //out << __func__ << endl;
   if (overlay->GetVTKImages().size()) {
     mOverlay = overlay;
     mOverlayVisibility = true;
@@ -383,16 +417,29 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
     mConcatenatedOverlayTransform->Concatenate(mOverlay->GetTransform()[0]);
     mConcatenatedOverlayTransform->Concatenate(mSlicingTransform);
     mOverlayReslice->SetResliceTransform(mConcatenatedOverlayTransform);
+#if VTK_MAJOR_VERSION <= 5
     mOverlayReslice->SetInput(0, mOverlay->GetFirstVTKImageData());
+#else
+    mOverlayReslice->SetInputData(0, mOverlay->GetFirstVTKImageData());
+#endif
     mImageReslice->UpdateInformation();
+    mOverlayReslice->Update();
 
     if (!mOverlayMapper)
       mOverlayMapper = vtkSmartPointer<vtkImageMapToWindowLevelColors>::New();
+#if VTK_MAJOR_VERSION <= 5
     mOverlayMapper->SetInput(mOverlayReslice->GetOutput());
+#else
+    mOverlayMapper->SetInputData(mOverlayReslice->GetOutput());
+#endif
 
     if (!mOverlayActor) {
       mOverlayActor = vtkSmartPointer<vvBlendImageActor>::New();
+#if VTK_MAJOR_VERSION <= 5
       mOverlayActor->SetInput(mOverlayMapper->GetOutput());
+#else
+      mOverlayActor->GetMapper()->SetInputConnection(mOverlayMapper->GetOutputPort());
+#endif
       mOverlayActor->SetPickable(0);
       mOverlayActor->SetVisibility(true);
       mOverlayActor->SetOpacity(0.5);
@@ -420,7 +467,7 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetFusion(vvImage::Pointer fusion, int fusionSequenceCode)
-{
+{ //out << __func__ << endl;
 	mFusionSequenceCode = fusionSequenceCode;
   if (fusion->GetVTKImages().size()) {
     mFusion = fusion;
@@ -437,8 +484,12 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion, int fusionSequenceCode)
     mConcatenatedFusionTransform->Concatenate(mFusion->GetTransform()[0]);
     mConcatenatedFusionTransform->Concatenate(mSlicingTransform);
     mFusionReslice->SetResliceTransform(mConcatenatedFusionTransform);
+#if VTK_MAJOR_VERSION <= 5
     mFusionReslice->SetInput(0, mFusion->GetFirstVTKImageData());
-    mFusionReslice->UpdateInformation();
+#else
+    mFusionReslice->SetInputData(0, mFusion->GetFirstVTKImageData());
+#endif
+    mFusionReslice->Update();
 
     if (!mFusionMapper)
       mFusionMapper = vtkSmartPointer<vtkImageMapToColors>::New();
@@ -449,17 +500,26 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion, int fusionSequenceCode)
     lut->SetSaturationRange(0, 0);
     lut->Build();
     mFusionMapper->SetLookupTable(lut);
+#if VTK_MAJOR_VERSION <= 5
     mFusionMapper->SetInput(mFusionReslice->GetOutput());
-
+#else
+    mFusionMapper->SetInputData(mFusionReslice->GetOutput());
+#endif
+    
     if (!mFusionActor) {
       mFusionActor = vtkSmartPointer<vtkImageActor>::New();
+#if VTK_MAJOR_VERSION <= 5
       mFusionActor->SetInput(mFusionMapper->GetOutput());
+#else
+      mFusionActor->GetMapper()->SetInputConnection(mFusionMapper->GetOutputPort());
+#endif
       mFusionActor->SetPickable(0);
       mFusionActor->SetVisibility(true);
       mFusionActor->SetOpacity(0.7);
 #if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
       mFusionActor->GetMapper()->BorderOn();
 #endif
+
       this->GetRenderer()->AddActor(mFusionActor);
     }
 
@@ -474,7 +534,7 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion, int fusionSequenceCode)
 
 //------------------------------------------------------------------------------
 bool vvSlicer::GetActorVisibility(const std::string& actor_type, int overlay_index)
-{
+{ //out << __func__ << endl;
   bool vis = false;
   if (actor_type == "image")
     vis = mImageVisibility;
@@ -492,7 +552,7 @@ bool vvSlicer::GetActorVisibility(const std::string& actor_type, int overlay_ind
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetActorVisibility(const std::string& actor_type, int overlay_index ,bool vis)
-{
+{ //out << __func__ << endl;
   if (actor_type == "image")
     mImageVisibility = vis;
   else if (actor_type == "vector")
@@ -509,7 +569,7 @@ void vvSlicer::SetActorVisibility(const std::string& actor_type, int overlay_ind
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetVF(vvImage::Pointer vf)
-{
+{ //out << __func__ << endl;
   if (vf->GetVTKImages().size()) {
     mVF = vf;
     mVFVisibility = true;
@@ -519,8 +579,13 @@ void vvSlicer::SetVF(vvImage::Pointer vf)
       mVOIFilter = vtkSmartPointer<vtkExtractVOI>::New();
       mVOIFilter->SetSampleRate(mSubSampling,mSubSampling,mSubSampling);
     }
+#if VTK_MAJOR_VERSION <= 5
     mVOIFilter->SetInput(vf->GetFirstVTKImageData());
     mAAFilter->SetInput(mVOIFilter->GetOutput());
+#else
+    mVOIFilter->SetInputData(vf->GetFirstVTKImageData());
+    mAAFilter->SetInputData(mVOIFilter->GetOutput());
+#endif
     ///This tells VTK to use the scalar (pixel) data of the image to draw the little arrows
     mAAFilter->Assign(vtkDataSetAttributes::SCALARS, vtkDataSetAttributes::VECTORS, vtkAssignAttribute::POINT_DATA);
 
@@ -533,8 +598,13 @@ void vvSlicer::SetVF(vvImage::Pointer vf)
     // Glyph the gradient vector (with arrows)
     if (!mGlyphFilter)
       mGlyphFilter = vtkSmartPointer<vvGlyph2D>::New();
+#if VTK_MAJOR_VERSION <= 5
     mGlyphFilter->SetInput(mAAFilter->GetOutput());
     mGlyphFilter->SetSource(mArrow->GetOutput());
+#else
+    mGlyphFilter->SetInputData(mAAFilter->GetOutput());
+    mGlyphFilter->SetSourceData(mArrow->GetOutput());
+#endif
     mGlyphFilter->ScalingOn();
     mGlyphFilter->SetScaleModeToScaleByVector();
     mGlyphFilter->OrientOn();
@@ -552,7 +622,11 @@ void vvSlicer::SetVF(vvImage::Pointer vf)
 
     if (!mVFMapper)
       mVFMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+#if VTK_MAJOR_VERSION <= 5
     mVFMapper->SetInput(mGlyphFilter->GetOutput());
+#else
+    mVFMapper->SetInputData(mGlyphFilter->GetOutput());
+#endif
     mVFMapper->ImmediateModeRenderingOn();
     mVFMapper->SetLookupTable(mVFColorLUT);
 
@@ -573,7 +647,7 @@ void vvSlicer::SetVF(vvImage::Pointer vf)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetLandmarks(vvLandmarks* landmarks)
-{
+{ //out << __func__ << endl;
   mLandmarks = landmarks;
   if (landmarks) {
 
@@ -597,10 +671,17 @@ void vvSlicer::SetLandmarks(vvLandmarks* landmarks)
 
     mLandClipper->SetClipFunction(mClipBox);
     mLandClipper->InsideOutOn();
+#if VTK_MAJOR_VERSION <= 5
     mLandClipper->SetInput(mLandmarks->GetOutput());
 
     mLandGlyph->SetSource(mCross->GetOutput());
     mLandGlyph->SetInput(mLandClipper->GetOutput());
+#else
+    mLandClipper->SetInputData(mLandmarks->GetOutput());
+
+    mLandGlyph->SetSourceData(mCross->GetOutput());
+    mLandGlyph->SetInputData(mLandClipper->GetOutput());
+#endif
     //mLandGlyph->SetIndexModeToScalar();
     //mLandGlyph->SetRange(0,1);
     //mLandGlyph->ScalingOff();
@@ -626,7 +707,7 @@ void vvSlicer::SetLandmarks(vvLandmarks* landmarks)
 //------------------------------------------------------------------------------
 //FIXME: this function leaks memory, we should fix it someday :)
 void vvSlicer::RemoveActor(const std::string& actor_type, int overlay_index)
-{
+{ //out << __func__ << endl;
   if (actor_type == "vector") {
     Renderer->RemoveActor(mVFActor);
     mGlyphFilter=NULL;
@@ -659,7 +740,7 @@ void vvSlicer::RemoveActor(const std::string& actor_type, int overlay_index)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetVFSubSampling(int sub)
-{
+{ //out << __func__ << endl;
   if (mVOIFilter) {
     mVOIFilter->SetSampleRate(mSubSampling,mSubSampling,mSubSampling);
     mSubSampling = sub;
@@ -672,7 +753,7 @@ void vvSlicer::SetVFSubSampling(int sub)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetVFScale(int scale)
-{
+{ //out << __func__ << endl;
   mScale = scale;
   if (mArrow)
     mArrow->SetScale(mScale);
@@ -683,7 +764,7 @@ void vvSlicer::SetVFScale(int scale)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetVFWidth(int width)
-{
+{ //out << __func__ << endl;
   mVFWidth = width;
   if (mVFActor)
     mVFActor->GetProperty()->SetLineWidth(mVFWidth);
@@ -695,7 +776,7 @@ void vvSlicer::SetVFWidth(int width)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetVFLog(int log)
-{
+{ //out << __func__ << endl;
   mVFLog = log;
   if (mGlyphFilter) {
     mGlyphFilter->SetUseLog(mVFLog);
@@ -709,10 +790,14 @@ void vvSlicer::SetVFLog(int log)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetTSlice(int t, bool updateLinkedImages)
-{
+{ //out << __func__ << endl;
 	if (!updateLinkedImages) {
 		mCurrentTSlice = t;
-		mImageReslice->SetInput( mImage->GetVTKImages()[mCurrentTSlice] );
+#if VTK_MAJOR_VERSION <= 5
+                mImageReslice->SetInput( mImage->GetVTKImages()[mCurrentTSlice] );
+#else
+                mImageReslice->SetInputData( mImage->GetVTKImages()[mCurrentTSlice] );
+#endif
 		// Update transform
 		mConcatenatedTransform->Identity();
 		mConcatenatedTransform->Concatenate(mImage->GetTransform()[mCurrentTSlice]);
@@ -720,7 +805,6 @@ void vvSlicer::SetTSlice(int t, bool updateLinkedImages)
 		UpdateDisplayExtent();
 		return;
 	}
-
   if (t < 0)
     mCurrentTSlice = 0;
   else if ((unsigned int)t >= mImage->GetVTKImages().size())
@@ -734,16 +818,28 @@ void vvSlicer::SetTSlice(int t, bool updateLinkedImages)
   mConcatenatedTransform->Concatenate(mSlicingTransform);
 
   // Update image data
-  mImageReslice->SetInput( mImage->GetVTKImages()[mCurrentTSlice] );
+#if VTK_MAJOR_VERSION <= 5
+   mImageReslice->SetInput( mImage->GetVTKImages()[mCurrentTSlice] );
+#else
+  mImageReslice->SetInputData( mImage->GetVTKImages()[mCurrentTSlice] );
+#endif
   if (mVF && mVFActor->GetVisibility()) {
     if (mVF->GetVTKImages().size() > (unsigned int)mCurrentTSlice)
+#if VTK_MAJOR_VERSION <= 5
       mVOIFilter->SetInput(mVF->GetVTKImages()[mCurrentTSlice]);
+#else
+      mVOIFilter->SetInputData(mVF->GetVTKImages()[mCurrentTSlice]);
+#endif
   }
   //update the overlay
   if (mOverlay && mOverlayActor->GetVisibility()) {
     if (mOverlay->GetVTKImages().size() > (unsigned int)t) {
       mCurrentOverlayTSlice = t;
+#if VTK_MAJOR_VERSION <= 5
       mOverlayReslice->SetInput( mOverlay->GetVTKImages()[mCurrentOverlayTSlice] );
+#else
+      mOverlayReslice->SetInputData( mOverlay->GetVTKImages()[mCurrentOverlayTSlice] );
+#endif
 
       // Update overlay transform
       mConcatenatedOverlayTransform->Identity();
@@ -755,7 +851,11 @@ void vvSlicer::SetTSlice(int t, bool updateLinkedImages)
   if (mFusion && mFusionActor->GetVisibility() && (mFusionSequenceCode<0)) {
     if (mFusion->GetVTKImages().size() > (unsigned int)t) {
       mCurrentFusionTSlice = t;
+#if VTK_MAJOR_VERSION <= 5
       mFusionReslice->SetInput( mFusion->GetVTKImages()[mCurrentFusionTSlice]);
+#else
+      mFusionReslice->SetInputData( mFusion->GetVTKImages()[mCurrentFusionTSlice]);
+#endif
 
       // Update fusion transform
       mConcatenatedFusionTransform->Identity();
@@ -774,11 +874,15 @@ void vvSlicer::SetTSlice(int t, bool updateLinkedImages)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetFusionSequenceTSlice(int t)
-{
+{ //out << __func__ << endl;
   if (mFusion && mFusionActor->GetVisibility() && (mFusionSequenceCode>=0)) {
     if (mFusion->GetVTKImages().size() > (unsigned int)t) {
       mCurrentFusionTSlice = t;
+#if VTK_MAJOR_VERSION <= 5
       mFusionReslice->SetInput( mFusion->GetVTKImages()[mCurrentFusionTSlice] );
+#else
+      mFusionReslice->SetInputData( mFusion->GetVTKImages()[mCurrentFusionTSlice] );
+#endif
       // Update fusion transform
       mConcatenatedFusionTransform->Identity();
       mConcatenatedFusionTransform->Concatenate(mFusion->GetTransform()[mCurrentFusionTSlice]); //not really useful...
@@ -793,14 +897,14 @@ void vvSlicer::SetFusionSequenceTSlice(int t)
 
 //------------------------------------------------------------------------------
 int vvSlicer::GetTSlice()
-{
+{ //out << __func__ << endl;
   return mCurrentTSlice;
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 int vvSlicer::GetMaxCurrentTSlice()
-{
+{ //out << __func__ << endl;
   int t = mCurrentTSlice;
   if(mOverlay)
     t = std::max(t, mCurrentOverlayTSlice);
@@ -812,24 +916,30 @@ int vvSlicer::GetMaxCurrentTSlice()
 
 //------------------------------------------------------------------------------
 int vvSlicer::GetFusionTSlice()
-{
+{ //out << __func__ << endl;
   return mCurrentFusionTSlice;
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 int vvSlicer::GetOverlayTSlice()
-{
+{ //out << __func__ << endl;
   return mCurrentOverlayTSlice;
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetSliceOrientation(int orientation)
-{
+{ //out << __func__ << endl;
   //if 2D image, force to watch in Axial View
   int extent[6];
-  this->GetInput()->GetWholeExtent(extent);
+#if VTK_MAJOR_VERSION <= 5
+    this->GetInput()->GetWholeExtent(extent);
+#else
+    int* ext = mImageReslice->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+    copyExtent(ext, extent);
+#endif
+
   if (extent[5]-extent[4] <= 2)
     orientation = vtkImageViewer2::SLICE_ORIENTATION_XY;
 
@@ -858,7 +968,9 @@ void vvSlicer::SetSliceOrientation(int orientation)
     int *range = this->GetSliceRange();
     if (range)
       this->Slice = static_cast<int>((range[0] + range[1]) * 0.5);
-    mFirstSetSliceOrientation = false;
+#if VTK_MAJOR_VERSION <= 5
+      mFirstSetSliceOrientation = false;
+#endif
   }
   else if (this->Renderer && this->GetInput()) {
     double s = mCursor[orientation];
@@ -867,8 +979,13 @@ void vvSlicer::SetSliceOrientation(int orientation)
   }
 
   this->UpdateOrientation();
+  
   this->UpdateDisplayExtent();
-
+  
+  if (mFirstSetSliceOrientation) {
+    mFirstSetSliceOrientation = false;
+  }
+  
   if (this->Renderer && this->GetInput()) {
     double scale = this->Renderer->GetActiveCamera()->GetParallelScale();
     this->Renderer->ResetCamera();
@@ -885,11 +1002,15 @@ void vvSlicer::SetSliceOrientation(int orientation)
 // In other words, we change the grid of the reslice in the same way as the grid
 // of the displayed image in the slicing direction.
 void vvSlicer::AdjustResliceToSliceOrientation(vtkImageReslice *reslice)
-{
+{ //out << __func__ << endl;
   // Reset autocrop and update output information
   reslice->SetOutputOriginToDefault();
   reslice->SetOutputSpacingToDefault();
+#if VTK_MAJOR_VERSION <= 5
   reslice->GetOutput()->UpdateInformation();
+#else
+  reslice->UpdateInformation();
+#endif
 
   // Ge new origin / spacing
   double origin[3];
@@ -919,16 +1040,23 @@ void vvSlicer::AdjustResliceToSliceOrientation(vtkImageReslice *reslice)
   reslice->SetOutputOrigin(origin);
   reslice->SetOutputSpacing(spacing);
   reslice->UpdateInformation();
-  reslice->GetOutput()->UpdateInformation();
 }
 //------------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-int * vvSlicer::GetExtent(){
+int * vvSlicer::GetExtent()
+{ //out << __func__ << endl;
   int *w_ext;
   if (mUseReducedExtent) {
     w_ext = mReducedExtent;
-  } else w_ext = GetInput()->GetWholeExtent();
+  }
+  else {
+#if VTK_MAJOR_VERSION <= 5
+    w_ext = GetInput()->GetWholeExtent();
+#else
+    w_ext = mImageReslice->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+#endif
+  }
   return w_ext;
 }
 //----------------------------------------------------------------------------
@@ -936,7 +1064,7 @@ int * vvSlicer::GetExtent(){
 
 //----------------------------------------------------------------------------
 int vvSlicer::GetOrientation()
-{
+{ //out << __func__ << endl;
   return this->SliceOrientation;
 }
 //----------------------------------------------------------------------------
@@ -944,25 +1072,54 @@ int vvSlicer::GetOrientation()
 
 //----------------------------------------------------------------------------
 void vvSlicer::UpdateDisplayExtent()
-{
+{ //out << __func__ << endl;
   vtkImageData *input = this->GetInput();
+  
   if (!input || !this->ImageActor) {
     return;
   }
+  
+#if VTK_MAJOR_VERSION <= 5
   input->UpdateInformation();
+#endif
   this->SetSlice( this->GetSlice() ); //SR: make sure the update let the slice in extents
 
   // Local copy of extent
   int w_ext[6];
   int* ext = GetExtent();
   copyExtent(ext, w_ext);
+
   // Set slice value
+
   w_ext[ this->SliceOrientation*2   ] = this->Slice;
   w_ext[ this->SliceOrientation*2+1 ] = this->Slice;
   
   // Image actor
   this->ImageActor->SetVisibility(mImageVisibility);
+#if VTK_MAJOR_VERSION <= 5
   this->ImageActor->SetDisplayExtent(w_ext);
+#else
+  vtkSmartPointer<vtkOpenGLImageSliceMapper> mapperOpenGL= vtkSmartPointer<vtkOpenGLImageSliceMapper>::New();
+  try {
+        mapperOpenGL = dynamic_cast<vtkOpenGLImageSliceMapper*>(GetImageActor()->GetMapper());
+  } catch (const std::bad_cast& e) {
+		std::cerr << e.what() << std::endl;
+		std::cerr << "Conversion error" << std::endl;
+		return;
+  }
+  if (mFirstSetSliceOrientation) {
+    copyExtent(ext, mRegisterExtent);
+    this->ImageActor->SetDisplayExtent(w_ext); //initialisation
+  } else {
+    int w_croppingRegion[6];
+    copyExtent(mRegisterExtent, w_croppingRegion);
+    this->ImageActor->SetDisplayExtent(w_ext);
+    w_croppingRegion[ this->SliceOrientation*2   ] = this->Slice;
+    w_croppingRegion[ this->SliceOrientation*2+1 ] = this->Slice;
+    mapperOpenGL->SetCroppingRegion(w_croppingRegion);
+  }
+#endif 
+  
 #if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
   // Fix for bug #1882
   dynamic_cast<vtkImageSliceMapper *>(this->ImageActor->GetMapper())->SetOrientation(this->GetOrientation());
@@ -973,7 +1130,11 @@ void vvSlicer::UpdateDisplayExtent()
     AdjustResliceToSliceOrientation(mOverlayReslice);
     int overExtent[6];
     this->ConvertImageToImageDisplayExtent(input, w_ext, mOverlayReslice->GetOutput(), overExtent);
+#if VTK_MAJOR_VERSION <= 5
     bool out = ClipDisplayedExtent(overExtent, mOverlayMapper->GetInput()->GetWholeExtent());
+#else
+    bool out = ClipDisplayedExtent(overExtent, mOverlayMapper->GetInput()->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
+#endif
     mOverlayActor->SetVisibility(!out);
     mOverlayActor->SetDisplayExtent( overExtent );
 #if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
@@ -989,7 +1150,11 @@ void vvSlicer::UpdateDisplayExtent()
     AdjustResliceToSliceOrientation(mFusionReslice);
     int fusExtent[6];
     this->ConvertImageToImageDisplayExtent(input, w_ext, mFusionReslice->GetOutput(), fusExtent);
+#if VTK_MAJOR_VERSION <= 5
     bool out = ClipDisplayedExtent(fusExtent, mFusionMapper->GetInput()->GetWholeExtent());
+#else
+    bool out = ClipDisplayedExtent(fusExtent, mFusionMapper->GetInput()->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
+#endif
     mFusionActor->SetVisibility(!out);
     mFusionActor->SetDisplayExtent( fusExtent );
 #if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
@@ -999,7 +1164,6 @@ void vvSlicer::UpdateDisplayExtent()
   }
   else if(mFusion)
     mFusionActor->SetVisibility(false);
-
   // Vector field actor
   double* camera = Renderer->GetActiveCamera()->GetPosition();
   double* image_bounds = ImageActor->GetBounds();
@@ -1020,9 +1184,17 @@ void vvSlicer::UpdateDisplayExtent()
   
   if (mVF && mVFVisibility) {
     int vfExtent[6];
+#if VTK_MAJOR_VERSION <= 5
     mVF->GetVTKImages()[0]->UpdateInformation();
+#else
+    //this->UpdateInformation();
+#endif
     this->ConvertImageToImageDisplayExtent(input, w_ext, mVF->GetVTKImages()[0], vfExtent);
+#if VTK_MAJOR_VERSION <= 5
     bool out = ClipDisplayedExtent(vfExtent, mVOIFilter->GetInput()->GetWholeExtent());
+#else
+    bool out = ClipDisplayedExtent(vfExtent, mVOIFilter->GetInput()->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
+#endif
     mVFActor->SetVisibility(!out);
     mVOIFilter->SetVOI(vfExtent);
     int orientation[3] = {1,1,1};
@@ -1077,7 +1249,7 @@ void vvSlicer::UpdateDisplayExtent()
 //----------------------------------------------------------------------------
 void vvSlicer::ConvertImageToImageDisplayExtent(vtkImageData *sourceImage, const int sourceExtent[6],
                                                 vtkImageData *targetImage, int targetExtent[6])
-{
+{ //out << __func__ << endl;
   double dExtents[6];
   for(unsigned int i=0; i<6; i++) {
     // From source voxel coordinates to world coordinates
@@ -1099,7 +1271,7 @@ void vvSlicer::ConvertImageToImageDisplayExtent(vtkImageData *sourceImage, const
 
 //----------------------------------------------------------------------------
 bool vvSlicer::ClipDisplayedExtent(int extent[6], int refExtent[6])
-{
+{ //out << __func__ << endl;
   bool out = false;
   int maxBound = 6;
 
@@ -1127,7 +1299,7 @@ bool vvSlicer::ClipDisplayedExtent(int extent[6], int refExtent[6])
 
 //----------------------------------------------------------------------------
 void vvSlicer::UpdateOrientation()
-{
+{ //out << __func__ << endl;
   // Set the camera position
   vtkCamera *cam = this->Renderer ? this->Renderer->GetActiveCamera() : NULL;
   if (cam) {
@@ -1157,7 +1329,7 @@ void vvSlicer::UpdateOrientation()
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetOpacity(double s)
-{
+{ //out << __func__ << endl;
   this->GetImageActor()->SetOpacity(s);
 }
 //----------------------------------------------------------------------------
@@ -1165,7 +1337,7 @@ void vvSlicer::SetOpacity(double s)
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetRenderWindow(int orientation, vtkRenderWindow * rw)
-{
+{ //out << __func__ << endl;
   this->Superclass::SetRenderWindow(rw);
   this->SetupInteractor(rw->GetInteractor());
   ca->SetImageActor(this->GetImageActor());
@@ -1181,8 +1353,8 @@ void vvSlicer::SetRenderWindow(int orientation, vtkRenderWindow * rw)
   bounds[3] = max;
   bounds[4] = -max;
   bounds[5] = max;
-
   crossCursor->SetModelBounds(bounds);
+
   this->GetRenderer()->AddActor(pdmA);
   this->GetRenderer()->AddActor(ca);
   this->GetRenderer()->ResetCamera();
@@ -1197,7 +1369,7 @@ void vvSlicer::SetRenderWindow(int orientation, vtkRenderWindow * rw)
 
 //----------------------------------------------------------------------------
 void vvSlicer::ResetCamera()
-{
+{ //out << __func__ << endl;
   this->GetRenderer()->ResetCamera();
 }
 //----------------------------------------------------------------------------
@@ -1205,7 +1377,7 @@ void vvSlicer::ResetCamera()
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetDisplayMode(bool i)
-{
+{ //out << __func__ << endl;
 	this->GetRenderer()->SetDraw(i);
 	if (i) UpdateDisplayExtent();
 }
@@ -1214,7 +1386,7 @@ void vvSlicer::SetDisplayMode(bool i)
 
 //----------------------------------------------------------------------------
 void vvSlicer::FlipHorizontalView()
-{
+{ //out << __func__ << endl;
   vtkCamera *cam = this->Renderer ? this->Renderer->GetActiveCamera() : NULL;
   if (cam) {
     double *position = cam->GetPosition();
@@ -1245,7 +1417,7 @@ void vvSlicer::FlipHorizontalView()
 
 //----------------------------------------------------------------------------
 void vvSlicer::FlipVerticalView()
-{
+{ //out << __func__ << endl;
   vtkCamera *cam = this->Renderer ? this->Renderer->GetActiveCamera() : NULL;
   if (cam) {
     FlipHorizontalView();
@@ -1259,7 +1431,7 @@ void vvSlicer::FlipVerticalView()
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetColorWindow(double window)
-{
+{ //out << __func__ << endl;
   vtkLookupTable* LUT = static_cast<vtkLookupTable*>(this->GetWindowLevel()->GetLookupTable());
   if ( LUT ) {
     double level = this->GetWindowLevel()->GetLevel();
@@ -1272,7 +1444,7 @@ void vvSlicer::SetColorWindow(double window)
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetColorLevel(double level)
-{
+{ //out << __func__ << endl;
   vtkLookupTable* LUT = static_cast<vtkLookupTable*>(this->GetWindowLevel()->GetLookupTable());
   if ( LUT ) {
     double window = this->GetWindowLevel()->GetWindow();
@@ -1285,7 +1457,7 @@ void vvSlicer::SetColorLevel(double level)
 
 //----------------------------------------------------------------------------
 double vvSlicer::GetOverlayColorWindow()
-{
+{ //out << __func__ << endl;
   if(mOverlayMapper)
     return mOverlayMapper->GetWindow();
   else
@@ -1295,7 +1467,7 @@ double vvSlicer::GetOverlayColorWindow()
 
 //----------------------------------------------------------------------------
 double vvSlicer::GetOverlayColorLevel()
-{
+{ //out << __func__ << endl;
   if(mOverlayMapper)
     return mOverlayMapper->GetLevel();
   else
@@ -1305,7 +1477,7 @@ double vvSlicer::GetOverlayColorLevel()
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetOverlayColorWindow(double window)
-{
+{ //out << __func__ << endl;
   if(mOverlayMapper)
     mOverlayMapper->SetWindow(window);
 }
@@ -1313,7 +1485,7 @@ void vvSlicer::SetOverlayColorWindow(double window)
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetOverlayColorLevel(double level)
-{
+{ //out << __func__ << endl;
   if(mOverlayMapper)
     mOverlayMapper->SetLevel(level);
 }
@@ -1322,7 +1494,7 @@ void vvSlicer::SetOverlayColorLevel(double level)
 //----------------------------------------------------------------------------
 // Returns the min an the max value in a 20%x20% region around the mouse pointer
 void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max, vtkImageData *image, vtkTransform *transform)
-{
+{ //out << __func__ << endl;
   //Get mouse pointer position in view coordinates
   double corner1[3];
   double corner2[3];
@@ -1360,7 +1532,11 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max, vtkImag
   }
 
   vtkSmartPointer<vtkExtractVOI> voiFilter = vtkSmartPointer<vtkExtractVOI>::New();
+#if VTK_MAJOR_VERSION <= 5
   voiFilter->SetInput(image);
+#else
+  voiFilter->SetInputData(image);
+#endif
   voiFilter->SetVOI(iLocalExtents);
   voiFilter->Update();
   if (!voiFilter->GetOutput()->GetNumberOfPoints()) {
@@ -1370,7 +1546,11 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max, vtkImag
   }
 
   vtkSmartPointer<vtkImageAccumulate> accFilter = vtkSmartPointer<vtkImageAccumulate>::New();
+#if VTK_MAJOR_VERSION <= 5
   accFilter->SetInput(voiFilter->GetOutput());
+#else
+  accFilter->SetInputData(voiFilter->GetOutput());
+#endif
   accFilter->Update();
 
   min = *(accFilter->GetMin());
@@ -1380,11 +1560,11 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max, vtkImag
 
 //----------------------------------------------------------------------------
 double vvSlicer::GetScalarComponentAsDouble(vtkImageData *image, double X, double Y, double Z, int &ix, int &iy, int &iz, int component)
-{
+{ //out << __func__ << endl;
   ix = lrint(X);
   iy = lrint(Y);
   iz = lrint(Z);
-
+#if VTK_MAJOR_VERSION <= 5
   if (ix < image->GetWholeExtent()[0] ||
       ix > image->GetWholeExtent()[1] ||
       iy < image->GetWholeExtent()[2] ||
@@ -1392,16 +1572,27 @@ double vvSlicer::GetScalarComponentAsDouble(vtkImageData *image, double X, doubl
       iz < image->GetWholeExtent()[4] ||
       iz > image->GetWholeExtent()[5] )
     return std::numeric_limits<double>::quiet_NaN();
-
   image->SetUpdateExtent(ix, ix, iy, iy, iz, iz);
   image->Update();
+#else
+  if (ix < image->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[0] ||
+      ix > image->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[1] ||
+      iy < image->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[2] ||
+      iy > image->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[3] ||
+      iz < image->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[4] ||
+      iz > image->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[5] )
+    return std::numeric_limits<double>::quiet_NaN();
+  //image->SetUpdateExtent(ix, ix, iy, iy, iz, iz);
+  //image->Update();
+#endif
+
   return image->GetScalarComponentAsDouble(ix, iy, iz, component);
 }
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 void vvSlicer::Render()
-{
+{ //out << __func__ << endl;
   if (this->mFusion && mFusionActor->GetVisibility() && showFusionLegend) {
     legend->SetLookupTable(this->GetFusionMapper()->GetLookupTable());
     legend->UseOpacityOn();
@@ -1414,13 +1605,13 @@ void vvSlicer::Render()
   } else legend->SetVisibility(0);
 
   if (ca->GetVisibility()) {
-    std::stringstream worldPos;
+    std::stringstream worldPos(" ");
     double pt[3];
     mConcatenatedTransform->TransformPoint(mCurrent, pt);
     double X = (pt[0] - mImage->GetVTKImages()[mCurrentTSlice]->GetOrigin()[0])/mImage->GetVTKImages()[mCurrentTSlice]->GetSpacing()[0];
     double Y = (pt[1] - mImage->GetVTKImages()[mCurrentTSlice]->GetOrigin()[1])/mImage->GetVTKImages()[mCurrentTSlice]->GetSpacing()[1];
     double Z = (pt[2] - mImage->GetVTKImages()[mCurrentTSlice]->GetOrigin()[2])/mImage->GetVTKImages()[mCurrentTSlice]->GetSpacing()[2];
-
+#if VTK_MAJOR_VERSION <= 5
     if (X >= mImage->GetVTKImages()[mCurrentTSlice]->GetWholeExtent()[0]-0.5 &&
         X <= mImage->GetVTKImages()[mCurrentTSlice]->GetWholeExtent()[1]+0.5 &&
         Y >= mImage->GetVTKImages()[mCurrentTSlice]->GetWholeExtent()[2]-0.5 &&
@@ -1446,6 +1637,33 @@ void vvSlicer::Render()
                              << mCurrentTSlice
                              << std::endl;
     }
+#else
+    if (X >= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[0]-0.5 &&
+        X <= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[1]+0.5 &&
+        Y >= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[2]-0.5 &&
+        Y <= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[3]+0.5 &&
+        Z >= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[4]-0.5 &&
+        Z <= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[5]+0.5) {
+      
+      int ix, iy, iz;
+      double value = this->GetScalarComponentAsDouble(mImage->GetVTKImages()[mCurrentTSlice], X, Y, Z, ix, iy, iz);
+
+      if(ImageActor->GetVisibility())
+        worldPos << "data value : " << value << std::endl;
+
+      worldPos << "mm : " << lrint(mCurrentBeforeSlicingTransform[0]) << ' '
+                          << lrint(mCurrentBeforeSlicingTransform[1]) << ' '
+                          << lrint(mCurrentBeforeSlicingTransform[2]) << ' '
+                          << mCurrentTSlice
+                          << std::endl;
+      worldPos << "pixel : " << ix << ' '
+                             << iy << ' '
+                             << iz << ' '
+                             << mCurrentTSlice
+                             << std::endl;
+    
+    }
+#endif
     ca->SetText(1,worldPos.str().c_str());
 
     std::stringstream slicePos;
@@ -1460,7 +1678,7 @@ void vvSlicer::Render()
     double xCursor = (x - this->GetInput()->GetOrigin()[0])/this->GetInput()->GetSpacing()[0];
     double yCursor = (y - this->GetInput()->GetOrigin()[1])/this->GetInput()->GetSpacing()[1];
     double zCursor = (z - this->GetInput()->GetOrigin()[2])/this->GetInput()->GetSpacing()[2];
-
+#if VTK_MAJOR_VERSION <= 5    
     if (xCursor >= this->GetImageActor()->GetDisplayExtent()[0]-0.5 &&
         xCursor < this->GetImageActor()->GetDisplayExtent()[1]+0.5 &&
         yCursor >= this->GetImageActor()->GetDisplayExtent()[2]-0.5 &&
@@ -1477,17 +1695,56 @@ void vvSlicer::Render()
       crossCursor->SetFocalPoint(x,y,z);
     } else
       crossCursor->SetFocalPoint(-1,-1,z);
+    crossCursor->Update();
   }
+#else
+    vtkSmartPointer<vtkOpenGLImageSliceMapper> mapperOpenGL= vtkSmartPointer<vtkOpenGLImageSliceMapper>::New();
+    try {
+        mapperOpenGL = dynamic_cast<vtkOpenGLImageSliceMapper*>(GetImageActor()->GetMapper());
+    } catch (const std::bad_cast& e) {
+		std::cerr << e.what() << std::endl;
+		std::cerr << "Conversion error" << std::endl;
+		return;
+	}
+    if (xCursor >= mapperOpenGL->GetCroppingRegion()[0]-0.5 &&
+        xCursor < mapperOpenGL->GetCroppingRegion()[1]+0.5 &&
+        yCursor >= mapperOpenGL->GetCroppingRegion()[2]-0.5 &&
+        yCursor < mapperOpenGL->GetCroppingRegion()[3]+0.5 &&
+        zCursor >= mapperOpenGL->GetCroppingRegion()[4]-0.5 &&
+        zCursor < mapperOpenGL->GetCroppingRegion()[5]+0.5 ) {
+      vtkRenderer * renderer = this->Renderer;
 
+      renderer->WorldToView(x,y,z);
+      renderer->ViewToNormalizedViewport(x,y,z);
+      renderer->NormalizedViewportToViewport(x,y);
+      renderer->ViewportToNormalizedDisplay(x,y);
+      renderer->NormalizedDisplayToDisplay(x,y);
+      crossCursor->SetFocalPoint(x,y,z);
+    } else
+      crossCursor->SetFocalPoint(-1,-1,z);
+    crossCursor->Update();
+  }
+#endif
 
   if (mOverlay && mOverlayActor->GetVisibility()) {
     if(mLinkOverlayWindowLevel) {
       mOverlayMapper->SetWindow(this->GetColorWindow());
       mOverlayMapper->SetLevel(this->GetColorLevel());
     }
+#if VTK_MAJOR_VERSION <= 5
     mOverlayMapper->GetOutput()->SetUpdateExtent(mOverlayActor->GetDisplayExtent());
-    mOverlayMapper->GetOutput()->Update();
+#else
+    mOverlayMapper->SetUpdateExtent(mOverlayActor->GetDisplayExtent());
+#endif
     mOverlayMapper->Update();
+  }
+  if (mFusion && mFusionActor->GetVisibility()) {
+#if VTK_MAJOR_VERSION <= 5
+    mFusionMapper->GetOutput()->SetUpdateExtent(mFusionActor->GetDisplayExtent());
+#else
+    mFusionMapper->SetUpdateExtent(mFusionActor->GetDisplayExtent());
+#endif
+    mFusionMapper->Update();
   }
   if (mLandMapper)
     UpdateLandmarks();
@@ -1499,7 +1756,7 @@ void vvSlicer::Render()
 
 //----------------------------------------------------------------------------
 void vvSlicer::UpdateCursorPosition()
-{
+{ //out << __func__ << endl;
   pdmA->SetVisibility(true);
   mCursor[0] = mCurrent[0];
   mCursor[1] = mCurrent[1];
@@ -1511,7 +1768,7 @@ void vvSlicer::UpdateCursorPosition()
 
 //----------------------------------------------------------------------------
 void vvSlicer::UpdateLandmarks()
-{
+{ //out << __func__ << endl;
   vtkPolyData *pd = static_cast<vtkPolyData*>(mLandClipper->GetInput());
   if (pd->GetPoints()) {
     //mLandGlyph->SetRange(0,1);
@@ -1554,7 +1811,7 @@ void vvSlicer::UpdateLandmarks()
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetSlice(int slice)
-{
+{ //out << __func__ << endl;
   int *range = this->GetSliceRange();
   if (range) {
     if (slice < range[0]) {
@@ -1579,7 +1836,8 @@ void vvSlicer::SetSlice(int slice)
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-int vvSlicer::GetTMax() {
+int vvSlicer::GetTMax() 
+{ //out << __func__ << endl;
   int tmax = (int)mImage->GetVTKImages().size() - 1;
   if(mOverlay)
     tmax = std::max(tmax, (int)mOverlay->GetVTKImages().size()-1);
@@ -1589,7 +1847,7 @@ int vvSlicer::GetTMax() {
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetContourSlice()
-{
+{ //out << __func__ << endl;
   if (mSurfaceCutActors.size() > 0)
     for (std::vector<vvMeshActor*>::iterator i=mSurfaceCutActors.begin();
          i!=mSurfaceCutActors.end(); i++) {
@@ -1604,7 +1862,7 @@ void vvSlicer::SetContourSlice()
 
 //----------------------------------------------------------------------------
 void vvSlicer::ForceUpdateDisplayExtent()
-{
+{ //out << __func__ << endl;
   this->UpdateDisplayExtent();
 }
 //----------------------------------------------------------------------------
@@ -1612,7 +1870,7 @@ void vvSlicer::ForceUpdateDisplayExtent()
 
 //----------------------------------------------------------------------------
 int* vvSlicer::GetDisplayExtent()
-{
+{ //out << __func__ << endl;
   return this->GetImageActor()->GetDisplayExtent();
 }
 //----------------------------------------------------------------------------
@@ -1620,14 +1878,15 @@ int* vvSlicer::GetDisplayExtent()
 
 //----------------------------------------------------------------------------
 void vvSlicer::PrintSelf(ostream& os, vtkIndent indent)
-{
+{ //out << __func__ << endl;
   this->Superclass::PrintSelf(os, indent);
 }
 //----------------------------------------------------------------------------
 
+
 //----------------------------------------------------------------------------
 void vvSlicer::SetVFColor(double r, double g, double b)
-{
+{ //out << __func__ << endl;
   double mVFColorHSV[3];
   mVFColor[0] = r;
   mVFColor[1] = g;
@@ -1640,4 +1899,21 @@ void vvSlicer::SetVFColor(double r, double g, double b)
 
   this->Render();
 }  
+//----------------------------------------------------------------------------
+
+
+//----------------------------------------------------------------------------
+void vvSlicer::SetRegisterExtent(int ext[6])
+{ //out << __func__ << endl;
+    copyExtent(ext, mRegisterExtent);
+}
+//----------------------------------------------------------------------------
+
+
+//----------------------------------------------------------------------------
+void vvSlicer::GetRegisterExtent(int ext[6])
+{ //out << __func__ << endl;
+    copyExtent(mRegisterExtent, ext);
+}
+//----------------------------------------------------------------------------
 

@@ -24,7 +24,7 @@
 #include "vtkOBJReader.h"
 #include "vtkInteractorStyle.h"
 
-
+#include <vtkVersion.h>
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkPolyData.h"
@@ -33,6 +33,7 @@
 #include "vtkRenderer.h"
 
 #include <QMessageBox>
+#include <QFileDialog>
 
 //----------------------------------------------------------------------------
 class vvManagerCallback : public vtkCommand
@@ -110,8 +111,11 @@ void vvSurfaceViewerDialog::LoadSurface()
     reader->Update();
     mReaders.push_back(reader);
   }
-
+#if VTK_MAJOR_VERSION <= 5
   mMapper->SetInput(mReaders[mCurrentTime]->GetOutput());
+#else
+  mMapper->SetInputData(mReaders[mCurrentTime]->GetOutput());
+#endif
 
   if (!mActor) {
     mActor = vtkActor::New();
@@ -140,7 +144,11 @@ void vvSurfaceViewerDialog::NextTime()
   mCurrentTime++;
   if (mCurrentTime >= mReaders.size())
     mCurrentTime = 0;
+#if VTK_MAJOR_VERSION <= 5
   mMapper->SetInput(mReaders[mCurrentTime]->GetOutput());
+#else
+  mMapper->SetInputData(mReaders[mCurrentTime]->GetOutput());
+#endif
   mMapper->Modified();
   renderWidget->GetRenderWindow()->Render();
 }
@@ -150,7 +158,11 @@ void vvSurfaceViewerDialog::PreviousTime()
   mCurrentTime--;
   if (mCurrentTime < 0)
     mCurrentTime = (unsigned int) mReaders.size() - 1;
+#if VTK_MAJOR_VERSION <= 5
   mMapper->SetInput(mReaders[mCurrentTime]->GetOutput());
+#else
+  mMapper->SetInputData(mReaders[mCurrentTime]->GetOutput());
+#endif
   mMapper->Modified();
   renderWidget->GetRenderWindow()->Render();
 }

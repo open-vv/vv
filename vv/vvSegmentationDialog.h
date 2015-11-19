@@ -32,7 +32,7 @@
 #include "vtkPolyData.h"
 #include <vtkPolyDataMapper.h>
 
-#include <QtDesigner/QDesignerExportWidget>
+#include <QtUiPlugin/QDesignerExportWidget>
 #include <QTreeWidget>
 
 //====================================================================

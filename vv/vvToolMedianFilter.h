@@ -45,7 +45,7 @@
   #ifndef VVTOOLMedianFilter_H
   #define VVTOOLMedianFilter_H
 
-  #include <QtDesigner/QDesignerExportWidget>
+  #include <QtUiPlugin/QDesignerExportWidget>
   #include "vvToolBase.h"
   #include "QWidget"
   #include "vvToolWidgetBase.h"

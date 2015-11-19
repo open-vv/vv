@@ -26,7 +26,6 @@
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vvGlyphSource, "DummyRevision");
 vtkStandardNewMacro(vvGlyphSource);
 
 

@@ -55,6 +55,7 @@ protected:
   Ui::vvToolRigidReg ui;
   vvSlicerManager * mInput;
   vtkSmartPointer<vtkMatrix4x4> mInitialMatrix;
+  void ExtentMax(const double [8][4], double [2][3]);
   void SetTransform(vtkMatrix4x4 * matrix);
   void GetSlidersAndSpinBoxes(std::vector<QSlider *>&transSliders, std::vector<QSlider *>&rotSliders,
                               std::vector<QDoubleSpinBox *>&transSBs, std::vector<QDoubleSpinBox *>&rotSBs);

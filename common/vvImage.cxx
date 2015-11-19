@@ -27,6 +27,10 @@
 // vtk
 #include <vtkImageData.h>
 #include <vtkTransform.h>
+#include <vtkDataObject.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkInformation.h>
+#include <vtkVersion.h>
 
 // std
 #include <cassert>
@@ -71,7 +75,12 @@ void vvImage::AddVtkImage(vtkImageData* input)
   // mItkToVtkConverters is therefore not being updated, but 
   // up to here it's not being used anyway...
   mImageDimension = 0;
+#if VTK_MAJOR_VERSION <= 5
   int* extent = input->GetWholeExtent();
+#else
+  int* extent = input->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
+#endif
+  
   if (extent[4] != extent[5])
     mImageDimension = 3;
   else if (extent[3] != extent[4])

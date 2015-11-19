@@ -23,6 +23,7 @@
 #include <string>
 #include <locale.h>
 
+#include <vtkVersion.h>
 #include "vtkPolyData.h"
 #include "vtkPoints.h"
 #include "vtkFloatArray.h"
@@ -451,7 +452,11 @@ void vvLandmarks::SetTime(int time)
     mPolyData->GetPointData()->SetScalars(mIds[time]);
     mPolyData->GetPointData()->AddArray(mLabels[time]);
     mPolyData->Modified();
+#if VTK_MAJOR_VERSION <= 5
     mPolyData->Update();
+#else
+    //mPolyData->Update();
+#endif
     mTime = time;
   }
 }

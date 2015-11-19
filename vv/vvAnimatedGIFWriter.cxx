@@ -1,6 +1,9 @@
 #include "vvAnimatedGIFWriter.h"
 #include "clitkDD.h"
 
+#include <vtkVersion.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkInformation.h>
 #include <vtkImageData.h>
 #include <vtkImageQuantizeRGBToIndex.h>
 #include <vtkImageAppend.h>
@@ -39,14 +42,25 @@ void vvAnimatedGIFWriter::Start()
 void vvAnimatedGIFWriter::Write()
 {
   // get the data
+#if VTK_MAJOR_VERSION <= 5
   this->GetInput()->UpdateInformation();
   int *wExtent = this->GetInput()->GetWholeExtent();
   this->GetInput()->SetUpdateExtent(wExtent);
   this->GetInput()->Update();
+#else
+  this->UpdateInformation();
+  int *wExtent = this->GetInput()->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
+  this->SetUpdateExtent(wExtent);
+  this->Update();
+#endif
 
   RGBslices.push_back( vtkSmartPointer<vtkImageData>::New() );
   RGBslices.back()->ShallowCopy(this->GetInput());
+#if VTK_MAJOR_VERSION <= 5
   RGBvolume->AddInput(RGBslices.back());
+#else
+  RGBvolume->AddInputData(RGBslices.back());
+#endif
 }
 
 //---------------------------------------------------------------------------
@@ -57,12 +71,20 @@ void vvAnimatedGIFWriter::End()
   // Quantize to 8 bit colors
   vtkSmartPointer<vtkImageQuantizeRGBToIndex> quant = vtkSmartPointer<vtkImageQuantizeRGBToIndex>::New();
   quant->SetNumberOfColors(256);
+#if VTK_MAJOR_VERSION <= 5
   quant->SetInput(RGBvolume->GetOutput());
+#else
+  quant->SetInputData(RGBvolume->GetOutput());
+#endif
   quant->Update();
 
   // Convert to 8 bit image
   vtkSmartPointer<vtkImageCast> cast =  vtkSmartPointer<vtkImageCast>::New();
+#if VTK_MAJOR_VERSION <= 5
   cast->SetInput( quant->GetOutput() );
+#else
+  cast->SetInputData( quant->GetOutput() );
+#endif
   cast->SetOutputScalarTypeToUnsignedChar();
   cast->Update();
 

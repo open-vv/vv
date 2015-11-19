@@ -25,7 +25,7 @@ class vvGlyphSource: public vtkGlyphSource2D
 {
 public:
     static vvGlyphSource *New();
-    vtkTypeRevisionMacro(vvGlyphSource,vtkGlyphSource2D);
+    vtkTypeMacro(vvGlyphSource,vtkGlyphSource2D);
     void PrintSelf(ostream& os, vtkIndent indent);
 
     void SetGlyphTypeToSpecificArrow() {
