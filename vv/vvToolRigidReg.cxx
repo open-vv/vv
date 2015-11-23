@@ -487,7 +487,7 @@ for (int i=0; i<4; ++i) {
 #endif
 for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
 #if VTK_MAJOR_VERSION > 5 
-    double pointExtent[8][4], pointExtentUpdate[8][4];
+    double pointExtent[8][4], pointExtentUpdate[8][4], pointOverlayExtent[8][4], pointOverlayExtentUpdate[8][4], centre[3], translation[3];
     std::vector<int> w_ext;
     w_ext=mCurrentSlicerManager->GetImage()->GetSize();
     pointExtent[0][0] = 0.0;
@@ -523,6 +523,25 @@ for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
 	pointExtent[7][2] = 0.0;
 	pointExtent[7][3] = 1.0;
 	
+	centre[0] = Xval->text().toDouble();
+	centre[1] = Yval->text().toDouble();
+	centre[2] = Zval->text().toDouble();
+	
+	for (int k=0; k<8; ++k) {
+	    for (int j=0; j<3; ++j)
+	    {
+	        pointOverlayExtent[k][j] = mCurrentSlicerManager->GetImage()->GetSpacing()[j]*pointExtent[k][j] - centre[j];
+	    }
+	    pointOverlayExtent[k][3] = 0.0;
+	    matrixTranspose->MultiplyPoint(pointOverlayExtent[k], pointOverlayExtentUpdate[k]);
+	    for (int j=0; j<3; ++j)
+	    {
+	        pointOverlayExtentUpdate[k][j] = (pointOverlayExtentUpdate[k][j] + centre[j])/mCurrentSlicerManager->GetImage()->GetSpacing()[j];
+	        cout << pointOverlayExtentUpdate[k][j] << " ";
+	    }
+	    cout << endl;
+    }
+	cout << endl;
 	for (int k=0; k<8; ++k) {
 	    for (int j=0; j<3; ++j)
 	    {
@@ -536,9 +555,10 @@ for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
 	    }
 	    cout << endl;
     }
-    double extUpdateTemp[2][3];
+    double extUpdateTemp[2][3], extOverlayUpdateTemp[2][3];
     int extUpdate[6];
     ExtentMax(pointExtentUpdate, extUpdateTemp);
+    ExtentMax(pointOverlayExtentUpdate, extOverlayUpdateTemp);
     for (int j=0; j<3; ++j) {
         extUpdate[2*j] = 0;
         extUpdate[2*j+1] = itk::Math::Round<double>(extUpdateTemp[1][j] - extUpdateTemp[0][j]);
@@ -560,14 +580,45 @@ for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
 	
 	if (mCurrentSlicerManager->GetSlicer(i)->GetOverlay() && mCurrentSlicerManager->GetSlicer(i)->GetOverlayActor()->GetVisibility()) {
 	    int extOverlayUpdate[6];
-	    for (int j=0; j<3; ++j) {
-	        if (0 < extUpdateTemp[0][j]) {
-	            extOverlayUpdate[2*j] = itk::Math::Round<double>(extUpdateTemp[0][j]);
+	    for (int j=0; j<3; ++j) { //Rotation
+	        if (extOverlayUpdateTemp[1][j] - extOverlayUpdateTemp[0][j] > w_ext[j]-1) {
+	            extOverlayUpdate[2*j] = 0;
+	            extOverlayUpdate[2*j+1] = w_ext[j]-1;
+	        } else {
+	            extOverlayUpdate[2*j] = itk::Math::Round<double>(extOverlayUpdateTemp[0][j]);
+	            extOverlayUpdate[2*j+1] = itk::Math::Round<double>(extOverlayUpdateTemp[1][j]);
+	        }
+	    }
+	    
+	    //Compute translation
+	    double pointOrigin[4], pointOriginUpdate[4];
+	    for (int j=0; j<3; ++j)
+	    {
+	        pointOrigin[j] = 0 - centre[j];
+	    }
+	    pointOrigin[3] = 0.0;
+	    matrix->MultiplyPoint(pointOrigin, pointOriginUpdate);
+	    for (int j=0; j<3; ++j)
+	    {
+	        pointOriginUpdate[j] = (pointOriginUpdate[j] + centre[j])/mCurrentSlicerManager->GetImage()->GetSpacing()[j];
+	        translation[j] = matrix->GetElement(j,3) - pointOriginUpdate[j]*mCurrentSlicerManager->GetImage()->GetSpacing()[j];
+	        pointOrigin[j] = translation[j];
+	    }
+	    pointOrigin[3] = 0.0;
+	    matrixTranspose->MultiplyPoint(pointOrigin, pointOriginUpdate);
+	    for (int j=0; j<3; ++j)
+	    {
+	        translation[j] = pointOriginUpdate[j]/mCurrentSlicerManager->GetImage()->GetSpacing()[j];
+	    }
+	    
+	    for (int j=0; j<3; ++j) { //Translation
+	        if (0 < extOverlayUpdateTemp[0][j] - translation[j]) {
+	            extOverlayUpdate[2*j] = itk::Math::Round<double>(extOverlayUpdateTemp[0][j] - translation[j]);
 	        } else {
 	            extOverlayUpdate[2*j] = 0;
 	        }
-	        if (extUpdateTemp[1][j] < w_ext[j]-1) {
-	            extOverlayUpdate[2*j+1] = itk::Math::Round<double>(extUpdateTemp[1][j]);
+	        if (extOverlayUpdateTemp[1][j] - translation[j] < w_ext[j]-1) {
+	            extOverlayUpdate[2*j+1] = itk::Math::Round<double>(extOverlayUpdateTemp[1][j] - translation[j]);
 	        } else {
 	            extOverlayUpdate[2*j+1] = w_ext[j]-1;
 	        }
@@ -582,6 +633,23 @@ for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
 		    std::cerr << "Conversion error" << std::endl;
 		    return;
 	    }
+	    
+	    //Slice number
+	    double spacing[4],spacingUpdate[4];
+	    int sliceNumber;
+	    spacing[0] = 240*mCurrentSlicerManager->GetImage()->GetSpacing()[0]-centre[0];
+	    spacing[1] = 179*mCurrentSlicerManager->GetImage()->GetSpacing()[1]-centre[1];
+	    spacing[2] = 22*mCurrentSlicerManager->GetImage()->GetSpacing()[2]-centre[2];
+	    spacing[3] = 0;
+	    matrixTranspose->MultiplyPoint(spacing, spacingUpdate);
+	    spacingUpdate[0] = (spacingUpdate[0]+centre[0])/mCurrentSlicerManager->GetImage()->GetSpacing()[0];
+	    spacingUpdate[1] = (spacingUpdate[1]+centre[1])/mCurrentSlicerManager->GetImage()->GetSpacing()[1];
+	    spacingUpdate[2] = (spacingUpdate[2]+centre[2])/mCurrentSlicerManager->GetImage()->GetSpacing()[2];
+	    cout << spacingUpdate[0] << " " << spacingUpdate[1] << " " << spacingUpdate[2] << endl;
+	    sliceNumber = mCurrentSlicerManager->GetSlicer(i)->GetSlice()*spacingUpdate[mCurrentSlicerManager->GetSlicer(i)->GetOrientation()]/mCurrentSlicerManager->GetImage()->GetSpacing()[mCurrentSlicerManager->GetSlicer(i)->GetOrientation()];
+	    extOverlayUpdate[2*mCurrentSlicerManager->GetSlicer(i)->GetOrientation()] = 12;//sliceNumber;
+	    extOverlayUpdate[2*mCurrentSlicerManager->GetSlicer(i)->GetOrientation()+1] = 12;//sliceNumber;
+	    
 	    mapperOpenGL->SetCroppingRegion(extOverlayUpdate);
 	}
 #endif
