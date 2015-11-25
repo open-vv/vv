@@ -27,6 +27,7 @@
 #include <vtkImageData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
+#include <vtkInformation.h>
 
 //------------------------------------------------------------------------------
 vvImageContour::vvImageContour()
@@ -226,12 +227,12 @@ void vvImageContour::UpdateWithPreserveMemoryMode()
   vtkActor * mSquaresActor = mSquaresActorList[mTSlice];
   int orientation = ComputeCurrentOrientation();
 
-  //UpdateActor(mSquaresActor, mapper, mSquares, mClipper, mValue, orientation, mSlice);
+  UpdateActor(mSquaresActor, mapper, mSquares, mClipper, mValue, orientation, mSlice);
 
   if (mPreviousTslice != mTSlice) {
     if (mPreviousTslice != -1) mSquaresActorList[mPreviousTslice]->VisibilityOff();
   }
-  
+
   mSlicer->Render();
 }
 //------------------------------------------------------------------------------
@@ -325,16 +326,13 @@ void vvImageContour::CreateNewActor(int numImage)
     clipper->SetInputData(mSlicer->GetImage()->GetVTKImages()[numImage]);
 #endif
   }
-clipper->Update();
 #if VTK_MAJOR_VERSION <= 5
   squares->SetInput(clipper->GetOutput());
   squaresMapper->SetInput(squares->GetOutput());
 #else
-  squares->SetInputData(clipper->GetOutput());
-  squaresMapper->SetInputData(squares->GetOutput());
+  squares->SetInputConnection(clipper->GetOutputPort(0));
+  squaresMapper->SetInputConnection(squares->GetOutputPort(0));
 #endif
-squares->Update();
-squaresMapper->Update();
   squaresMapper->ScalarVisibilityOff();
   squaresActor->SetMapper(squaresMapper);
   squaresActor->GetProperty()->SetColor(1.0,0,0);
@@ -399,9 +397,7 @@ void vvImageContour::UpdateActor(vtkActor * actor,
   
   clipper->SetOutputWholeExtent(extent2[0],extent2[1],extent2[2],
                                 extent2[3],extent2[4],extent2[5]);
-                                clipper->Update();
-                                clipper->Print(cout);
-
+                                
   if (mHiddenImageIsUsed) delete extent2;
 
   // Move the actor to be visible

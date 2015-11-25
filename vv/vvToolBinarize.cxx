@@ -31,6 +31,7 @@
 #include <vtkImageClip.h>
 #include <vtkRenderWindow.h>
 
+
 //------------------------------------------------------------------------------
 // Create the tool and automagically (I like this word) insert it in
 // the main window menu.
@@ -96,7 +97,6 @@ void vvToolBinarize::InteractiveDisplayToggled(bool b)
   } else {
     for(unsigned int i=0; i<mImageContour.size(); i++) {
       mImageContour[i]->ShowActors();
-      mImageContour[i]->Print(cout);
       if (mRadioButtonLowerThan->isChecked())
         mImageContourLower[i]->ShowActors();
     }
@@ -221,7 +221,6 @@ void vvToolBinarize::InputIsSelected(vvSlicerManager * m)
     mImageContourLower[i]->SetSlicer(mCurrentSlicerManager->GetSlicer(i));
     mImageContourLower[i]->SetColor(0.0, 0.0, 1.0);
     mImageContourLower[i]->SetDepth(100); // to be in front of (whe used with ROI tool)
-    mImageContour[i]->Print(cout);
   }
   valueChangedT1(mThresholdSlider1->GetValue());
 
@@ -234,7 +233,6 @@ void vvToolBinarize::InputIsSelected(vvSlicerManager * m)
   connect(mCurrentSlicerManager,SIGNAL(UpdateOrientation(int,int)),this,SLOT(UpdateOrientation(int, int)));
 
   //  connect(mCurrentSlicerManager, SIGNAL(LeftButtonReleaseSignal(int)), SLOT(LeftButtonReleaseEvent(int)));
-  cout << mInteractiveDisplayIsEnabled << endl;
   InteractiveDisplayToggled(mInteractiveDisplayIsEnabled);
 }
 //------------------------------------------------------------------------------
@@ -336,8 +334,8 @@ void vvToolBinarize::apply()
 { cout << __func__ << endl;
   if (!mCurrentSlicerManager) close();
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-  GetArgsInfoFromGUI();
-
+  GetArgsInfoFromGUI();  
+  
   // Main filter
   clitk::BinarizeImageGenericFilter::Pointer filter =
     clitk::BinarizeImageGenericFilter::New();
@@ -345,8 +343,9 @@ void vvToolBinarize::apply()
   filter->SetArgsInfo(mArgsInfo);
   filter->Update();
 
+
   // Output
-  vvImage::Pointer output = filter->GetOutputVVImage();
+  vvImage::Pointer output = filter->GetOutputVVImage();  
   std::ostringstream osstream;
   osstream << "Binarized_" << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";
   AddImage(output,osstream.str());

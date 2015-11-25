@@ -1748,7 +1748,6 @@ void vvSlicer::Render()
   }
   if (mLandMapper)
     UpdateLandmarks();
-
   this->GetRenderWindow()->Render();
 }
 //----------------------------------------------------------------------------

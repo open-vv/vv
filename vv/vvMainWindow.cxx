@@ -3659,7 +3659,6 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
   ShowLastImage();
   InitDisplay();
   qApp->processEvents();
-
   // End
   ImageInfoChanged();
   return slicer_manager;

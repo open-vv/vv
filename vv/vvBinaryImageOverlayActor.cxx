@@ -31,6 +31,7 @@
 #include <vtkProperty.h>
 #include <vtkImageMapToRGBA.h>
 #include <vtkLookupTable.h>
+#include <vtkImageMapper3D.h>
 
 //------------------------------------------------------------------------------
 vvBinaryImageOverlayActor::vvBinaryImageOverlayActor()
@@ -143,7 +144,7 @@ void vvBinaryImageOverlayActor::Initialize(bool IsVisible)
 #if VTK_MAJOR_VERSION <= 5
     mOverlayActor->SetInput(mOverlayMapper->GetOutput());
 #else
-    mOverlayActor->SetInputData(mOverlayMapper->GetOutput());
+    mOverlayActor->GetMapper()->SetInputConnection(mOverlayMapper->GetOutputPort());
 #endif
     mOverlayActor->SetPickable(0);
     mOverlayActor->SetVisibility(IsVisible);
