@@ -124,6 +124,7 @@ void vvImageContour::SetColor(double r, double g, double b)
 { //out << __func__ << endl;
   for(unsigned int i=0; i<mSquaresActorList.size(); i++) {
     mSquaresActorList[i]->GetProperty()->SetColor(r,g,b);
+    mSquaresActorList[i]->GetProperty()->SetOpacity(0.995);
   }
 }
 //------------------------------------------------------------------------------
@@ -336,6 +337,7 @@ void vvImageContour::CreateNewActor(int numImage)
   squaresMapper->ScalarVisibilityOff();
   squaresActor->SetMapper(squaresMapper);
   squaresActor->GetProperty()->SetColor(1.0,0,0);
+  squaresActor->GetProperty()->SetOpacity(0.995);
   squaresActor->SetPickable(0);
   squaresActor->VisibilityOff();
   mSlicer->GetRenderer()->AddActor(squaresActor);
@@ -357,7 +359,7 @@ void vvImageContour::UpdateActor(vtkActor * actor,
 { //out << __func__ << endl;
   // Set parameter for the MarchigSquare
   squares->SetValue(0, threshold);
-  
+  squares->Update();
   // Get image extent
   int* extent = mSlicer->GetImageActor()->GetDisplayExtent();
 
@@ -406,7 +408,7 @@ void vvImageContour::UpdateActor(vtkActor * actor,
   // DD(mDepth);
   // position[orientation] = -mDepth;
   // actor->SetPosition(position);
-  
+  squares->Update();
   mapper->Update();
 }
 //------------------------------------------------------------------------------

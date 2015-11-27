@@ -1593,6 +1593,7 @@ double vvSlicer::GetScalarComponentAsDouble(vtkImageData *image, double X, doubl
 //----------------------------------------------------------------------------
 void vvSlicer::Render()
 { //out << __func__ << endl;
+
   if (this->mFusion && mFusionActor->GetVisibility() && showFusionLegend) {
     legend->SetLookupTable(this->GetFusionMapper()->GetLookupTable());
     legend->UseOpacityOn();
@@ -1748,7 +1749,8 @@ void vvSlicer::Render()
   }
   if (mLandMapper)
     UpdateLandmarks();
-  this->GetRenderWindow()->Render();
+
+    this->GetRenderWindow()->Render();
 }
 //----------------------------------------------------------------------------
 
