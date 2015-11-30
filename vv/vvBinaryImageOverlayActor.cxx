@@ -35,7 +35,7 @@
 
 //------------------------------------------------------------------------------
 vvBinaryImageOverlayActor::vvBinaryImageOverlayActor()
-{ cout << __func__ << endl;
+{ //out << __func__ << endl;
   mTSlice = -1;
   mSlice = 0;
   mColor.resize(3);
@@ -53,7 +53,7 @@ vvBinaryImageOverlayActor::vvBinaryImageOverlayActor()
 
 //------------------------------------------------------------------------------
 vvBinaryImageOverlayActor::~vvBinaryImageOverlayActor()
-{ cout << __func__ << endl;
+{ //out << __func__ << endl;
   mImageActorList.clear();
 }
 //------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ vvBinaryImageOverlayActor::~vvBinaryImageOverlayActor()
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::RemoveActors()
-{ cout << __func__ << endl;
+{ //out << __func__ << endl;
   for (unsigned int i = 0; i < mImageActorList.size(); i++) {
     if (mSlicer != 0) {
       if (mSlicer != NULL) {
@@ -79,7 +79,7 @@ void vvBinaryImageOverlayActor::RemoveActors()
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::SetColor(double r, double g, double b)
-{ cout << __func__ << endl;
+{ //out << __func__ << endl;
   mColor[0] = r;
   mColor[1] = g;
   mColor[2] = b;
@@ -89,7 +89,7 @@ void vvBinaryImageOverlayActor::SetColor(double r, double g, double b)
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::SetSlicer(vvSlicer * slicer)
-{ cout << __func__ << endl;
+{ //out << __func__ << endl;
   mSlicer = slicer;
 }
 //------------------------------------------------------------------------------
@@ -97,7 +97,7 @@ void vvBinaryImageOverlayActor::SetSlicer(vvSlicer * slicer)
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::Initialize(bool IsVisible)
-{ cout << __func__ << endl;
+{ //out << __func__ << endl;
   if (!mSlicer) {
     std::cerr << "ERROR. Please use setSlicer before setSlicer in vvBinaryImageOverlayActor." << std::endl;
     exit(0);
@@ -164,7 +164,7 @@ void vvBinaryImageOverlayActor::Initialize(bool IsVisible)
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::SetOpacity(double d)
-{ cout << __func__ << endl;
+{ //out << __func__ << endl;
   mAlpha = d;
 }
 //------------------------------------------------------------------------------
@@ -206,7 +206,7 @@ void vvBinaryImageOverlayActor::SetOpacity(double d)
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::SetImage(vvImage::Pointer image, double bg, bool modeBG)
-{ cout << __func__ << endl;
+{ //out << __func__ << endl;
   mImage = image;
   if (modeBG) {
     mBackgroundValue = bg;
@@ -222,7 +222,7 @@ void vvBinaryImageOverlayActor::SetImage(vvImage::Pointer image, double bg, bool
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::HideActors()
-{ cout << __func__ << endl;
+{ //out << __func__ << endl;
   if (!mSlicer) return;
   mSlice = mSlicer->GetSlice();
   for(unsigned int i=0; i<mImageActorList.size(); i++) {
@@ -236,7 +236,7 @@ void vvBinaryImageOverlayActor::HideActors()
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::ShowActors()
-{ cout << __func__ << endl;
+{ //out << __func__ << endl;
   if (!mSlicer) return;
   mSlice = mSlicer->GetSlice();
   mTSlice = mSlicer->GetTSlice();
@@ -252,7 +252,7 @@ void vvBinaryImageOverlayActor::ShowActors()
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::UpdateColor()
-{ cout << __func__ << endl;
+{ //out << __func__ << endl;
   mColorLUT->SetTableValue(1, mColor[0], mColor[1], mColor[2], mAlpha); // FG
   for (unsigned int numImage = 0; numImage < mSlicer->GetImage()->GetVTKImages().size(); numImage++) {
     // how many intensity ?
@@ -271,7 +271,7 @@ void vvBinaryImageOverlayActor::UpdateColor()
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::UpdateSlice(int slicer, int slice, bool force)
-{ cout << __func__ << endl;
+{ //out << __func__ << endl;
   if (!mSlicer) return;
 
   if (!force) {
@@ -297,7 +297,6 @@ void vvBinaryImageOverlayActor::UpdateSlice(int slicer, int slice, bool force)
 #else
   mSlicer->ClipDisplayedExtent(maskExtent, mMapperList[mTSlice]->GetInput()->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
 #endif
-mSlicer->Print(cout);
   SetDisplayExtentAndCameraPosition(orientation, mSlice, maskExtent, mImageActorList[mTSlice], mDepth);
 
   // set previous slice
@@ -312,7 +311,7 @@ void vvBinaryImageOverlayActor::ComputeExtent(int orientation,
 					      int slice,
 					      int * inExtent,
 					      int * outExtent)
-{ cout << __func__ << endl;
+{ //out << __func__ << endl;
   switch (orientation) {
   case vtkImageViewer2::SLICE_ORIENTATION_XY:
     for(int i=0; i<4; i++) outExtent[i] = inExtent[i];
@@ -334,7 +333,7 @@ void vvBinaryImageOverlayActor::ComputeExtent(int orientation,
 
 //----------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::ComputeExtent(int * inExtent, int * outExtent, vtkImageData * image, vtkImageData * overlay)
-{ cout << __func__ << endl;
+{ //out << __func__ << endl;
   for(int i=0; i<3; i++) {
     double a = (image->GetOrigin()[i] + inExtent[i*2]*image->GetSpacing()[i] - 
                 overlay->GetOrigin()[i]) / overlay->GetSpacing()[i];
@@ -362,7 +361,7 @@ void vvBinaryImageOverlayActor::SetDisplayExtentAndCameraPosition(int orientatio
 								  int * extent,
 								  vtkImageActor * actor,
 								  double position)
-{ cout << __func__ << endl;
+{ //out << __func__ << endl;
   /* FIXME
      Error according to camera orientation
    */

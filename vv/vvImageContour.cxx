@@ -408,7 +408,6 @@ void vvImageContour::UpdateActor(vtkActor * actor,
   // DD(mDepth);
   // position[orientation] = -mDepth;
   // actor->SetPosition(position);
-  squares->Update();
   mapper->Update();
 }
 //------------------------------------------------------------------------------
