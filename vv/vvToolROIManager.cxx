@@ -467,7 +467,8 @@ void vvToolROIManager::AddImage(vvImage * binaryImage,
   // CheckBox for "All"
   if (actor->IsVisible()) mNumberOfVisibleROI++;
   if (actor->IsContourVisible()) mNumberOfVisibleContourROI++;
-
+  AllVisibleContourROIToggled(true);
+  
   // Add ROI in tree
   mTreeWidgetList.push_back(QSharedPointer<QTreeWidgetItem>(new QTreeWidgetItem(mTree)));
   QTreeWidgetItem * w = mTreeWidgetList.back().data();
