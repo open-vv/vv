@@ -1099,8 +1099,8 @@ void vvSlicer::UpdateDisplayExtent()
 #if VTK_MAJOR_VERSION <= 5
   this->ImageActor->SetDisplayExtent(w_ext);
 #else
-  cout << mReducedExtent[0] << " " << mReducedExtent[1] << " " << mReducedExtent[2] << " " << mReducedExtent[3] << " " << mReducedExtent[4] << " " << mReducedExtent[5] << endl;
   vtkSmartPointer<vtkOpenGLImageSliceMapper> mapperOpenGL= vtkSmartPointer<vtkOpenGLImageSliceMapper>::New();
+
   try {
         mapperOpenGL = dynamic_cast<vtkOpenGLImageSliceMapper*>(GetImageActor()->GetMapper());
   } catch (const std::bad_cast& e) {
@@ -1113,7 +1113,11 @@ void vvSlicer::UpdateDisplayExtent()
     this->ImageActor->SetDisplayExtent(w_ext); //initialisation
   } else {
     int w_croppingRegion[6];
-    copyExtent(mRegisterExtent, w_croppingRegion);
+    if (mUseReducedExtent) {
+        copyExtent(mReducedExtent, w_croppingRegion);
+    } else {
+        copyExtent(mRegisterExtent, w_croppingRegion);
+    }
     this->ImageActor->SetDisplayExtent(w_ext);
     w_croppingRegion[ this->SliceOrientation*2   ] = this->Slice;
     w_croppingRegion[ this->SliceOrientation*2+1 ] = this->Slice;
