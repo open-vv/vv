@@ -3514,6 +3514,7 @@ void vvMainWindow::ShowLastImage()
     QTreeWidgetItem * item=DataTree->topLevelItem(DataTree->topLevelItemCount()-1);
     CurrentImageChanged(mSlicerManagers.back()->GetId()); //select new image
     item->setData(1,Qt::CheckStateRole,2); //show the new image in the first panel
+    //mSlicerManagers[GetSlicerIndexFromItem(item)]->GetSlicer(0)->SetActorVisibility("image", 0, 1); //Set the Last Image visibles
     DisplayChanged(item,1);
   }
 }
@@ -3653,11 +3654,12 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
   connect(mSlicerManagers.back(), SIGNAL(LandmarkAdded()),landmarksPanel,SLOT(AddPoint()));
 
 
+
+  InitSlicers();
   UpdateTree();
   qApp->processEvents();
-  InitSlicers();
-  ShowLastImage();
   InitDisplay();
+  ShowLastImage();
   qApp->processEvents();
   // End
   ImageInfoChanged();
