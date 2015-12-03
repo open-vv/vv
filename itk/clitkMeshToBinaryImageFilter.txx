@@ -140,7 +140,7 @@ GenerateData()
 #if VTK_MAJOR_VERSION <= 5
     sts->SetInput(extrude->GetOutput());
 #else
-    sts->SetInputData(extrude->GetOutput());
+    sts->SetInputConnection(extrude->GetOutputPort());
 #endif
     
     // When extrude ScaleFactor indicate the extrusion scaling (default = 1)

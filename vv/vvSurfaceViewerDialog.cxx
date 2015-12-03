@@ -114,7 +114,7 @@ void vvSurfaceViewerDialog::LoadSurface()
 #if VTK_MAJOR_VERSION <= 5
   mMapper->SetInput(mReaders[mCurrentTime]->GetOutput());
 #else
-  mMapper->SetInputData(mReaders[mCurrentTime]->GetOutput());
+  mMapper->SetInputConnection(mReaders[mCurrentTime]->GetOutputPort());
 #endif
 
   if (!mActor) {
@@ -147,7 +147,7 @@ void vvSurfaceViewerDialog::NextTime()
 #if VTK_MAJOR_VERSION <= 5
   mMapper->SetInput(mReaders[mCurrentTime]->GetOutput());
 #else
-  mMapper->SetInputData(mReaders[mCurrentTime]->GetOutput());
+  mMapper->SetInputConnection(mReaders[mCurrentTime]->GetOutputPort());
 #endif
   mMapper->Modified();
   renderWidget->GetRenderWindow()->Render();
@@ -161,7 +161,7 @@ void vvSurfaceViewerDialog::PreviousTime()
 #if VTK_MAJOR_VERSION <= 5
   mMapper->SetInput(mReaders[mCurrentTime]->GetOutput());
 #else
-  mMapper->SetInputData(mReaders[mCurrentTime]->GetOutput());
+  mMapper->SetInputConnection(mReaders[mCurrentTime]->GetOutputPort());
 #endif
   mMapper->Modified();
   renderWidget->GetRenderWindow()->Render();

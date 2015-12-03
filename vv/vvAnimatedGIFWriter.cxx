@@ -74,7 +74,7 @@ void vvAnimatedGIFWriter::End()
 #if VTK_MAJOR_VERSION <= 5
   quant->SetInput(RGBvolume->GetOutput());
 #else
-  quant->SetInputData(RGBvolume->GetOutput());
+  quant->SetInputConnection(RGBvolume->GetOutputPort());
 #endif
   quant->Update();
 
@@ -83,7 +83,7 @@ void vvAnimatedGIFWriter::End()
 #if VTK_MAJOR_VERSION <= 5
   cast->SetInput( quant->GetOutput() );
 #else
-  cast->SetInputData( quant->GetOutput() );
+  cast->SetInputConnection( quant->GetOutputPort() );
 #endif
   cast->SetOutputScalarTypeToUnsignedChar();
   cast->Update();
