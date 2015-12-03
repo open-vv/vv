@@ -430,7 +430,7 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
 #if VTK_MAJOR_VERSION <= 5
     mOverlayMapper->SetInput(mOverlayReslice->GetOutput());
 #else
-    mOverlayMapper->SetInputData(mOverlayReslice->GetOutput());
+    mOverlayMapper->SetInputConnection(mOverlayReslice->GetOutputPort(0));
 #endif
 
     if (!mOverlayActor) {
@@ -840,7 +840,6 @@ void vvSlicer::SetTSlice(int t, bool updateLinkedImages)
 #else
       mOverlayReslice->SetInputData( mOverlay->GetVTKImages()[mCurrentOverlayTSlice] );
 #endif
-
       // Update overlay transform
       mConcatenatedOverlayTransform->Identity();
       mConcatenatedOverlayTransform->Concatenate(mOverlay->GetTransform()[mCurrentOverlayTSlice]);
