@@ -191,7 +191,7 @@ void vvMesh::ComputeMasks(vtkImageData* sample,bool extrude)
 #if VTK_MAJOR_VERSION <= 5
       sts->SetInput(extrude->GetOutput());
 #else
-      sts->SetInputData(extrude->GetOutput());
+      sts->SetInputConnection(extrude->GetOutputPort());
 #endif
     } else {
 #if VTK_MAJOR_VERSION <= 5

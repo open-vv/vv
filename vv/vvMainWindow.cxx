@@ -3271,7 +3271,7 @@ void vvMainWindow::SaveScreenshotAllSlices()
 #if VTK_MAJOR_VERSION <= 5
     writer->SetInput(windowToImageFilter->GetOutput());
 #else
-    writer->SetInputData(windowToImageFilter->GetOutput());
+    writer->SetInputConnection(windowToImageFilter->GetOutputPort());
 #endif
     writer->Write();
   }
@@ -3329,7 +3329,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 #if VTK_MAJOR_VERSION <= 5
       imgwriter->SetInput(image);
 #else
-      imgwriter->SetInputData(image);
+      imgwriter->SetInputConnection(w2i->GetOutputPort());
 #endif
       imgwriter->SetFileName(fileName.toStdString().c_str());
       imgwriter->Write();
@@ -3403,7 +3403,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 #if VTK_MAJOR_VERSION <= 5
       vidwriter->SetInput(image);
 #else
-      vidwriter->SetInputData(image);
+      vidwriter->SetInputConnection(w2i->GetOutputPort());
 #endif
       vidwriter->SetFileName(fileName.toStdString().c_str());
       vidwriter->Start();
@@ -3416,7 +3416,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 #if VTK_MAJOR_VERSION <= 5
         vidwriter->SetInput(w2i->GetOutput());
 #else
-        vidwriter->SetInputData(w2i->GetOutput());
+        vidwriter->SetInputConnection(w2i->GetOutputPort());
 #endif
         vidwriter->Write();
       }
@@ -3514,6 +3514,7 @@ void vvMainWindow::ShowLastImage()
     QTreeWidgetItem * item=DataTree->topLevelItem(DataTree->topLevelItemCount()-1);
     CurrentImageChanged(mSlicerManagers.back()->GetId()); //select new image
     item->setData(1,Qt::CheckStateRole,2); //show the new image in the first panel
+    //mSlicerManagers[GetSlicerIndexFromItem(item)]->GetSlicer(0)->SetActorVisibility("image", 0, 1); //Set the Last Image visibles
     DisplayChanged(item,1);
   }
 }
@@ -3653,13 +3654,13 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
   connect(mSlicerManagers.back(), SIGNAL(LandmarkAdded()),landmarksPanel,SLOT(AddPoint()));
 
 
+
+  InitSlicers();
   UpdateTree();
   qApp->processEvents();
-  InitSlicers();
-  ShowLastImage();
   InitDisplay();
+  ShowLastImage();
   qApp->processEvents();
-
   // End
   ImageInfoChanged();
   return slicer_manager;

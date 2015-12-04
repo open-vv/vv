@@ -128,7 +128,7 @@ vvSlicer::vvSlicer()
 #if VTK_MAJOR_VERSION <= 5
   pdm->SetInput(crossCursor->GetOutput());
 #else
-  pdm->SetInputData(crossCursor->GetOutput());
+  pdm->SetInputConnection(crossCursor->GetOutputPort(0));
 #endif
 
   pdmA = vtkSmartPointer<vtkActor2D>::New();
@@ -422,7 +422,6 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
 #else
     mOverlayReslice->SetInputData(0, mOverlay->GetFirstVTKImageData());
 #endif
-    mImageReslice->UpdateInformation();
     mOverlayReslice->Update();
 
     if (!mOverlayMapper)
@@ -430,7 +429,7 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
 #if VTK_MAJOR_VERSION <= 5
     mOverlayMapper->SetInput(mOverlayReslice->GetOutput());
 #else
-    mOverlayMapper->SetInputData(mOverlayReslice->GetOutput());
+    mOverlayMapper->SetInputConnection(mOverlayReslice->GetOutputPort(0));
 #endif
 
     if (!mOverlayActor) {
@@ -503,7 +502,7 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion, int fusionSequenceCode)
 #if VTK_MAJOR_VERSION <= 5
     mFusionMapper->SetInput(mFusionReslice->GetOutput());
 #else
-    mFusionMapper->SetInputData(mFusionReslice->GetOutput());
+    mFusionMapper->SetInputConnection(mFusionReslice->GetOutputPort(0));
 #endif
     
     if (!mFusionActor) {
@@ -840,7 +839,6 @@ void vvSlicer::SetTSlice(int t, bool updateLinkedImages)
 #else
       mOverlayReslice->SetInputData( mOverlay->GetVTKImages()[mCurrentOverlayTSlice] );
 #endif
-
       // Update overlay transform
       mConcatenatedOverlayTransform->Identity();
       mConcatenatedOverlayTransform->Concatenate(mOverlay->GetTransform()[mCurrentOverlayTSlice]);
@@ -1096,9 +1094,8 @@ void vvSlicer::UpdateDisplayExtent()
   
   // Image actor
   this->ImageActor->SetVisibility(mImageVisibility);
-#if VTK_MAJOR_VERSION <= 5
   this->ImageActor->SetDisplayExtent(w_ext);
-#else
+#if VTK_MAJOR_VERSION >= 6
   vtkSmartPointer<vtkOpenGLImageSliceMapper> mapperOpenGL= vtkSmartPointer<vtkOpenGLImageSliceMapper>::New();
 
   try {
@@ -1110,7 +1107,6 @@ void vvSlicer::UpdateDisplayExtent()
   }
   if (mFirstSetSliceOrientation) {
     copyExtent(ext, mRegisterExtent);
-    this->ImageActor->SetDisplayExtent(w_ext); //initialisation
   } else {
     int w_croppingRegion[6];
     if (mUseReducedExtent) {
@@ -1121,7 +1117,7 @@ void vvSlicer::UpdateDisplayExtent()
     this->ImageActor->SetDisplayExtent(w_ext);
     w_croppingRegion[ this->SliceOrientation*2   ] = this->Slice;
     w_croppingRegion[ this->SliceOrientation*2+1 ] = this->Slice;
-    mapperOpenGL->SetCroppingRegion(w_croppingRegion);
+    mapperOpenGL->SetCroppingRegion(w_croppingRegion);    
   }
 #endif 
   
@@ -1138,7 +1134,7 @@ void vvSlicer::UpdateDisplayExtent()
 #if VTK_MAJOR_VERSION <= 5
     bool out = ClipDisplayedExtent(overExtent, mOverlayMapper->GetInput()->GetWholeExtent());
 #else
-    bool out = ClipDisplayedExtent(overExtent, mOverlayMapper->GetInput()->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
+    bool out = ClipDisplayedExtent(overExtent, mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
 #endif
     mOverlayActor->SetVisibility(!out);
     mOverlayActor->SetDisplayExtent( overExtent );
@@ -1158,7 +1154,7 @@ void vvSlicer::UpdateDisplayExtent()
 #if VTK_MAJOR_VERSION <= 5
     bool out = ClipDisplayedExtent(fusExtent, mFusionMapper->GetInput()->GetWholeExtent());
 #else
-    bool out = ClipDisplayedExtent(fusExtent, mFusionMapper->GetInput()->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
+    bool out = ClipDisplayedExtent(fusExtent, mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
 #endif
     mFusionActor->SetVisibility(!out);
     mFusionActor->SetDisplayExtent( fusExtent );
@@ -1554,7 +1550,7 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max, vtkImag
 #if VTK_MAJOR_VERSION <= 5
   accFilter->SetInput(voiFilter->GetOutput());
 #else
-  accFilter->SetInputData(voiFilter->GetOutput());
+  accFilter->SetInputConnection(voiFilter->GetOutputPort(0));
 #endif
   accFilter->Update();
 
@@ -1598,6 +1594,7 @@ double vvSlicer::GetScalarComponentAsDouble(vtkImageData *image, double X, doubl
 //----------------------------------------------------------------------------
 void vvSlicer::Render()
 { //out << __func__ << endl;
+
   if (this->mFusion && mFusionActor->GetVisibility() && showFusionLegend) {
     legend->SetLookupTable(this->GetFusionMapper()->GetLookupTable());
     legend->UseOpacityOn();
@@ -1754,7 +1751,7 @@ void vvSlicer::Render()
   if (mLandMapper)
     UpdateLandmarks();
 
-  this->GetRenderWindow()->Render();
+    this->GetRenderWindow()->Render();
 }
 //----------------------------------------------------------------------------
 
