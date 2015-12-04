@@ -128,7 +128,7 @@ vvSlicer::vvSlicer()
 #if VTK_MAJOR_VERSION <= 5
   pdm->SetInput(crossCursor->GetOutput());
 #else
-  pdm->SetInputData(crossCursor->GetOutput());
+  pdm->SetInputConnection(crossCursor->GetOutputPort(0));
 #endif
 
   pdmA = vtkSmartPointer<vtkActor2D>::New();
@@ -1549,7 +1549,7 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max, vtkImag
 #if VTK_MAJOR_VERSION <= 5
   accFilter->SetInput(voiFilter->GetOutput());
 #else
-  accFilter->SetInputData(voiFilter->GetOutput());
+  accFilter->SetInputConnection(voiFilter->GetOutputPort(0));
 #endif
   accFilter->Update();
 
