@@ -3271,7 +3271,7 @@ void vvMainWindow::SaveScreenshotAllSlices()
 #if VTK_MAJOR_VERSION <= 5
     writer->SetInput(windowToImageFilter->GetOutput());
 #else
-    writer->SetInputData(windowToImageFilter->GetOutput());
+    writer->SetInputConnection(windowToImageFilter->GetOutputPort());
 #endif
     writer->Write();
   }
@@ -3329,7 +3329,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 #if VTK_MAJOR_VERSION <= 5
       imgwriter->SetInput(image);
 #else
-      imgwriter->SetInputData(image);
+      imgwriter->SetInputConnection(w2i->GetOutputPort());
 #endif
       imgwriter->SetFileName(fileName.toStdString().c_str());
       imgwriter->Write();
@@ -3403,7 +3403,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 #if VTK_MAJOR_VERSION <= 5
       vidwriter->SetInput(image);
 #else
-      vidwriter->SetInputData(image);
+      vidwriter->SetInputConnection(w2i->GetOutputPort());
 #endif
       vidwriter->SetFileName(fileName.toStdString().c_str());
       vidwriter->Start();
@@ -3416,7 +3416,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 #if VTK_MAJOR_VERSION <= 5
         vidwriter->SetInput(w2i->GetOutput());
 #else
-        vidwriter->SetInputData(w2i->GetOutput());
+        vidwriter->SetInputConnection(w2i->GetOutputPort());
 #endif
         vidwriter->Write();
       }
