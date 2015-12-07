@@ -1684,7 +1684,6 @@ void vvSlicerManager::AddLandmark(float x,float y,float z,float t)
   double x_index = (x - mSlicers[0]->GetInput()->GetOrigin()[0])/mSlicers[0]->GetInput()->GetSpacing()[0];
   double y_index = (y - mSlicers[0]->GetInput()->GetOrigin()[1])/mSlicers[0]->GetInput()->GetSpacing()[1];
   double z_index = (z - mSlicers[0]->GetInput()->GetOrigin()[2])/mSlicers[0]->GetInput()->GetSpacing()[2];
-  cout << x_index << " " << y_index << " " << z_index << endl;
 #if VTK_MAJOR_VERSION <= 5
   if (x_index >= mSlicers[0]->GetInput()->GetWholeExtent()[0]-0.5 &&
       x_index <= mSlicers[0]->GetInput()->GetWholeExtent()[1]+0.5 &&
