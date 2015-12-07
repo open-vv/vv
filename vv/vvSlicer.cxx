@@ -583,7 +583,7 @@ void vvSlicer::SetVF(vvImage::Pointer vf)
     mAAFilter->SetInput(mVOIFilter->GetOutput());
 #else
     mVOIFilter->SetInputData(vf->GetFirstVTKImageData());
-    mAAFilter->SetInputData(mVOIFilter->GetOutput());
+    mAAFilter->SetInputConnection(mVOIFilter->GetOutputPort());
 #endif
     ///This tells VTK to use the scalar (pixel) data of the image to draw the little arrows
     mAAFilter->Assign(vtkDataSetAttributes::SCALARS, vtkDataSetAttributes::VECTORS, vtkAssignAttribute::POINT_DATA);
@@ -601,8 +601,8 @@ void vvSlicer::SetVF(vvImage::Pointer vf)
     mGlyphFilter->SetInput(mAAFilter->GetOutput());
     mGlyphFilter->SetSource(mArrow->GetOutput());
 #else
-    mGlyphFilter->SetInputData(mAAFilter->GetOutput());
-    mGlyphFilter->SetSourceData(mArrow->GetOutput());
+    mGlyphFilter->SetInputConnection(mAAFilter->GetOutputPort());
+    mGlyphFilter->SetSourceConnection(mArrow->GetOutputPort());
 #endif
     mGlyphFilter->ScalingOn();
     mGlyphFilter->SetScaleModeToScaleByVector();
@@ -624,7 +624,7 @@ void vvSlicer::SetVF(vvImage::Pointer vf)
 #if VTK_MAJOR_VERSION <= 5
     mVFMapper->SetInput(mGlyphFilter->GetOutput());
 #else
-    mVFMapper->SetInputData(mGlyphFilter->GetOutput());
+    mVFMapper->SetInputConnection(mGlyphFilter->GetOutputPort());
 #endif
     mVFMapper->ImmediateModeRenderingOn();
     mVFMapper->SetLookupTable(mVFColorLUT);
@@ -1188,17 +1188,18 @@ void vvSlicer::UpdateDisplayExtent()
 #if VTK_MAJOR_VERSION <= 5
     bool out = ClipDisplayedExtent(vfExtent, mVOIFilter->GetInput()->GetWholeExtent());
 #else
-    bool out = ClipDisplayedExtent(vfExtent, mVOIFilter->GetInput()->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
+    bool out = ClipDisplayedExtent(vfExtent, this->GetExtent());
 #endif
     mVFActor->SetVisibility(!out);
     mVOIFilter->SetVOI(vfExtent);
     int orientation[3] = {1,1,1};
     orientation[this->SliceOrientation] = 0;
     mGlyphFilter->SetOrientation(orientation[0], orientation[1], orientation[2]);
-    mVFMapper->Update();
-
     position[this->SliceOrientation] += offset;
     mVFActor->SetPosition(position);
+    mVFActor->GetProperty()->SetOpacity(0.995);
+    mVFMapper->Update();
+
   }
   else if(mVF)
     mVFActor->SetVisibility(false);
