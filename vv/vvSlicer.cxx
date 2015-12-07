@@ -678,8 +678,8 @@ void vvSlicer::SetLandmarks(vvLandmarks* landmarks)
 #else
     mLandClipper->SetInputData(mLandmarks->GetOutput());
 
-    mLandGlyph->SetSourceData(mCross->GetOutput());
-    mLandGlyph->SetInputData(mLandClipper->GetOutput());
+    mLandGlyph->SetSourceConnection(mCross->GetOutputPort());
+    mLandGlyph->SetInputConnection(mLandClipper->GetOutputPort());
 #endif
     //mLandGlyph->SetIndexModeToScalar();
     //mLandGlyph->SetRange(0,1);
@@ -694,6 +694,7 @@ void vvSlicer::SetLandmarks(vvLandmarks* landmarks)
     //mLandMapper->ScalarVisibilityOff();
 
     mLandActor->SetMapper(mLandMapper);
+    mLandActor->GetProperty()->SetOpacity(0.995);
     mLandActor->GetProperty()->SetColor(255,10,212);
     mLandActor->SetPickable(0);
     mLandActor->SetVisibility(true);
