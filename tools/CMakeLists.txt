@@ -153,11 +153,6 @@ if(CLITK_BUILD_TOOLS)
   target_link_libraries(clitkUnsharpMask clitkCommon )
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkUnsharpMask)
 
-  WRAP_GGO(clitkFooImage_GGO_C clitkFooImage.ggo)
-  add_executable(clitkFooImage clitkFooImage.cxx ${clitkFooImage_GGO_C})
-  target_link_libraries(clitkFooImage clitkCommon )
-  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkFooImage)
-
   WRAP_GGO(clitkMedianImageFilter_GGO_C clitkMedianImageFilter.ggo)
   add_executable(clitkMedianImageFilter clitkMedianImageFilter.cxx ${clitkMedianImageFilter_GGO_C})
   target_link_libraries(clitkMedianImageFilter clitkMedianImageFilterLib clitkCommon)
@@ -250,6 +245,11 @@ if(CLITK_BUILD_TOOLS)
   add_executable(clitkMIP clitkMIP.cxx clitkMIPGenericFilter.cxx)
   target_link_libraries(clitkMIP clitkMIPLib clitkCommon)
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMIP)
+
+  WRAP_GGO(clitkSum_GGO_C clitkSum.ggo)
+  add_executable(clitkSum clitkSum.cxx ${clitkSum_GGO_C})
+  target_link_libraries(clitkSum clitkCommon)
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkSum)
 
   WRAP_GGO(clitkTransformLandmarks_GGO_C clitkTransformLandmarks.ggo)
   add_executable(clitkTransformLandmarks clitkTransformLandmarks.cxx ${clitkTransformLandmarks_GGO_C})

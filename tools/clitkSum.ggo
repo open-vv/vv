@@ -1,5 +1,5 @@
-#File clitkFooImage.ggo
-package "clitkFooImage"
+#File clitkSum.ggo
+package "clitkSum"
 version "1.0"
 purpose ""
 
@@ -10,4 +10,4 @@ option "imagetypes" 	-   	"Display allowed image types"	  flag		off
 
 option "input"		i	"Input image filename"		  string  	required
 option "output"    	o   	"Output image filename"		  string 	required
-
+option "dimension"    	d   	"Dimension along which to sum"	  int           yes
