@@ -265,7 +265,7 @@ void vvToolCropImage::apply()
   }
   // We MUST reset initial extend to input image before using the
   // filter to retrieve the correct image size
-  for(int i=0; i<mExtentSize; i++) {
+  for(int i=0; i<6; i++) {
     mReducedExtent[i] = mInitialExtent[i];
   }
   
