@@ -148,7 +148,6 @@ public:
   double* GetCursorPosition() {
     return mCursor;
   }
-
   vtkTransform * GetSlicingTransform() { return mSlicingTransform; }
   vtkTransform * GetConcatenatedTransform() { return mConcatenatedTransform; }
   vtkTransform * GetConcatenatedFusionTransform() { return mConcatenatedFusionTransform; }

@@ -22,6 +22,7 @@ set(vv_TOOLS
   vvToolROIManager
   vvToolSegmentation
   ## these ones are for tests (not working)
+  # vvToolTest
   # vvToolFoo
   # vvToolFooWithWidgetBase
   # vvToolPlastimatch

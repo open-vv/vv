@@ -66,7 +66,7 @@ void vvMeshActor::Init(vvMesh::Pointer mesh,int time_slice,vvImage::Pointer vf)
 #if VTK_MAJOR_VERSION <= 5
   mMapper->SetInput(mMarching->GetOutput());
 #else
-  mMapper->SetInputData(mMarching->GetOutput());
+  mMapper->SetInputConnection(mMarching->GetOutputPort());
 #endif
   //The following line allows to display the contour over the image
   //(http://www.nabble.com/What-happens-when-two-actors-are-at-the-same-depth--td23175458.html)

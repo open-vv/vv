@@ -359,6 +359,7 @@ void vvToolRigidReg::SetTransform(vtkMatrix4x4 *matrix)
   vtkSmartPointer<vtkTransform> transform=vtkSmartPointer<vtkTransform>::New();
   // TODO SR and BP: check on the list of transforms and not the first only
   mCurrentSlicerManager->GetImage()->GetTransform()[0]->SetMatrix(matrix);
+  //mCurrentSlicerManager->GetSlicer(2)->GetSlicingTransform()->SetMatrix(matrix);
   transform->Update();
   Render();
   dynamic_cast<vvMainWindow*>(mMainWindow)->ImageInfoChanged();
@@ -409,7 +410,7 @@ void vvToolRigidReg::SetTransform(vtkMatrix4x4 *matrix)
       rotSliders[i]->setValue(iAngle);
       rotSliders[i]->blockSignals(false);
     }
-  }
+  }cout << euler->GetParameters()[0+3] << " " << euler->GetParameters()[1+3] << " " << euler->GetParameters()[2+3] << endl;
 }
 //------------------------------------------------------------------------------
 
@@ -460,7 +461,7 @@ void vvToolRigidReg::ExtentMax(const double pointExtent[8][4], double maxExtent[
 //------------------------------------------------------------------------------
 void vvToolRigidReg::Render()
 { //out << __func__ << endl;
-#if VTK_MAJOR_VERSION > 5
+#if VTK_MAJOR_VERSION > 7
 double translationValues[4], translationValuesUpdate[4];
 mCurrentSlicerManager->GetImage()->GetTransform()[0]->Print(cout);
 vtkMatrix4x4* matrix = mCurrentSlicerManager->GetImage()->GetTransform()[0]->GetMatrix();
@@ -486,7 +487,7 @@ for (int i=0; i<4; ++i) {
 
 #endif
 for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
-#if VTK_MAJOR_VERSION > 5 
+#if VTK_MAJOR_VERSION > 7
     double pointExtent[8][4], pointExtentUpdate[8][4], pointOverlayExtent[8][4], pointOverlayExtentUpdate[8][4], centre[3], translation[3];
     std::vector<int> w_ext;
     w_ext=mCurrentSlicerManager->GetImage()->GetSize();

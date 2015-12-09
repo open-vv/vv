@@ -31,7 +31,6 @@
 #include <vtkImageStencil.h>
 #include <vtkLinearExtrusionFilter.h>
 #include <vtkMetaImageWriter.h>
-#include <vtkVersion.h>
 
 
 //--------------------------------------------------------------------
