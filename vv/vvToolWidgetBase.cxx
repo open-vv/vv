@@ -38,7 +38,7 @@ bool vvToolWidgetBase::mIsAnotherToolWaitInput = false;
 vvToolWidgetBase::vvToolWidgetBase(vvMainWindowBase * parent, Qt::WindowFlags f, bool initialize):
   QWidget(parent, f),
   Ui::vvToolWidgetBase()
-{ //out << __func__ << endl;
+{ 
   mMainWindow = parent;
   setAttribute(Qt::WA_DeleteOnClose);
   if (initialize) Initialization();
@@ -116,7 +116,7 @@ vvToolWidgetBase::vvToolWidgetBase(vvMainWindowBase * parent, Qt::WindowFlags f,
 
 //------------------------------------------------------------------------------
 void vvToolWidgetBase::Initialization() 
-{ //out << __func__ << endl;
+{ 
   mCurrentSlicerManager = 0;
   mIsInitialized = false;
   mFilter = 0;
@@ -139,14 +139,14 @@ void vvToolWidgetBase::Initialization()
 
 //------------------------------------------------------------------------------
 vvToolWidgetBase::~vvToolWidgetBase()
-{ //out << __func__ << endl;
+{ 
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
 void vvToolWidgetBase::keyPressEvent(QKeyEvent *event) 
-{ //out << __func__ << endl;
+{ 
   if (event->key() == Qt::Key_Escape) {
     reject();
     event->accept();
@@ -164,7 +164,7 @@ void vvToolWidgetBase::keyPressEvent(QKeyEvent *event)
 
 //------------------------------------------------------------------------------
 void vvToolWidgetBase::accept()
-{ //out << __func__ << endl;
+{ 
   apply();
 }
 //------------------------------------------------------------------------------
@@ -172,7 +172,7 @@ void vvToolWidgetBase::accept()
 
 //------------------------------------------------------------------------------
 void vvToolWidgetBase::reject()
-{ //out << __func__ << endl;
+{ 
   close();
 }
 //------------------------------------------------------------------------------
@@ -180,7 +180,7 @@ void vvToolWidgetBase::reject()
 
 //------------------------------------------------------------------------------
 void vvToolWidgetBase::AddInputSelector(QString s, clitk::ImageToImageGenericFilterBase * f, bool allowSkip)
-{ //out << __func__ << endl;
+{ 
   int j=0;
   mFilter = f;
   mSlicerManagersCompatible.clear();
@@ -219,7 +219,7 @@ void vvToolWidgetBase::AddInputSelector(QString s, clitk::ImageToImageGenericFil
 
 //------------------------------------------------------------------------------
 void vvToolWidgetBase::AddInputSelector(QString s, bool allowSkip)
-{ //out << __func__ << endl;
+{ 
   mSlicerManagersCompatible.clear();
   for(unsigned int i=0; i<mMainWindow->GetSlicerManagers().size(); i++) {
     mSlicerManagersCompatible.push_back(mMainWindow->GetSlicerManagers()[i]);
@@ -245,7 +245,7 @@ void vvToolWidgetBase::AddInputSelector(QString s, bool allowSkip)
 
 //------------------------------------------------------------------------------
 void vvToolWidgetBase::HideInputSelector()
-{ //out << __func__ << endl;
+{ 
   mToolInputSelectionWidget->hide();
 }
 //------------------------------------------------------------------------------
@@ -253,7 +253,7 @@ void vvToolWidgetBase::HideInputSelector()
 
 //------------------------------------------------------------------------------
 void vvToolWidgetBase::show()
-{ //out << __func__ << endl;
+{ 
   if (!mIsInitialized) {
     mToolInputSelectionWidget->Initialize();
     mIsInitialized = true;
@@ -265,7 +265,7 @@ void vvToolWidgetBase::show()
 
 //------------------------------------------------------------------------------
 void vvToolWidgetBase::closeEvent(QCloseEvent *event) 
-{ //out << __func__ << endl;
+{ 
   mIsAnotherToolWaitInput = false;
   if (isWindow()) {
     event->accept();//return QWidget::close();
@@ -292,7 +292,7 @@ void vvToolWidgetBase::closeEvent(QCloseEvent *event)
 
 //------------------------------------------------------------------------------
 bool vvToolWidgetBase::close()
-{ //out << __func__ << endl;
+{ 
   QApplication::restoreOverrideCursor();
   return QWidget::close();
 }
@@ -301,7 +301,7 @@ bool vvToolWidgetBase::close()
 
 //------------------------------------------------------------------------------
 void vvToolWidgetBase::AnImageIsBeingClosed(vvSlicerManager * m)
-{ //out << __func__ << endl;
+{ 
   mToolInputSelectionWidget->AnImageIsBeingClosed(m);
   if (m == mCurrentSlicerManager) {
     close();
@@ -312,7 +312,7 @@ void vvToolWidgetBase::AnImageIsBeingClosed(vvSlicerManager * m)
 
 //------------------------------------------------------------------------------
 void vvToolWidgetBase::SwapCurrentWidget()
-{ //out << __func__ << endl;
+{ 
   mStaticWidgetForTab->setUpdatesEnabled(false);
   QList<QObject*> l =mStaticWidgetForTab->children(); 
   for(int i=1; i<l.size(); i++) {
@@ -331,7 +331,7 @@ void vvToolWidgetBase::SwapCurrentWidget()
 
 //------------------------------------------------------------------------------
 void vvToolWidgetBase::SelectedImageHasChanged(vvSlicerManager * m)
-{ //out << __func__ << endl;
+{ 
   if (!isWindow()) { // When the tool is not in a window, it is in a tab : we only display if needed
     if (mCurrentSlicerManager == NULL) return;
     if (mToolWidget == NULL) return;
@@ -349,14 +349,14 @@ void vvToolWidgetBase::SelectedImageHasChanged(vvSlicerManager * m)
 
 //------------------------------------------------------------------------------
 void vvToolWidgetBase::InitializeInputs()
-{ //out << __func__ << endl;
+{ 
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
 void vvToolWidgetBase::InputIsSelected()
-{ //out << __func__ << endl;
+{ 
   mMainButtonBox->setEnabled(true);
   std::vector<vvSlicerManager*> & l = mToolInputSelectionWidget->GetSelectedInputs();
   mCurrentSlicerManager = l[0];
@@ -372,7 +372,7 @@ void vvToolWidgetBase::InputIsSelected()
 
 //------------------------------------------------------------------------------
 void vvToolWidgetBase::InputIsSelected(vvSlicerManager * m)
-{ //out << __func__ << endl;
+{ 
   std::cerr << "You MUST overwrite this method vvToolWidgetBase::InputIsSelected(vvSlicerManager * m) if you use one single input" << std::endl;
   exit(0);
 }
@@ -381,7 +381,7 @@ void vvToolWidgetBase::InputIsSelected(vvSlicerManager * m)
 
 //------------------------------------------------------------------------------
 void vvToolWidgetBase::InputIsSelected(std::vector<vvSlicerManager*> & l)
-{ //out << __func__ << endl;
+{ 
   mMainButtonBox->setEnabled(true);
   if (l.size() == 1) InputIsSelected(l[0]);
   else {

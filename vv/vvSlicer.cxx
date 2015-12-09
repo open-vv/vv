@@ -90,7 +90,7 @@ static void copyExtent(int* in, int* to){
 }
 //------------------------------------------------------------------------------
 vvSlicer::vvSlicer()
-{ //out << __func__ << endl;
+{ 
 	mFusionSequenceCode = -1;
   this->UnInstallPipeline();
   mImage = NULL;
@@ -176,7 +176,7 @@ vvSlicer::vvSlicer()
 
 //------------------------------------------------------------------------------
 vtkImageMapToWindowLevelColors* vvSlicer::GetOverlayMapper()
-{ //out << __func__ << endl;
+{ 
   return mOverlayMapper.GetPointer();
 }
 //------------------------------------------------------------------------------
@@ -184,7 +184,7 @@ vtkImageMapToWindowLevelColors* vvSlicer::GetOverlayMapper()
 
 //------------------------------------------------------------------------------
 vvBlendImageActor* vvSlicer::GetOverlayActor()
-{ //out << __func__ << endl;
+{ 
   return mOverlayActor.GetPointer();
 }
 //------------------------------------------------------------------------------
@@ -192,7 +192,7 @@ vvBlendImageActor* vvSlicer::GetOverlayActor()
 
 //------------------------------------------------------------------------------
 vtkImageMapToColors* vvSlicer::GetFusionMapper()
-{ //out << __func__ << endl;
+{ 
   return mFusionMapper.GetPointer();
 }
 //------------------------------------------------------------------------------
@@ -200,7 +200,7 @@ vtkImageMapToColors* vvSlicer::GetFusionMapper()
 
 //------------------------------------------------------------------------------
 vtkImageActor* vvSlicer::GetFusionActor()
-{ //out << __func__ << endl;
+{ 
   return mFusionActor.GetPointer();
 }
 //------------------------------------------------------------------------------
@@ -208,7 +208,7 @@ vtkImageActor* vvSlicer::GetFusionActor()
 
 //------------------------------------------------------------------------------
 vtkActor* vvSlicer::GetVFActor()
-{ //out << __func__ << endl;
+{ 
   return mVFActor.GetPointer();
 }
 //------------------------------------------------------------------------------
@@ -216,7 +216,7 @@ vtkActor* vvSlicer::GetVFActor()
 
 //------------------------------------------------------------------------------
 vtkCornerAnnotation* vvSlicer::GetAnnotation()
-{ //out << __func__ << endl;
+{ 
   return ca.GetPointer();
 }
 //------------------------------------------------------------------------------
@@ -224,7 +224,7 @@ vtkCornerAnnotation* vvSlicer::GetAnnotation()
 
 //------------------------------------------------------------------------------
 void vvSlicer::EnableReducedExtent(bool b)
-{ //out << __func__ << endl;
+{ 
   mUseReducedExtent = b;
 }
 //------------------------------------------------------------------------------
@@ -232,7 +232,7 @@ void vvSlicer::EnableReducedExtent(bool b)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetReducedExtent(int * ext)
-{ //out << __func__ << endl;
+{ 
   copyExtent(ext, mReducedExtent);
 }
 //------------------------------------------------------------------------------
@@ -240,7 +240,7 @@ void vvSlicer::SetReducedExtent(int * ext)
 
 //------------------------------------------------------------------------------
 void vvSlicer::AddContour(vvMesh::Pointer contour,bool propagate)
-{ //out << __func__ << endl;
+{ 
 
   mSurfaceCutActors.push_back(new vvMeshActor());
   if (propagate)
@@ -257,7 +257,7 @@ void vvSlicer::AddContour(vvMesh::Pointer contour,bool propagate)
 
 //------------------------------------------------------------------------------
 void vvSlicer::ToggleContourSuperposition()
-{ //out << __func__ << endl;
+{ 
   for (std::vector<vvMeshActor*>::iterator i=mSurfaceCutActors.begin();
        i!=mSurfaceCutActors.end(); i++)
     (*i)->ToggleSuperposition();
@@ -267,7 +267,7 @@ void vvSlicer::ToggleContourSuperposition()
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetCursorColor(int r,int g, int b)
-{ //out << __func__ << endl;
+{ 
   pdmA->GetProperty()->SetColor(r,g,b);
 }
 //------------------------------------------------------------------------------
@@ -275,7 +275,7 @@ void vvSlicer::SetCursorColor(int r,int g, int b)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetCursorVisibility(bool s)
-{ //out << __func__ << endl;
+{ 
   pdmA->SetVisibility(s);
 }
 //------------------------------------------------------------------------------
@@ -283,7 +283,7 @@ void vvSlicer::SetCursorVisibility(bool s)
 
 //------------------------------------------------------------------------------
 bool vvSlicer::GetCursorVisibility()
-{ //out << __func__ << endl;
+{ 
   return pdmA->GetVisibility();
 }
 //------------------------------------------------------------------------------
@@ -291,7 +291,7 @@ bool vvSlicer::GetCursorVisibility()
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetCornerAnnotationVisibility(bool s)
-{ //out << __func__ << endl;
+{ 
   ca->SetVisibility(s);
 }
 //------------------------------------------------------------------------------
@@ -299,7 +299,7 @@ void vvSlicer::SetCornerAnnotationVisibility(bool s)
 
 //------------------------------------------------------------------------------
 bool vvSlicer::GetCornerAnnotationVisibility()
-{ //out << __func__ << endl;
+{ 
   return ca->GetVisibility();
 }
 //------------------------------------------------------------------------------
@@ -307,7 +307,7 @@ bool vvSlicer::GetCornerAnnotationVisibility()
 
 //------------------------------------------------------------------------------
 vvSlicer::~vvSlicer()
-{ //out << __func__ << endl;
+{ 
   for (std::vector<vvMeshActor*>::iterator i=mSurfaceCutActors.begin();
        i!=mSurfaceCutActors.end(); i++)
     delete (*i);
@@ -318,14 +318,14 @@ vvSlicer::~vvSlicer()
 
 //------------------------------------------------------------------------------
 double* vvSlicer::GetCurrentPosition()
-{ //out << __func__ << endl;
+{ 
   return mCurrentBeforeSlicingTransform;
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetCurrentPosition(double x, double y, double z, int t)
-{ //out << __func__ << endl;
+{ 
   mCurrentBeforeSlicingTransform[0]=x;
   mCurrentBeforeSlicingTransform[1]=y;
   mCurrentBeforeSlicingTransform[2]=z;
@@ -337,7 +337,7 @@ void vvSlicer::SetCurrentPosition(double x, double y, double z, int t)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetImage(vvImage::Pointer image)
-{ //out << __func__ << endl;
+{ 
   if (image->GetVTKImages().size()) {
     mImage = image;
 
@@ -401,7 +401,7 @@ void vvSlicer::SetImage(vvImage::Pointer image)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetOverlay(vvImage::Pointer overlay)
-{ //out << __func__ << endl;
+{ 
   if (overlay->GetVTKImages().size()) {
     mOverlay = overlay;
     mOverlayVisibility = true;
@@ -466,7 +466,7 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetFusion(vvImage::Pointer fusion, int fusionSequenceCode)
-{ //out << __func__ << endl;
+{ 
 	mFusionSequenceCode = fusionSequenceCode;
   if (fusion->GetVTKImages().size()) {
     mFusion = fusion;
@@ -533,7 +533,7 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion, int fusionSequenceCode)
 
 //------------------------------------------------------------------------------
 bool vvSlicer::GetActorVisibility(const std::string& actor_type, int overlay_index)
-{ //out << __func__ << endl;
+{ 
   bool vis = false;
   if (actor_type == "image")
     vis = mImageVisibility;
@@ -551,7 +551,7 @@ bool vvSlicer::GetActorVisibility(const std::string& actor_type, int overlay_ind
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetActorVisibility(const std::string& actor_type, int overlay_index ,bool vis)
-{ //out << __func__ << endl;
+{ 
   if (actor_type == "image")
     mImageVisibility = vis;
   else if (actor_type == "vector")
@@ -568,7 +568,7 @@ void vvSlicer::SetActorVisibility(const std::string& actor_type, int overlay_ind
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetVF(vvImage::Pointer vf)
-{ //out << __func__ << endl;
+{ 
   if (vf->GetVTKImages().size()) {
     mVF = vf;
     mVFVisibility = true;
@@ -646,7 +646,7 @@ void vvSlicer::SetVF(vvImage::Pointer vf)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetLandmarks(vvLandmarks* landmarks)
-{ //out << __func__ << endl;
+{ 
   mLandmarks = landmarks;
   if (landmarks) {
 
@@ -707,7 +707,7 @@ void vvSlicer::SetLandmarks(vvLandmarks* landmarks)
 //------------------------------------------------------------------------------
 //FIXME: this function leaks memory, we should fix it someday :)
 void vvSlicer::RemoveActor(const std::string& actor_type, int overlay_index)
-{ //out << __func__ << endl;
+{ 
   if (actor_type == "vector") {
     Renderer->RemoveActor(mVFActor);
     mGlyphFilter=NULL;
@@ -740,7 +740,7 @@ void vvSlicer::RemoveActor(const std::string& actor_type, int overlay_index)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetVFSubSampling(int sub)
-{ //out << __func__ << endl;
+{ 
   if (mVOIFilter) {
     mVOIFilter->SetSampleRate(mSubSampling,mSubSampling,mSubSampling);
     mSubSampling = sub;
@@ -753,7 +753,7 @@ void vvSlicer::SetVFSubSampling(int sub)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetVFScale(int scale)
-{ //out << __func__ << endl;
+{ 
   mScale = scale;
   if (mArrow)
     mArrow->SetScale(mScale);
@@ -764,7 +764,7 @@ void vvSlicer::SetVFScale(int scale)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetVFWidth(int width)
-{ //out << __func__ << endl;
+{ 
   mVFWidth = width;
   if (mVFActor)
     mVFActor->GetProperty()->SetLineWidth(mVFWidth);
@@ -776,7 +776,7 @@ void vvSlicer::SetVFWidth(int width)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetVFLog(int log)
-{ //out << __func__ << endl;
+{ 
   mVFLog = log;
   if (mGlyphFilter) {
     mGlyphFilter->SetUseLog(mVFLog);
@@ -790,7 +790,7 @@ void vvSlicer::SetVFLog(int log)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetTSlice(int t, bool updateLinkedImages)
-{ //out << __func__ << endl;
+{ 
 	if (!updateLinkedImages) {
 		mCurrentTSlice = t;
 #if VTK_MAJOR_VERSION <= 5
@@ -873,7 +873,7 @@ void vvSlicer::SetTSlice(int t, bool updateLinkedImages)
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetFusionSequenceTSlice(int t)
-{ //out << __func__ << endl;
+{ 
   if (mFusion && mFusionActor->GetVisibility() && (mFusionSequenceCode>=0)) {
     if (mFusion->GetVTKImages().size() > (unsigned int)t) {
       mCurrentFusionTSlice = t;
@@ -896,14 +896,14 @@ void vvSlicer::SetFusionSequenceTSlice(int t)
 
 //------------------------------------------------------------------------------
 int vvSlicer::GetTSlice()
-{ //out << __func__ << endl;
+{ 
   return mCurrentTSlice;
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 int vvSlicer::GetMaxCurrentTSlice()
-{ //out << __func__ << endl;
+{ 
   int t = mCurrentTSlice;
   if(mOverlay)
     t = std::max(t, mCurrentOverlayTSlice);
@@ -915,21 +915,21 @@ int vvSlicer::GetMaxCurrentTSlice()
 
 //------------------------------------------------------------------------------
 int vvSlicer::GetFusionTSlice()
-{ //out << __func__ << endl;
+{ 
   return mCurrentFusionTSlice;
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 int vvSlicer::GetOverlayTSlice()
-{ //out << __func__ << endl;
+{ 
   return mCurrentOverlayTSlice;
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvSlicer::SetSliceOrientation(int orientation)
-{ //out << __func__ << endl;
+{ 
   //if 2D image, force to watch in Axial View
   int extent[6];
 #if VTK_MAJOR_VERSION <= 5
@@ -1001,7 +1001,7 @@ void vvSlicer::SetSliceOrientation(int orientation)
 // In other words, we change the grid of the reslice in the same way as the grid
 // of the displayed image in the slicing direction.
 void vvSlicer::AdjustResliceToSliceOrientation(vtkImageReslice *reslice)
-{ //out << __func__ << endl;
+{ 
   // Reset autocrop and update output information
   reslice->SetOutputOriginToDefault();
   reslice->SetOutputSpacingToDefault();
@@ -1044,7 +1044,7 @@ void vvSlicer::AdjustResliceToSliceOrientation(vtkImageReslice *reslice)
 
 //----------------------------------------------------------------------------
 int * vvSlicer::GetExtent()
-{ //out << __func__ << endl;
+{ 
   int *w_ext;
   if (mUseReducedExtent) {
     w_ext = mReducedExtent;
@@ -1063,7 +1063,7 @@ int * vvSlicer::GetExtent()
 
 //----------------------------------------------------------------------------
 int vvSlicer::GetOrientation()
-{ //out << __func__ << endl;
+{ 
   return this->SliceOrientation;
 }
 //----------------------------------------------------------------------------
@@ -1071,7 +1071,7 @@ int vvSlicer::GetOrientation()
 
 //----------------------------------------------------------------------------
 void vvSlicer::UpdateDisplayExtent()
-{ //out << __func__ << endl;
+{ 
   vtkImageData *input = this->GetInput();
   
   if (!input || !this->ImageActor) {
@@ -1252,7 +1252,7 @@ void vvSlicer::UpdateDisplayExtent()
 //----------------------------------------------------------------------------
 void vvSlicer::ConvertImageToImageDisplayExtent(vtkImageData *sourceImage, const int sourceExtent[6],
                                                 vtkImageData *targetImage, int targetExtent[6])
-{ //out << __func__ << endl;
+{ 
   double dExtents[6];
   for(unsigned int i=0; i<6; i++) {
     // From source voxel coordinates to world coordinates
@@ -1274,7 +1274,7 @@ void vvSlicer::ConvertImageToImageDisplayExtent(vtkImageData *sourceImage, const
 
 //----------------------------------------------------------------------------
 bool vvSlicer::ClipDisplayedExtent(int extent[6], int refExtent[6])
-{ //out << __func__ << endl;
+{ 
   bool out = false;
   int maxBound = 6;
 
@@ -1302,7 +1302,7 @@ bool vvSlicer::ClipDisplayedExtent(int extent[6], int refExtent[6])
 
 //----------------------------------------------------------------------------
 void vvSlicer::UpdateOrientation()
-{ //out << __func__ << endl;
+{ 
   // Set the camera position
   vtkCamera *cam = this->Renderer ? this->Renderer->GetActiveCamera() : NULL;
   if (cam) {
@@ -1332,7 +1332,7 @@ void vvSlicer::UpdateOrientation()
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetOpacity(double s)
-{ //out << __func__ << endl;
+{ 
   this->GetImageActor()->SetOpacity(s);
 }
 //----------------------------------------------------------------------------
@@ -1340,7 +1340,7 @@ void vvSlicer::SetOpacity(double s)
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetRenderWindow(int orientation, vtkRenderWindow * rw)
-{ //out << __func__ << endl;
+{ 
   this->Superclass::SetRenderWindow(rw);
   this->SetupInteractor(rw->GetInteractor());
   ca->SetImageActor(this->GetImageActor());
@@ -1372,7 +1372,7 @@ void vvSlicer::SetRenderWindow(int orientation, vtkRenderWindow * rw)
 
 //----------------------------------------------------------------------------
 void vvSlicer::ResetCamera()
-{ //out << __func__ << endl;
+{ 
   this->GetRenderer()->ResetCamera();
 }
 //----------------------------------------------------------------------------
@@ -1380,7 +1380,7 @@ void vvSlicer::ResetCamera()
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetDisplayMode(bool i)
-{ //out << __func__ << endl;
+{ 
 	this->GetRenderer()->SetDraw(i);
 	if (i) UpdateDisplayExtent();
 }
@@ -1389,7 +1389,7 @@ void vvSlicer::SetDisplayMode(bool i)
 
 //----------------------------------------------------------------------------
 void vvSlicer::FlipHorizontalView()
-{ //out << __func__ << endl;
+{ 
   vtkCamera *cam = this->Renderer ? this->Renderer->GetActiveCamera() : NULL;
   if (cam) {
     double *position = cam->GetPosition();
@@ -1420,7 +1420,7 @@ void vvSlicer::FlipHorizontalView()
 
 //----------------------------------------------------------------------------
 void vvSlicer::FlipVerticalView()
-{ //out << __func__ << endl;
+{ 
   vtkCamera *cam = this->Renderer ? this->Renderer->GetActiveCamera() : NULL;
   if (cam) {
     FlipHorizontalView();
@@ -1434,7 +1434,7 @@ void vvSlicer::FlipVerticalView()
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetColorWindow(double window)
-{ //out << __func__ << endl;
+{ 
   vtkLookupTable* LUT = static_cast<vtkLookupTable*>(this->GetWindowLevel()->GetLookupTable());
   if ( LUT ) {
     double level = this->GetWindowLevel()->GetLevel();
@@ -1447,7 +1447,7 @@ void vvSlicer::SetColorWindow(double window)
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetColorLevel(double level)
-{ //out << __func__ << endl;
+{ 
   vtkLookupTable* LUT = static_cast<vtkLookupTable*>(this->GetWindowLevel()->GetLookupTable());
   if ( LUT ) {
     double window = this->GetWindowLevel()->GetWindow();
@@ -1460,7 +1460,7 @@ void vvSlicer::SetColorLevel(double level)
 
 //----------------------------------------------------------------------------
 double vvSlicer::GetOverlayColorWindow()
-{ //out << __func__ << endl;
+{ 
   if(mOverlayMapper)
     return mOverlayMapper->GetWindow();
   else
@@ -1470,7 +1470,7 @@ double vvSlicer::GetOverlayColorWindow()
 
 //----------------------------------------------------------------------------
 double vvSlicer::GetOverlayColorLevel()
-{ //out << __func__ << endl;
+{ 
   if(mOverlayMapper)
     return mOverlayMapper->GetLevel();
   else
@@ -1480,7 +1480,7 @@ double vvSlicer::GetOverlayColorLevel()
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetOverlayColorWindow(double window)
-{ //out << __func__ << endl;
+{ 
   if(mOverlayMapper)
     mOverlayMapper->SetWindow(window);
 }
@@ -1488,7 +1488,7 @@ void vvSlicer::SetOverlayColorWindow(double window)
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetOverlayColorLevel(double level)
-{ //out << __func__ << endl;
+{ 
   if(mOverlayMapper)
     mOverlayMapper->SetLevel(level);
 }
@@ -1497,7 +1497,7 @@ void vvSlicer::SetOverlayColorLevel(double level)
 //----------------------------------------------------------------------------
 // Returns the min an the max value in a 20%x20% region around the mouse pointer
 void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max, vtkImageData *image, vtkTransform *transform)
-{ //out << __func__ << endl;
+{ 
   //Get mouse pointer position in view coordinates
   double corner1[3];
   double corner2[3];
@@ -1563,7 +1563,7 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max, vtkImag
 
 //----------------------------------------------------------------------------
 double vvSlicer::GetScalarComponentAsDouble(vtkImageData *image, double X, double Y, double Z, int &ix, int &iy, int &iz, int component)
-{ //out << __func__ << endl;
+{ 
   ix = lrint(X);
   iy = lrint(Y);
   iz = lrint(Z);
@@ -1595,7 +1595,7 @@ double vvSlicer::GetScalarComponentAsDouble(vtkImageData *image, double X, doubl
 
 //----------------------------------------------------------------------------
 void vvSlicer::Render()
-{ //out << __func__ << endl;
+{ 
 
   if (this->mFusion && mFusionActor->GetVisibility() && showFusionLegend) {
     legend->SetLookupTable(this->GetFusionMapper()->GetLookupTable());
@@ -1760,7 +1760,7 @@ void vvSlicer::Render()
 
 //----------------------------------------------------------------------------
 void vvSlicer::UpdateCursorPosition()
-{ //out << __func__ << endl;
+{ 
   pdmA->SetVisibility(true);
   mCursor[0] = mCurrent[0];
   mCursor[1] = mCurrent[1];
@@ -1772,7 +1772,7 @@ void vvSlicer::UpdateCursorPosition()
 
 //----------------------------------------------------------------------------
 void vvSlicer::UpdateLandmarks()
-{ //out << __func__ << endl;
+{ 
   vtkPolyData *pd = static_cast<vtkPolyData*>(mLandClipper->GetInput());
   if (pd->GetPoints()) {
     //mLandGlyph->SetRange(0,1);
@@ -1815,7 +1815,7 @@ void vvSlicer::UpdateLandmarks()
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetSlice(int slice)
-{ //out << __func__ << endl;
+{ 
   int *range = this->GetSliceRange();
   if (range) {
     if (slice < range[0]) {
@@ -1841,7 +1841,7 @@ void vvSlicer::SetSlice(int slice)
 
 //----------------------------------------------------------------------------
 int vvSlicer::GetTMax() 
-{ //out << __func__ << endl;
+{ 
   int tmax = (int)mImage->GetVTKImages().size() - 1;
   if(mOverlay)
     tmax = std::max(tmax, (int)mOverlay->GetVTKImages().size()-1);
@@ -1851,7 +1851,7 @@ int vvSlicer::GetTMax()
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetContourSlice()
-{ //out << __func__ << endl;
+{ 
   if (mSurfaceCutActors.size() > 0)
     for (std::vector<vvMeshActor*>::iterator i=mSurfaceCutActors.begin();
          i!=mSurfaceCutActors.end(); i++) {
@@ -1866,7 +1866,7 @@ void vvSlicer::SetContourSlice()
 
 //----------------------------------------------------------------------------
 void vvSlicer::ForceUpdateDisplayExtent()
-{ //out << __func__ << endl;
+{ 
   this->UpdateDisplayExtent();
 }
 //----------------------------------------------------------------------------
@@ -1874,7 +1874,7 @@ void vvSlicer::ForceUpdateDisplayExtent()
 
 //----------------------------------------------------------------------------
 int* vvSlicer::GetDisplayExtent()
-{ //out << __func__ << endl;
+{ 
   return this->GetImageActor()->GetDisplayExtent();
 }
 //----------------------------------------------------------------------------
@@ -1882,7 +1882,7 @@ int* vvSlicer::GetDisplayExtent()
 
 //----------------------------------------------------------------------------
 void vvSlicer::PrintSelf(ostream& os, vtkIndent indent)
-{ //out << __func__ << endl;
+{ 
   this->Superclass::PrintSelf(os, indent);
 }
 //----------------------------------------------------------------------------
@@ -1890,7 +1890,7 @@ void vvSlicer::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetVFColor(double r, double g, double b)
-{ //out << __func__ << endl;
+{ 
   double mVFColorHSV[3];
   mVFColor[0] = r;
   mVFColor[1] = g;
@@ -1908,7 +1908,7 @@ void vvSlicer::SetVFColor(double r, double g, double b)
 
 //----------------------------------------------------------------------------
 void vvSlicer::SetRegisterExtent(int ext[6])
-{ //out << __func__ << endl;
+{ 
     copyExtent(ext, mRegisterExtent);
 }
 //----------------------------------------------------------------------------
@@ -1916,7 +1916,7 @@ void vvSlicer::SetRegisterExtent(int ext[6])
 
 //----------------------------------------------------------------------------
 void vvSlicer::GetRegisterExtent(int ext[6])
-{ //out << __func__ << endl;
+{ 
     copyExtent(mRegisterExtent, ext);
 }
 //----------------------------------------------------------------------------

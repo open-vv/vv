@@ -46,7 +46,7 @@
 #include <QMessageBox>
 //----------------------------------------------------------------------------
 vvSlicerManager::vvSlicerManager(int numberOfSlicers)
-{ //out << __func__ << endl;
+{ 
   mFileName = "";
   mId = "";
   mVFName = "";
@@ -91,7 +91,7 @@ vvSlicerManager::vvSlicerManager(int numberOfSlicers)
 
 //----------------------------------------------------------------------------
 vvSlicerManager::~vvSlicerManager()
-{ //out << __func__ << endl;
+{ 
   if (mLandmarks)
     delete mLandmarks;
 }
@@ -100,7 +100,7 @@ vvSlicerManager::~vvSlicerManager()
 
 //------------------------------------------------------------------------------
 void vvSlicerManager::SetFilename(std::string filename, int number)
-{ //out << __func__ << endl;
+{ 
   mFileName = filename;
   mFileName = vtksys::SystemTools::GetFilenameName(mFileName);
   mBaseFileName = vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(mFileName));
@@ -122,7 +122,7 @@ void vvSlicerManager::SetFilename(std::string filename, int number)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::AddContour(vvMesh::Pointer contour,bool propagate)
-{ //out << __func__ << endl;
+{ 
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
     mSlicers[i]->AddContour(contour,propagate);
   }
@@ -132,7 +132,7 @@ void vvSlicerManager::AddContour(vvMesh::Pointer contour,bool propagate)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::ToggleContourSuperposition()
-{ //out << __func__ << endl;
+{ 
   for ( unsigned int i = 0; i < mSlicers.size(); i++)
     mSlicers[i]->ToggleContourSuperposition();
 }
@@ -140,7 +140,7 @@ void vvSlicerManager::ToggleContourSuperposition()
 
 //----------------------------------------------------------------------------
 std::string vvSlicerManager::GetListOfAbsoluteFilePathInOneString(const std::string &actorType)
-{ //out << __func__ << endl;
+{ 
   vvImageReader *reader = NULL;
 
   if(actorType=="image")
@@ -171,7 +171,7 @@ std::string vvSlicerManager::GetListOfAbsoluteFilePathInOneString(const std::str
 
 //----------------------------------------------------------------------------
 bool vvSlicerManager::SetImage(std::string filename, vvImageReader::LoadedImageType type, int n, unsigned int slice)
-{ //out << __func__ << endl;
+{ 
   mType = type;
   if (mReader.IsNull())
     mReader = vvImageReader::New();
@@ -206,7 +206,7 @@ bool vvSlicerManager::SetImage(std::string filename, vvImageReader::LoadedImageT
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetImage(vvImage::Pointer image)
-{ //out << __func__ << endl;
+{ 
   mImage=image;
   for (unsigned int i = 0; i < mSlicers.size(); i++) {
     mSlicers[i]->SetImage(image);
@@ -217,7 +217,7 @@ void vvSlicerManager::SetImage(vvImage::Pointer image)
 
 //----------------------------------------------------------------------------
 bool vvSlicerManager::SetImages(std::vector<std::string> filenames, vvImageReader::LoadedImageType type, int n)
-{ //out << __func__ << endl;
+{ 
   mType = type;
   std::string fileWithoutExtension = vtksys::SystemTools::GetFilenameWithoutExtension(filenames[0]);
   if (type == vvImageReader::DICOM)
@@ -257,7 +257,7 @@ bool vvSlicerManager::SetImages(std::vector<std::string> filenames, vvImageReade
 
 //----------------------------------------------------------------------------
 bool vvSlicerManager::SetOverlay(std::vector<std::string> filenames,int dim, std::string component, vvImageReader::LoadedImageType type)
-{ //out << __func__ << endl;
+{ 
   mOverlayName = filenames[0];
   mOverlayComponent = component;
   if (dim > mImage->GetNumberOfDimensions()) {
@@ -283,7 +283,7 @@ bool vvSlicerManager::SetOverlay(std::vector<std::string> filenames,int dim, std
 
 //----------------------------------------------------------------------------
 bool vvSlicerManager::SetFusion(std::vector<std::string> filenames,int dim, std::string component, vvImageReader::LoadedImageType type)
-{ //out << __func__ << endl;
+{ 
   mFusionName = filenames[0];
   mFusionComponent = component;
   if (dim > mImage->GetNumberOfDimensions()) {
@@ -313,7 +313,7 @@ bool vvSlicerManager::SetFusion(std::vector<std::string> filenames,int dim, std:
 //----------------------------------------------------------------------------
 //this function is called by vvMainWindow::AddFusionSequence for the primary sequence (CT), while the given files constitute the secondary sequence.
 bool vvSlicerManager::SetFusionSequence(std::vector<std::string> filenames, int dim, std::string component, vvImageReader::LoadedImageType type)
-{ //out << __func__ << endl;
+{ 
 	mFusionSequenceInvolvementCode = 0;
 
 	mFusionName = filenames[0];
@@ -362,7 +362,7 @@ bool vvSlicerManager::SetFusionSequence(std::vector<std::string> filenames, int 
 
 //----------------------------------------------------------------------------
 bool vvSlicerManager::SetVF(std::string filename)
-{ //out << __func__ << endl;
+{ 
   if (mVectorReader.IsNull())
     mVectorReader = vvImageReader::New();
   mVectorReader->SetInputFilename(filename);
@@ -382,7 +382,7 @@ bool vvSlicerManager::SetVF(std::string filename)
 
 //----------------------------------------------------------------------------
 bool vvSlicerManager::SetVF(vvImage::Pointer vf,std::string filename)
-{ //out << __func__ << endl;
+{ 
   if (vf->GetNumberOfDimensions() > mImage->GetNumberOfDimensions()) {
     mLastError = "Sorry, vector field dimension cannot be greater then reference image.";
     return false;
@@ -409,7 +409,7 @@ bool vvSlicerManager::SetVF(vvImage::Pointer vf,std::string filename)
 
 //----------------------------------------------------------------------------
 vvSlicer* vvSlicerManager::GetSlicer(int i)
-{ //out << __func__ << endl;
+{ 
   return mSlicers[i];
 }
 //----------------------------------------------------------------------------
@@ -417,7 +417,7 @@ vvSlicer* vvSlicerManager::GetSlicer(int i)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateSlicer(int num, bool state)
-{ //out << __func__ << endl;
+{ 
   if (mSlicers[num]->GetImage()) {
     mSlicers[num]->SetDisplayMode(state);
   }
@@ -427,7 +427,7 @@ void vvSlicerManager::UpdateSlicer(int num, bool state)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetSlicerWindow(int i, vtkRenderWindow* RW)
-{ //out << __func__ << endl;
+{ 
   mSlicers[i]->SetRenderWindow(i,RW);
 }
 //----------------------------------------------------------------------------
@@ -435,7 +435,7 @@ void vvSlicerManager::SetSlicerWindow(int i, vtkRenderWindow* RW)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetInteractorStyleNavigator(int i, vtkInteractorStyle* style)
-{ //out << __func__ << endl;
+{ 
   vvSlicerManagerCommand *smc = vvSlicerManagerCommand::New();
   smc->SM = this;
   smc->SetSlicerNumber(i);
@@ -474,7 +474,7 @@ void vvSlicerManager::SetInteractorStyleNavigator(int i, vtkInteractorStyle* sty
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::LeftButtonReleaseEvent(int slicer)
-{ //out << __func__ << endl;
+{ 
   emit LeftButtonReleaseSignal(slicer);
 }
 //----------------------------------------------------------------------------
@@ -482,7 +482,7 @@ void vvSlicerManager::LeftButtonReleaseEvent(int slicer)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::EmitMousePositionUpdated(int slicer)
-{ //out << __func__ << endl;
+{ 
   emit MousePositionUpdatedSignal(slicer);
 }
 //----------------------------------------------------------------------------
@@ -490,7 +490,7 @@ void vvSlicerManager::EmitMousePositionUpdated(int slicer)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::EmitKeyPressed(std::string KeyPress)
-{ //out << __func__ << endl;
+{ 
   emit KeyPressedSignal(KeyPress);
 }
 //----------------------------------------------------------------------------
@@ -498,7 +498,7 @@ void vvSlicerManager::EmitKeyPressed(std::string KeyPress)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetSliceOrientation(int slicer, int orientation)
-{ //out << __func__ << endl;
+{ 
   mSlicers[slicer]->SetSliceOrientation(orientation);
   emit UpdateOrientation(slicer, orientation);
 }
@@ -506,14 +506,14 @@ void vvSlicerManager::SetSliceOrientation(int slicer, int orientation)
 
 //----------------------------------------------------------------------------
 int vvSlicerManager::GetTSlice()
-{ //out << __func__ << endl;
+{ 
   return mSlicers[0]->GetTSlice();
 }
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetTSlice(int slice, bool updateLinkedImages)
-{ //out << __func__ << endl;
+{ 
 	if (!updateLinkedImages) { //for fusionSequence, TMax / MaxCurrentTSlice are irrelevant.
 		for ( unsigned int i = 0; i < mSlicers.size(); i++) {
 			mSlicers[i]->SetTSlice(slice, updateLinkedImages);
@@ -540,7 +540,7 @@ void vvSlicerManager::SetTSlice(int slice, bool updateLinkedImages)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetFusionSequenceTSlice(int slice)
-{ //out << __func__ << endl;
+{ 
 	for ( unsigned int i = 0; i < mSlicers.size(); i++) {
 		mSlicers[i]->SetFusionSequenceTSlice(slice);
 		UpdateTSlice(i);
@@ -551,7 +551,7 @@ void vvSlicerManager::SetFusionSequenceTSlice(int slice)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetNextTSlice(int originating_slicer)
-{ //out << __func__ << endl;
+{ 
   int t = mSlicers[0]->GetMaxCurrentTSlice();
   t++;
   if (t > mSlicers[0]->GetTMax())
@@ -563,7 +563,7 @@ void vvSlicerManager::SetNextTSlice(int originating_slicer)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetPreviousTSlice(int originating_slicer)
-{ //out << __func__ << endl;
+{ 
   int t = mSlicers[0]->GetMaxCurrentTSlice();
   t--;
   if (t < 0)
@@ -575,7 +575,7 @@ void vvSlicerManager::SetPreviousTSlice(int originating_slicer)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::ToggleInterpolation()
-{ //out << __func__ << endl;
+{ 
   bool interpolate=!(mSlicers[0]->GetImageActor()->GetInterpolate());
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
     mSlicers[i]->GetImageActor()->SetInterpolate(interpolate);
@@ -590,7 +590,7 @@ void vvSlicerManager::ToggleInterpolation()
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetTSliceInSlicer(int tslice, int slicer)
-{ //out << __func__ << endl;
+{ 
   if (tslice < 0)
     tslice = 0;
   else if (tslice > mSlicers[slicer]->GetTMax())
@@ -616,7 +616,7 @@ void vvSlicerManager::SetTSliceInSlicer(int tslice, int slicer)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetColorWindow(double s)
-{ //out << __func__ << endl;
+{ 
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
     mSlicers[i]->SetColorWindow(s);
   }
@@ -625,7 +625,7 @@ void vvSlicerManager::SetColorWindow(double s)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetColorLevel(double s)
-{ //out << __func__ << endl;
+{ 
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
     mSlicers[i]->SetColorLevel(s);
   }
@@ -634,7 +634,7 @@ void vvSlicerManager::SetColorLevel(double s)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetOverlayColorWindow(double s)
-{ //out << __func__ << endl;
+{ 
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
     mSlicers[i]->SetOverlayColorWindow(s);
   }
@@ -643,7 +643,7 @@ void vvSlicerManager::SetOverlayColorWindow(double s)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetOverlayColorLevel(double s)
-{ //out << __func__ << endl;
+{ 
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
     mSlicers[i]->SetOverlayColorLevel(s);
   }
@@ -652,7 +652,7 @@ void vvSlicerManager::SetOverlayColorLevel(double s)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetLinkOverlayWindowLevel(bool b)
-{ //out << __func__ << endl;
+{ 
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
     mSlicers[i]->SetLinkOverlayWindowLevel(b);
   }
@@ -661,7 +661,7 @@ void vvSlicerManager::SetLinkOverlayWindowLevel(bool b)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetCursorAndCornerAnnotationVisibility(int s)
-{ //out << __func__ << endl;
+{ 
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
     mSlicers[i]->SetCursorVisibility(s);
     mSlicers[i]->SetCornerAnnotationVisibility(s);
@@ -671,7 +671,7 @@ void vvSlicerManager::SetCursorAndCornerAnnotationVisibility(int s)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetOpacity(int i, double factor)
-{ //out << __func__ << endl;
+{ 
   mSlicers[i]->SetOpacity(1/factor);
 }
 //----------------------------------------------------------------------------
@@ -679,7 +679,7 @@ void vvSlicerManager::SetOpacity(int i, double factor)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateViews(int current,int slicer)
-{ //out << __func__ << endl;
+{ 
   double p[3], pt[3];
   p[0] = mSlicers[slicer]->GetCurrentPosition()[0];
   p[1] = mSlicers[slicer]->GetCurrentPosition()[1];
@@ -835,7 +835,7 @@ mSlicers[slicer]->GetRegisterExtent(extentImageReslice);
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateLinked(int slicer)
-{ //out << __func__ << endl;
+{ 
   double p[3], pt[3];
   p[0] = mSlicers[slicer]->GetCurrentPosition()[0];
   p[1] = mSlicers[slicer]->GetCurrentPosition()[1];
@@ -886,7 +886,7 @@ mSlicers[slicer]->GetRegisterExtent(extentImageReslice);
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateLinkedNavigation(vvSlicer *refSlicer, bool bPropagate)
-{ //out << __func__ << endl;
+{ 
   vtkCamera *refCam = refSlicer->GetRenderer()->GetActiveCamera();
 
   double refPosition[3];
@@ -929,7 +929,7 @@ void vvSlicerManager::UpdateLinkedNavigation(vvSlicer *refSlicer, bool bPropagat
 
 //----------------------------------------------------------------------------
 double vvSlicerManager::GetColorWindow() const
-{ //out << __func__ << endl;
+{ 
   if (mSlicers.size())
     return mSlicers[0]->GetColorWindow();
   return -1;
@@ -939,7 +939,7 @@ double vvSlicerManager::GetColorWindow() const
 
 //----------------------------------------------------------------------------
 double vvSlicerManager::GetColorLevel() const
-{ //out << __func__ << endl;
+{ 
   if (mSlicers.size())
     return mSlicers[0]->GetColorLevel();
   return -1;
@@ -948,7 +948,7 @@ double vvSlicerManager::GetColorLevel() const
 
 //----------------------------------------------------------------------------
 double vvSlicerManager::GetOverlayColorWindow() const
-{ //out << __func__ << endl;
+{ 
   if (mSlicers.size())
     return mSlicers[0]->GetOverlayColorWindow();
   return -1;
@@ -957,7 +957,7 @@ double vvSlicerManager::GetOverlayColorWindow() const
 
 //----------------------------------------------------------------------------
 double vvSlicerManager::GetOverlayColorLevel() const
-{ //out << __func__ << endl;
+{ 
   if (mSlicers.size())
     return mSlicers[0]->GetOverlayColorLevel();
   return -1;
@@ -966,7 +966,7 @@ double vvSlicerManager::GetOverlayColorLevel() const
 
 //----------------------------------------------------------------------------
 bool vvSlicerManager::GetLinkOverlayWindowLevel() const
-{ //out << __func__ << endl;
+{ 
   if (mSlicers.size())
     return mSlicers[0]->GetLinkOverlayWindowLevel();
   return -1;
@@ -975,7 +975,7 @@ bool vvSlicerManager::GetLinkOverlayWindowLevel() const
 
 //------------------------------------------------------------------------------
 void vvSlicerManager::ResetTransformationToIdentity(const std::string actorType)
-{ //out << __func__ << endl;
+{ 
   if(actorType == "image")
     for(unsigned int i=0; i<this->GetImage()->GetTransform().size(); i++)
       this->GetImage()->GetTransform()[i]->Identity();
@@ -1004,7 +1004,7 @@ void vvSlicerManager::ResetTransformationToIdentity(const std::string actorType)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::Render()
-{ //out << __func__ << endl;
+{ 
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
     mSlicers[i]->Render();
   }
@@ -1014,7 +1014,7 @@ void vvSlicerManager::Render()
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::GenerateDefaultLookupTable()
-{ //out << __func__ << endl;
+{ 
   SetPreset(mPreset);
   SetColorMap(mColorMap);
 }
@@ -1023,7 +1023,7 @@ void vvSlicerManager::GenerateDefaultLookupTable()
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::Reload()
-{ //out << __func__ << endl;
+{ 
   mReader->Update(mType);
   mImage=mReader->GetOutput();
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
@@ -1040,7 +1040,7 @@ void vvSlicerManager::Reload()
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::ReloadFusion()
-{ //out << __func__ << endl;
+{ 
   mFusionReader->Update(mImage->GetNumberOfDimensions(),mFusionComponent.c_str(),mType);
 
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
@@ -1053,7 +1053,7 @@ void vvSlicerManager::ReloadFusion()
 //----------------------------------------------------------------------------
 //the secondary sequence is being reloaded.
 void vvSlicerManager::ReloadFusionSequence()
-{ //out << __func__ << endl;
+{ 
   //  this is to keep the slice thickness, which needs to be artificially increased for visualization
   double sp_x, sp_y, sp_z;
   this->GetImage()->GetVTKImages()[0]->GetSpacing(sp_x, sp_y, sp_z);
@@ -1090,7 +1090,7 @@ void vvSlicerManager::ReloadFusionSequence()
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::ReloadOverlay()
-{ //out << __func__ << endl;
+{ 
   mOverlayReader->Update(mImage->GetNumberOfDimensions(),mOverlayComponent.c_str(),mType);
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
     mSlicers[i]->SetOverlay(mOverlayReader->GetOutput());
@@ -1102,7 +1102,7 @@ void vvSlicerManager::ReloadOverlay()
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::ReloadVF()
-{ //out << __func__ << endl;
+{ 
   mVectorReader->Update(vvImageReader::VECTORFIELD); //deletes the old images through the VF::Init() function
   mVF=mVectorReader->GetOutput();
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
@@ -1115,7 +1115,7 @@ void vvSlicerManager::ReloadVF()
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::RemoveActor(const std::string& actor_type, int overlay_index)
-{ //out << __func__ << endl;
+{ 
   if (actor_type =="overlay")
     mOverlayReader = NULL;
 
@@ -1139,7 +1139,7 @@ void vvSlicerManager::RemoveActor(const std::string& actor_type, int overlay_ind
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::RemoveActors()
-{ //out << __func__ << endl;
+{ 
   ///This method leaks a few objects. See RemoveActor for what a
   ///correct implementation would look like
   //DS -> probably due to the reader (now released in the
@@ -1154,7 +1154,7 @@ void vvSlicerManager::RemoveActors()
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
-{ //out << __func__ << endl;
+{ 
   //  int view = mSlicers[slicer]->GetSliceOrientation();
   //  int slice = mSlicers[slicer]->GetSlice();
   double x = mSlicers[slicer]->GetCursorPosition()[0];
@@ -1301,7 +1301,7 @@ mSlicers[slicer]->GetRegisterExtent(extentImageReslice);
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::Activated()
-{ //out << __func__ << endl;
+{ 
   emit currentImageChanged(mId);
 }
 //----------------------------------------------------------------------------
@@ -1309,7 +1309,7 @@ void vvSlicerManager::Activated()
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::Picked()
-{ //out << __func__ << endl;
+{ 
   emit currentPickedImageChanged(mId);
 }
 //----------------------------------------------------------------------------
@@ -1317,7 +1317,7 @@ void vvSlicerManager::Picked()
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateWindowLevel()
-{ //out << __func__ << endl;
+{ 
   emit WindowLevelChanged();
 }
 //----------------------------------------------------------------------------
@@ -1325,7 +1325,7 @@ void vvSlicerManager::UpdateWindowLevel()
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateSlice(int slicer)
-{ //out << __func__ << endl;
+{ 
   if (mPreviousSlice[slicer] == mSlicers[slicer]->GetSlice()) {
     //DD("============= NOTHING");
     return;
@@ -1339,7 +1339,7 @@ void vvSlicerManager::UpdateSlice(int slicer)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateTSlice(int slicer)
-{ //out << __func__ << endl;
+{ 
   int slice = mSlicers[slicer]->GetSlice();
 
   int tslice = mSlicers[slicer]->GetMaxCurrentTSlice();
@@ -1361,7 +1361,7 @@ void vvSlicerManager::UpdateTSlice(int slicer)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::UpdateSliceRange(int slicer)
-{ //out << __func__ << endl;
+{ 
   emit UpdateSliceRange(slicer,
                         mSlicers[slicer]->GetSliceRange()[0], mSlicers[slicer]->GetSliceRange()[1],
                         0,mSlicers[slicer]->GetTMax());
@@ -1370,7 +1370,7 @@ void vvSlicerManager::UpdateSliceRange(int slicer)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetSlicingPreset(SlicingPresetType preset)
-{ //out << __func__ << endl;
+{ 
   if(mSlicingPreset==preset)
     return;
 
@@ -1413,7 +1413,7 @@ void vvSlicerManager::SetSlicingPreset(SlicingPresetType preset)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetPreset(int preset)
-{ //out << __func__ << endl;
+{ 
 
   //vtkLookupTable* LUT = static_cast<vtkLookupTable*>(mSlicers[0]->GetWindowLevel()->GetLookupTable());
   double window = mSlicers[0]->GetColorWindow();
@@ -1472,7 +1472,7 @@ void vvSlicerManager::SetPreset(int preset)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetLocalColorWindowing(const int slicer, const bool bCtrlKey)
-{ //out << __func__ << endl;
+{ 
   double min, max;
   if(bCtrlKey && this->mSlicers[slicer]->GetFusion()) {
     int t = mSlicers[slicer]->GetFusionTSlice();
@@ -1513,7 +1513,7 @@ void vvSlicerManager::SetLocalColorWindowing(const int slicer, const bool bCtrlK
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::SetColorMap(int colormap)
-{ //out << __func__ << endl;
+{ 
   double range[2];
 
   range[0] = mSlicers[0]->GetInput()->GetScalarRange()[0];
@@ -1667,7 +1667,7 @@ void vvSlicerManager::SetColorMap(int colormap)
 
 //----------------------------------------------------------------------------
 vvLandmarks* vvSlicerManager::GetLandmarks()
-{ //out << __func__ << endl;
+{ 
   if (mLandmarks == NULL) {
     mLandmarks = new vvLandmarks(mSlicers[0]->GetTMax()+1);
     for (unsigned int i = 0; i < mSlicers.size(); i++)
@@ -1680,7 +1680,7 @@ vvLandmarks* vvSlicerManager::GetLandmarks()
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::AddLandmark(float x,float y,float z,float t)
-{ //out << __func__ << endl;
+{ 
   double x_index = (x - mSlicers[0]->GetInput()->GetOrigin()[0])/mSlicers[0]->GetInput()->GetSpacing()[0];
   double y_index = (y - mSlicers[0]->GetInput()->GetOrigin()[1])/mSlicers[0]->GetInput()->GetSpacing()[1];
   double z_index = (z - mSlicers[0]->GetInput()->GetOrigin()[2])/mSlicers[0]->GetInput()->GetSpacing()[2];
@@ -1714,21 +1714,21 @@ void vvSlicerManager::AddLandmark(float x,float y,float z,float t)
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::PrevImage(int slicer)
-{ //out << __func__ << endl;
+{ 
   emit ChangeImageWithIndexOffset(this, slicer, -1);
 }
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::NextImage(int slicer)
-{ //out << __func__ << endl;
+{ 
   emit ChangeImageWithIndexOffset(this, slicer,  1);
 }
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::VerticalSliderHasChanged(int slicer, int slice)
-{ //out << __func__ << endl;
+{ 
   emit AVerticalSliderHasChanged(slicer, slice);
 }
 
@@ -1736,7 +1736,7 @@ void vvSlicerManager::VerticalSliderHasChanged(int slicer, int slice)
 
 //----------------------------------------------------------------------------
 double vvSlicerManager::GetScalarComponentAsDouble(vtkImageData *image, double X, double Y, double Z, int component)
-{ //out << __func__ << endl;
+{ 
   int ix, iy, iz;
   return mSlicers[0]->GetScalarComponentAsDouble(image, X, Y, Z, ix, iy, iz, component);
 }

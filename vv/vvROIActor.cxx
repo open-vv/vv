@@ -32,7 +32,7 @@
 
 //------------------------------------------------------------------------------
 vvROIActor::vvROIActor()
-{ //out << __func__ << endl;
+{ 
   mIsVisible = true;
   mIsContourVisible = false;
   mOpacity = 0.5;
@@ -52,14 +52,14 @@ vvROIActor::vvROIActor()
 
 //------------------------------------------------------------------------------
 vvROIActor::~vvROIActor()
-{ //out << __func__ << endl;
+{ 
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
 void vvROIActor::RemoveActors()
-{ //out << __func__ << endl;
+{ 
   for(unsigned int i= 0; i<mOverlayActors.size(); i++) {
     mOverlayActors[i]->RemoveActors();
   }
@@ -77,7 +77,7 @@ void vvROIActor::RemoveActors()
 
 //------------------------------------------------------------------------------
 void vvROIActor::SetROI(clitk::DicomRT_ROI * s)
-{ //out << __func__ << endl;
+{ 
   mROI = s;
 }
 //------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ void vvROIActor::SetROI(clitk::DicomRT_ROI * s)
 
 //------------------------------------------------------------------------------
 void vvROIActor::SetContourWidth(int n) 
-{ //out << __func__ << endl;
+{ 
   mContourWidth = n;
 }
 //------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ void vvROIActor::SetContourWidth(int n)
 
 //------------------------------------------------------------------------------
 void vvROIActor::SetSlicerManager(vvSlicerManager * s) 
-{ //out << __func__ << endl;
+{ 
   mSlicerManager = s;
 }
 //------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ void vvROIActor::SetSlicerManager(vvSlicerManager * s)
 
 //------------------------------------------------------------------------------
 void vvROIActor::UpdateImage()
-{ //out << __func__ << endl;
+{ 
   mOverlayActors.clear();
   mImageContour.clear();
   Initialize(mDepth, mIsVisible);
@@ -112,7 +112,7 @@ void vvROIActor::UpdateImage()
 
 //------------------------------------------------------------------------------
 void vvROIActor::SetVisible(bool b)
-{ //out << __func__ << endl;
+{ 
   mIsVisible = b;
   if (!b) { // remove actor
     for(unsigned int i= 0; i<mOverlayActors.size(); i++)
@@ -128,7 +128,7 @@ void vvROIActor::SetVisible(bool b)
 
 //------------------------------------------------------------------------------
 void vvROIActor::SetContourVisible(bool b) 
-{ //out << __func__ << endl;
+{ 
   mIsContourVisible = b;
   if (!b) { // remove actor
     for(unsigned int i= 0; i<mImageContour.size(); i++) {
@@ -147,7 +147,7 @@ void vvROIActor::SetContourVisible(bool b)
 
 //------------------------------------------------------------------------------
 bool vvROIActor::IsVisible() 
-{ //out << __func__ << endl;
+{ 
   return mIsVisible;
 }
 //------------------------------------------------------------------------------
@@ -155,7 +155,7 @@ bool vvROIActor::IsVisible()
 
 //------------------------------------------------------------------------------
 bool vvROIActor::IsContourVisible() 
-{ //out << __func__ << endl;
+{ 
   return mIsContourVisible;
 }
 //------------------------------------------------------------------------------
@@ -163,7 +163,7 @@ bool vvROIActor::IsContourVisible()
 
 //------------------------------------------------------------------------------
 void vvROIActor::Initialize(double depth, bool IsVisible) 
-{ //out << __func__ << endl;
+{ 
   if (mROI->GetImage()) {
     mImageContour.clear();
     mOverlayActors.clear();
@@ -211,7 +211,7 @@ void vvROIActor::Initialize(double depth, bool IsVisible)
 
 //------------------------------------------------------------------------------
 void vvROIActor::SetDepth(double d)
-{ //out << __func__ << endl;
+{ 
   mDepth = d;
   if (!mSlicerManager) return;
   for(int i=0; i<mSlicerManager->GetNumberOfSlicers(); i++) {  
@@ -225,7 +225,7 @@ void vvROIActor::SetDepth(double d)
 
 //------------------------------------------------------------------------------
 void vvROIActor::Update(bool force)
-{ //out << __func__ << endl;
+{ 
   if (!mSlicerManager) return;
   for(int i=0; i<mSlicerManager->GetNumberOfSlicers(); i++) {
     UpdateSlice(i, mSlicerManager->GetSlicer(i)->GetSlice(), force);
@@ -236,7 +236,7 @@ void vvROIActor::Update(bool force)
 
 //------------------------------------------------------------------------------
 void vvROIActor::UpdateSlice(int slicer, int slices, bool force)
-{ //out << __func__ << endl;
+{ 
   if (!mROI->GetImage())  return;
   if ((!mIsVisible) && (!mIsContourVisible)) return; 
   if (!mSlicerManager) {
@@ -256,7 +256,7 @@ void vvROIActor::UpdateSlice(int slicer, int slices, bool force)
 
 //------------------------------------------------------------------------------
 void vvROIActor::SetOpacity(double d)
-{ //out << __func__ << endl;
+{ 
   mOpacity = d;
 }
 //------------------------------------------------------------------------------
@@ -264,7 +264,7 @@ void vvROIActor::SetOpacity(double d)
 
 //------------------------------------------------------------------------------
 void vvROIActor::SetContourColor(double r, double v, double b) 
-{ //out << __func__ << endl;
+{ 
   mContourColor[0] = r;
   mContourColor[1] = v;
   mContourColor[2] = b;  
@@ -274,7 +274,7 @@ void vvROIActor::SetContourColor(double r, double v, double b)
 
 //------------------------------------------------------------------------------
 void vvROIActor::SetOverlayColor(double r, double v, double b) 
-{ //out << __func__ << endl;
+{ 
   if (mROI)
     mROI->SetDisplayColor(r,v,b);
 }
@@ -283,7 +283,7 @@ void vvROIActor::SetOverlayColor(double r, double v, double b)
 
 //------------------------------------------------------------------------------
 std::vector<double> & vvROIActor::GetContourColor() 
-{ //out << __func__ << endl;
+{ 
   return mContourColor; 
 }
 //------------------------------------------------------------------------------
@@ -291,7 +291,7 @@ std::vector<double> & vvROIActor::GetContourColor()
 
 //------------------------------------------------------------------------------
 std::vector<double> & vvROIActor::GetOverlayColor() 
-{ //out << __func__ << endl;
+{ 
   return mROI->GetDisplayColor();
 }
 //------------------------------------------------------------------------------
@@ -299,7 +299,7 @@ std::vector<double> & vvROIActor::GetOverlayColor()
 
 //------------------------------------------------------------------------------
 void vvROIActor::UpdateColor() 
-{ //out << __func__ << endl;
+{ 
   for(unsigned int i=0; i<mOverlayActors.size(); i++) {
     mOverlayActors[i]->SetOpacity(mOpacity);
     mOverlayActors[i]->SetColor(mROI->GetDisplayColor()[0],
@@ -319,7 +319,7 @@ void vvROIActor::UpdateColor()
 
 //------------------------------------------------------------------------------
 double vvROIActor::GetOpacity()
-{ //out << __func__ << endl;
+{ 
   return mOpacity;
 }
 //------------------------------------------------------------------------------
@@ -327,7 +327,7 @@ double vvROIActor::GetOpacity()
 
 //------------------------------------------------------------------------------
 void vvROIActor::SetSelected(bool b)
-{ //out << __func__ << endl;
+{ 
   mIsSelected = b;
   if (b) {
     for(int i=0; i<mSlicerManager->GetNumberOfSlicers(); i++) {
@@ -345,7 +345,7 @@ void vvROIActor::SetSelected(bool b)
 
 //------------------------------------------------------------------------------
 void vvROIActor::CopyParameters(QSharedPointer<vvROIActor> roi)
-{ //out << __func__ << endl;
+{ 
   // Overlay
   SetVisible(roi->IsVisible());
   SetOpacity(roi->GetOpacity());
