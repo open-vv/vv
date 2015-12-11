@@ -95,7 +95,7 @@ vvSlicer::vvSlicer()
   this->UnInstallPipeline();
   mImage = NULL;
   mReducedExtent = new int[6];
-  mRegisterExtent = new int[6];
+  mRegisterExtent = NULL;
   mCurrentTSlice = 0;
   mCurrentFusionTSlice = 0;
   mCurrentOverlayTSlice = 0;
@@ -312,7 +312,6 @@ vvSlicer::~vvSlicer()
        i!=mSurfaceCutActors.end(); i++)
     delete (*i);
   delete [] mReducedExtent;
-  delete [] mRegisterExtent;
 }
 //------------------------------------------------------------------------------
 
@@ -1072,14 +1071,24 @@ int vvSlicer::GetOrientation()
 //----------------------------------------------------------------------------
 void vvSlicer::UpdateDisplayExtent()
 { //out << __func__ << endl;
+
   vtkImageData *input = this->GetInput();
-  
   if (!input || !this->ImageActor) {
     return;
   }
-  
+
 #if VTK_MAJOR_VERSION <= 5
   input->UpdateInformation();
+#else
+  int extent[6];
+  mRegisterExtent = mImageReslice->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  copyExtent(mRegisterExtent, extent);
+
+  // Make sure that the required part image has been computed
+  extent[SliceOrientation*2] = Slice;
+  extent[SliceOrientation*2+1] = Slice;    
+
+  mImageReslice->SetUpdateExtent(extent);
 #endif
   this->SetSlice( this->GetSlice() ); //SR: make sure the update let the slice in extents
 
@@ -1097,16 +1106,6 @@ void vvSlicer::UpdateDisplayExtent()
   this->ImageActor->SetVisibility(mImageVisibility);
   this->ImageActor->SetDisplayExtent(w_ext);
 #if VTK_MAJOR_VERSION >= 6
-//mSlicingTransform->Print(cout);
-//GetImage()->GetTransform()[0]->Print(cout);
-//mSlicingTransform = GetImage()->GetTransform()[0];
-//mImageReslice->SetResliceTransform(mSlicingTransform);
-//mImageReslice->AutoCropOutputOff();
-//mImageReslice->Update();
-int* extentTest = mImageReslice->GetOutput()->GetExtent();
-cout<< extentTest[0] << " " << extentTest[1] << " " <<  extentTest[2] << " " <<  extentTest[3] << " " <<  extentTest[4] << " " <<  extentTest[5] << endl;
-//this->GetInput()->Print(cout);
-//GetImageActor()->GetMapper()->Print(cout);
   vtkSmartPointer<vtkOpenGLImageSliceMapper> mapperOpenGL= vtkSmartPointer<vtkOpenGLImageSliceMapper>::New();
   try {
     mapperOpenGL = dynamic_cast<vtkOpenGLImageSliceMapper*>(GetImageActor()->GetMapper());
@@ -1120,15 +1119,13 @@ cout<< extentTest[0] << " " << extentTest[1] << " " <<  extentTest[2] << " " << 
   } else {
     int w_croppingRegion[6];
     if (mUseReducedExtent) {
-        copyExtent(extentTest, w_croppingRegion);
+        copyExtent(mReducedExtent, w_croppingRegion);
     } else {
-        copyExtent(extentTest, w_croppingRegion);
+        copyExtent(mRegisterExtent, w_croppingRegion);
     }
-    cout << "w_ext : " << w_ext[0] << " " << w_ext[1] << " " << w_ext[2] << " " << w_ext[3] << " " << w_ext[4] << " " << w_ext[5] << endl;
     w_croppingRegion[ this->SliceOrientation*2   ] = this->Slice;
     w_croppingRegion[ this->SliceOrientation*2+1 ] = this->Slice;
     mapperOpenGL->SetCroppingRegion(w_croppingRegion);
-    cout << "w_croppingRegion : " << w_croppingRegion[0] << " " << w_croppingRegion[1] << " " << w_croppingRegion[2] << " " << w_croppingRegion[3] << " " << w_croppingRegion[4] << " " << w_croppingRegion[5] << endl;
   }
 #endif
   

@@ -410,7 +410,7 @@ void vvToolRigidReg::SetTransform(vtkMatrix4x4 *matrix)
       rotSliders[i]->setValue(iAngle);
       rotSliders[i]->blockSignals(false);
     }
-  }cout << euler->GetParameters()[0+3] << " " << euler->GetParameters()[1+3] << " " << euler->GetParameters()[2+3] << endl;
+  }
 }
 //------------------------------------------------------------------------------
 
