@@ -1080,23 +1080,18 @@ void vvSlicer::UpdateDisplayExtent()
 #if VTK_MAJOR_VERSION <= 5
   input->UpdateInformation();
 #else
-  int extent[6];
   mRegisterExtent = mImageReslice->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-  copyExtent(mRegisterExtent, extent);
-
-  // Make sure that the required part image has been computed
-  extent[SliceOrientation*2] = Slice;
-  extent[SliceOrientation*2+1] = Slice;    
-
-  mImageReslice->SetUpdateExtent(extent);
 #endif
   this->SetSlice( this->GetSlice() ); //SR: make sure the update let the slice in extents
 
   // Local copy of extent
   int w_ext[6];
-  int* ext = GetExtent();
+  int* ext = mImageReslice->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   copyExtent(ext, w_ext);
-
+  if (mUseReducedExtent) {
+        copyExtent(mReducedExtent, w_ext);
+    }
+    
   // Set slice value
 
   w_ext[ this->SliceOrientation*2   ] = this->Slice;
@@ -1105,29 +1100,6 @@ void vvSlicer::UpdateDisplayExtent()
   // Image actor
   this->ImageActor->SetVisibility(mImageVisibility);
   this->ImageActor->SetDisplayExtent(w_ext);
-#if VTK_MAJOR_VERSION >= 6
-  vtkSmartPointer<vtkOpenGLImageSliceMapper> mapperOpenGL= vtkSmartPointer<vtkOpenGLImageSliceMapper>::New();
-  try {
-    mapperOpenGL = dynamic_cast<vtkOpenGLImageSliceMapper*>(GetImageActor()->GetMapper());
-  } catch (const std::bad_cast& e) {
-    std::cerr << e.what() << std::endl;
-	std::cerr << "Conversion error" << std::endl;
-	return;
-  }
-  if (mFirstSetSliceOrientation) {
-    copyExtent(ext, mRegisterExtent);
-  } else {
-    int w_croppingRegion[6];
-    if (mUseReducedExtent) {
-        copyExtent(mReducedExtent, w_croppingRegion);
-    } else {
-        copyExtent(mRegisterExtent, w_croppingRegion);
-    }
-    w_croppingRegion[ this->SliceOrientation*2   ] = this->Slice;
-    w_croppingRegion[ this->SliceOrientation*2+1 ] = this->Slice;
-    mapperOpenGL->SetCroppingRegion(w_croppingRegion);
-  }
-#endif
   
 #if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
   // Fix for bug #1882
@@ -1136,10 +1108,9 @@ void vvSlicer::UpdateDisplayExtent()
 
   // Overlay image actor
   if (mOverlay && mOverlayVisibility) {
-    //mOverlayMapper->GetOutput()->Print(cout);
     AdjustResliceToSliceOrientation(mOverlayReslice);
     int overExtent[6];
-    this->ConvertImageToImageDisplayExtent(input, w_ext, mOverlayReslice->GetOutput(), overExtent);
+    this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mOverlayReslice->GetOutput(), overExtent);
 #if VTK_MAJOR_VERSION <= 5
     bool out = ClipDisplayedExtent(overExtent, mOverlayMapper->GetInput()->GetWholeExtent());
 #else
@@ -1159,7 +1130,7 @@ void vvSlicer::UpdateDisplayExtent()
   if (mFusion && mFusionVisibility) {
     AdjustResliceToSliceOrientation(mFusionReslice);
     int fusExtent[6];
-    this->ConvertImageToImageDisplayExtent(input, w_ext, mFusionReslice->GetOutput(), fusExtent);
+    this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mFusionReslice->GetOutput(), fusExtent);
 #if VTK_MAJOR_VERSION <= 5
     bool out = ClipDisplayedExtent(fusExtent, mFusionMapper->GetInput()->GetWholeExtent());
 #else
@@ -1199,7 +1170,7 @@ void vvSlicer::UpdateDisplayExtent()
 #else
     //this->UpdateInformation();
 #endif
-    this->ConvertImageToImageDisplayExtent(input, w_ext, mVF->GetVTKImages()[0], vfExtent);
+    this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mVF->GetVTKImages()[0], vfExtent);
 #if VTK_MAJOR_VERSION <= 5
     bool out = ClipDisplayedExtent(vfExtent, mVOIFilter->GetInput()->GetWholeExtent());
 #else
@@ -1258,13 +1229,16 @@ void vvSlicer::UpdateDisplayExtent()
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void vvSlicer::ConvertImageToImageDisplayExtent(vtkImageData *sourceImage, const int sourceExtent[6],
+void vvSlicer::ConvertImageToImageDisplayExtent(vtkInformation *sourceImage, const int sourceExtent[6],
                                                 vtkImageData *targetImage, int targetExtent[6])
 { //out << __func__ << endl;
   double dExtents[6];
+  double *origin, *spacing;
+  origin = sourceImage->Get(vtkDataObject::ORIGIN());
+  spacing = sourceImage->Get(vtkDataObject::SPACING());
   for(unsigned int i=0; i<6; i++) {
     // From source voxel coordinates to world coordinates
-    dExtents[i] = sourceImage->GetOrigin()[i/2] + sourceImage->GetSpacing()[i/2] * sourceExtent[i];
+    dExtents[i] = origin[i/2] + spacing[i/2] * sourceExtent[i];
 
     // From world coordinates to floating point target voxel coordinates
     dExtents[i] = (dExtents[i]- targetImage->GetOrigin()[i/2]) / targetImage->GetSpacing()[i/2];
