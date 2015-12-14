@@ -15,8 +15,8 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
-#ifndef clitkFooImageGenericFilter_h
-#define clitkFooImageGenericFilter_h
+#ifndef clitkSumGenericFilter_h
+#define clitkSumGenericFilter_h
 #include "clitkIO.h"
 #include "clitkImageToImageGenericFilter.h"
 
@@ -25,17 +25,17 @@ namespace clitk
 {
 
 template<class args_info_type>
-class ITK_EXPORT FooImageGenericFilter:
-        public ImageToImageGenericFilter<FooImageGenericFilter<args_info_type> >
+class ITK_EXPORT SumGenericFilter:
+        public ImageToImageGenericFilter<SumGenericFilter<args_info_type> >
 {
 
 public:
 
     //--------------------------------------------------------------------
-    FooImageGenericFilter();
+    SumGenericFilter();
 
     //--------------------------------------------------------------------
-    typedef FooImageGenericFilter         Self;
+    typedef SumGenericFilter                   Self;
     typedef itk::SmartPointer<Self>            Pointer;
     typedef itk::SmartPointer<const Self>      ConstPointer;
 
@@ -43,7 +43,7 @@ public:
     // Method for creation through the object factory
     // and Run-time type information (and related methods)
     itkNewMacro(Self);
-    itkTypeMacro(FooImageGenericFilter, LightObject);
+    itkTypeMacro(SumGenericFilter, LightObject);
 
     //--------------------------------------------------------------------
     void SetArgsInfo(const args_info_type & a);
@@ -63,7 +63,7 @@ protected:
 } // end namespace clitk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "clitkFooImageGenericFilter.txx"
+#include "clitkSumGenericFilter.txx"
 #endif
 
-#endif // #define clitkFooImageGenericFilter_h
+#endif // #define clitkSumGenericFilter_h

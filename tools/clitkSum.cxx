@@ -17,23 +17,27 @@
 ===========================================================================**/
 
 // clitk
-#include "clitkFooImage_ggo.h"
-#include "clitkFooImageGenericFilter.h"
+#include "clitkSum_ggo.h"
+#include "clitkSumGenericFilter.h"
 
 //--------------------------------------------------------------------
 int main(int argc, char * argv[])
 {
 
   // Init command line
-  GGO(clitkFooImage, args_info);
+  GGO(clitkSum, args_info);
   CLITK_INIT;
 
   // Filter
-  typedef clitk::FooImageGenericFilter<args_info_clitkFooImage> FilterType;
+  typedef clitk::SumGenericFilter<args_info_clitkSum> FilterType;
   FilterType::Pointer filter = FilterType::New();
 
   filter->SetArgsInfo(args_info);
-  filter->Update();
+  try {
+    filter->Update();
+  } catch(std::runtime_error e) {
+    std::cout << e.what() << std::endl;
+  }
 
   return EXIT_SUCCESS;
 }// end main

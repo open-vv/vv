@@ -15,13 +15,11 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
-#ifndef clitkFooImageGenericFilter_txx
-#define clitkFooImageGenericFilter_txx
+#ifndef clitkSumGenericFilter_txx
+#define clitkSumGenericFilter_txx
 
 // itk include
-#include "itkBinaryThresholdImageFilter.h"
-#include "itkMaskImageFilter.h"
-#include "itkMaskNegatedImageFilter.h"
+#include <itkSumProjectionImageFilter.h>
 #include <clitkCommon.h>
 
 namespace clitk
@@ -29,10 +27,9 @@ namespace clitk
 
 //--------------------------------------------------------------------
 template<class args_info_type>
-FooImageGenericFilter<args_info_type>::FooImageGenericFilter():
-  ImageToImageGenericFilter<Self>("FooImage")
+SumGenericFilter<args_info_type>::SumGenericFilter():
+  ImageToImageGenericFilter<Self>("Sum")
 {
-  InitializeImageType<2>();
   InitializeImageType<3>();
   InitializeImageType<4>();
 }
@@ -42,7 +39,7 @@ FooImageGenericFilter<args_info_type>::FooImageGenericFilter():
 //--------------------------------------------------------------------
 template<class args_info_type>
 template<unsigned int Dim>
-void FooImageGenericFilter<args_info_type>::InitializeImageType()
+void SumGenericFilter<args_info_type>::InitializeImageType()
 {
   ADD_DEFAULT_IMAGE_TYPES(Dim);
 }
@@ -51,7 +48,7 @@ void FooImageGenericFilter<args_info_type>::InitializeImageType()
 
 //--------------------------------------------------------------------
 template<class args_info_type>
-void FooImageGenericFilter<args_info_type>::SetArgsInfo(const args_info_type & a)
+void SumGenericFilter<args_info_type>::SetArgsInfo(const args_info_type & a)
 {
   mArgsInfo=a;
   this->SetIOVerbose(mArgsInfo.verbose_flag);
@@ -72,7 +69,7 @@ void FooImageGenericFilter<args_info_type>::SetArgsInfo(const args_info_type & a
 template<class args_info_type>
 template<class InputImageType>
 void
-FooImageGenericFilter<args_info_type>::UpdateWithInputImageType()
+SumGenericFilter<args_info_type>::UpdateWithInputImageType()
 {
 
   // Reading input
@@ -80,21 +77,21 @@ FooImageGenericFilter<args_info_type>::UpdateWithInputImageType()
 
   // Main filter
   typedef typename InputImageType::PixelType PixelType;
-  typedef itk::Image<char, InputImageType::ImageDimension> OutputImageType;
+  const int Dim = InputImageType::ImageDimension;
+  typedef itk::Image<PixelType,Dim> ImageType;
+  typedef itk::Image<PixelType,Dim-1> OutputImageType;
 
   // Filter
-  typedef itk::BinaryThresholdImageFilter<InputImageType, OutputImageType> BinaryThresholdImageFilterType;
-  typename BinaryThresholdImageFilterType::Pointer thresholdFilter=BinaryThresholdImageFilterType::New();
-  thresholdFilter->SetInput(input);
-  // Set filter members
-
-  // Write/Save results
-  typename OutputImageType::Pointer outputImage = thresholdFilter->GetOutput();
-  this->template SetNextOutput<OutputImageType>(outputImage);
+  typedef itk::SumProjectionImageFilter<ImageType,OutputImageType> FilterType;
+  typename FilterType::Pointer filter = FilterType::New();
+  filter->SetProjectionDimension(mArgsInfo.dimension_arg);
+  filter->SetInput(input);
+  filter->Update();
+  this->template SetNextOutput<OutputImageType>(filter->GetOutput());
 }
 //--------------------------------------------------------------------
 
 
 }//end clitk
 
-#endif //#define clitkFooImageGenericFilter_txx
+#endif //#define clitkSumGenericFilter_txx
