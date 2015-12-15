@@ -102,6 +102,8 @@ void vvToolCropImage::closeEvent(QCloseEvent *event)
     for(int i=0; i<6; i++){
       mReducedExtent[i] = mInitialExtent[i];
     }
+    for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++)
+      mCurrentSlicerManager->GetSlicer(i)->EnableReducedExtent(false);
     UpdateExtent();
   }
   vvToolWidgetBase::closeEvent(event);
@@ -120,7 +122,10 @@ bool vvToolCropImage::close()
 //------------------------------------------------------------------------------
 void vvToolCropImage::reject()
 {
-  for(int i=0; i<mExtentSize; i++) mReducedExtent[i] = mInitialExtent[i];
+  for(int i=0; i<mExtentSize; i++)
+    mReducedExtent[i] = mInitialExtent[i];
+  for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++)
+    mCurrentSlicerManager->GetSlicer(i)->EnableReducedExtent(false);
   UpdateExtent();
   return vvToolWidgetBase::reject();
 }
