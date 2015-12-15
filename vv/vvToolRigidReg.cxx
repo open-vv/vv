@@ -19,6 +19,7 @@
 // vv
 #include "vvToolRigidReg.h"
 #include "vvSlicer.h"
+#include <vvBlendImageActor.h>
 
 // vtk
 #include <vtkImageData.h>
@@ -458,97 +459,11 @@ void vvToolRigidReg::ExtentMax(const double pointExtent[8][4], double maxExtent[
 
 //------------------------------------------------------------------------------
 void vvToolRigidReg::Render()
-{ //out << __func__ << endl;
-#if VTK_MAJOR_VERSION > 5
-vtkMatrix4x4* matrix = mCurrentSlicerManager->GetImage()->GetTransform()[0]->GetMatrix();
-vtkMatrix4x4* matrixTranspose = matrix->NewInstance();
-for (int i=0; i<3; ++i) {
-    for (int j=0; j<3; ++j)
-    {
-        matrixTranspose->SetElement(i,j,matrix->GetElement(j,i));
-    }
-}
-for (int i=0; i<4; ++i) {
-   matrixTranspose->SetElement(3,i,matrix->GetElement(3,i));
-}
-for (int i=0; i<4; ++i) {
-   matrixTranspose->SetElement(i,3,matrix->GetElement(i,3));
-}
-#endif
-  for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++)
-    {
-#if VTK_MAJOR_VERSION > 5 
-    double pointExtent[8][4], pointExtentUpdate[8][4];
-    std::vector<int> w_ext;
-    w_ext=mCurrentSlicerManager->GetImage()->GetSize();
-    pointExtent[0][0] = 0.0;
-	pointExtent[0][1] = 0.0;
-	pointExtent[0][2] = 0.0;
-	pointExtent[0][3] = 1.0;
-    pointExtent[1][0] = w_ext[0]-1;
-	pointExtent[1][1] = w_ext[1]-1;
-	pointExtent[1][2] = w_ext[2]-1;
-	pointExtent[1][3] = 1.0;
-	pointExtent[2][0] = 0.0;
-	pointExtent[2][1] = w_ext[1]-1;
-	pointExtent[2][2] = w_ext[2]-1;
-	pointExtent[2][3] = 1.0;
-	pointExtent[3][0] = w_ext[0]-1;
-	pointExtent[3][1] = 0.0;
-	pointExtent[3][2] = w_ext[2]-1;
-	pointExtent[3][3] = 1.0;
-	pointExtent[4][0] = w_ext[0]-1;
-	pointExtent[4][1] = w_ext[1]-1;
-	pointExtent[4][2] = 0.0;
-	pointExtent[4][3] = 1.0;
-	pointExtent[5][0] = 0.0;
-	pointExtent[5][1] = 0.0;
-	pointExtent[5][2] = w_ext[2]-1;
-	pointExtent[5][3] = 1.0;
-	pointExtent[6][0] = 0.0;
-	pointExtent[6][1] = w_ext[1]-1;
-	pointExtent[6][2] = 0.0;
-	pointExtent[6][3] = 1.0;
-	pointExtent[7][0] = w_ext[0]-1;
-	pointExtent[7][1] = 0.0;
-	pointExtent[7][2] = 0.0;
-	pointExtent[7][3] = 1.0;
-	
-	for (int k=0; k<8; ++k) {
-	    for (int j=0; j<3; ++j)
-	    {
-	        pointExtent[k][j] = mCurrentSlicerManager->GetImage()->GetOrigin()[j] + mCurrentSlicerManager->GetImage()->GetSpacing()[j] * pointExtent[k][j];
-	    }
-	    matrixTranspose->MultiplyPoint(pointExtent[k], pointExtentUpdate[k]);
-		for (int j=0; j<3; ++j)
-	    {
-	        pointExtentUpdate[k][j] = (pointExtentUpdate[k][j] - mCurrentSlicerManager->GetImage()->GetOrigin()[j])/mCurrentSlicerManager->GetImage()->GetSpacing()[j];
-	    }
-    }
-double extUpdateTemp[2][3];
-int extUpdate[6];
-ExtentMax(pointExtentUpdate, extUpdateTemp);
-for (int j=0; j<3; ++j) {
-    extUpdate[2*j] = 0;
-    extUpdate[2*j+1] = itk::Math::Round<double>(extUpdateTemp[1][j] - extUpdateTemp[0][j]);
-}
-    mCurrentSlicerManager->GetSlicer(i)->SetRegisterExtent(extUpdate);
-    extUpdate[2*mCurrentSlicerManager->GetSlicer(i)->GetOrientation()] = mCurrentSlicerManager->GetSlicer(i)->GetSlice();
-    extUpdate[2*mCurrentSlicerManager->GetSlicer(i)->GetOrientation()+1] = mCurrentSlicerManager->GetSlicer(i)->GetSlice();
-    
-    vtkSmartPointer<vtkOpenGLImageSliceMapper> mapperOpenGL= vtkSmartPointer<vtkOpenGLImageSliceMapper>::New();
-    try {
-        mapperOpenGL = dynamic_cast<vtkOpenGLImageSliceMapper*>(mCurrentSlicerManager->GetSlicer(i)->GetImageActor()->GetMapper());
-    } catch (const std::bad_cast& e) {
-		std::cerr << e.what() << std::endl;
-		std::cerr << "Conversion error" << std::endl;
-		return;
-	}
-	mapperOpenGL->SetCroppingRegion(extUpdate);
-#endif
+{
+for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
     mCurrentSlicerManager->GetSlicer(i)->ForceUpdateDisplayExtent();
     mCurrentSlicerManager->GetSlicer(i)->Render();
-    }
+}
 }
 //------------------------------------------------------------------------------
 

@@ -148,7 +148,6 @@ public:
   double* GetCursorPosition() {
     return mCursor;
   }
-
   vtkTransform * GetSlicingTransform() { return mSlicingTransform; }
   vtkTransform * GetConcatenatedTransform() { return mConcatenatedTransform; }
   vtkTransform * GetConcatenatedFusionTransform() { return mConcatenatedFusionTransform; }
@@ -287,7 +286,7 @@ protected:
 private:
   void UpdateOrientation();
   void UpdateDisplayExtent();
-  void ConvertImageToImageDisplayExtent(vtkImageData *sourceImage, const int sourceExtent[6],
+  void ConvertImageToImageDisplayExtent(vtkInformation *sourceImage, const int sourceExtent[6],
                                         vtkImageData *targetImage, int targetExtent[6]);
   ///Sets the surfaces to be cut on the image slice: update the vtkCutter
   void SetContourSlice();

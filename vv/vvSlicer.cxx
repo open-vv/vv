@@ -95,7 +95,7 @@ vvSlicer::vvSlicer()
   this->UnInstallPipeline();
   mImage = NULL;
   mReducedExtent = new int[6];
-  mRegisterExtent = new int[6];
+  mRegisterExtent = NULL;
   mCurrentTSlice = 0;
   mCurrentFusionTSlice = 0;
   mCurrentOverlayTSlice = 0;
@@ -312,7 +312,6 @@ vvSlicer::~vvSlicer()
        i!=mSurfaceCutActors.end(); i++)
     delete (*i);
   delete [] mReducedExtent;
-  delete [] mRegisterExtent;
 }
 //------------------------------------------------------------------------------
 
@@ -1073,21 +1072,25 @@ int vvSlicer::GetOrientation()
 void vvSlicer::UpdateDisplayExtent()
 { 
   vtkImageData *input = this->GetInput();
-  
   if (!input || !this->ImageActor) {
     return;
   }
-  
+
 #if VTK_MAJOR_VERSION <= 5
   input->UpdateInformation();
+#else
+  mRegisterExtent = mImageReslice->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 #endif
   this->SetSlice( this->GetSlice() ); //SR: make sure the update let the slice in extents
 
   // Local copy of extent
   int w_ext[6];
-  int* ext = GetExtent();
+  int* ext = mImageReslice->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   copyExtent(ext, w_ext);
-
+  if (mUseReducedExtent) {
+        copyExtent(mReducedExtent, w_ext);
+    }
+  cout << mUseReducedExtent<< " " << w_ext[0] << " " << w_ext[1] << " " << w_ext[2] << " " << w_ext[3] << " " << w_ext[4] << " " << w_ext[5] << endl;  
   // Set slice value
 
   w_ext[ this->SliceOrientation*2   ] = this->Slice;
@@ -1096,31 +1099,6 @@ void vvSlicer::UpdateDisplayExtent()
   // Image actor
   this->ImageActor->SetVisibility(mImageVisibility);
   this->ImageActor->SetDisplayExtent(w_ext);
-#if VTK_MAJOR_VERSION >= 6
-  vtkSmartPointer<vtkOpenGLImageSliceMapper> mapperOpenGL= vtkSmartPointer<vtkOpenGLImageSliceMapper>::New();
-
-  try {
-        mapperOpenGL = dynamic_cast<vtkOpenGLImageSliceMapper*>(GetImageActor()->GetMapper());
-  } catch (const std::bad_cast& e) {
-		std::cerr << e.what() << std::endl;
-		std::cerr << "Conversion error" << std::endl;
-		return;
-  }
-  if (mFirstSetSliceOrientation) {
-    copyExtent(ext, mRegisterExtent);
-  } else {
-    int w_croppingRegion[6];
-    if (mUseReducedExtent) {
-        copyExtent(mReducedExtent, w_croppingRegion);
-    } else {
-        copyExtent(mRegisterExtent, w_croppingRegion);
-    }
-    this->ImageActor->SetDisplayExtent(w_ext);
-    w_croppingRegion[ this->SliceOrientation*2   ] = this->Slice;
-    w_croppingRegion[ this->SliceOrientation*2+1 ] = this->Slice;
-    mapperOpenGL->SetCroppingRegion(w_croppingRegion);    
-  }
-#endif 
   
 #if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
   // Fix for bug #1882
@@ -1131,7 +1109,7 @@ void vvSlicer::UpdateDisplayExtent()
   if (mOverlay && mOverlayVisibility) {
     AdjustResliceToSliceOrientation(mOverlayReslice);
     int overExtent[6];
-    this->ConvertImageToImageDisplayExtent(input, w_ext, mOverlayReslice->GetOutput(), overExtent);
+    this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mOverlayReslice->GetOutput(), overExtent);
 #if VTK_MAJOR_VERSION <= 5
     bool out = ClipDisplayedExtent(overExtent, mOverlayMapper->GetInput()->GetWholeExtent());
 #else
@@ -1151,7 +1129,7 @@ void vvSlicer::UpdateDisplayExtent()
   if (mFusion && mFusionVisibility) {
     AdjustResliceToSliceOrientation(mFusionReslice);
     int fusExtent[6];
-    this->ConvertImageToImageDisplayExtent(input, w_ext, mFusionReslice->GetOutput(), fusExtent);
+    this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mFusionReslice->GetOutput(), fusExtent);
 #if VTK_MAJOR_VERSION <= 5
     bool out = ClipDisplayedExtent(fusExtent, mFusionMapper->GetInput()->GetWholeExtent());
 #else
@@ -1191,7 +1169,7 @@ void vvSlicer::UpdateDisplayExtent()
 #else
     //this->UpdateInformation();
 #endif
-    this->ConvertImageToImageDisplayExtent(input, w_ext, mVF->GetVTKImages()[0], vfExtent);
+    this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mVF->GetVTKImages()[0], vfExtent);
 #if VTK_MAJOR_VERSION <= 5
     bool out = ClipDisplayedExtent(vfExtent, mVOIFilter->GetInput()->GetWholeExtent());
 #else
@@ -1250,13 +1228,16 @@ void vvSlicer::UpdateDisplayExtent()
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void vvSlicer::ConvertImageToImageDisplayExtent(vtkImageData *sourceImage, const int sourceExtent[6],
+void vvSlicer::ConvertImageToImageDisplayExtent(vtkInformation *sourceImage, const int sourceExtent[6],
                                                 vtkImageData *targetImage, int targetExtent[6])
 { 
   double dExtents[6];
+  double *origin, *spacing;
+  origin = sourceImage->Get(vtkDataObject::ORIGIN());
+  spacing = sourceImage->Get(vtkDataObject::SPACING());
   for(unsigned int i=0; i<6; i++) {
     // From source voxel coordinates to world coordinates
-    dExtents[i] = sourceImage->GetOrigin()[i/2] + sourceImage->GetSpacing()[i/2] * sourceExtent[i];
+    dExtents[i] = origin[i/2] + spacing[i/2] * sourceExtent[i];
 
     // From world coordinates to floating point target voxel coordinates
     dExtents[i] = (dExtents[i]- targetImage->GetOrigin()[i/2]) / targetImage->GetSpacing()[i/2];
@@ -1596,7 +1577,6 @@ double vvSlicer::GetScalarComponentAsDouble(vtkImageData *image, double X, doubl
 //----------------------------------------------------------------------------
 void vvSlicer::Render()
 { 
-
   if (this->mFusion && mFusionActor->GetVisibility() && showFusionLegend) {
     legend->SetLookupTable(this->GetFusionMapper()->GetLookupTable());
     legend->UseOpacityOn();
@@ -1609,6 +1589,7 @@ void vvSlicer::Render()
   } else legend->SetVisibility(0);
 
   if (ca->GetVisibility()) {
+
     std::stringstream worldPos(" ");
     double pt[3];
     mConcatenatedTransform->TransformPoint(mCurrent, pt);
@@ -1648,7 +1629,7 @@ void vvSlicer::Render()
         Y <= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[3]+0.5 &&
         Z >= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[4]-0.5 &&
         Z <= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[5]+0.5) {
-      
+
       int ix, iy, iz;
       double value = this->GetScalarComponentAsDouble(mImage->GetVTKImages()[mCurrentTSlice], X, Y, Z, ix, iy, iz);
 
@@ -1710,6 +1691,7 @@ void vvSlicer::Render()
 		std::cerr << "Conversion error" << std::endl;
 		return;
 	}
+
     if (xCursor >= mapperOpenGL->GetCroppingRegion()[0]-0.5 &&
         xCursor < mapperOpenGL->GetCroppingRegion()[1]+0.5 &&
         yCursor >= mapperOpenGL->GetCroppingRegion()[2]-0.5 &&
