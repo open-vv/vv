@@ -16,6 +16,7 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================*/
 #include <itkImageToVTKImageFilter.h>
+#include <itkPixelTraits.h>
 
 //--------------------------------------------------------------------
 template<class TItkImageType>
@@ -24,7 +25,7 @@ void vvImage::AddItkImage(TItkImageType *input)
   // Update input before conversion to enable exceptions thrown by the ITK pipeline.
   // Otherwise, vtkImageImport catches the exception for us.
   input->Update();
-
+  
   // Convert from ITK object to VTK object
   mImageDimension = TItkImageType::ImageDimension;
   typedef itk::ImageToVTKImageFilter <TItkImageType> ConverterType;
@@ -54,6 +55,47 @@ void vvImage::AddItkImage(TItkImageType *input)
   mTransform.back()->SetMatrix(matrix);
   //META DATA
   mDictionary.push_back(&(input->GetMetaDataDictionary()));
+}
+//--------------------------------------------------------------------
+ 
+/** Dispatch the computation of scalar range between vector and scalar image */
+template<class TPixelType, unsigned int VImageDimension>
+void vvImage::ComputeScalarRangeBase(itk::Image<TPixelType,VImageDimension> *input)
+{ 
+ itkStaticConstMacro(Dimension1, unsigned int, itk::PixelTraits< TPixelType >::Dimension);
+ ComputeScalarRange(DimensionDispatch< Dimension1 >(), input);
+}
+
+//--------------------------------------------------------------------
+/** Compute the scalar range for a vector pixel type */
+/** TO DO*/
+template<class TPixelType, unsigned int VImageDimension>
+void vvImage::ComputeScalarRange(DimensionDispatchBase, itk::Image<TPixelType,VImageDimension> *input)
+{
+     cout << "try" << endl;
+}
+
+//--------------------------------------------------------------------
+/** Compute the scalar range for a scalar pixel type */
+template<class TPixelType, unsigned int VImageDimension>
+void vvImage::ComputeScalarRange(DimensionDispatch< 1 >, itk::Image<TPixelType,VImageDimension> *input)
+{  
+  typedef typename itk::Image<TPixelType,VImageDimension> TItkImageType;
+  typedef itk::MinimumMaximumImageCalculator <TItkImageType> ImageCalculatorFilterType;
+  
+  typename ImageCalculatorFilterType::Pointer imageCalculatorFilter = ImageCalculatorFilterType::New ();
+  TPixelType tempMin, tempMax;
+  double tempRange[2];
+  imageCalculatorFilter->SetImage(input);
+  imageCalculatorFilter->Compute();
+  tempMin= imageCalculatorFilter->GetMinimum();
+  tempMax= imageCalculatorFilter->GetMaximum();
+
+  tempRange[0] = (double) tempMin;
+  tempRange[1] = (double) tempMax;
+
+  if (tempRange[0] < mrange[0]) mrange[0]=tempRange[0];
+  if (tempRange[1] > mrange[1]) mrange[1]=tempRange[1];
 }
 //--------------------------------------------------------------------
 

@@ -49,6 +49,8 @@ void vvImage::Init()
   mTimeSpacing = 1;
   mTimeOrigin = 0;
   mImageDimension = 0;
+  mrange[0] = std::numeric_limits<int>::max();;//min
+  mrange[1] = std::numeric_limits<int>::min();;//max
 }
 //--------------------------------------------------------------------
 
@@ -80,7 +82,6 @@ void vvImage::AddVtkImage(vtkImageData* input)
 #else
   int* extent = input->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
 #endif
-  
   if (extent[4] != extent[5])
     mImageDimension = 3;
   else if (extent[3] != extent[4])
@@ -116,15 +117,8 @@ int vvImage::GetNumberOfDimensions() const
 //--------------------------------------------------------------------
 void vvImage::GetScalarRange(double* range)
 {
-  assert(mVtkImages.size());
-  double * temp = mVtkImages[0]->GetScalarRange();
-  range[0]=temp[0];
-  range[1]=temp[1];
-  for (unsigned int i=1; i<mVtkImages.size(); i++) {
-    temp = mVtkImages[i]->GetScalarRange();
-    if (temp[0] < range[0]) range[0]=temp[0];
-    if (temp[1] > range[1]) range[1]=temp[1];
-  }
+  range[0]=mrange[0];
+  range[1]=mrange[1];
 }
 //--------------------------------------------------------------------
 

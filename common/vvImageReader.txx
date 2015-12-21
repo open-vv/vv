@@ -86,6 +86,7 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
       reader->SetFileName(*i);
       try {
         mImage->AddItkImage<InputImageType>(reader->GetOutput());
+        mImage->ComputeScalarRangeBase<InputPixelType, VImageDimension-1>(reader->GetOutput());
       } catch ( itk::ExceptionObject & err ) {
         std::cerr << "Error while reading " << mInputFilenames[0].c_str()
                   << " " << err << std::endl;
@@ -125,6 +126,7 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
 #endif
     try {
       mImage->AddItkImage<SlicedImageType>(filter->GetOutput());
+      mImage->ComputeScalarRangeBase<InputPixelType, VImageDimension-1>(filter->GetOutput());
     } catch ( itk::ExceptionObject & err ) {
       std::cerr << "Error while slicing " << mInputFilenames[0].c_str()
                 << "(slice #" << mSlice << ") " << err << std::endl;

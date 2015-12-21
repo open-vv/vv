@@ -380,7 +380,6 @@ void vvSlicer::SetImage(vvImage::Pointer image)
     // Make sure that the required part image has been computed
     extent[SliceOrientation*2] = Slice;
     extent[SliceOrientation*2+1] = Slice;    
-
 #if VTK_MAJOR_VERSION <= 5
     mImageReslice->GetOutput()->SetUpdateExtent(extent);
     mImageReslice->GetOutput()->Update();
@@ -1090,7 +1089,6 @@ void vvSlicer::UpdateDisplayExtent()
   if (mUseReducedExtent) {
         copyExtent(mReducedExtent, w_ext);
     }
-  cout << mUseReducedExtent<< " " << w_ext[0] << " " << w_ext[1] << " " << w_ext[2] << " " << w_ext[3] << " " << w_ext[4] << " " << w_ext[5] << endl;  
   // Set slice value
 
   w_ext[ this->SliceOrientation*2   ] = this->Slice;
