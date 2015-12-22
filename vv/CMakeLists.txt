@@ -21,6 +21,7 @@ set(vv_TOOLS
   vvToolConvert ## with dummy vvToolConvert.ui
   vvToolROIManager
   vvToolSegmentation
+  vvToolProfile
   ## these ones are for tests (not working)
   # vvToolTest
   # vvToolFoo
@@ -36,6 +37,7 @@ set(vv_TOOLS
 # Future issues : when tool depend on other tools ... how to manage that ?
 #  >> add the relevant $_LIBS variable to the tool that has dependencies?
 set(vvToolBinarize_LIBS clitkBinarizeImageLib)
+set(vvToolProfile_LIBS clitkProfileImageLib)
 set(vvToolResample_LIBS clitkResampleImageLib)
 set(vvToolConvert_LIBS clitkImageConvertLib)
 set(vvToolExtractPatient_LIBS clitkSegmentationGgoLib)
