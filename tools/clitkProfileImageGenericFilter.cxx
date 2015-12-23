@@ -30,9 +30,7 @@
 #include "clitkProfileImageGenericFilter.h"
 
 // itk include
-#include "itkBinaryThresholdImageFilter.h"
-#include "itkMaskImageFilter.h"
-#include "itkMaskNegatedImageFilter.h"
+#include <itkLineIterator.h>
 
 #include <clitkCommon.h>
 
@@ -88,25 +86,40 @@ ProfileImageGenericFilter::UpdateWithInputImageType()
 
   // Reading input
   typename InputImageType::Pointer input = this->template GetInput<InputImageType>(0);
-
-  // Main filter
   typedef typename InputImageType::PixelType PixelType;
+  typedef typename InputImageType::IndexType IndexType;
   typedef itk::Image<uchar, InputImageType::ImageDimension> OutputImageType;
+  
+  //Iterator
+  IndexType pointBegin, pointEnd;
+  
+  for (int i = 0; i < mArgsInfo.point1_given; ++i) {
+    pointBegin[i] = mArgsInfo.point1_arg[i];
+    pointEnd[i] = mArgsInfo.point2_arg[i];
+  }
+  
+  itk::LineConstIterator<InputImageType> itProfile(input, pointBegin, pointEnd);
+  itProfile.GoToBegin();
+  while (!itProfile.IsAtEnd())
+  {
+    
+    ++itProfile;
+  }
 
   // Filter
-  typedef itk::BinaryThresholdImageFilter<InputImageType, OutputImageType> BinaryThresholdImageFilterType;
-  typename BinaryThresholdImageFilterType::Pointer thresholdFilter=BinaryThresholdImageFilterType::New();
-  thresholdFilter->SetInput(input);
-  thresholdFilter->SetInsideValue(mArgsInfo.fg_arg);
+  //typedef itk::BinaryThresholdImageFilter<InputImageType, OutputImageType> BinaryThresholdImageFilterType;
+  //typename BinaryThresholdImageFilterType::Pointer thresholdFilter=BinaryThresholdImageFilterType::New();
+  //thresholdFilter->SetInput(input);
+  /*thresholdFilter->SetInsideValue(mArgsInfo.fg_arg);
 
   if (mArgsInfo.lower_given) thresholdFilter->SetLowerThreshold(static_cast<PixelType>(mArgsInfo.lower_arg));
   if (mArgsInfo.upper_given) thresholdFilter->SetUpperThreshold(static_cast<PixelType>(mArgsInfo.upper_arg));
 
-  /* Three modes :
+   Three modes :
      - FG -> only use FG value for pixel in the Foreground (or Inside), keep input values for outside
      - BG -> only use BG value for pixel in the Background (or Outside), keep input values for inside
      - both -> use FG and BG (real binary image)
-  */
+  
   if (mArgsInfo.mode_arg == std::string("both")) {
     thresholdFilter->SetOutsideValue(mArgsInfo.bg_arg);
     thresholdFilter->Update();
@@ -134,7 +147,7 @@ ProfileImageGenericFilter::UpdateWithInputImageType()
     }
     // Write/Save results
     this->template SetNextOutput<InputImageType>(outputImage);
-  }
+  }*/
 }
 //--------------------------------------------------------------------
 

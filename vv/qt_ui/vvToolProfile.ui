@@ -28,6 +28,24 @@
          </property>
         </widget>
        </item>
+       <item row="2" column="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLabel" name="Point2">
+           <property name="text">
+            <string>Point2 (mm): </string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="mPosPoint2Label">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
        <item row="2" column="1">
         <widget class="QPushButton" name="mSelectPoint2Button">
          <property name="text">
@@ -35,12 +53,29 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="QToolButton" name="mCancelPoints">
-         <property name="text">
-          <string>Cancel</string>
-         </property>
-        </widget>
+       <item row="3" column="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <item>
+          <widget class="QToolButton" name="mCancelPointsButton">
+           <property name="text">
+            <string>Cancel</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="mComputeProfileButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Compute Profile</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item row="1" column="2">
         <layout class="QHBoxLayout" name="horizontalLayout">
@@ -53,24 +88,6 @@
          </item>
          <item>
           <widget class="QLabel" name="mPosPoint1Label">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="2" column="2">
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QLabel" name="Point2">
-           <property name="text">
-            <string>Point2 (mm): </string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="mPosPoint2Label">
            <property name="text">
             <string/>
            </property>

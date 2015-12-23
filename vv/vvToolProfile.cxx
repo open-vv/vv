@@ -64,7 +64,8 @@ vvToolProfile::vvToolProfile(vvMainWindowBase * parent, Qt::WindowFlags f)
   // Connect signals & slots
   connect(mSelectPoint1Button, SIGNAL(clicked()), this, SLOT(selectPoint1()));
   connect(mSelectPoint2Button, SIGNAL(clicked()), this, SLOT(selectPoint2()));
-  connect(mCancelPoints, SIGNAL(clicked()), this, SLOT(cancelPoints()));
+  connect(mCancelPointsButton, SIGNAL(clicked()), this, SLOT(cancelPoints()));
+  connect(mComputeProfileButton, SIGNAL(clicked()), this, SLOT(computeProfile()));
 
   // Initialize some widget
   //mThresholdSlider1->SetText("");
@@ -74,6 +75,9 @@ vvToolProfile::vvToolProfile(vvMainWindowBase * parent, Qt::WindowFlags f)
   
   mPoint1 = NULL;
   mPoint2 = NULL;
+  
+  point1Selected = false;
+  point2Selected = false;
 
   // Main filter
   mFilter = clitk::ProfileImageGenericFilter::New();
@@ -98,17 +102,18 @@ void vvToolProfile::selectPoint1()
   point1Selected = false;
   if(mCurrentSlicerManager) {
       if(mCurrentSlicerManager->GetSelectedSlicer() != -1) {
-          double x = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[0];
-          double y = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[1];
-          double z = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[2];
-          position += QString::number(x,'f',1) + " ";
-          position += QString::number(y,'f',1) + " ";
-          position += QString::number(z,'f',1) + " ";
+          double *pos;
+          int *index;
+          pos = new double [mCurrentSlicerManager->GetImage()->GetNumberOfDimensions()];
+          index = new int [mCurrentSlicerManager->GetImage()->GetNumberOfDimensions()];
+          
+          for (int i=0; i<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions(); ++i) {
+            pos[i] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[i];
+            index[i] = (int) (pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i];
             
-          mPoint1[0] = x;
-          mPoint1[1] = y;
-          mPoint1[2] = z;
-           
+            position += QString::number(pos[i],'f',1) + " ";
+            mPoint1[i] = index[i];
+          }
           point1Selected = true;
       }
   }
@@ -125,17 +130,18 @@ void vvToolProfile::selectPoint2()
   point2Selected = false;
   if(mCurrentSlicerManager) {
       if(mCurrentSlicerManager->GetSelectedSlicer() != -1) {
-          double x = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[0];
-          double y = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[1];
-          double z = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[2];
-          position += QString::number(x,'f',1) + " ";
-          position += QString::number(y,'f',1) + " ";
-          position += QString::number(z,'f',1) + " ";
+          double *pos;
+          int *index;
+          pos = new double [mCurrentSlicerManager->GetImage()->GetNumberOfDimensions()];
+          index = new int [mCurrentSlicerManager->GetImage()->GetNumberOfDimensions()];
+          
+          for (int i=0; i<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions(); ++i) {
+            pos[i] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[i];
+            index[i] = (int) (pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i];
             
-          mPoint2[0] = x;
-          mPoint2[1] = y;
-          mPoint2[2] = z;
-           
+            position += QString::number(pos[i],'f',1) + " ";
+            mPoint2[i] = index[i];
+          }
           point2Selected = true;
       }
   }
@@ -147,11 +153,32 @@ void vvToolProfile::selectPoint2()
 //------------------------------------------------------------------------------
 bool vvToolProfile::isPointsSelected()
 {
-  if (point1Selected && point2Selected) {
-  //Lancer le calcule du profil
-  }
+  if (point1Selected && point2Selected)
+      mComputeProfileButton->setEnabled(true);
+  else
+      mComputeProfileButton->setEnabled(false);
   
   return (point1Selected && point2Selected);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolProfile::computeProfile()
+{
+    if (!mCurrentSlicerManager) close();
+
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    GetArgsInfoFromGUI();
+    
+    // Main filter
+    clitk::ProfileImageGenericFilter::Pointer filter = clitk::ProfileImageGenericFilter::New();
+    filter->SetInputVVImage(mCurrentImage);
+    filter->SetArgsInfo(mArgsInfo);
+    filter->Update();
+    
+    QApplication::restoreOverrideCursor();
+ 
 }
 //------------------------------------------------------------------------------
 
@@ -164,6 +191,7 @@ void vvToolProfile::cancelPoints()
   mPosPoint2Label->setText(position);
   point1Selected = false;
   point2Selected = false;
+  mComputeProfileButton->setEnabled(false);
   isPointsSelected();
 }
 //------------------------------------------------------------------------------
@@ -270,10 +298,10 @@ void vvToolProfile::InputIsSelected(vvSlicerManager * m)
 { 
   mCurrentSlicerManager = m;
 
-  mPoint1 = new double[3];
-  mPoint2 = new double[3];
-  //mPoint1 = new double[m->GetImage()->GetNumberOfSpatialDimensions()];
-  //mPoint2 = new double[m->GetImage()->GetNumberOfSpatialDimensions()];
+  mPoint1 = new int[mCurrentSlicerManager->GetImage()->GetNumberOfDimensions()];
+  mPoint2 = new int[mCurrentSlicerManager->GetImage()->GetNumberOfDimensions()];
+  
+  mComputeProfileButton->setEnabled(false);
 
   // Specific for this gui
   //mThresholdSlider1->SetValue(0);
@@ -298,7 +326,7 @@ void vvToolProfile::InputIsSelected(vvSlicerManager * m)
   mBGSlider->SetValue(0);
   mFGSlider->SetSingleStep(1);
   mBGSlider->SetSingleStep(1);
-*/
+
   // VTK objects for interactive display
   for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
     mImageContour.push_back(vvImageContour::New());
@@ -321,7 +349,7 @@ void vvToolProfile::InputIsSelected(vvSlicerManager * m)
   //connect(mCurrentSlicerManager,SIGNAL(UpdateOrientation(int,int)),this,SLOT(UpdateOrientation(int, int)));
 
   //  connect(mCurrentSlicerManager, SIGNAL(LeftButtonReleaseSignal(int)), SLOT(LeftButtonReleaseEvent(int)));
-  InteractiveDisplayToggled(mInteractiveDisplayIsEnabled);
+  InteractiveDisplayToggled(mInteractiveDisplayIsEnabled); */
 }
 //------------------------------------------------------------------------------
 
@@ -354,7 +382,7 @@ void vvToolProfile::UpdateSlice(int slicer,int slices)
 //------------------------------------------------------------------------------
 void vvToolProfile::Update(int slicer)
 { 
-  if (!mInteractiveDisplayIsEnabled) return;
+  //if (!mInteractiveDisplayIsEnabled) return;
   if (!mCurrentSlicerManager) close();
   //mImageContour[slicer]->Update(mThresholdSlider1->GetValue());
   //if (mRadioButtonLowerThan->isChecked()) 
@@ -377,9 +405,9 @@ void vvToolProfile::GetArgsInfoFromGUI()
      DD(good);
   */
   cmdline_parser_clitkProfileImage_init(&mArgsInfo); // Initialisation to default
-  bool inverseBGandFG = false;
+  //bool inverseBGandFG = false;
 
-  mArgsInfo.lower_given = 1;
+  //mArgsInfo.lower_given = 1;
   /*mArgsInfo.lower_arg = mThresholdSlider1->GetValue();
   if (mRadioButtonLowerThan->isChecked()) {
     mArgsInfo.upper_given = 1;
@@ -406,13 +434,18 @@ void vvToolProfile::GetArgsInfoFromGUI()
   } else mArgsInfo.mode_arg = (char*)"FG";
 */
   mArgsInfo.verbose_flag = false;
+  
+  mArgsInfo.point1_arg = mPoint1;
+  mArgsInfo.point2_arg = mPoint2;
+  mArgsInfo.point1_given = mCurrentSlicerManager->GetImage()->GetNumberOfDimensions();
+  mArgsInfo.point2_given = mCurrentSlicerManager->GetImage()->GetNumberOfDimensions();
+  
+  // Required (even if not used)
+  mArgsInfo.input_given = 0;
+  mArgsInfo.output_given = 0;
 
-  // // Required (even if not used)
-  // mArgsInfo.input_given = 0;
-  // mArgsInfo.output_given = 0;
-
-  // mArgsInfo.input_arg = new char;
-  // mArgsInfo.output_arg = new char;
+  mArgsInfo.input_arg = new char;
+  mArgsInfo.output_arg = new char;
 }
 //------------------------------------------------------------------------------
 

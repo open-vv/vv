@@ -62,6 +62,7 @@ class vvToolProfile:
   void selectPoint1();
   void selectPoint2();
   void cancelPoints();
+  void computeProfile();
 
  protected:
   void RemoveVTKObjects();
@@ -72,8 +73,8 @@ class vvToolProfile:
   std::vector<vvImageContour::Pointer> mImageContourLower;
   bool mInteractiveDisplayIsEnabled;
   
-  double* mPoint1;
-  double* mPoint2;
+  int* mPoint1;
+  int* mPoint2;
   bool point1Selected;
   bool point2Selected;
   
