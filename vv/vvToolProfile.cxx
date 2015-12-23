@@ -59,19 +59,21 @@ vvToolProfile::vvToolProfile(vvMainWindowBase * parent, Qt::WindowFlags f)
 { 
   // GUI Initialization
   Ui_vvToolProfile::setupUi(mToolWidget);
-  mInteractiveDisplayIsEnabled = mCheckBoxInteractiveDisplay->isChecked();
+  //mInteractiveDisplayIsEnabled = mCheckBoxInteractiveDisplay->isChecked();
 
   // Connect signals & slots
-  connect(mRadioButtonLowerThan, SIGNAL(toggled(bool)), this, SLOT(enableLowerThan(bool)));
-  connect(mCheckBoxUseFG, SIGNAL(toggled(bool)), this, SLOT(useFGBGtoggled(bool)));
-  connect(mCheckBoxUseBG, SIGNAL(toggled(bool)), this, SLOT(useFGBGtoggled(bool)));
-  connect(mCheckBoxInteractiveDisplay, SIGNAL(toggled(bool)), this, SLOT(InteractiveDisplayToggled(bool)));
+  connect(mSelectPoint1Button, SIGNAL(clicked()), this, SLOT(selectPoint1()));
+  connect(mSelectPoint2Button, SIGNAL(clicked()), this, SLOT(selectPoint2()));
+  connect(mCancelPoints, SIGNAL(clicked()), this, SLOT(cancelPoints()));
 
   // Initialize some widget
-  mThresholdSlider1->SetText("");
-  mThresholdSlider2->SetText("");
-  mFGSlider->SetText("Foreground value");
-  mBGSlider->SetText("Background value");
+  //mThresholdSlider1->SetText("");
+  //mThresholdSlider2->SetText("");
+  //mFGSlider->SetText("Foreground value");
+  //mBGSlider->SetText("Background value");
+  
+  mPoint1 = NULL;
+  mPoint2 = NULL;
 
   // Main filter
   mFilter = clitk::ProfileImageGenericFilter::New();
@@ -90,9 +92,87 @@ vvToolProfile::~vvToolProfile()
 
 
 //------------------------------------------------------------------------------
+void vvToolProfile::selectPoint1()
+{
+  QString position = "";
+  point1Selected = false;
+  if(mCurrentSlicerManager) {
+      if(mCurrentSlicerManager->GetSelectedSlicer() != -1) {
+          double x = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[0];
+          double y = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[1];
+          double z = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[2];
+          position += QString::number(x,'f',1) + " ";
+          position += QString::number(y,'f',1) + " ";
+          position += QString::number(z,'f',1) + " ";
+            
+          mPoint1[0] = x;
+          mPoint1[1] = y;
+          mPoint1[2] = z;
+           
+          point1Selected = true;
+      }
+  }
+  mPosPoint1Label->setText(position);
+  isPointsSelected();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolProfile::selectPoint2()
+{
+  QString position = "";
+  point2Selected = false;
+  if(mCurrentSlicerManager) {
+      if(mCurrentSlicerManager->GetSelectedSlicer() != -1) {
+          double x = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[0];
+          double y = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[1];
+          double z = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[2];
+          position += QString::number(x,'f',1) + " ";
+          position += QString::number(y,'f',1) + " ";
+          position += QString::number(z,'f',1) + " ";
+            
+          mPoint2[0] = x;
+          mPoint2[1] = y;
+          mPoint2[2] = z;
+           
+          point2Selected = true;
+      }
+  }
+  mPosPoint2Label->setText(position);
+  isPointsSelected();
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+bool vvToolProfile::isPointsSelected()
+{
+  if (point1Selected && point2Selected) {
+  //Lancer le calcule du profil
+  }
+  
+  return (point1Selected && point2Selected);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolProfile::cancelPoints()
+{ 
+  QString position = "";
+  mPosPoint1Label->setText(position);
+  mPosPoint2Label->setText(position);
+  point1Selected = false;
+  point2Selected = false;
+  isPointsSelected();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 void vvToolProfile::InteractiveDisplayToggled(bool b)
 { 
-  mInteractiveDisplayIsEnabled = b;
+  /*mInteractiveDisplayIsEnabled = b;
   if (!mInteractiveDisplayIsEnabled) {
     RemoveVTKObjects();
   } else {
@@ -103,7 +183,7 @@ void vvToolProfile::InteractiveDisplayToggled(bool b)
     }
     if (mCurrentSlicerManager)
       mCurrentSlicerManager->Render();
-  }
+  }*/  
 }
 //------------------------------------------------------------------------------
 
@@ -144,6 +224,8 @@ void vvToolProfile::reject()
 { 
   // DD("vvToolProfile::reject");
   RemoveVTKObjects();
+  delete [] mPoint1;
+  delete [] mPoint2;
   return vvToolWidgetBase::reject();
 }
 //------------------------------------------------------------------------------
@@ -152,7 +234,7 @@ void vvToolProfile::reject()
 //------------------------------------------------------------------------------
 void vvToolProfile::enableLowerThan(bool b)
 { 
-  if (!b) {
+  /*if (!b) {
     mThresholdSlider1->resetMaximum();
     for(unsigned int i=0; i<mImageContour.size(); i++) {
       mImageContourLower[i]->HideActors();    
@@ -165,7 +247,7 @@ void vvToolProfile::enableLowerThan(bool b)
       mImageContourLower[i]->ShowActors();    
     }
     mCurrentSlicerManager->Render();
-  }
+  }*/
 }
 //------------------------------------------------------------------------------
 
@@ -188,13 +270,18 @@ void vvToolProfile::InputIsSelected(vvSlicerManager * m)
 { 
   mCurrentSlicerManager = m;
 
+  mPoint1 = new double[3];
+  mPoint2 = new double[3];
+  //mPoint1 = new double[m->GetImage()->GetNumberOfSpatialDimensions()];
+  //mPoint2 = new double[m->GetImage()->GetNumberOfSpatialDimensions()];
+
   // Specific for this gui
-  mThresholdSlider1->SetValue(0);
-  mThresholdSlider2->SetValue(0);
-  mThresholdSlider1->SetImage(mCurrentImage);
-  mThresholdSlider2->SetImage(mCurrentImage);
-  mFGSlider->SetImage(mCurrentImage);
-  mBGSlider->SetImage(mCurrentImage);
+  //mThresholdSlider1->SetValue(0);
+  //mThresholdSlider2->SetValue(0);
+  //mThresholdSlider1->SetImage(mCurrentImage);
+  //mThresholdSlider2->SetImage(mCurrentImage);
+  //mFGSlider->SetImage(mCurrentImage);
+  //mBGSlider->SetImage(mCurrentImage);
   //  DD(mCurrentSlicerManager->GetFileName().c_str());
   //  mFGSlider->SetMaximum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMax());
   //   mFGSlider->SetMinimum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMin());
@@ -202,7 +289,7 @@ void vvToolProfile::InputIsSelected(vvSlicerManager * m)
   //   mBGSlider->SetMinimum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMin());
 
   // Output is uchar ...
-  mFGSlider->SetMaximum(255);
+  /*mFGSlider->SetMaximum(255);
   mFGSlider->SetMinimum(0);
   mBGSlider->SetMaximum(255);
   mBGSlider->SetMinimum(0);
@@ -211,7 +298,7 @@ void vvToolProfile::InputIsSelected(vvSlicerManager * m)
   mBGSlider->SetValue(0);
   mFGSlider->SetSingleStep(1);
   mBGSlider->SetSingleStep(1);
-
+*/
   // VTK objects for interactive display
   for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
     mImageContour.push_back(vvImageContour::New());
@@ -223,15 +310,15 @@ void vvToolProfile::InputIsSelected(vvSlicerManager * m)
     mImageContourLower[i]->SetColor(0.0, 0.0, 1.0);
     mImageContourLower[i]->SetDepth(100); // to be in front of (whe used with ROI tool)
   }
-  valueChangedT1(mThresholdSlider1->GetValue());
+  //valueChangedT1(mThresholdSlider1->GetValue());
 
-  connect(mThresholdSlider1, SIGNAL(valueChanged(double)), this, SLOT(valueChangedT1(double)));
-  connect(mThresholdSlider2, SIGNAL(valueChanged(double)), this, SLOT(valueChangedT2(double)));
+  //connect(mThresholdSlider1, SIGNAL(valueChanged(double)), this, SLOT(valueChangedT1(double)));
+  //connect(mThresholdSlider2, SIGNAL(valueChanged(double)), this, SLOT(valueChangedT2(double)));
 
-  connect(mCurrentSlicerManager,SIGNAL(UpdateSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
-  connect(mCurrentSlicerManager,SIGNAL(UpdateTSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
+  //connect(mCurrentSlicerManager,SIGNAL(UpdateSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
+  //connect(mCurrentSlicerManager,SIGNAL(UpdateTSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
   
-  connect(mCurrentSlicerManager,SIGNAL(UpdateOrientation(int,int)),this,SLOT(UpdateOrientation(int, int)));
+  //connect(mCurrentSlicerManager,SIGNAL(UpdateOrientation(int,int)),this,SLOT(UpdateOrientation(int, int)));
 
   //  connect(mCurrentSlicerManager, SIGNAL(LeftButtonReleaseSignal(int)), SLOT(LeftButtonReleaseEvent(int)));
   InteractiveDisplayToggled(mInteractiveDisplayIsEnabled);
@@ -269,9 +356,9 @@ void vvToolProfile::Update(int slicer)
 { 
   if (!mInteractiveDisplayIsEnabled) return;
   if (!mCurrentSlicerManager) close();
-  mImageContour[slicer]->Update(mThresholdSlider1->GetValue());
-  if (mRadioButtonLowerThan->isChecked()) 
-    mImageContourLower[slicer]->Update(mThresholdSlider2->GetValue());
+  //mImageContour[slicer]->Update(mThresholdSlider1->GetValue());
+  //if (mRadioButtonLowerThan->isChecked()) 
+  //  mImageContourLower[slicer]->Update(mThresholdSlider2->GetValue());
 }
 //------------------------------------------------------------------------------
 
@@ -293,7 +380,7 @@ void vvToolProfile::GetArgsInfoFromGUI()
   bool inverseBGandFG = false;
 
   mArgsInfo.lower_given = 1;
-  mArgsInfo.lower_arg = mThresholdSlider1->GetValue();
+  /*mArgsInfo.lower_arg = mThresholdSlider1->GetValue();
   if (mRadioButtonLowerThan->isChecked()) {
     mArgsInfo.upper_given = 1;
     mArgsInfo.upper_arg = mThresholdSlider2->GetValue();
@@ -317,7 +404,7 @@ void vvToolProfile::GetArgsInfoFromGUI()
     if (mCheckBoxUseFG->isChecked()) mArgsInfo.mode_arg = (char*)"both";
     else mArgsInfo.mode_arg = (char*)"BG";
   } else mArgsInfo.mode_arg = (char*)"FG";
-
+*/
   mArgsInfo.verbose_flag = false;
 
   // // Required (even if not used)
@@ -359,7 +446,7 @@ void vvToolProfile::apply()
 //------------------------------------------------------------------------------
 void vvToolProfile::valueChangedT2(double v)
 { 
-  //  DD("valueChangedT2");
+  /*//  DD("valueChangedT2");
   if (mRadioButtonLowerThan->isChecked()) {
     mThresholdSlider1->SetMaximum(v);
     if (!mInteractiveDisplayIsEnabled) return;
@@ -367,7 +454,7 @@ void vvToolProfile::valueChangedT2(double v)
       mImageContourLower[i]->Update(v);
     }
     mCurrentSlicerManager->Render();
-  }
+  }*/
 }
 //------------------------------------------------------------------------------
 
@@ -375,7 +462,7 @@ void vvToolProfile::valueChangedT2(double v)
 //------------------------------------------------------------------------------
 void vvToolProfile::valueChangedT1(double v)
 { 
-  //  DD("valueChangedT1");
+  /*//  DD("valueChangedT1");
   if (!mCurrentSlicerManager) close();
   mThresholdSlider2->SetMinimum(v);
   //  int m1 = (int)lrint(v);
@@ -383,6 +470,6 @@ void vvToolProfile::valueChangedT1(double v)
   for(int i=0;i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
     mImageContour[i]->Update(v);
   }
-  mCurrentSlicerManager->Render();
+  mCurrentSlicerManager->Render();*/
 }
 //------------------------------------------------------------------------------

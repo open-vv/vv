@@ -43,6 +43,8 @@ class vvToolProfile:
   void GetArgsInfoFromGUI();
   virtual void InputIsSelected(vvSlicerManager * m);
 
+  bool isPointsSelected();
+
   //-----------------------------------------------------
   public slots:
   virtual void apply();
@@ -56,6 +58,10 @@ class vvToolProfile:
   void useFGBGtoggled(bool);
   void InteractiveDisplayToggled(bool b);
   //  void LeftButtonReleaseEvent(int slicer);
+  
+  void selectPoint1();
+  void selectPoint2();
+  void cancelPoints();
 
  protected:
   void RemoveVTKObjects();
@@ -65,6 +71,11 @@ class vvToolProfile:
   std::vector<vvImageContour::Pointer> mImageContour;
   std::vector<vvImageContour::Pointer> mImageContourLower;
   bool mInteractiveDisplayIsEnabled;
+  
+  double* mPoint1;
+  double* mPoint2;
+  bool point1Selected;
+  bool point2Selected;
   
   void Update(int slicer);
 
