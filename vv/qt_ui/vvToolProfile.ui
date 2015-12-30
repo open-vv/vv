@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>433</width>
-    <height>222</height>
+    <width>437</width>
+    <height>452</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,15 +21,15 @@
        <property name="horizontalSpacing">
         <number>6</number>
        </property>
-       <item row="1" column="1">
-        <widget class="QToolButton" name="mSelectPoint1Button">
-         <property name="text">
-          <string>Select point 1</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="2">
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item row="2" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QPushButton" name="mSelectPoint2Button">
+           <property name="text">
+            <string>Select point 2</string>
+           </property>
+          </widget>
+         </item>
          <item>
           <widget class="QLabel" name="Point2">
            <property name="text">
@@ -37,6 +37,10 @@
            </property>
           </widget>
          </item>
+        </layout>
+       </item>
+       <item row="2" column="3">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
           <widget class="QLabel" name="mPosPoint2Label">
            <property name="text">
@@ -46,14 +50,7 @@
          </item>
         </layout>
        </item>
-       <item row="2" column="1">
-        <widget class="QPushButton" name="mSelectPoint2Button">
-         <property name="text">
-          <string>Select point 2</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="2">
+       <item row="3" column="3">
         <layout class="QHBoxLayout" name="horizontalLayout_6">
          <item>
           <widget class="QToolButton" name="mCancelPointsButton">
@@ -77,8 +74,15 @@
          </item>
         </layout>
        </item>
-       <item row="1" column="2">
-        <layout class="QHBoxLayout" name="horizontalLayout">
+       <item row="1" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <item>
+          <widget class="QPushButton" name="mSelectPoint1Button">
+           <property name="text">
+            <string>Select point 1</string>
+           </property>
+          </widget>
+         </item>
          <item>
           <widget class="QLabel" name="Point1">
            <property name="text">
@@ -86,6 +90,10 @@
            </property>
           </widget>
          </item>
+        </layout>
+       </item>
+       <item row="1" column="3">
+        <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <widget class="QLabel" name="mPosPoint1Label">
            <property name="text">
@@ -109,115 +117,29 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Resulting binary image:</string>
+      <widget class="QVTKWidget" name="ProfileWidget" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>300</height>
+        </size>
+       </property>
+       <property name="mouseTracking">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_4">
-       <item>
-        <widget class="QCheckBox" name="mCheckBoxUseFG">
-         <property name="text">
-          <string>Use FG</string>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="vvIntensityValueSlider" name="mFGSlider" native="true">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_5">
-       <item>
-        <widget class="QCheckBox" name="mCheckBoxUseBG">
-         <property name="text">
-          <string>Use BG</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="vvIntensityValueSlider" name="mBGSlider" native="true"/>
-       </item>
-      </layout>
-     </item>
     </layout>
-   </item>
-   <item>
-    <widget class="Line" name="line_3">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="mCheckBoxInteractiveDisplay">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string>Interactive (unchek to disable on the fly contours drawing)</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>vvIntensityValueSlider</class>
+   <class>QVTKWidget</class>
    <extends>QWidget</extends>
-   <header>vvIntensityValueSlider.h</header>
-   <container>1</container>
+   <header>QVTKWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>mCheckBoxUseBG</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>mBGSlider</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>79</x>
-     <y>203</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>395</x>
-     <y>225</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>mCheckBoxUseFG</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>mFGSlider</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>63</x>
-     <y>177</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>242</x>
-     <y>177</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

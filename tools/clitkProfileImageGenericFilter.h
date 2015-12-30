@@ -23,6 +23,9 @@
 #include "clitkImageToImageGenericFilter.h"
 #include "clitkProfileImage_ggo.h"
 
+#include <vtkIntArray.h>
+#include <vtkFloatArray.h>
+
 //--------------------------------------------------------------------
 namespace clitk 
 {
@@ -34,8 +37,8 @@ namespace clitk
   public:
     //--------------------------------------------------------------------
     typedef ProfileImageGenericFilter         Self;
-    typedef itk::SmartPointer<Self>            Pointer;
-    typedef itk::SmartPointer<const Self>      ConstPointer;
+    typedef itk::SmartPointer<Self>           Pointer;
+    typedef itk::SmartPointer<const Self>     ConstPointer;
     typedef args_info_clitkProfileImage       args_info_type;
    
     //--------------------------------------------------------------------
@@ -51,11 +54,21 @@ namespace clitk
     // Main function called each time the filter is updated
     template<class InputImageType>  
     void UpdateWithInputImageType();
+    
+    vtkFloatArray* GetArrayX();
+    vtkFloatArray* GetArrayY();
+    vtkFloatArray* GetCoord();
 
   protected:
     ProfileImageGenericFilter();
     template<unsigned int Dim> void InitializeImageType();
     args_info_type mArgsInfo;
+    
+  
+    vtkSmartPointer<vtkFloatArray> mArrayX;
+    vtkSmartPointer<vtkFloatArray> mArrayY;
+    vtkSmartPointer<vtkFloatArray> mCoord;
+    
     
   }; // end class
   //--------------------------------------------------------------------

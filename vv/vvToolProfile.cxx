@@ -22,14 +22,15 @@
 #include "vvSlicer.h"
 #include "vvToolInputSelectorWidget.h"
 
-// clitk
-#include "clitkProfileImageGenericFilter.h"
-
 // vtk
 #include <vtkImageActor.h>
 #include <vtkCamera.h>
 #include <vtkImageClip.h>
 #include <vtkRenderWindow.h>
+#include <vtkChartXY.h>
+#include <vtkPlot.h>
+#include <vtkRendererCollection.h>
+#include <vtkRenderer.h>
 
 
 //------------------------------------------------------------------------------
@@ -59,7 +60,6 @@ vvToolProfile::vvToolProfile(vvMainWindowBase * parent, Qt::WindowFlags f)
 { 
   // GUI Initialization
   Ui_vvToolProfile::setupUi(mToolWidget);
-  //mInteractiveDisplayIsEnabled = mCheckBoxInteractiveDisplay->isChecked();
 
   // Connect signals & slots
   connect(mSelectPoint1Button, SIGNAL(clicked()), this, SLOT(selectPoint1()));
@@ -68,16 +68,21 @@ vvToolProfile::vvToolProfile(vvMainWindowBase * parent, Qt::WindowFlags f)
   connect(mComputeProfileButton, SIGNAL(clicked()), this, SLOT(computeProfile()));
 
   // Initialize some widget
-  //mThresholdSlider1->SetText("");
-  //mThresholdSlider2->SetText("");
-  //mFGSlider->SetText("Foreground value");
-  //mBGSlider->SetText("Background value");
-  
+  ProfileWidget->hide();
   mPoint1 = NULL;
   mPoint2 = NULL;
   
-  point1Selected = false;
-  point2Selected = false;
+  mPoint1Selected = false;
+  mPoint2Selected = false;
+    
+  mView = vtkSmartPointer<vtkContextView>::New();
+  vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
+  chart->SetAutoSize(false);
+  chart->SetRenderEmpty(true);
+  mView->GetScene()->AddItem(chart);
+  this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
+  this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
+  ProfileWidget->show();
 
   // Main filter
   mFilter = clitk::ProfileImageGenericFilter::New();
@@ -99,7 +104,20 @@ vvToolProfile::~vvToolProfile()
 void vvToolProfile::selectPoint1()
 {
   QString position = "";
-  point1Selected = false;
+  
+    if (mPoint1Selected) {
+      ProfileWidget->hide();
+      vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
+      chart->SetAutoSize(false);
+      chart->SetRenderEmpty(true);
+      mView->GetScene()->ClearItems();
+      mView->GetScene()->AddItem(chart);
+      this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
+      this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
+      ProfileWidget->show();
+  }
+  
+  mPoint1Selected = false;
   if(mCurrentSlicerManager) {
       if(mCurrentSlicerManager->GetSelectedSlicer() != -1) {
           double *pos;
@@ -114,7 +132,7 @@ void vvToolProfile::selectPoint1()
             position += QString::number(pos[i],'f',1) + " ";
             mPoint1[i] = index[i];
           }
-          point1Selected = true;
+          mPoint1Selected = true;
       }
   }
   mPosPoint1Label->setText(position);
@@ -127,7 +145,20 @@ void vvToolProfile::selectPoint1()
 void vvToolProfile::selectPoint2()
 {
   QString position = "";
-  point2Selected = false;
+  
+  if (mPoint2Selected) {
+      ProfileWidget->hide();
+      vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
+      chart->SetAutoSize(false);
+      chart->SetRenderEmpty(true);
+      mView->GetScene()->ClearItems();
+      mView->GetScene()->AddItem(chart);
+      this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
+      this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
+      ProfileWidget->show();
+  }
+  
+  mPoint2Selected = false;
   if(mCurrentSlicerManager) {
       if(mCurrentSlicerManager->GetSelectedSlicer() != -1) {
           double *pos;
@@ -142,7 +173,7 @@ void vvToolProfile::selectPoint2()
             position += QString::number(pos[i],'f',1) + " ";
             mPoint2[i] = index[i];
           }
-          point2Selected = true;
+          mPoint2Selected = true;
       }
   }
   mPosPoint2Label->setText(position);
@@ -153,12 +184,12 @@ void vvToolProfile::selectPoint2()
 //------------------------------------------------------------------------------
 bool vvToolProfile::isPointsSelected()
 {
-  if (point1Selected && point2Selected)
+  if (mPoint1Selected && mPoint2Selected)
       mComputeProfileButton->setEnabled(true);
   else
       mComputeProfileButton->setEnabled(false);
   
-  return (point1Selected && point2Selected);
+  return (mPoint1Selected && mPoint2Selected);
 }
 //------------------------------------------------------------------------------
 
@@ -170,15 +201,43 @@ void vvToolProfile::computeProfile()
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     GetArgsInfoFromGUI();
+    ProfileWidget->hide();
     
     // Main filter
-    clitk::ProfileImageGenericFilter::Pointer filter = clitk::ProfileImageGenericFilter::New();
-    filter->SetInputVVImage(mCurrentImage);
-    filter->SetArgsInfo(mArgsInfo);
-    filter->Update();
+    mFilter->SetInputVVImage(mCurrentImage);
+    mFilter->SetArgsInfo(mArgsInfo);
+    mFilter->Update();
+    
+    vtkSmartPointer<vtkTable> table = vtkSmartPointer<vtkTable>::New();
+    vtkSmartPointer<vtkFloatArray> arrX = vtkSmartPointer<vtkFloatArray>::New();
+    vtkSmartPointer<vtkFloatArray> arrY = vtkSmartPointer<vtkFloatArray>::New();
+    arrX = mFilter->GetArrayX();
+    arrY = mFilter->GetArrayY();
+    arrX->SetName("Voxel");
+    arrY->SetName("Intensity");
+    table->AddColumn(arrX);
+    table->AddColumn(arrY);
+    
+    mView->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
+ 
+    vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
+    chart->SetAutoSize(true);
+    mView->GetScene()->ClearItems();
+    mView->GetScene()->AddItem(chart);
+    vtkPlot *line = chart->AddPlot(vtkChart::LINE);
+#if VTK_MAJOR_VERSION <= 5
+    line->SetInput(table, 0, 1);
+#else
+    line->SetInputData(table, 0, 1);
+#endif
+    line->SetColor(0, 255, 0, 255);
+    line->SetWidth(1.0);
+    
+    this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
+    this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
+    ProfileWidget->show();
     
     QApplication::restoreOverrideCursor();
- 
 }
 //------------------------------------------------------------------------------
 
@@ -186,11 +245,21 @@ void vvToolProfile::computeProfile()
 //------------------------------------------------------------------------------
 void vvToolProfile::cancelPoints()
 { 
+  ProfileWidget->hide();
+  vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
+  chart->SetAutoSize(false);
+  chart->SetRenderEmpty(true);
+  mView->GetScene()->ClearItems();
+  mView->GetScene()->AddItem(chart);
+  this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
+  this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
+  ProfileWidget->show();
+  
   QString position = "";
   mPosPoint1Label->setText(position);
   mPosPoint2Label->setText(position);
-  point1Selected = false;
-  point2Selected = false;
+  mPoint1Selected = false;
+  mPoint2Selected = false;
   mComputeProfileButton->setEnabled(false);
   isPointsSelected();
 }
@@ -198,31 +267,8 @@ void vvToolProfile::cancelPoints()
 
 
 //------------------------------------------------------------------------------
-void vvToolProfile::InteractiveDisplayToggled(bool b)
-{ 
-  /*mInteractiveDisplayIsEnabled = b;
-  if (!mInteractiveDisplayIsEnabled) {
-    RemoveVTKObjects();
-  } else {
-    for(unsigned int i=0; i<mImageContour.size(); i++) {
-      mImageContour[i]->ShowActors();
-      if (mRadioButtonLowerThan->isChecked())
-        mImageContourLower[i]->ShowActors();
-    }
-    if (mCurrentSlicerManager)
-      mCurrentSlicerManager->Render();
-  }*/  
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
 void vvToolProfile::RemoveVTKObjects()
 { 
-  for(unsigned int i=0; i<mImageContour.size(); i++) {
-    mImageContour[i]->HideActors();
-    mImageContourLower[i]->HideActors();    
-  }
   if (mCurrentSlicerManager)
     mCurrentSlicerManager->Render();
 }
@@ -260,40 +306,6 @@ void vvToolProfile::reject()
 
 
 //------------------------------------------------------------------------------
-void vvToolProfile::enableLowerThan(bool b)
-{ 
-  /*if (!b) {
-    mThresholdSlider1->resetMaximum();
-    for(unsigned int i=0; i<mImageContour.size(); i++) {
-      mImageContourLower[i]->HideActors();    
-    }
-    mCurrentSlicerManager->Render();
-  } else {
-    valueChangedT1(mThresholdSlider1->GetValue());
-    valueChangedT2(mThresholdSlider2->GetValue());
-    for(unsigned int i=0; i<mImageContour.size(); i++) {
-      mImageContourLower[i]->ShowActors();    
-    }
-    mCurrentSlicerManager->Render();
-  }*/
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-void vvToolProfile::useFGBGtoggled(bool)
-{ 
-  if (!mCheckBoxUseBG->isChecked() && !mCheckBoxUseFG->isChecked())
-    mCheckBoxUseBG->toggle();
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-// void vvToolProfile::InputIsSelected(std::vector<vvSlicerManager *> & m) {
-//   DD("vvToolProfile::InputIsSelected vector in Profile");
-//   DD(m.size());
-// }
 void vvToolProfile::InputIsSelected(vvSlicerManager * m)
 { 
   mCurrentSlicerManager = m;
@@ -302,93 +314,9 @@ void vvToolProfile::InputIsSelected(vvSlicerManager * m)
   mPoint2 = new int[mCurrentSlicerManager->GetImage()->GetNumberOfDimensions()];
   
   mComputeProfileButton->setEnabled(false);
-
-  // Specific for this gui
-  //mThresholdSlider1->SetValue(0);
-  //mThresholdSlider2->SetValue(0);
-  //mThresholdSlider1->SetImage(mCurrentImage);
-  //mThresholdSlider2->SetImage(mCurrentImage);
-  //mFGSlider->SetImage(mCurrentImage);
-  //mBGSlider->SetImage(mCurrentImage);
-  //  DD(mCurrentSlicerManager->GetFileName().c_str());
-  //  mFGSlider->SetMaximum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMax());
-  //   mFGSlider->SetMinimum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMin());
-  //   mBGSlider->SetMaximum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMax());
-  //   mBGSlider->SetMinimum(mCurrentImage->GetFirstVTKImageData()->GetScalarTypeMin());
-
-  // Output is uchar ...
-  /*mFGSlider->SetMaximum(255);
-  mFGSlider->SetMinimum(0);
-  mBGSlider->SetMaximum(255);
-  mBGSlider->SetMinimum(0);
-
-  mFGSlider->SetValue(1);
-  mBGSlider->SetValue(0);
-  mFGSlider->SetSingleStep(1);
-  mBGSlider->SetSingleStep(1);
-
-  // VTK objects for interactive display
-  for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
-    mImageContour.push_back(vvImageContour::New());
-    mImageContour[i]->SetSlicer(mCurrentSlicerManager->GetSlicer(i));
-    mImageContour[i]->SetColor(1.0, 0.0, 0.0);
-    mImageContour[i]->SetDepth(0); // to be in front of (whe used with ROI tool)
-    mImageContourLower.push_back(vvImageContour::New());
-    mImageContourLower[i]->SetSlicer(mCurrentSlicerManager->GetSlicer(i));
-    mImageContourLower[i]->SetColor(0.0, 0.0, 1.0);
-    mImageContourLower[i]->SetDepth(100); // to be in front of (whe used with ROI tool)
-  }
-  //valueChangedT1(mThresholdSlider1->GetValue());
-
-  //connect(mThresholdSlider1, SIGNAL(valueChanged(double)), this, SLOT(valueChangedT1(double)));
-  //connect(mThresholdSlider2, SIGNAL(valueChanged(double)), this, SLOT(valueChangedT2(double)));
-
-  //connect(mCurrentSlicerManager,SIGNAL(UpdateSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
-  //connect(mCurrentSlicerManager,SIGNAL(UpdateTSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
-  
-  //connect(mCurrentSlicerManager,SIGNAL(UpdateOrientation(int,int)),this,SLOT(UpdateOrientation(int, int)));
-
-  //  connect(mCurrentSlicerManager, SIGNAL(LeftButtonReleaseSignal(int)), SLOT(LeftButtonReleaseEvent(int)));
-  InteractiveDisplayToggled(mInteractiveDisplayIsEnabled); */
 }
 //------------------------------------------------------------------------------
 
-
-//------------------------------------------------------------------------------
-// void vvToolProfile::LeftButtonReleaseEvent(int slicer) {
-//   DD("LeftButtonReleaseEvent");
-//   for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
-//     if (i == slicer);
-//     mCurrentSlicerManager->GetSlicer(i)->GetRenderWindow()->Render();
-//   }
-// }
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-void vvToolProfile::UpdateOrientation(int slicer,int orientation)
-{ 
-  Update(slicer);
-}
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-void vvToolProfile::UpdateSlice(int slicer,int slices)
-{ 
-  Update(slicer);
-}
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-void vvToolProfile::Update(int slicer)
-{ 
-  //if (!mInteractiveDisplayIsEnabled) return;
-  if (!mCurrentSlicerManager) close();
-  //mImageContour[slicer]->Update(mThresholdSlider1->GetValue());
-  //if (mRadioButtonLowerThan->isChecked()) 
-  //  mImageContourLower[slicer]->Update(mThresholdSlider2->GetValue());
-}
-//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvToolProfile::GetArgsInfoFromGUI()
@@ -405,34 +333,7 @@ void vvToolProfile::GetArgsInfoFromGUI()
      DD(good);
   */
   cmdline_parser_clitkProfileImage_init(&mArgsInfo); // Initialisation to default
-  //bool inverseBGandFG = false;
 
-  //mArgsInfo.lower_given = 1;
-  /*mArgsInfo.lower_arg = mThresholdSlider1->GetValue();
-  if (mRadioButtonLowerThan->isChecked()) {
-    mArgsInfo.upper_given = 1;
-    mArgsInfo.upper_arg = mThresholdSlider2->GetValue();
-    if (mArgsInfo.upper_arg<mArgsInfo.lower_arg) {
-      mArgsInfo.upper_given = 0;
-      DD("TODO : lower thres greater than greater thres ! Ignoring ");
-    }
-  }
-
-  mArgsInfo.fg_arg = mFGSlider->GetValue();
-  mArgsInfo.bg_arg = mBGSlider->GetValue();
-
-  if (inverseBGandFG) {
-    mArgsInfo.fg_arg = mFGSlider->GetValue();
-    mArgsInfo.bg_arg = mBGSlider->GetValue();
-  }
-  mArgsInfo.fg_given = 1;
-  mArgsInfo.bg_given = 1;
-
-  if (mCheckBoxUseBG->isChecked()) {
-    if (mCheckBoxUseFG->isChecked()) mArgsInfo.mode_arg = (char*)"both";
-    else mArgsInfo.mode_arg = (char*)"BG";
-  } else mArgsInfo.mode_arg = (char*)"FG";
-*/
   mArgsInfo.verbose_flag = false;
   
   mArgsInfo.point1_arg = mPoint1;
@@ -453,56 +354,52 @@ void vvToolProfile::GetArgsInfoFromGUI()
 //------------------------------------------------------------------------------
 void vvToolProfile::apply()
 { 
-  if (!mCurrentSlicerManager) close();
-  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-  GetArgsInfoFromGUI();  
+  if (!mCurrentSlicerManager || !isPointsSelected()) {
+      close();
+      return;
+  }
   
-  // Main filter
-  clitk::ProfileImageGenericFilter::Pointer filter =
-    clitk::ProfileImageGenericFilter::New();
-  filter->SetInputVVImage(mCurrentImage);
-  filter->SetArgsInfo(mArgsInfo);
-  filter->Update();
-
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
   // Output
-  vvImage::Pointer output = filter->GetOutputVVImage();  
-  std::ostringstream osstream;
-  osstream << "Profiled_" << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";
-  AddImage(output,osstream.str());
+  std::string fileName = "Profiled_" + mCurrentSlicerManager->GetSlicer(0)->GetFileName() + ".txt";
+  ofstream fileOpen(fileName.c_str(), std::ofstream::trunc);
+  
+  if(!fileOpen) {
+    cerr << "Error during saving" << endl;
+    QApplication::restoreOverrideCursor();
+    close();
+    
+    return;
+  }
+  vtkSmartPointer<vtkFloatArray> arrX = vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> arrY = vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> coords = vtkSmartPointer<vtkFloatArray>::New();
+  arrX = mFilter->GetArrayX();
+  arrY = mFilter->GetArrayY();
+  coords = mFilter->GetCoord();
+  double *tuple;
+  tuple = new double[mCurrentSlicerManager->GetImage()->GetNumberOfDimensions()];
+  int i(0);
+   
+  while (i<arrX->GetNumberOfTuples()) {
+      fileOpen << arrX->GetTuple(i)[0] << "\t" << arrY->GetTuple(i)[0] << "\t" ;
+      
+      coords->GetTuple(i, tuple);
+      for (int j=0; j<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() ; ++j) {
+          fileOpen << tuple[j] << "\t" ;
+      }
+      fileOpen << endl;
+      ++i;
+  }
+  
+  delete [] tuple;
+
+  fileOpen.close();
+
   QApplication::restoreOverrideCursor();
   close();
 }
 //------------------------------------------------------------------------------
 
 
-//------------------------------------------------------------------------------
-void vvToolProfile::valueChangedT2(double v)
-{ 
-  /*//  DD("valueChangedT2");
-  if (mRadioButtonLowerThan->isChecked()) {
-    mThresholdSlider1->SetMaximum(v);
-    if (!mInteractiveDisplayIsEnabled) return;
-    for(int i=0;i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
-      mImageContourLower[i]->Update(v);
-    }
-    mCurrentSlicerManager->Render();
-  }*/
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-void vvToolProfile::valueChangedT1(double v)
-{ 
-  /*//  DD("valueChangedT1");
-  if (!mCurrentSlicerManager) close();
-  mThresholdSlider2->SetMinimum(v);
-  //  int m1 = (int)lrint(v);
-  if (!mInteractiveDisplayIsEnabled) return;
-  for(int i=0;i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
-    mImageContour[i]->Update(v);
-  }
-  mCurrentSlicerManager->Render();*/
-}
-//------------------------------------------------------------------------------

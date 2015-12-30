@@ -26,6 +26,10 @@
 #include "ui_vvToolProfile.h"
 
 #include "clitkProfileImage_ggo.h"
+#include "clitkProfileImageGenericFilter.h"
+#include <vtkTable.h>
+#include <vtkContextView.h>
+#include <vtkContextScene.h>
 
 //------------------------------------------------------------------------------
 class vvToolProfile:
@@ -50,14 +54,6 @@ class vvToolProfile:
   virtual void apply();
   virtual bool close();
   virtual void reject();
-  void valueChangedT1(double v);
-  void valueChangedT2(double v);
-  void UpdateOrientation(int slicer, int orientation);
-  void UpdateSlice(int slicer,int slices);
-  void enableLowerThan(bool b);
-  void useFGBGtoggled(bool);
-  void InteractiveDisplayToggled(bool b);
-  //  void LeftButtonReleaseEvent(int slicer);
   
   void selectPoint1();
   void selectPoint2();
@@ -69,16 +65,14 @@ class vvToolProfile:
   virtual void closeEvent(QCloseEvent *event);
   Ui::vvToolProfile ui;
   args_info_clitkProfileImage mArgsInfo;
-  std::vector<vvImageContour::Pointer> mImageContour;
-  std::vector<vvImageContour::Pointer> mImageContourLower;
-  bool mInteractiveDisplayIsEnabled;
   
   int* mPoint1;
   int* mPoint2;
-  bool point1Selected;
-  bool point2Selected;
-  
-  void Update(int slicer);
+  bool mPoint1Selected;
+  bool mPoint2Selected;
+  vtkSmartPointer<vtkContextView> mView;
+  clitk::ProfileImageGenericFilter::Pointer mFilter;
+
 
 }; // end class vvToolProfile
 //------------------------------------------------------------------------------

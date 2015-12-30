@@ -34,6 +34,8 @@
 
 #include <clitkCommon.h>
 
+
+
 namespace clitk
 {
 
@@ -53,6 +55,30 @@ template<unsigned int Dim>
 void ProfileImageGenericFilter::InitializeImageType()
 {
   ADD_DEFAULT_IMAGE_TYPES(Dim);
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+vtkFloatArray* ProfileImageGenericFilter::GetArrayX()
+{
+  return(mArrayX);
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+vtkFloatArray* ProfileImageGenericFilter::GetArrayY()
+{
+  return(mArrayY);
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+vtkFloatArray* ProfileImageGenericFilter::GetCoord()
+{
+  return(mCoord);
 }
 //--------------------------------------------------------------------
 
@@ -88,7 +114,11 @@ ProfileImageGenericFilter::UpdateWithInputImageType()
   typename InputImageType::Pointer input = this->template GetInput<InputImageType>(0);
   typedef typename InputImageType::PixelType PixelType;
   typedef typename InputImageType::IndexType IndexType;
-  typedef itk::Image<uchar, InputImageType::ImageDimension> OutputImageType;
+
+  mArrayX = vtkSmartPointer<vtkFloatArray>::New();
+  mArrayY = vtkSmartPointer<vtkFloatArray>::New();
+  mCoord = vtkSmartPointer<vtkFloatArray>::New();
+  mCoord->SetNumberOfComponents(InputImageType::ImageDimension);
   
   //Iterator
   IndexType pointBegin, pointEnd;
@@ -100,54 +130,26 @@ ProfileImageGenericFilter::UpdateWithInputImageType()
   
   itk::LineConstIterator<InputImageType> itProfile(input, pointBegin, pointEnd);
   itProfile.GoToBegin();
+  int lineNumber(1);
+  double *tuple;
+  tuple = new double[InputImageType::ImageDimension];
+  
   while (!itProfile.IsAtEnd())
-  {
+  {    
+    // Fill in the table
+    mArrayX->InsertNextTuple1(lineNumber);
+    mArrayY->InsertNextTuple1(itProfile.Get());
+        
+    for (int i=0; i<InputImageType::ImageDimension; ++i) {
+        tuple[i] = itProfile.GetIndex()[i];
+    }
     
+    mCoord->InsertNextTuple(tuple);
+    ++lineNumber;
     ++itProfile;
   }
-
-  // Filter
-  //typedef itk::BinaryThresholdImageFilter<InputImageType, OutputImageType> BinaryThresholdImageFilterType;
-  //typename BinaryThresholdImageFilterType::Pointer thresholdFilter=BinaryThresholdImageFilterType::New();
-  //thresholdFilter->SetInput(input);
-  /*thresholdFilter->SetInsideValue(mArgsInfo.fg_arg);
-
-  if (mArgsInfo.lower_given) thresholdFilter->SetLowerThreshold(static_cast<PixelType>(mArgsInfo.lower_arg));
-  if (mArgsInfo.upper_given) thresholdFilter->SetUpperThreshold(static_cast<PixelType>(mArgsInfo.upper_arg));
-
-   Three modes :
-     - FG -> only use FG value for pixel in the Foreground (or Inside), keep input values for outside
-     - BG -> only use BG value for pixel in the Background (or Outside), keep input values for inside
-     - both -> use FG and BG (real binary image)
   
-  if (mArgsInfo.mode_arg == std::string("both")) {
-    thresholdFilter->SetOutsideValue(mArgsInfo.bg_arg);
-    thresholdFilter->Update();
-    typename OutputImageType::Pointer outputImage = thresholdFilter->GetOutput();
-    this->template SetNextOutput<OutputImageType>(outputImage);
-  } else {
-    typename InputImageType::Pointer outputImage;
-    thresholdFilter->SetOutsideValue(0);
-    if (mArgsInfo.mode_arg == std::string("BG")) {
-      typedef itk::MaskImageFilter<InputImageType,OutputImageType> maskFilterType;
-      typename maskFilterType::Pointer maskFilter = maskFilterType::New();
-      maskFilter->SetInput1(input);
-      maskFilter->SetInput2(thresholdFilter->GetOutput());
-      maskFilter->SetOutsideValue(mArgsInfo.bg_arg);
-      maskFilter->Update();
-      outputImage = maskFilter->GetOutput();
-    } else {
-      typedef itk::MaskNegatedImageFilter<InputImageType,OutputImageType> maskFilterType;
-      typename maskFilterType::Pointer maskFilter = maskFilterType::New();
-      maskFilter->SetInput1(input);
-      maskFilter->SetInput2(thresholdFilter->GetOutput());
-      maskFilter->SetOutsideValue(mArgsInfo.fg_arg);
-      maskFilter->Update();
-      outputImage = maskFilter->GetOutput();
-    }
-    // Write/Save results
-    this->template SetNextOutput<InputImageType>(outputImage);
-  }*/
+  delete [] tuple;
 }
 //--------------------------------------------------------------------
 
