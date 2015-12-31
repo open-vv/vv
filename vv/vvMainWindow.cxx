@@ -629,6 +629,9 @@ vvMainWindow::~vvMainWindow()
     if (mSlicerManagers[i] != NULL)
       delete mSlicerManagers[i];
   }
+  delete documentation;
+  delete help_dialog;
+  delete dicomSeriesSelector;
 }
 //------------------------------------------------------------------------------
 
