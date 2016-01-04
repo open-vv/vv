@@ -9,6 +9,9 @@ add_library(clitkImageConvertLib clitkImageConvertGenericFilter.cxx ${clitkImage
 WRAP_GGO(clitkBinarizeImage_GGO_C clitkBinarizeImage.ggo)
 add_library(clitkBinarizeImageLib clitkBinarizeImageGenericFilter.cxx ${clitkBinarizeImage_GGO_C})
 
+WRAP_GGO(clitkProfileImage_GGO_C clitkProfileImage.ggo)
+add_library(clitkProfileImageLib clitkProfileImageGenericFilter.cxx ${clitkProfileImage_GGO_C})
+
 WRAP_GGO(clitkImageArithm_GGO_C clitkImageArithm.ggo)
 add_library(clitkImageArithmImageLib clitkImageArithmGenericFilter.cxx ${clitkImageArithm_GGO_C})
 
@@ -58,6 +61,10 @@ if(CLITK_BUILD_TOOLS)
   add_executable(clitkBinarizeImage clitkBinarizeImage.cxx)
   target_link_libraries(clitkBinarizeImage clitkBinarizeImageLib clitkCommon)
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkBinarizeImage)
+  
+  add_executable(clitkProfileImage clitkProfileImage.cxx)
+  target_link_libraries(clitkProfileImage clitkProfileImageLib clitkCommon)
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkProfileImage)
 
   WRAP_GGO(clitkVFResample_GGO_C clitkVFResample.ggo)
   add_executable(clitkVFResample clitkVFResample.cxx clitkVFResampleGenericFilter.cxx ${clitkVFResample_GGO_C})
