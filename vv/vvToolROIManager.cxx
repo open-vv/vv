@@ -226,13 +226,6 @@ void vvToolROIManager::InputIsSelected(vvSlicerManager *m)
   mCurrentSlicerManager = m;
   mCurrentImage = mCurrentSlicerManager->GetImage();
 
-  // Refuse if non 3D image
-  if (mCurrentImage->GetNumberOfDimensions() != 3) {
-    QMessageBox::information(this,tr("Warning"), tr("Warning 3D ROI on a 4D image will results in some display bugs"));
-    //close();
-    //return;
-  }
-
   // Change gui
   mLabelInputInfo->setText(QString("%1").arg(m->GetFileName().c_str()));
 
@@ -487,6 +480,25 @@ void vvToolROIManager::AddImage(vvImage * binaryImage,
 
   // Update
   UpdateAllROIStatus();
+  
+  if (mCurrentImage->GetNumberOfDimensions() != 3) {
+      
+    //Modifications to avoid display bug with a 4D image
+    QSharedPointer<vvROIActor> CurrentROIActorTemp;
+    CurrentROIActorTemp = mCurrentROIActor;
+    mCurrentROIActor = actor;
+  
+    int VisibleInWindow(0);
+    mCurrentSlicerManager->GetSlicer(VisibleInWindow)->SetCurrentPosition(-VTK_DOUBLE_MAX,-VTK_DOUBLE_MAX,-VTK_DOUBLE_MAX,mCurrentSlicerManager->GetSlicer(VisibleInWindow)->GetMaxCurrentTSlice());
+    mCurrentSlicerManager->GetSlicer(VisibleInWindow)->Render();
+  
+    VisibleROIToggled(false);
+    VisibleROIToggled(true);
+  
+    mCurrentROIActor = CurrentROIActorTemp;
+  
+  }
+  
 }
 //------------------------------------------------------------------------------
 

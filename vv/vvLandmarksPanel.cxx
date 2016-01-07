@@ -30,7 +30,7 @@
 
 //====================================================================
 vvLandmarksPanel::vvLandmarksPanel(QWidget * parent):QWidget(parent)
-{ //out << __func__ << endl;
+{ 
   setupUi(this);
 
   tableWidget->verticalHeader()->hide();
@@ -48,7 +48,7 @@ vvLandmarksPanel::vvLandmarksPanel(QWidget * parent):QWidget(parent)
 }
 
 void vvLandmarksPanel::Load()
-{ //out << __func__ << endl;
+{ 
   QString file = QFileDialog::getOpenFileName(this,tr("Load Landmarks"),
                  mCurrentPath.c_str(),tr("Landmarks ( *.txt *.pts)"));
   if (!file.isEmpty()) {
@@ -58,7 +58,7 @@ void vvLandmarksPanel::Load()
 }
 
 bool vvLandmarksPanel::LoadFromFile(std::vector<std::string> files)
-{ //out << __func__ << endl;
+{ 
   if (!mCurrentLandmarks->LoadFile(files))
     return false;
   
@@ -68,7 +68,7 @@ bool vvLandmarksPanel::LoadFromFile(std::vector<std::string> files)
 }
 
 void vvLandmarksPanel::Save()
-{ //out << __func__ << endl;
+{ 
   QString file = QFileDialog::getSaveFileName(this,
                  tr("Save Landmarks"),
                  mCurrentPath.c_str(),tr("Landmarks ( *.txt)"));
@@ -81,7 +81,7 @@ void vvLandmarksPanel::Save()
 }
 
 void vvLandmarksPanel::SelectPoint()
-{ //out << __func__ << endl;
+{ 
   if (tableWidget->rowCount() > 0) {
     QList<QTableWidgetItem *> items = tableWidget->selectedItems();
     if (!items.empty()) {
@@ -100,7 +100,7 @@ void vvLandmarksPanel::SelectPoint()
 
 
 void vvLandmarksPanel::RemoveSelectedPoints()
-{ //out << __func__ << endl;
+{ 
   if (tableWidget->rowCount() > 0) {
     QList<QTableWidgetItem *> items = tableWidget->selectedItems();
     if (items.empty()) {
@@ -124,7 +124,7 @@ void vvLandmarksPanel::RemoveSelectedPoints()
 }
 
 void vvLandmarksPanel::RemoveAllPoints()
-{ //out << __func__ << endl;
+{ 
   mCurrentLandmarks->RemoveAll();
   tableWidget->clearContents();
   tableWidget->setRowCount(0);
@@ -132,12 +132,12 @@ void vvLandmarksPanel::RemoveAllPoints()
 }
 
 void vvLandmarksPanel::AddPoint()
-{ //out << __func__ << endl;
+{ 
   AddPoint(mCurrentLandmarks->GetNumberOfPoints()-1);
 }
 
 void vvLandmarksPanel::AddPoint(int landmarksIndex)
-{ //out << __func__ << endl;
+{ 
   int rowIndex = tableWidget->rowCount();
 //   DD(rowIndex);
   tableWidget->setRowCount(rowIndex+1);
@@ -176,7 +176,7 @@ void vvLandmarksPanel::AddPoint(int landmarksIndex)
 }
 
 void vvLandmarksPanel::SetCurrentLandmarks(vvLandmarks* lm,int time)
-{ //out << __func__ << endl;
+{ 
   if (time != lm->GetTime())
     return;
   loadButton->setEnabled(1);
@@ -186,7 +186,8 @@ void vvLandmarksPanel::SetCurrentLandmarks(vvLandmarks* lm,int time)
   tableWidget->clearContents();
   tableWidget->setRowCount(0);
   for (unsigned int i = 0; i < mCurrentLandmarks->GetNumberOfPoints(); i++) {
-      AddPoint(i);
+      if ((mCurrentLandmarks->GetLabels()->GetValue(i) != "P1") && (mCurrentLandmarks->GetLabels()->GetValue(i) != "P2"))
+        AddPoint(i);
   }
   //if (time > 1)
   //tableWidget->setColumnHidden(4,1);
@@ -196,14 +197,14 @@ void vvLandmarksPanel::SetCurrentLandmarks(vvLandmarks* lm,int time)
 }
 
 void vvLandmarksPanel::SetCurrentImage(std::string filename)
-{ //out << __func__ << endl;
+{ 
   QString image = "<b>CurrentImage : </b>";
   image += vtksys::SystemTools::GetFilenameWithoutLastExtension(filename).c_str();
   nameLabel->setText(image);
 }
 
 void vvLandmarksPanel::CommentsChanged(int row, int column)
-{ //out << __func__ << endl;
+{ 
   if (column == 6) {
     mCurrentLandmarks->ChangeComments(row,std::string(tableWidget->item(row,column)->text().toStdString()));
     tableWidget->resizeColumnsToContents();

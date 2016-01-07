@@ -119,6 +119,41 @@ void vvLandmarks::RemoveLastLandmark()
 
 
 //--------------------------------------------------------------------
+void vvLandmarks::RemoveLandmarkWithLabel(vtkStdString label, int time)
+{
+  if (label != "P1" && label != "P2")
+    return;
+  // erase a vtkPoint by shifiting the array .
+  // not a problem here because there are no 
+  // pologyons linking the points
+  int t = time;//mLandmarks[index].coordinates[3];
+  int npoints = mPoints[t]->GetNumberOfPoints();
+  
+  //search of the index corresponding to the label
+  int index(0);
+  while (mLabels[t]->GetValue(index) != label)
+    ++index;
+  
+  for (int i = index; i < npoints - 1; i++) {
+    mPoints[t]->InsertPoint(i, mPoints[t]->GetPoint(i+1));
+	std::string str_i;		     // string which will contain the result
+	std::ostringstream convert;	 // stream used for the conversion
+	convert << i;			     // insert the textual representation of 'i' in the characters in the stream
+	str_i = convert.str();		 // set 'str_i' to the contents of the stream
+	mLabels[t]->SetValue(i,mLabels[t]->GetValue(i+1));
+    }
+  mPoints[t]->SetNumberOfPoints(npoints-1);
+  mLabels[t]->SetNumberOfValues(npoints-1);
+  mLabels[t]->Modified();
+  mPolyData->Modified();
+
+  mLandmarks[t].erase(mLandmarks[t].begin() + index);
+  mIds[t]->RemoveLastTuple();
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
 void vvLandmarks::RemoveLandmark(int index)
 {
   // erase a vtkPoint by shifiting the array .

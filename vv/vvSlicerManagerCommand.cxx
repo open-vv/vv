@@ -381,7 +381,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
       //>>>>>>> 921642d767beba2442dacc8fdb40dc36396e1b7d
 
       if (newLandmark) {
-        this->SM->AddLandmark(xWorld,yWorld,zWorld,
+        this->SM->AddNewLandmark(xWorld,yWorld,zWorld,
                               this->SM->GetSlicer(VisibleInWindow)->GetTSlice());
         this->SM->GetSlicer(VisibleInWindow)->UpdateLandmarks();
         this->SM->Render();

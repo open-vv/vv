@@ -120,6 +120,13 @@ ProfileImageGenericFilter::UpdateWithInputImageType()
   mCoord = vtkSmartPointer<vtkFloatArray>::New();
   mCoord->SetNumberOfComponents(InputImageType::ImageDimension);
   
+  /*typename InputImageType::Pointer outputImage;
+  outputImage = InputImageType::New();
+ 
+  outputImage->SetRegions(input->GetLargestPossibleRegion());
+  outputImage->Allocate();
+  outputImage->FillBuffer(0); */
+  
   //Iterator
   IndexType pointBegin, pointEnd;
   
@@ -148,6 +155,17 @@ ProfileImageGenericFilter::UpdateWithInputImageType()
     ++lineNumber;
     ++itProfile;
   }
+  
+  /*
+  itk::LineIterator<InputImageType> otProfile(outputImage, pointBegin, pointEnd);
+  otProfile.GoToBegin();  
+  while (!otProfile.IsAtEnd())
+  {    
+    otProfile.Set(1.0);
+    ++otProfile;
+  }
+  
+  this->template SetNextOutput<InputImageType>(outputImage): */
   
   delete [] tuple;
 }

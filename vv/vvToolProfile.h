@@ -23,7 +23,9 @@
 #include "vvToolBase.h"
 #include "vvToolWidgetBase.h"
 #include "vvImageContour.h"
+#include "vvLandmarks.h"
 #include "ui_vvToolProfile.h"
+#include "vvBinaryImageOverlayActor.h"
 
 #include "clitkProfileImage_ggo.h"
 #include "clitkProfileImageGenericFilter.h"
@@ -48,6 +50,7 @@ class vvToolProfile:
   virtual void InputIsSelected(vvSlicerManager * m);
 
   bool isPointsSelected();
+  void computeProfile();
 
   //-----------------------------------------------------
   public slots:
@@ -58,7 +61,8 @@ class vvToolProfile:
   void selectPoint1();
   void selectPoint2();
   void cancelPoints();
-  void computeProfile();
+  void SaveAs();
+  void DisplayLine();
 
  protected:
   void RemoveVTKObjects();
@@ -72,6 +76,9 @@ class vvToolProfile:
   bool mPoint2Selected;
   vtkSmartPointer<vtkContextView> mView;
   clitk::ProfileImageGenericFilter::Pointer mFilter;
+  std::string mTextFileName;
+  vvImage::Pointer mImageLine;
+  std::vector< vvBinaryImageOverlayActor::Pointer > mOverlayActors;
 
 
 }; // end class vvToolProfile
