@@ -47,6 +47,9 @@
 //----------------------------------------------------------------------------
 vvSlicerManager::vvSlicerManager(int numberOfSlicers)
 { 
+
+  connect(this, SIGNAL(callAddLandmark(float,float,float,float)), this, SLOT(AddLandmark(float,float,float,float)));
+
   mFileName = "";
   mId = "";
   mVFName = "";
@@ -1676,7 +1679,10 @@ vvLandmarks* vvSlicerManager::GetLandmarks()
   return mLandmarks;
 }
 //----------------------------------------------------------------------------
-
+void vvSlicerManager::AddNewLandmark(float x,float y,float z,float t)
+{ 
+    emit callAddLandmark(x,y,z,t);
+}
 
 //----------------------------------------------------------------------------
 void vvSlicerManager::AddLandmark(float x,float y,float z,float t)
@@ -1707,6 +1713,38 @@ void vvSlicerManager::AddLandmark(float x,float y,float z,float t)
     double value = this->GetScalarComponentAsDouble(mImage->GetVTKImages()[mSlicers[0]->GetTSlice()], x_index, y_index, z_index);
     this->GetLandmarks()->AddLandmark(x,y,z,t,value);
     emit LandmarkAdded();
+  }
+#endif
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+void vvSlicerManager::AddLandmarkProfile(float x,float y,float z,float t)
+{ 
+  double x_index = (x - mSlicers[0]->GetInput()->GetOrigin()[0])/mSlicers[0]->GetInput()->GetSpacing()[0];
+  double y_index = (y - mSlicers[0]->GetInput()->GetOrigin()[1])/mSlicers[0]->GetInput()->GetSpacing()[1];
+  double z_index = (z - mSlicers[0]->GetInput()->GetOrigin()[2])/mSlicers[0]->GetInput()->GetSpacing()[2];
+#if VTK_MAJOR_VERSION <= 5
+  if (x_index >= mSlicers[0]->GetInput()->GetWholeExtent()[0]-0.5 &&
+      x_index <= mSlicers[0]->GetInput()->GetWholeExtent()[1]+0.5 &&
+      y_index >= mSlicers[0]->GetInput()->GetWholeExtent()[2]-0.5 &&
+      y_index <= mSlicers[0]->GetInput()->GetWholeExtent()[3]+0.5 &&
+      z_index >= mSlicers[0]->GetInput()->GetWholeExtent()[4]-0.5 &&
+      z_index <= mSlicers[0]->GetInput()->GetWholeExtent()[5]+0.5) {
+    double value = this->GetScalarComponentAsDouble(mSlicers[0]->GetInput(), x_index, y_index, z_index);
+    this->GetLandmarks()->AddLandmark(x,y,z,t,value);
+  }
+#else
+  int extentImageReslice[6];
+  mSlicers[0]->GetRegisterExtent(extentImageReslice);
+  if (x_index >= extentImageReslice[0]-0.5 &&
+      x_index <= extentImageReslice[1]+0.5 &&
+      y_index >= extentImageReslice[2]-0.5 &&
+      y_index <= extentImageReslice[3]+0.5 &&
+      z_index >= extentImageReslice[4]-0.5 &&
+      z_index <= extentImageReslice[5]+0.5) {
+    double value = this->GetScalarComponentAsDouble(mImage->GetVTKImages()[mSlicers[0]->GetTSlice()], x_index, y_index, z_index);
+    this->GetLandmarks()->AddLandmark(x,y,z,t,value);
   }
 #endif
 }

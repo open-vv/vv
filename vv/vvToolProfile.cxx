@@ -16,8 +16,11 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
   ===========================================================================**/
 
+#include <QFileDialog>
+
 // vv
 #include "vvToolProfile.h"
+#include "vvProgressDialog.h"
 #include "vvSlicerManager.h"
 #include "vvSlicer.h"
 #include "vvToolInputSelectorWidget.h"
@@ -31,7 +34,6 @@
 #include <vtkPlot.h>
 #include <vtkRendererCollection.h>
 #include <vtkRenderer.h>
-
 
 //------------------------------------------------------------------------------
 // Create the tool and automagically (I like this word) insert it in
@@ -65,7 +67,7 @@ vvToolProfile::vvToolProfile(vvMainWindowBase * parent, Qt::WindowFlags f)
   connect(mSelectPoint1Button, SIGNAL(clicked()), this, SLOT(selectPoint1()));
   connect(mSelectPoint2Button, SIGNAL(clicked()), this, SLOT(selectPoint2()));
   connect(mCancelPointsButton, SIGNAL(clicked()), this, SLOT(cancelPoints()));
-  connect(mComputeProfileButton, SIGNAL(clicked()), this, SLOT(computeProfile()));
+  connect(mSaveProfileButton, SIGNAL(clicked()), this, SLOT(SaveAs()));
 
   // Initialize some widget
   ProfileWidget->hide();
@@ -96,6 +98,7 @@ vvToolProfile::vvToolProfile(vvMainWindowBase * parent, Qt::WindowFlags f)
 //------------------------------------------------------------------------------
 vvToolProfile::~vvToolProfile()
 { 
+  connect(mCurrentSlicerManager, SIGNAL(callAddLandmark(float,float,float,float)), mCurrentSlicerManager, SLOT(AddLandmark(float,float,float,float)));
 }
 //------------------------------------------------------------------------------
 
@@ -115,6 +118,7 @@ void vvToolProfile::selectPoint1()
       this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
       this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
       ProfileWidget->show();
+      mCurrentSlicerManager->GetLandmarks()->RemoveLandmarkWithLabel("P1", mPoint1[3]);
   }
   
   mPoint1Selected = false;
@@ -122,21 +126,34 @@ void vvToolProfile::selectPoint1()
       if(mCurrentSlicerManager->GetSelectedSlicer() != -1) {
           double *pos;
           int *index;
-          pos = new double [mCurrentSlicerManager->GetImage()->GetNumberOfDimensions()];
+          pos = new double [4];
+          pos[0] = pos[1] = pos[2] = pos[3] = 0;
           index = new int [mCurrentSlicerManager->GetImage()->GetNumberOfDimensions()];
           
-          for (int i=0; i<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions(); ++i) {
+          int i(0);
+          while (i<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() && i<3) {
             pos[i] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[i];
             index[i] = (int) (pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i];
-            
             position += QString::number(pos[i],'f',1) + " ";
             mPoint1[i] = index[i];
+            ++i;
+          }
+          if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() == 4) {
+            pos[3] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetTSlice();
+            index[3] = (int)pos[3];
+            position += QString::number(pos[3],'f',1) + " ";
+            mPoint1[3] = index[3];
           }
           mPoint1Selected = true;
+          mCurrentSlicerManager->AddLandmarkProfile(pos[0], pos[1], pos[2], pos[3]);
+          mCurrentSlicerManager->GetLandmarks()->GetLabels()->SetNumberOfValues(mCurrentSlicerManager->GetLandmarks()->GetLabels()->GetNumberOfValues()-1);
+          mCurrentSlicerManager->GetLandmarks()->GetLabels()->Modified();
+          mCurrentSlicerManager->GetLandmarks()->GetLabels()->InsertNextValue("P1");
       }
   }
   mPosPoint1Label->setText(position);
   isPointsSelected();
+  mCurrentSlicerManager->Render();
 }
 //------------------------------------------------------------------------------
 
@@ -156,6 +173,7 @@ void vvToolProfile::selectPoint2()
       this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
       this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
       ProfileWidget->show();
+      mCurrentSlicerManager->GetLandmarks()->RemoveLandmarkWithLabel("P2", mPoint2[3]);
   }
   
   mPoint2Selected = false;
@@ -163,31 +181,47 @@ void vvToolProfile::selectPoint2()
       if(mCurrentSlicerManager->GetSelectedSlicer() != -1) {
           double *pos;
           int *index;
-          pos = new double [mCurrentSlicerManager->GetImage()->GetNumberOfDimensions()];
+          pos = new double [4];
+          pos[0] = pos[1] = pos[2] = pos[3] = 0;;
           index = new int [mCurrentSlicerManager->GetImage()->GetNumberOfDimensions()];
           
-          for (int i=0; i<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions(); ++i) {
+          int i(0);
+          while (i<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() &&i<3) {
             pos[i] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[i];
             index[i] = (int) (pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i];
-            
             position += QString::number(pos[i],'f',1) + " ";
             mPoint2[i] = index[i];
+            ++i;
+          }
+          if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() == 4) {
+            pos[3] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetTSlice();
+            index[3] = (int)pos[3];
+            position += QString::number(pos[3],'f',1) + " ";
+            mPoint2[3] = index[3];
           }
           mPoint2Selected = true;
+          mCurrentSlicerManager->AddLandmarkProfile(pos[0], pos[1], pos[2], pos[3]);
+          mCurrentSlicerManager->GetLandmarks()->GetLabels()->SetNumberOfValues(mCurrentSlicerManager->GetLandmarks()->GetLabels()->GetNumberOfValues()-1);
+          mCurrentSlicerManager->GetLandmarks()->GetLabels()->Modified();
+          mCurrentSlicerManager->GetLandmarks()->GetLabels()->InsertNextValue("P2");
       }
   }
   mPosPoint2Label->setText(position);
   isPointsSelected();
+  mCurrentSlicerManager->Render();
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 bool vvToolProfile::isPointsSelected()
 {
-  if (mPoint1Selected && mPoint2Selected)
-      mComputeProfileButton->setEnabled(true);
+  if (mPoint1Selected && mPoint2Selected) {
+      mSaveProfileButton->setEnabled(true);
+      computeProfile();
+      //DisplayLine();
+  }
   else
-      mComputeProfileButton->setEnabled(false);
+      mSaveProfileButton->setEnabled(false);
   
   return (mPoint1Selected && mPoint2Selected);
 }
@@ -207,6 +241,7 @@ void vvToolProfile::computeProfile()
     mFilter->SetInputVVImage(mCurrentImage);
     mFilter->SetArgsInfo(mArgsInfo);
     mFilter->Update();
+    //mImageLine = mFilter->GetOutputVVImage();
     
     vtkSmartPointer<vtkTable> table = vtkSmartPointer<vtkTable>::New();
     vtkSmartPointer<vtkFloatArray> arrX = vtkSmartPointer<vtkFloatArray>::New();
@@ -245,6 +280,10 @@ void vvToolProfile::computeProfile()
 //------------------------------------------------------------------------------
 void vvToolProfile::cancelPoints()
 { 
+  if (mPoint1Selected)
+    mCurrentSlicerManager->GetLandmarks()->RemoveLandmarkWithLabel("P1", mPoint1[3]);
+  if (mPoint2Selected)
+    mCurrentSlicerManager->GetLandmarks()->RemoveLandmarkWithLabel("P2", mPoint2[3]);
   ProfileWidget->hide();
   vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
   chart->SetAutoSize(false);
@@ -260,8 +299,9 @@ void vvToolProfile::cancelPoints()
   mPosPoint2Label->setText(position);
   mPoint1Selected = false;
   mPoint2Selected = false;
-  mComputeProfileButton->setEnabled(false);
+  mSaveProfileButton->setEnabled(false);
   isPointsSelected();
+  mCurrentSlicerManager->Render();
 }
 //------------------------------------------------------------------------------
 
@@ -269,8 +309,17 @@ void vvToolProfile::cancelPoints()
 //------------------------------------------------------------------------------
 void vvToolProfile::RemoveVTKObjects()
 { 
+  if (mPoint1Selected)
+    mCurrentSlicerManager->GetLandmarks()->RemoveLandmarkWithLabel("P1", mPoint1[3]);
+  if (mPoint2Selected)
+    mCurrentSlicerManager->GetLandmarks()->RemoveLandmarkWithLabel("P2", mPoint2[3]);
+
+    
   if (mCurrentSlicerManager)
     mCurrentSlicerManager->Render();
+    
+  delete [] mPoint1;
+  delete [] mPoint2;
 }
 //------------------------------------------------------------------------------
 
@@ -278,7 +327,7 @@ void vvToolProfile::RemoveVTKObjects()
 //------------------------------------------------------------------------------
 bool vvToolProfile::close()
 { 
-  // RemoveVTKObjects();
+  //RemoveVTKObjects();
   return vvToolWidgetBase::close();
 }
 //------------------------------------------------------------------------------
@@ -298,8 +347,6 @@ void vvToolProfile::reject()
 { 
   // DD("vvToolProfile::reject");
   RemoveVTKObjects();
-  delete [] mPoint1;
-  delete [] mPoint2;
   return vvToolWidgetBase::reject();
 }
 //------------------------------------------------------------------------------
@@ -310,10 +357,16 @@ void vvToolProfile::InputIsSelected(vvSlicerManager * m)
 { 
   mCurrentSlicerManager = m;
 
-  mPoint1 = new int[mCurrentSlicerManager->GetImage()->GetNumberOfDimensions()];
-  mPoint2 = new int[mCurrentSlicerManager->GetImage()->GetNumberOfDimensions()];
+  mPoint1 = new int[4];
+  mPoint1[0] = mPoint1[1] = mPoint1[2] = mPoint1[3] = 0;
+  mPoint2 = new int[4];
+  mPoint2[0] = mPoint2[1] = mPoint2[2] = mPoint2[3] = 0;
   
-  mComputeProfileButton->setEnabled(false);
+  mSaveProfileButton->setEnabled(false);
+  mTextFileName = "Profile.txt";
+  mImageLine = vvImage::New();
+  
+  disconnect(mCurrentSlicerManager, SIGNAL(callAddLandmark(float,float,float,float)), mCurrentSlicerManager, SLOT(AddLandmark(float,float,float,float)));
 }
 //------------------------------------------------------------------------------
 
@@ -354,52 +407,197 @@ void vvToolProfile::GetArgsInfoFromGUI()
 //------------------------------------------------------------------------------
 void vvToolProfile::apply()
 { 
-  if (!mCurrentSlicerManager || !isPointsSelected()) {
-      close();
-      return;
-  }
-  
-  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-  // Output
-  std::string fileName = "Profiled_" + mCurrentSlicerManager->GetSlicer(0)->GetFileName() + ".txt";
-  ofstream fileOpen(fileName.c_str(), std::ofstream::trunc);
-  
-  if(!fileOpen) {
-    cerr << "Error during saving" << endl;
-    QApplication::restoreOverrideCursor();
-    close();
-    
-    return;
-  }
-  vtkSmartPointer<vtkFloatArray> arrX = vtkSmartPointer<vtkFloatArray>::New();
-  vtkSmartPointer<vtkFloatArray> arrY = vtkSmartPointer<vtkFloatArray>::New();
-  vtkSmartPointer<vtkFloatArray> coords = vtkSmartPointer<vtkFloatArray>::New();
-  arrX = mFilter->GetArrayX();
-  arrY = mFilter->GetArrayY();
-  coords = mFilter->GetCoord();
-  double *tuple;
-  tuple = new double[mCurrentSlicerManager->GetImage()->GetNumberOfDimensions()];
-  int i(0);
-   
-  while (i<arrX->GetNumberOfTuples()) {
-      fileOpen << arrX->GetTuple(i)[0] << "\t" << arrY->GetTuple(i)[0] << "\t" ;
-      
-      coords->GetTuple(i, tuple);
-      for (int j=0; j<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() ; ++j) {
-          fileOpen << tuple[j] << "\t" ;
-      }
-      fileOpen << endl;
-      ++i;
-  }
-  
-  delete [] tuple;
-
-  fileOpen.close();
-
-  QApplication::restoreOverrideCursor();
-  close();
+  reject();
 }
 //------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
+void vvToolProfile::SaveAs()
+{ 
+  QStringList OutputListeFormat;
+  OutputListeFormat.clear();
+  OutputListeFormat.push_back(".txt");
+  
+  QString Extensions = "AllFiles(*.*)";
+  for (int i = 0; i < OutputListeFormat.count(); i++) {
+    Extensions += ";;Text File ( *";
+    Extensions += OutputListeFormat[i];
+    Extensions += ")";
+  }
+  QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"), mTextFileName.c_str(), Extensions);
+  if (!fileName.isEmpty()) {
+    std::string fileformat = itksys::SystemTools::GetFilenameLastExtension(fileName.toStdString());
+    QString fileQFormat = fileformat.c_str();
+    if (OutputListeFormat.contains(fileformat.c_str()) || fileQFormat.isEmpty()) {
+        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+        std::string action = "Saving";
+        vvProgressDialog progress("Saving "+fileName.toStdString());
+        qApp->processEvents();
+        
+        if (!mCurrentSlicerManager || !isPointsSelected()) {
+            close();
+            return;
+        }
+
+        // Output
+        mTextFileName = fileName.toStdString();
+        if (fileQFormat.isEmpty())
+            mTextFileName += ".txt";
+        ofstream fileOpen(mTextFileName.c_str(), std::ofstream::trunc);
+  
+        if(!fileOpen) {
+            cerr << "Error during saving" << endl;
+            QApplication::restoreOverrideCursor();
+            close();
+            return;
+        }
+        
+        vtkSmartPointer<vtkFloatArray> arrX = vtkSmartPointer<vtkFloatArray>::New();
+        vtkSmartPointer<vtkFloatArray> arrY = vtkSmartPointer<vtkFloatArray>::New();
+        vtkSmartPointer<vtkFloatArray> coords = vtkSmartPointer<vtkFloatArray>::New();
+        arrX = mFilter->GetArrayX();
+        arrY = mFilter->GetArrayY();
+        coords = mFilter->GetCoord();
+        double *tuple;
+        tuple = new double[mCurrentSlicerManager->GetImage()->GetNumberOfDimensions()];
+        int i(0);
+        
+        fileOpen << "Id" << "\t" << "Value" << "\t" ;
+        fileOpen << "x(vox)" << "\t" << "y(vox)" << "\t";
+        if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() >=3)
+            fileOpen << "z(vox)" << "\t";
+        if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() >=4)
+            fileOpen << "t" << "\t";
+        fileOpen << "x(mm)" << "\t" << "y(mm)" << "\t";
+        if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() >=3)
+            fileOpen << "z(mm)" << "\t";
+        if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() >=4)
+            fileOpen << "t" << "\t";
+        fileOpen << endl;
+   
+        while (i<arrX->GetNumberOfTuples()) {
+            fileOpen << arrX->GetTuple(i)[0] << "\t" << arrY->GetTuple(i)[0] << "\t" ;
+      
+            coords->GetTuple(i, tuple);
+            for (int j=0; j<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() ; ++j) {
+                fileOpen << tuple[j] << "\t" ;
+            }
+            int j(0);
+            while (j<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() && j<3) {
+                fileOpen << tuple[j]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[j]+mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[j] << "\t" ;
+                ++j;
+            }
+            if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() == 4) {
+                fileOpen << tuple[3] << "\t" ;
+            }
+            fileOpen << endl;
+            ++i;
+        }
+  
+        delete [] tuple;
+
+        fileOpen.close();
+        QApplication::restoreOverrideCursor();
+    } else {
+      QString error = fileformat.c_str();
+      error += " format unknown !!!\n";
+      QMessageBox::information(this,tr("Saving Problem"),error);
+      SaveAs();
+    }
+  }
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolProfile::DisplayLine()
+{ 
+  if (!mPoint1Selected && !mPoint2Selected)
+    return;
+  
+  if(mCurrentSlicerManager) {
+      if(mCurrentSlicerManager->GetSelectedSlicer() != -1) {
+          double *pos;
+          pos = new double [4];
+          pos[0] = pos[1] = pos[2] = pos[3] = 0;
+          
+          int i(0);
+          while (i<3) {
+            pos[i] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[i];
+            ++i;
+          }
+          if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() == 4) {
+            pos[3] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetTSlice();
+          }
+          
+          /*double p0[4];
+          if (mPoint1Selected) {
+              p0[0] = mPoint1[0]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[0] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[0];
+              p0[1] = mPoint1[1]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[1] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[1];
+              p0[2] = mPoint1[2]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[2] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[2];
+              p0[3] = mPoint1[3];
+          }
+          else {
+              p0[0] = mPoint2[0]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[0] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[0];
+              p0[1] = mPoint2[1]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[1] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[1];
+              p0[2] = mPoint2[2]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[2] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[2];
+              p0[3] = mPoint2[3];
+          }
+          vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
+          pts->InsertNextPoint(p0);
+          pts->InsertNextPoint(pos);
+ 
+          vtkSmartPointer<vtkPolyData> linesPolyData = vtkSmartPointer<vtkPolyData>::New();
+          linesPolyData->SetPoints(pts);
+ 
+          vtkSmartPointer<vtkLine> line = vtkSmartPointer<vtkLine>::New();
+          line->GetPointIds()->SetId(0, 0); // the second 0 is the index of the Origin in linesPolyData's points
+          line->GetPointIds()->SetId(1, 1); // the second 1 is the index of P0 in linesPolyData's points
+ 
+          vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
+          lines->InsertNextCell(line);
+ 
+          linesPolyData->SetLines(lines);
+ 
+          unsigned char red[3] = { 255, 0, 0 };
+ 
+          vtkSmartPointer<vtkUnsignedCharArray> colors = vtkSmartPointer<vtkUnsignedCharArray>::New();
+          colors->SetNumberOfComponents(3);
+          colors->InsertNextTupleValue(red);
+ 
+          linesPolyData->GetCellData()->SetScalars(colors);
+ 
+ 
+          vtkSmartPointer<vtkPolyDataMapper> lineMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+#if VTK_MAJOR_VERSION <= 5
+          lineMapper->SetInput(linesPolyData);
+#else
+          lineMapper->SetInputData(linesPolyData);
+#endif
+          vtkSmartPointer<vtkActor> lineActor = vtkSmartPointer<vtkActor>::New();
+          lineActor->SetMapper(lineMapper);
+          lineActor->GetProperty()->SetOpacity(0.995);
+        
+          for(int i=0;i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
+              mCurrentSlicerManager->GetSlicer(i)->GetRenderer()->AddActor(lineActor);
+          }*/
+          
+          mOverlayActors.clear();
+          for(int i=0;i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
+              mOverlayActors.push_back(vvBinaryImageOverlayActor::New());
+              mOverlayActors[i]->SetImage(mImageLine, 0);
+              mOverlayActors[i]->SetColor(1,0,0);
+              mOverlayActors[i]->SetOpacity(0.995);
+              mOverlayActors[i]->SetSlicer(mCurrentSlicerManager->GetSlicer(i));
+              mOverlayActors[i]->Initialize(true);
+              mOverlayActors[i]->SetDepth(1);
+              mOverlayActors[i]->ShowActors();
+              mOverlayActors[i]->UpdateSlice(i, mCurrentSlicerManager->GetSlicer(i)->GetSlice(), false);
+          }
+      }
+  }
+  mCurrentSlicerManager->Render();
+}
+//------------------------------------------------------------------------------
 
