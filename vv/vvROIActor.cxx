@@ -69,8 +69,8 @@ void vvROIActor::RemoveActors()
   }  
   
   Update(true);
-  mImageContour.clear();
-  mOverlayActors.clear();
+  //mImageContour.clear();
+  //mOverlayActors.clear();
 }
 //------------------------------------------------------------------------------
 
