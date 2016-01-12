@@ -47,6 +47,7 @@ public:
         std::string filename);
 
   int GetROINumber() const;
+  void SetROINumber(int);
   const std::string & GetName() const;
   const std::string & GetFilename() const;
   const std::vector<double> & GetDisplayColor() const;

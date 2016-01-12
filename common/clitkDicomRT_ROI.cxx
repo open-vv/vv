@@ -74,6 +74,14 @@ int clitk::DicomRT_ROI::GetROINumber() const
 
 
 //--------------------------------------------------------------------
+void clitk::DicomRT_ROI::SetROINumber(int number)
+{
+  mNumber = number;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
 const std::string & clitk::DicomRT_ROI::GetName() const
 {
   return mName;

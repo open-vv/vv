@@ -528,7 +528,7 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>        </string>
+              <string/>
              </property>
             </widget>
            </item>
@@ -544,6 +544,17 @@
               </size>
              </property>
             </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="mRemoveButton">
+             <property name="text">
+              <string>1</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../vvIcons.qrc">
+               <normaloff>:/common/icons/standardbutton-cancel-16.png</normaloff>:/common/icons/standardbutton-cancel-16.png</iconset>
+             </property>
+            </widget>
            </item>
            <item>
             <widget class="QLabel" name="mROInameLabel_3">
@@ -690,11 +701,11 @@
           <bool>false</bool>
          </property>
          <property name="text">
-          <string/>
+          <string>All</string>
          </property>
          <property name="icon">
           <iconset resource="../vvIcons.qrc">
-           <normaloff>:/common/icons/exit.png</normaloff>:/common/icons/exit.png</iconset>
+           <normaloff>:/common/icons/standardbutton-cancel-16.png</normaloff>:/common/icons/standardbutton-cancel-16.png</iconset>
          </property>
         </widget>
        </item>
