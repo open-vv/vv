@@ -1070,6 +1070,7 @@ int vvSlicer::GetOrientation()
 //----------------------------------------------------------------------------
 void vvSlicer::UpdateDisplayExtent()
 { 
+  emit UpdateDisplayExtentBegin(mSlicerNumber);
   vtkImageData *input = this->GetInput();
   if (!input || !this->ImageActor) {
     return;
@@ -1222,6 +1223,7 @@ void vvSlicer::UpdateDisplayExtent()
       }
     }
   }
+  emit UpdateDisplayExtentEnd(mSlicerNumber);
 }
 //----------------------------------------------------------------------------
 

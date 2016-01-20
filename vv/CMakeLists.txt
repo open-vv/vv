@@ -123,6 +123,7 @@ qt5_wrap_cpp(vv_SRCS
   vvHelpDialog.h
   vvQDicomSeriesSelector.h
   vvSlicerManager.h
+  vvSlicer.h
   vvStructureSetActor.h
   vvROIActor.h
   vvToolCreatorBase.h

@@ -20,6 +20,7 @@
 #include <iostream>
 #include <vector>
 
+#include <QObject>
 #include <QString> //TODO delete
 #include <QMessageBox>
 
@@ -58,8 +59,10 @@ class vtkScalarBarActor;
 class vtkTransform;
 class vtkImageReslice;
 
-class vvSlicer: public vtkImageViewer2
-{
+class vvSlicer: public QObject, public vtkImageViewer2 {
+  
+Q_OBJECT
+
 public:
   static vvSlicer *New();
   vtkTypeMacro(vvSlicer,vtkImageViewer2);
@@ -210,6 +213,13 @@ public:
   void SetRegisterExtent(int [6]);
   void GetRegisterExtent(int [6]);
   
+  void SetSlicerNumber(const int nbSlicer) {mSlicerNumber = nbSlicer;}
+  int GetSlicerNumber() const {return mSlicerNumber;}
+  
+signals:
+  void UpdateDisplayExtentBegin(int);
+  void UpdateDisplayExtentEnd(int);
+  
 protected:
   vvSlicer();
   ~vvSlicer();
@@ -266,6 +276,7 @@ protected:
   vtkSmartPointer<vtkScalarBarActor> legend;
   std::vector<vvMeshActor*> mSurfaceCutActors;
 
+  int mSlicerNumber;
   int mCurrentTSlice;
   int mCurrentFusionTSlice;
   int mCurrentOverlayTSlice;

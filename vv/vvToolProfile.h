@@ -46,11 +46,13 @@ class vvToolProfile:
 
   //-----------------------------------------------------
   static void Initialize();
+  void InitializeLine();
   void GetArgsInfoFromGUI();
   virtual void InputIsSelected(vvSlicerManager * m);
 
   bool isPointsSelected();
   void computeProfile();
+  void SetPoints();
 
   //-----------------------------------------------------
   public slots:
@@ -62,7 +64,8 @@ class vvToolProfile:
   void selectPoint2();
   void cancelPoints();
   void SaveAs();
-  void DisplayLine();
+  void DisplayLine(int);
+  void DeleteLine(int);
 
  protected:
   void RemoveVTKObjects();
@@ -77,8 +80,8 @@ class vvToolProfile:
   vtkSmartPointer<vtkContextView> mView;
   clitk::ProfileImageGenericFilter::Pointer mFilter;
   std::string mTextFileName;
-  vvImage::Pointer mImageLine;
-  std::vector< vvBinaryImageOverlayActor::Pointer > mOverlayActors;
+  std::vector<vtkSmartPointer<vtkActor> > mLineActors;
+  vtkSmartPointer<vtkPolyData> mLinesPolyData;
 
 
 }; // end class vvToolProfile

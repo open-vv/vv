@@ -79,8 +79,10 @@ vvSlicerManager::vvSlicerManager(int numberOfSlicers)
   mLandmarks = NULL;
   mLinkedId.resize(0);
 
-  for ( int i = 0; i < numberOfSlicers; i++)
+  for ( int i = 0; i < numberOfSlicers; i++) {
     mSlicers.push_back(vtkSmartPointer<vvSlicer>::New());
+    mSlicers[i]->SetSlicerNumber(i);
+  }
   mSelectedSlicer = -1;
   
   mPreviousSlice.resize(numberOfSlicers, 0);

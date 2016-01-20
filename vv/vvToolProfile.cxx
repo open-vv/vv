@@ -35,6 +35,14 @@
 #include <vtkRendererCollection.h>
 #include <vtkRenderer.h>
 
+#include <vtkLine.h>
+#include <vtkCellArray.h>
+#include <vtkCellData.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
+#include <vtkBox.h>
+#include <vtkInformation.h>
+
 //------------------------------------------------------------------------------
 // Create the tool and automagically (I like this word) insert it in
 // the main window menu.
@@ -218,11 +226,23 @@ bool vvToolProfile::isPointsSelected()
   if (mPoint1Selected && mPoint2Selected) {
       mSaveProfileButton->setEnabled(true);
       computeProfile();
-      //DisplayLine();
+      SetPoints();
+      for(int i=0;i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
+        DisplayLine(i);
+        connect(mCurrentSlicerManager->GetSlicer(i), SIGNAL(UpdateDisplayExtentBegin(int)), this, SLOT(DeleteLine(int)));
+        connect(mCurrentSlicerManager->GetSlicer(i), SIGNAL(UpdateDisplayExtentEnd(int)), this, SLOT(DisplayLine(int)));
+      }
+      mCurrentSlicerManager->Render();
   }
-  else
+  else {
       mSaveProfileButton->setEnabled(false);
-  
+      for(int i=0;i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
+        disconnect(mCurrentSlicerManager->GetSlicer(i), SIGNAL(UpdateDisplayExtentBegin(int)), this, SLOT(DeleteLine(int)));
+        disconnect(mCurrentSlicerManager->GetSlicer(i), SIGNAL(UpdateDisplayExtentEnd(int)), this, SLOT(DisplayLine(int)));
+        mCurrentSlicerManager->GetSlicer(i)->GetRenderer()->RemoveActor(mLineActors[i]);
+      }
+
+  }
   return (mPoint1Selected && mPoint2Selected);
 }
 //------------------------------------------------------------------------------
@@ -309,6 +329,10 @@ void vvToolProfile::cancelPoints()
 //------------------------------------------------------------------------------
 void vvToolProfile::RemoveVTKObjects()
 { 
+  for(int i=0;i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
+    mCurrentSlicerManager->GetSlicer(i)->GetRenderer()->RemoveActor(mLineActors[i]);
+  }
+
   if (mPoint1Selected)
     mCurrentSlicerManager->GetLandmarks()->RemoveLandmarkWithLabel("P1", mPoint1[3]);
   if (mPoint2Selected)
@@ -364,7 +388,7 @@ void vvToolProfile::InputIsSelected(vvSlicerManager * m)
   
   mSaveProfileButton->setEnabled(false);
   mTextFileName = "Profile.txt";
-  mImageLine = vvImage::New();
+  InitializeLine();
   
   disconnect(mCurrentSlicerManager, SIGNAL(callAddLandmark(float,float,float,float)), mCurrentSlicerManager, SLOT(AddLandmark(float,float,float,float)));
 }
@@ -511,14 +535,106 @@ void vvToolProfile::SaveAs()
 
 
 //------------------------------------------------------------------------------
-void vvToolProfile::DisplayLine()
+void vvToolProfile::DeleteLine(int slicer)
+{
+  if (!mPoint1Selected && !mPoint2Selected)
+    return;
+  
+  if(mCurrentSlicerManager) {
+      if(mCurrentSlicerManager->GetSelectedSlicer() != -1) {
+          mCurrentSlicerManager->GetSlicer(slicer)->GetRenderer()->RemoveActor(mLineActors[slicer]);
+      }
+   }
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolProfile::DisplayLine(int slicer)
 { 
   if (!mPoint1Selected && !mPoint2Selected)
     return;
   
   if(mCurrentSlicerManager) {
       if(mCurrentSlicerManager->GetSelectedSlicer() != -1) {
-          double *pos;
+            vtkSmartPointer<vtkBox> clippingBox = vtkSmartPointer<vtkBox>::New();
+            double extent[6];
+            for (int j=0; j<6; ++j) {
+                extent[j] = mCurrentSlicerManager->GetSlicer(slicer)->GetExtent()[j];
+            }
+            extent[2*mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()] = mCurrentSlicerManager->GetSlicer(slicer)->GetSlice();
+            extent[2*mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()+1] = mCurrentSlicerManager->GetSlicer(slicer)->GetSlice();
+            clippingBox->SetBounds(extent);
+            vtkSmartPointer<vtkClipPolyData> clipper = vtkSmartPointer<vtkClipPolyData>::New();
+            clipper->SetClipFunction(clippingBox);
+#if VTK_MAJOR_VERSION <= 5
+            clipper->SetInput(mLinesPolyData);
+#else
+            clipper->SetInputData(mLinesPolyData);
+#endif
+            clipper->InsideOutOff();
+            clipper->Update();        
+            vtkSmartPointer<vtkPolyDataMapper> lineMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+#if VTK_MAJOR_VERSION <= 5
+            lineMapper->SetInput(clipper->GetOutput());
+#else
+            lineMapper->SetInputData(clipper->GetOutput());
+#endif 
+            
+            mLineActors[slicer]->SetMapper(lineMapper);
+            mLineActors[slicer]->GetProperty()->SetOpacity(0.995);
+
+            mCurrentSlicerManager->GetSlicer(slicer)->GetRenderer()->AddActor(mLineActors[slicer]);
+      }
+  }
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolProfile::InitializeLine()
+{ 
+  if(mCurrentSlicerManager) {
+      
+      mLinesPolyData = vtkSmartPointer<vtkPolyData>::New();
+      
+      vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
+      double pos[4];
+      pos[0] = pos[1] = pos[2] = pos[3] = 0;
+      pts->InsertNextPoint(pos);
+      pts->InsertNextPoint(pos);
+      mLinesPolyData->SetPoints(pts);
+      
+      vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
+      vtkSmartPointer<vtkLine> line = vtkSmartPointer<vtkLine>::New();
+      line->GetPointIds()->SetId(0, 0); // the second 0 is the index of the 1st point in mLinesPolyData's points (pts)
+      line->GetPointIds()->SetId(1, 1); // the second 1 is the index of the 2nd point in mLinesPolyData's points (pts)
+      lines->InsertNextCell(line);
+      mLinesPolyData->SetLines(lines);
+       
+      unsigned char red[3] = { 255, 0, 0 };
+      vtkSmartPointer<vtkUnsignedCharArray> colors = vtkSmartPointer<vtkUnsignedCharArray>::New();
+      colors->SetNumberOfComponents(3);
+      colors->InsertNextTupleValue(red);
+      mLinesPolyData->GetCellData()->SetScalars(colors);
+      
+      for(int i=0;i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
+        mLineActors.push_back(vtkSmartPointer<vtkActor>::New());
+      }
+   }       
+}    
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolProfile::SetPoints()
+{ 
+  if (!mPoint1Selected && !mPoint2Selected)
+    return;
+  
+  if(mCurrentSlicerManager) {
+      if(mCurrentSlicerManager->GetSelectedSlicer() != -1) {
+          /*double *pos;
           pos = new double [4];
           pos[0] = pos[1] = pos[2] = pos[3] = 0;
           
@@ -529,75 +645,25 @@ void vvToolProfile::DisplayLine()
           }
           if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() == 4) {
             pos[3] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetTSlice();
-          }
+          } */
           
-          /*double p0[4];
-          if (mPoint1Selected) {
-              p0[0] = mPoint1[0]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[0] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[0];
-              p0[1] = mPoint1[1]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[1] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[1];
-              p0[2] = mPoint1[2]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[2] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[2];
-              p0[3] = mPoint1[3];
-          }
-          else {
-              p0[0] = mPoint2[0]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[0] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[0];
-              p0[1] = mPoint2[1]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[1] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[1];
-              p0[2] = mPoint2[2]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[2] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[2];
-              p0[3] = mPoint2[3];
-          }
-          vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
-          pts->InsertNextPoint(p0);
-          pts->InsertNextPoint(pos);
- 
-          vtkSmartPointer<vtkPolyData> linesPolyData = vtkSmartPointer<vtkPolyData>::New();
-          linesPolyData->SetPoints(pts);
- 
-          vtkSmartPointer<vtkLine> line = vtkSmartPointer<vtkLine>::New();
-          line->GetPointIds()->SetId(0, 0); // the second 0 is the index of the Origin in linesPolyData's points
-          line->GetPointIds()->SetId(1, 1); // the second 1 is the index of P0 in linesPolyData's points
- 
-          vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
-          lines->InsertNextCell(line);
- 
-          linesPolyData->SetLines(lines);
- 
-          unsigned char red[3] = { 255, 0, 0 };
- 
-          vtkSmartPointer<vtkUnsignedCharArray> colors = vtkSmartPointer<vtkUnsignedCharArray>::New();
-          colors->SetNumberOfComponents(3);
-          colors->InsertNextTupleValue(red);
- 
-          linesPolyData->GetCellData()->SetScalars(colors);
- 
- 
-          vtkSmartPointer<vtkPolyDataMapper> lineMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-#if VTK_MAJOR_VERSION <= 5
-          lineMapper->SetInput(linesPolyData);
-#else
-          lineMapper->SetInputData(linesPolyData);
-#endif
-          vtkSmartPointer<vtkActor> lineActor = vtkSmartPointer<vtkActor>::New();
-          lineActor->SetMapper(lineMapper);
-          lineActor->GetProperty()->SetOpacity(0.995);
-        
-          for(int i=0;i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
-              mCurrentSlicerManager->GetSlicer(i)->GetRenderer()->AddActor(lineActor);
-          }*/
-          
-          mOverlayActors.clear();
-          for(int i=0;i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
-              mOverlayActors.push_back(vvBinaryImageOverlayActor::New());
-              mOverlayActors[i]->SetImage(mImageLine, 0);
-              mOverlayActors[i]->SetColor(1,0,0);
-              mOverlayActors[i]->SetOpacity(0.995);
-              mOverlayActors[i]->SetSlicer(mCurrentSlicerManager->GetSlicer(i));
-              mOverlayActors[i]->Initialize(true);
-              mOverlayActors[i]->SetDepth(1);
-              mOverlayActors[i]->ShowActors();
-              mOverlayActors[i]->UpdateSlice(i, mCurrentSlicerManager->GetSlicer(i)->GetSlice(), false);
-          }
-      }
+          double p0[4], p1[4];
+          p0[0] = mPoint1[0]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[0] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[0];
+          p0[1] = mPoint1[1]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[1] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[1];
+          p0[2] = mPoint1[2]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[2] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[2];
+          p0[3] = mPoint1[3];
+
+          p1[0] = mPoint2[0]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[0] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[0];
+          p1[1] = mPoint2[1]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[1] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[1];
+          p1[2] = mPoint2[2]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[2] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[2];
+          p1[3] = mPoint2[3];
+              
+          vtkSmartPointer<vtkPoints> pts = mLinesPolyData->GetPoints();
+          pts->SetPoint(0,p0);
+          pts->SetPoint(1,p1);
+    }
   }
-  mCurrentSlicerManager->Render();
 }
 //------------------------------------------------------------------------------
+
 
