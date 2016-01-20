@@ -17,6 +17,7 @@
   ===========================================================================**/
 
 #include <QFileDialog>
+#include <QShortcut>
 
 // vv
 #include "vvToolProfile.h"
@@ -70,6 +71,13 @@ vvToolProfile::vvToolProfile(vvMainWindowBase * parent, Qt::WindowFlags f)
 { 
   // GUI Initialization
   Ui_vvToolProfile::setupUi(mToolWidget);
+  
+  QShortcut *shortcutPoint1 = new QShortcut(QKeySequence("Ctrl+1"), parent);
+  shortcutPoint1->setContext(Qt::ApplicationShortcut);
+  QObject::connect(shortcutPoint1, SIGNAL(activated()), this, SLOT(selectPoint1()));
+  QShortcut *shortcutPoint2 = new QShortcut(QKeySequence("Ctrl+2"), parent);
+  shortcutPoint2->setContext(Qt::ApplicationShortcut);
+  QObject::connect(shortcutPoint2, SIGNAL(activated()), this, SLOT(selectPoint2()));
 
   // Connect signals & slots
   connect(mSelectPoint1Button, SIGNAL(clicked()), this, SLOT(selectPoint1()));
@@ -106,7 +114,8 @@ vvToolProfile::vvToolProfile(vvMainWindowBase * parent, Qt::WindowFlags f)
 //------------------------------------------------------------------------------
 vvToolProfile::~vvToolProfile()
 { 
-  connect(mCurrentSlicerManager, SIGNAL(callAddLandmark(float,float,float,float)), mCurrentSlicerManager, SLOT(AddLandmark(float,float,float,float)));
+  delete [] mPoint1;
+  delete [] mPoint2;
 }
 //------------------------------------------------------------------------------
 
@@ -341,9 +350,6 @@ void vvToolProfile::RemoveVTKObjects()
     
   if (mCurrentSlicerManager)
     mCurrentSlicerManager->Render();
-    
-  delete [] mPoint1;
-  delete [] mPoint2;
 }
 //------------------------------------------------------------------------------
 
@@ -352,6 +358,8 @@ void vvToolProfile::RemoveVTKObjects()
 bool vvToolProfile::close()
 { 
   //RemoveVTKObjects();
+  
+  connect(mCurrentSlicerManager, SIGNAL(callAddLandmark(float,float,float,float)), mCurrentSlicerManager, SLOT(AddLandmark(float,float,float,float)));
   return vvToolWidgetBase::close();
 }
 //------------------------------------------------------------------------------
@@ -431,7 +439,7 @@ void vvToolProfile::GetArgsInfoFromGUI()
 //------------------------------------------------------------------------------
 void vvToolProfile::apply()
 { 
-  reject();
+  close();
 }
 //------------------------------------------------------------------------------
 
@@ -562,9 +570,10 @@ void vvToolProfile::DisplayLine(int slicer)
             for (int j=0; j<6; ++j) {
                 extent[j] = mCurrentSlicerManager->GetSlicer(slicer)->GetExtent()[j];
             }
-            extent[2*mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()] = mCurrentSlicerManager->GetSlicer(slicer)->GetSlice();
-            extent[2*mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()+1] = mCurrentSlicerManager->GetSlicer(slicer)->GetSlice();
+            extent[2*mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()] = mCurrentSlicerManager->GetSlicer(slicer)->GetImageActor()->GetBounds()[ mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()*2 ]-fabs(mCurrentSlicerManager->GetSlicer(slicer)->GetInput()->GetSpacing()[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()]);
+            extent[2*mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()+1] = mCurrentSlicerManager->GetSlicer(slicer)->GetImageActor()->GetBounds()[ mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()*2+1 ]+fabs(mCurrentSlicerManager->GetSlicer(slicer)->GetInput()->GetSpacing()[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()]);
             clippingBox->SetBounds(extent);
+            
             vtkSmartPointer<vtkClipPolyData> clipper = vtkSmartPointer<vtkClipPolyData>::New();
             clipper->SetClipFunction(clippingBox);
 #if VTK_MAJOR_VERSION <= 5
