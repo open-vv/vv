@@ -20,7 +20,9 @@
 #include "vvRegisterForm.h"
 #include <QNetworkRequest>
 #include <QDir>
+#if QT_VERSION >= 0x050000
 #include <QUrlQuery>
+#endif
 #include <QPalette>
 #include "clitkConfiguration.h"
 #include "vvConfiguration.h"
@@ -34,6 +36,18 @@ vvRegisterForm::vvRegisterForm(QUrl url, QString path, QSettings::Format format)
 
 void vvRegisterForm::sendData(){
   QUrl url2(url);
+  
+#if QT_VERSION < 0x050000
+  url2.addQueryItem("name", firstName->text().toUtf8());
+  url2.addQueryItem("lastName", lastName->text().toUtf8());
+  url2.addQueryItem("email", email->text().toUtf8());
+  url2.addQueryItem("group", group->text().toUtf8());
+  url2.addQueryItem("os", OS_NAME);
+  url2.addQueryItem("vvVersion", VV_VERSION);
+  url2.addQueryItem("architecture", ARCHITECTURE);
+  url2.addQueryItem("adressing", QString::number(sizeof(char*)*8)+"-bit");
+  url2.addQueryItem("compilationDate", QString(__DATE__) + ", " + QString(__TIME__) );
+#else
   QUrlQuery url2Query;
     
   url2Query.addQueryItem("name", firstName->text().toUtf8());
@@ -46,6 +60,7 @@ void vvRegisterForm::sendData(){
   url2Query.addQueryItem("adressing", QString::number(sizeof(char*)*8)+"-bit");
   url2Query.addQueryItem("compilationDate", QString(__DATE__) + ", " + QString(__TIME__) );
   url2.setQuery(url2Query);
+#endif
   
   manager->get(QNetworkRequest(url2));
 }

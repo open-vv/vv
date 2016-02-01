@@ -17,7 +17,11 @@
 ===========================================================================**/
 #ifndef VVTOOLSIMPLEINPUTSELECTORWIDGET_H
 #define VVTOOLSIMPLEINPUTSELECTORWIDGET_H
+#if QT_VERSION < 0x050000
+#include <QtDesigner/QDesignerExportWidget>
+#else
 #include <QtUiPlugin/QDesignerExportWidget>
+#endif
 #include <QDialog>
 #include "ui_vvToolSimpleInputSelectorWidget.h"
 

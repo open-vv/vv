@@ -1085,7 +1085,11 @@ void vvSlicer::UpdateDisplayExtent()
 
   // Local copy of extent
   int w_ext[6];
+#if VTK_MAJOR_VERSION <= 5
+  int* ext = GetExtent();
+#else
   int* ext = mImageReslice->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+#endif
   copyExtent(ext, w_ext);
   if (mUseReducedExtent) {
         copyExtent(mReducedExtent, w_ext);
@@ -1108,10 +1112,11 @@ void vvSlicer::UpdateDisplayExtent()
   if (mOverlay && mOverlayVisibility) {
     AdjustResliceToSliceOrientation(mOverlayReslice);
     int overExtent[6];
-    this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mOverlayReslice->GetOutput(), overExtent);
 #if VTK_MAJOR_VERSION <= 5
+    this->ConvertImageToImageDisplayExtent(input, w_ext, mOverlayReslice->GetOutput(), overExtent);
     bool out = ClipDisplayedExtent(overExtent, mOverlayMapper->GetInput()->GetWholeExtent());
 #else
+    this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mOverlayReslice->GetOutput(), overExtent);
     bool out = ClipDisplayedExtent(overExtent, mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
 #endif
     mOverlayActor->SetVisibility(!out);
@@ -1128,10 +1133,11 @@ void vvSlicer::UpdateDisplayExtent()
   if (mFusion && mFusionVisibility) {
     AdjustResliceToSliceOrientation(mFusionReslice);
     int fusExtent[6];
-    this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mFusionReslice->GetOutput(), fusExtent);
 #if VTK_MAJOR_VERSION <= 5
+    this->ConvertImageToImageDisplayExtent(input, w_ext, mFusionReslice->GetOutput(), fusExtent);
     bool out = ClipDisplayedExtent(fusExtent, mFusionMapper->GetInput()->GetWholeExtent());
 #else
+    this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mFusionReslice->GetOutput(), fusExtent);
     bool out = ClipDisplayedExtent(fusExtent, mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
 #endif
     mFusionActor->SetVisibility(!out);
@@ -1165,13 +1171,11 @@ void vvSlicer::UpdateDisplayExtent()
     int vfExtent[6];
 #if VTK_MAJOR_VERSION <= 5
     mVF->GetVTKImages()[0]->UpdateInformation();
-#else
-    //this->UpdateInformation();
-#endif
-    this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mVF->GetVTKImages()[0], vfExtent);
-#if VTK_MAJOR_VERSION <= 5
+    this->ConvertImageToImageDisplayExtent(input, w_ext, mVF->GetVTKImages()[0], vfExtent);
     bool out = ClipDisplayedExtent(vfExtent, mVOIFilter->GetInput()->GetWholeExtent());
 #else
+    //this->UpdateInformation();
+    this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mVF->GetVTKImages()[0], vfExtent);
     bool out = ClipDisplayedExtent(vfExtent, mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
 #endif
     mVFActor->SetVisibility(!out);
@@ -1246,6 +1250,29 @@ void vvSlicer::ConvertImageToImageDisplayExtent(vtkInformation *sourceImage, con
   for(unsigned int i=0; i<6; i++) {
     // From source voxel coordinates to world coordinates
     dExtents[i] = origin[i/2] + spacing[i/2] * sourceExtent[i];
+
+    // From world coordinates to floating point target voxel coordinates
+    dExtents[i] = (dExtents[i]- targetImage->GetOrigin()[i/2]) / targetImage->GetSpacing()[i/2];
+    
+    // Round to current slice or larger extent
+    if(i/2==this->GetOrientation())
+      targetExtent[i] = itk::Math::Round<double>(dExtents[i]);
+    else if(i%2==1)
+      targetExtent[i] = itk::Math::Ceil<double>(dExtents[i]);
+    else
+      targetExtent[i] = itk::Math::Floor<double>(dExtents[i]);
+  }
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+void vvSlicer::ConvertImageToImageDisplayExtent(vtkImageData *sourceImage, const int sourceExtent[6],
+                                                vtkImageData *targetImage, int targetExtent[6])
+{
+  double dExtents[6];
+  for(unsigned int i=0; i<6; i++) {
+    // From source voxel coordinates to world coordinates
+    dExtents[i] = sourceImage->GetOrigin()[i/2] + sourceImage->GetSpacing()[i/2] * sourceExtent[i];
 
     // From world coordinates to floating point target voxel coordinates
     dExtents[i] = (dExtents[i]- targetImage->GetOrigin()[i/2]) / targetImage->GetSpacing()[i/2];
