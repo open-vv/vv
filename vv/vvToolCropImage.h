@@ -19,7 +19,11 @@
 #define VVTOOLCROPIMAGE_H
 
 //qt
+#if QT_VERSION < 0x050000
+#include <QtDesigner/QDesignerExportWidget>
+#else
 #include <QtUiPlugin/QDesignerExportWidget>
+#endif
 #include <QDialog>
 #include <QSlider>
 // vv

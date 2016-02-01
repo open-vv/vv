@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 2.4)
 # To avoid warning with some version
 if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
+  #cmake_policy(SET CMP0007 NEW)
 endif(COMMAND cmake_policy)
 #=========================================================
 
@@ -109,6 +110,7 @@ set(vv_SRCS
 
 #=========================================================
 # Qt related commands
+if(vv_QT_VERSION VERSION_GREATER "4")
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(Qt5Designer REQUIRED)
@@ -186,6 +188,81 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
+else()
+find_package(Qt4 REQUIRED)
+link_directories(${QT_LIBRARY_DIR})
+
+
+QT4_WRAP_CPP(vv_SRCS
+  vvMainWindowBase.h
+  QTreePushButton.h
+  vvDocumentation.h
+  vvHelpDialog.h
+  vvQDicomSeriesSelector.h
+  vvSlicerManager.h
+  vvStructureSetActor.h
+  vvROIActor.h
+  vvToolCreatorBase.h
+  )
+
+QT4_WRAP_UI(vv_UI_CXX
+  qt_ui/vvHelpDialog.ui
+  qt_ui/vvDocumentation.ui
+  qt_ui/vvDicomSeriesSelector.ui
+  qt_ui/vvDummyWindow.ui #For testing
+  )
+
+QT4_ADD_RESOURCES(vv_SRCS vvIcons.qrc)
+
+# Add the autotools in the header vvToolsList.h for initialization of the dummy
+# variables in vv.cxx for the tools contained in vvLib
+if(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt IS_NEWER_THAN ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h)
+  file(REMOVE ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h)
+  foreach(tool ${vv_TOOLS})
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h "#include \"${tool}.h\"\n")
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h "extern const vvToolCreator<${tool}> *dummy${tool};\n")
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h "const vvToolCreator<${tool}> *dummy${tool}2 = dummy${tool};\n\n")
+  endforeach(tool)
+endif(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt IS_NEWER_THAN ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h)
+
+# Add the autotools and the common files ui
+foreach(tool ${vv_TOOLS} ${vv_COMMON_WITH_UI})
+    set(vv_SRCS ${vv_SRCS} ${tool}.cxx)
+    QT4_WRAP_CPP(vv_SRCS ${tool}.h)
+    QT4_WRAP_UI(vv_UI_CXX qt_ui/${tool}.ui)
+endforeach(tool)
+
+# Add the common source files
+foreach(tool ${vv_COMMON})
+    set(vv_SRCS ${vv_SRCS} ${tool}.cxx)
+    QT4_WRAP_CPP(vv_SRCS ${tool}.h)
+endforeach(tool)
+
+# if Windows and Qt was built as a static lib then don't set QT_DLL flag
+set(QT_STATIC 0)
+if(WIN32)
+  if(EXISTS ${QT_LIBRARY_DIR}/QtCore.prl)
+    file(READ ${QT_LIBRARY_DIR}/QtCore.prl QT_CORE_PRL)
+    if(${QT_CORE_PRL} MATCHES "static")
+      set(QT_STATIC 1)
+    endif(${QT_CORE_PRL} MATCHES "static")
+  endif(EXISTS ${QT_LIBRARY_DIR}/QtCore.prl)
+endif(WIN32)
+if(NOT QT_STATIC)
+  add_definitions(-DQT_DLL)
+endif(NOT QT_STATIC)
+
+add_definitions(-DQT_THREAD_SUPPORT)
+
+include_directories(
+  ${QT_INCLUDES}
+  ${QT_INCLUDE_DIR}
+  ${QT_QTGUI_INCLUDE_DIR}
+  ${QT_QTCORE_INCLUDE_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
+endif()
 #=========================================================
 
 #=========================================================
@@ -213,8 +290,11 @@ endforeach(tool)
 #=========================================================
 #Add Foundation Libraries (this should be after our libraries, since we depend
 #on them)
-#set(foundationLibraries clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
+if(vv_QT_VERSION VERSION_GREATER "4")
 set(foundationLibraries clitkCommon ${ITK_LIBRARIES} ${VTK_LIBRARIES})
+else()
+set(foundationLibraries clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
+endif()
 
 #=========================================================
 # Use CxImage to create animated gifs
@@ -244,8 +324,11 @@ if(APPLE)
 endif()
 #=========================================================
 #Create binary and libs for tests
-#set(vvExternalLibs clitkSegmentationGgoLib ${toolLibs} ${foundationLibraries} ${vvCxImage} ${Qt5Widgets_LIBRARIES_DIRS} ${Qt5Network_LIBRARIES_DIRS} ${APPLE_FRAMEWORKS})
+if(vv_QT_VERSION VERSION_GREATER "4")
 set(vvExternalLibs clitkSegmentationGgoLib ${toolLibs} ${foundationLibraries} ${vvCxImage} Qt5::Widgets Qt5::Network Qt5::Designer ${APPLE_FRAMEWORKS})
+else()
+set(vvExternalLibs clitkSegmentationGgoLib ${toolLibs} ${foundationLibraries} ${vvCxImage} ${QT_LIBRARIES} ${QT_QTNETWORK_LIBRARY} ${APPLE_FRAMEWORKS})
+endif()
 # QtNetwork is required by vvRegisterForm
 
 add_library(vvLib ${vv_SRCS} ${vv_UI_CXX})

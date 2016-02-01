@@ -18,7 +18,11 @@
 #ifndef VVTOOLBINARIZE_H
 #define VVTOOLBINARIZE_H
 
+#if QT_VERSION < 0x050000
+#include <QtDesigner/QDesignerExportWidget>
+#else
 #include <QtUiPlugin/QDesignerExportWidget>
+#endif
 
 #include "vvToolBase.h"
 #include "vvToolWidgetBase.h"

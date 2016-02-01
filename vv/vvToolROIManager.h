@@ -19,7 +19,11 @@
 #ifndef VVTOOLROIMANAGER_H
 #define VVTOOLROIMANAGER_H
 
+#if QT_VERSION < 0x050000
+#include <QtDesigner/QDesignerExportWidget>
+#else
 #include <QtUiPlugin/QDesignerExportWidget>
+#endif
 #include <QSharedPointer>
 
 #include "vvToolBase.h"
