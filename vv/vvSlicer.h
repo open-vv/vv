@@ -170,7 +170,8 @@ public:
 
   void GetExtremasAroundMousePointer(double & min, double & max, vtkImageData *image, vtkTransform *transform);
 
-  void UpdateLandmarks();
+  void RemoveLandmarks();
+  void DisplayLandmarks();
   void ForceUpdateDisplayExtent();
 
   int* GetDisplayExtent();

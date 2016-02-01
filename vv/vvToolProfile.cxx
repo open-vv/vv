@@ -19,6 +19,8 @@
 #include <QFileDialog>
 #include <QShortcut>
 
+#include <algorithm>
+
 // vv
 #include "vvToolProfile.h"
 #include "vvProgressDialog.h"
@@ -125,6 +127,8 @@ void vvToolProfile::selectPoint1()
 {
   QString position = "";
   
+  if(mCurrentSlicerManager) {
+      cout << mCurrentSlicerManager->GetSelectedSlicer() << endl;
     if (mPoint1Selected) {
       ProfileWidget->hide();
       vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
@@ -139,27 +143,23 @@ void vvToolProfile::selectPoint1()
   }
   
   mPoint1Selected = false;
-  if(mCurrentSlicerManager) {
+
       if(mCurrentSlicerManager->GetSelectedSlicer() != -1) {
           double *pos;
-          int *index;
           pos = new double [4];
           pos[0] = pos[1] = pos[2] = pos[3] = 0;
-          index = new int [mCurrentSlicerManager->GetImage()->GetNumberOfDimensions()];
           
           int i(0);
           while (i<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() && i<3) {
             pos[i] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[i];
-            index[i] = (int) (pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i];
             position += QString::number(pos[i],'f',1) + " ";
-            mPoint1[i] = index[i];
+            mPoint1[i] = round((pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i]);
             ++i;
           }
           if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() == 4) {
             pos[3] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetTSlice();
-            index[3] = (int)pos[3];
             position += QString::number(pos[3],'f',1) + " ";
-            mPoint1[3] = index[3];
+            mPoint1[3] = round(pos[3]);
           }
           mPoint1Selected = true;
           mCurrentSlicerManager->AddLandmarkProfile(pos[0], pos[1], pos[2], pos[3]);
@@ -180,6 +180,7 @@ void vvToolProfile::selectPoint2()
 {
   QString position = "";
   
+  if(mCurrentSlicerManager) {
   if (mPoint2Selected) {
       ProfileWidget->hide();
       vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
@@ -194,27 +195,22 @@ void vvToolProfile::selectPoint2()
   }
   
   mPoint2Selected = false;
-  if(mCurrentSlicerManager) {
       if(mCurrentSlicerManager->GetSelectedSlicer() != -1) {
           double *pos;
-          int *index;
           pos = new double [4];
           pos[0] = pos[1] = pos[2] = pos[3] = 0;;
-          index = new int [mCurrentSlicerManager->GetImage()->GetNumberOfDimensions()];
           
           int i(0);
           while (i<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() &&i<3) {
             pos[i] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[i];
-            index[i] = (int) (pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i];
             position += QString::number(pos[i],'f',1) + " ";
-            mPoint2[i] = index[i];
+            mPoint2[i] = round((pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i]);
             ++i;
           }
           if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() == 4) {
             pos[3] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetTSlice();
-            index[3] = (int)pos[3];
             position += QString::number(pos[3],'f',1) + " ";
-            mPoint2[3] = index[3];
+            mPoint2[3] = round(pos[3]);
           }
           mPoint2Selected = true;
           mCurrentSlicerManager->AddLandmarkProfile(pos[0], pos[1], pos[2], pos[3]);
@@ -261,16 +257,14 @@ bool vvToolProfile::isPointsSelected()
 void vvToolProfile::computeProfile()
 {
     if (!mCurrentSlicerManager) close();
-
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     GetArgsInfoFromGUI();
     ProfileWidget->hide();
-    
+   
     // Main filter
     mFilter->SetInputVVImage(mCurrentImage);
     mFilter->SetArgsInfo(mArgsInfo);
     mFilter->Update();
-    //mImageLine = mFilter->GetOutputVVImage();
     
     vtkSmartPointer<vtkTable> table = vtkSmartPointer<vtkTable>::New();
     vtkSmartPointer<vtkFloatArray> arrX = vtkSmartPointer<vtkFloatArray>::New();
@@ -432,6 +426,8 @@ void vvToolProfile::GetArgsInfoFromGUI()
 
   mArgsInfo.input_arg = new char;
   mArgsInfo.output_arg = new char;
+  
+
 }
 //------------------------------------------------------------------------------
 
@@ -565,6 +561,7 @@ void vvToolProfile::DisplayLine(int slicer)
   
   if(mCurrentSlicerManager) {
       if(mCurrentSlicerManager->GetSelectedSlicer() != -1) {
+          if (std::min(mPoint1[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()],mPoint2[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()]) <= mCurrentSlicerManager->GetSlicer(slicer)->GetSlice() && std::max(mPoint1[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()],mPoint2[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()]) >= mCurrentSlicerManager->GetSlicer(slicer)->GetSlice()) {
             vtkSmartPointer<vtkBox> clippingBox = vtkSmartPointer<vtkBox>::New();
             double extent[6];
             for (int j=0; j<6; ++j) {
@@ -594,6 +591,7 @@ void vvToolProfile::DisplayLine(int slicer)
             mLineActors[slicer]->GetProperty()->SetOpacity(0.995);
 
             mCurrentSlicerManager->GetSlicer(slicer)->GetRenderer()->AddActor(mLineActors[slicer]);
+         }
       }
   }
 }

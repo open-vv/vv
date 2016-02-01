@@ -1187,17 +1187,19 @@ void vvSlicer::UpdateDisplayExtent()
   }
   else if(mVF)
     mVFActor->SetVisibility(false);
+    
+    
+    double boundsT [6];
+      for(unsigned int i=0; i<6; i++)
+        boundsT[i] = ImageActor->GetBounds()[i];
+      boundsT[ this->SliceOrientation*2   ] = ImageActor->GetBounds()[ this->SliceOrientation*2  ]-fabs(this->GetInput()->GetSpacing()[this->SliceOrientation]);
+      boundsT[ this->SliceOrientation*2+1 ] = ImageActor->GetBounds()[ this->SliceOrientation*2+1 ]+fabs(this->GetInput()->GetSpacing()[this->SliceOrientation]);
+
 
   // Landmarks actor
   if (mLandActor) {
     if (mClipBox) {
-      double bounds [6];
-      for(unsigned int i=0; i<6; i++)
-        bounds[i] = ImageActor->GetBounds()[i];
-      bounds[ this->SliceOrientation*2   ] = ImageActor->GetBounds()[ this->SliceOrientation*2  ]-fabs(this->GetInput()->GetSpacing()[this->SliceOrientation]);
-      bounds[ this->SliceOrientation*2+1 ] = ImageActor->GetBounds()[ this->SliceOrientation*2+1 ]+fabs(this->GetInput()->GetSpacing()[this->SliceOrientation]);
-      mClipBox->SetBounds(bounds);
-      UpdateLandmarks();
+      RemoveLandmarks();
     }
     
     position[this->SliceOrientation] = offset;
@@ -1221,6 +1223,12 @@ void vvSlicer::UpdateDisplayExtent()
         double sumSpacing = spacing[0] + spacing[1] + spacing[2];
         cam->SetClippingRange(range - sumSpacing, range + sumSpacing);
       }
+    }
+    
+    if (mLandActor) {
+        if (mClipBox) {
+            DisplayLandmarks();
+        }
     }
   }
   emit UpdateDisplayExtentEnd(mSlicerNumber);
@@ -1732,8 +1740,10 @@ void vvSlicer::Render()
 #endif
     mFusionMapper->Update();
   }
-  if (mLandMapper)
-    UpdateLandmarks();
+  if (mLandMapper) {
+    RemoveLandmarks();
+    DisplayLandmarks();
+  }
 
     this->GetRenderWindow()->Render();
 }
@@ -1753,8 +1763,34 @@ void vvSlicer::UpdateCursorPosition()
 
 
 //----------------------------------------------------------------------------
-void vvSlicer::UpdateLandmarks()
+void vvSlicer::RemoveLandmarks()
 { 
+  vtkPolyData *pd = static_cast<vtkPolyData*>(mLandClipper->GetInput());
+  if (pd->GetPoints()) {
+
+    //First remove all captions:
+    for(unsigned int i=0;i<mLandLabelActors.size();i++) {
+	this->Renderer->RemoveActor2D(mLandLabelActors[i]);
+	//allActors2D->Remove (mLandLabelActors[i]);
+    }
+    mLandLabelActors.clear();
+  }
+}
+//----------------------------------------------------------------------------
+
+
+//----------------------------------------------------------------------------
+void vvSlicer::DisplayLandmarks()
+{ 
+
+  double bounds [6];
+  for(unsigned int i=0; i<6; i++)
+    bounds[i] = ImageActor->GetBounds()[i];
+  bounds[ this->SliceOrientation*2   ] = ImageActor->GetBounds()[ this->SliceOrientation*2  ]-fabs(this->GetInput()->GetSpacing()[this->SliceOrientation]);
+  bounds[ this->SliceOrientation*2+1 ] = ImageActor->GetBounds()[ this->SliceOrientation*2+1 ]+fabs(this->GetInput()->GetSpacing()[this->SliceOrientation]);
+  mClipBox->SetBounds(bounds);
+
+
   vtkPolyData *pd = static_cast<vtkPolyData*>(mLandClipper->GetInput());
   if (pd->GetPoints()) {
     //mLandGlyph->SetRange(0,1);
@@ -1764,13 +1800,6 @@ void vvSlicer::UpdateLandmarks()
     mClipBox->Modified();
     mLandClipper->Update();
     mLandMapper->Update();
-    //Let's add the captions
-    //First remove all captions:
-    for(unsigned int i=0;i<mLandLabelActors.size();i++) {
-	this->Renderer->RemoveActor2D(mLandLabelActors[i]);
-	//allActors2D->Remove (mLandLabelActors[i]);
-    }
-    mLandLabelActors.clear();
     //Next add the captions to the displayed points
     for (vtkIdType id=0; id<mLandClipper->GetOutput()->GetNumberOfPoints(); id++) {
 	  double *position = mLandClipper->GetOutput()->GetPoint(id);

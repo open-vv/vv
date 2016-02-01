@@ -383,7 +383,8 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
       if (newLandmark) {
         this->SM->AddNewLandmark(xWorld,yWorld,zWorld,
                               this->SM->GetSlicer(VisibleInWindow)->GetTSlice());
-        this->SM->GetSlicer(VisibleInWindow)->UpdateLandmarks();
+        this->SM->GetSlicer(VisibleInWindow)->RemoveLandmarks();
+        //this->SM->GetSlicer(VisibleInWindow)->DisplayLandmarks();
         this->SM->Render();
       }
       if (event == vtkCommand::PickEvent || event == vtkCommand::StartPickEvent) {

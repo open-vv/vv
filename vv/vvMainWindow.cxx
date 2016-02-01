@@ -3526,10 +3526,10 @@ void vvMainWindow::ShowLastImage()
 void vvMainWindow::UpdateRenderWindows()
 { 
   for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
-    mSlicerManagers[i]->GetSlicer(0)->UpdateLandmarks();
-    mSlicerManagers[i]->GetSlicer(1)->UpdateLandmarks();
-    mSlicerManagers[i]->GetSlicer(2)->UpdateLandmarks();
-    mSlicerManagers[i]->GetSlicer(3)->UpdateLandmarks();
+      for (unsigned int j = 0; j < 4; ++j) {
+        mSlicerManagers[i]->GetSlicer(j)->RemoveLandmarks();
+        mSlicerManagers[i]->GetSlicer(j)->DisplayLandmarks();
+      }
   }
   if (NOViewWidget->GetRenderWindow()) NOViewWidget->GetRenderWindow()->Render();
   if (NEViewWidget->GetRenderWindow()) NEViewWidget->GetRenderWindow()->Render();
