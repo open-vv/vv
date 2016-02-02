@@ -202,18 +202,15 @@ void clitk::DicomRTStruct2ImageFilter::Update()
   mBinaryImage = vtkSmartPointer<vtkImageData>::New();
 #if VTK_MAJOR_VERSION <= 5
   mBinaryImage->SetScalarTypeToUnsignedChar();
+#endif
   mBinaryImage->SetOrigin(&origin[0]);
   mBinaryImage->SetSpacing(&mSpacing[0]);
   mBinaryImage->SetExtent(0, extend[0],
                           0, extend[1],
                           0, extend[2]);
+#if VTK_MAJOR_VERSION <= 5
   mBinaryImage->AllocateScalars();
 #else
-  mBinaryImage->SetOrigin(&origin[0]);
-  mBinaryImage->SetSpacing(&mSpacing[0]);
-  mBinaryImage->SetExtent(0, extend[0],
-                          0, extend[1],
-                          0, extend[2]);
   mBinaryImage->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
 #endif
 

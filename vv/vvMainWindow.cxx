@@ -870,7 +870,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
       } else {
         SetImageSucceed = imageManager->SetImages(files,filetype, number);
       }
-      if (!SetImageSucceed) {;
+      if (!SetImageSucceed) {
         QApplication::restoreOverrideCursor();
         QString error = "Cannot open file \n";
         error += imageManager->GetLastError().c_str();
