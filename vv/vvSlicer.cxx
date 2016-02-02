@@ -1116,7 +1116,7 @@ void vvSlicer::UpdateDisplayExtent()
     bool out = ClipDisplayedExtent(overExtent, mOverlayMapper->GetInput()->GetWholeExtent());
 #else
     this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mOverlayReslice->GetOutput(), overExtent);
-    bool out = ClipDisplayedExtent(overExtent, mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
+    bool out = ClipDisplayedExtent(overExtent, mOverlayMapper->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
 #endif
     mOverlayActor->SetVisibility(!out);
     mOverlayActor->SetDisplayExtent( overExtent );
@@ -1137,7 +1137,7 @@ void vvSlicer::UpdateDisplayExtent()
     bool out = ClipDisplayedExtent(fusExtent, mFusionMapper->GetInput()->GetWholeExtent());
 #else
     this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mFusionReslice->GetOutput(), fusExtent);
-    bool out = ClipDisplayedExtent(fusExtent, mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
+    bool out = ClipDisplayedExtent(fusExtent, mFusionMapper->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
 #endif
     mFusionActor->SetVisibility(!out);
     mFusionActor->SetDisplayExtent( fusExtent );
@@ -1175,7 +1175,7 @@ void vvSlicer::UpdateDisplayExtent()
 #else
     //this->UpdateInformation();
     this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mVF->GetVTKImages()[0], vfExtent);
-    bool out = ClipDisplayedExtent(vfExtent, mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
+    bool out = ClipDisplayedExtent(vfExtent, mVOIFilter->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
 #endif
     mVFActor->SetVisibility(!out);
     mVOIFilter->SetVOI(vfExtent);

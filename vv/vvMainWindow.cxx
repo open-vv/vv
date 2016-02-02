@@ -2036,6 +2036,10 @@ void vvMainWindow::AddOverlayImage(int index, std::vector<std::string> fileNames
       item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,fileinfo.fileName());
       item->setToolTip(COLUMN_IMAGE_NAME, mSlicerManagers[index]->GetListOfAbsoluteFilePathInOneString("overlay").c_str());
       qApp->processEvents();
+#if VTK_MAJOR_VERSION > 5
+      for ( unsigned int i = 0; i < mSlicerManagers[index]->GetNumberOfSlicers(); i++)
+        mSlicerManagers[index]->GetSlicer(i)->ForceUpdateDisplayExtent();
+#endif
 
       for (int j = 1; j <= 4; j++) {
         item->setData(j,Qt::CheckStateRole,DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole));
@@ -2183,7 +2187,10 @@ void vvMainWindow::AddFusionImage(int index, std::vector<std::string> fileNames,
           item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,fileinfo.fileName());
           item->setToolTip(COLUMN_IMAGE_NAME, mSlicerManagers[index]->GetListOfAbsoluteFilePathInOneString("fusion").c_str());
           qApp->processEvents();
-
+#if VTK_MAJOR_VERSION > 5
+      for ( unsigned int i = 0; i < mSlicerManagers[index]->GetNumberOfSlicers(); i++)
+        mSlicerManagers[index]->GetSlicer(i)->ForceUpdateDisplayExtent();
+#endif
       for (int j = 1; j <= 4; j++) {
         item->setData(j,Qt::CheckStateRole,DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole));
       }
@@ -2330,6 +2337,10 @@ void vvMainWindow::AddField(vvImage::Pointer vf,QString file,int index)
   vvSlicerManager* imageManager = mSlicerManagers[index];
   if (imageManager->SetVF(vf,file.toStdString())) {
     AddFieldEntry(file,index,false);
+#if VTK_MAJOR_VERSION > 5
+      for ( unsigned int i = 0; i < mSlicerManagers[index]->GetNumberOfSlicers(); i++)
+        mSlicerManagers[index]->GetSlicer(i)->ForceUpdateDisplayExtent();
+#endif
   } else {
     QString error = "Cannot import the vector field for this image.\n";
     error += imageManager->GetLastError().c_str();
@@ -2552,6 +2563,10 @@ void vvMainWindow::AddFusionSequence(int index, std::vector<std::string> fileNam
       item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,fileinfo.fileName());
       item->setToolTip(COLUMN_IMAGE_NAME, mSlicerManagers[index]->GetListOfAbsoluteFilePathInOneString("fusionSequence").c_str());
       qApp->processEvents();
+#if VTK_MAJOR_VERSION > 5
+      for ( unsigned int i = 0; i < mSlicerManagers[index]->GetNumberOfSlicers(); i++)
+        mSlicerManagers[index]->GetSlicer(i)->ForceUpdateDisplayExtent();
+#endif
       for (int j = 1; j <= 4; j++) {
         item->setData(j,Qt::CheckStateRole,DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole));
       }
