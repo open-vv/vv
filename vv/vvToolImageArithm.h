@@ -18,6 +18,7 @@
 #ifndef VVTOOLImageArithm_H
 #define VVTOOLImageArithm_H
 
+#include <QtGlobal>
 #if QT_VERSION < 0x050000
 #include <QtDesigner/QDesignerExportWidget>
 #else

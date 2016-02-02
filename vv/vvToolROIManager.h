@@ -19,6 +19,7 @@
 #ifndef VVTOOLROIMANAGER_H
 #define VVTOOLROIMANAGER_H
 
+#include <QtGlobal>
 #if QT_VERSION < 0x050000
 #include <QtDesigner/QDesignerExportWidget>
 #else

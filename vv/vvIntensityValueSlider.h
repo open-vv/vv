@@ -19,6 +19,7 @@
 #define VVINTENSITYVALUESLIDER_H
 
 // qt
+#include <QtGlobal>
 #if QT_VERSION < 0x050000
 #include <QtDesigner/QDesignerExportWidget>
 #else
