@@ -810,7 +810,7 @@
      <x>0</x>
      <y>0</y>
      <width>1008</width>
-     <height>20</height>
+     <height>27</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -1177,11 +1177,11 @@
    <property name="text">
     <string>Navigation Help</string>
    </property>
-   <property name="shortcut">
-    <string>F1</string>
-   </property>
    <property name="iconVisibleInMenu">
     <bool>true</bool>
+   </property>
+   <property name="priority">
+    <enum>QAction::NormalPriority</enum>
    </property>
   </action>
   <action name="actionOpen_Dicom_Struct">

@@ -23,6 +23,7 @@ It is distributed under dual licence
 #include "QTreePushButton.h"
 #include <QUrl>
 #include <QSettings>
+#include <QShortcut>
 
 // VV include
 #include "vvMainWindow.h"
@@ -126,6 +127,9 @@ It is distributed under dual licence
 vvMainWindow::vvMainWindow():vvMainWindowBase()
 { 
   setupUi(this); // this sets up the GUI
+
+  //Qt::WindowFlags flags = windowFlags();
+  //setWindowFlags(flags | Qt::WindowStaysOnTopHint);
 
   mInputPathName = "";
   mMenuTools = menuTools;
@@ -296,6 +300,11 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(actionAdd_overlay_image_to_current_image,SIGNAL(triggered()), this,SLOT(SelectOverlayImage()));
   connect(actionAdd_USSequence_toCT,SIGNAL(triggered()), this,SLOT(SelectFusionSequence()));
   connect(actionNavigation_Help,SIGNAL(triggered()),this,SLOT(ShowHelpDialog()));
+
+  QShortcut *shortcutHelp = new QShortcut(QKeySequence(QKeySequence::HelpContents),this);
+  shortcutHelp->setContext(Qt::ApplicationShortcut);
+  QObject::connect(shortcutHelp, SIGNAL(activated()), this, SLOT(ShowHelpDialog()));
+
   connect(actionDocumentation,SIGNAL(triggered()),this,SLOT(ShowDocumentation()));
   connect(actionRegister_vv,SIGNAL(triggered()),this,SLOT(PopupRegisterForm()));
 
@@ -870,7 +879,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
       } else {
         SetImageSucceed = imageManager->SetImages(files,filetype, number);
       }
-      if (!SetImageSucceed) {;
+      if (!SetImageSucceed) {
         QApplication::restoreOverrideCursor();
         QString error = "Cannot open file \n";
         error += imageManager->GetLastError().c_str();
@@ -1478,7 +1487,9 @@ void vvMainWindow::InitSlicers()
     mSlicerManagers.back()->SetSlicerWindow(1,NEViewWidget->GetRenderWindow());
     mSlicerManagers.back()->SetSlicerWindow(2,SOViewWidget->GetRenderWindow());
     mSlicerManagers.back()->SetSlicerWindow(3,SEViewWidget->GetRenderWindow());
-    mSlicerManagers.back()->Render(); // SR: displayed #slice is wrong without this
+#if VTK_MAJOR_VERSION <= 5
+    mSlicerManagers.back()->Render(); // SR: displayed #slice is wrong without this / TB: With VTK6 and multiple images, all slicers are updated, not only the first
+#endif
   }
 }
 
@@ -2034,6 +2045,10 @@ void vvMainWindow::AddOverlayImage(int index, std::vector<std::string> fileNames
       item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,fileinfo.fileName());
       item->setToolTip(COLUMN_IMAGE_NAME, mSlicerManagers[index]->GetListOfAbsoluteFilePathInOneString("overlay").c_str());
       qApp->processEvents();
+#if VTK_MAJOR_VERSION > 5
+      for ( unsigned int i = 0; i < mSlicerManagers[index]->GetNumberOfSlicers(); i++)
+        mSlicerManagers[index]->GetSlicer(i)->ForceUpdateDisplayExtent();
+#endif
 
       for (int j = 1; j <= 4; j++) {
         item->setData(j,Qt::CheckStateRole,DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole));
@@ -2181,7 +2196,10 @@ void vvMainWindow::AddFusionImage(int index, std::vector<std::string> fileNames,
           item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,fileinfo.fileName());
           item->setToolTip(COLUMN_IMAGE_NAME, mSlicerManagers[index]->GetListOfAbsoluteFilePathInOneString("fusion").c_str());
           qApp->processEvents();
-
+#if VTK_MAJOR_VERSION > 5
+      for ( unsigned int i = 0; i < mSlicerManagers[index]->GetNumberOfSlicers(); i++)
+        mSlicerManagers[index]->GetSlicer(i)->ForceUpdateDisplayExtent();
+#endif
       for (int j = 1; j <= 4; j++) {
         item->setData(j,Qt::CheckStateRole,DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole));
       }
@@ -2328,6 +2346,10 @@ void vvMainWindow::AddField(vvImage::Pointer vf,QString file,int index)
   vvSlicerManager* imageManager = mSlicerManagers[index];
   if (imageManager->SetVF(vf,file.toStdString())) {
     AddFieldEntry(file,index,false);
+#if VTK_MAJOR_VERSION > 5
+      for ( unsigned int i = 0; i < mSlicerManagers[index]->GetNumberOfSlicers(); i++)
+        mSlicerManagers[index]->GetSlicer(i)->ForceUpdateDisplayExtent();
+#endif
   } else {
     QString error = "Cannot import the vector field for this image.\n";
     error += imageManager->GetLastError().c_str();
@@ -2550,6 +2572,10 @@ void vvMainWindow::AddFusionSequence(int index, std::vector<std::string> fileNam
       item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,fileinfo.fileName());
       item->setToolTip(COLUMN_IMAGE_NAME, mSlicerManagers[index]->GetListOfAbsoluteFilePathInOneString("fusionSequence").c_str());
       qApp->processEvents();
+#if VTK_MAJOR_VERSION > 5
+      for ( unsigned int i = 0; i < mSlicerManagers[index]->GetNumberOfSlicers(); i++)
+        mSlicerManagers[index]->GetSlicer(i)->ForceUpdateDisplayExtent();
+#endif
       for (int j = 1; j <= 4; j++) {
         item->setData(j,Qt::CheckStateRole,DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole));
       }

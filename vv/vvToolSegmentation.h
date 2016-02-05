@@ -18,6 +18,7 @@
 #ifndef VVTOOLSEGMENTATION_H
 #define VVTOOLSEGMENTATION_H
 
+#include <QtGlobal>
 #if QT_VERSION < 0x050000
 #include <QtDesigner/QDesignerExportWidget>
 #else

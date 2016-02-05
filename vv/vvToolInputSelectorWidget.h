@@ -19,6 +19,7 @@
 #define VVTOOLINPUTSELECTORWIDGET_H
 
 // qt
+#include <QObject>
 #if QT_VERSION < 0x050000
 #include <QtDesigner/QDesignerExportWidget>
 #else

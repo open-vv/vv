@@ -124,7 +124,7 @@ void vvImageContour::SetColor(double r, double g, double b)
 { 
   for(unsigned int i=0; i<mSquaresActorList.size(); i++) {
     mSquaresActorList[i]->GetProperty()->SetColor(r,g,b);
-    mSquaresActorList[i]->GetProperty()->SetOpacity(0.995);
+    mSquaresActorList[i]->GetProperty()->SetOpacity(0.995); //in order to get VTK to turn on the alpha-blending in OpenGL
   }
 }
 //------------------------------------------------------------------------------
@@ -337,7 +337,7 @@ void vvImageContour::CreateNewActor(int numImage)
   squaresMapper->ScalarVisibilityOff();
   squaresActor->SetMapper(squaresMapper);
   squaresActor->GetProperty()->SetColor(1.0,0,0);
-  squaresActor->GetProperty()->SetOpacity(0.995);
+  squaresActor->GetProperty()->SetOpacity(0.995); //in order to get VTK to turn on the alpha-blending in OpenGL
   squaresActor->SetPickable(0);
   squaresActor->VisibilityOff();
   mSlicer->GetRenderer()->AddActor(squaresActor);

@@ -29,6 +29,7 @@
 #include "vvToolInputSelectorWidget.h"
 
 // vtk
+#include <vtkAxis.h>
 #include <vtkImageActor.h>
 #include <vtkCamera.h>
 #include <vtkImageClip.h>
@@ -128,7 +129,6 @@ void vvToolProfile::selectPoint1()
   QString position = "";
   
   if(mCurrentSlicerManager) {
-      cout << mCurrentSlicerManager->GetSelectedSlicer() << endl;
     if (mPoint1Selected) {
       ProfileWidget->hide();
       vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
@@ -266,13 +266,15 @@ void vvToolProfile::computeProfile()
     mFilter->SetArgsInfo(mArgsInfo);
     mFilter->Update();
     
+    //Creation of the XY chart
     vtkSmartPointer<vtkTable> table = vtkSmartPointer<vtkTable>::New();
     vtkSmartPointer<vtkFloatArray> arrX = vtkSmartPointer<vtkFloatArray>::New();
     vtkSmartPointer<vtkFloatArray> arrY = vtkSmartPointer<vtkFloatArray>::New();
     arrX = mFilter->GetArrayX();
     arrY = mFilter->GetArrayY();
-    arrX->SetName("Voxel");
+    arrX->SetName("Distance (mm)");
     arrY->SetName("Intensity");
+    
     table->AddColumn(arrX);
     table->AddColumn(arrY);
     
@@ -290,6 +292,8 @@ void vvToolProfile::computeProfile()
 #endif
     line->SetColor(0, 255, 0, 255);
     line->SetWidth(1.0);
+    chart->GetAxis(vtkAxis::LEFT)->SetTitle("Intensity");
+    chart->GetAxis(vtkAxis::BOTTOM)->SetTitle("Distance (mm)");
     
     this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
     this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
@@ -505,7 +509,7 @@ void vvToolProfile::SaveAs()
         fileOpen << endl;
    
         while (i<arrX->GetNumberOfTuples()) {
-            fileOpen << arrX->GetTuple(i)[0] << "\t" << arrY->GetTuple(i)[0] << "\t" ;
+            fileOpen << i << "\t" << arrY->GetTuple(i)[0] << "\t" ;
       
             coords->GetTuple(i, tuple);
             for (int j=0; j<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() ; ++j) {

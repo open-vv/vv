@@ -692,7 +692,7 @@ void vvSlicer::SetLandmarks(vvLandmarks* landmarks)
     //mLandMapper->ScalarVisibilityOff();
 
     mLandActor->SetMapper(mLandMapper);
-    mLandActor->GetProperty()->SetOpacity(0.995);
+    mLandActor->GetProperty()->SetOpacity(0.995);  //in order to get VTK to turn on the alpha-blending in OpenGL
     mLandActor->GetProperty()->SetColor(255,10,212);
     mLandActor->SetPickable(0);
     mLandActor->SetVisibility(true);
@@ -1117,7 +1117,7 @@ void vvSlicer::UpdateDisplayExtent()
     bool out = ClipDisplayedExtent(overExtent, mOverlayMapper->GetInput()->GetWholeExtent());
 #else
     this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mOverlayReslice->GetOutput(), overExtent);
-    bool out = ClipDisplayedExtent(overExtent, mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
+    bool out = ClipDisplayedExtent(overExtent, mOverlayMapper->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
 #endif
     mOverlayActor->SetVisibility(!out);
     mOverlayActor->SetDisplayExtent( overExtent );
@@ -1138,7 +1138,7 @@ void vvSlicer::UpdateDisplayExtent()
     bool out = ClipDisplayedExtent(fusExtent, mFusionMapper->GetInput()->GetWholeExtent());
 #else
     this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mFusionReslice->GetOutput(), fusExtent);
-    bool out = ClipDisplayedExtent(fusExtent, mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
+    bool out = ClipDisplayedExtent(fusExtent, mFusionMapper->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
 #endif
     mFusionActor->SetVisibility(!out);
     mFusionActor->SetDisplayExtent( fusExtent );
@@ -1176,7 +1176,7 @@ void vvSlicer::UpdateDisplayExtent()
 #else
     //this->UpdateInformation();
     this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mVF->GetVTKImages()[0], vfExtent);
-    bool out = ClipDisplayedExtent(vfExtent, mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
+    bool out = ClipDisplayedExtent(vfExtent, mVOIFilter->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
 #endif
     mVFActor->SetVisibility(!out);
     mVOIFilter->SetVOI(vfExtent);
@@ -1185,7 +1185,7 @@ void vvSlicer::UpdateDisplayExtent()
     mGlyphFilter->SetOrientation(orientation[0], orientation[1], orientation[2]);
     position[this->SliceOrientation] += offset;
     mVFActor->SetPosition(position);
-    mVFActor->GetProperty()->SetOpacity(0.995);
+    mVFActor->GetProperty()->SetOpacity(0.995); //in order to get VTK to turn on the alpha-blending in OpenGL
     mVFMapper->Update();
 
   }
