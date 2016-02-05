@@ -26,6 +26,7 @@
 #include "vvToolInputSelectorWidget.h"
 
 // vtk
+#include <vtkAxis.h>
 #include <vtkImageActor.h>
 #include <vtkCamera.h>
 #include <vtkImageClip.h>
@@ -248,7 +249,7 @@ void vvToolProfile::computeProfile()
     vtkSmartPointer<vtkFloatArray> arrY = vtkSmartPointer<vtkFloatArray>::New();
     arrX = mFilter->GetArrayX();
     arrY = mFilter->GetArrayY();
-    arrX->SetName("Voxel");
+    arrX->SetName("Distance (mm)");
     arrY->SetName("Intensity");
     table->AddColumn(arrX);
     table->AddColumn(arrY);
@@ -267,6 +268,8 @@ void vvToolProfile::computeProfile()
 #endif
     line->SetColor(0, 255, 0, 255);
     line->SetWidth(1.0);
+    chart->GetAxis(vtkAxis::LEFT)->SetTitle("Intensity");
+    chart->GetAxis(vtkAxis::BOTTOM)->SetTitle("Distance (mm)");
     
     this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
     this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
@@ -577,7 +580,7 @@ void vvToolProfile::DisplayLine()
 #endif
           vtkSmartPointer<vtkActor> lineActor = vtkSmartPointer<vtkActor>::New();
           lineActor->SetMapper(lineMapper);
-          lineActor->GetProperty()->SetOpacity(0.995);
+          lineActor->GetProperty()->SetOpacity(0.995);  //in order to get VTK to turn on the alpha-blending in OpenGL
         
           for(int i=0;i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
               mCurrentSlicerManager->GetSlicer(i)->GetRenderer()->AddActor(lineActor);
@@ -588,7 +591,7 @@ void vvToolProfile::DisplayLine()
               mOverlayActors.push_back(vvBinaryImageOverlayActor::New());
               mOverlayActors[i]->SetImage(mImageLine, 0);
               mOverlayActors[i]->SetColor(1,0,0);
-              mOverlayActors[i]->SetOpacity(0.995);
+              mOverlayActors[i]->SetOpacity(0.995); //in order to get VTK to turn on the alpha-blending in OpenGL
               mOverlayActors[i]->SetSlicer(mCurrentSlicerManager->GetSlicer(i));
               mOverlayActors[i]->Initialize(true);
               mOverlayActors[i]->SetDepth(1);

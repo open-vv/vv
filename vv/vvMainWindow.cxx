@@ -23,6 +23,7 @@ It is distributed under dual licence
 #include "QTreePushButton.h"
 #include <QUrl>
 #include <QSettings>
+#include <QShortcut>
 
 // VV include
 #include "vvMainWindow.h"
@@ -126,6 +127,9 @@ It is distributed under dual licence
 vvMainWindow::vvMainWindow():vvMainWindowBase()
 { 
   setupUi(this); // this sets up the GUI
+
+  //Qt::WindowFlags flags = windowFlags();
+  //setWindowFlags(flags | Qt::WindowStaysOnTopHint);
 
   mInputPathName = "";
   mMenuTools = menuTools;
@@ -296,6 +300,11 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(actionAdd_overlay_image_to_current_image,SIGNAL(triggered()), this,SLOT(SelectOverlayImage()));
   connect(actionAdd_USSequence_toCT,SIGNAL(triggered()), this,SLOT(SelectFusionSequence()));
   connect(actionNavigation_Help,SIGNAL(triggered()),this,SLOT(ShowHelpDialog()));
+
+  QShortcut *shortcutHelp = new QShortcut(QKeySequence(QKeySequence::HelpContents),this);
+  shortcutHelp->setContext(Qt::ApplicationShortcut);
+  QObject::connect(shortcutHelp, SIGNAL(activated()), this, SLOT(ShowHelpDialog()));
+
   connect(actionDocumentation,SIGNAL(triggered()),this,SLOT(ShowDocumentation()));
   connect(actionRegister_vv,SIGNAL(triggered()),this,SLOT(PopupRegisterForm()));
 

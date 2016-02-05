@@ -692,7 +692,7 @@ void vvSlicer::SetLandmarks(vvLandmarks* landmarks)
     //mLandMapper->ScalarVisibilityOff();
 
     mLandActor->SetMapper(mLandMapper);
-    mLandActor->GetProperty()->SetOpacity(0.995);
+    mLandActor->GetProperty()->SetOpacity(0.995);  //in order to get VTK to turn on the alpha-blending in OpenGL
     mLandActor->GetProperty()->SetColor(255,10,212);
     mLandActor->SetPickable(0);
     mLandActor->SetVisibility(true);
@@ -1184,7 +1184,7 @@ void vvSlicer::UpdateDisplayExtent()
     mGlyphFilter->SetOrientation(orientation[0], orientation[1], orientation[2]);
     position[this->SliceOrientation] += offset;
     mVFActor->SetPosition(position);
-    mVFActor->GetProperty()->SetOpacity(0.995);
+    mVFActor->GetProperty()->SetOpacity(0.995); //in order to get VTK to turn on the alpha-blending in OpenGL
     mVFMapper->Update();
 
   }
