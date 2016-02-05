@@ -31,6 +31,7 @@
 
 // itk include
 #include <itkLineIterator.h>
+#include <itkPoint.h>
 
 #include <clitkCommon.h>
 
@@ -139,18 +140,29 @@ ProfileImageGenericFilter::UpdateWithInputImageType()
   itProfile.GoToBegin();
   int lineNumber(1);
   double *tuple;
+  double distance;
   tuple = new double[InputImageType::ImageDimension];
+  itk::Point<double, InputImageType::ImageDimension> transformedFirstPoint;
+  itk::Point<double, InputImageType::ImageDimension> transformedCurrentPoint;
+  
+  input->TransformIndexToPhysicalPoint(itProfile.GetIndex(), transformedFirstPoint);
   
   while (!itProfile.IsAtEnd())
   {    
-    // Fill in the table
-    mArrayX->InsertNextTuple1(lineNumber);
+    // Fill in the table the intensity value
     mArrayY->InsertNextTuple1(itProfile.Get());
         
     for (int i=0; i<InputImageType::ImageDimension; ++i) {
         tuple[i] = itProfile.GetIndex()[i];
     }
+
+    input->TransformIndexToPhysicalPoint(itProfile.GetIndex(), transformedCurrentPoint);
+    distance = transformedFirstPoint.EuclideanDistanceTo(transformedCurrentPoint);
+
+    // Fill in the table the distance value
+    mArrayX->InsertNextTuple1(distance);
     
+    // Fille in the table the voxel coordinate value
     mCoord->InsertNextTuple(tuple);
     ++lineNumber;
     ++itProfile;
