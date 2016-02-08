@@ -41,11 +41,21 @@ void vvImage::AddItkImage(TItkImageType *input)
   matrix->Identity();
   for(unsigned int i=0; i<input->GetImageDimension(); i++) {
     for(unsigned int j=0; j<input->GetImageDimension(); j++) {
+#if VTK_MAJOR_VERSION <= 6
       (*matrix)[i][j] = input->GetDirection()[i][j];
       // Direction is used around the image origin in ITK
       (*matrix)[i][3] -= (*matrix)[i][j] * input->GetOrigin()[j];
+#else
+      (*matrix).SetElement(i, j, input->GetDirection()[i][j]);
+      // Direction is used around the image origin in ITK
+      (*matrix).SetElement(i, 3, (*matrix).GetElement(i,3) - (*matrix).GetElement(i,j) * input->GetOrigin()[j]);
+#endif
     }
+#if VTK_MAJOR_VERSION <= 6
     (*matrix)[i][3] += input->GetOrigin()[i];
+#else
+    (*matrix).SetElement(i, 3, (*matrix).GetElement(i,3) + input->GetOrigin()[i]);
+#endif
   }
 
   // GetDirection provides the forward transform, vtkImageReslice wants the inverse
