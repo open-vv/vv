@@ -9,8 +9,8 @@ option "imagetypes" -   "Display allowed image types"   flag	off
 
 option "input"      i   "Input image filename"          string  yes
 option "output"     o   "Output texte filename"         string  yes
-option "point1"     f   "First point (mm)"              int     yes multiple(-4)
-option "point2"     s   "Second point (mm)"             int     yes multiple(-4)
+option "point1"     f   "First point (mm)"              double     yes multiple(-4)
+option "point2"     s   "Second point (mm)"             double     yes multiple(-4)
 
 
 

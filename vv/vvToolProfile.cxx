@@ -153,13 +153,13 @@ void vvToolProfile::selectPoint1()
           while (i<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() && i<3) {
             pos[i] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[i];
             position += QString::number(pos[i],'f',1) + " ";
-            mPoint1[i] = round((pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i]);
+            mPoint1[i] = (pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i];
             ++i;
           }
           if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() == 4) {
             pos[3] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetTSlice();
             position += QString::number(pos[3],'f',1) + " ";
-            mPoint1[3] = round(pos[3]);
+            mPoint1[3] = pos[3];
           }
           mPoint1Selected = true;
           mCurrentSlicerManager->AddLandmarkProfile(pos[0], pos[1], pos[2], pos[3]);
@@ -204,13 +204,13 @@ void vvToolProfile::selectPoint2()
           while (i<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() &&i<3) {
             pos[i] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[i];
             position += QString::number(pos[i],'f',1) + " ";
-            mPoint2[i] = round((pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i]);
+            mPoint2[i] = (pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i];
             ++i;
           }
           if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() == 4) {
             pos[3] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetTSlice();
             position += QString::number(pos[3],'f',1) + " ";
-            mPoint2[3] = round(pos[3]);
+            mPoint2[3] = pos[3];
           }
           mPoint2Selected = true;
           mCurrentSlicerManager->AddLandmarkProfile(pos[0], pos[1], pos[2], pos[3]);
@@ -387,9 +387,9 @@ void vvToolProfile::InputIsSelected(vvSlicerManager * m)
 { 
   mCurrentSlicerManager = m;
 
-  mPoint1 = new int[4];
+  mPoint1 = new double[4];
   mPoint1[0] = mPoint1[1] = mPoint1[2] = mPoint1[3] = 0;
-  mPoint2 = new int[4];
+  mPoint2 = new double[4];
   mPoint2[0] = mPoint2[1] = mPoint2[2] = mPoint2[3] = 0;
   
   mSaveProfileButton->setEnabled(false);

@@ -78,8 +78,8 @@ class vvToolProfile:
   Ui::vvToolProfile ui;
   args_info_clitkProfileImage mArgsInfo;
   
-  int* mPoint1;
-  int* mPoint2;
+  double* mPoint1;
+  double* mPoint2;
   bool mPoint1Selected;
   bool mPoint2Selected;
   vtkSmartPointer<vtkContextView> mView;
