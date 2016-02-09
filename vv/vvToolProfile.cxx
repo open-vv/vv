@@ -140,33 +140,34 @@ void vvToolProfile::selectPoint1()
       this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
       ProfileWidget->show();
       mCurrentSlicerManager->GetLandmarks()->RemoveLandmarkWithLabel("P1", mPoint1[3]);
-  }
+    }
   
-  mPoint1Selected = false;
+    mPoint1Selected = false;
 
-      if(mCurrentSlicerManager->GetSelectedSlicer() != -1) {
-          double *pos;
-          pos = new double [4];
-          pos[0] = pos[1] = pos[2] = pos[3] = 0;
+    if(mCurrentSlicerManager->GetSelectedSlicer() != -1) {
+      double *pos;
+      pos = new double [4];
+      pos[0] = pos[1] = pos[2] = pos[3] = 0;
           
-          int i(0);
-          while (i<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() && i<3) {
-            pos[i] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[i];
-            position += QString::number(pos[i],'f',1) + " ";
-            mPoint1[i] = (pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i];
-            ++i;
-          }
-          if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() == 4) {
-            pos[3] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetTSlice();
-            position += QString::number(pos[3],'f',1) + " ";
-            mPoint1[3] = pos[3];
-          }
-          mPoint1Selected = true;
-          mCurrentSlicerManager->AddLandmarkProfile(pos[0], pos[1], pos[2], pos[3]);
-          mCurrentSlicerManager->GetLandmarks()->GetLabels()->SetNumberOfValues(mCurrentSlicerManager->GetLandmarks()->GetLabels()->GetNumberOfValues()-1);
-          mCurrentSlicerManager->GetLandmarks()->GetLabels()->Modified();
-          mCurrentSlicerManager->GetLandmarks()->GetLabels()->InsertNextValue("P1");
+      int i(0);
+      while (i<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() && i<3) {
+        pos[i] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[i];
+        mPoint1[i] = round((pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i]);
+        pos[i] = mPoint1[i]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i]; //Ensure to be at the center of the voxel
+        position += QString::number(mPoint1[i],'f',0) + " ";
+        ++i;
       }
+      if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() == 4) {
+        pos[3] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetTSlice();
+        mPoint1[3] = pos[3];
+        position += QString::number(mPoint1[3],'f',0) + " ";
+      }
+      mPoint1Selected = true;
+      mCurrentSlicerManager->AddLandmarkProfile(pos[0], pos[1], pos[2], pos[3]);
+      mCurrentSlicerManager->GetLandmarks()->GetLabels()->SetNumberOfValues(mCurrentSlicerManager->GetLandmarks()->GetLabels()->GetNumberOfValues()-1);
+      mCurrentSlicerManager->GetLandmarks()->GetLabels()->Modified();
+      mCurrentSlicerManager->GetLandmarks()->GetLabels()->InsertNextValue("P1");
+    }
   }
   mPosPoint1Label->setText(position);
   isPointsSelected();
@@ -181,7 +182,7 @@ void vvToolProfile::selectPoint2()
   QString position = "";
   
   if(mCurrentSlicerManager) {
-  if (mPoint2Selected) {
+    if (mPoint2Selected) {
       ProfileWidget->hide();
       vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
       chart->SetAutoSize(false);
@@ -192,32 +193,34 @@ void vvToolProfile::selectPoint2()
       this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
       ProfileWidget->show();
       mCurrentSlicerManager->GetLandmarks()->RemoveLandmarkWithLabel("P2", mPoint2[3]);
-  }
+    }
   
-  mPoint2Selected = false;
-      if(mCurrentSlicerManager->GetSelectedSlicer() != -1) {
-          double *pos;
-          pos = new double [4];
-          pos[0] = pos[1] = pos[2] = pos[3] = 0;;
+    mPoint2Selected = false;
+    
+    if(mCurrentSlicerManager->GetSelectedSlicer() != -1) {
+      double *pos;
+      pos = new double [4];
+      pos[0] = pos[1] = pos[2] = pos[3] = 0;;
           
-          int i(0);
-          while (i<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() &&i<3) {
-            pos[i] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[i];
-            position += QString::number(pos[i],'f',1) + " ";
-            mPoint2[i] = (pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i];
-            ++i;
-          }
-          if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() == 4) {
-            pos[3] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetTSlice();
-            position += QString::number(pos[3],'f',1) + " ";
-            mPoint2[3] = pos[3];
-          }
-          mPoint2Selected = true;
-          mCurrentSlicerManager->AddLandmarkProfile(pos[0], pos[1], pos[2], pos[3]);
-          mCurrentSlicerManager->GetLandmarks()->GetLabels()->SetNumberOfValues(mCurrentSlicerManager->GetLandmarks()->GetLabels()->GetNumberOfValues()-1);
-          mCurrentSlicerManager->GetLandmarks()->GetLabels()->Modified();
-          mCurrentSlicerManager->GetLandmarks()->GetLabels()->InsertNextValue("P2");
+      int i(0);
+      while (i<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() &&i<3) {
+        pos[i] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[i];
+        mPoint2[i] = round((pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i]);
+        pos[i] = mPoint2[i]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i]; //Ensure to be at the center of the voxel
+        position += QString::number(mPoint2[i],'f',0) + " ";
+        ++i;
       }
+      if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() == 4) {
+        pos[3] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetTSlice();
+        mPoint2[3] = pos[3];
+        position += QString::number(mPoint2[3],'f',0) + " ";
+      }
+      mPoint2Selected = true;
+      mCurrentSlicerManager->AddLandmarkProfile(pos[0], pos[1], pos[2], pos[3]);
+      mCurrentSlicerManager->GetLandmarks()->GetLabels()->SetNumberOfValues(mCurrentSlicerManager->GetLandmarks()->GetLabels()->GetNumberOfValues()-1);
+      mCurrentSlicerManager->GetLandmarks()->GetLabels()->Modified();
+      mCurrentSlicerManager->GetLandmarks()->GetLabels()->InsertNextValue("P2");
+    }
   }
   mPosPoint2Label->setText(position);
   isPointsSelected();
@@ -494,7 +497,7 @@ void vvToolProfile::SaveAs()
         double *tuple;
         tuple = new double[mCurrentSlicerManager->GetImage()->GetNumberOfDimensions()];
         int i(0);
-        
+        fileOpen << "The Bresenham algorithm is used to travel along the line. Values represent the center of each crossed voxel (in voxel and mm)" << endl;
         fileOpen << "Id" << "\t" << "Value" << "\t" ;
         fileOpen << "x(vox)" << "\t" << "y(vox)" << "\t";
         if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() >=3)
