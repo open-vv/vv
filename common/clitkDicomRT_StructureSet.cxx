@@ -311,66 +311,51 @@ void clitk::DicomRT_StructureSet::Write(const std::string & filename)
 //--------------------------------------------------------------------
 void clitk::DicomRT_StructureSet::Read(const std::string & filename)
 {
-#if CLITK_USE_SYSTEM_GDCM == 1
-  vtkSmartPointer<vtkGDCMPolyDataReader> reader = vtkGDCMPolyDataReader::New();
-  reader->SetFileName(filename.c_str());
-  reader->Update();
-  
-  // Get global information
-  vtkRTStructSetProperties * p = reader->GetRTStructSetProperties();  
-  mStudyID   = p->GetStudyInstanceUID();
-  mStudyDate = p->GetStructureSetDate();
-  mLabel     = p->GetStructureSetLabel();
-  mName      = p->GetStructureSetName();
-  mTime      = p->GetStructureSetTime();
 
-  int n = p->GetNumberOfStructureSetROIs();
-  for(unsigned int i=0; i<n; i++) {
-    // Get the roi number
-    int roinumber = p->GetStructureSetROINumber(i);
-    // Create the roi
-    DicomRT_ROI::Pointer roi = DicomRT_ROI::New();
-    roi->Read(reader, i);
-    // Insert in the map
-    mROIs[roinumber] = roi;
+//Try to avoid to use extern GDCM library
+    
+  //check the RS file is available before conversion
+  gdcm::Reader RTreader;
+  RTreader.SetFileName( filename.c_str() );
+  if( !RTreader.Read() ) 
+  {
+    std::cout << "Problem reading file: " << filename << std::endl;
+    return;
   }
-  return;
-#endif // END version with system gdcm (vtkGDCMPolyDataReader)
-
-
-  // Open DICOM
-#if GDCM_MAJOR_VERSION == 2
-  FATAL("Error : compile vv with itk4 + external gdcm");
-
-  // Read gdcm file
-  mReader = new gdcm::Reader;
-  mReader->SetFileName(filename.c_str());
-  mReader->Read();
-  mFile = &(mReader->GetFile());
-  const gdcm::DataSet & ds = mFile->GetDataSet();
   
-  // Check file type
-  //Verify if the file is a RT-Structure-Set dicom file
+  const gdcm::DataSet& ds = RTreader.GetFile().GetDataSet();
+  
   gdcm::MediaStorage ms;
-  ms.SetFromFile(*mFile);
-  if( ms != gdcm::MediaStorage::RTStructureSetStorage )
-    {
-    std::cerr << "Error. the file " << filename
-              << " is not a Dicom Struct ? (must have a SOP Class UID [0008|0016] = 1.2.840.10008.5.1.4.1.1.481.3 ==> [RT Structure Set Storage])"
-              << std::endl;
-    exit(0);
-    }
+  ms.SetFromFile( RTreader.GetFile() );
+    
+  // (3006,0020) SQ (Sequence with explicit length #=4)      # 370, 1 StructureSetROISequence  
+  gdcm::Tag tssroisq(0x3006,0x0020);
+  if( !ds.FindDataElement( tssroisq ) )
+  {
+    std::cout << "Problem locating 0x3006,0x0020 - Is this a valid RT Struct file?" << std::endl;
+    return;
+  }
+  gdcm::Tag troicsq(0x3006,0x0039);
+  if( !ds.FindDataElement( troicsq ) )
+  {
+    std::cout << "Problem locating 0x3006,0x0039 - Is this a valid RT Struct file?" << std::endl;
+    return;
+  }
 
-  gdcm::Attribute<0x8,0x60> modality;
-  modality.SetFromDataSet( ds );
-  if( modality.GetValue() != "RTSTRUCT" )
-    {
-    std::cerr << "Error. the file " << filename
-              << " is not a Dicom Struct ? (must have 0x0008,0x0060 = RTSTRUCT [RT Structure Set Storage])"
-              << std::endl;
-    exit(0);
-    }
+  const gdcm::DataElement &roicsq = ds.GetDataElement( troicsq );
 
+  gdcm::SmartPointer<gdcm::SequenceOfItems> sqi = roicsq.GetValueAsSQ();
+  if( !sqi || !sqi->GetNumberOfItems() )
+  {
+    return;
+  }
+  const gdcm::DataElement &ssroisq = ds.GetDataElement( tssroisq );
+  gdcm::SmartPointer<gdcm::SequenceOfItems> ssqi = ssroisq.GetValueAsSQ();
+  if( !ssqi || !ssqi->GetNumberOfItems() )
+  {
+    return;
+  }
+  
   // Read global info
   gdcm::Attribute<0x20,0x10> studyid;
   studyid.SetFromDataSet( ds );
@@ -395,22 +380,13 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename)
   // Temporary store the list of items
   std::map<int, gdcm::Item*> mMapOfROIInfo;
   std::map<int, gdcm::Item*> mMapOfROIContours;
- 
-std::map<int, clitk::DicomRT_ROI::Pointer> mROIs;
-  std::map<int, std::string> mMapOfROIName;
-#if GDCM_MAJOR_VERSION == 2
-  gdcm::Reader * mReader;
-  gdcm::SmartPointer<gdcm::SequenceOfItems> mROIInfoSequenceOfItems;
-  gdcm::SmartPointer<gdcm::SequenceOfItems> mROIContoursSequenceOfItems;  
-#endif
-  gdcm::File * mFile;
-
+  
 
   //----------------------------------
   // Read all ROI Names and number
   // 0x3006,0x0020 = [ Structure Set ROI Sequence ]
-  gdcm::Tag tssroisq(0x3006,0x0020);
-  const gdcm::DataElement &ssroisq = ds.GetDataElement( tssroisq );
+  //gdcm::Tag tssroisq(0x3006,0x0020);
+  //const gdcm::DataElement &ssroisq = ds.GetDataElement( tssroisq );
   mROIInfoSequenceOfItems = ssroisq.GetValueAsSQ();
   gdcm::SmartPointer<gdcm::SequenceOfItems> & roi_seq = mROIInfoSequenceOfItems;
   assert(roi_seq); // TODO error message
@@ -441,8 +417,8 @@ std::map<int, clitk::DicomRT_ROI::Pointer> mROIs;
   //----------------------------------
   // Read all ROI item
   // 0x3006,0x0039 = [ ROI Contour Sequence ]
-  gdcm::Tag troicsq(0x3006,0x0039);
-  const gdcm::DataElement &roicsq = ds.GetDataElement( troicsq );
+  //gdcm::Tag troicsq(0x3006,0x0039);
+  //const gdcm::DataElement &roicsq = ds.GetDataElement( troicsq );
   gdcm::SmartPointer<gdcm::SequenceOfItems> roi_contour_seq = roicsq.GetValueAsSQ();
   mROIContoursSequenceOfItems = roi_contour_seq;
   assert(roi_contour_seq); // TODO error message
@@ -462,82 +438,12 @@ std::map<int, clitk::DicomRT_ROI::Pointer> mROIs;
   for(std::map<int, gdcm::Item*>::iterator i = mMapOfROIInfo.begin(); i != mMapOfROIInfo.end(); i++) {
     int nb = i->first;//ReadROINumber(i);//mROIIndex[i];
     // Create the roi
-    DicomRT_ROI::Pointer roi = DicomRT_ROI::New();
-    roi->Read(mMapOfROIInfo[nb], mMapOfROIContours[nb]);
-    //    mListOfROI.push_back(roi);
-    //    mMapOfROIIndex[nb] = i;
-    mROIs[nb] = roi;
+    mROIs[nb] = DicomRT_ROI::New();
+    mROIs[nb]->Read(mMapOfROIInfo[nb], mMapOfROIContours[nb]);
   }
+    
+  return;
 
-  //----------------------------------------------------------------------------------------
-  //----------------------------------------------------------------------------------------
-  //----------------------------------------------------------------------------------------
-#else
-  mFile = new gdcm::File;
-  mFile->SetFileName(filename.c_str());
-  mFile->SetMaxSizeLoadEntry(16384); // Needed ...
-  mFile->SetLoadMode(gdcm::LD_NOSHADOW); // don't load shadow tags (in order to save memory)
-  mFile->Load();
-  
-  // Check file type
-  //Verify if the file is a RT-Structure-Set dicom file
-  if (!gdcm::Util::DicomStringEqual(mFile->GetEntryValue(0x0008,0x0016),"1.2.840.10008.5.1.4.1.1.481.3")) {  //SOP clas UID
-    std::cerr << "Error. the file " << filename
-              << " is not a Dicom Struct ? (must have a SOP Class UID [0008|0016] = 1.2.840.10008.5.1.4.1.1.481.3 ==> [RT Structure Set Storage])"
-              << std::endl;
-    exit(0);
-  }
-  if (!gdcm::Util::DicomStringEqual(mFile->GetEntryValue(0x0008,0x0060),"RTSTRUCT")) {  //SOP clas UID
-    std::cerr << "Error. the file " << filename
-              << " is not a Dicom Struct ? (must have 0x0008,0x0060 = RTSTRUCT [RT Structure Set Storage])"
-              << std::endl;
-    exit(0);
-  }
-
-  // Read global info
-  mStudyID   = mFile->GetValEntry(0x0020,0x0010)->GetValue();
-  mStudyTime = mFile->GetValEntry(0x008,0x0020)->GetValue();
-  mStudyDate = mFile->GetValEntry(0x008,0x0030)->GetValue();
-  mLabel     = mFile->GetValEntry(0x3006,0x002)->GetValue();
-  if (!mFile->GetValEntry(0x3006,0x004)) {
-    mName = "Anonymous";
-  }
-  else {
-    mName = mFile->GetValEntry(0x3006,0x004)->GetValue();
-  }
-  mTime      = mFile->GetValEntry(0x3006,0x009)->GetValue();
-
-  //----------------------------------
-  // Read all ROI Names and number
-  // 0x3006,0x0020 = [ Structure Set ROI Sequence ]
-  gdcm::SeqEntry * roi_seq=mFile->GetSeqEntry(0x3006,0x0020);
-  assert(roi_seq); // TODO error message
-  for (gdcm::SQItem* r=roi_seq->GetFirstSQItem(); r!=0; r=roi_seq->GetNextSQItem()) {
-    std::string name = r->GetEntryValue(0x3006,0x0026);      // 0x3006,0x0026 = [ROI Name]
-    int nb = atoi(r->GetEntryValue(0x3006,0x0022).c_str());  // 0x3006,0x0022 = [ROI Number]
-    // Check if such a number already exist
-    if (mMapOfROIName.find(nb) != mMapOfROIName.end()) {
-      std::cerr << "WARNING. A Roi already exist with the number "
-                << nb << ". I replace." << std::endl;
-    }
-    // Add in map
-    mMapOfROIName[nb] = name;
-  }
-
-  //----------------------------------
-  // Read all ROI
-  // 0x3006,0x0039 = [ ROI Contour Sequence ]
-  gdcm::SeqEntry * roi_contour_seq=mFile->GetSeqEntry(0x3006,0x0039);
-  assert(roi_contour_seq); // TODO error message
-  int n=0;
-  for (gdcm::SQItem* r=roi_contour_seq->GetFirstSQItem(); r!=0; r=roi_contour_seq->GetNextSQItem()) {
-    DicomRT_ROI::Pointer roi = DicomRT_ROI::New();
-    roi->Read(mMapOfROIName, r);
-    mROIs[roi->GetROINumber()] = roi;
-    n++;
-  }
-
-#endif
 }
 //--------------------------------------------------------------------
 

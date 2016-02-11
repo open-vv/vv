@@ -151,7 +151,7 @@ double clitk::DicomRT_ROI::GetForegroundValueLabelImage() const
 #if GDCM_MAJOR_VERSION == 2
 bool clitk::DicomRT_ROI::Read(gdcm::Item * itemInfo, gdcm::Item * itemContour)
 {
-  FATAL("Error : compile vv with itk4 + external gdcm");
+  //FATAL("Error : compile vv with itk4 + external gdcm");
   // Keep dicom item
   mItemInfo = itemInfo;
   mItemContour = itemContour;

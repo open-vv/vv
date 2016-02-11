@@ -35,6 +35,7 @@
 #include <vtkSphereSource.h>
 #include <vtkProperty.h>
 
+#include <itkGDCMImageIO.h>
 
 //------------------------------------------------------------------------------
 // Create the tool and automagically (I like this word) insert it in
@@ -190,6 +191,30 @@ void vvToolTest::InputIsSelected(vvSlicerManager * m)
 
   //  connect(mCurrentSlicerManager, SIGNAL(LeftButtonReleaseSignal(int)), SLOT(LeftButtonReleaseEvent(int)));
   //InteractiveDisplayToggled(mInteractiveDisplayIsEnabled);
+  
+  
+  
+typedef signed short InputPixelType;
+const unsigned int Dimension = 3;
+typedef itk::Image< InputPixelType, Dimension > InputImageType;
+typedef itk::ImageFileReader< InputImageType > ReaderType;
+ReaderType::Pointer reader = ReaderType::New();
+reader->SetFileName( "/home/tbaudier/BJ13/RTSTRUCT/1.2.840.113704.1.111.4140.1439902720.30/20160201/160325.000000_/2.16.840.1.113669.1919.1454339005/2.16.840.1.113669.1919.1454339005/1.2.840.10008.5.1.4.1.1.481.3.1454339000.dcm" );
+typedef itk::GDCMImageIO ImageIOType;
+ImageIOType::Pointer gdcmImageIO = ImageIOType::New();
+reader->SetImageIO( gdcmImageIO ); 
+try
+{
+reader->Update();
+}
+catch (itk::ExceptionObject & e)
+{
+std::cerr << "exception in file reader " << std::endl;
+std::cerr << e.GetDescription() << std::endl;
+std::cerr << e.GetLocation() << std::endl;
+return;
+}
+  
 }
 //------------------------------------------------------------------------------
 

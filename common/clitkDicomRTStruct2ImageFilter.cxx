@@ -236,7 +236,7 @@ void clitk::DicomRTStruct2ImageFilter::Update()
 #if VTK_MAJOR_VERSION <= 5
   sts->SetInput(extrude->GetOutput());
 #else
-  sts->SetInputData(extrude->GetOutput());
+  sts->SetInputConnection(extrude->GetOutputPort(0));
 #endif
   //sts->SetInput(mesh);
 
@@ -244,7 +244,7 @@ void clitk::DicomRTStruct2ImageFilter::Update()
 #if VTK_MAJOR_VERSION <= 5
   stencil->SetStencil(sts->GetOutput());
 #else
-  stencil->SetStencilData(sts->GetOutput());
+  stencil->SetStencilConnection(sts->GetOutputPort(0));
 #endif
 #if VTK_MAJOR_VERSION <= 5
   stencil->SetInput(mBinaryImage);
