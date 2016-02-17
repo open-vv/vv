@@ -50,6 +50,9 @@ It is distributed under dual licence
 #include "vvReadState.h"
 #include "clitkConfiguration.h"
 #include "clitkMatrix.h"
+#ifdef Q_OS_OSX
+# include "vvOSXHelper.h"
+#endif
 
 // ITK include
 #include <itkImage.h>
@@ -200,21 +203,6 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   QAction* actionResetMatrix = contextMenu.addAction(QIcon(QString::fromUtf8(":/common/icons/identity.png")),
     tr("Reset transformation to identity"));
   connect(actionResetMatrix, SIGNAL(triggered()), this,SLOT(ResetTransformationToIdentity()));
-
-  // TRIAL DS
-  /*
-  QMenu * m = new QMenu(menubar);
-  m->setTitle("TOTO");
-  //  m->setObjectName(QString::fromUtf8("TOTOTO"));
-  contextMenu.addMenu(m);
-  QAction * a = m->addAction(QIcon(QString::fromUtf8(":/common/icons/GPSup.png")),
-  tr("BIDON"));
-  QAction * b = m->addAction(QIcon(QString::fromUtf8(":/common/icons/GPSup.png")),
-  tr("BIDON2"));
-  m->addAction(a);
-  m->addAction(b);
-  connect(a,SIGNAL(triggered()),this,SLOT(AddFusionImage()));
-  */
 
   //init the DataTree
   mSlicerManagers.resize(0);
@@ -372,6 +360,13 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   SOViewWidget->hide();
   SEViewWidget->hide();
 
+#ifdef Q_OS_OSX
+  disableGLHiDPI(NOViewWidget->winId());
+  disableGLHiDPI(NEViewWidget->winId());
+  disableGLHiDPI(SOViewWidget->winId());
+  disableGLHiDPI(SEViewWidget->winId());
+#endif
+
   //Recently opened files
   std::list<std::string> recent_files = GetRecentlyOpenedImages();
   recentlyOpenedFilesMenu=NULL;
@@ -392,8 +387,8 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   //timerMemory->setInterval(5);
   connect(timerMemory, SIGNAL(timeout()), this, SLOT(UpdateMemoryUsage()));
   timerMemory->start(2000);
-
 }
+
 //------------------------------------------------------------------------------
 void vvMainWindow::show()
 { 
