@@ -1549,11 +1549,13 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max, vtkImag
     if(iLocalExtents[i*2  ]>iLocalExtents[i*2+1])
       std::swap(iLocalExtents[i*2], iLocalExtents[i*2+1]);
 
-    if(iLocalExtents[i*2]< mImageReslice->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())[2*i])
-        iLocalExtents[i*2] = mImageReslice->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())[2*i];
+    for(int j=0;j<2; j++) {
+      if(iLocalExtents[i*2+j]< mImageReslice->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())[2*i])
+        iLocalExtents[i*2+j] = mImageReslice->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())[2*i];
 
-    if(iLocalExtents[i*2+1]> mImageReslice->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())[2*i+1])
-        iLocalExtents[i*2+1] = mImageReslice->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())[2*i+1];
+      if(iLocalExtents[i*2+j]> mImageReslice->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())[2*i+1])
+        iLocalExtents[i*2+j] = mImageReslice->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())[2*i+1];
+    }
   }
 
   vtkSmartPointer<vtkExtractVOI> voiFilter = vtkSmartPointer<vtkExtractVOI>::New();
