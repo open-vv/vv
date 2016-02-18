@@ -77,6 +77,7 @@ void vvMeshActor::Init(vvMesh::Pointer mesh,int time_slice,vvImage::Pointer vf)
   mActor->GetProperty()->EdgeVisibilityOn();
   mActor->GetProperty()->SetEdgeColor(mMesh->r,mMesh->g,mMesh->b);
   mActor->GetProperty()->SetLineWidth(2.);
+  mActor->GetProperty()->SetOpacity(0.995); //in order to get VTK to turn on the alpha-blending in OpenGL
 }
 
 void vvMeshActor::SetCutSlice(double slice)

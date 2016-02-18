@@ -138,6 +138,7 @@ void vvMesh::ComputeMasks(vtkImageData* sample,bool extrude)
     vtkSmartPointer<vtkImageData> binary_image=vtkSmartPointer<vtkImageData>::New();
 #if VTK_MAJOR_VERSION <= 5
     binary_image->SetScalarTypeToUnsignedChar();
+#endif
     ///Use the smallest mask in which the mesh fits
     // Add two voxels on each side to make sure the mesh fits
     double * samp_origin=sample->GetOrigin();
@@ -152,22 +153,9 @@ void vvMesh::ComputeMasks(vtkImageData* sample,bool extrude)
     binary_image->SetExtent(0,ceil((bounds[1]-origin[0])/spacing[0]+4),
                             0,ceil((bounds[3]-origin[1])/spacing[1]+4),
                             0,ceil((bounds[5]-origin[2])/spacing[2])+4);
+#if VTK_MAJOR_VERSION <= 5
     binary_image->AllocateScalars();
 #else
-    ///Use the smallest mask in which the mesh fits
-    // Add two voxels on each side to make sure the mesh fits
-    double * samp_origin=sample->GetOrigin();
-    double * spacing=sample->GetSpacing();
-    binary_image->SetSpacing(spacing);
-
-    /// Put the origin on a voxel to avoid small skips
-    binary_image->SetOrigin(floor((bounds[0]-samp_origin[0])/spacing[0]-2)*spacing[0]+samp_origin[0],
-                            floor((bounds[2]-samp_origin[1])/spacing[1]-2)*spacing[1]+samp_origin[1],
-                            floor((bounds[4]-samp_origin[2])/spacing[2]-2)*spacing[2]+samp_origin[2]);
-    double * origin=binary_image->GetOrigin();
-    binary_image->SetExtent(0,ceil((bounds[1]-origin[0])/spacing[0]+4),
-                            0,ceil((bounds[3]-origin[1])/spacing[1]+4),
-                            0,ceil((bounds[5]-origin[2])/spacing[2])+4);
     binary_image->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
 #endif
     memset(binary_image->GetScalarPointer(),0,binary_image->GetDimensions()[0]*binary_image->GetDimensions()[1]*binary_image->GetDimensions()[2]*sizeof(unsigned char));
@@ -206,7 +194,7 @@ void vvMesh::ComputeMasks(vtkImageData* sample,bool extrude)
     stencil->SetStencil(sts->GetOutput());
     stencil->SetInput(binary_image);
 #else
-    stencil->SetStencilData(sts->GetOutput());
+    stencil->SetStencilConnection(sts->GetOutputPort());
     stencil->SetInputData(binary_image);
 #endif
     stencil->Update();

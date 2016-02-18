@@ -224,13 +224,6 @@ std::vector<vvMesh::Pointer> vvMeshReader::readSelectedContours()
 {
   std::vector<vvMesh::Pointer> result;
 #if GDCM_MAJOR_VERSION == 2
-
-#if CLITK_USE_SYSTEM_GDCM == 0
-  
-  clitkExceptionMacro("ERROR ! You need to compile vv with itk4 + system_gdcm to use this function");
-
-#endif
-
   gdcm::Reader reader;
   reader.SetFileName(filename.c_str());
   reader.Read();
