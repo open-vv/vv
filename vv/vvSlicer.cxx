@@ -1549,6 +1549,7 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max, vtkImag
     if(iLocalExtents[i*2  ]>iLocalExtents[i*2+1])
       std::swap(iLocalExtents[i*2], iLocalExtents[i*2+1]);
 
+#if VTK_MAJOR_VERSION > 5
     for(int j=0;j<2; j++) {
       if(iLocalExtents[i*2+j]< mImageReslice->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())[2*i])
         iLocalExtents[i*2+j] = mImageReslice->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())[2*i];
@@ -1556,6 +1557,7 @@ void vvSlicer::GetExtremasAroundMousePointer(double & min, double & max, vtkImag
       if(iLocalExtents[i*2+j]> mImageReslice->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())[2*i+1])
         iLocalExtents[i*2+j] = mImageReslice->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())[2*i+1];
     }
+#endif
   }
 
   vtkSmartPointer<vtkExtractVOI> voiFilter = vtkSmartPointer<vtkExtractVOI>::New();
