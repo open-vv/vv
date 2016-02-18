@@ -35,11 +35,7 @@
 
 //itk include
 #include "itkLightObject.h"
-#if ITK_VERSION_MAJOR >= 4
-  #include "itkInverseDisplacementFieldImageFilter.h"
-#else
-  #include "itkInverseDeformationFieldImageFilter.h"
-#endif
+#include "itkInverseDisplacementFieldImageFilter.h"
 
 namespace clitk 
 {

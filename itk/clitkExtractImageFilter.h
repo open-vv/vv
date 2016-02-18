@@ -94,11 +94,7 @@ protected:
                                                  const OutputImageRegionType &srcRegion);
 
 
-#if ITK_VERSION_MAJOR >= 4
   void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId );
-#else
-  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId );
-#endif
 
   InputImageRegionType m_ExtractionRegion;
   OutputImageRegionType m_OutputImageRegion;

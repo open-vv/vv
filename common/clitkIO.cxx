@@ -43,16 +43,13 @@
   #include "clitkUSVoxImageIOFactory.h"
   #include "clitkSvlImageIOFactory.h"
 #endif
-#if ITK_VERSION_MAJOR >= 4
-  #include "itkGDCMImageIOFactory.h"
-  #include "itkPNGImageIOFactory.h"
-#endif
+#include "itkGDCMImageIOFactory.h"
+#include "itkPNGImageIOFactory.h"
 
 //--------------------------------------------------------------------
 // Register factories
 void clitk::RegisterClitkFactories()
 {
-#if ITK_VERSION_MAJOR >= 4
   std::list< itk::ObjectFactoryBase * > fl = itk::GDCMImageIOFactory::GetRegisteredFactories();
   for (std::list< itk::ObjectFactoryBase * >::iterator it = fl.begin(); it != fl.end(); ++it)
     if (dynamic_cast<itk::GDCMImageIOFactory *>(*it))
@@ -68,7 +65,6 @@ void clitk::RegisterClitkFactories()
       itk::PNGImageIOFactory::UnRegisterFactory(*it);
       break;
     }
-#endif
 #if CLITK_PRIVATE_FEATURES
   clitk::UsfImageIOFactory::RegisterOneFactory();
   clitk::USVoxImageIOFactory::RegisterOneFactory();
@@ -76,9 +72,6 @@ void clitk::RegisterClitkFactories()
 #endif
   clitk::GateAsciiImageIOFactory::RegisterOneFactory();
   clitk::DicomRTDoseIOFactory::RegisterOneFactory();
-#if ITK_VERSION_MAJOR <= 3
-  itk::ImageIOFactory::RegisterBuiltInFactories();
-#endif
   clitk::VoxImageIOFactory::RegisterOneFactory();
   clitk::VfImageIOFactory::RegisterOneFactory();
   clitk::XdrImageIOFactory::RegisterOneFactory();
@@ -88,9 +81,7 @@ void clitk::RegisterClitkFactories()
   rtk::ImagXImageIOFactory::RegisterOneFactory();
   rtk::XRadImageIOFactory::RegisterOneFactory();
   clitk::EsrfHstImageIOFactory::RegisterOneFactory();
-#if ITK_VERSION_MAJOR >= 4
   itk::GDCMImageIOFactory::RegisterOneFactory();
   itk::PNGImageIOFactory::RegisterOneFactory();
-#endif
 } ////
 

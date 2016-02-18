@@ -105,11 +105,7 @@ GenerateData() {
   m_size[GetDirection()] = 0;
   m_region.SetSize(m_size);
   int start = m_index[GetDirection()];
-#if ITK_VERSION_MAJOR >= 4
   this->SetNumberOfIndexedInputs(m_NumberOfSlices);
-#else
-  this->SetNumberOfOutputs(m_NumberOfSlices);
-#endif
 
   //--------------------------------------------------------------------
   // loop ExtractImageFilter with region updated, push_back
@@ -122,9 +118,7 @@ GenerateData() {
     m_index[GetDirection()] = start + i;
     m_region.SetIndex(m_index);
     extract->SetExtractionRegion(m_region);
-#if ITK_VERSION_MAJOR == 4
     extract->SetDirectionCollapseToSubmatrix();
-#endif
     extract->Update();
     this->SetNthOutput(i, extract->GetOutput());
   }

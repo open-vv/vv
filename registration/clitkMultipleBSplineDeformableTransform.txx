@@ -28,12 +28,7 @@ namespace clitk
 {
   // Constructor with default arguments
   template<class TCoordRep, unsigned int NInputDimensions, unsigned int NOutputDimensions>
-  MultipleBSplineDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>
-#if ITK_VERSION_MAJOR >= 4
-  ::MultipleBSplineDeformableTransform() : Superclass(0)
-#else
-  ::MultipleBSplineDeformableTransform() : Superclass(OutputDimension, 0)
-#endif
+  MultipleBSplineDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>::MultipleBSplineDeformableTransform() : Superclass(0)
   {
     m_nLabels = 1;
     m_labels = 0;
@@ -329,11 +324,7 @@ namespace clitk
 #undef LOOP_ON_LABELS
 
   template<class TCoordRep, unsigned int NInputDimensions, unsigned int NOutputDimensions>
-#if ITK_VERSION_MAJOR >= 4
   inline typename MultipleBSplineDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>::NumberOfParametersType
-#else
-  inline unsigned int
-#endif
   MultipleBSplineDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>
   ::GetNumberOfParameters(void) const
   {
@@ -433,7 +424,6 @@ namespace clitk
     return m_trans[lidx]->DeformablyTransformPoint(inputPoint);
   }
 
-#if ITK_VERSION_MAJOR >= 4
   template<class TCoordRep, unsigned int NInputDimensions, unsigned int NOutputDimensions>
   inline void
   MultipleBSplineDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>
@@ -459,30 +449,6 @@ namespace clitk
     jacobian = this->m_SharedDataBSplineJacobian;
   }
 
-#else
-  template<class TCoordRep, unsigned int NInputDimensions, unsigned int NOutputDimensions>
-  inline const typename MultipleBSplineDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>::JacobianType &
-  MultipleBSplineDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>
-  ::GetJacobian( const InputPointType & point ) const
-  {
-    if (m_LastJacobian != -1)
-      m_trans[m_LastJacobian]->ResetJacobian();
-
-    int lidx = 0;
-    if (m_labels)
-      lidx = m_labelInterpolator->Evaluate(point) - 1;
-    if (lidx == -1)
-    {
-      m_LastJacobian = lidx;
-      return this->m_Jacobian;
-    }
-
-    m_trans[lidx]->GetJacobian(point);
-    m_LastJacobian = lidx;
-
-    return this->m_Jacobian;
-  }
-#endif
 
   template<class TCoordRep, unsigned int NInputDimensions, unsigned int NOutputDimensions>
   inline void
@@ -497,13 +463,8 @@ namespace clitk
   MultipleBSplineDeformableTransform<TCoordRep, NInputDimensions,NOutputDimensions>::InitJacobian()
   {
     unsigned numberOfParameters = this->GetNumberOfParameters();
-#if ITK_VERSION_MAJOR >= 4
     this->m_SharedDataBSplineJacobian.set_size(OutputDimension, numberOfParameters);
     JacobianPixelType * jacobianDataPointer = reinterpret_cast<JacobianPixelType *>(this->m_SharedDataBSplineJacobian.data_block());
-#else
-    this->m_Jacobian.set_size(OutputDimension, numberOfParameters);
-    JacobianPixelType * jacobianDataPointer = reinterpret_cast<JacobianPixelType *>(this->m_Jacobian.data_block());
-#endif
     memset(jacobianDataPointer, 0,  numberOfParameters * sizeof (JacobianPixelType));
 
     unsigned tot = 0;

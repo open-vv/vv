@@ -109,7 +109,6 @@ namespace clitk
       return OutputCovariantVectorType();
     }
 
-#if ITK_VERSION_MAJOR >= 4
     virtual void ComputeJacobianWithRespectToParameters (const InputPointType &p, JacobianType &jacobian) const
     {
       itkExceptionMacro( << "DeformationFieldTransform doesn't declare ComputeJacobianWithRespectToParameters" );
@@ -118,13 +117,6 @@ namespace clitk
     {
       itkExceptionMacro( << "DeformationFieldTransform doesn't declare ComputeJacobianWithRespectToPosition" );
     }
-#else
-    virtual const JacobianType& GetJacobian(const InputPointType  &point ) const
-    {
-      itkExceptionMacro( << "DeformationFieldTransform doesn't declare GetJacobian" );
-      return this->m_Jacobian;
-    }
-#endif
 
   protected:
     DeformationFieldTransform();

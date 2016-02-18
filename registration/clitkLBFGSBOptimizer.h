@@ -179,11 +179,7 @@ private:
 
   bool                     m_OptimizerInitialized;
   InternalOptimizerType  * m_VnlOptimizer;
-#if ITK_VERSION_MAJOR > 3
   mutable std::ostringstream    m_StopConditionDescription;
-#else
-  mutable itk::OStringStream    m_StopConditionDescription;
-#endif
   BoundValueType           m_LowerBound;
   BoundValueType           m_UpperBound;
   BoundSelectionType       m_BoundSelection;

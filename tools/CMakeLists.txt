@@ -373,20 +373,15 @@ if(CLITK_BUILD_TOOLS)
 
 
   #=========================================================
-  if(ITK_VERSION_MAJOR VERSION_LESS 4)
-    message("clitkDice is not compatible with ITK<4. It will not be built.")
-    message("clitkDicomRTPlan2Gate is not compatible with GDCM<2 (ITK<4). It will not be built.")
-  else(ITK_VERSION_MAJOR VERSION_LESS 4)
-    WRAP_GGO(clitkDice_GGO_C clitkDice.ggo)
-    add_executable(clitkDice clitkDice.cxx ${clitkDice_GGO_C})
-    target_link_libraries(clitkDice clitkSegmentationGgoLib clitkCommon ${ITK_LIBRARIES} )
-    set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkDice)
+  WRAP_GGO(clitkDice_GGO_C clitkDice.ggo)
+  add_executable(clitkDice clitkDice.cxx ${clitkDice_GGO_C})
+  target_link_libraries(clitkDice clitkSegmentationGgoLib clitkCommon ${ITK_LIBRARIES} )
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkDice)
 
-    WRAP_GGO(clitkDicomRTPlan2Gate_GGO_C clitkDicomRTPlan2Gate.ggo)
-    add_executable(clitkDicomRTPlan2Gate clitkDicomRTPlan2Gate.cxx clitkDicomRTPlan2Gate_ggo.c)
-    target_link_libraries(clitkDicomRTPlan2Gate clitkCommon)
-    set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkDicomRTPlan2Gate)
-  endif(ITK_VERSION_MAJOR VERSION_LESS 4)
+  WRAP_GGO(clitkDicomRTPlan2Gate_GGO_C clitkDicomRTPlan2Gate.ggo)
+  add_executable(clitkDicomRTPlan2Gate clitkDicomRTPlan2Gate.cxx clitkDicomRTPlan2Gate_ggo.c)
+  target_link_libraries(clitkDicomRTPlan2Gate clitkCommon)
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkDicomRTPlan2Gate)
   #=========================================================
 
 

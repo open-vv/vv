@@ -121,9 +121,7 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
     filter->SetExtractionRegion(extractedRegion);
     filter->SetInput(reader->GetOutput());
     filter->ReleaseDataFlagOn();
-#if ITK_VERSION_MAJOR == 4
     filter->SetDirectionCollapseToSubmatrix();
-#endif
     try {
       mImage->AddItkImage<SlicedImageType>(filter->GetOutput());
       mImage->ComputeScalarRangeBase<InputPixelType, VImageDimension-1>(filter->GetOutput());

@@ -68,11 +68,7 @@ namespace clitk
     typedef itk::StatisticsImageFilter<InternalImageType> StatisticsImageFilterType;
     typedef itk::BinaryBallStructuringElement<InternalPixelType,InputImageDimension > KernelType;
     typedef clitk::ConditionalBinaryDilateImageFilter<InternalImageType, InternalImageType , KernelType> ConditionalBinaryDilateImageFilterType;
-#if ITK_VERSION_MAJOR >= 4
     typedef itk::Testing::ComparisonImageFilter<InternalImageType, InternalImageType> DifferenceImageFilterType;
-#else
-    typedef itk::DifferenceImageFilter<InternalImageType, InternalImageType> DifferenceImageFilterType;
-#endif
     typedef itk::CastImageFilter<InternalImageType, OutputImageType> OutputCastImageFilterType;
     typedef clitk::SetBackgroundImageFilter<InternalImageType, InternalImageType, InternalImageType> SetBackgroundImageFilterType;
 

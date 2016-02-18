@@ -108,11 +108,7 @@ vvImage::Pointer WarpRefImage(OutputVFType::Pointer vf,vvImage::Pointer image,in
 
   typename FilterType::Pointer warp_filter = FilterType::New();
   warp_filter->SetInput(input);
-#if ITK_VERSION_MAJOR >= 4
   warp_filter->SetDisplacementField(resampler->GetOutput());
-#else
-  warp_filter->SetDeformationField(resampler->GetOutput());
-#endif
   warp_filter->SetOutputSpacing(input->GetSpacing());
   warp_filter->SetOutputOrigin(input->GetOrigin());
   warp_filter->SetOutputSize(input->GetLargestPossibleRegion().GetSize());

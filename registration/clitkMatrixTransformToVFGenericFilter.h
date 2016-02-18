@@ -42,8 +42,6 @@
 #  else
 #    include "itkTransformToDisplacementFieldFilter.h"
 #  endif
-#else
-#  include "itkTransformToDeformationFieldSource.h"
 #endif
 #include "itkAffineTransform.h"
 
