@@ -47,6 +47,10 @@
 #include <vtkBox.h>
 #include <vtkInformation.h>
 
+#ifdef Q_OS_OSX
+# include "vvOSXHelper.h"
+#endif
+
 //------------------------------------------------------------------------------
 // Create the tool and automagically (I like this word) insert it in
 // the main window menu.
@@ -104,6 +108,10 @@ vvToolProfile::vvToolProfile(vvMainWindowBase * parent, Qt::WindowFlags f)
   this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
   this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
   ProfileWidget->show();
+
+#ifdef Q_OS_OSX
+  disableGLHiDPI(ProfileWidget->winId());
+#endif
 
   // Main filter
   mFilter = clitk::ProfileImageGenericFilter::New();
