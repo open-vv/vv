@@ -166,6 +166,7 @@ namespace clitk
     }
     else {
       labelImage=LabelImageType::New();
+      labelImage->SetDirection(input->GetDirection());
       labelImage->SetRegions(input->GetLargestPossibleRegion());
       labelImage->SetOrigin(input->GetOrigin());
       labelImage->SetSpacing(input->GetSpacing());
