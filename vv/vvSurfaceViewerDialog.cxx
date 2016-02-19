@@ -35,6 +35,10 @@
 #include <QMessageBox>
 #include <QFileDialog>
 
+#ifdef Q_OS_OSX
+# include "vvOSXHelper.h"
+#endif
+
 //----------------------------------------------------------------------------
 class vvManagerCallback : public vtkCommand
 {
@@ -76,6 +80,10 @@ vvSurfaceViewerDialog::vvSurfaceViewerDialog(QWidget * parent, Qt::WindowFlags f
   mCurrentTime = 0;
 
   connect(loadButton,SIGNAL(clicked()),this,SLOT(LoadSurface()));
+
+#ifdef Q_OS_OSX
+  disableGLHiDPI(renderWidget->winId());
+#endif
 }
 
 vvSurfaceViewerDialog::~vvSurfaceViewerDialog()

@@ -61,6 +61,10 @@
 #include <QMessageBox>
 #include <QFileDialog>
 
+#ifdef Q_OS_OSX
+# include "vvOSXHelper.h"
+#endif
+
 //====================================================================
 vvSegmentationDialog::vvSegmentationDialog(QWidget * parent, Qt::WindowFlags f)
   :QDialog(parent,f), Ui::vvSegmentationDialog()
@@ -102,6 +106,10 @@ vvSegmentationDialog::vvSegmentationDialog(QWidget * parent, Qt::WindowFlags f)
   erodeButton->setEnabled(0);
   dilateButton->setEnabled(0);
   infoLabel->setText("Select Up and Down threshold before clicking binarise !");
+
+#ifdef Q_OS_OSX
+  disableGLHiDPI(viewWidget->winId());
+#endif
 }
 
 vvSegmentationDialog::~vvSegmentationDialog()
