@@ -150,7 +150,6 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   contextActions.resize(0);
   QAction* actionOpen_new_image = contextMenu.addAction(QIcon(QString::fromUtf8(":/common/icons/fileopen.png")),
     tr("O&pen new Image"));
-  actionOpen_new_image->setShortcut(QKeySequence(tr("Ctrl+O")));
   connect(actionOpen_new_image,SIGNAL(triggered()),this,SLOT(OpenImages()));
   contextActions.push_back(actionOpen_new_image);
   contextMenu.addSeparator();

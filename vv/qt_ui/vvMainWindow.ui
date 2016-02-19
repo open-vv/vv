@@ -898,6 +898,9 @@
    <property name="text">
     <string>Open image(s)</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
    <property name="iconVisibleInMenu">
     <bool>true</bool>
    </property>
