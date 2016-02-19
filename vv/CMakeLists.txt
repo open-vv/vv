@@ -148,6 +148,7 @@ else()
     vvHelpDialog.h
     vvQDicomSeriesSelector.h
     vvSlicerManager.h
+    vvSlicer.h
     vvStructureSetActor.h
     vvROIActor.h
     vvToolCreatorBase.h
