@@ -1171,6 +1171,17 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
     mSlicers[slicer]->GetInput()->GetSpacing()[1];
   double Z = (z - mSlicers[slicer]->GetInput()->GetOrigin()[2])/
     mSlicers[slicer]->GetInput()->GetSpacing()[2];
+  double xyz[3], xyzTransform[3];
+  xyz[0] = x;
+  xyz[1] = y;
+  xyz[2] = z;
+  mSlicers[slicer]->GetConcatenatedTransform()->TransformPoint(xyz, xyzTransform);
+  double XTransform = (xyzTransform[0] - mSlicers[slicer]->GetInput()->GetOrigin()[0])/
+    mSlicers[slicer]->GetInput()->GetSpacing()[0];
+  double YTransform = (xyzTransform[1] - mSlicers[slicer]->GetInput()->GetOrigin()[1])/
+    mSlicers[slicer]->GetInput()->GetSpacing()[1];
+  double ZTransform = (xyzTransform[2] - mSlicers[slicer]->GetInput()->GetOrigin()[2])/
+    mSlicers[slicer]->GetInput()->GetSpacing()[2];
   double value = -VTK_DOUBLE_MAX;
   int displayVec = 0;
   double xVec=0, yVec=0, zVec=0, valueVec=0;
@@ -1178,12 +1189,12 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
   int displayFus = 0;
   double valueOver=0, valueFus=0;
 #if VTK_MAJOR_VERSION <= 5
-    if (X >= mSlicers[slicer]->GetInput()->GetWholeExtent()[0] &&
-      X <= mSlicers[slicer]->GetInput()->GetWholeExtent()[1] &&
-      Y >= mSlicers[slicer]->GetInput()->GetWholeExtent()[2] &&
-      Y <= mSlicers[slicer]->GetInput()->GetWholeExtent()[3] &&
-      Z >= mSlicers[slicer]->GetInput()->GetWholeExtent()[4] &&
-      Z <= mSlicers[slicer]->GetInput()->GetWholeExtent()[5]) {
+    if (XTransform >= mSlicers[slicer]->GetInput()->GetWholeExtent()[0] &&
+      XTransform <= mSlicers[slicer]->GetInput()->GetWholeExtent()[1] &&
+      YTransform >= mSlicers[slicer]->GetInput()->GetWholeExtent()[2] &&
+      YTransform <= mSlicers[slicer]->GetInput()->GetWholeExtent()[3] &&
+      ZTransform >= mSlicers[slicer]->GetInput()->GetWholeExtent()[4] &&
+      ZTransform <= mSlicers[slicer]->GetInput()->GetWholeExtent()[5]) {
 
     value = this->GetScalarComponentAsDouble(mSlicers[slicer]->GetInput(), X, Y, Z);
 
@@ -1232,7 +1243,7 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
 	}
 
     emit UpdatePosition(mSlicers[slicer]->GetCursorVisibility(),
-                        x,y,z,X,Y,Z,value);
+                        x,y,z,XTransform,YTransform,ZTransform,value);
     emit UpdateVector(displayVec,xVec, yVec, zVec, valueVec);
     emit UpdateOverlay(displayOver,valueOver,value);
     emit UpdateFusion(displayFus,valueFus);
@@ -1240,12 +1251,12 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
 #else
 int extentImageReslice[6];
 mSlicers[slicer]->GetRegisterExtent(extentImageReslice);
-    if (X >= extentImageReslice[0] &&
-      X <= extentImageReslice[1] &&
-      Y >= extentImageReslice[2] &&
-      Y <= extentImageReslice[3] &&
-      Z >= extentImageReslice[4] &&
-      Z <= extentImageReslice[5]) {
+    if (XTransform >= extentImageReslice[0] &&
+      XTransform <= extentImageReslice[1] &&
+      YTransform >= extentImageReslice[2] &&
+      YTransform <= extentImageReslice[3] &&
+      ZTransform >= extentImageReslice[4] &&
+      ZTransform <= extentImageReslice[5]) {
 
     value = this->GetScalarComponentAsDouble(mSlicers[slicer]->GetInput(), X, Y, Z);
 
@@ -1294,7 +1305,7 @@ mSlicers[slicer]->GetRegisterExtent(extentImageReslice);
 	}
 
     emit UpdatePosition(mSlicers[slicer]->GetCursorVisibility(),
-                        x,y,z,X,Y,Z,value);
+                        x,y,z,XTransform,YTransform,ZTransform,value);
     emit UpdateVector(displayVec,xVec, yVec, zVec, valueVec);
     emit UpdateOverlay(displayOver,valueOver,value);
     emit UpdateFusion(displayFus,valueFus);
