@@ -1710,7 +1710,7 @@ void vvSlicerManager::AddLandmark(float x,float y,float z,float t)
       y_index <= mSlicers[0]->GetInput()->GetWholeExtent()[3]+0.5 &&
       z_index >= mSlicers[0]->GetInput()->GetWholeExtent()[4]-0.5 &&
       z_index <= mSlicers[0]->GetInput()->GetWholeExtent()[5]+0.5) {
-    double value = this->GetScalarComponentAsDouble(mSlicers[0]->GetInput(), x_index, y_index, z_index);
+    double value = this->GetScalarComponentAsDouble(mSlicers[mSelectedSlicer]->GetInput(), x_index, y_index, z_index); //Value in selected Slicer (not 0): bug #2848
     this->GetLandmarks()->AddLandmark(x,y,z,t,value);
     emit LandmarkAdded();
   }
@@ -1723,7 +1723,7 @@ void vvSlicerManager::AddLandmark(float x,float y,float z,float t)
       y_index <= extentImageReslice[3]+0.5 &&
       z_index >= extentImageReslice[4]-0.5 &&
       z_index <= extentImageReslice[5]+0.5) {
-    double value = this->GetScalarComponentAsDouble(mImage->GetVTKImages()[mSlicers[0]->GetTSlice()], x_index, y_index, z_index);
+    double value = this->GetScalarComponentAsDouble(mSlicers[mSelectedSlicer]->GetInput(), x_index, y_index, z_index); //Value in selected Slicer (not 0): bug #2848
     this->GetLandmarks()->AddLandmark(x,y,z,t,value);
     emit LandmarkAdded();
   }
@@ -1744,7 +1744,7 @@ void vvSlicerManager::AddLandmarkProfile(float x,float y,float z,float t)
       y_index <= mSlicers[0]->GetInput()->GetWholeExtent()[3]+0.5 &&
       z_index >= mSlicers[0]->GetInput()->GetWholeExtent()[4]-0.5 &&
       z_index <= mSlicers[0]->GetInput()->GetWholeExtent()[5]+0.5) {
-    double value = this->GetScalarComponentAsDouble(mSlicers[0]->GetInput(), x_index, y_index, z_index);
+    double value = this->GetScalarComponentAsDouble(mSlicers[mSelectedSlicer]->GetInput(), x_index, y_index, z_index); //Value in selected Slicer (not 0): bug #2848
     this->GetLandmarks()->AddLandmark(x,y,z,t,value);
   }
 #else
@@ -1756,7 +1756,7 @@ void vvSlicerManager::AddLandmarkProfile(float x,float y,float z,float t)
       y_index <= extentImageReslice[3]+0.5 &&
       z_index >= extentImageReslice[4]-0.5 &&
       z_index <= extentImageReslice[5]+0.5) {
-    double value = this->GetScalarComponentAsDouble(mImage->GetVTKImages()[mSlicers[0]->GetTSlice()], x_index, y_index, z_index);
+    double value = this->GetScalarComponentAsDouble(mSlicers[mSelectedSlicer]->GetInput(), x_index, y_index, z_index); //Value in selected Slicer (not 0): bug #2848
     this->GetLandmarks()->AddLandmark(x,y,z,t,value);
   }
 #endif
