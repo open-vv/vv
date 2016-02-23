@@ -160,6 +160,13 @@ void vvToolProfile::selectPoint1()
       int i(0);
       while (i<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() && i<3) {
         pos[i] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[i];
+        ++i;
+      }
+      double posTransformed[3];
+      mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetConcatenatedTransform()->TransformPoint(pos, posTransformed);
+      i = 0;
+      while (i<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() && i<3) {
+        pos[i] = posTransformed[i];
         mPoint1[i] = round((pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i]);
         pos[i] = mPoint1[i]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i]; //Ensure to be at the center of the voxel
         position += QString::number(mPoint1[i],'f',0) + " ";
@@ -211,8 +218,15 @@ void vvToolProfile::selectPoint2()
       pos[0] = pos[1] = pos[2] = pos[3] = 0;;
           
       int i(0);
-      while (i<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() &&i<3) {
+      while (i<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() && i<3) {
         pos[i] = mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetCursorPosition()[i];
+        ++i;
+      }
+      double posTransformed[3];
+      mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetConcatenatedTransform()->TransformPoint(pos, posTransformed);
+      i = 0;
+      while (i<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() && i<3) {
+        pos[i] = posTransformed[i];
         mPoint2[i] = round((pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i]);
         pos[i] = mPoint2[i]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i]; //Ensure to be at the center of the voxel
         position += QString::number(mPoint2[i],'f',0) + " ";
