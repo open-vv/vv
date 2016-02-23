@@ -381,7 +381,10 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
       //>>>>>>> 921642d767beba2442dacc8fdb40dc36396e1b7d
 
       if (newLandmark) {
-        this->SM->AddNewLandmark(xWorld,yWorld,zWorld,
+        double pLand[3]; pLand[0] = xWorld; pLand[1] = yWorld; pLand[2] = zWorld;
+        double ptLand[3];
+        this->SM->GetSlicer(VisibleInWindow)->GetConcatenatedTransform()->TransformPoint(pLand, ptLand);
+        this->SM->AddNewLandmark(ptLand[0],ptLand[1],ptLand[2],
                               this->SM->GetSlicer(VisibleInWindow)->GetTSlice());
         this->SM->GetSlicer(VisibleInWindow)->RemoveLandmarks();
         //this->SM->GetSlicer(VisibleInWindow)->DisplayLandmarks();
