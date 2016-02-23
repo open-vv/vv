@@ -35,6 +35,7 @@
 #include <vtkImageReslice.h>
 #include <vtkImageMapToColors.h>
 #include <vtkCaptionActor2D.h>
+#include <vtkTransformPolyDataFilter.h>
 
 class vtkActor;
 class vtkActor2D;
@@ -246,6 +247,7 @@ protected:
   //                         ___|__|___ VTK world coordinates (mm) (never displayed)            mCurrent
 
   vtkSmartPointer<vtkTransform> mSlicingTransform;
+  vtkSmartPointer<vtkTransformPolyDataFilter> mLandmarkTransform;
   vtkSmartPointer<vtkImageReslice> mImageReslice;
   vtkSmartPointer<vtkTransform> mConcatenatedTransform;
   vtkSmartPointer<vtkImageReslice> mOverlayReslice;

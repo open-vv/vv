@@ -669,12 +669,24 @@ void vvSlicer::SetLandmarks(vvLandmarks* landmarks)
     mLandClipper->SetClipFunction(mClipBox);
     mLandClipper->InsideOutOn();
 #if VTK_MAJOR_VERSION <= 5
-    mLandClipper->SetInput(mLandmarks->GetOutput());
+    mLandmarkTransform = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+    mLandmarkTransform->SetInput(mLandmarks->GetOutput());
+    mConcatenatedTransform->Identity();
+    mConcatenatedTransform->Concatenate(mImage->GetTransform()[0]);
+    mConcatenatedTransform->Concatenate(mSlicingTransform);
+    mLandmarkTransform->SetTransform(mConcatenatedTransform->GetInverse());
+    mLandClipper->SetInput(mLandmarkTransform->GetOutput());
 
     mLandGlyph->SetSource(mCross->GetOutput());
     mLandGlyph->SetInput(mLandClipper->GetOutput());
 #else
-    mLandClipper->SetInputData(mLandmarks->GetOutput());
+    mLandmarkTransform = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+    mLandmarkTransform->SetInputData(mLandmarks->GetOutput());
+    mConcatenatedTransform->Identity();
+    mConcatenatedTransform->Concatenate(mImage->GetTransform()[0]);
+    mConcatenatedTransform->Concatenate(mSlicingTransform);
+    mLandmarkTransform->SetTransform(mConcatenatedTransform->GetInverse());
+    mLandClipper->SetInputConnection(mLandmarkTransform->GetOutputPort());
 
     mLandGlyph->SetSourceConnection(mCross->GetOutputPort());
     mLandGlyph->SetInputConnection(mLandClipper->GetOutputPort());
@@ -697,7 +709,6 @@ void vvSlicer::SetLandmarks(vvLandmarks* landmarks)
     mLandActor->SetPickable(0);
     mLandActor->SetVisibility(true);
     this->UpdateDisplayExtent();
-    this->GetRenderer()->AddActor(mLandActor);
   }
 }
 //------------------------------------------------------------------------------
@@ -1802,7 +1813,7 @@ void vvSlicer::UpdateCursorPosition()
 //----------------------------------------------------------------------------
 void vvSlicer::RemoveLandmarks()
 { 
-  vtkPolyData *pd = static_cast<vtkPolyData*>(mLandClipper->GetInput());
+  vtkPolyData *pd = static_cast<vtkPolyData*>(mLandmarks->GetOutput());
   if (pd->GetPoints()) {
 
     //First remove all captions:
@@ -1828,12 +1839,12 @@ void vvSlicer::DisplayLandmarks()
   mClipBox->SetBounds(bounds);
 
 
-  vtkPolyData *pd = static_cast<vtkPolyData*>(mLandClipper->GetInput());
+  vtkPolyData *pd = static_cast<vtkPolyData*>(mLandmarks->GetOutput());
   if (pd->GetPoints()) {
+    this->GetRenderer()->AddActor(mLandActor);
     //mLandGlyph->SetRange(0,1);
     //mLandGlyph->Modified();
     //mLandGlyph->Update();
-
     mClipBox->Modified();
     mLandClipper->Update();
     mLandMapper->Update();
