@@ -37,6 +37,7 @@
 #include <vtkTable.h>
 #include <vtkContextView.h>
 #include <vtkContextScene.h>
+#include <vtkTransformPolyDataFilter.h>
 
 //------------------------------------------------------------------------------
 class vvToolProfile:
@@ -87,6 +88,7 @@ class vvToolProfile:
   std::string mTextFileName;
   std::vector<vtkSmartPointer<vtkActor> > mLineActors;
   vtkSmartPointer<vtkPolyData> mLinesPolyData;
+  vtkSmartPointer<vtkTransformPolyDataFilter> mLineTransform;
 
 
 }; // end class vvToolProfile

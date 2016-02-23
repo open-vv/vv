@@ -605,7 +605,10 @@ void vvToolProfile::DisplayLine(int slicer)
 #if VTK_MAJOR_VERSION <= 5
             clipper->SetInput(mLinesPolyData);
 #else
-            clipper->SetInputData(mLinesPolyData);
+            mLineTransform = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+            mLineTransform->SetInputData(mLinesPolyData);
+            mLineTransform->SetTransform(mCurrentSlicerManager->GetSlicer(slicer)->GetConcatenatedTransform()->GetInverse());
+            clipper->SetInputConnection(mLineTransform->GetOutputPort());
 #endif
             clipper->InsideOutOff();
             clipper->Update();        
