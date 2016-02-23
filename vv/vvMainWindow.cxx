@@ -1895,6 +1895,7 @@ void vvMainWindow::ApplyWindowToSetOfImages(double window, unsigned int indexMin
   for (unsigned int i = indexMin; i <= indexMax && i < mSlicerManagers.size(); i++) {
     if (mSlicerManagers[i] == NULL)
       continue;
+    SetWindowLevel(window, mSlicerManagers[i]->GetColorLevel());
     mSlicerManagers[i]->SetColorWindow(window);
     mSlicerManagers[i]->SetPreset(WL_USER);
     mSlicerManagers[i]->Render();
@@ -1908,6 +1909,7 @@ void vvMainWindow::ApplyLevelToSetOfImages(double level, unsigned int indexMin, 
   for (unsigned int i = indexMin; i <= indexMax && i < mSlicerManagers.size(); i++) {
     if (mSlicerManagers[i] == NULL)
       continue;
+    SetWindowLevel(mSlicerManagers[i]->GetColorWindow(), level);
     mSlicerManagers[i]->SetColorLevel(level);
     mSlicerManagers[i]->SetPreset(WL_USER);
     mSlicerManagers[i]->Render();
