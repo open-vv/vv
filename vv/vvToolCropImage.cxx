@@ -106,6 +106,12 @@ void vvToolCropImage::closeEvent(QCloseEvent *event)
       mCurrentSlicerManager->GetSlicer(i)->EnableReducedExtent(false);
     UpdateExtent();
   }
+  mCurrentSlicerManager->GetImage()->GetTransform()[0]->SetMatrix(mConcatenedTransform);
+  for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
+    mCurrentSlicerManager->GetSlicer(i)->ResetCamera();
+    mCurrentSlicerManager->GetSlicer(i)->Render();
+    mCurrentSlicerManager->UpdateLinkedNavigation( mCurrentSlicerManager->GetSlicer(i) );
+  }
   vvToolWidgetBase::closeEvent(event);
 }
 //------------------------------------------------------------------------------
@@ -162,6 +168,18 @@ void vvToolCropImage::UpdateExtent()
 //------------------------------------------------------------------------------
 void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer)
 {
+  //Save the current transformation
+  mConcatenedTransform = vtkSmartPointer<vtkMatrix4x4>::New();
+  mConcatenedTransform->DeepCopy(slicer->GetSlicer(0)->GetConcatenatedTransform()->GetMatrix());
+  vtkSmartPointer<vtkMatrix4x4> matrix = vtkSmartPointer<vtkMatrix4x4>::New();
+  matrix->Identity();
+  mCurrentSlicerManager->GetImage()->GetTransform()[0]->SetMatrix(matrix);
+  for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
+    mCurrentSlicerManager->GetSlicer(i)->ResetCamera();
+    mCurrentSlicerManager->GetSlicer(i)->Render();
+    mCurrentSlicerManager->UpdateLinkedNavigation( mCurrentSlicerManager->GetSlicer(i) );
+  }
+
   // Change interface according to number of dimension
   mExtentSize = 2*slicer->GetDimension();
    if (slicer->GetDimension()<4) {
@@ -295,6 +313,8 @@ void vvToolCropImage::apply()
   // Retrieve result and display it
   vvImage::Pointer output = filter->GetOutputVVImage();
   
+  output->GetTransform()[0]->SetMatrix(mConcatenedTransform);
+
   AddImage(output,croppedImageName.str());
   
   // End
