@@ -82,7 +82,6 @@ void vvImage::ComputeScalarRangeBase(itk::Image<TPixelType,VImageDimension> *inp
 template<class TPixelType, unsigned int VImageDimension>
 void vvImage::ComputeScalarRange(DimensionDispatchBase, itk::Image<TPixelType,VImageDimension> *input)
 {
-     cout << "try" << endl;
 }
 
 //--------------------------------------------------------------------
