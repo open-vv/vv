@@ -111,14 +111,30 @@ void vvBinaryImageOverlayActor::Initialize(bool IsVisible)
   for (unsigned int numImage = 0; numImage < mSlicer->GetImage()->GetVTKImages().size(); numImage++) {
     // how many intensity ?
     vtkSmartPointer<vtkImageMapToRGBA> mOverlayMapper = vtkSmartPointer<vtkImageMapToRGBA>::New();
-#if VTK_MAJOR_VERSION <= 5
-    mOverlayMapper->SetInput(mImage->GetVTKImages()[0]); // DS TODO : to change if it is 4D !!!
+    if (mImage->IsTimeSequence())
+    {
+ #if VTK_MAJOR_VERSION <= 5
+        mOverlayMapper->SetInput(mImage->GetVTKImages()[numImage]);
 #else
-    mOverlayMapper->SetInputData(mImage->GetVTKImages()[0]); // DS TODO : to change if it is 4D !!!
+        mOverlayMapper->SetInputData(mImage->GetVTKImages()[numImage]);
 #endif
+    }
+    else {
+#if VTK_MAJOR_VERSION <= 5
+        mOverlayMapper->SetInput(mImage->GetVTKImages()[0]);
+#else
+        mOverlayMapper->SetInputData(mImage->GetVTKImages()[0]);
+#endif
+    }
 
     double range[2];
-    mImage->GetVTKImages()[0]->GetScalarRange(range);
+    if (mImage->IsTimeSequence())
+    {
+        mImage->GetVTKImages()[numImage]->GetScalarRange(range);
+    }
+    else {
+        mImage->GetVTKImages()[0]->GetScalarRange(range);
+    }
     int n = range[1]-range[0]+1;
     mColorLUT->SetRange(range[0],range[1]);
     mColorLUT->SetNumberOfTableValues(n);
@@ -156,7 +172,7 @@ void vvBinaryImageOverlayActor::Initialize(bool IsVisible)
 
     mMapperList.push_back(mOverlayMapper);
     mImageActorList.push_back(mOverlayActor);
-    mSlicer->GetRenderer()->AddActor(mOverlayActor);
+    mSlicer->GetRenderer()->AddActor(mImageActorList[numImage]);
   }
 }
 //------------------------------------------------------------------------------
@@ -240,10 +256,8 @@ void vvBinaryImageOverlayActor::ShowActors()
   if (!mSlicer) return;
   mSlice = mSlicer->GetSlice();
   mTSlice = mSlicer->GetTSlice();
-  //  for(unsigned int i=0; i<mSquaresActorList.size(); i++) {
   mImageActorList[mTSlice]->VisibilityOn();
   UpdateSlice(0, mSlice);
-  //}
   // Caller MUST call Render
   //mSlicer->Render();
 }
@@ -291,12 +305,14 @@ void vvBinaryImageOverlayActor::UpdateSlice(int slicer, int slice, bool force)
   int orientation = mSlicer->GetOrientation();
   int maskExtent[6];
   ComputeExtent(orientation, mSlice, imageExtent, maskExtent);
-  ComputeExtent(maskExtent, maskExtent, mSlicer->GetImage()->GetFirstVTKImageData(), mImage->GetFirstVTKImageData());
+  ComputeExtent(maskExtent, maskExtent, mSlicer->GetImage()->GetVTKImages()[mTSlice], mImage->GetVTKImages()[mTSlice]);
 #if VTK_MAJOR_VERSION <= 5
   mSlicer->ClipDisplayedExtent(maskExtent, mMapperList[mTSlice]->GetInput()->GetWholeExtent());
 #else
   mSlicer->ClipDisplayedExtent(maskExtent, mMapperList[mTSlice]->GetInput()->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
 #endif
+  HideActors();
+  mImageActorList[mTSlice]->VisibilityOn();
   SetDisplayExtentAndCameraPosition(orientation, mSlice, maskExtent, mImageActorList[mTSlice], mDepth);
 
   // set previous slice

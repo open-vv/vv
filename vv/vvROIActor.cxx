@@ -202,7 +202,7 @@ void vvROIActor::Initialize(double depth, bool IsVisible)
       mOverlayActors[i]->SetDepth(mDepth);
     }
     connect(mSlicerManager,SIGNAL(UpdateSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
-    //connect(mSlicerManager,SIGNAL(UpdateTSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
+    connect(mSlicerManager,SIGNAL(UpdateTSlice(int,int,int)),this,SLOT(UpdateSlice(int, int, int)));
     connect(mSlicerManager, SIGNAL(AVerticalSliderHasChanged(int, int)), SLOT(UpdateSlice(int, int)));
   }
 }
@@ -235,7 +235,7 @@ void vvROIActor::Update(bool force)
 
 
 //------------------------------------------------------------------------------
-void vvROIActor::UpdateSlice(int slicer, int slices, bool force)
+void vvROIActor::UpdateSlice(int slicer, int slices, int force)
 { 
   if (!mROI->GetImage())  return;
   if ((!mIsVisible) && (!mIsContourVisible)) return; 
@@ -250,6 +250,7 @@ void vvROIActor::UpdateSlice(int slicer, int slices, bool force)
 
   // Refresh overlays
   mOverlayActors[slicer]->UpdateSlice(slicer, slices, force);
+  mSlicerManager->GetSlicer(slicer)->Render();
 }
 //------------------------------------------------------------------------------
 
