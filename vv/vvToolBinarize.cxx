@@ -228,7 +228,7 @@ void vvToolBinarize::InputIsSelected(vvSlicerManager * m)
   connect(mThresholdSlider2, SIGNAL(valueChanged(double)), this, SLOT(valueChangedT2(double)));
 
   connect(mCurrentSlicerManager,SIGNAL(UpdateSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
-  connect(mCurrentSlicerManager,SIGNAL(UpdateTSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
+  connect(mCurrentSlicerManager,SIGNAL(UpdateTSlice(int,int, int)),this,SLOT(UpdateSlice(int, int, int)));
   
   connect(mCurrentSlicerManager,SIGNAL(UpdateOrientation(int,int)),this,SLOT(UpdateOrientation(int, int)));
 
@@ -256,8 +256,9 @@ void vvToolBinarize::UpdateOrientation(int slicer,int orientation)
 }
 //------------------------------------------------------------------------------
 
+
 //------------------------------------------------------------------------------
-void vvToolBinarize::UpdateSlice(int slicer,int slices)
+void vvToolBinarize::UpdateSlice(int slicer,int slices, int code)
 { 
   Update(slicer);
 }
