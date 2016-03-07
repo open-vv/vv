@@ -1989,28 +1989,37 @@ void vvMainWindow::SelectOverlayImage()
 { 
   int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
 
+  if (!(CheckAddedImage(index, "overlay")))
+    return;
+
+  QString Extensions = EXTENSIONS;
+  Extensions += ";;All Files (*)";
+  QStringList files = QFileDialog::getOpenFileNames(this,tr("Load Overlay image"),mInputPathName,Extensions);
+  if (files.isEmpty())
+    return;
+
+  std::vector<std::string> vecFileNames;
+  for (int i = 0; i < files.size(); i++) {
+    vecFileNames.push_back(files[i].toStdString());
+  }
+
+  AddOverlayImage(index,vecFileNames,vvImageReader::IMAGE);
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+bool vvMainWindow::CheckAddedImage(int index, QString imageType)
+{ 
   //check if one overlay image is added
   for (int child = 0; child < DataTree->topLevelItem(index)->childCount(); child++)
-    if (DataTree->topLevelItem(index)->child(child)->data(1,Qt::UserRole).toString() == "overlay") {
+    if (DataTree->topLevelItem(index)->child(child)->data(1,Qt::UserRole).toString().compare(imageType) == 0) {
       QString error = "Cannot add more than one compared image\n";
       error += "Please remove first ";
       error += DataTree->topLevelItem(index)->child(child)->data(COLUMN_IMAGE_NAME,Qt::DisplayRole).toString();
       QMessageBox::information(this,tr("Problem adding compared image !"),error);
-      return;
+      return false;
     }
-
-    QString Extensions = EXTENSIONS;
-    Extensions += ";;All Files (*)";
-    QStringList files = QFileDialog::getOpenFileNames(this,tr("Load Overlay image"),mInputPathName,Extensions);
-    if (files.isEmpty())
-      return;
-
-    std::vector<std::string> vecFileNames;
-    for (int i = 0; i < files.size(); i++) {
-      vecFileNames.push_back(files[i].toStdString());
-    }
-
-    AddOverlayImage(index,vecFileNames,vvImageReader::IMAGE);
+    return true;
 }
 //------------------------------------------------------------------------------
 
@@ -2130,28 +2139,20 @@ void vvMainWindow::SelectFusionImage()
 { 
   int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
 
-  //check if one fusion image is added
-  for (int child = 0; child < DataTree->topLevelItem(index)->childCount(); child++)
-    if ( (DataTree->topLevelItem(index)->child(child)->data(1,Qt::UserRole).toString() == "fusion") ||
-      (DataTree->topLevelItem(index)->child(child)->data(1,Qt::UserRole).toString() == "fusionSequence") ) {
-        QString error = "Cannot add more than one fusion image\n";
-        error += "Please remove first ";
-        error += DataTree->topLevelItem(index)->child(child)->data(COLUMN_IMAGE_NAME,Qt::DisplayRole).toString();
-        QMessageBox::information(this,tr("Problem adding fusion image !"),error);
-        return;
-    }
+  if (!(CheckAddedImage(index, "fusion")) || !(CheckAddedImage(index, "fusionSequence")))
+    return;
 
-    QString Extensions = EXTENSIONS;
-    Extensions += ";;All Files (*)";
-    QStringList files = QFileDialog::getOpenFileNames(this,tr("Load Fusion image"),mInputPathName,Extensions);
-    if (files.isEmpty())
-      return;
+  QString Extensions = EXTENSIONS;
+  Extensions += ";;All Files (*)";
+  QStringList files = QFileDialog::getOpenFileNames(this,tr("Load Fusion image"),mInputPathName,Extensions);
+  if (files.isEmpty())
+    return;
 
-    std::vector<std::string> vecFileNames;
-    for (int i = 0; i < files.size(); i++) {
-      vecFileNames.push_back(files[i].toStdString());
-    }
-    AddFusionImage(index,vecFileNames,vvImageReader::IMAGE);
+  std::vector<std::string> vecFileNames;
+  for (int i = 0; i < files.size(); i++) {
+    vecFileNames.push_back(files[i].toStdString());
+  }
+  AddFusionImage(index,vecFileNames,vvImageReader::IMAGE);
 }
 //------------------------------------------------------------------------------
 
@@ -2260,26 +2261,20 @@ void vvMainWindow::AddLandmarks(int index, std::vector<std::string> files)
 void vvMainWindow::OpenField()
 { 
   int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
-  //check if a vector field has already been added
-  for (int child = 0; child < DataTree->topLevelItem(index)->childCount(); child++)
-    if (DataTree->topLevelItem(index)->child(child)->data(1,Qt::UserRole).toString() == "vector") {
-      QString error = "Cannot add more than one vector field\n";
-      error += "Please remove first ";
-      error += DataTree->topLevelItem(index)->child(child)->data(COLUMN_IMAGE_NAME,Qt::DisplayRole).toString();
-      QMessageBox::information(this,tr("Problem adding vector field!"),error);
-      return;
-    }
+  
+  if (!(CheckAddedImage(index, "vector")))
+    return;
 
-    QString Extensions = "Images ( *.mhd *.mha *.vf *.nii *.nrrd *.nhdr)";
-    // Extensions += ";;Images ( *.mha)";
-    // Extensions += ";;VF Images ( *.vf)";
-    // Extensions += ";;nii Images ( *.nii)";
-    // Extensions += ";;nrrd Images ( *.nrrd)";
-    // Extensions += ";;nhdr Images ( *.nhdr)";
-    Extensions += ";;All Files (*)";
-    QString file = QFileDialog::getOpenFileName(this,tr("Load deformation field"),mInputPathName,Extensions);
-    if (!file.isEmpty())
-      AddField(file,index);
+  QString Extensions = "Images ( *.mhd *.mha *.vf *.nii *.nrrd *.nhdr)";
+  // Extensions += ";;Images ( *.mha)";
+  // Extensions += ";;VF Images ( *.vf)";
+  // Extensions += ";;nii Images ( *.nii)";
+  // Extensions += ";;nrrd Images ( *.nrrd)";
+  // Extensions += ";;nhdr Images ( *.nhdr)";
+  Extensions += ";;All Files (*)";
+  QString file = QFileDialog::getOpenFileName(this,tr("Load deformation field"),mInputPathName,Extensions);
+  if (!file.isEmpty())
+    AddField(file,index);
 }
 //------------------------------------------------------------------------------
 
@@ -2446,30 +2441,23 @@ void vvMainWindow::SelectFusionSequence()
 { 
   //get the index of the slicer manager of the main sequence (CT)
   int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
-  //check if one overlay image is already associated
-  for (int child = 0; child < DataTree->topLevelItem(index)->childCount(); child++)
-    if ( (DataTree->topLevelItem(index)->child(child)->data(1,Qt::UserRole).toString() == "fusion") ||
-      (DataTree->topLevelItem(index)->child(child)->data(1,Qt::UserRole).toString() == "fusionSequence") ) {
-        QString error = "Cannot add more than one compared image\n";
-        error += "Please remove first ";
-        error += DataTree->topLevelItem(index)->child(child)->data(COLUMN_IMAGE_NAME,Qt::DisplayRole).toString();
-        QMessageBox::information(this,tr("Problem adding compared image !"),error);
-        return;
-    }
 
-    QString Extensions = EXTENSIONS;
-    Extensions += ";;All Files (*)";
-    QStringList files = QFileDialog::getOpenFileNames(this,tr("Load Overlay image sequence"),mInputPathName,Extensions);
-    if (files.isEmpty())
-      return;
+  if (!(CheckAddedImage(index, "fusion")) || !(CheckAddedImage(index, "fusionSequence")))
+    return;
 
-    std::vector<std::string> vecFileNames;
-    for (int i = 0; i < files.size(); i++) {
-      vecFileNames.push_back(files[i].toStdString());
-    }
+  QString Extensions = EXTENSIONS;
+  Extensions += ";;All Files (*)";
+  QStringList files = QFileDialog::getOpenFileNames(this,tr("Load Overlay image sequence"),mInputPathName,Extensions);
+  if (files.isEmpty())
+    return;
 
-    //associate the secondary sequence (US) to the main one
-    AddFusionSequence(index,vecFileNames,vvImageReader::MERGEDWITHTIME);
+  std::vector<std::string> vecFileNames;
+  for (int i = 0; i < files.size(); i++) {
+    vecFileNames.push_back(files[i].toStdString());
+  }
+
+  //associate the secondary sequence (US) to the main one
+  AddFusionSequence(index,vecFileNames,vvImageReader::MERGEDWITHTIME);
 }
 //------------------------------------------------------------------------------
 

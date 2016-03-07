@@ -77,11 +77,11 @@ void open_sequence(vvMainWindow &window,
   const std::string open_mode_names[] = {"base", "overlay", "fusion", "vf", "contour", "fusionSequence"};
   if(open_mode==O_BASE)
     window.LoadImages(sequence_filenames, vvImageReader::MERGEDWITHTIME);
-  else if (open_mode==O_OVERLAY)
+  else if (open_mode==O_OVERLAY && window.CheckAddedImage(n_image_loaded-1, "overlay"))
     window.AddOverlayImage(n_image_loaded-1,sequence_filenames,vvImageReader::MERGEDWITHTIME);
   else if (open_mode==O_LANDMARKS)
     window.AddLandmarks(n_image_loaded-1,sequence_filenames);
-  else if (open_mode==O_FUSION)
+  else if (open_mode==O_FUSION && window.CheckAddedImage(n_image_loaded-1, "fusion") && window.CheckAddedImage(n_image_loaded-1, "fusionSequence"))
     window.AddFusionImage(n_image_loaded-1,sequence_filenames,vvImageReader::MERGEDWITHTIME);
   else {
     std::cerr << "Sequences are not managed for opening " << open_mode_names[open_mode] << std::endl;
@@ -273,13 +273,13 @@ int main( int argc, char** argv )
             first_of_wl_set = n_image_loaded-1;
           }
         }
-        else if (open_mode==O_VF)
+        else if (open_mode==O_VF && window.CheckAddedImage(n_image_loaded-1, "vector"))
           window.AddField(current.c_str(), n_image_loaded-1);
-        else if (open_mode==O_OVERLAY)
+        else if (open_mode==O_OVERLAY && window.CheckAddedImage(n_image_loaded-1, "overlay"))
           window.AddOverlayImage(n_image_loaded-1,image,vvImageReader::IMAGE);
         else if (open_mode==O_CONTOUR)
           window.AddDCStructContour(n_image_loaded-1,current.c_str());
-        else if (open_mode==O_FUSION)
+        else if (open_mode==O_FUSION && window.CheckAddedImage(n_image_loaded-1, "fusion") && window.CheckAddedImage(n_image_loaded-1, "fusionSequence"))
           window.AddFusionImage(n_image_loaded-1,image,vvImageReader::IMAGE);
         else if (open_mode==O_LANDMARKS)
           window.AddLandmarks(n_image_loaded-1,image);
