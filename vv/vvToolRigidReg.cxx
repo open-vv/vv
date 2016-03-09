@@ -379,7 +379,7 @@ void vvToolRigidReg::SetTransform(vtkMatrix4x4 *matrix)
   euler = itk::Euler3DTransform<double>::New();
   euler->SetCenter(center);
   try {
-    euler->SetMatrix(rotMat);
+    euler->SetMatrix(rotMat,0.00001);
   } catch (itk::ExceptionObject) {
     QString warning = "The matrice is a non-orthogonal rotation matrix.\nThe manual registration doesn't work.";
     QMessageBox msgBox(QMessageBox::Warning, tr("Reset transform"),warning, 0, this);
