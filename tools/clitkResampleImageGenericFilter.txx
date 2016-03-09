@@ -101,13 +101,12 @@ clitk::ResampleImageGenericFilter::UpdateWithInputImageType()
         size[i] = mArgsInfo.size_arg[i];
       filter->SetOutputSize(size);
     }
-    itk::ImageIOBase::Pointer header = clitk::readImageHeader(mArgsInfo.input_arg);
     for(unsigned int i=0; i<dim; i++){
-      origin[i] = header->GetOrigin(i);
+      origin[i] = input->GetOrigin()[i];
     }
     for(unsigned int i=0; i<dim; i++) {
       for(unsigned int j=0;j<dim;j++) {
-          direction(i,j) = header->GetDirection(i)[j];
+          direction(i,j) = input->GetDirection()[i][j];
       }
     }
     filter->SetOutputOrigin(origin);
