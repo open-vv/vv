@@ -1050,7 +1050,9 @@ void vvSlicer::AdjustResliceToSliceOrientation(vtkImageReslice *reslice)
   reslice->SetOutputOrigin(origin);
   reslice->SetOutputSpacing(spacing);
   reslice->UpdateInformation();
+#if VTK_MAJOR_VERSION <= 5
   reslice->GetOutput()->UpdateInformation();
+#endif
 }
 //------------------------------------------------------------------------------
 
