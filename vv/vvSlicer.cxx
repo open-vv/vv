@@ -417,6 +417,7 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
     mOverlayReslice->SetResliceTransform(mConcatenatedOverlayTransform);
 #if VTK_MAJOR_VERSION <= 5
     mOverlayReslice->SetInput(0, mOverlay->GetFirstVTKImageData());
+    mImageReslice->UpdateInformation();
 #else
     mOverlayReslice->SetInputData(0, mOverlay->GetFirstVTKImageData());
 #endif
@@ -483,6 +484,7 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion, int fusionSequenceCode)
     mFusionReslice->SetResliceTransform(mConcatenatedFusionTransform);
 #if VTK_MAJOR_VERSION <= 5
     mFusionReslice->SetInput(0, mFusion->GetFirstVTKImageData());
+    mFusionReslice->UpdateInformation();
 #else
     mFusionReslice->SetInputData(0, mFusion->GetFirstVTKImageData());
 #endif
@@ -1048,6 +1050,7 @@ void vvSlicer::AdjustResliceToSliceOrientation(vtkImageReslice *reslice)
   reslice->SetOutputOrigin(origin);
   reslice->SetOutputSpacing(spacing);
   reslice->UpdateInformation();
+  reslice->GetOutput()->UpdateInformation();
 }
 //------------------------------------------------------------------------------
 
