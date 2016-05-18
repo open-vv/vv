@@ -167,8 +167,8 @@ void vvToolProfile::selectPoint1()
       i = 0;
       while (i<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() && i<3) {
         pos[i] = posTransformed[i];
-        mPoint1[i] = round((pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i]);
-        pos[i] = mPoint1[i]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i]; //Ensure to be at the center of the voxel
+        mPoint1[i] = round((pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetSpacing()[i]);
+        pos[i] = mPoint1[i]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetSpacing()[i] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetOrigin()[i]; //Ensure to be at the center of the voxel
         position += QString::number(mPoint1[i],'f',0) + " ";
         ++i;
       }
@@ -227,8 +227,8 @@ void vvToolProfile::selectPoint2()
       i = 0;
       while (i<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() && i<3) {
         pos[i] = posTransformed[i];
-        mPoint2[i] = round((pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i]);
-        pos[i] = mPoint2[i]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[i] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[i]; //Ensure to be at the center of the voxel
+        mPoint2[i] = round((pos[i] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetOrigin()[i])/mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetSpacing()[i]);
+        pos[i] = mPoint2[i]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetSpacing()[i] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetOrigin()[i]; //Ensure to be at the center of the voxel
         position += QString::number(mPoint2[i],'f',0) + " ";
         ++i;
       }
@@ -542,7 +542,7 @@ void vvToolProfile::SaveAs()
             }
             int j(0);
             while (j<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() && j<3) {
-                fileOpen << tuple[j]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[j]+mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[j] << "\t" ;
+                fileOpen << tuple[j]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetSpacing()[j]+mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetOrigin()[j] << "\t" ;
                 ++j;
             }
             if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() == 4) {
@@ -590,14 +590,15 @@ void vvToolProfile::DisplayLine(int slicer)
   
   if(mCurrentSlicerManager) {
       if(mCurrentSlicerManager->GetSelectedSlicer() != -1) {
-          if (std::min(mPoint1[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()],mPoint2[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()]) <= mCurrentSlicerManager->GetSlicer(slicer)->GetSlice() && std::max(mPoint1[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()],mPoint2[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()]) >= mCurrentSlicerManager->GetSlicer(slicer)->GetSlice()) {
+          double currentSlice = (mCurrentSlicerManager->GetSlicer(slicer)->GetSlice()*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()] - mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetOrigin()[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()] )/ mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetSpacing()[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()];
+          if (std::min(mPoint1[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()],mPoint2[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()]) <= currentSlice && std::max(mPoint1[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()],mPoint2[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()]) >= currentSlice) {
             vtkSmartPointer<vtkBox> clippingBox = vtkSmartPointer<vtkBox>::New();
             double extent[6];
             for (int j=0; j<6; ++j) {
                 extent[j] = mCurrentSlicerManager->GetSlicer(slicer)->GetExtent()[j];
             }
-            extent[2*mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()] = mCurrentSlicerManager->GetSlicer(slicer)->GetImageActor()->GetBounds()[ mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()*2 ]-fabs(mCurrentSlicerManager->GetSlicer(slicer)->GetInput()->GetSpacing()[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()]);
-            extent[2*mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()+1] = mCurrentSlicerManager->GetSlicer(slicer)->GetImageActor()->GetBounds()[ mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()*2+1 ]+fabs(mCurrentSlicerManager->GetSlicer(slicer)->GetInput()->GetSpacing()[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()]);
+            extent[2*mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()] = mCurrentSlicerManager->GetSlicer(slicer)->GetImageActor()->GetBounds()[ mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()*2 ]-fabs(mCurrentSlicerManager->GetSlicer(slicer)->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetSpacing()[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()]);
+            extent[2*mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()+1] = mCurrentSlicerManager->GetSlicer(slicer)->GetImageActor()->GetBounds()[ mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()*2+1 ]+fabs(mCurrentSlicerManager->GetSlicer(slicer)->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetSpacing()[mCurrentSlicerManager->GetSlicer(slicer)->GetOrientation()]);
             clippingBox->SetBounds(extent);
             
             vtkSmartPointer<vtkClipPolyData> clipper = vtkSmartPointer<vtkClipPolyData>::New();
@@ -687,14 +688,14 @@ void vvToolProfile::SetPoints()
           } */
           
           double p0[4], p1[4];
-          p0[0] = mPoint1[0]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[0] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[0];
-          p0[1] = mPoint1[1]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[1] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[1];
-          p0[2] = mPoint1[2]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[2] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[2];
+          p0[0] = mPoint1[0]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetSpacing()[0] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetOrigin()[0];
+          p0[1] = mPoint1[1]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetSpacing()[1] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetOrigin()[1];
+          p0[2] = mPoint1[2]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetSpacing()[2] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetOrigin()[2];
           p0[3] = mPoint1[3];
 
-          p1[0] = mPoint2[0]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[0] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[0];
-          p1[1] = mPoint2[1]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[1] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[1];
-          p1[2] = mPoint2[2]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetSpacing()[2] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetInput()->GetOrigin()[2];
+          p1[0] = mPoint2[0]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetSpacing()[0] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetOrigin()[0];
+          p1[1] = mPoint2[1]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetSpacing()[1] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetOrigin()[1];
+          p1[2] = mPoint2[2]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetSpacing()[2] + mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetOrigin()[2];
           p1[3] = mPoint2[3];
               
           vtkSmartPointer<vtkPoints> pts = mLinesPolyData->GetPoints();
