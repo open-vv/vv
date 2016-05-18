@@ -249,7 +249,9 @@ void vvROIActor::UpdateSlice(int slicer, int slices, int force)
   }
 
   // Refresh overlays
-  mOverlayActors[slicer]->UpdateSlice(slicer, slices, force);
+  if (mIsVisible) {
+    mOverlayActors[slicer]->UpdateSlice(slicer, slices, force);
+  }
   mSlicerManager->GetSlicer(slicer)->Render();
 }
 //------------------------------------------------------------------------------
