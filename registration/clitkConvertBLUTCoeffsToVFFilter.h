@@ -13,8 +13,6 @@
 #  else
 #    include "itkTransformToDisplacementFieldFilter.h"
 #  endif
-#else
-#  include "itkTransformToDeformationFieldSource.h"
 #endif
 
 namespace clitk 
@@ -55,8 +53,6 @@ namespace clitk
 #  else
     typedef itk::TransformToDisplacementFieldFilter<OutputImageType, double> ConvertorType;
 #  endif
-#else
-    typedef itk::TransformToDeformationFieldSource<OutputImageType, double> ConvertorType;
 #endif
 
     itkNewMacro(Self);

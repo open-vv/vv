@@ -19,7 +19,12 @@
 #define VVTOOLCROPIMAGE_H
 
 //qt
+#include <QtGlobal>
+#if QT_VERSION < QT_VERSION_CHECK(5, 5, 0)
 #include <QtDesigner/QDesignerExportWidget>
+#else
+#include <QtUiPlugin/QDesignerExportWidget>
+#endif
 #include <QDialog>
 #include <QSlider>
 // vv
@@ -27,6 +32,8 @@
 #include "vvToolWidgetBase.h"
 #include "vvMainWindowBase.h"
 #include "ui_vvToolCropImage.h"
+//vtk
+#include <vtkTransform.h>
 
 //------------------------------------------------------------------------------
 class vvToolCropImage:
@@ -66,6 +73,7 @@ public slots:
   virtual void closeEvent(QCloseEvent *event);
 
   std::vector<QSlider*> mSliders;
+  vtkSmartPointer<vtkMatrix4x4> mConcatenedTransform;
 }; // end class vvToolCropImage
 //------------------------------------------------------------------------------
 

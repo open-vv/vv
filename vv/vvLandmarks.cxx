@@ -23,6 +23,7 @@
 #include <string>
 #include <locale.h>
 
+#include <vtkVersion.h>
 #include "vtkPolyData.h"
 #include "vtkPoints.h"
 #include "vtkFloatArray.h"
@@ -113,6 +114,41 @@ void vvLandmarks::RemoveLastLandmark()
   mLabels[mTime]->SetNumberOfValues(mLabels[mTime]->GetNumberOfValues()-1);
   mLabels[mTime]->Modified();
   mPolyData->Modified();
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void vvLandmarks::RemoveLandmarkWithLabel(vtkStdString label, int time)
+{
+  if (label != "P1" && label != "P2")
+    return;
+  // erase a vtkPoint by shifiting the array .
+  // not a problem here because there are no 
+  // pologyons linking the points
+  int t = time;//mLandmarks[index].coordinates[3];
+  int npoints = mPoints[t]->GetNumberOfPoints();
+  
+  //search of the index corresponding to the label
+  int index(0);
+  while (mLabels[t]->GetValue(index) != label)
+    ++index;
+  
+  for (int i = index; i < npoints - 1; i++) {
+    mPoints[t]->InsertPoint(i, mPoints[t]->GetPoint(i+1));
+	std::string str_i;		     // string which will contain the result
+	std::ostringstream convert;	 // stream used for the conversion
+	convert << i;			     // insert the textual representation of 'i' in the characters in the stream
+	str_i = convert.str();		 // set 'str_i' to the contents of the stream
+	mLabels[t]->SetValue(i,mLabels[t]->GetValue(i+1));
+    }
+  mPoints[t]->SetNumberOfPoints(npoints-1);
+  mLabels[t]->SetNumberOfValues(npoints-1);
+  mLabels[t]->Modified();
+  mPolyData->Modified();
+
+  mLandmarks[t].erase(mLandmarks[t].begin() + index);
+  mIds[t]->RemoveLastTuple();
 }
 //--------------------------------------------------------------------
 
@@ -451,7 +487,11 @@ void vvLandmarks::SetTime(int time)
     mPolyData->GetPointData()->SetScalars(mIds[time]);
     mPolyData->GetPointData()->AddArray(mLabels[time]);
     mPolyData->Modified();
+#if VTK_MAJOR_VERSION <= 5
     mPolyData->Update();
+#else
+    //mPolyData->Update();
+#endif
     mTime = time;
   }
 }

@@ -22,7 +22,7 @@
 class vvGlyph2D : public vtkGlyph3D
 {
 public:
-    vtkTypeRevisionMacro(vvGlyph2D,vtkGlyph3D);
+    vtkTypeMacro(vvGlyph2D,vtkGlyph3D);
     void PrintSelf(ostream& os, vtkIndent indent);
 
     // Description

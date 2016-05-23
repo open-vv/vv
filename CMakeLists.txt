@@ -5,10 +5,17 @@ cmake_minimum_required(VERSION 2.8)
 cmake_policy(VERSION 2.8)
 if(COMMAND cmake_policy)
     cmake_policy(SET CMP0003 NEW)
+    cmake_policy(SET CMP0007 NEW)
 endif(COMMAND cmake_policy)
 if(NOT DEFINED CLITK_SOURCE_DIR)
   set(CLITK_SOURCE_DIR ${PROJECT_SOURCE_DIR})
 endif(NOT DEFINED CLITK_SOURCE_DIR)
+# Default build type
+IF(NOT CMAKE_BUILD_TYPE)
+  SET(CMAKE_BUILD_TYPE Release CACHE STRING
+    "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+    FORCE)
+ENDIF(NOT CMAKE_BUILD_TYPE)
 #=========================================================
 
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)

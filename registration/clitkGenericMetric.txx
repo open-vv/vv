@@ -35,10 +35,8 @@ GenericMetric<args_info_type, FixedImageType, MovingImageType>::GenericMetric()
   m_Maximize=false;
   m_Verbose=false;
   m_FixedImageRegionGiven=false;
-#if defined(ITK_USE_OPTIMIZED_REGISTRATION_METHODS) || ITK_VERSION_MAJOR >= 4
   m_FixedImageSamplesIntensityThreshold=0;
   m_UseFixedImageSamplesIntensityThreshold=false;
-#endif
   m_FixedImageMask=NULL;
 }
 
@@ -273,9 +271,6 @@ GenericMetric<args_info_type,FixedImageType, MovingImageType>::GetMetricPointer(
   m_Metric->SetFixedImageRegion(m_FixedImageRegion);
   //m_Metric->SetFixedImageRegion(mask_region);
 
-
-#if defined(ITK_USE_OPTIMIZED_REGISTRATION_METHODS) || ITK_VERSION_MAJOR >= 4
-
   //============================================================================
   // Set the lower intensity threshold
   if (m_ArgsInfo.intThreshold_given) {
@@ -436,12 +431,6 @@ GenericMetric<args_info_type,FixedImageType, MovingImageType>::GetMetricPointer(
     if (m_Verbose) std::cout<<"number of mask pixels "<<totalNumberOfMaskPixels<<std::endl;
 
   }
-
-#else
-  if (m_Verbose) std::cout<<"Not setting the fixed image intensity threshold or the fraction of samples to use (not compiled with USE_OPTIMIZED_REGISTRATION_METHODS)..."<<std::endl;
-
-
-#endif
   //============================================================================
   //return the pointer
   return m_Metric;

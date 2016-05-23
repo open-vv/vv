@@ -18,7 +18,12 @@
 #ifndef VVTOOLBINARIZE_H
 #define VVTOOLBINARIZE_H
 
+#include <QtGlobal>
+#if QT_VERSION < QT_VERSION_CHECK(5, 5, 0)
 #include <QtDesigner/QDesignerExportWidget>
+#else
+#include <QtUiPlugin/QDesignerExportWidget>
+#endif
 
 #include "vvToolBase.h"
 #include "vvToolWidgetBase.h"
@@ -51,7 +56,7 @@ class vvToolBinarize:
   void valueChangedT1(double v);
   void valueChangedT2(double v);
   void UpdateOrientation(int slicer, int orientation);
-  void UpdateSlice(int slicer,int slices);
+  void UpdateSlice(int slicer,int slices, int code=0);
   void enableLowerThan(bool b);
   void useFGBGtoggled(bool);
   void InteractiveDisplayToggled(bool b);

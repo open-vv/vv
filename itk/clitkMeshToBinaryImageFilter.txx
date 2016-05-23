@@ -20,6 +20,7 @@
 #include <vtkLinearExtrusionFilter.h>
 #include <vtkImageStencil.h>
 #include <vtkMetaImageWriter.h>
+#include <vtkVersion.h>
 
 #include "itkVTKImageImport.h"
 #include "vtkImageExport.h"
@@ -68,6 +69,7 @@ GenerateData()
 {
   // GO
   vtkSmartPointer<vtkImageData> binary_image=vtkSmartPointer<vtkImageData>::New();
+#if VTK_MAJOR_VERSION <= 5
   binary_image->SetScalarTypeToUnsignedChar();
 
   // Set spacing
@@ -91,6 +93,29 @@ GenerateData()
   
   // Allocate data
   binary_image->AllocateScalars();
+#else
+  // Set spacing
+  PointType samp_origin = m_LikeImage->GetOrigin();
+  SpacingType spacing=m_LikeImage->GetSpacing();
+  double * spacing2 = new double[3];
+  spacing2[0] = spacing[0];
+  spacing2[1] = spacing[1];
+  spacing2[2] = spacing[2];
+  binary_image->SetSpacing(spacing2);
+
+  // Set origin
+  /// Put the origin on a voxel to avoid small skips
+  binary_image->SetOrigin(samp_origin[0], samp_origin[1], samp_origin[2]);
+
+  // Compute image bounds
+  binary_image->SetExtent(0,m_LikeImage->GetLargestPossibleRegion().GetSize()[0],
+                          0,m_LikeImage->GetLargestPossibleRegion().GetSize()[1],
+                          0,m_LikeImage->GetLargestPossibleRegion().GetSize()[2] 
+                          );
+  
+  // Allocate data
+  binary_image->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
+#endif
   memset(binary_image->GetScalarPointer(),0,
          binary_image->GetDimensions()[0]*binary_image->GetDimensions()[1]*binary_image->GetDimensions()[2]*sizeof(unsigned char));
 
@@ -105,10 +130,18 @@ GenerateData()
   if (m_Extrude)
   {
     vtkSmartPointer<vtkLinearExtrusionFilter> extrude=vtkSmartPointer<vtkLinearExtrusionFilter>::New();
+#if VTK_MAJOR_VERSION <= 5
     extrude->SetInput(m_Mesh);
+#else
+    extrude->SetInputData(m_Mesh);
+#endif
     // We extrude in the -slice_spacing direction to respect the FOCAL convention 
     extrude->SetVector(0, 0, -m_LikeImage->GetSpacing()[2]);
+#if VTK_MAJOR_VERSION <= 5
     sts->SetInput(extrude->GetOutput());
+#else
+    sts->SetInputConnection(extrude->GetOutputPort());
+#endif
     
     // When extrude ScaleFactor indicate the extrusion scaling (default = 1)
     /*
@@ -118,12 +151,21 @@ GenerateData()
     */ 
   }
   else
+#if VTK_MAJOR_VERSION <= 5
     sts->SetInput(m_Mesh);
+#else
+    sts->SetInputData(m_Mesh);
+#endif
 
   // Stencil
   vtkSmartPointer<vtkImageStencil> stencil=vtkSmartPointer<vtkImageStencil>::New();
+#if VTK_MAJOR_VERSION <= 5
   stencil->SetStencil(sts->GetOutput());
   stencil->SetInput(binary_image);
+#else
+  stencil->SetStencilData(sts->GetOutput());
+  stencil->SetInputData(binary_image);
+#endif
 
   // Convert VTK to ITK
   vtkImageExport * m_Exporter = vtkImageExport::New();
@@ -143,7 +185,11 @@ GenerateData()
   m_Importer->SetBufferPointerCallback( m_Exporter->GetBufferPointerCallback());
   m_Importer->SetCallbackUserData( m_Exporter->GetCallbackUserData());
 
+#if VTK_MAJOR_VERSION <= 5
   m_Exporter->SetInput( stencil->GetOutput() );
+#else
+  m_Exporter->SetInputData( stencil->GetOutput() );
+#endif
   m_Importer->Update();
 
   // writeImage<ImageType>(m_Importer->GetOutput(), "f.mhd");

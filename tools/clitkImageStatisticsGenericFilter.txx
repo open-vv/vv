@@ -166,6 +166,7 @@ namespace clitk
     }
     else {
       labelImage=LabelImageType::New();
+      labelImage->SetDirection(input->GetDirection());
       labelImage->SetRegions(input->GetLargestPossibleRegion());
       labelImage->SetOrigin(input->GetOrigin());
       labelImage->SetSpacing(input->GetSpacing());
@@ -246,6 +247,8 @@ namespace clitk
         std::cout<<statisticsFilter->GetMaximum(label)<<std::endl;
         if (m_Verbose) std::cout<<"Sum: ";
         std::cout<<statisticsFilter->GetSum(label)<<std::endl;
+        if (m_Verbose) std::cout<<"Volume (cc): ";
+        std::cout<<statisticsFilter->GetCount(label)*spacing_cc<<std::endl;
         if (m_Verbose) std::cout<<"Bounding box: ";
         for(unsigned int i =0; i <statisticsFilter->GetBoundingBox(label).size(); i++)
             std::cout<<statisticsFilter->GetBoundingBox(label)[i]<<" ";

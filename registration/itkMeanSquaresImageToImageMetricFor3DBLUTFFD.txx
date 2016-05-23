@@ -40,9 +40,7 @@
 // gets integrated into the main directories.
 #include "itkConfigure.h"
 
-#if defined(ITK_USE_OPTIMIZED_REGISTRATION_METHODS) || ITK_VERSION_MAJOR >= 4
 #include "itkOptMeanSquaresImageToImageMetricFor3DBLUTFFD.txx"
-#else
 
 #include "itkMeanSquaresImageToImageMetricFor3DBLUTFFD.h"
 #include "itkImageRegionConstIteratorWithIndex.h"
@@ -197,13 +195,8 @@ MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
     if( this->m_Interpolator->IsInsideBuffer( transformedPoint ) ) {
       const RealType movingValue  = this->m_Interpolator->Evaluate( transformedPoint );
 
-#if ITK_VERSION_MAJOR >= 4
       TransformJacobianType jacobian;
       this->m_Transform->ComputeJacobianWithRespectToParameters( inputPoint, jacobian );
-#else
-      const TransformJacobianType & jacobian =
-        this->m_Transform->GetJacobian( inputPoint );
-#endif
 
       const RealType fixedValue     = ti.Value();
       this->m_NumberOfPixelsCounted++;
@@ -315,13 +308,8 @@ MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
     if( this->m_Interpolator->IsInsideBuffer( transformedPoint ) ) {
       const RealType movingValue  = this->m_Interpolator->Evaluate( transformedPoint );
 
-#if ITK_VERSION_MAJOR >= 4
       TransformJacobianType jacobian;
       this->m_Transform->ComputeJacobianWithRespectToParameters( inputPoint, jacobian );
-#else
-      const TransformJacobianType & jacobian =
-        this->m_Transform->GetJacobian( inputPoint );
-#endif
 
       const RealType fixedValue     = ti.Value();
       this->m_NumberOfPixelsCounted++;

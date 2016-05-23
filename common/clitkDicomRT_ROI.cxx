@@ -23,6 +23,7 @@
 #include <vtkImageClip.h>
 #include <vtkMarchingSquares.h>
 #include <vtkPolyDataWriter.h>
+#include <vtkVersion.h>
 
 #if GDCM_MAJOR_VERSION == 2
 #include "gdcmAttribute.h"
@@ -68,6 +69,14 @@ void clitk::DicomRT_ROI::SetDisplayColor(double r, double v, double b)
 int clitk::DicomRT_ROI::GetROINumber() const
 {
   return mNumber;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void clitk::DicomRT_ROI::SetROINumber(int number)
+{
+  mNumber = number;
 }
 //--------------------------------------------------------------------
 
@@ -142,7 +151,7 @@ double clitk::DicomRT_ROI::GetForegroundValueLabelImage() const
 #if GDCM_MAJOR_VERSION == 2
 bool clitk::DicomRT_ROI::Read(gdcm::Item * itemInfo, gdcm::Item * itemContour)
 {
-  FATAL("Error : compile vv with itk4 + external gdcm");
+  //FATAL("Error : compile vv with itk4 + external gdcm");
   // Keep dicom item
   mItemInfo = itemInfo;
   mItemContour = itemContour;
@@ -276,7 +285,11 @@ void clitk::DicomRT_ROI::ComputeMeshFromContour()
 {
   vtkSmartPointer<vtkAppendPolyData> append = vtkSmartPointer<vtkAppendPolyData>::New();
   for(unsigned int i=0; i<mListOfContours.size(); i++) {
-    append->AddInput(mListOfContours[i]->GetMesh());
+#if VTK_MAJOR_VERSION <= 5
+  	append->AddInput(mListOfContours[i]->GetMesh());
+#else
+  	append->AddInputData(mListOfContours[i]->GetMesh());
+#endif
   }
   append->Update();
  
@@ -394,7 +407,12 @@ void clitk::DicomRT_ROI::ComputeContoursFromImage()
   
   // Get initial extend for the clipping
   vtkSmartPointer<vtkImageClip> clipper = vtkSmartPointer<vtkImageClip>::New();
+#if VTK_MAJOR_VERSION <= 5
   clipper->SetInput(image);
+#else
+  clipper->SetInputData(image);
+#endif
+  
   int* extent = image->GetExtent();
   DDV(extent, 6);
   //  std::vector<int> extend;
@@ -414,7 +432,11 @@ void clitk::DicomRT_ROI::ComputeContoursFromImage()
 
 
     vtkSmartPointer<vtkMarchingSquares> squares = vtkSmartPointer<vtkMarchingSquares>::New();
+#if VTK_MAJOR_VERSION <= 5
     squares->SetInput(image);
+#else
+    squares->SetInputData(image);
+#endif
     squares->SetImageRange(extent[0], extent[1], extent[2], extent[3], i, i);
     squares->SetValue(1, 1.0);
     squares->Update();
@@ -446,7 +468,11 @@ void clitk::DicomRT_ROI::ComputeContoursFromImage()
  
   vtkSmartPointer<vtkAppendPolyData> append = vtkSmartPointer<vtkAppendPolyData>::New();
   for(unsigned int i=0; i<n; i++) {
+#if VTK_MAJOR_VERSION <= 5
     append->AddInput(contours[i]);
+#else
+    append->AddInputData(contours[i]);
+#endif
   }
   append->Update();
  
@@ -455,7 +481,11 @@ void clitk::DicomRT_ROI::ComputeContoursFromImage()
   
   // Write vtk
   vtkPolyDataWriter * w = vtkPolyDataWriter::New();
+#if VTK_MAJOR_VERSION <= 5
   w->SetInput(mMesh);
+#else
+  w->SetInputData(mMesh);
+#endif
   w->SetFileName("toto.vtk");
   w->Write();
 

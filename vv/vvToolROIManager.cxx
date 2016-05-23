@@ -22,7 +22,6 @@
 #include "vvImageWriter.h"
 #include "vvROIActor.h"
 #include "vvSlicer.h"
-#include "vvROIActor.h"
 #include "vvMeshReader.h"
 #include "vvStructSelector.h"
 #include "vvToolManager.h"
@@ -49,12 +48,14 @@
 ADD_TOOL(vvToolROIManager);
 //------------------------------------------------------------------------------
 
+int vvToolROIManager::nbTotalROI = 0;
+
 //------------------------------------------------------------------------------
 vvToolROIManager::vvToolROIManager(vvMainWindowBase * parent, Qt::WindowFlags f):
   QWidget(parent->GetTab()),
   vvToolBase<vvToolROIManager>(parent),
   Ui::vvToolROIManager()
-{
+{ 
   // Store parent
   mMainWindow = parent;
 
@@ -94,7 +95,7 @@ vvToolROIManager::vvToolROIManager(vvMainWindowBase * parent, Qt::WindowFlags f)
 
 //------------------------------------------------------------------------------
 vvToolROIManager::~vvToolROIManager()
-{
+{ 
   mROIActorsList.clear();
 }
 //------------------------------------------------------------------------------
@@ -102,7 +103,8 @@ vvToolROIManager::~vvToolROIManager()
 
 //------------------------------------------------------------------------------
 // STATIC
-void vvToolROIManager::Initialize() {
+void vvToolROIManager::Initialize()
+{ 
   SetToolName("ROIManager");
   SetToolMenuName("Open ROI (binary image or RT-STRUCT)");
   SetToolIconFilename(":/common/icons/tool-roi.png");
@@ -115,7 +117,7 @@ void vvToolROIManager::Initialize() {
 
 //------------------------------------------------------------------------------
 void  vvToolROIManager::InitializeNewTool(bool ReadStateFlag)
-{
+{ 
   // Check if we need to start a new tool or read in the state file to load
   if (ReadStateFlag == false) {
     // Select the current image as the target
@@ -160,7 +162,7 @@ void  vvToolROIManager::InitializeNewTool(bool ReadStateFlag)
   }
 
   // Display tool in the correct tab
-  QWidget * tab = qFindChild<QWidget*>(mMainWindow->GetTab(), "ROItab");
+  QWidget * tab = mMainWindow->GetTab()->findChild<QWidget*>("ROItab");
   tab->layout()->addWidget(this);
 
   // If not read in a file we start automatically the browser to load
@@ -213,25 +215,19 @@ void  vvToolROIManager::InitializeNewTool(bool ReadStateFlag)
   connect(mDepthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeDepth(int)));
   connect(mReloadButton, SIGNAL(clicked()), this, SLOT(ReloadCurrentROI()));
   connect(mCheckBoxShowAll, SIGNAL(stateChanged(int)), this, SLOT(AllVisibleROIToggled(int)));
-  connect(mContourCheckBoxShowAll, SIGNAL(toggled(bool)), this, SLOT(AllVisibleContourROIToggled(bool)));
+  connect(mContourCheckBoxShowAll, SIGNAL(stateChanged(int)), this, SLOT(AllVisibleContourROIToggled(int)));
   connect(mCloseButton, SIGNAL(clicked()), this, SLOT(close()));
+  connect(mRemoveButton, SIGNAL(clicked()), this, SLOT(RemoveROI()));
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::InputIsSelected(vvSlicerManager *m)
-{
+{ 
   // Initialization
   mCurrentSlicerManager = m;
   mCurrentImage = mCurrentSlicerManager->GetImage();
-
-  // Refuse if non 3D image
-  if (mCurrentImage->GetNumberOfDimensions() != 3) {
-    QMessageBox::information(this,tr("Warning"), tr("Warning 3D ROI on a 4D image will results in some display bugs"));
-    //close();
-    //return;
-  }
 
   // Change gui
   mLabelInputInfo->setText(QString("%1").arg(m->GetFileName().c_str()));
@@ -244,7 +240,7 @@ void vvToolROIManager::InputIsSelected(vvSlicerManager *m)
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::AnImageIsBeingClosed(vvSlicerManager * m)
-{
+{ 
   if (m == mCurrentSlicerManager) {
     close();
     return;
@@ -252,10 +248,47 @@ void vvToolROIManager::AnImageIsBeingClosed(vvSlicerManager * m)
 }
 //------------------------------------------------------------------------------
 
+void vvToolROIManager::RemoveROI()
+{ 
+
+  // Search the indice of the selected ROI
+  QList<QTreeWidgetItem *> l = mTree->selectedItems();
+  if (l.size() == 0)
+    return;
+
+  QTreeWidgetItem * w = l[0];
+  if (w == NULL) return;
+  if (w == 0) return;
+  if (mMapTreeWidgetToROI.find(w) == mMapTreeWidgetToROI.end()) {
+    return;
+  }
+  
+  clitk::DicomRT_ROI * roi = mMapTreeWidgetToROI[w];
+  if (roi == NULL) return;
+
+  // Get selected roi actor
+  int n = roi->GetROINumber();
+  
+  disconnect(mTree, SIGNAL(itemSelectionChanged()), this, SLOT(SelectedItemChangedInTree()));
+  mROIActorsList[n]->RemoveActors();
+  mROIActorsList.erase(mROIActorsList.begin()+n);
+  mROIList.erase(mROIList.begin()+n);
+  mTreeWidgetList.erase(mTreeWidgetList.begin()+n);
+
+  for (int i = n; i < mROIActorsList.size(); ++i) {
+    mROIList[i]->SetROINumber(i);
+    mTreeWidgetList[i].data()->setText(0, QString("%1").arg(mROIList[i]->GetROINumber()));
+  }
+  connect(mTree, SIGNAL(itemSelectionChanged()), this, SLOT(SelectedItemChangedInTree()));
+  for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
+    mCurrentSlicerManager->GetSlicer(i)->Render();
+  }
+}
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::close()
-{
+{ 
   disconnect(mTree, SIGNAL(itemSelectionChanged()), this, SLOT(SelectedItemChangedInTree()));
   disconnect(mCheckBoxShow, SIGNAL(toggled(bool)), this, SLOT(VisibleROIToggled(bool)));
   disconnect(mOpacitySlider, SIGNAL(valueChanged(int)), this, SLOT(OpacityChanged(int)));
@@ -264,6 +297,7 @@ void vvToolROIManager::close()
   disconnect(mChangeContourColorButton, SIGNAL(clicked()), this, SLOT(ChangeContourColor()));
   disconnect(mContourWidthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeContourWidth(int)));
   disconnect(mDepthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeDepth(int)));
+  disconnect(mRemoveButton, SIGNAL(clicked()), this, SLOT(RemoveROI()));
 
   // Remove actors
   for (unsigned int i = 0; i < mROIActorsList.size(); i++) {
@@ -280,8 +314,8 @@ void vvToolROIManager::close()
 
 
 //------------------------------------------------------------------------------
-void vvToolROIManager::SelectedImageHasChanged(vvSlicerManager * m) {
-
+void vvToolROIManager::SelectedImageHasChanged(vvSlicerManager * m)
+{ 
   if (mCurrentSlicerManager == NULL) return;
   if (m == NULL) return;
   if (m != mCurrentSlicerManager) hide();
@@ -294,7 +328,7 @@ void vvToolROIManager::SelectedImageHasChanged(vvSlicerManager * m) {
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::Open()
-{
+{ 
   // Open images
   QString Extensions = "Images or Dicom-Struct files ( *.mha *.mhd *.hdr *.his *.dcm RS*)";
   Extensions += ";;All Files (*)";
@@ -315,7 +349,7 @@ void vvToolROIManager::Open()
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::OpenBinaryImage(QStringList & filename)
-{
+{ 
   if (filename.size() == 0) return;
 
   vvProgressDialog p("Reading ROI ...", true);
@@ -359,7 +393,7 @@ void vvToolROIManager::OpenBinaryImage(QStringList & filename)
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::OpenDicomImage(std::string filename)
-{
+{ 
   // GUI selector of roi
   vvMeshReader reader;
   reader.SetFilename(filename);
@@ -411,7 +445,7 @@ void vvToolROIManager::AddImage(vvImage * binaryImage,
                                 std::string name,
                                 std::string filename,
                                 double BG, bool modeBG)
-{
+{ 
   // Check Dimension
   int dim = mCurrentImage->GetNumberOfDimensions();
   int bin_dim = binaryImage->GetNumberOfDimensions();
@@ -424,8 +458,9 @@ void vvToolROIManager::AddImage(vvImage * binaryImage,
   }
 
   // Compute roi index
-  int n = mROIList.size();
-
+  
+  int n = nbTotalROI;
+  ++nbTotalROI;
   // Compute the name of the new ROI
   // std::ostringstream oss;
   // oss << vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(filename));
@@ -439,7 +474,7 @@ void vvToolROIManager::AddImage(vvImage * binaryImage,
 
   // Create ROI
   clitk::DicomRT_ROI::Pointer roi = clitk::DicomRT_ROI::New();
-  roi->SetFromBinaryImage(binaryImage, n, name, color, filename);
+  roi->SetFromBinaryImage(binaryImage, mROIList.size(), name, color, filename);
 
   // Add a new roi to the list
   mROIList.push_back(roi);
@@ -467,7 +502,8 @@ void vvToolROIManager::AddImage(vvImage * binaryImage,
   // CheckBox for "All"
   if (actor->IsVisible()) mNumberOfVisibleROI++;
   if (actor->IsContourVisible()) mNumberOfVisibleContourROI++;
-
+  AllVisibleContourROIToggled(1);
+  
   // Add ROI in tree
   mTreeWidgetList.push_back(QSharedPointer<QTreeWidgetItem>(new QTreeWidgetItem(mTree)));
   QTreeWidgetItem * w = mTreeWidgetList.back().data();
@@ -486,13 +522,32 @@ void vvToolROIManager::AddImage(vvImage * binaryImage,
 
   // Update
   UpdateAllROIStatus();
+  
+  if (mCurrentImage->GetNumberOfDimensions() > 3) {
+      
+    //Modifications to avoid display bug with a 4D image
+    QSharedPointer<vvROIActor> CurrentROIActorTemp;
+    CurrentROIActorTemp = mCurrentROIActor;
+    mCurrentROIActor = actor;
+  
+    int VisibleInWindow(0);
+    mCurrentSlicerManager->GetSlicer(VisibleInWindow)->SetCurrentPosition(-VTK_DOUBLE_MAX,-VTK_DOUBLE_MAX,-VTK_DOUBLE_MAX,mCurrentSlicerManager->GetSlicer(VisibleInWindow)->GetMaxCurrentTSlice());
+    mCurrentSlicerManager->GetSlicer(VisibleInWindow)->Render();
+  
+    VisibleROIToggled(false);
+    VisibleROIToggled(true);
+  
+    mCurrentROIActor = CurrentROIActorTemp;
+  
+  }
+  
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::UpdateAllContours()
-{
+{ 
   if (mCurrentSlicerManager == NULL) return;
   // Render loaded ROIs (the first is sufficient)
   for(unsigned int i=0; i<mROIList.size(); i++) {
@@ -504,31 +559,42 @@ void vvToolROIManager::UpdateAllContours()
 
 
 //------------------------------------------------------------------------------
-void vvToolROIManager::UpdateAllROIStatus() {
+void vvToolROIManager::UpdateAllROIStatus()
+{ 
   int nbVisible = 0;
+  int nbContourVisible = 0;
   int nb = mROIList.size();
   for(int i=0; i<nb; i++) {
     if (mROIActorsList[i]->IsVisible()) {
       nbVisible++;
     }
+    if (mROIActorsList[i]->IsContourVisible()) {
+      nbContourVisible++;
+    }
   }
 
   // change the states
   disconnect(mCheckBoxShowAll, SIGNAL(stateChanged(int)), this, SLOT(AllVisibleROIToggled(int)));
-  disconnect(mContourCheckBoxShowAll, SIGNAL(toggled(bool)), this, SLOT(AllVisibleContourROIToggled(bool)));
+  disconnect(mContourCheckBoxShowAll, SIGNAL(stateChanged(int)), this, SLOT(AllVisibleContourROIToggled(int)));
   if (nbVisible == nb) mCheckBoxShowAll->setCheckState(Qt::Checked);
   else {
     if (nbVisible == 0) mCheckBoxShowAll->setCheckState(Qt::Unchecked);
     else mCheckBoxShowAll->setCheckState(Qt::PartiallyChecked);
   }
-  connect(mContourCheckBoxShowAll, SIGNAL(toggled(bool)), this, SLOT(AllVisibleContourROIToggled(bool)));
+  if (nbContourVisible == nb) mContourCheckBoxShowAll->setCheckState(Qt::Checked);
+  else {
+    if (nbContourVisible == 0) mContourCheckBoxShowAll->setCheckState(Qt::Unchecked);
+    else mContourCheckBoxShowAll->setCheckState(Qt::PartiallyChecked);
+  }
+  connect(mContourCheckBoxShowAll, SIGNAL(stateChanged(int)), this, SLOT(AllVisibleContourROIToggled(int)));
   connect(mCheckBoxShowAll, SIGNAL(stateChanged(int)), this, SLOT(AllVisibleROIToggled(int)));
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvToolROIManager::SelectedItemChangedInTree() {
+void vvToolROIManager::SelectedItemChangedInTree()
+{ 
   // Search which roi is selected
   QList<QTreeWidgetItem *> l = mTree->selectedItems();
   if (l.size() == 0) {
@@ -566,6 +632,7 @@ void vvToolROIManager::SelectedItemChangedInTree() {
   disconnect(mChangeContourColorButton, SIGNAL(clicked()), this, SLOT(ChangeContourColor()));
   disconnect(mContourWidthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeContourWidth(int)));
   disconnect(mDepthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeDepth(int)));
+  disconnect(mRemoveButton, SIGNAL(clicked()), this, SLOT(RemoveROI()));
 
   mROInameLabel->setText(roi->GetName().c_str());
   mCheckBoxShow->setChecked(actor->IsVisible());
@@ -584,6 +651,7 @@ void vvToolROIManager::SelectedItemChangedInTree() {
   connect(mChangeContourColorButton, SIGNAL(clicked()), this, SLOT(ChangeContourColor()));
   connect(mContourWidthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeContourWidth(int)));
   connect(mDepthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(ChangeDepth(int)));
+  connect(mRemoveButton, SIGNAL(clicked()), this, SLOT(RemoveROI()));
 
 
   // Set the current color to the selected ROI name
@@ -610,7 +678,8 @@ void vvToolROIManager::SelectedItemChangedInTree() {
 
 
 //------------------------------------------------------------------------------
-void vvToolROIManager::VisibleROIToggled(bool b) {
+void vvToolROIManager::VisibleROIToggled(bool b)
+{ 
   if (mCurrentROIActor == NULL) return;
   if (b == mCurrentROIActor->IsVisible()) return; // nothing to do
   mCurrentROIActor->SetVisible(b);
@@ -621,18 +690,21 @@ void vvToolROIManager::VisibleROIToggled(bool b) {
 
 
 //------------------------------------------------------------------------------
-void vvToolROIManager::VisibleContourROIToggled(bool b) {
+void vvToolROIManager::VisibleContourROIToggled(bool b)
+{ 
   if (mCurrentROIActor == NULL) return;
   if (mCurrentROIActor->IsContourVisible() == b) return; // nothing to do
   mCurrentROIActor->SetContourVisible(b);
   mCurrentROIActor->UpdateColor();
+  UpdateAllROIStatus(); 
   mCurrentSlicerManager->Render();
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvToolROIManager::OpacityChanged(int v) {
+void vvToolROIManager::OpacityChanged(int v)
+{ 
   if (mCurrentROIActor == NULL) return;
   mCurrentROIActor->SetOpacity((double)v/100.0);
   mCurrentROIActor->UpdateColor();
@@ -642,7 +714,8 @@ void vvToolROIManager::OpacityChanged(int v) {
 
 
 //------------------------------------------------------------------------------
-void vvToolROIManager::AllVisibleROIToggled(int b) {
+void vvToolROIManager::AllVisibleROIToggled(int b)
+{ 
   bool status = false;
   if ((mCheckBoxShowAll->checkState() == Qt::Checked) ||
       (mCheckBoxShowAll->checkState() == Qt::PartiallyChecked))  status = true;
@@ -659,7 +732,8 @@ void vvToolROIManager::AllVisibleROIToggled(int b) {
 
 
 //------------------------------------------------------------------------------
-void vvToolROIManager::AllVisibleContourROIToggled(bool b) {
+void vvToolROIManager::AllVisibleContourROIToggled(int b)
+{ 
   bool status = false;
   if ((mContourCheckBoxShowAll->checkState() == Qt::Checked) ||
       (mContourCheckBoxShowAll->checkState() == Qt::PartiallyChecked))  status = true;
@@ -677,7 +751,8 @@ void vvToolROIManager::AllVisibleContourROIToggled(bool b) {
 
 
 //------------------------------------------------------------------------------
-void vvToolROIManager::ChangeColor() {
+void vvToolROIManager::ChangeColor()
+{ 
   if (mCurrentROIActor == NULL) return;
   QColor color;
   color.setRgbF(mCurrentROIActor->GetROI()->GetDisplayColor()[0],
@@ -702,7 +777,8 @@ void vvToolROIManager::ChangeColor() {
 
 
 //------------------------------------------------------------------------------
-void vvToolROIManager::ChangeContourColor() {
+void vvToolROIManager::ChangeContourColor()
+{ 
   if (mCurrentROIActor == NULL) return;
   QColor color;
   color.setRgbF(mCurrentROIActor->GetContourColor()[0],
@@ -719,7 +795,8 @@ void vvToolROIManager::ChangeContourColor() {
 
 
 //------------------------------------------------------------------------------
-void vvToolROIManager::ChangeContourWidth(int n) {
+void vvToolROIManager::ChangeContourWidth(int n)
+{ 
   if (mCurrentROIActor == NULL) return;
   mCurrentROIActor->SetContourWidth(n);
   mCurrentROIActor->UpdateColor();
@@ -729,7 +806,8 @@ void vvToolROIManager::ChangeContourWidth(int n) {
 
 
 //------------------------------------------------------------------------------
-void vvToolROIManager::ChangeDepth(int n) {
+void vvToolROIManager::ChangeDepth(int n)
+{ 
   if (mCurrentROIActor == NULL) return;
   mCurrentROIActor->SetDepth(n);
   // mCurrentROIActor->UpdateImage(); // FIXME
@@ -742,7 +820,8 @@ void vvToolROIManager::ChangeDepth(int n) {
 
 
 //------------------------------------------------------------------------------
-void vvToolROIManager::ReloadCurrentROI() {
+void vvToolROIManager::ReloadCurrentROI()
+{ 
   if (mCurrentROI->GetFilename() == "") {
     return; // do nothing (contour from rt struct do not reload)
   }
@@ -783,7 +862,7 @@ void vvToolROIManager::ReloadCurrentROI() {
 
 //------------------------------------------------------------------------------
 void  vvToolROIManager::SaveState(std::auto_ptr<QXmlStreamWriter> & m_XmlWriter)
-{
+{ 
   // Get index of the image
   int n = mMainWindow->GetSlicerManagers().size();
   int index=-1;
@@ -829,7 +908,7 @@ void  vvToolROIManager::SaveState(std::auto_ptr<QXmlStreamWriter> & m_XmlWriter)
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::ReadXMLInformation()
-{
+{ 
   std::string value="";
   mInitialImageIndex = -1;
   while (!(m_XmlReader->isEndElement() && value == GetToolName().toStdString())) {
@@ -851,7 +930,7 @@ void vvToolROIManager::ReadXMLInformation()
 
 //------------------------------------------------------------------------------
 void vvToolROIManager::ReadXMLInformation_ROI()
-{
+{ 
   QString s;
   std::string value="";
   QSharedPointer<vvROIActor> param = QSharedPointer<vvROIActor>(new vvROIActor);

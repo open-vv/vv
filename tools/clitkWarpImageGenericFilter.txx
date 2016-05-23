@@ -205,11 +205,7 @@ WarpImageGenericFilter::UpdateWithDimAndPixelType()
     //Backward mapping
     typedef itk::WarpImageFilter<InputImageType, InputImageType, DeformationFieldType> BackwardWarpFilterType;
     typename BackwardWarpFilterType::Pointer backwardWarpFilter= BackwardWarpFilterType::New();
-#if ITK_VERSION_MAJOR >= 4
     backwardWarpFilter->SetDisplacementField( deformationField );
-#else
-    backwardWarpFilter->SetDeformationField( deformationField );
-#endif
     backwardWarpFilter->SetEdgePaddingValue( static_cast<PixelType>(m_ArgsInfo.pad_arg) );
     backwardWarpFilter->SetOutputSpacing( deformationField->GetSpacing() );
     backwardWarpFilter->SetOutputOrigin( input->GetOrigin() );

@@ -22,6 +22,8 @@
 #include <vector>
 #include <itkObjectFactory.h>
 #include <itkProcessObject.h>
+#include <itkMinimumMaximumImageCalculator.h>
+#include <itkCastImageFilter.h>
 
 #define VTK_EXCLUDE_STRSTREAM_HEADERS
 #include <vtkSmartPointer.h>
@@ -37,6 +39,10 @@ public :
   typedef itk::SmartPointer<Self> Pointer;
   typedef itk::ProcessObject::Pointer ConverterPointer;
   itkNewMacro(Self);
+  
+  struct DimensionDispatchBase {};
+  template< unsigned int VDimension >
+  struct DimensionDispatch:public DimensionDispatchBase {};
 
   void Init();
   void Reset();
@@ -47,6 +53,9 @@ public :
   int GetNumberOfDimensions() const;
   int GetNumberOfSpatialDimensions();
   void GetScalarRange(double* range);
+  template<class TPixelType, unsigned int VImageDimension> void ComputeScalarRangeBase(itk::Image<TPixelType,VImageDimension> *input);
+  template<class TPixelType, unsigned int VImageDimension> void ComputeScalarRange(DimensionDispatchBase, itk::Image<TPixelType,VImageDimension> *input);
+  template<class TPixelType, unsigned int VImageDimension> void ComputeScalarRange(DimensionDispatch< 1 >, itk::Image<TPixelType,VImageDimension> *input);
   unsigned long GetActualMemorySize();
   std::vector<double> GetSpacing();
   std::vector<double> GetOrigin() const;
@@ -77,6 +86,7 @@ private:
   double mTimeOrigin;
   double mTimeSpacing;
   unsigned int mImageDimension;
+  double mrange[2];
 };
 //------------------------------------------------------------------------------
 

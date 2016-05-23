@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>179</width>
+    <width>194</width>
     <height>62</height>
    </rect>
   </property>
@@ -19,7 +19,14 @@
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <widget class="vvToolInputSelectorWidget" name="mToolInputSelectionWidget" native="true"/>
+     <widget class="vvToolInputSelectorWidget" name="mToolInputSelectionWidget" native="true">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>200</height>
+       </size>
+      </property>
+     </widget>
      <widget class="QWidget" name="mToolWidget" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">

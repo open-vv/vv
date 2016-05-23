@@ -26,11 +26,7 @@
  * @brief 
  * 
  ===================================================*/
-#if ITK_VERSION_MAJOR < 4 || (ITK_VERSION_MAJOR == 4 && ITK_VERSION_MINOR <= 2)
-# include "itkCompose3DVectorImageFilter.h"
-#else
 # include "itkComposeImageFilter.h"
-#endif
 
 namespace clitk
 {
@@ -82,11 +78,7 @@ namespace clitk
     typedef itk::Image<itk::Vector<PixelType,3>, Dimension> OutputImageType;
     
     // Filter
-#if ITK_VERSION_MAJOR < 4 || (ITK_VERSION_MAJOR == 4 && ITK_VERSION_MINOR <= 2)
-    typedef itk::Compose3DVectorImageFilter<InputImageType,OutputImageType> ComposeFilterType;
-#else
     typedef itk::ComposeImageFilter<InputImageType,OutputImageType> ComposeFilterType;
-#endif
     typename ComposeFilterType::Pointer composeFilter=ComposeFilterType::New();
 
     // Read the inputs

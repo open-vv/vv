@@ -153,9 +153,6 @@ MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 
   // Set up the parameters in the transform
   this->m_Transform->SetParameters( parameters );
-#if ITK_VERSION_MAJOR < 4
-  this->m_Parameters = parameters;
-#endif
 
   // MUST BE CALLED TO INITIATE PROCESSING
   this->GetValueMultiThreadedInitiate();
@@ -215,12 +212,8 @@ MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   }
 
   // Jacobian should be evaluated at the unmapped (fixed image) point.
-#if ITK_VERSION_MAJOR >= 4
   TransformJacobianType jacobian;
   transform->ComputeJacobianWithRespectToParameters(this->m_FixedImageSamples[fixedImageSample].point, jacobian);
-#else
-  const TransformJacobianType & jacobian = transform ->GetJacobian( this->m_FixedImageSamples[fixedImageSample].point );
-#endif
   //double sum;
   unsigned int par, dim;
   for( par=0; par<this->m_NumberOfParameters; par+=3) {
@@ -257,9 +250,6 @@ MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 
   // Set up the parameters in the transform
   this->m_Transform->SetParameters( parameters );
-#if ITK_VERSION_MAJOR < 4
-  this->m_Parameters = parameters;
-#endif
 
   // Reset the joint pdfs to zero
   memset( m_ThreaderMSE,

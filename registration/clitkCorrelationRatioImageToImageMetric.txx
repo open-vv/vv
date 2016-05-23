@@ -266,14 +266,8 @@ CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
     if( this->m_Interpolator->IsInsideBuffer( transformedPoint ) ) {
       const RealType movingValue  = this->m_Interpolator->Evaluate( transformedPoint );
 
-#if ITK_VERSION_MAJOR >= 4
       TransformJacobianType jacobian;
       this->m_Transform->ComputeJacobianWithRespectToParameters( inputPoint , jacobian);
-#else
-      const TransformJacobianType & jacobian =
-        this->m_Transform->GetJacobian( inputPoint );
-#endif
-
 
       const RealType fixedValue     = ti.Value();
       this->m_NumberOfPixelsCounted++;
@@ -389,14 +383,8 @@ CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
     if( this->m_Interpolator->IsInsideBuffer( transformedPoint ) ) {
       const RealType movingValue  = this->m_Interpolator->Evaluate( transformedPoint );
 
-#if ITK_VERSION_MAJOR >= 4
       TransformJacobianType jacobian;
         this->m_Transform->ComputeJacobianWithRespectToParameters( inputPoint, jacobian );
-#else
-      const TransformJacobianType & jacobian =
-        this->m_Transform->GetJacobian( inputPoint );
-#endif
-
 
       const RealType fixedValue     = ti.Value();
       this->m_NumberOfPixelsCounted++;

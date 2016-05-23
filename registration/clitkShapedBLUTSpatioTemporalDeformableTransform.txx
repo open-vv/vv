@@ -31,12 +31,7 @@ namespace clitk
 
   // Constructor with default arguments
   template<class TCoordRep, unsigned int NInputDimensions, unsigned int NOutputDimensions>
-  ShapedBLUTSpatioTemporalDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>
-#if ITK_VERSION_MAJOR >= 4
-  ::ShapedBLUTSpatioTemporalDeformableTransform():Superclass(0)
-#else
-  ::ShapedBLUTSpatioTemporalDeformableTransform():Superclass(OutputDimension,0)
-#endif
+  ShapedBLUTSpatioTemporalDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>::ShapedBLUTSpatioTemporalDeformableTransform():Superclass(0)
   {
     unsigned int i;
     
@@ -383,11 +378,7 @@ namespace clitk
 
   // Get the number of parameters
   template<class TCoordRep, unsigned int NInputDimensions, unsigned int NOutputDimensions>
-#if ITK_VERSION_MAJOR >= 4
   typename ShapedBLUTSpatioTemporalDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>::NumberOfParametersType
-#else
-  unsigned int
-#endif
   ShapedBLUTSpatioTemporalDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>
   ::GetNumberOfParameters(void) const
   {
@@ -810,19 +801,11 @@ namespace clitk
     //=====================================
     //JV Wrap jacobian into OutputDimension X Vectorial images
     //=====================================
-#if ITK_VERSION_MAJOR >= 4
     this->m_SharedDataBSplineJacobian.set_size( OutputDimension, this->GetNumberOfParameters() );
-#else
-    this->m_Jacobian.set_size( OutputDimension, this->GetNumberOfParameters() );
-#endif
 
     // Use memset to set the memory
     // JV four rows of three comps of parameters
-#if ITK_VERSION_MAJOR >= 4
     JacobianPixelType * jacobianDataPointer = reinterpret_cast<JacobianPixelType *>(this->m_SharedDataBSplineJacobian.data_block());
-#else
-    JacobianPixelType * jacobianDataPointer = reinterpret_cast<JacobianPixelType *>(this->m_Jacobian.data_block());
-#endif
     memset(jacobianDataPointer, 0,  OutputDimension*numberOfPixels*sizeof(JacobianPixelType));
 
     for (unsigned int j=0; j<OutputDimension; j++)
@@ -2390,17 +2373,9 @@ namespace clitk
   // JV weights are identical as for transformpoint, could be done simultaneously in metric!!!!
   // Compute the Jacobian in one position 
   template<class TCoordRep, unsigned int NInputDimensions, unsigned int NOutputDimensions>
-#if ITK_VERSION_MAJOR >= 4
   void
   ShapedBLUTSpatioTemporalDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>
   ::ComputeJacobianWithRespectToParameters( const InputPointType & point, JacobianType & jacobian) const
-#else
-  const 
-  typename ShapedBLUTSpatioTemporalDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>
-  ::JacobianType & 
-  ShapedBLUTSpatioTemporalDeformableTransform<TCoordRep, NInputDimensions, NOutputDimensions>
-  ::GetJacobian( const InputPointType & point ) const
-#endif
   {
   
     //========================================================
@@ -2496,12 +2471,8 @@ namespace clitk
     if(m_Mask &&  !(m_Mask->IsInside(point) ) )
       {
 	// Outside: no (deformable) displacement
-#if ITK_VERSION_MAJOR >= 4
         jacobian = m_SharedDataBSplineJacobian;
         return;
-#else
-	return this->m_Jacobian;
-#endif
       }	
 
     // Get index   
@@ -2511,12 +2482,8 @@ namespace clitk
     // we assume zero displacement and return the input point
     if ( !this->InsideValidRegion( m_Index ) )
       {
-#if ITK_VERSION_MAJOR >= 4
         jacobian = m_SharedDataBSplineJacobian;
         return;
-#else
-	return this->m_Jacobian;
-#endif
       }
 
     // Compute interpolation weights
@@ -2684,11 +2651,7 @@ namespace clitk
       }
 
     // Return the result
-#if ITK_VERSION_MAJOR >= 4
     jacobian = m_SharedDataBSplineJacobian;
-#else
-    return this->m_Jacobian;
-#endif
   }
 
  

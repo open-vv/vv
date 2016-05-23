@@ -668,9 +668,7 @@ SearchForTracheaSeed2(int numberOfSlices)
     opening->Update();
     
     typename SlicerFilterType::Pointer slicer = SlicerFilterType::New();
-#if ITK_VERSION_MAJOR >= 4
     slicer->SetDirectionCollapseToIdentity();
-#endif
     slicer->SetInput(opening->GetOutput());
     
     // label result
@@ -752,11 +750,7 @@ SearchForTracheaSeed2(int numberOfSlices)
       for (unsigned int j = 0; j < nlables; j++) {
         shape = label_map->GetNthLabelObject(j);
         if (shape->Size() > 150 && shape->Size() <= max_size) {
-#if ITK_VERSION_MAJOR < 4
-          double e = 1 - 1/shape->GetBinaryElongation();
-#else
           double e = 1 - 1/shape->GetElongation();
-#endif
           //double area = 1 - r->Area() ;
           if (e < max_elongation) {
             nshapes++;

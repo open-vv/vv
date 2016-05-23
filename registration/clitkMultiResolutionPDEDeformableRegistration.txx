@@ -335,11 +335,7 @@ MultiResolutionPDEDeformableRegistration<TFixedImage,TMovingImage,TDeformationFi
       
       if( tempField.IsNull() )
 	{
-#if ITK_VERSION_MAJOR >= 4
 	  m_RegistrationFilter->SetInitialDisplacementField( NULL );
-#else
-	  m_RegistrationFilter->SetInitialDeformationField( NULL );
-#endif
 	}
       else
 	{
@@ -361,12 +357,7 @@ MultiResolutionPDEDeformableRegistration<TFixedImage,TMovingImage,TDeformationFi
       tempField = m_FieldExpander->GetOutput();
       tempField->DisconnectPipeline();
 
-#if ITK_VERSION_MAJOR >= 4
       m_RegistrationFilter->SetInitialDisplacementField( tempField );
-#else
-      m_RegistrationFilter->SetInitialDeformationField( tempField );
-#endif
-
       }
 
     // setup registration filter and pyramids 

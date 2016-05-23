@@ -94,8 +94,12 @@ void vvDicomSeriesSelector::close()
 void vvDicomSeriesSelector::BrowseButtonRelease()
 {
   QFileDialog dialog(this);
+  QStringList filters;
+  filters << "DICOM files (*.dcm)"
+          << "All files (*)";
   dialog.setFileMode(QFileDialog::AnyFile);
-  dialog.setFilter("DICOM files (*.dcm); All files (*)");
+  dialog.setNameFilters(filters);
+  //dialog.setFilter(tr("DICOM files (*.dcm); All files (*)"));
   mFoldername = dialog.getExistingDirectory(this,
                 "Select a folder to find DICOM image",
                 mPreviousPath);

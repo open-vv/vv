@@ -59,15 +59,10 @@ endif()
 #=========================================================
 ### Check if ITK was compiled with SYSTEM_GDCM = ON
 set(CLITK_USE_SYSTEM_GDCM FALSE)
-if(ITK_VERSION_MAJOR LESS "4")
-  if(ITK_USE_SYSTEM_GDCM)
-    set(CLITK_USE_SYSTEM_GDCM TRUE)
-  endif(ITK_USE_SYSTEM_GDCM)
-else()
-  # ITK4 creates a target for each gdcm library when it compiles GDCM
-  get_target_property(GDCMDICTTARG gdcmDICT TYPE )
-  if(NOT GDCMDICTTARG)
-    set(CLITK_USE_SYSTEM_GDCM TRUE)
-  endif()
+# ITK4 creates a target for each gdcm library when it compiles GDCM
+get_target_property(GDCMDICTTARG gdcmDICT TYPE )
+if(NOT GDCMDICTTARG)
+  set(CLITK_USE_SYSTEM_GDCM TRUE)
 endif()
+
 

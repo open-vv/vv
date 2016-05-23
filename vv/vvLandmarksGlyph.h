@@ -23,7 +23,7 @@
 class vvLandmarksGlyph : public vtkTextSource
 {
 public:
-    vtkTypeRevisionMacro(vvLandmarksGlyph,vtkTextSource);
+    vtkTypeMacro(vvLandmarksGlyph,vtkTextSource);
     void PrintSelf(ostream& os, vtkIndent indent);
 
     // Description:

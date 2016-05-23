@@ -18,6 +18,7 @@
 
 #include "vvImageContour.h"
 #include "vvImage.h"
+#include <vtkVersion.h>
 #include <vtkImageActor.h>
 #include <vtkCamera.h>
 #include <vtkRenderer.h>
@@ -26,10 +27,11 @@
 #include <vtkImageData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
+#include <vtkInformation.h>
 
 //------------------------------------------------------------------------------
 vvImageContour::vvImageContour()
-{
+{ 
   mTSlice = -1;
   mSlice = 0;
   mHiddenImageIsUsed = false;
@@ -44,7 +46,7 @@ vvImageContour::vvImageContour()
 
 //------------------------------------------------------------------------------
 vvImageContour::~vvImageContour()
-{
+{ 
   mSquaresActorList.clear();
 }
 //------------------------------------------------------------------------------
@@ -52,7 +54,7 @@ vvImageContour::~vvImageContour()
 
 //------------------------------------------------------------------------------
 void vvImageContour::RemoveActors()
-{
+{ 
   for (unsigned int i = 0; i < mSquaresActorList.size(); i++) {
     if (mSlicer != 0) {
       if (mSlicer!= NULL) {
@@ -69,7 +71,8 @@ void vvImageContour::RemoveActors()
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::SetSlicer(vvSlicer * slicer) {
+void vvImageContour::SetSlicer(vvSlicer * slicer) 
+{ 
   mSlicer = slicer;  
   // Create an actor for each time slice
   for (unsigned int numImage = 0; numImage < mSlicer->GetImage()->GetVTKImages().size(); numImage++) {
@@ -80,9 +83,14 @@ void vvImageContour::SetSlicer(vvSlicer * slicer) {
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::SetImage(vvImage::Pointer image) {
+void vvImageContour::SetImage(vvImage::Pointer image) 
+{ 
   for (unsigned int numImage = 0; numImage < image->GetVTKImages().size(); numImage++) {
+#if VTK_MAJOR_VERSION <= 5
     mClipperList[numImage]->SetInput(image->GetVTKImages()[numImage]);
+#else
+    mClipperList[numImage]->SetInputData(image->GetVTKImages()[numImage]);
+#endif
   }
   mHiddenImageIsUsed = true;
   mHiddenImage = image;
@@ -91,7 +99,8 @@ void vvImageContour::SetImage(vvImage::Pointer image) {
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::SetPreserveMemoryModeEnabled(bool b) {
+void vvImageContour::SetPreserveMemoryModeEnabled(bool b) 
+{ 
   // FastCache mode work only if threshold is always the same
   if (mDisplayModeIsPreserveMemory == b) return;
   mDisplayModeIsPreserveMemory = b;
@@ -111,9 +120,11 @@ void vvImageContour::SetPreserveMemoryModeEnabled(bool b) {
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::SetColor(double r, double g, double b) {
+void vvImageContour::SetColor(double r, double g, double b) 
+{ 
   for(unsigned int i=0; i<mSquaresActorList.size(); i++) {
     mSquaresActorList[i]->GetProperty()->SetColor(r,g,b);
+    mSquaresActorList[i]->GetProperty()->SetOpacity(0.995); //in order to get VTK to turn on the alpha-blending in OpenGL
   }
 }
 //------------------------------------------------------------------------------
@@ -121,7 +132,7 @@ void vvImageContour::SetColor(double r, double g, double b) {
 
 //------------------------------------------------------------------------------
 void vvImageContour::SetLineWidth(double w)
-{
+{ 
   for(unsigned int i=0; i<mSquaresActorList.size(); i++) {
     mSquaresActorList[i]->GetProperty()->SetLineWidth(w);
   }
@@ -130,7 +141,8 @@ void vvImageContour::SetLineWidth(double w)
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::HideActors() {
+void vvImageContour::HideActors() 
+{ 
   if (!mSlicer) return;
   mSlice = mSlicer->GetSlice();
   for(unsigned int i=0; i<mSquaresActorList.size(); i++) {
@@ -141,7 +153,8 @@ void vvImageContour::HideActors() {
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::ShowActors() {
+void vvImageContour::ShowActors() 
+{ 
   if (!mSlicer) return;
   mSlice = mSlicer->GetSlice();
   mTSlice = mSlicer->GetTSlice();
@@ -166,7 +179,8 @@ void vvImageContour::SetDepth(double d)
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void vvImageContour::Update(double value) {
+void vvImageContour::Update(double value) 
+{ 
   if (!mSlicer) return;
   if (mPreviousValue == value) {
     if (mPreviousSlice == mSlicer->GetSlice()) {
@@ -202,7 +216,8 @@ void vvImageContour::Update(double value) {
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::UpdateWithPreserveMemoryMode() {
+void vvImageContour::UpdateWithPreserveMemoryMode() 
+{ 
   // Only change actor visibility if tslice change
   mPreviousTslice = mTSlice;
   mTSlice = mSlicer->GetTSlice();
@@ -218,14 +233,15 @@ void vvImageContour::UpdateWithPreserveMemoryMode() {
   if (mPreviousTslice != mTSlice) {
     if (mPreviousTslice != -1) mSquaresActorList[mPreviousTslice]->VisibilityOff();
   }
-  
+
   mSlicer->Render();
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::InitializeCacheMode() {
+void vvImageContour::InitializeCacheMode() 
+{ 
 clitkExceptionMacro("TODO : not implemented yet");
   mPreviousSlice = mPreviousOrientation = 0;
   int dim = mSlicer->GetImage()->GetNumberOfDimensions();
@@ -243,7 +259,8 @@ clitkExceptionMacro("TODO : not implemented yet");
 
 
 //------------------------------------------------------------------------------
-int vvImageContour::ComputeCurrentOrientation() {
+int vvImageContour::ComputeCurrentOrientation() 
+{ 
   // Get extent of image in the slicer
   int* extent = mSlicer->GetImageActor()->GetDisplayExtent();
 
@@ -261,7 +278,8 @@ int vvImageContour::ComputeCurrentOrientation() {
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::UpdateWithFastCacheMode() {
+void vvImageContour::UpdateWithFastCacheMode() 
+{ 
 clitkExceptionMacro("TODO : not implemented yet");
 
   // Compute orientation
@@ -289,22 +307,37 @@ clitkExceptionMacro("TODO : not implemented yet");
 
 
 //------------------------------------------------------------------------------
-void vvImageContour::CreateNewActor(int numImage) {
+void vvImageContour::CreateNewActor(int numImage) 
+{ 
   vtkSmartPointer<vtkActor> squaresActor = vtkSmartPointer<vtkActor>::New();
   vtkSmartPointer<vtkImageClip> clipper = vtkSmartPointer<vtkImageClip>::New();
   vtkSmartPointer<vtkMarchingSquares> squares = vtkSmartPointer<vtkMarchingSquares>::New();
   vtkSmartPointer<vtkPolyDataMapper> squaresMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
 
-  if (mHiddenImageIsUsed)
+  if (mHiddenImageIsUsed) {
+#if VTK_MAJOR_VERSION <= 5
     clipper->SetInput(mHiddenImage->GetVTKImages()[0]);
-  else
+#else
+    clipper->SetInputData(mHiddenImage->GetVTKImages()[0]);
+#endif
+  } else {
+#if VTK_MAJOR_VERSION <= 5
     clipper->SetInput(mSlicer->GetImage()->GetVTKImages()[numImage]);
-  
+#else
+    clipper->SetInputData(mSlicer->GetImage()->GetVTKImages()[numImage]);
+#endif
+  }
+#if VTK_MAJOR_VERSION <= 5
   squares->SetInput(clipper->GetOutput());
   squaresMapper->SetInput(squares->GetOutput());
+#else
+  squares->SetInputConnection(clipper->GetOutputPort(0));
+  squaresMapper->SetInputConnection(squares->GetOutputPort(0));
+#endif
   squaresMapper->ScalarVisibilityOff();
   squaresActor->SetMapper(squaresMapper);
   squaresActor->GetProperty()->SetColor(1.0,0,0);
+  squaresActor->GetProperty()->SetOpacity(0.995); //in order to get VTK to turn on the alpha-blending in OpenGL
   squaresActor->SetPickable(0);
   squaresActor->VisibilityOff();
   mSlicer->GetRenderer()->AddActor(squaresActor);
@@ -322,10 +355,11 @@ void vvImageContour::UpdateActor(vtkActor * actor,
                                  vtkPolyDataMapper * mapper, 
                                  vtkMarchingSquares * squares, 
                                  vtkImageClip * clipper, 
-                                 double threshold, int orientation, int slice) {
+                                 double threshold, int orientation, int slice) 
+{ 
   // Set parameter for the MarchigSquare
   squares->SetValue(0, threshold);
-
+  squares->Update();
   // Get image extent
   int* extent = mSlicer->GetImageActor()->GetDisplayExtent();
 
@@ -362,10 +396,10 @@ void vvImageContour::UpdateActor(vtkActor * actor,
     extent2 = extent;
     actor->VisibilityOn();
   }
- 
+  
   clipper->SetOutputWholeExtent(extent2[0],extent2[1],extent2[2],
                                 extent2[3],extent2[4],extent2[5]);
-
+                                
   if (mHiddenImageIsUsed) delete extent2;
 
   // Move the actor to be visible
@@ -374,7 +408,6 @@ void vvImageContour::UpdateActor(vtkActor * actor,
   // DD(mDepth);
   // position[orientation] = -mDepth;
   // actor->SetPosition(position);
-  
   mapper->Update();
 }
 //------------------------------------------------------------------------------

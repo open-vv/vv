@@ -51,13 +51,12 @@ static inline void ReadTimeSequence (vvImage::Pointer& vv_image, typename itk::I
     extractedRegion.SetIndex(start);
 
     typename FilterType::Pointer filter = FilterType::New();
-#if ITK_VERSION_MAJOR == 4
     filter->SetDirectionCollapseToSubmatrix();
-#endif
     filter->SetExtractionRegion(extractedRegion);
     filter->SetInput(input);
     filter->ReleaseDataFlagOn();
     vv_image->AddItkImage<ItkImageType>(filter->GetOutput());
+    vv_image->ComputeScalarRangeBase<PixelType, Dim-1>(filter->GetOutput());
   }
   vv_image->SetTimeSpacing(input->GetSpacing()[Dim-1]);
   vv_image->SetTimeOrigin(input->GetOrigin()[Dim-1]);
@@ -73,9 +72,10 @@ struct vvImageFromITK_Impl
 
     if (time_sequence) //The time sequence case: create a series of VTK images
       ReadTimeSequence<Dim,PixelType>(vv_image, input, time_sequence);
-    else //Dim == 1,2,3 and not time_sequence
+    else { //Dim == 1,2,3 and not time_sequence
       vv_image->AddItkImage<InputImageType>(input);
-
+      vv_image->ComputeScalarRangeBase<PixelType, Dim>(input);
+    }
     return vv_image;
   }
 };

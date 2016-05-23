@@ -143,12 +143,7 @@ namespace clitk
         
       typedef clitk::VectorImageToImageFilter<BLUTCoefficientImageType, typename ITKTransformType::ImageType> FilterType;
       typename FilterType::Pointer component_filter[BLUTCoefficientImageType::ImageDimension];
-
-#if ITK_VERSION_MAJOR >= 4
       typename ITKTransformType::CoefficientImageArray coefficient_images;
-#else
-      typename ITKTransformType::ImagePointer coefficient_images[BLUTCoefficientImageType::ImageDimension];
-#endif
 
       for (unsigned int i=0; i < BLUTCoefficientImageType::ImageDimension; i++) {
           component_filter[i] = FilterType::New();
@@ -158,7 +153,6 @@ namespace clitk
           coefficient_images[i] = component_filter[i]->GetOutput();
       }
 
-#if ITK_VERSION_MAJOR >= 4
       // RP: 16/01/2013
       // ATTENTION: Apparently, there's a bug in the SetCoefficientImages function of ITK 4.x
       // I needed to use SetParametersByValue instead.
@@ -174,9 +168,6 @@ namespace clitk
       m_ITKTransform->SetGridRegion(input->GetLargestPossibleRegion());
       m_ITKTransform->SetGridSpacing(input->GetSpacing());
       m_ITKTransform->SetParametersByValue(params);
-#else
-      m_ITKTransform->SetCoefficientImage(coefficient_images);
-#endif
 
       m_GenericTransform = m_ITKTransform;
     }

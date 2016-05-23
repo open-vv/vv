@@ -60,7 +60,7 @@ void vvImageReader::UpdateWithDim(std::string InputPixelType)
   else
     std::cerr << "Error, input pixel type : " << InputPixelType << " unknown !" << std::endl;
 
-  if (CLITK_EXPERIMENTAL && mLastError.size()==0) {
+  if (mLastError.size()==0) {
     //ReadNkiImageTransform();
     ReadMatImageTransform();
   }
@@ -86,6 +86,7 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
       reader->SetFileName(*i);
       try {
         mImage->AddItkImage<InputImageType>(reader->GetOutput());
+        mImage->ComputeScalarRangeBase<InputPixelType, VImageDimension-1>(reader->GetOutput());
       } catch ( itk::ExceptionObject & err ) {
         std::cerr << "Error while reading " << mInputFilenames[0].c_str()
                   << " " << err << std::endl;
@@ -120,11 +121,10 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
     filter->SetExtractionRegion(extractedRegion);
     filter->SetInput(reader->GetOutput());
     filter->ReleaseDataFlagOn();
-#if ITK_VERSION_MAJOR == 4
     filter->SetDirectionCollapseToSubmatrix();
-#endif
     try {
       mImage->AddItkImage<SlicedImageType>(filter->GetOutput());
+      mImage->ComputeScalarRangeBase<InputPixelType, VImageDimension-1>(filter->GetOutput());
     } catch ( itk::ExceptionObject & err ) {
       std::cerr << "Error while slicing " << mInputFilenames[0].c_str()
                 << "(slice #" << mSlice << ") " << err << std::endl;

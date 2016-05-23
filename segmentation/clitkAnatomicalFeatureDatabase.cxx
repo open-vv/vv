@@ -106,11 +106,7 @@ void clitk::AnatomicalFeatureDatabase::Load()
 //--------------------------------------------------------------------
 void clitk::AnatomicalFeatureDatabase::SetPoint3D(std::string tag, PointType3D & p)
 {
-#if ITK_VERSION_MAJOR > 3
   std::ostringstream value;
-#else
-  ::itk::OStringStream value;
-#endif
   value << p[0] << " " << p[1] << " " << p[2];
   m_MapOfTag[tag] = value.str();
 }

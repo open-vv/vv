@@ -396,9 +396,7 @@ namespace clitk
         // Crop the fixedImage to the bounding box to facilitate multi-resolution
         typedef itk::ExtractImageFilter<FixedImageType,FixedImageType> ExtractImageFilterType;
         typename ExtractImageFilterType::Pointer extractImageFilter=ExtractImageFilterType::New();
-#if ITK_VERSION_MAJOR == 4
         extractImageFilter->SetDirectionCollapseToSubmatrix();
-#endif
         extractImageFilter->SetInput(fixedImage);
         extractImageFilter->SetExtractionRegion(transformRegion);
         extractImageFilter->Update();
@@ -652,16 +650,10 @@ namespace clitk
       typedef itk::ImageToImageMetric< FixedImageType, MovingImageType >  MetricType;
       typename  MetricType::Pointer metric=genericMetric->GetMetricPointer();
       if (movingMask) metric->SetMovingImageMask(movingMask);
-
-#if defined(ITK_USE_OPTIMIZED_REGISTRATION_METHODS) || ITK_VERSION_MAJOR >= 4
       if (threadsGiven) {
         metric->SetNumberOfThreads( threads );
         if (m_Verbose) std::cout<< "Using " << threads << " threads." << std::endl;
       }
-#else
-      if (m_Verbose) std::cout<<"Not setting the number of threads (not compiled with USE_OPTIMIZED_REGISTRATION_METHODS)..."<<std::endl;
-#endif
-
 
       //=======================================================
       // Optimizer
@@ -742,11 +734,7 @@ namespace clitk
 
       try
       {
-#if ITK_VERSION_MAJOR < 4 || (ITK_VERSION_MAJOR == 4 && ITK_VERSION_MINOR <= 2)
-        registration->StartRegistration();
-#else
         registration->Update();
-#endif
       }
       catch( itk::ExceptionObject & err )
       {
@@ -807,8 +795,6 @@ namespace clitk
 #  else
       typedef itk::TransformToDisplacementFieldFilter<DisplacementFieldType, double> ConvertorType;
 #  endif
-#else
-      typedef itk::TransformToDeformationFieldSource<DisplacementFieldType, double> ConvertorType;
 #endif
       typename ConvertorType::Pointer filter= ConvertorType::New();
       filter->SetNumberOfThreads(1);

@@ -61,7 +61,7 @@ namespace clitk {
 
     ImageTypesManager(FilterType * f) { mFilter = f;  }
     virtual void DoIt(int dim, int ncomp, std::string pixelname) {
-      // std::cout << "ImageTypesManager DoIt " << dim << " " << pixelname << std::endl;
+      //std::cout << "ImageTypesManager DoIt " << dim << " " << pixelname << std::endl;
       if (mMapOfImageTypeToFunction[dim][ncomp][pixelname])
         mMapOfImageTypeToFunction[dim][ncomp][pixelname]->Execute();
     }

@@ -23,6 +23,7 @@
 #include "vvImageReader.h"
 #include "vvImageWriter.h"
 #include <gdcmFile.h>
+#include <vtkVersion.h>
 #include <vtkImageChangeInformation.h>
 #if GDCM_MAJOR_VERSION == 2
   #include <gdcmImageHelper.h>
@@ -191,7 +192,11 @@ int main(int argc, char * argv[])
       std::vector<int> size = image->GetSize();
       origin[0] = -spacing[0]*size[0]/2.0;
       origin[1] = -spacing[1]*size[1]/2.0;
+#if VTK_MAJOR_VERSION <= 5
       modifier->SetInput(vtk_image);
+#else
+      modifier->SetInputData(vtk_image);
+#endif
       modifier->SetOutputOrigin(origin[0], origin[1], locs[sliceIndex[0]]);
       modifier->Update();
       vvImage::Pointer focal_image = vvImage::New();

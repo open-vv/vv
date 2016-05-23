@@ -35,11 +35,7 @@
 #ifndef __itkOptMeanSquaresImageToImageMetricFor3DBLUTFFD_h
 #define __itkOptMeanSquaresImageToImageMetricFor3DBLUTFFD_h
 
-#if ITK_VERSION_MAJOR >= 4
-  #include "itkImageToImageMetric.h"
-#else
-  #include "itkOptImageToImageMetric.h"
-#endif
+#include "itkImageToImageMetric.h"
 #include "itkCovariantVector.h"
 #include "itkPoint.h"
 #include "itkIndex.h"

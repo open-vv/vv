@@ -27,6 +27,7 @@
 
 #include "vtkVOXImageWriter.h"
 #include <vtkImageData.h>
+#include <vtkVersion.h>
 
 #include "clitkCommon.h"
 #include "vvSlicerManager.h"
@@ -133,7 +134,11 @@ void vvDeformableRegistration::run()
   for (unsigned int i=0; i<images.size(); i++) {
     std::stringstream filename;
     filename << temp_dir << "/temp_" << i << ".vox";
+#if VTK_MAJOR_VERSION <= 5
     vox->SetInput(images[i]);
+#else
+    vox->SetInputData(images[i]);
+#endif
     vox->SetFileName(filename.str().c_str());
     if (i==refimage)
       ref_file=filename.str();
