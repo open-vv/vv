@@ -18,11 +18,18 @@ It is distributed under dual licence
 
 #include "vvBlendImageActor.h"
 
+
+#include <vtkVersion.h>
+#ifdef VTKGL2
+#include "vtk_glew.h"
+#else
+#include "vtkOpenGLExtensionManager.h"
+#include "vtkOpenGLExtensionManagerConfigure.h"
+#include "vtkgl.h"
+#endif
 #include <vtkOpenGLRenderWindow.h>
-#include <vtkOpenGLExtensionManager.h>
 #include <vtkOpenGLRenderer.h>
 #include <vtkOpenGL.h>
-#include <vtkgl.h>
 #include <vtkObjectFactory.h>
 
 vtkStandardNewMacro(vvBlendImageActor);
@@ -40,6 +47,21 @@ void vvBlendImageActor::Render(vtkRenderer *ren)
 {
   //Change blending to maximum per component instead of weighted sum
   vtkOpenGLRenderWindow *renwin = dynamic_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
+#ifdef VTKGL2
+  const char *extensions = renwin->ReportCapabilities();
+  //if (extensions->ExtensionSupported("GL_EXT_blend_minmax")) {
+  //  extensions->LoadExtension("GL_EXT_blend_minmax");
+  //glBlendEquationEXT( GL_MAX_EXT );
+  //}
+
+  //Call normal render
+  VTK_IMAGE_ACTOR::Render(ren);
+
+  //Move back blending to weighted sum
+  if (glBlendEquationEXT!=0) {
+    glBlendEquationEXT( GL_FUNC_ADD_EXT );
+  }
+#else
   vtkOpenGLExtensionManager *extensions = renwin->GetExtensionManager();
   if (extensions->ExtensionSupported("GL_EXT_blend_minmax")) {
     extensions->LoadExtension("GL_EXT_blend_minmax");
@@ -53,6 +75,7 @@ void vvBlendImageActor::Render(vtkRenderer *ren)
   if (vtkgl::BlendEquationEXT!=0) {
     vtkgl::BlendEquationEXT( vtkgl::FUNC_ADD );
   }
+#endif
 }
 
 void vvBlendImageActor::PrintSelf(ostream& os, vtkIndent indent)
