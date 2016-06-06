@@ -1,0 +1,102 @@
+#!/bin/bash
+#
+# MACRODIR
+# MACROFILE
+# RELEASEDIR
+# OUTPUTDIR
+# INDEX
+# INDEXMAX
+# PARAM
+#
+#PBS -r n
+#PBS -l walltime=5:00:00
+#PBS -j oe
+#PBS -l mem=5Gb
+
+
+function error {
+echo "ERROR: $1"
+exit 1
+}
+
+function warning {
+echo "WARNING: $1"
+}
+
+test -f ${HOME}/.bashrc && echo "Sourcing bashrc" && source ${HOME}/.bashrc
+set -u
+
+echo "Checking"
+uname -a
+echo "MACRODIR=${MACRODIR:?"unknown MACRODIR"}"
+echo "MACROFILE=${MACROFILE:?"unknown MACROFILE"}"
+echo "RELEASEDIR=${RELEASEDIR:?"unknown RELEASEDIR"}"
+echo "OUTPUTDIR=${OUTPUTDIR:?"unknown OUTPUTDIR"}"
+echo "PBS_JOBID=${PBS_JOBID}"
+echo "INDEX=${INDEX}"
+echo "INDEXMAX=${INDEX}"
+echo "PARAM=${PARAM}"
+
+if test "$RELEASEDIR" = "NONE"
+then
+	echo Using $(which Gate)
+	ldd $(which Gate)
+else
+	test -d "${RELEASEDIR}" || error "can't find release"
+	md5sum ${RELEASEDIR}/Gate
+	test -f ${RELEASEDIR}/libGate.so && md5sum ${RELEASEDIR}/libGate.so
+
+	echo "Finding libraries"
+	ROOTLIBS="${RELEASEDIR}/libCore.so:${RELEASEDIR}/libCint.so:${RELEASEDIR}/libRIO.so:${RELEASEDIR}/libNet.so:${RELEASEDIR}/libHist.so:${RELEASEDIR}/libGraf.so:${RELEASEDIR}/libGraf3d.so:${RELEASEDIR}/libGpad.so:${RELEASEDIR}/libTree.so:${RELEASEDIR}/libRint.so:${RELEASEDIR}/libPostscript.so:${RELEASEDIR}/libMatrix.so:${RELEASEDIR}/libPhysics.so:${RELEASEDIR}/libMathCore.so:${RELEASEDIR}/libThread.so:"
+	echo "ROOTLIBS=${ROOTLIBS}"
+	G4LIBS="$(for library in $(find "${RELEASEDIR}" -maxdepth 1 -name 'libG4*.so'); do echo -n "${library}:"; done)"
+	echo "G4LIBS=${G4LIBS}"
+	CLHEPLIBS="$(for library in $(find "${RELEASEDIR}" -maxdepth 1 -name 'libCLHEP*.so'); do echo -n "${library}:"; done)"
+	echo "CLHEPLIBS=${CLHEPLIBS}"
+	GATELIBS=""
+	test -f ${RELEASEDIR}/libGate.so && GATELIBS="${RELEASEDIR}/libGate.so:"
+	echo "GATELIBS=${GATELIBS}"
+fi
+test -d "${MACRODIR}" && test -d "${MACRODIR}/mac" || error "invalid macro"
+
+
+echo "Copying/linking inputs"
+LOCALMACRODIR=$(mktemp -d)
+trap "mv output ${OUTPUTDIR}/output.${PBS_JOBID%%.*} ; rm -rf ${LOCALMACRODIR} ; exit 1" 1 2 3 15
+cd ${LOCALMACRODIR}
+## below line seems not to be trapped correctly
+cp -r -L "${MACRODIR}"/mac .
+ln -s "${MACRODIR}"/data ./data
+mkdir output
+
+# Enforce one thread
+ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1
+
+echo "Lauching macro"
+date
+if test "$RELEASEDIR" = "NONE"
+then
+	Gate ${PARAM} ${MACROFILE} || error "gate failed"
+else
+	LD_PRELOAD="${ROOTLIBS}${G4LIBS}${CLHEPLIBS}${GATELIBS}" \
+	G4LEVELGAMMADATA="${RELEASEDIR}/PhotonEvaporation2.1" \
+	G4RADIOACTIVEDATA="${RELEASEDIR}/RadioactiveDecay3.3" \
+	G4LEDATA="${RELEASEDIR}/G4EMLOW6.19" \
+	G4NEUTRONHPDATA="${RELEASEDIR}/G4NDL3.14" \
+	G4ABLADATA="${RELEASEDIR}/G4ABLA3.0" \
+	G4REALSURFACEDATA="${RELEASEDIR}/RealSurface1.0" \
+	G4NEUTRONXSDATA="${RELEASEDIR}/G4NEUTRONXS1.0" \
+	G4PIIDATA="${RELEASEDIR}/G4PII1.2" \
+	/usr/bin/time --format="real %es\nuser %Us\nsys %Ss\nmaxmem %Mk" \
+	${RELEASEDIR}/Gate ${PARAM} ${MACROFILE} \
+	|| error "gate failed"
+fi
+
+echo "Copying data back"
+mv output "${OUTPUTDIR}/output.${PBS_JOBID%%.*}"
+
+echo "Cleanup"
+unlink "${LOCALMACRODIR}"/data
+rm -rf "${LOCALMACRODIR}"
+
+echo "Success!!!"
