@@ -45,18 +45,14 @@
   #ifndef VVTOOLMedianFilter_H
   #define VVTOOLMedianFilter_H
 
-#include <QtGlobal>
-#if QT_VERSION < QT_VERSION_CHECK(5, 5, 0)
+  #include <QtGlobal>
   #include <QtDesigner/QDesignerExportWidget>
-#else
-  #include <QtUiPlugin/QDesignerExportWidget>
-#endif
   #include "vvToolBase.h"
   #include "QWidget"
   #include "vvToolWidgetBase.h"
   #include "ui_vvToolMedianFilter.h"
   #include "clitkMedianImageFilter_ggo.h"
-   #include <clitkMedianImageGenericFilter.h>
+  #include <clitkMedianImageGenericFilter.h>
 
 
   //------------------------------------------------------------------------------

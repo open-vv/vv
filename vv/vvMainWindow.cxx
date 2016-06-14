@@ -378,6 +378,9 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   vvToolManager::GetInstance()->InsertToolsInMenu(this);
   vvToolManager::GetInstance()->EnableToolsInMenu(this, false);
 
+#ifndef CLITK_EXPERIMENTAL
+#define CLITK_EXPERIMENTAL 0
+#endif
   if (!CLITK_EXPERIMENTAL)
     menuExperimental->menuAction()->setVisible(false);
 
