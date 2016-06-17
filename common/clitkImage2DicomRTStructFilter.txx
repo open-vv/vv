@@ -52,6 +52,8 @@
 #include <itkVTKImageToImageFilter.h>
 
 // gdcm
+#include <vtkRTStructSetProperties.h>
+#include <vtkGDCMPolyDataReader.h>
 #include <vtkGDCMPolyDataWriter.h>
 
 //--------------------------------------------------------------------
@@ -178,7 +180,11 @@ void clitk::Image2DicomRTStructFilter<PixelType>::Update()
     
   // Copy previous contours
   for (unsigned int i = 0; i < numMasks-m; ++i) {
+#if VTK_MAJOR_VERSION <= 5
     writer->SetInput(i, reader->GetOutput(i));
+#else
+    writer->SetInputData(i, reader->GetOutput(i));
+#endif
     std::string theString = reader->GetRTStructSetProperties()->GetStructureSetROIName(i);
     roiNames->InsertValue(i, theString);
     theString = reader->GetRTStructSetProperties()->GetStructureSetROIGenerationAlgorithm(i);
@@ -189,7 +195,11 @@ void clitk::Image2DicomRTStructFilter<PixelType>::Update()
 
   // Add new ones
   for (unsigned int i = numMasks-m; i < numMasks; ++i) {
+#if VTK_MAJOR_VERSION <= 5
     writer->SetInput(i, meshes[i-numMasks+m]);
+#else
+    writer->SetInputData(i, meshes[i-numMasks+m]);
+#endif
     roiNames->InsertValue(i, m_ROINames[i-numMasks+m]);
     roiAlgorithms->InsertValue(i, "CLITK_CREATED");
     roiTypes->InsertValue(i, m_ROIType);
