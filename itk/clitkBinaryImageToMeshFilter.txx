@@ -43,7 +43,11 @@ Update()
   
   // Get extend
   vtkSmartPointer<vtkImageClip> clipper = vtkSmartPointer<vtkImageClip>::New();
+#if VTK_MAJOR_VERSION <= 5
   clipper->SetInput(input_vtk);
+#else
+  clipper->SetInputData(input_vtk);
+#endif
   int* extent = input_vtk->GetExtent();
 
   // Loop on slices
@@ -52,7 +56,11 @@ Update()
   // std::vector<vtkSmartPointer<vtkPolyData> > contours;
   for(uint i=0; i<n; i++) {
     vtkSmartPointer<vtkMarchingSquares> squares = vtkSmartPointer<vtkMarchingSquares>::New();
+#if VTK_MAJOR_VERSION <= 5
     squares->SetInput(input_vtk);
+#else
+    squares->SetInputData(input_vtk);
+#endif
     squares->SetImageRange(extent[0], extent[1], extent[2], extent[3], i, i);
     squares->SetNumberOfContours(1);
     squares->SetValue(0, m_ThresholdValue);
@@ -61,7 +69,11 @@ Update()
 
     // Strip (needed)
     vtkSmartPointer<vtkStripper> vs = vtkSmartPointer<vtkStripper>::New();
+#if VTK_MAJOR_VERSION <= 5
     vs->SetInput(squares->GetOutput());
+#else
+    vs->SetInputData(squares->GetOutput());
+#endif
     vs->Update();
     m = vs->GetOutput();
 
@@ -76,7 +88,11 @@ Update()
 
     // only add if lines>0
     if (m->GetNumberOfLines() > 0) {
+#if VTK_MAJOR_VERSION <= 5
       append->AddInput(m);//contours[i]);
+#else
+      append->AddInputData(m);//contours[i]);
+#endif
     }
   }
   append->Update();

@@ -28,6 +28,13 @@
 #include <QDesktopWidget>
 #include <QDir>
 
+#include <vtkAutoInit.h>
+ VTK_MODULE_INIT(vtkInteractionStyle);
+ VTK_MODULE_INIT(vtkRenderingOpenGL);
+ VTK_MODULE_INIT(vtkRenderingFreeType);
+#define vtkRenderingContext2D_AUTOINIT 1(vtkRenderingContextOpenGL)
+
+
 #include "clitkIO.h"
 #include "vvMainWindow.h"
 #include "vvReadState.h"
