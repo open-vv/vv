@@ -281,7 +281,7 @@ endforeach(tool)
 #=========================================================
 #Add Foundation Libraries (this should be after our libraries, since we depend
 #on them)
-if(vv_QT_VERSION VERSION_GREATER "4")
+if(VTK_VERSION VERSION_GREATER "6.2.0")
 set(foundationLibraries clitkCommon ${ITK_LIBRARIES} ${VTK_LIBRARIES})
 else()
 set(foundationLibraries clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
@@ -318,9 +318,9 @@ endif()
 if(vv_QT_VERSION VERSION_GREATER "4")
 set(vvExternalLibs clitkSegmentationGgoLib ${toolLibs} ${foundationLibraries} ${vvCxImage} Qt5::Widgets Qt5::Network Qt5::Designer ${APPLE_FRAMEWORKS})
 else()
-set(vvExternalLibs clitkSegmentationGgoLib ${toolLibs} ${foundationLibraries} ${vvCxImage} ${QT_LIBRARIES} ${QT_QTNETWORK_LIBRARY} ${APPLE_FRAMEWORKS})
+set(vvExternalLibs clitkSegmentationGgoLib ${toolLibs} ${foundationLibraries} ${vvCxImage} ${QT_LIBRARIES} ${APPLE_FRAMEWORKS})
 endif()
-# QtNetwork is required by vvRegisterForm
+# QtNetwork is required by vvRegisterForm ${QT_QTNETWORK_LIBRARY}
 
 #-----------------------------------------------------------------------------
 # For retina displays, see
