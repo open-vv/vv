@@ -734,6 +734,7 @@ void vvToolROIManager::AllVisibleROIToggled(int b)
 //------------------------------------------------------------------------------
 void vvToolROIManager::AllVisibleContourROIToggled(int b)
 { 
+  disconnect(mContourCheckBoxShowAll, SIGNAL(stateChanged(int)), this, SLOT(AllVisibleContourROIToggled(int)));
   bool status = false;
   if ((mContourCheckBoxShowAll->checkState() == Qt::Checked) ||
       (mContourCheckBoxShowAll->checkState() == Qt::PartiallyChecked))  status = true;
@@ -746,6 +747,7 @@ void vvToolROIManager::AllVisibleContourROIToggled(int b)
   else  mContourCheckBoxShowAll->setCheckState(Qt::Unchecked);
   mContourCheckBoxShow->setChecked(status);
   mCurrentSlicerManager->Render();
+  connect(mContourCheckBoxShowAll, SIGNAL(stateChanged(int)), this, SLOT(AllVisibleContourROIToggled(int)));
 }
 //------------------------------------------------------------------------------
 
