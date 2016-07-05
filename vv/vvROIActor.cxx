@@ -121,7 +121,7 @@ void vvROIActor::SetVisible(bool b)
     for(unsigned int i= 0; i<mOverlayActors.size(); i++)
       mOverlayActors[i]->ShowActors();
   }
-  Update(); // No Render
+  //Update(); // No Render
 }
 //------------------------------------------------------------------------------
 
@@ -140,7 +140,7 @@ void vvROIActor::SetContourVisible(bool b)
       mImageContour[i]->ShowActors();
     }
   }
-  Update(); // No Render
+  //Update(); // No Render
 }
 //------------------------------------------------------------------------------
 
