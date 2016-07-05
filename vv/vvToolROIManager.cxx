@@ -716,6 +716,7 @@ void vvToolROIManager::OpacityChanged(int v)
 //------------------------------------------------------------------------------
 void vvToolROIManager::AllVisibleROIToggled(int b)
 { 
+  disconnect(mCheckBoxShowAll, SIGNAL(stateChanged(int)), this, SLOT(AllVisibleROIToggled(int)));
   bool status = false;
   if ((mCheckBoxShowAll->checkState() == Qt::Checked) ||
       (mCheckBoxShowAll->checkState() == Qt::PartiallyChecked))  status = true;
@@ -727,6 +728,7 @@ void vvToolROIManager::AllVisibleROIToggled(int b)
   else  mCheckBoxShowAll->setCheckState(Qt::Unchecked);
   mCheckBoxShow->setChecked(status);
   mCurrentSlicerManager->Render();
+  connect(mCheckBoxShowAll, SIGNAL(stateChanged(int)), this, SLOT(AllVisibleROIToggled(int)));
 }
 //------------------------------------------------------------------------------
 
