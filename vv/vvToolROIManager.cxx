@@ -553,7 +553,7 @@ void vvToolROIManager::UpdateAllContours()
   for(unsigned int i=0; i<mROIList.size(); i++) {
     mROIActorsList[i]->Update();
   }
-  mCurrentSlicerManager->Render();
+  //mCurrentSlicerManager->Render();
 }
 //------------------------------------------------------------------------------
 
