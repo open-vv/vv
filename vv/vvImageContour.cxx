@@ -234,7 +234,7 @@ void vvImageContour::UpdateWithPreserveMemoryMode()
     if (mPreviousTslice != -1) mSquaresActorList[mPreviousTslice]->VisibilityOff();
   }
 
-  mSlicer->Render();
+  //mSlicer->Render();
 }
 //------------------------------------------------------------------------------
 
