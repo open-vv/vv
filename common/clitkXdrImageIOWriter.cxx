@@ -100,8 +100,8 @@ void clitk::XdrImageIO::Write(const void* buffer)
 #ifndef _WIN32
 #  include <unistd.h>
 #endif
-#if !defined(unix) && !defined(__APPLE__)
-#include <io.h>
+#ifdef _WIN32
+#  include <io.h>
 #endif
 #include <fcntl.h>
 #include <errno.h>

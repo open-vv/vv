@@ -44,8 +44,8 @@ PURPOSE.  See the above copyright notices for more information.
 #include "vnl/vnl_math.h"
 #include "itkStatisticsImageFilter.h"
 
-#include "vnl/vnl_vector.txx"
-#include "vnl/vnl_c_vector.txx"
+#include "vnl/vnl_vector.h"
+#include "vnl/vnl_c_vector.h"
 
 namespace itk
 {

@@ -74,7 +74,8 @@ echo "Lauching macro"
 date
 if test "$RELEASEDIR" = "NONE"
 then
-	Gate ${PARAM} ${MACROFILE} || error "gate failed"
+        echo Gate ${PARAM} ${MACROFILE}
+	eval Gate ${PARAM} ${MACROFILE} || error "gate failed"
 else
 	LD_PRELOAD="${ROOTLIBS}${G4LIBS}${CLHEPLIBS}${GATELIBS}" \
 	G4LEVELGAMMADATA="${RELEASEDIR}/PhotonEvaporation2.1" \

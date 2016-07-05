@@ -42,7 +42,10 @@ namespace clitk {
     typedef FilterBase  Self;
     
     // Run-time type information (and related methods)
-    itkTypeMacro(FilterBase, Object);
+    virtual const char *GetNameOfClass() const
+      {
+      return "FilterBase";
+      }
 
     // Needed by itkSetMacro (cannot inherit from itkObject because of
     // multiple inheritance)

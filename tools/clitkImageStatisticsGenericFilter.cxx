@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://www.centreleonberard.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -33,7 +33,7 @@ namespace clitk
     m_InputFileName="";
   }
   //-----------------------------------------------------------
-  
+
 
   //-----------------------------------------------------------
   // Update
@@ -44,12 +44,12 @@ namespace clitk
     int Dimension, Components;
     std::string PixelType;
     ReadImageDimensionAndPixelType(m_InputFileName, Dimension, PixelType, Components);
-    
+
     if (m_ArgsInfo.channel_arg < -1 || m_ArgsInfo.channel_arg >= Components) {
       std::cout << "Invalid image channel" << std::endl;
       return;
     }
-    
+
     if (m_ArgsInfo.mask_given) {
       int maskDimension, maskComponents;
       std::string maskPixelType;
@@ -60,17 +60,17 @@ namespace clitk
       }
     }
 
-    
+
     // Call UpdateWithDim
     if (Dimension==2) {
       switch (Components) {
-        case 1: 
+        case 1:
           UpdateWithDim<2,1>(PixelType);
           break;
-        case 2: 
+        case 2:
           UpdateWithDim<2,2>(PixelType);
           break;
-        case 3: 
+        case 3:
           UpdateWithDim<2,3>(PixelType);
           break;
         default:
@@ -80,13 +80,13 @@ namespace clitk
     }
     else if (Dimension==3) {
       switch (Components) {
-        case 1: 
+        case 1:
           UpdateWithDim<3,1>(PixelType);
           break;
-        case 2: 
+        case 2:
           UpdateWithDim<3,2>(PixelType);
           break;
-        case 3: 
+        case 3:
           UpdateWithDim<3,3>(PixelType);
           break;
         default:
@@ -96,13 +96,13 @@ namespace clitk
     }
     else if (Dimension==4) {
       switch (Components) {
-        case 1: 
+        case 1:
           UpdateWithDim<4,1>(PixelType);
           break;
-        case 2: 
+        case 2:
           UpdateWithDim<4,2>(PixelType);
           break;
-        case 3: 
+        case 3:
           UpdateWithDim<4,3>(PixelType);
           break;
         default:

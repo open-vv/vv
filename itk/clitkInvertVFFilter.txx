@@ -137,7 +137,7 @@ void HelperClass1<InputImageType, OutputImageType>::ThreadedGenerateData(const O
   typedef typename OutputImageType::PixelType DisplacementType;
   DisplacementType displacement;
   inputIt.GoToBegin();
-  
+
   typename OutputImageType::SizeType size = outputPtr->GetLargestPossibleRegion().GetSize();
 
   //define some temp variables
@@ -191,7 +191,7 @@ void HelperClass1<InputImageType, OutputImageType>::ThreadedGenerateData(const O
             overlap *= 1.0 - distance[dim];
           }
           upper >>= 1;
-          
+
           if (neighIndex[dim] >= size[dim])
             neighIndex[dim] = size[dim] - 1;
         }
@@ -308,7 +308,10 @@ protected:
 //Empty constructor
 template<class InputImageType, class OutputImageType > HelperClass2<InputImageType, OutputImageType>::HelperClass2()
 {
-  m_EdgePaddingValue=itk::NumericTraits<PixelType>::Zero;
+  PixelType zero;
+  for(unsigned int i=0;i <PixelType::Dimension; i++) zero[i] = 0.0;
+  m_EdgePaddingValue=zero;
+  //m_EdgePaddingValue=itk::NumericTraits<PixelType>::Zero;
 }
 
 
@@ -317,7 +320,7 @@ template<class InputImageType, class OutputImageType > HelperClass2<InputImageTy
 template<class InputImageType, class OutputImageType > void HelperClass2<InputImageType, OutputImageType>::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId )
 {
 //   std::cout << "HelperClass2::ThreadedGenerateData - IN " << threadId << std::endl;
-  
+
   //Get pointer to the input
   typename InputImageType::ConstPointer inputPtr = this->GetInput();
 
@@ -367,9 +370,9 @@ template<class InputImageType, class OutputImageType > void HelperClass2<InputIm
     ++inputIt;
 
   }//end while
-  
+
 //   std::cout << "HelperClass2::ThreadedGenerateData - OUT " << threadId << std::endl;
-  
+
 }//end member
 
 
@@ -389,7 +392,12 @@ namespace clitk
 template <class InputImageType, class OutputImageType>
 InvertVFFilter<InputImageType, OutputImageType>::InvertVFFilter()
 {
-  m_EdgePaddingValue=itk::NumericTraits<PixelType>::Zero; //no other reasonable value?
+
+  //m_EdgePaddingValue=itk::NumericTraits<PixelType>::Zero; //no other reasonable value?
+  PixelType zero;
+  for(unsigned int i=0;i <PixelType::Dimension; i++) zero[i] = 0.0;
+  m_EdgePaddingValue=zero; //no other reasonable value?
+
   m_ThreadSafe=false;
   m_Verbose=false;
 }
@@ -471,7 +479,7 @@ template <class InputImageType, class OutputImageType> void InvertVFFilter<Input
 
   //Set the output
   this->SetNthOutput(0, helper2->GetOutput());
-  
+
   //std::cout << "InvertVFFilter::GenerateData - OUT" << std::endl;
 }
 
