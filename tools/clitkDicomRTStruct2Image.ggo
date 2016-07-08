@@ -16,6 +16,8 @@ groupoption "roiNameSubstr"     s "Substring of ROI name to binarize (reuturns a
 
 option "crop"		 c "Crop binary mask"	         flag off
 
+option "mha"  - "Write the RTStruct as a mha image to avoid special character problems"	         flag off
+
 #option "roi"		 r "ROI to print (ID)"		 int		no
 #option "contour"	 c "contour to print (ID)"	 int            no
 #option "offset"		 o "to display points as image offsets" flag	off
