@@ -28,11 +28,13 @@
 #include <QDesktopWidget>
 #include <QDir>
 
+#if VTK_MAJOR_VERSION > 5
 #include <vtkAutoInit.h>
  VTK_MODULE_INIT(vtkInteractionStyle);
  VTK_MODULE_INIT(vtkRenderingOpenGL);
  VTK_MODULE_INIT(vtkRenderingFreeType);
 #define vtkRenderingContext2D_AUTOINIT 1(vtkRenderingContextOpenGL)
+#endif
 
 
 #include "clitkIO.h"
