@@ -378,12 +378,13 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   vvToolManager::GetInstance()->InsertToolsInMenu(this);
   vvToolManager::GetInstance()->EnableToolsInMenu(this, false);
 
-#ifndef CLITK_EXPERIMENTAL
-#define CLITK_EXPERIMENTAL 0
-#endif
+//#ifndef CLITK_EXPERIMENTAL
+//#define CLITK_EXPERIMENTAL 0
+//#endif
+#ifdef CLITK_EXPERIMENTAL
   if (!CLITK_EXPERIMENTAL)
     menuExperimental->menuAction()->setVisible(false);
-
+#endif
 
   QTimer * timerMemory = new QTimer(this);
   //timerMemory->setInterval(5);
@@ -3386,7 +3387,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
       vidwriter = mpg;
       mpg->SetQuality(2);
       bool ok;
-      int fps = QInputDialog::getInteger(this, tr("Number of frames per second"),
+      int fps = QInputDialog::getInt(this, tr("Number of frames per second"),
         tr("FPS:"), 5, 0, 1024, 1, &ok);
       if(!ok)
         fps = 5;
@@ -3399,7 +3400,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
       vidwriter = mpg;
       mpg->SetQuality(2);
       bool ok;
-      int fps = QInputDialog::getInteger(this, tr("Number of frames per second"),
+      int fps = QInputDialog::getInt(this, tr("Number of frames per second"),
         tr("FPS:"), 5, 0, 1024, 1, &ok);
       if(!ok)
         fps = 5;
