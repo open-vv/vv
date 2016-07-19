@@ -95,6 +95,11 @@ if(CLITK_BUILD_TOOLS)
   add_executable(clitkWriteDicomSeries clitkWriteDicomSeries.cxx ${clitkWriteDicomSeries_GGO_C})
   target_link_libraries(clitkWriteDicomSeries clitkCommon )
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkWriteDicomSeries)
+  
+  WRAP_GGO(clitkImage2DicomSeries_GGO_C clitkImage2DicomSeries.ggo)
+  add_executable(clitkImage2DicomSeries clitkImage2DicomSeries.cxx ${clitkImage2DicomSeries_GGO_C})
+  target_link_libraries(clitkImage2DicomSeries clitkCommon )
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImage2DicomSeries)
 
   WRAP_GGO(clitkMedianTemporalDimension_GGO_C clitkMedianTemporalDimension.ggo)
   add_executable(clitkMedianTemporalDimension clitkMedianTemporalDimension.cxx
@@ -184,11 +189,11 @@ if(CLITK_BUILD_TOOLS)
   target_link_libraries(clitkDicomRTStruct2Image clitkDicomRTStruct)
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkDicomRTStruct2Image)
 
-  if(CLITK_USE_SYSTEM_GDCM)
+  #if(CLITK_USE_SYSTEM_GDCM)
     WRAP_GGO(clitkImage2DicomRTStruct_GGO_C clitkImage2DicomRTStruct.ggo)
     add_executable(clitkImage2DicomRTStruct clitkImage2DicomRTStruct.cxx ${clitkImage2DicomRTStruct_GGO_C})
     target_link_libraries(clitkImage2DicomRTStruct clitkDicomRTStruct)
-  endif()
+  #endif()
 
   WRAP_GGO(clitkComposeVF_GGO_C clitkComposeVF.ggo)
   add_executable(clitkComposeVF clitkComposeVFGenericFilter.cxx clitkComposeVF.cxx ${clitkComposeVF_GGO_C})
