@@ -43,6 +43,7 @@ public slots:
 	void on_importButton_clicked();
  void chooseServer(int index);
  void removeServer();
+ bool close();
  void modifyServer();
 
   private :

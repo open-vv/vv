@@ -16,7 +16,7 @@ vvQPacsConnection::vvQPacsConnection(QWidget *i_parent)
 	:QDialog(i_parent)
 {
 	ui.setupUi(this);
-	setWindowTitle(QString::fromUtf8("PACS CONNECTIONHHHH"));
+	setWindowTitle(QString::fromUtf8("PACS CONNECTION"));
 	createTreeView();
 	ui.tabFilter->setTabText(0,QString(tr("Modality")));
 	ui.tabFilter->setTabText(1,QString(tr("Date")));
@@ -31,8 +31,16 @@ vvQPacsConnection::vvQPacsConnection(QWidget *i_parent)
 	connect(ui.networkCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(chooseServer(int)));
 	connect(ui.removeNetworkButton,SIGNAL(clicked()),this,SLOT(removeServer()));
 	connect(ui.NetworkButton,SIGNAL(clicked()),this,SLOT(modifyServer()));
+	connect(ui.exitButton,SIGNAL(clicked()),this,SLOT(close()));
 	
 	update();
+}
+
+// Exit window
+bool vvQPacsConnection::close()
+{
+    QApplication::restoreOverrideCursor();
+    return QWidget::close();
 }
 
 // remote a Dicom Server in VV settings

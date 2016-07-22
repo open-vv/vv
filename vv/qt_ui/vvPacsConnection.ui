@@ -790,6 +790,48 @@
     <string>Options</string>
    </property>
   </widget>
+  <widget class="QToolButton" name="exitButton">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>580</y>
+     <width>51</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string notr="true">...</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/standardbutton-cancel-16.png</normaloff>:/common/icons/standardbutton-cancel-16.png</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>32</width>
+     <height>32</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_exit">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>630</y>
+     <width>51</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Exit</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
   <zorder>groupBox_4</zorder>
   <zorder>groupBox_3</zorder>
   <zorder>label_ID</zorder>
@@ -814,6 +856,8 @@
   <zorder>helpButton</zorder>
   <zorder>optionsButton</zorder>
   <zorder>label_email_2</zorder>
+  <zorder>exitButton</zorder>
+  <zorder>label_exit</zorder>
  </widget>
  <tabstops>
   <tabstop>scanButton</tabstop>
