@@ -1,11 +1,11 @@
 #=========================================================
 
 # Add Libraries used in vv and clitk to avoid recompilation
-FOREACH(clitkTool clitkExtractLung clitkExtractPatient clitkConnectedComponentLabeling clitkRegionGrowing)
+foreach(clitkTool clitkExtractLung clitkExtractPatient clitkConnectedComponentLabeling clitkRegionGrowing)
     WRAP_GGO(${clitkTool}_GGO_C ${clitkTool}.ggo)
-    SET(GGO_C_FILES ${GGO_C_FILES} ${${clitkTool}_GGO_C})
-ENDFOREACH(clitkTool)
-ADD_LIBRARY(clitkSegmentationGgoLib
+    set(GGO_C_FILES ${GGO_C_FILES} ${${clitkTool}_GGO_C})
+endforeach(clitkTool)
+add_library(clitkSegmentationGgoLib
             clitkFilterWithAnatomicalFeatureDatabaseManagement.cxx
             clitkAnatomicalFeatureDatabase.cxx
             clitkSliceBySliceRelativePositionFilter_uchar.cxx
@@ -13,51 +13,51 @@ ADD_LIBRARY(clitkSegmentationGgoLib
 
 #=========================================================
 
-IF(CLITK_BUILD_SEGMENTATION)
+if(CLITK_BUILD_SEGMENTATION)
     WRAP_GGO(clitkConnectedComponentLabeling_GGO_C clitkConnectedComponentLabeling.ggo)
-    ADD_EXECUTABLE(clitkConnectedComponentLabeling clitkConnectedComponentLabeling.cxx ${clitkConnectedComponentLabeling_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkConnectedComponentLabeling clitkCommon)
-    SET(SEGMENTATION_INSTALL clitkConnectedComponentLabeling)
+    add_executable(clitkConnectedComponentLabeling clitkConnectedComponentLabeling.cxx ${clitkConnectedComponentLabeling_GGO_C})
+    target_link_libraries(clitkConnectedComponentLabeling clitkCommon)
+    set(SEGMENTATION_INSTALL clitkConnectedComponentLabeling)
 
-    ADD_EXECUTABLE(clitkExtractPatient clitkExtractPatient.cxx ${clitkExtractPatient_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkExtractPatient clitkCommon clitkSegmentationGgoLib)
-    SET(SEGMENTATION_INSTALL ${SEGMENTATION_INSTALL} clitkExtractPatient)
+    add_executable(clitkExtractPatient clitkExtractPatient.cxx ${clitkExtractPatient_GGO_C})
+    target_link_libraries(clitkExtractPatient clitkCommon clitkSegmentationGgoLib)
+    set(SEGMENTATION_INSTALL ${SEGMENTATION_INSTALL} clitkExtractPatient)
 
-    ADD_EXECUTABLE(clitkExtractLung clitkExtractLung.cxx  ${clitkExtractLung_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkExtractLung clitkSegmentationGgoLib clitkCommon)
-    SET(SEGMENTATION_INSTALL ${SEGMENTATION_INSTALL} clitkExtractLung)
+    add_executable(clitkExtractLung clitkExtractLung.cxx  ${clitkExtractLung_GGO_C})
+    target_link_libraries(clitkExtractLung clitkSegmentationGgoLib clitkCommon)
+    set(SEGMENTATION_INSTALL ${SEGMENTATION_INSTALL} clitkExtractLung)
 
     WRAP_GGO(clitkExtractBones_GGO_C clitkExtractBones.ggo)
-    ADD_EXECUTABLE(clitkExtractBones clitkExtractBones.cxx ${clitkExtractBones_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkExtractBones clitkCommon clitkSegmentationGgoLib)
-    SET(SEGMENTATION_INSTALL ${SEGMENTATION_INSTALL} clitkExtractBones)
+    add_executable(clitkExtractBones clitkExtractBones.cxx ${clitkExtractBones_GGO_C})
+    target_link_libraries(clitkExtractBones clitkCommon clitkSegmentationGgoLib)
+    set(SEGMENTATION_INSTALL ${SEGMENTATION_INSTALL} clitkExtractBones)
 
     WRAP_GGO(clitkMorphoMath_GGO_C clitkMorphoMath.ggo)
-    ADD_EXECUTABLE(clitkMorphoMath clitkMorphoMath.cxx ${clitkMorphoMath_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkMorphoMath clitkCommon)
-    SET(SEGMENTATION_INSTALL ${SEGMENTATION_INSTALL} clitkMorphoMath)
+    add_executable(clitkMorphoMath clitkMorphoMath.cxx ${clitkMorphoMath_GGO_C})
+    target_link_libraries(clitkMorphoMath clitkCommon)
+    set(SEGMENTATION_INSTALL ${SEGMENTATION_INSTALL} clitkMorphoMath)
 
     WRAP_GGO(clitkDecomposeAndReconstruct_GGO_C clitkDecomposeAndReconstruct.ggo)
-    ADD_EXECUTABLE(clitkDecomposeAndReconstruct clitkDecomposeAndReconstruct.cxx clitkDecomposeAndReconstructGenericFilter.cxx ${clitkDecomposeAndReconstruct_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkDecomposeAndReconstruct clitkCommon)
-    SET(SEGMENTATION_INSTALL ${SEGMENTATION_INSTALL} clitkDecomposeAndReconstruct)
+    add_executable(clitkDecomposeAndReconstruct clitkDecomposeAndReconstruct.cxx clitkDecomposeAndReconstructGenericFilter.cxx ${clitkDecomposeAndReconstruct_GGO_C})
+    target_link_libraries(clitkDecomposeAndReconstruct clitkCommon)
+    set(SEGMENTATION_INSTALL ${SEGMENTATION_INSTALL} clitkDecomposeAndReconstruct)
 
     WRAP_GGO(clitkMotionMask_GGO_C clitkMotionMask.ggo)
-    ADD_EXECUTABLE(clitkMotionMask clitkMotionMask.cxx clitkMotionMaskGenericFilter.cxx ${clitkMotionMask_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkMotionMask clitkCommon)
-    SET(SEGMENTATION_INSTALL ${SEGMENTATION_INSTALL} clitkMotionMask)
-    
+    add_executable(clitkMotionMask clitkMotionMask.cxx clitkMotionMaskGenericFilter.cxx ${clitkMotionMask_GGO_C})
+    target_link_libraries(clitkMotionMask clitkCommon)
+    set(SEGMENTATION_INSTALL ${SEGMENTATION_INSTALL} clitkMotionMask)
+
     WRAP_GGO(clitkRegionGrowing_GGO_C clitkRegionGrowing.ggo)
-    ADD_EXECUTABLE(clitkRegionGrowing clitkRegionGrowing.cxx ${clitkRegionGrowing_GGO_C} ${clitkRelativePosition_GGO_C})
-    TARGET_LINK_LIBRARIES(clitkRegionGrowing clitkCommon)
+    add_executable(clitkRegionGrowing clitkRegionGrowing.cxx ${clitkRegionGrowing_GGO_C} ${clitkRelativePosition_GGO_C})
+    target_link_libraries(clitkRegionGrowing clitkCommon)
 
-    INSTALL (TARGETS ${SEGMENTATION_INSTALL} DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
+    install(TARGETS ${SEGMENTATION_INSTALL} DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
 
-ENDIF(CLITK_BUILD_SEGMENTATION)
+endif(CLITK_BUILD_SEGMENTATION)
 
-# ADD_EXECUTABLE(ScalarImageMarkovRandomField1 ScalarImageMarkovRandomField1.cxx)
-# TARGET_LINK_LIBRARIES(ScalarImageMarkovRandomField1 clitkCommon ITKStatistics)
-# ADD_EXECUTABLE(ScalarImageKmeansClassifier ScalarImageKmeansClassifier.cxx)
-# TARGET_LINK_LIBRARIES(ScalarImageKmeansClassifier clitkCommon ITKStatistics)
+# add_executable(ScalarImageMarkovRandomField1 ScalarImageMarkovRandomField1.cxx)
+# target_link_libraries(ScalarImageMarkovRandomField1 clitkCommon ITKStatistics)
+# add_executable(ScalarImageKmeansClassifier ScalarImageKmeansClassifier.cxx)
+# target_link_libraries(ScalarImageKmeansClassifier clitkCommon ITKStatistics)
 
 

@@ -15,8 +15,8 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
-#ifndef CLITKFooIMAGEGENERICFILTER_H
-#define CLITKFooIMAGEGENERICFILTER_H
+#ifndef clitkFooImageGenericFilter_h
+#define clitkFooImageGenericFilter_h
 #include "clitkIO.h"
 #include "clitkImageToImageGenericFilter.h"
 

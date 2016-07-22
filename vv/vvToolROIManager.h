@@ -19,6 +19,7 @@
 #ifndef VVTOOLROIMANAGER_H
 #define VVTOOLROIMANAGER_H
 
+#include <QtGlobal>
 #include <QtDesigner/QDesignerExportWidget>
 #include <QSharedPointer>
 
@@ -64,9 +65,10 @@ class vvToolROIManager:
   void ChangeContourWidth(int n);
   void ChangeDepth(int n);
   void AllVisibleROIToggled(int b);
-  void AllVisibleContourROIToggled(bool b);
+  void AllVisibleContourROIToggled(int b);
   void ReloadCurrentROI();  
   void close();
+  void RemoveROI();
   vvSlicerManager * GetCurrentSlicerManager() { return mCurrentSlicerManager; }
 
 protected:
@@ -79,6 +81,7 @@ protected:
   
   int mNumberOfVisibleROI;
   int mNumberOfVisibleContourROI;
+  static int nbTotalROI;
 
   vtkSmartPointer<vtkLookupTable> mDefaultLUTColor;
 

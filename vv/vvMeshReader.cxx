@@ -34,6 +34,7 @@
 #endif
 
 // vtk
+#include <vtkVersion.h>
 #include <vtkSmartPointer.h>
 #include <vtkAppendPolyData.h>
 #include <vtkCellArray.h>
@@ -223,13 +224,6 @@ std::vector<vvMesh::Pointer> vvMeshReader::readSelectedContours()
 {
   std::vector<vvMesh::Pointer> result;
 #if GDCM_MAJOR_VERSION == 2
-
-#if CLITK_USE_SYSTEM_GDCM == 0
-  
-  clitkExceptionMacro("ERROR ! You need to compile vv with itk4 + system_gdcm to use this function");
-
-#endif
-
   gdcm::Reader reader;
   reader.SetFileName(filename.c_str());
   reader.Read();
@@ -297,7 +291,11 @@ std::vector<vvMesh::Pointer> vvMeshReader::readSelectedContours()
                       ids[1] = (ids[0] + 1) % tpoint_number.GetValue(); //0-1,1-2,...,n-1-0
                       contour->GetLines()->InsertNextCell(2, ids);
                     }
+#if VTK_MAJOR_VERSION <= 5
                   append->AddInput(contour);
+#else
+                  append->AddInputData(contour);
+#endif
                 }
               else
                 if (contour_type == "POINT ")

@@ -175,11 +175,8 @@ void AffineRegistrationGenericFilter::UpdateWithInputImageType()
   typedef typename  InputImageType::PixelType PixelType;
 //typedef typename InputImageType::ImageDimension Dimension;
 
-
-#if defined(ITK_USE_OPTIMIZED_REGISTRATION_METHODS) || ITK_VERSION_MAJOR >= 4
   bool threadsGiven=m_ArgsInfo.threads_given;
   int threads=m_ArgsInfo.threads_arg;
-#endif
 
   //Coordinate Representation
   typedef double TCoordRep;
@@ -396,11 +393,7 @@ void AffineRegistrationGenericFilter::UpdateWithInputImageType()
   typename  MetricType::Pointer metric=genericMetric->GetMetricPointer();
   if (movingMask) metric->SetMovingImageMask(movingMask);
 
-#if defined(ITK_USE_OPTIMIZED_REGISTRATION_METHODS) || ITK_VERSION_MAJOR >= 4
   if (threadsGiven) metric->SetNumberOfThreads( threads );
-#else
-  if (m_Verbose) std::cout<<"Not setting the number of threads (not compiled with USE_OPTIMIZED_REGISTRATION_METHODS)..."<<std::endl;
-#endif
 
   //============================================================================
   // Initialize using image moments.
@@ -541,11 +534,7 @@ void AffineRegistrationGenericFilter::UpdateWithInputImageType()
   if (m_Verbose) std::cout << "Starting the registration now..." << std::endl;
 
   try {
-#if ITK_VERSION_MAJOR < 4 || (ITK_VERSION_MAJOR == 4 && ITK_VERSION_MINOR <= 2)
-    registration->StartRegistration();
-#else
     registration->Update();
-#endif
   } catch ( itk::ExceptionObject & err ) {
     std::cerr << "ExceptionObject caught !" << std::endl;
     std::cerr << err << std::endl;

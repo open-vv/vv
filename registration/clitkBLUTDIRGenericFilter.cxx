@@ -30,7 +30,16 @@ It is distributed under dual licence
 #include "clitkBLUTDIRGenericFilter.h"
 #include "clitkBLUTDIRCommandIterationUpdateDVF.h"
 #include "itkCenteredTransformInitializer.h"
-  
+#if ITK_VERSION_MAJOR >= 4
+#  if ITK_VERSION_MINOR < 6
+#    include "itkTransformToDisplacementFieldSource.h"
+#  else
+#    include "itkTransformToDisplacementFieldFilter.h"
+#  endif
+#else
+#  include "itkTransformToDeformationFieldSource.h"
+#endif
+
 namespace clitk
 {
 
@@ -387,9 +396,7 @@ namespace clitk
         // Crop the fixedImage to the bounding box to facilitate multi-resolution
         typedef itk::ExtractImageFilter<FixedImageType,FixedImageType> ExtractImageFilterType;
         typename ExtractImageFilterType::Pointer extractImageFilter=ExtractImageFilterType::New();
-#if ITK_VERSION_MAJOR == 4
         extractImageFilter->SetDirectionCollapseToSubmatrix();
-#endif
         extractImageFilter->SetInput(fixedImage);
         extractImageFilter->SetExtractionRegion(transformRegion);
         extractImageFilter->Update();
@@ -643,16 +650,10 @@ namespace clitk
       typedef itk::ImageToImageMetric< FixedImageType, MovingImageType >  MetricType;
       typename  MetricType::Pointer metric=genericMetric->GetMetricPointer();
       if (movingMask) metric->SetMovingImageMask(movingMask);
-
-#if defined(ITK_USE_OPTIMIZED_REGISTRATION_METHODS) || ITK_VERSION_MAJOR >= 4
       if (threadsGiven) {
         metric->SetNumberOfThreads( threads );
         if (m_Verbose) std::cout<< "Using " << threads << " threads." << std::endl;
       }
-#else
-      if (m_Verbose) std::cout<<"Not setting the number of threads (not compiled with USE_OPTIMIZED_REGISTRATION_METHODS)..."<<std::endl;
-#endif
-
 
       //=======================================================
       // Optimizer
@@ -733,11 +734,7 @@ namespace clitk
 
       try
       {
-#if ITK_VERSION_MAJOR < 4 || (ITK_VERSION_MAJOR == 4 && ITK_VERSION_MINOR <= 2)
-        registration->StartRegistration();
-#else
         registration->Update();
-#endif
       }
       catch( itk::ExceptionObject & err )
       {
@@ -793,9 +790,11 @@ namespace clitk
       typedef itk::Vector< float, SpaceDimension >  DisplacementType;
       typedef itk::Image< DisplacementType, InputImageType::ImageDimension >  DisplacementFieldType;
 #if ITK_VERSION_MAJOR >= 4
+#  if ITK_VERSION_MINOR < 6
       typedef itk::TransformToDisplacementFieldSource<DisplacementFieldType, double> ConvertorType;
-#else
-      typedef itk::TransformToDeformationFieldSource<DisplacementFieldType, double> ConvertorType;
+#  else
+      typedef itk::TransformToDisplacementFieldFilter<DisplacementFieldType, double> ConvertorType;
+#  endif
 #endif
       typename ConvertorType::Pointer filter= ConvertorType::New();
       filter->SetNumberOfThreads(1);
@@ -804,7 +803,11 @@ namespace clitk
       else
         transform->SetBulkTransform(NULL);
       filter->SetTransform(regTransform);
+#if ITK_VERSION_MAJOR > 4 || (ITK_VERSION_MAJOR == 4 && ITK_VERSION_MINOR >= 6)
+      filter->SetReferenceImage(fixedImage);
+#else
       filter->SetOutputParametersFromImage(fixedImage);
+#endif
       filter->Update();
       typename DisplacementFieldType::Pointer field = filter->GetOutput();
 

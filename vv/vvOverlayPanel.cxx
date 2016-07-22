@@ -233,7 +233,7 @@ void vvOverlayPanel::setFusionProperty()
   if (disableFusionSignals)
     return;
 
-  fusionOpacitySpin->setValue(opacityHorizontalSlider->value()); 
+  fusionOpacitySpin->setValue(opacityHorizontalSlider->value());
   fusionThresSpin->setValue(thresOpacityHorizontalSlider->value());
 
   emit FusionPropertyUpdated(opacityHorizontalSlider->value(), thresOpacityHorizontalSlider->value(), fusionColorMapComboBox->currentIndex(),

@@ -28,13 +28,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkDataSetAttributes.h"
-
-#include <vtkstd/string>
+#include <vtkVersion.h>
+#include <vtkAlgorithm.h>
 
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkVOXImageWriter, "DummyRevision");
 vtkStandardNewMacro(vtkVOXImageWriter);
 
 //----------------------------------------------------------------------------
@@ -55,9 +54,11 @@ vtkVOXImageWriter::~vtkVOXImageWriter()
 void vtkVOXImageWriter::Write( )
 {
   this->SetErrorCode(vtkErrorCode::NoError);
-
+#if VTK_MAJOR_VERSION <= 5
   this->GetInput()->UpdateInformation();
-
+#else
+  this->UpdateInformation();
+#endif
   // Error checking
   if (this->GetInput() == NULL ) {
     vtkErrorMacro(<<"Write:Please specify an input!");
@@ -70,7 +71,11 @@ void vtkVOXImageWriter::Write( )
   }
 
   int nDims = 3;
+#if VTK_MAJOR_VERSION <= 5
   int * ext = this->GetInput()->GetWholeExtent();
+#else
+  int * ext = this->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
+#endif
   if ( ext[4] == ext[5] ) {
     nDims = 2;
     if ( ext[2] == ext[3] ) {
@@ -134,12 +139,15 @@ void vtkVOXImageWriter::Write( )
   origin[1] += ext[2] * spacing[1];
   origin[2] += ext[4] * spacing[2];
 
+#if VTK_MAJOR_VERSION <= 5
   this->GetInput()->SetUpdateExtent(ext[0], ext[1],
                                     ext[2], ext[3],
                                     ext[4], ext[5]);
   this->GetInput()->UpdateData();
-
-
+#else
+  this->SetUpdateExtent(ext);
+  this->Update();
+#endif
   this->SetFileDimensionality(nDims);
 
   this->InvokeEvent(vtkCommand::StartEvent);

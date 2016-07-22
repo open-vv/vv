@@ -68,9 +68,7 @@ namespace clitk
 
     /** Standard parameters container. */
     typedef typename Superclass::ParametersType ParametersType;
-#if ITK_VERSION_MAJOR >= 4
     typedef typename Superclass::NumberOfParametersType NumberOfParametersType;
-#endif
 
     /** Standard Jacobian container. */
     typedef typename Superclass::JacobianType JacobianType;
@@ -266,22 +264,14 @@ namespace clitk
     } 
     
     /** Compute the Jacobian Matrix of the transformation at one point */
-#if ITK_VERSION_MAJOR >= 4
     virtual void ComputeJacobianWithRespectToParameters (const InputPointType &p, JacobianType &jacobian) const;
     virtual void ComputeJacobianWithRespectToPosition (const InputPointType &p, JacobianType &jacobian) const
     {
       itkExceptionMacro( "ComputeJacobianWithRespectToPosition not yet implemented for " << this->GetNameOfClass() );
     }
-#else
-    virtual const JacobianType& GetJacobian(const InputPointType  &point ) const;
-#endif
 
     /** Return the number of parameters that completely define the Transfom */
-#if ITK_VERSION_MAJOR >= 4
     virtual NumberOfParametersType GetNumberOfParameters(void) const;
-#else
-    virtual unsigned int GetNumberOfParameters(void) const;
-#endif
 
     //JV Return the padded number of parameters
     virtual unsigned int GetPaddedNumberOfParameters(void) const;
@@ -445,16 +435,14 @@ namespace clitk
     // JV Shape
     unsigned int m_TransformShape;
 
-#if ITK_VERSION_MAJOR >= 4
     mutable JacobianType                            m_SharedDataBSplineJacobian;
-#endif
 
   }; //class ShapedBLUTSpatioTemporalDeformableTransform
 
 
 }  // namespace itk
 
-#if ITK_TEMPLATE_TXX
+#ifndef ITK_MANUAL_INSTANTIATION
 # include "clitkShapedBLUTSpatioTemporalDeformableTransform.txx"
 #endif
 

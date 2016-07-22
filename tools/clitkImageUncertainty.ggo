@@ -1,0 +1,12 @@
+# file clitkImageRescaleIntensity.ggo
+package "clitk"
+version "Compute the uncertainty of simulation outputs using Chetty's history-by-history's method"
+
+option "config"         - "Config file"                      string  no
+option "input"          i "Input image filename"             string  yes
+option "inputSquared"   s "Input squared image filename"     string  yes
+option "output"         o "Output image filename"            string  yes
+option "NumberOfEvents" n "Number of events"                 int     yes
+option "verbose"        v "Verbose"                          flag    off
+option "absolute"       a "Absolute instead of the relative" flag    off
+option "default"        d "Default when input is 0."         double  no   default="1."

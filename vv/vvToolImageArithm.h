@@ -17,6 +17,8 @@
 ===========================================================================**/
 #ifndef VVTOOLImageArithm_H
 #define VVTOOLImageArithm_H
+
+#include <QtGlobal>
 #include <QtDesigner/QDesignerExportWidget>
 
 #include "vvToolBase.h"

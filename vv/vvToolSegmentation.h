@@ -18,6 +18,7 @@
 #ifndef VVTOOLSEGMENTATION_H
 #define VVTOOLSEGMENTATION_H
 
+#include <QtGlobal>
 #include <QtDesigner/QDesignerExportWidget>
 
 #include "vvToolBase.h"

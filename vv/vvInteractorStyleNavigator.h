@@ -29,7 +29,7 @@ class vvInteractorStyleNavigator : public vtkInteractorStyle
 {
 public:
     static vvInteractorStyleNavigator *New();
-    vtkTypeRevisionMacro(vvInteractorStyleNavigator, vtkInteractorStyle);
+    vtkTypeMacro(vvInteractorStyleNavigator, vtkInteractorStyle);
     void PrintSelf(ostream& os, vtkIndent indent);
 
     // Description:

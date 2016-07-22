@@ -538,6 +538,7 @@ void vvToolResample::apply()
   // Go !
   mFilter->Update();
   mOutput = mFilter->GetOutputVVImage();
+  mOutput->GetTransform()[0]->SetMatrix(mCurrentSlicerManager->GetSlicer(0)->GetConcatenatedTransform()->GetMatrix());
   AddImage(mOutput,GetOutputFileName());
   close();
 }

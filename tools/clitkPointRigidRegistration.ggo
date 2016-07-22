@@ -1,0 +1,14 @@
+#File clitkPointRigidRegistration.ggo
+package "clitkPointRigidRegistration"
+version "1.0"
+purpose "Finding the rigid transformation between two cartesian coordinate systems\n
+based on corresponding points positions"
+
+option "config"	  	-	"Config file"			  string  	optional
+option "verbose"   	v   	"Verbose"			  flag		off
+
+
+
+option "input"		i	"Corresponding points' positions filename"        string  	required
+option "output"    	o   	"Output transformation filename"		  string 	required
+option "error"		e       "Output error filename"				  string        optional

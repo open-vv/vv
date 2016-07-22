@@ -61,10 +61,11 @@ namespace clitk
   public:
 
     //--------------------------------------------------------------------
-   MedianImageGenericFilter();
+    MedianImageGenericFilter();
 
     //--------------------------------------------------------------------
-    typedef MedianImageGenericFilter         Self;
+    typedef MedianImageGenericFilter           Self;
+    typedef ImageToImageGenericFilter<MedianImageGenericFilter<args_info_type> > Superclass;
     typedef itk::SmartPointer<Self>            Pointer;
     typedef itk::SmartPointer<const Self>      ConstPointer;
    
@@ -81,15 +82,15 @@ namespace clitk
     // Main function called each time the filter is updated
     template<class InputImageType>  
     void UpdateWithInputImageType();
-    
- 
-
 
   protected:
     template<unsigned int Dim> void InitializeImageType();
-    
     args_info_type mArgsInfo;
-    
+
+  private:
+    MedianImageGenericFilter(const Self&); //purposely not implemented
+    void operator=(const Self&); //purposely not implemented
+
   }; // end class
   //--------------------------------------------------------------------
     

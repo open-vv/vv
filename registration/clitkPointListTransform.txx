@@ -25,12 +25,7 @@ namespace clitk
 
   // Constructor
   template<class TScalarType, unsigned int NDimensions, unsigned int NOutputDimensions>
-  PointListTransform<TScalarType, NDimensions, NOutputDimensions>
-#if ITK_VERSION_MAJOR >= 4
-  ::PointListTransform():Superclass(1)
-#else
-  ::PointListTransform():Superclass(NOutputDimensions,1)
-#endif
+  PointListTransform<TScalarType, NDimensions, NOutputDimensions>::PointListTransform():Superclass(1)
   {
     m_PointLists.resize(0);
     m_PointList.resize(1);

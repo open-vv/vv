@@ -108,11 +108,7 @@ vvImage::Pointer WarpRefImage(OutputVFType::Pointer vf,vvImage::Pointer image,in
 
   typename FilterType::Pointer warp_filter = FilterType::New();
   warp_filter->SetInput(input);
-#if ITK_VERSION_MAJOR >= 4
   warp_filter->SetDisplacementField(resampler->GetOutput());
-#else
-  warp_filter->SetDeformationField(resampler->GetOutput());
-#endif
   warp_filter->SetOutputSpacing(input->GetSpacing());
   warp_filter->SetOutputOrigin(input->GetOrigin());
   warp_filter->SetOutputSize(input->GetLargestPossibleRegion().GetSize());
@@ -172,7 +168,8 @@ itk::Image<itk::Vector<float,3>,3>::Pointer AverageField(itk::Image<itk::Vector<
 
   // Average
   VFPixelType vector;
-  VFPixelType zeroVector=itk::NumericTraits<VFPixelType>::Zero;
+  VFPixelType zeroVector;//=itk::NumericTraits<VFPixelType>::Zero;
+  for(unsigned int i=0;i <VFPixelType::Dimension; i++) zeroVector[i] = 0.0;
 
   while (!(iterators[0]).IsAtEnd()) {
     vector=zeroVector;
@@ -194,4 +191,3 @@ void vvMidPosition::update_progress()
   p_bar.setValue(progress);
   p_bar.show();
 }
-

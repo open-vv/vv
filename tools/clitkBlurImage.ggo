@@ -1,0 +1,14 @@
+#File clitkBlurImage.ggo
+package "clitkBlurImage"
+version "1.0"
+purpose "Filter the input image with a Gaussian"
+
+option "config"	  	-	"Config file"			  string  	optional
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "imagetypes" 	-   	"Display allowed image types"	  flag		off
+
+option "input"		i	"Input image filename"		  string  	required
+option "output"    	o   	"Output image filename"		  string 	required
+
+option "variance"       -   	"value of the gaussian variance (multiple values=number of image dimension) - default=1.0" double  optional  multiple

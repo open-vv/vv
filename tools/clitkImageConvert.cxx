@@ -67,6 +67,8 @@ int main(int argc, char * argv[])
   filter->SetInputFilenames(l);
   filter->SetIOVerbose(args_info.verbose_flag);
   filter->SetOutputFilename(output);
+  filter->SetVV(args_info.vv_flag);
+  filter->SetCorrectNegativeSpacingFlag(args_info.correct_flag);
   filter->EnableWriteCompression(args_info.compression_flag);
   if (args_info.type_given) filter->SetOutputPixelType(args_info.type_arg);
 
@@ -79,4 +81,3 @@ int main(int argc, char * argv[])
 //-------------------------------------------------------------------=
 
 #endif /* end #define CLITKIMAGECONVERT_CXX */
-

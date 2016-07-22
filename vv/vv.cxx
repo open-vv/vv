@@ -28,6 +28,15 @@
 #include <QDesktopWidget>
 #include <QDir>
 
+#if VTK_MAJOR_VERSION > 5
+#include <vtkAutoInit.h>
+ VTK_MODULE_INIT(vtkInteractionStyle);
+ VTK_MODULE_INIT(vtkRenderingOpenGL);
+ VTK_MODULE_INIT(vtkRenderingFreeType);
+#define vtkRenderingContext2D_AUTOINIT 1(vtkRenderingContextOpenGL)
+#endif
+
+
 #include "clitkIO.h"
 #include "vvMainWindow.h"
 #include "vvReadState.h"
@@ -78,11 +87,11 @@ void open_sequence(vvMainWindow &window,
   const std::string open_mode_names[] = {"base", "overlay", "fusion", "vf", "contour", "fusionSequence"};
   if(open_mode==O_BASE)
     window.LoadImages(sequence_filenames, vvImageReader::MERGEDWITHTIME);
-  else if (open_mode==O_OVERLAY)
+  else if (open_mode==O_OVERLAY && window.CheckAddedImage(n_image_loaded-1, "overlay"))
     window.AddOverlayImage(n_image_loaded-1,sequence_filenames,vvImageReader::MERGEDWITHTIME);
   else if (open_mode==O_LANDMARKS)
     window.AddLandmarks(n_image_loaded-1,sequence_filenames);
-  else if (open_mode==O_FUSION)
+  else if (open_mode==O_FUSION && window.CheckAddedImage(n_image_loaded-1, "fusion") && window.CheckAddedImage(n_image_loaded-1, "fusionSequence"))
     window.AddFusionImage(n_image_loaded-1,sequence_filenames,vvImageReader::MERGEDWITHTIME);
   else {
     std::cerr << "Sequences are not managed for opening " << open_mode_names[open_mode] << std::endl;
@@ -183,8 +192,8 @@ int main( int argc, char** argv )
                     << std::endl
                     << "These last options must follow a file name since they overlay something on an image:" << std::endl
                     << "--vf file      \t Overlay the vector field in file." << std::endl
-                    << "--overlay file \t Overlay the image in file with complementary colors." << std::endl
-                    << "--fusion file  \t Overlay the image in file with alpha blending and colormap." << std::endl
+                    << "--overlay [--sequence] file(s) \t Overlay the image in file with complementary colors." << std::endl
+                    << "--fusion [--sequence] file(s)  \t Overlay the image in file with alpha blending and colormap." << std::endl
                     //<< "--roi file     \t Overlay binary mask images. Option may be repeated on a single base image." << std::endl
                     << "--contour file \t Overlay DICOM RT-STRUCT contours." << std::endl
                     << "--landmarks [--sequence] file(s)  \t Overlay the landmarks in file(s) (.txt or .pts)." << std::endl;
@@ -274,13 +283,13 @@ int main( int argc, char** argv )
             first_of_wl_set = n_image_loaded-1;
           }
         }
-        else if (open_mode==O_VF)
+        else if (open_mode==O_VF && window.CheckAddedImage(n_image_loaded-1, "vector"))
           window.AddField(current.c_str(), n_image_loaded-1);
-        else if (open_mode==O_OVERLAY)
+        else if (open_mode==O_OVERLAY && window.CheckAddedImage(n_image_loaded-1, "overlay"))
           window.AddOverlayImage(n_image_loaded-1,image,vvImageReader::IMAGE);
         else if (open_mode==O_CONTOUR)
           window.AddDCStructContour(n_image_loaded-1,current.c_str());
-        else if (open_mode==O_FUSION)
+        else if (open_mode==O_FUSION && window.CheckAddedImage(n_image_loaded-1, "fusion") && window.CheckAddedImage(n_image_loaded-1, "fusionSequence"))
           window.AddFusionImage(n_image_loaded-1,image,vvImageReader::IMAGE);
         else if (open_mode==O_LANDMARKS)
           window.AddLandmarks(n_image_loaded-1,image);

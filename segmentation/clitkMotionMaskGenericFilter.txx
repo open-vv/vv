@@ -541,11 +541,8 @@ MotionMaskGenericFilter::InitializeEllips( typename itk::Vector<double,Dimension
 
       // try to guess ideal ellipse axes from the lungs' bounding box and centroid
       // with some hard-coded "magic" constants...
-#if ITK_VERSION_MAJOR >= 4
       typename LabelType::RegionType lung_bbox = label->GetBoundingBox();
-#else
-      typename LabelType::RegionType lung_bbox = label->GetRegion();
-#endif
+
       axes[0] = 0.95*lung_bbox.GetSize()[0]*spacing[0]/2;
       axes[1] = 0.3*lung_bbox.GetSize()[1]*spacing[1]/2;
       axes[2] = 1.25*fabs(lung_centroid[2] - center[2]);

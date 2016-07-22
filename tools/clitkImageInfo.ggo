@@ -7,4 +7,4 @@ option "config"	  	 - "Config file"		 string  	   no
 option "long"		 l "Long line output (1 or 2)"	 int default = "1" no
 option "verbose"	 v "Same as -l 1"		 flag off
 option "name"		 n "Display filename"	 	 flag off
-
+option "matrix"		 m "Display matrix"	 	 flag off

@@ -37,9 +37,11 @@
 //itk include
 #include "itkLightObject.h"
 #if ITK_VERSION_MAJOR >= 4
-  #include "itkTransformToDisplacementFieldSource.h"
-#else
-  #include "itkTransformToDeformationFieldSource.h"
+#  if ITK_VERSION_MINOR < 6
+#    include "itkTransformToDisplacementFieldSource.h"
+#  else
+#    include "itkTransformToDisplacementFieldFilter.h"
+#  endif
 #endif
 #include "itkAffineTransform.h"
 

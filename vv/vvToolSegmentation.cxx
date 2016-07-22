@@ -34,6 +34,9 @@
 #include <QMessageBox>
 
 // vtk
+#include <vtkVersion.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkInformation.h>
 #include "vtkImageContinuousErode3D.h"
 #include "vtkImageContinuousDilate3D.h"
 #include "vtkRenderWindow.h"
@@ -399,10 +402,18 @@ void vvToolSegmentation::Erode()
   vtkImageContinuousErode3D* erode = vtkImageContinuousErode3D::New();
   erode->SetKernelSize(mKernelValue,mKernelValue,mKernelValue);
   vtkImageData* image = mCurrentMaskImage->GetVTKImages()[0];
+#if VTK_MAJOR_VERSION <= 5
   erode->SetInput(image);
+#else
+  erode->SetInputData(image);
+#endif
   erode->Update();
   image->DeepCopy(erode->GetOutput());
+#if VTK_MAJOR_VERSION <= 5
   image->Update();
+#else
+  //image->Update();
+#endif
   UpdateAndRenderNewMask();
   erode->Delete();
   QApplication::restoreOverrideCursor();
@@ -420,10 +431,18 @@ void vvToolSegmentation::Dilate()
   vtkImageContinuousDilate3D* dilate = vtkImageContinuousDilate3D::New();
   dilate->SetKernelSize(mKernelValue,mKernelValue,mKernelValue);
   vtkImageData* image = mCurrentMaskImage->GetVTKImages()[0];
+#if VTK_MAJOR_VERSION <= 5
   dilate->SetInput(image);
+#else
+  dilate->SetInputData(image);
+#endif
   dilate->Update();
   image->DeepCopy(dilate->GetOutput());
+#if VTK_MAJOR_VERSION <= 5
   image->Update();
+#else
+  //image->Update();
+#endif
   UpdateAndRenderNewMask();
   dilate->Delete();
   QApplication::restoreOverrideCursor();
@@ -557,7 +576,7 @@ void vvToolSegmentation::MousePositionChanged(int slicer)
   // mCurrentMousePositionInPixel[1] = Yover;
   // mCurrentMousePositionInPixel[2] = Zover;
   // DDV(mCurrentMousePositionInPixel, 3);
-
+#if VTK_MAJOR_VERSION <= 5
   if (Xover >= image->GetWholeExtent()[0] &&
       Xover <= image->GetWholeExtent()[1] &&
       Yover >= image->GetWholeExtent()[2] &&
@@ -579,6 +598,29 @@ void vvToolSegmentation::MousePositionChanged(int slicer)
     // DD("out of mask");
     mCurrentLabelUnderMousePointer = 0; // BG is always 0 in CCL
   }
+#else
+  if (Xover >= image->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[0] &&
+      Xover <= image->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[1] &&
+      Yover >= image->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[2] &&
+      Yover <= image->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[3] &&
+      Zover >= image->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[4] &&
+      Zover <= image->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[5]) {
+    if (mCurrentState == State_Default) { // inside the mask
+      mCurrentLabelUnderMousePointer = 1;
+      return; 
+    }
+    else { // inside the label image
+      vtkImageData * image = mCurrentCCLImage->GetFirstVTKImageData();
+      mCurrentLabelUnderMousePointer = 
+        mCurrentSlicerManager->GetSlicer(0)->GetScalarComponentAsDouble(image, Xover, Yover, Zover, ix, iy, iz, 0);
+      return;
+    }
+  }
+  else {
+    // DD("out of mask");
+    mCurrentLabelUnderMousePointer = 0; // BG is always 0 in CCL
+  }
+#endif
 }
 //------------------------------------------------------------------------------
 

@@ -15,7 +15,7 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
-#ifndef __vtkVoxImageWriter_h
+#ifndef __vtkVOXImageWriter_h
 #define __vtkVOXImageWriter_h
 #include "vtkImageWriter.h"
 #include <string>
@@ -24,7 +24,7 @@
 class vtkVOXImageWriter : public vtkImageWriter
 {
 public:
-    vtkTypeRevisionMacro(vtkVOXImageWriter,vtkImageWriter);
+    vtkTypeMacro(vtkVOXImageWriter,vtkImageWriter);
     void PrintSelf(ostream& os, vtkIndent indent);
 
     // Description:

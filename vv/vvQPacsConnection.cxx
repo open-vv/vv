@@ -306,7 +306,7 @@ std::vector< std::pair<gdcm::Tag, std::string> > vvQPacsConnection::getKeys()
 	//gdcm::Tag tagsdc(8,1030);
 	//keys.push_back(std::make_pair(tagsdc, ""));
 
-	//// Accession n°
+	//// Accession
 	//gdcm::Tag tagacc(8,50);
 	//keys.push_back(std::make_pair(tagacc, ""));
 
@@ -383,7 +383,7 @@ void vvQPacsConnection::on_importButton_clicked()
 			dirpath.mkdir(path);
 		}
 		bool didItWork =  gdcm::CompositeNetworkFunctions::CMove(m_adress.c_str(),atoi(m_port.c_str()),
-			gdcm::CompositeNetworkFunctions::ConstructQuery(mQFactory.getMoveQuery().theRoot, mQFactory.getMoveQuery().theLevel ,mQFactory.getMoveQuery().keys,true),
+			gdcm::CompositeNetworkFunctions::ConstructQuery(mQFactory.getMoveQuery().theRoot, mQFactory.getMoveQuery().theLevel ,mQFactory.getMoveQuery().keys, gdcm::eMove),
 			getDicomClientPort(),  getDicomClientAETitle().c_str(), m_aetitle.c_str(), path.toStdString().c_str() );
 		gdcm::Directory theDir;
 		theDir.Load(path.toStdString().c_str());
@@ -393,7 +393,7 @@ void vvQPacsConnection::on_importButton_clicked()
      NamesGeneratorType::Pointer nameGenerator = NamesGeneratorType::New();
      nameGenerator->SetUseSeriesDetails(true);
 
-     //ds gérer recursive moi-meme pour progress ...
+     //ds gerer recursive moi-meme pour progress ...
      nameGenerator->SetInputDirectory(path.toStdString());
 
      // insert in table

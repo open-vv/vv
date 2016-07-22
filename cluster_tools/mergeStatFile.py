@@ -27,7 +27,9 @@ def parse_stat_file(filename):
     keys = {}
     for line in open(filename,"r").readlines():
         match = linere.match(line)
-        assert(match is not None)
+        #assert(match is not None)
+        if match is None:
+            continue
         groups = match.groups()
         if groups[0] not in mergedlines:
             continue
@@ -88,4 +90,3 @@ jkeys = parse_stat_file(sys.argv[4])
 keys  = merge_keys(ikeys,jkeys)
 output = format_keys(keys)
 open(sys.argv[6],"w").write(output)
-

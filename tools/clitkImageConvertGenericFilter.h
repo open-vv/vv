@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://www.centreleonberard.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -23,7 +23,7 @@
  * @author David Sarrut <David.Sarrut@creatis.insa-lyon.fr>
  * @date   05 May 2008 10:40:24
 
- * @brief  
+ * @brief
 
  ===================================================================*/
 
@@ -36,7 +36,7 @@
 
 
 namespace clitk {
-  
+
   template <class TPixel>
   class ImageConvertTraits
   {
@@ -47,17 +47,17 @@ namespace clitk {
     }
   };
 
-  template < class TPixel, unsigned int Comp > 
-  class ImageConvertTraits< itk::Vector<TPixel, Comp> > 
-  { 
-  public: 
-    enum { IS_VECTOR = true }; 
+  template < class TPixel, unsigned int Comp >
+  class ImageConvertTraits< itk::Vector<TPixel, Comp> >
+  {
+  public:
+    enum { IS_VECTOR = true };
   };
 
-  class ImageConvertGenericFilter: 
+  class ImageConvertGenericFilter:
     public clitk::ImageToImageGenericFilter<ImageConvertGenericFilter> {
-    
-  public: 
+
+  public:
     // constructor - destructor
     ImageConvertGenericFilter();
 
@@ -68,23 +68,25 @@ namespace clitk {
 
     // New
     itkNewMacro(Self);
-    
+
     // Members functions
     std::string GetInputPixelTypeName() { return m_PixelTypeName; }
     std::string GetOutputPixelTypeName() { return mOutputPixelTypeName; }
     void SetOutputPixelType(std::string p) { mOutputPixelTypeName = p; }
+    void SetVV(bool b) { mVV = b; }
     bool IsWarningOccur() { return mWarningOccur; }
     std::string & GetWarning() { return mWarning; }
     void EnableDisplayWarning(bool b) { mDisplayWarning = b; }
+    void SetCorrectNegativeSpacingFlag(bool b) { mCorrectNegativeSpacingFlag = b; }
 
     //--------------------------------------------------------------------
     // Main function called each time the filter is updated
-    template<class InputImageType>  
+    template<class InputImageType>
     void UpdateWithInputImageType();
 
     template<class PixelType, class OutputPixelType>
     void CheckTypes(std::string inType, std::string outType);
-    
+
   protected:
 
     template<unsigned int Dim> void InitializeImageType();
@@ -92,6 +94,8 @@ namespace clitk {
     std::string mWarning;
     bool mWarningOccur;
     bool mDisplayWarning;
+    bool mVV;
+    bool mCorrectNegativeSpacingFlag;
 
   private:
     template <class InputImageType, bool isVector>
@@ -117,17 +121,17 @@ namespace clitk {
           else
           {
             std::string list = CreateListOfTypes<float, double>();
-            std::cerr << "Error, I don't know the vector output type '" << outputPixelType 
+            std::cerr << "Error, I don't know the vector output type '" << outputPixelType
                       << "'. " << std::endl << "Known types are " << list << "." << std::endl;
             return false;
           }
-          
+
           return true;
       }
 
     private:
-      
-      template <class OutputPixelType> 
+
+      template <class OutputPixelType>
       static void UpdateWithOutputType(ImageConvertGenericFilter& filter)
       {
         // Read
@@ -150,7 +154,7 @@ namespace clitk {
         filter.SetNextOutput<OutputImageType>(cast_filter->GetOutput());
       }
     };
-    
+
     template <class InputImageType>
     class UpdateWithSelectiveOutputType<InputImageType, true>
     {
@@ -158,7 +162,7 @@ namespace clitk {
       static bool Run(ImageConvertGenericFilter& filter, std::string outputPixelType)
       {
         /*
-        // RP: future conversions? 
+        // RP: future conversions?
         if (IsSameType<char>(outputPixelType))
           UpdateWithOutputVectorType<char>();
         else if (IsSameType<uchar>(outputPixelType))
@@ -169,7 +173,7 @@ namespace clitk {
           UpdateWithOutputVectorType<ushort>();
         else if (IsSameType<int>(outputPixelType))
           UpdateWithOutputVectorType<int>();
-        else 
+        else
           */
         if (IsSameType<float>(outputPixelType))
           UpdateWithOutputVectorType<float>(filter);
@@ -178,17 +182,17 @@ namespace clitk {
         else
         {
           std::string list = CreateListOfTypes<float, double>();
-          std::cerr << "Error, I don't know the vector output type '" << outputPixelType  
+          std::cerr << "Error, I don't know the vector output type '" << outputPixelType
                     << "'. " << std::endl << "Known types are " << list << "." << std::endl;
           return false;
         }
-        
+
         return true;
       }
-      
+
     private:
-      
-      template <class OutputPixelType> 
+
+      template <class OutputPixelType>
       static void UpdateWithOutputVectorType(ImageConvertGenericFilter& filter)
       {
         // Read
@@ -199,7 +203,7 @@ namespace clitk {
 
         // Warning
         filter.CheckTypes<PixelType, OutputPixelType>(filter.GetInputPixelTypeName(), filter.GetOutputPixelTypeName());
-        
+
         // Cast
         typedef itk::Image<itk::Vector<OutputPixelType, InputImageType::PixelType::Dimension>, InputImageType::ImageDimension> OutputImageType;
         typedef itk::VectorCastImageFilter<InputImageType, OutputImageType> FilterType;
@@ -218,4 +222,3 @@ namespace clitk {
 } // end namespace
 
 #endif /* end #define CLITKIMAGECONVERTGENERICFILTER_H */
-

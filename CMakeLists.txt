@@ -1,32 +1,40 @@
 #=========================================================
 # CLITK = Command Line ITK
-PROJECT(clitk)
+project(clitk)
 cmake_minimum_required(VERSION 2.8)
 cmake_policy(VERSION 2.8)
 if(COMMAND cmake_policy)
     cmake_policy(SET CMP0003 NEW)
+    cmake_policy(SET CMP0007 NEW)
 endif(COMMAND cmake_policy)
-IF(NOT DEFINED CLITK_SOURCE_DIR)
-  SET(CLITK_SOURCE_DIR ${PROJECT_SOURCE_DIR})
-ENDIF(NOT DEFINED CLITK_SOURCE_DIR)
+if(NOT DEFINED CLITK_SOURCE_DIR)
+  set(CLITK_SOURCE_DIR ${PROJECT_SOURCE_DIR})
+endif(NOT DEFINED CLITK_SOURCE_DIR)
+# Default build type
+IF(NOT CMAKE_BUILD_TYPE)
+  SET(CMAKE_BUILD_TYPE Release CACHE STRING
+    "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+    FORCE)
+ENDIF(NOT CMAKE_BUILD_TYPE)
 #=========================================================
 
-SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-IF(MSVC)
-  SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj" )
-  SET( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /bigobj" )
-ENDIF(MSVC)
+if(MSVC)
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj" )
+  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /bigobj" )
+endif(MSVC)
 
 #=========================================================
-INCLUDE(${CLITK_SOURCE_DIR}/cmake/common.cmake)
-INCLUDE(${CLITK_SOURCE_DIR}/cmake/dependencies.cmake)
-INCLUDE(${CLITK_SOURCE_DIR}/cmake/build_opt.cmake)
+include(${CLITK_SOURCE_DIR}/cmake/common.cmake)
+include(${CLITK_SOURCE_DIR}/cmake/dependencies.cmake)
+include(${CLITK_SOURCE_DIR}/cmake/build_opt.cmake)
 #=========================================================
 #=========================================================
 SET(vvPacsConnection true)
 # Select what is compiled
-ADD_SUBDIRECTORY(${CLITK_SOURCE_DIR}/common ${PROJECT_BINARY_DIR}/common)
-ADD_SUBDIRECTORY(${CLITK_SOURCE_DIR}/tools ${PROJECT_BINARY_DIR}/tools)
-ADD_SUBDIRECTORY(${CLITK_SOURCE_DIR}/segmentation ${PROJECT_BINARY_DIR}/segmentation)
-ADD_SUBDIRECTORY(${CLITK_SOURCE_DIR}/registration ${PROJECT_BINARY_DIR}/registration)
+add_subdirectory(${CLITK_SOURCE_DIR}/common ${PROJECT_BINARY_DIR}/common)
+add_subdirectory(${CLITK_SOURCE_DIR}/tools ${PROJECT_BINARY_DIR}/tools)
+add_subdirectory(${CLITK_SOURCE_DIR}/segmentation ${PROJECT_BINARY_DIR}/segmentation)
+add_subdirectory(${CLITK_SOURCE_DIR}/registration ${PROJECT_BINARY_DIR}/registration)
+add_subdirectory(${CLITK_SOURCE_DIR}/cluster_tools ${PROJECT_BINARY_DIR}/cluster_tools)

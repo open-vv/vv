@@ -188,9 +188,7 @@ void vvImageReader::ReadMatImageTransform()
   f.open(filename.c_str());
   if(!itkMatRead && f.is_open()) {
     itkMatRead = true;
-    std::vector<std::string> l;
-    l.push_back(filename);
-    itkMat = clitk::createMatrixFromElastixFile<3>(l, true);
+    itkMat = clitk::createMatrixFromElastixFile<3>(filename, true);
   }
   f.close();
 

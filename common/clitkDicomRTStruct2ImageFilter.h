@@ -18,7 +18,7 @@
   =========================================================================*/
 
 #ifndef CLITKDICOMRTSTRUCT2IMAGEFILTER_H
-#define CLITKDICOMRT_TRUCT2IMAGEFILTER_H
+#define CLITKDICOMRTSTRUCT2IMAGEFILTER_H
 
 #include "clitkDicomRT_ROI.h"
 #include "clitkImageCommon.h"

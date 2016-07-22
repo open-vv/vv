@@ -17,6 +17,7 @@
 ===========================================================================**/
 #include "vvGlyph2D.h"
 
+#include <vtkVersion.h>
 #include "vtkCell.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
@@ -32,7 +33,6 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vvGlyph2D, "DummyRevision");
 vtkStandardNewMacro(vvGlyph2D);
 
 vvGlyph2D::vvGlyph2D()
@@ -171,9 +171,14 @@ int vvGlyph2D::RequestData(
     defaultPointIds[0] = 0;
     defaultPointIds[1] = 1;
     defaultSource->SetPoints(defaultPoints);
-    defaultSource->InsertNextCell(VTK_LINE, 2, defaultPointIds);
+    defaultSource->InsertNextCell(VTK_LINE, 2, defaultPointIds); 
+#if VTK_MAJOR_VERSION <= 5
     defaultSource->SetUpdateExtent(0, 1, 0);
     this->SetSource(defaultSource);
+#else
+    this->SetUpdateExtent(0, 1, 0);
+    this->SetSourceData(defaultSource);
+#endif
     defaultSource->Delete();
     defaultSource = NULL;
     defaultPoints->Delete();

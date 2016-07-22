@@ -33,6 +33,9 @@
 #include <QSignalMapper>
 
 // vtk
+#include <vtkVersion.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkInformation.h>
 #include <vtkImageClip.h>
 #include <vtkImageTranslateExtent.h>
 #include <vtkImageData.h>
@@ -96,10 +99,18 @@ void vvToolCropImage::closeEvent(QCloseEvent *event)
 {
   if(mCurrentSlicerManager){
 //     Reset extends
-    for(int i=0; i<mExtentSize; i++){
+    for(int i=0; i<6; i++){
       mReducedExtent[i] = mInitialExtent[i];
     }
+    for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++)
+      mCurrentSlicerManager->GetSlicer(i)->EnableReducedExtent(false);
     UpdateExtent();
+  }
+  mCurrentSlicerManager->GetImage()->GetTransform()[0]->SetMatrix(mConcatenedTransform);
+  for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
+    mCurrentSlicerManager->GetSlicer(i)->ResetCamera();
+    mCurrentSlicerManager->GetSlicer(i)->Render();
+    mCurrentSlicerManager->UpdateLinkedNavigation( mCurrentSlicerManager->GetSlicer(i) );
   }
   vvToolWidgetBase::closeEvent(event);
 }
@@ -117,7 +128,10 @@ bool vvToolCropImage::close()
 //------------------------------------------------------------------------------
 void vvToolCropImage::reject()
 {
-  for(int i=0; i<mExtentSize; i++) mReducedExtent[i] = mInitialExtent[i];
+  for(int i=0; i<mExtentSize; i++)
+    mReducedExtent[i] = mInitialExtent[i];
+  for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++)
+    mCurrentSlicerManager->GetSlicer(i)->EnableReducedExtent(false);
   UpdateExtent();
   return vvToolWidgetBase::reject();
 }
@@ -154,6 +168,18 @@ void vvToolCropImage::UpdateExtent()
 //------------------------------------------------------------------------------
 void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer)
 {
+  //Save the current transformation
+  mConcatenedTransform = vtkSmartPointer<vtkMatrix4x4>::New();
+  mConcatenedTransform->DeepCopy(slicer->GetSlicer(0)->GetConcatenatedTransform()->GetMatrix());
+  vtkSmartPointer<vtkMatrix4x4> matrix = vtkSmartPointer<vtkMatrix4x4>::New();
+  matrix->Identity();
+  mCurrentSlicerManager->GetImage()->GetTransform()[0]->SetMatrix(matrix);
+  for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
+    mCurrentSlicerManager->GetSlicer(i)->ResetCamera();
+    mCurrentSlicerManager->GetSlicer(i)->Render();
+    mCurrentSlicerManager->UpdateLinkedNavigation( mCurrentSlicerManager->GetSlicer(i) );
+  }
+
   // Change interface according to number of dimension
   mExtentSize = 2*slicer->GetDimension();
    if (slicer->GetDimension()<4) {
@@ -173,8 +199,11 @@ void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer)
     spin_zmin->setHidden(true);
     spin_zmax->setHidden(true);
   }
-
+#if VTK_MAJOR_VERSION <= 5
   int *a = mCurrentImage->GetFirstVTKImageData()->GetWholeExtent();
+#else
+  int *a = mCurrentImage->GetFirstVTKImageData()->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
+#endif
   for(int i=0; i<6; i++){
     mInitialExtent[i] = a[i];
     mReducedExtent[i] = a[i];
@@ -185,8 +214,10 @@ void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer)
   }
 
 //   Set initial sliders values
-  std::vector<int> imsize = mCurrentSlicerManager->GetImage()->GetSize();
+  int w_ext[6], imsize[3];
+  mCurrentSlicerManager->GetSlicer(0)->GetRegisterExtent(w_ext);
   for(int dim=0; dim<slicer->GetDimension() && dim<3; ++dim){
+    imsize[dim] = w_ext[2*dim+1] - w_ext[2*dim] +1;
     mSliders[dim*2]->setMaximum(imsize[dim]-1);
     mSliders[dim*2+1]->setMaximum(imsize[dim]-1);
     mSliders[dim*2+1]->setValue(imsize[dim]-1);
@@ -257,7 +288,7 @@ void vvToolCropImage::apply()
   }
   // We MUST reset initial extend to input image before using the
   // filter to retrieve the correct image size
-  for(int i=0; i<mExtentSize; i++) {
+  for(int i=0; i<6; i++) {
     mReducedExtent[i] = mInitialExtent[i];
   }
   
@@ -282,6 +313,8 @@ void vvToolCropImage::apply()
   // Retrieve result and display it
   vvImage::Pointer output = filter->GetOutputVVImage();
   
+  output->GetTransform()[0]->SetMatrix(mConcatenedTransform);
+
   AddImage(output,croppedImageName.str());
   
   // End

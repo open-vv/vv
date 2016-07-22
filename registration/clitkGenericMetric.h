@@ -143,11 +143,8 @@ private:
   typename FixedImageType::Pointer m_FixedImage;
   typename FixedImageMaskType::ConstPointer m_FixedImageMask;
 
-#if defined(ITK_USE_OPTIMIZED_REGISTRATION_METHODS) || ITK_VERSION_MAJOR >= 4
   FixedImagePixelType m_FixedImageSamplesIntensityThreshold;
   bool m_UseFixedImageSamplesIntensityThreshold;
-#endif
-
 };
 
 } // end namespace clitk

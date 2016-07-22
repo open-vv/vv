@@ -57,6 +57,7 @@ class vvMainWindow: public vvMainWindowBase,
   void LoadImages(std::vector<std::string> filenames, vvImageReader::LoadedImageType type);
   vvSlicerManager * AddImage(vvImage::Pointer image,std::string filename);
   void AddField(QString file,int index);
+  bool CheckAddedImage(int index, QString imageType);
   void AddOverlayImage(int index, std::vector<std::string> fileNames, vvImageReader::LoadedImageType type);
   void AddFusionImage(int index, std::vector<std::string> fileNames, vvImageReader::LoadedImageType type);
   void AddROI(int index, QString filename);

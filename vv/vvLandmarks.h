@@ -44,6 +44,7 @@ public :
 
     void AddLandmark(float x,float y,float z,float t,double value);
     void RemoveLastLandmark();
+    void RemoveLandmarkWithLabel(vtkStdString, int);
     void RemoveLandmark(int index);
     void RemoveAll();
     
@@ -51,6 +52,7 @@ public :
     float* GetCoordinates(int index);
     double GetPixelValue(int index);
     std::string GetComments(int index);
+    vtkStringArray* GetLabels() { return mLabels[mTime]; }
     unsigned int GetNumberOfPoints() { return (unsigned int) mLandmarks[mTime].size(); }
     //int GetNumberOfSources(){return mText.size();}
 

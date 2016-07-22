@@ -19,6 +19,7 @@
 #ifndef VVTOOLWIDGETBASE_H
 #define VVTOOLWIDGETBASE_H
 
+#include <QtGlobal>
 #include <QtDesigner/QDesignerExportWidget>
 #include "ui_vvToolWidgetBase.h"
 #include "clitkImageToImageGenericFilter.h"

@@ -61,7 +61,7 @@ class vvROIActor: public QObject {
   void RemoveActors();
 
 public slots:
-  void UpdateSlice(int slicer, int slices, bool force=false);
+  void UpdateSlice(int slicer, int slices, int force=0);
   void UpdateColor();
   void UpdateImage();
 

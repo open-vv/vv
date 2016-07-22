@@ -153,6 +153,12 @@ WriteDicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
 
   // Read the series
   typename ReaderType::Pointer reader = ReaderType::New();
+  if (m_ArgsInfo.preserve_flag) {
+#if GDCM_MAJOR_VERSION >= 2
+    gdcmIO->LoadPrivateTagsOn();
+    gdcmIO->KeepOriginalUIDOn();
+#endif
+  }
   reader->SetImageIO( gdcmIO );
   reader->SetFileNames( filenames_in );
   try {

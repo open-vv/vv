@@ -105,6 +105,15 @@ float clitk::PixelTypeDownCast(const double & x)
 //------------------------------------------------------------------
 
 //------------------------------------------------------------------
+// Convert a pixel type without casting
+template<>
+double clitk::PixelTypeDownCast(const double & x)
+{
+  return x;
+}
+//------------------------------------------------------------------
+
+//------------------------------------------------------------------
 double clitk::rad2deg(const double anglerad)
 {
   return (anglerad/M_PI*180.0);

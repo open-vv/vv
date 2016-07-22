@@ -24,7 +24,7 @@
 #include "vtkOBJReader.h"
 #include "vtkInteractorStyle.h"
 
-
+#include <vtkVersion.h>
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkPolyData.h"
@@ -33,6 +33,11 @@
 #include "vtkRenderer.h"
 
 #include <QMessageBox>
+#include <QFileDialog>
+
+#ifdef Q_OS_OSX
+# include "vvOSXHelper.h"
+#endif
 
 //----------------------------------------------------------------------------
 class vvManagerCallback : public vtkCommand
@@ -75,6 +80,10 @@ vvSurfaceViewerDialog::vvSurfaceViewerDialog(QWidget * parent, Qt::WindowFlags f
   mCurrentTime = 0;
 
   connect(loadButton,SIGNAL(clicked()),this,SLOT(LoadSurface()));
+
+#ifdef Q_OS_OSX
+  disableGLHiDPI(renderWidget->winId());
+#endif
 }
 
 vvSurfaceViewerDialog::~vvSurfaceViewerDialog()
@@ -110,8 +119,11 @@ void vvSurfaceViewerDialog::LoadSurface()
     reader->Update();
     mReaders.push_back(reader);
   }
-
+#if VTK_MAJOR_VERSION <= 5
   mMapper->SetInput(mReaders[mCurrentTime]->GetOutput());
+#else
+  mMapper->SetInputConnection(mReaders[mCurrentTime]->GetOutputPort());
+#endif
 
   if (!mActor) {
     mActor = vtkActor::New();
@@ -140,7 +152,11 @@ void vvSurfaceViewerDialog::NextTime()
   mCurrentTime++;
   if (mCurrentTime >= mReaders.size())
     mCurrentTime = 0;
+#if VTK_MAJOR_VERSION <= 5
   mMapper->SetInput(mReaders[mCurrentTime]->GetOutput());
+#else
+  mMapper->SetInputConnection(mReaders[mCurrentTime]->GetOutputPort());
+#endif
   mMapper->Modified();
   renderWidget->GetRenderWindow()->Render();
 }
@@ -150,7 +166,11 @@ void vvSurfaceViewerDialog::PreviousTime()
   mCurrentTime--;
   if (mCurrentTime < 0)
     mCurrentTime = (unsigned int) mReaders.size() - 1;
+#if VTK_MAJOR_VERSION <= 5
   mMapper->SetInput(mReaders[mCurrentTime]->GetOutput());
+#else
+  mMapper->SetInputConnection(mReaders[mCurrentTime]->GetOutputPort());
+#endif
   mMapper->Modified();
   renderWidget->GetRenderWindow()->Render();
 }

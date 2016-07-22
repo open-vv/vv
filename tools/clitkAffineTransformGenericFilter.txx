@@ -182,9 +182,8 @@ namespace clitk
           }
         else {
           if (m_ArgsInfo.elastix_given) {
-            std::vector<std::string> s;
-            for(uint i=0; i<m_ArgsInfo.elastix_given; i++) s.push_back(m_ArgsInfo.elastix_arg[i]);
-            matrix = createMatrixFromElastixFile<Dimension>(s, m_Verbose);
+            std::string filename(m_ArgsInfo.elastix_arg);
+            matrix = createMatrixFromElastixFile<Dimension>(filename, m_Verbose);
           }
           else 
             matrix.SetIdentity();
@@ -213,6 +212,7 @@ namespace clitk
       likeReader->SetFileName(m_ArgsInfo.like_arg);
       likeReader->Update();
       resampler->SetOutputParametersFromImage(likeReader->GetOutput());
+      resampler->SetOutputDirection(likeReader->GetOutput()->GetDirection());
     } else if(m_ArgsInfo.transform_grid_flag) {
       typename itk::Matrix<double, Dimension+1, Dimension+1> invMatrix( matrix.GetInverse() );
       typename itk::Matrix<double, Dimension, Dimension> invRotMatrix( clitk::GetRotationalPartMatrix(invMatrix) );

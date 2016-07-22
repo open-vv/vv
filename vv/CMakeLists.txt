@@ -4,12 +4,13 @@ cmake_minimum_required(VERSION 2.4)
 # To avoid warning with some version
 if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
+  cmake_policy(SET CMP0007 NEW)
 endif(COMMAND cmake_policy)
 #=========================================================
 OPTION(CLITK_USE_PACS_CONNECTION "USE PACS CONNECTION"       OFF)
 #=========================================================
 #List of vv tools to compile
-SET(vv_TOOLS
+set(vv_TOOLS
   vvToolMedianFilter
   vvToolRigidReg
   vvToolCropImage
@@ -20,11 +21,13 @@ SET(vv_TOOLS
   vvToolConvert ## with dummy vvToolConvert.ui
   vvToolROIManager
   vvToolSegmentation
+  vvToolProfile
   ## these ones are for tests (not working)
+  # vvToolTest
   # vvToolFoo
   # vvToolFooWithWidgetBase
   # vvToolPlastimatch
-  # vvToolConnectedComponentLabeling  
+  # vvToolConnectedComponentLabeling
   ## these ones are old ones
   # vvToolExtractPatient
   # vvToolExtractLung
@@ -33,42 +36,43 @@ SET(vv_TOOLS
 # dependencies of the tools
 # Future issues : when tool depend on other tools ... how to manage that ?
 #  >> add the relevant $_LIBS variable to the tool that has dependencies?
-SET(vvToolBinarize_LIBS clitkBinarizeImageLib)
-SET(vvToolResample_LIBS clitkResampleImageLib)
-SET(vvToolConvert_LIBS clitkImageConvertLib)
-SET(vvToolExtractPatient_LIBS clitkSegmentationGgoLib)
-SET(vvToolExtractLung_LIBS clitkSegmentationGgoLib)
-SET(vvToolCropImage_LIBS clitkCropImageLib)
-SET(vvToolMIP_LIBS clitkMIPLib)
-SET(vvToolMedianFilter_LIBS clitkMedianImageFilterLib)
-SET(vvToolImageArithm_LIBS clitkImageArithmImageLib)
-SET(vvToolROIManager_LIBS clitkDicomRTStruct)
+set(vvToolBinarize_LIBS clitkBinarizeImageLib)
+set(vvToolProfile_LIBS clitkProfileImageLib)
+set(vvToolResample_LIBS clitkResampleImageLib)
+set(vvToolConvert_LIBS clitkImageConvertLib)
+set(vvToolExtractPatient_LIBS clitkSegmentationGgoLib)
+set(vvToolExtractLung_LIBS clitkSegmentationGgoLib)
+set(vvToolCropImage_LIBS clitkCropImageLib)
+set(vvToolMIP_LIBS clitkMIPLib)
+set(vvToolMedianFilter_LIBS clitkMedianImageFilterLib)
+set(vvToolImageArithm_LIBS clitkImageArithmImageLib)
+set(vvToolROIManager_LIBS clitkDicomRTStruct)
 
 #=========================================================
 # List of vv source files
 
 # in COMMON_WITH_UI -> must have .h and .cxx and .ui
-SET(vv_COMMON_WITH_UI
+set(vv_COMMON_WITH_UI
   vvInfoPanel
-  vvMainWindow 
-  vvLinkPanel 
-  vvOverlayPanel 
-  vvLandmarksPanel 
-  vvProgressDialog 
+  vvMainWindow
+  vvLinkPanel
+  vvOverlayPanel
+  vvLandmarksPanel
+  vvProgressDialog
   vvSegmentationDialog
   vvSurfaceViewerDialog
   vvDeformationDialog
   vvStructSelector
   vvIntensityValueSlider
   vvLabelImageLoaderWidget
-  vvToolWidgetBase  
+  vvToolWidgetBase
   vvToolSimpleInputSelectorWidget
   vvToolInputSelectorWidget
   vvRegisterForm
 )
 
 # All others sources
-SET(vv_SRCS
+set(vv_SRCS
   vvQProgressDialogITKCommand.cxx
   vvQDicomSeriesSelector.cxx
   QTreePushButton.cxx
@@ -105,196 +109,303 @@ SET(vv_SRCS
 
 #=========================================================
 # Qt related commands
-FIND_PACKAGE(Qt4 REQUIRED)
+if(vv_QT_VERSION VERSION_GREATER "4")
+  find_package(Qt5Widgets REQUIRED)
+  find_package(Qt5Network REQUIRED)
+  find_package(Qt5Designer REQUIRED)
+else()
+  find_package(Qt4 REQUIRED)
+endif()
 
-QT4_WRAP_CPP(vv_SRCS 
-  vvMainWindowBase.h 
-  QTreePushButton.h 
-  vvDocumentation.h  
-  vvHelpDialog.h  
-  vvQDicomSeriesSelector.h 
-  vvSlicerManager.h
-  vvStructureSetActor.h
-  vvROIActor.h
-  vvToolCreatorBase.h
-  )
+if(vv_QT_VERSION VERSION_GREATER "4")
+  link_directories(${QT5Widgets_LIBRARIES})
+  link_directories(${QT5Network_LIBRARIES})
+  link_directories(${QT5Designer_LIBRARIES})
+else()
+  link_directories(${QT_LIBRARY_DIR})
+endif()
 
-QT4_WRAP_UI(vv_UI_CXX 
-  qt_ui/vvHelpDialog.ui 
-  qt_ui/vvDocumentation.ui 
-  qt_ui/vvDicomSeriesSelector.ui
-qt_ui/vvDummyWindow.ui 	 #For testing 
-#qt_ui/vvPacsConnection.ui
- #    qt_ui/vvPacsSettingsDialog.ui
-)
+if(vv_QT_VERSION VERSION_GREATER "4")
+  qt5_wrap_cpp(vv_SRCS
+    vvMainWindowBase.h
+    QTreePushButton.h
+    vvDocumentation.h
+    vvHelpDialog.h
+    vvQDicomSeriesSelector.h
+    vvSlicerManager.h
+    vvSlicer.h
+    vvStructureSetActor.h
+    vvROIActor.h
+    vvToolCreatorBase.h
+    )
+else()
+  QT4_WRAP_CPP(vv_SRCS
+    vvMainWindowBase.h
+    QTreePushButton.h
+    vvDocumentation.h
+    vvHelpDialog.h
+    vvQDicomSeriesSelector.h
+    vvSlicerManager.h
+    vvSlicer.h
+    vvStructureSetActor.h
+    vvROIActor.h
+    vvToolCreatorBase.h
+    )
+endif()
 
-QT4_ADD_RESOURCES(vv_SRCS vvIcons.qrc)
+if(vv_QT_VERSION VERSION_GREATER "4")
+  qt5_wrap_ui(vv_UI_CXX
+    qt_ui/vvHelpDialog.ui
+    qt_ui/vvDocumentation.ui
+    qt_ui/vvDicomSeriesSelector.ui
+    qt_ui/vvDummyWindow.ui #For testing
+    )
+else()
+  QT4_WRAP_UI(vv_UI_CXX
+    qt_ui/vvHelpDialog.ui
+    qt_ui/vvDocumentation.ui
+    qt_ui/vvDicomSeriesSelector.ui
+    qt_ui/vvDummyWindow.ui #For testing
+    )
+endif()
+
+if(vv_QT_VERSION VERSION_GREATER "4")
+  QT5_add_resources(vv_SRCS vvIcons.qrc)
+else()
+  QT4_ADD_RESOURCES(vv_SRCS vvIcons.qrc)
+endif()
 
 # Add DICOM SERVER gui selector if the adequate GDCM is available
-IF(CLITK_USE_PACS_CONNECTION)
+if(CLITK_USE_PACS_CONNECTION)
   SET(vv_SRCS ${vv_SRCS}
-      vvQPacsConnection.cxx
-	  vvPacsSettingsDialog.cxx
-	  vvDicomServerQueryFactory.cxx
-	  )
-  QT4_WRAP_CPP(vv_SRCS vvQPacsConnection.h
-     vvPacsSettingsDialog.h)
-  QT4_WRAP_UI(vv_UI_CXX 
-	qt_ui/vvPacsConnection.ui
-     qt_ui/vvPacsSettingsDialog.ui)
-ENDIF(CLITK_USE_PACS_CONNECTION)
-
-# Add the autotools in the header vvToolsList.h for initialization of the dummy
-# variables in vv.cxx for the tools contained in vvLib
-if(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt IS_NEWER_THAN ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h)
-  file(REMOVE ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h)
-  foreach(tool ${vv_TOOLS})
-    FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h "#include \"${tool}.h\"\n")
-    FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h "extern const vvToolCreator<${tool}> *dummy${tool};\n")
-    FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h "const vvToolCreator<${tool}> *dummy${tool}2 = dummy${tool};\n\n")
+    vvQPacsConnection.cxx
+	vvPacsSettingsDialog.cxx
+	vvDicomServerQueryFactory.cxx
+	)
+  if(vv_QT_VERSION VERSION_GREATER "4")
+    qt5_wrap_cpp(vv_SRCS vvQPacsConnection.h
+      vvPacsSettingsDialog.h)
+    qt5_wrap_ui(vv_UI_CXX 
+	  qt_ui/vvPacsConnection.ui
+      qt_ui/vvPacsSettingsDialog.ui)
+  else()
+    QT4_WRAP_CPP(vv_SRCS vvQPacsConnection.h
+      vvPacsSettingsDialog.h)
+    QT4_WRAP_UI(vv_UI_CXX 
+	  qt_ui/vvPacsConnection.ui
+      qt_ui/vvPacsSettingsDialog.ui)
+  endif()
+endif(CLITK_USE_PACS_CONNECTION)
+  
+  # Add the autotools in the header vvToolsList.h for initialization of the dummy
+  # variables in vv.cxx for the tools contained in vvLib
+  if(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt IS_NEWER_THAN ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h)
+    file(REMOVE ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h)
+    foreach(tool ${vv_TOOLS})
+      file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h "#include \"${tool}.h\"\n")
+      file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h "extern const vvToolCreator<${tool}> *dummy${tool};\n")
+      file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h "const vvToolCreator<${tool}> *dummy${tool}2 = dummy${tool};\n\n")
+    endforeach(tool)
+  endif(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt IS_NEWER_THAN ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h)
+  
+  # Add the autotools and the common files ui
+  foreach(tool ${vv_TOOLS} ${vv_COMMON_WITH_UI})
+      set(vv_SRCS ${vv_SRCS} ${tool}.cxx)
+      if(vv_QT_VERSION VERSION_GREATER "4")
+        QT5_WRAP_CPP(vv_SRCS ${tool}.h)
+        QT5_WRAP_UI(vv_UI_CXX qt_ui/${tool}.ui)
+      else()
+        QT4_WRAP_CPP(vv_SRCS ${tool}.h)
+        QT4_WRAP_UI(vv_UI_CXX qt_ui/${tool}.ui)
+      endif()
   endforeach(tool)
-endif(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt IS_NEWER_THAN ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h)
+  
+  # Add the common source files
+  foreach(tool ${vv_COMMON})
+      set(vv_SRCS ${vv_SRCS} ${tool}.cxx)
+      if(vv_QT_VERSION VERSION_GREATER "4")
+        QT5_WRAP_CPP(vv_SRCS ${tool}.h)
+      else()
+        QT4_WRAP_CPP(vv_SRCS ${tool}.h)
+      endif()
+  endforeach(tool)
+  
+  # if Windows and Qt was built as a static lib then don't set QT_DLL flag
+  set(QT_STATIC 0)
+  if(WIN32)
+    if(vv_QT_VERSION VERSION_GREATER "4")
+      if(EXISTS ${Qt5Widgets_LIBRARIES}/QtCore.prl)
+        file(READ ${Qt5Widgets_LIBRARIES}/QtCore.prl QT_CORE_PRL)
+        if(${QT_CORE_PRL} MATCHES "static")
+          set(QT_STATIC 1)
+        endif(${QT_CORE_PRL} MATCHES "static")
+      endif(EXISTS ${Qt5Widgets_LIBRARIES}/QtCore.prl)
+    else()
+      if(EXISTS ${QT_LIBRARY_DIR}/QtCore.prl)
+        file(READ ${QT_LIBRARY_DIR}/QtCore.prl QT_CORE_PRL)
+        if(${QT_CORE_PRL} MATCHES "static")
+          set(QT_STATIC 1)
+        endif(${QT_CORE_PRL} MATCHES "static")
+      endif(EXISTS ${QT_LIBRARY_DIR}/QtCore.prl)
+    endif()
+  endif(WIN32)
+  if(NOT QT_STATIC)
+    add_definitions(-DQT_DLL)
+  endif(NOT QT_STATIC)
 
-# Add the autotools and the common files ui
-foreach(tool ${vv_TOOLS} ${vv_COMMON_WITH_UI})
-  SET(vv_SRCS ${vv_SRCS} ${tool}.cxx)
-  QT4_WRAP_CPP(vv_SRCS ${tool}.h)
-  QT4_WRAP_UI(vv_UI_CXX qt_ui/${tool}.ui)
-endforeach(tool)
-
-# Add the common source files
-foreach(tool ${vv_COMMON})
-  SET(vv_SRCS ${vv_SRCS} ${tool}.cxx)
-  QT4_WRAP_CPP(vv_SRCS ${tool}.h)
-endforeach(tool)
-
-# if Windows and Qt was built as a static lib then don't set QT_DLL flag
-SET(QT_STATIC 0)
-IF (WIN32)
-  IF(EXISTS ${QT_LIBRARY_DIR}/QtCore.prl)
-    FILE(READ ${QT_LIBRARY_DIR}/QtCore.prl QT_CORE_PRL)
-    IF(${QT_CORE_PRL} MATCHES "static")
-      SET(QT_STATIC 1)
-    ENDIF(${QT_CORE_PRL} MATCHES "static")
-  ENDIF(EXISTS ${QT_LIBRARY_DIR}/QtCore.prl)
-ENDIF(WIN32)
-IF(NOT QT_STATIC)
-  ADD_DEFINITIONS(-DQT_DLL)
-ENDIF(NOT QT_STATIC)
-
-ADD_DEFINITIONS(-DQT_THREAD_SUPPORT)
-
-INCLUDE_DIRECTORIES(
-  ${QT_INCLUDES}
-  ${QT_INCLUDE_DIR}
-  ${QT_QTGUI_INCLUDE_DIR}
-  ${QT_QTCORE_INCLUDE_DIR}
-  ${CMAKE_CURRENT_BINARY_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}
-)
+  add_definitions(-DQT_THREAD_SUPPORT)
+  if(vv_QT_VERSION VERSION_GREATER "4")
+    include_directories(
+      ${Qt5Widgets_INCLUDE_DIRS}
+      ${Qt5Gui_INCLUDE_DIRS}
+      ${Qt5Core_INCLUDE_DIRS}
+      ${Qt5Network_INCLUDE_DIRS}
+      ${Qt5Designer_INCLUDE_DIRS}
+      ${CMAKE_CURRENT_BINARY_DIR}
+      ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+  else()
+    include_directories(
+      ${QT_INCLUDES}
+      ${QT_INCLUDE_DIR}
+      ${QT_QTGUI_INCLUDE_DIR}
+      ${QT_QTCORE_INCLUDE_DIR}
+      ${CMAKE_CURRENT_BINARY_DIR}
+      ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+  endif()
 #=========================================================
 
 #=========================================================
 #support for parallel deformable registration with OpenMP
-IF(NOT APPLE)
-IF(CMAKE_COMPILER_IS_GNUCC)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
-ENDIF(CMAKE_COMPILER_IS_GNUCC)
-ENDIF(NOT APPLE)
+if(NOT APPLE)
+if(CMAKE_COMPILER_IS_GNUCC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+endif(CMAKE_COMPILER_IS_GNUCC)
+endif(NOT APPLE)
 #=========================================================
 
 #=========================================================
-INCLUDE_DIRECTORIES(
+include_directories(
   ../common
   ../tools
   ../segmentation
   )
 
-LINK_DIRECTORIES(${QT_LIBRARY_DIR})
-
 #=========================================================
 #Add each tool's dependencies
 foreach(tool ${vv_TOOLS})
-  SET(toolLibs ${toolLibs} ${${tool}_LIBS})
+  set(toolLibs ${toolLibs} ${${tool}_LIBS})
 endforeach(tool)
 
 #=========================================================
 #Add Foundation Libraries (this should be after our libraries, since we depend
 #on them)
-SET(foundationLibraries clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
+if(VTK_VERSION VERSION_GREATER "6.2.0")
+set(foundationLibraries clitkCommon ${ITK_LIBRARIES} ${VTK_LIBRARIES})
+else()
+set(foundationLibraries clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
+endif()
 
 #=========================================================
 # Use CxImage to create animated gifs
-IF(CLITK_EXPERIMENTAL)
-  SET(vvCxImage clitkCxImage)
-  SET(vv_SRCS ${vv_SRCS} vvAnimatedGIFWriter.cxx)
-  INCLUDE_DIRECTORIES(${CLITK_SOURCE_DIR}/utilities/CxImage)
-  ADD_SUBDIRECTORY(${CLITK_SOURCE_DIR}/utilities/CxImage ${PROJECT_BINARY_DIR}/utilities/CxImage)
-ENDIF(CLITK_EXPERIMENTAL)
+if(CLITK_EXPERIMENTAL)
+  set(vvCxImage clitkCxImage)
+  set(vv_SRCS ${vv_SRCS} vvAnimatedGIFWriter.cxx)
+  include_directories(${CLITK_SOURCE_DIR}/utilities/CxImage)
+  add_subdirectory(${CLITK_SOURCE_DIR}/utilities/CxImage ${PROJECT_BINARY_DIR}/utilities/CxImage)
+endif(CLITK_EXPERIMENTAL)
 #=========================================================
 
+#-----------------------------------------------------------------------------
+# Avoid linker bug in Mac OS 10.5
+# See http://wiki.finkproject.org/index.php/Fink:Packaging:Preparing_for_10.5#OpenGL_Bug
+#
+if(APPLE)
+  find_library(CoreFoundation_LIBRARY CoreFoundation REQUIRED)
+  find_library(ApplicationServices_LIBRARY ApplicationServices REQUIRED)
+  find_library(SystemConfiguration_LIBRARY SystemConfiguration REQUIRED)
+  find_library(Security_LIBRARY Security REQUIRED)
+  set(APPLE_FRAMEWORKS ${CoreFoundation_LIBRARY}
+    ${ApplicationServices_LIBRARY}
+    ${SystemConfiguration_LIBRARY}
+    ${Security_LIBRARY}
+    )
+  message(STATUS "===== ${APPLE_FRAMEWORKS}")
+endif()
 #=========================================================
 #Create binary and libs for tests
-SET(vvExternalLibs ${QT_QTNETWORK_LIBRARY} clitkSegmentationGgoLib ${toolLibs} ${foundationLibraries} ${vvCxImage})
-# QtNetwork is required by vvRegisterForm
+if(vv_QT_VERSION VERSION_GREATER "4")
+set(vvExternalLibs clitkSegmentationGgoLib ${toolLibs} ${foundationLibraries} ${vvCxImage} Qt5::Widgets Qt5::Network Qt5::Designer ${APPLE_FRAMEWORKS})
+else()
+set(vvExternalLibs clitkSegmentationGgoLib ${toolLibs} ${foundationLibraries} ${vvCxImage} ${QT_LIBRARIES} ${APPLE_FRAMEWORKS})
+endif()
+# QtNetwork is required by vvRegisterForm ${QT_QTNETWORK_LIBRARY}
 
-ADD_LIBRARY(vvLib ${vv_SRCS} ${vv_UI_CXX})
-TARGET_LINK_LIBRARIES(vvLib ${vvExternalLibs})
+#-----------------------------------------------------------------------------
+# For retina displays, see
+# http://public.kitware.com/pipermail/vtkusers/2015-February/090117.html
+if(APPLE)
+  set(vv_SRCS ${vv_SRCS} vvOSXHelper.mm)
+endif()
 
-IF(WIN32)
-  ADD_EXECUTABLE(vv WIN32 vv.cxx vvIcon.rc)
-ELSE(WIN32)
-  ADD_EXECUTABLE(vv vv.cxx)
-ENDIF(WIN32)
+add_library(vvLib ${vv_SRCS} ${vv_UI_CXX})
+target_link_libraries(vvLib ${vvExternalLibs})
 
-TARGET_LINK_LIBRARIES(vv vvLib)
+if(WIN32)
+  add_executable(vv WIN32 vv.cxx vvIcon.rc)
+else(WIN32)
+  add_executable(vv vv.cxx)
+endif(WIN32)
+
+target_link_libraries(vv vvLib)
 
 #=========================================================
 # Install options (also used by CPack)
-INSTALL (TARGETS vv DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
+install(TARGETS vv DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
 
 #=========================================================
 
 #=========================================================
 # CPack options
-SET(CPACK_PACKAGE_NAME "vv")
-SET(CPACK_SOURCE_PACKAGE_FILE_NAME "vv-src")
-SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "vv, the 4D slicer : let's jump into a new dimension !")
-SET(CPACK_PACKAGE_VENDOR "Creatis-CLB")
-SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/ReadMe.txt")
-SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/License.txt")
-SET(CPACK_PACKAGE_VERSION_MAJOR "1")
-SET(CPACK_PACKAGE_VERSION_MINOR "3")
-SET(CPACK_PACKAGE_VERSION_PATCH "0")
-IF(NIGHTLY)
-  SET(CPACK_PACKAGE_INSTALL_DIRECTORY "vv-nightly")
-ELSE(NIGHTLY)
-  SET(CPACK_PACKAGE_INSTALL_DIRECTORY "vv")
-ENDIF(NIGHTLY)
-SET(CPACK_STRIP_FILES TRUE)
+set(CPACK_PACKAGE_NAME "vv")
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "vv-src")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "vv, the 4D slicer : let's jump into a new dimension !")
+set(CPACK_PACKAGE_VENDOR "Creatis-CLB")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/ReadMe.txt")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/License.txt")
+set(CPACK_PACKAGE_VERSION_MAJOR "1")
+set(CPACK_PACKAGE_VERSION_MINOR "3")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
+if(NIGHTLY)
+  set(CPACK_PACKAGE_INSTALL_DIRECTORY "vv-nightly")
+else(NIGHTLY)
+  set(CPACK_PACKAGE_INSTALL_DIRECTORY "vv")
+endif(NIGHTLY)
+set(CPACK_STRIP_FILES TRUE)
 
-IF(WIN32)
+if(WIN32)
   # There is a bug in NSI that does not handle full unix paths properly. Make
   # sure there is at least one set of four (4) backlasshes.
-  SET(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}\\\\icons\\\\ducky.ico")
-  SET(CPACK_NSIS_INSTALLED_ICON_NAME "vv.exe")
-IF(NIGHTLY)
-  SET(CPACK_NSIS_DISPLAY_NAME "vv - The 4D slicer (nightly)")
-ELSE(NIGHTLY)
-  SET(CPACK_NSIS_DISPLAY_NAME "vv - The 4D slicer")
-ENDIF(NIGHTLY)
-  SET(CPACK_NSIS_HELP_LINK "http://www.creatis.insa-lyon.fr/rio/vv")
-  SET(CPACK_NSIS_URL_INFO_ABOUT "http://www.creatis.insa-lyon.fr/rio")
-  SET(CPACK_NSIS_CONTACT "vv@creatis.insa-lyon.fr")
-  SET(CPACK_NSIS_CREATE_ICONS_EXTRA "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\vv.lnk\\\" \\\"$INSTDIR\\\\bin\\\\vv.exe\\\" ")
-  SET(CPACK_NSIS_DELETE_ICONS_EXTRA "Delete \\\"$SMPROGRAMS\\\\$MUI_TEMP\\\\vv.lnk\\\" ")
-  #SET(CPACK_NSIS_MODIFY_PATH ON) SR: buggy, wait for cmake updates for a fix
-  #SET(CPACK_BINARY_ZIP ON)
-ELSE(WIN32)
-  SET(CPACK_GENERATOR "STGZ")
-  SET(CPACK_SOURCE_GENERATOR "TGZ") 
-ENDIF(WIN32)
-INCLUDE(CPack)
+  set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}\\\\icons\\\\ducky.ico")
+  set(CPACK_NSIS_INSTALLED_ICON_NAME "vv.exe")
+if(NIGHTLY)
+  set(CPACK_NSIS_DISPLAY_NAME "vv - The 4D slicer (nightly)")
+else(NIGHTLY)
+  set(CPACK_NSIS_DISPLAY_NAME "vv - The 4D slicer")
+endif(NIGHTLY)
+  set(CPACK_NSIS_HELP_LINK "http://www.creatis.insa-lyon.fr/rio/vv")
+  set(CPACK_NSIS_URL_INFO_ABOUT "http://www.creatis.insa-lyon.fr/rio")
+  set(CPACK_NSIS_CONTACT "vv@creatis.insa-lyon.fr")
+  set(CPACK_NSIS_CREATE_ICONS_EXTRA "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\vv.lnk\\\" \\\"$INSTDIR\\\\bin\\\\vv.exe\\\" ")
+  set(CPACK_NSIS_DELETE_ICONS_EXTRA "Delete \\\"$SMPROGRAMS\\\\$MUI_TEMP\\\\vv.lnk\\\" ")
+  #set(CPACK_NSIS_MODIFY_PATH ON) SR: buggy, wait for cmake updates for a fix
+  #set(CPACK_BINARY_ZIP ON)
+else(WIN32)
+  set(CPACK_GENERATOR "STGZ")
+  set(CPACK_SOURCE_GENERATOR "TGZ")
+endif(WIN32)
+include(CPack)
 #=========================================================
 #=========================================================
 configure_file(vvConfiguration.h.in vvConfiguration.h)

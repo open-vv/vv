@@ -38,7 +38,6 @@
 #include "vtkTransform.h"
 
 #include <cmath>
-
 //------------------------------------------------------------------------------
 vvSlicerManagerCommand::vvSlicerManagerCommand()
 {
@@ -112,53 +111,53 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
           this->SM->SetLocalColorWindowing(VisibleInWindow, bCtrlKey);
           return;
         }
-        if (KeyPress == "0") {
+        if (KeyPress == "0" || KeyPress == "KP_0") {
           this->SM->SetPreset(WL_AUTO);
           this->SM->UpdateWindowLevel();
           return;
         }
-        if (KeyPress == "1") {
+        if (KeyPress == "1" || KeyPress == "KP_1") {
           this->SM->SetPreset(WL_HOUNSFIELD);
           this->SM->UpdateWindowLevel();
           return;
         }
-        if (KeyPress == "2") {
+        if (KeyPress == "2" || KeyPress == "KP_2") {
           this->SM->SetPreset(WL_SOFTTISSUE);
           this->SM->UpdateWindowLevel();
 
           return;
         }
-        if (KeyPress == "3") {
+        if (KeyPress == "3" || KeyPress == "KP_3") {
           this->SM->SetPreset(WL_LUNGS);
           this->SM->UpdateWindowLevel();
           return;
         }
-        if (KeyPress == "4") {
+        if (KeyPress == "4" || KeyPress == "KP_4") {
           this->SM->SetPreset(WL_BONES);
           this->SM->UpdateWindowLevel();
           return;
         }
-        if (KeyPress == "5") {
+        if (KeyPress == "5" || KeyPress == "KP_5") {
           this->SM->SetPreset(WL_HEAD);
           this->SM->UpdateWindowLevel();
           return;
         }
-        if (KeyPress == "6") {
+        if (KeyPress == "6" || KeyPress == "KP_6") {
           this->SM->SetColorMap(0);
           this->SM->UpdateWindowLevel();
           return;
         }
-        if (KeyPress == "7") {
+        if (KeyPress == "7" || KeyPress == "KP_7") {
           this->SM->SetColorMap(1);
           this->SM->UpdateWindowLevel();
           return;
         }
-        if (KeyPress == "8") {
+        if (KeyPress == "8" || KeyPress == "KP_8") {
           this->SM->SetColorMap(2);
           this->SM->UpdateWindowLevel();
           return;
         }
-        if (KeyPress == "9") {
+        if (KeyPress == "9" || KeyPress == "KP_9") {
           this->SM->SetColorMap(3);
           this->SM->UpdateWindowLevel();
           return;
@@ -382,9 +381,13 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
       //>>>>>>> 921642d767beba2442dacc8fdb40dc36396e1b7d
 
       if (newLandmark) {
-        this->SM->AddLandmark(xWorld,yWorld,zWorld,
+        double pLand[3]; pLand[0] = xWorld; pLand[1] = yWorld; pLand[2] = zWorld;
+        double ptLand[3];
+        this->SM->GetSlicer(VisibleInWindow)->GetConcatenatedTransform()->TransformPoint(pLand, ptLand);
+        this->SM->AddNewLandmark(ptLand[0],ptLand[1],ptLand[2],
                               this->SM->GetSlicer(VisibleInWindow)->GetTSlice());
-        this->SM->GetSlicer(VisibleInWindow)->UpdateLandmarks();
+        this->SM->GetSlicer(VisibleInWindow)->RemoveLandmarks();
+        //this->SM->GetSlicer(VisibleInWindow)->DisplayLandmarks();
         this->SM->Render();
       }
       if (event == vtkCommand::PickEvent || event == vtkCommand::StartPickEvent) {

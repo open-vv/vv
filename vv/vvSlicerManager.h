@@ -274,7 +274,8 @@ class vvSlicerManager : public QObject {
   void SetSlicingPreset(SlicingPresetType preset);
 
   vvLandmarks *GetLandmarks();
-  void AddLandmark(float x,float y,float z,float t);
+  void AddNewLandmark(float x,float y,float z,float t);
+  void AddLandmarkProfile(float x,float y,float z,float t);
   
   void NextImage(int slicer);
   void PrevImage(int slicer);
@@ -282,7 +283,11 @@ class vvSlicerManager : public QObject {
   void VerticalSliderHasChanged(int slicer, int slice);
   double GetScalarComponentAsDouble(vtkImageData *image, double X, double Y, double Z, int component=0);
 
+public slots:
+  void AddLandmark(float x,float y,float z,float t);
+
 signals :
+  void callAddLandmark(float x,float y,float z,float t);
   void currentImageChanged(std::string id);
   void currentPickedImageChanged(std::string id);
   void UpdatePosition(int visibility,double x, double y, double z, double X, double Y, double Z, double value);

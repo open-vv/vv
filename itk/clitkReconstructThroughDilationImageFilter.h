@@ -39,11 +39,7 @@
 #include "itkConnectedComponentImageFilter.h"
 #include "itkStatisticsImageFilter.h"
 #include "itkCastImageFilter.h"
-#if ITK_VERSION_MAJOR >= 4
-  #include "itkTestingComparisonImageFilter.h"
-#else
-  #include "itkDifferenceImageFilter.h"
-#endif
+#include "itkTestingComparisonImageFilter.h"
 #include "itkThresholdImageFilter.h"
 
 namespace clitk 

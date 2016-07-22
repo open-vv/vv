@@ -43,15 +43,20 @@
   #include "clitkUSVoxImageIOFactory.h"
   #include "clitkSvlImageIOFactory.h"
 #endif
-#if ITK_VERSION_MAJOR >= 4
-  #include "itkGDCMImageIOFactory.h"
-#endif
+#include <itkBMPImageIOFactory.h>
+#include <itkGDCMImageIOFactory.h>
+#include <itkGiplImageIOFactory.h>
+#include <itkJPEGImageIOFactory.h>
+#include <itkMetaImageIOFactory.h>
+#include <itkPNGImageIOFactory.h>
+#include <itkStimulateImageIOFactory.h>
+#include <itkTIFFImageIOFactory.h>
+#include <itkVTKImageIOFactory.h>
 
 //--------------------------------------------------------------------
 // Register factories
 void clitk::RegisterClitkFactories()
 {
-#if ITK_VERSION_MAJOR >= 4
   std::list< itk::ObjectFactoryBase * > fl = itk::GDCMImageIOFactory::GetRegisteredFactories();
   for (std::list< itk::ObjectFactoryBase * >::iterator it = fl.begin(); it != fl.end(); ++it)
     if (dynamic_cast<itk::GDCMImageIOFactory *>(*it))
@@ -59,7 +64,14 @@ void clitk::RegisterClitkFactories()
       itk::GDCMImageIOFactory::UnRegisterFactory(*it);
       break;
     }
-#endif
+
+  std::list< itk::ObjectFactoryBase * > flpng = itk::PNGImageIOFactory::GetRegisteredFactories();
+  for (std::list< itk::ObjectFactoryBase * >::iterator it = flpng.begin(); it != flpng.end(); ++it)
+    if (dynamic_cast<itk::PNGImageIOFactory *>(*it))
+    {
+      itk::PNGImageIOFactory::UnRegisterFactory(*it);
+      break;
+    }
 #if CLITK_PRIVATE_FEATURES
   clitk::UsfImageIOFactory::RegisterOneFactory();
   clitk::USVoxImageIOFactory::RegisterOneFactory();
@@ -67,9 +79,6 @@ void clitk::RegisterClitkFactories()
 #endif
   clitk::GateAsciiImageIOFactory::RegisterOneFactory();
   clitk::DicomRTDoseIOFactory::RegisterOneFactory();
-#if ITK_VERSION_MAJOR <= 3
-  itk::ImageIOFactory::RegisterBuiltInFactories();
-#endif
   clitk::VoxImageIOFactory::RegisterOneFactory();
   clitk::VfImageIOFactory::RegisterOneFactory();
   clitk::XdrImageIOFactory::RegisterOneFactory();
@@ -79,8 +88,14 @@ void clitk::RegisterClitkFactories()
   rtk::ImagXImageIOFactory::RegisterOneFactory();
   rtk::XRadImageIOFactory::RegisterOneFactory();
   clitk::EsrfHstImageIOFactory::RegisterOneFactory();
-#if ITK_VERSION_MAJOR >= 4
+  itk::BMPImageIOFactory::RegisterOneFactory();
   itk::GDCMImageIOFactory::RegisterOneFactory();
-#endif
+  itk::GiplImageIOFactory::RegisterOneFactory();
+  itk::JPEGImageIOFactory::RegisterOneFactory();
+  itk::MetaImageIOFactory::RegisterOneFactory();
+  itk::PNGImageIOFactory::RegisterOneFactory();
+  itk::StimulateImageIOFactory::RegisterOneFactory();
+  itk::TIFFImageIOFactory::RegisterOneFactory();
+  itk::VTKImageIOFactory::RegisterOneFactory();
 } ////
 

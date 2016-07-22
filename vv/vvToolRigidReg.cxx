@@ -19,11 +19,16 @@
 // vv
 #include "vvToolRigidReg.h"
 #include "vvSlicer.h"
+#include <vvBlendImageActor.h>
 
 // vtk
 #include <vtkImageData.h>
 #include <vtkSmartPointer.h>
+#include <vtkInformation.h>
 #include <vtkTransform.h>
+#include <vtkImageActor.h>
+#include <vtkImageMapper3D.h>
+#include <vtkOpenGLImageSliceMapper.h>
 
 // itk
 #include <itkEuler3DTransform.h>
@@ -373,7 +378,21 @@ void vvToolRigidReg::SetTransform(vtkMatrix4x4 *matrix)
   itk::Euler3DTransform<double>::Pointer euler;
   euler = itk::Euler3DTransform<double>::New();
   euler->SetCenter(center);
-  euler->SetMatrix(rotMat);
+  try {
+#if ITK_VERSION_MAJOR > 4 || (ITK_VERSION_MAJOR == 4 && ITK_VERSION_MINOR > 6)
+    euler->SetMatrix(rotMat,0.00001);
+#else
+    euler->SetMatrix(rotMat);
+#endif
+  } catch (itk::ExceptionObject) {
+    QString warning = "The matrice is a non-orthogonal rotation matrix.\nThe manual registration doesn't work.";
+    QMessageBox msgBox(QMessageBox::Warning, tr("Reset transform"),warning, 0, this);
+    msgBox.addButton(tr("OK"), QMessageBox::AcceptRole);
+    if (msgBox.exec() == QMessageBox::AcceptRole) {
+        //SetTransform(mInitialMatrix);
+        vvToolWidgetBase::close();
+    }
+  }
   euler->SetOffset(transVec);
 
   // Modify GUI according to the new parameters
@@ -393,7 +412,7 @@ void vvToolRigidReg::SetTransform(vtkMatrix4x4 *matrix)
     double rad = (checkBoxDegrees->checkState()==Qt::Checked)?180./itk::Math::pi:1.;
     double angleDiff = euler->GetParameters()[i]-rotSBs[i]->value()/rad+2*itk::Math::pi;
     angleDiff = angleDiff - 2*itk::Math::pi*itk::Math::Round<double,double>(angleDiff/(2*itk::Math::pi));
-    if(angleDiff>1.e-4) {
+    if(abs(angleDiff)>1.e-4) {
       rotSBs[i]->blockSignals(true);
       rotSBs[i]->setValue( euler->GetParameters()[i]*rad );
       rotSBs[i]->blockSignals(false);
@@ -432,13 +451,33 @@ void vvToolRigidReg::GetSlidersAndSpinBoxes(std::vector<QSlider *>&transSliders,
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+void vvToolRigidReg::ExtentMax(const double pointExtent[8][4], double maxExtent[2][3])
+{
+    double max, min;
+    for (int i=0; i<3; ++i) {
+        max = pointExtent[0][i];
+        min = pointExtent[0][i];
+        for (int j=1; j<8; ++j) {
+            if (pointExtent[j][i] > max) {
+                max = pointExtent[j][i];
+            }
+            if (pointExtent[j][i] < min) {
+                min = pointExtent[j][i];
+            }
+        }
+        maxExtent[0][i] = min;
+        maxExtent[1][i] = max;
+    }
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 void vvToolRigidReg::Render()
 {
-  for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++)
-    {
+for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
     mCurrentSlicerManager->GetSlicer(i)->ForceUpdateDisplayExtent();
     mCurrentSlicerManager->GetSlicer(i)->Render();
-    }
+}
 }
 //------------------------------------------------------------------------------
 

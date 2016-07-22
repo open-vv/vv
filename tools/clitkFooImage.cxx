@@ -16,15 +16,6 @@
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
 
-/* =================================================
- * @file   clitkFooImageGenericFilter.txx
- * @author xxx <xxx@creatis.insa-lyon.fr>
- * @date   29 June 2029
- *
- * @brief FooImage an image
- *
- ===================================================*/
-
 // clitk
 #include "clitkFooImage_ggo.h"
 #include "clitkFooImageGenericFilter.h"

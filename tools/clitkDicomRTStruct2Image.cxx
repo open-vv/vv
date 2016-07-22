@@ -20,12 +20,14 @@
 #include "clitkDicomRTStruct2ImageFilter.h"
 #include "clitkDicomRT_StructureSet.h"
 #include "clitkDicomRTStruct2Image_ggo.h"
+#include "clitkIO.h"
 
 //--------------------------------------------------------------------
 int main(int argc, char * argv[]) {
 
   // Init command line
   GGO(clitkDicomRTStruct2Image, args_info);
+  CLITK_INIT;
 
   // Read and display information
   clitk::DicomRT_StructureSet::Pointer s = clitk::DicomRT_StructureSet::New();
@@ -66,11 +68,21 @@ int main(int argc, char * argv[]) {
         filter.SetCropMaskEnabled(args_info.crop_flag);
         filter.SetImageFilename(args_info.image_arg);  // Used to get spacing + origin
         name.erase(remove_if(name.begin(), name.end(), isspace), name.end());
-        std::string n = std::string(args_info.output_arg).append
-          (clitk::toString(num)).append
-          ("_").append
-          (name).append
-          (".mhd");
+        std::string n;
+        if (args_info.mha_flag) {
+          n = std::string(args_info.output_arg).append
+            (clitk::toString(num)).append
+            ("_").append
+            (name).append
+            (".mha");
+        }
+        else {
+          n = std::string(args_info.output_arg).append
+            (clitk::toString(num)).append
+            ("_").append
+            (name).append
+            (".mhd");
+        }
         if (args_info.verbose_flag) {
           std::cout << num << " " << roi->GetName() << " num=" << num << " : " << n << std::endl;
         }

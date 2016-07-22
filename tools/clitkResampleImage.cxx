@@ -27,6 +27,7 @@ int main(int argc, char * argv[])
 
   // Init command line
   GGO(clitkResampleImage, args_info);
+  CLITK_INIT;
 
   // Filter
   typedef clitk::ResampleImageGenericFilter FilterType;

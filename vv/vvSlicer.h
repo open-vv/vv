@@ -20,6 +20,7 @@
 #include <iostream>
 #include <vector>
 
+#include <QObject>
 #include <QString> //TODO delete
 #include <QMessageBox>
 
@@ -34,6 +35,7 @@
 #include <vtkImageReslice.h>
 #include <vtkImageMapToColors.h>
 #include <vtkCaptionActor2D.h>
+#include <vtkTransformPolyDataFilter.h>
 
 class vtkActor;
 class vtkActor2D;
@@ -58,11 +60,13 @@ class vtkScalarBarActor;
 class vtkTransform;
 class vtkImageReslice;
 
-class vvSlicer: public vtkImageViewer2
-{
+class vvSlicer: public QObject, public vtkImageViewer2 {
+  
+Q_OBJECT
+
 public:
   static vvSlicer *New();
-  vtkTypeRevisionMacro(vvSlicer,vtkImageViewer2);
+  vtkTypeMacro(vvSlicer,vtkImageViewer2);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetImage(vvImage::Pointer inputImages);
@@ -148,7 +152,6 @@ public:
   double* GetCursorPosition() {
     return mCursor;
   }
-
   vtkTransform * GetSlicingTransform() { return mSlicingTransform; }
   vtkTransform * GetConcatenatedTransform() { return mConcatenatedTransform; }
   vtkTransform * GetConcatenatedFusionTransform() { return mConcatenatedFusionTransform; }
@@ -168,7 +171,8 @@ public:
 
   void GetExtremasAroundMousePointer(double & min, double & max, vtkImageData *image, vtkTransform *transform);
 
-  void UpdateLandmarks();
+  void RemoveLandmarks();
+  void DisplayLandmarks();
   void ForceUpdateDisplayExtent();
 
   int* GetDisplayExtent();
@@ -205,9 +209,19 @@ public:
     return mVFColor;
   }
   void SetVFColor(double r, double g, double b);
-
+  
   //necessary to flag the secondary sequence
   void SetFusionSequenceCode(int code) {mFusionSequenceCode=code;}
+  void SetRegisterExtent(int [6]);
+  void GetRegisterExtent(int [6]);
+  
+  void SetSlicerNumber(const int nbSlicer) {mSlicerNumber = nbSlicer;}
+  int GetSlicerNumber() const {return mSlicerNumber;}
+  
+signals:
+  void UpdateDisplayExtentBegin(int);
+  void UpdateDisplayExtentEnd(int);
+  
 protected:
   vvSlicer();
   ~vvSlicer();
@@ -233,6 +247,7 @@ protected:
   //                         ___|__|___ VTK world coordinates (mm) (never displayed)            mCurrent
 
   vtkSmartPointer<vtkTransform> mSlicingTransform;
+  vtkSmartPointer<vtkTransformPolyDataFilter> mLandmarkTransform;
   vtkSmartPointer<vtkImageReslice> mImageReslice;
   vtkSmartPointer<vtkTransform> mConcatenatedTransform;
   vtkSmartPointer<vtkImageReslice> mOverlayReslice;
@@ -264,6 +279,7 @@ protected:
   vtkSmartPointer<vtkScalarBarActor> legend;
   std::vector<vvMeshActor*> mSurfaceCutActors;
 
+  int mSlicerNumber;
   int mCurrentTSlice;
   int mCurrentFusionTSlice;
   int mCurrentOverlayTSlice;
@@ -277,13 +293,15 @@ protected:
   double mVFColor[3];
   bool mUseReducedExtent;
   int * mReducedExtent;
-  int * mInitialExtent;
+  int * mRegisterExtent;
   bool mLinkOverlayWindowLevel;
   bool showFusionLegend;
 
 private:
   void UpdateOrientation();
   void UpdateDisplayExtent();
+  void ConvertImageToImageDisplayExtent(vtkInformation *sourceImage, const int sourceExtent[6],
+                                        vtkImageData *targetImage, int targetExtent[6]);
   void ConvertImageToImageDisplayExtent(vtkImageData *sourceImage, const int sourceExtent[6],
                                         vtkImageData *targetImage, int targetExtent[6]);
   ///Sets the surfaces to be cut on the image slice: update the vtkCutter

@@ -31,6 +31,7 @@
 #include <vtkImageClip.h>
 #include <vtkRenderWindow.h>
 
+
 //------------------------------------------------------------------------------
 // Create the tool and automagically (I like this word) insert it in
 // the main window menu.
@@ -40,7 +41,7 @@ ADD_TOOL(vvToolBinarize);
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::Initialize()
-{
+{ 
   SetToolName("Binarize");
   SetToolMenuName("Binarize");
   SetToolIconFilename(":/common/icons/binarize.png");
@@ -54,7 +55,7 @@ vvToolBinarize::vvToolBinarize(vvMainWindowBase * parent, Qt::WindowFlags f)
   :vvToolWidgetBase(parent,f),
    vvToolBase<vvToolBinarize>(parent),
    Ui::vvToolBinarize()
-{
+{ 
   // GUI Initialization
   Ui_vvToolBinarize::setupUi(mToolWidget);
   mInteractiveDisplayIsEnabled = mCheckBoxInteractiveDisplay->isChecked();
@@ -82,14 +83,14 @@ vvToolBinarize::vvToolBinarize(vvMainWindowBase * parent, Qt::WindowFlags f)
 
 //------------------------------------------------------------------------------
 vvToolBinarize::~vvToolBinarize()
-{
+{ 
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::InteractiveDisplayToggled(bool b)
-{
+{ 
   mInteractiveDisplayIsEnabled = b;
   if (!mInteractiveDisplayIsEnabled) {
     RemoveVTKObjects();
@@ -108,7 +109,7 @@ void vvToolBinarize::InteractiveDisplayToggled(bool b)
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::RemoveVTKObjects()
-{
+{ 
   for(unsigned int i=0; i<mImageContour.size(); i++) {
     mImageContour[i]->HideActors();
     mImageContourLower[i]->HideActors();    
@@ -121,7 +122,7 @@ void vvToolBinarize::RemoveVTKObjects()
 
 //------------------------------------------------------------------------------
 bool vvToolBinarize::close()
-{
+{ 
   // RemoveVTKObjects();
   return vvToolWidgetBase::close();
 }
@@ -129,7 +130,8 @@ bool vvToolBinarize::close()
 
 
 //------------------------------------------------------------------------------
-void vvToolBinarize::closeEvent(QCloseEvent *event) {
+void vvToolBinarize::closeEvent(QCloseEvent *event)
+{ 
   RemoveVTKObjects();
   event->accept();
 }
@@ -138,7 +140,7 @@ void vvToolBinarize::closeEvent(QCloseEvent *event) {
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::reject()
-{
+{ 
   // DD("vvToolBinarize::reject");
   RemoveVTKObjects();
   return vvToolWidgetBase::reject();
@@ -148,7 +150,7 @@ void vvToolBinarize::reject()
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::enableLowerThan(bool b)
-{
+{ 
   if (!b) {
     mThresholdSlider1->resetMaximum();
     for(unsigned int i=0; i<mImageContour.size(); i++) {
@@ -169,7 +171,7 @@ void vvToolBinarize::enableLowerThan(bool b)
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::useFGBGtoggled(bool)
-{
+{ 
   if (!mCheckBoxUseBG->isChecked() && !mCheckBoxUseFG->isChecked())
     mCheckBoxUseBG->toggle();
 }
@@ -182,7 +184,7 @@ void vvToolBinarize::useFGBGtoggled(bool)
 //   DD(m.size());
 // }
 void vvToolBinarize::InputIsSelected(vvSlicerManager * m)
-{
+{ 
   mCurrentSlicerManager = m;
 
   // Specific for this gui
@@ -214,7 +216,7 @@ void vvToolBinarize::InputIsSelected(vvSlicerManager * m)
     mImageContour.push_back(vvImageContour::New());
     mImageContour[i]->SetSlicer(mCurrentSlicerManager->GetSlicer(i));
     mImageContour[i]->SetColor(1.0, 0.0, 0.0);
-    mImageContour[i]->SetDepth(100); // to be in front of (whe used with ROI tool)
+    mImageContour[i]->SetDepth(0); // to be in front of (whe used with ROI tool)
     mImageContourLower.push_back(vvImageContour::New());
     mImageContourLower[i]->SetSlicer(mCurrentSlicerManager->GetSlicer(i));
     mImageContourLower[i]->SetColor(0.0, 0.0, 1.0);
@@ -226,12 +228,11 @@ void vvToolBinarize::InputIsSelected(vvSlicerManager * m)
   connect(mThresholdSlider2, SIGNAL(valueChanged(double)), this, SLOT(valueChangedT2(double)));
 
   connect(mCurrentSlicerManager,SIGNAL(UpdateSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
-  connect(mCurrentSlicerManager,SIGNAL(UpdateTSlice(int,int)),this,SLOT(UpdateSlice(int, int)));
+  connect(mCurrentSlicerManager,SIGNAL(UpdateTSlice(int,int, int)),this,SLOT(UpdateSlice(int, int, int)));
   
   connect(mCurrentSlicerManager,SIGNAL(UpdateOrientation(int,int)),this,SLOT(UpdateOrientation(int, int)));
 
   //  connect(mCurrentSlicerManager, SIGNAL(LeftButtonReleaseSignal(int)), SLOT(LeftButtonReleaseEvent(int)));
-  
   InteractiveDisplayToggled(mInteractiveDisplayIsEnabled);
 }
 //------------------------------------------------------------------------------
@@ -250,21 +251,22 @@ void vvToolBinarize::InputIsSelected(vvSlicerManager * m)
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::UpdateOrientation(int slicer,int orientation)
-{
+{ 
   Update(slicer);
 }
 //------------------------------------------------------------------------------
 
+
 //------------------------------------------------------------------------------
-void vvToolBinarize::UpdateSlice(int slicer,int slices)
-{
+void vvToolBinarize::UpdateSlice(int slicer,int slices, int code)
+{ 
   Update(slicer);
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::Update(int slicer)
-{
+{ 
   if (!mInteractiveDisplayIsEnabled) return;
   if (!mCurrentSlicerManager) close();
   mImageContour[slicer]->Update(mThresholdSlider1->GetValue());
@@ -275,7 +277,7 @@ void vvToolBinarize::Update(int slicer)
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::GetArgsInfoFromGUI()
-{
+{ 
 
   /* //KEEP THIS FOR READING GGO FROM FILE
      int argc=1;
@@ -330,11 +332,11 @@ void vvToolBinarize::GetArgsInfoFromGUI()
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::apply()
-{
+{ 
   if (!mCurrentSlicerManager) close();
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-  GetArgsInfoFromGUI();
-
+  GetArgsInfoFromGUI();  
+  
   // Main filter
   clitk::BinarizeImageGenericFilter::Pointer filter =
     clitk::BinarizeImageGenericFilter::New();
@@ -342,8 +344,9 @@ void vvToolBinarize::apply()
   filter->SetArgsInfo(mArgsInfo);
   filter->Update();
 
+
   // Output
-  vvImage::Pointer output = filter->GetOutputVVImage();
+  vvImage::Pointer output = filter->GetOutputVVImage();  
   std::ostringstream osstream;
   osstream << "Binarized_" << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";
   AddImage(output,osstream.str());
@@ -355,7 +358,7 @@ void vvToolBinarize::apply()
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::valueChangedT2(double v)
-{
+{ 
   //  DD("valueChangedT2");
   if (mRadioButtonLowerThan->isChecked()) {
     mThresholdSlider1->SetMaximum(v);
@@ -371,7 +374,7 @@ void vvToolBinarize::valueChangedT2(double v)
 
 //------------------------------------------------------------------------------
 void vvToolBinarize::valueChangedT1(double v)
-{
+{ 
   //  DD("valueChangedT1");
   if (!mCurrentSlicerManager) close();
   mThresholdSlider2->SetMinimum(v);

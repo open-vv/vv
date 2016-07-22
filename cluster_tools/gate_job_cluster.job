@@ -11,10 +11,7 @@
 #PBS -r n
 #PBS -l walltime=100:00:00
 #PBS -j oe
-
-#env
-#pwd
-#exit 1
+#PBS -l mem=3Gb
 
 
 function error {
@@ -77,7 +74,8 @@ echo "Lauching macro"
 date
 if test "$RELEASEDIR" = "NONE"
 then
-	Gate ${PARAM} ${MACROFILE} || error "gate failed"
+        echo Gate ${PARAM} ${MACROFILE}
+	eval Gate ${PARAM} ${MACROFILE} || error "gate failed"
 else
 	LD_PRELOAD="${ROOTLIBS}${G4LIBS}${CLHEPLIBS}${GATELIBS}" \
 	G4LEVELGAMMADATA="${RELEASEDIR}/PhotonEvaporation2.1" \

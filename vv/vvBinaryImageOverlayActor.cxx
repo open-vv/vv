@@ -18,6 +18,9 @@
 
 #include "vvBinaryImageOverlayActor.h"
 #include "vvImage.h"
+#include <vtkVersion.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkInformation.h>
 #include <vtkImageActor.h>
 #include <vtkCamera.h>
 #include <vtkRenderer.h>
@@ -28,10 +31,11 @@
 #include <vtkProperty.h>
 #include <vtkImageMapToRGBA.h>
 #include <vtkLookupTable.h>
+#include <vtkImageMapper3D.h>
 
 //------------------------------------------------------------------------------
 vvBinaryImageOverlayActor::vvBinaryImageOverlayActor()
-{
+{ 
   mTSlice = -1;
   mSlice = 0;
   mColor.resize(3);
@@ -49,7 +53,7 @@ vvBinaryImageOverlayActor::vvBinaryImageOverlayActor()
 
 //------------------------------------------------------------------------------
 vvBinaryImageOverlayActor::~vvBinaryImageOverlayActor()
-{
+{ 
   mImageActorList.clear();
 }
 //------------------------------------------------------------------------------
@@ -57,7 +61,7 @@ vvBinaryImageOverlayActor::~vvBinaryImageOverlayActor()
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::RemoveActors()
-{
+{ 
   for (unsigned int i = 0; i < mImageActorList.size(); i++) {
     if (mSlicer != 0) {
       if (mSlicer != NULL) {
@@ -75,7 +79,7 @@ void vvBinaryImageOverlayActor::RemoveActors()
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::SetColor(double r, double g, double b)
-{
+{ 
   mColor[0] = r;
   mColor[1] = g;
   mColor[2] = b;
@@ -85,7 +89,7 @@ void vvBinaryImageOverlayActor::SetColor(double r, double g, double b)
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::SetSlicer(vvSlicer * slicer)
-{
+{ 
   mSlicer = slicer;
 }
 //------------------------------------------------------------------------------
@@ -93,7 +97,7 @@ void vvBinaryImageOverlayActor::SetSlicer(vvSlicer * slicer)
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::Initialize(bool IsVisible)
-{
+{ 
   if (!mSlicer) {
     std::cerr << "ERROR. Please use setSlicer before setSlicer in vvBinaryImageOverlayActor." << std::endl;
     exit(0);
@@ -107,10 +111,30 @@ void vvBinaryImageOverlayActor::Initialize(bool IsVisible)
   for (unsigned int numImage = 0; numImage < mSlicer->GetImage()->GetVTKImages().size(); numImage++) {
     // how many intensity ?
     vtkSmartPointer<vtkImageMapToRGBA> mOverlayMapper = vtkSmartPointer<vtkImageMapToRGBA>::New();
-    mOverlayMapper->SetInput(mImage->GetVTKImages()[0]); // DS TODO : to change if it is 4D !!!
+    if (mImage->IsTimeSequence())
+    {
+ #if VTK_MAJOR_VERSION <= 5
+        mOverlayMapper->SetInput(mImage->GetVTKImages()[numImage]);
+#else
+        mOverlayMapper->SetInputData(mImage->GetVTKImages()[numImage]);
+#endif
+    }
+    else {
+#if VTK_MAJOR_VERSION <= 5
+        mOverlayMapper->SetInput(mImage->GetVTKImages()[0]);
+#else
+        mOverlayMapper->SetInputData(mImage->GetVTKImages()[0]);
+#endif
+    }
 
     double range[2];
-    mImage->GetVTKImages()[0]->GetScalarRange(range);
+    if (mImage->IsTimeSequence())
+    {
+        mImage->GetVTKImages()[numImage]->GetScalarRange(range);
+    }
+    else {
+        mImage->GetVTKImages()[0]->GetScalarRange(range);
+    }
     int n = range[1]-range[0]+1;
     mColorLUT->SetRange(range[0],range[1]);
     mColorLUT->SetNumberOfTableValues(n);
@@ -133,7 +157,11 @@ void vvBinaryImageOverlayActor::Initialize(bool IsVisible)
     mOverlayMapper->SetLookupTable(mColorLUT);
 
     vtkSmartPointer<vtkImageActor> mOverlayActor = vtkSmartPointer<vtkImageActor>::New();
+#if VTK_MAJOR_VERSION <= 5
     mOverlayActor->SetInput(mOverlayMapper->GetOutput());
+#else
+    mOverlayActor->GetMapper()->SetInputConnection(mOverlayMapper->GetOutputPort());
+#endif
     mOverlayActor->SetPickable(0);
     mOverlayActor->SetVisibility(IsVisible);
     //mOverlayActor->SetOpacity(1.0);	
@@ -144,7 +172,7 @@ void vvBinaryImageOverlayActor::Initialize(bool IsVisible)
 
     mMapperList.push_back(mOverlayMapper);
     mImageActorList.push_back(mOverlayActor);
-    mSlicer->GetRenderer()->AddActor(mOverlayActor);
+    mSlicer->GetRenderer()->AddActor(mImageActorList[numImage]);
   }
 }
 //------------------------------------------------------------------------------
@@ -152,7 +180,7 @@ void vvBinaryImageOverlayActor::Initialize(bool IsVisible)
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::SetOpacity(double d)
-{
+{ 
   mAlpha = d;
 }
 //------------------------------------------------------------------------------
@@ -194,7 +222,7 @@ void vvBinaryImageOverlayActor::SetOpacity(double d)
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::SetImage(vvImage::Pointer image, double bg, bool modeBG)
-{
+{ 
   mImage = image;
   if (modeBG) {
     mBackgroundValue = bg;
@@ -210,7 +238,7 @@ void vvBinaryImageOverlayActor::SetImage(vvImage::Pointer image, double bg, bool
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::HideActors()
-{
+{ 
   if (!mSlicer) return;
   mSlice = mSlicer->GetSlice();
   for(unsigned int i=0; i<mImageActorList.size(); i++) {
@@ -224,14 +252,12 @@ void vvBinaryImageOverlayActor::HideActors()
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::ShowActors()
-{
+{ 
   if (!mSlicer) return;
   mSlice = mSlicer->GetSlice();
   mTSlice = mSlicer->GetTSlice();
-  //  for(unsigned int i=0; i<mSquaresActorList.size(); i++) {
   mImageActorList[mTSlice]->VisibilityOn();
   UpdateSlice(0, mSlice);
-  //}
   // Caller MUST call Render
   //mSlicer->Render();
 }
@@ -240,7 +266,7 @@ void vvBinaryImageOverlayActor::ShowActors()
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::UpdateColor()
-{
+{ 
   mColorLUT->SetTableValue(1, mColor[0], mColor[1], mColor[2], mAlpha); // FG
   for (unsigned int numImage = 0; numImage < mSlicer->GetImage()->GetVTKImages().size(); numImage++) {
     // how many intensity ?
@@ -248,14 +274,18 @@ void vvBinaryImageOverlayActor::UpdateColor()
     mOverlayMapper->SetLookupTable(mColorLUT);
 
     vtkImageActor * mOverlayActor = mImageActorList[numImage];
+#if VTK_MAJOR_VERSION <= 5
     mOverlayActor->SetInput(mOverlayMapper->GetOutput());
+#else
+    mOverlayActor->SetInputData(mOverlayMapper->GetOutput());
+#endif
   }
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::UpdateSlice(int slicer, int slice, bool force)
-{
+{ 
   if (!mSlicer) return;
 
   if (!force) {
@@ -275,8 +305,14 @@ void vvBinaryImageOverlayActor::UpdateSlice(int slicer, int slice, bool force)
   int orientation = mSlicer->GetOrientation();
   int maskExtent[6];
   ComputeExtent(orientation, mSlice, imageExtent, maskExtent);
-  ComputeExtent(maskExtent, maskExtent, mSlicer->GetImage()->GetFirstVTKImageData(), mImage->GetFirstVTKImageData());
+  ComputeExtent(maskExtent, maskExtent, mSlicer->GetImage()->GetVTKImages()[mTSlice], mImage->GetVTKImages()[mTSlice]);
+#if VTK_MAJOR_VERSION <= 5
   mSlicer->ClipDisplayedExtent(maskExtent, mMapperList[mTSlice]->GetInput()->GetWholeExtent());
+#else
+  mSlicer->ClipDisplayedExtent(maskExtent, mMapperList[mTSlice]->GetInput()->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
+#endif
+  HideActors();
+  mImageActorList[mTSlice]->VisibilityOn();
   SetDisplayExtentAndCameraPosition(orientation, mSlice, maskExtent, mImageActorList[mTSlice], mDepth);
 
   // set previous slice
@@ -291,7 +327,7 @@ void vvBinaryImageOverlayActor::ComputeExtent(int orientation,
 					      int slice,
 					      int * inExtent,
 					      int * outExtent)
-{
+{ 
   switch (orientation) {
   case vtkImageViewer2::SLICE_ORIENTATION_XY:
     for(int i=0; i<4; i++) outExtent[i] = inExtent[i];
@@ -313,7 +349,7 @@ void vvBinaryImageOverlayActor::ComputeExtent(int orientation,
 
 //----------------------------------------------------------------------------
 void vvBinaryImageOverlayActor::ComputeExtent(int * inExtent, int * outExtent, vtkImageData * image, vtkImageData * overlay)
-{
+{ 
   for(int i=0; i<3; i++) {
     double a = (image->GetOrigin()[i] + inExtent[i*2]*image->GetSpacing()[i] - 
                 overlay->GetOrigin()[i]) / overlay->GetSpacing()[i];
@@ -341,7 +377,7 @@ void vvBinaryImageOverlayActor::SetDisplayExtentAndCameraPosition(int orientatio
 								  int * extent,
 								  vtkImageActor * actor,
 								  double position)
-{
+{ 
   /* FIXME
      Error according to camera orientation
    */

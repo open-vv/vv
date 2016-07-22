@@ -29,12 +29,12 @@ test -d "${G4PIIDATA}" || usage "can't locate pii data. please set G4PIIDATA"
 echo "pii data is ${G4PIIDATA}"
 
 echo "Cleaning previous build"
-rm -fr $(basename ${G4NEUTRONHPDATA})
-rm -fr $(basename ${G4LEVELGAMMADATA})
-rm -fr $(basename ${G4RADIOACTIVEDATA})
-rm -fr $(basename ${G4ABLADATA})
-rm -fr $(basename ${G4LEDATA})
-rm -fr $(basename ${G4REALSURFACEDATA})
+# rm -fr $(basename ${G4NEUTRONHPDATA})
+# rm -fr $(basename ${G4LEVELGAMMADATA})
+# rm -fr $(basename ${G4RADIOACTIVEDATA})
+# rm -fr $(basename ${G4ABLADATA})
+# rm -fr $(basename ${G4LEDATA})
+# rm -fr $(basename ${G4REALSURFACEDATA})
 rm -fr test_libs gate_shared_libs.tar.gz gate_release.tar.gz
 
 echo "Copying libraries"
@@ -93,5 +93,3 @@ tar -czvf gate_release.tar.gz \
     || usage "can't create release zip"
 
 chmod -w gate_release.tar.gz
-
-

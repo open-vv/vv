@@ -183,8 +183,7 @@ void clitk::CropImageGenericFilter::UpdateWithInputImageType()
   typename ImageType::PointType origin = output->GetOrigin();
   typename ImageType::SpacingType spacing = output->GetSpacing();
   if (mArgsInfo.verbose_flag) std::cout << "origin before crop " << origin << std::endl;
-  for (unsigned int i = 0; i < output->GetImageDimension(); i++)
-    origin[i] += index[i]*spacing[i];
+  input->TransformIndexToPhysicalPoint(index,origin);
   if (mArgsInfo.verbose_flag) std::cout << "origin after crop " << origin << std::endl;
   output->SetOrigin(origin);
 

@@ -110,24 +110,8 @@ void clitk::RegionGrowingGenericFilter<ArgsInfoType>::UpdateWithInputImageType()
       IteratorType it(ball.GetRadius(),
                       input,
                       input->GetLargestPossibleRegion());
-#if ITK_VERSION_MAJOR < 4
-      typename BallType::ConstIterator nit;
-      unsigned idx = 0;
-      for (nit = ball.Begin(); nit != ball.End(); ++nit, ++idx)
-        {
-          if (*nit)
-            {
-              it.ActivateOffset(it.GetOffset(idx));
-            }
-          else
-            {
-              it.DeactivateOffset(it.GetOffset(idx));
-            }
-        }
-#else
       it.CreateActiveListFromNeighborhood(ball);
       it.NeedToUseBoundaryConditionOff();
-#endif
 
       it.SetLocation(seeds[0]);
       for (typename IteratorType::ConstIterator i = it.Begin(); !i.IsAtEnd(); ++i)

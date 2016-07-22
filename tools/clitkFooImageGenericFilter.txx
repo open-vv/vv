@@ -18,15 +18,6 @@
 #ifndef clitkFooImageGenericFilter_txx
 #define clitkFooImageGenericFilter_txx
 
-/* =================================================
- * @file   clitkFooImageGenericFilter.txx
- * @author Jef Vandemeulebroucke <jef@creatis.insa-lyon.fr>
- * @date   29 june 2009
- *
- * @brief
- *
- ===================================================*/
-
 // itk include
 #include "itkBinaryThresholdImageFilter.h"
 #include "itkMaskImageFilter.h"
@@ -95,40 +86,11 @@ FooImageGenericFilter<args_info_type>::UpdateWithInputImageType()
   typedef itk::BinaryThresholdImageFilter<InputImageType, OutputImageType> BinaryThresholdImageFilterType;
   typename BinaryThresholdImageFilterType::Pointer thresholdFilter=BinaryThresholdImageFilterType::New();
   thresholdFilter->SetInput(input);
-  thresholdFilter->SetInsideValue(mArgsInfo.fg_arg);
+  // Set filter members
 
-  if (mArgsInfo.lower_given) thresholdFilter->SetLowerThreshold(static_cast<PixelType>(mArgsInfo.lower_arg));
-  if (mArgsInfo.upper_given) thresholdFilter->SetUpperThreshold(static_cast<PixelType>(mArgsInfo.upper_arg));
-
-  if (mArgsInfo.mode_arg == std::string("both")) {
-    thresholdFilter->SetOutsideValue(mArgsInfo.bg_arg);
-    thresholdFilter->Update();
-
-    typename OutputImageType::Pointer outputImage = thresholdFilter->GetOutput();
-    this->template SetNextOutput<OutputImageType>(outputImage);
-  } else {
-    typename InputImageType::Pointer outputImage;
-    thresholdFilter->SetOutsideValue(0);
-    if (mArgsInfo.mode_arg == std::string("BG")) {
-      typedef itk::MaskImageFilter<InputImageType,OutputImageType> maskFilterType;
-      typename maskFilterType::Pointer maskFilter = maskFilterType::New();
-      maskFilter->SetInput1(input);
-      maskFilter->SetInput2(thresholdFilter->GetOutput());
-      maskFilter->SetOutsideValue(mArgsInfo.bg_arg);
-      maskFilter->Update();
-      outputImage = maskFilter->GetOutput();
-    } else {
-      typedef itk::MaskNegatedImageFilter<InputImageType,OutputImageType> maskFilterType;
-      typename maskFilterType::Pointer maskFilter = maskFilterType::New();
-      maskFilter->SetInput1(input);
-      maskFilter->SetInput2(thresholdFilter->GetOutput());
-      maskFilter->SetOutsideValue(mArgsInfo.fg_arg);
-      maskFilter->Update();
-      outputImage = maskFilter->GetOutput();
-    }
-    // Write/Save results
-    this->template SetNextOutput<InputImageType>(outputImage);
-  }
+  // Write/Save results
+  typename OutputImageType::Pointer outputImage = thresholdFilter->GetOutput();
+  this->template SetNextOutput<OutputImageType>(outputImage);
 }
 //--------------------------------------------------------------------
 

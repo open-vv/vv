@@ -23,6 +23,7 @@
 #include "vvImage.h"
 
 // qt
+#include <QtGlobal>
 #include <QtDesigner/QDesignerExportWidget>
 #include <QDialog>
 #include "ui_vvLabelImageLoaderWidget.h"
