@@ -38,7 +38,6 @@
 #include <vtkInformation.h>
 #include <vtkImageData.h>
 #include <vtkSmartPointer.h>
-#include <vtkImageRectilinearWipe.h>
 
 //------------------------------------------------------------------------------
 // Create the tool and automagically (I like this word) insert it in
@@ -53,6 +52,8 @@ vvWipeImage::vvWipeImage(vvMainWindowBase * parent, Qt::WindowFlags f):
   Ui::vvWipeImage()
 {
     vtkSmartPointer<vtkImageRectilinearWipe> mWipe = vtkSmartPointer<vtkImageRectilinearWipe>::New();
+    mWipe->SetWipe(0);
+    mWipe->SetPosition(256,256);
 }
 //------------------------------------------------------------------------------
 
@@ -60,29 +61,22 @@ vvWipeImage::vvWipeImage(vvMainWindowBase * parent, Qt::WindowFlags f):
 //------------------------------------------------------------------------------
 vvWipeImage::~vvWipeImage()
 {
-  delete [] mReducedExtent;
-  delete [] mInitialExtent;
 }
 //------------------------------------------------------------------------------
 
-void vvWipeImage::setInput(int number, )
+//------------------------------------------------------------------------------
+void vvWipeImage::setInput(int number, vvImage::Pointer image)
 {
-  mWipe->SetInputConnection(0,reader1->GetOutputPort());
+  if (image->GetVTKImages().size()) {
+    mImage = image;
+    mWipe->SetInputData(number, mImage->GetVTKImages()[0]); //[0] pour du 4D ?
+  }
 }
-  wipe->SetInputConnection(0,reader1->GetOutputPort());
-  wipe->SetInputConnection(1,reader2->GetOutputPort());
+//------------------------------------------------------------------------------
+
 //------------------------------------------------------------------------------
 void vvWipeImage::closeEvent(QCloseEvent *event)
 {
-  if(mCurrentSlicerManager){
-//     Reset extends
-    for(int i=0; i<6; i++){
-      mReducedExtent[i] = mInitialExtent[i];
-    }
-    for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++)
-      mCurrentSlicerManager->GetSlicer(i)->EnableReducedExtent(false);
-    UpdateExtent();
-  }
   mCurrentSlicerManager->GetImage()->GetTransform()[0]->SetMatrix(mConcatenedTransform);
   for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
     mCurrentSlicerManager->GetSlicer(i)->ResetCamera();
@@ -105,11 +99,6 @@ bool vvWipeImage::close()
 //------------------------------------------------------------------------------
 void vvWipeImage::reject()
 {
-  for(int i=0; i<mExtentSize; i++)
-    mReducedExtent[i] = mInitialExtent[i];
-  for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++)
-    mCurrentSlicerManager->GetSlicer(i)->EnableReducedExtent(false);
-  UpdateExtent();
   return vvToolWidgetBase::reject();
 }
 //------------------------------------------------------------------------------
@@ -118,13 +107,7 @@ void vvWipeImage::reject()
 //------------------------------------------------------------------------------
 void vvWipeImage::crossPointerChanged()
 {
-  int dimMin = dim;
-  if(dim%2==0){//case we are minimum
-    mSliders[dim+1]->setMinimum(mSliders[dim]->value());
-  }else {
-    mSliders[--dimMin]->setMaximum(mSliders[dim]->value());
-  }
-  mReducedExtent[dim] = mSliders[dim]->value() + mInitialExtent[dimMin];
+  mWipe->SetPosition(256,256);
   UpdateWipe();
 }
 //------------------------------------------------------------------------------
@@ -134,7 +117,7 @@ void vvWipeImage::crossPointerChanged()
 void vvWipeImage::UpdateWipe()
 {
   for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
-    mCurrentSlicerManager->GetSlicer(i)->SetReducedExtent(mReducedExtent);
+    //mCurrentSlicerManager->GetSlicer(i)->SetReducedExtent(mReducedExtent);
     mCurrentSlicerManager->GetSlicer(i)->ForceUpdateDisplayExtent();
     mCurrentSlicerManager->GetSlicer(i)->Render();
   }
@@ -158,74 +141,18 @@ void vvWipeImage::InputIsSelected(vvSlicerManager * slicer)
   }
 
   // Change interface according to number of dimension
-  mExtentSize = 2*slicer->GetDimension();
-   if (slicer->GetDimension()<4) {
-     mTLabel1->setHidden(true);
-     mTLabel2->setHidden(true);
-     tminSlider->setHidden(true);
-     tmaxSlider->setHidden(true);
-     spin_tmin->setHidden(true);
-     spin_tmax->setHidden(true);
-     mLabelTimeCropping->setHidden(true);
-   }
-  if (slicer->GetDimension()<3) {
-    mZLabel1->setHidden(true);
-    mZLabel2->setHidden(true);
-    zminSlider->setHidden(true);
-    zmaxSlider->setHidden(true);
-    spin_zmin->setHidden(true);
-    spin_zmax->setHidden(true);
-  }
 #if VTK_MAJOR_VERSION <= 5
   int *a = mCurrentImage->GetFirstVTKImageData()->GetWholeExtent();
 #else
   int *a = mCurrentImage->GetFirstVTKImageData()->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
 #endif
-  for(int i=0; i<6; i++){
-    mInitialExtent[i] = a[i];
-    mReducedExtent[i] = a[i];
-  }
-  for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
-    mCurrentSlicerManager->GetSlicer(i)->EnableReducedExtent(true);
-    mCurrentSlicerManager->GetSlicer(i)->SetReducedExtent(mInitialExtent);
-  }
 
 //   Set initial sliders values
   int w_ext[6], imsize[3];
   mCurrentSlicerManager->GetSlicer(0)->GetRegisterExtent(w_ext);
-  for(int dim=0; dim<slicer->GetDimension() && dim<3; ++dim){
-    imsize[dim] = w_ext[2*dim+1] - w_ext[2*dim] +1;
-    mSliders[dim*2]->setMaximum(imsize[dim]-1);
-    mSliders[dim*2+1]->setMaximum(imsize[dim]-1);
-    mSliders[dim*2+1]->setValue(imsize[dim]-1);
-  }
-  spin_xmin->setMaximum(imsize[0]-1);
-  spin_xmax->setMaximum(imsize[0]-1);
-  spin_xmax->setValue(imsize[0]-1);
-
-  spin_ymin->setMaximum(imsize[1]-1);
-  spin_ymax->setMaximum(imsize[1]-1);
-  spin_ymax->setValue(imsize[1]-1);
-
-  if (slicer->GetDimension() >2) {
-    spin_zmin->setMaximum(imsize[2]-1);
-    spin_zmax->setMaximum(imsize[2]-1);
-    spin_zmax->setValue(imsize[2]-1);
-  }
-
-  if (slicer->GetDimension() >3) {
-    spin_tmin->setMaximum(imsize[3]-1);
-    spin_tmax->setMaximum(imsize[3]-1);
-    spin_tmax->setValue(imsize[3]-1);
-  }
 
   QSignalMapper* signalMapper = new QSignalMapper(this);
   connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(sliderValueChanged(int)));
-  for(unsigned int i=0; i<mSliders.size(); ++i){
-    signalMapper->setMapping(mSliders[i], i);
-    connect(mSliders[i], SIGNAL(valueChanged(int)), signalMapper, SLOT(map()));
-  }
-  UpdateExtent();
 }
 //------------------------------------------------------------------------------
 
@@ -247,21 +174,8 @@ void vvWipeImage::apply()
   mArgsInfo.boundingBox_given = n;
   mArgsInfo.boundingBox_arg = new int[n];
   
-  for(int dim=0; dim<mCurrentSlicerManager->GetDimension() && dim<3; ++dim){
-    mArgsInfo.boundingBox_arg[dim*2] = mSliders[dim*2]->value();
-    mArgsInfo.boundingBox_arg[dim*2+1] = mSliders[dim*2+1]->value();
-  }
-  if (n>6) { // 4D
-    mArgsInfo.boundingBox_arg[6] = 0;
-    mArgsInfo.boundingBox_arg[7] = mCurrentImage->GetSize()[3]-1;
-  }
   // We MUST reset initial extend to input image before using the
-  // filter to retrieve the correct image size
-  for(int i=0; i<6; i++) {
-    mReducedExtent[i] = mInitialExtent[i];
-  }
-  
-  UpdateExtent();
+  // filter to retrieve the correct image size  ;
   // Main filter
   CropFilterType::Pointer filter = CropFilterType::New();
   filter->SetInputVVImage(mCurrentImage);

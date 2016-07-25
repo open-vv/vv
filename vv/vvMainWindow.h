@@ -158,6 +158,7 @@ public slots:
   void ReloadImage();
   void OpenField();
   void SelectOverlayImage();
+  void SelectWipeImage();
   void SelectFusionImage();
   //select the file(s) from the disk containing the image sequence to fuse
   void SelectFusionSequence();

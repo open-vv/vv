@@ -197,6 +197,9 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   contextActions.push_back(actionAdd_USSequence_toCT);
 #endif
 
+  contextMenu.addAction(actionAdd_wipe_image);
+  contextActions.push_back(actionAdd_wipe_image);
+
 
   contextMenu.addSeparator();
   QAction* actionResetMatrix = contextMenu.addAction(QIcon(QString::fromUtf8(":/common/icons/identity.png")),
@@ -237,6 +240,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   actionAdd_VF_to_current_Image->setEnabled(0);
   actionAdd_fusion_image->setEnabled(0);
   actionAdd_USSequence_toCT->setEnabled(0);
+  actionAdd_wipe_image->setEnabled(0);
 
   //init the sliders
   verticalSliders.push_back(NOVerticalSlider);
@@ -283,6 +287,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(actionRead_saved_state,SIGNAL(triggered()),this,SLOT(ReadSavedState()));
   connect(actionExit,SIGNAL(triggered()),this,SLOT(close()));
   connect(actionAdd_VF_to_current_Image,SIGNAL(triggered()),this,SLOT(OpenField()));
+  connect(actionAdd_wipe_image,SIGNAL(triggered()),this,SLOT(SelectWipeImage()));
   connect(actionAdd_fusion_image,SIGNAL(triggered()),this,SLOT(SelectFusionImage()));
   connect(actionAdd_overlay_image_to_current_image,SIGNAL(triggered()), this,SLOT(SelectOverlayImage()));
   connect(actionAdd_USSequence_toCT,SIGNAL(triggered()), this,SLOT(SelectFusionSequence()));
@@ -1052,6 +1057,7 @@ void vvMainWindow::ImageInfoChanged()
   actionSave_As->setEnabled(1);
   actionAdd_VF_to_current_Image->setEnabled(1);
   actionAdd_fusion_image->setEnabled(1);
+  actionAdd_wipe_image->setEnabled(1);
   actionAdd_overlay_image_to_current_image->setEnabled(1);
   actionAdd_USSequence_toCT->setEnabled(1);
   actionNorth_East_Window->setEnabled(1);
@@ -2137,6 +2143,30 @@ void vvMainWindow::AddROI(int index, QString file)
   */
 }
 //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::SelectWipeImage()
+{ 
+  int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
+
+  if (!(CheckAddedImage(index, "wipe")))
+    return;
+
+  QString Extensions = EXTENSIONS;
+  Extensions += ";;All Files (*)";
+  QStringList files = QFileDialog::getOpenFileNames(this,tr("Load Wipe image"),mInputPathName,Extensions);
+  if (files.isEmpty())
+    return;
+
+  std::vector<std::string> vecFileNames;
+  for (int i = 0; i < files.size(); i++) {
+    vecFileNames.push_back(files[i].toStdString());
+  }
+
+  //AddWipeImage(index,vecFileNames,vvImageReader::IMAGE);
+}
+//------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void vvMainWindow::SelectFusionImage()

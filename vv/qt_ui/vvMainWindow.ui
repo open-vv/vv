@@ -832,6 +832,7 @@
     <addaction name="actionAdd_overlay_image_to_current_image"/>
     <addaction name="actionAdd_fusion_image"/>
     <addaction name="actionAdd_USSequence_toCT"/>
+    <addaction name="actionAdd_wipe_image"/>
    </widget>
    <widget class="QMenu" name="menuScreenshots">
     <property name="title">
@@ -1271,6 +1272,18 @@
    </property>
    <property name="text">
     <string>Test / Fusion of US &amp; CT sequences</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionAdd_wipe_image">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/wipe.png</normaloff>:/common/icons/wipe.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add wipe Image</string>
    </property>
    <property name="iconVisibleInMenu">
     <bool>true</bool>

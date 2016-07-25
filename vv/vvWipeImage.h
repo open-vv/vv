@@ -27,9 +27,10 @@
 #include "vvToolBase.h"
 #include "vvToolWidgetBase.h"
 #include "vvMainWindowBase.h"
-//#include "ui_vvWipeImage.h"
+#include "ui_vvWipeImage.h"
 //vtk
 #include <vtkTransform.h>
+#include <vtkImageRectilinearWipe.h>
 
 //------------------------------------------------------------------------------
 class vvWipeImage:
@@ -43,6 +44,7 @@ class vvWipeImage:
   ~vvWipeImage();
 
   virtual void InputIsSelected(vvSlicerManager *m);
+  void setInput(int number, vvImage::Pointer image);
 
 public slots:
   virtual void apply();
@@ -63,6 +65,8 @@ public slots:
   vtkSmartPointer<vtkImageRectilinearWipe> mWipe;
   void UpdateWipe();
   virtual void closeEvent(QCloseEvent *event);
+  vtkSmartPointer<vtkMatrix4x4> mConcatenedTransform;
+  vvImage::Pointer mImage;
 
 }; // end class vvWipeImage
 //------------------------------------------------------------------------------

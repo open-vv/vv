@@ -70,6 +70,7 @@ set(vv_COMMON_WITH_UI
   vvToolSimpleInputSelectorWidget
   vvToolInputSelectorWidget
   vvRegisterForm
+  vvWipeImage
 )
 
 # All others sources
