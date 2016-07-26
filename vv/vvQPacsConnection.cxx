@@ -55,8 +55,13 @@ void vvQPacsConnection::removeServer()
 // modify a Dicom Server in VV settings
 void vvQPacsConnection::modifyServer()
 {
+	int indexCombo = ui.networkCombo->currentIndex();
+	removeDicomServer(m_nickname);
 	AddDicomServer(ui.NameEdit->text().toStdString(),ui.AETitleEdit->text().toStdString(),ui.AdressEdit->text().toStdString(),ui.PortEdit->text().toStdString());
-	removeServer();
+	ui.networkCombo->clear();
+	ui.networkCombo->addItem(QString());
+	ui.networkCombo->addItems(getDicomServers());
+	ui.networkCombo->setCurrentIndex(indexCombo);
 }
 
 // refresh the list of Dicom Servers available from VV settings
