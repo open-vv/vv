@@ -23,50 +23,53 @@
 #include <QtDesigner/QDesignerExportWidget>
 #include <QDialog>
 #include <QSlider>
+#include <QMessageBox>
+#include "QTreePushButton.h"
 // vv
-#include "vvToolBase.h"
-#include "vvToolWidgetBase.h"
 #include "vvMainWindowBase.h"
+#include "vvImage.h"
+#include "vvImageReader.h"
+#include "vvProgressDialog.h"
+#include "vvSlicerManager.h"
 #include "ui_vvWipeImage.h"
 //vtk
 #include <vtkTransform.h>
 #include <vtkImageRectilinearWipe.h>
+//itk
+#include <itkLightObject.h>
 
 //------------------------------------------------------------------------------
 class vvWipeImage:
-  public vvToolWidgetBase,
-  public vvToolBase<vvWipeImage>, 
-  private Ui::vvWipeImage 
+  public QObject,
+  public itk::LightObject,
+  private Ui::vvWipeImage
 {
   Q_OBJECT
     public:
-  vvWipeImage(vvMainWindowBase * parent=0, Qt::WindowFlags f=0);
+        
+  typedef vvWipeImage Self;
+  typedef itk::SmartPointer<Self> Pointer;
+  typedef itk::ProcessObject::Pointer ConverterPointer;
+  
+  itkNewMacro(Self);
+  vvWipeImage();
   ~vvWipeImage();
 
-  virtual void InputIsSelected(vvSlicerManager *m);
-  void setInput(int number, vvImage::Pointer image);
+  void Initialize(QString inputPathName, std::vector<vvSlicerManager*> slicerManagers);
+  void selectWipeImage(int index);
+  void setInputImage(int number, vvImage::Pointer image);
+  void AddWipeImage(int index, std::vector<std::string> fileNames, vvImageReader::LoadedImageType type);
 
 public slots:
-  virtual void apply();
-  virtual bool close();
-  virtual void reject();
   void crossPointerChanged();
-
-
-  //-----------------------------------------------------
-  static void Initialize() {
-    SetToolName("Wipe");
-    SetToolMenuName("Wipe");
-    SetToolIconFilename(":/common/icons/crop.png");
-    SetToolTip("Wipe 2 images.");
-  }
 
  protected:
   vtkSmartPointer<vtkImageRectilinearWipe> mWipe;
   void UpdateWipe();
-  virtual void closeEvent(QCloseEvent *event);
   vtkSmartPointer<vtkMatrix4x4> mConcatenedTransform;
   vvImage::Pointer mImage;
+  QString mInputPathName;
+  std::vector<vvSlicerManager*> mSlicerManagers;
 
 }; // end class vvWipeImage
 //------------------------------------------------------------------------------

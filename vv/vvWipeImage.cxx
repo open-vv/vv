@@ -31,6 +31,7 @@
 #include <QApplication>
 #include <QMessageBox>
 #include <QSignalMapper>
+#include <QFileDialog>
 
 // vtk
 #include <vtkVersion.h>
@@ -39,16 +40,20 @@
 #include <vtkImageData.h>
 #include <vtkSmartPointer.h>
 
-//------------------------------------------------------------------------------
-// Create the tool and automagically (I like this word) insert it in
-// the main window menu.
-ADD_TOOL(vvWipeImage);
-//------------------------------------------------------------------------------
+
+#include <extensions.h>
+
+#define COLUMN_TREE 0
+#define COLUMN_UL_VIEW 1
+#define COLUMN_UR_VIEW 2
+#define COLUMN_DL_VIEW 3
+#define COLUMN_DR_VIEW 4
+#define COLUMN_CLOSE_IMAGE 5
+#define COLUMN_RELOAD_IMAGE 6
+#define COLUMN_IMAGE_NAME 7
 
 //------------------------------------------------------------------------------
-vvWipeImage::vvWipeImage(vvMainWindowBase * parent, Qt::WindowFlags f):
-  vvToolWidgetBase(parent, f),
-  vvToolBase<vvWipeImage>(parent),
+vvWipeImage::vvWipeImage():
   Ui::vvWipeImage()
 {
     vtkSmartPointer<vtkImageRectilinearWipe> mWipe = vtkSmartPointer<vtkImageRectilinearWipe>::New();
@@ -64,8 +69,14 @@ vvWipeImage::~vvWipeImage()
 }
 //------------------------------------------------------------------------------
 
+void vvWipeImage::Initialize(QString inputPathName, std::vector<vvSlicerManager*> slicerManagers)
+{
+  mInputPathName = inputPathName;
+  mSlicerManagers = slicerManagers;
+}
+
 //------------------------------------------------------------------------------
-void vvWipeImage::setInput(int number, vvImage::Pointer image)
+void vvWipeImage::setInputImage(int number, vvImage::Pointer image)
 {
   if (image->GetVTKImages().size()) {
     mImage = image;
@@ -74,34 +85,6 @@ void vvWipeImage::setInput(int number, vvImage::Pointer image)
 }
 //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-void vvWipeImage::closeEvent(QCloseEvent *event)
-{
-  mCurrentSlicerManager->GetImage()->GetTransform()[0]->SetMatrix(mConcatenedTransform);
-  for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
-    mCurrentSlicerManager->GetSlicer(i)->ResetCamera();
-    mCurrentSlicerManager->GetSlicer(i)->Render();
-    mCurrentSlicerManager->UpdateLinkedNavigation( mCurrentSlicerManager->GetSlicer(i) );
-  }
-  vvToolWidgetBase::closeEvent(event);
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-bool vvWipeImage::close()
-{
-  return vvToolWidgetBase::close();
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-void vvWipeImage::reject()
-{
-  return vvToolWidgetBase::reject();
-}
-//------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
@@ -116,94 +99,111 @@ void vvWipeImage::crossPointerChanged()
 //------------------------------------------------------------------------------
 void vvWipeImage::UpdateWipe()
 {
-  for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
-    //mCurrentSlicerManager->GetSlicer(i)->SetReducedExtent(mReducedExtent);
-    mCurrentSlicerManager->GetSlicer(i)->ForceUpdateDisplayExtent();
-    mCurrentSlicerManager->GetSlicer(i)->Render();
-  }
+
 }
 //------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-void vvWipeImage::InputIsSelected(vvSlicerManager * slicer)
-{
-  //Save the current transformation
-  mConcatenedTransform = vtkSmartPointer<vtkMatrix4x4>::New();
-  mConcatenedTransform->DeepCopy(slicer->GetSlicer(0)->GetConcatenatedTransform()->GetMatrix());
-  vtkSmartPointer<vtkMatrix4x4> matrix = vtkSmartPointer<vtkMatrix4x4>::New();
-  matrix->Identity();
-  mCurrentSlicerManager->GetImage()->GetTransform()[0]->SetMatrix(matrix);
-  for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
-    mCurrentSlicerManager->GetSlicer(i)->ResetCamera();
-    mCurrentSlicerManager->GetSlicer(i)->Render();
-    mCurrentSlicerManager->UpdateLinkedNavigation( mCurrentSlicerManager->GetSlicer(i) );
+void vvWipeImage::selectWipeImage(int index)
+{ 
+
+  QString Extensions = EXTENSIONS;
+  Extensions += ";;All Files (*)";
+  QStringList files = QFileDialog::getOpenFileNames(NULL,tr("Load Wipe image"),mInputPathName,Extensions);
+  if (files.isEmpty())
+    return;
+
+  std::vector<std::string> vecFileNames;
+  for (int i = 0; i < files.size(); i++) {
+    vecFileNames.push_back(files[i].toStdString());
   }
 
-  // Change interface according to number of dimension
-#if VTK_MAJOR_VERSION <= 5
-  int *a = mCurrentImage->GetFirstVTKImageData()->GetWholeExtent();
-#else
-  int *a = mCurrentImage->GetFirstVTKImageData()->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
+  AddWipeImage(index,vecFileNames,vvImageReader::IMAGE);
+}
+//------------------------------------------------------------------------------
+
+void vvWipeImage::AddWipeImage(int index, std::vector<std::string> fileNames, vvImageReader::LoadedImageType type)
+{ 
+  QString file(fileNames[0].c_str());
+  if (QFile::exists(file))
+  {
+    mInputPathName = itksys::SystemTools::GetFilenamePath(file.toStdString()).c_str();
+    itk::ImageIOBase::Pointer reader = itk::ImageIOFactory::CreateImageIO(
+      file.toStdString().c_str(), itk::ImageIOFactory::ReadMode);
+    reader->SetFileName(fileNames[0].c_str());
+    reader->ReadImageInformation();
+    std::string component = reader->GetComponentTypeAsString(reader->GetComponentType());
+    int dimension = reader->GetNumberOfDimensions();
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    vvProgressDialog progress("Opening " + file.toStdString());
+    qApp->processEvents();
+
+    std::string filename = itksys::SystemTools::GetFilenameWithoutExtension(file.toStdString()).c_str();
+//    if (mSlicerManagers[index]->SetOverlay(fileNames,dimension, component,type)) {
+      //create an item in the tree with good settings
+      QTreeWidgetItem *item = new QTreeWidgetItem();
+      item->setData(0,Qt::UserRole,file.toStdString().c_str());
+      item->setData(1,Qt::UserRole,tr("overlay"));
+      QFileInfo fileinfo(file); //Do not show the path
+      item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,fileinfo.fileName());
+      item->setToolTip(COLUMN_IMAGE_NAME, mSlicerManagers[index]->GetListOfAbsoluteFilePathInOneString("overlay").c_str());
+      qApp->processEvents();
+#if VTK_MAJOR_VERSION > 5
+      for ( unsigned int i = 0; i < mSlicerManagers[index]->GetNumberOfSlicers(); i++)
+        mSlicerManagers[index]->GetSlicer(i)->ForceUpdateDisplayExtent();
 #endif
 
-//   Set initial sliders values
-  int w_ext[6], imsize[3];
-  mCurrentSlicerManager->GetSlicer(0)->GetRegisterExtent(w_ext);
+      for (int j = 1; j <= 4; j++) {
+        item->setData(j,Qt::CheckStateRole,GetTree()->topLevelItem(index)->data(j,Qt::CheckStateRole));
+      }
 
-  QSignalMapper* signalMapper = new QSignalMapper(this);
-  connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(sliderValueChanged(int)));
+      //Create the buttons for reload and close
+      qApp->processEvents();
+      QTreePushButton* cButton = new QTreePushButton;
+      cButton->setItem(item);
+      cButton->setColumn(COLUMN_CLOSE_IMAGE);
+      cButton->setToolTip(tr("close image"));
+      cButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/exit.png")));
+      /*connect(cButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
+        this,SLOT(CloseImage(QTreeWidgetItem*, int)));
+
+      QTreePushButton* rButton = new QTreePushButton;
+      rButton->setItem(item);
+      rButton->setColumn(COLUMN_RELOAD_IMAGE);
+      rButton->setToolTip(tr("reload image"));
+      rButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/rotateright.png")));
+      connect(rButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
+        this,SLOT(ReloadImage(QTreeWidgetItem*, int)));
+
+      DataTree->topLevelItem(index)->setExpanded(1);
+      DataTree->topLevelItem(index)->addChild(item);
+      DataTree->setItemWidget(item, COLUMN_CLOSE_IMAGE, cButton);
+      DataTree->setItemWidget(item, COLUMN_RELOAD_IMAGE, rButton);
+
+      //set the id of the image
+      QString id = DataTree->topLevelItem(index)->data(COLUMN_IMAGE_NAME,Qt::UserRole).toString();
+      item->setData(COLUMN_IMAGE_NAME,Qt::UserRole,id.toStdString().c_str());
+      UpdateTree();
+      qApp->processEvents();
+      ImageInfoChanged();
+      QApplication::restoreOverrideCursor();
+
+      // Update the display to update, e.g., the sliders
+      for(int i=0; i<4; i++)
+        DisplaySliders(index, i);
+    } else {
+      QApplication::restoreOverrideCursor();
+      QString error = "Cannot import the new image.\n";
+      error += mSlicerManagers[index]->GetLastError().c_str();
+      QMessageBox::information(this,tr("Problem reading image !"),error);
+    }
+    WindowLevelChanged(); */
+  }
+  else
+    QMessageBox::information(NULL,tr("Problem reading wipe Image !"),"File doesn't exist!");
 }
 //------------------------------------------------------------------------------
 
 
-//------------------------------------------------------------------------------
-void vvWipeImage::apply()
-{
-  if (!mCurrentSlicerManager) close();
-  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-  // Typedef 
-  typedef args_info_clitkCropImage ArgsInfoType;
-  typedef clitk::CropImageGenericFilter CropFilterType;
-  
-  // Get options
-  ArgsInfoType mArgsInfo;
-  cmdline_parser_clitkCropImage_init(&mArgsInfo); // Initialisation to default
-  int n = mCurrentSlicerManager->GetDimension()*2;  // 2D and 3D only
-  mArgsInfo.boundingBox_given = n;
-  mArgsInfo.boundingBox_arg = new int[n];
-  
-  // We MUST reset initial extend to input image before using the
-  // filter to retrieve the correct image size  ;
-  // Main filter
-  CropFilterType::Pointer filter = CropFilterType::New();
-  filter->SetInputVVImage(mCurrentImage);
-  filter->SetArgsInfo(mArgsInfo);
-
-  // Go ! (not threaded) 
-  try{
-    filter->Update();
-  }
-  catch(clitk::ExceptionObject & e) {
-    DD(e.what());
-    QApplication::restoreOverrideCursor();
-    delete [] mArgsInfo.boundingBox_arg;
-    close();
-  }
-  std::ostringstream croppedImageName;
-  croppedImageName << "Cropped_" << mCurrentSlicerManager->GetSlicer(0)->GetFileName() << ".mhd";
-  // Retrieve result and display it
-  vvImage::Pointer output = filter->GetOutputVVImage();
-  
-  output->GetTransform()[0]->SetMatrix(mConcatenedTransform);
-
-  AddImage(output,croppedImageName.str());
-  
-  // End
-  QApplication::restoreOverrideCursor();
-  delete [] mArgsInfo.boundingBox_arg;
-  close();
-}
-//------------------------------------------------------------------------------
 

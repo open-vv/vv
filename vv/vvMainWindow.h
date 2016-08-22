@@ -26,6 +26,7 @@
 #include "vvToolManager.h"
 #include "vvImageReader.h"
 #include "vvMesh.h"
+#include "vvWipeImage.h"
 #include "clitkMemoryUsage.h"
 
 #include "vtkSmartPointer.h"
@@ -47,6 +48,8 @@ class vvMainWindow: public vvMainWindowBase,
                     private Ui::vvMainWindow
 {
   Q_OBJECT
+
+  friend class vvWipeImage;
 
   public:
   vvMainWindow();
@@ -194,6 +197,8 @@ private:
   vvHelpDialog *help_dialog;
   vvDocumentation *documentation;
   vvDicomSeriesSelector *dicomSeriesSelector;
+  
+  vvWipeImage::Pointer mWipeImage;
 
   bool viewMode;
   bool playMode;

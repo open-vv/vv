@@ -109,11 +109,7 @@ It is distributed under dual licence
 #define COLUMN_RELOAD_IMAGE 6
 #define COLUMN_IMAGE_NAME 7
 
-#ifdef CLITK_PRIVATE_FEATURES
-#define EXTENSIONS "Images ( *.bmp *.dcm *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN *.nii *.nrrd *.nhdr *.refscan *.nii.gz *.usf *.svl)"
-#else
-#define EXTENSIONS "Images ( *.bmp *.dcm *.png *.jpeg *.jpg *.tif *.mhd *.mha *.hdr *.vox *.his *.xdr *.SCAN *.nii *.nrrd *.nhdr *.refscan *.nii.gz)"
-#endif
+#include <extensions.h>
 
 
 /*Data Tree values
@@ -2148,11 +2144,16 @@ void vvMainWindow::AddROI(int index, QString file)
 void vvMainWindow::SelectWipeImage()
 { 
   int index = GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
+  
 
   if (!(CheckAddedImage(index, "wipe")))
     return;
 
-  QString Extensions = EXTENSIONS;
+  vvWipeImage::Pointer wipeImage = vvWipeImage::New();
+  wipeImage->Initialize(mInputPathName, mSlicerManagers);
+  wipeImage->selectWipeImage(index);
+
+  /*QString Extensions = EXTENSIONS;
   Extensions += ";;All Files (*)";
   QStringList files = QFileDialog::getOpenFileNames(this,tr("Load Wipe image"),mInputPathName,Extensions);
   if (files.isEmpty())
@@ -2161,7 +2162,7 @@ void vvMainWindow::SelectWipeImage()
   std::vector<std::string> vecFileNames;
   for (int i = 0; i < files.size(); i++) {
     vecFileNames.push_back(files[i].toStdString());
-  }
+  }*/
 
   //AddWipeImage(index,vecFileNames,vvImageReader::IMAGE);
 }
