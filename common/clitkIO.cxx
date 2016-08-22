@@ -52,6 +52,7 @@
 #include <itkStimulateImageIOFactory.h>
 #include <itkTIFFImageIOFactory.h>
 #include <itkVTKImageIOFactory.h>
+#include <itkNiftiImageIO.h>
 
 //--------------------------------------------------------------------
 // Register factories

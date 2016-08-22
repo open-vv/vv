@@ -1190,9 +1190,9 @@ void vvSlicer::UpdateDisplayExtent()
     this->ConvertImageToImageDisplayExtent(input, w_ext, mVF->GetVTKImages()[0], vfExtent);
     bool out = ClipDisplayedExtent(vfExtent, mVOIFilter->GetInput()->GetWholeExtent());
 #else
-    //this->UpdateInformation();
+    mVOIFilter->Update();
     this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mVF->GetVTKImages()[0], vfExtent);
-    bool out = ClipDisplayedExtent(vfExtent, mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
+    bool out = ClipDisplayedExtent(vfExtent, mVOIFilter->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
 #endif
     mVFActor->SetVisibility(!out);
     mVOIFilter->SetVOI(vfExtent);
