@@ -2151,7 +2151,14 @@ void vvMainWindow::SelectWipeImage()
 
   vvWipeImage::Pointer wipeImage = vvWipeImage::New();
   wipeImage->Initialize(mInputPathName, mSlicerManagers);
-  wipeImage->selectWipeImage(index);
+  wipeImage->selectWipeImage(index, GetTree());
+  QTreeWidgetItem *item = DataTree->itemAt(index, COLUMN_CLOSE_IMAGE);
+  //connect(item,SIGNAL(clickedInto(QTreeWidgetItem*, int)), this,SLOT(CloseImage(QTreeWidgetItem*, int)));
+  UpdateTree();
+  ImageInfoChanged();
+  for(int i=0; i<4; i++)
+        DisplaySliders(index, i);
+  WindowLevelChanged();
 
   /*QString Extensions = EXTENSIONS;
   Extensions += ";;All Files (*)";

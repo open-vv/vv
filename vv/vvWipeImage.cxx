@@ -19,6 +19,7 @@
 // vv
 #include "vvWipeImage.h"
 #include "vvSlicer.h"
+#include "vvMainWindow.h"
 
 // clitk
 #include "clitkCropImage_ggo.h"
@@ -105,7 +106,7 @@ void vvWipeImage::UpdateWipe()
 
 
 //------------------------------------------------------------------------------
-void vvWipeImage::selectWipeImage(int index)
+void vvWipeImage::selectWipeImage(int index, QTreeWidget* DataTree)
 { 
 
   QString Extensions = EXTENSIONS;
@@ -119,11 +120,11 @@ void vvWipeImage::selectWipeImage(int index)
     vecFileNames.push_back(files[i].toStdString());
   }
 
-  AddWipeImage(index,vecFileNames,vvImageReader::IMAGE);
+  AddWipeImage(index,vecFileNames,vvImageReader::IMAGE, DataTree);
 }
 //------------------------------------------------------------------------------
 
-void vvWipeImage::AddWipeImage(int index, std::vector<std::string> fileNames, vvImageReader::LoadedImageType type)
+void vvWipeImage::AddWipeImage(int index, std::vector<std::string> fileNames, vvImageReader::LoadedImageType type, QTreeWidget* DataTree)
 { 
   QString file(fileNames[0].c_str());
   if (QFile::exists(file))
@@ -144,10 +145,10 @@ void vvWipeImage::AddWipeImage(int index, std::vector<std::string> fileNames, vv
       //create an item in the tree with good settings
       QTreeWidgetItem *item = new QTreeWidgetItem();
       item->setData(0,Qt::UserRole,file.toStdString().c_str());
-      item->setData(1,Qt::UserRole,tr("overlay"));
+      item->setData(1,Qt::UserRole,tr("wipe"));
       QFileInfo fileinfo(file); //Do not show the path
       item->setData(COLUMN_IMAGE_NAME,Qt::DisplayRole,fileinfo.fileName());
-      item->setToolTip(COLUMN_IMAGE_NAME, mSlicerManagers[index]->GetListOfAbsoluteFilePathInOneString("overlay").c_str());
+      item->setToolTip(COLUMN_IMAGE_NAME, mSlicerManagers[index]->GetListOfAbsoluteFilePathInOneString("wipe").c_str());
       qApp->processEvents();
 #if VTK_MAJOR_VERSION > 5
       for ( unsigned int i = 0; i < mSlicerManagers[index]->GetNumberOfSlicers(); i++)
@@ -155,7 +156,7 @@ void vvWipeImage::AddWipeImage(int index, std::vector<std::string> fileNames, vv
 #endif
 
       for (int j = 1; j <= 4; j++) {
-        item->setData(j,Qt::CheckStateRole,GetTree()->topLevelItem(index)->data(j,Qt::CheckStateRole));
+        item->setData(j,Qt::CheckStateRole,DataTree->topLevelItem(index)->data(j,Qt::CheckStateRole));
       }
 
       //Create the buttons for reload and close
@@ -165,16 +166,16 @@ void vvWipeImage::AddWipeImage(int index, std::vector<std::string> fileNames, vv
       cButton->setColumn(COLUMN_CLOSE_IMAGE);
       cButton->setToolTip(tr("close image"));
       cButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/exit.png")));
-      /*connect(cButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
-        this,SLOT(CloseImage(QTreeWidgetItem*, int)));
+      connect(cButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
+        vvMainWindow::Instance(),SLOT(CloseImage(QTreeWidgetItem*, int)));
 
       QTreePushButton* rButton = new QTreePushButton;
       rButton->setItem(item);
       rButton->setColumn(COLUMN_RELOAD_IMAGE);
       rButton->setToolTip(tr("reload image"));
       rButton->setIcon(QIcon(QString::fromUtf8(":/common/icons/rotateright.png")));
-      connect(rButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
-        this,SLOT(ReloadImage(QTreeWidgetItem*, int)));
+      //connect(rButton,SIGNAL(clickedInto(QTreeWidgetItem*, int)),
+      //  this,SLOT(ReloadImage(QTreeWidgetItem*, int)));
 
       DataTree->topLevelItem(index)->setExpanded(1);
       DataTree->topLevelItem(index)->addChild(item);
@@ -184,26 +185,25 @@ void vvWipeImage::AddWipeImage(int index, std::vector<std::string> fileNames, vv
       //set the id of the image
       QString id = DataTree->topLevelItem(index)->data(COLUMN_IMAGE_NAME,Qt::UserRole).toString();
       item->setData(COLUMN_IMAGE_NAME,Qt::UserRole,id.toStdString().c_str());
-      UpdateTree();
+      //UpdateTree(DataTree);
       qApp->processEvents();
-      ImageInfoChanged();
+      //ImageInfoChanged();
       QApplication::restoreOverrideCursor();
 
       // Update the display to update, e.g., the sliders
-      for(int i=0; i<4; i++)
-        DisplaySliders(index, i);
-    } else {
+//      for(int i=0; i<4; i++)
+//        DisplaySliders(index, i);
+/*    } else {
       QApplication::restoreOverrideCursor();
       QString error = "Cannot import the new image.\n";
       error += mSlicerManagers[index]->GetLastError().c_str();
       QMessageBox::information(this,tr("Problem reading image !"),error);
-    }
-    WindowLevelChanged(); */
+    } */
+    //WindowLevelChanged();
   }
   else
     QMessageBox::information(NULL,tr("Problem reading wipe Image !"),"File doesn't exist!");
 }
 //------------------------------------------------------------------------------
-
 
 

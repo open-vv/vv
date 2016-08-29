@@ -49,8 +49,6 @@ class vvMainWindow: public vvMainWindowBase,
 {
   Q_OBJECT
 
-  friend class vvWipeImage;
-
   public:
   vvMainWindow();
   ~vvMainWindow();
@@ -185,6 +183,8 @@ public slots:
   void UpdateMemoryUsage();
   void show();
   
+  static vvMainWindow* Instance(){return mSingleton;}
+  
 protected:
   
   void createRecentlyOpenedFilesMenu();
@@ -236,7 +236,7 @@ private:
   // vvMainWindowToolInfo * mCurrentToolInfo;
   // std::vector<vvToolCreatorBase*> mListOfRunningTool;
 
-  static vvMainWindow * mSingleton;
+  static vvMainWindow* mSingleton;
 
   int mCurrentTime;
   

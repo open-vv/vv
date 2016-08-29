@@ -26,7 +26,6 @@
 #include <QMessageBox>
 #include "QTreePushButton.h"
 // vv
-#include "vvMainWindowBase.h"
 #include "vvImage.h"
 #include "vvImageReader.h"
 #include "vvProgressDialog.h"
@@ -56,9 +55,9 @@ class vvWipeImage:
   ~vvWipeImage();
 
   void Initialize(QString inputPathName, std::vector<vvSlicerManager*> slicerManagers);
-  void selectWipeImage(int index);
+  void selectWipeImage(int index, QTreeWidget* DataTree);
   void setInputImage(int number, vvImage::Pointer image);
-  void AddWipeImage(int index, std::vector<std::string> fileNames, vvImageReader::LoadedImageType type);
+  void AddWipeImage(int index, std::vector<std::string> fileNames, vvImageReader::LoadedImageType type, QTreeWidget* DataTree);
 
 public slots:
   void crossPointerChanged();
