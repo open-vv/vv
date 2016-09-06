@@ -52,7 +52,9 @@
 #include <itkStimulateImageIOFactory.h>
 #include <itkTIFFImageIOFactory.h>
 #include <itkVTKImageIOFactory.h>
-#include <itkNiftiImageIO.h>
+#include <itkNiftiImageIOFactory.h>
+#include <itkNrrdImageIOFactory.h>
+#include <itkImageIOFactory.h>
 
 //--------------------------------------------------------------------
 // Register factories
@@ -98,5 +100,7 @@ void clitk::RegisterClitkFactories()
   itk::StimulateImageIOFactory::RegisterOneFactory();
   itk::TIFFImageIOFactory::RegisterOneFactory();
   itk::VTKImageIOFactory::RegisterOneFactory();
+  itk::NiftiImageIOFactory::RegisterOneFactory();
+  itk::NrrdImageIOFactory::RegisterOneFactory();
 } ////
 
