@@ -42,8 +42,27 @@ namespace clitk
   {
     if (m_Verbose) std::cout << "Image was detected to be "<<Dimension<<"D and "<< PixelType<<"..."<<std::endl;
 
-    if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and 3D float..." << std::endl;
-    UpdateWithDimAndPixelType<Dimension, float >();
+    if (PixelType == "short") {
+      UpdateWithDimAndPixelType<Dimension, short>();
+    } else if (PixelType == "unsigned short") {
+      UpdateWithDimAndPixelType<Dimension, unsigned short>();
+    } else if (PixelType == "unsigned_short") {
+      UpdateWithDimAndPixelType<Dimension, unsigned short>();
+    } else if (PixelType == "char") {
+      UpdateWithDimAndPixelType<Dimension, char>();
+    } else if (PixelType == "unsigned_char") {
+      UpdateWithDimAndPixelType<Dimension, unsigned char>();
+    } else if (PixelType == "int") {
+      UpdateWithDimAndPixelType<Dimension, int>();
+    } else if (PixelType == "unsigned_int") {
+      UpdateWithDimAndPixelType<Dimension, unsigned int>();
+    } else if (PixelType == "double") {
+      UpdateWithDimAndPixelType<Dimension, double>();
+    } else if (PixelType == "float") {
+      UpdateWithDimAndPixelType<Dimension, float>();
+    } else {
+      std::cerr << "Error, pixel type : \"" << PixelType << "\" unknown !" << std::endl;
+    }
   }
 
 

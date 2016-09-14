@@ -8,5 +8,4 @@ option "verbose"   	v   	"Verbose"			  flag		off
 
 option "input"		i	"Input image filename"		  string  	yes
 option "output"    	o   	"Output image filename"		  string 	yes
-option "componentIndex" c   	"Component index to extract"		  int 	no 	default="0"
 

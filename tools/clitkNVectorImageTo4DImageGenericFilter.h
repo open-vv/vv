@@ -33,7 +33,6 @@
 #include "clitkCommon.h"
 #include "clitkImageCommon.h"
 #include "clitkNVectorImageTo4DImage_ggo.h"
-#include "clitkNVectorImageTo4DImageFilter.h"
 
 //itk include
 #include "itkLightObject.h"
