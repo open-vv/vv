@@ -60,7 +60,7 @@ void vvImageReader::Update(LoadedImageType type)
     reader->ReadImageInformation();
     if (mInputFilenames.size() > 1)
       Update(reader->GetNumberOfDimensions()+1,reader->GetComponentTypeAsString(reader->GetComponentType()),type);
-    else if (reader->GetComponentSize() > 1 && type != VECTORFIELD && type != VECTORFIELDWITHTIME)
+    else if (reader->GetNumberOfComponents() > 1 && type != VECTORFIELD && type != VECTORFIELDWITHTIME)
       Update(reader->GetNumberOfDimensions()+1,reader->GetComponentTypeAsString(reader->GetComponentType()),VECTORPIXELIMAGE);
     else
       Update(reader->GetNumberOfDimensions(),reader->GetComponentTypeAsString(reader->GetComponentType()),type);
