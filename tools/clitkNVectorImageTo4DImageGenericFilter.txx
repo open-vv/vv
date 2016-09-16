@@ -28,7 +28,6 @@
  ===================================================*/
 
 #include "itkVectorImageToImageAdaptor.h"
-#include <sstream>
 
 namespace clitk
 {

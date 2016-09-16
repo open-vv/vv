@@ -24,6 +24,7 @@
 #include <itkImageSeriesReader.h>
 #include <itkImageToVTKImageFilter.h>
 #include <itkFlexibleVectorCastImageFilter.h>
+#include "itkVectorImageToImageAdaptor.h"
 
 #include <vtkTransform.h>
 
@@ -128,6 +129,81 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
     } catch ( itk::ExceptionObject & err ) {
       std::cerr << "Error while slicing " << mInputFilenames[0].c_str()
                 << "(slice #" << mSlice << ") " << err << std::endl;
+      return;
+    }
+  } else if (mType == VECTORPIXELIMAGE) {
+    mImage=vvImage::New();
+    typedef itk::VectorImage< InputPixelType, VImageDimension-1 > InputImageType;
+    typedef itk::ImageFileReader<InputImageType> ReaderType;
+    typedef itk::Image<InputPixelType, VImageDimension> OutputImageType;
+    typename ReaderType::Pointer reader = ReaderType::New();
+    reader->SetFileName(mInputFilenames[0]);
+    reader->Update();
+    typename InputImageType::Pointer input= reader->GetOutput();
+
+    typedef itk::VectorImageToImageAdaptor<InputPixelType, VImageDimension-1> ImageAdaptorType;
+    typename ImageAdaptorType::Pointer adaptor = ImageAdaptorType::New();
+    typename OutputImageType::Pointer output = OutputImageType::New();
+
+    adaptor->SetExtractComponentIndex(0);
+    adaptor->SetImage(input);
+
+    //Create the output
+    typename OutputImageType::IndexType index;
+    index.Fill(0);
+    typename OutputImageType::SizeType size;
+    size.Fill(input->GetNumberOfComponentsPerPixel());
+    typename OutputImageType::SpacingType spacing;
+    spacing.Fill(1);
+    typename OutputImageType::PointType origin;
+    origin.Fill(0);
+    for (unsigned int pixelDim=0; pixelDim<VImageDimension-1; ++pixelDim)
+    {
+      size[pixelDim]=adaptor->GetLargestPossibleRegion().GetSize(pixelDim);
+      spacing[pixelDim]=input->GetSpacing()[pixelDim];
+      origin[pixelDim]=input->GetOrigin()[pixelDim];
+    }
+    typename OutputImageType::RegionType region;
+    region.SetSize(size);
+    region.SetIndex(index);
+    output->SetRegions(region);
+    output->SetOrigin(origin);
+    output->SetSpacing(spacing);
+    output->Allocate();
+
+    //Copy each channel
+    for (unsigned int pixelDim=0; pixelDim<input->GetNumberOfComponentsPerPixel(); ++pixelDim)
+    {
+      adaptor->SetExtractComponentIndex(pixelDim);
+
+      itk::ImageRegionIterator<InputImageType> imageIterator(input,input->GetLargestPossibleRegion());
+
+      while(!imageIterator.IsAtEnd())
+      {
+        typename OutputImageType::IndexType indexVector;
+        indexVector.Fill(0);
+        for (unsigned int indexDim=0; indexDim<VImageDimension-1; ++indexDim)
+        {
+          indexVector[indexDim]=imageIterator.GetIndex().GetElement(indexDim);
+        }
+        indexVector[VImageDimension-1]=pixelDim;
+
+        output->SetPixel(indexVector, adaptor->GetPixel(imageIterator.GetIndex()));
+        ++imageIterator;
+      }
+    }
+
+    if (VImageDimension == 4)
+      mType == VECTORPIXELIMAGEWITHTIME;
+    else
+      mType == VECTORPIXELIMAGE;
+
+    try {
+      mImage = vvImageFromITK<VImageDimension,InputPixelType>(output, mType == VECTORPIXELIMAGEWITHTIME);
+      mImage->ComputeScalarRangeBase<InputPixelType, VImageDimension>(output);
+    } catch ( itk::ExceptionObject & err ) {
+      std::cerr << "Error while slicing " << mInputFilenames[0].c_str()
+                << " " << err << std::endl;
       return;
     }
   } else {
