@@ -703,67 +703,7 @@ void vvSlicerManager::UpdateViews(int current,int slicer)
       y >= mSlicers[slicer]->GetInput()->GetWholeExtent()[2]-0.5 &&
       y <= mSlicers[slicer]->GetInput()->GetWholeExtent()[3]+0.5 &&
       z >= mSlicers[slicer]->GetInput()->GetWholeExtent()[4]-0.5 &&
-      z <= mSlicers[slicer]->GetInput()->GetWholeExtent()[5]+0.5) {
-    mSlicers[slicer]->UpdateCursorPosition();
-    mSlicers[slicer]->SetCursorColor(10,212,255);
-    mSelectedSlicer = slicer;
-
-    switch (mSlicers[slicer]->GetSliceOrientation()) {
-    case vtkImageViewer2::SLICE_ORIENTATION_XY:
-      if (mSlicers[slicer]->GetSlice() != (int)lrint(z))
-        mSlicers[slicer]->SetSlice((int)lrint(z));
-      break;
-
-    case vtkImageViewer2::SLICE_ORIENTATION_XZ:
-      if (mSlicers[slicer]->GetSlice() != (int)lrint(y))
-        mSlicers[slicer]->SetSlice((int)lrint(y));
-      break;
-
-    case vtkImageViewer2::SLICE_ORIENTATION_YZ:
-      if (mSlicers[slicer]->GetSlice() != (int)lrint(x))
-        mSlicers[slicer]->SetSlice((int)lrint(x));
-      break;
-    }
-    mSlicers[slicer]->Render();
-
-    for ( unsigned int i = 0; i < mSlicers.size(); i++) {
-      if (i != (unsigned int)slicer
-          && mSlicers[i]->GetRenderer()->GetDraw()
-          && mSlicers[i]->GetRenderWindow()->GetSize()[0] > 2
-          && mSlicers[i]->GetRenderWindow()->GetSize()[1] > 2) {
-        mSlicers[i]->SetCurrentPosition(p[0], p[1], p[2], mSlicers[slicer]->GetMaxCurrentTSlice());
-        mSlicers[i]->UpdateCursorPosition();
-        if (current) { //do not display corner annotation if image is the one picked
-          mSlicers[i]->SetCurrentPosition(-VTK_DOUBLE_MAX,-VTK_DOUBLE_MAX,
-                                          -VTK_DOUBLE_MAX, mSlicers[slicer]->GetMaxCurrentTSlice());
-          mSlicers[i]->SetCursorColor(255,10,212);
-        } else {
-          mSlicers[i]->SetCursorColor(150,10,282);
-        }
-        switch (mSlicers[i]->GetSliceOrientation()) {
-        case vtkImageViewer2::SLICE_ORIENTATION_XY:
-          if (mSlicers[i]->GetSlice() != (int)lrint(z))
-            mSlicers[i]->SetSlice((int)lrint(z));
-          break;
-
-        case vtkImageViewer2::SLICE_ORIENTATION_XZ:
-          if (mSlicers[i]->GetSlice() != (int)lrint(y))
-            mSlicers[i]->SetSlice((int)lrint(y));
-          break;
-
-        case vtkImageViewer2::SLICE_ORIENTATION_YZ:
-          if (mSlicers[i]->GetSlice() != (int)lrint(x))
-            mSlicers[i]->SetSlice((int)lrint(x));
-          break;
-        }
-        
-        mSlicers[i]->Render();
-        
-        UpdateSlice(i);
-        UpdateTSlice(i);
-      }
-    }
-  }
+      z <= mSlicers[slicer]->GetInput()->GetWholeExtent()[5]+0.5)
 #else
 int extentImageReslice[6];
 mSlicers[slicer]->GetRegisterExtent(extentImageReslice);
@@ -772,7 +712,9 @@ mSlicers[slicer]->GetRegisterExtent(extentImageReslice);
       y >= extentImageReslice[2]-0.5 &&
       y <= extentImageReslice[3]+0.5 &&
       z >= extentImageReslice[4]-0.5 &&
-      z <= extentImageReslice[5]+0.5) {
+      z <= extentImageReslice[5]+0.5)
+#endif
+  {
     mSlicers[slicer]->UpdateCursorPosition();
     mSlicers[slicer]->SetCursorColor(10,212,255);
     mSelectedSlicer = slicer;
@@ -833,7 +775,6 @@ mSlicers[slicer]->GetRegisterExtent(extentImageReslice);
       }
     }
   }
-#endif
 }
 //----------------------------------------------------------------------------
 
@@ -855,17 +796,7 @@ void vvSlicerManager::UpdateLinked(int slicer)
       y >= mSlicers[slicer]->GetInput()->GetWholeExtent()[2]-0.5 &&
       y <= mSlicers[slicer]->GetInput()->GetWholeExtent()[3]+0.5 &&
       z >= mSlicers[slicer]->GetInput()->GetWholeExtent()[4]-0.5 &&
-      z <= mSlicers[slicer]->GetInput()->GetWholeExtent()[5]+0.5) {
-    for (std::list<std::string>::const_iterator i = mLinkedId.begin(); i != mLinkedId.end(); i++) {
-		if (this->IsInvolvedInFusionSequence()) {
-			//this SlicerManager is involved in fusionSequence => do not synchronize the times
-			emit UpdateLinkManager(*i, slicer, p[0], p[1], p[2], -1);
-		}
-		else {
-			emit UpdateLinkManager(*i, slicer, p[0], p[1], p[2], mSlicers[slicer]->GetMaxCurrentTSlice());
-		}
-    }
-  }
+      z <= mSlicers[slicer]->GetInput()->GetWholeExtent()[5]+0.5)
 #else
 int extentImageReslice[6];
 mSlicers[slicer]->GetRegisterExtent(extentImageReslice);
@@ -874,7 +805,9 @@ mSlicers[slicer]->GetRegisterExtent(extentImageReslice);
       y >= extentImageReslice[2]-0.5 &&
       y <= extentImageReslice[3]+0.5 &&
       z >= extentImageReslice[4]-0.5 &&
-      z <= extentImageReslice[5]+0.5) {
+      z <= extentImageReslice[5]+0.5)
+#endif
+  {
     for (std::list<std::string>::const_iterator i = mLinkedId.begin(); i != mLinkedId.end(); i++) {
 		if (this->IsInvolvedInFusionSequence()) {
 			//this SlicerManager is involved in fusionSequence => do not synchronize the times
@@ -885,7 +818,6 @@ mSlicers[slicer]->GetRegisterExtent(extentImageReslice);
 		}
     }
   }
-#endif
 }
 //----------------------------------------------------------------------------
 
@@ -1189,75 +1121,23 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
   int displayFus = 0;
   double valueOver=0, valueFus=0;
 #if VTK_MAJOR_VERSION <= 5
-    if (XTransform >= mSlicers[slicer]->GetInput()->GetWholeExtent()[0] &&
-      XTransform <= mSlicers[slicer]->GetInput()->GetWholeExtent()[1] &&
-      YTransform >= mSlicers[slicer]->GetInput()->GetWholeExtent()[2] &&
-      YTransform <= mSlicers[slicer]->GetInput()->GetWholeExtent()[3] &&
-      ZTransform >= mSlicers[slicer]->GetInput()->GetWholeExtent()[4] &&
-      ZTransform <= mSlicers[slicer]->GetInput()->GetWholeExtent()[5]) {
-
-    value = this->GetScalarComponentAsDouble(mSlicers[slicer]->GetInput(), X, Y, Z);
-
-    if (mSlicers[slicer]->GetVFActor() ) {
-      displayVec = 1;
-      unsigned int currentTime = mSlicers[slicer]->GetMaxCurrentTSlice();
-      vtkImageData *vf = NULL;
-
-      if (mSlicers[slicer]->GetVF()->GetVTKImages().size() > currentTime)
-        vf = mSlicers[slicer]->GetVF()->GetVTKImages()[currentTime];
-      else
-        vf = mSlicers[slicer]->GetVF()->GetVTKImages()[0];
-
-      if (vf) {
-        double Xvf = (x - vf->GetOrigin()[0])/ vf->GetSpacing()[0];
-        double Yvf = (y - vf->GetOrigin()[1])/ vf->GetSpacing()[1];
-        double Zvf = (z - vf->GetOrigin()[2])/ vf->GetSpacing()[2];
-        xVec = this->GetScalarComponentAsDouble( vf, Xvf, Yvf, Zvf, 0);
-        yVec = this->GetScalarComponentAsDouble( vf, Xvf, Yvf, Zvf, 1);
-        zVec = this->GetScalarComponentAsDouble( vf, Xvf, Yvf, Zvf, 2);
-        valueVec = sqrt(xVec*xVec + yVec*yVec + zVec*zVec);
-      }
-    }
-    if (mSlicers[slicer]->GetOverlayActor() ) {
-      displayOver = 1;
-      vtkImageData *overlay = dynamic_cast<vtkImageData*>(mSlicers[slicer]->GetOverlayMapper()->GetInput());
-      double Xover = (x - overlay->GetOrigin()[0]) / overlay->GetSpacing()[0];
-      double Yover = (y - overlay->GetOrigin()[1]) / overlay->GetSpacing()[1];
-      double Zover = (z - overlay->GetOrigin()[2]) / overlay->GetSpacing()[2];
-      valueOver = this->GetScalarComponentAsDouble(overlay, Xover, Yover, Zover);
-    }
-
-	if ( mSlicers[slicer]->GetFusionActor() ) {
-		displayFus = 1;
-		vtkImageData *fusion = dynamic_cast<vtkImageData*>(mSlicers[slicer]->GetFusionMapper()->GetInput());
-		double Xover = (x - fusion->GetOrigin()[0]) / fusion->GetSpacing()[0];
-		double Yover = (y - fusion->GetOrigin()[1]) / fusion->GetSpacing()[1];
-		double Zover = (z - fusion->GetOrigin()[2]) / fusion->GetSpacing()[2];
-		valueFus = this->GetScalarComponentAsDouble(fusion, Xover, Yover, Zover);
-	}
-	else if (this->IsInvolvedInFusionSequence()) { 
-    //if the cursor moves over the 'independent' version of the secondary sequence
-    //do not update the panel, just keep it as it is.
-		displayFus = 1;
-		valueFus = std::numeric_limits<double>::quiet_NaN();
-	}
-
-    emit UpdatePosition(mSlicers[slicer]->GetCursorVisibility(),
-                        x,y,z,XTransform,YTransform,ZTransform,value);
-    emit UpdateVector(displayVec,xVec, yVec, zVec, valueVec);
-    emit UpdateOverlay(displayOver,valueOver,value);
-    emit UpdateFusion(displayFus,valueFus);
-  }
+    if (XTransform >= mSlicers[slicer]->GetInput()->GetWholeExtent()[0] -0.5 &&
+      XTransform <= mSlicers[slicer]->GetInput()->GetWholeExtent()[1] +0.5 &&
+      YTransform >= mSlicers[slicer]->GetInput()->GetWholeExtent()[2] -0.5 &&
+      YTransform <= mSlicers[slicer]->GetInput()->GetWholeExtent()[3] +0.5 &&
+      ZTransform >= mSlicers[slicer]->GetInput()->GetWholeExtent()[4] -0.5 &&
+      ZTransform <= mSlicers[slicer]->GetInput()->GetWholeExtent()[5] +0.5)
 #else
 int extentImageReslice[6];
 mSlicers[slicer]->GetRegisterExtent(extentImageReslice);
-    if (XTransform >= extentImageReslice[0] &&
-      XTransform <= extentImageReslice[1] &&
-      YTransform >= extentImageReslice[2] &&
-      YTransform <= extentImageReslice[3] &&
-      ZTransform >= extentImageReslice[4] &&
-      ZTransform <= extentImageReslice[5]) {
-
+    if (XTransform >= extentImageReslice[0] -0.5 &&
+      XTransform <= extentImageReslice[1] +0.5 &&
+      YTransform >= extentImageReslice[2] -0.5 &&
+      YTransform <= extentImageReslice[3] +0.5 &&
+      ZTransform >= extentImageReslice[4] -0.5 &&
+      ZTransform <= extentImageReslice[5] +0.5)
+#endif
+    {
     value = this->GetScalarComponentAsDouble(mSlicers[slicer]->GetInput(), X, Y, Z);
 
     if (mSlicers[slicer]->GetVFActor() ) {
@@ -1310,7 +1190,6 @@ mSlicers[slicer]->GetRegisterExtent(extentImageReslice);
     emit UpdateOverlay(displayOver,valueOver,value);
     emit UpdateFusion(displayFus,valueFus);
   }
-#endif
 }
 //----------------------------------------------------------------------------
 
@@ -1709,11 +1588,7 @@ void vvSlicerManager::AddLandmark(float x,float y,float z,float t)
       y_index >= mSlicers[0]->GetInput()->GetWholeExtent()[2]-0.5 &&
       y_index <= mSlicers[0]->GetInput()->GetWholeExtent()[3]+0.5 &&
       z_index >= mSlicers[0]->GetInput()->GetWholeExtent()[4]-0.5 &&
-      z_index <= mSlicers[0]->GetInput()->GetWholeExtent()[5]+0.5) {
-    double value = this->GetScalarComponentAsDouble(mSlicers[mSelectedSlicer]->GetInput(), x_index, y_index, z_index); //Value in selected Slicer (not 0): bug #2848
-    this->GetLandmarks()->AddLandmark(x,y,z,t,value);
-    emit LandmarkAdded();
-  }
+      z_index <= mSlicers[0]->GetInput()->GetWholeExtent()[5]+0.5)
 #else
   int extentImageReslice[6];
   mSlicers[0]->GetRegisterExtent(extentImageReslice);
@@ -1722,12 +1597,13 @@ void vvSlicerManager::AddLandmark(float x,float y,float z,float t)
       y_index >= extentImageReslice[2]-0.5 &&
       y_index <= extentImageReslice[3]+0.5 &&
       z_index >= extentImageReslice[4]-0.5 &&
-      z_index <= extentImageReslice[5]+0.5) {
+      z_index <= extentImageReslice[5]+0.5)
+#endif
+  {
     double value = this->GetScalarComponentAsDouble(mSlicers[mSelectedSlicer]->GetInput(), x_index, y_index, z_index); //Value in selected Slicer (not 0): bug #2848
     this->GetLandmarks()->AddLandmark(x,y,z,t,value);
     emit LandmarkAdded();
   }
-#endif
 }
 //----------------------------------------------------------------------------
 
@@ -1743,10 +1619,7 @@ void vvSlicerManager::AddLandmarkProfile(float x,float y,float z,float t)
       y_index >= mSlicers[0]->GetInput()->GetWholeExtent()[2]-0.5 &&
       y_index <= mSlicers[0]->GetInput()->GetWholeExtent()[3]+0.5 &&
       z_index >= mSlicers[0]->GetInput()->GetWholeExtent()[4]-0.5 &&
-      z_index <= mSlicers[0]->GetInput()->GetWholeExtent()[5]+0.5) {
-    double value = this->GetScalarComponentAsDouble(mSlicers[mSelectedSlicer]->GetInput(), x_index, y_index, z_index); //Value in selected Slicer (not 0): bug #2848
-    this->GetLandmarks()->AddLandmark(x,y,z,t,value);
-  }
+      z_index <= mSlicers[0]->GetInput()->GetWholeExtent()[5]+0.5)
 #else
   int extentImageReslice[6];
   mSlicers[0]->GetRegisterExtent(extentImageReslice);
@@ -1755,11 +1628,12 @@ void vvSlicerManager::AddLandmarkProfile(float x,float y,float z,float t)
       y_index >= extentImageReslice[2]-0.5 &&
       y_index <= extentImageReslice[3]+0.5 &&
       z_index >= extentImageReslice[4]-0.5 &&
-      z_index <= extentImageReslice[5]+0.5) {
+      z_index <= extentImageReslice[5]+0.5)
+#endif
+  {
     double value = this->GetScalarComponentAsDouble(mSlicers[mSelectedSlicer]->GetInput(), x_index, y_index, z_index); //Value in selected Slicer (not 0): bug #2848
     this->GetLandmarks()->AddLandmark(x,y,z,t,value);
   }
-#endif
 }
 //----------------------------------------------------------------------------
 
