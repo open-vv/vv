@@ -3351,6 +3351,8 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
   if (!fileName.isEmpty()) {
     vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
     w2i->SetInput(widget->GetRenderWindow());
+    w2i->SetMagnification(1);
+    w2i->SetInputBufferTypeToRGBA(); //also record the alpha (transparency) channel
     w2i->Update();
     vtkImageData *image = w2i->GetOutput();
 
