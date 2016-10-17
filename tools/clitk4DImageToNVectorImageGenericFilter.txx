@@ -15,11 +15,11 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
-#ifndef clitkNVectorImageTo4DImageGenericFilter_txx
-#define clitkNVectorImageTo4DImageGenericFilter_txx
+#ifndef clitk4DImageToNVectorImageGenericFilter_txx
+#define clitk4DImageToNVectorImageGenericFilter_txx
 
 /* =================================================
- * @file   clitkNVectorImageTo4DImageGenericFilter.txx
+ * @file   clitk4DImageToNVectorImageGenericFilter.txx
  * @author 
  * @date   
  * 
@@ -27,7 +27,8 @@
  * 
  ===================================================*/
 
-#include "itkVectorImageToImageAdaptor.h"
+#include "itkComposeImageFilter.h"
+#include "itkExtractImageFilter.h"
 
 namespace clitk
 {
@@ -37,7 +38,7 @@ namespace clitk
   //-------------------------------------------------------------------
   template<unsigned int Dimension>
   void 
-  NVectorImageTo4DImageGenericFilter::UpdateWithDim(std::string PixelType, unsigned int Components)
+  FourDImageToNVectorImageGenericFilter::UpdateWithDim(std::string PixelType, unsigned int Components)
   {
     if (m_Verbose) std::cout << "Image was detected to be "<<Dimension<<"D and "<< PixelType<<"..."<<std::endl;
 
@@ -70,79 +71,64 @@ namespace clitk
   //-------------------------------------------------------------------
   template <unsigned int Dimension, class  PixelType> 
   void 
-  NVectorImageTo4DImageGenericFilter::UpdateWithDimAndPixelType()
+  FourDImageToNVectorImageGenericFilter::UpdateWithDimAndPixelType()
   {
     // ImageTypes
-    typedef itk::VectorImage<PixelType, Dimension> InputImageType;
-    typedef itk::Image<PixelType, Dimension+1> OutputImageType;
-    
+    typedef itk::Image<PixelType, Dimension> InputImageType;
+    typedef itk::Image<PixelType, Dimension-1> MedianImageType;
+    typedef itk::VectorImage<PixelType, Dimension-1> OutputImageType;
+
     // Read the input
     typedef itk::ImageFileReader<InputImageType> InputReaderType;
     typename InputReaderType::Pointer reader = InputReaderType::New();
-    reader->SetFileName( m_InputFileName);
+    reader->SetFileName(m_InputFileName);
     reader->Update();
     typename InputImageType::Pointer input= reader->GetOutput();
-    
+    std::string fileName=m_ArgsInfo.output_arg;
+
     //Filter
-    typedef itk::VectorImageToImageAdaptor<PixelType, Dimension> ImageAdaptorType;
+    typedef itk::ComposeImageFilter<MedianImageType> ImageToVectorImageFilterType;
+    typename ImageToVectorImageFilterType::Pointer imageToVectorImageFilter = ImageToVectorImageFilterType::New();
+    typedef itk::ExtractImageFilter<InputImageType, MedianImageType> ExtractFilterType;
+    typename ExtractFilterType::Pointer extractFilter = ExtractFilterType::New();
+    extractFilter->SetDirectionCollapseToSubmatrix();
     typedef itk::ImageFileWriter<OutputImageType> WriterType;
-    typename ImageAdaptorType::Pointer adaptor = ImageAdaptorType::New();
-    typename OutputImageType::Pointer output = OutputImageType::New();
     typename WriterType::Pointer writer = WriterType::New();
 
-    adaptor->SetExtractComponentIndex(0);
-    adaptor->SetImage(input);
-    std::string fileName=m_ArgsInfo.output_arg;
-    
-    //Create the output
-    typename OutputImageType::IndexType index;
-    index.Fill(0);
-    typename OutputImageType::SizeType size;
-    size.Fill(input->GetNumberOfComponentsPerPixel());
-    typename OutputImageType::SpacingType spacing;
-    spacing.Fill(1);
-    typename OutputImageType::PointType origin;
-    origin.Fill(0);
-    for (unsigned int pixelDim=0; pixelDim<Dimension; ++pixelDim)
+    extractFilter->SetInput(input);
+    typename InputImageType::SizeType size;
+    for (unsigned int nbDimension=0; nbDimension<Dimension-1; ++nbDimension)
     {
-      size[pixelDim]=adaptor->GetLargestPossibleRegion().GetSize(pixelDim);
-      spacing[pixelDim]=input->GetSpacing()[pixelDim];
-      origin[pixelDim]=input->GetOrigin()[pixelDim];
+        size[nbDimension] = input->GetLargestPossibleRegion().GetSize(nbDimension);
     }
-    typename OutputImageType::RegionType region;
-    region.SetSize(size);
-    region.SetIndex(index);    
-    output->SetRegions(region);
-    output->SetOrigin(origin);
-    output->SetSpacing(spacing);
-    output->Allocate();
-    writer->SetInput(output);
+    size[Dimension-1] = 0;
+    typename MedianImageType::Pointer tempImage = MedianImageType::New();
     
-    //Copy each channel
-    for (unsigned int pixelDim=0; pixelDim<input->GetNumberOfComponentsPerPixel(); ++pixelDim)
+    //Extract All "time" slices
+    for (unsigned int nbSlice=0; nbSlice<input->GetLargestPossibleRegion().GetSize(Dimension-1); ++nbSlice)
     {
-      adaptor->SetExtractComponentIndex(pixelDim);
-      
-      itk::ImageRegionIterator<InputImageType> imageIterator(input,input->GetLargestPossibleRegion());
+      typename InputImageType::RegionType desiredRegion;
+      typename InputImageType::IndexType index;
+      index.Fill(0);
+      index[Dimension-1]=nbSlice;
+      desiredRegion.SetSize(size);
+      extractFilter->SetInput(input);
+      desiredRegion.SetIndex(index);
+      extractFilter->SetExtractionRegion(desiredRegion);
+      extractFilter->Update();
+      tempImage = extractFilter->GetOutput();
+      tempImage->DisconnectPipeline();
+      extractFilter->Update();
+      imageToVectorImageFilter->SetInput(nbSlice, tempImage);
+    }
 
-      while(!imageIterator.IsAtEnd())
-      {
-        typename OutputImageType::IndexType indexVector;
-        indexVector.Fill(0);
-        for (unsigned int indexDim=0; indexDim<Dimension; ++indexDim)
-        {
-          indexVector[indexDim]=imageIterator.GetIndex().GetElement(indexDim);
-        }
-        indexVector[Dimension]=pixelDim;
-        
-        output->SetPixel(indexVector, adaptor->GetPixel(imageIterator.GetIndex()));
-        ++imageIterator;
-      }
-    }
+    imageToVectorImageFilter->Update();
+
     // Output
+    writer->SetInput(imageToVectorImageFilter->GetOutput());
     writer->SetFileName(fileName);
     writer->Update();
   }
 }//end clitk
  
-#endif //#define clitkNVectorImageTo4DImageGenericFilter_txx
+#endif //#define clitk4DImageToNVectorImageGenericFilter_txx
