@@ -48,7 +48,7 @@ It is distributed under dual licence
 #include "vvMeshReader.h"
 #include "vvSaveState.h"
 #include "vvReadState.h"
-#ifdef CLITK_USE_PACS_CONNECTION
+#if CLITK_USE_PACS_CONNECTION
 #include "vvQPacsConnection.h"
 #endif
 #include "clitkConfiguration.h"
@@ -235,7 +235,7 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   documentation = new vvDocumentation();
   help_dialog = new vvHelpDialog();
   dicomSeriesSelector = new vvDicomSeriesSelector();
-#ifdef CLITK_USE_PACS_CONNECTION
+#if CLITK_USE_PACS_CONNECTION
      PacsConnection = new vvQPacsConnection();
 #endif
 
@@ -280,8 +280,8 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(actionWarp_image_with_vector_field,SIGNAL(triggered()),this,SLOT(WarpImage()));
   connect(actionLoad_images,SIGNAL(triggered()),this,SLOT(OpenImages()));
   connect(actionOpen_Dicom,SIGNAL(triggered()),this,SLOT(OpenDicom()));
-  #ifdef CLITK_USE_PACS_CONNECTION
-connect(actionConnect_Pacs,SIGNAL(triggered()),this,SLOT(ConnectPacs()));
+#if CLITK_USE_PACS_CONNECTION
+  connect(actionConnect_Pacs,SIGNAL(triggered()),this,SLOT(ConnectPacs()));
 #endif
   //  connect(actionOpen_Dicom_Struct,SIGNAL(triggered()),this,SLOT(OpenDCStructContour()));
   connect(actionOpen_VTK_contour,SIGNAL(triggered()),this,SLOT(OpenVTKContour()));
@@ -395,6 +395,10 @@ connect(actionConnect_Pacs,SIGNAL(triggered()),this,SLOT(ConnectPacs()));
 #ifdef CLITK_EXPERIMENTAL
   if (!CLITK_EXPERIMENTAL)
     menuExperimental->menuAction()->setVisible(false);
+#endif
+
+#if !CLITK_USE_PACS_CONNECTION
+    actionConnect_Pacs->setVisible(false);
 #endif
 
   QTimer * timerMemory = new QTimer(this);
@@ -770,7 +774,7 @@ void vvMainWindow::OpenDicom()
     LoadImages(files, vvImageReader::DICOM);
   }
 }  
-#ifdef CLITK_USE_PACS_CONNECTION
+#if CLITK_USE_PACS_CONNECTION
 void vvMainWindow::ConnectPacs()
 {
   std::vector<std::string> files;
