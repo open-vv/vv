@@ -25,6 +25,10 @@ if(MSVC)
   set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /bigobj" )
 endif(MSVC)
 
+if(${CLITK_USE_PACS_CONNECTION})
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lgdcmMEXD" )
+endif(${CLITK_USE_PACS_CONNECTION})
+
 #=========================================================
 include(${CLITK_SOURCE_DIR}/cmake/common.cmake)
 include(${CLITK_SOURCE_DIR}/cmake/dependencies.cmake)
