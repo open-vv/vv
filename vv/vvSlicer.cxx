@@ -916,9 +916,9 @@ int vvSlicer::GetTSlice()
 int vvSlicer::GetMaxCurrentTSlice()
 { 
   int t = mCurrentTSlice;
-  if(mOverlay)
+  if(mOverlay && mOverlayActor->GetVisibility())
     t = std::max(t, mCurrentOverlayTSlice);
-  if(mFusion&& (mFusionSequenceCode<0)) //ignore fusionSequence data: for these, the times are not to be related (this way)
+  if(mFusion&& (mFusionSequenceCode<0) && mFusionActor->GetVisibility()) //ignore fusionSequence data: for these, the times are not to be related (this way)
     t = std::max(t, mCurrentFusionTSlice);
   return t;
 }
