@@ -41,5 +41,8 @@
     <file>icons/standardbutton-apply-16.png</file>
     <file>icons/standardbutton-cancel-16.png</file>
     <file>icons/identity.png</file>
+	<file>icons/basket_download.png</file>
+	<file>icons/edit.png</file>
+	<file>icons/bullet_info.png</file>
   </qresource>
 </RCC>

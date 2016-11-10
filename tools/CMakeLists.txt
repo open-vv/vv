@@ -248,6 +248,16 @@ if(CLITK_BUILD_TOOLS)
   add_executable(clitkVectorImageToImage  clitkVectorImageToImage.cxx clitkVectorImageToImageGenericFilter.cxx ${clitkVectorImageToImage_GGO_C})
   target_link_libraries(clitkVectorImageToImage  clitkCommon)
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkVectorImageToImage)
+  
+  WRAP_GGO(clitkNVectorImageTo4DImage_GGO_C clitkNVectorImageTo4DImage.ggo)
+  add_executable(clitkNVectorImageTo4DImage  clitkNVectorImageTo4DImage.cxx clitkNVectorImageTo4DImageGenericFilter.cxx ${clitkNVectorImageTo4DImage_GGO_C})
+  target_link_libraries(clitkNVectorImageTo4DImage  clitkCommon)
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkNVectorImageTo4DImage)
+
+  WRAP_GGO(clitk4DImageToNVectorImage_GGO_C clitk4DImageToNVectorImage.ggo)
+  add_executable(clitk4DImageToNVectorImage  clitk4DImageToNVectorImage.cxx clitk4DImageToNVectorImageGenericFilter.cxx ${clitk4DImageToNVectorImage_GGO_C})
+  target_link_libraries(clitk4DImageToNVectorImage  clitkCommon)
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitk4DImageToNVectorImage)
 
   add_executable(clitkMIP clitkMIP.cxx clitkMIPGenericFilter.cxx)
   target_link_libraries(clitkMIP clitkMIPLib clitkCommon)

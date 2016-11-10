@@ -48,6 +48,9 @@ It is distributed under dual licence
 #include "vvMeshReader.h"
 #include "vvSaveState.h"
 #include "vvReadState.h"
+#if CLITK_USE_PACS_CONNECTION
+#include "vvQPacsConnection.h"
+#endif
 #include "clitkConfiguration.h"
 #include "clitkMatrix.h"
 #ifdef Q_OS_OSX
@@ -130,6 +133,8 @@ It is distributed under dual licence
 vvMainWindow::vvMainWindow():vvMainWindowBase()
 { 
   setupUi(this); // this sets up the GUI
+
+  setDicomClient();
 
   //Qt::WindowFlags flags = windowFlags();
   //setWindowFlags(flags | Qt::WindowStaysOnTopHint);
@@ -230,6 +235,9 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   documentation = new vvDocumentation();
   help_dialog = new vvHelpDialog();
   dicomSeriesSelector = new vvDicomSeriesSelector();
+#if CLITK_USE_PACS_CONNECTION
+     PacsConnection = new vvQPacsConnection();
+#endif
 
   inverseButton->setEnabled(0);
   actionAdd_overlay_image_to_current_image->setEnabled(0);
@@ -272,6 +280,9 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(actionWarp_image_with_vector_field,SIGNAL(triggered()),this,SLOT(WarpImage()));
   connect(actionLoad_images,SIGNAL(triggered()),this,SLOT(OpenImages()));
   connect(actionOpen_Dicom,SIGNAL(triggered()),this,SLOT(OpenDicom()));
+#if CLITK_USE_PACS_CONNECTION
+  connect(actionConnect_Pacs,SIGNAL(triggered()),this,SLOT(ConnectPacs()));
+#endif
   //  connect(actionOpen_Dicom_Struct,SIGNAL(triggered()),this,SLOT(OpenDCStructContour()));
   connect(actionOpen_VTK_contour,SIGNAL(triggered()),this,SLOT(OpenVTKContour()));
   connect(actionOpen_Multiple_Images_As_One,SIGNAL(triggered()),this,SLOT(MergeImages()));
@@ -384,6 +395,10 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
 #ifdef CLITK_EXPERIMENTAL
   if (!CLITK_EXPERIMENTAL)
     menuExperimental->menuAction()->setVisible(false);
+#endif
+
+#if !CLITK_USE_PACS_CONNECTION
+    actionConnect_Pacs->setVisible(false);
 #endif
 
   QTimer * timerMemory = new QTimer(this);
@@ -758,7 +773,24 @@ void vvMainWindow::OpenDicom()
     files = *(dicomSeriesSelector->GetFilenames());
     LoadImages(files, vvImageReader::DICOM);
   }
-}
+}  
+#if CLITK_USE_PACS_CONNECTION
+void vvMainWindow::ConnectPacs()
+{
+  std::vector<std::string> files;
+
+  //std::cout << "dicomSeriesSelector " << std::endl;
+if (PacsConnection->exec() == QDialog::Accepted) {
+	for (int i = 0; i < PacsConnection->getSeriesCount(); i++)
+	{
+		files = PacsConnection->getFileNames(i);
+		LoadImages(files, vvImageReader::DICOM);
+	}
+	PacsConnection->clearMove();
+  }
+  }
+
+#endif
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------

@@ -160,7 +160,7 @@ int main(int argc, char * argv[])
   gdcm::Attribute<0x300a,0x122> patientSupportAngle;
   gdcm::Attribute<0x300a,0x12c> isocenterPosition;
   
-  int totalCumMeterSet = 0;
+  long totalCumMeterSet = 0;
   
   const gdcm::DataElement &IonBeamSQ = ds.GetDataElement( tIonBeamSQ );
   gdcm::SmartPointer<gdcm::SequenceOfItems> sqi = IonBeamSQ.GetValueAsSQ();
