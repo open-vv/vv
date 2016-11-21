@@ -1,0 +1,16 @@
+#File  clitkGammaIndex3D.ggo
+package "clitkGammaIndex3D"
+version "1.0"
+purpose "Compute the gamma index for 2D and 3D images"
+
+
+option "config"     -	"Config file"                       string   no
+option "verbose"    v 	"Verbose"                           flag	 off
+option "imagetypes" -   "Display allowed image types"       flag	 off
+
+option "input1"	    i 	"Input first dose image filename"   string   yes
+option "input2"	    j 	"Input second dose image filename"  string   yes
+option "output"     o 	"Output image filename"             string   yes
+
+option "distance"   d 	"Distance criteria (mm)"            double   yes
+option "dose"	    p 	"Dose criteria (%)"                 double   yes

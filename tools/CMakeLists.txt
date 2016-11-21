@@ -90,6 +90,11 @@ if(CLITK_BUILD_TOOLS)
   add_executable(clitkSplitImage clitkSplitImage.cxx clitkSplitImageGenericFilter.cxx ${clitkSplitImage_GGO_C})
   target_link_libraries(clitkSplitImage clitkCommon )
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkSplitImage)
+  
+  WRAP_GGO(clitkGammaIndex3D_GGO_C clitkGammaIndex3D.ggo)
+  add_executable(clitkGammaIndex3D clitkGammaIndex3D.cxx clitkGammaIndex3DGenericFilter.cxx ${clitkGammaIndex3D_GGO_C})
+  target_link_libraries(clitkGammaIndex3D clitkCommon )
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkGammaIndex3D)
 
   WRAP_GGO(clitkWriteDicomSeries_GGO_C clitkWriteDicomSeries.ggo)
   add_executable(clitkWriteDicomSeries clitkWriteDicomSeries.cxx ${clitkWriteDicomSeries_GGO_C})
