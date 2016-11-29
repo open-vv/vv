@@ -1107,13 +1107,10 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
   xyz[0] = x;
   xyz[1] = y;
   xyz[2] = z;
-  mSlicers[slicer]->GetConcatenatedTransform()->TransformPoint(xyz, xyzTransform);
-  double XTransform = (xyzTransform[0] - mSlicers[slicer]->GetImage()->GetVTKImages()[GetTSlice()]->GetOrigin()[0])/
-    mSlicers[slicer]->GetImage()->GetVTKImages()[GetTSlice()]->GetSpacing()[0];
-  double YTransform = (xyzTransform[1] - mSlicers[slicer]->GetImage()->GetVTKImages()[GetTSlice()]->GetOrigin()[1])/
-    mSlicers[slicer]->GetImage()->GetVTKImages()[GetTSlice()]->GetSpacing()[1];
-  double ZTransform = (xyzTransform[2] - mSlicers[slicer]->GetImage()->GetVTKImages()[GetTSlice()]->GetOrigin()[2])/
-    mSlicers[slicer]->GetImage()->GetVTKImages()[GetTSlice()]->GetSpacing()[2];
+  mSlicers[slicer]->GetSlicingTransform()->GetInverse()->TransformPoint(xyz, xyzTransform);
+  double XTransform = (xyzTransform[0] - mSlicers[slicer]->GetInput()->GetOrigin()[0])/mSlicers[slicer]->GetInput()->GetSpacing()[0];
+  double YTransform = (xyzTransform[1] - mSlicers[slicer]->GetInput()->GetOrigin()[1])/mSlicers[slicer]->GetInput()->GetSpacing()[1];
+  double ZTransform = (xyzTransform[2] - mSlicers[slicer]->GetInput()->GetOrigin()[2])/mSlicers[slicer]->GetInput()->GetSpacing()[2];
   double value = -VTK_DOUBLE_MAX;
   int displayVec = 0;
   double xVec=0, yVec=0, zVec=0, valueVec=0;
