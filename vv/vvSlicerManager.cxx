@@ -1094,23 +1094,17 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
 { 
   //  int view = mSlicers[slicer]->GetSliceOrientation();
   //  int slice = mSlicers[slicer]->GetSlice();
-  double x = mSlicers[slicer]->GetCursorPosition()[0];
-  double y = mSlicers[slicer]->GetCursorPosition()[1];
-  double z = mSlicers[slicer]->GetCursorPosition()[2];
-  double X = (x - mSlicers[slicer]->GetInput()->GetOrigin()[0])/
-    mSlicers[slicer]->GetInput()->GetSpacing()[0];
-  double Y = (y - mSlicers[slicer]->GetInput()->GetOrigin()[1])/
-    mSlicers[slicer]->GetInput()->GetSpacing()[1];
-  double Z = (z - mSlicers[slicer]->GetInput()->GetOrigin()[2])/
-    mSlicers[slicer]->GetInput()->GetSpacing()[2];
+  double x = mSlicers[slicer]->GetCurrentPosition()[0];
+  double y = mSlicers[slicer]->GetCurrentPosition()[1];
+  double z = mSlicers[slicer]->GetCurrentPosition()[2];
   double xyz[3], xyzTransform[3];
   xyz[0] = x;
   xyz[1] = y;
   xyz[2] = z;
   mSlicers[slicer]->GetSlicingTransform()->GetInverse()->TransformPoint(xyz, xyzTransform);
-  double XTransform = (xyzTransform[0] - mSlicers[slicer]->GetInput()->GetOrigin()[0])/mSlicers[slicer]->GetInput()->GetSpacing()[0];
-  double YTransform = (xyzTransform[1] - mSlicers[slicer]->GetInput()->GetOrigin()[1])/mSlicers[slicer]->GetInput()->GetSpacing()[1];
-  double ZTransform = (xyzTransform[2] - mSlicers[slicer]->GetInput()->GetOrigin()[2])/mSlicers[slicer]->GetInput()->GetSpacing()[2];
+  double X = (xyzTransform[0] - mSlicers[slicer]->GetInput()->GetOrigin()[0])/mSlicers[slicer]->GetInput()->GetSpacing()[0];
+  double Y = (xyzTransform[1] - mSlicers[slicer]->GetInput()->GetOrigin()[1])/mSlicers[slicer]->GetInput()->GetSpacing()[1];
+  double Z = (xyzTransform[2] - mSlicers[slicer]->GetInput()->GetOrigin()[2])/mSlicers[slicer]->GetInput()->GetSpacing()[2];
   double value = -VTK_DOUBLE_MAX;
   int displayVec = 0;
   double xVec=0, yVec=0, zVec=0, valueVec=0;
@@ -1118,21 +1112,21 @@ void vvSlicerManager::UpdateInfoOnCursorPosition(int slicer)
   int displayFus = 0;
   double valueOver=0, valueFus=0;
 #if VTK_MAJOR_VERSION <= 5
-    if (XTransform >= mSlicers[slicer]->GetInput()->GetWholeExtent()[0] -0.5 &&
-      XTransform <= mSlicers[slicer]->GetInput()->GetWholeExtent()[1] +0.5 &&
-      YTransform >= mSlicers[slicer]->GetInput()->GetWholeExtent()[2] -0.5 &&
-      YTransform <= mSlicers[slicer]->GetInput()->GetWholeExtent()[3] +0.5 &&
-      ZTransform >= mSlicers[slicer]->GetInput()->GetWholeExtent()[4] -0.5 &&
-      ZTransform <= mSlicers[slicer]->GetInput()->GetWholeExtent()[5] +0.5)
+    if (X >= mSlicers[slicer]->GetInput()->GetWholeExtent()[0] -0.5 &&
+      X <= mSlicers[slicer]->GetInput()->GetWholeExtent()[1] +0.5 &&
+      Y >= mSlicers[slicer]->GetInput()->GetWholeExtent()[2] -0.5 &&
+      Y <= mSlicers[slicer]->GetInput()->GetWholeExtent()[3] +0.5 &&
+      Z >= mSlicers[slicer]->GetInput()->GetWholeExtent()[4] -0.5 &&
+      Z <= mSlicers[slicer]->GetInput()->GetWholeExtent()[5] +0.5)
 #else
 int extentImageReslice[6];
 mSlicers[slicer]->GetRegisterExtent(extentImageReslice);
-    if (XTransform >= extentImageReslice[0] -0.5 &&
-      XTransform <= extentImageReslice[1] +0.5 &&
-      YTransform >= extentImageReslice[2] -0.5 &&
-      YTransform <= extentImageReslice[3] +0.5 &&
-      ZTransform >= extentImageReslice[4] -0.5 &&
-      ZTransform <= extentImageReslice[5] +0.5)
+    if (X >= extentImageReslice[0] -0.5 &&
+      X <= extentImageReslice[1] +0.5 &&
+      Y >= extentImageReslice[2] -0.5 &&
+      Y <= extentImageReslice[3] +0.5 &&
+      Z >= extentImageReslice[4] -0.5 &&
+      Z <= extentImageReslice[5] +0.5)
 #endif
     {
     value = this->GetScalarComponentAsDouble(mSlicers[slicer]->GetInput(), X, Y, Z);
@@ -1182,7 +1176,7 @@ mSlicers[slicer]->GetRegisterExtent(extentImageReslice);
 	}
 
     emit UpdatePosition(mSlicers[slicer]->GetCursorVisibility(),
-                        x,y,z,XTransform,YTransform,ZTransform,value);
+                        x,y,z,X,Y,Z,value);
     emit UpdateVector(displayVec,xVec, yVec, zVec, valueVec);
     emit UpdateOverlay(displayOver,valueOver,value);
     emit UpdateFusion(displayFus,valueFus);
