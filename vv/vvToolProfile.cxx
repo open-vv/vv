@@ -363,6 +363,8 @@ void vvToolProfile::RemoveVTKObjects()
 { 
   if (mCurrentSlicerManager)
   {
+    connect(mCurrentSlicerManager, SIGNAL(callAddLandmark(float,float,float,float)), mCurrentSlicerManager, SLOT(AddLandmark(float,float,float,float)));
+
     for(int i=0;i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
       mCurrentSlicerManager->GetSlicer(i)->GetRenderer()->RemoveActor(mLineActors[i]);
     }
@@ -382,8 +384,7 @@ void vvToolProfile::RemoveVTKObjects()
 bool vvToolProfile::close()
 { 
   //RemoveVTKObjects();
-  
-  connect(mCurrentSlicerManager, SIGNAL(callAddLandmark(float,float,float,float)), mCurrentSlicerManager, SLOT(AddLandmark(float,float,float,float)));
+
   return vvToolWidgetBase::close();
 }
 //------------------------------------------------------------------------------
