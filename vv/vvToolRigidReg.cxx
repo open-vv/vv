@@ -178,7 +178,8 @@ bool vvToolRigidReg::close()
   msgBox.addButton(tr("Yes"), QMessageBox::AcceptRole);
   msgBox.addButton(tr("No"), QMessageBox::RejectRole);
   if (msgBox.exec() == QMessageBox::AcceptRole) {
-    SetTransform(mInitialMatrix);
+    if (mCurrentSlicerManager)
+        SetTransform(mInitialMatrix);
     return vvToolWidgetBase::close();
   }
   return false;
