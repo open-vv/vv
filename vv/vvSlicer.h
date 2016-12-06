@@ -181,6 +181,7 @@ public:
   void AddContour(vvMesh::Pointer contours,bool propagate);
   ///Toggle temporal superposition of contours
   void ToggleContourSuperposition();
+  void SetInterpolationImageReslice(int interpolation);
 
   virtual void SetColorWindow(double s);
   virtual void SetColorLevel(double s);

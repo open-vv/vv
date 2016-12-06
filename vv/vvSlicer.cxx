@@ -57,6 +57,7 @@
 #include <vtkLight.h>
 #include <vtkLightCollection.h>
 #include <vtkScalarBarActor.h>
+#include <vtkImageProperty.h>
 #include <vtkLookupTable.h>
 
 #include <vtkRenderer.h>
@@ -319,6 +320,13 @@ vvSlicer::~vvSlicer()
 double* vvSlicer::GetCurrentPosition()
 { 
   return mCurrentBeforeSlicingTransform;
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvSlicer::SetInterpolationImageReslice(int interpolation)
+{ 
+  mImageReslice->SetInterpolationMode(interpolation);
 }
 //------------------------------------------------------------------------------
 
