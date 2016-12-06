@@ -1628,12 +1628,12 @@ double vvSlicer::GetScalarComponentAsDouble(vtkImageData *image, double X, doubl
   image->SetUpdateExtent(ix, ix, iy, iy, iz, iz);
   image->Update();
 #else
-  if (ix < mImageReslice->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())[0] ||
-      ix > mImageReslice->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())[1] ||
-      iy < mImageReslice->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())[2] ||
-      iy > mImageReslice->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())[3] ||
-      iz < mImageReslice->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())[4] ||
-      iz > mImageReslice->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())[5] )
+  if (ix < image->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[0] ||
+      ix > image->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[1] ||
+      iy < image->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[2] ||
+      iy > image->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[3] ||
+      iz < image->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[4] ||
+      iz > image->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[5] )
     return std::numeric_limits<double>::quiet_NaN();
   //image->SetUpdateExtent(ix, ix, iy, iy, iz, iz);
   //image->Update();
@@ -1657,11 +1657,12 @@ void vvSlicer::Render()
   } else legend->SetVisibility(0);
 
   if (ca->GetVisibility()) {
-
     std::stringstream worldPos(" ");
-    double X = (mCurrent[0] - this->GetInput()->GetOrigin()[0])/this->GetInput()->GetSpacing()[0];
-    double Y = (mCurrent[1] - this->GetInput()->GetOrigin()[1])/this->GetInput()->GetSpacing()[1];
-    double Z = (mCurrent[2] - this->GetInput()->GetOrigin()[2])/this->GetInput()->GetSpacing()[2];
+    double pt[3];
+    mConcatenatedTransform->TransformPoint(mCurrent, pt);
+    double X = (pt[0] - mImage->GetVTKImages()[mCurrentTSlice]->GetOrigin()[0])/mImage->GetVTKImages()[mCurrentTSlice]->GetSpacing()[0];
+    double Y = (pt[1] - mImage->GetVTKImages()[mCurrentTSlice]->GetOrigin()[1])/mImage->GetVTKImages()[mCurrentTSlice]->GetSpacing()[1];
+    double Z = (pt[2] - mImage->GetVTKImages()[mCurrentTSlice]->GetOrigin()[2])/mImage->GetVTKImages()[mCurrentTSlice]->GetSpacing()[2];
 #if VTK_MAJOR_VERSION <= 5
     if (X >= this->GetInput()->GetWholeExtent()[0]-0.5 &&
         X <= this->GetInput()->GetWholeExtent()[1]+0.5 &&
@@ -1670,18 +1671,15 @@ void vvSlicer::Render()
         Z >= this->GetInput()->GetWholeExtent()[4]-0.5 &&
         Z <= this->GetInput()->GetWholeExtent()[5]+0.5) {
 #else
-    int extentImageReslice[6];
-    this->GetRegisterExtent(extentImageReslice);
-    if (X >= extentImageReslice[0]-0.5 &&
-        X <= extentImageReslice[1]+0.5 &&
-        Y >= extentImageReslice[2]-0.5 &&
-        Y <= extentImageReslice[3]+0.5 &&
-        Z >= extentImageReslice[4]-0.5 &&
-        Z <= extentImageReslice[5]+0.5) {
+    if (X >= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[0]-0.5 &&
+        X <= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[1]+0.5 &&
+        Y >= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[2]-0.5 &&
+        Y <= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[3]+0.5 &&
+        Z >= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[4]-0.5 &&
+        Z <= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[5]+0.5) {
 #endif
       int ix, iy, iz;
-      double value = this->GetScalarComponentAsDouble(this->GetInput(), X, Y, Z, ix, iy, iz);
-
+      double value = this->GetScalarComponentAsDouble(mImage->GetVTKImages()[mCurrentTSlice], X, Y, Z, ix, iy, iz);
       if(ImageActor->GetVisibility())
         worldPos << "data value : " << value << std::endl;
       worldPos << "mm : " << lrint(mCurrent[0]) << ' '
