@@ -105,12 +105,13 @@ void vvToolCropImage::closeEvent(QCloseEvent *event)
     for(int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++)
       mCurrentSlicerManager->GetSlicer(i)->EnableReducedExtent(false);
     UpdateExtent();
-  }
-  mCurrentSlicerManager->GetImage()->GetTransform()[0]->SetMatrix(mConcatenedTransform);
-  for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
-    mCurrentSlicerManager->GetSlicer(i)->ResetCamera();
-    mCurrentSlicerManager->GetSlicer(i)->Render();
-    mCurrentSlicerManager->UpdateLinkedNavigation( mCurrentSlicerManager->GetSlicer(i) );
+
+    mCurrentSlicerManager->GetImage()->GetTransform()[0]->SetMatrix(mConcatenedTransform);
+    for (int i=0; i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
+      mCurrentSlicerManager->GetSlicer(i)->ResetCamera();
+      mCurrentSlicerManager->GetSlicer(i)->Render();
+      mCurrentSlicerManager->UpdateLinkedNavigation( mCurrentSlicerManager->GetSlicer(i) );
+    }
   }
   vvToolWidgetBase::closeEvent(event);
 }
