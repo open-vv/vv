@@ -195,7 +195,7 @@ void GammaIndex3DGenericFilter<args_info_type>::UpdateWithInputImageType()
     typedef itk::MinimumMaximumImageCalculator <ImageType> ImageCalculatorFilterType;
     typename ImageCalculatorFilterType::Pointer imageCalculatorFilter = ImageCalculatorFilterType::New ();
     imageCalculatorFilter->SetImage(sqrtFilter->GetOutput());
-    //imageCalculatorFilter->GetOutput()->SetRequestedRegion(smallRegion);
+    imageCalculatorFilter->SetRegion(smallRegion);
     imageCalculatorFilter->ComputeMinimum();
 
     //Set the value
