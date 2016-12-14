@@ -20,12 +20,16 @@
 
 #include "clitkImageCommon.h"
 
-#include "itkApproximateSignedDistanceMapImageFilter.h"
+#include "itkSignedMaurerDistanceMapImageFilter.h"
 #include "itkAddImageFilter.h"
 #include <itkSquareImageFilter.h>
 #include <itkDivideImageFilter.h>
-#include <itkSqrtImageFilter.h>
 #include <itkMinimumMaximumImageCalculator.h>
+
+#include "itkImageFileWriter.h"
+
+#include "itkTranslationTransform.h"
+#include "itkResampleImageFilter.h"
 
 namespace clitk
 {
@@ -35,7 +39,7 @@ template<class args_info_type>
 GammaIndex3DGenericFilter<args_info_type>::GammaIndex3DGenericFilter()
   :ImageToImageGenericFilter<Self>("GammaIndex3DGenericFilter"), mDose(3), mDistance(3)
 {
-  InitializeImageType<2>();
+  //InitializeImageType<2>();
   InitializeImageType<3>();
   //InitializeImageType<4>();
 }
@@ -96,29 +100,57 @@ void GammaIndex3DGenericFilter<args_info_type>::UpdateWithInputImageType()
   output->Allocate();
   
   int sizeTotal = input1->GetLargestPossibleRegion().GetSize(0)*input1->GetLargestPossibleRegion().GetSize(1)*input1->GetLargestPossibleRegion().GetSize(2);
-  int sizeTemp(0);
   double minSpacing(std::numeric_limits<double>::max());
   for (unsigned int temp=0; temp < input1->GetSpacing().Size(); ++temp)
   {
     if  (input1->GetSpacing()[temp] < minSpacing)
       minSpacing = input1->GetSpacing()[temp];
   }
+
+  //Create a region around it.Get()
+  typename ImageType::RegionType smallDistanceRegion;
+
+  typename ImageType::SizeType sizeRegion;
+  int sizeTemp = (int) mDistance/minSpacing;
+  sizeRegion.Fill(8*sizeTemp+1);
+
+  typename ImageType::IndexType startDistanceRegion;
+  startDistanceRegion.Fill(0);
+
+  smallDistanceRegion.SetIndex(startDistanceRegion);
+  smallDistanceRegion.SetSize(sizeRegion);
+
+  typename ImageType::IndexType centerDistanceRegion;
+  centerDistanceRegion.Fill((8*sizeTemp+1)/2);
+
+  //compute the distance
+  typename ImageType::Pointer distanceMap = ImageType::New();
+  distanceMap->SetRegions(smallDistanceRegion);
+  distanceMap->SetOrigin(input1->GetOrigin());
+  distanceMap->SetSpacing(input1->GetSpacing());
+  distanceMap->Allocate();
+  distanceMap->FillBuffer(0.0);
+  distanceMap->SetPixel(centerDistanceRegion,1.0);
   
+  typedef  itk::SignedMaurerDistanceMapImageFilter< ImageType, ImageType  > SignedMaurerDistanceMapImageFilterType;
+  typename SignedMaurerDistanceMapImageFilterType::Pointer distanceMapImageFilter = SignedMaurerDistanceMapImageFilterType::New();
+  distanceMapImageFilter->SetInput(distanceMap);
+  distanceMapImageFilter->SetBackgroundValue(0.0);
+  distanceMapImageFilter->GetOutput()->SetRequestedRegion(smallDistanceRegion);
+  distanceMapImageFilter->Update();
+  typename ImageType::PointType translatedImageOrigin = distanceMapImageFilter->GetOutput()->GetOrigin();
+
+  typename ImageType::OffsetType offsetRegion;
+  offsetRegion.Fill((sizeRegion[0]-1)/2);
 
   while (!it.IsAtEnd())
   {
     double doseRef = it.Get();
-    
+
     //Create a region around it.Get()
     typename ImageType::RegionType smallRegion;
     typename ImageType::RegionType tempRegion;
     smallRegion=input2->GetLargestPossibleRegion();
-
-    typename ImageType::SizeType sizeRegion;
-    sizeRegion.Fill(2*mDistance/minSpacing+1); //5 voxels de cote
-    
-    typename ImageType::OffsetType offsetRegion;
-    offsetRegion.Fill((sizeRegion[0]-1)/2);
 
     typename ImageType::IndexType startRegion;
     startRegion=it.GetIndex();
@@ -136,22 +168,23 @@ void GammaIndex3DGenericFilter<args_info_type>::UpdateWithInputImageType()
     addImageFilter->GetOutput()->SetRequestedRegion(smallRegion);
     addImageFilter->Update();
 
-    //compute the distance
-    typename ImageType::Pointer distanceMap = ImageType::New();
-    distanceMap->SetRegions(smallRegion);
-    distanceMap->SetOrigin(input1->GetOrigin());
-    distanceMap->SetSpacing(input1->GetSpacing());
-    distanceMap->Allocate();
-    distanceMap->FillBuffer(0.0);
-    //distanceMap->SetPixel(it.GetIndex(),1.0);
-
-    typedef  itk::ApproximateSignedDistanceMapImageFilter< ImageType, ImageType  > ApproximateSignedDistanceMapImageFilterType;
-    typename ApproximateSignedDistanceMapImageFilterType::Pointer approximateSignedDistanceMapImageFilter = ApproximateSignedDistanceMapImageFilterType::New();
-    approximateSignedDistanceMapImageFilter->SetInput(distanceMap);
-    approximateSignedDistanceMapImageFilter->SetInsideValue(1.0);
-    approximateSignedDistanceMapImageFilter->SetOutsideValue(0.0);
-    approximateSignedDistanceMapImageFilter->GetOutput()->SetRequestedRegion(smallRegion);
-    approximateSignedDistanceMapImageFilter->Update();
+    //compute the distance, ie. translate and crop the global one
+    typedef itk::TranslationTransform<double, 3> TranslationTransformType;
+    typename TranslationTransformType::Pointer transform = TranslationTransformType::New();
+    typename TranslationTransformType::OutputVectorType translation;
+    translation[0] = -startRegion[0]*input1->GetSpacing()[0];
+    translation[1] = -startRegion[1]*input1->GetSpacing()[1];
+    translation[2] = -startRegion[2]*input1->GetSpacing()[2];
+    transform->Translate(translation);
+    typedef itk::ResampleImageFilter<ImageType, ImageType> ResampleImageFilterType;
+    typename ResampleImageFilterType::Pointer resampleFilter = ResampleImageFilterType::New();
+    resampleFilter->SetTransform(transform.GetPointer());
+    resampleFilter->SetInput(distanceMapImageFilter->GetOutput());
+    resampleFilter->SetOutputOrigin(distanceMapImageFilter->GetOutput()->GetOrigin());
+    resampleFilter->SetOutputSpacing(distanceMapImageFilter->GetOutput()->GetSpacing());
+    resampleFilter->SetSize(input2->GetLargestPossibleRegion().GetSize());
+    resampleFilter->GetOutput()->SetRequestedRegion(smallRegion);
+    resampleFilter->Update();
 
     //Square and Divide by dose & distance criteria
     typedef itk::SquareImageFilter <ImageType, ImageType> SquareImageFilterType;
@@ -168,7 +201,7 @@ void GammaIndex3DGenericFilter<args_info_type>::UpdateWithInputImageType()
     divideImageFilter->Update();
 
     typename SquareImageFilterType::Pointer squareImageFilter2 = SquareImageFilterType::New();
-    squareImageFilter2->SetInput(approximateSignedDistanceMapImageFilter->GetOutput());
+    squareImageFilter2->SetInput(resampleFilter->GetOutput());
     squareImageFilter2->GetOutput()->SetRequestedRegion(smallRegion);
     squareImageFilter2->Update();
 
@@ -178,32 +211,23 @@ void GammaIndex3DGenericFilter<args_info_type>::UpdateWithInputImageType()
     divideImageFilter2->GetOutput()->SetRequestedRegion(smallRegion);
     divideImageFilter2->Update();
 
-    //Sum the 2 images and take the square root
+    //Sum the 2 images
     typename AddImageFilterType::Pointer addImageFilter2 = AddImageFilterType::New();
     addImageFilter2->SetInput1(divideImageFilter2->GetOutput());
     addImageFilter2->SetInput2(divideImageFilter2->GetOutput());
     addImageFilter2->GetOutput()->SetRequestedRegion(smallRegion);
     addImageFilter2->Update();
 
-    typedef itk::SqrtImageFilter<ImageType, ImageType> SqrtFilterType;
-    typename SqrtFilterType::Pointer sqrtFilter = SqrtFilterType::New();
-    sqrtFilter->SetInput(addImageFilter2->GetOutput());
-    sqrtFilter->GetOutput()->SetRequestedRegion(smallRegion);
-    sqrtFilter->Update();
-
     //find min
     typedef itk::MinimumMaximumImageCalculator <ImageType> ImageCalculatorFilterType;
     typename ImageCalculatorFilterType::Pointer imageCalculatorFilter = ImageCalculatorFilterType::New ();
-    imageCalculatorFilter->SetImage(sqrtFilter->GetOutput());
+    imageCalculatorFilter->SetImage(addImageFilter2->GetOutput());
     imageCalculatorFilter->SetRegion(smallRegion);
     imageCalculatorFilter->ComputeMinimum();
 
     //Set the value
-    output->SetPixel(it.GetIndex(),imageCalculatorFilter->GetMinimum());
+    output->SetPixel(it.GetIndex(),std::sqrt(imageCalculatorFilter->GetMinimum()));
     ++it;
-    
-    ++sizeTemp;
-    std::cout << (double)sizeTemp / sizeTotal * 100.0 << std::endl;
   }
 
   this->template SetNextOutput<ImageType>(output);
