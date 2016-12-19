@@ -359,6 +359,7 @@ void vvSlicer::SetImage(vvImage::Pointer image)
     mConcatenatedTransform->Concatenate(mImage->GetTransform()[0]);
     mConcatenatedTransform->Concatenate(mSlicingTransform);
     mImageReslice->SetResliceTransform(mConcatenatedTransform);
+    //mImageReslice->SetResliceAxes(mConcatenatedTransform->GetMatrix());
 #if VTK_MAJOR_VERSION <= 5
     mImageReslice->SetInput(0, mImage->GetFirstVTKImageData());
 #else
@@ -1664,12 +1665,12 @@ void vvSlicer::Render()
     double Y = (pt[1] - mImage->GetVTKImages()[mCurrentTSlice]->GetOrigin()[1])/mImage->GetVTKImages()[mCurrentTSlice]->GetSpacing()[1];
     double Z = (pt[2] - mImage->GetVTKImages()[mCurrentTSlice]->GetOrigin()[2])/mImage->GetVTKImages()[mCurrentTSlice]->GetSpacing()[2];
 #if VTK_MAJOR_VERSION <= 5
-    if (X >= this->GetInput()->GetWholeExtent()[0]-0.5 &&
-        X <= this->GetInput()->GetWholeExtent()[1]+0.5 &&
-        Y >= this->GetInput()->GetWholeExtent()[2]-0.5 &&
-        Y <= this->GetInput()->GetWholeExtent()[3]+0.5 &&
-        Z >= this->GetInput()->GetWholeExtent()[4]-0.5 &&
-        Z <= this->GetInput()->GetWholeExtent()[5]+0.5) {
+    if (X >= mImage->GetVTKImages()[mCurrentTSlice]->GetWholeExtent()[0]-0.5 &&
+        X <= mImage->GetVTKImages()[mCurrentTSlice]->GetWholeExtent()[1]+0.5 &&
+        Y >= mImage->GetVTKImages()[mCurrentTSlice]->GetWholeExtent()[2]-0.5 &&
+        Y <= mImage->GetVTKImages()[mCurrentTSlice]->GetWholeExtent()[3]+0.5 &&
+        Z >= mImage->GetVTKImages()[mCurrentTSlice]->GetWholeExtent()[4]-0.5 &&
+        Z <= mImage->GetVTKImages()[mCurrentTSlice]->GetWholeExtent()[5]+0.5) {
 #else
     if (X >= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[0]-0.5 &&
         X <= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[1]+0.5 &&
