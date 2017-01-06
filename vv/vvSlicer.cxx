@@ -1226,11 +1226,80 @@ void vvSlicer::UpdateDisplayExtent()
     mLandActor->SetPosition(position);
   }
 
+    //std::cout << "1 " << this->Renderer->GetActiveCamera()->GetPosition()[0] << std::endl;
   // Figure out the correct clipping range
   if (this->Renderer) {
     if (this->InteractorStyle &&
         this->InteractorStyle->GetAutoAdjustCameraClippingRange()) {
+        double scaleCamera = this->Renderer->GetActiveCamera()->GetParallelScale();
+        double positionCamera[3], focalCamera[3];
+        this->Renderer->GetActiveCamera()->GetPosition(positionCamera);
+        this->Renderer->GetActiveCamera()->GetFocalPoint(focalCamera);
       this->Renderer->ResetCameraClippingRange();
+        //this->Renderer->ResetCamera();
+        this->Renderer->GetActiveCamera()->SetParallelScale(scaleCamera);
+        
+        
+        
+        
+        ////////////////////////////////
+        
+double center[3];
+double distance;
+double vn[3], *vup;
+double bounds[6];
+this->ImageActor->GetBounds(bounds);
+this->Renderer->GetActiveCamera()->GetViewPlaneNormal(vn);
+// Reset the perspective zoom factors, otherwise subsequent zooms will cause
+// the view angle to become very small and cause bad depth sorting.
+center[0] = (bounds[0] + bounds[1])/2.0;
+center[1] = (bounds[2] + bounds[3])/2.0;
+center[2] = (bounds[4] + bounds[5])/2.0;
+double w1 = bounds[1] - bounds[0];
+double w2 = bounds[3] - bounds[2];
+double w3 = bounds[5] - bounds[4];
+w1 *= w1;
+w2 *= w2;
+w3 *= w3;
+double radius = w1 + w2 + w3;
+// If we have just a single point, pick a radius of 1.0
+radius = (radius==0)?(1.0):(radius);
+// compute the radius of the enclosing sphere
+radius = sqrt(radius)*0.5;
+double angle=vtkMath::RadiansFromDegrees(this->Renderer->GetActiveCamera()->GetViewAngle());
+this->Renderer->ComputeAspect();
+double aspect[2];
+this->Renderer->GetAspect(aspect);
+if(aspect[0]>=1.0) // horizontal window, deal with vertical angle|scale
+{
+if(this->Renderer->GetActiveCamera()->GetUseHorizontalViewAngle())
+{
+angle=2.0*atan(tan(angle*0.5)/aspect[0]);
+}
+}
+else // vertical window, deal with horizontal angle|scale
+{
+if(!this->Renderer->GetActiveCamera()->GetUseHorizontalViewAngle())
+{
+angle=2.0*atan(tan(angle*0.5)*aspect[0]);
+}
+}
+distance =radius/sin(angle*0.5);
+//std::cout << "exp " << center[this->SliceOrientation] << " " << distance << " " << vn[this->SliceOrientation] << std::endl;
+positionCamera[this->SliceOrientation] = center[this->SliceOrientation]+distance*vn[this->SliceOrientation];
+focalCamera[this->SliceOrientation] = center[this->SliceOrientation];
+        
+        
+        
+        
+        
+        //////////////////////////////
+        
+        //if (this->SliceOrientation ==2)
+        //  std::cout << positionCamera[0]  << " " << positionCamera[1]  << " " << positionCamera[2]  << std::endl;
+        this->Renderer->GetActiveCamera()->SetFocalPoint(focalCamera);
+        this->Renderer->GetActiveCamera()->SetPosition(positionCamera);
+
     } else {
       vtkCamera *cam = this->Renderer->GetActiveCamera();
       if (cam) {
@@ -1238,12 +1307,20 @@ void vvSlicer::UpdateDisplayExtent()
         this->ImageActor->GetBounds(bounds);
         double spos = (double)bounds[this->SliceOrientation * 2];
         double cpos = (double)cam->GetPosition()[this->SliceOrientation];
+        if (cpos >= spos) {
+          double positionCamera[3];
+          cam->GetPosition(positionCamera);
+          positionCamera[this->SliceOrientation] = spos - 1;
+          cam->SetPosition(positionCamera);
+        }
         double range = fabs(spos - cpos);
         double *spacing = input->GetSpacing();
         double sumSpacing = spacing[0] + spacing[1] + spacing[2];
         cam->SetClippingRange(range - sumSpacing, range + sumSpacing);
       }
     }
+    //this->Renderer->GetActiveCamera()->Print(std::cout);
+    //std::cout << "2 " << this->Renderer->GetActiveCamera()->GetPosition()[0] << std::endl;
     
     if (mLandActor) {
         if (mClipBox) {

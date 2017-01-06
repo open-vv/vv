@@ -940,6 +940,15 @@ void vvSlicerManager::ResetTransformationToIdentity(const std::string actorType)
 //------------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
+void vvSlicerManager::ForceUpdateDisplayExtent()
+{ 
+  for ( unsigned int i = 0; i < mSlicers.size(); i++) {
+    mSlicers[i]->ForceUpdateDisplayExtent();
+  }
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
 void vvSlicerManager::Render()
 { 
   for ( unsigned int i = 0; i < mSlicers.size(); i++) {
