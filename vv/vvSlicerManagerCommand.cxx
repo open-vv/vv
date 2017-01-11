@@ -278,7 +278,6 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
 
       // Mouse release HERE
       if (event == vtkCommand::EndPickEvent) {
-      std::cout << "coucou End" << std::endl;
         //	      DD(VisibleInWindow);
         if (VisibleInWindow > -1)
           this->SM->LeftButtonReleaseEvent(VisibleInWindow);
@@ -392,12 +391,9 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
         this->SM->Render();
       }
       if (event == vtkCommand::PickEvent || event == vtkCommand::StartPickEvent) {
-      std::cout << "coucou Start" << std::endl;
         this->SM->Picked();
         this->SM->UpdateViews(1,VisibleInWindow);
         this->SM->UpdateLinked(VisibleInWindow);
-        this->SM->ForceUpdateDisplayExtent();
-        this->SM->Render();
         this->SM->UpdateInfoOnCursorPosition(VisibleInWindow);
       } else {
         this->SM->GetSlicer(VisibleInWindow)->Render();
