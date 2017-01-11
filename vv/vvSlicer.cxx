@@ -1230,10 +1230,14 @@ void vvSlicer::UpdateDisplayExtent()
   if (this->Renderer) {
     if (this->InteractorStyle &&
         this->InteractorStyle->GetAutoAdjustCameraClippingRange()) {
-      double positionCamera[3];
+      double positionCamera[3], originTemp[3];
       this->Renderer->GetActiveCamera()->GetPosition(positionCamera);
       this->Renderer->ResetCameraClippingRange();
-      positionCamera[this->SliceOrientation] = mImage->GetVTKImages()[mCurrentTSlice]->GetOrigin()[this->SliceOrientation]-1;
+      originTemp[0] = mImage->GetVTKImages()[mCurrentTSlice]->GetOrigin()[0];
+      originTemp[1] = mImage->GetVTKImages()[mCurrentTSlice]->GetOrigin()[1];
+      originTemp[2] = mImage->GetVTKImages()[mCurrentTSlice]->GetOrigin()[2];
+      mConcatenatedTransform->GetInverse()->TransformPoint(originTemp, originTemp);
+      positionCamera[this->SliceOrientation] = originTemp[this->SliceOrientation]-1;
       this->Renderer->GetActiveCamera()->SetPosition(positionCamera);
     } else {
       vtkCamera *cam = this->Renderer->GetActiveCamera();
