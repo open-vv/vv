@@ -57,6 +57,7 @@
 #include <vtkLight.h>
 #include <vtkLightCollection.h>
 #include <vtkScalarBarActor.h>
+#include <vtkImageProperty.h>
 #include <vtkLookupTable.h>
 
 #include <vtkRenderer.h>
@@ -323,6 +324,13 @@ double* vvSlicer::GetCurrentPosition()
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+void vvSlicer::SetInterpolationImageReslice(int interpolation)
+{ 
+  mImageReslice->SetInterpolationMode(interpolation);
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 void vvSlicer::SetCurrentPosition(double x, double y, double z, int t)
 { 
   mCurrentBeforeSlicingTransform[0]=x;
@@ -351,6 +359,7 @@ void vvSlicer::SetImage(vvImage::Pointer image)
     mConcatenatedTransform->Concatenate(mImage->GetTransform()[0]);
     mConcatenatedTransform->Concatenate(mSlicingTransform);
     mImageReslice->SetResliceTransform(mConcatenatedTransform);
+    //mImageReslice->SetResliceAxes(mConcatenatedTransform->GetMatrix());
 #if VTK_MAJOR_VERSION <= 5
     mImageReslice->SetInput(0, mImage->GetFirstVTKImageData());
 #else
@@ -916,9 +925,9 @@ int vvSlicer::GetTSlice()
 int vvSlicer::GetMaxCurrentTSlice()
 { 
   int t = mCurrentTSlice;
-  if(mOverlay)
+  if(mOverlay && mOverlayActor->GetVisibility())
     t = std::max(t, mCurrentOverlayTSlice);
-  if(mFusion&& (mFusionSequenceCode<0)) //ignore fusionSequence data: for these, the times are not to be related (this way)
+  if(mFusion&& (mFusionSequenceCode<0) && mFusionActor->GetVisibility()) //ignore fusionSequence data: for these, the times are not to be related (this way)
     t = std::max(t, mCurrentFusionTSlice);
   return t;
 }
@@ -1190,9 +1199,9 @@ void vvSlicer::UpdateDisplayExtent()
     this->ConvertImageToImageDisplayExtent(input, w_ext, mVF->GetVTKImages()[0], vfExtent);
     bool out = ClipDisplayedExtent(vfExtent, mVOIFilter->GetInput()->GetWholeExtent());
 #else
-    //this->UpdateInformation();
+    mVOIFilter->Update();
     this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mVF->GetVTKImages()[0], vfExtent);
-    bool out = ClipDisplayedExtent(vfExtent, mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT()));
+    bool out = ClipDisplayedExtent(vfExtent, mVOIFilter->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
 #endif
     mVFActor->SetVisibility(!out);
     mVOIFilter->SetVOI(vfExtent);
@@ -1630,7 +1639,6 @@ double vvSlicer::GetScalarComponentAsDouble(vtkImageData *image, double X, doubl
   //image->SetUpdateExtent(ix, ix, iy, iy, iz, iz);
   //image->Update();
 #endif
-
   return image->GetScalarComponentAsDouble(ix, iy, iz, component);
 }
 //----------------------------------------------------------------------------
@@ -1650,7 +1658,6 @@ void vvSlicer::Render()
   } else legend->SetVisibility(0);
 
   if (ca->GetVisibility()) {
-
     std::stringstream worldPos(" ");
     double pt[3];
     mConcatenatedTransform->TransformPoint(mCurrent, pt);
@@ -1664,25 +1671,6 @@ void vvSlicer::Render()
         Y <= mImage->GetVTKImages()[mCurrentTSlice]->GetWholeExtent()[3]+0.5 &&
         Z >= mImage->GetVTKImages()[mCurrentTSlice]->GetWholeExtent()[4]-0.5 &&
         Z <= mImage->GetVTKImages()[mCurrentTSlice]->GetWholeExtent()[5]+0.5) {
-
-      
-      int ix, iy, iz;
-      double value = this->GetScalarComponentAsDouble(mImage->GetVTKImages()[mCurrentTSlice], X, Y, Z, ix, iy, iz);
-
-      if(ImageActor->GetVisibility())
-        worldPos << "data value : " << value << std::endl;
-
-      worldPos << "mm : " << lrint(mCurrentBeforeSlicingTransform[0]) << ' '
-                          << lrint(mCurrentBeforeSlicingTransform[1]) << ' '
-                          << lrint(mCurrentBeforeSlicingTransform[2]) << ' '
-                          << mCurrentTSlice
-                          << std::endl;
-      worldPos << "pixel : " << ix << ' '
-                             << iy << ' '
-                             << iz << ' '
-                             << mCurrentTSlice
-                             << std::endl;
-    }
 #else
     if (X >= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[0]-0.5 &&
         X <= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[1]+0.5 &&
@@ -1690,16 +1678,14 @@ void vvSlicer::Render()
         Y <= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[3]+0.5 &&
         Z >= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[4]-0.5 &&
         Z <= mImage->GetVTKImages()[mCurrentTSlice]->GetInformation()->Get(vtkDataObject::DATA_EXTENT())[5]+0.5) {
-
+#endif
       int ix, iy, iz;
       double value = this->GetScalarComponentAsDouble(mImage->GetVTKImages()[mCurrentTSlice], X, Y, Z, ix, iy, iz);
-
       if(ImageActor->GetVisibility())
         worldPos << "data value : " << value << std::endl;
-
-      worldPos << "mm : " << lrint(mCurrentBeforeSlicingTransform[0]) << ' '
-                          << lrint(mCurrentBeforeSlicingTransform[1]) << ' '
-                          << lrint(mCurrentBeforeSlicingTransform[2]) << ' '
+      worldPos << "mm : " << lrint(mCurrent[0]) << ' '
+                          << lrint(mCurrent[1]) << ' '
+                          << lrint(mCurrent[2]) << ' '
                           << mCurrentTSlice
                           << std::endl;
       worldPos << "pixel : " << ix << ' '
@@ -1709,7 +1695,6 @@ void vvSlicer::Render()
                              << std::endl;
     
     }
-#endif
     ca->SetText(1,worldPos.str().c_str());
 
     std::stringstream slicePos;

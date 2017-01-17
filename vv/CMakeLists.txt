@@ -7,8 +7,7 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0007 NEW)
 endif(COMMAND cmake_policy)
 #=========================================================
-
-
+OPTION(CLITK_USE_PACS_CONNECTION "USE PACS CONNECTION"       OFF)
 #=========================================================
 #List of vv tools to compile
 set(vv_TOOLS
@@ -91,8 +90,8 @@ set(vv_SRCS
   vvSlicerManager.cxx
   vvSlicerManagerCommand.cxx
   vvUtils.cxx
-#  vvMaximumIntensityProjection.cxx
-  vvMesh.cxx
+#  vvMaximumIntensityProjection.cxx 
+ vvMesh.cxx
   vvMeshActor.cxx
   vvMeshReader.cxx
   vvMidPosition.cxx
@@ -110,7 +109,6 @@ set(vv_SRCS
 
 #=========================================================
 # Qt related commands
-
 if(vv_QT_VERSION VERSION_GREATER "4")
   find_package(Qt5Widgets REQUIRED)
   find_package(Qt5Network REQUIRED)
@@ -176,6 +174,28 @@ if(vv_QT_VERSION VERSION_GREATER "4")
 else()
   QT4_ADD_RESOURCES(vv_SRCS vvIcons.qrc)
 endif()
+
+# Add DICOM SERVER gui selector if the adequate GDCM is available
+if(CLITK_USE_PACS_CONNECTION)
+  SET(vv_SRCS ${vv_SRCS}
+    vvQPacsConnection.cxx
+	vvPacsSettingsDialog.cxx
+	vvDicomServerQueryFactory.cxx
+	)
+  if(vv_QT_VERSION VERSION_GREATER "4")
+    qt5_wrap_cpp(vv_SRCS vvQPacsConnection.h
+      vvPacsSettingsDialog.h)
+    qt5_wrap_ui(vv_UI_CXX 
+	  qt_ui/vvPacsConnection.ui
+      qt_ui/vvPacsSettingsDialog.ui)
+  else()
+    QT4_WRAP_CPP(vv_SRCS vvQPacsConnection.h
+      vvPacsSettingsDialog.h)
+    QT4_WRAP_UI(vv_UI_CXX 
+	  qt_ui/vvPacsConnection.ui
+      qt_ui/vvPacsSettingsDialog.ui)
+  endif()
+endif(CLITK_USE_PACS_CONNECTION)
   
   # Add the autotools in the header vvToolsList.h for initialization of the dummy
   # variables in vv.cxx for the tools contained in vvLib
@@ -281,7 +301,7 @@ endforeach(tool)
 #=========================================================
 #Add Foundation Libraries (this should be after our libraries, since we depend
 #on them)
-if(vv_QT_VERSION VERSION_GREATER "4")
+if(VTK_VERSION VERSION_GREATER "6.2.0")
 set(foundationLibraries clitkCommon ${ITK_LIBRARIES} ${VTK_LIBRARIES})
 else()
 set(foundationLibraries clitkCommon ${ITK_LIBRARIES} QVTK vtkHybrid)
@@ -289,12 +309,10 @@ endif()
 
 #=========================================================
 # Use CxImage to create animated gifs
-if(CLITK_EXPERIMENTAL)
-  set(vvCxImage clitkCxImage)
-  set(vv_SRCS ${vv_SRCS} vvAnimatedGIFWriter.cxx)
-  include_directories(${CLITK_SOURCE_DIR}/utilities/CxImage)
-  add_subdirectory(${CLITK_SOURCE_DIR}/utilities/CxImage ${PROJECT_BINARY_DIR}/utilities/CxImage)
-endif(CLITK_EXPERIMENTAL)
+set(vvCxImage clitkCxImage)
+set(vv_SRCS ${vv_SRCS} vvAnimatedGIFWriter.cxx)
+include_directories(${CLITK_SOURCE_DIR}/utilities/CxImage)
+add_subdirectory(${CLITK_SOURCE_DIR}/utilities/CxImage ${PROJECT_BINARY_DIR}/utilities/CxImage)
 #=========================================================
 
 #-----------------------------------------------------------------------------
@@ -318,9 +336,9 @@ endif()
 if(vv_QT_VERSION VERSION_GREATER "4")
 set(vvExternalLibs clitkSegmentationGgoLib ${toolLibs} ${foundationLibraries} ${vvCxImage} Qt5::Widgets Qt5::Network Qt5::Designer ${APPLE_FRAMEWORKS})
 else()
-set(vvExternalLibs clitkSegmentationGgoLib ${toolLibs} ${foundationLibraries} ${vvCxImage} ${QT_LIBRARIES} ${QT_QTNETWORK_LIBRARY} ${APPLE_FRAMEWORKS})
+set(vvExternalLibs clitkSegmentationGgoLib ${toolLibs} ${foundationLibraries} ${vvCxImage} ${QT_LIBRARIES} ${APPLE_FRAMEWORKS})
 endif()
-# QtNetwork is required by vvRegisterForm
+# QtNetwork is required by vvRegisterForm ${QT_QTNETWORK_LIBRARY}
 
 #-----------------------------------------------------------------------------
 # For retina displays, see

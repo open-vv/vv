@@ -38,6 +38,7 @@ vvImageContour::vvImageContour()
   mDisplayModeIsPreserveMemory = true;
   SetPreserveMemoryModeEnabled(true);
   mPreviousOrientation = -1;
+  mPreviousValue=0;
   mDepth = 1.0;
   mSlice = 0;
 }
@@ -234,7 +235,7 @@ void vvImageContour::UpdateWithPreserveMemoryMode()
     if (mPreviousTslice != -1) mSquaresActorList[mPreviousTslice]->VisibilityOff();
   }
 
-  mSlicer->Render();
+  //mSlicer->Render();
 }
 //------------------------------------------------------------------------------
 

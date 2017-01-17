@@ -33,4 +33,26 @@ QString getVVSettingsPath();
 ///by default nativeFormat
 QSettings::Format getSettingsOptionFormat();
 
+/// Add a Dicom Server to settings
+void AddDicomServer(std::string nickname, std::string aetitle, std::string adress, std::string port);
+
+/// Remove a Dicom Server to settings
+void removeDicomServer(std::string nickname);
+
+// get List of Dicom Servers
+QStringList getDicomServers();
+
+// Set parameters for VV (AETITLE, port-scu) to allow c-move.
+void setDicomClient();
+
+// get VV-AETITLE  for c-move parameters.
+std::string getDicomClientAETitle();
+
+// get VV-PORT-SCU  for c-move parameters.
+int getDicomClientPort();
+
+// get the directory where the dicom files will be stored during c-move action.
+std::string getCMoveDirectory();
+
+std::map <std::string,std::string > getDicomServer(QString nickname);
 #endif

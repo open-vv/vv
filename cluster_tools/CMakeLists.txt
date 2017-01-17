@@ -11,6 +11,9 @@ if(CLITK_BUILD_TOOLS)
     mergeDosePerEnergyFile.sh
     mergeStatFile.py
     mergeStatFile.sh
+    gate_run_submit_cluster_nomove.sh
+    gate_job_cluster_nomove.job
+    check_tmp_cluster.sh
     )
 
   install(FILES ${SCRIPTS} DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)

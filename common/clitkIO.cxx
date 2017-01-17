@@ -43,8 +43,18 @@
   #include "clitkUSVoxImageIOFactory.h"
   #include "clitkSvlImageIOFactory.h"
 #endif
-#include "itkGDCMImageIOFactory.h"
-#include "itkPNGImageIOFactory.h"
+#include <itkBMPImageIOFactory.h>
+#include <itkGDCMImageIOFactory.h>
+#include <itkGiplImageIOFactory.h>
+#include <itkJPEGImageIOFactory.h>
+#include <itkMetaImageIOFactory.h>
+#include <itkPNGImageIOFactory.h>
+#include <itkStimulateImageIOFactory.h>
+#include <itkTIFFImageIOFactory.h>
+#include <itkVTKImageIOFactory.h>
+#include <itkNiftiImageIOFactory.h>
+#include <itkNrrdImageIOFactory.h>
+#include <itkImageIOFactory.h>
 
 //--------------------------------------------------------------------
 // Register factories
@@ -81,7 +91,16 @@ void clitk::RegisterClitkFactories()
   rtk::ImagXImageIOFactory::RegisterOneFactory();
   rtk::XRadImageIOFactory::RegisterOneFactory();
   clitk::EsrfHstImageIOFactory::RegisterOneFactory();
+  itk::BMPImageIOFactory::RegisterOneFactory();
   itk::GDCMImageIOFactory::RegisterOneFactory();
+  itk::GiplImageIOFactory::RegisterOneFactory();
+  itk::JPEGImageIOFactory::RegisterOneFactory();
+  itk::MetaImageIOFactory::RegisterOneFactory();
   itk::PNGImageIOFactory::RegisterOneFactory();
+  itk::StimulateImageIOFactory::RegisterOneFactory();
+  itk::TIFFImageIOFactory::RegisterOneFactory();
+  itk::VTKImageIOFactory::RegisterOneFactory();
+  itk::NiftiImageIOFactory::RegisterOneFactory();
+  itk::NrrdImageIOFactory::RegisterOneFactory();
 } ////
 

@@ -123,7 +123,7 @@ public:
   void SetDisplayMode(bool i);
   void FlipHorizontalView();
   void FlipVerticalView();
-  static double GetScalarComponentAsDouble(vtkImageData *image, double X, double Y, double Z, int &ix, int &iy, int &iz, int component=0);
+  double GetScalarComponentAsDouble(vtkImageData *image, double X, double Y, double Z, int &ix, int &iy, int &iz, int component=0);
   void Render();
   ///Sets the camera to fit the image in the window
   void ResetCamera();
@@ -181,6 +181,7 @@ public:
   void AddContour(vvMesh::Pointer contours,bool propagate);
   ///Toggle temporal superposition of contours
   void ToggleContourSuperposition();
+  void SetInterpolationImageReslice(int interpolation);
 
   virtual void SetColorWindow(double s);
   virtual void SetColorLevel(double s);

@@ -553,7 +553,7 @@ void vvToolROIManager::UpdateAllContours()
   for(unsigned int i=0; i<mROIList.size(); i++) {
     mROIActorsList[i]->Update();
   }
-  mCurrentSlicerManager->Render();
+  //mCurrentSlicerManager->Render();
 }
 //------------------------------------------------------------------------------
 
@@ -716,6 +716,7 @@ void vvToolROIManager::OpacityChanged(int v)
 //------------------------------------------------------------------------------
 void vvToolROIManager::AllVisibleROIToggled(int b)
 { 
+  disconnect(mCheckBoxShowAll, SIGNAL(stateChanged(int)), this, SLOT(AllVisibleROIToggled(int)));
   bool status = false;
   if ((mCheckBoxShowAll->checkState() == Qt::Checked) ||
       (mCheckBoxShowAll->checkState() == Qt::PartiallyChecked))  status = true;
@@ -727,6 +728,7 @@ void vvToolROIManager::AllVisibleROIToggled(int b)
   else  mCheckBoxShowAll->setCheckState(Qt::Unchecked);
   mCheckBoxShow->setChecked(status);
   mCurrentSlicerManager->Render();
+  connect(mCheckBoxShowAll, SIGNAL(stateChanged(int)), this, SLOT(AllVisibleROIToggled(int)));
 }
 //------------------------------------------------------------------------------
 
@@ -734,6 +736,7 @@ void vvToolROIManager::AllVisibleROIToggled(int b)
 //------------------------------------------------------------------------------
 void vvToolROIManager::AllVisibleContourROIToggled(int b)
 { 
+  disconnect(mContourCheckBoxShowAll, SIGNAL(stateChanged(int)), this, SLOT(AllVisibleContourROIToggled(int)));
   bool status = false;
   if ((mContourCheckBoxShowAll->checkState() == Qt::Checked) ||
       (mContourCheckBoxShowAll->checkState() == Qt::PartiallyChecked))  status = true;
@@ -746,6 +749,7 @@ void vvToolROIManager::AllVisibleContourROIToggled(int b)
   else  mContourCheckBoxShowAll->setCheckState(Qt::Unchecked);
   mContourCheckBoxShow->setChecked(status);
   mCurrentSlicerManager->Render();
+  connect(mContourCheckBoxShowAll, SIGNAL(stateChanged(int)), this, SLOT(AllVisibleContourROIToggled(int)));
 }
 //------------------------------------------------------------------------------
 

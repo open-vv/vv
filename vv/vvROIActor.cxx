@@ -121,7 +121,7 @@ void vvROIActor::SetVisible(bool b)
     for(unsigned int i= 0; i<mOverlayActors.size(); i++)
       mOverlayActors[i]->ShowActors();
   }
-  Update(); // No Render
+  //Update(); // No Render
 }
 //------------------------------------------------------------------------------
 
@@ -140,7 +140,7 @@ void vvROIActor::SetContourVisible(bool b)
       mImageContour[i]->ShowActors();
     }
   }
-  Update(); // No Render
+  //Update(); // No Render
 }
 //------------------------------------------------------------------------------
 
@@ -252,7 +252,7 @@ void vvROIActor::UpdateSlice(int slicer, int slices, int force)
   if (mIsVisible) {
     mOverlayActors[slicer]->UpdateSlice(slicer, slices, force);
   }
-  mSlicerManager->GetSlicer(slicer)->Render();
+  //mSlicerManager->GetSlicer(slicer)->Render();
 }
 //------------------------------------------------------------------------------
 

@@ -48,6 +48,113 @@ FileListType GetRecentlyOpenedImages()
   return result;
 }
 
+// Set parameters for VV (AETITLE, port-scu) to allow c-move.
+void setDicomClient()
+{
+	QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
+	if (! settings.childGroups().contains("DICOMCLIENT"))
+	{
+		 settings.beginGroup(QString::fromStdString("DICOMCLIENT"));
+		 settings.setValue("AETITLE",QString::fromStdString("VVDICOMSCU"));
+		 settings.setValue("port",QString::number(1234));
+		 settings.setValue("directory",QDir::homePath() +QString::fromStdString("/.move"));
+		 settings.endGroup();
+	}
+}
+
+// get VV-AETITLE  for c-move. parameters
+std::string getDicomClientAETitle()
+{	
+	 std::string result ="";
+	QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
+	 settings.beginGroup(QString::fromStdString("DICOMCLIENT"));
+	 result = settings.value("AETITLE").toString().toStdString();
+	 settings.endGroup();
+	 return result;
+}
+
+// get the directory where the dicom files will be stored during c-move action.
+std::string getCMoveDirectory()
+{
+	 std::string result ="";
+	QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
+	 settings.beginGroup(QString::fromStdString("DICOMCLIENT"));
+	 result = settings.value("directory").toString().toStdString();
+	 settings.endGroup();
+	 return result;
+}
+
+// get VV-PORT-SCU  for c-move. parameters
+int getDicomClientPort()
+{	
+	int result;
+	QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
+	 settings.beginGroup(QString::fromStdString("DICOMCLIENT"));
+	 result = settings.value("port").toString().toInt();
+	 settings.endGroup();
+	 return result;
+}
+
+/// Add a new Dicom Server
+void AddDicomServer(std::string nickname, std::string aetitle, std::string adress, std::string port)
+{
+	QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
+	 settings.beginGroup(QString::fromStdString("DICOMSERVER"));
+	 settings.beginWriteArray(QString::fromStdString(nickname));
+	 settings.setValue("nickname",QString::fromStdString(nickname));
+	 settings.setValue("AETITLE",QString::fromStdString(aetitle));
+	 settings.setValue("ADRESS",QString::fromStdString(adress));
+	 settings.setValue("PORT",QString::fromStdString(port));
+	 settings.endGroup();
+}
+
+/// Remove a Dicom Server
+void removeDicomServer(std::string nickname)
+{
+	QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
+	 settings.beginGroup(QString::fromStdString("DICOMSERVER"));
+	 std::string temp = nickname + "//";
+	 settings.remove(QString::fromStdString(temp + "nickname"));
+	 settings.remove(QString::fromStdString(temp + "AETITLE"));
+	  settings.remove(QString::fromStdString(temp + "ADRESS"));
+	   settings.remove(QString::fromStdString(temp + "PORT"));
+	 settings.endGroup();
+}
+
+
+
+
+/// get the list of a Dicom Server
+QStringList getDicomServers()
+{
+
+	QStringList list;
+	QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
+	 settings.beginGroup(QString::fromStdString("DICOMSERVER"));
+	 QStringList  keys = settings.allKeys();
+	 for(int i =0; i < keys.size(); i++)
+	 {
+		 QString val = keys.at(i);
+		 if (val.contains("nickname"))
+			 list.push_back(settings.value(val).toString());
+	 }
+	 return list;
+}
+
+/// get needed Infos for a Dicom Server
+std::map <std::string,std::string > getDicomServer(QString nickname)
+{
+		std::map< std::string, std::string  >results;
+		QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
+	 settings.beginGroup(QString::fromStdString("DICOMSERVER"));
+	 settings.beginReadArray(nickname);
+	   QStringList keys = settings.childKeys();
+	   for (int i = 0; i <keys.size(); i++)
+		   results[keys.at(i).toStdString()] = settings.value(keys.at(i)).toString().toStdString();
+	   return results;
+
+}
+
 ///Adds an image to the list of recently opened images
 void AddToRecentlyOpenedImages(std::string filename)
 {

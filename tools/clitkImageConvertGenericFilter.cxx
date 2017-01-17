@@ -15,12 +15,21 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
   ===========================================================================**/
+
 #ifndef CLITKIMAGECONVERTGENERICFILTER_CXX
 #define CLITKIMAGECONVERTGENERICFILTER_CXX
 
 #include "clitkImageConvertGenericFilter.h"
 #include "vvImageReader.h"
 #include "vvImageWriter.h"
+#include "itkFlipImageFilter.h"
+#include "itkGDCMImageIO.h"
+
+#include "gdcmReader.h"
+#include "gdcmAttribute.h"
+#include "gdcmPrinter.h"
+#include "gdcmDict.h"
+#include "gdcmStringFilter.h"
 
 //--------------------------------------------------------------------
 clitk::ImageConvertGenericFilter::ImageConvertGenericFilter():
@@ -30,7 +39,8 @@ clitk::ImageConvertGenericFilter::ImageConvertGenericFilter():
   mDisplayWarning = true;
   mWarning = "";
   mWarningOccur = false;
-  
+  SetCorrectNegativeSpacingFlag(false);
+
   InitializeImageType<2>();
   InitializeImageType<3>();
   InitializeImageType<4>();
@@ -90,12 +100,85 @@ void clitk::ImageConvertGenericFilter::UpdateWithInputImageType()
     return;
   }
   else if ((m_PixelTypeName == mOutputPixelTypeName) || (mOutputPixelTypeName == "NotSpecified")) {
+
+    // Get input image
     typename InputImageType::Pointer input = this->template GetInput<InputImageType>(0);
+
+    if (mCorrectNegativeSpacingFlag) {
+      // Read dicom
+      gdcm::Reader reader;
+      reader.SetFileName(m_InputFilenames[0].c_str());
+      // if (!reader.CanReadFile(m_InputFilenames[0])) {
+      //   std::cout << "Error: " << m_InputFilenames[0] << " is not a dicom file. Abort." << std::endl;
+      //   exit(0);
+      // }
+      reader.Read();
+
+      // the dataset is the the set of element we are interested in:
+      gdcm::DataSet & ds = reader.GetFile().GetDataSet();
+
+      // Read the attribute SpacingBetweenSlices, check if negative and replace
+      gdcm::Attribute<0x0018,0x0088> SpacingBetweenSlices;
+      SpacingBetweenSlices.SetFromDataSet(ds);
+      double s = SpacingBetweenSlices.GetValue();
+      if (s >=0) {
+        std::cout << "Error: no negative spacing found SpacingBetweenSlices = " << s << " Abort. " << std::endl;
+        exit(0);
+      }
+      s = -s;
+
+      // Set spacing
+      typename InputImageType::SpacingType spacing = input->GetSpacing();
+      spacing[2] = s;
+      input->SetSpacing(spacing);
+
+      // Flip
+      typedef itk::FlipImageFilter< InputImageType >  FilterType;
+      typename FilterType::Pointer filter = FilterType::New();
+      typedef typename FilterType::FlipAxesArrayType     FlipAxesArrayType;
+      FlipAxesArrayType flipArray;
+      flipArray[0] = false;
+      flipArray[1] = false;
+      flipArray[2] = true;
+      filter->SetFlipAxes(flipArray);
+      filter->SetInput(input);
+      filter->Update();
+
+      // Read the attribute  Image Position (Patient)
+      gdcm::Tag  DetectorInformationSequenceTag(0x0054,0x0022);
+      const gdcm::DataElement & DIS = ds.GetDataElement(DetectorInformationSequenceTag);
+      gdcm::SmartPointer<gdcm::SequenceOfItems> sqf = DIS.GetValueAsSQ();
+      gdcm::Item & item = sqf->GetItem(1);
+      gdcm::DataSet & ds_position = item.GetNestedDataSet();
+      gdcm::Attribute<0x0020,0x0032> ImagePositionPatient;
+      ImagePositionPatient.SetFromDataSet(ds_position);
+      double x = ImagePositionPatient.GetValue(0);
+      double y = ImagePositionPatient.GetValue(1);
+      double z = ImagePositionPatient.GetValue(2);
+
+      // Set offset
+      typename InputImageType::PointType origin = input->GetOrigin();
+      origin[0] = x;
+      origin[1] = y;
+      origin[2] = z;
+      input->SetOrigin(origin);
+
+      // Orientation
+      typename InputImageType::DirectionType direction = input->GetDirection();
+      direction[2][2] = -1;
+      input->SetDirection(direction);
+
+      // Empty meta info
+      itk::MetaDataDictionary dict;// = new itk::MetaDataDictionary;
+      input->SetMetaDataDictionary(dict);
+    }
     this->SetNextOutput<InputImageType>(input);
+
+
   } else {
-    // "trick" to call independent versions of update according to the 
+    // "trick" to call independent versions of update according to the
     // pixel type (vector or scalar), using partial specializations
-    if (!UpdateWithSelectiveOutputType<InputImageType, ImageConvertTraits<typename InputImageType::PixelType>::IS_VECTOR>::Run(*this, mOutputPixelTypeName))    
+    if (!UpdateWithSelectiveOutputType<InputImageType, ImageConvertTraits<typename InputImageType::PixelType>::IS_VECTOR>::Run(*this, mOutputPixelTypeName))
       exit(-1);
   }
 }
@@ -143,4 +226,3 @@ void clitk::ImageConvertGenericFilter::CheckTypes(
 
 
 #endif /* end #define CLITKIMAGECONVERTGENERICFILTER_CXX */
-
