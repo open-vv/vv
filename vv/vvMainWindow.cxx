@@ -48,6 +48,9 @@ It is distributed under dual licence
 #include "vvMeshReader.h"
 #include "vvSaveState.h"
 #include "vvReadState.h"
+#if CLITK_USE_PACS_CONNECTION
+#include "vvQPacsConnection.h"
+#endif
 #include "clitkConfiguration.h"
 #include "clitkMatrix.h"
 #ifdef Q_OS_OSX
@@ -79,9 +82,7 @@ It is distributed under dual licence
 #include <vtkPNGWriter.h>
 #include <vtkJPEGWriter.h>
 #include <vtkGenericMovieWriter.h>
-#ifdef CLITK_EXPERIMENTAL
-#  include <vvAnimatedGIFWriter.h>
-#endif
+#include <vvAnimatedGIFWriter.h>
 #ifdef VTK_USE_VIDEO_FOR_WINDOWS
 #  include <vtkAVIWriter.h>
 #endif
@@ -126,6 +127,8 @@ It is distributed under dual licence
 vvMainWindow::vvMainWindow():vvMainWindowBase()
 { 
   setupUi(this); // this sets up the GUI
+
+  setDicomClient();
 
   //Qt::WindowFlags flags = windowFlags();
   //setWindowFlags(flags | Qt::WindowStaysOnTopHint);
@@ -229,6 +232,9 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   documentation = new vvDocumentation();
   help_dialog = new vvHelpDialog();
   dicomSeriesSelector = new vvDicomSeriesSelector();
+#if CLITK_USE_PACS_CONNECTION
+     PacsConnection = new vvQPacsConnection();
+#endif
 
   inverseButton->setEnabled(0);
   actionAdd_overlay_image_to_current_image->setEnabled(0);
@@ -272,6 +278,9 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   connect(actionWarp_image_with_vector_field,SIGNAL(triggered()),this,SLOT(WarpImage()));
   connect(actionLoad_images,SIGNAL(triggered()),this,SLOT(OpenImages()));
   connect(actionOpen_Dicom,SIGNAL(triggered()),this,SLOT(OpenDicom()));
+#if CLITK_USE_PACS_CONNECTION
+  connect(actionConnect_Pacs,SIGNAL(triggered()),this,SLOT(ConnectPacs()));
+#endif
   //  connect(actionOpen_Dicom_Struct,SIGNAL(triggered()),this,SLOT(OpenDCStructContour()));
   connect(actionOpen_VTK_contour,SIGNAL(triggered()),this,SLOT(OpenVTKContour()));
   connect(actionOpen_Multiple_Images_As_One,SIGNAL(triggered()),this,SLOT(MergeImages()));
@@ -385,6 +394,10 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
 #ifdef CLITK_EXPERIMENTAL
   if (!CLITK_EXPERIMENTAL)
     menuExperimental->menuAction()->setVisible(false);
+#endif
+
+#if !CLITK_USE_PACS_CONNECTION
+    actionConnect_Pacs->setVisible(false);
 #endif
 
   QTimer * timerMemory = new QTimer(this);
@@ -759,7 +772,24 @@ void vvMainWindow::OpenDicom()
     files = *(dicomSeriesSelector->GetFilenames());
     LoadImages(files, vvImageReader::DICOM);
   }
-}
+}  
+#if CLITK_USE_PACS_CONNECTION
+void vvMainWindow::ConnectPacs()
+{
+  std::vector<std::string> files;
+
+  //std::cout << "dicomSeriesSelector " << std::endl;
+if (PacsConnection->exec() == QDialog::Accepted) {
+	for (int i = 0; i < PacsConnection->getSeriesCount(); i++)
+	{
+		files = PacsConnection->getFileNames(i);
+		LoadImages(files, vvImageReader::DICOM);
+	}
+	PacsConnection->clearMove();
+  }
+  }
+
+#endif
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
@@ -3348,9 +3378,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 #ifdef VTK_USE_MPEG2_ENCODER
   Extensions += ";;Video( *.mpg)";
 #endif
-#ifdef CLITK_EXPERIMENTAL
   Extensions += ";;Video( *.gif)";
-#endif
 
   int smIndex=GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
   QString fileName = QFileDialog::getSaveFileName(this,
@@ -3361,6 +3389,8 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
   if (!fileName.isEmpty()) {
     vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
     w2i->SetInput(widget->GetRenderWindow());
+    w2i->SetMagnification(1);
+    w2i->SetInputBufferTypeToRGBA(); //also record the alpha (transparency) channel
     w2i->Update();
     vtkImageData *image = w2i->GetOutput();
 
@@ -3393,7 +3423,6 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 
     // Video
     vtkGenericMovieWriter *vidwriter = NULL;
-#if CLITK_EXPERIMENTAL == 1
     if (ext==".gif") {
       vvAnimatedGIFWriter *gif = vvAnimatedGIFWriter::New();
       vidwriter = gif;
@@ -3418,7 +3447,6 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
       msgBox.addButton(tr("No"), QMessageBox::RejectRole);
       gif->SetDither(msgBox.exec() == QMessageBox::AcceptRole);
     }
-#endif
 #ifdef VTK_USE_VIDEO_FOR_WINDOWS
     if (ext==".avi") {
       vtkAVIWriter *mpg = vtkAVIWriter::New();

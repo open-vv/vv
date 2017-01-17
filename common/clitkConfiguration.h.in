@@ -25,6 +25,7 @@
 #cmakedefine01 CLITK_MEMORY_INFO
 #cmakedefine01 CLITK_PRIVATE_FEATURES
 #cmakedefine01 CLITK_USE_SYSTEM_GDCM
+#cmakedefine01 CLITK_USE_PACS_CONNECTION
 
 // Global environment variables
 #define OS_NAME "@CMAKE_SYSTEM@"

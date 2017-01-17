@@ -67,7 +67,7 @@ endif(CLITK_MEMORY_INFO)
 if(CLITK_USE_SYSTEM_GDCM)
   find_package(GDCM REQUIRED)
   include(${GDCM_USE_FILE})
-  target_link_libraries(clitkCommon vtkgdcm gdcmDICT gdcmMSFF)
+  target_link_libraries(clitkCommon vtkgdcm gdcmDICT gdcmMSFF gdcmMEXD)
 endif()
 #=========================================================
 

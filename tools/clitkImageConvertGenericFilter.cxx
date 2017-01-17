@@ -171,9 +171,9 @@ void clitk::ImageConvertGenericFilter::UpdateWithInputImageType()
       // Empty meta info
       itk::MetaDataDictionary dict;// = new itk::MetaDataDictionary;
       input->SetMetaDataDictionary(dict);
-
-      this->SetNextOutput<InputImageType>(input);
     }
+    this->SetNextOutput<InputImageType>(input);
+
 
   } else {
     // "trick" to call independent versions of update according to the
