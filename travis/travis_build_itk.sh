@@ -1,0 +1,34 @@
+#!/bin/bash
+set -ev
+MAKE="make --jobs=$NUM_THREADS --keep-going"
+
+#Prepare cmake arguments following the ITK version
+if [ "$ITK_VERSION" == "4.5" ]; then
+itk_repo_str=" --branch v4.5.0 https://github.com/InsightSoftwareConsortium/ITK.git --depth 1"
+cmake_arg_str=" -DModule_ITKVtkGlue=ON -DVTK_DIR=$VTK_DIR -DModule_ITKReview=ON -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF "
+elif [ "$ITK_VERSION" == "4.9.1" ]; then
+itk_repo_str=" --branch v4.9.1 https://github.com/InsightSoftwareConsortium/ITK.git --depth 1"
+cmake_arg_str=" -DModule_ITKVtkGlue=ON -DVTK_DIR=$VTK_DIR -DModule_ITKReview=ON -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF "
+fi
+
+if [ -d $ITK_SOURCE_DIR ]; then
+echo $ITK_SOURCE_DIR exists
+if [ ! -f $ITK_SOURCE_DIR/CMakeLists.txt ]; then
+echo $ITK_SOURCE_DIR does not contain CMakeList.txt
+rm -rf $ITK_SOURCE_DIR
+fi
+fi
+
+#git clone in the ITK source folder
+if [ ! -d $ITK_SOURCE_DIR ]; then
+git clone $itk_repo_str $ITK_SOURCE_DIR
+fi
+
+#CMAKE and MAKE
+mkdir -p $ITK_DIR
+cd $ITK_DIR
+cmake $cmake_arg_str $ITK_SOURCE_DIR
+$MAKE
+cd -
+
+cd $cwd
