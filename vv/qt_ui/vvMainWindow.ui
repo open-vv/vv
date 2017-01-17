@@ -872,6 +872,7 @@
     <addaction name="separator"/>
     <addaction name="actionOpen_Dicom"/>
     <addaction name="actionOpen_VTK_contour"/>
+    <addaction name="actionConnect_Pacs"/>
     <addaction name="separator"/>
     <addaction name="actionSave_As"/>
     <addaction name="separator"/>
@@ -1274,6 +1275,11 @@
    </property>
    <property name="iconVisibleInMenu">
     <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionConnect_Pacs">
+   <property name="text">
+    <string>Connect Pacs</string>
    </property>
   </action>
  </widget>

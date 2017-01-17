@@ -25,13 +25,17 @@ if(MSVC)
   set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /bigobj" )
 endif(MSVC)
 
+if(${CLITK_USE_PACS_CONNECTION})
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lgdcmMEXD" )
+endif(${CLITK_USE_PACS_CONNECTION})
+
 #=========================================================
 include(${CLITK_SOURCE_DIR}/cmake/common.cmake)
 include(${CLITK_SOURCE_DIR}/cmake/dependencies.cmake)
 include(${CLITK_SOURCE_DIR}/cmake/build_opt.cmake)
 #=========================================================
 #=========================================================
-
+SET(vvPacsConnection true)
 # Select what is compiled
 add_subdirectory(${CLITK_SOURCE_DIR}/common ${PROJECT_BINARY_DIR}/common)
 add_subdirectory(${CLITK_SOURCE_DIR}/tools ${PROJECT_BINARY_DIR}/tools)
