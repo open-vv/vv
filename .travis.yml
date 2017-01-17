@@ -1,0 +1,80 @@
+git:
+  depth: 1
+  
+sudo: required
+
+dist: trusty
+
+os: 
+    - osx
+    - linux
+compiler:
+    - gcc
+    - clang
+env:
+    - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=5.5.1
+    - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=4.8.7
+    - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=5.5.1
+    - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=4.8.7
+    - WITH_CMAKE=true VTK_VERSION=6.0 ITK_VERSION=4.5 QT_VERSION=4.8.7
+
+matrix:
+  exclude:
+  - os: osx
+    env: WITH_CMAKE=true VTK_VERSION=6.0 ITK_VERSION=4.5 QT_VERSION=4.8.7 #VTK6.0 doesn't work with osX
+
+language: cpp
+
+notifications:
+ email:
+  on_success: never
+  on_failure: never
+
+before_install:
+- if test $TRAVIS_OS_NAME == osx ; then brew update; fi
+- if test $TRAVIS_OS_NAME == linux ; then sudo add-apt-repository --yes ppa:kubuntu-ppa/backports; fi
+- if test $TRAVIS_OS_NAME == linux ; then sudo apt-get update -qq; fi
+- if test $TRAVIS_OS_NAME == linux ; then sudo apt-get install --reinstall ca-certificates; fi
+- export NUM_THREADS=2
+- export cwd=$(pwd)
+- export SCRIPTS=$cwd/travis
+- export EXTERNALS_DIR=$HOME
+- export VTK_SOURCE_DIR=${EXTERNALS_DIR}/vtk-${VTK_VERSION}
+- export VTK_DIR=${EXTERNALS_DIR}/vtk-${VTK_VERSION}-build
+- export ITK_SOURCE_DIR=${EXTERNALS_DIR}/itk-${ITK_VERSION}
+- export ITK_DIR=${EXTERNALS_DIR}/itk-${ITK_VERSION}-build
+- export BUILD_DIR=$cwd/build
+
+install:
+- if test $TRAVIS_OS_NAME == linux ; then sudo apt-get install -y -qq build-essential cmake; fi
+#Install qt5
+- $SCRIPTS/travis_build_qt.sh
+- if test $TRAVIS_OS_NAME == linux; then sudo apt-get -y install libgdcm2-dev libpq-dev; fi
+- if test $TRAVIS_OS_NAME == linux; then if [[ "$QT_VERSION" == "5.5.1" ]] ; then QTDIR="/opt/qt55" && PATH="$PATH:$QTDIR/bin" && qt55-env.sh ; fi; fi
+- if test $TRAVIS_OS_NAME == osx ; then export HOMEBREW_QT_VERSION=$(brew list --versions qt | rev | cut -d' ' -f1 | rev); fi
+- if test $TRAVIS_OS_NAME == osx ; then ln -s /usr/local/Cellar/qt5/$HOMEBREW_QT_VERSION/mkspecs /usr/local/mkspecs; fi
+- if test $TRAVIS_OS_NAME == osx ; then ln -s /usr/local/Cellar/qt5/$HOMEBREW_QT_VERSION/plugins /usr/local/plugins; fi
+- if test $TRAVIS_OS_NAME == osx ; then qmake -v; fi
+
+cache:
+ - directories:
+   - $HOME/vtk-6.0
+   - $HOME/vtk-6.0-build
+   - $HOME/vtk-6.3
+   - $HOME/vtk-6.3-build
+   - $HOME/vtk-7.0.0
+   - $HOME/vtk-7.0.0-build
+   - $HOME/itk-4.5
+   - $HOME/itk-4.5-build
+   - $HOME/itk-4.9.1
+   - $HOME/itk-4.9.1-build
+
+before_script:
+- if test $TRAVIS_OS_NAME == linux ; then sudo ln -s /usr/bin/x86_64-linux-gnu/libpq.so /usr/bin/libpq.so; fi
+- $SCRIPTS/travis_build_vtk.sh
+#- $SCRIPTS/travis_build_itk.sh
+#Install vtk and itk (different version)
+
+script:
+- echo "coucou";
+#- $SCRIPTS/travis_build_vv.sh
