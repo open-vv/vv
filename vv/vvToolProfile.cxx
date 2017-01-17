@@ -361,18 +361,21 @@ void vvToolProfile::cancelPoints()
 //------------------------------------------------------------------------------
 void vvToolProfile::RemoveVTKObjects()
 { 
-  for(int i=0;i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
-    mCurrentSlicerManager->GetSlicer(i)->GetRenderer()->RemoveActor(mLineActors[i]);
-  }
-
-  if (mPoint1Selected)
-    mCurrentSlicerManager->GetLandmarks()->RemoveLandmarkWithLabel("P1", mPoint1[3]);
-  if (mPoint2Selected)
-    mCurrentSlicerManager->GetLandmarks()->RemoveLandmarkWithLabel("P2", mPoint2[3]);
-
-    
   if (mCurrentSlicerManager)
+  {
+    connect(mCurrentSlicerManager, SIGNAL(callAddLandmark(float,float,float,float)), mCurrentSlicerManager, SLOT(AddLandmark(float,float,float,float)));
+
+    for(int i=0;i<mCurrentSlicerManager->GetNumberOfSlicers(); i++) {
+      mCurrentSlicerManager->GetSlicer(i)->GetRenderer()->RemoveActor(mLineActors[i]);
+    }
+
+    if (mPoint1Selected)
+      mCurrentSlicerManager->GetLandmarks()->RemoveLandmarkWithLabel("P1", mPoint1[3]);
+    if (mPoint2Selected)
+      mCurrentSlicerManager->GetLandmarks()->RemoveLandmarkWithLabel("P2", mPoint2[3]);
+
     mCurrentSlicerManager->Render();
+  }
 }
 //------------------------------------------------------------------------------
 
@@ -381,8 +384,7 @@ void vvToolProfile::RemoveVTKObjects()
 bool vvToolProfile::close()
 { 
   //RemoveVTKObjects();
-  
-  connect(mCurrentSlicerManager, SIGNAL(callAddLandmark(float,float,float,float)), mCurrentSlicerManager, SLOT(AddLandmark(float,float,float,float)));
+
   return vvToolWidgetBase::close();
 }
 //------------------------------------------------------------------------------

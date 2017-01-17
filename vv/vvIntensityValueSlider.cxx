@@ -26,6 +26,7 @@ vvIntensityValueSlider::vvIntensityValueSlider(QWidget * parent, Qt::WindowFlags
   mIsInteger = true;
   mButtonPlus->setHidden(true);
   mButtonMinus->setHidden(true);
+  mValue=0;
 
   // Connect signals & slots
   connect(mSpinBox, SIGNAL(valueChanged(double)), this, SLOT(valueChangedFromSpinBox(double)));
