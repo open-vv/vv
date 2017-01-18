@@ -16,12 +16,12 @@ env:
     - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=4.8.7
     - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=5.5.1
     - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=4.8.7
-    - WITH_CMAKE=true VTK_VERSION=6.0 ITK_VERSION=4.5 QT_VERSION=4.8.7
+    - WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7
 
 matrix:
   exclude:
   - os: osx
-    env: WITH_CMAKE=true VTK_VERSION=6.0 ITK_VERSION=4.5 QT_VERSION=4.8.7 #VTK6.0 doesn't work with osX
+    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7 #VTK6.0 doesn't work with osX
 
 language: cpp
 
@@ -58,8 +58,8 @@ install:
 
 cache:
  - directories:
-   - $HOME/vtk-6.0
-   - $HOME/vtk-6.0-build
+   - $HOME/vtk-5.10
+   - $HOME/vtk-5.10-build
    - $HOME/vtk-6.3
    - $HOME/vtk-6.3-build
    - $HOME/vtk-7.0.0
