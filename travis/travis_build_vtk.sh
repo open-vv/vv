@@ -9,8 +9,8 @@ elif [ "$QT_VERSION" == "5.5.1" ]; then
 fi
 
 #Prepare cmake arguments following the VTK version
-if [ "$VTK_VERSION" == "6.0" ]; then
-vtk_repo_str=" --branch v6.0.0 https://github.com/Kitware/VTK.git --depth 1"
+if [ "$VTK_VERSION" == "5.10" ]; then
+vtk_repo_str=" --branch v5.10.0 https://github.com/Kitware/VTK.git --depth 1"
 cmake_arg_str=" $cmake_arg_str 
   -DBUILD_SHARED_LIBS=1
   -DCMAKE_BUILD_TYPE=Release
