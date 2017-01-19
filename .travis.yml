@@ -76,5 +76,5 @@ before_script:
 #Install vtk and itk (different version)
 
 script:
-- echo "coucou";
-#- $SCRIPTS/travis_build_vv.sh
+#- echo "coucou";
+- $SCRIPTS/travis_build_vv.sh
