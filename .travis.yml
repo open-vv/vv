@@ -57,6 +57,7 @@ install:
 - if test $TRAVIS_OS_NAME == osx ; then qmake -v; fi
 
 cache:
+ - timeout: 1000
  - directories:
    - $HOME/vtk-5.10
    - $HOME/vtk-5.10-build
@@ -77,4 +78,4 @@ before_script:
 
 script:
 - echo "coucou";
-- $SCRIPTS/travis_build_vv.sh
+#- $SCRIPTS/travis_build_vv.sh
