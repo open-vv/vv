@@ -44,6 +44,7 @@ public slots:
     void Load();
     bool LoadFromFile(std::vector<std::string> file);
     void Save();
+    void UpdateTransform();
     void RemoveSelectedPoints();
     void RemoveAllPoints();
     void AddPoint();
@@ -52,6 +53,7 @@ public slots:
 signals:
     void UpdateRenderWindows();
     void SelectedPointChanged();
+    void UpdateLandmarkTransform();
 
 private:
     void AddPoint(int);

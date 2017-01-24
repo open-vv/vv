@@ -285,6 +285,7 @@ class vvSlicerManager : public QObject {
 
 public slots:
   void AddLandmark(float x,float y,float z,float t);
+  void UpdateLandmark();
 
 signals :
   void callAddLandmark(float x,float y,float z,float t);

@@ -35,11 +35,13 @@
 vvLandmarks::vvLandmarks(int size)
 {
   mLandmarks.resize(size);
+  mLandmarksInitial.resize(size);
   mFilenames.resize(0);
   mTime = 0;
 
   for (int i = 0; i < size; i++) {
     mLandmarks[i].resize(0);
+    mLandmarksInitial[i].resize(0);
     vtkPoints *points = vtkPoints::New();
     mPoints.push_back(points);
     mIds.push_back(vtkFloatArray::New());
@@ -79,6 +81,7 @@ void vvLandmarks::AddLandmark(float x,float y,float z,float t,double value)
   point.coordinates[3] = t;
   point.pixel_value=value;
   mLandmarks[mTime].push_back(point);
+  mLandmarksInitial[mTime].push_back(point);
 
   idPoint = mPoints[int(t)]->InsertNextPoint(x,y,z);
   std::string str_vtkIdType;	    // string which will contain the result
@@ -103,6 +106,27 @@ void vvLandmarks::AddLandmark(float x,float y,float z,float t,double value)
 }
 //--------------------------------------------------------------------
 
+//--------------------------------------------------------------------
+void vvLandmarks::TransformUpdate(vtkAbstractTransform* transform)
+{
+  //For all Time, For all landmarks, I apply the transform
+  for(int time=0; time<mLandmarks.size(); ++time)
+  {
+    for(int landmark=0; landmark<mLandmarks[time].size(); ++landmark)
+    {
+      double ptBeforeTransform[3], ptAfterTransform[3];
+      ptBeforeTransform[0]= mLandmarksInitial[time][landmark].coordinates[0];
+      ptBeforeTransform[1]= mLandmarksInitial[time][landmark].coordinates[1];
+      ptBeforeTransform[2]= mLandmarksInitial[time][landmark].coordinates[2];
+      transform->TransformPoint(ptBeforeTransform, ptAfterTransform);
+
+      mLandmarks[time][landmark].coordinates[0]= ptAfterTransform[0];
+      mLandmarks[time][landmark].coordinates[1]= ptAfterTransform[1];
+      mLandmarks[time][landmark].coordinates[2]= ptAfterTransform[2];
+    }
+  }
+}
+//--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
 void vvLandmarks::RemoveLastLandmark()
@@ -110,6 +134,7 @@ void vvLandmarks::RemoveLastLandmark()
   mPoints[mTime]->SetNumberOfPoints(mPoints[mTime]->GetNumberOfPoints()-1);
   //  mText.pop_back();
   mLandmarks[mTime].pop_back();
+  mLandmarksInitial[mTime].pop_back();
   mIds[mTime]->RemoveLastTuple();
   mLabels[mTime]->SetNumberOfValues(mLabels[mTime]->GetNumberOfValues()-1);
   mLabels[mTime]->Modified();
@@ -148,6 +173,7 @@ void vvLandmarks::RemoveLandmarkWithLabel(vtkStdString label, int time)
   mPolyData->Modified();
 
   mLandmarks[t].erase(mLandmarks[t].begin() + index);
+  mLandmarksInitial[t].erase(mLandmarksInitial[t].begin() + index);
   mIds[t]->RemoveLastTuple();
 }
 //--------------------------------------------------------------------
@@ -175,6 +201,7 @@ void vvLandmarks::RemoveLandmark(int index)
   mPolyData->Modified();
 
   mLandmarks[t].erase(mLandmarks[t].begin() + index);
+  mLandmarksInitial[t].erase(mLandmarksInitial[t].begin() + index);
   mIds[t]->RemoveLastTuple();
 }
 //--------------------------------------------------------------------
@@ -184,6 +211,7 @@ void vvLandmarks::RemoveAll()
 {
   for (unsigned int i = 0; i < mLandmarks.size(); i++) {
     mLandmarks[i].clear();
+    mLandmarksInitial[i].clear();
     mPoints[i]->SetNumberOfPoints(0);
     mLabels[i]->SetNumberOfValues(0);
     mIds[i]->SetNumberOfValues(0);
@@ -195,6 +223,7 @@ void vvLandmarks::RemoveAll()
 void vvLandmarks::ChangeComments(int index, std::string comments)
 {
   mLandmarks[mTime][index].comments = comments;
+  mLandmarksInitial[mTime][index].comments = comments;
 }
 //--------------------------------------------------------------------
 
@@ -242,6 +271,7 @@ bool vvLandmarks::LoadTxtFile(std::vector<std::string> filenames)
   mFilenames = filenames;
   for (unsigned int i = 0; i < mPoints.size(); i++) {
     mLandmarks[i].clear();
+    mLandmarksInitial[i].clear();
     mPoints[i]->SetNumberOfPoints(0);
   }
 
@@ -333,6 +363,7 @@ bool vvLandmarks::LoadTxtFile(std::vector<std::string> filenames)
         }
         //      DD(point.comments);
         mLandmarks[int(point.coordinates[3])].push_back(point);
+        mLandmarksInitial[int(point.coordinates[3])].push_back(point);
         mIds[int(point.coordinates[3])]->InsertNextTuple1(0.55);
         idPoint = mPoints[int(point.coordinates[3])]->InsertNextPoint(
                                                             point.coordinates[0],point.coordinates[1],point.coordinates[2]);
@@ -361,6 +392,7 @@ bool vvLandmarks::LoadPtsFile(std::vector<std::string> filenames)
   for (unsigned int i = 0; i < mPoints.size(); i++) {
     mPoints[i]->SetNumberOfPoints(0);
     mLandmarks[i].clear();
+    mLandmarksInitial[i].clear();
   }
 
   int err = 0;
@@ -415,6 +447,7 @@ bool vvLandmarks::LoadPtsFile(std::vector<std::string> filenames)
 
         //      DD(point.comments);
         mLandmarks[int(point.coordinates[3])].push_back(point);
+        mLandmarksInitial[int(point.coordinates[3])].push_back(point);
         mIds[int(point.coordinates[3])]->InsertNextTuple1(0.55);
         idPoint = mPoints[int(point.coordinates[3])]->InsertNextPoint(
                                                             point.coordinates[0],point.coordinates[1],point.coordinates[2]);
