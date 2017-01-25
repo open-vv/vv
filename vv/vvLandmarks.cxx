@@ -488,16 +488,16 @@ void vvLandmarks::SaveFile(std::string filename)
       std::stringstream out;
       out.imbue(std::locale("C")); //This is to specify that the dot is to be used as the decimal separator
       out << i << " "
-          << mLandmarks[t][i].coordinates[0] << " "
-          << mLandmarks[t][i].coordinates[1] << " "
-          << mLandmarks[t][i].coordinates[2] << " "
-          << mLandmarks[t][i].coordinates[3] << " "
-          << mLandmarks[t][i].pixel_value << " ";
+          << mLandmarksInitial[t][i].coordinates[0] << " "
+          << mLandmarksInitial[t][i].coordinates[1] << " "
+          << mLandmarksInitial[t][i].coordinates[2] << " "
+          << mLandmarksInitial[t][i].coordinates[3] << " "
+          << mLandmarksInitial[t][i].pixel_value << " ";
       fileContent += out.str();
-      if (mLandmarks[t][i].comments.size() == 0)
+      if (mLandmarksInitial[t][i].comments.size() == 0)
         fileContent += " ";
       else
-        fileContent += mLandmarks[t][i].comments;
+        fileContent += mLandmarksInitial[t][i].comments;
       fileContent += "\n";
     }
   }
