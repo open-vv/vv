@@ -1626,6 +1626,13 @@ void vvSlicerManager::AddLandmarkProfile(float x,float y,float z,float t)
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
+void vvSlicerManager::UpdateLandmark()
+{
+    this->GetLandmarks()->TransformUpdate(mSlicers[mSelectedSlicer]->GetConcatenatedTransform()->GetInverse());
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
 void vvSlicerManager::PrevImage(int slicer)
 { 
   emit ChangeImageWithIndexOffset(this, slicer, -1);
