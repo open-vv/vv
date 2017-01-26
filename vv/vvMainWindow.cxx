@@ -985,6 +985,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
         connect(mSlicerManagers.back(), SIGNAL(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)),
           this,SLOT(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)));
         connect(mSlicerManagers.back(),SIGNAL(LandmarkAdded()),landmarksPanel,SLOT(AddPoint()));
+        connect(landmarksPanel,SIGNAL(UpdateLandmarkTransform()), mSlicerManagers.back(), SLOT(UpdateLandmark()));
         InitSlicers();
         numberofsuccesulreads++;
       }
@@ -3735,6 +3736,7 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
   connect(mSlicerManagers.back(), SIGNAL(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)),
     this,SLOT(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)));
   connect(mSlicerManagers.back(), SIGNAL(LandmarkAdded()),landmarksPanel,SLOT(AddPoint()));
+  connect(landmarksPanel,SIGNAL(UpdateLandmarkTransform()), mSlicerManagers.back(), SLOT(UpdateLandmark()));
 
 
 
