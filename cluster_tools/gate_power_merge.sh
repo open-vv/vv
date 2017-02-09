@@ -51,9 +51,9 @@ END { print xsize * ysize * zsize * byte_per_pixel; }' "${input_interfile}")
 
 function write_mhd_header {
     local input_interfile="${1:?"provide input interfile"}"
-    local output_mhd="$(dirname "${input_interfile}")/$(basename "${input_interfile}" ".hdr").hdr.mhd"
+    local output_mhd="$(dirname "${input_interfile}")/$(basename "${input_interfile}" ".hdr").mhd"
 
-    check_interfile "${input_interfile}" || warning "${input_interfile} isn't an interfile image (or unknown format)"
+    check_interfile "${input_interfile}" || error "${input_interfile} isn't an interfile image"
 
     local header_start='ObjectType = Image
 NDims = 3
@@ -334,8 +334,8 @@ function merge_dispatcher {
         echo "${indent}this is a interfile image"
         echo "${indent}creating mhd headers"
         for partialoutputfile in $partialoutputfiles; do write_mhd_header "${partialoutputfile}"; done
-        local mhd_partialoutputfiles="$(for partialoutputfile in $partialoutputfiles; do echo "${partialoutputfile%.*}.hdr.mhd"; done)"
-        local mhd_mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}" ".hdr").hdr.mhd"
+        local mhd_partialoutputfiles="$(for partialoutputfile in $partialoutputfiles; do echo "${partialoutputfile%.*}.mhd"; done)"
+        local mhd_mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}" ".hdr").mhd"
         merge_mhd_image "${mhd_mergedfile}" ${mhd_partialoutputfiles} || error "error while merging"
         echo "${indent}cleaning mhd headers"
         for mhd_partialoutputfile in $mhd_partialoutputfiles; do rm "${mhd_partialoutputfile}"; done
