@@ -1,4 +1,4 @@
-#!/bin/bash -l
+#! /usr/local/bin/bash -lx
 
 set -u
 SCRIPTNAME="$(basename "${0}")"
@@ -58,7 +58,7 @@ test -d ${OUTPUTDIR} || error "can't locate output dir"
 RUNID=${OUTPUTDIR##*.}
 NJOBS=${2:-"${DEFAULTNUMBEROFJOBS}"}
 NJOBSMAX=${NJOBS}
-PARAM="${4:-\"\"}"
+PARAM="${4:-""}"
 
 echo "Lets roll!!"
 echo "runid is ${RUNID}"
@@ -91,7 +91,6 @@ cp ${MACROFILE} ${OUTPUTDIR}/mac
 files=`grep "control/execute" ${MACROFILE} | cut -d " " -f 2`
 for i in $files
 do
-    echo $i
     cp $i ${OUTPUTDIR}/mac
 done
 
@@ -103,14 +102,16 @@ while test $NJOBS -gt 0; do
         PARAM=\"${PARAM}\" INDEX=${NJOBS} INDEXMAX=${NJOBSMAX} OUTPUTDIR=${OUTPUTDIR}  RELEASEDIR=${RELEASEDIR} MACROFILE=${MACROFILE} MACRODIR=${MACRODIR} PBS_JOBID="local_${NJOBS}" bash "${JOBFILE}" > ${OUTPUTDIR}/gate_${NJOBS}.log &
     elif test "$(dnsdomainname)" = "in2p3.fr"
     then
-        PROJECTGROUP=creatis
+        PROJECTGROUP=creatis 
         qsub -o "${OUTPUTDIR}" \
+	     -l sps=1 \
              -N "gate.${RUNID}" \
              -v "PARAM=\"${PARAM}\",INDEX=${NJOBS},INDEXMAX=${NJOBSMAX},OUTPUTDIR=${OUTPUTDIR},RELEASEDIR=${RELEASEDIR},MACROFILE=${MACROFILE},MACRODIR=${MACRODIR}" \
              "${JOBFILE}" || error "submission error"
     else
-	qsub -N "gatejob.${RUNID}" -o "${OUTPUTDIR}" \
-	    -v "PARAM=${PARAM},INDEX=${NJOBS},INDEXMAX=${NJOBSMAX},OUTPUTDIR=${OUTPUTDIR},RELEASEDIR=${RELEASEDIR},MACROFILE=${MACROFILE},MACRODIR=${MACRODIR}" \
+        qsub -N "gatejob.${RUNID}" -o "${OUTPUTDIR}" \
+             -l sps=1 \
+	    -v "PARAM=\"${PARAM}\",INDEX=${NJOBS},INDEXMAX=${NJOBSMAX},OUTPUTDIR=${OUTPUTDIR},RELEASEDIR=${RELEASEDIR},MACROFILE=${MACROFILE},MACRODIR=${MACRODIR}" \
 	    "${JOBFILE}" || error "submission error"
     fi
 
