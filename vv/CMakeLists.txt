@@ -309,12 +309,10 @@ endif()
 
 #=========================================================
 # Use CxImage to create animated gifs
-if(CLITK_EXPERIMENTAL)
-  set(vvCxImage clitkCxImage)
-  set(vv_SRCS ${vv_SRCS} vvAnimatedGIFWriter.cxx)
-  include_directories(${CLITK_SOURCE_DIR}/utilities/CxImage)
-  add_subdirectory(${CLITK_SOURCE_DIR}/utilities/CxImage ${PROJECT_BINARY_DIR}/utilities/CxImage)
-endif(CLITK_EXPERIMENTAL)
+set(vvCxImage clitkCxImage)
+set(vv_SRCS ${vv_SRCS} vvAnimatedGIFWriter.cxx)
+include_directories(${CLITK_SOURCE_DIR}/utilities/CxImage)
+add_subdirectory(${CLITK_SOURCE_DIR}/utilities/CxImage ${PROJECT_BINARY_DIR}/utilities/CxImage)
 #=========================================================
 
 #-----------------------------------------------------------------------------

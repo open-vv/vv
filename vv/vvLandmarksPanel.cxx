@@ -38,9 +38,11 @@ vvLandmarksPanel::vvLandmarksPanel(QWidget * parent):QWidget(parent)
   tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
   loadButton->setEnabled(0);
   saveButton->setEnabled(0);
+  updateTransformButton->setEnabled(0);
   removeButton->setEnabled(0);
   connect(loadButton, SIGNAL(clicked()),this,SLOT(Load()));
   connect(saveButton, SIGNAL(clicked()),this,SLOT(Save()));
+  connect(updateTransformButton, SIGNAL(clicked()),this,SLOT(UpdateTransform()));
   connect(removeButton, SIGNAL(clicked()),this,SLOT(RemoveSelectedPoints()));
   connect(removeAllButton, SIGNAL(clicked()),this,SLOT(RemoveAllPoints()));
   connect(tableWidget,SIGNAL(cellChanged(int,int)),this,SLOT(CommentsChanged(int,int)));
@@ -78,6 +80,12 @@ void vvLandmarksPanel::Save()
     filename += ".txt";
     mCurrentLandmarks->SaveFile(filename.c_str());
   }
+}
+
+void vvLandmarksPanel::UpdateTransform()
+{
+  emit UpdateLandmarkTransform();
+  SetCurrentLandmarks(mCurrentLandmarks,mCurrentLandmarks->GetTime());
 }
 
 void vvLandmarksPanel::SelectPoint()
@@ -181,6 +189,7 @@ void vvLandmarksPanel::SetCurrentLandmarks(vvLandmarks* lm,int time)
     return;
   loadButton->setEnabled(1);
   saveButton->setEnabled(1);
+  updateTransformButton->setEnabled(1);
   removeButton->setEnabled(1);
   mCurrentLandmarks = lm;
   tableWidget->clearContents();

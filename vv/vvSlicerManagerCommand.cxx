@@ -73,7 +73,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
   if (isi) {
     double x = isi->GetInteractor()->GetEventPosition()[0];
     double y = isi->GetInteractor()->GetEventPosition()[1];
-    double z;
+    double z(4000);
 
     int VisibleInWindow = this->FindSlicerNumber(isi->GetInteractor()->GetRenderWindow());
     vtkRenderer* renderer=NULL;
