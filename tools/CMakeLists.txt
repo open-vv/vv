@@ -12,6 +12,9 @@ add_library(clitkBinarizeImageLib clitkBinarizeImageGenericFilter.cxx ${clitkBin
 WRAP_GGO(clitkProfileImage_GGO_C clitkProfileImage.ggo)
 add_library(clitkProfileImageLib clitkProfileImageGenericFilter.cxx ${clitkProfileImage_GGO_C})
 
+WRAP_GGO(clitkHistogramImage_GGO_C clitkHistogramImage.ggo)
+add_library(clitkHistogramImageLib clitkHistogramImageGenericFilter.cxx ${clitkHistogramImage_GGO_C})
+
 WRAP_GGO(clitkImageArithm_GGO_C clitkImageArithm.ggo)
 add_library(clitkImageArithmImageLib clitkImageArithmGenericFilter.cxx ${clitkImageArithm_GGO_C})
 
