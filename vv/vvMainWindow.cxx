@@ -82,9 +82,7 @@ It is distributed under dual licence
 #include <vtkPNGWriter.h>
 #include <vtkJPEGWriter.h>
 #include <vtkGenericMovieWriter.h>
-#ifdef CLITK_EXPERIMENTAL
-#  include <vvAnimatedGIFWriter.h>
-#endif
+#include <vvAnimatedGIFWriter.h>
 #ifdef VTK_USE_VIDEO_FOR_WINDOWS
 #  include <vtkAVIWriter.h>
 #endif
@@ -986,6 +984,7 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
         connect(mSlicerManagers.back(), SIGNAL(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)),
           this,SLOT(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)));
         connect(mSlicerManagers.back(),SIGNAL(LandmarkAdded()),landmarksPanel,SLOT(AddPoint()));
+        connect(landmarksPanel,SIGNAL(UpdateLandmarkTransform()), mSlicerManagers.back(), SLOT(UpdateLandmark()));
         InitSlicers();
         numberofsuccesulreads++;
       }
@@ -3342,9 +3341,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 #ifdef VTK_USE_MPEG2_ENCODER
   Extensions += ";;Video( *.mpg)";
 #endif
-#ifdef CLITK_EXPERIMENTAL
   Extensions += ";;Video( *.gif)";
-#endif
 
   int smIndex=GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
   QString fileName = QFileDialog::getSaveFileName(this,
@@ -3389,7 +3386,6 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 
     // Video
     vtkGenericMovieWriter *vidwriter = NULL;
-#if CLITK_EXPERIMENTAL == 1
     if (ext==".gif") {
       vvAnimatedGIFWriter *gif = vvAnimatedGIFWriter::New();
       vidwriter = gif;
@@ -3414,7 +3410,6 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
       msgBox.addButton(tr("No"), QMessageBox::RejectRole);
       gif->SetDither(msgBox.exec() == QMessageBox::AcceptRole);
     }
-#endif
 #ifdef VTK_USE_VIDEO_FOR_WINDOWS
     if (ext==".avi") {
       vtkAVIWriter *mpg = vtkAVIWriter::New();
@@ -3703,6 +3698,7 @@ vvSlicerManager* vvMainWindow::AddImage(vvImage::Pointer image,std::string filen
   connect(mSlicerManagers.back(), SIGNAL(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)),
     this,SLOT(ChangeImageWithIndexOffset(vvSlicerManager*,int,int)));
   connect(mSlicerManagers.back(), SIGNAL(LandmarkAdded()),landmarksPanel,SLOT(AddPoint()));
+  connect(landmarksPanel,SIGNAL(UpdateLandmarkTransform()), mSlicerManagers.back(), SLOT(UpdateLandmark()));
 
 
 
