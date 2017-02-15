@@ -48,6 +48,9 @@ class vvToolHistogram:
   virtual void InputIsSelected(vvSlicerManager * m);
 
   void computeHistogram();
+  void changeWindowLevel();
+  void computeWindowLevel();
+  void computeMinMax();
   void SetPoints();
 
   //-----------------------------------------------------
@@ -55,6 +58,7 @@ class vvToolHistogram:
   virtual void apply();
   virtual bool close();
   virtual void reject();
+  virtual void windowLevelChanged();
 
   void SaveAs();
 
@@ -63,6 +67,9 @@ class vvToolHistogram:
   virtual void closeEvent(QCloseEvent *event);
   Ui::vvToolHistogram ui;
   args_info_clitkHistogramImage mArgsInfo;
+
+  double mMinWindowLevel;
+  double mMaxWindowLevel;
 
   vtkSmartPointer<vtkContextView> mView;
   clitk::HistogramImageGenericFilter::Pointer mFilter;
