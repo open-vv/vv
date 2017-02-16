@@ -97,9 +97,15 @@ namespace clitk
 
     extractFilter->SetInput(input);
     typename InputImageType::SizeType size;
+    typename OutputImageType::DirectionType direction;
+    direction.SetIdentity();
     for (unsigned int nbDimension=0; nbDimension<Dimension-1; ++nbDimension)
     {
         size[nbDimension] = input->GetLargestPossibleRegion().GetSize(nbDimension);
+        for (unsigned int pixelDim2=0; pixelDim2<Dimension-1; ++pixelDim2)
+        {
+          direction[nbDimension][pixelDim2]=input->GetDirection()[nbDimension][pixelDim2];
+        }
     }
     size[Dimension-1] = 0;
     typename MedianImageType::Pointer tempImage = MedianImageType::New();
@@ -124,7 +130,10 @@ namespace clitk
 
     imageToVectorImageFilter->Update();
 
-    // Output
+    // Copy transform matrix
+    imageToVectorImageFilter->GetOutput()->SetDirection(direction);
+
+    //Output
     writer->SetInput(imageToVectorImageFilter->GetOutput());
     writer->SetFileName(fileName);
     writer->Update();
