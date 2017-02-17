@@ -17,8 +17,6 @@
 
 function transferJobData {
     echo "Copying data back"
-    #ssh -i ${HOME}/.ssh/ccin2p3 linux1.dg.creatis.insa-lyon.fr "mkdir cc/$(basename ${OUTPUTDIR})/output.${JOB_ID%%.*}"
-    #rsync -av --remove-source-files -e "ssh -i ${HOME}/.ssh/ccin2p3" output/ "linux1.dg.creatis.insa-lyon.fr:./cc/$(basename ${OUTPUTDIR})/output.${JOB_ID%%.*}"
     pwd
     echo ${OUTPUTDIR}
     mkdir "${OUTPUTDIR}/output.${JOB_ID%%.*}"
@@ -76,7 +74,7 @@ test -d "${MACRODIR}" && test -d "${MACRODIR}/mac" || error "invalid macro"
 
 echo "Copying inputs"
 LOCALMACRODIR=$(mktemp -d)
-trap "wait ; transferJobData ; exit 1" 137 138 152 153
+trap "wait ; transferJobData ; exit 1" 1 2 3 15
 cd ${LOCALMACRODIR}
 cp -r -L "${MACRODIR}"/{data,mac} .
 mkdir output

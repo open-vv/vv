@@ -103,17 +103,24 @@ namespace clitk
     spacing.Fill(1);
     typename OutputImageType::PointType origin;
     origin.Fill(0);
+    typename OutputImageType::DirectionType direction;
+    direction.SetIdentity();
     for (unsigned int pixelDim=0; pixelDim<Dimension; ++pixelDim)
     {
       size[pixelDim]=adaptor->GetLargestPossibleRegion().GetSize(pixelDim);
       spacing[pixelDim]=input->GetSpacing()[pixelDim];
       origin[pixelDim]=input->GetOrigin()[pixelDim];
+      for (unsigned int pixelDim2=0; pixelDim2<Dimension; ++pixelDim2)
+      {
+        direction[pixelDim][pixelDim2]=input->GetDirection()[pixelDim][pixelDim2];
+      }
     }
     typename OutputImageType::RegionType region;
     region.SetSize(size);
     region.SetIndex(index);    
     output->SetRegions(region);
     output->SetOrigin(origin);
+    output->SetDirection(direction);
     output->SetSpacing(spacing);
     output->Allocate();
     writer->SetInput(output);

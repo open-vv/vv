@@ -52,8 +52,8 @@ install:
 - if test $TRAVIS_OS_NAME == linux; then sudo apt-get -y install libgdcm2-dev libpq-dev; fi
 - if test $TRAVIS_OS_NAME == linux; then if [[ "$QT_VERSION" == "5.5.1" ]] ; then QTDIR="/opt/qt55" && PATH="$PATH:$QTDIR/bin" && qt55-env.sh ; fi; fi
 - if test $TRAVIS_OS_NAME == osx ; then export HOMEBREW_QT_VERSION=$(brew list --versions qt | rev | cut -d' ' -f1 | rev); fi
-- if test $TRAVIS_OS_NAME == osx ; then if [[ "$QT_VERSION" == "5.5.1" ]] ; then ln -s /usr/local/Cellar/qt@5.5/5.5.1/mkspecs /usr/local/mkspecs; fi; fi
-- if test $TRAVIS_OS_NAME == osx ; then if [[ "$QT_VERSION" == "5.5.1" ]] ; then ln -s /usr/local/Cellar/qt@5.5/5.5.1/plugins /usr/local/plugins; fi; fi
+- if test $TRAVIS_OS_NAME == osx ; then if [[ "$QT_VERSION" == "5.5.1" ]] ; then ln -s /usr/local/Cellar/qt@5.5/5.5.1_1/mkspecs /usr/local/mkspecs; fi; fi
+- if test $TRAVIS_OS_NAME == osx ; then if [[ "$QT_VERSION" == "5.5.1" ]] ; then ln -s /usr/local/Cellar/qt@5.5/5.5.1_1/plugins /usr/local/plugins; fi; fi
 - if test $TRAVIS_OS_NAME == osx ; then qmake -v; fi
 
 cache:

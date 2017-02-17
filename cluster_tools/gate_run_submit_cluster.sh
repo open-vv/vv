@@ -1,4 +1,4 @@
-#!/bin/bash -l
+#! /bin/bash -lx
 
 set -u
 SCRIPTNAME="$(basename "${0}")"
@@ -91,7 +91,6 @@ cp ${MACROFILE} ${OUTPUTDIR}/mac
 files=`grep "control/execute" ${MACROFILE} | cut -d " " -f 2`
 for i in $files
 do
-    echo $i
     cp $i ${OUTPUTDIR}/mac
 done
 
@@ -105,11 +104,12 @@ while test $NJOBS -gt 0; do
     then
         PROJECTGROUP=creatis
         qsub -o "${OUTPUTDIR}" \
+	     -l sps=1 \
              -N "gate.${RUNID}" \
              -v "PARAM=\"${PARAM}\",INDEX=${NJOBS},INDEXMAX=${NJOBSMAX},OUTPUTDIR=${OUTPUTDIR},RELEASEDIR=${RELEASEDIR},MACROFILE=${MACROFILE},MACRODIR=${MACRODIR}" \
              "${JOBFILE}" || error "submission error"
     else
-	qsub -N "gatejob.${RUNID}" -o "${OUTPUTDIR}" \
+        qsub -N "gatejob.${RUNID}" -o "${OUTPUTDIR}" \
 	    -v "PARAM=${PARAM},INDEX=${NJOBS},INDEXMAX=${NJOBSMAX},OUTPUTDIR=${OUTPUTDIR},RELEASEDIR=${RELEASEDIR},MACROFILE=${MACROFILE},MACRODIR=${MACRODIR}" \
 	    "${JOBFILE}" || error "submission error"
     fi
@@ -118,7 +118,3 @@ while test $NJOBS -gt 0; do
 done
 
 echo "runid is ${RUNID}"
-if test "$(dnsdomainname)" = "in2p3.fr"
-then
-    rsync -av --remove-source-files -e "ssh -i ${HOME}/.ssh/ccin2p3" ${OUTPUTDIR}/ "linux1.dg.creatis.insa-lyon.fr:./cc/$(basename ${OUTPUTDIR})" --exclude '.__afs*' --exclude "${OUTPUTDIR}/gatejob.*.o*"
-fi
