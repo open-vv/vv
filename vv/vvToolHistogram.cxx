@@ -27,6 +27,7 @@
 #include "vvSlicerManager.h"
 #include "vvSlicer.h"
 #include "vvToolInputSelectorWidget.h"
+#include "vvToolHistogramCommand.h"
 
 // vtk
 #include <vtkAxis.h>
@@ -79,6 +80,8 @@ vvToolHistogram::vvToolHistogram(vvMainWindowBase * parent, Qt::WindowFlags f)
   // GUI Initialization
   Ui_vvToolHistogram::setupUi(mToolWidget);
 
+  mModificationsDone = false;
+
   // Connect signals & slots
   connect(mSaveHistogramButton, SIGNAL(clicked()), this, SLOT(SaveAs()));
 
@@ -90,6 +93,7 @@ vvToolHistogram::vvToolHistogram(vvMainWindowBase * parent, Qt::WindowFlags f)
   chart->SetAutoSize(false);
   chart->SetRenderEmpty(true);
   mView->GetScene()->AddItem(chart);
+  mView->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   this->HistogramWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
   this->HistogramWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
   HistogramWidget->show();
@@ -128,34 +132,16 @@ void vvToolHistogram::computeHistogram()
     mFilter->Update();
 
     //Creation of the XY chart
-    vtkSmartPointer<vtkTable> table = vtkSmartPointer<vtkTable>::New();
     vtkSmartPointer<vtkFloatArray> arrX = vtkSmartPointer<vtkFloatArray>::New();
     vtkSmartPointer<vtkFloatArray> arrY = vtkSmartPointer<vtkFloatArray>::New();
     arrX = mFilter->GetArrayX();
     arrY = mFilter->GetArrayY();
     arrX->SetName("Intensity");
     arrY->SetName("#Voxels");
-
-    table->AddColumn(arrX);
-    table->AddColumn(arrY);
-
-    mView->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
-
-    vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
-    chart->SetAutoSize(true);
-    mView->GetScene()->ClearItems();
-    mView->GetScene()->AddItem(chart);
-    vtkPlot *line = chart->AddPlot(vtkChart::LINE);
-#if VTK_MAJOR_VERSION <= 5
-    line->SetInput(table, 0, 1);
-#else
-    line->SetInputData(table, 0, 1);
-#endif
-    line->SetColor(0, 255, 0, 255);
-    line->SetWidth(1.0);
+    mTable->AddColumn(arrX);
+    mTable->AddColumn(arrY);
 
     //Upper and Lower lines for window/level
-    vtkSmartPointer<vtkTable> tableWindowLevel = vtkSmartPointer<vtkTable>::New();
     vtkSmartPointer<vtkFloatArray> arrXUpperWindowLevel = vtkSmartPointer<vtkFloatArray>::New();
     vtkSmartPointer<vtkFloatArray> arrXLowerWindowLevel = vtkSmartPointer<vtkFloatArray>::New();
     vtkSmartPointer<vtkFloatArray> arrYWindowLevel = vtkSmartPointer<vtkFloatArray>::New();
@@ -168,17 +154,44 @@ void vvToolHistogram::computeHistogram()
     arrXUpperWindowLevel->SetName("IntensityUp");
     arrXLowerWindowLevel->SetName("IntensityLow");
     arrYWindowLevel->SetName("#Voxels");
-    tableWindowLevel->AddColumn(arrXUpperWindowLevel);
-    tableWindowLevel->AddColumn(arrXLowerWindowLevel);
-    tableWindowLevel->AddColumn(arrYWindowLevel);
+    mTableWindowLevel->AddColumn(arrXUpperWindowLevel);
+    mTableWindowLevel->AddColumn(arrXLowerWindowLevel);
+    mTableWindowLevel->AddColumn(arrYWindowLevel);
+
+    displayHistogram();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolHistogram::displayHistogram()
+{
+    if (!mCurrentSlicerManager) close();
+    HistogramWidget->hide();
+
+
+    vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
+    chart->SetAutoSize(true);
+    mView->GetScene()->ClearItems();
+    mView->GetScene()->AddItem(chart);
+    vtkPlot *line = chart->AddPlot(vtkChart::LINE);
+#if VTK_MAJOR_VERSION <= 5
+    line->SetInput(mTable, 0, 1);
+#else
+    line->SetInputData(mTable, 0, 1);
+#endif
+    line->SetColor(0, 255, 0, 255);
+    line->SetWidth(1.0);
+
+
     vtkPlot *upperWindowLine = chart->AddPlot(vtkChart::LINE);
     vtkPlot *lowerWindowLine = chart->AddPlot(vtkChart::LINE);
 #if VTK_MAJOR_VERSION <= 5
-    upperWindowLine->SetInput(tableWindowLevel, 0, 2);
-    lowerWindowLine->SetInput(tableWindowLevel, 1, 2);
+    upperWindowLine->SetInput(mTableWindowLevel, 0, 2);
+    lowerWindowLine->SetInput(mTableWindowLevel, 1, 2);
 #else
-    upperWindowLine->SetInputData(tableWindowLevel, 0, 2);
-    lowerWindowLine->SetInputData(tableWindowLevel, 1, 2);
+    upperWindowLine->SetInputData(mTableWindowLevel, 0, 2);
+    lowerWindowLine->SetInputData(mTableWindowLevel, 1, 2);
 #endif
     upperWindowLine->SetColor(255, 0, 0, 255);
     lowerWindowLine->SetColor(255, 0, 0, 255);
@@ -192,25 +205,25 @@ void vvToolHistogram::computeHistogram()
     this->HistogramWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
     HistogramWidget->show();
 
-    //mView->GetInteractor()->Start();
-
     QApplication::restoreOverrideCursor();
 }
 //------------------------------------------------------------------------------
 
+
 //------------------------------------------------------------------------------
 void vvToolHistogram::changeWindowLevel()
 {
-  vtkChartXY* chart = vtkChartXY::New();
-  chart = static_cast<vtkChartXY*>(mView->GetScene()->GetItem(0));
   vtkFloatArray* upperArray = vtkFloatArray::New();
-  upperArray = static_cast<vtkFloatArray*>(chart->GetPlot(1)->GetInput()->GetColumn(0));
+  upperArray = static_cast<vtkFloatArray*>(mTableWindowLevel->GetColumn(0));
   upperArray->SetTuple1(0, mMaxWindowLevel);
   upperArray->SetTuple1(1, mMaxWindowLevel);
   vtkFloatArray* lowerArray = vtkFloatArray::New();
-  lowerArray = static_cast<vtkFloatArray*>(chart->GetPlot(2)->GetInput()->GetColumn(1));
+  lowerArray = static_cast<vtkFloatArray*>(mTableWindowLevel->GetColumn(1));
   lowerArray->SetTuple1(0, mMinWindowLevel);
   lowerArray->SetTuple1(1, mMinWindowLevel);
+  displayHistogram();
+  mCurrentSlicerManager->UpdateWindowLevel();
+  mCurrentSlicerManager->Render();
 }
 //------------------------------------------------------------------------------
 
@@ -227,12 +240,6 @@ void vvToolHistogram::windowLevelChanged()
 //------------------------------------------------------------------------------
 void vvToolHistogram::RemoveVTKObjects()
 { 
-  if (mCurrentSlicerManager)
-  {
-    connect(mCurrentSlicerManager, SIGNAL(callAddLandmark(float,float,float,float)), mCurrentSlicerManager, SLOT(AddLandmark(float,float,float,float)));
-
-    mCurrentSlicerManager->Render();
-  }
 }
 //------------------------------------------------------------------------------
 
@@ -240,8 +247,13 @@ void vvToolHistogram::RemoveVTKObjects()
 //------------------------------------------------------------------------------
 bool vvToolHistogram::close()
 { 
-  //RemoveVTKObjects();
-
+  if (!mModificationsDone)
+  {
+    mCurrentSlicerManager->SetColorLevel(originalLevel);
+    mCurrentSlicerManager->SetColorWindow(originalWindow);
+    mCurrentSlicerManager->UpdateWindowLevel();
+    mCurrentSlicerManager->Render();
+  }
   return vvToolWidgetBase::close();
 }
 //------------------------------------------------------------------------------
@@ -274,12 +286,34 @@ void vvToolHistogram::InputIsSelected(vvSlicerManager * m)
   mSaveHistogramButton->setEnabled(true);
   mTextFileName = "Histogram.txt";
 
+  mTableWindowLevel = vtkSmartPointer<vtkTable>::New();
+  mTable = vtkSmartPointer<vtkTable>::New();
+
+  originalWindow = mCurrentSlicerManager->GetColorWindow();
+  originalLevel = mCurrentSlicerManager->GetColorLevel();
+
   //Compute Min & Max for Window/Level
   computeMinMax();
 
   computeHistogram();
 
-  disconnect(mCurrentSlicerManager, SIGNAL(callAddLandmark(float,float,float,float)), mCurrentSlicerManager, SLOT(AddLandmark(float,float,float,float)));
+  // Connect signals & slots
+  vvToolHistogramCommand *smc = vvToolHistogramCommand::New();
+  smc->mHist = this;
+  HistogramWidget->GetRenderWindow()->GetInteractor()->GetInteractorStyle()->AddObserver(vtkCommand::LeftButtonPressEvent, smc);
+  HistogramWidget->GetRenderWindow()->GetInteractor()->GetInteractorStyle()->AddObserver(vtkCommand::MouseMoveEvent, smc);
+  HistogramWidget->GetRenderWindow()->GetInteractor()->GetInteractorStyle()->AddObserver(vtkCommand::MouseWheelForwardEvent, smc);
+  HistogramWidget->GetRenderWindow()->GetInteractor()->GetInteractorStyle()->AddObserver(vtkCommand::MouseWheelBackwardEvent, smc);
+  smc->Delete();
+
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+QVTKWidget* vvToolHistogram::GetHistogramWidget()
+{
+  return(HistogramWidget);
 }
 //------------------------------------------------------------------------------
 
@@ -298,6 +332,36 @@ void vvToolHistogram::computeWindowLevel()
 {
   double window = mMaxWindowLevel - mMinWindowLevel;
   double level = (mMaxWindowLevel + mMinWindowLevel)/2.0;
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolHistogram::expandWindow()
+{
+  mCurrentSlicerManager->SetColorWindow(mCurrentSlicerManager->GetColorWindow()+10.0);
+  computeMinMax();
+  changeWindowLevel();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolHistogram::reduceWindow()
+{
+  mCurrentSlicerManager->SetColorWindow(mCurrentSlicerManager->GetColorWindow()-10.0);
+  computeMinMax();
+  changeWindowLevel();
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvToolHistogram::translateWindow(double x)
+{
+  mCurrentSlicerManager->SetColorLevel(mCurrentSlicerManager->GetColorLevel()+10.0*x);
+  computeMinMax();
+  changeWindowLevel();
 }
 //------------------------------------------------------------------------------
 
@@ -333,7 +397,8 @@ void vvToolHistogram::GetArgsInfoFromGUI()
 
 //------------------------------------------------------------------------------
 void vvToolHistogram::apply()
-{ 
+{
+  mModificationsDone = true;
   close();
 }
 //------------------------------------------------------------------------------

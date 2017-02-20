@@ -30,6 +30,8 @@
 #include <vtkTable.h>
 #include <vtkContextView.h>
 #include <vtkContextScene.h>
+#include <vtkInteractorObserver.h>
+#include <vtkEventQtSlotConnect.h>
 
 //------------------------------------------------------------------------------
 class vvToolHistogram:
@@ -53,12 +55,20 @@ class vvToolHistogram:
   void computeMinMax();
   void SetPoints();
 
+  void displayHistogram();
+
+  QVTKWidget* GetHistogramWidget();
+
   //-----------------------------------------------------
   public slots:
   virtual void apply();
   virtual bool close();
   virtual void reject();
-  virtual void windowLevelChanged();
+
+  void windowLevelChanged();
+  void reduceWindow();
+  void expandWindow();
+  void translateWindow(double x);
 
   void SaveAs();
 
@@ -70,8 +80,15 @@ class vvToolHistogram:
 
   double mMinWindowLevel;
   double mMaxWindowLevel;
+  double originalWindow;
+  double originalLevel;
+  bool mModificationsDone;
 
   vtkSmartPointer<vtkContextView> mView;
+
+  vtkSmartPointer<vtkTable> mTableWindowLevel;
+  vtkSmartPointer<vtkTable> mTable;
+  //vtkSmartPointer<vtkContextView> mView;
   clitk::HistogramImageGenericFilter::Pointer mFilter;
   std::string mTextFileName;
 
