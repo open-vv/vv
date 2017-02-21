@@ -91,6 +91,7 @@ set(vv_SRCS
   vvGlyph2D.cxx
   vvSlicerManager.cxx
   vvSlicerManagerCommand.cxx
+  vvToolHistogramCommand.cxx
   vvUtils.cxx
 #  vvMaximumIntensityProjection.cxx 
  vvMesh.cxx
