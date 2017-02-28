@@ -393,7 +393,7 @@ void vvSlicer::SetImage(vvImage::Pointer image)
     mImageReslice->GetOutput()->SetUpdateExtent(extent);
     mImageReslice->GetOutput()->Update();
 #else
-    //mImageReslice->SetUpdateExtent(extent);
+    mImageReslice->SetUpdateExtent(extent);
     mImageReslice->Update();
 #endif
 
