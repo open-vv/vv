@@ -1374,15 +1374,15 @@ QString vvMainWindow::GetSizeInBytes(unsigned long size)
   if (size > 1000000000) {
     size /= 1000000000;
     result += QString::number(size);
-    result += "Gb";//)";
+    result += "GB";//)";
   } else if (size > 1000000) {
     size /= 1000000;
     result += QString::number(size);
-    result += "Mb";//)";
+    result += "MB";//)";
   } else if (size > 1000) {
     size /= 1000;
     result += QString::number(size);
-    result += "kb";//)";
+    result += "kB";//)";
   }
   return result;
 }
