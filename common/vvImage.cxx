@@ -196,7 +196,7 @@ unsigned long vvImage::GetActualMemorySize()
 {
   unsigned long size = 0;
   for (unsigned int i = 0; i < mVtkImages.size(); i++) {
-    size += mVtkImages[i]->GetActualMemorySize();
+    size += mVtkImages[i]->GetActualMemorySize()*1024;
   }
   return size;
 }

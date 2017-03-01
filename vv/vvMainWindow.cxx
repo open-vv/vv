@@ -416,7 +416,7 @@ void vvMainWindow::UpdateMemoryUsage()
 { 
   //  clitk::PrintMemory(true);
   if (clitk::GetMemoryUsageInMb() == 0) infoPanel->setMemoryInMb("NA");
-  else infoPanel->setMemoryInMb(QString::number(clitk::GetMemoryUsageInMb())+" MiB");
+  else infoPanel->setMemoryInMb(QString::number(clitk::GetMemoryUsageInMb())+" MB");
 }
 //------------------------------------------------------------------------------
 
@@ -1173,7 +1173,7 @@ void vvMainWindow::ImageInfoChanged()
       sizeMM[i] = inputSize[i]*inputSpacing[i];
       NPixel *= inputSize[i];
     }
-    inputSizeInBytes = GetSizeInBytes(imageSelected->GetActualMemorySize()*1000);
+    inputSizeInBytes = GetSizeInBytes(imageSelected->GetActualMemorySize());
 
     QString dim = QString::number(dimension) + " (";
     dim += pixelType + ")";

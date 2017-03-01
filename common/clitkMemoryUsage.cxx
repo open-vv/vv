@@ -49,7 +49,7 @@ double clitk::GetMemoryUsageInMb()
   // Search the current pid in the list of processes
   while (stat[i].pid != getpid()) i++;
   // Display total memory size 
-  double mem = stat[i].proc_resident/1024/1024; // in Mb
+  double mem = stat[i].proc_resident/1000/1000; // in MB
   return mem;
 #else
   return 0.0;
