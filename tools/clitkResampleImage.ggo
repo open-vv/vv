@@ -19,7 +19,7 @@ option "default"	d	"Default pixel value"			float	no 	default = "0.0"
 option "time"           t       "Last Dimension Is Time -> do not resample it (auto on for 4D)" flag    off
 
 section "Interpolation"
-option "interp"	 	-	"Interpolation type: {nn, linear, bspline, blut}"  string  no default="nn"
+option "interp"	 	-	"Interpolation type: {nn, linear, bspline, blut, quantitative}"  string  no default="nn"
 option "order"       	b   	"BSpline ordre (range 0-5)"	  	           int 	   no default="3"
 option "sampling"	s      	"BLUT sampling value"	  		           int 	   no default="30"
 

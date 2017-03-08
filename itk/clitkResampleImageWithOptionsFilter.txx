@@ -33,6 +33,7 @@
 #include "itkBSplineInterpolateImageFunction.h"
 #include "itkBSplineInterpolateImageFunctionWithLUT.h"
 #include "itkCommand.h"
+#include "clitkQuantitativeInterpolateImageFunction.h"
 
 //--------------------------------------------------------------------
 template <class InputImageType, class OutputImageType>
@@ -223,6 +224,7 @@ GenerateData()
     case BSpline: std::cout << "BSpline " << m_BSplineOrder << std::endl; break;
     case B_LUT: std::cout << "B-LUT " << m_BSplineOrder << " " << m_BLUTSamplingFactor << std::endl; break;
     case WSINC: std::cout << "Windowed Sinc" << std::endl; break;
+    case QUANTITATIVE: std::cout << "Quantitative" << std::endl; break;
     }
     std::cout << "Threads        = " << this->GetNumberOfThreads() << std::endl;
     std::cout << "LastDimIsTime  = " << m_LastDimensionIsTime << std::endl;
@@ -279,6 +281,13 @@ GenerateData()
     filter->SetInterpolator(interpolator);
     break;
   }
+  case QUANTITATIVE: {
+    typedef itk::QuantitativeInterpolateImageFunction<InputImageType, double> InterpolatorType;
+    typename InterpolatorType::Pointer interpolator =  InterpolatorType::New();
+    interpolator->SetOutputSpacing(m_OutputSpacing);
+    filter->SetInterpolator(interpolator);
+    break;
+  }
   }
 
   // Initial Gaussian blurring if needed
@@ -332,6 +341,7 @@ clitk::ResampleImageSpacing(typename InputImageType::Pointer input,
   case 2: inter = ResampleFilterType::BSpline; break;
   case 3: inter = ResampleFilterType::B_LUT; break;
   case 4: inter = ResampleFilterType::WSINC; break;
+  case 5: inter = ResampleFilterType::QUANTITATIVE; break;
   }
   resampler->SetInterpolationType(inter);
   resampler->SetGaussianFilteringEnabled(true);

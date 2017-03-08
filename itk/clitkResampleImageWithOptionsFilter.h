@@ -72,7 +72,8 @@ namespace clitk {
     Linear = 1, 
     BSpline = 2, 
     B_LUT = 3,
-    WSINC = 4
+    WSINC = 4,
+    QUANTITATIVE = 5
   } InterpolationTypeEnumeration;
 
   /** ImageDimension constants */
