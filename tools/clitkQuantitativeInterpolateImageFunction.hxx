@@ -101,10 +101,11 @@ QuantitativeInterpolateImageFunction< TInputImage, TCoordRep >
 
   //Iterate on it
   itk::ImageRegionConstIterator<TInputImage> imageIterator(inputImagePtr,region);
-  
+
   imageIterator.GoToBegin();
   while(!imageIterator.IsAtEnd())
   {
+    //Compute overlap according to distance from index
     double overlap = this->ComputeOverlap(imageIterator.GetIndex(), index);
     // Get the value of the current pixel by the overlap
     value += imageIterator.Get()*overlap;
@@ -120,7 +121,7 @@ QuantitativeInterpolateImageFunction< TInputImage, TCoordRep >
 ::ComputeOverlap(const IndexType currentIndex, const ContinuousIndexType &index) const
 {
   double overlap(1.0);
-  
+
   for ( unsigned int dim = 0; dim < ImageDimension; ++dim )
   {
     //Check the lower bound
@@ -131,7 +132,7 @@ QuantitativeInterpolateImageFunction< TInputImage, TCoordRep >
       overlap *= 1.0;
     else
     {
-      overlap *= (currentIndex[dim] + 0.5 - lowerBound);///this->GetInputImage()->GetSpacing()[dim];
+      overlap *= (currentIndex[dim] + 0.5 - lowerBound);
     }
 
     //Check the upper bound
@@ -142,10 +143,10 @@ QuantitativeInterpolateImageFunction< TInputImage, TCoordRep >
       overlap *= 1.0;
     else
     {
-      overlap *= (upperBound - (currentIndex[dim] - 0.5));///this->GetInputImage()->GetSpacing()[dim];
+      overlap *= (upperBound - (currentIndex[dim] - 0.5));
     }
   }
-  
+
   return(overlap);
 }
 } // end namespace itk
