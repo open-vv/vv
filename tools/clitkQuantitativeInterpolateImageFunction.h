@@ -21,6 +21,8 @@
 #include "itkInterpolateImageFunction.h"
 #include "itkVariableLengthVector.h"
 
+#include "clitkCommon.h"
+
 namespace itk
 {
 /** \class QuantitativeInterpolateImageFunction
@@ -81,12 +83,12 @@ public:
    * calling the method. */
   virtual OutputType EvaluateAtContinuousIndex(const
                                                ContinuousIndexType &
-                                               index) const;
+                                               index) const ITK_OVERRIDE;
 
 protected:
   QuantitativeInterpolateImageFunction();
   ~QuantitativeInterpolateImageFunction();
-  void PrintSelf(std::ostream & os, Indent indent) const;
+  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
   double ComputeOverlap(const IndexType currentIndex, const ContinuousIndexType &index) const;
 
 private:

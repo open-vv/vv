@@ -69,6 +69,9 @@ namespace clitk {
     exit(-3); \
   }
 
+#ifndef ITK_OVERRIDE
+# define ITK_OVERRIDE
+#endif
 
   //--------------------------------------------------------------------
   // when everything goes wrong
