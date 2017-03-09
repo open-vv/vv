@@ -81,12 +81,12 @@ public:
    * calling the method. */
   virtual OutputType EvaluateAtContinuousIndex(const
                                                ContinuousIndexType &
-                                               index) const ITK_OVERRIDE;
+                                               index) const;
 
 protected:
   QuantitativeInterpolateImageFunction();
   ~QuantitativeInterpolateImageFunction();
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void PrintSelf(std::ostream & os, Indent indent) const;
   double ComputeOverlap(const IndexType currentIndex, const ContinuousIndexType &index) const;
 
 private:
