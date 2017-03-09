@@ -92,7 +92,7 @@ QuantitativeInterpolateImageFunction< TInputImage, TCoordRep >
   double value(0.0);
   for ( unsigned int dim = 0; dim < ImageDimension; ++dim )
   {
-    regionIndex[dim] = Math::Round< IndexValueType >(index[dim] - 0.5*m_NewSpacing[dim]/this->GetInputImage()->GetSpacing()[dim]);
+    regionIndex[dim] = Math::Round< IndexValueType >(Math::Round< IndexValueType >((index[dim] - 0.5*m_NewSpacing[dim]/inputImagePtr->GetSpacing()[dim])*10.0)/10.0); //Be sure that 0.49999... is rounded to 1.0 like 0.5
     regionSize[dim] = Math::Round< IndexValueType >(m_NewSpacing[dim] / inputImagePtr->GetSpacing()[dim]) + 1;
   }
   region.SetSize(regionSize);
@@ -126,25 +126,39 @@ QuantitativeInterpolateImageFunction< TInputImage, TCoordRep >
   {
     //Check the lower bound
     double lowerBound = index[dim] - 0.5*m_NewSpacing[dim]/this->GetInputImage()->GetSpacing()[dim];
+    bool lowerBoundInCurrentPixel(false), computeLowerBoundOverlap(false);
     if (lowerBound >= currentIndex[dim] + 0.5)
       overlap *= 0.0;
     else if (lowerBound <= currentIndex[dim] - 0.5)
       overlap *= 1.0;
     else
     {
-      overlap *= (currentIndex[dim] + 0.5 - lowerBound);
+      computeLowerBoundOverlap = true;
+      lowerBoundInCurrentPixel = true; //Just check if upperBound is in the same pixel before to apply overlap
     }
 
     //Check the upper bound
     double upperBound = index[dim] + 0.5*m_NewSpacing[dim]/this->GetInputImage()->GetSpacing()[dim];
     if (upperBound <= currentIndex[dim] - 0.5)
+    {
       overlap *= 0.0;
+    }
     else if (upperBound >= currentIndex[dim] + 0.5)
+    {
       overlap *= 1.0;
+    }
     else
     {
-      overlap *= (upperBound - (currentIndex[dim] - 0.5));
+      if (lowerBoundInCurrentPixel)
+      {
+        computeLowerBoundOverlap = false;
+        overlap *= upperBound - lowerBound; //The lower bound is in the same pixel
+      }
+      else
+        overlap *= 0.5 + upperBound - currentIndex[dim]; //The lower bound is not in the same pixel
     }
+    if (computeLowerBoundOverlap) //The lower and upper bounds are not in the same pixel: apply the previous overlap
+      overlap *= 0.5 - lowerBound + currentIndex[dim];
   }
 
   return(overlap);
