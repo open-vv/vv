@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 2.8)
 cmake_policy(VERSION 2.8)
 
+
+
+message( FATAL_ERROR "This superbuild is not up to date, do not use." )
+
+
 # set a default build type if it is undefined, then make sure it goes in the cache
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
