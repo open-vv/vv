@@ -20,7 +20,7 @@ endif(BUILD_DOXYGEN)
 # Compilation options
 option(CLITK_EXPERIMENTAL "Enable experimental software and features" OFF)
 mark_as_advanced(CLITK_EXPERIMENTAL)
-option(CLITK_MEMORY_INFO "Enable memory info (need libstatgrab)" OFF)
+option(CLITK_MEMORY_INFO "Enable memory info (need libstatgrab >= v.0.90)" OFF)
 mark_as_advanced(CLITK_MEMORY_INFO)
 option(CLITK_BUILD_TOOLS "Build command-line tools" OFF)
 option(CLITK_BUILD_SEGMENTATION "Build command-line segmentation tools" OFF)
