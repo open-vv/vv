@@ -150,10 +150,10 @@ vvSlicer::vvSlicer()
 
   legend = vtkSmartPointer<vtkScalarBarActor>::New();
   //legend->SetTitle("test!");
-  legend->SetPosition(0.82,0.18);
-  legend->SetWidth(0.1);
+  legend->SetPosition(0.82,0.08);
+  //legend->SetWidth(0.1);
   legend->SetVisibility(0);
-  legend->SetLabelFormat("%.1f");
+  legend->SetLabelFormat("%.1e");
   this->GetRenderer()->AddActor(legend);
   showFusionLegend = false;
 
