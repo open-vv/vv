@@ -237,6 +237,16 @@ if(CLITK_BUILD_TOOLS)
   target_link_libraries(clitkImageStatistics clitkCommon)
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageStatistics)
 
+  WRAP_GGO(clitkSUVPeak_GGO_C clitkSUVPeak.ggo)
+  add_executable(clitkSUVPeak clitkSUVPeak.cxx clitkSUVPeakGenericFilter.cxx ${clitkSUVPeak_GGO_C})
+  target_link_libraries(clitkSUVPeak clitkCommon)
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkSUVPeak)
+
+  WRAP_GGO(clitkRTStructStatistics_GGO_C clitkRTStructStatistics.ggo)
+  add_executable(clitkRTStructStatistics clitkRTStructStatistics.cxx clitkRTStructStatisticsGenericFilter.cxx ${clitkRTStructStatistics_GGO_C})
+  target_link_libraries(clitkRTStructStatistics clitkCommon)
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkRTStructStatistics)
+
   WRAP_GGO(clitkVFConvert_GGO_C clitkVFConvert.ggo)
   add_executable(clitkVFConvert clitkVFConvert.cxx clitkVFConvertGenericFilter.cxx ${clitkVFConvert_GGO_C})
   target_link_libraries(clitkVFConvert clitkCommon )

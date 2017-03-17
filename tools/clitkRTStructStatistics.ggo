@@ -1,0 +1,9 @@
+#File clitkRTStructStatistics.ggo
+package "clitkRTStructStatistics"
+version "2.0" 
+purpose "Find the centroid/roundness of a binarized image."
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"	   i 	"Input image filename (mask)"	  string   yes

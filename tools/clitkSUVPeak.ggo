@@ -1,0 +1,11 @@
+#File clitkSUVPeak.ggo
+package "clitkSUVPeak"
+version "2.0"
+#This tool supports multiple images on the input, or even 4D, but all images must be of the same type and dimensions. 
+purpose "Compute statistics on an image, or on part of an image specified by a mask and label(s). The tool also supports multichannel images, which is useful, e.g., for vector fields. All channels are processed (separately) by default, but only one channel may be chosen."
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"	   i 	"Input first image filename"	  string   yes
+option "mask"		m	"Mask image filename (uchar)"		  string  	no
