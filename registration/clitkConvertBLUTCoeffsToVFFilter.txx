@@ -162,14 +162,55 @@ namespace clitk
         for (unsigned int j=0; j < coefficient_images[i]->GetPixelContainer()->Size(); j++)
           params[input->GetPixelContainer()->Size() * i + j] = coefficient_images[i]->GetPixelContainer()->GetBufferPointer()[j]; 
       }
+      typename ITKTransformTypeZero::Pointer zero;
+      typename ITKTransformTypeOne::Pointer one;
+      typename ITKTransformTypeTwo::Pointer two;
+      typename ITKTransformTypeFour::Pointer four;
 
-      m_ITKTransform->SetGridOrigin(input->GetOrigin());
-      m_ITKTransform->SetGridDirection(input->GetDirection());
-      m_ITKTransform->SetGridRegion(input->GetLargestPossibleRegion());
-      m_ITKTransform->SetGridSpacing(input->GetSpacing());
-      m_ITKTransform->SetParametersByValue(params);
-
-      m_GenericTransform = m_ITKTransform;
+      switch(m_BLUTSplineOrders[0])
+      {
+        case 0:
+          zero = ITKTransformTypeZero::New();
+          zero->SetGridOrigin(input->GetOrigin());
+          zero->SetGridDirection(input->GetDirection());
+          zero->SetGridRegion(input->GetLargestPossibleRegion());
+          zero->SetGridSpacing(input->GetSpacing());
+          m_GenericTransform = zero;
+          break;
+        case 1:
+          one = ITKTransformTypeOne::New();
+          one->SetGridOrigin(input->GetOrigin());
+          one->SetGridDirection(input->GetDirection());
+          one->SetGridRegion(input->GetLargestPossibleRegion());
+          one->SetGridSpacing(input->GetSpacing());
+          m_GenericTransform = one;
+          break;
+        case 2:
+          two = ITKTransformTypeTwo::New();
+          two->SetGridOrigin(input->GetOrigin());
+          two->SetGridDirection(input->GetDirection());
+          two->SetGridRegion(input->GetLargestPossibleRegion());
+          two->SetGridSpacing(input->GetSpacing());
+          m_GenericTransform = two;
+          break;
+        case 3:
+          m_ITKTransform = ITKTransformType::New();
+          m_ITKTransform->SetGridOrigin(input->GetOrigin());
+          m_ITKTransform->SetGridDirection(input->GetDirection());
+          m_ITKTransform->SetGridRegion(input->GetLargestPossibleRegion());
+          m_ITKTransform->SetGridSpacing(input->GetSpacing());
+          m_GenericTransform = m_ITKTransform;
+          break;
+        case 4:
+          four = ITKTransformTypeFour::New();
+          four->SetGridOrigin(input->GetOrigin());
+          four->SetGridDirection(input->GetDirection());
+          four->SetGridRegion(input->GetLargestPossibleRegion());
+          four->SetGridSpacing(input->GetSpacing());
+          m_GenericTransform = four;
+          break;
+      }
+      m_GenericTransform->SetParametersByValue(params);
     }
 
 #if ITK_VERSION_MAJOR > 4 || (ITK_VERSION_MAJOR == 4 && ITK_VERSION_MINOR >= 6)
