@@ -20,7 +20,11 @@
 #include "vvToolBaseBase.h"
 
 //------------------------------------------------------------------------------
-void vvToolBaseBase::SaveState(std::auto_ptr<QXmlStreamWriter> & m_XmlWriter) 
+#if __cplusplus > 199711L
+void vvToolBaseBase::SaveState(std::shared_ptr<QXmlStreamWriter> & m_XmlWriter)
+#else
+void vvToolBaseBase::SaveState(std::auto_ptr<QXmlStreamWriter> & m_XmlWriter)
+#endif
 { 
   std::cerr << "SaveState not implemented for this tool." << std::endl; 
 }

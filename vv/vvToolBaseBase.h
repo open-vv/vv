@@ -32,8 +32,11 @@ public:
     std::vector<vvToolBaseBase*> & v = mCreator->GetListOfTool();
     v.erase(std::find(v.begin(), v.end(), this));
   };
-  
+#if __cplusplus > 199711L
+  virtual void SaveState(std::shared_ptr<QXmlStreamWriter> & m_XmlWriter);
+#else
   virtual void SaveState(std::auto_ptr<QXmlStreamWriter> & m_XmlWriter);
+#endif
   virtual void InitializeNewTool(bool ReadStateFlag);   
   void SetCreator(vvToolCreatorBase * m) { mCreator = m; }
   void SetXmlReader(QXmlStreamReader * r, int index) { m_XmlReader = r; mImageIndex = index;}  

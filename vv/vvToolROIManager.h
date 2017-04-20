@@ -51,7 +51,11 @@ class vvToolROIManager:
   void AddImage(vvImage * binaryImage, std::string name, std::string filename, double BG, bool m_modeBG=true);
   void UpdateAllContours();
   void UpdateAllROIStatus();
+#if __cplusplus > 199711L
+  virtual void SaveState(std::shared_ptr<QXmlStreamWriter> & m_XmlWriter);
+#else
   virtual void SaveState(std::auto_ptr<QXmlStreamWriter> & m_XmlWriter);
+#endif
   virtual void InitializeNewTool(bool ReadStateFlag);
 
   public slots:
