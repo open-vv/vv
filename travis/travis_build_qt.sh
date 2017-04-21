@@ -5,8 +5,8 @@ set -ev
 if [ "$QT_VERSION" == "4.8.7" ]; then
   if test $TRAVIS_OS_NAME == linux ; then sudo apt-get -y --force-yes install qt4-dev-tools; fi
   
-  if test $TRAVIS_OS_NAME == osx ; then brew install cartr/qt4/qt; fi
-  if test $TRAVIS_OS_NAME == osx ; then brew link qt --force; fi
+  if test $TRAVIS_OS_NAME == osx ; then brew install cartr/qt4/qt@4; fi
+  if test $TRAVIS_OS_NAME == osx ; then brew link qt@4 --force; fi
   if test $TRAVIS_OS_NAME == osx ; then qmake -v; fi
 elif [ "$QT_VERSION" == "5.5.1" ]; then
   if test $TRAVIS_OS_NAME == linux ; then sudo add-apt-repository --yes ppa:beineri/opt-qt551-trusty; fi
