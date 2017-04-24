@@ -215,7 +215,7 @@ void vvToolCropImage::InputIsSelected(vvSlicerManager * slicer)
   }
 
 //   Set initial sliders values
-  int w_ext[6], imsize[3];
+  int w_ext[6], imsize[4];
   mCurrentSlicerManager->GetSlicer(0)->GetRegisterExtent(w_ext);
   for(int dim=0; dim<slicer->GetDimension() && dim<3; ++dim){
     imsize[dim] = w_ext[2*dim+1] - w_ext[2*dim] +1;
