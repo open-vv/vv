@@ -21,7 +21,11 @@ env:
 matrix:
   exclude:
   - os: osx
-    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7 #VTK6.0 doesn't work with osX
+    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7 #VTK5.10 doesn't work with osX
+  - os: osx
+    env: WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 #Qt4 doesn't work with brew anymore
+  - os: osx
+    env: WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=4.8.7
 
 language: cpp
 
