@@ -12,20 +12,33 @@ compiler:
     - gcc
     - clang
 env:
-    - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=5.5.1
-    - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=4.8.7
-    - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=5.5.1
-    - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=4.8.7
-    - WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7
+    - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=5.5.1 C11=false
+    - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=false
+    - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=5.5.1 C11=false
+    - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=false
+    - WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7 C11=false
+    - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=5.5.1 C11=true
+    - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=true
+    - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=5.5.1 C11=true
+    - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=true
+    - WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7 C11=true
 
 matrix:
   exclude:
   - os: osx
-    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7 #VTK5.10 doesn't work with osX
+    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7 C11=false #VTK5.10 doesn't work with osX
   - os: osx
-    env: WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 #Qt4 doesn't work with brew anymore
+    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7 C11=true #VTK5.10 doesn't work with osX
   - os: osx
-    env: WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=4.8.7
+    env: WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=false #Qt4 doesn't work with brew anymore
+  - os: osx
+    env: WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=true #Qt4 doesn't work with brew anymore
+  - os: osx
+    env: WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=false
+  - os: osx
+    env: WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=true
+  - os: linux
+    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7 C11=true #Problem with VTK 5.10 and c++11
 
 language: cpp
 
@@ -33,6 +46,10 @@ notifications:
  email:
   on_success: never
   on_failure: never
+
+branches:
+only:
+- master
 
 before_install:
 - if test $TRAVIS_OS_NAME == osx ; then brew update; fi
@@ -58,6 +75,8 @@ install:
 - if test $TRAVIS_OS_NAME == osx ; then export HOMEBREW_QT_VERSION=$(brew list --versions qt | rev | cut -d' ' -f1 | rev); fi
 - if test $TRAVIS_OS_NAME == osx ; then if [[ "$QT_VERSION" == "5.5.1" ]] ; then ln -s /usr/local/Cellar/qt@5.5/5.5.1_1/mkspecs /usr/local/mkspecs; fi; fi
 - if test $TRAVIS_OS_NAME == osx ; then if [[ "$QT_VERSION" == "5.5.1" ]] ; then ln -s /usr/local/Cellar/qt@5.5/5.5.1_1/plugins /usr/local/plugins; fi; fi
+- if test $TRAVIS_OS_NAME == osx ; then if [[ "$QT_VERSION" == "4.8.7" ]] ; then ln -s /usr/local/Cellar/qt@4/4.8.7_1/mkspecs /usr/local/mkspecs; fi; fi
+- if test $TRAVIS_OS_NAME == osx ; then if [[ "$QT_VERSION" == "4.8.7" ]] ; then ln -s /usr/local/Cellar/qt@4/4.8.7_1/plugins /usr/local/plugins; fi; fi
 - if test $TRAVIS_OS_NAME == osx ; then qmake -v; fi
 
 cache:
@@ -76,10 +95,11 @@ cache:
 
 before_script:
 - if test $TRAVIS_OS_NAME == linux ; then sudo ln -s /usr/bin/x86_64-linux-gnu/libpq.so /usr/bin/libpq.so; fi
+- echo $PATH
 - $SCRIPTS/travis_build_vtk.sh
-- $SCRIPTS/travis_build_itk.sh
+#- $SCRIPTS/travis_build_itk.sh
 #Install vtk and itk (different version)
 
 script:
 - echo "coucou";
-- $SCRIPTS/travis_build_vv.sh
+#- $SCRIPTS/travis_build_vv.sh
