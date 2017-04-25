@@ -15,7 +15,12 @@ groupoption "roi"           r "ROI to binarize (if -1 = all roi)"               
 groupoption "roiName"       n "ROI name to binarize (be wary of spaces in ROI names; if blank, use given 'roi' value)"        string  no default=""   group="ROIoption"
 groupoption "roiNameSubstr" s "Substring of ROI name to binarize (reuturns all matches; if blank, use given 'roiName' value)" string  no default=""   group="ROIoption"
 
-option "crop"         c "Crop binary mask"                                                      flag off
+option "crop"         c "Crop binary mask"	                                                flag off
 option "mha"          - "Write the RTStruct as a mha image to avoid special character problems" flag off
 option "vtk"          - "Write the vtk Mesh as a vtk file"                                      flag off
+option "nii"          - "Write the RTStruct as a nii image"                                     flag off
+
+#option "roi"         r "ROI to print (ID)"		     int   no
+#option "contour"     c "contour to print (ID)"	             int   no
+#option "offset"      o "to display points as image offsets" flag  off
 

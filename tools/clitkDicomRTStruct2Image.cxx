@@ -82,6 +82,13 @@ int main(int argc, char * argv[]) {
             (name).append
             (".mha");
         }
+        if (args_info.nii_flag) {
+          n = std::string(args_info.output_arg).append
+            (clitk::toString(num)).append
+            ("_").append
+            (name).append
+            (".nii");
+        }
         else {
           n = std::string(args_info.output_arg).append
             (clitk::toString(num)).append
