@@ -62,7 +62,7 @@ public:
   typedef typename OutputImageType::RegionType OutputImageRegionType; 
   typedef typename OutputImageType::PixelType  OutputImagePixelType; 
   
-  void PrintSelf ( std::ostream& os, itk::Indent indent ) const;
+  void PrintSelf ( std::ostream& os, itk::Indent indent ) const ITK_OVERRIDE;
 
   /** Clear the seeds */
   void ClearSeeds();
@@ -178,11 +178,11 @@ protected:
   unsigned int m_MinimumSize;
 
   // Override since the filter needs all the data for the algorithm
-  void GenerateInputRequestedRegion();
+  void GenerateInputRequestedRegion() ITK_OVERRIDE;
 
   // Override since the filter produces the entire dataset
-  void EnlargeOutputRequestedRegion(itk::DataObject *output);
-  void GenerateData();
+  void EnlargeOutputRequestedRegion(itk::DataObject *output) ITK_OVERRIDE;
+  void GenerateData() ITK_OVERRIDE;
   
 private:
   ExplosionControlledThresholdConnectedImageFilter(const Self&); //purposely not implemented

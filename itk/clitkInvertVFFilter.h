@@ -65,7 +65,7 @@ namespace clitk
     //Set Methods(inline)
     itkSetMacro( Verbose, bool);
     itkSetMacro( EdgePaddingValue, PixelType );
-    void SetNumberOfThreads(unsigned int r )
+    void SetNumberOfThreads(unsigned int r ) ITK_OVERRIDE
     {
       m_NumberOfThreadsIsGiven=true;
       m_NumberOfThreads=r;
@@ -78,7 +78,7 @@ namespace clitk
   protected:
     InvertVFFilter();
     ~InvertVFFilter() {};
-    void GenerateData( );
+    void GenerateData( ) ITK_OVERRIDE;
     
     bool m_Verbose;
     bool m_NumberOfThreadsIsGiven;
