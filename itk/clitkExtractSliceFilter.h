@@ -78,7 +78,7 @@ namespace clitk {
     
     /** Run-time type information (and related methods). */
     itkTypeMacro(ExtractSliceFilter, ImageToImageFilter);
-    FILTERBASE_INIT ITK_OVERRIDE;
+    FILTERBASE_INIT;
 
     /** Input : initial image and object */
     void SetInput(const ImageType * image) ITK_OVERRIDE;

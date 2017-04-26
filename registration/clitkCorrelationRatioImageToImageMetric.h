@@ -105,18 +105,18 @@ public:
     *  (1) making sure that all the components are present and plugged
     *      together correctly,
     *  (3) allocate memory for bin data structures. */
-  virtual void Initialize(void) throw ( ExceptionObject );
+  virtual void Initialize(void) throw ( ExceptionObject ) ITK_OVERRIDE;
 
   /** Get the derivatives of the match measure. */
   void GetDerivative( const TransformParametersType & parameters,
-                      DerivativeType & derivative ) const;
+                      DerivativeType & derivative ) const ITK_OVERRIDE;
 
   /**  Get the value for single valued optimizers. */
-  MeasureType GetValue( const TransformParametersType & parameters ) const;
+  MeasureType GetValue( const TransformParametersType & parameters ) const ITK_OVERRIDE;
 
   /**  Get value and derivatives for multiple valued optimizers. */
   void GetValueAndDerivative( const TransformParametersType & parameters,
-                              MeasureType& Value, DerivativeType& Derivative ) const;
+                              MeasureType& Value, DerivativeType& Derivative ) const ITK_OVERRIDE;
 
   /** Number of bins to used in the calculation. Typical value is 50. */
   itkSetClampMacro( NumberOfBins, unsigned long,

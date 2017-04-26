@@ -93,10 +93,10 @@ public:
 
 
   /** Start optimization with an initial value. */
-  void StartOptimization( void );
+  virtual void StartOptimization( void ) ITK_OVERRIDE;
 
   /** Plug in a Cost Function into the optimizer  */
-  virtual void SetCostFunction( itk::SingleValuedCostFunction * costFunction );
+  virtual void SetCostFunction( itk::SingleValuedCostFunction * costFunction ) ITK_OVERRIDE;
 
   /** Set the lower bound value for each variable. */
   virtual void SetLowerBound( const BoundValueType & value );
@@ -160,12 +160,12 @@ public:
   itkGetConstReferenceMacro( InfinityNormOfProjectedGradient, double );
 
   /** Get the reason for termination */
-  const std::string GetStopConditionDescription() const;
+  virtual const std::string GetStopConditionDescription() const ITK_OVERRIDE;
 
 protected:
   LBFGSBOptimizer();
   virtual ~LBFGSBOptimizer();
-  void PrintSelf(std::ostream& os, itk::Indent indent) const;
+  void PrintSelf(std::ostream& os, itk::Indent indent) const ITK_OVERRIDE;
 
   typedef Superclass::CostFunctionAdaptorType   CostFunctionAdaptorType;
 

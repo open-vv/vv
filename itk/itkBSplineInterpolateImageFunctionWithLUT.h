@@ -64,14 +64,14 @@ namespace itk {
     /** Evaluate the function at a ContinuousIndex position.
   Overwritten for taking LUT into account (RP: multi-threading-compatible version, 
   the threadID is actually ignored) */  
-    virtual OutputType EvaluateAtContinuousIndex(const ContinuousIndexType & index, unsigned int /* threadID */ ) ITK_OVERRIDE const
+    virtual OutputType EvaluateAtContinuousIndex(const ContinuousIndexType & index, unsigned int /* threadID */ ) const ITK_OVERRIDE
     {
       return this->EvaluateAtContinuousIndex( index );
     }
 
     /** Evaluate the function at a ContinuousIndex position.
 	Overwritten for taking LUT into account */  
-    virtual OutputType EvaluateAtContinuousIndex(const ContinuousIndexType & index ) ITK_OVERRIDE const;
+    virtual OutputType EvaluateAtContinuousIndex(const ContinuousIndexType & index ) const ITK_OVERRIDE;
     
     /** Static convenient functions to compute BSpline weights for
 	various order, dimension, sampling ... **/

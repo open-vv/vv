@@ -62,7 +62,7 @@ namespace clitk {
     
     /** Run-time type information (and related methods). */
     itkTypeMacro(AddRelativePositionConstraintToLabelImageFilter, ImageToImageFilter);
-    FILTERBASE_INIT ITK_OVERRIDE;
+    FILTERBASE_INIT;
 
     /** Some convenient typedefs. */
     typedef typename ImageType::ConstPointer ImageConstPointer;

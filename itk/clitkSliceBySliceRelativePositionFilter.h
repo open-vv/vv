@@ -67,7 +67,7 @@ namespace clitk {
     typedef typename RelPosFilterType::OrientationTypeEnumeration OrientationTypeEnumeration;
     
     /** Input : initial image and object */
-    void SetInput(const ImageType * image) ITK_OVERRIDE;
+    virtual void SetInput(const ImageType * image) ITK_OVERRIDE;
     void SetInputObject(const ImageType * image);
 
     // Options
