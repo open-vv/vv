@@ -61,15 +61,15 @@ public:
     /*-------- This part of the interface deals with reading data. ------ */
     virtual int ReadImageInformationWithError();
     virtual int ReadWithError(void * buffer);
-    virtual void ReadImageInformation();
-    virtual void Read(void * buffer);
-    virtual bool CanReadFile( const char* FileNameToRead );
+    virtual void ReadImageInformation() ITK_OVERRIDE;
+    virtual void Read(void * buffer) ITK_OVERRIDE;
+    virtual bool CanReadFile( const char* FileNameToRead ) ITK_OVERRIDE;
 
     /*-------- This part of the interfaces deals with writing data. ----- */
     virtual void WriteImageInformation(bool keepOfStream) {;}
-    virtual void WriteImageInformation() { WriteImageInformation(false); }
-    virtual bool CanWriteFile(const char* FileNameToWrite);
-    virtual void Write(const void* buffer);
+    virtual void WriteImageInformation() ITK_OVERRIDE { WriteImageInformation(false); }
+    virtual bool CanWriteFile(const char* FileNameToWrite) ITK_OVERRIDE;
+    virtual void Write(const void* buffer) ITK_OVERRIDE;
 
 protected:
     void ITKError(std::string funcName, int msgID);

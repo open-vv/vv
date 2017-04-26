@@ -59,19 +59,19 @@ namespace itk {
     void SetSplineOrders(const  SizeType & SplineOrders);
 
     /** Set the input image.  This must be set by the user. */
-    virtual void SetInputImage(const TImageType * inputData);
+    virtual void SetInputImage(const TImageType * inputData) ITK_OVERRIDE;
     
     /** Evaluate the function at a ContinuousIndex position.
   Overwritten for taking LUT into account (RP: multi-threading-compatible version, 
   the threadID is actually ignored) */  
-    virtual OutputType EvaluateAtContinuousIndex(const ContinuousIndexType & index, unsigned int /* threadID */ ) const
+    virtual OutputType EvaluateAtContinuousIndex(const ContinuousIndexType & index, unsigned int /* threadID */ ) ITK_OVERRIDE const
     {
       return this->EvaluateAtContinuousIndex( index );
     }
 
     /** Evaluate the function at a ContinuousIndex position.
 	Overwritten for taking LUT into account */  
-    virtual OutputType EvaluateAtContinuousIndex(const ContinuousIndexType & index ) const;
+    virtual OutputType EvaluateAtContinuousIndex(const ContinuousIndexType & index ) ITK_OVERRIDE const;
     
     /** Static convenient functions to compute BSpline weights for
 	various order, dimension, sampling ... **/

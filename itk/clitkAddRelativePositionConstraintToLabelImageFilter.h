@@ -62,7 +62,7 @@ namespace clitk {
     
     /** Run-time type information (and related methods). */
     itkTypeMacro(AddRelativePositionConstraintToLabelImageFilter, ImageToImageFilter);
-    FILTERBASE_INIT;
+    FILTERBASE_INIT ITK_OVERRIDE;
 
     /** Some convenient typedefs. */
     typedef typename ImageType::ConstPointer ImageConstPointer;
@@ -85,7 +85,7 @@ namespace clitk {
     } OrientationTypeEnumeration;
 
     /** Input : initial image and object */
-    void SetInput(const ImageType * image);
+    void SetInput(const ImageType * image) ITK_OVERRIDE;
     void SetInputObject(const ImageType * image);
     
     // Options
@@ -149,7 +149,7 @@ namespace clitk {
     typename FloatImageType::Pointer GetFuzzyMap() { return m_FuzzyMap; }
 
     // I dont want to verify inputs information
-    virtual void VerifyInputInformation() { }
+    virtual void VerifyInputInformation() ITK_OVERRIDE { }
     
     // For debug
     void PrintOptions();
@@ -176,9 +176,9 @@ namespace clitk {
     double m_Radius;
     double m_K1;
 
-    virtual void GenerateOutputInformation();
-    virtual void GenerateInputRequestedRegion();
-    virtual void GenerateData();
+    virtual void GenerateOutputInformation() ITK_OVERRIDE;
+    virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+    virtual void GenerateData() ITK_OVERRIDE;
 
     typedef itk::PasteImageFilter<ImageType,ImageType> PasteFilterType;
     typedef itk::PasteImageFilter<FloatImageType,FloatImageType> PasteFloatFilterType;

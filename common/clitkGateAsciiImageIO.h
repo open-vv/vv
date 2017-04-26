@@ -59,16 +59,16 @@ public:
   itkTypeMacro(GateAsciiImageIO, ImageIOBase);
 
   /*-------- This part of the interface deals with reading data. ------ */
-  virtual void ReadImageInformation();
-  virtual bool CanReadFile( const char* FileNameToRead );
-  virtual void Read(void * buffer);
+  virtual void ReadImageInformation() ITK_OVERRIDE;
+  virtual bool CanReadFile( const char* FileNameToRead ) ITK_OVERRIDE;
+  virtual void Read(void * buffer) ITK_OVERRIDE;
 
   /*-------- This part of the interfaces deals with writing data. ----- */
-  virtual void WriteImageInformation();
-  virtual bool CanWriteFile(const char* filename);
-  virtual void Write(const void* buffer);
+  virtual void WriteImageInformation() ITK_OVERRIDE;
+  virtual bool CanWriteFile(const char* filename) ITK_OVERRIDE;
+  virtual void Write(const void* buffer) ITK_OVERRIDE;
 
-  virtual bool SupportsDimension(unsigned long dim);
+  virtual bool SupportsDimension(unsigned long dim) ITK_OVERRIDE;
 
 protected:
   static bool ReadHeader(FILE* handle, GateAsciiHeader& header);

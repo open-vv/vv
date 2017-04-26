@@ -18,7 +18,7 @@ namespace clitk
     public itk::PasteImageFilter< TInputImage, TSourceImage, TOutputImage >
   {
   public:
-    virtual void VerifyInputInformation() { }
+    virtual void VerifyInputInformation() ITK_OVERRIDE { }
 
     /** Standard class typedefs. */
     typedef PasteImageFilter                                Self;

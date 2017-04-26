@@ -54,7 +54,7 @@ namespace clitk {
     typedef long LabelType;
 
     /** Connect one of the operands for pixel-wise addition */
-    void SetInput( const ImageType * image);
+    void SetInput( const ImageType * image) ITK_OVERRIDE;
     
     // LabelImage information (BG)
     void SetBackgroundValue(ImagePixelType p);
@@ -71,8 +71,8 @@ namespace clitk {
     AutoCropFilter();
     virtual ~AutoCropFilter() {}
     
-    virtual void GenerateOutputInformation();
-    virtual void GenerateData();
+    virtual void GenerateOutputInformation() ITK_OVERRIDE;
+    virtual void GenerateData() ITK_OVERRIDE;
     
     ImagePixelType m_BackgroundValue;
     ImageRegionType m_Region;

@@ -78,10 +78,10 @@ namespace clitk {
     
     /** Run-time type information (and related methods). */
     itkTypeMacro(ExtractSliceFilter, ImageToImageFilter);
-    FILTERBASE_INIT;
+    FILTERBASE_INIT ITK_OVERRIDE;
 
     /** Input : initial image and object */
-    void SetInput(const ImageType * image);
+    void SetInput(const ImageType * image) ITK_OVERRIDE;
     
     // Options
     itkGetConstMacro(Direction, int);
@@ -96,9 +96,9 @@ namespace clitk {
     
     int m_Direction;
 
-    virtual void GenerateOutputInformation();
-    virtual void GenerateInputRequestedRegion();
-    virtual void GenerateData();
+    virtual void GenerateOutputInformation() ITK_OVERRIDE;
+    virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+    virtual void GenerateData() ITK_OVERRIDE;
 
     int m_NumberOfSlices;
     ImagePointer input;
