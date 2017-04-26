@@ -48,7 +48,7 @@ namespace clitk {
     
     /** Run-time type information (and related methods). */
     itkTypeMacro(SliceBySliceRelativePositionFilter, ImageToImageFilter);
-    FILTERBASE_INIT ITK_OVERRIDE;
+    FILTERBASE_INIT;
 
     /** ImageDimension constants */
     itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
