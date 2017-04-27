@@ -28,6 +28,8 @@
 
 #include <map>
 
+#include "clitkCommon.h"
+
 namespace clitk
 {
 

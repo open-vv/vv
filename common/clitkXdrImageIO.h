@@ -34,6 +34,8 @@
 #define AVSerror(v)   itkGenericExceptionMacro(<< "Error in clitk::XdrImageIO. Message:" << v);
 #define AVSwarning(v) itkWarningMacro(<< "Error in clitk::XdrImageIO. Message:" << v);
 
+#include "clitkCommon.h"
+
 namespace clitk {
 
 //====================================================================

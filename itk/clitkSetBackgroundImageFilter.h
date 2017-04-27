@@ -20,6 +20,8 @@
 #include "itkFlexibleBinaryFunctorImageFilter.h"
 #include "itkNumericTraits.h"
 
+#include "clitkCommon.h"
+
 
 namespace clitk
 {

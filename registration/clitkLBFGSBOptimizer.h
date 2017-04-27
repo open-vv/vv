@@ -19,6 +19,8 @@
 #define __clitkLBFGSBOptimizer_h
 #include "itkSingleValuedNonLinearVnlOptimizer.h"
 
+#include "clitkCommon.h"
+
 namespace clitk
 {
 

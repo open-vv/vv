@@ -22,6 +22,8 @@
 // itk include
 #include <itkImageIOBase.h>
 
+#include "clitkCommon.h"
+
 namespace rtk
 {
 

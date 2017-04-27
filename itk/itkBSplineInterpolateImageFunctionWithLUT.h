@@ -21,6 +21,8 @@
 #include "itkBSplineWeightsCalculator.h"
 #include <itkBSplineInterpolateImageFunction.h>
 
+#include "clitkCommon.h"
+
 namespace itk {
   
   template <

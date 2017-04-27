@@ -30,6 +30,8 @@ typedef unsigned int uint32_t;
 #include <stdint.h>
 #endif
 
+#include "clitkCommon.h"
+
 namespace clitk
 {
 

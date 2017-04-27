@@ -23,6 +23,8 @@
 #include <fstream>
 #include <string.h>
 
+#include "clitkCommon.h"
+
 namespace rtk {
 
 /** \class XRadImageIO

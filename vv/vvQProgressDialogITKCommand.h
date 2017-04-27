@@ -22,6 +22,8 @@
 // qt include
 #include <QProgressDialog>
 
+#include "clitkCommon.h"
+
 class vvQProgressDialogITKCommand : public itk::Command {
 
 public:

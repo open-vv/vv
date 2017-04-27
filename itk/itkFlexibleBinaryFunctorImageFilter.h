@@ -20,6 +20,8 @@
 #include "itkInPlaceImageFilter.h"
 #include "itkImageRegionIteratorWithIndex.h"
 
+#include "clitkCommon.h"
+
 namespace itk
 {
   

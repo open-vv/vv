@@ -29,6 +29,8 @@
 #include <stdint.h>
 #endif
 
+#include "clitkCommon.h"
+
 namespace rtk {
 
 /** \class HndImageIO

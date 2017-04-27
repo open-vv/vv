@@ -22,6 +22,8 @@
 #include "itkImageToImageFilter.h"
 #include "itkAffineTransform.h"
 
+#include "clitkCommon.h"
+
 namespace clitk {
   
   //--------------------------------------------------------------------

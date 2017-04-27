@@ -24,6 +24,8 @@
 #include <itkObjectFactoryBase.h>
 #include <itkVersion.h>
 
+#include "clitkCommon.h"
+
 namespace clitk
 {
 
