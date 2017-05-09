@@ -23,7 +23,6 @@
 #include "clitkImageToImageGenericFilter.h"
 #include "clitkProfileImage_ggo.h"
 
-#include <vtkIntArray.h>
 #include <vtkFloatArray.h>
 
 //--------------------------------------------------------------------
@@ -59,6 +58,9 @@ namespace clitk
     vtkFloatArray* GetArrayY();
     vtkFloatArray* GetCoord();
 
+    //Write the output in the txt file
+    void WriteOutput(std::string outputFilename);
+
   protected:
     ProfileImageGenericFilter();
     template<unsigned int Dim> void InitializeImageType();
@@ -68,6 +70,8 @@ namespace clitk
     vtkSmartPointer<vtkFloatArray> mArrayX;
     vtkSmartPointer<vtkFloatArray> mArrayY;
     vtkSmartPointer<vtkFloatArray> mCoord;
+    vtkSmartPointer<vtkFloatArray> mCoordmm;
+    int mDimension;
     
     
   }; // end class

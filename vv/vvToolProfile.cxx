@@ -511,50 +511,8 @@ void vvToolProfile::SaveAs()
             close();
             return;
         }
-        
-        vtkSmartPointer<vtkFloatArray> arrX = vtkSmartPointer<vtkFloatArray>::New();
-        vtkSmartPointer<vtkFloatArray> arrY = vtkSmartPointer<vtkFloatArray>::New();
-        vtkSmartPointer<vtkFloatArray> coords = vtkSmartPointer<vtkFloatArray>::New();
-        arrX = mFilter->GetArrayX();
-        arrY = mFilter->GetArrayY();
-        coords = mFilter->GetCoord();
-        double *tuple;
-        tuple = new double[mCurrentSlicerManager->GetImage()->GetNumberOfDimensions()];
-        int i(0);
-        fileOpen << "The Bresenham algorithm is used to travel along the line. Values represent the center of each crossed voxel (in voxel and mm)" << endl;
-        fileOpen << "Id" << "\t" << "Value" << "\t" ;
-        fileOpen << "x(vox)" << "\t" << "y(vox)" << "\t";
-        if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() >=3)
-            fileOpen << "z(vox)" << "\t";
-        if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() >=4)
-            fileOpen << "t" << "\t";
-        fileOpen << "x(mm)" << "\t" << "y(mm)" << "\t";
-        if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() >=3)
-            fileOpen << "z(mm)" << "\t";
-        if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() >=4)
-            fileOpen << "t" << "\t";
-        fileOpen << endl;
-   
-        while (i<arrX->GetNumberOfTuples()) {
-            fileOpen << i << "\t" << arrY->GetTuple(i)[0] << "\t" ;
-      
-            coords->GetTuple(i, tuple);
-            for (int j=0; j<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() ; ++j) {
-                fileOpen << tuple[j] << "\t" ;
-            }
-            int j(0);
-            while (j<mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() && j<3) {
-                fileOpen << tuple[j]*mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetSpacing()[j]+mCurrentSlicerManager->GetSlicer(mCurrentSlicerManager->GetSelectedSlicer())->GetImage()->GetVTKImages()[mCurrentSlicerManager->GetTSlice()]->GetOrigin()[j] << "\t" ;
-                ++j;
-            }
-            if (mCurrentSlicerManager->GetImage()->GetNumberOfDimensions() == 4) {
-                fileOpen << tuple[3] << "\t" ;
-            }
-            fileOpen << endl;
-            ++i;
-        }
-  
-        delete [] tuple;
+
+        mFilter->WriteOutput(mTextFileName.c_str());
 
         fileOpen.close();
         QApplication::restoreOverrideCursor();
