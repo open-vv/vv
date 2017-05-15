@@ -46,6 +46,8 @@
  
 #include "itkImageSeriesReader.h"
 #include "itkImageSeriesWriter.h"
+
+#include <itkThresholdImageFilter.h>
  
 #include "itkResampleImageFilter.h"
  
@@ -262,7 +264,21 @@ Image2DicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
       outputSpacing[i] = input->GetSpacing()[i];
       outputSize[i] = input->GetLargestPossibleRegion().GetSize()[i];
     }
- 
+
+////////////////////////////////////////////////
+// 2) Ensure to have value >= -1024
+
+  typedef itk::ThresholdImageFilter <InputImageType> ThresholdImageFilterType;
+  typename ThresholdImageFilterType::Pointer thresholdFilter = ThresholdImageFilterType::New();
+  thresholdFilter->SetInput(input);
+  thresholdFilter->ThresholdBelow(-1024);
+  thresholdFilter->SetOutsideValue(-1024);
+  thresholdFilter->Update();
+
+  input=thresholdFilter->GetOutput();
+
+
+
 ////////////////////////////////////////////////
 // 2) Resample the series
 /*  typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
