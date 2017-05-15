@@ -40,6 +40,7 @@
 #include "itkGDCMSeriesFileNames.h"
 #include "itkImageSeriesReader.h"
 #include "itkImageSeriesWriter.h"
+#include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include <vector>
 #include <itksys/SystemTools.hxx>

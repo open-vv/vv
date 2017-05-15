@@ -130,37 +130,27 @@ GateSimulation2DicomGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   typedef itk::Image<PixelType, Dimension> OutputImageType;
 
   // Read the dicom directory
-  typedef itk::ImageSeriesReader< InputImageType >     ReaderType;
+  typedef itk::ImageFileReader< InputImageType >     ReaderType;
   typedef itk::GDCMImageIO ImageIOType;
   typedef itk::GDCMSeriesFileNames NamesGeneratorType;
 
   ImageIOType::Pointer gdcmIO = ImageIOType::New();
-  NamesGeneratorType::Pointer namesGenerator = NamesGeneratorType::New();
-  namesGenerator->SetInputDirectory( m_ArgsInfo.inputDir_arg );
-  namesGenerator->SetOutputDirectory( m_ArgsInfo.outputDir_arg  );
-  typename   ReaderType::FileNamesContainer filenames_in = namesGenerator->GetInputFileNames();
-  typename   ReaderType::FileNamesContainer filenames_out = namesGenerator->GetOutputFileNames();
+  std::string filename_out = m_ArgsInfo.outputFilename_arg;
 
   // Output the dicom files
-  unsigned int numberOfFilenames =  filenames_in.size();
+  unsigned int numberOfFilenames =  1;
   if (m_Verbose) {
-    std::cout << numberOfFilenames <<" were read in the directory "<<m_ArgsInfo.inputDir_arg<<"..."<<std::endl<<std::endl;
-    for(unsigned int fni = 0; fni<numberOfFilenames; fni++) {
-      std::cout << "filename # " << fni << " = ";
-      std::cout << filenames_in[fni] << std::endl;
-    }
+    std::cout << numberOfFilenames <<" were read in the directory "<<m_ArgsInfo.inputModelFilename_arg<<"..."<<std::endl<<std::endl;
   }
 
   // Read the series
   typename ReaderType::Pointer reader = ReaderType::New();
-  if (m_ArgsInfo.preserve_flag) {
 #if GDCM_MAJOR_VERSION >= 2
-    gdcmIO->LoadPrivateTagsOn();
-    gdcmIO->KeepOriginalUIDOn();
+  gdcmIO->LoadPrivateTagsOn();
+  gdcmIO->KeepOriginalUIDOn();
 #endif
-  }
   reader->SetImageIO( gdcmIO );
-  reader->SetFileNames( filenames_in );
+  reader->SetFileName( m_ArgsInfo.inputModelFilename_arg );
   try {
     reader->Update();
   } catch (itk::ExceptionObject &excp) {
@@ -177,8 +167,7 @@ GateSimulation2DicomGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   volumeReader->Update();
   
   typename InputImageType::Pointer input = volumeReader->GetOutput();
-  if ((!m_ArgsInfo.useSizeAsReference_flag && (input->GetSpacing() != reader->GetOutput()->GetSpacing())) || 
-      (m_ArgsInfo.useSizeAsReference_flag && (input->GetLargestPossibleRegion().GetSize() != reader->GetOutput()->GetLargestPossibleRegion().GetSize()))) {
+  if (input->GetLargestPossibleRegion().GetSize() != reader->GetOutput()->GetLargestPossibleRegion().GetSize()) {
         
     // resampling is carried out on the fly if resolution or size between 
     // the input mhd and input dicom series is different
@@ -190,26 +179,16 @@ GateSimulation2DicomGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     filter->SetVerboseOptions(m_Verbose);
     filter->SetGaussianFilteringEnabled(false);
     filter->SetDefaultPixelValue(0);
-    
-    if (!m_ArgsInfo.useSizeAsReference_flag) {
-      filter->SetOutputSpacing(input->GetSpacing());
-      if (m_Verbose) {
-        std::cout << "Warning: The image spacing differs between the MHD file and the input dicom series. Performing resampling with default options using spacing as reference (for advanced options, use clitkResampleImage)." << std::endl;
-        std::cout << "MHD -> " << input->GetSpacing() << std::endl;
-        std::cout << "dicom -> " << reader->GetOutput()->GetSpacing() << std::endl;
-      }
-    }
-    else {
-      const SizeType& dicom_size = reader->GetOutput()->GetLargestPossibleRegion().GetSize();
-      SizeType output_size;
-      for (unsigned int i = 0; i < Dimension; i++)
-        output_size[i] = dicom_size[i];
-      filter->SetOutputSize(output_size);
-      if (m_Verbose) {
-          std::cout << "Warning: The image size differs between the MHD file and the input dicom series. Performing resampling with default options using size as reference (for advanced options, use clitkResampleImage)." << std::endl;
-          std::cout << "MHD -> " << input->GetLargestPossibleRegion().GetSize() << std::endl;
-          std::cout << "dicom -> " << reader->GetOutput()->GetLargestPossibleRegion().GetSize() << std::endl;
-      }
+
+    const SizeType& input_size = input->GetLargestPossibleRegion().GetSize();
+    SizeType output_size;
+    for (unsigned int i = 0; i < Dimension; i++)
+      output_size[i] = input_size[i];
+    filter->SetOutputSize(output_size);
+    if (m_Verbose) {
+        std::cout << "Warning: The image size differs between the MHD file and the input dicom series. Performing resampling with default options using mhd size as reference (for advanced options, use clitkResampleImage)." << std::endl;
+        std::cout << "MHD -> " << input->GetLargestPossibleRegion().GetSize() << std::endl;
+        std::cout << "dicom -> " << reader->GetOutput()->GetLargestPossibleRegion().GetSize() << std::endl;
     }
 
     try {
@@ -220,198 +199,36 @@ GateSimulation2DicomGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     std::cerr << excp << std::endl;
     }
   }
-    std::cout << "RESAMPING FILTER DONE" << std::endl;
-  
-  //	In some cases, due to resampling approximation issues, 
-  //	the number of slices in the MHD file may be different (smaller)
-  //	from the number of files in the template dicom directory. 
-  //	To avoid ITK generating an exception, we reduce the number 
-  //	of DCM files to be considered, and a warning is printed
-  //	in verbose mode
-  const RegionType volumeRegion = input->GetLargestPossibleRegion();
-  const SizeType& volumeSize = volumeRegion.GetSize();
-  if (m_Verbose) {
-    std::cout << volumeRegion << volumeSize << std::endl;
-  }
-    std::cout << Dimension << volumeSize[2] << numberOfFilenames << std::endl;
-  if (Dimension == 3 && volumeSize[2] < numberOfFilenames) {
-    if (m_Verbose)
-      std::cout << "Warning: The number of files in " << m_ArgsInfo.inputDir_arg << " (" << filenames_in.size() << " files) is greater than the number of slices in MHD (" << volumeSize[2] << " slices). Using only " << volumeSize[2] << " files." << std::endl;
-    
-    filenames_in.resize(volumeSize[2]);
-    filenames_out.resize(filenames_in.size());
-    numberOfFilenames =  filenames_in.size();
-  }
 
-  // Modify the meta dictionary
-  typedef itk::MetaDataDictionary   DictionaryType;
-  const std::vector<DictionaryType*>* dictionary = reader->GetMetaDataDictionaryArray();
-
-  // Get keys
-  unsigned int numberOfKeysGiven=m_ArgsInfo.key_given;
-    if (m_ArgsInfo.verbose_flag) 
-      DD(numberOfKeysGiven);
-
-  std::string seriesUID;
-  std::string frameOfReferenceUID;
-  std::string studyUID;
-  
-  // one pass through the keys given on the cmd-line, to check what will be recreated
-  std::string seriesUIDkey = "0020|000e";
-  std::string seriesNumberKey = "0020|0011";
-  std::string seriesDescriptionKey = "0008|103e";
-  std::string frameOfReferenceUIDKey = "0020|0052";
-  std::string studyUIDKey = "0020|000d";
-  std::string studyIDKey = "0020|0010";
-  std::string studyDescriptionKey = "0008|1030";
-  bool seriesUIDGiven = false;
-  bool seriesNumberGiven = false;
-  bool seriesDescriptionGiven = false;
-  bool studyUIDGiven = false;
-  bool studyIDGiven = false;
-  bool studyDescriptionGiven = false;
-  for (unsigned int i = 0; i < numberOfKeysGiven; i++) {
-    std::string entryId( m_ArgsInfo.key_arg[i] );
-    if (m_ArgsInfo.verbose_flag) 
-      DD(entryId);
-    
-    seriesUIDGiven |= (entryId ==  seriesUIDkey || entryId ==  frameOfReferenceUIDKey);
-    seriesNumberGiven |= (entryId == seriesNumberKey);
-    seriesDescriptionGiven |= (entryId == seriesDescriptionKey);
-    studyUIDGiven |= (entryId == studyUIDKey);
-    studyIDGiven |= (entryId == studyIDKey);
-    studyDescriptionGiven |= (entryId == studyDescriptionKey);
-  }
-
-  // force the creation of a new series if a new study was specified
-  if (!studyUIDGiven && m_ArgsInfo.newStudyUID_flag) {
-    m_ArgsInfo.newSeriesUID_flag = true;
-#if GDCM_MAJOR_VERSION >= 2
-    gdcm::UIDGenerator suid;
-    studyUID = suid.Generate();
-#else
-    studyUID = gdcm::Util::CreateUniqueUID( gdcmIO->GetUIDPrefix());
-#endif
-  }
-    
-  if (!seriesUIDGiven && m_ArgsInfo.newSeriesUID_flag) {
-#if GDCM_MAJOR_VERSION >= 2
-    gdcm::UIDGenerator suid;
-    seriesUID = suid.Generate();
-    gdcm::UIDGenerator fuid;
-    frameOfReferenceUID = fuid.Generate();
-#else
-    seriesUID = gdcm::Util::CreateUniqueUID( gdcmIO->GetUIDPrefix());
-    frameOfReferenceUID = gdcm::Util::CreateUniqueUID( gdcmIO->GetUIDPrefix());
-#endif
-  }
-
-  if (m_ArgsInfo.verbose_flag) {
-    DD(seriesUID);
-    DD(frameOfReferenceUID);
-    DD(studyUID);
-  }
-
-  // check if file UIDs will be be preserved
-  bool useInputFileUID = true;
-  if (m_ArgsInfo.newSeriesUID_flag || m_ArgsInfo.newStudyUID_flag || seriesUIDGiven || studyUIDGiven) {
-    useInputFileUID = false;
-  }
-  else {
 #if GDCM_MAJOR_VERSION < 2
-    gdcmIO->SetKeepOriginalUID(true);
+  gdcmIO->SetKeepOriginalUID(true);
 #endif
-    namesGenerator->SetOutputDirectory( m_ArgsInfo.outputDir_arg  );
-  }
-  
-  filenames_out.resize(numberOfFilenames);
-  
-  time_t t;
-  t = time(&t);
-  struct tm* instanceDateTimeTm = localtime(&t);
-  char datetime[16];
-  strftime(datetime, 16, "%Y%m%d", instanceDateTimeTm);
-  std::ostringstream instanceDate;
-  instanceDate << datetime;
-  std::ostringstream instanceTime;
-  strftime(datetime, 16, "%H%M%S", instanceDateTimeTm);
-  instanceTime << datetime;
-  
+
+
+  //Read the dicom file to find the energy, the head & the steps (TODO: do it on the mhd filetext)
+
+
+
+/*
   // update output dicom keys/tags
-  for(unsigned int fni = 0; fni<numberOfFilenames; fni++) {
-    for (unsigned int i = 0; i < numberOfKeysGiven; i++) {
-      std::string entryId(m_ArgsInfo.key_arg[i]  );
-      std::string value( m_ArgsInfo.tag_arg[i] );
+  //std::string seriesUIDkey = "0020|000e";
+  for (unsigned int i = 0; i < numberOfKeysGiven; i++) {
+    std::string entryId(m_ArgsInfo.key_arg[i]  );
+    std::string value( m_ArgsInfo.tag_arg[i] );
 
-      itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), entryId, value );
-    }
-
-    // series UID
-    if (!seriesUIDGiven) {
-      if (m_ArgsInfo.newSeriesUID_flag) {
-        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), seriesUIDkey, seriesUID );
-        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), frameOfReferenceUIDKey, frameOfReferenceUID );
-      }
-    }
-    
-    // study UID
-    if (!studyUIDGiven) {
-      if (m_ArgsInfo.newStudyUID_flag) 
-        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), studyUIDKey, studyUID );
-    }
-    
-    // study description
-    if (studyUIDGiven || m_ArgsInfo.newStudyUID_flag) {
-      if (!studyIDGiven)
-        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), studyIDKey,itksys::SystemTools::GetFilenameName( m_ArgsInfo.outputDir_arg ));
-      if (!studyDescriptionGiven)
-        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), studyDescriptionKey,itksys::SystemTools::GetFilenameName( m_ArgsInfo.outputDir_arg ));
-      
-      itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), "0008|0020", instanceDate.str() );
-      itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), "0008|0030", instanceTime.str() );
-    }
-    
-    // series description/number
-    if (seriesUIDGiven || m_ArgsInfo.newSeriesUID_flag) {
-      if (!seriesDescriptionGiven)
-        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), seriesDescriptionKey, itksys::SystemTools::GetFilenameName(m_ArgsInfo.outputDir_arg) );
-      if (!seriesNumberGiven)
-        itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), seriesNumberKey, itksys::SystemTools::GetFilenameName(m_ArgsInfo.outputDir_arg) );
-
-      itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), "0008|0012", instanceDate.str() );
-      itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), "0008|0013", instanceTime.str() );
-    }
-
-    // file UIDs are recreated for new studies or series
-    if (!useInputFileUID)
-    {
-      if (m_ArgsInfo.verbose_flag)
-        std::cout << "Recreating file UIDs" << std::endl;
-
-      std::string fileUID;
-#if GDCM_MAJOR_VERSION >= 2
-      gdcm::UIDGenerator fid;
-      fileUID = fid.Generate();
-#else
-      fileUID = gdcm::Util::CreateUniqueUID( gdcmIO->GetUIDPrefix());
-#endif
-      itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), "0008|0018", fileUID );
-      itk::EncapsulateMetaData<std::string>( *((*dictionary)[fni]), "0002|0003", fileUID );
-      
-      filenames_out[fni] = itksys::SystemTools::CollapseFullPath(fileUID.c_str(), m_ArgsInfo.outputDir_arg) + std::string(".dcm"); 
-    }
+    itk::EncapsulateMetaData<std::string>(reader->GetMetaDataDictionary(), entryId, value );
   }
-  
+*/
   // Output directory and filenames
-  itksys::SystemTools::MakeDirectory( m_ArgsInfo.outputDir_arg ); // create if it doesn't exist
+  //itksys::SystemTools::MakeDirectory( m_ArgsInfo.outputFilename_arg ); // create if it doesn't exist
   typedef itk::ImageFileWriter<OutputImageType>  SeriesWriterType;
   typename SeriesWriterType::Pointer seriesWriter = SeriesWriterType::New();
 
   seriesWriter->SetInput( input );
   seriesWriter->SetImageIO( gdcmIO );
   
-  seriesWriter->SetFileName( filenames_out[0] );
-  seriesWriter->SetMetaDataDictionary( *((*dictionary)[0]) );
+  seriesWriter->SetFileName( filename_out );
+  seriesWriter->SetMetaDataDictionary(reader->GetMetaDataDictionary());
 
   // Write
   try {
