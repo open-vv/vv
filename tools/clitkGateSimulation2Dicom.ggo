@@ -1,0 +1,17 @@
+#File clitkGateSimulation2Dicom.ggo
+package "clitkGateSimulation2Dicom"
+version "1.0"
+purpose ""
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"		i	"Input image filename"		  string  	yes
+option "inputDir"	d	"Input dicom directory"		  string  	yes
+option "outputDir"    	o   	"Output dicom directory"	  string  	yes 
+option "key"    	k   	"Keys of tags to modify"	  string  	no multiple default="0008|103e"
+option "tag"		t   	"Tags values"	 		 string  	no multiple default="MIDPOSITION"
+option "newSeriesUID"		e	"Write the series with a new series UID (ignored if given in key/tag option)"	flag	off
+option "newStudyUID"		u	"Write the series with a new study UID (ignored if given in key/tag option; forces newSeriesUID = true)"	flag	off
+option "useSizeAsReference"		s	"Use the size of the dicom image as reference for an occasional resampling"	flag	off
+option "preserve"		p	"Preserve private tags and keep original UID (eg: Xio)"	flag	off
