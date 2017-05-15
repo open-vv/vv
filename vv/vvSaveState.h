@@ -30,8 +30,13 @@ protected:
   void SaveVector(const QTreeWidgetItem* item);
   void SaveLink(const vvSlicerManager* slicerManager);
 
+#if __cplusplus > 199711L
+  std::shared_ptr<QXmlStreamWriter> m_XmlWriter;
+  std::shared_ptr<QFile> m_File;
+#else
   std::auto_ptr<QXmlStreamWriter> m_XmlWriter;
   std::auto_ptr<QFile> m_File;
+#endif
   vvMainWindow* m_Window;
 };
 

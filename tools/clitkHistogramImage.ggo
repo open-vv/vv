@@ -1,0 +1,15 @@
+#File clitkHistogramImage.ggo
+package "clitkHistogramImage"
+version "1.0"
+purpose "Save the histogram of the input image in the output text file"
+
+option "config"	  	-	"Config file"			        string  no
+option "verbose"   	v  	"Verbose"			            flag	off
+option "imagetypes" -   "Display allowed image types"   flag	off
+
+option "input"      i   "Input image filename"          string  yes
+option "output"     o   "Output texte filename"         string  yes
+option "size"       s   "size of the bin"               double  no
+
+
+

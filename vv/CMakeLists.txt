@@ -22,6 +22,7 @@ set(vv_TOOLS
   vvToolROIManager
   vvToolSegmentation
   vvToolProfile
+  vvToolHistogram
   ## these ones are for tests (not working)
   # vvToolTest
   # vvToolFoo
@@ -38,6 +39,7 @@ set(vv_TOOLS
 #  >> add the relevant $_LIBS variable to the tool that has dependencies?
 set(vvToolBinarize_LIBS clitkBinarizeImageLib)
 set(vvToolProfile_LIBS clitkProfileImageLib)
+set(vvToolHistogram_LIBS clitkHistogramImageLib)
 set(vvToolResample_LIBS clitkResampleImageLib)
 set(vvToolConvert_LIBS clitkImageConvertLib)
 set(vvToolExtractPatient_LIBS clitkSegmentationGgoLib)
@@ -89,6 +91,7 @@ set(vv_SRCS
   vvGlyph2D.cxx
   vvSlicerManager.cxx
   vvSlicerManagerCommand.cxx
+  vvToolHistogramCommand.cxx
   vvUtils.cxx
 #  vvMaximumIntensityProjection.cxx 
  vvMesh.cxx

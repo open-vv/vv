@@ -71,15 +71,15 @@ namespace clitk {
     itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
 
     // I dont want to verify inputs information
-    virtual void VerifyInputInformation() { }
+    virtual void VerifyInputInformation() ITK_OVERRIDE { }
 
   protected:
     CropLikeImageFilter();
     virtual ~CropLikeImageFilter() {}
 
-    virtual void GenerateOutputInformation();
-    virtual void GenerateData();
-    virtual void GenerateInputRequestedRegion();
+    virtual void GenerateOutputInformation() ITK_OVERRIDE;
+    virtual void GenerateData() ITK_OVERRIDE;
+    virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
 
     PixelType m_BackgroundValue;
     RegionType m_OutputRegion;

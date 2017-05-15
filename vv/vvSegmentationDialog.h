@@ -32,7 +32,11 @@
 #include "vtkPolyData.h"
 #include <vtkPolyDataMapper.h>
 
+#if QT_VERSION >= 0x050000
+#include <QtUiPlugin/QDesignerExportWidget>
+#else
 #include <QtDesigner/QDesignerExportWidget>
+#endif
 #include <QTreeWidget>
 
 //====================================================================

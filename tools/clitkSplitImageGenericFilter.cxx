@@ -25,6 +25,7 @@
  -------------------------------------------------------------------*/
 
 #include "clitkSplitImageGenericFilter.h"
+#include "itkChangeInformationImageFilter.h"
 #include <itkIntensityWindowingImageFilter.h>
 //--------------------------------------------------------------------
 clitk::SplitImageGenericFilter::SplitImageGenericFilter():
@@ -109,6 +110,8 @@ void clitk::SplitImageGenericFilter::UpdateWithInputImageType()
   filter->SetExtractionRegion(extracted_region);
   filter->Update();
 
+  typedef itk::ChangeInformationImageFilter< OutputImageType > InformationFilterType;
+
   typename ImageType::IndexType index=input->GetLargestPossibleRegion().GetIndex();
   std::string base_filename=GetOutputFilename();
   unsigned int number_of_output_images=input->GetLargestPossibleRegion().GetSize()[mSplitDimension];
@@ -119,16 +122,44 @@ void clitk::SplitImageGenericFilter::UpdateWithInputImageType()
     extracted_region.SetIndex(index);
     filter->SetExtractionRegion(extracted_region);
     filter->Update();
-    if(this->m_Png){
-      PngConversion<OutputImageType> png;
-      SetOutputFilename(base_filename+"_"+ss.str()+".png");
-      typename PngConversion<OutputImageType>::OutputPngImagePointer output;
-      output = png.Do(this->m_Window, this->m_Level, filter->GetOutput());
-      this->template SetNextOutput<typename PngConversion<OutputImageType>::OutputPngImageType>(output);
+
+    if (ImageType::ImageDimension == 4 && mSplitDimension == 3) //Copy the transformation matrix if the original image is a 4D image splitted along the time dimension
+    {
+      typename InformationFilterType::Pointer informationFilter = InformationFilterType::New();
+      informationFilter->SetInput( filter->GetOutput() );
+      typename OutputImageType::DirectionType directionOutput;
+      for (unsigned j=0; j<3; ++j)
+        for (unsigned k=0; k<3; ++k)
+          directionOutput[j][k] = input->GetDirection()[j][k];
+      informationFilter->SetOutputDirection( directionOutput );
+      informationFilter->ChangeDirectionOn();
+      informationFilter->UpdateOutputInformation();
+
+      if(this->m_Png){
+        PngConversion<OutputImageType> png;
+        SetOutputFilename(base_filename+"_"+ss.str()+".png");
+        typename PngConversion<OutputImageType>::OutputPngImagePointer output;
+        output = png.Do(this->m_Window, this->m_Level, informationFilter->GetOutput());
+        this->template SetNextOutput<typename PngConversion<OutputImageType>::OutputPngImageType>(output);
+      }
+      else {
+        SetOutputFilename(base_filename+"_"+ss.str()+".mhd");
+        SetNextOutput<OutputImageType>(informationFilter->GetOutput());
+      }
     }
-    else {
-      SetOutputFilename(base_filename+"_"+ss.str()+".mhd");
-      SetNextOutput<OutputImageType>(filter->GetOutput());
+    else
+    {
+      if(this->m_Png){
+        PngConversion<OutputImageType> png;
+        SetOutputFilename(base_filename+"_"+ss.str()+".png");
+        typename PngConversion<OutputImageType>::OutputPngImagePointer output;
+        output = png.Do(this->m_Window, this->m_Level, filter->GetOutput());
+        this->template SetNextOutput<typename PngConversion<OutputImageType>::OutputPngImageType>(output);
+      }
+      else {
+        SetOutputFilename(base_filename+"_"+ss.str()+".mhd");
+        SetNextOutput<OutputImageType>(filter->GetOutput());
+      }
     }
   }
 }

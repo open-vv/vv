@@ -22,6 +22,8 @@
 // qt include
 #include <QProgressDialog>
 
+#include "clitkCommon.h"
+
 class vvQProgressDialogITKCommand : public itk::Command {
 
 public:
@@ -33,8 +35,8 @@ public:
 
     void Initialize(QString title, float sec, int max);
 
-    void Execute(itk::Object *caller, const itk::EventObject & event);
-    void Execute(const itk::Object *caller, const itk::EventObject & event);
+    void Execute(itk::Object *caller, const itk::EventObject & event) ITK_OVERRIDE;
+    void Execute(const itk::Object *caller, const itk::EventObject & event) ITK_OVERRIDE;
 
 protected:
     vvQProgressDialogITKCommand();

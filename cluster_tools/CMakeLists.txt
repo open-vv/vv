@@ -3,6 +3,7 @@ if(CLITK_BUILD_TOOLS)
   # Install scripts when running make install
   set(SCRIPTS
     gate_job_cluster.job
+    gate_job_ccin2p3.job
     gate_make_merge_release.sh
     gate_make_release.sh
     gate_power_merge.sh

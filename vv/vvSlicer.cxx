@@ -150,10 +150,10 @@ vvSlicer::vvSlicer()
 
   legend = vtkSmartPointer<vtkScalarBarActor>::New();
   //legend->SetTitle("test!");
-  legend->SetPosition(0.82,0.18);
-  legend->SetWidth(0.1);
+  legend->SetPosition(0.82,0.08);
+  //legend->SetWidth(0.1);
   legend->SetVisibility(0);
-  legend->SetLabelFormat("%.1f");
+  legend->SetLabelFormat("%.1e");
   this->GetRenderer()->AddActor(legend);
   showFusionLegend = false;
 
@@ -170,6 +170,7 @@ vvSlicer::vvSlicer()
   mConcatenatedTransform = vtkSmartPointer<vtkTransform>::New();
   mConcatenatedFusionTransform = vtkSmartPointer<vtkTransform>::New();
   mConcatenatedOverlayTransform = vtkSmartPointer<vtkTransform>::New();
+  mConcatenatedVFTransform = vtkSmartPointer<vtkTransform>::New();
   mFirstSetSliceOrientation = true;
 }
 //------------------------------------------------------------------------------
@@ -393,7 +394,7 @@ void vvSlicer::SetImage(vvImage::Pointer image)
     mImageReslice->GetOutput()->SetUpdateExtent(extent);
     mImageReslice->GetOutput()->Update();
 #else
-    //mImageReslice->SetUpdateExtent(extent);
+    mImageReslice->SetUpdateExtent(extent);
     mImageReslice->Update();
 #endif
 
@@ -583,15 +584,31 @@ void vvSlicer::SetVF(vvImage::Pointer vf)
     mVFVisibility = true;
 
     if (!mAAFilter) {
+      mVFReslice = vtkSmartPointer<vtkImageReslice>::New();
+      mVFReslice->SetInterpolationModeToLinear();
+      mVFReslice->AutoCropOutputOn();
+      mVFReslice->SetBackgroundColor(-1000,-1000,-1000,1);
       mAAFilter= vtkSmartPointer<vtkAssignAttribute>::New();
       mVOIFilter = vtkSmartPointer<vtkExtractVOI>::New();
       mVOIFilter->SetSampleRate(mSubSampling,mSubSampling,mSubSampling);
     }
+
+    mConcatenatedVFTransform->Identity();
+    mConcatenatedVFTransform->Concatenate(mVF->GetTransform()[0]);
+    mConcatenatedVFTransform->Concatenate(mSlicingTransform);
+    mVFReslice->SetResliceTransform(mConcatenatedVFTransform);
 #if VTK_MAJOR_VERSION <= 5
-    mVOIFilter->SetInput(vf->GetFirstVTKImageData());
+    mVFReslice->SetInput(0, mVF->GetFirstVTKImageData());
+#else
+    mVFReslice->SetInputData(0, mVF->GetFirstVTKImageData());
+#endif
+    mVFReslice->Update();
+
+#if VTK_MAJOR_VERSION <= 5
+    mVOIFilter->SetInput(mVFReslice->GetOutput());
     mAAFilter->SetInput(mVOIFilter->GetOutput());
 #else
-    mVOIFilter->SetInputData(vf->GetFirstVTKImageData());
+    mVOIFilter->SetInputConnection(mVFReslice->GetOutputPort());
     mAAFilter->SetInputConnection(mVOIFilter->GetOutputPort());
 #endif
     ///This tells VTK to use the scalar (pixel) data of the image to draw the little arrows
@@ -846,10 +863,14 @@ void vvSlicer::SetTSlice(int t, bool updateLinkedImages)
   if (mVF && mVFActor->GetVisibility()) {
     if (mVF->GetVTKImages().size() > (unsigned int)mCurrentTSlice)
 #if VTK_MAJOR_VERSION <= 5
-      mVOIFilter->SetInput(mVF->GetVTKImages()[mCurrentTSlice]);
+      mVFReslice->SetInput(mVF->GetVTKImages()[mCurrentTSlice]);
 #else
-      mVOIFilter->SetInputData(mVF->GetVTKImages()[mCurrentTSlice]);
+      mVFReslice->SetInputData(mVF->GetVTKImages()[mCurrentTSlice]);
 #endif
+      // Update overlay transform
+      mConcatenatedVFTransform->Identity();
+      mConcatenatedVFTransform->Concatenate(mVF->GetTransform()[mCurrentTSlice]);
+      mConcatenatedVFTransform->Concatenate(mSlicingTransform);
   }
   //update the overlay
   if (mOverlay && mOverlayActor->GetVisibility()) {
@@ -975,6 +996,9 @@ void vvSlicer::SetSliceOrientation(int orientation)
 
   if(mOverlay)
     AdjustResliceToSliceOrientation(mOverlayReslice);
+
+  if(mVF)
+    AdjustResliceToSliceOrientation(mVFReslice);
 
   // Update the viewer
   
@@ -1193,14 +1217,15 @@ void vvSlicer::UpdateDisplayExtent()
     offset = -1;
   
   if (mVF && mVFVisibility) {
+    AdjustResliceToSliceOrientation(mVFReslice);
     int vfExtent[6];
 #if VTK_MAJOR_VERSION <= 5
     mVF->GetVTKImages()[0]->UpdateInformation();
-    this->ConvertImageToImageDisplayExtent(input, w_ext, mVF->GetVTKImages()[0], vfExtent);
+    this->ConvertImageToImageDisplayExtent(input, w_ext, mVFReslice->GetOutput(), vfExtent);
     bool out = ClipDisplayedExtent(vfExtent, mVOIFilter->GetInput()->GetWholeExtent());
 #else
     mVOIFilter->Update();
-    this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mVF->GetVTKImages()[0], vfExtent);
+    this->ConvertImageToImageDisplayExtent(mImageReslice->GetOutputInformation(0), w_ext, mVFReslice->GetOutput(), vfExtent);
     bool out = ClipDisplayedExtent(vfExtent, mVOIFilter->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
 #endif
     mVFActor->SetVisibility(!out);

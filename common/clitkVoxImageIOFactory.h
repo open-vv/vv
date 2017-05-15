@@ -49,11 +49,11 @@ namespace clitk {
 	typedef itk::SmartPointer<const Self>  ConstPointer;
 	
 	/** Class methods used to interface with the registered factories. */
-	const char* GetITKSourceVersion(void) const {
+	const char* GetITKSourceVersion(void) const ITK_OVERRIDE {
 	  return ITK_SOURCE_VERSION;
 	}
 	
-	const char* GetDescription(void) const {
+	const char* GetDescription(void) const ITK_OVERRIDE {
 	  return "Vox ImageIO Factory, allows the loading of Vox images into insight";
 	}
 	

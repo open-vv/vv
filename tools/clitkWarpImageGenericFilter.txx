@@ -132,6 +132,7 @@ WarpImageGenericFilter::UpdateWithDimAndPixelType()
     resampler =itk::VectorResampleImageFilter<DeformationFieldType, DeformationFieldType >::New();
     resampler->SetInput(deformationField);
     resampler->SetOutputSpacing(deformationField->GetSpacing());
+    resampler->SetOutputDirection(deformationField->GetDirection());
     resampler->SetSize(newSize);
     resampler->SetOutputOrigin(input->GetOrigin());
     resampler->SetInterpolator(genericInterpolator->GetInterpolatorPointer());
@@ -163,6 +164,7 @@ WarpImageGenericFilter::UpdateWithDimAndPixelType()
     resampler =itk::VectorResampleImageFilter<DeformationFieldType, DeformationFieldType >::New();
     resampler->SetInput(deformationField);
     resampler->SetOutputSpacing(input->GetSpacing());
+    resampler->SetOutputDirection(deformationField->GetDirection());
     resampler->SetSize(newSize);
     resampler->SetOutputOrigin(input->GetOrigin());
     resampler->SetInterpolator(genericInterpolator->GetInterpolatorPointer());
@@ -210,6 +212,7 @@ WarpImageGenericFilter::UpdateWithDimAndPixelType()
     backwardWarpFilter->SetOutputSpacing( deformationField->GetSpacing() );
     backwardWarpFilter->SetOutputOrigin( input->GetOrigin() );
     backwardWarpFilter->SetOutputSize( deformationField->GetLargestPossibleRegion().GetSize() );
+    backwardWarpFilter->SetOutputDirection( input->GetDirection() );
     typename itk::VectorResampleImageFilter<DeformationFieldType, DeformationFieldType >::Pointer
     resampler =itk::VectorResampleImageFilter<DeformationFieldType, DeformationFieldType >::New();
     backwardWarpFilter->SetInterpolator(genericInterpolator->GetInterpolatorPointer());

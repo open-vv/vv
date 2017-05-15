@@ -22,6 +22,8 @@
 #include "itkImageToImageFilter.h"
 #include "itkAffineTransform.h"
 
+#include "clitkCommon.h"
+
 namespace clitk {
   
   //--------------------------------------------------------------------
@@ -84,7 +86,7 @@ namespace clitk {
 		  (itk::Concept::SameDimension<InputImageDimension, OutputImageDimension>));
 
   /** Input : image to resample */
-  void SetInput(const InputImageType * image);
+  void SetInput(const InputImageType * image) ITK_OVERRIDE;
     
   /** ImageDimension constants */
   itkStaticConstMacro(ImageDimension, unsigned int, InputImageType::ImageDimension);
@@ -139,9 +141,9 @@ namespace clitk {
   bool m_VerboseOptions;
   OutputImageRegionType m_OutputRegion;
 
-  virtual void GenerateInputRequestedRegion();
-  virtual void GenerateOutputInformation();
-  virtual void GenerateData();
+  virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  virtual void GenerateOutputInformation() ITK_OVERRIDE;
+  virtual void GenerateData() ITK_OVERRIDE;
     
   private:
   ResampleImageWithOptionsFilter(const Self&); //purposely not implemented

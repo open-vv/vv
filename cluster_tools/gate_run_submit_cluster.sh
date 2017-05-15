@@ -1,4 +1,4 @@
-#! /usr/local/bin/bash -lx
+#! /bin/bash -lx
 
 set -u
 SCRIPTNAME="$(basename "${0}")"
@@ -102,13 +102,14 @@ while test $NJOBS -gt 0; do
         PARAM=\"${PARAM}\" INDEX=${NJOBS} INDEXMAX=${NJOBSMAX} OUTPUTDIR=${OUTPUTDIR}  RELEASEDIR=${RELEASEDIR} MACROFILE=${MACROFILE} MACRODIR=${MACRODIR} PBS_JOBID="local_${NJOBS}" bash "${JOBFILE}" > ${OUTPUTDIR}/gate_${NJOBS}.log &
     elif test "$(dnsdomainname)" = "in2p3.fr"
     then
-        PROJECTGROUP=creatis 
+        PROJECTGROUP=creatis
         qsub -o "${OUTPUTDIR}" \
+	     -l sps=1 \
              -N "gate.${RUNID}" \
              -v "PARAM=\"${PARAM}\",INDEX=${NJOBS},INDEXMAX=${NJOBSMAX},OUTPUTDIR=${OUTPUTDIR},RELEASEDIR=${RELEASEDIR},MACROFILE=${MACROFILE},MACRODIR=${MACRODIR}" \
              "${JOBFILE}" || error "submission error"
     else
-	qsub -N "gatejob.${RUNID}" -o "${OUTPUTDIR}" \
+        qsub -N "gatejob.${RUNID}" -o "${OUTPUTDIR}" \
 	    -v "PARAM=${PARAM},INDEX=${NJOBS},INDEXMAX=${NJOBSMAX},OUTPUTDIR=${OUTPUTDIR},RELEASEDIR=${RELEASEDIR},MACROFILE=${MACROFILE},MACRODIR=${MACRODIR}" \
 	    "${JOBFILE}" || error "submission error"
     fi
@@ -117,7 +118,3 @@ while test $NJOBS -gt 0; do
 done
 
 echo "runid is ${RUNID}"
-if test "$(dnsdomainname)" = "in2p3.fr"
-then
-    rsync -av --remove-source-files -e "ssh -i ${HOME}/.ssh/ccin2p3" ${OUTPUTDIR}/ "linux1.dg.creatis.insa-lyon.fr:./cc/$(basename ${OUTPUTDIR})" --exclude '.__afs*' --exclude "${OUTPUTDIR}/gatejob.*.o*"
-fi

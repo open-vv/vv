@@ -270,6 +270,8 @@ protected:
   vtkSmartPointer<vtkPolyDataMapper> mVFMapper;
   vtkSmartPointer<vtkLookupTable> mVFColorLUT;
   vtkSmartPointer<vtkActor> mVFActor;
+  vtkSmartPointer<vtkImageReslice> mVFReslice;
+  vtkSmartPointer<vtkTransform> mConcatenatedVFTransform;
   vtkSmartPointer<vtkGlyph3D> mLandGlyph;
   vtkSmartPointer<vtkCursor3D> mCross;
   vtkSmartPointer<vvClipPolyData> mLandClipper;

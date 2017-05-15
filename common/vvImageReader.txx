@@ -157,11 +157,17 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
     spacing.Fill(1);
     typename OutputImageType::PointType origin;
     origin.Fill(0);
+    typename OutputImageType::DirectionType direction;
+    direction.SetIdentity();
     for (unsigned int pixelDim=0; pixelDim<VImageDimension-1; ++pixelDim)
     {
       size[pixelDim]=adaptor->GetLargestPossibleRegion().GetSize(pixelDim);
       spacing[pixelDim]=input->GetSpacing()[pixelDim];
       origin[pixelDim]=input->GetOrigin()[pixelDim];
+      for (unsigned int pixelDim2=0; pixelDim2<VImageDimension-1; ++pixelDim2)
+      {
+        direction[pixelDim][pixelDim2]=input->GetDirection()[pixelDim][pixelDim2];
+      }
     }
     typename OutputImageType::RegionType region;
     region.SetSize(size);
@@ -169,6 +175,7 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
     output->SetRegions(region);
     output->SetOrigin(origin);
     output->SetSpacing(spacing);
+    output->SetDirection(direction);
     output->Allocate();
 
     //Copy each channel
@@ -193,10 +200,10 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
       }
     }
 
-    if (VImageDimension == 4)
+/*    if (VImageDimension == 4)
       mType == VECTORPIXELIMAGEWITHTIME;
     else
-      mType == VECTORPIXELIMAGE;
+      mType == VECTORPIXELIMAGE;*/
 
     try {
       mImage = vvImageFromITK<VImageDimension,InputPixelType>(output, mType == VECTORPIXELIMAGEWITHTIME);
