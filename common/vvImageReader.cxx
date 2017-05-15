@@ -19,6 +19,7 @@
 #define VVIMAGEREADER_CXX
 
 #include <itkImageFileReader.h>
+#include "gdcmImageHelper.h"
 #include "vvImageReader.h"
 #include "vvImageReader.txx"
 #include "clitkTransformUtilities.h"
@@ -57,9 +58,12 @@ void vvImageReader::Update(LoadedImageType type)
     mLastError="Unable to read file.";
   } else {
     reader->SetFileName(mInputFilenames[0]);
+    gdcm::ImageHelper::SetForcePixelSpacing(true);
     reader->ReadImageInformation();
     if (mInputFilenames.size() > 1)
       Update(reader->GetNumberOfDimensions()+1,reader->GetComponentTypeAsString(reader->GetComponentType()),type);
+    else if (reader->GetNumberOfComponents() > 1 && type != VECTORFIELD && type != VECTORFIELDWITHTIME)
+      Update(reader->GetNumberOfDimensions()+1,reader->GetComponentTypeAsString(reader->GetComponentType()),VECTORPIXELIMAGE);
     else
       Update(reader->GetNumberOfDimensions(),reader->GetComponentTypeAsString(reader->GetComponentType()),type);
   }

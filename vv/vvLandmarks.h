@@ -25,6 +25,7 @@
 #include "vtkPoints.h"
 #include "vvLandmarksGlyph.h"
 #include "vtkStringArray.h"
+#include <vtkAbstractTransform.h>
 
 //typedef
 struct vvLandmark {
@@ -43,6 +44,7 @@ public :
     void SaveFile(std::string filename);
 
     void AddLandmark(float x,float y,float z,float t,double value);
+    void TransformUpdate(vtkAbstractTransform* transform);
     void RemoveLastLandmark();
     void RemoveLandmarkWithLabel(vtkStdString, int);
     void RemoveLandmark(int index);
@@ -71,6 +73,7 @@ private:
     
     typedef std::vector<vvLandmark> LandmarkContainerType;
     std::vector<LandmarkContainerType> mLandmarks;
+    std::vector<LandmarkContainerType> mLandmarksInitial;
     
     vtkPolyData *mPolyData;
     std::vector<vtkPoints*> mPoints;

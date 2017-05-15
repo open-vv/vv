@@ -139,7 +139,7 @@ namespace clitk
       {
         if (m_ArgsInfo.matrix_given)
           {
-            std::cerr << "You must use either rotate/translate or matrix options" << std::cout;
+            std::cerr << "You must use either rotate/translate or matrix options" << std::endl;
             return;
           }
         itk::Array<double> transformParameters(2 * Dimension);
@@ -369,7 +369,7 @@ namespace clitk
       {
         if (m_ArgsInfo.matrix_given)
           {
-            std::cerr << "You must use either rotate/translate or matrix options" << std::cout;
+            std::cerr << "You must use either rotate/translate or matrix options" << std::endl;
             return;
           }
         itk::Array<double> transformParameters(2 * Dimension);
