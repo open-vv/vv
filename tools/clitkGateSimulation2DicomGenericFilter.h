@@ -110,8 +110,14 @@ namespace clitk
     bool m_Verbose;
     std::string m_InputFileName;
 
+
   };
 
+//Copy dicom dictionary
+void CopyDictionary (itk::MetaDataDictionary &fromDict, itk::MetaDataDictionary &toDict);
+
+//convert to std::string
+template <typename T> std::string NumberToString ( T Number );
 
 } // end namespace clitk
 
