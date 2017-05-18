@@ -282,18 +282,26 @@ rotationNumber = 6;
 
 
   // update output dicom keys/tags
+  // string for distinguishing items inside sequence:
+  const std::string ITEM_ENCAPSULATE_STRING("DICOM_ITEM_ENCAPSULATE");
+  std::string tempString = ITEM_ENCAPSULATE_STRING + "01";
   typename ReaderSeriesType::DictionaryRawPointer inputDict = (*(readerSeries->GetMetaDataDictionaryArray()))[0];
   typename ReaderSeriesType::DictionaryArrayType outputArray;
   typename ReaderSeriesType::DictionaryRawPointer outputDict = new typename ReaderSeriesType::DictionaryType;
+  typename ReaderSeriesType::DictionaryRawPointer sequenceDict = new typename ReaderSeriesType::DictionaryType;
+  // Dictionary for encapsulating the sequences.
+  itk::GDCMImageIO::Pointer gdcmIOStructureSetRoi = itk::GDCMImageIO::New();
+  typename ReaderSeriesType::DictionaryType &structureSetRoiSeq = gdcmIOStructureSetRoi->GetMetaDataDictionary();
   CopyDictionary (*inputDict, *outputDict);
+  //CopyDictionary (*inputDict, *sequenceDict);
 
-  std::string entryId, value;
-  entryId = "0054|0011";
-  value = NumberToString(energyNumber);
-  itk::EncapsulateMetaData<std::string>(*outputDict, "0054|0011", value );
-  entryId = "0054|0021";
-  value = NumberToString(headNumber);
-  itk::EncapsulateMetaData<std::string>(*outputDict, "0054|0021", value );
+  itk::EncapsulateMetaData<std::string>(*outputDict, "0054|0011", NumberToString(energyNumber));
+  itk::EncapsulateMetaData<std::string>(*outputDict, "0054|0021", NumberToString(headNumber));
+
+  itk::EncapsulateMetaData<std::string>(*sequenceDict, "0054|0053", NumberToString(rotationNumber));
+  //itk::EncapsulateMetaData<std::string>(*outputDict, "0054|0053", NumberToString(rotationNumber));
+  itk::EncapsulateMetaData<typename ReaderSeriesType::DictionaryType>(structureSetRoiSeq, tempString, *sequenceDict);
+  itk::EncapsulateMetaData<typename ReaderSeriesType::DictionaryType>(*outputDict, "0054|0052",structureSetRoiSeq);
 
 outputArray.push_back(outputDict);
   // Output directory and filenames
