@@ -35,6 +35,7 @@
 #include <gdcmImageHelper.h>
 #include <gdcmAttribute.h>
 #include <gdcmReader.h>
+#include <gdcmWriter.h>
 #else
 #include "gdcmFile.h"
 #include "gdcmUtil.h"
@@ -333,6 +334,58 @@ outputArray.push_back(outputDict);
     std::cerr << "Error: Exception thrown while writing the series!!" << std::endl;
     std::cerr << excp << std::endl;
   }
+
+  gdcm::Reader reader2;
+  reader2.SetFileName( fileNamesOutput[0].c_str() );
+  reader2.Read();
+
+  gdcm::File &file = reader2.GetFile();
+  gdcm::DataSet &ds2 = file.GetDataSet();
+
+  //const unsigned int nitems = 1000;
+  const unsigned int ptr_len = 42; /*94967296 / nitems; */
+  //assert( ptr_len == 42949672 );
+  char *ptr = new char[ptr_len];
+  memset(ptr,0,ptr_len);
+
+  // Create a Sequence
+  gdcm::SmartPointer<gdcm::SequenceOfItems> sq = new gdcm::SequenceOfItems();
+  sq->SetLengthToUndefined();
+
+  //const char owner_str[] = "GDCM CONFORMANCE TESTS";
+  //gdcm::DataElement owner( gdcm::Tag(0x54, 0x52) );
+  //owner.SetByteValue(owner_str, (uint32_t)strlen(owner_str));
+  //owner.SetVR( gdcm::VR::LO );
+
+  // Create a dataelement
+  gdcm::DataElement de( gdcm::Tag(0x54, 0x53) );
+  de.SetByteValue(NumberToString(rotationNumber).c_str(), 1);
+  de.SetVR( gdcm::VR::OB );
+
+  // Create an item
+  gdcm::Item it;
+  it.SetVLToUndefined();
+  gdcm::DataSet &nds = it.GetNestedDataSet();
+  //nds.Insert(owner);
+  nds.Insert(de);
+
+  sq->AddItem(it);
+
+  // Insert sequence into data set
+  gdcm::DataElement des( gdcm::Tag(0x54, 0x52) );
+  des.SetVR(gdcm::VR::SQ);
+  des.SetValue(*sq);
+  des.SetVLToUndefined();
+
+  //ds2.Insert(owner);
+  ds2.Insert(des);
+
+  gdcm::Writer w;
+  w.SetFile( file );
+  //w.SetCheckFileMetaInformation( true );
+  w.SetFileName( fileNamesOutput[0].c_str() );
+  w.Write();
+
 #else
   std::cout << "Use GDCM2" << std::endl;
 #endif
