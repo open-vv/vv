@@ -221,11 +221,13 @@ void clitk::DicomRTStruct2ImageFilter::Update()
   vtkSmartPointer<vtkLinearExtrusionFilter> extrude=vtkSmartPointer<vtkLinearExtrusionFilter>::New();
 #if VTK_MAJOR_VERSION <= 5
   extrude->SetInput(mesh);
+  ///We extrude in the -slice_spacing direction to respect the FOCAL convention (NEEDED !)
+  extrude->SetVector(0, 0, -0.5*mSpacing[2]);
 #else
   extrude->SetInputData(mesh);
-#endif
   ///We extrude in the -slice_spacing direction to respect the FOCAL convention (NEEDED !)
-  extrude->SetVector(0, 0, -mSpacing[2]);
+  extrude->SetVector(0, 0, 0.5*mSpacing[2]);
+#endif
 
   // Binarization
   vtkSmartPointer<vtkPolyDataToImageStencil> sts=vtkSmartPointer<vtkPolyDataToImageStencil>::New();
