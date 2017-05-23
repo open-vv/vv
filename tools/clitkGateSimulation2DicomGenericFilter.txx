@@ -42,6 +42,8 @@
 #endif
 
 #include "itkImageRegionIterator.h"
+#include "itkMetaImageIO.h"
+#include "itkMetaDataDictionary.h"
 
 
 namespace clitk
@@ -173,69 +175,49 @@ GateSimulation2DicomGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   typename InputImageType::Pointer input = volumeReader->GetOutput();
 
 
-//TODO if the input size/spacing and dicom model ones are different
-/*  if (input->GetLargestPossibleRegion().GetSize() != reader->GetOutput()->GetLargestPossibleRegion().GetSize()) {
-        
-    // resampling is carried out on the fly if resolution or size between 
-    // the input mhd and input dicom series is different
-    
-    // Filter
-    typedef clitk::ResampleImageWithOptionsFilter<InputImageType, InputImageType> ResampleImageFilterType;
-    typename ResampleImageFilterType::Pointer filter = ResampleImageFilterType::New();
-    filter->SetInput(input);
-    filter->SetVerboseOptions(m_Verbose);
-    filter->SetGaussianFilteringEnabled(false);
-    filter->SetDefaultPixelValue(0);
-
-    const SizeType& input_size = input->GetLargestPossibleRegion().GetSize();
-    SizeType output_size;
-    for (unsigned int i = 0; i < Dimension; i++)
-      output_size[i] = input_size[i];
-    filter->SetOutputSize(output_size);
-    if (m_Verbose) {
-        std::cout << "Warning: The image size differs between the MHD file and the input dicom series. Performing resampling with default options using mhd size as reference (for advanced options, use clitkResampleImage)." << std::endl;
-        std::cout << "MHD -> " << input->GetLargestPossibleRegion().GetSize() << std::endl;
-        std::cout << "dicom -> " << reader->GetOutput()->GetLargestPossibleRegion().GetSize() << std::endl;
-    }
-
-    try {
-      filter->Update();
-      input = filter->GetOutput();
-    } catch( itk::ExceptionObject & excp ) {
-    std::cerr << "Error: Exception thrown while resampling!!" << std::endl;
-    std::cerr << excp << std::endl;
-    }
+  //Read the metadata informations in the mhd
+  MetaObject tObj(3);
+  tObj.AddUserField("NumberOfEnergyWindows", MET_STRING);
+  tObj.AddUserField("NbOfHeads", MET_STRING);
+  tObj.AddUserField("NbOfProjections", MET_STRING);
+  tObj.Read(m_InputFileName.c_str());
+  char *p_energyNumber, *p_headNumber, *p_rotationNumber;
+  int energyNumber, headNumber, rotationNumber;
+  p_energyNumber = static_cast<char*>(tObj.GetUserField("NumberOfEnergyWindows"));
+  p_headNumber = static_cast<char*>(tObj.GetUserField("NbOfHeads"));
+  p_rotationNumber = static_cast<char*>(tObj.GetUserField("NbOfProjections"));
+  energyNumber = atoi(p_energyNumber);
+  headNumber = atoi(p_headNumber);
+  rotationNumber = atoi(p_rotationNumber);
+  for (unsigned int i=0; i<energyNumber; ++i) {
+    std::string tagEnergyName("EnergyWindow_");
+    tagEnergyName += NumberToString(i).c_str();
+    std::string tagEnergyThreshold(tagEnergyName), tagEnergyUphold(tagEnergyName);
+    tagEnergyThreshold += "_threshold";
+    tagEnergyUphold += "_uphold";
+    tObj.AddUserField(tagEnergyName.c_str(), MET_STRING);
+    tObj.AddUserField(tagEnergyThreshold.c_str(), MET_STRING);
+    tObj.AddUserField(tagEnergyUphold.c_str(), MET_STRING);
   }
-*/
+  tObj.Read(m_InputFileName.c_str());
+  std::vector<char*> p_EnergyWindowName(energyNumber), p_EnergyWindowThreshold(energyNumber), p_EnergyWindowUphold(energyNumber);
+  std::vector<int> energyWindowThreshold(energyNumber), energyWindowUphold(energyNumber);
+  for (unsigned int i=0; i<energyNumber; ++i) {
+    std::string tagEnergyName("EnergyWindow_");
+    tagEnergyName += NumberToString(i).c_str();
+    std::string tagEnergyThreshold(tagEnergyName), tagEnergyUphold(tagEnergyName);
+    tagEnergyThreshold += "_threshold";
+    tagEnergyUphold += "_uphold";
+    p_EnergyWindowName[i] = static_cast<char*>(tObj.GetUserField(tagEnergyName.c_str()));
+    p_EnergyWindowThreshold[i] = static_cast<char*>(tObj.GetUserField(tagEnergyThreshold.c_str()));
+    p_EnergyWindowUphold[i] = static_cast<char*>(tObj.GetUserField(tagEnergyUphold.c_str()));
+    energyWindowThreshold[i] = atoi(p_EnergyWindowThreshold[i]);
+    energyWindowUphold[i] = atoi(p_EnergyWindowUphold[i]);
+  }
 
+//TODO if the input size/spacing and dicom model ones are different
 
-  //Read the dicom file to find the energy, the head & the steps (TODO: do it on the mhd filetext)
-  gdcm::Reader hreader;
-  hreader.SetFileName(m_ArgsInfo.inputModelFilename_arg);
-  hreader.Read();
-  gdcm::DataSet& ds = hreader.GetFile().GetDataSet();
-  int energyNumber, headNumber, rotationNumber; //Read the number of energy, of head and rotation steps
-  gdcm::Attribute<0x54,0x11> energyNumber_att;
-  energyNumber_att.SetFromDataSet(hreader.GetFile().GetDataSet());
-  energyNumber = energyNumber_att.GetValue();
-
-  gdcm::Attribute<0x54,0x21> headNumber_att;
-  headNumber_att.SetFromDataSet(hreader.GetFile().GetDataSet());
-  headNumber = headNumber_att.GetValue();
-
-  gdcm::Tag squenceTag(0x54,0x52); //rotation, read a sequence first
-  const gdcm::DataElement &sequence = hreader.GetFile().GetDataSet().GetDataElement( squenceTag );
-  gdcm::DataSet &sequenceDataSet = sequence.GetValueAsSQ()->GetItem(1).GetNestedDataSet();
-  gdcm::Tag rotationNumber_Tag(0x54,0x53);
-  const gdcm::DataElement &rotationNumber_Element = sequenceDataSet.GetDataElement( rotationNumber_Tag );
-  gdcm::Attribute<0x54,0x53> rotationNumber_att;
-  rotationNumber_att.SetFromDataElement(rotationNumber_Element);
-  rotationNumber = rotationNumber_att.GetValue();
-
-energyNumber = 3;
-headNumber = 4;
-rotationNumber = 6;
-  // Create a new mhd image with the dicom order slices
+  // Create a new mhd image with the correct dicom order slices
   typename InputImageType::Pointer mhdCorrectOrder = InputImageType::New();
   mhdCorrectOrder->SetRegions(input->GetLargestPossibleRegion());
   mhdCorrectOrder->Allocate();
@@ -289,40 +271,27 @@ rotationNumber = 6;
   typename ReaderSeriesType::DictionaryRawPointer inputDict = (*(readerSeries->GetMetaDataDictionaryArray()))[0];
   typename ReaderSeriesType::DictionaryArrayType outputArray;
   typename ReaderSeriesType::DictionaryRawPointer outputDict = new typename ReaderSeriesType::DictionaryType;
-  typename ReaderSeriesType::DictionaryRawPointer sequenceDict = new typename ReaderSeriesType::DictionaryType;
-  // Dictionary for encapsulating the sequences.
-  itk::GDCMImageIO::Pointer gdcmIOStructureSetRoi = itk::GDCMImageIO::New();
-  typename ReaderSeriesType::DictionaryType &structureSetRoiSeq = gdcmIOStructureSetRoi->GetMetaDataDictionary();
   CopyDictionary (*inputDict, *outputDict);
-  //CopyDictionary (*inputDict, *sequenceDict);
-
   itk::EncapsulateMetaData<std::string>(*outputDict, "0054|0011", NumberToString(energyNumber));
   itk::EncapsulateMetaData<std::string>(*outputDict, "0054|0021", NumberToString(headNumber));
+  outputArray.push_back(outputDict);
 
-  itk::EncapsulateMetaData<std::string>(*sequenceDict, "0054|0053", NumberToString(rotationNumber));
-  //itk::EncapsulateMetaData<std::string>(*outputDict, "0054|0053", NumberToString(rotationNumber));
-  itk::EncapsulateMetaData<typename ReaderSeriesType::DictionaryType>(structureSetRoiSeq, tempString, *sequenceDict);
-  itk::EncapsulateMetaData<typename ReaderSeriesType::DictionaryType>(*outputDict, "0054|0052",structureSetRoiSeq);
 
-outputArray.push_back(outputDict);
   // Output directory and filenames
-  //itksys::SystemTools::MakeDirectory( m_ArgsInfo.outputFilename_arg ); // create if it doesn't exist
   typedef itk::ImageFileWriter<OutputImageType>  WriterType;
   typedef itk::ImageSeriesWriter<OutputImageType, OutputImageType>  WriterSerieType;
   typename WriterType::Pointer writer = WriterType::New();
   typename WriterSerieType::Pointer writerSerie = WriterSerieType::New();
-
   writer->SetInput( mhdCorrectOrder );
   writer->SetImageIO( gdcmIO );
-  
   writer->SetFileName( filename_out );
-  //writer->SetMetaDataDictionary(outputDict);
   writerSerie->SetInput( mhdCorrectOrder );
   writerSerie->SetImageIO( gdcmIO );
   typename ReaderSeriesType::FileNamesContainer fileNamesOutput;
   fileNamesOutput.push_back(filename_out);
   writerSerie->SetFileNames( fileNamesOutput );
   writerSerie->SetMetaDataDictionaryArray(&outputArray);
+
 
   // Write
   try {
@@ -335,54 +304,87 @@ outputArray.push_back(outputDict);
     std::cerr << excp << std::endl;
   }
 
+
+  //Write sequence dicom tag with gdcm
   gdcm::Reader reader2;
   reader2.SetFileName( fileNamesOutput[0].c_str() );
   reader2.Read();
-
   gdcm::File &file = reader2.GetFile();
   gdcm::DataSet &ds2 = file.GetDataSet();
-
-  //const unsigned int nitems = 1000;
-  const unsigned int ptr_len = 42; /*94967296 / nitems; */
-  //assert( ptr_len == 42949672 );
+  const unsigned int ptr_len = 42;
   char *ptr = new char[ptr_len];
   memset(ptr,0,ptr_len);
 
+  //Write rotation tag
   // Create a Sequence
-  gdcm::SmartPointer<gdcm::SequenceOfItems> sq = new gdcm::SequenceOfItems();
-  sq->SetLengthToUndefined();
-
-  //const char owner_str[] = "GDCM CONFORMANCE TESTS";
-  //gdcm::DataElement owner( gdcm::Tag(0x54, 0x52) );
-  //owner.SetByteValue(owner_str, (uint32_t)strlen(owner_str));
-  //owner.SetVR( gdcm::VR::LO );
-
+  gdcm::SmartPointer<gdcm::SequenceOfItems> rotationSq = new gdcm::SequenceOfItems();
+  rotationSq->SetLengthToUndefined();
   // Create a dataelement
-  gdcm::DataElement de( gdcm::Tag(0x54, 0x53) );
-  de.SetByteValue(NumberToString(rotationNumber).c_str(), 1);
-  de.SetVR( gdcm::VR::OB );
-
+  gdcm::DataElement rotationDE( gdcm::Tag(0x54, 0x53) );
+  rotationDE.SetVR( gdcm::VR::US );
+  char essai = (char)rotationNumber;
+  char *p_essai = &essai;
+  rotationDE.SetByteValue(p_essai, 1);
   // Create an item
-  gdcm::Item it;
-  it.SetVLToUndefined();
-  gdcm::DataSet &nds = it.GetNestedDataSet();
-  //nds.Insert(owner);
-  nds.Insert(de);
-
-  sq->AddItem(it);
-
+  gdcm::Item rotationIt;
+  rotationIt.SetVLToUndefined();
+  gdcm::DataSet &rotationDS = rotationIt.GetNestedDataSet();
+  rotationDS.Insert(rotationDE);
+  rotationSq->AddItem(rotationIt);
   // Insert sequence into data set
-  gdcm::DataElement des( gdcm::Tag(0x54, 0x52) );
-  des.SetVR(gdcm::VR::SQ);
-  des.SetValue(*sq);
-  des.SetVLToUndefined();
+  gdcm::DataElement rotationDEParent( gdcm::Tag(0x54, 0x52) );
+  rotationDEParent.SetVR(gdcm::VR::SQ);
+  rotationDEParent.SetValue(*rotationSq);
+  rotationDEParent.SetVLToUndefined();
 
-  //ds2.Insert(owner);
-  ds2.Insert(des);
+  //Write energy
+  gdcm::DataElement energyDEParent( gdcm::Tag(0x54, 0x12) );
+  energyDEParent.SetVR(gdcm::VR::SQ);
+  // Create a Sequence
+  gdcm::SmartPointer<gdcm::SequenceOfItems> energySq = new gdcm::SequenceOfItems();
+  energySq->SetLengthToUndefined();
+  for (unsigned int i=0; i<energyNumber; ++i) {
+    gdcm::SmartPointer<gdcm::SequenceOfItems> energyThresholdSq = new gdcm::SequenceOfItems();
+    energyThresholdSq->SetLengthToUndefined();
+    // Create a dataelement
+    gdcm::DataElement energyThresholdDE( gdcm::Tag(0x54, 0x14) );
+    gdcm::DataElement energyUpholdDE( gdcm::Tag(0x54, 0x15) );
+    energyThresholdDE.SetVR( gdcm::VR::DS );
+    energyUpholdDE.SetVR( gdcm::VR::DS );
+    energyThresholdDE.SetByteValue(p_EnergyWindowThreshold[i], (uint32_t)strlen(p_EnergyWindowThreshold[i]));
+    energyUpholdDE.SetByteValue(p_EnergyWindowUphold[i], (uint32_t)strlen(p_EnergyWindowUphold[i]));
+    // Create an item
+    gdcm::Item energyThresholdIt;
+    energyThresholdIt.SetVLToUndefined();
+    gdcm::DataSet &energyThresholdDS = energyThresholdIt.GetNestedDataSet();
+    energyThresholdDS.Insert(energyThresholdDE);
+    energyThresholdDS.Insert(energyUpholdDE);
+    energyThresholdSq->AddItem(energyThresholdIt);
+    // Insert sequence into data set
+    gdcm::DataElement energyThresholdDEParent( gdcm::Tag(0x54, 0x13) );
+    energyThresholdDEParent.SetVR(gdcm::VR::SQ);
+    energyThresholdDEParent.SetValue(*energyThresholdSq);
+    energyThresholdDEParent.SetVLToUndefined();
+    // Create a dataelement
+    gdcm::DataElement energyNameDE( gdcm::Tag(0x54, 0x18) );
+    energyNameDE.SetVR( gdcm::VR::SH );
+    energyNameDE.SetByteValue(p_EnergyWindowName[i], (uint32_t)strlen(p_EnergyWindowName[i]));
+    // Create an item
+    gdcm::Item energyIt;
+    energyIt.SetVLToUndefined();
+    gdcm::DataSet &energyDS = energyIt.GetNestedDataSet();
+    energyDS.Insert(energyNameDE);
+    energyDS.Insert(energyThresholdDEParent);
+    energySq->AddItem(energyIt);
+  }
+  // Insert sequence into data set
+  energyDEParent.SetValue(*energySq);
+  energyDEParent.SetVLToUndefined();
+  ds2.Insert(energyDEParent);
+  ds2.Insert(rotationDEParent);
 
   gdcm::Writer w;
   w.SetFile( file );
-  //w.SetCheckFileMetaInformation( true );
   w.SetFileName( fileNamesOutput[0].c_str() );
   w.Write();
 
@@ -390,7 +392,10 @@ outputArray.push_back(outputDict);
   std::cout << "Use GDCM2" << std::endl;
 #endif
 }
+//---------------------------------------------------------------------------
 
+
+//---------------------------------------------------------------------------
 void CopyDictionary (itk::MetaDataDictionary &fromDict, itk::MetaDataDictionary &toDict)
 {
   typedef itk::MetaDataDictionary DictionaryType;
@@ -414,14 +419,18 @@ void CopyDictionary (itk::MetaDataDictionary &fromDict, itk::MetaDataDictionary 
     ++itr;
     }
 }
+//---------------------------------------------------------------------------
 
-template <typename T>
-  std::string NumberToString ( T Number )
-  {
-     std::ostringstream ss;
-     ss << Number;
-     return ss.str();
-  }
+
+//---------------------------------------------------------------------------
+template <typename T> std::string NumberToString ( T Number )
+{
+   std::ostringstream ss;
+   ss << Number;
+   return ss.str();
+}
+//---------------------------------------------------------------------------
+
 }//end clitk
 
 #endif //#define clitkGateSimulation2DicomGenericFilter_txx
