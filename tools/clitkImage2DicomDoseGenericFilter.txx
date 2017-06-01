@@ -29,8 +29,8 @@
 
 #include "math.h"
 
-#include "clitkImageToDICOMRTDose.h"
-#include "clitkImageToDICOMRTDose_ggo.h"
+#include "clitkImage2DicomDoseGenericFilter.h"
+#include "clitkCommon.h"
 #if GDCM_MAJOR_VERSION >= 2
 #include "gdcmUIDGenerator.h"
 #include <gdcmImageHelper.h>
