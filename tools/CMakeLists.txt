@@ -64,7 +64,8 @@ if(CLITK_BUILD_TOOLS)
   add_executable(clitkBinarizeImage clitkBinarizeImage.cxx)
   target_link_libraries(clitkBinarizeImage clitkBinarizeImageLib clitkCommon)
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkBinarizeImage)
-  
+
+
   add_executable(clitkProfileImage clitkProfileImage.cxx)
   target_link_libraries(clitkProfileImage clitkProfileImageLib clitkCommon)
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkProfileImage)
@@ -103,6 +104,11 @@ if(CLITK_BUILD_TOOLS)
   add_executable(clitkGateSimulation2Dicom clitkGateSimulation2Dicom.cxx ${clitkGateSimulation2Dicom_GGO_C})
   target_link_libraries(clitkGateSimulation2Dicom clitkCommon )
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkGateSimulation2Dicom)
+
+  WRAP_GGO(clitkImage2DicomDose_GGO_C clitkImage2DicomDose.ggo)
+  add_executable(clitkImage2DicomDose clitkImage2DicomDose.cxx ${clitkImage2DicomDose_GGO_C})
+  target_link_libraries(clitkImage2DicomDose clitkCommon)
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImage2DicomDose)
 
   WRAP_GGO(clitkMedianTemporalDimension_GGO_C clitkMedianTemporalDimension.ggo)
   add_executable(clitkMedianTemporalDimension clitkMedianTemporalDimension.cxx
