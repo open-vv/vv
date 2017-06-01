@@ -144,20 +144,16 @@ GateSimulation2DicomGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
 
 
   // Read Dicom model file
-  typename ReaderType::Pointer reader = ReaderType::New();
   typename ReaderSeriesType::Pointer readerSeries = ReaderSeriesType::New();
   ImageIOType::Pointer gdcmIO = ImageIOType::New();
   std::string filename_out = m_ArgsInfo.outputFilename_arg;
   gdcmIO->LoadPrivateTagsOn();
   gdcmIO->KeepOriginalUIDOn();
-  reader->SetImageIO( gdcmIO );
-  reader->SetFileName( m_ArgsInfo.inputModelFilename_arg );
   typename ReaderSeriesType::FileNamesContainer fileNames;
   fileNames.push_back(m_ArgsInfo.inputModelFilename_arg);
   readerSeries->SetImageIO( gdcmIO );
   readerSeries->SetFileNames( fileNames );
   try {
-    reader->Update();
     readerSeries->Update();
   } catch (itk::ExceptionObject &excp) {
     std::cerr << "Error: Exception thrown while reading the DICOM model file !!" << std::endl;
@@ -278,13 +274,8 @@ GateSimulation2DicomGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
 
 
   // Output directory and filenames
-  typedef itk::ImageFileWriter<OutputImageType>  WriterType;
   typedef itk::ImageSeriesWriter<OutputImageType, OutputImageType>  WriterSerieType;
-  typename WriterType::Pointer writer = WriterType::New();
   typename WriterSerieType::Pointer writerSerie = WriterSerieType::New();
-  writer->SetInput( mhdCorrectOrder );
-  writer->SetImageIO( gdcmIO );
-  writer->SetFileName( filename_out );
   writerSerie->SetInput( mhdCorrectOrder );
   writerSerie->SetImageIO( gdcmIO );
   typename ReaderSeriesType::FileNamesContainer fileNamesOutput;
@@ -296,8 +287,7 @@ GateSimulation2DicomGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   // Write
   try {
     if (m_ArgsInfo.verbose_flag)
-      std::cout << writer << std::endl;
-    //writer->Update();
+      std::cout << writerSerie << std::endl;
     writerSerie->Update();
   } catch( itk::ExceptionObject & excp ) {
     std::cerr << "Error: Exception thrown while writing the series!!" << std::endl;
@@ -306,10 +296,10 @@ GateSimulation2DicomGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
 
 
   //Write sequence dicom tag with gdcm
-  gdcm::Reader reader2;
-  reader2.SetFileName( fileNamesOutput[0].c_str() );
-  reader2.Read();
-  gdcm::File &file = reader2.GetFile();
+  gdcm::Reader reader;
+  reader.SetFileName( fileNamesOutput[0].c_str() );
+  reader.Read();
+  gdcm::File &file = reader.GetFile();
   gdcm::DataSet &ds2 = file.GetDataSet();
   const unsigned int ptr_len = 42;
   char *ptr = new char[ptr_len];
