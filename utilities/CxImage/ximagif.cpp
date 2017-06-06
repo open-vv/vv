@@ -718,8 +718,8 @@ void CxImageGIF::Putword(int w, CxFile *fp )
 ////////////////////////////////////////////////////////////////////////////////
 void CxImageGIF::compressNONE( int init_bits, CxFile* outfile)
 {
-	register long c;
-	register long ent;
+	long c;
+	long ent;
 
 	// g_init_bits - initial number of bits
 	// g_outfile   - pointer to output file
@@ -766,12 +766,12 @@ void CxImageGIF::compressNONE( int init_bits, CxFile* outfile)
 
 void CxImageGIF::compressLZW( int init_bits, CxFile* outfile)
 {
-	register long fcode;
-	register long c;
-	register long ent;
-	register long hshift;
-	register long disp;
-	register long i;
+	long fcode;
+	long c;
+	long ent;
+	long hshift;
+	long disp;
+	long i;
 
 	// g_init_bits - initial number of bits
 	// g_outfile   - pointer to output file
@@ -891,10 +891,10 @@ void CxImageGIF::output( code_int  code)
 void CxImageGIF::cl_hash(long hsize)
 
 {
-	register long *htab_p = htab+hsize;
+	long *htab_p = htab+hsize;
 
-	register long i;
-	register long m1 = -1L;
+	long i;
+	long m1 = -1L;
 
 	i = hsize - 16;
 
@@ -1061,9 +1061,9 @@ short CxImageGIF::get_next_code(CxFile* file)
  */
 short CxImageGIF::decoder(CxFile* file, CImageIterator* iter, short linewidth, int &bad_code_count)
 {
-	register BYTE *sp, *bufptr;
+	BYTE *sp, *bufptr;
 	BYTE *buf;
-	register short code, fc, oc, bufcnt;
+	short code, fc, oc, bufcnt;
 	short c, size, ret;
 
 	/* Initialize for decoding a new image... */

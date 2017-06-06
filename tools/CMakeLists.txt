@@ -351,6 +351,12 @@ if(CLITK_BUILD_TOOLS)
   target_link_libraries(clitkImageIntensityWindowing clitkCommon )
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageIntensityWindowing)
 
+  WRAP_GGO(clitkMaskOfIntegratedIntensity_GGO_C clitkMaskOfIntegratedIntensity.ggo)
+  add_executable(clitkMaskOfIntegratedIntensity clitkMaskOfIntegratedIntensity.cxx ${clitkMaskOfIntegratedIntensity_GGO_C})
+  target_link_libraries(clitkMaskOfIntegratedIntensity clitkCommon )
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMaskOfIntegratedIntensity)
+
+
   WRAP_GGO(clitkBlurImage_GGO_C clitkBlurImage.ggo)
   add_executable(clitkBlurImage clitkBlurImage.cxx ${clitkBlurImage_GGO_C})
   target_link_libraries(clitkBlurImage clitkCommon )
