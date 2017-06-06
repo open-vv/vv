@@ -74,11 +74,17 @@ namespace clitk
 
     // initialize original index locations
     std::vector<size_t> idx(v.size());
-    iota(idx.begin(), idx.end(), 0);
+    std::vector<std::pair<T, size_t> > compVector(v.size());
+    for (size_t i = 0; i < v.size(); ++i) {
+      compVector[i].first = v[i];
+      compVector[i].second = i;
+    }
 
     // sort indexes based on comparing values in v
-    std::sort(idx.begin(), idx.end(),
-              [&v](size_t i1, size_t i2) {return v[i1] > v[i2];});
+    std::sort(compVector.begin(), compVector.end(), comparator<T>);
+    for (size_t i = 0; i < v.size(); ++i) {
+      idx[i] = compVector[i].second;
+    }
 
     return idx;
   }
@@ -122,13 +128,13 @@ namespace clitk
     }
 
     // Sort (reverse)
-    auto indices = sort_indexes(values);
+    std::vector<size_t> indices = sort_indexes(values);
 
     // Get max index of pixel to reach xx percent
     double current = 0.0;
     double max = GetPercentage()/100.0*total;
     int i=0;
-    auto n = input->GetLargestPossibleRegion().GetNumberOfPixels();
+    int n = input->GetLargestPossibleRegion().GetNumberOfPixels();
     std::vector<int> should_keep(values.size());;
     std::fill(should_keep.begin(), should_keep.end(), 0);
     while (current<max and i<n) { // loop by decreasing pixel values
@@ -163,6 +169,11 @@ namespace clitk
   }
   //--------------------------------------------------------------------
 
+//--------------------------------------------------------------------
+template <typename T>
+bool comparator ( const std::pair<T, size_t>& l, const std::pair<T, size_t>& r)
+   { return l.first < r.first; }
+//--------------------------------------------------------------------
 
 }//end clitk
 

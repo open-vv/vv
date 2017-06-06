@@ -66,6 +66,9 @@ namespace clitk
     }; // end class
   //--------------------------------------------------------------------
 
+//Implementation of the pair comparative function
+template <typename T> bool comparator ( const std::pair<T, size_t>& l, const std::pair<T, size_t>& r);
+
 } // end namespace clitk
 
 #ifndef ITK_MANUAL_INSTANTIATION
