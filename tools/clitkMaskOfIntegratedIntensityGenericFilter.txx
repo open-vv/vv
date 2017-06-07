@@ -172,7 +172,7 @@ namespace clitk
 //--------------------------------------------------------------------
 template <typename T>
 bool comparator ( const std::pair<T, size_t>& l, const std::pair<T, size_t>& r)
-   { return l.first < r.first; }
+   { return l.first > r.first; }
 //--------------------------------------------------------------------
 
 }//end clitk
