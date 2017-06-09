@@ -47,6 +47,11 @@ void vvAnimatedGIFWriter::Write()
   int *wExtent = this->GetInput()->GetWholeExtent();
   this->GetInput()->SetUpdateExtent(wExtent);
   this->GetInput()->Update();
+#elif VTK_MAJOR_VERSION >= 7 && VTK_MINOR_VERSION >= 1
+  this->UpdateInformation();
+  int *wExtent = this->GetInput()->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
+  this->UpdateExtent(wExtent);
+  this->Update();
 #else
   this->UpdateInformation();
   int *wExtent = this->GetInput()->GetInformation()->Get(vtkDataObject::DATA_EXTENT());

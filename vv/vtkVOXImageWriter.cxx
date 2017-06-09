@@ -144,6 +144,9 @@ void vtkVOXImageWriter::Write( )
                                     ext[2], ext[3],
                                     ext[4], ext[5]);
   this->GetInput()->UpdateData();
+#elif VTK_MAJOR_VERSION >= 7 && VTK_MINOR_VERSION >= 1
+  this->UpdateExtent(ext);
+  this->Update();
 #else
   this->SetUpdateExtent(ext);
   this->Update();

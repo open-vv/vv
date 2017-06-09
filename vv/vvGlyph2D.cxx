@@ -175,6 +175,10 @@ int vvGlyph2D::RequestData(
 #if VTK_MAJOR_VERSION <= 5
     defaultSource->SetUpdateExtent(0, 1, 0);
     this->SetSource(defaultSource);
+#elif VTK_MAJOR_VERSION >= 7 && VTK_MINOR_VERSION >= 1
+    int extentTemp[3] = {0, 1, 0};
+    this->UpdateExtent(extentTemp);
+    this->SetSourceData(defaultSource);
 #else
     this->SetUpdateExtent(0, 1, 0);
     this->SetSourceData(defaultSource);
