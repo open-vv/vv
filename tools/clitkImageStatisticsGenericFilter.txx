@@ -248,7 +248,8 @@ namespace clitk
 
         // Output
         if (m_Verbose) std::cout<<"N° of pixels: ";
-        std::cout<<statisticsFilter->GetCount(label)<<std::endl;
+        unsigned int nbPixels = statisticsFilter->GetCount(label);
+        std::cout<<nbPixels<<std::endl;
         if (m_Verbose) std::cout<<"Mean: ";
         std::cout<<statisticsFilter->GetMean(label)<<std::endl;
         if (m_Verbose) std::cout<<"SD: ";
@@ -296,6 +297,58 @@ namespace clitk
           histogramFile<<"#MinBin\tMidBin\tMaxBin\tFrequency"<<std::endl;
           for( int i =0; i <m_ArgsInfo.bins_arg; i++)
             histogramFile<<histogram->GetBinMin(0,i)<<"\t"<<histogram->GetMeasurement(i,0)<<"\t"<<histogram->GetBinMax(0,i)<<"\t"<<histogram->GetFrequency(i)<<std::endl;
+
+          //mean + sigma + kurtosis + skewness - calculated from the histogram
+          double mean = 0.0;
+          double sigma = 0.0;
+          double skewness = 0.0;
+          double kurtosis = 0.0;
+
+          for( int i =0; i <m_ArgsInfo.bins_arg; i++) {
+            double binVal = histogram->GetMeasurement(i,0);
+            unsigned int freqVal = histogram->GetFrequency(i);
+            mean+=binVal*freqVal/nbPixels;
+          }
+          for( int i =0; i <m_ArgsInfo.bins_arg; i++) {
+            double binVal = histogram->GetMeasurement(i,0);
+            unsigned int freqVal = histogram->GetFrequency(i);
+            sigma+=(binVal-mean)*(binVal-mean)*freqVal/nbPixels;
+            skewness+=(binVal-mean)*
+                    (binVal-mean)*
+                    (binVal-mean)*
+                    freqVal/nbPixels;
+            kurtosis+=(binVal-mean)*
+                    (binVal-mean)*
+                    (binVal-mean)*
+                    (binVal-mean)*
+                    freqVal/nbPixels;
+          }
+          sigma=std::sqrt(sigma);
+          if(sigma == 0) {
+              skewness=0;
+              kurtosis=3;
+          } else {
+              skewness/=(sigma*sigma*sigma);
+              kurtosis/=(sigma*sigma*sigma*sigma);
+          }
+
+          std::cout<<"Histogram statistics"<<std::endl;
+          if (m_Verbose) {
+              std::cout<<"Mean: ";
+          }
+          std::cout<<mean<<std::endl;
+          if (m_Verbose) {
+              std::cout<<"STD: ";
+          }
+          std::cout<<sigma<<std::endl;
+          if (m_Verbose) {
+              std::cout<<"Skewness: ";
+          }
+          std::cout<<skewness<<std::endl;
+          if (m_Verbose) {
+              std::cout<<"Kurtosis: ";
+          }
+          std::cout<<kurtosis<<std::endl;
         }
 
         // DVH
