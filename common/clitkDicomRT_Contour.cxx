@@ -82,7 +82,11 @@ void clitk::DicomRT_Contour::UpdateDicomItem()
     double * p = mData->GetPoint(i);
     points[i*3] = p[0];
     points[i*3+1] = p[1];
-    points[i*3+2] = p[2];
+#if VTK_MAJOR_VERSION <= 5
+    points[i*3+1] = p[2];
+#else
+    points[i*3+1] = p[2]-0.5;
+#endif
   }
 
   // Get attribute
@@ -157,7 +161,11 @@ bool clitk::DicomRT_Contour::Read(gdcm::Item * item)
     double p[3];
     p[0] = points[i*3];
     p[1] = points[i*3+1];
+#if VTK_MAJOR_VERSION <= 5
     p[2] = points[i*3+2];
+#else
+    p[2] = points[i*3+2]+0.5;
+#endif
     mData->SetPoint(i, p);
     if (mZ == -1) mZ = p[2];
     if (p[2] != mZ) {
@@ -204,7 +212,11 @@ bool clitk::DicomRT_Contour::Read(gdcm::SQItem * item)
     double p[3];
     p[0] = points[i*3];
     p[1] = points[i*3+1];
+#if VTK_MAJOR_VERSION <= 5
     p[2] = points[i*3+2];
+#else
+    p[2] = points[i*3+2]+0.5;
+#endif
     mData->SetPoint(i, p);
     if (mZ == -1) mZ = p[2];
     if (p[2] != mZ) {
