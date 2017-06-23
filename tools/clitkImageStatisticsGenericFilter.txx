@@ -251,11 +251,45 @@ namespace clitk
         unsigned int nbPixels = statisticsFilter->GetCount(label);
         std::cout<<nbPixels<<std::endl;
         if (m_Verbose) std::cout<<"Mean: ";
-        std::cout<<statisticsFilter->GetMean(label)<<std::endl;
-        if (m_Verbose) std::cout<<"SD: ";
+        double mean = statisticsFilter->GetMean(label);
+        std::cout<<mean<<std::endl;
+        if (m_Verbose) std::cout<<"SD - /(N° of pixels -1): ";
         std::cout<<statisticsFilter->GetSigma(label)<<std::endl;
-        if (m_Verbose) std::cout<<"Variance: ";
+        if (m_Verbose) std::cout<<"Variance - /(N° of pixels -1): ";
         std::cout<<statisticsFilter->GetVariance(label)<<std::endl;
+        //
+        double sigma = 0.0;
+        double skewness = 0.0;
+        double kurtosis = 0.0;
+        itk::ImageRegionIterator<InputImageAdaptorType> ItI(input_adaptor, input_adaptor->GetLargestPossibleRegion());
+        itk::ImageRegionIterator<LabelImageType> ItM(labelImage, labelImage->GetLargestPossibleRegion());
+        for ( ItI.GoToBegin(), ItM.GoToBegin(); !ItI.IsAtEnd(); ++ItI, ++ItM ) {
+            if ( ItM.Get() == label ) {
+              PixelType value = ItI.Get();
+              sigma+=(value-mean)*(value-mean)/nbPixels;
+              double diff = value - mean;
+              skewness += ( diff * diff * diff ) /nbPixels;
+              kurtosis += ( diff * diff * diff * diff ) /nbPixels;
+            }
+        }
+        sigma=std::sqrt(sigma);
+        if(sigma == 0) {
+            skewness=0;
+            kurtosis=3;
+        } else {
+            skewness/=(sigma*sigma*sigma);
+            kurtosis/=(sigma*sigma*sigma*sigma);
+        }
+        //Show results
+        if (m_Verbose) std::cout<<"SD - /(N° of pixels): ";
+        std::cout<<sigma<<std::endl;
+        if (m_Verbose) std::cout<<"Variance - /(N° of pixels): ";
+        std::cout<<sigma*sigma<<std::endl;
+        if (m_Verbose) std::cout<<"Skewness: ";
+        std::cout<<skewness<<std::endl;
+        if (m_Verbose) std::cout<<"Kurtosis: ";
+        std::cout<<kurtosis<<std::endl;
+        //
         if (m_Verbose) std::cout<<"Min: ";
         std::cout<<statisticsFilter->GetMinimum(label)<<std::endl;
         if (m_Verbose && m_Localize) {
