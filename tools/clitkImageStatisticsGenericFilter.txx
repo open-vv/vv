@@ -323,39 +323,40 @@ namespace clitk
           if (m_Verbose) std::cout<<"Histogram: "<<std::endl;
             std::cout<<"# MinBin\tMidBin\tMaxBin\tFrequency"<<std::endl;
           for( int i =0; i <m_ArgsInfo.bins_arg; i++)
-            std::cout<<histogram->GetBinMin(0,i)<<"\t"<<histogram->GetMeasurement(i,0)<<"\t"<<histogram->GetBinMax(0,i)<<"\t"<<histogram->GetFrequency(i)<<std::endl;
+            std::cout<<histogram->GetBinMin(0,i)<<"\t"<<histogram->GetMeasurement(i,0)<<"\t"<<histogram->GetBinMax(0,i)<<"\t"<<double (histogram->GetFrequency(i))/ double (histogram->GetTotalFrequency())<<std::endl;
 
           // Add to the file
           std::ofstream histogramFile(m_ArgsInfo.histogram_arg);
           histogramFile<<"#Histogram: "<<std::endl;
           histogramFile<<"#MinBin\tMidBin\tMaxBin\tFrequency"<<std::endl;
           for( int i =0; i <m_ArgsInfo.bins_arg; i++)
-            histogramFile<<histogram->GetBinMin(0,i)<<"\t"<<histogram->GetMeasurement(i,0)<<"\t"<<histogram->GetBinMax(0,i)<<"\t"<<histogram->GetFrequency(i)<<std::endl;
+            histogramFile<<histogram->GetBinMin(0,i)<<"\t"<<histogram->GetMeasurement(i,0)<<"\t"<<histogram->GetBinMax(0,i)<<"\t"<<double (histogram->GetFrequency(i))/ double (histogram->GetTotalFrequency())<<std::endl;
 
           //mean + sigma + kurtosis + skewness - calculated from the histogram
           double mean = 0.0;
           double sigma = 0.0;
           double skewness = 0.0;
           double kurtosis = 0.0;
+          double totalFreq = histogram->GetTotalFrequency();
 
           for( int i =0; i <m_ArgsInfo.bins_arg; i++) {
             double binVal = histogram->GetMeasurement(i,0);
             unsigned int freqVal = histogram->GetFrequency(i);
-            mean+=binVal*freqVal/nbPixels;
+            mean+=binVal*freqVal/totalFreq;
           }
           for( int i =0; i <m_ArgsInfo.bins_arg; i++) {
             double binVal = histogram->GetMeasurement(i,0);
             unsigned int freqVal = histogram->GetFrequency(i);
-            sigma+=(binVal-mean)*(binVal-mean)*freqVal/nbPixels;
+            sigma+=(binVal-mean)*(binVal-mean)*freqVal/totalFreq;
             skewness+=(binVal-mean)*
                     (binVal-mean)*
                     (binVal-mean)*
-                    freqVal/nbPixels;
+                    freqVal/totalFreq;
             kurtosis+=(binVal-mean)*
                     (binVal-mean)*
                     (binVal-mean)*
                     (binVal-mean)*
-                    freqVal/nbPixels;
+                    freqVal/totalFreq;
           }
           sigma=std::sqrt(sigma);
           if(sigma == 0) {
@@ -368,19 +369,19 @@ namespace clitk
 
           std::cout<<"Histogram statistics"<<std::endl;
           if (m_Verbose) {
-              std::cout<<"Mean: ";
+              std::cout<<"HMean: ";
           }
           std::cout<<mean<<std::endl;
           if (m_Verbose) {
-              std::cout<<"STD: ";
+              std::cout<<"HSTD: ";
           }
           std::cout<<sigma<<std::endl;
           if (m_Verbose) {
-              std::cout<<"Skewness: ";
+              std::cout<<"HSkewness: ";
           }
           std::cout<<skewness<<std::endl;
           if (m_Verbose) {
-              std::cout<<"Kurtosis: ";
+              std::cout<<"HKurtosis: ";
           }
           std::cout<<kurtosis<<std::endl;
         }
