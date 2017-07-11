@@ -253,9 +253,9 @@ namespace clitk
         if (m_Verbose) std::cout<<"Mean: ";
         double mean = statisticsFilter->GetMean(label);
         std::cout<<mean<<std::endl;
-        if (m_Verbose) std::cout<<"SD - /(N° of pixels -1): ";
+        if (m_Verbose) std::cout<<"SD_N-1: ";
         std::cout<<statisticsFilter->GetSigma(label)<<std::endl;
-        if (m_Verbose) std::cout<<"Variance - /(N° of pixels -1): ";
+        if (m_Verbose) std::cout<<"Variance_N-1: ";
         std::cout<<statisticsFilter->GetVariance(label)<<std::endl;
         //
         double sigma = 0.0;
@@ -281,9 +281,9 @@ namespace clitk
             kurtosis/=(sigma*sigma*sigma*sigma);
         }
         //Show results
-        if (m_Verbose) std::cout<<"SD - /(N° of pixels): ";
+        if (m_Verbose) std::cout<<"SD_N: ";
         std::cout<<sigma<<std::endl;
-        if (m_Verbose) std::cout<<"Variance - /(N° of pixels): ";
+        if (m_Verbose) std::cout<<"Variance_N: ";
         std::cout<<sigma*sigma<<std::endl;
         if (m_Verbose) std::cout<<"Skewness: ";
         std::cout<<skewness<<std::endl;
