@@ -58,13 +58,22 @@ int main(int argc, char * argv[])
   int series_number = -1;
   std::set<int> series_numbers;
   std::map< int, std::vector<double> > theorigin;
+  std::map< int, std::vector<double> > theorientation;
   std::map< int, std::vector<double> > sliceLocations;
   std::map< int, std::vector<std::string> > seriesFiles;
-  for(unsigned int i=0; i<args_info.inputs_num; i++) {
-    //std::cout << "Reading <" << input_files[i] << std::endl;
 #if GDCM_MAJOR_VERSION == 2
+  if (args_info.verbose_flag)
+    std::cout << "Using GDCM-2.x" << std::endl;
+#else
+  if (args_info.verbose_flag) {
+    std::cout << "Not using GDCM-2.x" << std::endl;
+    std::cout<< "The image orientation is not supported with this version of GDCM" <<std::endl;
+  }
+#endif
+  for(unsigned int i=0; i<args_info.inputs_num; i++) {
     if (args_info.verbose_flag)
-      std::cout << "Using GDCM-2.x" << std::endl;
+        std::cout << "Reading <" << input_files[i] << std::endl;
+#if GDCM_MAJOR_VERSION == 2
     gdcm::Reader hreader;
     hreader.SetFileName(input_files[i].c_str());
     hreader.Read();
@@ -72,13 +81,23 @@ int main(int argc, char * argv[])
 
     if (args_info.extract_series_flag) {
       gdcm::Attribute<0x20,0x11> series_number_att;
-      series_number_att.SetFromDataSet(hreader.GetFile().GetDataSet());
+      series_number_att.SetFromDataSet(ds);
       series_number = series_number_att.GetValue();
     }
     
     series_numbers.insert(series_number);
     theorigin[series_number] = gdcm::ImageHelper::GetOriginValue(hreader.GetFile());
-    sliceLocations[series_number].push_back(theorigin[series_number][2]);
+    theorientation[series_number] = gdcm::ImageHelper::GetDirectionCosinesValue(hreader.GetFile());
+    double n1 = theorientation[series_number][1]*theorientation[series_number][5]-
+                theorientation[series_number][2]*theorientation[series_number][4];
+    double n2 = theorientation[series_number][3]*theorientation[series_number][2]-
+                theorientation[series_number][5]*theorientation[series_number][0];
+    double n3 = theorientation[series_number][0]*theorientation[series_number][4]-
+                theorientation[series_number][1]*theorientation[series_number][3];
+    double sloc = theorigin[series_number][0]*n1+
+                  theorigin[series_number][1]*n2+
+                  theorigin[series_number][2]*n3;
+    sliceLocations[series_number].push_back(sloc);
     seriesFiles[series_number].push_back(input_files[i]);
     
     gdcm::Attribute<0x28, 0x100> pixel_size;
@@ -91,8 +110,6 @@ int main(int argc, char * argv[])
        }
     */
 #else
-    if (args_info.verbose_flag)
-      std::cout << "Not using GDCM-2.x" << std::endl;
   gdcm::File *header = new gdcm::File();
   header->SetFileName(input_files[i]);
   header->SetMaxSizeLoadEntry(16384); // required ?
@@ -127,7 +144,7 @@ int main(int argc, char * argv[])
     std::vector<std::string> files = seriesFiles[*sn];
     std::vector<int> sliceIndex;
     clitk::GetSortedIndex(locs, sliceIndex);
-    if (args_info.verboseSliceLocation_flag) {
+    if (args_info.verbose_flag) {
       std::cout << locs[sliceIndex[0]] << " -> "
                 << sliceIndex[0] << " / " << 0 << " => "
                 << "0 mm "
@@ -212,8 +229,24 @@ int main(int argc, char * argv[])
       name << *sn << "_" << args_info.output_arg;
       outfile = name.str();
     }
+    //Check on transform
+    bool bId = true;
+    for(unsigned int i=0; i<4; i++) {
+      for(unsigned int j=0; j<4; j++) {
+        double elt = image->GetTransform()[0]->GetMatrix()->GetElement(i,j);
+        if(i==j && elt!=1.) {
+          bId = false;
+        }
+        if(i!=j && elt!=0.) {
+          bId = false;
+        }
+      }
+    }
     vvImageWriter::Pointer writer = vvImageWriter::New();
     writer->SetInput(image);
+    if(!bId) {
+        writer->SetSaveTransform(true);
+    }
     writer->SetOutputFileName(outfile);
     writer->Update();
 
