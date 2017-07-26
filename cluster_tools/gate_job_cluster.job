@@ -40,7 +40,13 @@ echo "PARAM=${PARAM}"
 if test "$RELEASEDIR" = "NONE"
 then
 	echo Using $(which Gate)
-	ldd $(which Gate)
+  unamestr=`uname`
+  if [[ "$unamestr" != 'Darwin' ]]; then
+      ldd $(which Gate)
+  else
+      ## ldd "equivalent" on osx is otool
+      otool -L $(which Gate)
+  fi
 else
 	test -d "${RELEASEDIR}" || error "can't find release"
 	md5sum ${RELEASEDIR}/Gate
@@ -64,7 +70,13 @@ echo "Copying inputs"
 LOCALMACRODIR=$(mktemp -d)
 trap "mv output ${OUTPUTDIR}/output.${PBS_JOBID%%.*} ; rm -r ${LOCALMACRODIR} ; exit 1" 1 2 3 15
 cd ${LOCALMACRODIR}
-cp -r -L "${MACRODIR}"/{data,mac} .
+unamestr=`uname`
+if [[ "$unamestr" == 'Darwin' ]]; then
+    ## cp is slightly different on OSX
+    cp -R -L "${MACRODIR}"/{data,mac} .
+else
+    cp -r -L "${MACRODIR}"/{data,mac} .
+fi
 mkdir output
 
 # Enforce one thread
@@ -74,8 +86,8 @@ echo "Lauching macro"
 date
 if test "$RELEASEDIR" = "NONE"
 then
-        echo Gate ${PARAM} ${MACROFILE}
-	eval Gate ${PARAM} ${MACROFILE} || error "gate failed"
+    echo Gate ${PARAM} ${MACROFILE}
+	  eval Gate ${PARAM} ${MACROFILE} || error "gate failed"
 else
 	LD_PRELOAD="${ROOTLIBS}${G4LIBS}${CLHEPLIBS}${GATELIBS}" \
 	G4LEVELGAMMADATA="${RELEASEDIR}/PhotonEvaporation2.1" \
@@ -92,6 +104,7 @@ else
 fi
 
 echo "Copying data back"
+pwd
 mv output "${OUTPUTDIR}/output.${PBS_JOBID%%.*}"
 
 echo "Cleanup"
