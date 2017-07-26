@@ -79,13 +79,16 @@ void VectorArithmGenericFilter<args_info_type>::SetArgsInfo(const args_info_type
   if (mArgsInfo.input2_given) {
     mIsOperationUseASecondImage = true;
     this->AddInputFilename(mArgsInfo.input2_arg);
-    if (mArgsInfo.operation_arg == 1)
+    if (mArgsInfo.operation_arg == 2)
       mIsOutputScalar = true;
   } 
   else if (mArgsInfo.operation_arg == 5 || mArgsInfo.operation_arg == 6)
     mIsOutputScalar = true;
 
-  if (mArgsInfo.output_given) this->SetOutputFilename(mArgsInfo.output_arg);
+  if (mArgsInfo.output_given) {
+    this->SetOutputFilename(mArgsInfo.output_arg);
+    mOverwriteInputImage = false;
+  }
 
   // Check type of operation (with scalar or with other image)
   if ((mArgsInfo.input2_given) && (mArgsInfo.scalar_given)) {
@@ -217,16 +220,18 @@ void  VectorArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it1, Iter2 i
       ++ito;
     }
     break;
-    /*
-  case 1: // Multiply
+
+  case 1: // term to term Multiply
     while (!ito.IsAtEnd()) {
-      ito.Set(it1.Get() * it2.Get()) );
+      typename Iter1::PixelType outputPixel(ito.Get());
+      outputPixel.SetVnlVector(element_product(it1.Get().GetVnlVector(),it2.Get().GetVnlVector()));
+      ito.Set(outputPixel);
       ++it1;
       ++it2;
       ++ito;
     }
     break;
-    */
+
     /*
   case 2: // Divide
     while (!ito.IsAtEnd()) {
@@ -457,7 +462,7 @@ void  VectorArithmGenericFilter<args_info_type>::ComputeScalarImage(Iter1 it1, I
   typedef typename Iter3::PixelType PixelType;
 
   switch (mTypeOfOperation) {
-  case 1: // Multiply
+  case 2: // Multiply
     while (!ito.IsAtEnd()) {
       ito.Set(it1.Get() * it2.Get());
       ++it1;

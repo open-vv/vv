@@ -329,9 +329,9 @@ function merge_dispatcher {
     local firstpartialoutputextension="${firstpartialoutputfile##*.}"
     echo "${indent}testing file type on ${firstpartialoutputfile}"
 
-    if test "${firstpartialoutputextension}" == "hdr" && grep -qs 'INTERFILE' "${firstpartialoutputfile}"
+    if test "${firstpartialoutputextension}" == "hdr" && test grep -qs 'INTERFILE' "${firstpartialoutputfile}"
     then
-        echo "${indent}this is a interfile image"
+        echo "${indent}this is an interfile image"
         echo "${indent}creating mhd headers"
         for partialoutputfile in $partialoutputfiles; do write_mhd_header "${partialoutputfile}"; done
         local mhd_partialoutputfiles="$(for partialoutputfile in $partialoutputfiles; do echo "${partialoutputfile%.*}.mhd"; done)"
@@ -347,7 +347,7 @@ function merge_dispatcher {
 
     if test "${firstpartialoutputextension}" == "hdr"
     then
-        echo "${indent}this is a analyse image"
+        echo "${indent}this is an analyse image"
         local mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}")"
         merge_hdr_image "${mergedfile}" ${partialoutputfiles} || error "error while merging"
         return
