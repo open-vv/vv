@@ -52,7 +52,16 @@ then
     OUTPUTDIR=$(mktemp -d -p "${MACRODIR}" run.XXXX || error "can't create temp dir")
     ssh -i ${HOME}/.ssh/ccin2p3 linux1.dg.creatis.insa-lyon.fr mkdir -p "cc/$(basename ${OUTPUTDIR})"
 else
-    OUTPUTDIR=$(mktemp --tmpdir=${MACRODIR} -d run.XXXX || error "can't create temp dir")
+    unamestr=`uname`
+    if [[ "$unamestr" == 'Darwin' ]]; then
+        ## On OSX (Darwin), mktemp version is different from Linux version . We
+        ## need the absolute folder here
+        OUTPUTDIR=$(mktemp -d run.XXXX || error "can't create temp dir")
+        OUTPUTDIR=${MACRODIR}/${OUTPUTDIR}
+    else
+        OUTPUTDIR=$(mktemp --tmpdir=${MACRODIR} -d run.XXXX || error "can't create temp dir")
+    fi
+    echo $OUTPUTDIR
 fi
 test -d ${OUTPUTDIR} || error "can't locate output dir"
 RUNID=${OUTPUTDIR##*.}
