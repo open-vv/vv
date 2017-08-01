@@ -105,6 +105,11 @@ if(CLITK_BUILD_TOOLS)
   target_link_libraries(clitkGateSimulation2Dicom clitkCommon )
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkGateSimulation2Dicom)
 
+  WRAP_GGO(clitkPartitionEnergyWindowDicom_GGO_C clitkPartitionEnergyWindowDicom.ggo)
+  add_executable(clitkPartitionEnergyWindowDicom clitkPartitionEnergyWindowDicom.cxx ${clitkPartitionEnergyWindowDicom_GGO_C})
+  target_link_libraries(clitkPartitionEnergyWindowDicom clitkCommon )
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkPartitionEnergyWindowDicom)
+
   WRAP_GGO(clitkImage2DicomDose_GGO_C clitkImage2DicomDose.ggo)
   add_executable(clitkImage2DicomDose clitkImage2DicomDose.cxx ${clitkImage2DicomDose_GGO_C})
   target_link_libraries(clitkImage2DicomDose clitkCommon)
