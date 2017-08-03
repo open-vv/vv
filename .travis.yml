@@ -83,7 +83,7 @@ install:
 
 cache:
 install:
- - timeout: 999
+# - timeout: 1000
  - directories:
    - $HOME/vtk-5.10
    - $HOME/vtk-5.10-build
