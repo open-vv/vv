@@ -65,8 +65,6 @@ before_install:
 - export ITK_SOURCE_DIR=${EXTERNALS_DIR}/itk-${ITK_VERSION}
 - export ITK_DIR=${EXTERNALS_DIR}/itk-${ITK_VERSION}-build
 - export BUILD_DIR=$cwd/build
-
-install:
 - if test $TRAVIS_OS_NAME == linux ; then sudo apt-get install -y -qq build-essential cmake; fi
 #Install qt5
 - $SCRIPTS/travis_build_qt.sh
