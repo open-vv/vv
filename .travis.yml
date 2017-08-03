@@ -73,6 +73,8 @@ install:
 - if test $TRAVIS_OS_NAME == linux; then sudo apt-get -y install libgdcm2-dev libpq-dev; fi
 - if test $TRAVIS_OS_NAME == linux; then if [[ "$QT_VERSION" == "5.5.1" ]] ; then QTDIR="/opt/qt55" && PATH="$PATH:$QTDIR/bin" && qt55-env.sh ; fi; fi
 - if test $TRAVIS_OS_NAME == osx ; then export HOMEBREW_QT_VERSION=$(brew list --versions qt | rev | cut -d' ' -f1 | rev); fi
+- if test $TRAVIS_OS_NAME == osx ; then brew install ccache; fi
+- if test $TRAVIS_OS_NAME == osx ; then export PATH="/usr/local/opt/ccache/libexec:$PATH"; fi
 - if test $TRAVIS_OS_NAME == osx ; then if [[ "$QT_VERSION" == "5.5.1" ]] ; then ln -s /usr/local/Cellar/qt@5.5/5.5.1_1/mkspecs /usr/local/mkspecs; fi; fi
 - if test $TRAVIS_OS_NAME == osx ; then if [[ "$QT_VERSION" == "5.5.1" ]] ; then ln -s /usr/local/Cellar/qt@5.5/5.5.1_1/plugins /usr/local/plugins; fi; fi
 - if test $TRAVIS_OS_NAME == osx ; then if [[ "$QT_VERSION" == "4.8.7" ]] ; then ln -s /usr/local/Cellar/qt@4/4.8.7_1/mkspecs /usr/local/mkspecs; fi; fi
@@ -80,6 +82,7 @@ install:
 - if test $TRAVIS_OS_NAME == osx ; then qmake -v; fi
 
 cache:
+install:
  - timeout: 1000
  - directories:
    - $HOME/vtk-5.10
@@ -97,9 +100,9 @@ before_script:
 - if test $TRAVIS_OS_NAME == linux ; then sudo ln -s /usr/bin/x86_64-linux-gnu/libpq.so /usr/bin/libpq.so; fi
 - echo $PATH
 - $SCRIPTS/travis_build_vtk.sh
-- $SCRIPTS/travis_build_itk.sh
+#- $SCRIPTS/travis_build_itk.sh
 #Install vtk and itk (different version)
 
 script:
 - echo "coucou";
-- $SCRIPTS/travis_build_vv.sh
+#- $SCRIPTS/travis_build_vv.sh
