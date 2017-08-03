@@ -84,17 +84,17 @@ install:
 cache:
 install:
 # - timeout: 1000
- - directories:
-   - $HOME/vtk-5.10
-   - $HOME/vtk-5.10-build
-   - $HOME/vtk-6.3
-   - $HOME/vtk-6.3-build
-   - $HOME/vtk-7.0.0
-   - $HOME/vtk-7.0.0-build
-   - $HOME/itk-4.5
-   - $HOME/itk-4.5-build
-   - $HOME/itk-4.9.1
-   - $HOME/itk-4.9.1-build
+directories:
+ - $HOME/vtk-5.10
+ - $HOME/vtk-5.10-build
+ - $HOME/vtk-6.3
+ - $HOME/vtk-6.3-build
+ - $HOME/vtk-7.0.0
+ - $HOME/vtk-7.0.0-build
+ - $HOME/itk-4.5
+ - $HOME/itk-4.5-build
+ - $HOME/itk-4.9.1
+ - $HOME/itk-4.9.1-build
 
 before_script:
 - if test $TRAVIS_OS_NAME == linux ; then sudo ln -s /usr/bin/x86_64-linux-gnu/libpq.so /usr/bin/libpq.so; fi
