@@ -79,8 +79,8 @@ before_install:
 - if test $TRAVIS_OS_NAME == osx ; then if [[ "$QT_VERSION" == "4.8.7" ]] ; then ln -s /usr/local/Cellar/qt@4/4.8.7_1/plugins /usr/local/plugins; fi; fi
 - if test $TRAVIS_OS_NAME == osx ; then qmake -v; fi
 
-cache:
-install:
+cache: ccache
+#install:
 # - timeout: 1000
 directories:
  - $HOME/vtk-5.10
@@ -98,7 +98,7 @@ before_script:
 - if test $TRAVIS_OS_NAME == linux ; then sudo ln -s /usr/bin/x86_64-linux-gnu/libpq.so /usr/bin/libpq.so; fi
 - echo $PATH
 - $SCRIPTS/travis_build_vtk.sh
-- $SCRIPTS/travis_build_itk.sh
+#- $SCRIPTS/travis_build_itk.sh
 #Install vtk and itk (different version)
 
 script:
