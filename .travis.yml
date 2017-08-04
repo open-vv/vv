@@ -98,7 +98,7 @@ before_script:
 - if test $TRAVIS_OS_NAME == linux ; then sudo ln -s /usr/bin/x86_64-linux-gnu/libpq.so /usr/bin/libpq.so; fi
 - echo $PATH
 - $SCRIPTS/travis_build_vtk.sh
-#- $SCRIPTS/travis_build_itk.sh
+- $SCRIPTS/travis_build_itk.sh
 #Install vtk and itk (different version)
 
 script:
