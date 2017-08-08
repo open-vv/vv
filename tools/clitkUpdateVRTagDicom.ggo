@@ -1,0 +1,11 @@
+#File clitkUpdateVRTagDicom.ggo
+package "clitkUpdateVRTagDicom"
+version "1.0"
+purpose "Fix VR Dicom tag mistakes with gdcm"
+
+option "config"	  - "Config file"                 string  no
+option "verbose"  v "Verbose"                     flag    off
+
+option "input"    i "Input Dicom image filename"  string  yes
+option "output"   o "Output dicom filename"       string  yes
+option "model"    m "Model dicom filename"        string  yes

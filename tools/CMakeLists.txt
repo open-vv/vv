@@ -110,6 +110,11 @@ if(CLITK_BUILD_TOOLS)
   target_link_libraries(clitkPartitionEnergyWindowDicom clitkCommon )
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkPartitionEnergyWindowDicom)
 
+  WRAP_GGO(clitkUpdateVRTagDicom_GGO_C clitkUpdateVRTagDicom.ggo)
+  add_executable(clitkUpdateVRTagDicom clitkUpdateVRTagDicom.cxx ${clitkUpdateVRTagDicom_GGO_C})
+  target_link_libraries(clitkUpdateVRTagDicom clitkCommon )
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkUpdateVRTagDicom)
+
   WRAP_GGO(clitkImage2DicomDose_GGO_C clitkImage2DicomDose.ggo)
   add_executable(clitkImage2DicomDose clitkImage2DicomDose.cxx ${clitkImage2DicomDose_GGO_C})
   target_link_libraries(clitkImage2DicomDose clitkCommon)
