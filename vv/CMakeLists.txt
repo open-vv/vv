@@ -16,7 +16,6 @@ set(vv_TOOLS
   vvToolCropImage
   vvToolBinarize
   vvToolImageArithm
-  vvToolResample
   vvToolMIP
   vvToolConvert ## with dummy vvToolConvert.ui
   vvToolROIManager
@@ -40,7 +39,6 @@ set(vv_TOOLS
 set(vvToolBinarize_LIBS clitkBinarizeImageLib)
 set(vvToolProfile_LIBS clitkProfileImageLib)
 set(vvToolHistogram_LIBS clitkHistogramImageLib)
-set(vvToolResample_LIBS clitkResampleImageLib)
 set(vvToolConvert_LIBS clitkImageConvertLib)
 set(vvToolExtractPatient_LIBS clitkSegmentationGgoLib)
 set(vvToolExtractLung_LIBS clitkSegmentationGgoLib)

@@ -21,9 +21,6 @@ add_library(clitkImageArithmImageLib clitkImageArithmGenericFilter.cxx ${clitkIm
 WRAP_GGO(clitkVectorArithm_GGO_C clitkVectorArithm.ggo)
 add_library(clitkVectorArithmLib clitkVectorArithmGenericFilter.cxx ${clitkVectorArithm_GGO_C})
 
-WRAP_GGO(clitkResampleImage_GGO_C clitkResampleImage.ggo)
-add_library(clitkResampleImageLib clitkResampleImageGenericFilter.cxx ${clitkResampleImage_GGO_C})
-
 WRAP_GGO(clitkMIP_GGO_C clitkMIP.ggo)
 add_library(clitkMIPLib clitkMIPGenericFilter.cxx ${clitkMIP_GGO_C})
 
@@ -188,10 +185,6 @@ if(CLITK_BUILD_TOOLS)
   add_executable(clitkMedianImageFilter clitkMedianImageFilter.cxx ${clitkMedianImageFilter_GGO_C})
   target_link_libraries(clitkMedianImageFilter clitkMedianImageFilterLib clitkCommon)
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMedianImageFilter)
-
-  add_executable(clitkResampleImage clitkResampleImage.cxx)
-  target_link_libraries(clitkResampleImage clitkResampleImageLib clitkCommon)
-  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkResampleImage)
 
   WRAP_GGO(clitkMinMaxMask_GGO_C clitkMinMaxMask.ggo)
   add_executable(clitkMinMaxMask clitkMinMaxMask.cxx ${clitkMinMaxMask_GGO_C})
