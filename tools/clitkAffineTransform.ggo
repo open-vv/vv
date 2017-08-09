@@ -31,3 +31,7 @@ option "interpSF"	- "Sampling factor if BLUT"			        int  	no  default="20"
 option "interpVF"	- "Interpolation: 0=NN, 1=Linear, 2=BSpline, 3=BLUT"	int  	no  default="1"
 option "interpVFOrder"	- "Order if BLUT or BSpline (0-5)"		        int  	no  default="3"
 option "interpVFSF"	- "Sampling factor if BLUT"			        int  	no  default="20"
+
+section "Gaussian filtering"
+option "gauss" g "Apply gaussian filter before (sigma in mm) (default=0.0)" double no multiple
+option "autogauss" - "Apply gaussian filter before with auto sigma when downsampling (default=off)" flag off
