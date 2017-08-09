@@ -281,10 +281,19 @@ namespace clitk
           outputOrigin[i]=m_ArgsInfo.origin_arg[i];
       } else outputOrigin=input->GetOrigin();
 
+      //Direction
+      typename OutputImageType::DirectionType outputDirection;
+      if (m_ArgsInfo.direction_given) {
+        for(unsigned int j=0; j< Dimension; j++)
+            for(unsigned int i=0; i< Dimension; i++)
+                outputDirection[j][i]=m_ArgsInfo.direction_arg[i+Dimension*j];
+      } else outputDirection=input->GetDirection();
+
       // Set
       resampler->SetSize( outputSize );
       resampler->SetOutputSpacing( outputSpacing );
       resampler->SetOutputOrigin(  outputOrigin );
+      resampler->SetOutputDirection( outputDirection );
 
     }
 
@@ -315,6 +324,7 @@ namespace clitk
       std::cout << "Setting the output size to " << resampler->GetSize() << "..." << std::endl;
       std::cout << "Setting the output spacing to " << resampler->GetOutputSpacing() << "..." << std::endl;
       std::cout << "Setting the output origin to " << resampler->GetOutputOrigin() << "..." << std::endl;
+      std::cout << "Setting the output direction to " << resampler->GetOutputDirection() << "..." << std::endl;
     }
 
     resampler->SetInput( input );
@@ -438,6 +448,7 @@ namespace clitk
       resampler->SetSize( likeReader->GetOutput()->GetLargestPossibleRegion().GetSize() );
       resampler->SetOutputSpacing( likeReader->GetOutput()->GetSpacing() );
       resampler->SetOutputOrigin(  likeReader->GetOutput()->GetOrigin() );
+      resampler->SetOutputDirection( likeReader->GetOutput()->GetDirection() );
     } else {
       //Size
       typename OutputImageType::SizeType outputSize;
@@ -463,10 +474,20 @@ namespace clitk
       } else outputOrigin=input->GetOrigin();
       std::cout<<"Setting the origin to "<<outputOrigin<<"..."<<std::endl;
 
+      //Direction
+      typename OutputImageType::DirectionType outputDirection;
+      if (m_ArgsInfo.direction_given) {
+        for(unsigned int j=0; j< Dimension; j++)
+            for(unsigned int i=0; i< Dimension; i++)
+                outputDirection[j][i]=m_ArgsInfo.direction_arg[i+Dimension*j];
+      } else outputDirection=input->GetDirection();
+      std::cout<<"Setting the direction to "<<outputDirection<<"..."<<std::endl;
+
       // Set
       resampler->SetSize( outputSize );
       resampler->SetOutputSpacing( outputSpacing );
       resampler->SetOutputOrigin(  outputOrigin );
+      resampler->SetOutputDirection( outputDirection );
 
     }
 
