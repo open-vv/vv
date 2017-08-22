@@ -393,7 +393,7 @@ void vvSlicer::SetImage(vvImage::Pointer image)
 #if VTK_MAJOR_VERSION <= 5
     mImageReslice->GetOutput()->SetUpdateExtent(extent);
     mImageReslice->GetOutput()->Update();
-#elif VTK_MAJOR_VERSION >= 7 && VTK_MINOR_VERSION >= 1
+#elif VTK_MAJOR_VERSION >= 8 || (VTK_MAJOR_VERSION == 7 && VTK_MINOR_VERSION >= 1)
     mImageReslice->UpdateExtent(extent);
     mImageReslice->Update();
 #else
@@ -1793,7 +1793,7 @@ void vvSlicer::Render()
     }
 #if VTK_MAJOR_VERSION <= 5
     mOverlayMapper->GetOutput()->SetUpdateExtent(mOverlayActor->GetDisplayExtent());
-#elif VTK_MAJOR_VERSION >= 7 && VTK_MINOR_VERSION >= 1
+#elif VTK_MAJOR_VERSION >= 8 || (VTK_MAJOR_VERSION == 7 && VTK_MINOR_VERSION >= 1)
     mOverlayMapper->UpdateExtent(mOverlayActor->GetDisplayExtent());
 #else
     mOverlayMapper->SetUpdateExtent(mOverlayActor->GetDisplayExtent());
@@ -1803,7 +1803,7 @@ void vvSlicer::Render()
   if (mFusion && mFusionActor->GetVisibility()) {
 #if VTK_MAJOR_VERSION <= 5
     mFusionMapper->GetOutput()->SetUpdateExtent(mFusionActor->GetDisplayExtent());
-#elif VTK_MAJOR_VERSION >= 7 && VTK_MINOR_VERSION >= 1
+#elif VTK_MAJOR_VERSION >= 8 || (VTK_MAJOR_VERSION == 7 && VTK_MINOR_VERSION >= 1)
     mFusionMapper->UpdateExtent(mFusionActor->GetDisplayExtent());
 #else
     mFusionMapper->SetUpdateExtent(mFusionActor->GetDisplayExtent());

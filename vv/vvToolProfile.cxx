@@ -615,7 +615,7 @@ void vvToolProfile::InitializeLine()
       unsigned char red[3] = { 255, 0, 0 };
       vtkSmartPointer<vtkUnsignedCharArray> colors = vtkSmartPointer<vtkUnsignedCharArray>::New();
       colors->SetNumberOfComponents(3);
-#if VTK_MAJOR_VERSION >= 7 && VTK_MINOR_VERSION >= 1
+#if VTK_MAJOR_VERSION >= 8 || (VTK_MAJOR_VERSION == 7 && VTK_MINOR_VERSION >= 1)
       colors->InsertNextTypedTuple(red);
 #else
       colors->InsertNextTupleValue(red);
