@@ -23,6 +23,7 @@ option "elastix"	e "Read EulerTransform from elastix output file (combine if mul
 option "rotate"		r "Rotation to apply (radians)"	                double	no	multiple
 option "translate"	t "Translation to apply (mm)"		        double  no	multiple
 option "pad"		- "Edge padding value" 				double 	no 	default="0.0"
+option "adaptive"		- "Adapt the size, spacing or the origin when one of the previous tag is on (use previous clitkResampleImage)" flag off
 
 section "Interpolation"
 option "interp"		- "Interpolation: 0=NN, 1=Linear, 2=BSpline, 3=BLUT"	int  	no  default="1"
