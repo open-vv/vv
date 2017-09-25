@@ -118,6 +118,7 @@ BlurImageGenericFilter<args_info_type>::UpdateWithInputImageType()
   typename DiscreteGaussianImageFilterType::Pointer gaussianFilter=DiscreteGaussianImageFilterType::New();
   gaussianFilter->SetInput(input);
   gaussianFilter->SetVariance(varianceArray);
+  gaussianFilter->SetUseImageSpacing(true);
   gaussianFilter->Update();
 
   //std::cout<<"variance value="<<gaussianFilter->GetVariance()<<std::endl;
