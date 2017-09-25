@@ -15,29 +15,25 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
+#ifndef clitkPartitionEnergyWindowDicomGenericFilter_cxx
+#define clitkPartitionEnergyWindowDicomGenericFilter_cxx
 
-// clitk
-#include "clitkResampleImage_ggo.h"
-#include "clitkIO.h"
-#include "clitkResampleImageGenericFilter.h"
+/* =================================================
+ * @file   clitkPartitionEnergyWindowDicomGenericFilter.cxx
+ * @author
+ * @date
+ *
+ * @brief
+ *
+ ===================================================*/
 
-//--------------------------------------------------------------------
-int main(int argc, char * argv[])
+#include "clitkPartitionEnergyWindowDicomGenericFilter.h"
+
+
+namespace clitk
 {
 
-  // Init command line
-  GGO(clitkResampleImage, args_info);
-  CLITK_INIT;
 
-  // Filter
-  typedef clitk::ResampleImageGenericFilter FilterType;
-  FilterType::Pointer filter = FilterType::New();
+} //end clitk
 
-  filter->SetArgsInfo(args_info);
-  CLITK_TRY_CATCH_EXIT(filter->Update());
-
-  // this is the end my friend
-  return EXIT_SUCCESS;
-
-}// end main
-//--------------------------------------------------------------------
+#endif  //#define clitkPartitionEnergyWindowDicomGenericFilter_cxx

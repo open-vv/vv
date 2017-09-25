@@ -20,6 +20,8 @@
 #include "itkInPlaceImageFilter.h"
 #include "itkImageRegionIteratorWithIndex.h"
 
+#include "clitkCommon.h"
+
 namespace itk
 {
   
@@ -109,8 +111,8 @@ public:
       }
     }
 
-  virtual void GenerateOutputInformation();
-  virtual void GenerateInputRequestedRegion();
+  virtual void GenerateOutputInformation() ITK_OVERRIDE;
+  virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
 
   /** ImageDimension constants */
   itkStaticConstMacro(
@@ -146,7 +148,7 @@ protected:
    * \sa ImageToImageFilter::ThreadedGenerateData(),
    *     ImageToImageFilter::GenerateData()  */
   void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread,
-                            itk::ThreadIdType threadId );
+                            itk::ThreadIdType threadId ) ITK_OVERRIDE;
 
 private:
   FlexibleBinaryFunctorImageFilter(const Self&); //purposely not implemented

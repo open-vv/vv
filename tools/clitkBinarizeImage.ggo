@@ -17,3 +17,4 @@ option "bg"    		-   	"Background (BG) or 'ouside' value"	 	  double 	no	default
 option "mode" 		-   	"Use FG and/or BG values (if FG, the BG is replaced by the input image values)"	values="FG","BG","both"  no default="both"
 
 
+option "percentage"		    p	"Percentage of total pixels values (in %)" double no

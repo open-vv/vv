@@ -1,0 +1,11 @@
+#File clitkGateSimulation2Dicom.ggo
+package "clitkGateSimulation2Dicom"
+version "1.0"
+purpose ""
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"		i	"Input image filename"		  string  	yes
+option "inputModelFilename"	d	"Input dicom model"		  string  	yes
+option "outputFilename"    	o   	"Output dicom directory/filename"	  string  	yes 

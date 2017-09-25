@@ -74,6 +74,7 @@ namespace clitk {
     std::string GetOutputPixelTypeName() { return mOutputPixelTypeName; }
     void SetOutputPixelType(std::string p) { mOutputPixelTypeName = p; }
     void SetVV(bool b) { mVV = b; }
+    void SetNoNiiMeta(bool b) { mNoNiiMeta = b; }
     bool IsWarningOccur() { return mWarningOccur; }
     std::string & GetWarning() { return mWarning; }
     void EnableDisplayWarning(bool b) { mDisplayWarning = b; }
@@ -95,6 +96,7 @@ namespace clitk {
     bool mWarningOccur;
     bool mDisplayWarning;
     bool mVV;
+    bool mNoNiiMeta;
     bool mCorrectNegativeSpacingFlag;
 
   private:

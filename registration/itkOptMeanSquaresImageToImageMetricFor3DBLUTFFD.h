@@ -98,25 +98,25 @@ public:
    *  (2) uniformly select NumberOfSpatialSamples within
    *      the FixedImageRegion, and
    *  (3) allocate memory for pdf data structures. */
-  virtual void Initialize(void) throw ( ExceptionObject );
+  virtual void Initialize(void) throw ( ExceptionObject ) ITK_OVERRIDE;
 
   /**  Get the value. */
-  MeasureType GetValue( const ParametersType & parameters ) const;
+  MeasureType GetValue( const ParametersType & parameters ) const ITK_OVERRIDE;
 
   /** Get the derivatives of the match measure. */
   void GetDerivative( const ParametersType & parameters,
-                      DerivativeType & Derivative ) const;
+                      DerivativeType & Derivative ) const ITK_OVERRIDE;
 
   /**  Get the value and derivatives for single valued optimizers. */
   void GetValueAndDerivative( const ParametersType & parameters,
                               MeasureType & Value,
-                              DerivativeType & Derivative ) const;
+                              DerivativeType & Derivative ) const ITK_OVERRIDE;
 
 protected:
 
   MeanSquaresImageToImageMetricFor3DBLUTFFD();
   virtual ~MeanSquaresImageToImageMetricFor3DBLUTFFD();
-  void PrintSelf(std::ostream& os, Indent indent) const;
+  void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
 
 private:
 
@@ -128,14 +128,14 @@ private:
   inline bool GetValueThreadProcessSample( unsigned int threadID,
       unsigned long fixedImageSample,
       const MovingImagePointType & mappedPoint,
-      double movingImageValue ) const;
+      double movingImageValue ) const ITK_OVERRIDE;
 
   inline bool GetValueAndDerivativeThreadProcessSample( unsigned int threadID,
       unsigned long fixedImageSample,
       const MovingImagePointType & mappedPoint,
       double movingImageValue,
       const ImageDerivativesType &
-      movingImageGradientValue ) const;
+      movingImageGradientValue ) const ITK_OVERRIDE;
 
   MeasureType    * m_ThreaderMSE;
   DerivativeType * m_ThreaderMSEDerivatives;

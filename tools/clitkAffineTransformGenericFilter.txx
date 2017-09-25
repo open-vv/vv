@@ -22,7 +22,9 @@
 #include <istream>
 #include <iterator>
 #include <itkCenteredEuler3DTransform.h>
+#include <itkRecursiveGaussianImageFilter.h>
 #include "clitkElastix.h"
+#include "clitkResampleImageWithOptionsFilter.h"
 
 namespace clitk
 {
@@ -129,6 +131,173 @@ namespace clitk
     reader->Update();
     typename InputImageType::Pointer input= reader->GetOutput();
 
+    //Adaptative size, spacing origin (use previous clitkResampleImage)
+    if (m_ArgsInfo.adaptive_given) {
+      // Filter
+      typedef clitk::ResampleImageWithOptionsFilter<InputImageType, OutputImageType> ResampleImageFilterType;
+      typename ResampleImageFilterType::Pointer filter = ResampleImageFilterType::New();
+      filter->SetInput(input);
+
+      // Set Verbose
+      filter->SetVerboseOptions(m_ArgsInfo.verbose_flag);
+
+      // Set size / spacing
+      static const unsigned int dim = OutputImageType::ImageDimension;
+      typename OutputImageType::SpacingType spacing;
+      typename OutputImageType::SizeType size;
+      typename OutputImageType::PointType origin;
+      typename OutputImageType::DirectionType direction;
+
+      if (m_ArgsInfo.like_given) {
+        itk::ImageIOBase::Pointer header = clitk::readImageHeader(m_ArgsInfo.like_arg);
+        if (header) {
+          for(unsigned int i=0; i<dim; i++){
+            spacing[i] = header->GetSpacing(i);
+            size[i] = header->GetDimensions(i);
+            origin[i] = header->GetOrigin(i);
+          }
+          for(unsigned int i=0; i<dim; i++) {
+            for(unsigned int j=0;j<dim;j++) {
+                direction(i,j) = header->GetDirection(i)[j];
+            }
+          }
+          filter->SetOutputSpacing(spacing);
+          filter->SetOutputSize(size);
+          filter->SetOutputOrigin(origin);
+          filter->SetOutputDirection(direction);
+        }
+        else {
+          std::cerr << "*** Warning : I could not read '" << m_ArgsInfo.like_arg << "' ***" << std::endl;
+          exit(0);
+        }
+      }
+      else {
+        if (m_ArgsInfo.spacing_given == 1) {
+          filter->SetOutputIsoSpacing(m_ArgsInfo.spacing_arg[0]);
+        }
+        else if ((m_ArgsInfo.spacing_given != 0) && (m_ArgsInfo.size_given != 0)) {
+          std::cerr << "Error: use spacing or size, not both." << std::endl;
+          exit(0);
+        }
+        else if (m_ArgsInfo.spacing_given) {
+          if ((m_ArgsInfo.spacing_given != 0) && (m_ArgsInfo.spacing_given != dim)) {
+            std::cerr << "Error: spacing should have one or " << dim << " values." << std::endl;
+            exit(0);
+          }
+          for(unsigned int i=0; i<dim; i++)
+            spacing[i] = m_ArgsInfo.spacing_arg[i];
+          filter->SetOutputSpacing(spacing);
+        }
+        else if (m_ArgsInfo.size_given) {
+          if ((m_ArgsInfo.size_given != 0) && (m_ArgsInfo.size_given != dim)) {
+            std::cerr << "Error: size should have " << dim << " values." << std::endl;
+            exit(0);
+          }
+          for(unsigned int i=0; i<dim; i++)
+            size[i] = m_ArgsInfo.size_arg[i];
+          filter->SetOutputSize(size);
+        }
+        for(unsigned int i=0; i<dim; i++){
+          origin[i] = input->GetOrigin()[i];
+        }
+        for(unsigned int i=0; i<dim; i++) {
+          for(unsigned int j=0;j<dim;j++) {
+              direction(i,j) = input->GetDirection()[i][j];
+          }
+        }
+        filter->SetOutputOrigin(origin);
+        filter->SetOutputDirection(direction);
+      }
+
+      // Set temporal dimension
+      //filter->SetLastDimensionIsTime(m_ArgsInfo.time_flag);
+
+      // Set Gauss
+      filter->SetGaussianFilteringEnabled(m_ArgsInfo.autogauss_flag);
+      if (m_ArgsInfo.gauss_given != 0) {
+        typename ResampleImageFilterType::GaussianSigmaType g;
+        for(unsigned int i=0; i<dim; i++) {
+          g[i] = m_ArgsInfo.gauss_arg[i];
+        }
+        filter->SetGaussianSigma(g);
+      }
+
+      // Set Interpolation
+      int interp = m_ArgsInfo.interp_arg;
+      if (interp == 0) {
+        filter->SetInterpolationType(ResampleImageFilterType::NearestNeighbor);
+      } else {
+        if (interp == 1) {
+          filter->SetInterpolationType(ResampleImageFilterType::Linear);
+        } else {
+          if (interp == 2) {
+            filter->SetInterpolationType(ResampleImageFilterType::BSpline);
+          } else {
+            if (interp == 3) {
+              filter->SetInterpolationType(ResampleImageFilterType::B_LUT);
+            } else {
+                std::cerr << "Error. I do not know interpolation '" << m_ArgsInfo.interp_arg
+                          << "'. Choose among: nn, linear, bspline, blut, windowed sinc" << std::endl;
+                exit(0);
+            }
+          }
+        }
+      }
+
+      // Set default pixel value
+      filter->SetDefaultPixelValue(m_ArgsInfo.pad_arg);
+
+      // Set thread
+      //if (m_ArgsInfo.thread_given) {
+      //  filter->SetNumberOfThreads(m_ArgsInfo.thread_arg);
+      //}
+
+      // Go !
+      filter->Update();
+      typename OutputImageType::Pointer output = filter->GetOutput();
+      //this->template SetNextOutput<OutputImageType>(outputImage);
+
+      // Output
+      typedef itk::ImageFileWriter<OutputImageType> WriterType;
+      typename WriterType::Pointer writer = WriterType::New();
+      writer->SetFileName(m_ArgsInfo.output_arg);
+      writer->SetInput(output);
+      writer->Update();
+
+      return;
+    }
+
+    //Gaussian pre-filtering
+    typename itk::Vector<double, Dimension> gaussianSigma;
+    gaussianSigma.Fill(0);
+    bool gaussianFilteringEnabled(false);
+    bool autoGaussEnabled(false);
+    if (m_ArgsInfo.autogauss_given) { // Gaussian filter auto
+      autoGaussEnabled = m_ArgsInfo.autogauss_flag;
+    }
+    if (m_ArgsInfo.gauss_given) { // Gaussian filter set by user
+      gaussianFilteringEnabled = true;
+      if (m_ArgsInfo.gauss_given == 1)
+      {
+        for (unsigned int i=0; i<Dimension; i++)
+        {
+          gaussianSigma[i] = m_ArgsInfo.gauss_arg[0];
+        }
+      }
+      else if (m_ArgsInfo.gauss_given == Dimension)
+      {
+        for (unsigned int i=0; i<Dimension; i++)
+        {
+          gaussianSigma[i] = m_ArgsInfo.gauss_arg[i];
+        }
+      }
+      else
+      {
+        std::cerr << "Gaussian sigma dimension is incorrect" << std::endl;
+        return;
+      }
+    }
+
     //Filter
     typedef  itk::ResampleImageFilter< InputImageType,OutputImageType >  ResampleFilterType;
     typename ResampleFilterType::Pointer resampler = ResampleFilterType::New();
@@ -213,6 +382,14 @@ namespace clitk
       likeReader->Update();
       resampler->SetOutputParametersFromImage(likeReader->GetOutput());
       resampler->SetOutputDirection(likeReader->GetOutput()->GetDirection());
+      if (autoGaussEnabled) { // Automated sigma when downsample
+        for(unsigned int i=0; i<Dimension; i++) {
+          if (likeReader->GetOutput()->GetSpacing()[i] > input->GetSpacing()[i]) { // downsample
+            gaussianSigma[i] = 0.5*likeReader->GetOutput()->GetSpacing()[i];// / inputSpacing[i]);
+          }
+          else gaussianSigma[i] = 0; // will be ignore after
+        }
+      }
     } else if(m_ArgsInfo.transform_grid_flag) {
       typename itk::Matrix<double, Dimension+1, Dimension+1> invMatrix( matrix.GetInverse() );
       typename itk::Matrix<double, Dimension, Dimension> invRotMatrix( clitk::GetRotationalPartMatrix(invMatrix) );
@@ -229,6 +406,14 @@ namespace clitk
       outputSpacing = invRotMatrix *
         input->GetDirection() *
         input->GetSpacing();
+      if (autoGaussEnabled) { // Automated sigma when downsample
+        for(unsigned int i=0; i<Dimension; i++) {
+          if (outputSpacing[i] > input->GetSpacing()[i]) { // downsample
+            gaussianSigma[i] = 0.5*outputSpacing[i];// / inputSpacing[i]);
+          }
+          else gaussianSigma[i] = 0; // will be ignore after
+        }
+      }
 
       // Origin is influenced by translation but not by input direction
       typename InputImageType::PointType outputOrigin;
@@ -275,6 +460,14 @@ namespace clitk
         for(unsigned int i=0; i< Dimension; i++)
           outputSpacing[i]=m_ArgsInfo.spacing_arg[i];
       } else outputSpacing=input->GetSpacing();
+      if (autoGaussEnabled) { // Automated sigma when downsample
+        for(unsigned int i=0; i<Dimension; i++) {
+          if (outputSpacing[i] > input->GetSpacing()[i]) { // downsample
+            gaussianSigma[i] = 0.5*outputSpacing[i];// / inputSpacing[i]);
+          }
+          else gaussianSigma[i] = 0; // will be ignore after
+        }
+      }
 
       //Origin
       typename OutputImageType::PointType outputOrigin;
@@ -283,12 +476,21 @@ namespace clitk
           outputOrigin[i]=m_ArgsInfo.origin_arg[i];
       } else outputOrigin=input->GetOrigin();
 
+      //Direction
+      typename OutputImageType::DirectionType outputDirection;
+      if (m_ArgsInfo.direction_given) {
+        for(unsigned int j=0; j< Dimension; j++)
+            for(unsigned int i=0; i< Dimension; i++)
+                outputDirection[j][i]=m_ArgsInfo.direction_arg[i+Dimension*j];
+      } else outputDirection=input->GetDirection();
+
       // Set
       resampler->SetSize( outputSize );
       resampler->SetOutputSpacing( outputSpacing );
       resampler->SetOutputOrigin(  outputOrigin );
       //if (m_ArgsInfo.interp_arg==4)
       //  genericInterpolator->SetOutputSpacing(outputSpacing);
+      resampler->SetOutputDirection( outputDirection );
 
     }
 
@@ -321,9 +523,31 @@ namespace clitk
       std::cout << "Setting the output size to " << resampler->GetSize() << "..." << std::endl;
       std::cout << "Setting the output spacing to " << resampler->GetOutputSpacing() << "..." << std::endl;
       std::cout << "Setting the output origin to " << resampler->GetOutputOrigin() << "..." << std::endl;
+      std::cout << "Setting the output direction to " << resampler->GetOutputDirection() << "..." << std::endl;
     }
 
-    resampler->SetInput( input );
+    typedef itk::RecursiveGaussianImageFilter<InputImageType, InputImageType> GaussianFilterType;
+    std::vector<typename GaussianFilterType::Pointer> gaussianFilters;
+    if (gaussianFilteringEnabled || autoGaussEnabled) {
+      for(unsigned int i=0; i<Dimension; i++) {
+        if (gaussianSigma[i] != 0) {
+          gaussianFilters.push_back(GaussianFilterType::New());
+          gaussianFilters[i]->SetDirection(i);
+          gaussianFilters[i]->SetOrder(GaussianFilterType::ZeroOrder);
+          gaussianFilters[i]->SetNormalizeAcrossScale(false);
+          gaussianFilters[i]->SetSigma(gaussianSigma[i]); // in millimeter !
+          if (gaussianFilters.size() == 1) { // first
+            gaussianFilters[0]->SetInput(input);
+          } else {
+            gaussianFilters[i]->SetInput(gaussianFilters[i-1]->GetOutput());
+          }
+        }
+      }
+      if (gaussianFilters.size() > 0) {
+        resampler->SetInput(gaussianFilters[gaussianFilters.size()-1]->GetOutput());
+      } else resampler->SetInput(input);
+    } else resampler->SetInput(input);
+
     resampler->SetTransform( affineTransform );
     resampler->SetInterpolator( genericInterpolator->GetInterpolatorPointer());
     resampler->SetDefaultPixelValue( static_cast<PixelType>(m_ArgsInfo.pad_arg) );
@@ -364,6 +588,37 @@ namespace clitk
     reader->SetFileName( m_InputFileName);
     reader->Update();
     typename InputImageType::Pointer input= reader->GetOutput();
+
+    //Gaussian pre-filtering
+    typename itk::Vector<double, Dimension> gaussianSigma;
+    gaussianSigma.Fill(0);
+    bool gaussianFilteringEnabled(false);
+    bool autoGaussEnabled(false);
+    if (m_ArgsInfo.autogauss_given) { // Gaussian filter auto
+      autoGaussEnabled = m_ArgsInfo.autogauss_flag;
+    }
+    if (m_ArgsInfo.gauss_given) { // Gaussian filter set by user
+      gaussianFilteringEnabled = true;
+      if (m_ArgsInfo.gauss_given == 1)
+      {
+        for (unsigned int i=0; i<Dimension; i++)
+        {
+          gaussianSigma[i] = m_ArgsInfo.gauss_arg[0];
+        }
+      }
+      else if (m_ArgsInfo.gauss_given == Dimension)
+      {
+        for (unsigned int i=0; i<Dimension; i++)
+        {
+          gaussianSigma[i] = m_ArgsInfo.gauss_arg[i];
+        }
+      }
+      else
+      {
+        std::cerr << "Gaussian sigma dimension is incorrect" << std::endl;
+        return;
+      }
+    }
 
     //Filter
     typedef  itk::VectorResampleImageFilter< InputImageType,OutputImageType, double >  ResampleFilterType;
@@ -445,6 +700,15 @@ namespace clitk
       resampler->SetSize( likeReader->GetOutput()->GetLargestPossibleRegion().GetSize() );
       resampler->SetOutputSpacing( likeReader->GetOutput()->GetSpacing() );
       resampler->SetOutputOrigin(  likeReader->GetOutput()->GetOrigin() );
+      resampler->SetOutputDirection( likeReader->GetOutput()->GetDirection() );
+      if (autoGaussEnabled) { // Automated sigma when downsample
+        for(unsigned int i=0; i<Dimension; i++) {
+          if (likeReader->GetOutput()->GetSpacing()[i] > input->GetSpacing()[i]) { // downsample
+            gaussianSigma[i] = 0.5*likeReader->GetOutput()->GetSpacing()[i];// / inputSpacing[i]);
+          }
+          else gaussianSigma[i] = 0; // will be ignore after
+        }
+      }
     } else {
       //Size
       typename OutputImageType::SizeType outputSize;
@@ -460,6 +724,14 @@ namespace clitk
         for(unsigned int i=0; i< Dimension; i++)
           outputSpacing[i]=m_ArgsInfo.spacing_arg[i];
       } else outputSpacing=input->GetSpacing();
+      if (autoGaussEnabled) { // Automated sigma when downsample
+        for(unsigned int i=0; i<Dimension; i++) {
+          if (outputSpacing[i] > input->GetSpacing()[i]) { // downsample
+            gaussianSigma[i] = 0.5*outputSpacing[i];// / inputSpacing[i]);
+          }
+          else gaussianSigma[i] = 0; // will be ignore after
+        }
+      }
       std::cout<<"Setting the spacing to "<<outputSpacing<<"..."<<std::endl;
 
       //Origin
@@ -470,12 +742,44 @@ namespace clitk
       } else outputOrigin=input->GetOrigin();
       std::cout<<"Setting the origin to "<<outputOrigin<<"..."<<std::endl;
 
+      //Direction
+      typename OutputImageType::DirectionType outputDirection;
+      if (m_ArgsInfo.direction_given) {
+        for(unsigned int j=0; j< Dimension; j++)
+            for(unsigned int i=0; i< Dimension; i++)
+                outputDirection[j][i]=m_ArgsInfo.direction_arg[i+Dimension*j];
+      } else outputDirection=input->GetDirection();
+      std::cout<<"Setting the direction to "<<outputDirection<<"..."<<std::endl;
+
       // Set
       resampler->SetSize( outputSize );
       resampler->SetOutputSpacing( outputSpacing );
       resampler->SetOutputOrigin(  outputOrigin );
+      resampler->SetOutputDirection( outputDirection );
 
     }
+
+    typedef itk::RecursiveGaussianImageFilter<InputImageType, InputImageType> GaussianFilterType;
+    std::vector<typename GaussianFilterType::Pointer> gaussianFilters;
+    if (gaussianFilteringEnabled || autoGaussEnabled) {
+      for(unsigned int i=0; i<Dimension; i++) {
+        if (gaussianSigma[i] != 0) {
+          gaussianFilters.push_back(GaussianFilterType::New());
+          gaussianFilters[i]->SetDirection(i);
+          gaussianFilters[i]->SetOrder(GaussianFilterType::ZeroOrder);
+          gaussianFilters[i]->SetNormalizeAcrossScale(false);
+          gaussianFilters[i]->SetSigma(gaussianSigma[i]); // in millimeter !
+          if (gaussianFilters.size() == 1) { // first
+            gaussianFilters[0]->SetInput(input);
+          } else {
+            gaussianFilters[i]->SetInput(gaussianFilters[i-1]->GetOutput());
+          }
+        }
+      }
+      if (gaussianFilters.size() > 0) {
+        resampler->SetInput(gaussianFilters[gaussianFilters.size()-1]->GetOutput());
+      } else resampler->SetInput(input);
+    } else resampler->SetInput(input);
 
     resampler->SetInput( input );
     resampler->SetTransform( affineTransform );

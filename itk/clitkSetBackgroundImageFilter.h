@@ -20,6 +20,8 @@
 #include "itkFlexibleBinaryFunctorImageFilter.h"
 #include "itkNumericTraits.h"
 
+#include "clitkCommon.h"
+
 
 namespace clitk
 {
@@ -211,7 +213,7 @@ protected:
   SetBackgroundImageFilter() {}
   virtual ~SetBackgroundImageFilter() {}
 
-  void PrintSelf(std::ostream &os, itk::Indent indent) const
+  void PrintSelf(std::ostream &os, itk::Indent indent) const ITK_OVERRIDE
     {
     Superclass::PrintSelf(os, indent);
     os << indent << "OutsideValue: "  << this->GetOutsideValue() << std::endl;

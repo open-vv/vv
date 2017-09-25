@@ -865,7 +865,11 @@ void vvToolROIManager::ReloadCurrentROI()
 
 
 //------------------------------------------------------------------------------
+#if __cplusplus > 199711L
+void  vvToolROIManager::SaveState(std::shared_ptr<QXmlStreamWriter> & m_XmlWriter)
+#else
 void  vvToolROIManager::SaveState(std::auto_ptr<QXmlStreamWriter> & m_XmlWriter)
+#endif
 { 
   // Get index of the image
   int n = mMainWindow->GetSlicerManagers().size();

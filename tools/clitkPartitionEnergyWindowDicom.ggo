@@ -1,0 +1,10 @@
+#File clitkPartitionEnergyWindowDicom.ggo
+package "clitkPartitionEnergyWindowDicom"
+version "1.0"
+purpose "From one Dicom with different energy windows (eg with SPECT), the tool create new dicoms for each energy window and copy the correct dicom tag"
+
+option "config"	  	-	"Config file"			  string  	no
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "input"		i	"Input Dicom image filename"		  string  	yes
+option "output"    	o   	"Output dicom directory"	  string  	yes 

@@ -45,11 +45,11 @@ public:
   }
 
   // Execute
-  void Execute(itk::Object *caller, const itk::EventObject & event) {
+  void Execute(itk::Object *caller, const itk::EventObject & event) ITK_OVERRIDE {
     Execute( (const itk::Object *)caller, event);
   }
 
-  void Execute(const itk::Object * object, const itk::EventObject & event) {
+  void Execute(const itk::Object * object, const itk::EventObject & event) ITK_OVERRIDE {
     if ( !(itk::IterationEvent().CheckEvent( &event )) ) {
       return;
     }
@@ -108,7 +108,7 @@ public:
   // Two arguments are passed to the Execute() method: the first
   // is the pointer to the object which invoked the event and the
   // second is the event that was invoked.
-  void Execute(itk::Object * object, const itk::EventObject & event) {
+  void Execute(itk::Object * object, const itk::EventObject & event) ITK_OVERRIDE {
     if ( !(itk::IterationEvent().CheckEvent( &event )) ) {
       return;
     }
@@ -138,7 +138,7 @@ public:
     }
   }
 
-  void Execute(const itk::Object * , const itk::EventObject & ) {
+  void Execute(const itk::Object * , const itk::EventObject & ) ITK_OVERRIDE {
     return;
   }
 

@@ -31,23 +31,35 @@
 #include "clitkIO.h"
 
 template<class ImageType>
-void NewFilledImage(int * size, float * spacing, double * origin,
+void NewFilledImage(int * size, float * spacing, double * origin, double * direction,
                     double value,typename ImageType::Pointer output)
 {
   static const unsigned int Dim = ImageType::GetImageDimension();
+
   typename ImageType::SizeType mSize;
   mSize.Fill (0);
   for(unsigned int i=0; i<Dim; i++) mSize[i] = size[i];
+
   typename ImageType::RegionType mRegion;
   mRegion.SetSize(mSize);
+
   typename ImageType::SpacingType mSpacing;
   for(unsigned int i=0; i<Dim; i++) mSpacing[i] = spacing[i];
+
+  typename ImageType::DirectionType directionImage;
+  for(unsigned int i=0; i<Dim; i++)
+    for(unsigned int j=0; j<Dim; j++)
+      directionImage[i][j] = direction[i*Dim+j];
+
   output->SetRegions(mRegion);
   output->SetSpacing(mSpacing);
+  output->SetDirection(directionImage);
   output->Allocate();
+
   typename ImageType::PointType mOrigin;
   for(unsigned int i=0; i<Dim; i++) mOrigin[i] = origin[i];
   output->SetOrigin(mOrigin);
+
   typedef typename ImageType::PixelType PixelType;
   PixelType p = clitk::PixelTypeDownCast<double, PixelType>(value);
   output->FillBuffer(p);
@@ -75,11 +87,15 @@ int main(int argc, char * argv[])
     args_info.spacing_arg = new float[dim];
     args_info.origin_given = dim;
     args_info.origin_arg = new double[dim];
+    args_info.transformMatrix_given = dim*dim;
+    args_info.transformMatrix_arg = new double[dim*dim];
 
     for(int i=0; i<dim; i++) {
       args_info.size_arg[i] = header->GetDimensions(i);
       args_info.spacing_arg[i] = header->GetSpacing(i);
       args_info.origin_arg[i]=   header->GetOrigin(i);
+      for (int j=0; j<dim; ++j)
+        args_info.transformMatrix_arg[i*dim+j] = header->GetDirection(i)[j];
     }
   }
 
@@ -119,27 +135,50 @@ int main(int argc, char * argv[])
     for(int i=0; i<dim; i++) spacing[i] = args_info.spacing_arg[i];
   }
 
+  // direction
+  std::vector<double> direction;
+  direction.resize(dim*dim);
+  for(int i=0; i<dim; i++)
+  {
+    for(int j=0; j<dim; j++)
+    {
+      if (i == j)
+        direction[i*dim+j] = 1;
+      else
+        direction[i*dim+j] = 0;
+    }
+  }
+  if (args_info.transformMatrix_given) {
+    if (args_info.transformMatrix_given != dim*dim) {
+      std::cerr << "ERROR : please give the same number of values for --transfomMatrix and --spacing." << std::endl;
+      exit(-1);
+    }
+    for(int i=0; i<dim; i++)
+      for(int j=0; j<dim; j++)
+        direction[i*dim+j] = args_info.transformMatrix_arg[i*dim+j];
+  }
+
   // Create new image
   typedef float PixelType;
   if (dim == 2) {
     const int Dim=2;
     typedef itk::Image<PixelType, Dim> ImageType;
     ImageType::Pointer output = ImageType::New();
-    NewFilledImage<ImageType>(args_info.size_arg, &spacing[0], &origin[0], args_info.value_arg, output);
+    NewFilledImage<ImageType>(args_info.size_arg, &spacing[0], &origin[0], &direction[0], args_info.value_arg, output);
     clitk::writeImage<ImageType>(output, args_info.output_arg);
   }
   if (dim == 3) {
     const int Dim=3;
     typedef itk::Image<PixelType, Dim> ImageType;
     ImageType::Pointer output = ImageType::New();
-    NewFilledImage<ImageType>(args_info.size_arg, &spacing[0], &origin[0], args_info.value_arg, output);
+    NewFilledImage<ImageType>(args_info.size_arg, &spacing[0], &origin[0], &direction[0], args_info.value_arg, output);
     clitk::writeImage<ImageType>(output, args_info.output_arg);
   }
   if (dim == 4) {
     const int Dim=4;
     typedef itk::Image<PixelType, Dim> ImageType;
     ImageType::Pointer output = ImageType::New();
-    NewFilledImage<ImageType>(args_info.size_arg, &spacing[0], &origin[0], args_info.value_arg, output);
+    NewFilledImage<ImageType>(args_info.size_arg, &spacing[0], &origin[0], &direction[0], args_info.value_arg, output);
     clitk::writeImage<ImageType>(output, args_info.output_arg);
   }
 

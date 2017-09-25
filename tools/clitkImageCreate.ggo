@@ -11,6 +11,7 @@ option "like"	        l "Size/spacing like this other image" string no
 option "size"	 	- "Number of pixels of each coordinate"	int	no multiple
 option "spacing"	- "Spacing in mm between pixels" 	float	no multiple
 option "origin"		- "Origin in mm" 			double	no multiple
+option "transformMatrix" - "Rotation matrix" double no multiple
 
 option "value"		- "Value for all voxels"  float	 default="0.0"  no
 option "verbose"	v "Verbose"		  flag	 off

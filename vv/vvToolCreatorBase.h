@@ -35,7 +35,7 @@ class vvToolCreatorBase: public QObject {
   public:
 
   vvToolCreatorBase(QString name);
-  virtual ~vvToolCreatorBase() {;}  
+  virtual ~vvToolCreatorBase() {}
   virtual void InsertToolInMenu(vvMainWindowBase * m);
   virtual void InsertToolInContextMenu();
   template<class ToolType> void CreateTool();
@@ -55,7 +55,11 @@ class vvToolCreatorBase: public QObject {
   bool mUseContextMenu;
   QMenu * mToolMenu;
   std::vector<QAction*> mListOfActions;
+#if __cplusplus > 199711L
+  std::shared_ptr<QXmlStreamReader> m_XmlReader;
+#else
   std::auto_ptr<QXmlStreamReader> m_XmlReader;
+#endif
   bool mReadStateFlag;
   int mImageIndex;
 

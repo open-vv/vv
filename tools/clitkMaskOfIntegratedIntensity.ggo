@@ -1,0 +1,12 @@
+#File clitkMaskOfIntegratedIntensity.ggo
+package "clitkMaskOfIntegratedIntensity"
+version "1.0"
+purpose "Compute a mask that represent X% of the total pixels values"
+
+option "config"	  	 -	"Config file"		string  optional
+option "verbose"   	 v  "Verbose"			  flag		off
+option "imagetypes"  -  "Display allowed image types"	  flag		off
+
+option "input"		i	"Input image filename"		  string  required
+option "output"   o "Output image filename"		  string 	required
+option "percentage"		    p	"Percentage of total pixels values (in %)" double required

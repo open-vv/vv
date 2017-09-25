@@ -9,4 +9,4 @@ option "imagetypes" 	-   	"Display allowed image types"	  flag		off
 
 option "input"		i	"Input image filename"		  string  	yes
 option "output"    	o   	"Output image filename"		  string 	yes
-option "dimension"    	d   	"Dimension along which to projetct"	  int 	yes
+option "dimension"    	d   	"Dimension along which to project"	  int 	yes
