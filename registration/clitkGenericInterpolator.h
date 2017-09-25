@@ -25,6 +25,8 @@
 #include "itkBSplineInterpolateImageFunction.h"
 #include "itkBSplineInterpolateImageFunctionWithLUT.h"
 
+#include "clitkQuantitativeInterpolateImageFunction.h"
+
 
 /*
 
@@ -59,6 +61,7 @@ public:
 
   typedef itk::InterpolateImageFunction<ImageType, TCoordRep> InterpolatorType;
   typedef typename InterpolatorType::Pointer InterpolatorPointer;
+  typedef typename ImageType::SpacingType SpacingType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -73,7 +76,7 @@ public:
   //==============================================
   //Get members
   InterpolatorPointer GetInterpolatorPointer(void);
-
+  void SetOutputSpacing(SpacingType spacing);
   //==============================================
 protected:
   GenericInterpolator();

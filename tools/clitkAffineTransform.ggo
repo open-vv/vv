@@ -24,7 +24,7 @@ option "translate"	t "Translation to apply (mm)"		        double  no	multiple
 option "pad"		- "Edge padding value" 				double 	no 	default="0.0"
 
 section "Interpolation"
-option "interp"		- "Interpolation: 0=NN, 1=Linear, 2=BSpline, 3=BLUT"	int  	no  default="1"
+option "interp"		- "Interpolation: 0=NN, 1=Linear, 2=BSpline, 3=BLUT, 4=Quantitative"	int  	no  default="1"
 option "interpOrder"	- "Order if BLUT or BSpline (0-5)"		        int  	no  default="3"
 option "interpSF"	- "Sampling factor if BLUT"			        int  	no  default="20"
 option "interpVF"	- "Interpolation: 0=NN, 1=Linear, 2=BSpline, 3=BLUT"	int  	no  default="1"

@@ -259,6 +259,8 @@ namespace clitk
       resampler->SetSize( outputSize );
       resampler->SetOutputSpacing( outputSpacing );
       resampler->SetOutputOrigin( outputOrigin );
+      //if (m_ArgsInfo.interp_arg==4)
+      //  genericInterpolator->SetOutputSpacing(outputSpacing);
     } else {
       //Size
       typename OutputImageType::SizeType outputSize;
@@ -285,6 +287,8 @@ namespace clitk
       resampler->SetSize( outputSize );
       resampler->SetOutputSpacing( outputSpacing );
       resampler->SetOutputOrigin(  outputOrigin );
+      //if (m_ArgsInfo.interp_arg==4)
+      //  genericInterpolator->SetOutputSpacing(outputSpacing);
 
     }
 
@@ -309,6 +313,8 @@ namespace clitk
       }
 
       resampler->SetOutputSpacing( likeReader->GetOutput()->GetSpacing() );      
+      //if (m_ArgsInfo.interp_arg==4)
+      //  genericInterpolator->SetOutputSpacing(likeReader->GetOutput()->GetSpacing());
     }
 
     if (m_ArgsInfo.verbose_flag) {
@@ -429,6 +435,7 @@ namespace clitk
     typedef clitk::GenericVectorInterpolator<args_info_type, InputImageType, double> GenericInterpolatorType;
     typename GenericInterpolatorType::Pointer genericInterpolator=GenericInterpolatorType::New();
     genericInterpolator->SetArgsInfo(m_ArgsInfo);
+
 
     // Properties
     if (m_ArgsInfo.like_given) {

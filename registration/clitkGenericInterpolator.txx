@@ -44,25 +44,24 @@ GenericInterpolator<args_info_type, ImageType, TCoordRep>::GetInterpolatorPointe
   //============================================================================
   // We retrieve the type of interpolation from the command line
   //============================================================================
-  typename InterpolatorType::Pointer interpolator;
 
   switch ( m_ArgsInfo.interp_arg ) {
   case 0:
 
-    interpolator= itk::NearestNeighborInterpolateImageFunction< ImageType,TCoordRep >::New();
+    m_Interpolator= itk::NearestNeighborInterpolateImageFunction< ImageType,TCoordRep >::New();
     if (m_Verbose) std::cout<<"Using nearestneighbor interpolation..."<<std::endl;
     break;
 
   case 1:
 
-    interpolator = itk::LinearInterpolateImageFunction< ImageType,TCoordRep >::New();
+    m_Interpolator = itk::LinearInterpolateImageFunction< ImageType,TCoordRep >::New();
     if (m_Verbose) std::cout<<"Using linear interpolation..."<<std::endl;
     break;
 
   case 2: {
     typename itk::BSplineInterpolateImageFunction< ImageType,TCoordRep >::Pointer m =itk::BSplineInterpolateImageFunction< ImageType,TCoordRep >::New();
     m->SetSplineOrder(m_ArgsInfo.interpOrder_arg);
-    interpolator=m;
+    m_Interpolator=m;
     if (m_Verbose) std::cout<<"Using Bspline interpolation..."<<std::endl;
     break;
   }
@@ -71,8 +70,15 @@ GenericInterpolator<args_info_type, ImageType, TCoordRep>::GetInterpolatorPointe
     typename itk::BSplineInterpolateImageFunctionWithLUT< ImageType,TCoordRep >::Pointer m =itk::BSplineInterpolateImageFunctionWithLUT< ImageType,TCoordRep >::New();
     m->SetSplineOrder(m_ArgsInfo.interpOrder_arg);
     m->SetLUTSamplingFactor(m_ArgsInfo.interpSF_arg);
-    interpolator=m;
+    m_Interpolator=m;
     if (m_Verbose) std::cout<<"Using BLUT interpolation..."<<std::endl;
+    break;
+  }
+
+  case 4: {
+    typename itk::QuantitativeInterpolateImageFunction< ImageType,TCoordRep >::Pointer m =itk::QuantitativeInterpolateImageFunction< ImageType,TCoordRep >::New();
+    m_Interpolator=m;
+    if (m_Verbose) std::cout<<"Using linear interpolation..."<<std::endl;
     break;
   }
 
@@ -82,7 +88,14 @@ GenericInterpolator<args_info_type, ImageType, TCoordRep>::GetInterpolatorPointe
 
   //============================================================================
   //return the pointer
-  return interpolator;
+  return m_Interpolator;
+}
+
+template <class args_info_type,  class ImageType, class TCoordRep>
+void
+GenericInterpolator<args_info_type, ImageType, TCoordRep>::SetOutputSpacing(SpacingType spacing)
+{
+  //m_Interpolator->SetOutputSpacing(spacing);
 }
 
 }
