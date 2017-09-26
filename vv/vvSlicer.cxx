@@ -425,7 +425,7 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
     mConcatenatedOverlayTransform->Identity();
     mConcatenatedOverlayTransform->Concatenate(mOverlay->GetTransform()[0]);
     mConcatenatedOverlayTransform->Concatenate(mSlicingTransform);
-    mOverlayReslice->SetResliceTransform(mConcatenatedOverlayTransform);
+    mOverlayReslice->SetResliceAxes(mConcatenatedOverlayTransform->GetMatrix());
 #if VTK_MAJOR_VERSION <= 5
     mOverlayReslice->SetInput(0, mOverlay->GetFirstVTKImageData());
     mImageReslice->UpdateInformation();
@@ -492,7 +492,7 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion, int fusionSequenceCode)
     mConcatenatedFusionTransform->Identity();
     mConcatenatedFusionTransform->Concatenate(mFusion->GetTransform()[0]);
     mConcatenatedFusionTransform->Concatenate(mSlicingTransform);
-    mFusionReslice->SetResliceTransform(mConcatenatedFusionTransform);
+    mFusionReslice->SetResliceAxes(mConcatenatedFusionTransform->GetMatrix());
 #if VTK_MAJOR_VERSION <= 5
     mFusionReslice->SetInput(0, mFusion->GetFirstVTKImageData());
     mFusionReslice->UpdateInformation();
@@ -597,7 +597,7 @@ void vvSlicer::SetVF(vvImage::Pointer vf)
     mConcatenatedVFTransform->Identity();
     mConcatenatedVFTransform->Concatenate(mVF->GetTransform()[0]);
     mConcatenatedVFTransform->Concatenate(mSlicingTransform);
-    mVFReslice->SetResliceTransform(mConcatenatedVFTransform);
+    mVFReslice->SetResliceAxes(mConcatenatedVFTransform->GetMatrix());
 #if VTK_MAJOR_VERSION <= 5
     mVFReslice->SetInput(0, mVF->GetFirstVTKImageData());
 #else
