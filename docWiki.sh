@@ -10,6 +10,7 @@ tempFile=tempDoc.txt
 cd ./vv_bin/bin
 clitkTools=`ls clitk*`
 echo "This page contains additional information on how to use clitk tools:" > $tempFile
+echo "<<TableOfContents()>>" >> $tempFile
 echo "" >> $tempFile
 for tool in $clitkTools
 do
