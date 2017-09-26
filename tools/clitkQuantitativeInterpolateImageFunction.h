@@ -51,7 +51,7 @@ public:
 
   /** InputImageType typedef support. */
   typedef typename Superclass::InputImageType InputImageType;
-  
+
   /** InputSpacingType typedef support. */
   typedef typename InputImageType::SpacingType InputSpacingType;
 
@@ -97,7 +97,7 @@ private:
 
   /** Number of neighbors used in the interpolation */
   static const unsigned long m_Neighbors;
-  typename InputImageType::SpacingType m_NewSpacing; 
+  typename InputImageType::SpacingType m_NewSpacing;
 
 
 };
