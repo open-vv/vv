@@ -359,8 +359,7 @@ void vvSlicer::SetImage(vvImage::Pointer image)
     mConcatenatedTransform->Identity();
     mConcatenatedTransform->Concatenate(mImage->GetTransform()[0]);
     mConcatenatedTransform->Concatenate(mSlicingTransform);
-    mImageReslice->SetResliceTransform(mConcatenatedTransform);
-    //mImageReslice->SetResliceAxes(mConcatenatedTransform->GetMatrix());
+    mImageReslice->SetResliceAxes(mConcatenatedTransform->GetMatrix());
 #if VTK_MAJOR_VERSION <= 5
     mImageReslice->SetInput(0, mImage->GetFirstVTKImageData());
 #else
@@ -378,8 +377,7 @@ void vvSlicer::SetImage(vvImage::Pointer image)
 #if VTK_MAJOR_VERSION <= 5
     this->GetInput()->GetWholeExtent(extent);
 #else
-    int* ext = mImageReslice->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-    copyExtent(ext, extent);
+    mImageReslice->GetOutput()->GetExtent(extent);
 #endif
 
     // Prevent crash when reload -> change slice if outside extent
