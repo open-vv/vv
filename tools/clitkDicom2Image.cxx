@@ -32,6 +32,9 @@
 #endif
 
 #include <set>
+#include <cstring>
+#include <cstdlib>
+#include <libgen.h>
 
 //====================================================================
 int main(int argc, char * argv[])
@@ -226,8 +229,10 @@ int main(int argc, char * argv[])
       outfile = args_info.output_arg;
     else {
       std::ostringstream name;
-      name << *sn << "_" << args_info.output_arg;
+      char* output_arg = strdup(args_info.output_arg); // basename/dirname may edit their argument
+      name << dirname(output_arg) << "/" << *sn << "_" << basename(output_arg);
       outfile = name.str();
+      free(output_arg);
     }
     //Check on transform
     bool bId = true;
