@@ -69,6 +69,20 @@ std::string clitk::GetExtension(const std::string& filename)
 } ////
 //------------------------------------------------------------------
 
+
+//------------------------------------------------------------------
+// Return filename splitting in 1 or 2 parts : directory name (if exists) & filename
+std::vector<std::string> clitk::SplitFilename(const std::string& filename)
+{
+  std::vector<std::string> dirname;
+  std::size_t found = filename.find_last_of("/\\");
+  dirname.push_back(filename.substr(0,found));
+  dirname.push_back(filename.substr(found+1,found));
+  return( dirname );
+} ////
+//------------------------------------------------------------------
+
+
 //------------------------------------------------------------------
 // Display progression
 void clitk::VerboseInProgress(const int nb, const int current, const int percentage)

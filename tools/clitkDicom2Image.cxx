@@ -84,7 +84,7 @@ int main(int argc, char * argv[])
       series_number_att.SetFromDataSet(ds);
       series_number = series_number_att.GetValue();
     }
-    
+
     series_numbers.insert(series_number);
     theorigin[series_number] = gdcm::ImageHelper::GetOriginValue(hreader.GetFile());
     theorientation[series_number] = gdcm::ImageHelper::GetDirectionCosinesValue(hreader.GetFile());
@@ -99,7 +99,7 @@ int main(int argc, char * argv[])
                   theorigin[series_number][2]*n3;
     sliceLocations[series_number].push_back(sloc);
     seriesFiles[series_number].push_back(input_files[i]);
-    
+
     gdcm::Attribute<0x28, 0x100> pixel_size;
     pixel_size.SetFromDataSet(ds);
     /* if (pixel_size.GetValue() != 16)
@@ -118,7 +118,7 @@ int main(int argc, char * argv[])
   if (args_info.extract_series_flag) {
     series_number = atoi(header->GetEntryValue(0x20,0x11).c_str());
   }
-  
+
   series_numbers.insert(series_number);
   theorigin[series_number].resize(3);
   theorigin[series_number][0] = header->GetXOrigin();
@@ -200,7 +200,7 @@ int main(int argc, char * argv[])
       std::cerr << reader->GetLastError() << std::endl;
       return 1;
     }
-    
+
     vvImage::Pointer image = reader->GetOutput();
     vtkImageData* vtk_image = image->GetFirstVTKImageData();
     vtkImageChangeInformation* modifier = vtkImageChangeInformation::New();
@@ -226,7 +226,11 @@ int main(int argc, char * argv[])
       outfile = args_info.output_arg;
     else {
       std::ostringstream name;
-      name << *sn << "_" << args_info.output_arg;
+      std::vector<std::string> directory = clitk::SplitFilename(args_info.output_arg);
+      if (directory.size() == 2)
+        name << directory[0] << *sn << "_" << directory[1];
+      else
+        name << *sn << "_" << args_info.output_arg;
       outfile = name.str();
     }
     //Check on transform
@@ -251,9 +255,9 @@ int main(int argc, char * argv[])
     writer->Update();
 
     modifier->Delete();
-    
+
     sn++;
   }
-  
+
   return 0;
 }
