@@ -19,6 +19,8 @@
 #ifndef CLITKCOMMON_CXX
 #define CLITKCOMMON_CXX
 
+#include <itksys/SystemTools.hxx>
+
 // clitk include 
 #include "clitkCommon.h"
 
@@ -75,9 +77,12 @@ std::string clitk::GetExtension(const std::string& filename)
 std::vector<std::string> clitk::SplitFilename(const std::string& filename)
 {
   std::vector<std::string> dirname;
-  std::size_t found = filename.find_last_of("/\\");
-  dirname.push_back(filename.substr(0,found));
-  dirname.push_back(filename.substr(found+1,found));
+  std::string path = itksys::SystemTools::GetFilenamePath(filename);
+  std::vector<std::string> pathComponents;
+  itksys::SystemTools::SplitPath(filename.c_str(), pathComponents);
+  std::string fileName = pathComponents.back();
+  dirname.push_back(path);
+  dirname.push_back(fileName);
   return( dirname );
 } ////
 //------------------------------------------------------------------

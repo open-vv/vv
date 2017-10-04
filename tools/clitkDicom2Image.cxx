@@ -228,7 +228,7 @@ int main(int argc, char * argv[])
       std::ostringstream name;
       std::vector<std::string> directory = clitk::SplitFilename(args_info.output_arg);
       if (directory.size() == 2)
-        name << directory[0] << *sn << "_" << directory[1];
+        name << directory[0] << "/" << *sn << "_" << directory[1];
       else
         name << *sn << "_" << args_info.output_arg;
       outfile = name.str();
