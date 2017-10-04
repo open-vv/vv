@@ -60,6 +60,7 @@ public :
   std::vector<double> GetSpacing();
   std::vector<double> GetOrigin() const;
   std::vector<int> GetSize();
+  std::vector< std::vector<double> > GetDirection();
   std::string GetScalarTypeAsITKString();
   int GetNumberOfScalarComponents();
   int GetScalarSize();
