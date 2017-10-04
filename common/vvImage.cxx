@@ -281,7 +281,7 @@ std::vector< std::vector<double> > vvImage::GetDirection()
 #if VTK_MAJOR_VERSION <= 6
           direction1.push_back((*matrix)[i][j]);
 #else
-          direction1.push_back((*matrix).GetElement(i,j))
+          direction1.push_back((*matrix).GetElement(i,j));
 #endif
       }
       direction0.push_back(direction1);
