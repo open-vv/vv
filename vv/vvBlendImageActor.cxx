@@ -21,6 +21,7 @@ It is distributed under dual licence
   #include <vtk_glew.h>
 #else
   #include <vtkgl.h>
+  #include <vtkOpenGLExtensionManager.h>
 #endif
 #include <vtkOpenGLRenderWindow.h>
 #include <vtkOpenGLRenderer.h>
