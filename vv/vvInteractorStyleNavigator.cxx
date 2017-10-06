@@ -88,14 +88,14 @@ void vvInteractorStyleNavigator::StartPick()
   if (this->State != VTKIS_NONE) {
     return;
   }
-  this->StartState(VTKIS_PICK);
+  this->StartState(VTKIS_PICK_NEW);
   this->InvokeEvent(vtkCommand::StartPickEvent, this);
 }
 
 //----------------------------------------------------------------------------
 void vvInteractorStyleNavigator::EndPick()
 {
-  if (this->State != VTKIS_PICK) {
+  if (this->State != VTKIS_PICK_NEW) {
     return;
   }
   this->InvokeEvent(vtkCommand::EndPickEvent, this);
@@ -115,7 +115,7 @@ void vvInteractorStyleNavigator::OnMouseMove()
     this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
     break;
 
-  case VTKIS_PICK:
+  case VTKIS_PICK_NEW:
     this->FindPokedRenderer(x, y);
     this->Pick();
     this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
@@ -151,7 +151,7 @@ void vvInteractorStyleNavigator::OnEnter()
   case VTKIS_WINDOW_LEVEL:
     break;
 
-  case VTKIS_PICK:
+  case VTKIS_PICK_NEW:
     break;
 
   case VTKIS_PAN:
@@ -176,7 +176,7 @@ void vvInteractorStyleNavigator::OnLeave()
   case VTKIS_WINDOW_LEVEL:
     break;
 
-  case VTKIS_PICK:
+  case VTKIS_PICK_NEW:
     break;
 
   case VTKIS_PAN:
@@ -266,7 +266,7 @@ void vvInteractorStyleNavigator::OnLeftButtonUp()
 {
   //  DD("OnLeftButtonUp");
   switch (this->State) {
-  case VTKIS_PICK:
+  case VTKIS_PICK_NEW:
     this->EndPick();
     if ( this->Interactor ) {
       this->ReleaseFocus();
