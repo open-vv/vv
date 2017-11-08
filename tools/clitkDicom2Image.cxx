@@ -17,6 +17,7 @@
 ===========================================================================**/
 
 // clitk includes
+#include "clitkIO.h"
 #include "clitkDicom2Image_ggo.h"
 #include "clitkCommon.h"
 #include "clitkImageCommon.h"
@@ -38,6 +39,8 @@ int main(int argc, char * argv[])
 {
   // init command line
   GGO(clitkDicom2Image, args_info);
+  CLITK_INIT;
+
   std::vector<std::string> input_files;
   ///if std_input is given, read the input files from stdin
   if (args_info.std_input_given) {
