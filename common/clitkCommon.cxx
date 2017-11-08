@@ -81,7 +81,8 @@ std::vector<std::string> clitk::SplitFilename(const std::string& filename)
   std::vector<std::string> pathComponents;
   itksys::SystemTools::SplitPath(filename.c_str(), pathComponents);
   std::string fileName = pathComponents.back();
-  dirname.push_back(path);
+  if (path != "")
+    dirname.push_back(path);
   dirname.push_back(fileName);
   return( dirname );
 } ////
