@@ -238,14 +238,16 @@ int main(int argc, char * argv[])
     }
     //Check on transform
     bool bId = true;
-    for(unsigned int i=0; i<4; i++) {
-      for(unsigned int j=0; j<4; j++) {
-        double elt = image->GetTransform()[0]->GetMatrix()->GetElement(i,j);
-        if(i==j && elt!=1.) {
-          bId = false;
-        }
-        if(i!=j && elt!=0.) {
-          bId = false;
+    if (!image->GetTransform().empty()) {
+      for(unsigned int i=0; i<4; i++) {
+        for(unsigned int j=0; j<4; j++) {
+          double elt = image->GetTransform()[0]->GetMatrix()->GetElement(i,j);
+          if(i==j && elt!=1.) {
+            bId = false;
+          }
+          if(i!=j && elt!=0.) {
+            bId = false;
+          }
         }
       }
     }
