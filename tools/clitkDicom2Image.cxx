@@ -236,26 +236,10 @@ int main(int argc, char * argv[])
         name << *sn << "_" << args_info.output_arg;
       outfile = name.str();
     }
-    //Check on transform
-    bool bId = true;
-    if (!image->GetTransform().empty()) {
-      for(unsigned int i=0; i<4; i++) {
-        for(unsigned int j=0; j<4; j++) {
-          double elt = image->GetTransform()[0]->GetMatrix()->GetElement(i,j);
-          if(i==j && elt!=1.) {
-            bId = false;
-          }
-          if(i!=j && elt!=0.) {
-            bId = false;
-          }
-        }
-      }
-    }
     vvImageWriter::Pointer writer = vvImageWriter::New();
     writer->SetInput(image);
-    if(!bId) {
-        writer->SetSaveTransform(true);
-    }
+    if (!image->GetTransform().empty())
+      writer->SetSaveTransform(true);
     writer->SetOutputFileName(outfile);
     writer->Update();
 
