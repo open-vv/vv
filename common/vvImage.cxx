@@ -262,6 +262,15 @@ const std::vector< vtkSmartPointer<vtkTransform> >& vvImage::GetTransform()
 
 
 //--------------------------------------------------------------------
+void vvImage::InitializeTransform()
+{
+  for (int i = 0; i < mTransform.size(); i++)
+    mTransform[i]->Identity();
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
 std::vector< std::vector<double> > vvImage::GetDirection()
 {
   int dim = this->GetNumberOfDimensions();

@@ -33,6 +33,7 @@ vvImageReader::vvImageReader()
   mLastError = "";
   mType = UNDEFINEDIMAGETYPE;
   mSlice = 0;
+  mPatientCoordinateSystem = false;
 }
 //------------------------------------------------------------------------------
 
@@ -46,6 +47,14 @@ vvImageReader::~vvImageReader() { }
 void vvImageReader::Update()
 {
   Update(mType);
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+void vvImageReader::SetPatientCoordinateSystem(bool patientCoordinateSystem)
+{
+  mPatientCoordinateSystem = patientCoordinateSystem;
 }
 //------------------------------------------------------------------------------
 

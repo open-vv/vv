@@ -257,6 +257,9 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
       }
     }
   }
+
+  if (mType == DICOM && !mPatientCoordinateSystem)
+    mImage->InitializeTransform();
 }
 //----------------------------------------------------------------------------
 

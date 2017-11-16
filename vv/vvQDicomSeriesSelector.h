@@ -37,12 +37,14 @@ public:
     std::vector<std::string> * GetFilenames() {
         return mFilenames;
     }
+    bool IsPatientCoordianteSystemChecked() { return mPatientCoordinateSystem; }
 
 protected slots:
     void BrowseButtonRelease();
     void SearchButtonRelease();
     void itemSelectionChanged();
     void itemDetailsSelectionChanged();
+    void itemMatrixSelectionChanged(int state);
 
 protected:
     QString mPreviousPath;
@@ -68,6 +70,7 @@ private:
     std::map<std::string, gdcm::File*> mDicomHeader;
 #endif
     std::map<std::string, std::string> mDicomDetails;
+    bool mPatientCoordinateSystem;
 };
 
 #endif // VVDICOMSERIESSELECTOR_H

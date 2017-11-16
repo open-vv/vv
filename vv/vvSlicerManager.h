@@ -74,7 +74,7 @@ class vvSlicerManager : public QObject {
 
   bool SetImage(std::string filename, vvImageReader::LoadedImageType type, int n=0, unsigned int slice=0);
   void SetImage(vvImage::Pointer image);
-  bool SetImages(std::vector<std::string> filenames, vvImageReader::LoadedImageType type, int n=0);
+  bool SetImages(std::vector<std::string> filenames, vvImageReader::LoadedImageType type, int n=0, bool patientCoordinateSystem=0);
 
   bool SetOverlay(std::vector<std::string> filenames, int dim, std::string component, vvImageReader::LoadedImageType type);
   bool SetFusion(std::vector<std::string> filenames,int dim, std::string component, vvImageReader::LoadedImageType type);

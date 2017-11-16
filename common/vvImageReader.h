@@ -59,6 +59,7 @@ public:
   }
 
   void SetSlice(unsigned int i) { mSlice = i; }
+  void SetPatientCoordinateSystem(bool patientCoordinateSystem);
 
   //====================================================================
   // Main function
@@ -91,6 +92,7 @@ protected:
   void UpdateWithDimAndInputVectorPixelType();
   ///Input dimension and pixel type
   int mDim;
+  bool mPatientCoordinateSystem;
   std::string mInputPixelType;
 
   //====================================================================

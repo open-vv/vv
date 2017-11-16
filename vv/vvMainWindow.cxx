@@ -902,11 +902,13 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
       // Change filename if an image with the same already exist
       int number = GetImageDuplicateFilenameNumber(files[i] + std::string("_slice"));
 
-      if (filetype == vvImageReader::IMAGE || filetype == vvImageReader::IMAGEWITHTIME || filetype == vvImageReader::SLICED) {
+      if (filetype == vvImageReader::IMAGE || filetype == vvImageReader::IMAGEWITHTIME || filetype == vvImageReader::SLICED)
         SetImageSucceed = imageManager->SetImage(files[i],filetype, number, j);
-      } else {
+      else if (filetype == vvImageReader::DICOM)
+        SetImageSucceed = imageManager->SetImages(files,filetype, number, dicomSeriesSelector->IsPatientCoordianteSystemChecked());
+      else
         SetImageSucceed = imageManager->SetImages(files,filetype, number);
-      }
+
       if (!SetImageSucceed) {
         QApplication::restoreOverrideCursor();
         QString error = "Cannot open file \n";

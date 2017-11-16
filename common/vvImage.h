@@ -68,6 +68,7 @@ public :
   bool IsScalarTypeInteger();
   bool IsScalarTypeInteger(int t);
   const std::vector< vtkSmartPointer<vtkTransform> >& GetTransform();
+  void InitializeTransform();
   void SetTimeSpacing(double s) { mTimeSpacing = s; }
   void SetTimeOrigin(double o) { mTimeOrigin = o; }
   bool HaveSameSizeAndSpacingThan(vvImage * other);

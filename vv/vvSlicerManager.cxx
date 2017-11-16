@@ -221,7 +221,7 @@ void vvSlicerManager::SetImage(vvImage::Pointer image)
 
 
 //----------------------------------------------------------------------------
-bool vvSlicerManager::SetImages(std::vector<std::string> filenames, vvImageReader::LoadedImageType type, int n)
+bool vvSlicerManager::SetImages(std::vector<std::string> filenames, vvImageReader::LoadedImageType type, int n, bool patientCoordinateSystem)
 { 
   mType = type;
   std::string fileWithoutExtension = vtksys::SystemTools::GetFilenameWithoutExtension(filenames[0]);
@@ -237,6 +237,8 @@ bool vvSlicerManager::SetImages(std::vector<std::string> filenames, vvImageReade
   if (mReader.IsNull())
     mReader = vvImageReader::New();
   mReader->SetInputFilenames(filenames);
+  if (type == vvImageReader::DICOM)
+    mReader->SetPatientCoordinateSystem(patientCoordinateSystem);
   mReader->Update(type);
 
   mBaseFileName = vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(mFileName));
