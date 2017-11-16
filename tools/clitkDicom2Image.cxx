@@ -91,16 +91,19 @@ int main(int argc, char * argv[])
     series_numbers.insert(series_number);
     theorigin[series_number] = gdcm::ImageHelper::GetOriginValue(hreader.GetFile());
     theorientation[series_number] = gdcm::ImageHelper::GetDirectionCosinesValue(hreader.GetFile());
-    double n1 = theorientation[series_number][1]*theorientation[series_number][5]-
-                theorientation[series_number][2]*theorientation[series_number][4];
-    double n2 = theorientation[series_number][3]*theorientation[series_number][2]-
-                theorientation[series_number][5]*theorientation[series_number][0];
-    double n3 = theorientation[series_number][0]*theorientation[series_number][4]-
-                theorientation[series_number][1]*theorientation[series_number][3];
-    double sloc = theorigin[series_number][0]*n1+
-                  theorigin[series_number][1]*n2+
-                  theorigin[series_number][2]*n3;
-    sliceLocations[series_number].push_back(sloc);
+    if (args_info.extract_series_flag) {
+      double n1 = theorientation[series_number][1]*theorientation[series_number][5]-
+                  theorientation[series_number][2]*theorientation[series_number][4];
+      double n2 = theorientation[series_number][3]*theorientation[series_number][2]-
+                  theorientation[series_number][5]*theorientation[series_number][0];
+      double n3 = theorientation[series_number][0]*theorientation[series_number][4]-
+                  theorientation[series_number][1]*theorientation[series_number][3];
+      double sloc = theorigin[series_number][0]*n1+
+                    theorigin[series_number][1]*n2+
+                    theorigin[series_number][2]*n3;
+      sliceLocations[series_number].push_back(sloc);
+    } else
+      sliceLocations[series_number].push_back(theorigin[series_number][2]);
     seriesFiles[series_number].push_back(input_files[i]);
 
     gdcm::Attribute<0x28, 0x100> pixel_size;
@@ -238,7 +241,7 @@ int main(int argc, char * argv[])
     }
     vvImageWriter::Pointer writer = vvImageWriter::New();
     writer->SetInput(image);
-    if (!image->GetTransform().empty())
+    if (args_info.extract_series_flag && !image->GetTransform().empty())
       writer->SetSaveTransform(true);
     writer->SetOutputFileName(outfile);
     writer->Update();
