@@ -14,20 +14,20 @@ You can download the binaries here:
 ### Installation
 To install vv with Linux (e.g.: OpenSuse 42.2), follow the instructions:
 
-## Qt
+#### Qt
 Install Qt5-devel and widget development library (Designer, Xml, Tools, Gui, Network, OpenGL, ...) with your package manager (e.g.: Yast)
 
-## VTK
-mkdir vtk
-cd vtk
-mkdir src
-git clone https://github.com/Kitware/VTK.git src
-cd src
-git checkout tags/v7.0.0
-cd ..
-mkdir bin
-cd bin
-ccmake ../src (use c to configure and g to generate)
+#### VTK
+mkdir vtk  
+cd vtk  
+mkdir src  
+git clone https://github.com/Kitware/VTK.git src  
+cd src  
+git checkout tags/v7.0.0  
+cd ..  
+mkdir bin  
+cd bin  
+ccmake ../src (use t to toggle, c to configure and g to generate)  
 Be sure to set (in toogle mode):
   - Module_vtkGUISuppotQt to ON
   - Module_vtkGUISuppotQtOpenGL to ON
@@ -35,31 +35,31 @@ Be sure to set (in toogle mode):
   - Module_vtkViewQt to ON
   - VTK_QT_VERSION to 5
   - VTK_RENDERING_BACKEND to OpenGL
-  - All Qt5... DIR to /usr/local/Qt-5.../lib/cmake/QT5...
-make
-cd ../..
+  - All Qt5... DIR to /usr/local/Qt-5.../lib/cmake/QT5...  
+make  
+cd ../..  
 
-## ITK
-mkdir itk
-cd itk
-mkdir src
-git clone https://github.com/InsightSoftwareConsortium/ITK.git src
-mkdir bin
-ccmake ../src
+#### ITK
+mkdir itk  
+cd itk  
+mkdir src  
+git clone https://github.com/InsightSoftwareConsortium/ITK.git src  
+mkdir bin  
+ccmake ../src  
 Be sure to set (in toogle mode):
   - Module_ITKReview to ON
   - Module_ITKVtkGlue to ON
-  - BUILD_SHARED_LIBS to ON
-make
-cd ../..
+  - BUILD_SHARED_LIBS to ON  
+make  
+cd ../..  
 
-## vv
-mkdir vv
-cd vv
-mkdir src
-git clone https://github.com/open-vv/vv.git src
-mkdir bin
-ccmake ../src
-Be sure to set (the correct paths to Qt5 and ITK
-make
-cd ../..
+#### vv
+mkdir vv  
+cd vv  
+mkdir src  
+git clone https://github.com/open-vv/vv.git src  
+mkdir bin  
+ccmake ../src  
+Be sure to set (the correct paths to Qt5 and ITK)  
+make  
+cd ../..  
