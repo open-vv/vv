@@ -23,6 +23,7 @@
 #include "clitkDicomRT_Contour.h"
 #include "vvImage.h"
 
+#include <vtkMatrix4x4.h>
 #include "clitkConfiguration.h"
 #if CLITK_USE_SYSTEM_GDCM == 1
 #include <vtkGDCMPolyDataReader.h>
@@ -66,6 +67,8 @@ public:
   void SetImage(vvImage::Pointer im);
   DicomRT_Contour* GetContour(int n);
 
+  void SetTransformMatrix(vtkMatrix4x4* matrix);
+
   // Compute a vtk mesh from the dicom contours
   void ComputeMeshFromContour();
   void ComputeContoursFromImage();
@@ -94,6 +97,7 @@ protected:
   std::vector<double> mColor;
   std::vector<DicomRT_Contour::Pointer> mListOfContours;
   vtkSmartPointer<vtkPolyData> mMesh;
+  vtkSmartPointer<vtkMatrix4x4> mTransformMatrix;
   bool mMeshIsUpToDate;
   vvImage::Pointer mImage;
   double mBackgroundValue;

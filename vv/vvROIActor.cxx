@@ -185,12 +185,11 @@ void vvROIActor::Initialize(double depth, bool IsVisible)
       mOverlayActors.push_back(vvBinaryImageOverlayActor::New());
 
       // BG or FG
-      if (m_modeBG) {
-	mOverlayActors[i]->SetImage(mROI->GetImage(), mROI->GetBackgroundValueLabelImage());
-      }
-      else {
-	mOverlayActors[i]->SetImage(mROI->GetImage(), mROI->GetForegroundValueLabelImage(), false);
-      }
+      if (m_modeBG)
+        mOverlayActors[i]->SetImage(mROI->GetImage(), mROI->GetBackgroundValueLabelImage());
+      else
+        mOverlayActors[i]->SetImage(mROI->GetImage(), mROI->GetForegroundValueLabelImage(), false);
+
 
 
       mOverlayActors[i]->SetColor(mROI->GetDisplayColor()[0],
@@ -236,7 +235,7 @@ void vvROIActor::Update(bool force)
 
 //------------------------------------------------------------------------------
 void vvROIActor::UpdateSlice(int slicer, int slices, int force)
-{ 
+{
   if (!mROI->GetImage())  return;
   if ((!mIsVisible) && (!mIsContourVisible)) return; 
   if (!mSlicerManager) {

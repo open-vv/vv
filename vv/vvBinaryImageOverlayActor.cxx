@@ -110,22 +110,45 @@ void vvBinaryImageOverlayActor::Initialize(bool IsVisible)
   // Create an actor for each time slice
   for (unsigned int numImage = 0; numImage < mSlicer->GetImage()->GetVTKImages().size(); numImage++) {
     // how many intensity ?
-    vtkSmartPointer<vtkImageMapToRGBA> mOverlayMapper = vtkSmartPointer<vtkImageMapToRGBA>::New();
-    if (mImage->IsTimeSequence())
-    {
- #if VTK_MAJOR_VERSION <= 5
-        mOverlayMapper->SetInput(mImage->GetVTKImages()[numImage]);
-#else
-        mOverlayMapper->SetInputData(mImage->GetVTKImages()[numImage]);
-#endif
+    
+
+
+    if (!mFusionReslice) {
+      mFusionReslice = vtkSmartPointer<vtkImageReslice>::New();
+      mFusionReslice->SetInterpolationModeToLinear();
+      mFusionReslice->AutoCropOutputOn();
+      mFusionReslice->SetBackgroundColor(-1000,-1000,-1000,1);
     }
-    else {
+
+    mConcatenatedFusionTransform->Identity();
+    mConcatenatedFusionTransform->Concatenate(mImage->GetTransform()[0]);
+    mConcatenatedFusionTransform->Concatenate(mSlicer->GetSlicingTransform());
+    mFusionReslice->SetResliceAxes(mConcatenatedFusionTransform->GetMatrix());
+    if (mImage->IsTimeSequence()) {
 #if VTK_MAJOR_VERSION <= 5
-        mOverlayMapper->SetInput(mImage->GetVTKImages()[0]);
+    mFusionReslice->SetInput(0, mImage->GetVTKImages()[numImage]);
+    mFusionReslice->UpdateInformation();
 #else
-        mOverlayMapper->SetInputData(mImage->GetVTKImages()[0]);
+    mFusionReslice->SetInputData(0, mImage->GetVTKImages()[numImage]);
+#endif
+    } else {
+#if VTK_MAJOR_VERSION <= 5
+    mFusionReslice->SetInput(0, mImage->GetVTKImages()[0]);
+    mFusionReslice->UpdateInformation();
+#else
+    mFusionReslice->SetInputData(0, mImage->GetVTKImages()[0]);
 #endif
     }
+    mFusionReslice->Update();
+
+
+    
+    vtkSmartPointer<vtkImageMapToRGBA> mOverlayMapper = vtkSmartPointer<vtkImageMapToRGBA>::New();
+#if VTK_MAJOR_VERSION <= 5
+    mOverlayMapper->SetInput(mFusionReslice->GetOutput());
+#else
+    mOverlayMapper->SetInputConnection(mFusionReslice->GetOutputPort(0));
+#endif
 
     double range[2];
     if (mImage->IsTimeSequence())

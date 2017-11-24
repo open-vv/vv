@@ -254,6 +254,14 @@ void clitk::DicomRT_Contour::SetMesh(vtkPolyData * mesh)
 
 
 //--------------------------------------------------------------------
+void clitk::DicomRT_Contour::SetTransformMatrix(vtkMatrix4x4* matrix)
+{
+  mTransformMatrix = matrix;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
 void clitk::DicomRT_Contour::ComputeMeshFromDataPoints()
 {
 //  DD("ComputeMesh Contour");
@@ -263,13 +271,24 @@ void clitk::DicomRT_Contour::ComputeMeshFromDataPoints()
   mMesh->SetPoints(mPoints);
   vtkIdType ids[2];
   for (unsigned int idx=0 ; idx<mNbOfPoints ; idx++) {
+    double pointIn[4], pointOut[4];
+    for (unsigned int j=0 ; j<3; ++j)
+      pointIn[j] = mData->GetPoint(idx)[j];
+    pointIn[4] = 1.0;
+    /*mTransformMatrix->MultiplyPoint(pointIn, pointOut);
+    std::cout << pointOut[0] << " " << pointOut[1] << " " << pointOut[2] << " " << pointOut[3] << std::endl;
+    mMesh->GetPoints()->InsertNextPoint(pointOut[0],
+                                        pointOut[1],
+                                        pointOut[2]);*/
     mMesh->GetPoints()->InsertNextPoint(mData->GetPoint(idx)[0],
                                         mData->GetPoint(idx)[1],
                                         mData->GetPoint(idx)[2]);
+    //std::cout << mData->GetPoint(idx)[0] << " " << mData->GetPoint(idx)[1] << " " << mData->GetPoint(idx)[2] << std::endl;
     ids[0]=idx;
     ids[1]=(ids[0]+1) % mNbOfPoints; //0-1,1-2,...,n-1-0
     mMesh->GetLines()->InsertNextCell(2,ids);
   }
+  //std::cout << std::endl;
   mMeshIsUpToDate = true;
 }
 //--------------------------------------------------------------------

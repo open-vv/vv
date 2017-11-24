@@ -24,6 +24,9 @@
 #include "clitkCommon.h" 
 #include "clitkDicomRT_ROI.h"
 
+//vtk
+#include "vtkMatrix4x4.h"
+
 // vv
 #include "vvImage.h"
 
@@ -58,6 +61,7 @@ public:
 
   void Print(std::ostream & os = std::cout) const;
   void Read(const std::string & filename);
+  void SetTransformMatrix(vtkMatrix4x4* matrix);
   bool IsDicomRTStruct(const std::string & filename);
   void Write(const std::string & filename);
 
@@ -90,6 +94,7 @@ protected:
   std::string mName;
   std::string mDate;
   std::string mTime;
+  vtkSmartPointer<vtkMatrix4x4> mTransformMatrix;
 
   std::map<int, clitk::DicomRT_ROI::Pointer> mROIs;
   std::map<int, std::string> mMapOfROIName;

@@ -27,6 +27,8 @@ class vtkActor;
 class vvImage;
 class vtkImageMapToRGBA;
 class vtkImageActor;
+class vtkImageReslice;
+class vtkTransform;
 
 //------------------------------------------------------------------------------
 class vvBinaryImageOverlayActor : public itk::LightObject
@@ -66,6 +68,8 @@ class vvBinaryImageOverlayActor : public itk::LightObject
 
   std::vector<vtkSmartPointer<vtkImageMapToRGBA> > mMapperList;
   std::vector<vtkSmartPointer<vtkImageActor> > mImageActorList;
+  vtkSmartPointer<vtkImageReslice> mFusionReslice;
+  vtkSmartPointer<vtkTransform> mConcatenatedFusionTransform;
 
   void ComputeExtent(int orientation, 
 		     int slice, 

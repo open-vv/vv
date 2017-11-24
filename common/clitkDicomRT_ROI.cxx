@@ -211,6 +211,7 @@ bool clitk::DicomRT_ROI::Read(gdcm::Item * itemInfo, gdcm::Item * itemContour)
     {
       gdcm::Item & j = sqi2->GetItem(i+1); // Item start at #1
       DicomRT_Contour::Pointer c = DicomRT_Contour::New();
+      c->SetTransformMatrix(mTransformMatrix);
       bool b = c->Read(&j);
       if (b) {
         mListOfContours.push_back(c);
@@ -237,6 +238,7 @@ void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::SQItem * 
     int i=0;
     for(gdcm::SQItem* j=contours->GetFirstSQItem(); j!=0; j=contours->GetNextSQItem()) {
       DicomRT_Contour::Pointer c = DicomRT_Contour::New();
+      c->SetTransformMatrix(mTransformMatrix);
       bool b = c->Read(j);
       if (b) {
         mListOfContours.push_back(c);
@@ -360,7 +362,6 @@ void clitk::DicomRT_ROI::SetFromBinaryImage(vvImage::Pointer image, int n,
                                             std::vector<double> color, 
                                             std::string filename)
 {
-
   // ROI number [Referenced ROI Number]
   mNumber = n;
 
@@ -384,6 +385,14 @@ void clitk::DicomRT_ROI::SetFromBinaryImage(vvImage::Pointer image, int n,
 vvImage * clitk::DicomRT_ROI::GetImage() const
 {
   return mImage;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void clitk::DicomRT_ROI::SetTransformMatrix(vtkMatrix4x4* matrix)
+{
+  mTransformMatrix = matrix;
 }
 //--------------------------------------------------------------------
 
@@ -519,6 +528,7 @@ void clitk::DicomRT_ROI::Read(vtkSmartPointer<vtkGDCMPolyDataReader> & reader, i
   // Get the contour
   mMesh =  reader->GetOutput(roiindex);  
   DicomRT_Contour::Pointer c = DicomRT_Contour::New();
+  c->SetTransformMatrix(mTransformMatrix);
   c->SetMesh(mMesh); // FIXME no GetZ, not GetPoints  
   mMeshIsUpToDate = true;
   mListOfContours.push_back(c);

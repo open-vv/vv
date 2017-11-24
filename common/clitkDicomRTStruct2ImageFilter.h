@@ -23,6 +23,7 @@
 #include "clitkDicomRT_ROI.h"
 #include "clitkImageCommon.h"
 #include <vtkImageData.h>
+#include <vtkMatrix4x4.h>
 #include <itkImage.h>
 #include <itkVTKImageToImageFilter.h>
 
@@ -58,6 +59,7 @@ namespace clitk {
     std::vector<double> mOrigin;
     std::vector<unsigned long> mSize;
     std::vector< std::vector< double> > mDirection;
+    vtkSmartPointer<vtkMatrix4x4> mTransformMatrix;
     clitk::DicomRT_ROI * mROI;
     vtkSmartPointer<vtkImageData> mBinaryImage;
   };
