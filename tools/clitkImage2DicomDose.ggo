@@ -1,0 +1,11 @@
+#File clitkImage2DicomDose.ggo
+package "clitkImage2DicomDose"
+version "1.0"
+purpose "Convert mhd file into Dicom RTDose fil using a model"
+
+option "config"         -	   "Config file"                string  no
+option "input"          i    "inputfile name"             string  yes
+option "DicomInputFile" m    "dicom model name"           string  no
+option "output"         o    "output directory/filename"  string  yes
+option "verbose"        v    "Verbose"                    flag    off
+

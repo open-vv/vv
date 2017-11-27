@@ -19,6 +19,8 @@
 #ifndef CLITKCOMMON_CXX
 #define CLITKCOMMON_CXX
 
+#include <itksys/SystemTools.hxx>
+
 // clitk include 
 #include "clitkCommon.h"
 
@@ -68,6 +70,24 @@ std::string clitk::GetExtension(const std::string& filename)
   return( fileExt );
 } ////
 //------------------------------------------------------------------
+
+
+//------------------------------------------------------------------
+// Return filename splitting in 1 or 2 parts : directory name (if exists) & filename
+std::vector<std::string> clitk::SplitFilename(const std::string& filename)
+{
+  std::vector<std::string> dirname;
+  std::string path = itksys::SystemTools::GetFilenamePath(filename);
+  std::vector<std::string> pathComponents;
+  itksys::SystemTools::SplitPath(filename.c_str(), pathComponents);
+  std::string fileName = pathComponents.back();
+  if (path != "")
+    dirname.push_back(path);
+  dirname.push_back(fileName);
+  return( dirname );
+} ////
+//------------------------------------------------------------------
+
 
 //------------------------------------------------------------------
 // Display progression

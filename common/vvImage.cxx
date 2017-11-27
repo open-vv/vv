@@ -262,6 +262,47 @@ const std::vector< vtkSmartPointer<vtkTransform> >& vvImage::GetTransform()
 
 
 //--------------------------------------------------------------------
+void vvImage::InitializeTransform()
+{
+  for (int i = 0; i < mTransform.size(); i++)
+    mTransform[i]->Identity();
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+std::vector< std::vector<double> > vvImage::GetDirection()
+{
+  int dim = this->GetNumberOfDimensions();
+  vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+  transform->Identity();
+  for (int i = 0; i < mTransform.size(); i++)
+    transform->Concatenate(this->mTransform[i]);
+
+  vtkSmartPointer<vtkMatrix4x4> matrix = transform->GetMatrix();
+  matrix->Invert();
+  std::vector<std::vector<double> > direction0;
+  for (int i = 0; i < dim; i++) {
+    if (i != 3) {
+      std::vector<double> direction1;
+      for (int j = 0; j < dim; j++) {
+        if (j != 3)
+#if VTK_MAJOR_VERSION <= 6
+          direction1.push_back((*matrix)[i][j]);
+#else
+          direction1.push_back((*matrix).GetElement(i,j));
+#endif
+      }
+      direction0.push_back(direction1);
+    }
+  }
+  return direction0;
+}
+//--------------------------------------------------------------------
+
+
+
+//--------------------------------------------------------------------
 bool vvImage::HaveSameSizeAndSpacingThan(vvImage * other)
 {
   bool same = true;

@@ -329,9 +329,9 @@ function merge_dispatcher {
     local firstpartialoutputextension="${firstpartialoutputfile##*.}"
     echo "${indent}testing file type on ${firstpartialoutputfile}"
 
-    if test "${firstpartialoutputextension}" == "hdr" && grep -qs 'INTERFILE' "${firstpartialoutputfile}"
+    if test "${firstpartialoutputextension}" == "hdr" && test grep -qs 'INTERFILE' "${firstpartialoutputfile}"
     then
-        echo "${indent}this is a interfile image"
+        echo "${indent}this is an interfile image"
         echo "${indent}creating mhd headers"
         for partialoutputfile in $partialoutputfiles; do write_mhd_header "${partialoutputfile}"; done
         local mhd_partialoutputfiles="$(for partialoutputfile in $partialoutputfiles; do echo "${partialoutputfile%.*}.mhd"; done)"
@@ -347,7 +347,7 @@ function merge_dispatcher {
 
     if test "${firstpartialoutputextension}" == "hdr"
     then
-        echo "${indent}this is a analyse image"
+        echo "${indent}this is an analyse image"
         local mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}")"
         merge_hdr_image "${mergedfile}" ${partialoutputfiles} || error "error while merging"
         return
@@ -450,7 +450,7 @@ function merge_dispatcher_uncertainty {
 
     if [[ "${firstpartialoutputfile}" == *Uncertainty* ]]
     then
-    	if test "${firstpartialoutputextension}" == "mhd" || test "${firstpartialoutputextension}" == "mha"
+    	  if test "${firstpartialoutputextension}" == "mhd" || test "${firstpartialoutputextension}" == "mha"
         then
             echo "${indent}Uncertainty file found: ${firstpartialoutputfile}"
             ## search for sum
@@ -472,7 +472,14 @@ function merge_dispatcher_uncertainty {
             echo "${indent}${squared_merged_file} found"
             ## search for NumberOfEvent
             totalEvents=0;
-            for outputfile in $(find -L "${rundir}" -regextype 'posix-extended' -type f -regex "${rundir}/output.*\.(hdr|mhd|mha|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
+            unamestr=`uname`
+            if [[ "$unamestr" == 'Darwin' ]]; then
+                files=$(find -L "${rundir}" -type f -regex ".*output.*[hdr|mhd|mha|root|txt]" | awk -F '/' '{ print $NF; }' | sort | uniq)
+            else
+                files=$(find -L "${rundir}" -regextype 'posix-extended' -type f -regex "${rundir}/output.*\.(hdr|mhd|mha|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
+            fi
+            echo $files
+            for outputfile in ${files}
             do
                 #echo $outputfile
                 if grep -q 'NumberOfEvent' "${outputdir}/${outputfile}"
@@ -491,7 +498,7 @@ function merge_dispatcher_uncertainty {
                 warning "${totalEvents} not positive. A at least one stat file (SimulationStatisticActor) must be provided. Error, no uncertainty computed"
                 return;
             fi
-	else
+	      else
             error "merge_dispatcher_uncertainty does not handle ${firstpartialoutputfile} files"
         fi
     fi
@@ -520,14 +527,30 @@ echo "output dir is ${outputdir}"
 
 test -d "${outputdir}" && rm -r "${outputdir}"
 mkdir "${outputdir}"
-for outputfile in $(find -L "${rundir}" -regextype 'posix-extended' -type f -regex "${rundir}/output.*\.(hdr|mhd|mha|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
+
+unamestr=`uname`
+if [[ "$unamestr" == 'Darwin' ]]; then
+    files=$(find -L "${rundir}" -type f -regex ".*output.*[hdr|mhd|mha|root|txt]" | awk -F '/' '{ print $NF; }' | sort | uniq)
+else
+    files=$(find -L "${rundir}" -regextype 'posix-extended' -type f -regex "${rundir}/output.*\.(hdr|mhd|mha|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
+fi
+echo files $files
+for outputfile in ${files}
 do
     merge_dispatcher "${outputfile}" "${force}"
 done
 
 echo ""
 echo "Merging done. Special case for statistical uncertainty"
-for outputfile in $(find -L "${outputdir}" -regextype 'posix-extended' -type f -regex "${outputdir}/.*\.(hdr|mhd|mha|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
+
+unamestr=`uname`
+if [[ "$unamestr" == 'Darwin' ]]; then
+    files=$(find -L "${outputdir}" -type f -regex ".*[hdr|mhd|mha|root|txt]" | awk -F '/' '{ print $NF; }' | sort | uniq)
+else
+    files=$(find -L "${outputdir}" -regextype 'posix-extended' -type f -regex "${outputdir}/.*\.(hdr|mhd|mha|root|txt)" | awk -F '/' '{ print $NF; }' | sort | uniq)
+fi
+echo files = $files
+for outputfile in ${files}
 do
     merge_dispatcher_uncertainty "${outputfile}" "${force}"
 done

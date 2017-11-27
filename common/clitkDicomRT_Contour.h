@@ -30,6 +30,7 @@
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
+#include <vtkMatrix4x4.h>
 
 namespace clitk {
 
@@ -54,6 +55,7 @@ public:
   void SetMesh(vtkPolyData * mesh);
   vtkPoints * GetPoints() {return mData;}
   double GetZ() const {return mZ;}
+  void SetTransformMatrix(vtkMatrix4x4* matrix);
   
   
 protected:
@@ -64,6 +66,7 @@ protected:
   vtkSmartPointer<vtkPoints> mData;
   vtkSmartPointer<vtkPolyData> mMesh;
   vtkSmartPointer<vtkPoints> mPoints;
+  vtkSmartPointer<vtkMatrix4x4> mTransformMatrix;
   bool mMeshIsUpToDate;
   ///Z location of the contour
   double mZ;

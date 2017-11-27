@@ -99,18 +99,18 @@ namespace clitk {
     itkStaticConstMacro(OutputImageDimension, unsigned int, TOutputImage::ImageDimension);
 
     // I dont want to verify inputs information
-    virtual void VerifyInputInformation() { }
+    virtual void VerifyInputInformation() ITK_OVERRIDE { }
     
   protected:
     BooleanOperatorLabelImageFilter();
     virtual ~BooleanOperatorLabelImageFilter() {}
     
-    virtual void GenerateOutputInformation();
-    virtual void GenerateInputRequestedRegion();
-    virtual void GenerateData();
+    virtual void GenerateOutputInformation() ITK_OVERRIDE;
+    virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+    virtual void GenerateData() ITK_OVERRIDE;
     
     // Do not release date to keep input in memory and continue ... 
-    virtual void ReleaseInputs() { } 
+    virtual void ReleaseInputs() ITK_OVERRIDE { }
     
     Input1ImagePixelType mBackgroundValue1;
     Input2ImagePixelType mBackgroundValue2;

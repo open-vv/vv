@@ -413,7 +413,7 @@ void vvToolRigidReg::SetTransform(vtkMatrix4x4 *matrix)
     double rad = (checkBoxDegrees->checkState()==Qt::Checked)?180./itk::Math::pi:1.;
     double angleDiff = euler->GetParameters()[i]-rotSBs[i]->value()/rad+2*itk::Math::pi;
     angleDiff = angleDiff - 2*itk::Math::pi*itk::Math::Round<double,double>(angleDiff/(2*itk::Math::pi));
-    if(abs(angleDiff)>1.e-4) {
+    if(std::abs(angleDiff)>1.e-4) {
       rotSBs[i]->blockSignals(true);
       rotSBs[i]->setValue( euler->GetParameters()[i]*rad );
       rotSBs[i]->blockSignals(false);

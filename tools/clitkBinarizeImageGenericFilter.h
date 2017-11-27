@@ -46,20 +46,28 @@ namespace clitk
 
     //--------------------------------------------------------------------
     void SetArgsInfo(const args_info_type & a);
+    void SetPercentage(double p) { mPercentage = p; }
+    double GetPercentage() const { return mPercentage; }
 
     //--------------------------------------------------------------------
     // Main function called each time the filter is updated
     template<class InputImageType>  
     void UpdateWithInputImageType();
 
+    template<class InputImageType>
+    void MaskOfIntegratedIntensity();
+
   protected:
     BinarizeImageGenericFilter();
     template<unsigned int Dim> void InitializeImageType();
     args_info_type mArgsInfo;
+    double mPercentage;
     
   }; // end class
   //--------------------------------------------------------------------
     
+//Implementation of the pair comparative function
+template <typename T> bool comparator ( const std::pair<T, size_t>& l, const std::pair<T, size_t>& r);
 } // end namespace clitk
 //--------------------------------------------------------------------
 

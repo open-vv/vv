@@ -13,7 +13,7 @@ option "input2"	   j 	"Input second image filename"	  string   no
 option "output"    o 	"Output image filename"	  	  string   yes
 
 option "scalar"	   s 	"Scalar value"		  double   no
-option "operation" t 	"Type of operation : \n With another image : 0=add, 1=multiply (dotproduct), 7=difference, 9=crossproduct\n; For 'scalar' : 0=add, 1=multiply, 5=absval (magnitude), 6=squared magnitude, 11=divide, 12=normalize" 	int default="0" no 
+option "operation" t 	"Type of operation : \n With another image : 0=add, 1=multiply, 2=dotproduct, 7=difference, 9=crossproduct\n; For 'scalar' : 0=add, 1=multiply, 5=absval (magnitude), 6=squared magnitude, 11=divide, 12=normalize" 	int default="0" no
 option "pixelValue" - 	"Default value for NaN/Inf"	double   default="0.0" 	no
 
 option "setFloatOutput" f "Set output to float pixel type" flag off

@@ -216,20 +216,31 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QLabel" name="mLabelSelected_3" >
-             <property name="sizePolicy" >
-              <sizepolicy vsizetype="Minimum" hsizetype="Preferred" >
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text" >
-              <string>&lt;b>Files in current DICOM serie&lt;/b></string>
-             </property>
-             <property name="textFormat" >
-              <enum>Qt::RichText</enum>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout_3" >
+             <item>
+              <widget class="QLabel" name="mLabelSelected_3" >
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="Minimum" hsizetype="Preferred" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text" >
+                <string>&lt;b>Files in current DICOM serie&lt;/b></string>
+               </property>
+               <property name="textFormat" >
+                <enum>Qt::RichText</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="mIsMatrixCheckBox" >
+               <property name="text" >
+                <string>Patient coordinate system</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item>
             <widget class="QListWidget" name="mDicomDetailsListWidget" >

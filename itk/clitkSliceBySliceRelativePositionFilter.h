@@ -67,7 +67,7 @@ namespace clitk {
     typedef typename RelPosFilterType::OrientationTypeEnumeration OrientationTypeEnumeration;
     
     /** Input : initial image and object */
-    void SetInput(const ImageType * image);
+    virtual void SetInput(const ImageType * image) ITK_OVERRIDE;
     void SetInputObject(const ImageType * image);
 
     // Options
@@ -106,9 +106,9 @@ namespace clitk {
     SliceBySliceRelativePositionFilter();
     virtual ~SliceBySliceRelativePositionFilter() {}
     
-    virtual void GenerateOutputInformation();
-    virtual void GenerateInputRequestedRegion();
-    virtual void GenerateData();
+    virtual void GenerateOutputInformation() ITK_OVERRIDE;
+    virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+    virtual void GenerateData() ITK_OVERRIDE;
 
     ImagePointer input;
     ImagePointer object;

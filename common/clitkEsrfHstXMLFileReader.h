@@ -28,6 +28,8 @@
 
 #include <map>
 
+#include "clitkCommon.h"
+
 namespace clitk
 {
 
@@ -51,17 +53,17 @@ public:
   itkNewMacro(Self);
 
   /** Determine if a file can be read */
-  int CanReadFile(const char* name);
+  int CanReadFile(const char* name) ITK_OVERRIDE;
 
 protected:
   EsrfHstXMLFileReader() {m_OutputObject = &m_Dictionary;};
   virtual ~EsrfHstXMLFileReader() {};
 
-  virtual void StartElement(const char * name,const char **atts);
+  virtual void StartElement(const char * name,const char **atts) ITK_OVERRIDE;
 
-  virtual void EndElement(const char *name);
+  virtual void EndElement(const char *name) ITK_OVERRIDE;
 
-  void CharacterDataHandler(const char *inData, int inLength);
+  void CharacterDataHandler(const char *inData, int inLength) ITK_OVERRIDE;
 
 private:
   EsrfHstXMLFileReader(const Self&); //purposely not implemented

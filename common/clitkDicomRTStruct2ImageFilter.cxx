@@ -102,10 +102,15 @@ void clitk::DicomRTStruct2ImageFilter::SetImage(vvImage::Pointer image)
   mSpacing.resize(3);
   mOrigin.resize(3);
   mSize.resize(3);
+  mDirection.resize(3);
+  mTransformMatrix = image->GetTransform()[0]->GetMatrix();
   for(unsigned int i=0; i<3; i++) {
     mSpacing[i] = image->GetSpacing()[i];
     mOrigin[i] = image->GetOrigin()[i];
     mSize[i] = image->GetSize()[i];
+    mDirection[i].resize(3);
+    for(unsigned int j=0; j<3; j++)
+      mDirection[i][j] = image->GetDirection()[i][j];
   }
 }
 //--------------------------------------------------------------------
@@ -125,10 +130,14 @@ void clitk::DicomRTStruct2ImageFilter::SetImageFilename(std::string f)
   mSpacing.resize(3);
   mOrigin.resize(3);
   mSize.resize(3);
+  mDirection.resize(3);
   for(unsigned int i=0; i<3; i++) {
     mSpacing[i] = header->GetSpacing(i);
     mOrigin[i] = header->GetOrigin(i);
     mSize[i] = header->GetDimensions(i);
+    mDirection[i].resize(3);
+    for(unsigned int j=0; j<3; j++)
+      mDirection[i][j] = header->GetDirection(i)[j];
   }
 }
 //--------------------------------------------------------------------
@@ -171,10 +180,42 @@ void clitk::DicomRTStruct2ImageFilter::Update()
   }
 
   // Get Mesh
-  vtkPolyData * mesh = mROI->GetMesh();  
+  vtkPolyData * mesh = mROI->GetMesh();
 
   // Get bounds
   double *bounds=mesh->GetBounds();
+
+  //Change mOrigin, mSize and mSpacing with respect to the directions
+  // Spacing is influenced by input direction
+  std::vector<double> tempSpacing;
+  tempSpacing.resize(3);
+  for(int i=0; i<3; i++) {
+    tempSpacing[i] = 0.0;
+    for(int j=0; j<3; j++) {
+      tempSpacing[i] += mDirection[i][j] * mSpacing[j];
+    }
+  }
+  for(int i=0; i<3; i++)
+    mSpacing[i] = tempSpacing[i];
+
+  // Size is influenced by affine transform matrix and input direction
+  // Size is converted to double, transformed and converted back to size type.
+  std::vector<double> tempSize;
+  tempSize.resize(3);
+  for(int i=0; i<3; i++) {
+    tempSize[i] = 0.0;
+    for(int j=0; j<3; j++) {
+      tempSize[i] += mDirection[i][j] * mSize[j];
+    }
+  }
+  for(int i=0; i<3; i++) {
+    if (tempSize[i] < 0.0) {
+      tempSize[i] *= -1;
+      mOrigin[i] += mSpacing[i]*(tempSize[i] -1);
+      mSpacing[i] *= -1;
+    }
+    mSize[i] = lrint(tempSize[i]);
+  }
 
   // Compute origin
   std::vector<double> origin;
@@ -189,7 +230,6 @@ void clitk::DicomRTStruct2ImageFilter::Update()
   extend[0] = ceil((bounds[1]-origin[0])/mSpacing[0]+4);
   extend[1] = ceil((bounds[3]-origin[1])/mSpacing[1]+4);
   extend[2] = ceil((bounds[5]-origin[2])/mSpacing[2]+4);
-
   // If no crop, set initial image size/origin
   if (!mCropMask) {
     for(int i=0; i<3; i++) {
@@ -198,6 +238,8 @@ void clitk::DicomRTStruct2ImageFilter::Update()
     }
   }
 
+std::cout << "origin " << origin[0] << " " << origin[1] << " " << origin[2] << std::endl;
+std::cout << "extend " << extend[0] << " " << extend[1] << " " << extend[2] << std::endl;
   // Create new output image
   mBinaryImage = vtkSmartPointer<vtkImageData>::New();
 #if VTK_MAJOR_VERSION <= 5

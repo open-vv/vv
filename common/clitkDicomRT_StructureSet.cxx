@@ -92,6 +92,14 @@ const std::string & clitk::DicomRT_StructureSet::GetDate() const
 
 
 //--------------------------------------------------------------------
+void clitk::DicomRT_StructureSet::SetTransformMatrix(vtkMatrix4x4* matrix)
+{
+  mTransformMatrix = matrix;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
 const std::string & clitk::DicomRT_StructureSet::GetTime() const
 {
   return mTime;
@@ -439,6 +447,7 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename)
     int nb = i->first;//ReadROINumber(i);//mROIIndex[i];
     // Create the roi
     mROIs[nb] = DicomRT_ROI::New();
+    mROIs[nb]->SetTransformMatrix(mTransformMatrix);
     mROIs[nb]->Read(mMapOfROIInfo[nb], mMapOfROIContours[nb]);
   }
     

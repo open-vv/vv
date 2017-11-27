@@ -23,6 +23,8 @@
 #include <fstream>
 #include <string.h>
 
+#include "clitkCommon.h"
+
 namespace clitk
 {
 
@@ -45,15 +47,15 @@ public:
   itkTypeMacro(EsrfHstImageIO, ImageIOBase);
 
   /*-------- This part of the interface deals with reading data. ------ */
-  virtual void ReadImageInformation();
-  virtual bool CanReadFile( const char* FileNameToRead );
-  virtual void Read(void * buffer);
+  virtual void ReadImageInformation() ITK_OVERRIDE;
+  virtual bool CanReadFile( const char* FileNameToRead ) ITK_OVERRIDE;
+  virtual void Read(void * buffer) ITK_OVERRIDE;
 
   /*-------- This part of the interfaces deals with writing data. ----- */
   virtual void WriteImageInformation(bool keepOfStream);
-  virtual void WriteImageInformation() { WriteImageInformation(false); }
-  virtual bool CanWriteFile(const char* filename);
-  virtual void Write(const void* buffer);
+  virtual void WriteImageInformation() ITK_OVERRIDE { WriteImageInformation(false); }
+  virtual bool CanWriteFile(const char* filename) ITK_OVERRIDE;
+  virtual void Write(const void* buffer) ITK_OVERRIDE;
 
 protected:
   std::string m_XmlFileName;

@@ -69,6 +69,9 @@ namespace clitk {
     exit(-3); \
   }
 
+#ifndef ITK_OVERRIDE
+# define ITK_OVERRIDE
+#endif
 
   //--------------------------------------------------------------------
   // when everything goes wrong
@@ -95,6 +98,9 @@ namespace clitk {
   //--------------------------------------------------------------------
   // Return filename extension
   std::string GetExtension(const std::string& filename);
+
+  // Return filename splitting in 1 or 2 parts : directory name (if exists) & filename
+  std::vector<std::string> SplitFilename(const std::string& filename);
 
   //--------------------------------------------------------------------
   // Convert float, double ... to string

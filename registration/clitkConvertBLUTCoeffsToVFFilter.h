@@ -43,7 +43,11 @@ namespace clitk
 
     typedef clitk::BSplineDeformableTransform<double, TDVFType::ImageDimension, TDVFType::ImageDimension> BLUTTransformType;
     typedef typename BLUTTransformType::CoefficientImageType BLUTCoefficientImageType;
-    typedef itk::BSplineDeformableTransform<double, TDVFType::ImageDimension, TDVFType::ImageDimension> ITKTransformType;
+    typedef itk::BSplineDeformableTransform<double, TDVFType::ImageDimension, 3> ITKTransformType;
+    typedef itk::BSplineDeformableTransform<double, TDVFType::ImageDimension, 0> ITKTransformTypeZero;
+    typedef itk::BSplineDeformableTransform<double, TDVFType::ImageDimension, 1> ITKTransformTypeOne;
+    typedef itk::BSplineDeformableTransform<double, TDVFType::ImageDimension, 2> ITKTransformTypeTwo;
+    typedef itk::BSplineDeformableTransform<double, TDVFType::ImageDimension, 4> ITKTransformTypeFour;
 
     typedef itk::Transform< double, TDVFType::ImageDimension, TDVFType::ImageDimension> GenericTransformType;
     

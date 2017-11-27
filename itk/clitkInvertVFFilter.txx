@@ -74,8 +74,8 @@ protected:
   ~HelperClass1() {};
 
   //the actual processing
-  void BeforeThreadedGenerateData();
-  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId );
+  void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId ) ITK_OVERRIDE;
 
   //member data
   typename  WeightsImageType::Pointer m_Weights;
@@ -289,7 +289,7 @@ protected:
 
 
   //the actual processing
-  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId );
+  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, itk::ThreadIdType threadId ) ITK_OVERRIDE;
 
   //member data
   typename     WeightsImageType::Pointer m_Weights;

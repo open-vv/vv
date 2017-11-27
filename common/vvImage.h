@@ -60,6 +60,7 @@ public :
   std::vector<double> GetSpacing();
   std::vector<double> GetOrigin() const;
   std::vector<int> GetSize();
+  std::vector< std::vector<double> > GetDirection();
   std::string GetScalarTypeAsITKString();
   int GetNumberOfScalarComponents();
   int GetScalarSize();
@@ -67,6 +68,7 @@ public :
   bool IsScalarTypeInteger();
   bool IsScalarTypeInteger(int t);
   const std::vector< vtkSmartPointer<vtkTransform> >& GetTransform();
+  void InitializeTransform();
   void SetTimeSpacing(double s) { mTimeSpacing = s; }
   void SetTimeOrigin(double o) { mTimeOrigin = o; }
   bool HaveSameSizeAndSpacingThan(vvImage * other);

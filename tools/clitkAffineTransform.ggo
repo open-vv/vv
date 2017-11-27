@@ -17,11 +17,13 @@ option "size"		- "New output size if different from input"  	int 	no 	multiple
 option "spacing"	- "New output spacing if different from input" 	double 	no 	multiple
 option "spacinglike"	- "New output spacing like this image" 	        string  no
 option "origin"		- "New output origin if different from input" 	double 	no 	multiple
+option "direction"	- "New output direction if different from input" double no 	multiple
 option "matrix"		m "Affine matrix (homogene) filename"		string  no
 option "elastix"	e "Read EulerTransform from elastix output file (combine if multiple)"	string  no
 option "rotate"		r "Rotation to apply (radians)"	                double	no	multiple
 option "translate"	t "Translation to apply (mm)"		        double  no	multiple
 option "pad"		- "Edge padding value" 				double 	no 	default="0.0"
+option "adaptive"		- "Adapt the size, spacing or the origin when one of the previous tag is on (use previous clitkResampleImage)" flag off
 
 section "Interpolation"
 option "interp"		- "Interpolation: 0=NN, 1=Linear, 2=BSpline, 3=BLUT"	int  	no  default="1"
@@ -31,6 +33,6 @@ option "interpVF"	- "Interpolation: 0=NN, 1=Linear, 2=BSpline, 3=BLUT"	int  	no 
 option "interpVFOrder"	- "Order if BLUT or BSpline (0-5)"		        int  	no  default="3"
 option "interpVFSF"	- "Sampling factor if BLUT"			        int  	no  default="20"
 
-
-
-
+section "Gaussian filtering"
+option "gauss" g "Apply gaussian filter before (sigma in mm) (default=0.0)" double no multiple
+option "autogauss" - "Apply gaussian filter before with auto sigma when downsampling (default=off)" flag off

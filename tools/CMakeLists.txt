@@ -21,9 +21,6 @@ add_library(clitkImageArithmImageLib clitkImageArithmGenericFilter.cxx ${clitkIm
 WRAP_GGO(clitkVectorArithm_GGO_C clitkVectorArithm.ggo)
 add_library(clitkVectorArithmLib clitkVectorArithmGenericFilter.cxx ${clitkVectorArithm_GGO_C})
 
-WRAP_GGO(clitkResampleImage_GGO_C clitkResampleImage.ggo)
-add_library(clitkResampleImageLib clitkResampleImageGenericFilter.cxx ${clitkResampleImage_GGO_C})
-
 WRAP_GGO(clitkMIP_GGO_C clitkMIP.ggo)
 add_library(clitkMIPLib clitkMIPGenericFilter.cxx ${clitkMIP_GGO_C})
 
@@ -64,7 +61,8 @@ if(CLITK_BUILD_TOOLS)
   add_executable(clitkBinarizeImage clitkBinarizeImage.cxx)
   target_link_libraries(clitkBinarizeImage clitkBinarizeImageLib clitkCommon)
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkBinarizeImage)
-  
+
+
   add_executable(clitkProfileImage clitkProfileImage.cxx)
   target_link_libraries(clitkProfileImage clitkProfileImageLib clitkCommon)
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkProfileImage)
@@ -98,6 +96,26 @@ if(CLITK_BUILD_TOOLS)
   add_executable(clitkWriteDicomSeries clitkWriteDicomSeries.cxx ${clitkWriteDicomSeries_GGO_C})
   target_link_libraries(clitkWriteDicomSeries clitkCommon )
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkWriteDicomSeries)
+
+  WRAP_GGO(clitkGateSimulation2Dicom_GGO_C clitkGateSimulation2Dicom.ggo)
+  add_executable(clitkGateSimulation2Dicom clitkGateSimulation2Dicom.cxx ${clitkGateSimulation2Dicom_GGO_C})
+  target_link_libraries(clitkGateSimulation2Dicom clitkCommon )
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkGateSimulation2Dicom)
+
+  WRAP_GGO(clitkPartitionEnergyWindowDicom_GGO_C clitkPartitionEnergyWindowDicom.ggo)
+  add_executable(clitkPartitionEnergyWindowDicom clitkPartitionEnergyWindowDicom.cxx ${clitkPartitionEnergyWindowDicom_GGO_C})
+  target_link_libraries(clitkPartitionEnergyWindowDicom clitkCommon )
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkPartitionEnergyWindowDicom)
+
+  WRAP_GGO(clitkUpdateVRTagDicom_GGO_C clitkUpdateVRTagDicom.ggo)
+  add_executable(clitkUpdateVRTagDicom clitkUpdateVRTagDicom.cxx ${clitkUpdateVRTagDicom_GGO_C})
+  target_link_libraries(clitkUpdateVRTagDicom clitkCommon )
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkUpdateVRTagDicom)
+
+  WRAP_GGO(clitkImage2DicomDose_GGO_C clitkImage2DicomDose.ggo)
+  add_executable(clitkImage2DicomDose clitkImage2DicomDose.cxx ${clitkImage2DicomDose_GGO_C})
+  target_link_libraries(clitkImage2DicomDose clitkCommon)
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImage2DicomDose)
 
   WRAP_GGO(clitkMedianTemporalDimension_GGO_C clitkMedianTemporalDimension.ggo)
   add_executable(clitkMedianTemporalDimension clitkMedianTemporalDimension.cxx
@@ -167,10 +185,6 @@ if(CLITK_BUILD_TOOLS)
   add_executable(clitkMedianImageFilter clitkMedianImageFilter.cxx ${clitkMedianImageFilter_GGO_C})
   target_link_libraries(clitkMedianImageFilter clitkMedianImageFilterLib clitkCommon)
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMedianImageFilter)
-
-  add_executable(clitkResampleImage clitkResampleImage.cxx)
-  target_link_libraries(clitkResampleImage clitkResampleImageLib clitkCommon)
-  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkResampleImage)
 
   WRAP_GGO(clitkMinMaxMask_GGO_C clitkMinMaxMask.ggo)
   add_executable(clitkMinMaxMask clitkMinMaxMask.cxx ${clitkMinMaxMask_GGO_C})
@@ -349,6 +363,12 @@ if(CLITK_BUILD_TOOLS)
   add_executable(clitkImageIntensityWindowing clitkImageIntensityWindowing.cxx ${clitkImageIntensityWindowing_GGO_C})
   target_link_libraries(clitkImageIntensityWindowing clitkCommon )
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageIntensityWindowing)
+
+  WRAP_GGO(clitkMaskOfIntegratedIntensity_GGO_C clitkMaskOfIntegratedIntensity.ggo)
+  add_executable(clitkMaskOfIntegratedIntensity clitkMaskOfIntegratedIntensity.cxx ${clitkMaskOfIntegratedIntensity_GGO_C})
+  target_link_libraries(clitkMaskOfIntegratedIntensity clitkCommon )
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMaskOfIntegratedIntensity)
+
 
   WRAP_GGO(clitkBlurImage_GGO_C clitkBlurImage.ggo)
   add_executable(clitkBlurImage clitkBlurImage.cxx ${clitkBlurImage_GGO_C})

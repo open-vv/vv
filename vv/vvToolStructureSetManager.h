@@ -19,7 +19,11 @@
 #ifndef VVTOOLSTRUCTURESETMANAGER_H
 #define VVTOOLSTRUCTURESETMANAGER_H
 
+#if QT_VERSION >= 0x050000
+#include <QtUiPlugin/QDesignerExportWidget>
+#else
 #include <QtDesigner/QDesignerExportWidget>
+#endif
 #include "vvToolBase.h"
 #include "vvToolWidgetBase.h"
 #include "clitkDicomRT_StructureSet.h"

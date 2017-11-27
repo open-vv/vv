@@ -170,8 +170,8 @@ namespace itk
     }
   
 
-    virtual void GenerateInputRequestedRegion() throw(InvalidRequestedRegionError);
-    void EnlargeOutputRequestedRegion (DataObject * output);
+    virtual void GenerateInputRequestedRegion() throw(InvalidRequestedRegionError) ITK_OVERRIDE;
+    void EnlargeOutputRequestedRegion (DataObject * output) ITK_OVERRIDE;
 
   protected:
     RelativePositionPropImageFilter()
@@ -185,10 +185,10 @@ namespace itk
         m_VerboseProgress = false;
       }
     virtual ~RelativePositionPropImageFilter() {}
-    void PrintSelf(std::ostream& os, Indent indent) const;
+    void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
 
     //void GenerateThreadedData(const typename TOutputImage::RegionType& outputRegionForThread, int threadId);
-    void GenerateData();
+    void GenerateData() ITK_OVERRIDE;
 
   private:
     RelativePositionPropImageFilter(const Self&); //purposely not implemented

@@ -20,7 +20,11 @@
 #define VVTOOLWIDGETBASE_H
 
 #include <QtGlobal>
+#if QT_VERSION >= 0x050000
+#include <QtUiPlugin/QDesignerExportWidget>
+#else
 #include <QtDesigner/QDesignerExportWidget>
+#endif
 #include "ui_vvToolWidgetBase.h"
 #include "clitkImageToImageGenericFilter.h"
 

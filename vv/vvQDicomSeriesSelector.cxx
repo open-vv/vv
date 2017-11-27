@@ -58,6 +58,8 @@ vvDicomSeriesSelector::vvDicomSeriesSelector(QWidget* parent)
           this, SLOT(itemSelectionChanged()));
   connect(ui.mDicomDetailsListWidget, SIGNAL(itemSelectionChanged()),
           this, SLOT(itemDetailsSelectionChanged()));
+  connect(ui.mIsMatrixCheckBox, SIGNAL(stateChanged(int)),
+          this, SLOT(itemMatrixSelectionChanged(int)));
 
   // Initialization
   /*	if (config::get_current_path() != QString(0))
@@ -67,6 +69,8 @@ vvDicomSeriesSelector::vvDicomSeriesSelector(QWidget* parent)
 
   mPreviousPath = mFoldername;
   ui.mFolderLineEdit->setText(mFoldername);
+  ui.mIsMatrixCheckBox->setChecked(0);
+  mPatientCoordinateSystem = false;
   //  ui.mTableWidget->setRowCount(0);
 }
 //====================================================================
@@ -400,5 +404,14 @@ void vvDicomSeriesSelector::AddSerieToTheTable(int i, std::vector<std::string> &
 #endif
 }
 //====================================================================
+
+
+//====================================================================
+void vvDicomSeriesSelector::itemMatrixSelectionChanged(int state)
+{
+  mPatientCoordinateSystem = state;
+}
+//====================================================================
+
 
 #endif // VVDICOMSERIESSELECTOR_CXX

@@ -93,10 +93,14 @@ BlurImageGenericFilter<args_info_type>::UpdateWithInputImageType()
   //}
 
   if (mArgsInfo.variance_given && mArgsInfo.variance_given == dim) {
-  for (unsigned int i = 0; i < dim; i++) {
-    //std::cout<<"mArgsInfo.variance_arg[i]"<<mArgsInfo.variance_arg[i]<<std::endl;
-    varianceArray[i] = mArgsInfo.variance_arg[i];
-  }
+    for (unsigned int i = 0; i < dim; i++) {
+      //std::cout<<"mArgsInfo.variance_arg[i]"<<mArgsInfo.variance_arg[i]<<std::endl;
+      varianceArray[i] = mArgsInfo.variance_arg[i];
+    }
+  } else if (mArgsInfo.variance_given && mArgsInfo.variance_given == 1) {
+      for (unsigned int i = 0; i < dim; i++) {
+          varianceArray[i] = mArgsInfo.variance_arg[0];
+      }
   } else {
       for (unsigned int i = 0; i < dim; i++) {
           varianceArray[i] = 1.0;
@@ -114,6 +118,7 @@ BlurImageGenericFilter<args_info_type>::UpdateWithInputImageType()
   typename DiscreteGaussianImageFilterType::Pointer gaussianFilter=DiscreteGaussianImageFilterType::New();
   gaussianFilter->SetInput(input);
   gaussianFilter->SetVariance(varianceArray);
+  gaussianFilter->SetUseImageSpacing(true);
   gaussianFilter->Update();
 
   //std::cout<<"variance value="<<gaussianFilter->GetVariance()<<std::endl;

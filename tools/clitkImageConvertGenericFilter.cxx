@@ -24,6 +24,7 @@
 #include "vvImageWriter.h"
 #include "itkFlipImageFilter.h"
 #include "itkGDCMImageIO.h"
+#include <itkChangeInformationImageFilter.h>
 
 #include "gdcmReader.h"
 #include "gdcmAttribute.h"
@@ -172,8 +173,26 @@ void clitk::ImageConvertGenericFilter::UpdateWithInputImageType()
       itk::MetaDataDictionary dict;// = new itk::MetaDataDictionary;
       input->SetMetaDataDictionary(dict);
     }
-    this->SetNextOutput<InputImageType>(input);
 
+    typedef itk::ChangeInformationImageFilter<InputImageType> CIType;
+    typename CIType::Pointer changeInfo = CIType::New();
+    if(mNoNiiMeta) {
+      changeInfo->SetInput(input);
+      typename CIType::PointType o = input->GetOrigin();
+      o[0] *= -1.;
+      o[1] *= -1.;
+      typename CIType::DirectionType d = input->GetDirection();
+      d[0][0] *= -1.;
+      d[1][1] *= -1.;
+      changeInfo->ChangeDirectionOn();
+      changeInfo->ChangeOriginOn();
+      changeInfo->SetOutputOrigin(o);
+      changeInfo->SetOutputDirection(d);
+      changeInfo->Update();
+      input = changeInfo->GetOutput();
+    }
+
+    this->SetNextOutput<InputImageType>(input);
 
   } else {
     // "trick" to call independent versions of update according to the

@@ -120,6 +120,9 @@ ProfileImageGenericFilter::UpdateWithInputImageType()
   mArrayY = vtkSmartPointer<vtkFloatArray>::New();
   mCoord = vtkSmartPointer<vtkFloatArray>::New();
   mCoord->SetNumberOfComponents(InputImageType::ImageDimension);
+  mCoordmm = vtkSmartPointer<vtkFloatArray>::New();
+  mCoordmm->SetNumberOfComponents(InputImageType::ImageDimension);
+  mDimension = InputImageType::ImageDimension;
   
   /*typename InputImageType::Pointer outputImage;
   outputImage = InputImageType::New();
@@ -162,10 +165,19 @@ ProfileImageGenericFilter::UpdateWithInputImageType()
     // Fill in the table the distance value
     mArrayX->InsertNextTuple1(distance);
     
-    // Fille in the table the voxel coordinate value
-    mCoord->InsertNextTuple(tuple);
+    // Fill in the table the voxel coordinate value
+    mCoord->InsertNextTuple(tuple); //index
+    for (int i=0; i<InputImageType::ImageDimension; ++i) {
+        tuple[i] = transformedCurrentPoint[i];
+    }
+    mCoordmm->InsertNextTuple(tuple); //mm
     ++lineNumber;
     ++itProfile;
+  }
+
+  if (mArgsInfo.output_given) {
+    std::string str(mArgsInfo.output_arg);
+    this->WriteOutput(str);
   }
   
   /*
@@ -180,6 +192,58 @@ ProfileImageGenericFilter::UpdateWithInputImageType()
   this->template SetNextOutput<InputImageType>(outputImage): */
   
   delete [] tuple;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void ProfileImageGenericFilter::WriteOutput(std::string outputFilename)
+{
+  ofstream fileOpen(outputFilename.c_str(), std::ofstream::trunc);
+
+  if(!fileOpen) {
+      cerr << "Error during saving" << endl;
+      return;
+  }
+
+  double *tuple;
+  tuple = new double[mDimension];
+  int i(0);
+  fileOpen << "The Bresenham algorithm is used to travel along the line. Values represent the center of each crossed voxel (in voxel and mm)" << endl;
+  fileOpen << "Id" << "\t" << "Value" << "\t" ;
+  fileOpen << "x(vox)" << "\t" << "y(vox)" << "\t";
+  if (mDimension >=3)
+      fileOpen << "z(vox)" << "\t";
+  if (mDimension >=4)
+      fileOpen << "t" << "\t";
+  fileOpen << "x(mm)" << "\t" << "y(mm)" << "\t";
+  if (mDimension >=3)
+      fileOpen << "z(mm)" << "\t";
+  if (mDimension >=4)
+      fileOpen << "t" << "\t";
+  fileOpen << endl;
+
+  while (i<mArrayX->GetNumberOfTuples()) {
+      fileOpen << i << "\t" << mArrayY->GetTuple(i)[0] << "\t" ;
+
+      mCoord->GetTuple(i, tuple);
+      for (int j=0; j<mDimension ; ++j) {
+          fileOpen << tuple[j] << "\t" ;
+      }
+      mCoordmm->GetTuple(i, tuple);
+      for (int j=0; j<mDimension ; ++j) {
+          fileOpen << tuple[j] << "\t" ;
+      }
+      if (mDimension == 4) {
+          fileOpen << tuple[3] << "\t" ;
+      }
+      fileOpen << endl;
+      ++i;
+  }
+
+  delete [] tuple;
+
+  fileOpen.close();
 }
 //--------------------------------------------------------------------
 

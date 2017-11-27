@@ -902,11 +902,13 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
       // Change filename if an image with the same already exist
       int number = GetImageDuplicateFilenameNumber(files[i] + std::string("_slice"));
 
-      if (filetype == vvImageReader::IMAGE || filetype == vvImageReader::IMAGEWITHTIME || filetype == vvImageReader::SLICED) {
+      if (filetype == vvImageReader::IMAGE || filetype == vvImageReader::IMAGEWITHTIME || filetype == vvImageReader::SLICED)
         SetImageSucceed = imageManager->SetImage(files[i],filetype, number, j);
-      } else {
+      else if (filetype == vvImageReader::DICOM)
+        SetImageSucceed = imageManager->SetImages(files,filetype, number, dicomSeriesSelector->IsPatientCoordianteSystemChecked());
+      else
         SetImageSucceed = imageManager->SetImages(files,filetype, number);
-      }
+
       if (!SetImageSucceed) {
         QApplication::restoreOverrideCursor();
         QString error = "Cannot open file \n";
@@ -3302,7 +3304,11 @@ void vvMainWindow::SaveScreenshotAllSlices()
     // Screenshot
     vtkSmartPointer<vtkWindowToImageFilter> windowToImageFilter = vtkSmartPointer<vtkWindowToImageFilter>::New();
     windowToImageFilter->SetInput(renderWindow);
+#if VTK_MAJOR_VERSION >= 8 && VTK_MINOR_VERSION >= 1
+    windowToImageFilter->SetScale(1);
+#else
     windowToImageFilter->SetMagnification(1);
+#endif
     windowToImageFilter->SetInputBufferTypeToRGBA(); //also record the alpha (transparency) channel
     windowToImageFilter->Update();
 
@@ -3352,7 +3358,11 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
   if (!fileName.isEmpty()) {
     vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
     w2i->SetInput(widget->GetRenderWindow());
+#if VTK_MAJOR_VERSION >= 8 && VTK_MINOR_VERSION >= 1
+    w2i->SetScale(1);
+#else
     w2i->SetMagnification(1);
+#endif
     w2i->SetInputBufferTypeToRGBA(); //also record the alpha (transparency) channel
     w2i->Update();
     vtkImageData *image = w2i->GetOutput();

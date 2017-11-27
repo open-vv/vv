@@ -70,7 +70,7 @@ public slots:
   vvSlicerManager * mSlicerManager;
   std::vector<vvImageContour::Pointer> mImageContour;
   std::vector< vvBinaryImageOverlayActor::Pointer > mOverlayActors;
-  
+
   bool mIsVisible;
   bool mIsContourVisible;
   double mOpacity;
