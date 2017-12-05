@@ -120,6 +120,7 @@ void vvBinaryImageOverlayActor::Initialize(bool IsVisible)
       mFusionReslice->SetBackgroundColor(-1000,-1000,-1000,1);
     }
 
+    vtkSmartPointer<vtkTransform> mConcatenatedFusionTransform = vtkSmartPointer<vtkTransform>::New();
     mConcatenatedFusionTransform->Identity();
     mConcatenatedFusionTransform->Concatenate(mImage->GetTransform()[0]);
     mConcatenatedFusionTransform->Concatenate(mSlicer->GetSlicingTransform());
