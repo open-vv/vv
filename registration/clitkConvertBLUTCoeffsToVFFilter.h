@@ -7,12 +7,10 @@
 #include "clitkImageCommon.h"
 #include "clitkBSplineDeformableTransform.h"
 #include "itkBSplineDeformableTransform.h"
-#if ITK_VERSION_MAJOR >= 4
-#  if ITK_VERSION_MINOR < 6
-#    include "itkTransformToDisplacementFieldSource.h"
-#  else
-#    include "itkTransformToDisplacementFieldFilter.h"
-#  endif
+#if (ITK_VERSION_MAJOR == 4) && (ITK_VERSION_MINOR < 6)
+#  include "itkTransformToDisplacementFieldSource.h"
+#else
+#  include "itkTransformToDisplacementFieldFilter.h"
 #endif
 
 namespace clitk 
@@ -51,12 +49,10 @@ namespace clitk
 
     typedef itk::Transform< double, TDVFType::ImageDimension, TDVFType::ImageDimension> GenericTransformType;
     
-#if ITK_VERSION_MAJOR >= 4
-#  if ITK_VERSION_MINOR < 6
-    typedef itk::TransformToDisplacementFieldSource<OutputImageType, double> ConvertorType;
-#  else
-    typedef itk::TransformToDisplacementFieldFilter<OutputImageType, double> ConvertorType;
-#  endif
+#if (ITK_VERSION_MAJOR == 4) && (ITK_VERSION_MINOR < 6)
+  typedef itk::TransformToDisplacementFieldSource<OutputImageType, double> ConvertorType;
+#else
+  typedef itk::TransformToDisplacementFieldFilter<OutputImageType, double> ConvertorType;
 #endif
 
     itkNewMacro(Self);

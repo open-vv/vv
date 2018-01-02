@@ -30,14 +30,10 @@ It is distributed under dual licence
 #include "clitkBLUTDIRGenericFilter.h"
 #include "clitkBLUTDIRCommandIterationUpdateDVF.h"
 #include "itkCenteredTransformInitializer.h"
-#if ITK_VERSION_MAJOR >= 4
-#  if ITK_VERSION_MINOR < 6
-#    include "itkTransformToDisplacementFieldSource.h"
-#  else
-#    include "itkTransformToDisplacementFieldFilter.h"
-#  endif
+#if (ITK_VERSION_MAJOR == 4) && (ITK_VERSION_MINOR < 6)
+# include "itkTransformToDisplacementFieldSource.h"
 #else
-#  include "itkTransformToDeformationFieldSource.h"
+# include "itkTransformToDisplacementFieldFilter.h"
 #endif
 
 namespace clitk
@@ -789,12 +785,10 @@ namespace clitk
       //=======================================================
       typedef itk::Vector< float, SpaceDimension >  DisplacementType;
       typedef itk::Image< DisplacementType, InputImageType::ImageDimension >  DisplacementFieldType;
-#if ITK_VERSION_MAJOR >= 4
-#  if ITK_VERSION_MINOR < 6
+#if (ITK_VERSION_MAJOR == 4) && (ITK_VERSION_MINOR < 6)
       typedef itk::TransformToDisplacementFieldSource<DisplacementFieldType, double> ConvertorType;
-#  else
+#else
       typedef itk::TransformToDisplacementFieldFilter<DisplacementFieldType, double> ConvertorType;
-#  endif
 #endif
       typename ConvertorType::Pointer filter= ConvertorType::New();
       filter->SetNumberOfThreads(1);
