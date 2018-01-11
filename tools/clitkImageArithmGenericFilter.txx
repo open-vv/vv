@@ -218,7 +218,7 @@ void  ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it1, Iter2 it
     break;
   case 2: // Divide
     while (!ito.IsAtEnd()) {
-      if (it1.Get() != 0)
+      if (it2.Get() != 0)
         ito.Set(PixelTypeDownCast<double, PixelType>((double)it1.Get() / (double)it2.Get()));
       else ito.Set(mDefaultPixelValue);
       ++it1;
@@ -269,7 +269,7 @@ void  ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it1, Iter2 it
   case 8: // Relative Difference
     while (!ito.IsAtEnd()) {
       if (it1.Get() != 0) ito.Set(PixelTypeDownCast<double, PixelType>(((double)it1.Get()-(double)it2.Get()))/(double)it1.Get());
-      else ito.Set(0.0);
+      else ito.Set(mDefaultPixelValue);
       ++it1;
       ++it2;
       ++ito;
