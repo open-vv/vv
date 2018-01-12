@@ -11,4 +11,4 @@ option "imagetypes" 	-   	"Display allowed image types"	  flag		off
 option "input"		i	"Input image filename"		  string  	required
 option "output"    	o   	"Output image filename"		  string 	required
 
-option "variance"       -   	"value of the gaussian variance (multiple values=number of image dimension) in mm - default=1.0" double  optional  multiple
+option "variance"       -   	"value of the gaussian variance (multiple values=number of image dimension) in mm² - default=1.0" double  optional  multiple
