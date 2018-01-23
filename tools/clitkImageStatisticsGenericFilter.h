@@ -61,6 +61,7 @@ namespace clitk
     {
       m_ArgsInfo=a;
       m_Verbose=m_ArgsInfo.verbose_flag;
+      m_Localize=m_ArgsInfo.localize_flag;
 
       if(m_ArgsInfo.input_given)
         m_InputFileName=m_ArgsInfo.input_arg[0];
@@ -98,7 +99,7 @@ namespace clitk
     // Data members
     //----------------------------------------
     args_info_clitkImageStatistics m_ArgsInfo;
-    bool m_Verbose;
+    bool m_Verbose, m_Localize;
     std::string m_InputFileName;
 
   };
