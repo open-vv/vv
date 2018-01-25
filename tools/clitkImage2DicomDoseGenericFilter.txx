@@ -144,6 +144,84 @@ Image2DicomDoseGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   typedef itk::ImageRegionIterator< InputImageType > IteratorType;
   typedef itk::GDCMImageIO ImageIOType;
 
+  //-----------------------------------------------------------------------------
+  // opening image input file
+  typename ReaderType::Pointer reader = ReaderType::New();
+  const char * filename = m_ArgsInfo.input_arg;
+  reader->SetFileName( filename );
+  reader->Update();
+  typename InputImageType::Pointer image = reader->GetOutput();
+
+  // origin
+  typename InputImageType::PointType origin = image->GetOrigin();
+  DD(origin);
+
+  // size
+  typename InputImageType::SizeType imageSize = image->GetLargestPossibleRegion().GetSize();
+  //DD(imageSize);
+  int NbCols=imageSize[0];	// col
+  int NbRows=imageSize[1];	// row
+  int NbFrames=imageSize[2];	// frame
+  DD(NbCols);
+  DD(NbRows);
+  DD(NbFrames);
+
+  // spacing
+  typename InputImageType::SpacingType Spacing = image->GetSpacing();
+  DD(Spacing);
+
+  // offset
+  float offset = 0.;
+  std::stringstream strOffset;
+  strOffset << offset;
+  for (int i=1; i<NbFrames ; i++){
+    offset+=Spacing[2];
+    strOffset << "\\";
+    strOffset << offset;
+  }
+  DD(strOffset.str().c_str());
+
+  // scaling
+  float highestValue=pow(10,-10);
+  IteratorType out( image, image->GetRequestedRegion() );
+  for (out.GoToBegin(); !out.IsAtEnd(); ++out){
+    //DD(out.Get());
+    if (out.Get()>highestValue) highestValue=out.Get();
+  }
+  double doseScaling = highestValue/(pow(2,16)-1);
+  DD(doseScaling);
+
+  // image data
+  /*std::vector<unsigned short int> ImageData;
+  typename InputImageType::IndexType pixelIndex;
+  int l=0;
+  unsigned short int pixelValue;
+  //DD(highestValue);
+  for (int i=0; i<NbFrames; i++){
+    pixelIndex[2] = i;
+    for (int j=0; j<NbRows; j++){
+      pixelIndex[1] = j;
+      for (int k=0; k<NbCols; k++){
+        pixelIndex[0] = k;
+        pixelValue=image->GetPixel(pixelIndex)/doseScaling;
+        if(float(image->GetPixel(pixelIndex)/doseScaling)>(pow(2,16)-1.)) {
+          std::cout<<"\n!!!!! WARNING !!!!! pixel index: "<<pixelIndex<<"unsigned short int capacity ful or overfuled => Highest value may become 0"<<std::endl;
+          DD(pixelIndex);
+          DD(image->GetPixel(pixelIndex));
+          //DD(image->GetPixel(pixelIndex)/doseScaling);
+          DD(pixelValue);
+          std::cout<<"Pixel Value should be equal to "<<(pow(2,16)-1)<<" but should not be 0"<<std::endl;
+          std::cout<<"\n"<<std::endl;
+          //assert(pixelValue<=(pow(2,16)-1));	should work, but do not...
+        }
+        //DD(pixelValue);
+        ImageData.push_back(pixelValue);
+        l++;
+      }
+    }
+  }
+  DD(ImageData.size());*/
+
   // Read Dicom model file
   typename ReaderSeriesType::Pointer readerSeries = ReaderSeriesType::New();
   ImageIOType::Pointer gdcmIO = ImageIOType::New();
@@ -161,104 +239,21 @@ Image2DicomDoseGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     std::cerr << excp << std::endl;
   }
 
-
-
-//-----------------------------------------------------------------------------------
-// opening dicom input file
-  gdcm::Reader reader2;
-  reader2.SetFileName( m_ArgsInfo.DicomInputFile_arg );
-  reader2.Read();
-  gdcm::File &mDCMFile = reader2.GetFile();
-  gdcm::DataSet &ds = mDCMFile.GetDataSet();
-//mDCMFile.SetMaxSizeLoadEntry(1006384); // important size required, otherwise some data are not loaded
-//mDCMFile.AddForceLoadElement(0x7fe0,0x0010); //Load pixel data no matter its size
-
-std::cout << "File:   "<< m_ArgsInfo.DicomInputFile_arg << "   loaded !"<< std::endl;
-
-
-
-//-----------------------------------------------------------------------------
-// opening image input file
-typename ReaderType::Pointer reader = ReaderType::New();
-const char * filename = m_ArgsInfo.input_arg;
-reader->SetFileName( filename );
-reader->Update();
-typename InputImageType::Pointer image = reader->GetOutput();
-
-// origin
-typename InputImageType::PointType origin = image->GetOrigin();
-DD(origin);
-
-// size
-typename InputImageType::SizeType imageSize = image->GetLargestPossibleRegion().GetSize();
-//DD(imageSize);
-int NbCols=imageSize[0];	// col
-int NbRows=imageSize[1];	// row
-int NbFrames=imageSize[2];	// frame
-DD(NbCols);
-DD(NbRows);
-DD(NbFrames);
-
-// spacing
-typename InputImageType::SpacingType Spacing = image->GetSpacing();
-DD(Spacing);
-
-// scaling
-float highestValue=pow(10,-10);
-IteratorType out( image, image->GetRequestedRegion() );
-for (out.GoToBegin(); !out.IsAtEnd(); ++out){
-//DD(out.Get());
-  if (out.Get()>highestValue) highestValue=out.Get();
-}
-double doseScaling = highestValue/(pow(2,16)-1);
-DD(doseScaling);
-
-// image data
-std::vector<unsigned short int> ImageData;
-typename InputImageType::IndexType pixelIndex;
-int l=0;
-unsigned short int pixelValue;
-//DD(highestValue);
-for (int i=0; i<NbFrames; i++){
-  pixelIndex[2] = i;
-  for (int j=0; j<NbRows; j++){
-    pixelIndex[1] = j;
-    for (int k=0; k<NbCols; k++){
-	pixelIndex[0] = k;
-	pixelValue=image->GetPixel(pixelIndex)/doseScaling;
-if(float(image->GetPixel(pixelIndex)/doseScaling)>(pow(2,16)-1.)) {
-std::cout<<"\n!!!!! WARNING !!!!! pixel index: "<<pixelIndex<<"unsigned short int capacity ful or overfuled => Highest value may become 0"<<std::endl;
-DD(pixelIndex);
-DD(image->GetPixel(pixelIndex));
-//DD(image->GetPixel(pixelIndex)/doseScaling);
-DD(pixelValue);
-std::cout<<"Pixel Value should be equal to "<<(pow(2,16)-1)<<" but should not be 0"<<std::endl;
-std::cout<<"\n"<<std::endl;
-//assert(pixelValue<=(pow(2,16)-1));	should work, but do not...
-}
-//DD(pixelValue);
-        ImageData.push_back(pixelValue);
-        l++;
-    }
-  }
-}
-DD(ImageData.size());
-
-// Relevant parameters inserted in the new dicom file
-/*
-ImagePosition
-NbCols
-NbRows
-NbFrames
-Spacing
-ImageData
-doseScaling
-*/
-
+  // update output dicom keys/tags
+  // string for distinguishing items inside sequence:
+  const std::string ITEM_ENCAPSULATE_STRING("DICOM_ITEM_ENCAPSULATE");
+  std::string tempString = ITEM_ENCAPSULATE_STRING + "01";
   typename ReaderSeriesType::DictionaryRawPointer inputDict = (*(readerSeries->GetMetaDataDictionaryArray()))[0];
   typename ReaderSeriesType::DictionaryArrayType outputArray;
   typename ReaderSeriesType::DictionaryRawPointer outputDict = new typename ReaderSeriesType::DictionaryType;
   CopyDictionary (*inputDict, *outputDict);
+  itk::EncapsulateMetaData<std::string>(*outputDict, "0020|0032", NumberToString(origin));
+  itk::EncapsulateMetaData<std::string>(*outputDict, "0028|0008", NumberToString(NbFrames));
+  itk::EncapsulateMetaData<std::string>(*outputDict, "0028|0010", NumberToString(NbRows));
+  itk::EncapsulateMetaData<std::string>(*outputDict, "0028|0011", NumberToString(NbCols));
+  itk::EncapsulateMetaData<std::string>(*outputDict, "0028|0030", NumberToString(Spacing));
+  itk::EncapsulateMetaData<std::string>(*outputDict, "3004|000e", NumberToString(doseScaling));
+  itk::EncapsulateMetaData<std::string>(*outputDict, "3004|000c", strOffset.str());
   outputArray.push_back(outputDict);
 
   // Output directory and filenames
@@ -271,167 +266,17 @@ doseScaling
   writerSerie->SetFileNames( fileNamesOutput );
   writerSerie->SetMetaDataDictionaryArray(&outputArray);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//--------------------------------------------------------------
-std::cout<<"\nECRITURE DU FICHIER DICOM !"<<std::endl;
-
-//gdcm::ValEntry *b;
-std::string Value("");
-std::stringstream strs;
-
-
-gdcm::DataElement DE;
-
-DE = gdcm::Tag(0x20, 0x32);
-strs << origin[0];
-strs << "\\";
-strs << origin[1];
-strs << "\\";
-strs << origin[2];
-Value = strs.str();
-DE.SetVR( gdcm::VR::US );
-DE.SetByteValue(Value.c_str(), 1);
-ds.Insert(DE);
-DD(Value.c_str());
-strs.str("");
-
-DE = gdcm::Tag(0x28, 0x11);
-strs << NbCols;
-Value = strs.str();
-DE.SetVR( gdcm::VR::US );
-DE.SetByteValue(Value.c_str(), 1);
-ds.Insert(DE);
-DD(Value.c_str());
-strs.str("");
-
-DE = gdcm::Tag(0x28, 0x10);
-strs << NbRows;
-Value = strs.str();
-DE.SetVR( gdcm::VR::US );
-DE.SetByteValue(Value.c_str(), 1);
-ds.Insert(DE);
-DD(Value.c_str());
-strs.str("");
-
-DE = gdcm::Tag(0x28, 0x08);
-strs << NbFrames;
-Value = strs.str();
-DE.SetVR( gdcm::VR::US );
-DE.SetByteValue(Value.c_str(), 1);
-ds.Insert(DE);
-DD(Value.c_str());
-strs.str("");
-
-DE = gdcm::Tag(0x3004, 0x0e);
-strs << doseScaling;
-Value = strs.str();
-DE.SetVR( gdcm::VR::US );
-DE.SetByteValue(Value.c_str(), 1);
-ds.Insert(DE);
-DD(Value.c_str());
-strs.str("");
-
-DE = gdcm::Tag(0x28, 0x30);
-strs << Spacing[0];
-strs << "\\";
-strs << Spacing[1];
-Value = strs.str();
-DE.SetVR( gdcm::VR::US );
-DE.SetByteValue(Value.c_str(), 1);
-ds.Insert(DE);
-DD(Value.c_str());
-strs.str("");
-
-DE = gdcm::Tag(0x3004, 0x000c);
-float offset = 0.;
-strs << offset;
-  for (int i=1; i<NbFrames ; i++){
-    offset+=Spacing[2];
-    strs << "\\";
-    strs << offset;
+  // Write
+  try {
+    if (m_ArgsInfo.verbose_flag)
+      std::cout << writerSerie << std::endl;
+    writerSerie->Update();
+  } catch( itk::ExceptionObject & excp ) {
+    std::cerr << "Error: Exception thrown while writing the series!!" << std::endl;
+    std::cerr << excp << std::endl;
   }
-Value = strs.str();
-DE.SetVR( gdcm::VR::US );
-DE.SetByteValue(Value.c_str(), 1);
-ds.Insert(DE);
-DD(Value.c_str());
-strs.str("");
 
-/*
-// NbCols
-b = ((gdcm::SQItem*)mDCMFile)->GetValEntry(0x0028,0x0011);
-Value<<NbCols;
-b->SetValue(Value.str());
-DD(Value.str());
-Value.str("");
 
-// NbRows
-b = ((gdcm::SQItem*)mDCMFile)->GetValEntry(0x0028,0x0010);
-Value<<NbRows;
-b->SetValue(Value.str());
-DD(Value.str());
-Value.str("");
-//DD(Value.str());
-
-// NbFrames
-b = ((gdcm::SQItem*)mDCMFile)->GetValEntry(0x0028,0x0008);
-Value<<NbFrames;
-b->SetValue(Value.str());
-DD(Value.str());
-Value.str("");
-
-// doseScaling
-b = ((gdcm::SQItem*)mDCMFile)->GetValEntry(0x3004,0x000e);
-Value<<doseScaling;
-b->SetValue(Value.str());
-DD(Value.str());
-Value.str("");
-
-// Spacing X Y
-b = ((gdcm::SQItem*)mDCMFile)->GetValEntry(0x0028, 0x0030);
-Value<<Spacing[0]<<'\\'<<Spacing[1];
-b->SetValue(Value.str());
-DD(Value.str());
-Value.str("");
-
-// Spacing Z ([Grid Frame Offset Vector])
-b = ((gdcm::SQItem*)mDCMFile)->GetValEntry(0x3004, 0x000c);
-float offset=0.;
-Value<<offset;
-  for (int i=1; i<NbFrames ; i++){
-    offset+=Spacing[2];
-    Value<<'\\'<<offset;
-  }
-b->SetValue(Value.str());
-DD(Value.str());
-Value.str("");	
-*/
-//ImageData
-//bool data = mDCMFile->SetBinEntry(reinterpret_cast<uint8_t*>( &(ImageData[0]) ) , (int)(sizeof(unsigned short int) * ImageData.size()) , 0x7fe0, 0x0010);
-//if (data)  std::cout<<"\n DICOM dose data written !"<<std::endl;
-
-//---------------------------------------------------------------------------------------
-//WRITE DICOM
-/*gdcm::FileType type = mDCMFile->GetFileType();
-//type=(gdcm::FileType)2;
-bool ecriture = mDCMFile->Write (args_info.OutputFile_arg, type);
-if (ecriture) std::cout<<"\n DICOM File written !"<<std::endl;
-*/
 //---------------------------------------------------------------------------------------
 //WRITE DICOM BIS
 // The previous way of writting DICOM-RT-DOSE works only for ITK
@@ -456,10 +301,10 @@ if (ecriture) std::cout<<"\n DICOM File written !"<<std::endl;
    else std::cout<<"\n DICOM File re-written, using the FileHelper syntax, in order to be processed by commercial systems !"<<std::endl;
 
 delete fh; */
-  gdcm::Writer w;
+/*  gdcm::Writer w;
   w.SetFile(mDCMFile);
   w.SetFileName(m_ArgsInfo.output_arg);
-  w.Write();
+  w.Write();*/
 //   fh->Delete();
 
 //---------------------------------------------------------------------------------------
@@ -554,8 +399,8 @@ mDCMFile->Write (args_info.OutputFile_arg, type);
 //((gdcm::SQItem*)mDCMFile)->RemoveEntry(a);
 
 //-----------------------------------------------------------------------------------
-std::cout <<"\n## DICOM Image to RT DOSE application is ended..."<<std::endl;
-std::cout <<"#########################################################\n" << std::endl;
+  std::cout <<"\n## DICOM Image to RT DOSE application is ended..."<<std::endl;
+  std::cout <<"#########################################################\n" << std::endl;
 
 #else
   std::cout << "Use GDCM2" << std::endl;
@@ -589,6 +434,17 @@ void CopyDictionary (itk::MetaDataDictionary &fromDict, itk::MetaDataDictionary 
     }
 }
 //---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+template <typename T> std::string NumberToString ( T Number )
+{
+   std::ostringstream ss;
+   ss << Number;
+   return ss.str();
+}
+//---------------------------------------------------------------------------
+
+
 }//end clitk
 
 #endif //#define clitkImage2DicomDoseGenericFilter_txx

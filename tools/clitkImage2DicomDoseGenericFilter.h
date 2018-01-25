@@ -109,6 +109,7 @@ namespace clitk
 
   //Usefull functions
   void CopyDictionary (itk::MetaDataDictionary &fromDict, itk::MetaDataDictionary &toDict);
+  template <typename T> std::string NumberToString ( T Number );
 
 } // end namespace clitk
 
