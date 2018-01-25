@@ -292,78 +292,85 @@ std::cout<<"\nECRITURE DU FICHIER DICOM !"<<std::endl;
 
 //gdcm::ValEntry *b;
 std::string Value("");
+std::stringstream strs;
 
 
 gdcm::DataElement DE;
 
 DE = gdcm::Tag(0x20, 0x32);
-Value = origin[0];
-Value += "\\";
-Value += origin[1];
-Value += "\\";
-Value += origin[2];
+strs << origin[0];
+strs << "\\";
+strs << origin[1];
+strs << "\\";
+strs << origin[2];
+Value = strs.str();
 DE.SetVR( gdcm::VR::US );
 DE.SetByteValue(Value.c_str(), 1);
 ds.Insert(DE);
-DD(Value);
-Value = "";
+DD(Value.c_str());
+strs.str("");
 
 DE = gdcm::Tag(0x28, 0x11);
-Value = NbCols;
+strs << NbCols;
+Value = strs.str();
 DE.SetVR( gdcm::VR::US );
 DE.SetByteValue(Value.c_str(), 1);
 ds.Insert(DE);
-DD(Value);
-Value = "";
+DD(Value.c_str());
+strs.str("");
 
 DE = gdcm::Tag(0x28, 0x10);
-Value = NbRows;
+strs << NbRows;
+Value = strs.str();
 DE.SetVR( gdcm::VR::US );
 DE.SetByteValue(Value.c_str(), 1);
 ds.Insert(DE);
-DD(Value);
-Value = "";
+DD(Value.c_str());
+strs.str("");
 
 DE = gdcm::Tag(0x28, 0x08);
-Value = NbFrames;
+strs << NbFrames;
+Value = strs.str();
 DE.SetVR( gdcm::VR::US );
 DE.SetByteValue(Value.c_str(), 1);
 ds.Insert(DE);
-DD(Value);
-Value = "";
+DD(Value.c_str());
+strs.str("");
 
 DE = gdcm::Tag(0x3004, 0x0e);
-Value = doseScaling;
+strs << doseScaling;
+Value = strs.str();
 DE.SetVR( gdcm::VR::US );
 DE.SetByteValue(Value.c_str(), 1);
 ds.Insert(DE);
-DD(Value);
-Value = "";
+DD(Value.c_str());
+strs.str("");
 
 DE = gdcm::Tag(0x28, 0x30);
-Value = Spacing[0];
-Value += "\\";
-Value += Spacing[1];
+strs << Spacing[0];
+strs << "\\";
+strs << Spacing[1];
+Value = strs.str();
 DE.SetVR( gdcm::VR::US );
 DE.SetByteValue(Value.c_str(), 1);
 ds.Insert(DE);
-DD(Value);
-Value = "";
+DD(Value.c_str());
+strs.str("");
 
 DE = gdcm::Tag(0x3004, 0x000c);
 float offset = 0.;
-Value = offset;
+strs << offset;
   for (int i=1; i<NbFrames ; i++){
     offset+=Spacing[2];
-    Value += "\\";
-    Value += offset;
+    strs << "\\";
+    strs << offset;
   }
-
+Value = strs.str();
 DE.SetVR( gdcm::VR::US );
 DE.SetByteValue(Value.c_str(), 1);
 ds.Insert(DE);
-DD(Value);
-Value = "";
+DD(Value.c_str());
+strs.str("");
 
 /*
 // NbCols
