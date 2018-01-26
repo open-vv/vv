@@ -151,9 +151,36 @@ Image2DicomDoseGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   reader->SetFileName( filename );
   reader->Update();
   typename InputImageType::Pointer image = reader->GetOutput();
+  std::ostringstream value;
+
+  // Read Dicom model file
+  typename ReaderSeriesType::Pointer readerSeries = ReaderSeriesType::New();
+  ImageIOType::Pointer gdcmIO = ImageIOType::New();
+  std::string filename_out = m_ArgsInfo.output_arg;
+  gdcmIO->LoadPrivateTagsOn();
+  gdcmIO->KeepOriginalUIDOn();
+  typename ReaderSeriesType::FileNamesContainer fileNames;
+  fileNames.push_back(m_ArgsInfo.DicomInputFile_arg);
+  readerSeries->SetImageIO( gdcmIO );
+  readerSeries->SetFileNames( fileNames );
+  try {
+    readerSeries->Update();
+  } catch (itk::ExceptionObject &excp) {
+    std::cerr << "Error: Exception thrown while reading the DICOM model file !!" << std::endl;
+    std::cerr << excp << std::endl;
+  }
+
+  // update output dicom keys/tags
+  typename ReaderSeriesType::DictionaryRawPointer inputDict = (*(readerSeries->GetMetaDataDictionaryArray()))[0];
+  typename ReaderSeriesType::DictionaryArrayType outputArray;
+  typename ReaderSeriesType::DictionaryRawPointer outputDict = new typename ReaderSeriesType::DictionaryType;
+  CopyDictionary (*inputDict, *outputDict);
 
   // origin
   typename InputImageType::PointType origin = image->GetOrigin();
+  value.str("");
+  value<<origin[0]<<'\\'<<origin[1]<<'\\'<<origin[2];
+  itk::EncapsulateMetaData<std::string>(*outputDict, "0020|0032", value.str());
   DD(origin);
 
   // size
@@ -162,24 +189,34 @@ Image2DicomDoseGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   int NbCols=imageSize[0];	// col
   int NbRows=imageSize[1];	// row
   int NbFrames=imageSize[2];	// frame
+  itk::EncapsulateMetaData<std::string>(*outputDict, "0028|0008", NumberToString(NbFrames));
+  itk::EncapsulateMetaData<std::string>(*outputDict, "0028|0010", NumberToString(NbRows));
+  itk::EncapsulateMetaData<std::string>(*outputDict, "0028|0011", NumberToString(NbCols));
   DD(NbCols);
   DD(NbRows);
   DD(NbFrames);
 
   // spacing
   typename InputImageType::SpacingType Spacing = image->GetSpacing();
+  value.str("");
+  value<<Spacing[0]<<'\\'<<Spacing[1];
+  itk::EncapsulateMetaData<std::string>(*outputDict, "0028|0030", value.str());
+  value.str("");
+  value<<Spacing[2];
+  itk::EncapsulateMetaData<std::string>(*outputDict, "0018|0050", value.str());
   DD(Spacing);
 
   // offset
   float offset = 0.;
-  std::stringstream strOffset;
-  strOffset << offset;
+  value.str("");
+  value << offset;
   for (int i=1; i<NbFrames ; i++){
     offset+=Spacing[2];
-    strOffset << "\\";
-    strOffset << offset;
+    value << '\\';
+    value << offset;
   }
-  DD(strOffset.str().c_str());
+  itk::EncapsulateMetaData<std::string>(*outputDict, "3004|000c", value.str());
+  DD(value.str());
 
   // scaling
   float highestValue=pow(10,-10);
@@ -188,8 +225,11 @@ Image2DicomDoseGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     //DD(out.Get());
     if (out.Get()>highestValue) highestValue=out.Get();
   }
-  double doseScaling = highestValue/(pow(2,16)-1);
-  DD(doseScaling);
+  double doseScaling = 0.0003080821;//highestValue/(pow(2,16)-1);
+  value.str("");
+  value<<doseScaling;
+  itk::EncapsulateMetaData<std::string>(*outputDict, "3004|000e", value.str());
+  DD(value.str());
 
   // image data
   /*std::vector<unsigned short int> ImageData;
@@ -222,43 +262,10 @@ Image2DicomDoseGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   }
   DD(ImageData.size());*/
 
-  // Read Dicom model file
-  typename ReaderSeriesType::Pointer readerSeries = ReaderSeriesType::New();
-  ImageIOType::Pointer gdcmIO = ImageIOType::New();
-  std::string filename_out = m_ArgsInfo.output_arg;
-  gdcmIO->LoadPrivateTagsOn();
-  gdcmIO->KeepOriginalUIDOn();
-  typename ReaderSeriesType::FileNamesContainer fileNames;
-  fileNames.push_back(m_ArgsInfo.DicomInputFile_arg);
-  readerSeries->SetImageIO( gdcmIO );
-  readerSeries->SetFileNames( fileNames );
-  try {
-    readerSeries->Update();
-  } catch (itk::ExceptionObject &excp) {
-    std::cerr << "Error: Exception thrown while reading the DICOM model file !!" << std::endl;
-    std::cerr << excp << std::endl;
-  }
-
-  // update output dicom keys/tags
-  // string for distinguishing items inside sequence:
-  const std::string ITEM_ENCAPSULATE_STRING("DICOM_ITEM_ENCAPSULATE");
-  std::string tempString = ITEM_ENCAPSULATE_STRING + "01";
-  typename ReaderSeriesType::DictionaryRawPointer inputDict = (*(readerSeries->GetMetaDataDictionaryArray()))[0];
-  typename ReaderSeriesType::DictionaryArrayType outputArray;
-  typename ReaderSeriesType::DictionaryRawPointer outputDict = new typename ReaderSeriesType::DictionaryType;
-  CopyDictionary (*inputDict, *outputDict);
-  itk::EncapsulateMetaData<std::string>(*outputDict, "0020|0032", NumberToString(origin));
-  itk::EncapsulateMetaData<std::string>(*outputDict, "0028|0008", NumberToString(NbFrames));
-  itk::EncapsulateMetaData<std::string>(*outputDict, "0028|0010", NumberToString(NbRows));
-  itk::EncapsulateMetaData<std::string>(*outputDict, "0028|0011", NumberToString(NbCols));
-  itk::EncapsulateMetaData<std::string>(*outputDict, "0028|0030", NumberToString(Spacing));
-  itk::EncapsulateMetaData<std::string>(*outputDict, "3004|000e", NumberToString(doseScaling));
-  itk::EncapsulateMetaData<std::string>(*outputDict, "3004|000c", strOffset.str());
-  outputArray.push_back(outputDict);
-
   // Output directory and filenames
   typedef itk::ImageSeriesWriter<OutputImageType, OutputImageType>  WriterSerieType;
   typename WriterSerieType::Pointer writerSerie = WriterSerieType::New();
+  outputArray.push_back(outputDict);
   writerSerie->SetInput( image );
   writerSerie->SetImageIO( gdcmIO );
   typename ReaderSeriesType::FileNamesContainer fileNamesOutput;
