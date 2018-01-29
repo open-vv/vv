@@ -31,6 +31,9 @@
 
 #include "clitkImage2DicomDoseGenericFilter.h"
 #include "clitkCommon.h"
+#include "itkMinimumMaximumImageCalculator.h"
+#include "itkImageRegionIterator.h"
+#include "itkImageRegionConstIterator.h"
 #if GDCM_MAJOR_VERSION >= 2
 #include "gdcmUIDGenerator.h"
 #include <gdcmImageHelper.h>
@@ -138,10 +141,13 @@ Image2DicomDoseGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
 #if GDCM_MAJOR_VERSION == 2
   // ImageTypes
   typedef itk::Image<PixelType, Dimension> InputImageType;
-  typedef itk::Image<PixelType, Dimension> OutputImageType;
+  typedef unsigned short int OutputPixelType;
+  typedef itk::Image<OutputPixelType, Dimension> OutputImageType;
   typedef itk::ImageFileReader< InputImageType >     ReaderType;
   typedef itk::ImageSeriesReader< InputImageType >     ReaderSeriesType;
+  typedef itk::ImageSeriesWriter<OutputImageType, OutputImageType>  WriterSerieType;
   typedef itk::ImageRegionIterator< InputImageType > IteratorType;
+  typedef itk::MinimumMaximumImageCalculator <InputImageType> ImageCalculatorFilterType;
   typedef itk::GDCMImageIO ImageIOType;
 
   //-----------------------------------------------------------------------------
@@ -219,54 +225,38 @@ Image2DicomDoseGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   DD(value.str());
 
   // scaling
-  float highestValue=pow(10,-10);
-  IteratorType out( image, image->GetRequestedRegion() );
-  for (out.GoToBegin(); !out.IsAtEnd(); ++out){
-    //DD(out.Get());
-    if (out.Get()>highestValue) highestValue=out.Get();
-  }
-  double doseScaling = 0.0003080821;//highestValue/(pow(2,16)-1);
+  typename ImageCalculatorFilterType::Pointer imageCalculatorFilter = ImageCalculatorFilterType::New();
+  imageCalculatorFilter->SetImage(image);
+  imageCalculatorFilter->ComputeMaximum();
+  float highestValue=imageCalculatorFilter->GetMaximum();
+  double doseScaling = highestValue/(pow(2,16)-1);
   value.str("");
   value<<doseScaling;
   itk::EncapsulateMetaData<std::string>(*outputDict, "3004|000e", value.str());
   DD(value.str());
 
   // image data
-  /*std::vector<unsigned short int> ImageData;
-  typename InputImageType::IndexType pixelIndex;
-  int l=0;
-  unsigned short int pixelValue;
-  //DD(highestValue);
-  for (int i=0; i<NbFrames; i++){
-    pixelIndex[2] = i;
-    for (int j=0; j<NbRows; j++){
-      pixelIndex[1] = j;
-      for (int k=0; k<NbCols; k++){
-        pixelIndex[0] = k;
-        pixelValue=image->GetPixel(pixelIndex)/doseScaling;
-        if(float(image->GetPixel(pixelIndex)/doseScaling)>(pow(2,16)-1.)) {
-          std::cout<<"\n!!!!! WARNING !!!!! pixel index: "<<pixelIndex<<"unsigned short int capacity ful or overfuled => Highest value may become 0"<<std::endl;
-          DD(pixelIndex);
-          DD(image->GetPixel(pixelIndex));
-          //DD(image->GetPixel(pixelIndex)/doseScaling);
-          DD(pixelValue);
-          std::cout<<"Pixel Value should be equal to "<<(pow(2,16)-1)<<" but should not be 0"<<std::endl;
-          std::cout<<"\n"<<std::endl;
-          //assert(pixelValue<=(pow(2,16)-1));	should work, but do not...
-        }
-        //DD(pixelValue);
-        ImageData.push_back(pixelValue);
-        l++;
-      }
-    }
+  typename OutputImageType::Pointer imageOutput = OutputImageType::New();
+  imageOutput->SetRegions(image->GetLargestPossibleRegion());
+  imageOutput->SetSpacing(image->GetSpacing());
+  imageOutput->SetOrigin(image->GetOrigin());
+  imageOutput->SetDirection(image->GetDirection());
+  imageOutput->Allocate();
+
+  typename itk::ImageRegionConstIterator<InputImageType> imageIterator(image,image->GetLargestPossibleRegion());
+  typename itk::ImageRegionIterator<OutputImageType> imageOutputIterator(imageOutput,imageOutput->GetLargestPossibleRegion());
+  while(!imageIterator.IsAtEnd()) {
+    // Set the current pixel to white
+    imageOutputIterator.Set((signed short int)(imageIterator.Get()/doseScaling));
+
+    ++imageIterator;
+    ++imageOutputIterator;
   }
-  DD(ImageData.size());*/
 
   // Output directory and filenames
-  typedef itk::ImageSeriesWriter<OutputImageType, OutputImageType>  WriterSerieType;
   typename WriterSerieType::Pointer writerSerie = WriterSerieType::New();
   outputArray.push_back(outputDict);
-  writerSerie->SetInput( image );
+  writerSerie->SetInput( imageOutput );
   writerSerie->SetImageIO( gdcmIO );
   typename ReaderSeriesType::FileNamesContainer fileNamesOutput;
   fileNamesOutput.push_back(filename_out);
