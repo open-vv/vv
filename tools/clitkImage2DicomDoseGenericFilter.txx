@@ -273,6 +273,30 @@ Image2DicomDoseGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     std::cerr << excp << std::endl;
   }
 
+  //Read sequence dicom tag with gdcm
+  gdcm::Reader readerTemplateGDCM;
+  readerTemplateGDCM.SetFileName( fileNames[0].c_str() );
+  readerTemplateGDCM.Read();
+  gdcm::File &fileTemplate = readerTemplateGDCM.GetFile();
+  gdcm::DataSet &dsTemplate = fileTemplate.GetDataSet();
+  const unsigned int ptr_len = 42;
+  char *ptrTemplate = new char[ptr_len];
+  memset(ptrTemplate,0,ptr_len);
+
+  const gdcm::DataElement &referenceRTPlanSq = dsTemplate.GetDataElement(gdcm::Tag(0x300c, 0x02));
+
+  //Copy/Write sequence dicom tag with gdcm
+  gdcm::Reader readerOutputGDCM;
+  readerOutputGDCM.SetFileName( fileNamesOutput[0].c_str() );
+  readerOutputGDCM.Read();
+  gdcm::File &file = readerOutputGDCM.GetFile();
+  gdcm::DataSet &dsOutput = file.GetDataSet();
+
+  dsOutput.Insert(referenceRTPlanSq);
+  gdcm::Writer w;
+  w.SetFile( file );
+  w.SetFileName( fileNamesOutput[0].c_str() );
+  w.Write();
 
 //---------------------------------------------------------------------------------------
 //WRITE DICOM BIS
