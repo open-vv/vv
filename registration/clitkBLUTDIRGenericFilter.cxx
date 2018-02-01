@@ -30,6 +30,7 @@ It is distributed under dual licence
 #include "clitkBLUTDIRGenericFilter.h"
 #include "clitkBLUTDIRCommandIterationUpdateDVF.h"
 #include "itkCenteredTransformInitializer.h"
+#include "itkLabelStatisticsImageFilter.h"
 #if (ITK_VERSION_MAJOR == 4) && (ITK_VERSION_MINOR < 6)
 # include "itkTransformToDisplacementFieldSource.h"
 #else
@@ -373,11 +374,12 @@ namespace clitk
         fixedMask->SetImage(labels);
 
         // Find the bounding box of the "inside" label
-        typedef itk::LabelGeometryImageFilter<ImageLabelType> GeometryImageFilterType;
-        typename GeometryImageFilterType::Pointer geometryImageFilter=GeometryImageFilterType::New();
-        geometryImageFilter->SetInput(labels);
-        geometryImageFilter->Update();
-        typename GeometryImageFilterType::BoundingBoxType boundingBox = geometryImageFilter->GetBoundingBox(1);
+        typedef itk::LabelStatisticsImageFilter<ImageLabelType, ImageLabelType> StatisticsImageFilterType;
+        typename StatisticsImageFilterType::Pointer statisticsImageFilter=StatisticsImageFilterType::New();
+        statisticsImageFilter->SetInput(labels);
+        statisticsImageFilter->SetLabelInput(labels);
+        statisticsImageFilter->Update();
+        typename StatisticsImageFilterType::BoundingBoxType boundingBox = statisticsImageFilter->GetBoundingBox(1);
 
         // Limit the transform region to the mask
         for (unsigned int i=0; i<InputImageType::ImageDimension; i++)
