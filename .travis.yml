@@ -21,7 +21,10 @@ env:
     - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=true
     - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=5.5.1 C11=true
     - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=true
-    - WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7 C11=true
+    - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=false
+    - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=false
+    - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=true
+    - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=true
 
 matrix:
   exclude:
@@ -39,6 +42,22 @@ matrix:
     env: WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=true
   - os: linux
     env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7 C11=true #Problem with VTK 5.10 and c++11
+  - os: linux
+    compiler: clang #Remove ITK with clang on linux
+  include:
+  - os: linux
+    compiler: clang
+    env: WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=false
+  - os: linux
+    compiler: clang
+    env: WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=false
+  - os: linux
+    compiler: clang
+    env: WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=true
+  - os: linux
+    compiler: clang
+    env: WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=true
+
 
 language: cpp
 
@@ -81,21 +100,20 @@ before_install:
 - if test $TRAVIS_OS_NAME == osx ; then export PATH="/usr/local/opt/qt/bin:/usr/local/opt/ccache/libexec:$PATH"; fi
 - if test $TRAVIS_OS_NAME == osx ; then qmake -v; fi
 
-cache: ccache
-#install:
-# - timeout: 1000
-directories:
- - $HOME/vtk-5.10
- - $HOME/vtk-5.10-build
- - $HOME/vtk-6.3
- - $HOME/vtk-6.3-build
- - $HOME/vtk-7.0.0
- - $HOME/vtk-7.0.0-build
- - $HOME/itk-4.5
- - $HOME/itk-4.5-build
- - $HOME/itk-4.9.1
- - $HOME/itk-4.9.1-build
- - '$HOME/.sorar/cache'
+cache:
+ - directories:
+   - $HOME/vtk-5.10
+   - $HOME/vtk-5.10-build
+   - $HOME/vtk-6.3
+   - $HOME/vtk-6.3-build
+   - $HOME/vtk-7.0.0
+   - $HOME/vtk-7.0.0-build
+   - $HOME/itk-4.5
+   - $HOME/itk-4.5-build
+   - $HOME/itk-4.9.1
+   - $HOME/itk-4.9.1-build
+   - '$HOME/.sonar/cache'
+ - timeout: 10000
 
 before_script:
 - export DO_BUILD_VTK=false
@@ -109,5 +127,5 @@ script:
 - 'if [ $DO_BUILD_VTK == true ]; then $SCRIPTS/travis_build_vtk.sh || travis_terminate 1;
    elif [ $DO_BUILD_ITK == true ]; then $SCRIPTS/travis_build_itk.sh || travis_terminate 1;
    else $SCRIPTS/travis_build_vv.sh || travis_terminate 1; fi'
-- if [test $TRAVIS_OS_NAME == linux] && [ $DO_BUILD_VTK == false ] && [ $DO_BUILD_ITK == false ]; then build-wrapper-linux-x86-64 --out-dir bw-output make clean all; fi
-- if [test $TRAVIS_OS_NAME == linux] && [ $DO_BUILD_VTK == false ] && [ $DO_BUILD_ITK == false ]; then sonar-scanner; fi
+- if [ $TRAVIS_OS_NAME == linux ] && [ $DO_BUILD_VTK == false ] && [ $DO_BUILD_ITK == false ]; then build-wrapper-linux-x86-64 --out-dir bw-output make clean all; fi
+- if [ $TRAVIS_OS_NAME == linux ] && [ $DO_BUILD_VTK == false ] && [ $DO_BUILD_ITK == false ]; then sonar-scanner -X ; fi
