@@ -23,5 +23,6 @@ mkdir -p $BUILD_DIR
 cd $BUILD_DIR
 cmake $cmake_arg_str ..
 $MAKE
-cd -
+cd ..
+sonar-scanner
 cd $cwd

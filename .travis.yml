@@ -69,8 +69,7 @@ notifications:
 addons:
   sonarcloud:
     organization: "open-vv-github"
-    token:
-      secure: "cvFKxhrmarSAieav+qev+QdQiyx17jMyQggTBWigSiSeeYPWEUloyF5VnC+sL7o6Kh21ooXKhgvN+J1wB1FEwV8tqoOGoQRaqWpFwRbjqo1qn1r2J6+XMcmaAq6KOeUYzYdk+j8/ZnpkjhxVZIejXtVQpNg02QuqIO8ZmToWPgcKU6VCK33jbN1zZc2TXXbV7KyC6wdX0dZ3Y9lbaBtBGUr7C8QXmT4MUqtuwjQMymTDEBTuhyNn1sp+kEOOV7C6sji58q9h1C+r61+vpcQ5wmJDLr8Gy/uQhm3vCjqNNenHLRLnW5ITRgjL1pqhd499ppSFuGI76wAo5XMMkwTbYJRqUU56z09ZdwyVebsDgMJID/jgtQtclPPkiDOFs40+/gSNQzcOsO8tBNVOC9i/AFIDjbkRFAf6Uq+w34C3lf+7eVVlwGqaifSTTEm/Q/FyVWdGoFDANmbMhodfODT6gm16CQT0WkmQ67bKEu0sqKz6HrEXQ2R8xG8smNzpSRR1KbPv13Xd6Xb7xkOklBc9x2ccSyR6wXqPO9vJrJWNqyGMFKFlpZ2d8zTDtyuAvFxBBYykAmVW55g1VuNeRrIeynMBzib0HSRZhxUBDW8znVeKoeZLQxNihMZnXj9W996lreInheN9ySTwANfx20+b3AMBsRRhuIi5EPmeYTM/kR4="
+    token: $SONAR_TOKEN
 
 branches:
 only:
@@ -129,5 +128,4 @@ script:
 - 'if [ $DO_BUILD_VTK == true ]; then $SCRIPTS/travis_build_vtk.sh || travis_terminate 1;
    elif [ $DO_BUILD_ITK == true ]; then $SCRIPTS/travis_build_itk.sh || travis_terminate 1;
    else $SCRIPTS/travis_build_vv.sh || travis_terminate 1; fi'
-- if [ $TRAVIS_OS_NAME == linux ] && [ $DO_BUILD_VTK == false ] && [ $DO_BUILD_ITK == false ]; then build-wrapper-linux-x86-64 --out-dir bw-output make clean all; fi
-- if [ $TRAVIS_OS_NAME == linux ] && [ $DO_BUILD_VTK == false ] && [ $DO_BUILD_ITK == false ]; then sonar-scanner -X ; fi
+#- if [ $TRAVIS_OS_NAME == linux ] && [ $DO_BUILD_VTK == false ] && [ $DO_BUILD_ITK == false ]; then sonar-scanner ; fi
