@@ -112,6 +112,8 @@ cache:
    - $HOME/itk-4.5-build
    - $HOME/itk-4.9.1
    - $HOME/itk-4.9.1-build
+   - $HOME/itk-4.13.0
+   - $HOME/itk-4.13.0-build
    - '$HOME/.sonar/cache'
  - timeout: 10000
 
