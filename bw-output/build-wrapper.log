@@ -1,0 +1,149 @@
+Wed Feb 14 12:50:05 2018: build-wrapper, version 5.0 (linux-x86)
+Wed Feb 14 12:50:05 2018: System name: Linux Nodename: penicillium Release: 4.4.104-18.44-default Version: #1 SMP Thu Jan 4 08:07:55 UTC 2018 (05a9de6) Machine: x86_64
+Wed Feb 14 12:50:05 2018: socket path: /tmp/build-wrapper-socket.iw074A
+Wed Feb 14 12:50:05 2018: dynamic library found: /home/tbaudier/Software/sonar-scanner-3.0.3.778-linux/build-wrapper-linux-x86/libinterceptor-i686.so
+Wed Feb 14 12:50:05 2018: dynamic library found: /home/tbaudier/Software/sonar-scanner-3.0.3.778-linux/build-wrapper-linux-x86/libinterceptor-x86_64.so
+Wed Feb 14 12:50:05 2018: command executed as: <build-wrapper-linux-x86-64>
+Wed Feb 14 12:50:05 2018: command line received: <make clean all>
+Wed Feb 14 12:50:05 2018: env 0: <XDG_VTNR=7>
+Wed Feb 14 12:50:05 2018: env 1: <G4LEVELGAMMADATA=/home/tbaudier/Software/Geant4/bin/data/PhotonEvaporation4.3>
+Wed Feb 14 12:50:05 2018: env 2: <LESSKEY=/etc/lesskey.bin>
+Wed Feb 14 12:50:05 2018: env 3: <NNTPSERVER=news>
+Wed Feb 14 12:50:05 2018: env 4: <MANPATH=/home/tbaudier/Software/root/bin/man:/home/tbaudier/Software/root/bin/man:/usr/local/man:/usr/local/share/man:/usr/share/man>
+Wed Feb 14 12:50:05 2018: env 5: <SSH_AGENT_PID=3155>
+Wed Feb 14 12:50:05 2018: env 6: <XDG_SESSION_ID=1>
+Wed Feb 14 12:50:05 2018: env 7: <HOSTNAME=penicillium>
+Wed Feb 14 12:50:05 2018: env 8: <XKEYSYMDB=/usr/X11R6/lib/X11/XKeysymDB>
+Wed Feb 14 12:50:05 2018: env 9: <GPG_AGENT_INFO=/tmp/gpg-iRdPNp/S.gpg-agent:3156:1>
+Wed Feb 14 12:50:05 2018: env 10: <G4INSTALL=/home/tbaudier/Software/Geant4/src>
+Wed Feb 14 12:50:05 2018: env 11: <TERM=xterm-256color>
+Wed Feb 14 12:50:05 2018: env 12: <VTE_VERSION=4402>
+Wed Feb 14 12:50:05 2018: env 13: <XDG_MENU_PREFIX=gnome->
+Wed Feb 14 12:50:05 2018: env 14: <HOST=penicillium>
+Wed Feb 14 12:50:05 2018: env 15: <SHELL=/bin/bash>
+Wed Feb 14 12:50:05 2018: env 16: <HISTSIZE=1000>
+Wed Feb 14 12:50:05 2018: env 17: <PROFILEREAD=true>
+Wed Feb 14 12:50:05 2018: env 18: <GJS_DEBUG_OUTPUT=stderr>
+Wed Feb 14 12:50:05 2018: env 19: <G4INCLUDE=/home/tbaudier/Software/Geant4/src/this_is_a_deliberate_dummy_path>
+Wed Feb 14 12:50:05 2018: env 20: <WINDOWID=38044408>
+Wed Feb 14 12:50:05 2018: env 21: <MORE=-sl>
+Wed Feb 14 12:50:05 2018: env 22: <G4NEUTRONXSDATA=/home/tbaudier/Software/Geant4/bin/data/G4NEUTRONXS1.4>
+Wed Feb 14 12:50:05 2018: env 23: <GJS_DEBUG_TOPICS=JS ERROR;JS LOG>
+Wed Feb 14 12:50:05 2018: env 24: <XSESSION_IS_UP=yes>
+Wed Feb 14 12:50:05 2018: env 25: <GTK_MODULES=canberra-gtk-module>
+Wed Feb 14 12:50:05 2018: env 26: <NO_PROXY=localhost,127.0.0.0/8,::1>
+Wed Feb 14 12:50:05 2018: env 27: <G4LEDATA=/home/tbaudier/Software/Geant4/bin/data/G4EMLOW6.50>
+Wed Feb 14 12:50:05 2018: env 28: <USER=tbaudier>
+Wed Feb 14 12:50:05 2018: env 29: <JRE_HOME=/usr/lib64/jvm/jre>
+Wed Feb 14 12:50:05 2018: env 30: <LS_COLORS=no=00:fi=00:di=01;34:ln=00;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=41;33;01:ex=00;32:*.cmd=00;32:*.exe=01;32:*.com=01;32:*.bat=01;32:*.btm=01;32:*.dll=01;32:*.tar=00;31:*.tbz=00;31:*.tgz=00;31:*.rpm=00;31:*.deb=00;31:*.arj=00;31:*.taz=00;31:*.lzh=00;31:*.lzma=00;31:*.zip=00;31:*.zoo=00;31:*.z=00;31:*.Z=00;31:*.gz=00;31:*.bz2=00;31:*.tb2=00;31:*.tz2=00;31:*.tbz2=00;31:*.xz=00;31:*.avi=01;35:*.bmp=01;35:*.fli=01;35:*.gif=01;35:*.jpg=01;35:*.jpeg=01;35:*.mng=01;35:*.mov=01;35:*.mpg=01;35:*.pcx=01;35:*.pbm=01;35:*.pgm=01;35:*.png=01;35:*.ppm=01;35:*.tga=01;35:*.tif=01;35:*.xbm=01;35:*.xpm=01;35:*.dl=01;35:*.gl=01;35:*.wmv=01;35:*.aiff=00;32:*.au=00;32:*.mid=00;32:*.mp3=00;32:*.ogg=00;32:*.voc=00;32:*.wav=00;32:>
+Wed Feb 14 12:50:05 2018: env 31: <LD_LIBRARY_PATH=/home/tbaudier/Software/Geant4/bin/BuildProducts/lib64:/home/tbaudier/Software/root/bin/lib:/usr/local/Qt-5.5.1/lib:/home/tbaudier/Software/elastix/lib/:/home/tbaudier/Software/Geant4/bin/BuildProducts/lib64:/home/tbaudier/Software/root/bin/lib:/usr/local/Qt-5.5.1/lib:/home/tbaudier/Software/elastix/lib/:>
+Wed Feb 14 12:50:05 2018: env 32: <XNLSPATH=/usr/share/X11/nls>
+Wed Feb 14 12:50:05 2018: env 33: <SSH_AUTH_SOCK=/run/user/1036/keyring/ssh>
+Wed Feb 14 12:50:05 2018: env 34: <HOSTTYPE=x86_64>
+Wed Feb 14 12:50:05 2018: env 35: <G4NEUTRONHPDATA=/home/tbaudier/Software/Geant4/bin/data/G4NDL4.5>
+Wed Feb 14 12:50:05 2018: env 36: <QEMU_AUDIO_DRV=pa>
+Wed Feb 14 12:50:05 2018: env 37: <FROM_HEADER=>
+Wed Feb 14 12:50:05 2018: env 38: <SESSION_MANAGER=local/penicillium:@/tmp/.ICE-unix/3075,unix/penicillium:/tmp/.ICE-unix/3075>
+Wed Feb 14 12:50:05 2018: env 39: <LIBPATH=/home/tbaudier/Software/root/bin/lib:/home/tbaudier/Software/root/bin/lib>
+Wed Feb 14 12:50:05 2018: env 40: <G4ENSDFSTATEDATA=/home/tbaudier/Software/Geant4/bin/data/G4ENSDFSTATE2.1>
+Wed Feb 14 12:50:05 2018: env 41: <G4RADIOACTIVEDATA=/home/tbaudier/Software/Geant4/bin/data/RadioactiveDecay5.1>
+Wed Feb 14 12:50:05 2018: env 42: <USERNAME=tbaudier>
+Wed Feb 14 12:50:05 2018: env 43: <CONFIG_SITE=/usr/share/site/x86_64-unknown-linux-gnu>
+Wed Feb 14 12:50:05 2018: env 44: <PAGER=less>
+Wed Feb 14 12:50:05 2018: env 45: <G4ABLADATA=/home/tbaudier/Software/Geant4/bin/data/G4ABLA3.0>
+Wed Feb 14 12:50:05 2018: env 46: <CSHEDIT=emacs>
+Wed Feb 14 12:50:05 2018: env 47: <XDG_CONFIG_DIRS=/etc/xdg>
+Wed Feb 14 12:50:05 2018: env 48: <JUPYTER_PATH=/home/tbaudier/Software/root/bin/etc/notebook:/home/tbaudier/Software/root/bin/etc/notebook>
+Wed Feb 14 12:50:05 2018: env 49: <MINICOM=-c on>
+Wed Feb 14 12:50:05 2018: env 50: <MAIL=/var/spool/mail/tbaudier>
+Wed Feb 14 12:50:05 2018: env 51: <DESKTOP_SESSION=gnome>
+Wed Feb 14 12:50:05 2018: env 52: <PATH=/home/tbaudier/Software/syd/syd/bin/bin:/home/tbaudier/Software/syd/ODB/odb-2.4.0-x86_64-linux-gnu/bin/:/home/tbaudier/geant4_workdir/bin/Linux-g++:/home/tbaudier/Software/Geant4/bin:/home/tbaudier/Software/root/bin/bin:/home/tbaudier/Software/root/bin/bin/root-config:/home/tbaudier/Software/sonar-scanner-3.0.3.778-linux/build-wrapper-linux-x86/:/home/tbaudier/Software/sonar-scanner-3.0.3.778-linux/bin:/home/tbaudier/Software/rtk/bin/bin/:/home/tbaudier/Software/node-v6.11.2-linux-x64/bin/:/home/tbaudier/vv/vv_dynamique/vv/vv_bin/bin:/home/tbaudier/Software/elastix/bin/:/home/tbaudier/Software/3DSlicer/:/home/tbaudier/Software/DocFetcher-1.1.16/:/home/tbaudier/Software/FIJI/:/home/tbaudier/Software/itkSnap/bin/:/home/tbaudier/Software/mendeley/bin/:/home/tbaudier/Software/pycharm-community-5.0.4/bin/:/home/tbaudier/Software/syd/syd/bin/bin:/home/tbaudier/Software/syd/ODB/odb-2.4.0-x86_64-linux-gnu/bin/:/home/tbaudier/geant4_workdir/bin/Linux-g++:/home/tbaudier/Software/Geant4/bin:/home/tbaudier/Software/root/bin/bin:/home/tbaudier/Software/root/bin/bin/root-config:/home/tbaudier/Software/sonar-scanner-3.0.3.778-linux/build-wrapper-linux-x86/:/home/tbaudier/Software/sonar-scanner-3.0.3.778-linux/bin:/home/tbaudier/Software/rtk/bin/bin/:/home/tbaudier/Software/node-v6.11.2-linux-x64/bin/:/home/tbaudier/vv/vv_dynamique/vv/vv_bin/bin:/home/tbaudier/Software/elastix/bin/:/home/tbaudier/Software/3DSlicer/:/home/tbaudier/Software/DocFetcher-1.1.16/:/home/tbaudier/Software/FIJI/:/home/tbaudier/Software/itkSnap/bin/:/home/tbaudier/Software/mendeley/bin/:/home/tbaudier/Software/pycharm-community-5.0.4/bin/:/home/tbaudier/bin:/usr/local/bin:/usr/bin:/bin:/usr/bin/X11:/usr/games>
+Wed Feb 14 12:50:05 2018: env 53: <G4LIB=/home/tbaudier/Software/Geant4/bin/BuildProducts/lib64>
+Wed Feb 14 12:50:05 2018: env 54: <CPU=x86_64>
+Wed Feb 14 12:50:05 2018: env 55: <SYD_CURRENT_DB=/home/tbaudier/david/wsy/src/studies/synfrizz/synfrizz.db>
+Wed Feb 14 12:50:05 2018: env 56: <QT_IM_MODULE=xim>
+Wed Feb 14 12:50:05 2018: env 57: <JAVA_BINDIR=/usr/lib64/jvm/jre/bin>
+Wed Feb 14 12:50:05 2018: env 58: <QT_QPA_PLATFORMTHEME=qgnomeplatform>
+Wed Feb 14 12:50:05 2018: env 59: <G4LIB_BUILD_SHARED=1>
+Wed Feb 14 12:50:05 2018: env 60: <INPUTRC=/etc/inputrc>
+Wed Feb 14 12:50:05 2018: env 61: <PWD=/home/tbaudier/vv/vv_dynamique/vv/vv_src>
+Wed Feb 14 12:50:05 2018: env 62: <G4PIIDATA=/home/tbaudier/Software/Geant4/bin/data/G4PII1.3>
+Wed Feb 14 12:50:05 2018: env 63: <XMODIFIERS=@im=local>
+Wed Feb 14 12:50:05 2018: env 64: <JAVA_HOME=/usr/lib64/jvm/jre>
+Wed Feb 14 12:50:05 2018: env 65: <LANG=en_US.UTF-8>
+Wed Feb 14 12:50:05 2018: env 66: <PYTHONSTARTUP=/etc/pythonstart>
+Wed Feb 14 12:50:05 2018: env 67: <G4SAIDXSDATA=/home/tbaudier/Software/Geant4/bin/data/G4SAIDDATA1.1>
+Wed Feb 14 12:50:05 2018: env 68: <GDMSESSION=gnome>
+Wed Feb 14 12:50:05 2018: env 69: <ROOTSYS=/home/tbaudier/Software/root/bin>
+Wed Feb 14 12:50:05 2018: env 70: <SSH_ASKPASS=/usr/lib/ssh/ssh-askpass>
+Wed Feb 14 12:50:05 2018: env 71: <G4UI_USE_TCSH=1>
+Wed Feb 14 12:50:05 2018: env 72: <AUDIODRIVER=pulseaudio>
+Wed Feb 14 12:50:05 2018: env 73: <GPG_TTY=/dev/pts/5>
+Wed Feb 14 12:50:05 2018: env 74: <SHLVL=1>
+Wed Feb 14 12:50:05 2018: env 75: <HOME=/home/tbaudier>
+Wed Feb 14 12:50:05 2018: env 76: <QT_SYSTEM_DIR=/usr/share/desktop-data>
+Wed Feb 14 12:50:05 2018: env 77: <XDG_SEAT=seat0>
+Wed Feb 14 12:50:05 2018: env 78: <G4SYSTEM=Linux-g++>
+Wed Feb 14 12:50:05 2018: env 79: <LESS_ADVANCED_PREPROCESSOR=no>
+Wed Feb 14 12:50:05 2018: env 80: <ALSA_CONFIG_PATH=/etc/alsa-pulse.conf>
+Wed Feb 14 12:50:05 2018: env 81: <SDL_AUDIODRIVER=pulse>
+Wed Feb 14 12:50:05 2018: env 82: <G4REALSURFACEDATA=/home/tbaudier/Software/Geant4/bin/data/RealSurface1.0>
+Wed Feb 14 12:50:05 2018: env 83: <OSTYPE=linux>
+Wed Feb 14 12:50:05 2018: env 84: <LS_OPTIONS=-N --color=tty -T 0>
+Wed Feb 14 12:50:05 2018: env 85: <XCURSOR_THEME=DMZ>
+Wed Feb 14 12:50:05 2018: env 86: <no_proxy=localhost,127.0.0.0/8,::1>
+Wed Feb 14 12:50:05 2018: env 87: <GNOME_DESKTOP_SESSION_ID=this-is-deprecated>
+Wed Feb 14 12:50:05 2018: env 88: <DYLD_LIBRARY_PATH=/home/tbaudier/Software/root/bin/lib:/home/tbaudier/Software/root/bin/lib>
+Wed Feb 14 12:50:05 2018: env 89: <WINDOWMANAGER=/usr/bin/gnome>
+Wed Feb 14 12:50:05 2018: env 90: <LESS=-M -I -R>
+Wed Feb 14 12:50:05 2018: env 91: <G_FILENAME_ENCODING=@locale,UTF-8,ISO-8859-15,CP1252>
+Wed Feb 14 12:50:05 2018: env 92: <PYTHONPATH=/home/tbaudier/Software/root/bin/lib:/home/tbaudier/Software/root/bin/lib>
+Wed Feb 14 12:50:05 2018: env 93: <XDG_SESSION_DESKTOP=gnome>
+Wed Feb 14 12:50:05 2018: env 94: <LOGNAME=tbaudier>
+Wed Feb 14 12:50:05 2018: env 95: <MACHTYPE=x86_64-suse-linux>
+Wed Feb 14 12:50:05 2018: env 96: <CVS_RSH=ssh>
+Wed Feb 14 12:50:05 2018: env 97: <XDG_DATA_DIRS=/usr/share>
+Wed Feb 14 12:50:05 2018: env 98: <DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-Np4L04qj8g,guid=eba77b3f63b69f9ea9fde6c95a795e47>
+Wed Feb 14 12:50:05 2018: env 99: <G4WORKDIR=/home/tbaudier/geant4_workdir>
+Wed Feb 14 12:50:05 2018: env 100: <LESSOPEN=lessopen.sh %s>
+Wed Feb 14 12:50:05 2018: env 101: <SHLIB_PATH=/home/tbaudier/Software/root/bin/lib:/home/tbaudier/Software/root/bin/lib>
+Wed Feb 14 12:50:05 2018: env 102: <WINDOWPATH=7>
+Wed Feb 14 12:50:05 2018: env 103: <SYD_PLUGIN=/home/tbaudier/Software/syd/syd/bin/lib:/home/tbaudier/Software/syd/syd/bin/lib:>
+Wed Feb 14 12:50:05 2018: env 104: <XDG_RUNTIME_DIR=/run/user/1036>
+Wed Feb 14 12:50:05 2018: env 105: <CMAKE_PREFIX_PATH=/home/tbaudier/Software/root/bin:/home/tbaudier/Software/root/bin>
+Wed Feb 14 12:50:05 2018: env 106: <DISPLAY=:0>
+Wed Feb 14 12:50:05 2018: env 107: <XDG_CURRENT_DESKTOP=GNOME>
+Wed Feb 14 12:50:05 2018: env 108: <XAUTHLOCALHOSTNAME=penicillium>
+Wed Feb 14 12:50:05 2018: env 109: <GTK_IM_MODULE=cedilla>
+Wed Feb 14 12:50:05 2018: env 110: <LESSCLOSE=lessclose.sh %s %s>
+Wed Feb 14 12:50:05 2018: env 111: <G4LIB_USE_ZLIB=1>
+Wed Feb 14 12:50:05 2018: env 112: <G_BROKEN_FILENAMES=1>
+Wed Feb 14 12:50:05 2018: env 113: <QT_IM_SWITCHER=imsw-multi>
+Wed Feb 14 12:50:05 2018: env 114: <JAVA_ROOT=/usr/lib64/jvm/jre>
+Wed Feb 14 12:50:05 2018: env 115: <XAUTHORITY=/run/gdm/auth-for-tbaudier-QjlGl6/database>
+Wed Feb 14 12:50:05 2018: env 116: <COLORTERM=truecolor>
+Wed Feb 14 12:50:05 2018: env 117: <OLDPWD=/home/tbaudier/vv/vv_dev/vv_travis/src>
+Wed Feb 14 12:50:05 2018: env 118: <_=/home/tbaudier/Software/sonar-scanner-3.0.3.778-linux/build-wrapper-linux-x86/build-wrapper-linux-x86-64>
+Wed Feb 14 12:50:05 2018: executing: <make clean all>
+Wed Feb 14 12:50:05 2018: initializing json file
+Wed Feb 14 12:50:05 2018: process created with pid: 445
+Wed Feb 14 12:50:05 2018: parent pid: 444
+Wed Feb 14 12:50:05 2018: working directory: </home/tbaudier/vv/vv_dynamique/vv/vv_src>
+Wed Feb 14 12:50:05 2018: executable: </home/tbaudier/Software/sonar-scanner-3.0.3.778-linux/build-wrapper-linux-x86/build-wrapper-linux-x86-64>
+Wed Feb 14 12:50:05 2018: argv[0]: <build-wrapper-linux-x86-64>
+Wed Feb 14 12:50:05 2018: argv[1]: <-c>
+Wed Feb 14 12:50:05 2018: argv[2]: <>
+Wed Feb 14 12:50:05 2018: argv[3]: <make>
+Wed Feb 14 12:50:05 2018: argv[4]: <clean>
+Wed Feb 14 12:50:05 2018: argv[5]: <all>
+Wed Feb 14 12:50:05 2018: skipping process with pid: 445
+Wed Feb 14 12:50:05 2018: process created with pid: 446
+Wed Feb 14 12:50:05 2018: parent pid: 445
+Wed Feb 14 12:50:05 2018: working directory: </home/tbaudier/vv/vv_dynamique/vv/vv_src>
+Wed Feb 14 12:50:05 2018: executable: </usr/bin/make>
+Wed Feb 14 12:50:05 2018: argv[0]: <make>
+Wed Feb 14 12:50:05 2018: argv[1]: <clean>
+Wed Feb 14 12:50:05 2018: argv[2]: <all>
+Wed Feb 14 12:50:05 2018: skipping process with pid: 446
+Wed Feb 14 12:50:05 2018: finalizing json file
+Wed Feb 14 12:50:05 2018: returned with code: 2
