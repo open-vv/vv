@@ -24,5 +24,6 @@ cd $BUILD_DIR
 cmake $cmake_arg_str ..
 $MAKE
 cd ..
+build-wrapper-linux-x86-64 --out-dir bw-output make all
 sonar-scanner
 cd $cwd
