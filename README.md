@@ -3,7 +3,7 @@
 VV, a 4D image viewer, see : [creatis](http://vv.creatis.insa-lyon.fr)
 
 ### Status
-[![Build Status](https://travis-ci.org/open-vv/vv.svg?branch=master)](https://travis-ci.org/open-vv/vv) [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=open-vv&metric=alert_status)](https://sonarcloud.io/dashboard/index/open-vv)
+[![Build Status](https://travis-ci.org/open-vv/vv.svg?branch=master)](https://travis-ci.org/open-vv/vv) [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=vv&metric=alert_status)](https://sonarcloud.io/dashboard/index/vv)
 
 ### Download
 You can download the binaries here:
