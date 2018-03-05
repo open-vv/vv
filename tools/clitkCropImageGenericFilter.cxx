@@ -182,10 +182,12 @@ void clitk::CropImageGenericFilter::UpdateWithInputImageType()
   typename ImageType::IndexType index = region.GetIndex();
   typename ImageType::PointType origin = output->GetOrigin();
   typename ImageType::SpacingType spacing = output->GetSpacing();
-  if (mArgsInfo.verbose_flag) std::cout << "origin before crop " << origin << std::endl;
-  input->TransformIndexToPhysicalPoint(index,origin);
-  if (mArgsInfo.verbose_flag) std::cout << "origin after crop " << origin << std::endl;
-  output->SetOrigin(origin);
+  if (!mArgsInfo.BG_given) {
+    if (mArgsInfo.verbose_flag) std::cout << "origin before crop " << origin << std::endl;
+    input->TransformIndexToPhysicalPoint(index,origin);
+    if (mArgsInfo.verbose_flag) std::cout << "origin after crop " << origin << std::endl;
+    output->SetOrigin(origin);
+  }
 
   index.Fill(itk::NumericTraits<double>::Zero);
   region.SetIndex(index);
