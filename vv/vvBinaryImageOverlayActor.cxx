@@ -122,7 +122,9 @@ void vvBinaryImageOverlayActor::Initialize(bool IsVisible)
 
     vtkSmartPointer<vtkTransform> mConcatenatedFusionTransform = vtkSmartPointer<vtkTransform>::New();
     mConcatenatedFusionTransform->Identity();
-    mConcatenatedFusionTransform->Concatenate(mImage->GetTransform()[0]);
+    if (!mImage->GetTransform().empty()){
+      mConcatenatedFusionTransform->Concatenate(mImage->GetTransform()[0]);
+    }
     mConcatenatedFusionTransform->Concatenate(mSlicer->GetSlicingTransform());
     mFusionReslice->SetResliceAxes(mConcatenatedFusionTransform->GetMatrix());
     if (mImage->IsTimeSequence()) {
