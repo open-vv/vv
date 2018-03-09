@@ -52,6 +52,9 @@ namespace clitk
     void SetArgsInfo(const args_info_type & a);
     void SetSizeBin (const double size);
 
+    // Save the histogram to txt file
+    void SaveAs();
+
     //--------------------------------------------------------------------
     // Main function called each time the filter is updated
     template<class InputImageType>  

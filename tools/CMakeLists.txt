@@ -62,10 +62,13 @@ if(CLITK_BUILD_TOOLS)
   target_link_libraries(clitkBinarizeImage clitkBinarizeImageLib clitkCommon)
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkBinarizeImage)
 
-
   add_executable(clitkProfileImage clitkProfileImage.cxx)
   target_link_libraries(clitkProfileImage clitkProfileImageLib clitkCommon)
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkProfileImage)
+
+  add_executable(clitkHistogramImage clitkHistogramImage.cxx)
+  target_link_libraries(clitkHistogramImage clitkHistogramImageLib clitkCommon)
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkHistogramImage)
 
   WRAP_GGO(clitkVFResample_GGO_C clitkVFResample.ggo)
   add_executable(clitkVFResample clitkVFResample.cxx clitkVFResampleGenericFilter.cxx ${clitkVFResample_GGO_C})

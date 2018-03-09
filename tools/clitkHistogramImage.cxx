@@ -35,6 +35,7 @@ int main(int argc, char * argv[])
   filter->SetArgsInfo(args_info);
 
   CLITK_TRY_CATCH_EXIT(filter->Update());
+  filter->SaveAs();
 
   return EXIT_SUCCESS;
 } // This is the end, my friend
