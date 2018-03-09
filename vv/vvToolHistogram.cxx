@@ -447,7 +447,6 @@ void vvToolHistogram::SaveAs()
         
         vtkSmartPointer<vtkFloatArray> arrX = vtkSmartPointer<vtkFloatArray>::New();
         vtkSmartPointer<vtkFloatArray> arrY = vtkSmartPointer<vtkFloatArray>::New();
-        vtkSmartPointer<vtkFloatArray> coords = vtkSmartPointer<vtkFloatArray>::New();
         arrX = mFilter->GetArrayX();
         arrY = mFilter->GetArrayY();
         int i(0);
