@@ -109,6 +109,95 @@ namespace clitk
 
   }
   //-------------------------------------------------------------------
+
+
+  //-------------------------------------------------------------------
+  // Compute updated bounding box
+  //-------------------------------------------------------------------
+  template<class args_info_type>
+  vnl_vector<double>
+  AffineTransformGenericFilter<args_info_type>::ComputeSize(vnl_vector<double> inputSize, vnl_matrix<double> transformationMatrix, bool returnMin)
+  {
+    //Compute input corners
+    int Dimension = inputSize.size();
+    vnl_matrix<double> vnlOutputSize(std::pow(2, Dimension), Dimension);
+    vnlOutputSize.fill(0);
+    if (Dimension == 2) {
+      for(unsigned int i=0; i< Dimension; i++)
+        vnlOutputSize[3][i] = inputSize[i];
+      vnlOutputSize[1][0] = inputSize[0];
+      vnlOutputSize[2][1] = inputSize[1];
+    } else if (Dimension == 3) {
+      for(unsigned int i=0; i< Dimension; i++)
+        vnlOutputSize[7][i] = inputSize[i];
+      vnlOutputSize[1][0] = inputSize[0];
+      vnlOutputSize[2][1] = inputSize[1];
+      vnlOutputSize[3][2] = inputSize[2];
+      vnlOutputSize[4][0] = inputSize[0];
+      vnlOutputSize[4][1] = inputSize[1];
+      vnlOutputSize[5][1] = inputSize[1];
+      vnlOutputSize[5][2] = inputSize[2];
+      vnlOutputSize[6][0] = inputSize[0];
+      vnlOutputSize[6][2] = inputSize[2];
+    } else { //Dimension ==4
+      for(unsigned int i=0; i< Dimension; i++)
+        vnlOutputSize[15][i] = inputSize[i];
+      vnlOutputSize[1][0] = inputSize[0];
+      vnlOutputSize[2][1] = inputSize[1];
+      vnlOutputSize[3][2] = inputSize[2];
+      vnlOutputSize[4][3] = inputSize[3];
+      vnlOutputSize[5][0] = inputSize[0];
+      vnlOutputSize[5][1] = inputSize[1];
+      vnlOutputSize[6][0] = inputSize[0];
+      vnlOutputSize[6][2] = inputSize[2];
+      vnlOutputSize[7][0] = inputSize[0];
+      vnlOutputSize[7][3] = inputSize[3];
+      vnlOutputSize[8][1] = inputSize[1];
+      vnlOutputSize[8][2] = inputSize[2];
+      vnlOutputSize[9][1] = inputSize[1];
+      vnlOutputSize[9][3] = inputSize[3];
+      vnlOutputSize[10][2] = inputSize[2];
+      vnlOutputSize[10][3] = inputSize[3];
+      vnlOutputSize[11][0] = inputSize[0];
+      vnlOutputSize[11][1] = inputSize[1];
+      vnlOutputSize[11][2] = inputSize[2];
+      vnlOutputSize[12][0] = inputSize[0];
+      vnlOutputSize[12][1] = inputSize[1];
+      vnlOutputSize[12][3] = inputSize[3];
+      vnlOutputSize[13][0] = inputSize[0];
+      vnlOutputSize[13][2] = inputSize[2];
+      vnlOutputSize[13][3] = inputSize[3];
+      vnlOutputSize[14][1] = inputSize[1];
+      vnlOutputSize[14][2] = inputSize[2];
+      vnlOutputSize[14][3] = inputSize[3];
+    }
+
+    //Compute the transformation of all corner
+    for (unsigned int i=0; i< std::pow(2, Dimension); ++i)
+      vnlOutputSize.set_row(i, transformationMatrix*vnlOutputSize.get_row(i));
+
+    //Compute the bounding box taking the max and the min
+    vnl_vector<double> minBB(vnlOutputSize.get_row(0)), maxBB(vnlOutputSize.get_row(0));
+    for (unsigned int i=0; i< std::pow(2, Dimension); ++i) {
+      for (unsigned int j=0; j< Dimension; ++j) {
+        if (vnlOutputSize[i][j] < minBB[j])
+          minBB[j] = vnlOutputSize[i][j];
+        if (vnlOutputSize[i][j] > maxBB[j])
+          maxBB[j] = vnlOutputSize[i][j];
+      }
+    }
+
+    //Compute the size
+    if (returnMin)
+      return minBB;
+    else {
+      vnl_vector<double> size;
+      size = maxBB - minBB;
+
+      return size;
+    }
+  }
+  //-------------------------------------------------------------------
  
 
   //-------------------------------------------------------------------
@@ -401,11 +490,29 @@ namespace clitk
       if (m_ArgsInfo.origin_given)
         std::cout << "Warning --origin ignored (because --transform_grid_flag)" << std::endl;
 
-      // Spacing is influenced by affine transform matrix and input direction
+      // Origin is influenced by translation but not by input direction
+      typename InputImageType::PointType outputOrigin;
+      outputOrigin = invRotMatrix *
+        input->GetOrigin() +
+        invTrans;
+
+      // Size is influenced by affine transform matrix and input direction
+      // Size is converted to double, transformed and converted back to size type.
+      // Determine the bounding box tranforming all corners
+      vnl_vector<double> vnlOutputSize(Dimension), vnlOutputmmSize(Dimension), vnlOutputOffset(Dimension);
       typename InputImageType::SpacingType outputSpacing;
-      outputSpacing = invRotMatrix *
-        input->GetDirection() *
-        input->GetSpacing();
+      for(unsigned int i=0; i< Dimension; i++) {
+        vnlOutputSize[i] = input->GetLargestPossibleRegion().GetSize()[i];
+        vnlOutputmmSize[i] = input->GetLargestPossibleRegion().GetSize()[i]*input->GetSpacing()[i];
+        vnlOutputOffset[i] = input->GetLargestPossibleRegion().GetSize()[i]*input->GetSpacing()[i];
+      }
+      vnlOutputSize = ComputeSize(vnlOutputSize, invRotMatrix.GetVnlMatrix() * input->GetDirection().GetVnlMatrix(), 0);
+      vnlOutputmmSize = ComputeSize(vnlOutputmmSize, invRotMatrix.GetVnlMatrix() * input->GetDirection().GetVnlMatrix(), 0);
+      vnlOutputOffset = ComputeSize(vnlOutputOffset, invRotMatrix.GetVnlMatrix() * input->GetDirection().GetVnlMatrix(), 1);
+      for(unsigned int i=0; i< Dimension; i++) {
+        outputSpacing[i] = vnlOutputmmSize[i]/lrint(vnlOutputSize[i]);
+        outputOrigin[i] += vnlOutputOffset[i];
+      }
       if (autoGaussEnabled) { // Automated sigma when downsample
         for(unsigned int i=0; i<Dimension; i++) {
           if (outputSpacing[i] > input->GetSpacing()[i]) { // downsample
@@ -415,21 +522,6 @@ namespace clitk
         }
       }
 
-      // Origin is influenced by translation but not by input direction
-      typename InputImageType::PointType outputOrigin;
-      outputOrigin = invRotMatrix *
-        input->GetOrigin() +
-        invTrans;
-
-      // Size is influenced by affine transform matrix and input direction
-      // Size is converted to double, transformed and converted back to size type.
-      vnl_vector<double> vnlOutputSize(Dimension);
-      for(unsigned int i=0; i< Dimension; i++) {
-        vnlOutputSize[i] = input->GetLargestPossibleRegion().GetSize()[i];
-      }
-      vnlOutputSize = invRotMatrix *
-        input->GetDirection().GetVnlMatrix() *
-        vnlOutputSize;
       typename OutputImageType::SizeType outputSize;
       for(unsigned int i=0; i< Dimension; i++) {
         // If the size is negative, we have a flip and we must modify

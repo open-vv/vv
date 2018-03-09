@@ -73,7 +73,7 @@ namespace clitk
 
     //----------------------------------------
     // Set & Get
-    //----------------------------------------    
+    //----------------------------------------
     void SetArgsInfo(const args_info_type & a)
     {
       m_ArgsInfo=a;
@@ -82,28 +82,34 @@ namespace clitk
     }
     
     
-    //----------------------------------------  
+    //----------------------------------------
     // Update
-    //----------------------------------------  
+    //----------------------------------------
     void Update();
+
+
+    //----------------------------------------
+    // Compute bounding box
+    //----------------------------------------
+    vnl_vector<double> ComputeSize(vnl_vector<double> inputSize, vnl_matrix<double> transformationMatrix, bool returnMin);
 
   protected:
 
-    //----------------------------------------  
+    //----------------------------------------
     // Constructor & Destructor
-    //----------------------------------------  
+    //----------------------------------------
     AffineTransformGenericFilter();
     ~AffineTransformGenericFilter() {};
 
     
-    //----------------------------------------  
+    //----------------------------------------
     // Templated members
-    //----------------------------------------  
+    //----------------------------------------
     template <unsigned int Dimension>  void UpdateWithDim(std::string PixelType, int Components);
     template <unsigned int Dimension, class PixelType>  void UpdateWithDimAndPixelType();
     template <unsigned int Dimension, class PixelType>  void UpdateWithDimAndVectorType();
 
-    //----------------------------------------  
+    //----------------------------------------
     // Data members
     //----------------------------------------
     args_info_type m_ArgsInfo;
