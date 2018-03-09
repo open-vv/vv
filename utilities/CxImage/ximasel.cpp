@@ -137,8 +137,8 @@ bool CxImage::SelectionAddEllipse(RECT r, BYTE level)
 	if (pSelection==NULL) SelectionCreate();
 	if (pSelection==NULL) return false;
 
-	long xradius = abs(r.right - r.left)/2;
-	long yradius = abs(r.top - r.bottom)/2;
+	long xradius = labs(r.right - r.left)/2;
+	long yradius = labs(r.top - r.bottom)/2;
 	if (xradius==0 || yradius==0) return false;
 
 	long xcenter = (r.right + r.left)/2;

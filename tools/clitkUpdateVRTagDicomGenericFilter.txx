@@ -198,8 +198,8 @@ UpdateVRTagDicomGenericFilter<args_info_type>::ReadDataElement(std::ifstream& f,
   //While copy, include the 2 letters of the VRTag
   //For SQ, I had to count the number of byte with size and endSQ
 
- /* while (f) {
- 	  uint32_t tempChar;
+  /*while (f) {
+    uint32_t tempChar(0);
     f.read((char*)&tempChar,1);
     std::cout << tempChar << std::endl;
   }
