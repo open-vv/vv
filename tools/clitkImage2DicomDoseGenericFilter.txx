@@ -285,6 +285,11 @@ Image2DicomDoseGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
 
   const gdcm::DataElement &referenceRTPlanSq = dsTemplate.GetDataElement(gdcm::Tag(0x300c, 0x02));
 
+  //Create the Dose Grid Scaling data element (ITK 4.13 do not take into account - it works well with ITK 4.5.1)
+  gdcm::DataElement deDoseGridScaling( gdcm::Tag(0x3004,0x0e) );
+  deDoseGridScaling.SetVR( gdcm::VR::DS );
+  deDoseGridScaling.SetByteValue(NumberToString(doseScaling).c_str(), (uint32_t)strlen(NumberToString(doseScaling).c_str()));
+
   //Copy/Write sequence dicom tag with gdcm
   gdcm::Reader readerOutputGDCM;
   readerOutputGDCM.SetFileName( fileNamesOutput[0].c_str() );
@@ -293,6 +298,7 @@ Image2DicomDoseGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   gdcm::DataSet &dsOutput = file.GetDataSet();
 
   dsOutput.Insert(referenceRTPlanSq);
+  dsOutput.Replace(deDoseGridScaling);
   gdcm::Writer w;
   w.SetFile( file );
   w.SetFileName( fileNamesOutput[0].c_str() );
