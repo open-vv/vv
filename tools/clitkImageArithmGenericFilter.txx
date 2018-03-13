@@ -349,7 +349,7 @@ void clitk::ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it, Ite
       ++ito;
     }
     break;
-  case 7: // Log
+  case 7: // ln
     while (!it.IsAtEnd()) {
       if (it.Get() > 0)
         ito.Set(PixelTypeDownCast<double, PixelType>(log((double)it.Get())));
