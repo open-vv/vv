@@ -189,6 +189,13 @@ Image2DicomDoseGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   itk::EncapsulateMetaData<std::string>(*outputDict, "0020|0032", value.str());
   DD(origin);
 
+  // orientation
+  typename InputImageType::DirectionType direction = image->GetDirection();
+  value.str("");
+  value<<direction[0][0]<<'\\'<<direction[0][1]<<'\\'<<direction[0][2]<<'\\'<<direction[1][0]<<'\\'<<direction[1][1]<<'\\'<<direction[1][2];
+  itk::EncapsulateMetaData<std::string>(*outputDict, "0020|0037", value.str());
+  DD(direction);
+
   // size
   typename InputImageType::SizeType imageSize = image->GetLargestPossibleRegion().GetSize();
   //DD(imageSize);
