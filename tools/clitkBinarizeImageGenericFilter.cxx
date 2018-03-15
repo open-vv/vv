@@ -214,7 +214,7 @@ BinarizeImageGenericFilter::MaskOfIntegratedIntensity()
   int n = input->GetLargestPossibleRegion().GetNumberOfPixels();
   std::vector<int> should_keep(values.size());;
   std::fill(should_keep.begin(), should_keep.end(), 0);
-  while (current<max and i<n) { // loop by decreasing pixel values
+  while (current<max && i<n) { // loop by decreasing pixel values
     current += values[indices[i]];
     should_keep[indices[i]] = 1.0;
     ++i;

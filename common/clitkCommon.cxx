@@ -21,9 +21,10 @@
 
 #include <itksys/SystemTools.hxx>
 
-#ifndef _WIN32
+#ifdef _WIN32
   #define _USE_MATH_DEFINES
   #include <cmath>
+  const double M_PI = std::acos(-1.0);
 #endif
 
 // clitk include 
