@@ -21,6 +21,11 @@
 
 #include <itksys/SystemTools.hxx>
 
+#ifndef _WIN32
+  #define _USE_MATH_DEFINES
+  #include <cmath>
+#endif
+
 // clitk include 
 #include "clitkCommon.h"
 
