@@ -182,15 +182,19 @@ PartitionEnergyWindowDicomGenericFilter<args_info_type>::UpdateWithDimAndPixelTy
   series_number_att.SetFromDataSet(dsInput);
   int nbEnergyWindow = series_number_att.GetValue();
 
-  const gdcm::DataElement &seqRotation = dsInput.GetDataElement(gdcm::Tag(0x54, 0x52));
-  gdcm::SmartPointer<gdcm::SequenceOfItems> sqiRotation = seqRotation.GetValueAsSQ();
-  gdcm::Item &itemRotation = sqiRotation->GetItem(1);
-  const gdcm::DataElement &deRotation = itemRotation.GetDataElement(gdcm::Tag(0x54, 0x53));
-  unsigned short SamplesPerPixelRotation = *((unsigned short *) deRotation.GetByteValue()->GetPointer());
-  std::stringstream s_SamplesPerPixelRotation;
-  s_SamplesPerPixelRotation << SamplesPerPixelRotation;
-  std::string p_StrRotation = s_SamplesPerPixelRotation.str();
-  int nbRotation = (int)atof(p_StrRotation.c_str());
+  int nbRotation;
+  if (dsInput.FindDataElement(gdcm::Tag(0x54, 0x52))) {
+    const gdcm::DataElement &seqRotation = dsInput.GetDataElement(gdcm::Tag(0x54, 0x52));
+    gdcm::SmartPointer<gdcm::SequenceOfItems> sqiRotation = seqRotation.GetValueAsSQ();
+    gdcm::Item &itemRotation = sqiRotation->GetItem(1);
+    const gdcm::DataElement &deRotation = itemRotation.GetDataElement(gdcm::Tag(0x54, 0x53));
+    unsigned short SamplesPerPixelRotation = *((unsigned short *) deRotation.GetByteValue()->GetPointer());
+    std::stringstream s_SamplesPerPixelRotation;
+    s_SamplesPerPixelRotation << SamplesPerPixelRotation;
+    std::string p_StrRotation = s_SamplesPerPixelRotation.str();
+    nbRotation = (int)atof(p_StrRotation.c_str());
+  } else
+    nbRotation = 1;
 
   int nbSlicePerEnergy = nbSlice / nbEnergyWindow;
   if (nbSlicePerEnergy*nbEnergyWindow != nbSlice)
