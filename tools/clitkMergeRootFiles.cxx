@@ -55,6 +55,9 @@ int main(int argc, char *argv[]) {
         FATAL("Error, please provide at least two inputs files");
     }
 
+    // Set the tree maximum size to 1TB instead of 100GB
+    TTree::SetMaxTreeSize( 1000000000000LL );
+
     /* The following block does some bookkeeping necesary for files originating from a pet simulation.
     Seems fixing some timing info, for coincidences between files perhaps.
     It seems the files are later on reopened and merged, if the conditions were met.
