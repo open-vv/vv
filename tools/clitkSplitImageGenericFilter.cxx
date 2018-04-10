@@ -54,7 +54,7 @@ clitk::SplitImageGenericFilter::PngConversion<ImageType>::Do(double window,
                                                              ImagePointer input)
 {
   static const unsigned int PixelDimension = itk::PixelTraits<typename ImageType::PixelType>::Dimension;
-  return this->Do(window, level, input, static_cast< PixelDimType<PixelDimension> *>(NULL) );
+  return this->Do(window, level, input, static_cast< PixelDimType<PixelDimension> *>(ITK_NULLPTR) );
 }
 //--------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ clitk::SplitImageGenericFilter::PngConversion<ImageType>::Do(double window,
                                                              PixelDimType<Dim> *)
 {
   clitkExceptionMacro("Png conversion is not implemented for vector fields");
-  return NULL;
+  return ITK_NULLPTR;
 }
 //--------------------------------------------------------------------
 

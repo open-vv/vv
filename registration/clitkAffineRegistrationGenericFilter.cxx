@@ -321,7 +321,7 @@ void AffineRegistrationGenericFilter::UpdateWithInputImageType()
   // If given, we connect a mask to reference or target
   //============================================================================
   typedef itk::ImageMaskSpatialObject<  InputImageType::ImageDimension >   MaskType;
-  typename MaskType::Pointer  fixedMask=NULL;
+  typename MaskType::Pointer  fixedMask=ITK_NULLPTR;
   if (m_ArgsInfo.referenceMask_given) {
     fixedMask= MaskType::New();
     typedef itk::Image< unsigned char, InputImageType::ImageDimension >   ImageMaskType;
@@ -342,7 +342,7 @@ void AffineRegistrationGenericFilter::UpdateWithInputImageType()
   }
 
   typedef itk::ImageMaskSpatialObject<  InputImageType::ImageDimension >   MaskType;
-  typename MaskType::Pointer  movingMask=NULL;
+  typename MaskType::Pointer  movingMask=ITK_NULLPTR;
   if (m_ArgsInfo.targetMask_given) {
     movingMask= MaskType::New();
     typedef itk::Image< unsigned char, InputImageType::ImageDimension >   ImageMaskType;

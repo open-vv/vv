@@ -38,7 +38,7 @@ template<class ArgsInfoType>
 template<unsigned int Dim>
 void clitk::ExtractBonesGenericFilter<ArgsInfoType>::InitializeImageType() 
 {  
-  ADD_IMAGE_TYPE(Dim, short);
+  //ADD_IMAGE_TYPE(Dim, short);
   // ADD_IMAGE_TYPE(Dim, int);
   ADD_IMAGE_TYPE(Dim, float);
 }

@@ -69,7 +69,7 @@ typename clitk::CropImageGenericFilter::AutoCrop<ImageType>::ImagePointer
 clitk::CropImageGenericFilter::AutoCrop<ImageType>::Do(args_info_type &, ImagePointer, PixelDimType<Dim> *)
 {
   clitkExceptionMacro("Autocrop is not implemented for vector fields");
-  return NULL;
+  return ITK_NULLPTR;
 }
 //--------------------------------------------------------------------
 

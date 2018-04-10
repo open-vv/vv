@@ -31,13 +31,13 @@ namespace clitk
 template <class args_info_type, class FixedImageType, class MovingImageType>
 GenericMetric<args_info_type, FixedImageType, MovingImageType>::GenericMetric()
 {
-  m_Metric=NULL;
+  m_Metric=ITK_NULLPTR;
   m_Maximize=false;
   m_Verbose=false;
   m_FixedImageRegionGiven=false;
   m_FixedImageSamplesIntensityThreshold=0;
   m_UseFixedImageSamplesIntensityThreshold=false;
-  m_FixedImageMask=NULL;
+  m_FixedImageMask=ITK_NULLPTR;
 }
 
 
@@ -255,7 +255,7 @@ GenericMetric<args_info_type,FixedImageType, MovingImageType>::GetMetricPointer(
 
 
   typedef itk::ImageMaskSpatialObject<itkGetStaticConstMacro(FixedImageDimension)> ImageMaskSpatialObjectType;
-  typename ImageMaskSpatialObjectType::ConstPointer mask = NULL;
+  typename ImageMaskSpatialObjectType::ConstPointer mask = ITK_NULLPTR;
   if (m_FixedImageMask.IsNotNull())
     mask = dynamic_cast<const ImageMaskSpatialObjectType*>(m_FixedImageMask.GetPointer());
 

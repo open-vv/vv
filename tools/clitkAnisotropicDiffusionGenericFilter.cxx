@@ -44,7 +44,8 @@ AnisotropicDiffusionGenericFilter::AnisotropicDiffusionGenericFilter():
 template<unsigned int Dim>
 void AnisotropicDiffusionGenericFilter::InitializeImageType()
 {
-  ADD_DEFAULT_IMAGE_TYPES(Dim);
+  ADD_IMAGE_TYPE(Dim, float);
+  ADD_IMAGE_TYPE(Dim, double);
 }
 //--------------------------------------------------------------------
 

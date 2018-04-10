@@ -118,7 +118,7 @@ void VectorArithmGenericFilter<args_info_type>::UpdateWithInputImageType()
   IteratorType it(input1, input1->GetLargestPossibleRegion());
 
   // typedef input2
-  typename ImageType::Pointer input2 = NULL;
+  typename ImageType::Pointer input2 = ITK_NULLPTR;
   IteratorType it2;
 
   // Special case for normalisation

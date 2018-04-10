@@ -102,7 +102,7 @@ ImageLaplacianGenericFilter<args_info_type>::UpdateWithInputImageType()
     castFilter->SetInput(input);
     castFilter->Update();
 
-    typename MaskImageType::Pointer mask = NULL;
+    typename MaskImageType::Pointer mask = ITK_NULLPTR;
     if(mArgsInfo.mask_given) {
         mask = this->template GetInput<MaskImageType>(1);
     }

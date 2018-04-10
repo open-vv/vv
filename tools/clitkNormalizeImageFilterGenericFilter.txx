@@ -94,7 +94,7 @@ namespace clitk
         // Reading input
         typename InputImageType::Pointer input = this->template GetInput<InputImageType>(0);
 
-        typename MaskImageType::Pointer mask = NULL;
+        typename MaskImageType::Pointer mask = ITK_NULLPTR;
         if(mArgsInfo.mask_given) {
             mask = this->template GetInput<MaskImageType>(1);
         }

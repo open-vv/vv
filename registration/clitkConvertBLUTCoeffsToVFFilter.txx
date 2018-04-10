@@ -107,7 +107,7 @@ namespace clitk
 
       // Mask
       typedef itk::ImageMaskSpatialObject<BLUTCoefficientImageType::ImageDimension >   MaskType;
-      typename MaskType::Pointer  spatialObjectMask=NULL;
+      typename MaskType::Pointer  spatialObjectMask=ITK_NULLPTR;
       if (!m_MaskFileName.empty())
       {
           typedef itk::Image< unsigned char, BLUTCoefficientImageType::ImageDimension >   ImageMaskType;
