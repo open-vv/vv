@@ -54,8 +54,8 @@ vvDeformableRegistration::vvDeformableRegistration(vvImage::Pointer image,unsign
 void vvDeformableRegistration::abort()
 {
   aborted=true;
-  std::system("killall deformableregistration");
-  std::system("killall clitkVFMerge");
+  int tempReturn = std::system("killall deformableregistration");
+  tempReturn = std::system("killall clitkVFMerge");
 }
 
 unsigned int vvDeformableRegistration::getProgress()
@@ -71,16 +71,16 @@ void vvDeformableRegistration::cleanup(int frame_number) //remove temporary file
   for (int i=0; i<frame_number; i++) {
     std::stringstream filename;
     filename << temp_dir << "/deformation_" << i << ".vf";
-    std::system((std::string("rm ") + filename.str()).c_str());
+    int tempReturn = std::system((std::string("rm ") + filename.str()).c_str());
   }
   for (int i=0; i<frame_number; i++) {
     std::stringstream filename;
     filename << temp_dir << "/temp_" << i << ".vox";
-    std::system(("rm " + filename.str()).c_str());
+    int tempReturn = std::system(("rm " + filename.str()).c_str());
   }
   std::stringstream filename;
   filename << temp_dir;
-  std::system(("rm -r " + filename.str()).c_str());
+  int tempReturn = std::system(("rm -r " + filename.str()).c_str());
 }
 
 void vvDeformableRegistration::partial_run(int low_index,int high_index,int refimage,std::string ref_file)
@@ -111,7 +111,7 @@ void vvDeformableRegistration::partial_run(int low_index,int high_index,int refi
       registration_command << " --vf=" << old_vf.str();
     }
     DD(registration_command.str());
-    std::system(registration_command.str().c_str());
+    int tempReturn = std::system(registration_command.str().c_str());
     progress_mutex.lock();
     progress++;
     progress_mutex.unlock();
@@ -170,7 +170,7 @@ void vvDeformableRegistration::run()
   command << "clitkZeroVF -i " << temp_dir << "/deformation_" << computed_vf << ".vf -o "  << temp_dir <<
           "/deformation_" << refimage << ".vf";
   DD(command.str()); //create zero VF for the ref image
-  std::system(command.str().c_str());
+  int tempReturn = std::system(command.str().c_str());
   command.str("");
   command << "clitkVFMerge ";
   for (unsigned int i=0; i<images.size(); i++) command << temp_dir << "/deformation_" << i << ".vf ";
@@ -179,10 +179,10 @@ void vvDeformableRegistration::run()
   command << " --zorigin " << images[0]->GetOrigin()[2];
   command << " -o " << output_filename << std::endl;
   DD(command.str());
-  std::system(command.str().c_str());
+  tempReturn = std::system(command.str().c_str());
   cleanup(images.size());
   if (aborted) {
-    std::system(("rm " + output_filename).c_str());
+    tempReturn = std::system(("rm " + output_filename).c_str());
     return;
   }
   vvImageReader::Pointer reader = vvImageReader::New();
