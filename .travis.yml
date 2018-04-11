@@ -16,7 +16,7 @@ env:
     - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=false
     - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=5.5.1 C11=false
     - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=false
-    - WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7 C11=false
+    - WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.6 QT_VERSION=4.8.7 C11=false
     - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=5.5.1 C11=true
     - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=true
     - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=5.5.1 C11=true
@@ -29,9 +29,9 @@ env:
 matrix:
   exclude:
   - os: osx
-    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7 C11=false #VTK5.10 doesn't work with osX
+    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.6 QT_VERSION=4.8.7 C11=false #VTK5.10 doesn't work with osX
   - os: osx
-    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7 C11=true #VTK5.10 doesn't work with osX
+    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.6 QT_VERSION=4.8.7 C11=true #VTK5.10 doesn't work with osX
   - os: osx
     env: WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=false #Qt4 doesn't work with brew anymore
   - os: osx
@@ -41,7 +41,7 @@ matrix:
   - os: osx
     env: WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=true
   - os: linux
-    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7 C11=true #Problem with VTK 5.10 and c++11
+    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.6 QT_VERSION=4.8.7 C11=true #Problem with VTK 5.10 and c++11
   - os: linux
     compiler: clang #Remove ITK with clang on linux
   include:
@@ -107,8 +107,8 @@ cache:
    - $HOME/vtk-6.3-build
    - $HOME/vtk-7.0.0
    - $HOME/vtk-7.0.0-build
-   - $HOME/itk-4.5
-   - $HOME/itk-4.5-build
+   - $HOME/itk-4.6
+   - $HOME/itk-4.6-build
    - $HOME/itk-4.9.1
    - $HOME/itk-4.9.1-build
    - $HOME/itk-4.13.0

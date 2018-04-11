@@ -4,8 +4,8 @@ MAKE="make --jobs=$NUM_THREADS --keep-going"
 
 #Prepare cmake arguments following the ITK version
 if [ "$C11" == "true" ]; then
-  if [ "$ITK_VERSION" == "4.5" ]; then
-    itk_repo_str=" --branch v4.5.0 https://github.com/InsightSoftwareConsortium/ITK.git --depth 1"
+  if [ "$ITK_VERSION" == "4.6" ]; then
+    itk_repo_str=" --branch v4.6.0 https://github.com/InsightSoftwareConsortium/ITK.git --depth 1"
     cmake_arg_str=" -DCMAKE_CXX_FLAGS=-std=c++11 -DModule_ITKVtkGlue=ON -DVTK_DIR=$VTK_DIR -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF "
   elif [ "$ITK_VERSION" == "4.9.1" ]; then
     itk_repo_str=" --branch v4.9.1 https://github.com/InsightSoftwareConsortium/ITK.git --depth 1"
@@ -15,8 +15,8 @@ if [ "$C11" == "true" ]; then
     cmake_arg_str=" -DCMAKE_CXX_FLAGS=-std=c++11 -DModule_ITKVtkGlue=ON -DVTK_DIR=$VTK_DIR -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF "
   fi
 else
-  if [ "$ITK_VERSION" == "4.5" ]; then
-    itk_repo_str=" --branch v4.5.0 https://github.com/InsightSoftwareConsortium/ITK.git --depth 1"
+  if [ "$ITK_VERSION" == "4.6" ]; then
+    itk_repo_str=" --branch v4.6.0 https://github.com/InsightSoftwareConsortium/ITK.git --depth 1"
     cmake_arg_str=" -DModule_ITKVtkGlue=ON -DVTK_DIR=$VTK_DIR -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF "
   elif [ "$ITK_VERSION" == "4.9.1" ]; then
     itk_repo_str=" --branch v4.9.1 https://github.com/InsightSoftwareConsortium/ITK.git --depth 1"
