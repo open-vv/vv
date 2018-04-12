@@ -274,7 +274,7 @@ void clitk::DicomRT_Contour::ComputeMeshFromDataPoints()
     double pointIn[4];
     for (unsigned int j=0 ; j<3; ++j)
       pointIn[j] = mData->GetPoint(idx)[j];
-    pointIn[4] = 1.0;
+    pointIn[3] = 1.0;
     /*double pointOut[4];
     mTransformMatrix->MultiplyPoint(pointIn, pointOut);
     std::cout << pointOut[0] << " " << pointOut[1] << " " << pointOut[2] << " " << pointOut[3] << std::endl;
