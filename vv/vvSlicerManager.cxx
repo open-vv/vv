@@ -1394,7 +1394,6 @@ void vvSlicerManager::SetLocalColorWindowing(const int slicer, const bool bCtrlK
     this->SetColorLevel(0.5*(min+max));
     this->SetPreset(WL_USER);
   }
-  this->Render();
   this->UpdateWindowLevel();
 }
 //----------------------------------------------------------------------------
