@@ -11,3 +11,4 @@ option "imagetypes" 	-   	"Display allowed image types"	  flag		off
 option "input"		i	"Input image filename"		  string  	required
 option "output"    	o   	"Output image filename"		  string 	required
 option "mask"		m	"Mask input image filename"       string  	optional
+option "total_normalisation"		n	"Normalise such as the total is = 1.0"       flag off

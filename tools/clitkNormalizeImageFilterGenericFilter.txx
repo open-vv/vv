@@ -144,13 +144,28 @@ namespace clitk
         ito.GoToBegin();
         itm.GoToBegin();
 
+        double total = 0.0;
         while (!ito.IsAtEnd()) {
+          if(itm.Get() == 1) {
+            ito.Set(((float) it.Get() - minImg)/(maxImg-minImg));
+            total += ito.Get();
+          }
+          ++it;
+          ++ito;
+          ++itm;
+        }
+
+        // Normalisation wrt total ?
+        if (mArgsInfo.total_normalisation_flag) {
+          ito.GoToBegin();
+          itm.GoToBegin();
+          while (!ito.IsAtEnd()) {
             if(itm.Get() == 1) {
-                ito.Set(((float) it.Get() - minImg)/(maxImg-minImg));
+              ito.Set(ito.Get()/total);
             }
-            ++it;
             ++ito;
             ++itm;
+          }
         }
         //
         //
