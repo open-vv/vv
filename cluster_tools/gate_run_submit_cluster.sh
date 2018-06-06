@@ -97,6 +97,7 @@ test -z "${PARAM}" || echo "param = ${PARAM}" >> "${PARAMFILE}"
 # Copy macros files (for log)
 mkdir ${OUTPUTDIR}/mac
 cp ${MACROFILE} ${OUTPUTDIR}/mac
+cp mac/* ${OUTPUTDIR}/mac/
 files=`grep "control/execute" ${MACROFILE} | cut -d " " -f 2`
 for i in $files
 do
