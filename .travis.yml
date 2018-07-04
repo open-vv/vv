@@ -16,19 +16,22 @@ env:
     - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=false
     - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=5.5.1 C11=false
     - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=false
-    - WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7 C11=false
+    - WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.6 QT_VERSION=4.8.7 C11=false
     - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=5.5.1 C11=true
     - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=true
     - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=5.5.1 C11=true
     - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=true
-    - WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7 C11=true
+    - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=false
+    - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=false
+    - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=true
+    - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=true
 
 matrix:
   exclude:
   - os: osx
-    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7 C11=false #VTK5.10 doesn't work with osX
+    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.6 QT_VERSION=4.8.7 C11=false #VTK5.10 doesn't work with osX
   - os: osx
-    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7 C11=true #VTK5.10 doesn't work with osX
+    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.6 QT_VERSION=4.8.7 C11=true #VTK5.10 doesn't work with osX
   - os: osx
     env: WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=false #Qt4 doesn't work with brew anymore
   - os: osx
@@ -38,7 +41,23 @@ matrix:
   - os: osx
     env: WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=true
   - os: linux
-    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.5 QT_VERSION=4.8.7 C11=true #Problem with VTK 5.10 and c++11
+    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.6 QT_VERSION=4.8.7 C11=true #Problem with VTK 5.10 and c++11
+  - os: linux
+    compiler: clang #Remove ITK with clang on linux
+  include:
+  - os: linux
+    compiler: clang
+    env: WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=false
+  - os: linux
+    compiler: clang
+    env: WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=false
+  - os: linux
+    compiler: clang
+    env: WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=true
+  - os: linux
+    compiler: clang
+    env: WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=true
+
 
 language: cpp
 
@@ -46,6 +65,11 @@ notifications:
  email:
   on_success: never
   on_failure: never
+
+addons:
+  sonarcloud:
+    organization: "open-vv-github"
+    token: $SONAR_TOKEN
 
 branches:
 only:
@@ -72,35 +96,36 @@ before_install:
 - if test $TRAVIS_OS_NAME == linux; then if [[ "$QT_VERSION" == "5.5.1" ]] ; then QTDIR="/opt/qt55" && PATH="$PATH:$QTDIR/bin" && qt55-env.sh ; fi; fi
 - if test $TRAVIS_OS_NAME == osx ; then export HOMEBREW_QT_VERSION=$(brew list --versions qt | rev | cut -d' ' -f1 | rev); fi
 - if test $TRAVIS_OS_NAME == osx ; then brew install ccache; fi
-- if test $TRAVIS_OS_NAME == osx ; then export PATH="/usr/local/opt/ccache/libexec:$PATH"; fi
-- if test $TRAVIS_OS_NAME == osx ; then if [[ "$QT_VERSION" == "5.5.1" ]] ; then ln -s /usr/local/Cellar/qt@5.5/5.5.1_1/mkspecs /usr/local/mkspecs; fi; fi
-- if test $TRAVIS_OS_NAME == osx ; then if [[ "$QT_VERSION" == "5.5.1" ]] ; then ln -s /usr/local/Cellar/qt@5.5/5.5.1_1/plugins /usr/local/plugins; fi; fi
-- if test $TRAVIS_OS_NAME == osx ; then if [[ "$QT_VERSION" == "4.8.7" ]] ; then ln -s /usr/local/Cellar/qt@4/4.8.7_1/mkspecs /usr/local/mkspecs; fi; fi
-- if test $TRAVIS_OS_NAME == osx ; then if [[ "$QT_VERSION" == "4.8.7" ]] ; then ln -s /usr/local/Cellar/qt@4/4.8.7_1/plugins /usr/local/plugins; fi; fi
+- if test $TRAVIS_OS_NAME == osx ; then export PATH="/usr/local/opt/qt/bin:/usr/local/opt/ccache/libexec:$PATH"; fi
 - if test $TRAVIS_OS_NAME == osx ; then qmake -v; fi
 
-cache: ccache
-#install:
-# - timeout: 1000
-directories:
- - $HOME/vtk-5.10
- - $HOME/vtk-5.10-build
- - $HOME/vtk-6.3
- - $HOME/vtk-6.3-build
- - $HOME/vtk-7.0.0
- - $HOME/vtk-7.0.0-build
- - $HOME/itk-4.5
- - $HOME/itk-4.5-build
- - $HOME/itk-4.9.1
- - $HOME/itk-4.9.1-build
+cache:
+ - directories:
+   - $HOME/vtk-5.10
+   - $HOME/vtk-5.10-build
+   - $HOME/vtk-6.3
+   - $HOME/vtk-6.3-build
+   - $HOME/vtk-7.0.0
+   - $HOME/vtk-7.0.0-build
+   - $HOME/itk-4.6
+   - $HOME/itk-4.6-build
+   - $HOME/itk-4.9.1
+   - $HOME/itk-4.9.1-build
+   - $HOME/itk-4.13.0
+   - $HOME/itk-4.13.0-build
+   - '$HOME/.sonar/cache'
+ - timeout: 10000
 
 before_script:
+- export DO_BUILD_VTK=false
+- export DO_BUILD_ITK=false
 - if test $TRAVIS_OS_NAME == linux ; then sudo ln -s /usr/bin/x86_64-linux-gnu/libpq.so /usr/bin/libpq.so; fi
-- echo $PATH
-- $SCRIPTS/travis_build_vtk.sh
-- $SCRIPTS/travis_build_itk.sh
+- if ! test -e ${VTK_SOURCE_DIR}/CMakeLists.txt; then rm -fr $VTK_SOURCE_DIR; DO_BUILD_VTK=true; fi
+- if ! test -e ${ITK_SOURCE_DIR}/CMakeLists.txt; then rm -fr $ITK_SOURCE_DIR; DO_BUILD_ITK=true; fi
 #Install vtk and itk (different version)
 
 script:
-- echo "coucou";
-- $SCRIPTS/travis_build_vv.sh
+- 'if [ $DO_BUILD_VTK == true ]; then $SCRIPTS/travis_build_vtk.sh || travis_terminate 1;
+   elif [ $DO_BUILD_ITK == true ]; then $SCRIPTS/travis_build_itk.sh || travis_terminate 1;
+   else $SCRIPTS/travis_build_vv.sh || travis_terminate 1; fi'
+#- if [ $TRAVIS_OS_NAME == linux ] && [ $DO_BUILD_VTK == false ] && [ $DO_BUILD_ITK == false ]; then sonar-scanner ; fi

@@ -37,7 +37,7 @@ public:
     void SetCutSlice(double slice);
     /**Initialize the actor and set the inputs. If vf is not null, will use
      **it to propagate the contour on all time frames */ 
-    void Init(vvMesh::Pointer mesh,int time_slice, vvImage::Pointer vf=NULL);
+    void Init(vvMesh::Pointer mesh,int time_slice, vvImage::Pointer vf=ITK_NULLPTR);
     ///Set the time slice (only useful when using a 4D contour)
     void SetTimeSlice(int time);
     ///Toggles between normal 4D mode and superposition mode

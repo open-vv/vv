@@ -1,7 +1,7 @@
 #File clitkUnsharpMask.ggo
 package "clitkUnsharpMask"
 version "1.0"
-purpose ""
+purpose "Image sharpening technique. It computes Image - blurred(Image). Here blurred(Image) is the output of a gaussian filtering with a sigma measured in world coordinates"
 
 option "config"	  	-	"Config file"			  string  	no
 option "verbose"   	v   	"Verbose"			  flag		off

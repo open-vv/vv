@@ -95,7 +95,7 @@ ImageIntensityWindowingGenericFilter<args_info_type>::UpdateWithInputImageType()
   // Reading input
   typename OutputImageType::Pointer input = this->template GetInput<OutputImageType>(0);
 
-  typename MaskImageType::Pointer mask = NULL;
+  typename MaskImageType::Pointer mask = ITK_NULLPTR;
   if(mArgsInfo.mask_given) {
    mask = this->template GetInput<MaskImageType>(1);
   }

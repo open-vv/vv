@@ -92,17 +92,17 @@ clitk::VFResampleGenericFilter::ComputeImage(typename ImageType::Pointer inputIm
   static unsigned int dim = ImageType::ImageDimension;
   if (mOutputSize.size() != dim) {
     std::cerr << "Please set size with " << dim << " dimensions." << std::endl;
-    return NULL;
+    return ITK_NULLPTR;
   }
   if (mOutputSpacing.size() != dim) {
     std::cerr << "Please set spacing with " << dim << " dimensions." << std::endl;
-    return NULL;
+    return ITK_NULLPTR;
   }
   mOutputOrigin.resize(dim);
 
   if (mApplyGaussianFilterBefore && mSigma.size() != dim) {
     std::cerr << "Please set sigma with " << dim << " dimensions." << std::endl;
-    return NULL;
+    return ITK_NULLPTR;
   }
 
   // Some typedefs

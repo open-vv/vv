@@ -412,7 +412,7 @@ typename ImageType::Pointer clitk::ImageToImageGenericFilterBase::GetInput(unsig
       return typename ImageType::Pointer(const_cast<ImageType*>(vvImageToITK<ImageType>(m_InputVVImages[n]).GetPointer()));
     else {
       assert(false); //No input, this shouldn't happen
-      return typename ImageType::Pointer(NULL);
+      return typename ImageType::Pointer((ImageType*)ITK_NULLPTR);
     }
   }
 }

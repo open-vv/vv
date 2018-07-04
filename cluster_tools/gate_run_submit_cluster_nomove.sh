@@ -90,9 +90,9 @@ while test $NJOBS -gt 0; do
         echo "Launching Gate log in ${OUTPUTDIR}/gate_${NJOBS}.log"
         PARAM=\"${PARAM}\" INDEX=${NJOBS} INDEXMAX=${NJOBSMAX} OUTPUTDIR=${OUTPUTDIR}  RELEASEDIR=${RELEASEDIR} MACROFILE=${MACROFILE} MACRODIR=${MACRODIR} PBS_JOBID="local_${NJOBS}" bash "${JOBFILE}" > ${OUTPUTDIR}/gate_${NJOBS}.log &
     else
-	qsub -N "gatejob.${RUNID}" -o "${OUTPUTDIR}" \
-	    -v "PARAM=${PARAM},INDEX=${NJOBS},INDEXMAX=${NJOBSMAX},OUTPUTDIR=${OUTPUTDIR},RELEASEDIR=${RELEASEDIR},MACROFILE=${MACROFILE},MACRODIR=${MACRODIR}" \
-	    "${JOBFILE}" || error "submission error"
+  qsub -N "gatejob.${RUNID}" -o "${OUTPUTDIR}" -e "${OUTPUTDIR}" \
+      -v "PARAM=${PARAM},INDEX=${NJOBS},INDEXMAX=${NJOBSMAX},OUTPUTDIR=${OUTPUTDIR},RELEASEDIR=${RELEASEDIR},MACROFILE=${MACROFILE},MACRODIR=${MACRODIR}" \
+      "${JOBFILE}" || error "submission error"
     fi
 
     let NJOBS--

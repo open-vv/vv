@@ -113,14 +113,15 @@ while test $NJOBS -gt 0; do
     then
         PROJECTGROUP=creatis
         qsub -o "${OUTPUTDIR}" \
-	     -l sps=1 \
+             -e "${OUTPUTDIR}" \
+             -l sps=1 \
              -N "gate.${RUNID}" \
              -v "PARAM=\"${PARAM}\",INDEX=${NJOBS},INDEXMAX=${NJOBSMAX},OUTPUTDIR=${OUTPUTDIR},RELEASEDIR=${RELEASEDIR},MACROFILE=${MACROFILE},MACRODIR=${MACRODIR}" \
              "${JOBFILE}" || error "submission error"
     else
         qsub -N "gatejob.${RUNID}" -o "${OUTPUTDIR}" \
-	    -v "PARAM=${PARAM},INDEX=${NJOBS},INDEXMAX=${NJOBSMAX},OUTPUTDIR=${OUTPUTDIR},RELEASEDIR=${RELEASEDIR},MACROFILE=${MACROFILE},MACRODIR=${MACRODIR}" \
-	    "${JOBFILE}" || error "submission error"
+      -v "PARAM=${PARAM},INDEX=${NJOBS},INDEXMAX=${NJOBSMAX},OUTPUTDIR=${OUTPUTDIR},RELEASEDIR=${RELEASEDIR},MACROFILE=${MACROFILE},MACRODIR=${MACRODIR}" \
+      "${JOBFILE}" || error "submission error"
     fi
 
     let NJOBS--

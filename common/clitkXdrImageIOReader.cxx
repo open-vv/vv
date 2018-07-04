@@ -202,10 +202,10 @@ static char *scan_header(const char *file, const char *name, int offset, int rem
 
 static int get_nki_compressed_size(FILE *f)
 {
-  NKI_MODE2		Header;
-  int			iMode;
+  NKI_MODE2            Header;
+  int                  iMode;
 
-  fread((void *)&Header, sizeof(Header), 1 , f);
+  int tempReturn = fread((void *)&Header, sizeof(Header), 1 , f);
 
   iMode = Header.iMode;
 
@@ -593,7 +593,7 @@ int clitk::XdrImageIO::ReadImageInformationWithError()
   fstream = fopen(file, "rt");
   if (fstream == NULL) return ER_XDR_OPEN;
 
-  fgets(temp, 500, fstream);
+  char* tempReturn = fgets(temp, 500, fstream);
   fclose(fstream);
 
   if (memcmp(temp, "# AVS field file (produced by avs_nfwrite.c)", 44)==0) forcenoswap=1;
@@ -938,7 +938,7 @@ bool clitk::XdrImageIO::CanReadFile(const char* FileNameToRead)
 //        AVSerror("Couldn't open file " << FileNameToRead);
     return false;
 //    }
-  fgets(temp, 500, fstream);
+  char* tempReturn = fgets(temp, 500, fstream);
   fclose(fstream);
 
   if (memcmp(temp, "# AVS", 5)==0)

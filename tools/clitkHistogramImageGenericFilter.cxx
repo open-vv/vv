@@ -130,7 +130,10 @@ HistogramImageGenericFilter::UpdateWithInputImageType()
   //compute bin number
   typedef typename HistogramFilterType::HistogramSizeType SizeType;
   SizeType binNumber(1);
-  mBinSize = std::log(range);
+  if (!mArgsInfo.size_given)
+    mBinSize = std::log(range);
+  if (mBinSize == 0)
+    mBinSize = 1;
   binNumber[0] = (int)(range/mBinSize);
   if (binNumber[0] == 0)
     binNumber[0] = 1;
@@ -158,6 +161,31 @@ HistogramImageGenericFilter::UpdateWithInputImageType()
   }
 }
 //--------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void HistogramImageGenericFilter::SaveAs()
+{
+  // Output
+  std::string textFileName = GetOutputFilename();
+  ofstream fileOpen(textFileName.c_str(), std::ofstream::trunc);
+
+  if(!fileOpen) {
+      cerr << "Error during saving" << endl;
+      return;
+  }
+
+  int i(0);
+  fileOpen << "Value represents the number of voxels around the corresponding intensity (by default the windows size around intensity is log(range))" << endl;
+  fileOpen << "Intensity" << "\t" << "Value" << endl;
+
+  while (i<mArrayX->GetNumberOfTuples()) {
+      fileOpen << mArrayX->GetTuple(i)[0] << "\t" << mArrayY->GetTuple(i)[0] << endl;
+      ++i;
+  }
+
+  fileOpen.close();
+}
+//------------------------------------------------------------------------------
 
 
 }//end clitk

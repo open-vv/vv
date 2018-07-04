@@ -30,14 +30,11 @@ It is distributed under dual licence
 #include "clitkBLUTDIRGenericFilter.h"
 #include "clitkBLUTDIRCommandIterationUpdateDVF.h"
 #include "itkCenteredTransformInitializer.h"
-#if ITK_VERSION_MAJOR >= 4
-#  if ITK_VERSION_MINOR < 6
-#    include "itkTransformToDisplacementFieldSource.h"
-#  else
-#    include "itkTransformToDisplacementFieldFilter.h"
-#  endif
+#include "itkLabelStatisticsImageFilter.h"
+#if (ITK_VERSION_MAJOR == 4) && (ITK_VERSION_MINOR < 6)
+# include "itkTransformToDisplacementFieldSource.h"
 #else
-#  include "itkTransformToDeformationFieldSource.h"
+# include "itkTransformToDisplacementFieldFilter.h"
 #endif
 
 namespace clitk
@@ -249,7 +246,7 @@ namespace clitk
           m_CommandIterationUpdate->SetOptimizer(m_GenericOptimizer);
 
           // Set the previous transform parameters to the registration
-          // if(m_Initializer->m_Parameters!=NULL )delete m_Initializer->m_Parameters;
+          // if(m_Initializer->m_Parameters!=ITK_NULLPTR )delete m_Initializer->m_Parameters;
           m_Initializer->SetInitialParameters(currentCoefficientImages, *newParameters);
           registration->SetInitialTransformParametersOfNextLevel(*newParameters);
         }
@@ -341,8 +338,8 @@ namespace clitk
       //============================================================================
       typedef itk::ImageMaskSpatialObject< InputImageType::ImageDimension >   MaskType;
       typedef itk::Image< unsigned char, InputImageType::ImageDimension >   ImageLabelType;
-      typename MaskType::Pointer        fixedMask = NULL;
-      typename ImageLabelType::Pointer  labels = NULL;
+      typename MaskType::Pointer        fixedMask = ITK_NULLPTR;
+      typename ImageLabelType::Pointer  labels = ITK_NULLPTR;
       if (m_ArgsInfo.referenceMask_given)
       {
         fixedMask = MaskType::New();
@@ -377,11 +374,12 @@ namespace clitk
         fixedMask->SetImage(labels);
 
         // Find the bounding box of the "inside" label
-        typedef itk::LabelGeometryImageFilter<ImageLabelType> GeometryImageFilterType;
-        typename GeometryImageFilterType::Pointer geometryImageFilter=GeometryImageFilterType::New();
-        geometryImageFilter->SetInput(labels);
-        geometryImageFilter->Update();
-        typename GeometryImageFilterType::BoundingBoxType boundingBox = geometryImageFilter->GetBoundingBox(1);
+        typedef itk::LabelStatisticsImageFilter<ImageLabelType, ImageLabelType> StatisticsImageFilterType;
+        typename StatisticsImageFilterType::Pointer statisticsImageFilter=StatisticsImageFilterType::New();
+        statisticsImageFilter->SetInput(labels);
+        statisticsImageFilter->SetLabelInput(labels);
+        statisticsImageFilter->Update();
+        typename StatisticsImageFilterType::BoundingBoxType boundingBox = statisticsImageFilter->GetBoundingBox(1);
 
         // Limit the transform region to the mask
         for (unsigned int i=0; i<InputImageType::ImageDimension; i++)
@@ -415,7 +413,7 @@ namespace clitk
       }
 
       typedef itk::ImageMaskSpatialObject< InputImageType::ImageDimension >   MaskType;
-      typename MaskType::Pointer  movingMask=NULL;
+      typename MaskType::Pointer  movingMask=ITK_NULLPTR;
       if (m_ArgsInfo.targetMask_given)
       {
         movingMask= MaskType::New();
@@ -488,7 +486,7 @@ namespace clitk
       // Rigid or Affine Transform
       //=======================================================
       typedef itk::AffineTransform <double,3> RigidTransformType;
-      RigidTransformType::Pointer rigidTransform=NULL;
+      RigidTransformType::Pointer rigidTransform=ITK_NULLPTR;
       if (m_ArgsInfo.initMatrix_given)
       {
         if(m_Verbose) std::cout<<"Reading the prior transform matrix "<< m_ArgsInfo.initMatrix_arg<<"..."<<std::endl;
@@ -625,7 +623,7 @@ namespace clitk
         sTransform->SetGridRegion( transform->GetTransforms()[0]->GetGridRegion() );
         sTransform->SetParameters( transform->GetTransforms()[0]->GetParameters() );
         regTransform = sTransform;
-        transform = NULL; // free memory
+        transform = ITK_NULLPTR; // free memory
       }
 
       //=======================================================
@@ -789,19 +787,17 @@ namespace clitk
       //=======================================================
       typedef itk::Vector< float, SpaceDimension >  DisplacementType;
       typedef itk::Image< DisplacementType, InputImageType::ImageDimension >  DisplacementFieldType;
-#if ITK_VERSION_MAJOR >= 4
-#  if ITK_VERSION_MINOR < 6
+#if (ITK_VERSION_MAJOR == 4) && (ITK_VERSION_MINOR < 6)
       typedef itk::TransformToDisplacementFieldSource<DisplacementFieldType, double> ConvertorType;
-#  else
+#else
       typedef itk::TransformToDisplacementFieldFilter<DisplacementFieldType, double> ConvertorType;
-#  endif
 #endif
       typename ConvertorType::Pointer filter= ConvertorType::New();
       filter->SetNumberOfThreads(1);
       if(m_ArgsInfo.itkbspline_flag)
-        sTransform->SetBulkTransform(NULL);
+        sTransform->SetBulkTransform(ITK_NULLPTR);
       else
-        transform->SetBulkTransform(NULL);
+        transform->SetBulkTransform(ITK_NULLPTR);
       filter->SetTransform(regTransform);
 #if ITK_VERSION_MAJOR > 4 || (ITK_VERSION_MAJOR == 4 && ITK_VERSION_MINOR >= 6)
       filter->SetReferenceImage(fixedImage);

@@ -23,5 +23,7 @@ mkdir -p $BUILD_DIR
 cd $BUILD_DIR
 cmake $cmake_arg_str ..
 $MAKE
-cd -
+cd ..
+#build-wrapper-linux-x86-64 --out-dir bw-output make clean all
+sonar-scanner
 cd $cwd

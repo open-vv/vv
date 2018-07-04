@@ -1,7 +1,8 @@
 #File clitkExtractPatient.ggo
 package "clitkExtractPatient"
 version "1.0"
-purpose "Input is binarized using initial thresholds, connected components are labeled (firstLabel). The air label (1) is removed. The remaining is binarized and relabeled, patient should now be the principal label (secondLabel). Two mechanismes are provided to influence the label images. Crop to reduce connectivity (image is restored to original size), eg for SBF. Decomposition through ersion and reconstruction through dilation (slow), eg for Pulmo bellows. Choose which labels to keep from second Label image. Final mask is cleaned by opening and closing."
+purpose "Input is binarized using initial thresholds, connected components are labeled (firstLabel). The air label (1) is removed. The remaining is binarized and relabeled, patient should now be the principal label (secondLabel). Two mechanismes are provided to influence the label images. Crop to reduce connectivity (image is restored to original size), eg for SBF. Decomposition through erosion and reconstruction through dilation (slow), eg for Pulmo bellows. Choose which labels to keep from second Label image. Final mask is cleaned by opening and closing.
+The image is padded first with air. If lungs are touching the border (so the air), set openingRadius to 1 in order to have lungs segmented inside the patient"
 
 option "config"	        -  "Config file"		  string  	no
 option "imagetypes"     -  "Display allowed image types"  flag          off

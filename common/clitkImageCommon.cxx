@@ -66,7 +66,7 @@ itk::ImageIOBase::Pointer clitk::readImageHeader(const std::string & filename, b
   if (!reader) {
     if (exit_on_error) { //default behavior for tools who don't handle the problem
       clitkExceptionMacro("Error reading file " << filename << ", exiting immediately");
-    } else return NULL;
+    } else return (itk::ImageIOBase *) ITK_NULLPTR;
   }
   reader->SetFileName(filename);
   reader->ReadImageInformation();

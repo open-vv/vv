@@ -117,6 +117,7 @@ GenerateOutputInformation() {
   StartNewStep("Find low densities areas");
 
   // Pad images with air to prevent patient touching the image border
+  // But the lungs can touch the outside air. In such case, use primaryOpeningRadius with 1 kernel
   typedef itk::ConstantPadImageFilter<InputImageType, InputImageType> PadFilterType;
   typename PadFilterType::Pointer padFilter = PadFilterType::New();
   padFilter->SetInput(input);

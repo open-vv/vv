@@ -238,8 +238,6 @@ void clitk::DicomRTStruct2ImageFilter::Update()
     }
   }
 
-std::cout << "origin " << origin[0] << " " << origin[1] << " " << origin[2] << std::endl;
-std::cout << "extend " << extend[0] << " " << extend[1] << " " << extend[2] << std::endl;
   // Create new output image
   mBinaryImage = vtkSmartPointer<vtkImageData>::New();
 #if VTK_MAJOR_VERSION <= 5

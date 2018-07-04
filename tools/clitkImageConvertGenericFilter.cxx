@@ -148,6 +148,10 @@ void clitk::ImageConvertGenericFilter::UpdateWithInputImageType()
       // Read the attribute  Image Position (Patient)
       gdcm::Tag  DetectorInformationSequenceTag(0x0054,0x0022);
       const gdcm::DataElement & DIS = ds.GetDataElement(DetectorInformationSequenceTag);
+      if (!DIS.GetByteValue()) {
+        std::cout << "Error: could not find 0x0054,0x0022 tag. Abort." << std::endl;
+        exit(0);
+      }
       gdcm::SmartPointer<gdcm::SequenceOfItems> sqf = DIS.GetValueAsSQ();
       gdcm::Item & item = sqf->GetItem(1);
       gdcm::DataSet & ds_position = item.GetNestedDataSet();

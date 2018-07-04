@@ -27,9 +27,9 @@
 #include <cassert>
 
 vvMeshActor::vvMeshActor() :
-  mCutDimension(0), mMesh(NULL),
-  mMarching(NULL), mMapper(NULL),
-  mActor(NULL),
+  mCutDimension(0), mMesh(ITK_NULLPTR),
+  mMarching(ITK_NULLPTR), mMapper(ITK_NULLPTR),
+  mActor(ITK_NULLPTR),
   mSuperpostionMode(false), mTimeSlice(0)
 {}
 

@@ -57,7 +57,6 @@
 #include "itkLightObject.h"
 #include "itkImageToImageMetric.h"
 #include "itkInterpolateImageFunction.h"
-#include "itkLabelGeometryImageFilter.h"
 #include "itkImageDuplicator.h"
 #include "itkExtractImageFilter.h"
 

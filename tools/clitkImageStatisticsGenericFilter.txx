@@ -20,6 +20,7 @@
 
 #include "itkNthElementImageAdaptor.h"
 #include "itkJoinSeriesImageFilter.h"
+#include "itkImageRegionConstIterator.h"
 
 #include "clitkImageStatisticsGenericFilter.h"
 #include "clitkCropLikeImageFilter.h"
@@ -232,8 +233,21 @@ namespace clitk
 
         statisticsFilter->Update();
 
+        //find localization for max and min (the last pixel found)
+        typename InputImageType::IndexType minIndex, maxIndex;
+        if (m_Verbose && m_Localize) {
+          itk::ImageRegionConstIterator<InputImageAdaptorType> imageIterator(input_adaptor,input_adaptor->GetLargestPossibleRegion());
+          while(!imageIterator.IsAtEnd()) {
+            if (imageIterator.Get() == statisticsFilter->GetMinimum(label))
+              minIndex = imageIterator.GetIndex();
+            if (imageIterator.Get() == statisticsFilter->GetMaximum(label))
+              maxIndex = imageIterator.GetIndex();
+            ++imageIterator;
+          }
+        }
+
         // Output
-       if (m_Verbose) std::cout<<"N° of pixels: ";
+        if (m_Verbose) std::cout<<"N° of pixels: ";
         std::cout<<statisticsFilter->GetCount(label)<<std::endl;
         if (m_Verbose) std::cout<<"Mean: ";
         std::cout<<statisticsFilter->GetMean(label)<<std::endl;
@@ -243,8 +257,16 @@ namespace clitk
         std::cout<<statisticsFilter->GetVariance(label)<<std::endl;
         if (m_Verbose) std::cout<<"Min: ";
         std::cout<<statisticsFilter->GetMinimum(label)<<std::endl;
+        if (m_Verbose && m_Localize) {
+          std::cout<<"        in voxel of index: ";
+          std::cout<<minIndex<<std::endl;
+        }
         if (m_Verbose) std::cout<<"Max: ";
         std::cout<<statisticsFilter->GetMaximum(label)<<std::endl;
+        if (m_Verbose && m_Localize) {
+          std::cout<<"        in voxel of index: ";
+          std::cout<<maxIndex<<std::endl;
+        }
         if (m_Verbose) std::cout<<"Sum: ";
         std::cout<<statisticsFilter->GetSum(label)<<std::endl;
         if (m_Verbose) std::cout<<"Volume (cc): ";
