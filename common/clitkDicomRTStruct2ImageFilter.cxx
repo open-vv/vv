@@ -31,6 +31,7 @@
 #include <vtkImageStencil.h>
 #include <vtkLinearExtrusionFilter.h>
 #include <vtkMetaImageWriter.h>
+#include <vtkXMLPolyDataWriter.h>
 
 
 //--------------------------------------------------------------------
@@ -38,6 +39,7 @@ clitk::DicomRTStruct2ImageFilter::DicomRTStruct2ImageFilter()
 {
   mROI = NULL;
   mWriteOutput = false;
+  mWriteMesh = true;
   mCropMask = true;
 }
 //--------------------------------------------------------------------
@@ -79,6 +81,14 @@ void clitk::DicomRTStruct2ImageFilter::SetROI(clitk::DicomRT_ROI * roi)
 void clitk::DicomRTStruct2ImageFilter::SetCropMaskEnabled(bool b)
 {
   mCropMask = b;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void clitk::DicomRTStruct2ImageFilter::SetWriteMesh(bool b)
+{
+  mWriteMesh = b;
 }
 //--------------------------------------------------------------------
 
@@ -181,6 +191,18 @@ void clitk::DicomRTStruct2ImageFilter::Update()
 
   // Get Mesh
   vtkPolyData * mesh = mROI->GetMesh();
+  if (mWriteMesh) {
+    vtkSmartPointer<vtkXMLPolyDataWriter> meshWriter = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
+    std::string vtkName = mOutputFilename;
+    vtkName += ".vtk";
+    meshWriter->SetFileName(vtkName.c_str());
+#if VTK_MAJOR_VERSION <= 5
+    meshWriter->SetInput(mesh);
+#else
+    meshWriter->SetInputData(mesh);
+#endif
+    meshWriter->Write();
+  }
 
   // Get bounds
   double *bounds=mesh->GetBounds();

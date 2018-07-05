@@ -40,6 +40,9 @@ int main(int argc, char * argv[]) {
   clitk::DicomRTStruct2ImageFilter filter;
   filter.SetCropMaskEnabled(args_info.crop_flag);
   filter.SetImageFilename(args_info.image_arg);  // Used to get spacing + origin
+  if (args_info.vtk_flag) {
+    filter.SetWriteMesh(true);
+  }
   if (args_info.roiName_given) {
     filter.SetROI(s->GetROIFromROIName(args_info.roiName_arg)); 
     filter.SetOutputImageFilename(args_info.output_arg);
@@ -67,6 +70,9 @@ int main(int argc, char * argv[]) {
         filter.SetROI(roi); 
         filter.SetCropMaskEnabled(args_info.crop_flag);
         filter.SetImageFilename(args_info.image_arg);  // Used to get spacing + origin
+        if (args_info.vtk_flag) {
+          filter.SetWriteMesh(true);
+        }
         name.erase(remove_if(name.begin(), name.end(), isspace), name.end());
         std::string n;
         if (args_info.mha_flag) {

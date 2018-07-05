@@ -17,4 +17,5 @@ groupoption "roiNameSubstr" s "Substring of ROI name to binarize (reuturns all m
 
 option "crop"         c "Crop binary mask"                                                      flag off
 option "mha"          - "Write the RTStruct as a mha image to avoid special character problems" flag off
+option "vtk"          - "Write the vtk Mesh as a vtk file"                                      flag off
 
