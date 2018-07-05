@@ -1,24 +1,20 @@
 # file clitkDicomRTStruct2BinaryImage.ggo
 package "clitk"
-version "Convert DICOM RT Structure Set (contours) to binary image"
+version "1.0"
+description "Convert DICOM RT Structure Set (contours) to binary image"
 
-option "config"	  	 - "Config file"		     string  	no
-option "verbose"         v "Verbose"			     flag	off
-option "verboseFile"     - "Verbose file content"            flag	off
-option "input"		 i "Input Dicom file"		     string	yes
-option "image"		 j "Used to read image info (spacing, origin)"    string	yes
-option "output"		 o "Output image base filename (roi number and extension will be append)"	 string	yes
+option "config"       - "Config file"                                                           string  no
+option "verbose"      v "Verbose"                                                               flag    off
+option "verboseFile"  - "Verbose file content"                                                  flag    off
+option "input"        i "Input Dicom file"                                                      string  yes
+option "image"        j "Used to read image info (spacing, origin)"                             string  yes
+option "output"       o "Output image base filename (roi number and extension will be append)"  string  yes
 
 defgroup "ROIoption" groupdesc="an option of this group is required" 
-groupoption "roi"     r "ROI to binarize (if -1 = all roi)"            int    no default="-1" group="ROIoption"
-groupoption "roiName"     n "ROI name to binarize (be wary of spaces in ROI names; if blank, use given 'roi' value)"            string    no default="" group="ROIoption"
-groupoption "roiNameSubstr"     s "Substring of ROI name to binarize (reuturns all matches; if blank, use given 'roiName' value)"            string    no default="" group="ROIoption"
+groupoption "roi"           r "ROI to binarize (if -1 = all roi)"                                                             int     no default="-1" group="ROIoption"
+groupoption "roiName"       n "ROI name to binarize (be wary of spaces in ROI names; if blank, use given 'roi' value)"        string  no default=""   group="ROIoption"
+groupoption "roiNameSubstr" s "Substring of ROI name to binarize (reuturns all matches; if blank, use given 'roiName' value)" string  no default=""   group="ROIoption"
 
-option "crop"		 c "Crop binary mask"	         flag off
-
-option "mha"  - "Write the RTStruct as a mha image to avoid special character problems"	         flag off
-
-#option "roi"		 r "ROI to print (ID)"		 int		no
-#option "contour"	 c "contour to print (ID)"	 int            no
-#option "offset"		 o "to display points as image offsets" flag	off
+option "crop"         c "Crop binary mask"                                                      flag off
+option "mha"          - "Write the RTStruct as a mha image to avoid special character problems" flag off
 
