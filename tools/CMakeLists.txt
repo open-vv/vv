@@ -100,6 +100,11 @@ if(CLITK_BUILD_TOOLS)
   target_link_libraries(clitkWriteDicomSeries clitkCommon )
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkWriteDicomSeries)
 
+  WRAP_GGO(clitkChangeDicomTag_GGO_C clitkChangeDicomTag.ggo)
+  add_executable(clitkChangeDicomTag clitkChangeDicomTag.cxx ${clitkChangeDicomTag_GGO_C})
+  target_link_libraries(clitkChangeDicomTag clitkCommon )
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkChangeDicomTag)
+
   WRAP_GGO(clitkGateSimulation2Dicom_GGO_C clitkGateSimulation2Dicom.ggo)
   add_executable(clitkGateSimulation2Dicom clitkGateSimulation2Dicom.cxx ${clitkGateSimulation2Dicom_GGO_C})
   target_link_libraries(clitkGateSimulation2Dicom clitkCommon )

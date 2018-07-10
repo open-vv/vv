@@ -1,0 +1,12 @@
+#File clitkChangeDicomTag.ggo
+package "clitkChangeDicomTag"
+version "1.0"
+description "Change Dicom tag -k value to -t"
+
+option "config"   - "Config file"             string  no
+option "verbose"  v "Verbose"                 flag    off
+
+option "input"    i "Input dicom file"        string  yes
+option "output"   o "Output dicom file"       string  yes
+option "key"      k "Keys of tags to modify"  string  no  multiple default="0008|103e"
+option "tag"      t "Tags values"             string  no  multiple default="MIDPOSITION"
