@@ -10,6 +10,7 @@ if(CLITK_BUILD_TOOLS)
     gate_run_submit_cluster.sh
     gate_upload_release.sh
     mergeDosePerEnergyFile.sh
+    mergeDoseByRegions.sh
     mergeStatFile.py
     mergeStatFile.sh
     gate_run_submit_cluster_nomove.sh
