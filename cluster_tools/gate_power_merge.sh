@@ -165,7 +165,7 @@ function merge_stat {
     echo "  ${indent}merged ${count} files"
 }
 
-doseMerger="mergeDosePerEnegryFile.sh"
+doseMerger="mergeDosePerEnergyFile.sh"
 test -x "./mergeDosePerEnergyFile.sh" && doseMerger="./mergeDosePerEnergyFile.sh"
 
 function merge_dose {
