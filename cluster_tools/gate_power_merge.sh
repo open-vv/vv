@@ -595,6 +595,11 @@ do
     merge_dispatcher_uncertainty "${outputfile}" "${force}"
 done
 
+echo "compute job statistics"
+python computeEnlapsedTime.py ${rundir} gate
+mv "statJobs.txt" "${outputdir}/statJobs.txt"
+
+
 if [ -f "${rundir}/params.txt" ]
 then
     echo "copying params file"

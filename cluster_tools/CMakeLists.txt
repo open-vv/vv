@@ -16,6 +16,7 @@ if(CLITK_BUILD_TOOLS)
     gate_run_submit_cluster_nomove.sh
     gate_job_cluster_nomove.job
     check_tmp_cluster.sh
+    computeEnlapsedTime.py
     )
 
   install(FILES ${SCRIPTS} DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
