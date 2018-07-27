@@ -99,6 +99,11 @@ if(CLITK_BUILD_TOOLS)
   add_executable(clitkWriteDicomSeries clitkWriteDicomSeries.cxx ${clitkWriteDicomSeries_GGO_C})
   target_link_libraries(clitkWriteDicomSeries clitkCommon )
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkWriteDicomSeries)
+  
+  WRAP_GGO(clitkImage2DicomSeries_GGO_C clitkImage2DicomSeries.ggo)
+  add_executable(clitkImage2DicomSeries clitkImage2DicomSeries.cxx ${clitkImage2DicomSeries_GGO_C})
+  target_link_libraries(clitkImage2DicomSeries clitkCommon )
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImage2DicomSeries)
 
   WRAP_GGO(clitkChangeDicomTag_GGO_C clitkChangeDicomTag.ggo)
   add_executable(clitkChangeDicomTag clitkChangeDicomTag.cxx ${clitkChangeDicomTag_GGO_C})
