@@ -39,7 +39,7 @@ clitk::DicomRTStruct2ImageFilter::DicomRTStruct2ImageFilter()
 {
   mROI = NULL;
   mWriteOutput = false;
-  mWriteMesh = true;
+  mWriteMesh = false;
   mCropMask = true;
 }
 //--------------------------------------------------------------------

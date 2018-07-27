@@ -165,10 +165,41 @@ function merge_stat {
     echo "  ${indent}merged ${count} files"
 }
 
-doseMerger="mergeDosePerEnegryFile.sh"
+doseMerger="mergeDosePerEnergyFile.sh"
 test -x "./mergeDosePerEnergyFile.sh" && doseMerger="./mergeDosePerEnergyFile.sh"
 
 function merge_dose {
+    local merged="$1"
+    shift
+    echo "  ${indent}entering dose merger"
+    echo "  ${indent}merger is ${doseMerger}"
+    echo "  ${indent}creating ${merged}"
+    local count=0
+    start_bar $#
+    while test $# -gt 0
+    do
+        local partial="$1"
+        shift
+        let count++
+
+        if test ! -f "${merged}"
+        then
+            update_bar ${count} "copying first partial result ${partial}"
+            cp "${partial}" "${merged}"
+            continue
+        fi
+
+        update_bar ${count} "adding ${partial}"
+        ${doseMerger} -i "${merged}" -j "${partial}" -o "${merged}" 2> /dev/null > /dev/null || warning "error while calling ${doseMerger}"
+    done
+    end_bar
+    echo "  ${indent}merged ${count} files"
+}
+
+doseMerger="mergeDoseByRegions.sh"
+test -x "./mergeDoseByRegions.sh" && doseMerger="./mergeDoseByRegions.sh"
+
+function merge_doseByRegions {
     local merged="$1"
     shift
     echo "  ${indent}entering dose merger"
@@ -409,6 +440,15 @@ function merge_dispatcher {
         fi
     fi
 
+    if test "${firstpartialoutputextension}" == "txt" && grep -qs 'vol(mm3)' "${firstpartialoutputfile}"
+    then
+        echo "${indent}this is a DoseByRegions file"
+        local mergedfile="${outputdir}/$(basename "${firstpartialoutputfile}")"
+        merge_doseByRegions "${mergedfile}" ${partialoutputfiles} || error "error while merging"
+        return
+    fi
+
+
     if test "${firstpartialoutputextension}" == "txt"
     then
         echo "${indent}this is a non specific txt output"
@@ -554,6 +594,11 @@ for outputfile in ${files}
 do
     merge_dispatcher_uncertainty "${outputfile}" "${force}"
 done
+
+echo "compute job statistics"
+python computeEnlapsedTime.py ${rundir} gate
+mv "statJobs.txt" "${outputdir}/statJobs.txt"
+
 
 if [ -f "${rundir}/params.txt" ]
 then
