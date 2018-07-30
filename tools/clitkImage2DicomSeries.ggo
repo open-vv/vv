@@ -1,7 +1,7 @@
 #File clitkImage2DicomSeries.ggo
 package "clitkImage2DicomSeries"
 version "1.0"
-purpose ""
+purpose "Convert the mhd input image (int image) into a dicom serie in outputDir base on the dictionary of the dicoms in inputDir."
 
 option "config"     - "Config file"             string  no
 option "verbose"    v "Verbose"                 flag    off
