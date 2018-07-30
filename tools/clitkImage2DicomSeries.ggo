@@ -3,10 +3,10 @@ package "clitkImage2DicomSeries"
 version "1.0"
 purpose ""
 
-option "config"     - "Config file"       string    no
-option "verbose"    v     "Verbose"       flag      off
+option "config"     - "Config file"             string  no
+option "verbose"    v "Verbose"                 flag    off
 
-option "input"    i "Input image filename"      string    yes
-option "inputDir" d "Input dicom directory"     string    yes
-option "outputDir"      o     "Output dicom directory"    string    yes
+option "input"      i "Input image filename"    string  yes
+option "inputDir"   d "Input dicom directory"   string  yes
+option "outputDir"  o "Output dicom directory"  string  yes
 
