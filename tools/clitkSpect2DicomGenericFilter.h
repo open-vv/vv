@@ -15,11 +15,11 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
-#ifndef clitkImage2DicomSeriesGenericFilter_h
-#define clitkImage2DicomSeriesGenericFilter_h
+#ifndef clitkSpect2DicomGenericFilter_h
+#define clitkSpect2DicomGenericFilter_h
 
 /* =================================================
- * @file   clitkImage2DicomSeriesGenericFilter.h
+ * @file   clitkSpect2DicomGenericFilter.h
  * @author 
  * @date   
  * 
@@ -31,7 +31,7 @@
 // clitk include
 #include "clitkIO.h"
 #include "clitkImageCommon.h"
-#include "clitkImage2DicomSeries_ggo.h"
+#include "clitkSpect2Dicom_ggo.h"
 
 //itk include
 #include "itkLightObject.h"
@@ -77,13 +77,13 @@
 namespace clitk 
 {
   template<class args_info_type>
-  class ITK_EXPORT Image2DicomSeriesGenericFilter : public itk::LightObject
+  class ITK_EXPORT Spect2DicomGenericFilter : public itk::LightObject
   {
   public:
     //----------------------------------------
     // ITK
     //----------------------------------------
-    typedef Image2DicomSeriesGenericFilter                   Self;
+    typedef Spect2DicomGenericFilter                   Self;
     typedef itk::LightObject                   Superclass;
     typedef itk::SmartPointer<Self>            Pointer;
     typedef itk::SmartPointer<const Self>      ConstPointer;
@@ -92,7 +92,7 @@ namespace clitk
     itkNewMacro(Self);  
 
     // Run-time type information (and related methods)
-    itkTypeMacro( Image2DicomSeriesGenericFilter, LightObject );
+    itkTypeMacro( Spect2DicomGenericFilter, LightObject );
 
 
     //----------------------------------------
@@ -121,8 +121,8 @@ namespace clitk
     //----------------------------------------  
     // Constructor & Destructor
     //----------------------------------------  
-    Image2DicomSeriesGenericFilter();
-    ~Image2DicomSeriesGenericFilter() {};
+    Spect2DicomGenericFilter();
+    ~Spect2DicomGenericFilter() {};
 
     
     //void CopyDictionary (itk::MetaDataDictionary &fromDict, itk::MetaDataDictionary &toDict);
@@ -146,7 +146,7 @@ namespace clitk
 } // end namespace clitk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "clitkImage2DicomSeriesGenericFilter.txx"
+#include "clitkSpect2DicomGenericFilter.txx"
 #endif
 
-#endif // #define clitkImage2DicomSeriesGenericFilter_h
+#endif // #define clitkSpect2DicomGenericFilter_h

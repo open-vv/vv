@@ -15,39 +15,25 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
+#ifndef clitkSpect2DicomGenericFilter_cxx
+#define clitkSpect2DicomGenericFilter_cxx
 
 /* =================================================
- * @file   clitkImage2DicomSeries.cxx
- * @author Jef Vandemeulebroucke
- * @date   4th of August
+ * @file   clitkSpect2DicomGenericFilter.cxx
+ * @author
+ * @date
  *
- * @brief Write a volume into a series with the header of another series
+ * @brief
  *
  ===================================================*/
 
+#include "clitkSpect2DicomGenericFilter.h"
 
-// clitk
-#include "clitkImage2DicomSeries_ggo.h"
-#include "clitkIO.h"
-#include "clitkImage2DicomSeriesGenericFilter.h"
-#include "clitkCommon.h"
 
-//--------------------------------------------------------------------
-int main(int argc, char * argv[])
+namespace clitk
 {
 
-  // Init command line
-  GGO(clitkImage2DicomSeries, args_info);
-  CLITK_INIT;
 
-  // Filter
-  typedef clitk::Image2DicomSeriesGenericFilter<args_info_clitkImage2DicomSeries> FilterType;
-  FilterType::Pointer genericFilter = FilterType::New();
+} //end clitk
 
-  genericFilter->SetArgsInfo(args_info);
-  genericFilter->Update();
-
-  return EXIT_SUCCESS;
-}// end main
-
-//--------------------------------------------------------------------
+#endif  //#define clitkSpect2DicomGenericFilter_cxx

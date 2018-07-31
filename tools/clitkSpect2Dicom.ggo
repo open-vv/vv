@@ -1,7 +1,7 @@
-#File clitkImage2DicomSeries.ggo
-package "clitkImage2DicomSeries"
+#File clitkSpect2Dicom.ggo
+package "clitkSpect2Dicom"
 version "1.0"
-purpose "Convert the mhd input image (int image) into a dicom serie in outputDir base on the dictionary of the dicoms in inputDir."
+purpose "Convert the 3D mhd input SPECT image (int image) into a 3D dicom in outputDir based on the dictionary of the dicoms in inputDir."
 
 option "config"     - "Config file"             string  no
 option "verbose"    v "Verbose"                 flag    off

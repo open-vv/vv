@@ -15,11 +15,11 @@
   - BSD        See included LICENSE.txt file
   - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 ===========================================================================**/
-#ifndef clitkImage2DicomSeriesGenericFilter_txx
-#define clitkImage2DicomSeriesGenericFilter_txx
+#ifndef clitkSpect2DicomGenericFilter_txx
+#define clitkSpect2DicomGenericFilter_txx
 
 /* =================================================
- * @file   clitkImage2DicomSeriesGenericFilter.txx
+ * @file   clitkSpect2DicomGenericFilter.txx
  * @author
  * @date
  *
@@ -87,7 +87,7 @@ namespace clitk
 // Constructor
 //-----------------------------------------------------------
 template<class args_info_type>
-Image2DicomSeriesGenericFilter<args_info_type>::Image2DicomSeriesGenericFilter()
+Spect2DicomGenericFilter<args_info_type>::Spect2DicomGenericFilter()
 {
   m_Verbose=false;
   m_InputFileName="";
@@ -98,7 +98,7 @@ Image2DicomSeriesGenericFilter<args_info_type>::Image2DicomSeriesGenericFilter()
 // Update
 //-----------------------------------------------------------
 template<class args_info_type>
-void Image2DicomSeriesGenericFilter<args_info_type>::Update()
+void Spect2DicomGenericFilter<args_info_type>::Update()
 {
   // Read the Dimension and PixelType
   int Dimension;
@@ -122,7 +122,7 @@ void Image2DicomSeriesGenericFilter<args_info_type>::Update()
 template<class args_info_type>
 template<unsigned int Dimension>
 void
-Image2DicomSeriesGenericFilter<args_info_type>::UpdateWithDim(std::string PixelType)
+Spect2DicomGenericFilter<args_info_type>::UpdateWithDim(std::string PixelType)
 {
   if (m_Verbose) std::cout << "Image was detected to be "<<Dimension<<"D and "<< PixelType<<"..."<<std::endl;
 
@@ -164,7 +164,7 @@ Image2DicomSeriesGenericFilter<args_info_type>::UpdateWithDim(std::string PixelT
 template<class args_info_type>
 template <unsigned int Dimension, class  PixelType>
 void
-Image2DicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
+Spect2DicomGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
 {
 
 
@@ -795,4 +795,4 @@ Image2DicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
 
 }//end clitk
 
-#endif //#define clitkImage2DicomSeriesGenericFilter_txx
+#endif //#define clitkSpect2DicomGenericFilter_txx
