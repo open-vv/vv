@@ -69,6 +69,15 @@
  
 #include <string>
 #include <sstream>
+#if GDCM_MAJOR_VERSION >= 2
+#include "gdcmUIDGenerator.h"
+#include <gdcmImageHelper.h>
+#include <gdcmAttribute.h>
+#include <gdcmReader.h>
+#include <gdcmWriter.h>
+#include <gdcmDataElement.h>
+#include <gdcmTag.h>
+#endif
 
 namespace clitk
 {
@@ -194,7 +203,7 @@ Image2DicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   // Validate input parameters
  
   const unsigned int InputDimension = 3;
-  const unsigned int OutputDimension = 2;
+  const unsigned int OutputDimension = 3;
  
  
   typedef itk::Image< PixelType, InputDimension >
@@ -352,8 +361,8 @@ Image2DicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   itk::ExposeMetaData<std::string>(*inputDict, "0020|000d", studyUID);
   itk::ExposeMetaData<std::string>(*inputDict, "0008|0016", sopClassUID);
   gdcmIO->KeepOriginalUIDOn();
- 
-  for (unsigned int f = 0; f < outputSize[2]; f++)
+  int nbFile(1);
+  for (unsigned int f = 0; f < nbFile; f++)
     {
     // Create a new dictionary for this slice
     typename ReaderType::DictionaryRawPointer dict = new typename ReaderType::DictionaryType;
@@ -667,7 +676,7 @@ Image2DicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
       
  */
     // Save the dictionary
-    outputArray.push_back(dict);
+    outputArray.push_back(inputDict);
     }
  
 #if ( ( ITK_VERSION_MAJOR == 4 ) && ( ITK_VERSION_MINOR < 6 ) )
@@ -705,8 +714,12 @@ Image2DicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   seriesFormat = seriesFormat + "/" + "IM%03d.dcm";
   outputNames->SetSeriesFormat (seriesFormat.c_str());
   outputNames->SetStartIndex (1);
-  //outputNames->SetEndIndex (1);
-  outputNames->SetEndIndex (outputSize[2]);
+  outputNames->SetEndIndex (nbFile);
+  //outputNames->SetEndIndex (outputSize[2]);
+  typename ReaderType::FileNamesContainer fileNamesOutput;
+  std::string extension = "output.dcm";
+  fileNamesOutput.push_back(extension);
+  //seriesWriter->SetFileNames( fileNamesOutput );
  
   typename SeriesWriterType::Pointer seriesWriter = SeriesWriterType::New();
 #if ( ( ITK_VERSION_MAJOR == 4 ) && ( ITK_VERSION_MINOR < 6 ) )
@@ -728,9 +741,29 @@ Image2DicomSeriesGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     return;
     }
   std::cout << "The output series in directory " << m_ArgsInfo.outputDir_arg
-            << " has " << outputSize[2] << " files with spacing "
+            << " has " << nbFile << " files with spacing "
             << outputSpacing
             << std::endl;
+
+  gdcm::Reader readerModel, readerOutput;
+  readerModel.SetFileName( inputNames->GetInputFileNames()[0].c_str() );
+  readerOutput.SetFileName( outputNames->GetFileNames()[0].c_str() );
+  readerModel.Read();
+  readerOutput.Read();
+  gdcm::File &fileModel = readerModel.GetFile();
+  gdcm::File &fileOutput = readerOutput.GetFile();
+  gdcm::DataSet &dsModel = fileModel.GetDataSet();
+  gdcm::DataSet &dsOutput = fileOutput.GetDataSet();
+  const unsigned int ptr_len = 42;
+  char *ptr = new char[ptr_len];
+  memset(ptr,0,ptr_len);
+
+  const gdcm::DataElement &dataOutput = dsOutput.GetDataElement(gdcm::Tag(0x7fe0, 0x10));
+  dsModel.Replace(dataOutput);
+  gdcm::Writer w;
+  w.SetFile( fileModel );
+  w.SetFileName( outputNames->GetFileNames()[0].c_str() );
+  w.Write();
   return;
 }
 
