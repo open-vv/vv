@@ -1,12 +1,12 @@
 #File clitkSpect2Dicom.ggo
 package "clitkSpect2Dicom"
 version "1.0"
-purpose "Convert the 3D mhd input SPECT image (int image) into a 3D dicom in outputDir based on the dictionary of the dicoms in inputDir."
+purpose "Convert the 3D mhd input SPECT image (int image) into a 3D dicom (outputDcm) based on the dictionary of the dicoms in inputDcm."
 
 option "config"     - "Config file"             string  no
 option "verbose"    v "Verbose"                 flag    off
 
-option "input"      i "Input image filename"    string  yes
-option "inputDir"   d "Input dicom directory"   string  yes
-option "outputDir"  o "Output dicom directory"  string  yes
+option "input"      i "Input image filename"    string  no
+option "inputDcm"   d "Input dicom filename"    string  no
+option "outputDcm"  o "Output dicom filename"   string  no
 
