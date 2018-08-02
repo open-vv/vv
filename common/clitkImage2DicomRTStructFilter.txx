@@ -114,7 +114,6 @@ void clitk::Image2DicomRTStructFilter<PixelType>::Update()
     std::cout << "Number of structures in the dicom-rt-struct : " 
               << p->GetNumberOfStructureSetROIs() << std::endl;
   }
-  
 
   // number of additional contours
   int m = m_InputFilenames.size();
@@ -138,14 +137,14 @@ void clitk::Image2DicomRTStructFilter<PixelType>::Update()
   roiNames->SetNumberOfValues(numMasks);
   roiAlgorithms->SetNumberOfValues(numMasks);
   roiTypes->SetNumberOfValues(numMasks);
-  
+
   // Convert the image into a mesh
   std::vector<vtkSmartPointer<vtkPolyData> > meshes;
   std::vector<std::string> m_ROINames;
   meshes.resize(m);
   m_ROINames.resize(m);
   for(unsigned int i=0; i<m; i++) {
-    
+
     // read image
     //    typedef float PixelType;
     //typedef itk::Image<PixelType, 3> ImageType;
@@ -156,7 +155,7 @@ void clitk::Image2DicomRTStructFilter<PixelType>::Update()
       GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(m_InputFilenames[i]));
     std::string name = oss.str();
     m_ROINames[i] = name;
-    
+
     // convert to mesh
     typedef clitk::BinaryImageToMeshFilter<ImageType> BinaryImageToMeshFilterType;
     typename BinaryImageToMeshFilterType::Pointer convert = BinaryImageToMeshFilterType::New();
@@ -167,7 +166,7 @@ void clitk::Image2DicomRTStructFilter<PixelType>::Update()
     if (GetVerboseFlag()) {
       std::cout << "Mesh has " << meshes[i]->GetNumberOfLines() << " lines." << std::endl;
     }
-    
+
     /*
     // debug mesh write  FIXME
     vtkSmartPointer<vtkPolyDataWriter> wr = vtkSmartPointer<vtkPolyDataWriter>::New();
@@ -177,7 +176,7 @@ void clitk::Image2DicomRTStructFilter<PixelType>::Update()
     wr->Write();
     */
   }
-    
+
   // Copy previous contours
   for (unsigned int i = 0; i < numMasks-m; ++i) {
 #if VTK_MAJOR_VERSION <= 5
@@ -191,7 +190,7 @@ void clitk::Image2DicomRTStructFilter<PixelType>::Update()
     roiAlgorithms->InsertValue(i, theString);
     theString = reader->GetRTStructSetProperties()->GetStructureSetRTROIInterpretedType(i);
     roiTypes->InsertValue(i, theString);
-  }  
+  }
 
   // Add new ones
   for (unsigned int i = numMasks-m; i < numMasks; ++i) {
@@ -204,7 +203,7 @@ void clitk::Image2DicomRTStructFilter<PixelType>::Update()
     roiAlgorithms->InsertValue(i, "CLITK_CREATED");
     roiTypes->InsertValue(i, m_ROIType);
   }
-    
+
   /*
   //  Visu DEBUG
   vtkPolyDataMapper *cubeMapper = vtkPolyDataMapper::New();

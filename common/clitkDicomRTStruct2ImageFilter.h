@@ -44,6 +44,7 @@ namespace clitk {
     void SetOutputSpacing(const double* spacing);
     void SetOutputSize(const unsigned long* size);
     void SetOutputImageFilename(std::string s);
+    void SetWriteMesh(bool b);
     void Update();    
     vtkImageData * GetOutput();
     template <int Dimension> typename itk::Image<unsigned char,Dimension>::ConstPointer GetITKOutput();
@@ -53,6 +54,7 @@ namespace clitk {
   protected:
     bool ImageInfoIsSet() const;
     bool mWriteOutput;
+    bool mWriteMesh;
     bool mCropMask;
     std::string mOutputFilename;
     std::vector<double> mSpacing;

@@ -163,6 +163,7 @@ void ImageArithmGenericFilter<args_info_type>::UpdateWithInputImageType()
       output->SetRegions(input1->GetLargestPossibleRegion());
       output->SetOrigin(input1->GetOrigin());
       output->SetSpacing(input1->GetSpacing());
+      output->SetDirection(input1->GetDirection());
       output->Allocate();
       // Set output iterator
       typedef itk::ImageRegionIterator<OutputImageType> IteratorOutputType;
