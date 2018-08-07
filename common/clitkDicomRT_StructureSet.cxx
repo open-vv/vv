@@ -239,7 +239,7 @@ void clitk::DicomRT_StructureSet::Print(std::ostream & os) const
 //--------------------------------------------------------------------
 
 
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
 //--------------------------------------------------------------------
 int clitk::DicomRT_StructureSet::ReadROINumber(const gdcm::Item & item)
 {
@@ -255,7 +255,7 @@ int clitk::DicomRT_StructureSet::ReadROINumber(const gdcm::Item & item)
 //--------------------------------------------------------------------
 void clitk::DicomRT_StructureSet::Write(const std::string & filename)
 {
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
 
   // Assert that the gdcm file is still open (we can write only if it was readed)
   if (mFile == NULL) {
@@ -461,7 +461,7 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename)
 bool clitk::DicomRT_StructureSet::IsDicomRTStruct(const std::string & filename)
 {
   // Open DICOM
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   // Read gdcm file
   mReader = new gdcm::Reader;
   mReader->SetFileName(filename.c_str());

@@ -24,7 +24,7 @@
 
 // gdcm 
 #include <gdcmFile.h>
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
 #include <gdcmReader.h>
 #include <gdcmTag.h>
 #include <gdcmAttribute.h>
@@ -125,7 +125,7 @@ std::vector<std::pair<int,std::string> > vvMeshReader::GetROINames()
   }
 
 #else
-#if GDCM_MAJOR_VERSION == 2 
+#if GDCM_MAJOR_VERSION >= 2
 
     // duplicate code from  clitk::DicomRT_StructureSet::Read
     gdcm::Reader * reader = new gdcm::Reader;
@@ -223,7 +223,7 @@ std::vector<std::pair<int,std::string> > vvMeshReader::GetROINames()
 std::vector<vvMesh::Pointer> vvMeshReader::readSelectedContours()
 {
   std::vector<vvMesh::Pointer> result;
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   gdcm::Reader reader;
   reader.SetFileName(filename.c_str());
   reader.Read();

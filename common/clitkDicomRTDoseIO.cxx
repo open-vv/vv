@@ -21,7 +21,7 @@
 #include "clitkCommon.h"
 
 // itk include
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
 // IMPLEMENTATION NOTE:
 // The following has been done without the use of vtkGDCMImageReader which directly
 // handle RTDOSE image. Another approach would have been to use gdcm::ImageReader
@@ -56,7 +56,7 @@ void clitk::DicomRTDoseIO::ReadImageInformation()
   int rc;
 #endif
 
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   m_GdcmImageReader.SetFileName(m_FileName.c_str());
   m_GdcmImageReader.Read();
   gdcm::File* m_GdcmFile = &m_GdcmImageReader.GetFile();
@@ -68,7 +68,7 @@ void clitk::DicomRTDoseIO::ReadImageInformation()
 #endif
 
   /* Modality -- better be RTSTRUCT */
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   gdcm::DataSet &ds = m_GdcmFile->GetDataSet();
 
   gdcm::Attribute<0x8,0x60> at1;
@@ -82,7 +82,7 @@ void clitk::DicomRTDoseIO::ReadImageInformation()
   }
 
   /* ImagePositionPatient */
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   gdcm::Attribute<0x20,0x32> at2;
   at2.SetFromDataSet(ds);
   ipp[0] = at2.GetValue(0);
@@ -97,7 +97,7 @@ void clitk::DicomRTDoseIO::ReadImageInformation()
 #endif
 
   /* Rows */
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   gdcm::Attribute<0x28,0x10> at3;
   at3.SetFromDataSet(ds);
   dim[1] = at3.GetValue();
@@ -110,7 +110,7 @@ void clitk::DicomRTDoseIO::ReadImageInformation()
 #endif
 
   /* Columns */
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   gdcm::Attribute<0x28,0x11> at4;
   at4.SetFromDataSet(ds);
   dim[0] = at4.GetValue();
@@ -123,7 +123,7 @@ void clitk::DicomRTDoseIO::ReadImageInformation()
 #endif
 
   /* PixelSpacing */
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   gdcm::Attribute<0x28,0x30> at5;
   at5.SetFromDataSet(ds);
   spacing[0] = at5.GetValue(0);
@@ -137,7 +137,7 @@ void clitk::DicomRTDoseIO::ReadImageInformation()
 #endif
 
   /* GridFrameOffsetVector */
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   gdcm::Attribute<0x3004,0x000C> at6;
   const gdcm::DataElement& de6 = ds.GetDataElement( at6.GetTag() );
   at6.SetFromDataElement(de6);
@@ -198,7 +198,7 @@ void clitk::DicomRTDoseIO::ReadImageInformation()
 #endif
 
   /* DoseGridScaling */
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   gdcm::Attribute<0x3004,0x000E> at7 = { 1. } ;
   at7.SetFromDataSet(ds);
   m_DoseScaling = at7.GetValue();
@@ -228,7 +228,7 @@ void clitk::DicomRTDoseIO::ReadImageInformation()
 // Read Image Information
 bool clitk::DicomRTDoseIO::CanReadFile(const char* FileNameToRead)
 {
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   gdcm::Reader creader;
   creader.SetFileName(FileNameToRead);
   if (!creader.Read())
@@ -279,7 +279,7 @@ void clitk::DicomRTDoseIO::Read(void * buffer)
     npix *= GetDimensions(i);
 
   /* PixelData */
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   gdcm::Image &i = m_GdcmImageReader.GetImage();
   
   char* image_data = new char[i.GetBufferLength()];
