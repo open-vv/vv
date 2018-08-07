@@ -649,7 +649,11 @@ namespace clitk
       typename  MetricType::Pointer metric=genericMetric->GetMetricPointer();
       if (movingMask) metric->SetMovingImageMask(movingMask);
       if (threadsGiven) {
+#if ITK_VERSION_MAJOR <= 4
         metric->SetNumberOfThreads( threads );
+#else
+        metric->SetNumberOfWorkUnits( threads );
+#endif
         if (m_Verbose) std::cout<< "Using " << threads << " threads." << std::endl;
       }
 
@@ -675,7 +679,11 @@ namespace clitk
       registration->SetInterpolator(  interpolator  );
       registration->SetTransform (regTransform );
       if(threadsGiven) {
+#if ITK_VERSION_MAJOR <= 4
         registration->SetNumberOfThreads(threads);
+#else
+        registration->SetNumberOfWorkUnits(threads);
+#endif
         if (m_Verbose) std::cout<< "Using " << threads << " threads." << std::endl;
       }
       registration->SetFixedImage(  croppedFixedImage   );
@@ -793,7 +801,11 @@ namespace clitk
       typedef itk::TransformToDisplacementFieldFilter<DisplacementFieldType, double> ConvertorType;
 #endif
       typename ConvertorType::Pointer filter= ConvertorType::New();
+#if ITK_VERSION_MAJOR <= 4
       filter->SetNumberOfThreads(1);
+#else
+      filter->SetNumberOfWorkUnits(1);
+#endif
       if(m_ArgsInfo.itkbspline_flag)
         sTransform->SetBulkTransform(ITK_NULLPTR);
       else

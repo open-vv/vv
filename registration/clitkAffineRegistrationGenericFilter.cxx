@@ -393,7 +393,13 @@ void AffineRegistrationGenericFilter::UpdateWithInputImageType()
   typename  MetricType::Pointer metric=genericMetric->GetMetricPointer();
   if (movingMask) metric->SetMovingImageMask(movingMask);
 
-  if (threadsGiven) metric->SetNumberOfThreads( threads );
+  if (threadsGiven) {
+#if ITK_VERSION_MAJOR <= 4
+    metric->SetNumberOfThreads( threads );
+#else
+    metric->SetNumberOfWorkUnits( threads );
+#endif
+  }
 
   //============================================================================
   // Initialize using image moments.

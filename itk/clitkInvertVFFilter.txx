@@ -438,7 +438,13 @@ template <class InputImageType, class OutputImageType> void InvertVFFilter<Input
   typename HelperClass1Type::Pointer helper1=HelperClass1Type::New();
 
   //Set input
-  if(m_NumberOfThreadsIsGiven)helper1->SetNumberOfThreads(m_NumberOfThreads);
+  if(m_NumberOfThreadsIsGiven) {
+#if ITK_VERSION_MAJOR <= 4
+    helper1->SetNumberOfThreads(m_NumberOfThreads);
+#else
+    helper1->SetNumberOfWorkUnits(m_NumberOfWorkUnits);
+#endif
+  }
   helper1->SetInput(inputPtr);
   helper1->SetWeights(weights);
 
@@ -468,7 +474,13 @@ template <class InputImageType, class OutputImageType> void InvertVFFilter<Input
   typename HelperClass2Type::Pointer helper2=HelperClass2Type::New();
 
   //Set temporary output as input
-  if(m_NumberOfThreadsIsGiven)helper2->SetNumberOfThreads(m_NumberOfThreads);
+  if(m_NumberOfThreadsIsGiven) {
+#if ITK_VERSION_MAJOR <= 4
+    helper2->SetNumberOfThreads(m_NumberOfThreads);
+#else
+    helper2->SetNumberOfWorkUnits(m_NumberOfWorkUnits);
+#endif
+  }
   helper2->SetInput(temp);
   helper2->SetWeights(weights);
   helper2->SetEdgePaddingValue(m_EdgePaddingValue);

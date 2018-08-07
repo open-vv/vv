@@ -62,7 +62,13 @@ namespace clitk
     //---------------------------------
     unsigned int i=0;
     filter->SetInput(input);
-    if (m_ArgsInfo.threads_given) filter->SetNumberOfThreads(m_ArgsInfo.threads_arg);
+    if (m_ArgsInfo.threads_given) {
+#if ITK_VERSION_MAJOR <= 4
+      filter->SetNumberOfThreads(m_ArgsInfo.threads_arg);
+#else
+      filter->SetNumberOfWorkUnits(m_ArgsInfo.threads_arg);
+#endif
+    }
 
     //Projection parameters
     OutputImageType::PointType iso;
