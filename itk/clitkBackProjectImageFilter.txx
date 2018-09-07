@@ -190,7 +190,7 @@ namespace clitk
   template <class InputImageType, class OutputImageType>
   void 
   BackProjectImageFilter<InputImageType, OutputImageType>
-  ::Initialize( void ) throw (itk::ExceptionObject)
+  ::Initialize( void )
   {
     //Change the origin of the 2D input
     typename  InputImageType::ConstPointer inputPtr=this->GetInput();

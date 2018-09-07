@@ -210,7 +210,7 @@ namespace clitk
     void SetOutputParametersFromImage( const OutputImageConstPointer  image );
 
 
-    void Initialize(void) throw (itk::ExceptionObject);
+    void Initialize(void);
 
   protected:
 
