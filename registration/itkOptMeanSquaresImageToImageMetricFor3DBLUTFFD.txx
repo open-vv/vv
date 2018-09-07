@@ -100,7 +100,7 @@ MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 template <class TFixedImage, class TMovingImage>
 void
 MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
-::Initialize(void) throw ( ExceptionObject )
+::Initialize(void)
 {
 
   this->Superclass::Initialize();

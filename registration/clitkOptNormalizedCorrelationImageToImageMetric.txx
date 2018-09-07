@@ -117,7 +117,7 @@ NormalizedCorrelationImageToImageMetric<TFixedImage,TMovingImage>
 template <class TFixedImage, class TMovingImage>
 void
 NormalizedCorrelationImageToImageMetric<TFixedImage,TMovingImage>
-::Initialize(void) throw ( itk::ExceptionObject )
+::Initialize(void)
 {
 
   this->Superclass::Initialize();

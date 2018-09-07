@@ -51,7 +51,7 @@ CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
 template <class TFixedImage, class TMovingImage>
 void
 CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
-::Initialize(void) throw ( ExceptionObject )
+::Initialize(void)
 {
 
   this->Superclass::Initialize();

@@ -50,7 +50,7 @@ namespace itk
   template <class TInputImage, class TOutputImage,class TtNorm>
   void 
   RelativePositionPropImageFilter<TInputImage,TOutputImage,TtNorm>
-  ::GenerateInputRequestedRegion() throw (InvalidRequestedRegionError)
+  ::GenerateInputRequestedRegion()
   {
     // call the superclass' implementation of this method
     Superclass::GenerateInputRequestedRegion ();

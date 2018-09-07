@@ -170,7 +170,7 @@ namespace itk
     }
   
 
-    virtual void GenerateInputRequestedRegion() throw(InvalidRequestedRegionError) ITK_OVERRIDE;
+    virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
     void EnlargeOutputRequestedRegion (DataObject * output) ITK_OVERRIDE;
 
   protected:

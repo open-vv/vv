@@ -105,7 +105,7 @@ public:
     *  (1) making sure that all the components are present and plugged
     *      together correctly,
     *  (3) allocate memory for bin data structures. */
-  virtual void Initialize(void) throw ( ExceptionObject ) ITK_OVERRIDE;
+  virtual void Initialize(void) ITK_OVERRIDE;
 
   /** Get the derivatives of the match measure. */
   void GetDerivative( const TransformParametersType & parameters,
