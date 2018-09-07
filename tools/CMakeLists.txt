@@ -147,13 +147,14 @@ if(CLITK_BUILD_TOOLS)
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkInvertVF)
 
   WRAP_GGO(clitkAffineTransform_GGO_C clitkAffineTransform.ggo)
+  add_library(clitkAffineTransformLib clitkAffineTransform.cxx ${clitkAffineTransform_GGO_C})
   add_executable(clitkAffineTransform clitkAffineTransform.cxx ${clitkAffineTransform_GGO_C})
   target_link_libraries(clitkAffineTransform clitkCommon )
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkAffineTransform)
 
   WRAP_GGO(clitkElastixTransformToMatrix_GGO_C clitkElastixTransformToMatrix.ggo)
   add_executable(clitkElastixTransformToMatrix clitkElastixTransformToMatrix.cxx ${clitkElastixTransformToMatrix_GGO_C})
-  target_link_libraries(clitkElastixTransformToMatrix clitkCommon )
+  target_link_libraries(clitkElastixTransformToMatrix clitkAffineTransformLib clitkCommon )
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkElastixTransformToMatrix)
 
   WRAP_GGO(clitkMatrixToElastixTransform_GGO_C clitkMatrixToElastixTransform.ggo)
