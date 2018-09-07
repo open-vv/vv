@@ -3304,7 +3304,7 @@ void vvMainWindow::SaveScreenshotAllSlices()
     // Screenshot
     vtkSmartPointer<vtkWindowToImageFilter> windowToImageFilter = vtkSmartPointer<vtkWindowToImageFilter>::New();
     windowToImageFilter->SetInput(renderWindow);
-#if VTK_MAJOR_VERSION >= 8 && VTK_MINOR_VERSION >= 1
+#if (VTK_MAJOR_VERSION >= 8 && VTK_MINOR_VERSION >= 1) || VTK_MAJOR_VERSION >= 9
     windowToImageFilter->SetScale(1);
 #else
     windowToImageFilter->SetMagnification(1);
@@ -3358,7 +3358,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
   if (!fileName.isEmpty()) {
     vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
     w2i->SetInput(widget->GetRenderWindow());
-#if VTK_MAJOR_VERSION >= 8 && VTK_MINOR_VERSION >= 1
+#if (VTK_MAJOR_VERSION >= 8 && VTK_MINOR_VERSION >= 1) || VTK_MAJOR_VERSION >= 9
     w2i->SetScale(1);
 #else
     w2i->SetMagnification(1);
