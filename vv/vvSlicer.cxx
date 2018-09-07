@@ -653,7 +653,9 @@ void vvSlicer::SetVF(vvImage::Pointer vf)
 #else
     mVFMapper->SetInputConnection(mGlyphFilter->GetOutputPort());
 #endif
+#ifndef VTK_OPENGL2
     mVFMapper->ImmediateModeRenderingOn();
+#endif
     mVFMapper->SetLookupTable(mVFColorLUT);
 
     if (!mVFActor)
