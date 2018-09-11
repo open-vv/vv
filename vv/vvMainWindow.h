@@ -21,6 +21,7 @@
 
 #include <iostream>
 #include <vector>
+#include <QDropEvent>
 #include "ui_vvMainWindow.h"
 #include "vvMainWindowBase.h"
 #include "vvToolManager.h"
@@ -192,6 +193,10 @@ protected:
   void createRecentlyOpenedFilesMenu();
   void updateRecentlyOpenedFilesMenu(const std::list<std::string> &files);
   
+  // Drag and drop event handlers
+  virtual void dragEnterEvent(QDragEnterEvent *event);
+  virtual void dropEvent(QDropEvent *event);
+
 private:
 
   //variables

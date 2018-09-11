@@ -18,6 +18,7 @@ It is distributed under dual licence
 
 #include <algorithm>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QInputDialog>
 #include <QTimer>
 #include "QTreePushButton.h"
@@ -131,6 +132,8 @@ It is distributed under dual licence
 vvMainWindow::vvMainWindow():vvMainWindowBase()
 { 
   setupUi(this); // this sets up the GUI
+
+  setAcceptDrops(true); // enable to drop into the window
 
   setDicomClient();
 
@@ -813,6 +816,25 @@ void vvMainWindow::OpenRecentImage()
   std::vector<std::string> images;
   images.push_back(caller->text().toStdString());
   mInputPathName = itksys::SystemTools::GetFilenamePath(images[0]).c_str();
+  LoadImages(images, vvImageReader::IMAGE);
+}
+//------------------------------------------------------------------------------
+void vvMainWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+  if (event->mimeData()->hasUrls()) {
+    event->acceptProposedAction();
+  }
+}
+//------------------------------------------------------------------------------
+void vvMainWindow::dropEvent(QDropEvent *event)
+{
+  const QMimeData * mimeData = event->mimeData();
+  if (!mimeData->hasUrls())
+    return;
+  std::vector<std::string> images;
+  for (auto const & url : mimeData->urls()) {
+    images.push_back(url.toLocalFile().toStdString());
+  }
   LoadImages(images, vvImageReader::IMAGE);
 }
 //------------------------------------------------------------------------------
