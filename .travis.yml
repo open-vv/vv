@@ -103,6 +103,7 @@ before_install:
 - $SCRIPTS/travis_build_qt.sh
 - if test $TRAVIS_OS_NAME == linux; then sudo apt-get -y install libgdcm2-dev libpq-dev; fi
 - if test $TRAVIS_OS_NAME == linux; then if [[ "$QT_VERSION" == "5.5.1" ]] ; then QTDIR="/opt/qt55" && PATH="$PATH:$QTDIR/bin" && qt55-env.sh ; fi; fi
+- if test $TRAVIS_OS_NAME == linux; then cd $HOME && wget https://cmake.org/files/v3.11/cmake-3.11.4-Linux-x86_64.tar.gz && tar -xzvf cmake-3.11.4-Linux-x86_64.tar.gz && export PATH=$HOME/cmake-3.11.4-Linux-x86_64/bin:${PATH} ; fi
 - if test $TRAVIS_OS_NAME == osx ; then export HOMEBREW_QT_VERSION=$(brew list --versions qt | rev | cut -d' ' -f1 | rev); fi
 - if test $TRAVIS_OS_NAME == osx ; then brew install ccache; fi
 - if test $TRAVIS_OS_NAME == osx ; then export PATH="/usr/local/opt/qt/bin:/usr/local/opt/ccache/libexec:$PATH"; fi
