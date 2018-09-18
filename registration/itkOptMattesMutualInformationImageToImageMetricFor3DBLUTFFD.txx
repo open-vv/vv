@@ -183,7 +183,11 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 template <class TFixedImage, class TMovingImage>
 void
 MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
+#if ( ( ITK_VERSION_MAJOR == 4 ) && ( ITK_VERSION_MINOR > 12 ) || ( ITK_VERSION_MAJOR > 4 ))
 ::Initialize(void)
+#else
+::Initialize(void) throw ( ExceptionObject )
+#endif
 {
   this->Superclass::Initialize();
   this->Superclass::MultiThreadingInitialize();

@@ -169,8 +169,11 @@ namespace itk
       }
     }
   
-
+#if ( ( ITK_VERSION_MAJOR == 4 ) && ( ITK_VERSION_MINOR > 12 ) || ( ITK_VERSION_MAJOR > 4 ))
     virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+#else
+   virtual void GenerateInputRequestedRegion() throw(InvalidRequestedRegionError) ITK_OVERRIDE;
+#endif
     void EnlargeOutputRequestedRegion (DataObject * output) ITK_OVERRIDE;
 
   protected:
