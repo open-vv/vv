@@ -80,7 +80,7 @@ else
     -DVTK_USE_RENDERING=ON
     -DVTK_USE_VIEWS=ON
     -DVTK_QT_VERSION="$QT_MAJOR_VERSION" "
-  elif [ "$VTK_VERSION" == "v6.3.0" ]; then
+  elif [ "$VTK_VERSION" == "v6.3.0" ] || [ "$VTK_VERSION" == "v8.1.1" ]; then
   cmake_arg_str=" $cmake_arg_str
     -DBUILD_SHARED_LIBS=1
     -DCMAKE_BUILD_TYPE=Release
