@@ -210,7 +210,11 @@ namespace clitk
     void SetOutputParametersFromImage( const OutputImageConstPointer  image );
 
 
+#if ( ( ITK_VERSION_MAJOR == 4 ) && ( ITK_VERSION_MINOR > 12 ) || ( ITK_VERSION_MAJOR > 4 ))
     void Initialize(void);
+#else
+    void Initialize(void) throw (itk::ExceptionObject);
+#endif
 
   protected:
 

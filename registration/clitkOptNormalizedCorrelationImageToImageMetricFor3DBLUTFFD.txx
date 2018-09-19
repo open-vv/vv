@@ -117,7 +117,11 @@ NormalizedCorrelationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 template <class TFixedImage, class TMovingImage>
 void
 NormalizedCorrelationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
+#if ( ( ITK_VERSION_MAJOR == 4 ) && ( ITK_VERSION_MINOR > 12 ) || ( ITK_VERSION_MAJOR > 4 ))
 ::Initialize(void)
+#else
+::Initialize(void) throw ( itk::ExceptionObject )
+#endif
 {
 
   this->Superclass::Initialize();

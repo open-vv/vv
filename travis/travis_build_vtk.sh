@@ -10,8 +10,8 @@ fi
 
 #Prepare cmake arguments following the VTK version
 if [ "$C11" == "true" ]; then
-  if [ "$VTK_VERSION" == "5.10" ]; then
-  vtk_repo_str=" --branch v5.10.0 https://github.com/Kitware/VTK.git --depth 1"
+  vtk_repo_str=" --branch "$VTK_VERSION" https://github.com/Kitware/VTK.git --depth 1"
+  if [ "$VTK_VERSION" == "v5.10.0" ]; then
   cmake_arg_str=" $cmake_arg_str
     -DCMAKE_CXX_FLAGS=-std=c++11
     -DBUILD_SHARED_LIBS=1
@@ -23,8 +23,7 @@ if [ "$C11" == "true" ]; then
     -DVTK_USE_RENDERING=ON
     -DVTK_USE_VIEWS=ON
     -DVTK_QT_VERSION="$QT_MAJOR_VERSION" "
-  elif [ "$VTK_VERSION" == "6.3" ]; then
-  vtk_repo_str=" --branch v6.3.0 https://github.com/Kitware/VTK.git --depth 1"
+  elif [ "$VTK_VERSION" == "v6.3.0" ] || [ "$VTK_VERSION" == "v8.1.1" ]; then
   cmake_arg_str=" $cmake_arg_str
     -DCMAKE_CXX_FLAGS=-std=c++11
     -DBUILD_SHARED_LIBS=1
@@ -45,8 +44,7 @@ if [ "$C11" == "true" ]; then
     -DModule_vtkRenderingQt=ON
     -DModule_vtkViewsQt=ON
     -DVTK_QT_VERSION="$QT_MAJOR_VERSION" "
-  elif [ "$VTK_VERSION" == "7.0.0" ]; then
-  vtk_repo_str=" --branch v7.0.0 https://github.com/Kitware/VTK.git --depth 1"
+  elif [ "$VTK_VERSION" == "v7.0.0" ]; then
   cmake_arg_str=" $cmake_arg_str
     -DCMAKE_CXX_FLAGS=-std=c++11
     -DBUILD_SHARED_LIBS=1
@@ -70,8 +68,8 @@ if [ "$C11" == "true" ]; then
     -DVTK_QT_VERSION="$QT_MAJOR_VERSION" "
   fi
 else
-  if [ "$VTK_VERSION" == "5.10" ]; then
-  vtk_repo_str=" --branch v5.10.0 https://github.com/Kitware/VTK.git --depth 1"
+  vtk_repo_str=" --branch "$VTK_VERSION" https://github.com/Kitware/VTK.git --depth 1"
+  if [ "$VTK_VERSION" == "v5.10.0" ]; then
   cmake_arg_str=" $cmake_arg_str
     -DBUILD_SHARED_LIBS=1
     -DCMAKE_BUILD_TYPE=Release
@@ -82,8 +80,7 @@ else
     -DVTK_USE_RENDERING=ON
     -DVTK_USE_VIEWS=ON
     -DVTK_QT_VERSION="$QT_MAJOR_VERSION" "
-  elif [ "$VTK_VERSION" == "6.3" ]; then
-  vtk_repo_str=" --branch v6.3.0 https://github.com/Kitware/VTK.git --depth 1"
+  elif [ "$VTK_VERSION" == "v6.3.0" ] || [ "$VTK_VERSION" == "v8.1.1" ]; then
   cmake_arg_str=" $cmake_arg_str
     -DBUILD_SHARED_LIBS=1
     -DCMAKE_BUILD_TYPE=Release
@@ -103,8 +100,7 @@ else
     -DModule_vtkRenderingQt=ON
     -DModule_vtkViewsQt=ON
     -DVTK_QT_VERSION="$QT_MAJOR_VERSION" "
-  elif [ "$VTK_VERSION" == "7.0.0" ]; then
-  vtk_repo_str=" --branch v7.0.0 https://github.com/Kitware/VTK.git --depth 1"
+  elif [ "$VTK_VERSION" == "v7.0.0" ]; then
   cmake_arg_str=" $cmake_arg_str
     -DBUILD_SHARED_LIBS=1
     -DCMAKE_BUILD_TYPE=Release
