@@ -21,7 +21,12 @@
 
 #include <iostream>
 #include <vector>
+#include "vtkVersion.h"
+#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 1) || VTK_MAJOR_VERSION >= 9
 #include "ui_vvMainWindow.h"
+#else
+#include "ui_vvMainWindowVTK7.h"
+#endif
 #include "vvMainWindowBase.h"
 #include "vvToolManager.h"
 #include "vvImageReader.h"
@@ -222,7 +227,11 @@ private:
   QString GetVectorIntAsString(std::vector<int> vectorInt);
   int GetSlicerIndexFromItem(QTreeWidgetItem* item); //this actually returns the SlicerManager index TODO: rename it to GetSlicerManagerIndexFromItem
   QTreeWidgetItem* GetItemFromSlicerManager(vvSlicerManager* sm);
+#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 1) || VTK_MAJOR_VERSION >= 9
+  void SaveScreenshot(QVTKOpenGLNativeWidget *widget);
+#else
   void SaveScreenshot(QVTKWidget *widget);
+#endif
   int GetImageDuplicateFilenameNumber(std::string filename);
 
   QMenu contextMenu;

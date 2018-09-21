@@ -651,7 +651,7 @@
            <number>2</number>
           </property>
           <item row="0" column="0">
-           <widget class="QVTKOpenGLNativeWidget" name="NOViewWidget" native="true">
+           <widget class="QVTKWidget" name="NOViewWidget" native="true">
             <property name="mouseTracking">
              <bool>true</bool>
             </property>
@@ -691,7 +691,7 @@
            <number>2</number>
           </property>
           <item row="0" column="0">
-           <widget class="QVTKOpenGLNativeWidget" name="SOViewWidget" native="true">
+           <widget class="QVTKWidget" name="SOViewWidget" native="true">
             <property name="mouseTracking">
              <bool>true</bool>
             </property>
@@ -733,7 +733,7 @@
            <number>2</number>
           </property>
           <item row="0" column="0">
-           <widget class="QVTKOpenGLNativeWidget" name="NEViewWidget" native="true">
+           <widget class="QVTKWidget" name="NEViewWidget" native="true">
             <property name="mouseTracking">
              <bool>true</bool>
             </property>
@@ -770,7 +770,7 @@
            <number>2</number>
           </property>
           <item row="0" column="0">
-           <widget class="QVTKOpenGLNativeWidget" name="SEViewWidget" native="true">
+           <widget class="QVTKWidget" name="SEViewWidget" native="true">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>
@@ -1285,9 +1285,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QVTKOpenGLNativeWidget</class>
+   <class>QVTKWidget</class>
    <extends>QWidget</extends>
-   <header>QVTKOpenGLNativeWidget.h</header>
+   <header>QVTKWidget.h</header>
   </customwidget>
   <customwidget>
    <class>vvInfoPanel</class>

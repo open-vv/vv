@@ -141,7 +141,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QVTKOpenGLNativeWidget" name="ProfileWidget" native="true">
+      <widget class="QVTKWidget" name="ProfileWidget" native="true">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -159,9 +159,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QVTKOpenGLNativeWidget</class>
+   <class>QVTKWidget</class>
    <extends>QWidget</extends>
-   <header>QVTKOpenGLNativeWidget.h</header>
+   <header>QVTKWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

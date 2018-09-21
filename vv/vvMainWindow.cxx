@@ -3278,7 +3278,11 @@ void vvMainWindow::SaveSEScreenshot()
 //------------------------------------------------------------------------------
 void vvMainWindow::SaveScreenshotAllSlices()
 { 
+#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 1) || VTK_MAJOR_VERSION >= 9
+  QVTKOpenGLNativeWidget *widget = NOViewWidget;
+#else
   QVTKWidget *widget = NOViewWidget;
+#endif
 
   int index = 0;// GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
   vvSlicerManager * SM = mSlicerManagers[index];
@@ -3334,7 +3338,11 @@ void vvMainWindow::SaveScreenshotAllSlices()
 
 
 //------------------------------------------------------------------------------
+#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 1) || VTK_MAJOR_VERSION >= 9
+void vvMainWindow::SaveScreenshot(QVTKOpenGLNativeWidget *widget)
+#else
 void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
+#endif
 { 
   QString Extensions = "Images( *.png);;";
   Extensions += "Images( *.jpg);;";

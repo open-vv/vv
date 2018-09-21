@@ -14,7 +14,7 @@
   </property>
   <layout class="QGridLayout" >
    <item row="0" column="0" colspan="3" >
-    <widget class="QVTKOpenGLNativeWidget" name="renderWidget" />
+    <widget class="QVTKWidget" name="renderWidget" />
    </item>
    <item row="1" column="0" >
     <spacer>
@@ -47,9 +47,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QVTKOpenGLNativeWidget</class>
+   <class>QVTKWidget</class>
    <extends>QWidget</extends>
-   <header>QVTKOpenGLNativeWidget.h</header>
+   <header>QVTKWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
