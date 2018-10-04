@@ -21,6 +21,7 @@
 
 #include <iostream>
 #include <vector>
+#include <QDropEvent>
 #include "vtkVersion.h"
 #if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 1) || VTK_MAJOR_VERSION >= 9
 #include "ui_vvMainWindow.h"
@@ -197,6 +198,10 @@ protected:
   void createRecentlyOpenedFilesMenu();
   void updateRecentlyOpenedFilesMenu(const std::list<std::string> &files);
   
+  // Drag and drop event handlers
+  virtual void dragEnterEvent(QDragEnterEvent *event);
+  virtual void dropEvent(QDropEvent *event);
+
 private:
 
   //variables
