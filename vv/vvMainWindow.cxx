@@ -832,8 +832,8 @@ void vvMainWindow::dropEvent(QDropEvent *event)
   if (!mimeData->hasUrls())
     return;
   std::vector<std::string> images;
-  for (auto const & url : mimeData->urls()) {
-    images.push_back(url.toLocalFile().toStdString());
+  for (int i=0; i<mimeData->urls().size(); ++i) {
+    images.push_back(mimeData->urls()[i].toLocalFile().toStdString());
   }
   LoadImages(images, vvImageReader::IMAGE);
 }
