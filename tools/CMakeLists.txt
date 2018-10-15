@@ -304,6 +304,11 @@ if(CLITK_BUILD_TOOLS)
   target_link_libraries(clitkSum clitkCommon)
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkSum)
 
+  WRAP_GGO(clitkExtrude_GGO_C clitkExtrude.ggo)
+  add_executable(clitkExtrude clitkExtrude.cxx ${clitkExtrude_GGO_C})
+  target_link_libraries(clitkExtrude clitkCommon)
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkExtrude)
+
   WRAP_GGO(clitkTransformLandmarks_GGO_C clitkTransformLandmarks.ggo)
   add_executable(clitkTransformLandmarks clitkTransformLandmarks.cxx ${clitkTransformLandmarks_GGO_C})
   target_link_libraries(clitkTransformLandmarks clitkCommon)
