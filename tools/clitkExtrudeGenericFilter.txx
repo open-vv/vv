@@ -19,6 +19,7 @@
 #define clitkExtrudeGenericFilter_txx
 
 // itk include
+#include <itkImageFileReader.h>
 #include <clitkCommon.h>
 
 namespace clitk
@@ -89,13 +90,45 @@ ExtrudeGenericFilter<args_info_type>::UpdateWithInputImageType()
 
   start.Fill(0);
 
+  //Check if like is given and not size, origin and spacing
   int extrusionSize(1);
-  if (mArgsInfo.size_given) {
-    if (mArgsInfo.size_arg > 0)
-      extrusionSize = mArgsInfo.size_arg;
-    else {
-      std::cerr << "The size has to be > 0" << std::endl;
+  double extrusionOrigin(0.0), extrusionSpacing(1.0);
+
+  if (mArgsInfo.like_given) {
+    if (mArgsInfo.size_given || mArgsInfo.spacing_given || mArgsInfo.origin_given) {
+      std::cerr << "You cannot set --like and --size, --origin or --spacing at the same time" << std::endl;
       return;
+    }
+
+    // Read the input like image
+    typedef itk::ImageFileReader<OutputImageType> LikeReaderType;
+    typename LikeReaderType::Pointer reader = LikeReaderType::New();
+    reader->SetFileName(mArgsInfo.like_arg);
+    reader->Update();
+    typename OutputImageType::Pointer likeImage = reader->GetOutput();
+
+    extrusionSize = likeImage->GetLargestPossibleRegion().GetSize()[Dim];
+    extrusionSpacing = likeImage->GetSpacing()[Dim];
+    extrusionOrigin = likeImage->GetOrigin()[Dim];
+  } else {
+    if (mArgsInfo.size_given) {
+      if (mArgsInfo.size_arg > 0)
+        extrusionSize = mArgsInfo.size_arg;
+      else {
+        std::cerr << "The size has to be > 0" << std::endl;
+        return;
+      }
+    }
+    if (mArgsInfo.origin_given) {
+      extrusionOrigin = mArgsInfo.origin_arg;
+    }
+    if (mArgsInfo.spacing_given) {
+      if (mArgsInfo.spacing_arg > 0)
+        extrusionSpacing = mArgsInfo.spacing_arg;
+      else {
+        std::cerr << "The spacing has to be > 0" << std::endl;
+        return;
+      }
     }
   }
 
