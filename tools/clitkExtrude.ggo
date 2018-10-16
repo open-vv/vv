@@ -3,12 +3,12 @@ package "clitkExtrude"
 version "1.0"
 purpose "Extrude an image i along the last+1 dimension repeating the image N times. So the output has 1 dimension more than the input."
 
-option "config"   - "Config file"                   string  optional
-option "verbose"  v "Verbose"                       flag    off
+option "config"   - "Config file"                               string  optional
+option "verbose"  v "Verbose"                                   flag    off
 
-option "input"    i "Input image filename"          string  required
-option "output"   o "Output image filename"         string  required
-option "size"     N "Size in pixel of extrusion"    int     no        default="1"
-option "spacing"  s "Spacing of the new dimension"  double  no        default="1.0"
-option "origin"   - "Origin of the new dimension"   double  no        default="0.0"
+option "input"    i "Input image filename"                      string  required
+option "output"   o "Output image filename"                     string  required
+option "size"     N "Size in pixel of extrusion"                int     no        default="1"
+option "spacing"  s "Spacing of the new dimension"              double  no        default="1.0"
+option "origin"   - "Origin of the new dimension"               double  no        default="0.0"
 option "like"     l "Size, spacing and origin like this image"  string  no
