@@ -45,55 +45,55 @@ for i in $(seq 2 $nblines); do
   # The /#./0. is important to add 0 for decimal value between 0 and 1
   edep1=$(echo ${line1} | cut -f3 -d' ')
   edep2=$(echo ${line2} | cut -f3 -d' ')
-  edep3=$(echo "scale=30;$edep1+$edep2" | bc)
+  edep3=$(python -c "print($edep1+$edep2)")
   edep3=${edep3/#./0.}
   line3=$(echo $line3 |awk -v r=${edep3} '{$3=r}1')
 
   # sqrt sum square std_edep: get the 2 values, sum the square, take the sqrt and replace it in the line3
   edep1=$(echo ${line1} | cut -f4 -d' ')
   edep2=$(echo ${line2} | cut -f4 -d' ')
-  edep3=$(echo "scale=30;sqrt($edep1*$edep1+$edep2*$edep2)" | bc)
+  edep3=$(python -c "import math; print(math.sqrt($edep1*$edep1+$edep2*$edep2))")
   edep3=${edep3/#./0.}
   line3=$(echo $line3 |awk -v r=${edep3} '{$4=r}1')
 
   # sum square_edep: get the 2 values, sum them and replace it in the line3
   edep1=$(echo ${line1} | cut -f5 -d' ')
   edep2=$(echo ${line2} | cut -f5 -d' ')
-  edep3=$(echo "scale=30;$edep1+$edep2" | bc)
+  edep3=$(python -c "print($edep1+$edep2)")
   edep3=${edep3/#./0.}
   line3=$(echo $line3 |awk -v r=${edep3} '{$5=r}1')
 
   # sum dose: get the 2 values, sum them and replace it in the line3
   edep1=$(echo ${line1} | cut -f6 -d' ')
   edep2=$(echo ${line2} | cut -f6 -d' ')
-  edep3=$(echo "scale=30;$edep1+$edep2" | bc)
+  edep3=$(python -c "print($edep1+$edep2)")
   edep3=${edep3/#./0.}
   line3=$(echo $line3 |awk -v r=${edep3} '{$6=r}1')
 
   # sqrt sum square std_dose: get the 2 values, sum the square, take the sqrt and replace it in the line3
   edep1=$(echo ${line1} | cut -f7 -d' ')
   edep2=$(echo ${line2} | cut -f7 -d' ')
-  edep3=$(echo "scale=30;sqrt($edep1*$edep1+$edep2*$edep2)" | bc)
+  edep3=$(python -c "import math; print(math.sqrt($edep1*$edep1+$edep2*$edep2))")
   edep3=${edep3/#./0.}
   line3=$(echo $line3 |awk -v r=${edep3} '{$7=r}1')
 
   # sum square_dose: get the 2 values, sum them and replace it in the line3
   edep1=$(echo ${line1} | cut -f8 -d' ')
   edep2=$(echo ${line2} | cut -f8 -d' ')
-  edep3=$(echo "scale=30;$edep1+$edep2" | bc)
+  edep3=$(python -c "print($edep1+$edep2)")
   edep3=${edep3/#./0.}
   line3=$(echo $line3 |awk -v r=${edep3} '{$8=r}1')
 
   # sum n_hits: get the 2 values, sum them and replace it in the line3
   edep1=$(echo ${line1} | cut -f9 -d' ')
   edep2=$(echo ${line2} | cut -f9 -d' ')
-  edep3=$(echo "scale=30;$edep1+$edep2" | bc)
+  edep3=$(python -c "print($edep1+$edep2)")
   line3=$(echo $line3 |awk -v r=${edep3} '{$9=r}1')
 
   # sum n_event_hits: get the 2 values, sum them and replace it in the line3
   edep1=$(echo ${line1} | cut -f10 -d' ')
   edep2=$(echo ${line2} | cut -f10 -d' ')
-  edep3=$(echo "scale=30;$edep1+$edep2" | bc)
+  edep3=$(python -c "print($edep1+$edep2)")
   line3=$(echo $line3 |awk -v r=${edep3} '{$10=r}1')
 
   #Write the output
