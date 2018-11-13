@@ -70,7 +70,7 @@ void RTStructStatisticsGenericFilter<args_info_type>::UpdateWithInputImageType()
 {
   // Read mask input
   typedef itk::Image<unsigned char, ImageType::ImageDimension> MaskInputImageType;
-  typename MaskInputImageType::Pointer mask = NULL;
+  typename MaskInputImageType::Pointer mask;
   mask = this->template GetInput<MaskInputImageType>(0);
 
   //Create the Shape Label Map from the mask

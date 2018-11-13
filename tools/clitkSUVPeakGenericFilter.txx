@@ -72,7 +72,7 @@ void SUVPeakGenericFilter<args_info_type>::UpdateWithInputImageType()
 
   //Read mask
   typedef itk::Image<unsigned char, ImageType::ImageDimension> MaskImageType;
-  typename MaskImageType::Pointer mask = NULL;
+  typename MaskImageType::Pointer mask;
   if(mArgsInfo.mask_given) {
       mask = this->template GetInput<MaskImageType>(1);
   }
