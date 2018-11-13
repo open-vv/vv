@@ -60,11 +60,11 @@ endif()
 
 
 #=========================================================
-### Check if ITK was compiled with SYSTEM_GDCM = ON
+### Check if ITK was compiled with SYSTEM_GDCM = ON (Not possible anymore with ITK 4.13)
+### Add option to activate external GDCM in clitk
 set(CLITK_USE_SYSTEM_GDCM FALSE)
-# ITK4 creates a target for each gdcm library when it compiles GDCM
-get_target_property(GDCMDICTTARG gdcmDICT TYPE )
-if(NOT GDCMDICTTARG)
+if(CLITK_EXTERNAL_GDCM)
+  message("Be sure to use external GDCM with ITK")
   set(CLITK_USE_SYSTEM_GDCM TRUE)
 endif()
 

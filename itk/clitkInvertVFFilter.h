@@ -65,10 +65,18 @@ namespace clitk
     //Set Methods(inline)
     itkSetMacro( Verbose, bool);
     itkSetMacro( EdgePaddingValue, PixelType );
+#if ITK_VERSION_MAJOR <= 4
     void SetNumberOfThreads(unsigned int r ) ITK_OVERRIDE
+#else
+    void SetNumberOfWorkUnits(unsigned int r ) ITK_OVERRIDE
+#endif
     {
       m_NumberOfThreadsIsGiven=true;
+#if ITK_VERSION_MAJOR <= 4
       m_NumberOfThreads=r;
+#else
+      m_NumberOfWorkUnits=r;
+#endif
     }
     itkSetMacro(ThreadSafe, bool);
     itkSetMacro(OutputSpacing, SpacingType);
@@ -84,7 +92,11 @@ namespace clitk
     bool m_NumberOfThreadsIsGiven;
     SpacingType m_OutputSpacing;
     SizeType m_OutputSize;
+#if ITK_VERSION_MAJOR <= 4
     unsigned int m_NumberOfThreads;
+#else
+    unsigned int m_NumberOfWorkUnits;
+#endif
     PixelType m_EdgePaddingValue;
     bool m_ThreadSafe;
   };

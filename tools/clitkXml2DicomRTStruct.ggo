@@ -1,0 +1,14 @@
+# file clitkXml2DicomRTStruct.ggo
+package "clitk"
+version "1.0"
+description "Convert a Structure from XML to DICOM RT Structure Set (contours)
+The structure of the xml has to be like this:
+"
+
+option "config"    - "Config file"                                                    string  no
+option "verbose"   v "Verbose"                                                        flag off
+
+option "input"     i "Input xml file with struct to be converted into DicomRTStruct"  string  yes
+option "rtstruct"  r "Input rt struct"                                                string  yes
+option "dicom"     d "Input folder where the initial dicom ct is"                     string  yes
+option "output"    o "Output DicomRT filename"                                        string  yes

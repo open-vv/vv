@@ -224,7 +224,11 @@ GenerateData()
     case B_LUT: std::cout << "B-LUT " << m_BSplineOrder << " " << m_BLUTSamplingFactor << std::endl; break;
     case WSINC: std::cout << "Windowed Sinc" << std::endl; break;
     }
+#if ITK_VERSION_MAJOR <= 4
     std::cout << "Threads        = " << this->GetNumberOfThreads() << std::endl;
+#else
+    std::cout << "Threads        = " << this->GetNumberOfWorkUnits() << std::endl;
+#endif
     std::cout << "LastDimIsTime  = " << m_LastDimensionIsTime << std::endl;
   }
 
@@ -241,7 +245,11 @@ GenerateData()
   filter->SetOutputSpacing(m_OutputSpacing);
   filter->SetOutputOrigin(m_OutputOrigin);
   filter->SetDefaultPixelValue(m_DefaultPixelValue);
+#if ITK_VERSION_MAJOR <= 4
   filter->SetNumberOfThreads(this->GetNumberOfThreads());
+#else
+  filter->SetNumberOfWorkUnits(this->GetNumberOfWorkUnits());
+#endif
   filter->SetOutputDirection(m_OutputDirection); // <-- NEEDED if we want to keep orientation (in case of PermutAxes for example)
 
   // Select interpolator

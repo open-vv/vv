@@ -28,7 +28,7 @@
     </widget>
    </item>
    <item rowspan="4" row="0" column="2" colspan="6" >
-    <widget class="QVTKWidget" name="viewWidget" />
+    <widget class="QVTKOpenGLNativeWidget" name="viewWidget" />
    </item>
    <item row="1" column="0" >
     <widget class="QLabel" name="minLabel" >
@@ -132,9 +132,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QVTKWidget</class>
+   <class>QVTKOpenGLNativeWidget</class>
    <extends>QWidget</extends>
-   <header>QVTKWidget.h</header>
+   <header>QVTKOpenGLNativeWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

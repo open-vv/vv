@@ -156,7 +156,13 @@ InvertVFGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
       filter->SetInput(input);
 
     filter->SetVerbose(m_Verbose);
-    if (m_ArgsInfo.threads_given) filter->SetNumberOfThreads(m_ArgsInfo.threads_arg);
+    if (m_ArgsInfo.threads_given) {
+#if ITK_VERSION_MAJOR <= 4
+      filter->SetNumberOfThreads(m_ArgsInfo.threads_arg);
+#else
+      filter->SetNumberOfWorkUnits(m_ArgsInfo.threads_arg);
+#endif
+    }
     if (m_ArgsInfo.pad_given) {
       PixelType pad;
       if (m_ArgsInfo.pad_given !=  (pad.GetNumberOfComponents()) )
@@ -187,7 +193,13 @@ InvertVFGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     }
 
     filter->SetVerbose(m_Verbose);
-    if (m_ArgsInfo.threads_given) filter->SetNumberOfThreads(m_ArgsInfo.threads_arg);
+    if (m_ArgsInfo.threads_given) {
+#if ITK_VERSION_MAJOR <= 4
+      filter->SetNumberOfThreads(m_ArgsInfo.threads_arg);
+#else
+      filter->SetNumberOfWorkUnits(m_ArgsInfo.threads_arg);
+#endif
+    }
     if (m_ArgsInfo.pad_given) {
       PixelType pad;
       if (m_ArgsInfo.pad_given !=  (pad.GetNumberOfComponents()) )

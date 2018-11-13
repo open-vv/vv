@@ -183,7 +183,11 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 template <class TFixedImage, class TMovingImage>
 void
 MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
+#if ( ( ITK_VERSION_MAJOR == 4 ) && ( ITK_VERSION_MINOR > 12 ) || ( ITK_VERSION_MAJOR > 4 ))
+::Initialize(void)
+#else
 ::Initialize(void) throw ( ExceptionObject )
+#endif
 {
   this->Superclass::Initialize();
   this->Superclass::MultiThreadingInitialize();
@@ -192,7 +196,11 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   typename FixedImageStatisticsFilterType::Pointer fixedImageStats =
     FixedImageStatisticsFilterType::New();
   fixedImageStats->SetInput( this->m_FixedImage );
+#if ITK_VERSION_MAJOR <= 4
   fixedImageStats->SetNumberOfThreads( this->m_NumberOfThreads );
+#else
+  fixedImageStats->SetNumberOfWorkUnits( this->m_NumberOfWorkUnits );
+#endif
   fixedImageStats->Update();
 
   m_FixedImageTrueMin = fixedImageStats->GetMinimum();
@@ -205,7 +213,11 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   typename MovingImageStatisticsFilterType::Pointer movingImageStats =
     MovingImageStatisticsFilterType::New();
   movingImageStats->SetInput( this->m_MovingImage );
+#if ITK_VERSION_MAJOR <= 4
   movingImageStats->SetNumberOfThreads( this->m_NumberOfThreads );
+#else
+  movingImageStats->SetNumberOfWorkUnits( this->m_NumberOfWorkUnits );
+#endif
   movingImageStats->Update();
 
   m_MovingImageTrueMin = movingImageStats->GetMinimum();
@@ -362,35 +374,62 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   }
   // Assumes number of threads doesn't change between calls to Initialize
   m_ThreaderFixedImageMarginalPDF = new
-  PDFValueType[(this->m_NumberOfThreads-1)
-               * m_NumberOfHistogramBins];
+#if ITK_VERSION_MAJOR <= 4
+  PDFValueType[(this->m_NumberOfThreads-1) * m_NumberOfHistogramBins];
+#else
+  PDFValueType[(this->m_NumberOfWorkUnits-1) * m_NumberOfHistogramBins];
+#endif
 
   if(m_ThreaderJointPDF != NULL) {
     delete [] m_ThreaderJointPDF;
   }
   m_ThreaderJointPDF = new typename
+#if ITK_VERSION_MAJOR <= 4
   JointPDFType::Pointer[this->m_NumberOfThreads-1];
+#else
+  JointPDFType::Pointer[this->m_NumberOfWorkUnits-1];
+#endif
 
   if(m_ThreaderJointPDFStartBin != NULL) {
     delete [] m_ThreaderJointPDFStartBin;
   }
+#if ITK_VERSION_MAJOR <= 4
   m_ThreaderJointPDFStartBin = new int[this->m_NumberOfThreads];
+#else
+  m_ThreaderJointPDFStartBin = new int[this->m_NumberOfWorkUnits];
+#endif
 
   if(m_ThreaderJointPDFEndBin != NULL) {
     delete [] m_ThreaderJointPDFEndBin;
   }
+#if ITK_VERSION_MAJOR <= 4
   m_ThreaderJointPDFEndBin = new int[this->m_NumberOfThreads];
+#else
+  m_ThreaderJointPDFEndBin = new int[this->m_NumberOfWorkUnits];
+#endif
 
   if(m_ThreaderJointPDFSum != NULL) {
     delete [] m_ThreaderJointPDFSum;
   }
+#if ITK_VERSION_MAJOR <= 4
   m_ThreaderJointPDFSum = new double[this->m_NumberOfThreads];
+#else
+  m_ThreaderJointPDFSum = new double[this->m_NumberOfWorkUnits];
+#endif
 
   unsigned int threadID;
 
+#if ITK_VERSION_MAJOR <= 4
   int binRange = m_NumberOfHistogramBins / this->m_NumberOfThreads;
+#else
+  int binRange = m_NumberOfHistogramBins / this->m_NumberOfWorkUnits;
+#endif
 
+#if ITK_VERSION_MAJOR <= 4
   for(threadID = 0; threadID < this->m_NumberOfThreads-1; threadID++) {
+#else
+  for(threadID = 0; threadID < this->m_NumberOfWorkUnits-1; threadID++) {
+#endif
     m_ThreaderJointPDF[threadID] = JointPDFType::New();
     m_ThreaderJointPDF[threadID]->SetRegions( jointPDFRegion );
     m_ThreaderJointPDF[threadID]->Allocate();
@@ -399,10 +438,13 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
     m_ThreaderJointPDFEndBin[threadID] = (threadID + 1) * binRange - 1;
   }
 
-  m_ThreaderJointPDFStartBin[this->m_NumberOfThreads-1] =
-    (this->m_NumberOfThreads - 1 ) * binRange;
-
+#if ITK_VERSION_MAJOR <= 4
+  m_ThreaderJointPDFStartBin[this->m_NumberOfThreads-1] = (this->m_NumberOfThreads - 1 ) * binRange;
   m_ThreaderJointPDFEndBin[this->m_NumberOfThreads-1] = m_NumberOfHistogramBins - 1;
+#else
+  m_ThreaderJointPDFStartBin[this->m_NumberOfWorkUnits-1] = (this->m_NumberOfWorkUnits - 1 ) * binRange;
+  m_ThreaderJointPDFEndBin[this->m_NumberOfWorkUnits-1] = m_NumberOfHistogramBins - 1;
+#endif
 
   // Release memory of arrays that may have been used for
   // previous executions of this metric with different settings
@@ -420,18 +462,34 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 
   if( this->m_UseExplicitPDFDerivatives ) {
     m_ThreaderJointPDFDerivatives = new typename
+#if ITK_VERSION_MAJOR <= 4
     JointPDFDerivativesType::Pointer[this->m_NumberOfThreads-1];
+#else
+    JointPDFDerivativesType::Pointer[this->m_NumberOfWorkUnits-1];
+#endif
 
+#if ITK_VERSION_MAJOR <= 4
     for(threadID = 0; threadID < this->m_NumberOfThreads-1; threadID++) {
+#else
+    for(threadID = 0; threadID < this->m_NumberOfWorkUnits-1; threadID++) {
+#endif
       m_ThreaderJointPDFDerivatives[threadID] = JointPDFDerivativesType::New();
       m_ThreaderJointPDFDerivatives[threadID]->SetRegions(
         jointPDFDerivativesRegion );
       m_ThreaderJointPDFDerivatives[threadID]->Allocate();
     }
   } else {
+#if ITK_VERSION_MAJOR <= 4
     m_ThreaderMetricDerivative = new DerivativeType[this->m_NumberOfThreads-1];
+#else
+    m_ThreaderMetricDerivative = new DerivativeType[this->m_NumberOfWorkUnits-1];
+#endif
 
+#if ITK_VERSION_MAJOR <= 4
     for(threadID = 0; threadID < this->m_NumberOfThreads-1; threadID++) {
+#else
+    for(threadID = 0; threadID < this->m_NumberOfWorkUnits-1; threadID++) {
+#endif
       this->m_ThreaderMetricDerivative[threadID] = DerivativeType( this->GetNumberOfParameters() );
     }
   }
@@ -595,7 +653,11 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   unsigned int       tPdfPtrOffset;
   tPdfPtrOffset = ( m_ThreaderJointPDFStartBin[threadID]
                     * m_JointPDF->GetOffsetTable()[1] );
+#if ITK_VERSION_MAJOR <= 4
   for(t=0; t<this->m_NumberOfThreads-1; t++) {
+#else
+  for(t=0; t<this->m_NumberOfWorkUnits-1; t++) {
+#endif
     pdfPtr = pdfPtrStart;
     tPdfPtr = m_ThreaderJointPDF[t]->GetBufferPointer() + tPdfPtrOffset;
     tPdfPtrEnd = tPdfPtr + maxI;
@@ -637,7 +699,11 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   // MUST BE CALLED TO INITIATE PROCESSING
   this->GetValueMultiThreadedPostProcessInitiate();
 
+#if ITK_VERSION_MAJOR <= 4
   for(unsigned int threadID = 0; threadID<this->m_NumberOfThreads-1; threadID++) {
+#else
+  for(unsigned int threadID = 0; threadID<this->m_NumberOfWorkUnits-1; threadID++) {
+#endif
     m_JointPDFSum += m_ThreaderJointPDFSum[threadID];
   }
   if ( m_JointPDFSum == 0.0 ) {
@@ -883,7 +949,11 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
     JointPDFDerivativesValueType *tPdfDPtrEnd;
     unsigned int tPdfDPtrOffset;
     tPdfDPtrOffset = m_ThreaderJointPDFStartBin[threadID] *  rowSize;
+#if ITK_VERSION_MAJOR <= 4
     for(unsigned int t=0; t<this->m_NumberOfThreads-1; t++) {
+#else
+    for(unsigned int t=0; t<this->m_NumberOfWorkUnits-1; t++) {
+#endif
       pdfDPtr = pdfDPtrStart;
       tPdfDPtr = m_ThreaderJointPDFDerivatives[t]->GetBufferPointer()
                  + tPdfDPtrOffset;
@@ -930,7 +1000,11 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   } else {
     this->m_PRatioArray.Fill( 0.0 );
     this->m_MetricDerivative.Fill( NumericTraits< MeasureType >::Zero );
+#if ITK_VERSION_MAJOR <= 4
     for(unsigned int threadID = 0; threadID < this->m_NumberOfThreads-1; threadID++ ) {
+#else
+    for(unsigned int threadID = 0; threadID < this->m_NumberOfWorkUnits-1; threadID++ ) {
+#endif
       this->m_ThreaderMetricDerivative[threadID].Fill( NumericTraits< MeasureType >::Zero );
     }
     this->m_ImplicitDerivativesSecondPass = false;
@@ -945,7 +1019,11 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   // CALL IF DOING THREADED POST PROCESSING
   this->GetValueAndDerivativeMultiThreadedPostProcessInitiate();
 
+#if ITK_VERSION_MAJOR <= 4
   for(unsigned int threadID = 0; threadID<this->m_NumberOfThreads-1; threadID++) {
+#else
+  for(unsigned int threadID = 0; threadID<this->m_NumberOfWorkUnits-1; threadID++) {
+#endif
     m_JointPDFSum += m_ThreaderJointPDFSum[threadID];
   }
   if ( m_JointPDFSum == 0.0 ) {
@@ -1054,7 +1132,11 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 
     // Consolidate the contributions from each one of the threads to the total
     // derivative.
+#if ITK_VERSION_MAJOR <= 4
     for(unsigned int t = 0; t < this->m_NumberOfThreads-1; t++ ) {
+#else
+    for(unsigned int t = 0; t < this->m_NumberOfWorkUnits-1; t++ ) {
+#endif
       DerivativeType * source = &(this->m_ThreaderMetricDerivative[t]);
       for(unsigned int pp=0; pp < this->m_NumberOfParameters; pp++ ) {
         this->m_MetricDerivative[pp] += (*source)[pp];

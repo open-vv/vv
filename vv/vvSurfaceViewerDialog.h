@@ -17,7 +17,12 @@
 ===========================================================================**/
 #ifndef _vvSurfaceViewerDialog_H
 #define _vvSurfaceViewerDialog_H
+#include <vtkVersion.h>
+#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 1) || VTK_MAJOR_VERSION >= 9
 #include "ui_vvSurfaceViewerDialog.h"
+#else
+#include "ui_vvSurfaceViewerDialogVTK7.h"
+#endif
 
 class vtkPolyDataMapper;
 class vtkActor;

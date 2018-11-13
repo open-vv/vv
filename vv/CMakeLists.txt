@@ -26,8 +26,6 @@ set(vv_TOOLS
   vvToolConvert ## with dummy vvToolConvert.ui
   vvToolROIManager
   vvToolSegmentation
-  vvToolProfile
-  vvToolHistogram
   ## these ones are for tests (not working)
   # vvToolTest
   # vvToolFoo
@@ -38,6 +36,12 @@ set(vv_TOOLS
   # vvToolExtractPatient
   # vvToolExtractLung
   # vvToolStructureSetManager
+)
+#List of vv tools to compile
+#Ensure compatibility with QVTKOpenGL for VTK < v8.1 and QVTKOpenGLNativeWidget for others
+set(vv_TOOLS_VTK7
+  vvToolProfile
+  vvToolHistogram
 )
 # dependencies of the tools
 # Future issues : when tool depend on other tools ... how to manage that ?
@@ -65,8 +69,6 @@ set(vv_COMMON_WITH_UI
   vvOverlayPanel
   vvLandmarksPanel
   vvProgressDialog
-  vvSegmentationDialog
-  vvSurfaceViewerDialog
   vvDeformationDialog
   vvStructSelector
   vvIntensityValueSlider
@@ -75,6 +77,13 @@ set(vv_COMMON_WITH_UI
   vvToolSimpleInputSelectorWidget
   vvToolInputSelectorWidget
   vvRegisterForm
+)
+# in COMMON_WITH_UI -> must have .h and .cxx and VTK7.ui
+#Ensure compatibility with QVTKOpenGL for VTK < v8.1 and QVTKOpenGLNativeWidget for others
+set(vv_COMMON_WITH_UI_VTK7
+  vvMainWindow
+  vvSegmentationDialog
+  vvSurfaceViewerDialog
 )
 
 # All others sources
@@ -208,7 +217,7 @@ endif(CLITK_USE_PACS_CONNECTION)
   # variables in vv.cxx for the tools contained in vvLib
   if(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt IS_NEWER_THAN ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h)
     file(REMOVE ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h)
-    foreach(tool ${vv_TOOLS})
+    foreach(tool ${vv_TOOLS} ${vv_TOOLS_VTK7})
       file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h "#include \"${tool}.h\"\n")
       file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h "extern const vvToolCreator<${tool}> *dummy${tool};\n")
       file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vvToolsList.h "const vvToolCreator<${tool}> *dummy${tool}2 = dummy${tool};\n\n")
@@ -224,6 +233,28 @@ endif(CLITK_USE_PACS_CONNECTION)
       else()
         QT4_WRAP_CPP(vv_SRCS ${tool}.h)
         QT4_WRAP_UI(vv_UI_CXX qt_ui/${tool}.ui)
+      endif()
+  endforeach(tool)
+
+  #Special case for Main Window with QVTKWidget according VTK version
+  foreach(tool ${vv_TOOLS_VTK7} ${vv_COMMON_WITH_UI_VTK7})
+      set(vv_SRCS ${vv_SRCS} ${tool}.cxx)
+      if(VTK_VERSION VERSION_GREATER "8.0.0")
+        if(vv_QT_VERSION VERSION_GREATER "4")
+          QT5_WRAP_CPP(vv_SRCS ${tool}.h)
+          QT5_WRAP_UI(vv_UI_CXX qt_ui/${tool}.ui)
+        else()
+          QT4_WRAP_CPP(vv_SRCS ${tool}.h)
+          QT4_WRAP_UI(vv_UI_CXX qt_ui/${tool}.ui)
+        endif()
+      else()
+        if(vv_QT_VERSION VERSION_GREATER "4")
+          QT5_WRAP_CPP(vv_SRCS ${tool}.h)
+          QT5_WRAP_UI(vv_UI_CXX qt_ui/${tool}VTK7.ui)
+        else()
+          QT4_WRAP_CPP(vv_SRCS ${tool}.h)
+          QT4_WRAP_UI(vv_UI_CXX qt_ui/${tool}VTK7.ui)
+        endif()
       endif()
   endforeach(tool)
   
@@ -301,7 +332,7 @@ include_directories(
 
 #=========================================================
 #Add each tool's dependencies
-foreach(tool ${vv_TOOLS})
+foreach(tool ${vv_TOOLS} ${vv_TOOLS_VTK7})
   set(toolLibs ${toolLibs} ${${tool}_LIBS})
 endforeach(tool)
 

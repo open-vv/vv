@@ -4,12 +4,12 @@ version "1.0"
 purpose "Split an image into n images along a dimension"
 
 
-option "config"    -	"Config file"  		  string   no
-option "input"	   i 	"Input image filename"	  string   yes
-option "output"    o 	"Output image base filename"	  string   yes
-option "verbose"   v 	"Verbose"		  flag	   off
+option "config"     -  "Config file"                string  no
+option "input"      i  "Input image filename"       string  yes
+option "output"     o  "Output image base filename" string  yes
+option "verbose"    v  "Verbose"                    flag    off
 
-option "dimension"     d 	"Dimension to split on"  int yes
-option "png"       p 	"Png file format"		  flag	   off
-option "window"    w  "Window" double no
-option "level"     l  "Level"  double no
+option "dimension"  d  "Dimension to split on"      int     yes
+option "png"        p  "Png file format"            flag    off
+option "window"     w  "Window"                     double  no
+option "level"      l  "Level"                      double  no

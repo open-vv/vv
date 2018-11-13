@@ -50,7 +50,6 @@ test -f ${MACRODIR}/${MACROFILE} || error "invalid macro"
 if test "$(dnsdomainname)" = "in2p3.fr"
 then
     OUTPUTDIR=$(mktemp -d -p "${MACRODIR}" run.XXXX || error "can't create temp dir")
-    ssh -i ${HOME}/.ssh/ccin2p3 linux1.dg.creatis.insa-lyon.fr mkdir -p "cc/$(basename ${OUTPUTDIR})"
 else
     unamestr=`uname`
     if [[ "$unamestr" == 'Darwin' ]]; then

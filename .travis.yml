@@ -12,51 +12,60 @@ compiler:
     - gcc
     - clang
 env:
-    - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=5.5.1 C11=false
-    - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=false
-    - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=5.5.1 C11=false
-    - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=false
-    - WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.6 QT_VERSION=4.8.7 C11=false
-    - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=5.5.1 C11=true
-    - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=true
-    - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=5.5.1 C11=true
-    - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=true
-    - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=false
-    - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=false
-    - WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=true
-    - WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=true
+    - WITH_CMAKE=true VTK_VERSION=v5.10.0 ITK_VERSION=v4.6.0 QT_VERSION=4.8.7 C11=false
+    - WITH_CMAKE=true VTK_VERSION=v6.3.0 ITK_VERSION=v4.9.1 QT_VERSION=4.8.7 C11=false
+    - WITH_CMAKE=true VTK_VERSION=v6.3.0 ITK_VERSION=v4.9.1 QT_VERSION=5.5.1 C11=false
+    - WITH_CMAKE=true VTK_VERSION=v6.3.0 ITK_VERSION=v4.13.0 QT_VERSION=5.5.1 C11=false
+    - WITH_CMAKE=true VTK_VERSION=v7.0.0 ITK_VERSION=v4.9.1 QT_VERSION=4.8.7 C11=false
+    - WITH_CMAKE=true VTK_VERSION=v7.0.0 ITK_VERSION=v4.9.1 QT_VERSION=5.5.1 C11=false
+    - WITH_CMAKE=true VTK_VERSION=v7.0.0 ITK_VERSION=v4.13.0 QT_VERSION=5.5.1 C11=false
+    - WITH_CMAKE=true VTK_VERSION=v8.1.1 ITK_VERSION=v5.0b01 QT_VERSION=5.5.1 C11=false
+    - WITH_CMAKE=true VTK_VERSION=v6.3.0 ITK_VERSION=v4.9.1 QT_VERSION=4.8.7 C11=true
+    - WITH_CMAKE=true VTK_VERSION=v6.3.0 ITK_VERSION=v4.9.1 QT_VERSION=5.5.1 C11=true
+    - WITH_CMAKE=true VTK_VERSION=v6.3.0 ITK_VERSION=v4.13.0 QT_VERSION=5.5.1 C11=true
+    - WITH_CMAKE=true VTK_VERSION=v7.0.0 ITK_VERSION=v4.9.1 QT_VERSION=4.8.7 C11=true
+    - WITH_CMAKE=true VTK_VERSION=v7.0.0 ITK_VERSION=v4.9.1 QT_VERSION=5.5.1 C11=true
+    - WITH_CMAKE=true VTK_VERSION=v7.0.0 ITK_VERSION=v4.13.0 QT_VERSION=5.5.1 C11=true
+    - WITH_CMAKE=true VTK_VERSION=v8.1.1 ITK_VERSION=v5.0b01 QT_VERSION=5.5.1 C11=true
 
 matrix:
   exclude:
-  - os: osx
-    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.6 QT_VERSION=4.8.7 C11=false #VTK5.10 doesn't work with osX
-  - os: osx
-    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.6 QT_VERSION=4.8.7 C11=true #VTK5.10 doesn't work with osX
-  - os: osx
-    env: WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=false #Qt4 doesn't work with brew anymore
-  - os: osx
-    env: WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=true #Qt4 doesn't work with brew anymore
-  - os: osx
-    env: WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=false
-  - os: osx
-    env: WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.9.1 QT_VERSION=4.8.7 C11=true
+  - os: osx #VTK5.10, Qt4, ITK < 4.13 doesn't work with osX
   - os: linux
-    env: WITH_CMAKE=true VTK_VERSION=5.10 ITK_VERSION=4.6 QT_VERSION=4.8.7 C11=true #Problem with VTK 5.10 and c++11
+    env: WITH_CMAKE=true VTK_VERSION=v5.10.0 ITK_VERSION=v4.6.0 QT_VERSION=4.8.7 C11=true #Problem with VTK 5.10 and c++11
   - os: linux
     compiler: clang #Remove ITK with clang on linux
   include:
   - os: linux
     compiler: clang
-    env: WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=false
+    env: WITH_CMAKE=true VTK_VERSION=v7.0.0 ITK_VERSION=v4.13.0 QT_VERSION=5.5.1 C11=false
   - os: linux
     compiler: clang
-    env: WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=false
+    env: WITH_CMAKE=true VTK_VERSION=v6.3.0 ITK_VERSION=v4.13.0 QT_VERSION=5.5.1 C11=false
   - os: linux
     compiler: clang
-    env: WITH_CMAKE=true VTK_VERSION=7.0.0 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=true
+    env: WITH_CMAKE=true VTK_VERSION=v8.1.1 ITK_VERSION=v5.0b01 QT_VERSION=5.5.1 C11=false
   - os: linux
     compiler: clang
-    env: WITH_CMAKE=true VTK_VERSION=6.3 ITK_VERSION=4.13.0 QT_VERSION=5.5.1 C11=true
+    env: WITH_CMAKE=true VTK_VERSION=v7.0.0 ITK_VERSION=v4.13.0 QT_VERSION=5.5.1 C11=true
+  - os: linux
+    compiler: clang
+    env: WITH_CMAKE=true VTK_VERSION=v6.3.0 ITK_VERSION=v4.13.0 QT_VERSION=5.5.1 C11=true
+  - os: linux
+    compiler: clang
+    env: WITH_CMAKE=true VTK_VERSION=v8.1.1 ITK_VERSION=v5.0b01 QT_VERSION=5.5.1 C11=true
+  - os: osx
+    env: WITH_CMAKE=true VTK_VERSION=v6.3.0 ITK_VERSION=v4.13.0 QT_VERSION=5.5.1 C11=false
+  - os: osx
+    env: WITH_CMAKE=true VTK_VERSION=v7.0.0 ITK_VERSION=v4.13.0 QT_VERSION=5.5.1 C11=false
+  - os: osx
+    env: WITH_CMAKE=true VTK_VERSION=v8.1.1 ITK_VERSION=v5.0b01 QT_VERSION=5.5.1 C11=flase
+  - os: osx
+    env: WITH_CMAKE=true VTK_VERSION=v6.3.0 ITK_VERSION=v4.13.0 QT_VERSION=5.5.1 C11=true
+  - os: osx
+    env: WITH_CMAKE=true VTK_VERSION=v7.0.0 ITK_VERSION=v4.13.0 QT_VERSION=5.5.1 C11=true
+  - os: osx
+    env: WITH_CMAKE=true VTK_VERSION=v8.1.1 ITK_VERSION=v5.0b01 QT_VERSION=5.5.1 C11=true
 
 
 language: cpp
@@ -84,16 +93,17 @@ before_install:
 - export cwd=$(pwd)
 - export SCRIPTS=$cwd/travis
 - export EXTERNALS_DIR=$HOME
-- export VTK_SOURCE_DIR=${EXTERNALS_DIR}/vtk-${VTK_VERSION}
-- export VTK_DIR=${EXTERNALS_DIR}/vtk-${VTK_VERSION}-build
-- export ITK_SOURCE_DIR=${EXTERNALS_DIR}/itk-${ITK_VERSION}
-- export ITK_DIR=${EXTERNALS_DIR}/itk-${ITK_VERSION}-build
+- export VTK_SOURCE_DIR=${EXTERNALS_DIR}/vtk
+- export VTK_DIR=${EXTERNALS_DIR}/vtk-build
+- export ITK_SOURCE_DIR=${EXTERNALS_DIR}/itk
+- export ITK_DIR=${EXTERNALS_DIR}/itk-build
 - export BUILD_DIR=$cwd/build
 - if test $TRAVIS_OS_NAME == linux ; then sudo apt-get install -y -qq build-essential cmake; fi
 #Install qt5
 - $SCRIPTS/travis_build_qt.sh
 - if test $TRAVIS_OS_NAME == linux; then sudo apt-get -y install libgdcm2-dev libpq-dev; fi
 - if test $TRAVIS_OS_NAME == linux; then if [[ "$QT_VERSION" == "5.5.1" ]] ; then QTDIR="/opt/qt55" && PATH="$PATH:$QTDIR/bin" && qt55-env.sh ; fi; fi
+- if test $TRAVIS_OS_NAME == linux; then cd $HOME && wget https://cmake.org/files/v3.11/cmake-3.11.4-Linux-x86_64.tar.gz && tar -xzf cmake-3.11.4-Linux-x86_64.tar.gz && export PATH=$HOME/cmake-3.11.4-Linux-x86_64/bin:${PATH} ; fi
 - if test $TRAVIS_OS_NAME == osx ; then export HOMEBREW_QT_VERSION=$(brew list --versions qt | rev | cut -d' ' -f1 | rev); fi
 - if test $TRAVIS_OS_NAME == osx ; then brew install ccache; fi
 - if test $TRAVIS_OS_NAME == osx ; then export PATH="/usr/local/opt/qt/bin:/usr/local/opt/ccache/libexec:$PATH"; fi
@@ -101,18 +111,10 @@ before_install:
 
 cache:
  - directories:
-   - $HOME/vtk-5.10
-   - $HOME/vtk-5.10-build
-   - $HOME/vtk-6.3
-   - $HOME/vtk-6.3-build
-   - $HOME/vtk-7.0.0
-   - $HOME/vtk-7.0.0-build
-   - $HOME/itk-4.6
-   - $HOME/itk-4.6-build
-   - $HOME/itk-4.9.1
-   - $HOME/itk-4.9.1-build
-   - $HOME/itk-4.13.0
-   - $HOME/itk-4.13.0-build
+   - $HOME/vtk
+   - $HOME/vtk-build
+   - $HOME/itk
+   - $HOME/itk-build
    - '$HOME/.sonar/cache'
  - timeout: 10000
 

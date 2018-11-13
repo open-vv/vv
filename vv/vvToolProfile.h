@@ -29,7 +29,12 @@
 #include "vvToolWidgetBase.h"
 #include "vvImageContour.h"
 #include "vvLandmarks.h"
+#include <vtkVersion.h>
+#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 1) || VTK_MAJOR_VERSION >= 9
 #include "ui_vvToolProfile.h"
+#else
+#include "ui_vvToolProfileVTK7.h"
+#endif
 #include "vvBinaryImageOverlayActor.h"
 
 #include "clitkProfileImage_ggo.h"

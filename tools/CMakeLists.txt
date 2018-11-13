@@ -99,6 +99,16 @@ if(CLITK_BUILD_TOOLS)
   add_executable(clitkWriteDicomSeries clitkWriteDicomSeries.cxx ${clitkWriteDicomSeries_GGO_C})
   target_link_libraries(clitkWriteDicomSeries clitkCommon )
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkWriteDicomSeries)
+  
+  WRAP_GGO(clitkSpect2Dicom_GGO_C clitkSpect2Dicom.ggo)
+  add_executable(clitkSpect2Dicom clitkSpect2Dicom.cxx ${clitkSpect2Dicom_GGO_C})
+  target_link_libraries(clitkSpect2Dicom clitkCommon )
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkSpect2Dicom)
+
+  WRAP_GGO(clitkChangeDicomTag_GGO_C clitkChangeDicomTag.ggo)
+  add_executable(clitkChangeDicomTag clitkChangeDicomTag.cxx ${clitkChangeDicomTag_GGO_C})
+  target_link_libraries(clitkChangeDicomTag clitkCommon )
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkChangeDicomTag)
 
   WRAP_GGO(clitkGateSimulation2Dicom_GGO_C clitkGateSimulation2Dicom.ggo)
   add_executable(clitkGateSimulation2Dicom clitkGateSimulation2Dicom.cxx ${clitkGateSimulation2Dicom_GGO_C})
@@ -137,13 +147,14 @@ if(CLITK_BUILD_TOOLS)
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkInvertVF)
 
   WRAP_GGO(clitkAffineTransform_GGO_C clitkAffineTransform.ggo)
+  add_library(clitkAffineTransformLib clitkAffineTransform.cxx ${clitkAffineTransform_GGO_C})
   add_executable(clitkAffineTransform clitkAffineTransform.cxx ${clitkAffineTransform_GGO_C})
   target_link_libraries(clitkAffineTransform clitkCommon )
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkAffineTransform)
 
   WRAP_GGO(clitkElastixTransformToMatrix_GGO_C clitkElastixTransformToMatrix.ggo)
   add_executable(clitkElastixTransformToMatrix clitkElastixTransformToMatrix.cxx ${clitkElastixTransformToMatrix_GGO_C})
-  target_link_libraries(clitkElastixTransformToMatrix clitkCommon )
+  target_link_libraries(clitkElastixTransformToMatrix clitkAffineTransformLib clitkCommon )
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkElastixTransformToMatrix)
 
   WRAP_GGO(clitkMatrixToElastixTransform_GGO_C clitkMatrixToElastixTransform.ggo)
@@ -208,6 +219,11 @@ if(CLITK_BUILD_TOOLS)
     WRAP_GGO(clitkImage2DicomRTStruct_GGO_C clitkImage2DicomRTStruct.ggo)
     add_executable(clitkImage2DicomRTStruct clitkImage2DicomRTStruct.cxx ${clitkImage2DicomRTStruct_GGO_C})
     target_link_libraries(clitkImage2DicomRTStruct clitkDicomRTStruct)
+
+    #include pugiXML to parse XML
+    WRAP_GGO(clitkXml2DicomRTStruct_GGO_C clitkXml2DicomRTStruct.ggo)
+    add_executable(clitkXml2DicomRTStruct ../utilities/pugixml/pugixml.cpp clitkXml2DicomRTStruct.cxx ${clitkXml2DicomRTStruct_GGO_C})
+    target_link_libraries(clitkXml2DicomRTStruct clitkDicomRTStruct)
   endif()
 
   WRAP_GGO(clitkComposeVF_GGO_C clitkComposeVF.ggo)
@@ -297,6 +313,11 @@ if(CLITK_BUILD_TOOLS)
   add_executable(clitkSum clitkSum.cxx ${clitkSum_GGO_C})
   target_link_libraries(clitkSum clitkCommon)
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkSum)
+
+  WRAP_GGO(clitkExtrude_GGO_C clitkExtrude.ggo)
+  add_executable(clitkExtrude clitkExtrude.cxx ${clitkExtrude_GGO_C})
+  target_link_libraries(clitkExtrude clitkCommon)
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkExtrude)
 
   WRAP_GGO(clitkTransformLandmarks_GGO_C clitkTransformLandmarks.ggo)
   add_executable(clitkTransformLandmarks clitkTransformLandmarks.cxx ${clitkTransformLandmarks_GGO_C})

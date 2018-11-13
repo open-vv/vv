@@ -26,7 +26,7 @@
 #include <gdcmFile.h>
 #include <vtkVersion.h>
 #include <vtkImageChangeInformation.h>
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   #include <gdcmImageHelper.h>
   #include <gdcmAttribute.h>
   #include <gdcmReader.h>
@@ -64,7 +64,7 @@ int main(int argc, char * argv[])
   std::map< int, std::vector<double> > theorientation;
   std::map< int, std::vector<double> > sliceLocations;
   std::map< int, std::vector<std::string> > seriesFiles;
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   if (args_info.verbose_flag)
     std::cout << "Using GDCM-2.x" << std::endl;
 #else
@@ -76,7 +76,7 @@ int main(int argc, char * argv[])
   for(unsigned int i=0; i<args_info.inputs_num; i++) {
     if (args_info.verbose_flag)
         std::cout << "Reading <" << input_files[i] << std::endl;
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
     gdcm::Reader hreader;
     hreader.SetFileName(input_files[i].c_str());
     hreader.Read();
