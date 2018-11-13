@@ -120,7 +120,7 @@ void SUVPeakGenericFilter<args_info_type>::UpdateWithInputImageType()
   }
   typename ImageType::PointType p;
   output->TransformIndexToPhysicalPoint(index, p);
-  std::cout<<"SUV Peak found in "<< p << " with the value " << max << std::endl;
+  std::cout<<"SUV Peak found in "<< p << " mm with the value " << max << std::endl;
 }
 //--------------------------------------------------------------------
 
