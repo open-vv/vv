@@ -107,7 +107,7 @@ void RTStructStatisticsGenericFilter<args_info_type>::UpdateWithInputImageType()
 
   //Write statitistics on the largest component
   ShapeLabelObjectType *labelObject = labelMap->GetNthLabelObject(largestComponent);
-  std::cout << " Centroid: " << std::endl;
+  std::cout << " Centroid position (mm): " << std::endl;
   std::cout << labelObject->GetCentroid()[0] << std::endl;
   std::cout << labelObject->GetCentroid()[1] << std::endl;
   std::cout << labelObject->GetCentroid()[2] << std::endl;
