@@ -54,9 +54,9 @@ void SUVPeakGenericFilter<args_info_type>::SetArgsInfo(const args_info_type & a)
 
   // Set value
   this->SetIOVerbose(mArgsInfo.verbose_flag);
-  
+
   if (mArgsInfo.input_given) this->AddInputFilename(mArgsInfo.input_arg);
-  
+
   if (mArgsInfo.mask_given)  this->AddInputFilename(mArgsInfo.mask_arg);
   }
 //--------------------------------------------------------------------
@@ -88,7 +88,7 @@ void SUVPeakGenericFilter<args_info_type>::UpdateWithInputImageType()
   double volume = 1000; //1 cc into mc
   const double PI = 3.141592653589793238463;
   double radius = std::pow(3*volume/(4*PI),1./3);
-  
+
   typename ImageType::Pointer kernel = ComputeMeanFilterKernel<ImageType>(input->GetSpacing(), radius);
 
   // Perform the convolution
@@ -98,8 +98,8 @@ void SUVPeakGenericFilter<args_info_type>::UpdateWithInputImageType()
   filter->SetKernelImage(kernel);
   filter->Update();
   typename ImageType::Pointer output = filter->GetOutput();
-  
-  
+
+
   typedef itk::ImageRegionConstIteratorWithIndex<ImageType> IteratorType;
   typedef itk::ImageRegionConstIteratorWithIndex<MaskImageType> MIteratorType;
   IteratorType iters(output, output->GetLargestPossibleRegion());
@@ -128,7 +128,7 @@ void SUVPeakGenericFilter<args_info_type>::UpdateWithInputImageType()
 //--------------------------------------------------------------------
 template<class args_info_type>
 template<class ImageType>
-typename ImageType::Pointer 
+typename ImageType::Pointer
 SUVPeakGenericFilter<args_info_type>::ComputeMeanFilterKernel(const typename ImageType::SpacingType & spacing, double radius)
 {
   // Some kind of cache to speed up a bit

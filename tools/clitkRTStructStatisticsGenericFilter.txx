@@ -56,9 +56,9 @@ void RTStructStatisticsGenericFilter<args_info_type>::SetArgsInfo(const args_inf
 
   // Set value
   this->SetIOVerbose(mArgsInfo.verbose_flag);
-  
+
   if (mArgsInfo.input_given) this->AddInputFilename(mArgsInfo.input_arg);
-  
+
   }
 //--------------------------------------------------------------------
 
@@ -79,18 +79,18 @@ void RTStructStatisticsGenericFilter<args_info_type>::UpdateWithInputImageType()
   typedef itk::LabelMap< ShapeLabelObjectType > LabelMapType;
   typedef itk::ConnectedComponentImageFilter <MaskInputImageType, OutputImageType > ConnectedComponentImageFilterType;
   typedef itk::LabelImageToShapeLabelMapFilter< OutputImageType, LabelMapType> I2LType;
-  
+
   typename ConnectedComponentImageFilterType::Pointer connected = ConnectedComponentImageFilterType::New ();
   connected->SetInput(mask);
   connected->FullyConnectedOn();
   connected->Update();
-  
+
   //Create a map to contain all connectedComponent (even a little pixel)
   typename I2LType::Pointer i2l = I2LType::New();
   i2l->SetInput( connected->GetOutput() );
   i2l->SetComputePerimeter(true);
   i2l->Update();
-  
+
   // Retrieve the biggest component
   LabelMapType *labelMap = i2l->GetOutput();
   int largestComponent(0);
@@ -101,10 +101,10 @@ void RTStructStatisticsGenericFilter<args_info_type>::UpdateWithInputImageType()
     if (labelObject->GetNumberOfPixels() > nbPixel)
     {
         nbPixel = labelObject->GetNumberOfPixels();
-        largestComponent = n; 
+        largestComponent = n;
     }
   }
-  
+
   //Write statitistics on the largest component
   ShapeLabelObjectType *labelObject = labelMap->GetNthLabelObject(largestComponent);
   std::cout << " Centroid: " << std::endl;

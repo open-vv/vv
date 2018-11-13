@@ -1,7 +1,7 @@
 /*=========================================================================
   Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
-  Authors belong to: 
+  Authors belong to:
   - University of LYON              http://www.universite-lyon.fr/
   - Léon Bérard cancer center       http://www.centreleonberard.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
@@ -23,7 +23,7 @@
  * @author David Sarrut <David.Sarrut@creatis.insa-lyon.fr>
  * @date   23 Feb 2008 08:37:53
 
- * @brief  
+ * @brief
  -------------------------------------------------------------------*/
 
 // clitk include
@@ -39,14 +39,14 @@
 
 //--------------------------------------------------------------------
 namespace clitk {
-  
+
   template<class args_info_type>
   class ITK_EXPORT SUVPeakGenericFilter:
     public clitk::ImageToImageGenericFilter<SUVPeakGenericFilter<args_info_type> > {
-    
+
   public:
-	
-    // Constructor 
+
+    // Constructor
     SUVPeakGenericFilter ();
 
     // Types
@@ -57,9 +57,9 @@ namespace clitk {
 
     // New
     itkNewMacro(Self);
-    
-    
-    
+
+
+
     //--------------------------------------------------------------------
     void SetArgsInfo(const args_info_type & a);
 
@@ -68,11 +68,11 @@ namespace clitk {
 
     //--------------------------------------------------------------------
     // Main function called each time the filter is updated
-    template<class InputImageType>  
+    template<class InputImageType>
     void UpdateWithInputImageType();
 
-  protected:  
-    template<unsigned int Dim> void InitializeImageType();  
+  protected:
+    template<unsigned int Dim> void InitializeImageType();
     args_info_type mArgsInfo;
 
   }; // end class SUVPeakGenericFilter
@@ -80,7 +80,7 @@ namespace clitk {
 } // end namespace
 //--------------------------------------------------------------------
 
-  
+
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "clitkSUVPeakGenericFilter.txx"
 #endif
