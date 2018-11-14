@@ -44,18 +44,6 @@ function addToPartialResult {
     edep3=${edep3/#./0.}
     file3=$(echo $file3 |awk -v r=${edep3} '{$3=r}1')
 
-    # sqrt sum square std_edep*edep: get the 2 values, sum the square, take the sqrt and replace it in the file3
-    stdEdep1=$(echo ${file1} | cut -f4 -d' ')
-    stdEdep2=$(echo ${file2} | cut -f4 -d' ')
-    stdEdep3=$(python <<EOP
-import math;
-temp=$edep2*$stdEdep2;
-print(math.sqrt($stdEdep1*$stdEdep1+temp*temp))
-EOP
-    )
-    stdEdep3=${stdEdep3/#./0.}
-    file3=$(echo $file3 |awk -v r=${stdEdep3} '{$4=r}1')
-
     # sum square_edep: get the 2 values, sum them and replace it in the file3
     sqEdep1=$(echo ${file1} | cut -f5 -d' ')
     sqEdep2=$(echo ${file2} | cut -f5 -d' ')
@@ -69,18 +57,6 @@ EOP
     dose3=$(python -c "print($dose1+$dose2)")
     dose3=${dose3/#./0.}
     file3=$(echo $file3 |awk -v r=${dose3} '{$6=r}1')
-
-    # sqrt sum square std_dose*dose: get the 2 values, sum the square, take the sqrt and replace it in the file3
-    stdDose1=$(echo ${file1} | cut -f7 -d' ')
-    stdDose2=$(echo ${file2} | cut -f7 -d' ')
-    stdDose3=$(python <<EOP
-import math;
-temp=$dose2*$stdDose2;
-print(math.sqrt($stdDose1*$stdDose1+temp*temp))
-EOP
-    )
-    stdDose3=${stdDose3/#./0.}
-    file3=$(echo $file3 |awk -v r=${stdDose3} '{$7=r}1')
 
     # sum square_dose: get the 2 values, sum them and replace it in the file3
     sqDose1=$(echo ${file1} | cut -f8 -d' ')
@@ -107,94 +83,6 @@ EOP
   mv -f ${TMP} ${RESULT}
 }
 
-function addWithoutPartialResult {
-  IN1=$2
-  RESULT=$4
-
-  test -f ${IN1} || usage
-
-  TMP="$(mktemp)"
-
-  nblines=`cat ${IN1} | wc -l`
-
-  #Copy the 1st line in output
-  line1=`sed -n "1p" < ${IN1}`
-  echo "${line1}" >> ${TMP}
-  # for all lines (except the 1st), split according tab
-  # sum the some elements (dose, edep) ...
-  for i in $(seq 2 $nblines); do
-    #Get the lines
-    file1=`sed -n "${i}p" < ${IN1}`
-
-    # copy id
-    id1=$(echo ${file1} | cut -f1 -d' ')
-    id1=${id1/#./0.}
-    file3=$(echo $id1)
-
-    # copy volume
-    vol1=$(echo ${file1} | cut -f2 -d' ')
-    vol1=${vol1/#./0.}
-    file3=$(echo "$file3 $vol1")
-
-    # copy edep
-    edep1=$(echo ${file1} | cut -f3 -d' ')
-    edep1=${edep1/#./0.}
-    file3=$(echo "$file3 $edep1")
-
-    # sqrt sum square std_edep*edep
-    stdEdep1=$(echo ${file1} | cut -f4 -d' ')
-    stdEdep3=$(python <<EOP
-import math;
-temp=$edep1*$stdEdep1;
-print(math.sqrt(temp*temp))
-EOP
-    )
-    stdEdep3=${stdEdep3/#./0.}
-    file3=$(echo "$file3 $stdEdep3")
-
-    # copy square_edep
-    sqEdep1=$(echo ${file1} | cut -f5 -d' ')
-    sqEdep1=${sqEdep1/#./0.}
-    file3=$(echo "$file3 $sqEdep1")
-
-    # copy dose
-    dose1=$(echo ${file1} | cut -f6 -d' ')
-    dose1=${dose1/#./0.}
-    file3=$(echo "$file3 $dose1")
-
-    # sqrt sum square std_dose*dose
-    stdDose1=$(echo ${file1} | cut -f7 -d' ')
-    stdDose3=$(python <<EOP
-import math;
-temp=$dose1*$stdDose1;
-print(math.sqrt(temp*temp))
-EOP
-    )
-    stdDose3=${stdDose3/#./0.}
-    file3=$(echo "$file3 $stdDose3")
-
-    # copy square_dose
-    sqDose1=$(echo ${file1} | cut -f8 -d' ')
-    sqDose1=${sqDose1/#./0.}
-    file3=$(echo "$file3 $sqDose1")
-
-    # copy n_hits
-    hit1=$(echo ${file1} | cut -f9 -d' ')
-    hit1=${hit1/#./0.}
-    file3=$(echo "$file3 $hit1")
-
-    # copy n_event_hits
-    event1=$(echo ${file1} | cut -f10 -d' ')
-    event1=${event1/#./0.}
-    file3=$(echo "$file3 $event1")
-
-    #Write the output
-    echo "${file3}" >> ${TMP}
-  done
-  mv -f ${TMP} ${RESULT}
-}
-
-
 function divideUncertaintyResult {
   IN1=$2
   value=$4
@@ -202,7 +90,7 @@ function divideUncertaintyResult {
 
   TMP="$(mktemp)"
 
-  # check if all 3 text files have the same number of lines
+  # check if all 2 text files have the same number of lines
   nblines=`cat ${IN1} | wc -l`
   nb3=`cat ${RESULT} | wc -l`
 
@@ -223,13 +111,10 @@ function divideUncertaintyResult {
 
     # Divide uncertainty and replace it in the file3
     edep1=$(echo ${file1} | cut -f3 -d' ')
-    stdEdep1=$(echo ${file1} | cut -f4 -d' ')
+    sqEdep1=$(echo ${file1} | cut -f5 -d' ')
     stdEdep3=$(python <<EOP
-temp=$stdEdep1/$value
-if $edep1!=0:
-  temp/=$edep1
-if temp==0:
-  temp=1
+import math
+temp=math.sqrt(($sqEdep1/$value-pow($edep1/$value, 2))/($value-1))/$edep1/$value
 print(temp)
 EOP
     )
@@ -238,13 +123,10 @@ EOP
 
     # Divide uncertainty and replace it in the file3
     dose1=$(echo ${file1} | cut -f6 -d' ')
-    stdDose1=$(echo ${file1} | cut -f7 -d' ')
+    sqDose1=$(echo ${file1} | cut -f8 -d' ')
     stdDose3=$(python <<EOP
-temp=$stdDose1/$value
-if $dose1!=0:
-  temp/=$dose1
-if temp==0:
-  temp=1
+import math
+temp=math.sqrt(($sqDose1/$value-pow($dose1/$value, 2))/($value-1))/$dose1/$value
 print(temp)
 EOP
     )
