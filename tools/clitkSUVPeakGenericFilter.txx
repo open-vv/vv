@@ -19,6 +19,9 @@
 #define CLITKSUVPEAKGENERICFILTER_TXX
 
 #include "clitkImageCommon.h"
+#include "clitkCropLikeImageFilter.h"
+#include "clitkResampleImageWithOptionsFilter.h"
+
 #include <itkConvolutionImageFilter.h>
 
 namespace clitk
@@ -75,6 +78,34 @@ void SUVPeakGenericFilter<args_info_type>::UpdateWithInputImageType()
   typename MaskImageType::Pointer mask;
   if(mArgsInfo.mask_given) {
       mask = this->template GetInput<MaskImageType>(1);
+      // Check mask sampling/size
+      if (!HaveSameSizeAndSpacing<MaskImageType, ImageType>(mask, input)) {
+        if (mArgsInfo.allow_resize_flag) {
+          if (mArgsInfo.verbose_flag) {
+            std::cout << "Resize mask image like input" << std::endl;
+          }
+          typedef clitk::ResampleImageWithOptionsFilter<MaskImageType> ResamplerType;
+          typename ResamplerType::Pointer resampler = ResamplerType::New();
+          resampler->SetInput(mask); //By default the interpolation in NN, Ok for mask
+          resampler->SetOutputSpacing(input->GetSpacing());
+          resampler->SetOutputOrigin(mask->GetOrigin());
+          resampler->SetGaussianFilteringEnabled(false);
+          resampler->Update();
+          mask = resampler->GetOutput();
+
+          typedef clitk::CropLikeImageFilter<MaskImageType> FilterType;
+          typename FilterType::Pointer crop = FilterType::New();
+          crop->SetInput(mask);
+          crop->SetCropLikeImage(input);
+          crop->Update();
+          mask = crop->GetOutput();
+
+        }
+        else {
+          std::cerr << "Mask image has a different size/spacing than input. Abort. (Use option --allow_resize)" << std::endl;
+          exit(-1);
+        }
+      }
   }
   else {
       mask = MaskImageType::New();
