@@ -106,6 +106,8 @@ void clitk::CropImageGenericFilter::UpdateWithInputImageType()
   // Check options
   if (mArgsInfo.BG_given && mArgsInfo.like_given)
     clitkExceptionMacro("Do not use --BG and --like at the same time");
+  if (mArgsInfo.updateOrigin_flag && !mArgsInfo.like_given)
+    clitkExceptionMacro("Use --updateOrigin with --like");
 
   // Prepare output
   typename ImageType::Pointer output;
@@ -182,7 +184,7 @@ void clitk::CropImageGenericFilter::UpdateWithInputImageType()
   typename ImageType::IndexType index = region.GetIndex();
   typename ImageType::PointType origin = output->GetOrigin();
   typename ImageType::SpacingType spacing = output->GetSpacing();
-  if (!mArgsInfo.BG_given) {
+  if (!mArgsInfo.BG_given && (!mArgsInfo.like_given || mArgsInfo.updateOrigin_flag)) {
     if (mArgsInfo.verbose_flag) std::cout << "origin before crop " << origin << std::endl;
     input->TransformIndexToPhysicalPoint(index,origin);
     if (mArgsInfo.verbose_flag) std::cout << "origin after crop " << origin << std::endl;

@@ -1,7 +1,8 @@
 #File clitkCropImage.ggo
 package "clitkCropImage"
 version "1.0"
-purpose "Crop an image according to a given extends or AutoCrop with a background value or like another image"
+purpose "Crop an image according to a given extends or AutoCrop with a background value or like another image.
+In all cases, by default, the output origin is set to be able to overlay input and output without registration."
 
 option "config"	           -  "Config file"                 string  no
 option "imagetypes"        -  "Display allowed image types" flag    off
@@ -25,6 +26,7 @@ option "BG"		-	"Background value in input."      double default="0" no
 
 section "Crop like another image"
 option "like"		-	"Crop like this image (must have the same spacing"   string no
+option "updateOrigin"    	-   	"By default, with like image, the output origin is the same than the like image. Set to on the flag to keep the origin."	  flag 	off
 option "BGLike"		-	"Background value in output (if like larger)"        double default="0" no
 
 
