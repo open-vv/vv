@@ -4,31 +4,27 @@ version "1.0"
 purpose "Crop an image according to a given extends or AutoCrop with a background value or like another image.
 In all cases, by default, the output origin is set to be able to overlay input and output without registration."
 
-option "config"	           -  "Config file"                 string  no
-option "imagetypes"        -  "Display allowed image types" flag    off
-option "verbose"           v  "Verbose"			    flag    off
-option "verboseOption"     -  "Display options values"      flag    off
-option "verboseWarningOff" -  "Do not display warning"      flag    off
+option "config"             - "Config file"                                                                                                             string  no
+option "imagetypes"         - "Display allowed image types"                                                                                             flag    off
+option "verbose"            v "Verbose"                                                                                                                 flag    off
+option "verboseOption"      - "Display options values"                                                                                                  flag    off
+option "verboseWarningOff"  - "Do not display warning"                                                                                                  flag    off
 
 section "I/O"
 
-option "input"		i	"Input image filename"		  string  	yes
-option "output"    	o   	"Output image filename"		  string 	yes
+option "input"              i "Input image filename"                                                                                                    string  yes
+option "output"             o "Output image filename"                                                                                                   string  yes
 
 section "Used determined crop"
-option "boundingBox"   	b   	"Bounding box of the crop region in pixel (in 3D: =x1,x2,y1,y2,z1,z2)"  int 	no  multiple
-option "lower"    	l   	"Size of the lower crop region (multiple values)"	  int 	no  multiple
-option "upper"    	u   	"Size of the upper crop region (multiple values)"	  int 	no  multiple
-option "origin"    	-   	"Set new origin to zero"	  flag 	off  
+option "boundingBox"        b "Bounding box of the crop region in pixel (in 3D: =x1,x2,y1,y2,z1,z2)"                                                    int     no          multiple
+option "lower"              l "Size of the lower crop region (multiple values)"                                                                         int     no          multiple
+option "upper"              u "Size of the upper crop region (multiple values)"                                                                         int     no          multiple
+option "origin"             - "Set new origin to zero"                                                                                                  flag    off
 
 section "AutoCrop with BG value"
-option "BG"		-	"Background value in input."      double default="0" no
+option "BG"                 - "Background value in input."                                                                                              double  default="0" no
 
 section "Crop like another image"
-option "like"		-	"Crop like this image (must have the same spacing"   string no
-option "updateOrigin"    	-   	"By default, with like image, the output origin is the same than the like image. Set to on the flag to keep the origin."	  flag 	off
-option "BGLike"		-	"Background value in output (if like larger)"        double default="0" no
-
-
-
-
+option "like"               - "Crop like this image (must have the same spacing"                                                                        string  no
+option "updateOrigin"       - "By default, with like image, the output origin is the same than the like image. Set to on the flag to keep the origin."  flag    off
+option "BGLike"             - "Background value in output (if like larger)"                                                                             double  default="0" no
