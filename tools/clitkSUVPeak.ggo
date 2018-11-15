@@ -12,3 +12,4 @@ option "verbose"  v "Verbose"                     flag    off
 option "input"    i "Input first image filename"  string  yes
 option "mask"     m "Mask image filename (uchar)" string  no
 option "allow_resize" r "Resize mask if different from input" flag    off
+option "volume"       - "Volume of the filter in cc"          double  default="1" no

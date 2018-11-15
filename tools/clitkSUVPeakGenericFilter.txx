@@ -117,6 +117,8 @@ void SUVPeakGenericFilter<args_info_type>::UpdateWithInputImageType()
   }
 
   double volume = 1000; //1 cc into mc
+  if (mArgsInfo.volume_given)
+    volume *= mArgsInfo.volume_arg;
   const double PI = 3.141592653589793238463;
   double radius = std::pow(3*volume/(4*PI),1./3);
 
