@@ -16,7 +16,7 @@ option "input"		i	"Input image filename"		  string  	yes
 option "output"    	o   	"Output image filename"		  string 	yes
 
 section "Used determined crop"
-option "boundingBox"   	b   	"Bounding box of the crop region (in 3D: =x1,x2,y1,y2,z1,z2)"  int 	no  multiple
+option "boundingBox"   	b   	"Bounding box of the crop region in pixel (in 3D: =x1,x2,y1,y2,z1,z2)"  int 	no  multiple
 option "lower"    	l   	"Size of the lower crop region (multiple values)"	  int 	no  multiple
 option "upper"    	u   	"Size of the upper crop region (multiple values)"	  int 	no  multiple
 option "origin"    	-   	"Set new origin to zero"	  flag 	off  
