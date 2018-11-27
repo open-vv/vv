@@ -7,9 +7,9 @@ function usage {
 }
 
 function addToPartialResult {
-  IN1=$2
-  IN2=$4
-  RESULT=$6
+  IN1=$2 #merged file for previous jobs
+  IN2=$4 # current job
+  RESULT=$6 #output merged file
 
   test -f ${IN1} && test -f ${IN2} || usage
 
