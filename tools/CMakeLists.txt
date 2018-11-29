@@ -54,6 +54,11 @@ if(CLITK_BUILD_TOOLS)
   target_link_libraries(clitkImageInfo clitkCommon)
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageInfo)
 
+  WRAP_GGO(clitkScintivolStats_GGO_C clitkScintivolStats.ggo)
+  add_executable(clitkScintivolStats clitkScintivolStats.cxx ${clitkScintivolStats_GGO_C})
+  target_link_libraries(clitkScintivolStats clitkCommon)
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkScintivolStats)
+
   add_executable(clitkImageConvert clitkImageConvert.cxx)
   target_link_libraries(clitkImageConvert clitkImageConvertLib clitkCommon)
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkImageConvert)
