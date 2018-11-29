@@ -94,6 +94,10 @@ namespace clitk
       //       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and signed_char..." << std::endl;
       //       UpdateWithDimAndPixelType<Dimension, signed char>();
       //     }
+      else if(PixelType == "double"){
+        if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and double..." << std::endl;
+        UpdateWithDimAndPixelType<Dimension, double>();
+      }
       else {
         if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and float..." << std::endl;
         UpdateWithDimAndPixelType<Dimension, float>();
