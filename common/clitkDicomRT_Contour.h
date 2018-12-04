@@ -22,7 +22,7 @@
 
 #include "clitkCommon.h" 
 #include <gdcmFile.h>
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
 #else
 #include <gdcm.h>
 #include <gdcmSQItem.h>
@@ -44,7 +44,7 @@ public:
 
   void Print(std::ostream & os = std::cout) const;
 
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   bool Read(gdcm::Item * item);
   void UpdateDicomItem();
 #else
@@ -71,7 +71,7 @@ protected:
   ///Z location of the contour
   double mZ;
   
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   gdcm::Item * mItem;
 #else
   gdcm::SQItem * mItem;

@@ -26,7 +26,7 @@
 #include <gdcmFile.h>
 #include <vtkVersion.h>
 #include <vtkImageChangeInformation.h>
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   #include <gdcmImageHelper.h>
   #include <gdcmAttribute.h>
   #include <gdcmReader.h>
@@ -64,7 +64,7 @@ int main(int argc, char * argv[])
   std::map< int, std::vector<double> > theorientation;
   std::map< int, std::vector<double> > sliceLocations;
   std::map< int, std::vector<std::string> > seriesFiles;
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   if (args_info.verbose_flag)
     std::cout << "Using GDCM-2.x" << std::endl;
 #else
@@ -76,7 +76,7 @@ int main(int argc, char * argv[])
   for(unsigned int i=0; i<args_info.inputs_num; i++) {
     if (args_info.verbose_flag)
         std::cout << "Reading <" << input_files[i] << std::endl;
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
     gdcm::Reader hreader;
     hreader.SetFileName(input_files[i].c_str());
     hreader.Read();
@@ -91,7 +91,7 @@ int main(int argc, char * argv[])
     series_numbers.insert(series_number);
     theorigin[series_number] = gdcm::ImageHelper::GetOriginValue(hreader.GetFile());
     theorientation[series_number] = gdcm::ImageHelper::GetDirectionCosinesValue(hreader.GetFile());
-    if (args_info.extract_series_flag) {
+    if (args_info.patientSystem_flag) {
       double n1 = theorientation[series_number][1]*theorientation[series_number][5]-
                   theorientation[series_number][2]*theorientation[series_number][4];
       double n2 = theorientation[series_number][3]*theorientation[series_number][2]-
@@ -241,7 +241,7 @@ int main(int argc, char * argv[])
     }
     vvImageWriter::Pointer writer = vvImageWriter::New();
     writer->SetInput(image);
-    if (args_info.extract_series_flag && !image->GetTransform().empty())
+    if (args_info.patientSystem_flag && !image->GetTransform().empty())
       writer->SetSaveTransform(true);
     writer->SetOutputFileName(outfile);
     writer->Update();

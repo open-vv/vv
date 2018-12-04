@@ -1,16 +1,16 @@
 #=========================================================
 
+if(CLITK_BUILD_REGISTRATION)
 # Add Libraries used in vv and clitk to avoid recompilation
-WRAP_GGO(clitkAffineRegistration_GGO_C clitkAffineRegistration.ggo)
-add_library(clitkAffineRegistrationLib
-            clitkAffineRegistrationGenericFilter.cxx
-            ${clitkAffineRegistration_GGO_C}
-            clitkLBFGSBOptimizer.cxx
-            clitkGenericAffineTransform.cxx)
+    WRAP_GGO(clitkAffineRegistration_GGO_C clitkAffineRegistration.ggo)
+    add_library(clitkAffineRegistrationLib
+                clitkAffineRegistrationGenericFilter.cxx
+                ${clitkAffineRegistration_GGO_C}
+                clitkLBFGSBOptimizer.cxx
+                clitkGenericAffineTransform.cxx)
 
 #=========================================================
 
-if(CLITK_BUILD_REGISTRATION)
     ############################## registration algorithms
     add_executable(clitkAffineRegistration clitkAffineRegistration.cxx)
     target_link_libraries(clitkAffineRegistration  clitkAffineRegistrationLib clitkCommon)

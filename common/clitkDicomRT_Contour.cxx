@@ -20,7 +20,7 @@
 #include "clitkDicomRT_Contour.h"
 #include <vtkCellArray.h>
 
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
 #include "gdcmAttribute.h"
 #include "gdcmItem.h"
 #endif
@@ -53,7 +53,7 @@ void clitk::DicomRT_Contour::Print(std::ostream & os) const
 
 
 //--------------------------------------------------------------------
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
 void clitk::DicomRT_Contour::UpdateDicomItem()
 {
   DD("DicomRT_Contour::UpdateDicomItem");
@@ -119,7 +119,7 @@ void clitk::DicomRT_Contour::UpdateDicomItem()
 
 
 //--------------------------------------------------------------------
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
 bool clitk::DicomRT_Contour::Read(gdcm::Item * item)
 {
   mItem = item;

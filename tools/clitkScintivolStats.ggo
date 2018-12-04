@@ -1,0 +1,23 @@
+# file clitkScintivolStats.ggo
+package "clitkScintivolStats"
+version "1.0"
+purpose "Convert an image into another image.\n\tAllow to change the file format and/or the pixel type. \n\tKnown file formats 2D: jpeg png bmp tif mhd hdr vox dcm \n\tKnown file formats 3D: mhd vox hdr dcm\n\tKnown file formats 4D: mhd \n\tKnown images: 2D 3D or 4D, schar, uchar, short, ushort, int, float and double\n\nIf the -o option is not given, the last parameter of the command line is used as output."
+
+option "config"      - "Config file"  	                                                    string no
+option "output"      o "Output .csv filename"                                               string yes
+option "append"      - "Append results to .csv file (eg: for scatter)"                      flag   off
+
+option "dynamic1"              - "Dynamique 1 filename (geometrical mean)"                string yes
+option "frameDurationDynamic1" - "Frame duration for dynamique 1"                         double yes
+option "heartMask"               - "Heart mask filename"                                    string yes
+option "liverMask"               - "Liver mask filename"                                    string yes
+
+option "dynamic2"              - "Dynamique 2 filename (geometrical mean)"                string yes
+option "frameDurationDynamic2" - "Frame duration for dynamique 2"                         double yes
+option "acquisitionTimeDynamic2" - "Start acquisition time of the dynamic2 after dynamic1"  double yes
+option "parenchymaMask"          - "Parenchyma mask filename"                               string yes
+
+option "tomo"                    - "Tomo image filename"                                    string yes
+option "acquisitionTimeTomo"     - "Acquisition time for tomo"                              double yes
+option "totalLiverMask"          - "Total liver mask filename"                              string yes
+option "remnantLiverMask"        - "Remnant liver mask filename"                            string yes

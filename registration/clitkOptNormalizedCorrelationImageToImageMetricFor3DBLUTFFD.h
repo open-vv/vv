@@ -95,7 +95,11 @@ public:
    *  (2) uniformly select NumberOfSpatialSamples within
    *      the FixedImageRegion, and
    *  (3) allocate memory for pdf data structures. */
+#if ( ( ITK_VERSION_MAJOR == 4 ) && ( ITK_VERSION_MINOR > 12 ) || ( ITK_VERSION_MAJOR > 4 ))
+  virtual void Initialize(void) ITK_OVERRIDE;
+#else
   virtual void Initialize(void) throw ( itk::ExceptionObject ) ITK_OVERRIDE;
+#endif
 
   /**  Get the value. */
   MeasureType GetValue( const ParametersType & parameters ) const ITK_OVERRIDE;

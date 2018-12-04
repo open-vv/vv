@@ -1,0 +1,159 @@
+<ui version="4.0" >
+ <class>vvSegmentationDialog</class>
+ <widget class="QDialog" name="vvSegmentationDialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>561</width>
+    <height>453</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Segmentation tool</string>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" >
+    <widget class="QSlider" name="clipping1Slider" >
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" >
+    <widget class="QSlider" name="clipping2Slider" >
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item rowspan="4" row="0" column="2" colspan="6" >
+    <widget class="QVTKWidget" name="viewWidget" />
+   </item>
+   <item row="1" column="0" >
+    <widget class="QLabel" name="minLabel" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text" >
+      <string>Min :</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2" >
+    <widget class="QLabel" name="maxLabel" >
+     <property name="text" >
+      <string>Max :</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2" >
+    <widget class="QPushButton" name="binaryButton" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text" >
+      <string>Binarise</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2" >
+    <widget class="QPushButton" name="erodeButton" >
+     <property name="text" >
+      <string>Erode</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="2" >
+    <widget class="QPushButton" name="dilateButton" >
+     <property name="text" >
+      <string>Dilate</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="3" >
+    <widget class="QLabel" name="label" >
+     <property name="text" >
+      <string>Kernel Size :</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="4" >
+    <widget class="QSpinBox" name="kernelSpinBox" >
+     <property name="minimum" >
+      <number>1</number>
+     </property>
+     <property name="value" >
+      <number>2</number>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="5" >
+    <widget class="QPushButton" name="dimButton" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text" >
+      <string>3D</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="6" >
+    <widget class="QPushButton" name="saveButton" >
+     <property name="text" >
+      <string>Save As</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="7" >
+    <widget class="QPushButton" name="closeButton" >
+     <property name="text" >
+      <string>Close</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="5" >
+    <widget class="QLabel" name="infoLabel" >
+     <property name="text" >
+      <string>TextLabel</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QVTKWidget</class>
+   <extends>QWidget</extends>
+   <header>QVTKWidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>closeButton</sender>
+   <signal>clicked()</signal>
+   <receiver>vvSegmentationDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>528</x>
+     <y>403</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>542</x>
+     <y>423</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -250,7 +250,7 @@ void vvOverlayPanel::getCurrentFusionInfo(int visibility,double value)
 {
   QString fusionValue = "<b>Pixel value in image 2 : </b>";
   if (visibility) {
-    fusionValue += QString::number(value,'f',1);
+    fusionValue += QString::number(value,'g',3);
   }
   valueFusionnedLabel->setText(fusionValue);
 }

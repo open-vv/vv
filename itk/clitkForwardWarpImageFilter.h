@@ -71,10 +71,18 @@ namespace clitk
     itkSetMacro( Verbose, bool);
     itkSetMacro( EdgePaddingValue, PixelType );
     itkSetMacro( DeformationField, typename DeformationFieldType::Pointer);
+#if ITK_VERSION_MAJOR <= 4
     void SetNumberOfThreads(unsigned int r )
+#else
+    void SetNumberOfWorkUnits(unsigned int r )
+#endif
     {
       m_NumberOfThreadsIsGiven=true;
+#if ITK_VERSION_MAJOR <= 4
       m_NumberOfThreads=r;
+#else
+      m_NumberOfWorkUnits=r;
+#endif
     }
     itkSetMacro(ThreadSafe, bool);
  
@@ -102,7 +110,11 @@ namespace clitk
   private:
     bool m_Verbose;
     bool m_NumberOfThreadsIsGiven;
+#if ITK_VERSION_MAJOR <= 4
     unsigned int m_NumberOfThreads;
+#else
+    unsigned int m_NumberOfWorkUnits;
+#endif
     PixelType m_EdgePaddingValue;
     typename DeformationFieldType::Pointer m_DeformationField;
     bool m_ThreadSafe;

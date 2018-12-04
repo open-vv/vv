@@ -100,7 +100,11 @@ MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 template <class TFixedImage, class TMovingImage>
 void
 MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
+#if ( ( ITK_VERSION_MAJOR == 4 ) && ( ITK_VERSION_MINOR > 12 ) || ( ITK_VERSION_MAJOR > 4 ))
+::Initialize(void)
+#else
 ::Initialize(void) throw ( ExceptionObject )
+#endif
 {
 
   this->Superclass::Initialize();
@@ -109,13 +113,22 @@ MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   if(m_ThreaderMSE != NULL) {
     delete [] m_ThreaderMSE;
   }
+#if ITK_VERSION_MAJOR <= 4
   m_ThreaderMSE = new double[this->m_NumberOfThreads];
+#else
+  m_ThreaderMSE = new double[this->m_NumberOfWorkUnits];
+#endif
 
   if(m_ThreaderMSEDerivatives != NULL) {
     delete [] m_ThreaderMSEDerivatives;
   }
+#if ITK_VERSION_MAJOR <= 4
   m_ThreaderMSEDerivatives = new DerivativeType[this->m_NumberOfThreads];
   for(unsigned int threadID=0; threadID<this->m_NumberOfThreads; threadID++) {
+#else
+  m_ThreaderMSEDerivatives = new DerivativeType[this->m_NumberOfWorkUnits];
+  for(unsigned int threadID=0; threadID<this->m_NumberOfWorkUnits; threadID++) {
+#endif
     m_ThreaderMSEDerivatives[threadID].SetSize( this->m_NumberOfParameters );
   }
 }
@@ -147,9 +160,11 @@ MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
     itkExceptionMacro( << "Fixed image has not been assigned" );
   }
 
-  memset( m_ThreaderMSE,
-          0,
-          this->m_NumberOfThreads * sizeof(MeasureType) );
+#if ITK_VERSION_MAJOR <= 4
+  memset( m_ThreaderMSE, 0, this->m_NumberOfThreads * sizeof(MeasureType) );
+#else
+  memset( m_ThreaderMSE, 0, this->m_NumberOfWorkUnits * sizeof(MeasureType) );
+#endif
 
   // Set up the parameters in the transform
   this->m_Transform->SetParameters( parameters );
@@ -171,7 +186,11 @@ MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   }
 
   double mse = m_ThreaderMSE[0];
+#if ITK_VERSION_MAJOR <= 4
   for(unsigned int t=1; t<this->m_NumberOfThreads; t++) {
+#else
+  for(unsigned int t=1; t<this->m_NumberOfWorkUnits; t++) {
+#endif
     mse += m_ThreaderMSE[t];
   }
   mse /= this->m_NumberOfPixelsCounted;
@@ -252,9 +271,11 @@ MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   this->m_Transform->SetParameters( parameters );
 
   // Reset the joint pdfs to zero
-  memset( m_ThreaderMSE,
-          0,
-          this->m_NumberOfThreads * sizeof(MeasureType) );
+#if ITK_VERSION_MAJOR <= 4
+  memset( m_ThreaderMSE, 0, this->m_NumberOfThreads * sizeof(MeasureType) );
+#else
+  memset( m_ThreaderMSE, 0, this->m_NumberOfWorkUnits * sizeof(MeasureType) );
+#endif
 
   // Set output values to zero
   if(derivative.GetSize() != this->m_NumberOfParameters) {
@@ -264,7 +285,11 @@ MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
           0,
           this->m_NumberOfParameters * sizeof(double) );
 
+#if ITK_VERSION_MAJOR <= 4
   for( unsigned int threadID = 0; threadID<this->m_NumberOfThreads; threadID++ ) {
+#else
+  for( unsigned int threadID = 0; threadID<this->m_NumberOfWorkUnits; threadID++ ) {
+#endif
     memset( m_ThreaderMSEDerivatives[threadID].data_block(),
             0,
             this->m_NumberOfParameters * sizeof(double) );
@@ -287,7 +312,11 @@ MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   }
 
   value = 0;
+#if ITK_VERSION_MAJOR <= 4
   for(unsigned int t=0; t<this->m_NumberOfThreads; t++) {
+#else
+  for(unsigned int t=0; t<this->m_NumberOfWorkUnits; t++) {
+#endif
     value += m_ThreaderMSE[t];
     for(unsigned int parameter = 0; parameter < this->m_NumberOfParameters;
         parameter++) {

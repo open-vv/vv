@@ -117,7 +117,11 @@ NormalizedCorrelationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 template <class TFixedImage, class TMovingImage>
 void
 NormalizedCorrelationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
+#if ( ( ITK_VERSION_MAJOR == 4 ) && ( ITK_VERSION_MINOR > 12 ) || ( ITK_VERSION_MAJOR > 4 ))
+::Initialize(void)
+#else
 ::Initialize(void) throw ( itk::ExceptionObject )
+#endif
 {
 
   this->Superclass::Initialize();
@@ -130,44 +134,74 @@ NormalizedCorrelationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   if(m_ThreaderSFF != NULL) {
     delete [] m_ThreaderSFF;
   }
+#if ITK_VERSION_MAJOR <= 4
   m_ThreaderSFF = new double[this->m_NumberOfThreads];
+#else
+  m_ThreaderSFF = new double[this->m_NumberOfWorkUnits];
+#endif
 
 
   if(m_ThreaderSMM != NULL) {
     delete [] m_ThreaderSMM;
   }
+#if ITK_VERSION_MAJOR <= 4
   m_ThreaderSMM = new double[this->m_NumberOfThreads];
+#else
+  m_ThreaderSMM = new double[this->m_NumberOfWorkUnits];
+#endif
 
   if(m_ThreaderSFM != NULL) {
     delete [] m_ThreaderSFM;
   }
+#if ITK_VERSION_MAJOR <= 4
   m_ThreaderSFM = new double[this->m_NumberOfThreads];
+#else
+  m_ThreaderSFM = new double[this->m_NumberOfWorkUnits];
+#endif
 
   if(this->m_SubtractMean) {
     if(m_ThreaderSF != NULL) {
       delete [] m_ThreaderSF;
     }
+#if ITK_VERSION_MAJOR <= 4
     m_ThreaderSF = new double[this->m_NumberOfThreads];
+#else
+    m_ThreaderSF = new double[this->m_NumberOfWorkUnits];
+#endif
 
     if(m_ThreaderSM != NULL) {
       delete [] m_ThreaderSM;
     }
+#if ITK_VERSION_MAJOR <= 4
     m_ThreaderSM = new double[this->m_NumberOfThreads];
+#else
+    m_ThreaderSM = new double[this->m_NumberOfWorkUnits];
+#endif
   }
 
   if(m_ThreaderDerivativeF != NULL) {
     delete [] m_ThreaderDerivativeF;
   }
+#if ITK_VERSION_MAJOR <= 4
   m_ThreaderDerivativeF = new DerivativeType[this->m_NumberOfThreads];
   for(unsigned int threadID=0; threadID<this->m_NumberOfThreads; threadID++) {
+#else
+  m_ThreaderDerivativeF = new DerivativeType[this->m_NumberOfWorkUnits];
+  for(unsigned int threadID=0; threadID<this->m_NumberOfWorkUnits; threadID++) {
+#endif
     m_ThreaderDerivativeF[threadID].SetSize( this->m_NumberOfParameters );
   }
 
   if(m_ThreaderDerivativeM != NULL) {
     delete [] m_ThreaderDerivativeM;
   }
+#if ITK_VERSION_MAJOR <= 4
   m_ThreaderDerivativeM = new DerivativeType[this->m_NumberOfThreads];
   for(unsigned int threadID=0; threadID<this->m_NumberOfThreads; threadID++) {
+#else
+  m_ThreaderDerivativeM = new DerivativeType[this->m_NumberOfWorkUnits];
+  for(unsigned int threadID=0; threadID<this->m_NumberOfWorkUnits; threadID++) {
+#endif
     m_ThreaderDerivativeM[threadID].SetSize( this->m_NumberOfParameters );
   }
 }
@@ -208,12 +242,23 @@ NormalizedCorrelationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 
 
   //Reset the accumulators
+#if ITK_VERSION_MAJOR <= 4
   memset( m_ThreaderSFF,  0,  this->m_NumberOfThreads * sizeof(AccumulateType) );
   memset( m_ThreaderSMM,  0,  this->m_NumberOfThreads * sizeof(AccumulateType) );
   memset( m_ThreaderSFM,  0,  this->m_NumberOfThreads * sizeof(AccumulateType) );
+#else
+  memset( m_ThreaderSFF,  0,  this->m_NumberOfWorkUnits * sizeof(AccumulateType) );
+  memset( m_ThreaderSMM,  0,  this->m_NumberOfWorkUnits * sizeof(AccumulateType) );
+  memset( m_ThreaderSFM,  0,  this->m_NumberOfWorkUnits * sizeof(AccumulateType) );
+#endif
   if(this->m_SubtractMean) {
+#if ITK_VERSION_MAJOR <= 4
     memset( m_ThreaderSF,  0,  this->m_NumberOfThreads * sizeof(AccumulateType) );
     memset( m_ThreaderSM,  0,  this->m_NumberOfThreads * sizeof(AccumulateType) );
+#else
+    memset( m_ThreaderSF,  0,  this->m_NumberOfWorkUnits * sizeof(AccumulateType) );
+    memset( m_ThreaderSM,  0,  this->m_NumberOfWorkUnits * sizeof(AccumulateType) );
+#endif
   }
 
 
@@ -244,7 +289,11 @@ NormalizedCorrelationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   sf  = m_ThreaderSF[0];
   sm  = m_ThreaderSM[0];
 
+#if ITK_VERSION_MAJOR <= 4
   for(unsigned int t=1; t<this->m_NumberOfThreads; t++) {
+#else
+  for(unsigned int t=1; t<this->m_NumberOfWorkUnits; t++) {
+#endif
     sff +=  m_ThreaderSFF[t];
     smm +=  m_ThreaderSMM[t];
     sfm +=  m_ThreaderSFM[t];
@@ -282,12 +331,23 @@ NormalizedCorrelationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 {
   //No checking for the fixed image,  done in the caller
   //Reset the accumulators
+#if ITK_VERSION_MAJOR <= 4
   memset( m_ThreaderSFF,  0,  this->m_NumberOfThreads * sizeof(AccumulateType) );
   memset( m_ThreaderSMM,  0,  this->m_NumberOfThreads * sizeof(AccumulateType) );
   memset( m_ThreaderSFM,  0,  this->m_NumberOfThreads * sizeof(AccumulateType) );
+#else
+  memset( m_ThreaderSFF,  0,  this->m_NumberOfWorkUnits * sizeof(AccumulateType) );
+  memset( m_ThreaderSMM,  0,  this->m_NumberOfWorkUnits * sizeof(AccumulateType) );
+  memset( m_ThreaderSFM,  0,  this->m_NumberOfWorkUnits * sizeof(AccumulateType) );
+#endif
   if(this->m_SubtractMean) {
+#if ITK_VERSION_MAJOR <= 4
     memset( m_ThreaderSF,  0,  this->m_NumberOfThreads * sizeof(AccumulateType) );
     memset( m_ThreaderSM,  0,  this->m_NumberOfThreads * sizeof(AccumulateType) );
+#else
+    memset( m_ThreaderSF,  0,  this->m_NumberOfWorkUnits * sizeof(AccumulateType) );
+    memset( m_ThreaderSM,  0,  this->m_NumberOfWorkUnits * sizeof(AccumulateType) );
+#endif
   }
 
 
@@ -317,7 +377,11 @@ NormalizedCorrelationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   m_SF  = m_ThreaderSF[0];
   m_SM  = m_ThreaderSM[0];
 
+#if ITK_VERSION_MAJOR <= 4
   for(unsigned int t=1; t<this->m_NumberOfThreads; t++) {
+#else
+  for(unsigned int t=1; t<this->m_NumberOfWorkUnits; t++) {
+#endif
     m_SFF +=  m_ThreaderSFF[t];
     m_SMM +=  m_ThreaderSMM[t];
     m_SFM +=  m_ThreaderSFM[t];
@@ -457,7 +521,11 @@ NormalizedCorrelationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
           0,
           this->m_NumberOfParameters * sizeof(typename DerivativeType::ValueType) );
 
+#if ITK_VERSION_MAJOR <= 4
   for( unsigned int threadID = 0; threadID<this->m_NumberOfThreads; threadID++ ) {
+#else
+  for( unsigned int threadID = 0; threadID<this->m_NumberOfWorkUnits; threadID++ ) {
+#endif
     memset( m_ThreaderDerivativeF[threadID].data_block(),
             0,
             this->m_NumberOfParameters * sizeof(typename DerivativeType::ValueType) );
@@ -472,7 +540,11 @@ NormalizedCorrelationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 
   // Accumulate over the threads
   DerivativeType derivativeF(this->m_NumberOfParameters), derivativeM(this->m_NumberOfParameters);
+#if ITK_VERSION_MAJOR <= 4
   for(unsigned int t=0; t<this->m_NumberOfThreads; t++) {
+#else
+  for(unsigned int t=0; t<this->m_NumberOfWorkUnits; t++) {
+#endif
     for(unsigned int parameter = 0; parameter < this->m_NumberOfParameters; parameter++) {
       derivativeF[parameter] += m_ThreaderDerivativeF[t][parameter];
       derivativeM[parameter] += m_ThreaderDerivativeM[t][parameter];

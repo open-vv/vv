@@ -79,7 +79,7 @@ public:
   void SetName(std::string n) { mName = n; }
 
   // Read from DICOM RT STRUCT
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   bool Read(gdcm::Item * itemInfo, gdcm::Item * itemContour);
   void UpdateDicomItem();
 #else
@@ -104,7 +104,7 @@ protected:
   double mForegroundValue;
   bool m_DicomUptodateFlag;
 
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   gdcm::Item * mItemInfo;
   gdcm::Item * mItemContour;
   gdcm::SmartPointer<gdcm::SequenceOfItems> mContoursSequenceOfItems;

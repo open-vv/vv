@@ -311,7 +311,11 @@ void vvToolHistogram::InputIsSelected(vvSlicerManager * m)
 
 
 //------------------------------------------------------------------------------
+#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 1) || VTK_MAJOR_VERSION >= 9
+QVTKOpenGLNativeWidget* vvToolHistogram::GetHistogramWidget()
+#else
 QVTKWidget* vvToolHistogram::GetHistogramWidget()
+#endif
 {
   return(HistogramWidget);
 }

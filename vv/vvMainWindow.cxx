@@ -18,6 +18,7 @@ It is distributed under dual licence
 
 #include <algorithm>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QInputDialog>
 #include <QTimer>
 #include "QTreePushButton.h"
@@ -131,6 +132,8 @@ It is distributed under dual licence
 vvMainWindow::vvMainWindow():vvMainWindowBase()
 { 
   setupUi(this); // this sets up the GUI
+
+  setAcceptDrops(true); // enable to drop into the window
 
   setDicomClient();
 
@@ -813,6 +816,25 @@ void vvMainWindow::OpenRecentImage()
   std::vector<std::string> images;
   images.push_back(caller->text().toStdString());
   mInputPathName = itksys::SystemTools::GetFilenamePath(images[0]).c_str();
+  LoadImages(images, vvImageReader::IMAGE);
+}
+//------------------------------------------------------------------------------
+void vvMainWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+  if (event->mimeData()->hasUrls()) {
+    event->acceptProposedAction();
+  }
+}
+//------------------------------------------------------------------------------
+void vvMainWindow::dropEvent(QDropEvent *event)
+{
+  const QMimeData * mimeData = event->mimeData();
+  if (!mimeData->hasUrls())
+    return;
+  std::vector<std::string> images;
+  for (int i=0; i<mimeData->urls().size(); ++i) {
+    images.push_back(mimeData->urls()[i].toLocalFile().toStdString());
+  }
   LoadImages(images, vvImageReader::IMAGE);
 }
 //------------------------------------------------------------------------------
@@ -3278,7 +3300,11 @@ void vvMainWindow::SaveSEScreenshot()
 //------------------------------------------------------------------------------
 void vvMainWindow::SaveScreenshotAllSlices()
 { 
+#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 1) || VTK_MAJOR_VERSION >= 9
+  QVTKOpenGLNativeWidget *widget = NOViewWidget;
+#else
   QVTKWidget *widget = NOViewWidget;
+#endif
 
   int index = 0;// GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
   vvSlicerManager * SM = mSlicerManagers[index];
@@ -3304,7 +3330,7 @@ void vvMainWindow::SaveScreenshotAllSlices()
     // Screenshot
     vtkSmartPointer<vtkWindowToImageFilter> windowToImageFilter = vtkSmartPointer<vtkWindowToImageFilter>::New();
     windowToImageFilter->SetInput(renderWindow);
-#if VTK_MAJOR_VERSION >= 8 && VTK_MINOR_VERSION >= 1
+#if (VTK_MAJOR_VERSION >= 8 && VTK_MINOR_VERSION >= 1) || VTK_MAJOR_VERSION >= 9
     windowToImageFilter->SetScale(1);
 #else
     windowToImageFilter->SetMagnification(1);
@@ -3334,7 +3360,11 @@ void vvMainWindow::SaveScreenshotAllSlices()
 
 
 //------------------------------------------------------------------------------
+#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 1) || VTK_MAJOR_VERSION >= 9
+void vvMainWindow::SaveScreenshot(QVTKOpenGLNativeWidget *widget)
+#else
 void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
+#endif
 { 
   QString Extensions = "Images( *.png);;";
   Extensions += "Images( *.jpg);;";
@@ -3358,7 +3388,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
   if (!fileName.isEmpty()) {
     vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
     w2i->SetInput(widget->GetRenderWindow());
-#if VTK_MAJOR_VERSION >= 8 && VTK_MINOR_VERSION >= 1
+#if (VTK_MAJOR_VERSION >= 8 && VTK_MINOR_VERSION >= 1) || VTK_MAJOR_VERSION >= 9
     w2i->SetScale(1);
 #else
     w2i->SetMagnification(1);

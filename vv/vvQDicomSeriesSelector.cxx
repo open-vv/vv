@@ -20,7 +20,7 @@
 #include <itkGDCMImageIO.h>
 #include <itkGDCMSeriesFileNames.h>
 #include <gdcmFile.h>
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
 #include <gdcmImageReader.h>
 #include <gdcmDataSetHelper.h>
 #include <gdcmStringFilter.h>
@@ -144,7 +144,7 @@ void vvDicomSeriesSelector::SearchButtonRelease()
       mListOfSeriesFilenames[seriesUID[i]] = filenames;
 
       // store first header
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
       mDicomHeader[seriesUID[i]].SetFileName( (*filenames)[0].c_str() );
       mDicomHeader[seriesUID[i]].Read();
 #else
@@ -235,7 +235,7 @@ void vvDicomSeriesSelector::itemDetailsSelectionChanged()
       std::ostringstream s;
       QString l;
 
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
       mDicomHeader[mCurrentSerie].GetFile().Print(s);
       const gdcm::File& header = mDicomHeader[mCurrentSerie].GetFile();
       gdcm::StringFilter sf;
@@ -284,7 +284,7 @@ void vvDicomSeriesSelector::itemDetailsSelectionChanged()
 //====================================================================
 
 //====================================================================
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
 QString vvDicomSeriesSelector::MakeDicomInfo(std::string & s, const gdcm::Reader& header)
 {
   QString n = QString("%1").arg(mListOfSeriesFilenames[s]->size());
@@ -357,7 +357,7 @@ QString vvDicomSeriesSelector::MakeDicomInfo(std::string & s, gdcm::File *header
 //====================================================================
 QString vvDicomSeriesSelector::AddInfo(const gdcm::File *header, QString n, uint16_t group, uint16_t elem)
 {
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   gdcm::StringFilter sf;
   sf.SetFile( *header );
   gdcm::Tag t( group, elem );
@@ -381,7 +381,7 @@ QString vvDicomSeriesSelector::AddInfo(std::string n, std::string m)
 //====================================================================
 void vvDicomSeriesSelector::AddSerieToTheTable(int i, std::vector<std::string> & filenames)
 {
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
 #else
   gdcm::File *header = new gdcm::File();
   header->SetFileName(filenames[0]);

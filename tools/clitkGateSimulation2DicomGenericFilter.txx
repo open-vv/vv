@@ -134,7 +134,7 @@ void
 GateSimulation2DicomGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
 {
 
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   // ImageTypes
   typedef itk::Image<PixelType, Dimension> InputImageType;
   typedef itk::Image<PixelType, Dimension> OutputImageType;

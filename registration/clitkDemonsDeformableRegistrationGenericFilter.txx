@@ -335,7 +335,13 @@ namespace clitk
     // =======================================================
     // The multiresolution scheme
     // =======================================================
-    if (threadsGiven) multiResolutionFilter->SetNumberOfThreads(threads);
+    if (threadsGiven) {
+#if ITK_VERSION_MAJOR <= 4
+      multiResolutionFilter->SetNumberOfThreads(threads);
+#else
+      multiResolutionFilter->SetNumberOfWorkUnits(threads);
+#endif
+    }
     unsigned int nLevels=m_ArgsInfo.levels_arg;
     if (m_Verbose) std::cout<<"Setting the number of resolution levels to "<<nLevels<<"..."<<std::endl;
     multiResolutionFilter->SetFixedImage( fixedImage );
@@ -343,8 +349,14 @@ namespace clitk
     multiResolutionFilter->SetNumberOfLevels( nLevels );
     multiResolutionFilter->SetFixedImagePyramid( fixedImagePyramid );
     multiResolutionFilter->SetMovingImagePyramid( movingImagePyramid );
-    if (threadsGiven) multiResolutionFilter->SetNumberOfThreads( threads );
-    
+    if (threadsGiven) {
+#if ITK_VERSION_MAJOR <= 4
+      multiResolutionFilter->SetNumberOfThreads( threads );
+#else
+      multiResolutionFilter->SetNumberOfWorkUnits( threads );
+#endif
+    }
+
     //------------------------------------
     //Set the number of iterations
     //------------------------------------

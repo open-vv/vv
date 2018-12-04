@@ -1,0 +1,1332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>vvMainWindow</class>
+ <widget class="QMainWindow" name="vvMainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1008</width>
+    <height>758</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>vv : the 4D Slicer</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../vvIcons.qrc">
+    <normaloff>:/common/icons/ducky.png</normaloff>:/common/icons/ducky.png</iconset>
+  </property>
+  <property name="statusTip">
+   <string>Type 'F1' on image to display help on navigation</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="statusTip">
+    <string>Type 'F1' on image to display help on navigation</string>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QFrame" name="frame">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>16</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QGridLayout">
+       <property name="margin">
+        <number>2</number>
+       </property>
+       <property name="spacing">
+        <number>2</number>
+       </property>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="goToCursorPushButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>24</width>
+           <height>24</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Go to cursor</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../vvIcons.qrc">
+           <normaloff>:/common/icons/cross.png</normaloff>:/common/icons/cross.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="Line" name="line">
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QPushButton" name="playButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>24</width>
+           <height>24</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Play Current Image</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../vvIcons.qrc">
+           <normaloff>:/common/icons/player_play.png</normaloff>:/common/icons/player_play.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="5">
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="7">
+        <widget class="QLabel" name="windowLabel">
+         <property name="text">
+          <string>Window :</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="8">
+        <widget class="QDoubleSpinBox" name="windowSpinBox">
+         <property name="decimals">
+          <number>6</number>
+         </property>
+         <property name="minimum">
+          <double>-66000.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>66000.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>10.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="9">
+        <widget class="QPushButton" name="inverseButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>24</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Inverse colors</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../vvIcons.qrc">
+           <normaloff>:/common/icons/invertcolor.png</normaloff>:/common/icons/invertcolor.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="10">
+        <widget class="QLabel" name="levelLabel">
+         <property name="text">
+          <string> Level :</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="11">
+        <widget class="QDoubleSpinBox" name="levelSpinBox">
+         <property name="decimals">
+          <number>6</number>
+         </property>
+         <property name="minimum">
+          <double>-66000.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>66000.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>10.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="12">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Preset :</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="13">
+        <widget class="QComboBox" name="presetComboBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <item>
+          <property name="text">
+           <string>Auto Scale</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Hounsfield Full Scale</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Soft Tissue</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Lungs</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Bones</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Head/Brain</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>[0,1] Scale</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>User Scale</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Ventilation Image</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="0" column="14">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Colormap :</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="15">
+        <widget class="QComboBox" name="colorMapComboBox">
+         <item>
+          <property name="text">
+           <string>B&amp;W</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Heat</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Cold</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Dosimetry</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Full Color</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Segmentation</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Ventilation</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="0" column="21">
+        <widget class="QPushButton" name="viewButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>24</width>
+           <height>24</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Expand window</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../vvIcons.qrc">
+           <normaloff>:/common/icons/adjustsize.png</normaloff>:/common/icons/adjustsize.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="4">
+        <widget class="QSpinBox" name="frameRateSpinBox">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="value">
+          <number>10</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QLabel" name="frameRateLabel">
+         <property name="text">
+          <string>Speed : </string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="16">
+        <widget class="QPushButton" name="applyWindowLevelToAllButton">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>24</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Apply windowing to all images</string>
+         </property>
+         <property name="text">
+          <string>All</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="19">
+        <widget class="QComboBox" name="slicingPresetComboBox">
+         <item>
+          <property name="text">
+           <string>World</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Voxels</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="0" column="18">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Slice to</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="17">
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QSplitter" name="splitter_4">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QSplitter" name="splitter">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <widget class="QTabWidget" name="tabWidget">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="DataTab">
+         <attribute name="title">
+          <string>Images</string>
+         </attribute>
+         <layout class="QGridLayout">
+          <property name="margin">
+           <number>2</number>
+          </property>
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QTreeWidget" name="DataTree">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="horizontalScrollBarPolicy">
+             <enum>Qt::ScrollBarAsNeeded</enum>
+            </property>
+            <property name="showDropIndicator" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="textElideMode">
+             <enum>Qt::ElideLeft</enum>
+            </property>
+            <property name="itemsExpandable">
+             <bool>true</bool>
+            </property>
+            <property name="columnCount">
+             <number>7</number>
+            </property>
+            <column>
+             <property name="text">
+              <string>1</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>2</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>3</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>4</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Data</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>6</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>8</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="VFtab">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <attribute name="title">
+          <string>Overlay</string>
+         </attribute>
+         <layout class="QGridLayout">
+          <property name="margin">
+           <number>2</number>
+          </property>
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="vvOverlayPanel" name="overlayPanel" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="ROItab">
+         <attribute name="title">
+          <string>ROI</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_2"/>
+        </widget>
+        <widget class="QWidget" name="LinkTab">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <attribute name="title">
+          <string>Link</string>
+         </attribute>
+         <layout class="QGridLayout">
+          <property name="margin">
+           <number>2</number>
+          </property>
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="vvLinkPanel" name="linkPanel" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="Landmarkstab">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <attribute name="title">
+          <string>Landmarks</string>
+         </attribute>
+         <layout class="QGridLayout">
+          <property name="margin">
+           <number>2</number>
+          </property>
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="vvLandmarksPanel" name="landmarksPanel" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+       <widget class="vvInfoPanel" name="infoPanel" native="true">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QSplitter" name="splitter_3">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <widget class="QSplitter" name="OSplitter">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <widget class="QWidget" name="NOWidget" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <layout class="QGridLayout">
+          <property name="horizontalSpacing">
+           <number>2</number>
+          </property>
+          <property name="margin">
+           <number>2</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QVTKWidget" name="NOViewWidget" native="true">
+            <property name="mouseTracking">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSlider" name="NOVerticalSlider">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QSlider" name="NOHorizontalSlider">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="SOWidget" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <layout class="QGridLayout">
+          <property name="margin">
+           <number>2</number>
+          </property>
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QVTKWidget" name="SOViewWidget" native="true">
+            <property name="mouseTracking">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSlider" name="SOVerticalSlider">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QSlider" name="SOHorizontalSlider">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+       <widget class="QSplitter" name="ESplitter">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <widget class="QWidget" name="NEWidget" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <layout class="QGridLayout">
+          <property name="margin">
+           <number>2</number>
+          </property>
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QVTKWidget" name="NEViewWidget" native="true">
+            <property name="mouseTracking">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSlider" name="NEVerticalSlider">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QSlider" name="NEHorizontalSlider">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="SEWidget" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <layout class="QGridLayout">
+          <property name="margin">
+           <number>2</number>
+          </property>
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QVTKWidget" name="SEViewWidget" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="mouseTracking">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSlider" name="SEVerticalSlider">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QSlider" name="SEHorizontalSlider">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1008</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="defaultUp">
+    <bool>false</bool>
+   </property>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionNavigation_Help"/>
+    <addaction name="actionDocumentation"/>
+    <addaction name="actionRegister_vv"/>
+   </widget>
+   <widget class="QMenu" name="menuOverlay">
+    <property name="title">
+     <string>Overlay</string>
+    </property>
+    <addaction name="actionAdd_VF_to_current_Image"/>
+    <addaction name="actionAdd_overlay_image_to_current_image"/>
+    <addaction name="actionAdd_fusion_image"/>
+    <addaction name="actionAdd_USSequence_toCT"/>
+   </widget>
+   <widget class="QMenu" name="menuScreenshots">
+    <property name="title">
+     <string>Screenshots</string>
+    </property>
+    <addaction name="actionNorth_West_Window"/>
+    <addaction name="actionNorth_East_Window"/>
+    <addaction name="actionSouth_West_Window"/>
+    <addaction name="actionSouth_East_Window"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave_all_slices"/>
+   </widget>
+   <widget class="QMenu" name="menuExperimental">
+    <property name="title">
+     <string>Experimental</string>
+    </property>
+    <addaction name="actionSurface_Viewer"/>
+    <addaction name="actionDeformable_Registration"/>
+    <addaction name="actionSegmentation"/>
+    <addaction name="actionWarp_image_with_vector_field"/>
+    <addaction name="actionCompute_mid_position_image"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionLoad_images"/>
+    <addaction name="actionOpen_Image_With_Time"/>
+    <addaction name="actionMerge_images_as_n_dim_t"/>
+    <addaction name="separator"/>
+    <addaction name="actionSlice_Image_As_Multiple_Images"/>
+    <addaction name="actionOpen_Multiple_Images_As_One"/>
+    <addaction name="separator"/>
+    <addaction name="actionOpen_Dicom"/>
+    <addaction name="actionOpen_VTK_contour"/>
+    <addaction name="actionConnect_Pacs"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave_As"/>
+    <addaction name="separator"/>
+    <addaction name="actionRead_saved_state"/>
+    <addaction name="actionSave_current_state"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+    <addaction name="separator"/>
+    <addaction name="separator"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuOverlay"/>
+   <addaction name="menuScreenshots"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuExperimental"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionLoad_images">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/fileopen.png</normaloff>:/common/icons/fileopen.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open image(s)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionClose_image">
+   <property name="text">
+    <string>Close images</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/exit.png</normaloff>:/common/icons/exit.png</iconset>
+   </property>
+   <property name="text">
+    <string>Exit</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionSave_screenshot">
+   <property name="text">
+    <string>Save screenshot</string>
+   </property>
+  </action>
+  <action name="actionPickable">
+   <property name="text">
+    <string>pickable</string>
+   </property>
+  </action>
+  <action name="actionDragable">
+   <property name="text">
+    <string>dragable</string>
+   </property>
+  </action>
+  <action name="actionSet_colormap">
+   <property name="text">
+    <string>Set colormap</string>
+   </property>
+  </action>
+  <action name="actionIsoContours">
+   <property name="text">
+    <string>IsoContours</string>
+   </property>
+  </action>
+  <action name="actionAbouts">
+   <property name="text">
+    <string>About QtVTKRender2D</string>
+   </property>
+  </action>
+  <action name="actionDocumentation">
+   <property name="text">
+    <string>About</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionReload_images">
+   <property name="text">
+    <string>Reload images</string>
+   </property>
+  </action>
+  <action name="actionOpen_Dicom">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/open.png</normaloff>:/common/icons/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open Dicom</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionOpen_Multiple_Images_As_One">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/open.png</normaloff>:/common/icons/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Merge several nD images into a single (n+1)D image</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionSlice_Image_As_Multiple_Images">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/open.png</normaloff>:/common/icons/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Slice a nD image into several (n-1)D images</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionOpen_one_Image_as_Multiple">
+   <property name="text">
+    <string>Open One Image As Multiple</string>
+   </property>
+  </action>
+  <action name="actionSave_As">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/filesave.png</normaloff>:/common/icons/filesave.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save current image</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionAdd_VF_to_current_Image">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/cursor-uparrow.png</normaloff>:/common/icons/cursor-uparrow.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add deformation field to current image</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionNorth_West_Window">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/NOgrid.png</normaloff>:/common/icons/NOgrid.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save image in TL</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionNorth_East_Window">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/NEgrid.png</normaloff>:/common/icons/NEgrid.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save image in TR</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionSouth_West_Window">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/SOgrid.png</normaloff>:/common/icons/SOgrid.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save image in BL</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionSouth_East_Window">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/SEgrid.png</normaloff>:/common/icons/SEgrid.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save image in BR</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionOpen_Image_With_Time">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/open.png</normaloff>:/common/icons/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open a nD image as a (n-1)D + t image</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionMerge_images_as_n_dim_t">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/open.png</normaloff>:/common/icons/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open several nD images into a single nD+t image</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionAdd_fusion_image">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/fusion.png</normaloff>:/common/icons/fusion.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add fusion image to current image</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionSegmentation">
+   <property name="text">
+    <string>Segmentation</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionResampler">
+   <property name="text">
+    <string>Resample</string>
+   </property>
+  </action>
+  <action name="actionSurface_Viewer">
+   <property name="text">
+    <string>Surface Viewer</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionDebug">
+   <property name="text">
+    <string>joelDebug</string>
+   </property>
+  </action>
+  <action name="actionDeformable_Registration">
+   <property name="text">
+    <string>Deformable Registration</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionWarp_image_with_vector_field">
+   <property name="text">
+    <string>Verify Registration</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionMaximum_Intensity_Projection">
+   <property name="text">
+    <string>Maximum Intensity Projection</string>
+   </property>
+  </action>
+  <action name="actionOpen_VTK_contour">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/open.png</normaloff>:/common/icons/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open VTK or OBJ contour</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionNavigation_Help">
+   <property name="text">
+    <string>Navigation Help</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+   <property name="priority">
+    <enum>QAction::NormalPriority</enum>
+   </property>
+  </action>
+  <action name="actionOpen_Dicom_Struct">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/open.png</normaloff>:/common/icons/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open Dicom-Struct</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionCompute_mid_position_image">
+   <property name="text">
+    <string>Compute mid-position image</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionExperimental">
+   <property name="text">
+    <string>Experimental...</string>
+   </property>
+  </action>
+  <action name="actionRegister_vv">
+   <property name="text">
+    <string>Register vv</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionSave_all_slices">
+   <property name="text">
+    <string>Save all slices (Top-Left view)</string>
+   </property>
+  </action>
+  <action name="actionSave_current_state">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/filesave.png</normaloff>:/common/icons/filesave.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save current state</string>
+   </property>
+   <property name="toolTip">
+    <string>Save current window and file states</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionRead_saved_state">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/open.png</normaloff>:/common/icons/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Read Saved State</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionAdd_overlay_image_to_current_image">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/GPSup.png</normaloff>:/common/icons/GPSup.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add overlay image to current image</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionAdd_USSequence_toCT">
+   <property name="icon">
+    <iconset resource="../vvIcons.qrc">
+     <normaloff>:/common/icons/rotateright.png</normaloff>:/common/icons/rotateright.png</iconset>
+   </property>
+   <property name="text">
+    <string>Test / Fusion of US &amp; CT sequences</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionConnect_Pacs">
+   <property name="text">
+    <string>Connect Pacs</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QVTKWidget</class>
+   <extends>QWidget</extends>
+   <header>QVTKWidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>vvInfoPanel</class>
+   <extends>QWidget</extends>
+   <header>vvInfoPanel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>vvLandmarksPanel</class>
+   <extends>QWidget</extends>
+   <header>vvLandmarksPanel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>vvLinkPanel</class>
+   <extends>QWidget</extends>
+   <header>vvLinkPanel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>vvOverlayPanel</class>
+   <extends>QWidget</extends>
+   <header>vvOverlayPanel.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>presetComboBox</tabstop>
+  <tabstop>windowSpinBox</tabstop>
+  <tabstop>levelSpinBox</tabstop>
+  <tabstop>NOViewWidget</tabstop>
+  <tabstop>NOVerticalSlider</tabstop>
+  <tabstop>NOHorizontalSlider</tabstop>
+  <tabstop>SOVerticalSlider</tabstop>
+  <tabstop>SOHorizontalSlider</tabstop>
+  <tabstop>NEVerticalSlider</tabstop>
+  <tabstop>NEHorizontalSlider</tabstop>
+  <tabstop>SEVerticalSlider</tabstop>
+  <tabstop>SEHorizontalSlider</tabstop>
+  <tabstop>viewButton</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../vvIcons.qrc"/>
+ </resources>
+ <connections/>
+</ui>

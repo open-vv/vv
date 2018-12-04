@@ -207,6 +207,7 @@ function merge_doseByRegions {
     echo "  ${indent}creating ${merged}"
     local count=0
     start_bar $#
+    source ${doseMerger}
     while test $# -gt 0
     do
         local partial="$1"
@@ -217,12 +218,14 @@ function merge_doseByRegions {
         then
             update_bar ${count} "copying first partial result ${partial}"
             cp "${partial}" "${merged}"
+            copyFirstPartialResult -i "${merged}" -o "${merged}" 2> /dev/null > /dev/null || warning "error while calling ${doseMerger}"
             continue
         fi
 
         update_bar ${count} "adding ${partial}"
-        ${doseMerger} -i "${merged}" -j "${partial}" -o "${merged}" 2> /dev/null > /dev/null || warning "error while calling ${doseMerger}"
+        addToPartialResult -i "${merged}" -j "${partial}" -o "${merged}" 2> /dev/null > /dev/null || warning "error while calling ${doseMerger}"
     done
+    divideUncertaintyResult -i "${merged}" -o "${merged}" 2> /dev/null > /dev/null || warning "error while calling ${doseMerger}"
     end_bar
     echo "  ${indent}merged ${count} files"
 }

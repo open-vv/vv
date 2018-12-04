@@ -24,7 +24,7 @@
 // itk include
 #include <itkImageIOBase.h>
 #include <gdcmFile.h>
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   #include <gdcmImageReader.h>
 #endif
 
@@ -77,7 +77,7 @@ protected:
   bool mustWriteHeader;
   int m_HeaderSize;
   std::ofstream file;
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   gdcm::ImageReader m_GdcmImageReader;
 #else
   gdcm::File *m_GdcmFile;

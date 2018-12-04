@@ -25,7 +25,7 @@
 #include <vtkPolyDataWriter.h>
 #include <vtkVersion.h>
 
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
 #include "gdcmAttribute.h"
 #include "gdcmItem.h"
 #endif
@@ -148,7 +148,7 @@ double clitk::DicomRT_ROI::GetForegroundValueLabelImage() const
 
 
 //--------------------------------------------------------------------
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
 bool clitk::DicomRT_ROI::Read(gdcm::Item * itemInfo, gdcm::Item * itemContour)
 {
   //FATAL("Error : compile vv with itk4 + external gdcm");
@@ -302,7 +302,7 @@ void clitk::DicomRT_ROI::ComputeMeshFromContour()
 //--------------------------------------------------------------------
 
 
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
 //--------------------------------------------------------------------
 void clitk::DicomRT_ROI::UpdateDicomItem()
 {

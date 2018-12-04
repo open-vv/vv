@@ -1,0 +1,15 @@
+#File clitkSUVPeak.ggo
+package "clitkSUVPeak"
+version "2.0"
+purpose "This tool Compute the SUV Peak.
+The output is the position of the SUV Peak (in mm) and its value.
+The filter use a normalized sphere of 1 cc with 1 for voxel inside, 0 for outside.
+And for voxels that intercepted the sphere, it computes the intersection volume using Monte Carlo simulation."
+
+option "config"       - "Config file"                         string  no
+option "verbose"      v "Verbose"                             flag    off
+
+option "input"        i "Input first image filename"          string  yes
+option "mask"         m "Mask image filename (uchar)"         string  no
+option "allow_resize" r "Resize mask if different from input" flag    off
+option "volume"       - "Volume of the filter in cc"          double  default="1" no

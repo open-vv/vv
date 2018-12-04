@@ -38,7 +38,7 @@
 #endif
 
 // gdcm
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
 // This is not use if CLITK_USE_SYSTEM_GDCM==1
 #include "gdcmReader.h"
 #include "gdcmWriter.h"
@@ -81,7 +81,7 @@ public:
 
   int AddBinaryImageAsNewROI(vvImage * i, std::string name);
   
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   // Static
   static int ReadROINumber(const gdcm::Item & item);
 #endif
@@ -98,7 +98,7 @@ protected:
 
   std::map<int, clitk::DicomRT_ROI::Pointer> mROIs;
   std::map<int, std::string> mMapOfROIName;
-#if GDCM_MAJOR_VERSION == 2
+#if GDCM_MAJOR_VERSION >= 2
   gdcm::Reader * mReader;
   gdcm::SmartPointer<gdcm::SequenceOfItems> mROIInfoSequenceOfItems;
   gdcm::SmartPointer<gdcm::SequenceOfItems> mROIContoursSequenceOfItems;  
