@@ -105,10 +105,17 @@ done
 
 while test $NJOBS -gt 0; do
 
+    if [ "$PARAM" = "\"\"" ]
+    then
+        JPARAM="-a [JOB_ID,${NJOBS}]"
+    else
+        JPARAM="${PARAM} [JOB_ID,${NJOBS}]"
+    fi
+
     if test "${QSUB}" = "noqsub"
     then
         echo "Launching Gate log in ${OUTPUTDIR}/gate_${NJOBS}.log"
-        PARAM=\"${PARAM}\" INDEX=${NJOBS} INDEXMAX=${NJOBSMAX} OUTPUTDIR=${OUTPUTDIR}  RELEASEDIR=${RELEASEDIR} MACROFILE=${MACROFILE} MACRODIR=${MACRODIR} PBS_JOBID="local_${NJOBS}" bash "${JOBFILE}" > ${OUTPUTDIR}/gate_${NJOBS}.log &
+        PARAM=\"${JPARAM}\" INDEX=${NJOBS} INDEXMAX=${NJOBSMAX} OUTPUTDIR=${OUTPUTDIR}  RELEASEDIR=${RELEASEDIR} MACROFILE=${MACROFILE} MACRODIR=${MACRODIR} PBS_JOBID="local_${NJOBS}" bash "${JOBFILE}" > ${OUTPUTDIR}/gate_${NJOBS}.log &
     elif test "$(dnsdomainname)" = "in2p3.fr"
     then
         PROJECTGROUP=creatis
@@ -116,7 +123,7 @@ while test $NJOBS -gt 0; do
              -e "${OUTPUTDIR}" \
              -l sps=1 \
              -N "gate.${RUNID}" \
-             -v "PARAM=\"${PARAM}\",INDEX=${NJOBS},INDEXMAX=${NJOBSMAX},OUTPUTDIR=${OUTPUTDIR},RELEASEDIR=${RELEASEDIR},MACROFILE=${MACROFILE},MACRODIR=${MACRODIR}" \
+             -v "PARAM=\"${JPARAM}\",INDEX=${NJOBS},INDEXMAX=${NJOBSMAX},OUTPUTDIR=${OUTPUTDIR},RELEASEDIR=${RELEASEDIR},MACROFILE=${MACROFILE},MACRODIR=${MACRODIR}" \
              "${JOBFILE}" || error "submission error"
     else
         qsub -N "gatejob.${RUNID}" -o "${OUTPUTDIR}" \
