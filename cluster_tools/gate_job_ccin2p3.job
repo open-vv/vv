@@ -22,6 +22,7 @@ function transferJobData {
     mkdir "${OUTPUTDIR}/output.${JOB_ID%%.*}"
     rsync -av --remove-source-files output/ "${OUTPUTDIR}/output.${JOB_ID%%.*}"
     echo "Cleanup"
+    unlink "${LOCALMACRODIR}"/data
     rm -r ${LOCALMACRODIR}
 }
 
@@ -76,7 +77,9 @@ echo "Copying inputs"
 LOCALMACRODIR=$(mktemp -d)
 trap "wait ; transferJobData ; exit 1" 1 2 3 15
 cd ${LOCALMACRODIR}
-cp -r -L "${MACRODIR}"/{data,mac} .
+cp -r -L "${MACRODIR}"/mac .
+ln -s "${MACRODIR}"/data ./data
+#cp -r -L "${MACRODIR}"/{data,mac} .
 mkdir output
 
 # Enforce one thread
