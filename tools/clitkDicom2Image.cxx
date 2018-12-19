@@ -201,6 +201,7 @@ int main(int argc, char * argv[])
     // Read write serie
     vvImageReader::Pointer reader = vvImageReader::New();
     reader->SetInputFilenames(sorted_files);
+    reader->SetPatientCoordinateSystem(args_info.patientSystem_flag);
     reader->Update(vvImageReader::DICOM);
     if (reader->GetLastError().size() != 0) {
       std::cerr << reader->GetLastError() << std::endl;
