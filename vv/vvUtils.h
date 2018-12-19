@@ -51,6 +51,12 @@ std::string getDicomClientAETitle();
 // get VV-PORT-SCU  for c-move parameters.
 int getDicomClientPort();
 
+// get interpolation option for vv
+int getInterpolationFavoriteStatus();
+
+// set VV-settings at first use
+void setVVSettings();
+
 // get the directory where the dicom files will be stored during c-move action.
 std::string getCMoveDirectory();
 

@@ -95,6 +95,29 @@ int getDicomClientPort()
 	 return result;
 }
 
+// get interpolation option for vv
+int getInterpolationFavoriteStatus()
+{
+	int result;
+	QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
+	 settings.beginGroup(QString::fromStdString("VVSETTINGS"));
+	 result = settings.value("interpolation").toString().toInt();
+	 settings.endGroup();
+	 return result;
+}
+
+// set VV-settings at first use
+void setVVSettings()
+{
+	QSettings settings(getVVSettingsPath(), getSettingsOptionFormat());
+	if (! settings.childGroups().contains("VVSETTINGS"))
+	{
+		 settings.beginGroup(QString::fromStdString("VVSETTINGS"));
+		 settings.setValue("interpolation",QString::number(1));
+		 settings.endGroup();
+	}
+}
+
 /// Add a new Dicom Server
 void AddDicomServer(std::string nickname, std::string aetitle, std::string adress, std::string port)
 {
