@@ -24,6 +24,7 @@
 #include "vvSlicerManagerCommand.h"
 #include "vvGlyphSource.h"
 #include "vvGlyph2D.h"
+#include "vvUtils.h"
 
 #include <vtkVersion.h>
 #include <vtkExtentTranslator.h>
@@ -352,6 +353,8 @@ void vvSlicer::SetImage(vvImage::Pointer image)
     if (!mImageReslice) {
       mImageReslice = vtkSmartPointer<vtkImageReslice>::New();
       mImageReslice->SetInterpolationModeToLinear();
+      SetInterpolationImageReslice(getInterpolationFavoriteStatus());
+      GetImageActor()->SetInterpolate(getInterpolationFavoriteStatus());
       mImageReslice->AutoCropOutputOn();
       mImageReslice->SetBackgroundColor(-1000,-1000,-1000,1);
     }
@@ -455,6 +458,7 @@ void vvSlicer::SetOverlay(vvImage::Pointer overlay)
 #if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
       mOverlayActor->GetMapper()->BorderOn();
 #endif
+      mOverlayActor->SetInterpolate(getInterpolationFavoriteStatus());
       }
 
     //stupid but necessary : the Overlay need to be rendered before fusion
@@ -530,6 +534,7 @@ void vvSlicer::SetFusion(vvImage::Pointer fusion, int fusionSequenceCode)
       mFusionActor->GetMapper()->BorderOn();
 #endif
 
+      mFusionActor->SetInterpolate(getInterpolationFavoriteStatus());
       this->GetRenderer()->AddActor(mFusionActor);
     }
 
