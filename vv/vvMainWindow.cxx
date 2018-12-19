@@ -386,6 +386,9 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
     updateRecentlyOpenedFilesMenu(recent_files);
   }
 
+  //Update and get vv parameters
+  setVVSettings();
+
   // Adding all new tools (insertion in the menu)
   vvToolManager::GetInstance()->InsertToolsInMenu(this);
   vvToolManager::GetInstance()->EnableToolsInMenu(this, false);
