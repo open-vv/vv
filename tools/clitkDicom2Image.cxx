@@ -168,7 +168,7 @@ int main(int argc, char * argv[])
       while (sliceIndex.size()==i && j<temp.size()) {
         const size_t last_slash_idx2 = temp[j].rfind('/');
         std::string tempFilename(temp[j]);
-        if (std::string::npos != last_slash_idx2)
+        if (temp[j][0] == '.' && std::string::npos != last_slash_idx2)
           tempFilename = temp[j].substr(last_slash_idx2+1, temp[j].size()-1);
         if (tempFilename == files[i])
           sliceIndex.push_back(j);
