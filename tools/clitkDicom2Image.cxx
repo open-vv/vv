@@ -23,6 +23,8 @@
 #include "clitkImageCommon.h"
 #include "vvImageReader.h"
 #include "vvImageWriter.h"
+#include <itkGDCMImageIO.h>
+#include <itkGDCMSeriesFileNames.h>
 #include <gdcmFile.h>
 #include <vtkVersion.h>
 #include <vtkImageChangeInformation.h>
@@ -55,6 +57,15 @@ int main(int argc, char * argv[])
   } else for (unsigned int i=0; i<args_info.inputs_num; i++)
       input_files.push_back(args_info.inputs[i]);
 
+  //Get GDCMSeriesFileNames order to sort filenames
+  typedef itk::GDCMSeriesFileNames NamesGeneratorType;
+  NamesGeneratorType::Pointer nameGenerator = NamesGeneratorType::New();
+  nameGenerator->SetUseSeriesDetails(true);
+  std::string folderName=".";
+  const size_t last_slash_idx = input_files[0].rfind('/');
+  if (std::string::npos != last_slash_idx)
+    folderName = input_files[0].substr(0, last_slash_idx);
+  nameGenerator->SetInputDirectory(folderName);
 
   //===========================================
   /// Get slices locations ...
@@ -149,7 +160,22 @@ int main(int argc, char * argv[])
     std::vector<double> origin = theorigin[*sn];
     std::vector<std::string> files = seriesFiles[*sn];
     std::vector<int> sliceIndex;
-    clitk::GetSortedIndex(locs, sliceIndex);
+    //clitk::GetSortedIndex(locs, sliceIndex);
+    //Look for files into GDCMSeriesFileNames, because it sorts files correctly and take the order
+    const std::vector<std::string> & temp = nameGenerator->GetFileNames(*sn);
+    for(unsigned int i=0; i<files.size(); i++) {
+      int j(0);
+      while (sliceIndex.size()==i && j<temp.size()) {
+        const size_t last_slash_idx2 = temp[j].rfind('/');
+        std::string tempFilename(temp[j]);
+        if (std::string::npos != last_slash_idx2)
+          tempFilename = temp[j].substr(last_slash_idx2+1, temp[j].size()-1);
+        if (tempFilename == files[i])
+          sliceIndex.push_back(j);
+        ++j;
+      }
+    }
+
     if (args_info.verbose_flag) {
       std::cout << locs[sliceIndex[0]] << " -> "
                 << sliceIndex[0] << " / " << 0 << " => "
