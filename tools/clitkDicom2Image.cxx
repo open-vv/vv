@@ -58,12 +58,12 @@ int main(int argc, char * argv[])
 
   //===========================================
   /// Get slices locations ...
-  int series_number = -1;
-  std::set<int> series_numbers;
-  std::map< int, std::vector<double> > theorigin;
-  std::map< int, std::vector<double> > theorientation;
-  std::map< int, std::vector<double> > sliceLocations;
-  std::map< int, std::vector<std::string> > seriesFiles;
+  std::string series_UID = "";
+  std::set<std::string> series_UIDs;
+  std::map< std::string, std::vector<double> > theorigin;
+  std::map< std::string, std::vector<double> > theorientation;
+  std::map< std::string, std::vector<double> > sliceLocations;
+  std::map< std::string, std::vector<std::string> > seriesFiles;
 #if GDCM_MAJOR_VERSION >= 2
   if (args_info.verbose_flag)
     std::cout << "Using GDCM-2.x" << std::endl;
@@ -83,28 +83,28 @@ int main(int argc, char * argv[])
     gdcm::DataSet& ds = hreader.GetFile().GetDataSet();
 
     if (args_info.extract_series_flag) {
-      gdcm::Attribute<0x20,0x11> series_number_att;
-      series_number_att.SetFromDataSet(ds);
-      series_number = series_number_att.GetValue();
+      gdcm::Attribute<0x20,0x000e> series_UID_att;
+      series_UID_att.SetFromDataSet(ds);
+      series_UID = series_UID_att.GetValue();
     }
 
-    series_numbers.insert(series_number);
-    theorigin[series_number] = gdcm::ImageHelper::GetOriginValue(hreader.GetFile());
-    theorientation[series_number] = gdcm::ImageHelper::GetDirectionCosinesValue(hreader.GetFile());
+    series_UIDs.insert(series_UID);
+    theorigin[series_UID] = gdcm::ImageHelper::GetOriginValue(hreader.GetFile());
+    theorientation[series_UID] = gdcm::ImageHelper::GetDirectionCosinesValue(hreader.GetFile());
     if (args_info.patientSystem_flag) {
-      double n1 = theorientation[series_number][1]*theorientation[series_number][5]-
-                  theorientation[series_number][2]*theorientation[series_number][4];
-      double n2 = theorientation[series_number][3]*theorientation[series_number][2]-
-                  theorientation[series_number][5]*theorientation[series_number][0];
-      double n3 = theorientation[series_number][0]*theorientation[series_number][4]-
-                  theorientation[series_number][1]*theorientation[series_number][3];
-      double sloc = theorigin[series_number][0]*n1+
-                    theorigin[series_number][1]*n2+
-                    theorigin[series_number][2]*n3;
-      sliceLocations[series_number].push_back(sloc);
+      double n1 = theorientation[series_UID][1]*theorientation[series_UID][5]-
+                  theorientation[series_UID][2]*theorientation[series_UID][4];
+      double n2 = theorientation[series_UID][3]*theorientation[series_UID][2]-
+                  theorientation[series_UID][5]*theorientation[series_UID][0];
+      double n3 = theorientation[series_UID][0]*theorientation[series_UID][4]-
+                  theorientation[series_UID][1]*theorientation[series_UID][3];
+      double sloc = theorigin[series_UID][0]*n1+
+                    theorigin[series_UID][1]*n2+
+                    theorigin[series_UID][2]*n3;
+      sliceLocations[series_UID].push_back(sloc);
     } else
-      sliceLocations[series_number].push_back(theorigin[series_number][2]);
-    seriesFiles[series_number].push_back(input_files[i]);
+      sliceLocations[series_UID].push_back(theorigin[series_UID][2]);
+    seriesFiles[series_UID].push_back(input_files[i]);
 
     gdcm::Attribute<0x28, 0x100> pixel_size;
     pixel_size.SetFromDataSet(ds);
@@ -122,16 +122,16 @@ int main(int argc, char * argv[])
   header->Load();
 
   if (args_info.extract_series_flag) {
-    series_number = atoi(header->GetEntryValue(0x20,0x11).c_str());
+    series_UID = header->GetEntryValue(0x20,0x000e).c_str();
   }
 
-  series_numbers.insert(series_number);
-  theorigin[series_number].resize(3);
-  theorigin[series_number][0] = header->GetXOrigin();
-  theorigin[series_number][1] = header->GetYOrigin();
-  theorigin[series_number][2] = header->GetZOrigin();
-  sliceLocations[series_number].push_back(theorigin[series_number][2]);
-  seriesFiles[series_number].push_back(input_files[i]);
+  series_UIDs.insert(series_UID);
+  theorigin[series_UID].resize(3);
+  theorigin[series_UID][0] = header->GetXOrigin();
+  theorigin[series_UID][1] = header->GetYOrigin();
+  theorigin[series_UID][2] = header->GetZOrigin();
+  sliceLocations[series_UID].push_back(theorigin[series_UID][2]);
+  seriesFiles[series_UID].push_back(input_files[i]);
   /*if (header->GetPixelSize() != 2) {
     std::cerr << "Pixel type 2 bytes ! " << std::endl;
     std::cerr << "In file " << input_files[i] << std::endl;
@@ -143,8 +143,8 @@ int main(int argc, char * argv[])
 
   //===========================================
   // Sort slices locations ...
-  std::set<int>::iterator sn = series_numbers.begin();
-  while ( sn != series_numbers.end() ) {
+  std::set<std::string>::iterator sn = series_UIDs.begin();
+  while ( sn != series_UIDs.end() ) {
     std::vector<double> locs = sliceLocations[*sn];
     std::vector<double> origin = theorigin[*sn];
     std::vector<std::string> files = seriesFiles[*sn];
@@ -229,7 +229,7 @@ int main(int argc, char * argv[])
     }
 
     std::string outfile;
-    if (series_numbers.size() == 1)
+    if (series_UIDs.size() == 1)
       outfile = args_info.output_arg;
     else {
       std::ostringstream name;
