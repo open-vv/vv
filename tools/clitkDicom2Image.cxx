@@ -155,21 +155,28 @@ int main(int argc, char * argv[])
     std::vector<double> locs = sliceLocations[*sn];
     std::vector<double> origin = theorigin[*sn];
     std::vector<std::string> files = seriesFiles[*sn];
-    std::vector<int> sliceIndex;
+    std::vector<int> sliceIndex(files.size());
     //clitk::GetSortedIndex(locs, sliceIndex);
     //Look for files into GDCMSeriesFileNames, because it sorts files correctly and take the order
     const std::vector<std::string> & temp = nameGenerator->GetFileNames(*sn);
     for(unsigned int i=0; i<files.size(); i++) {
       int j(0);
-      while (sliceIndex.size()==i && j<temp.size()) {
+      bool found(false);
+      while (!found && j<temp.size()) {
         const size_t last_slash_idx2 = temp[j].rfind('/');
         std::string tempFilename(temp[j]);
-        if (temp[j][0] == '.' && std::string::npos != last_slash_idx2)
-          tempFilename = temp[j].substr(last_slash_idx2+1, temp[j].size()-1);
-        if (tempFilename == files[i])
-          sliceIndex.push_back(j);
+        if (temp[j][0] == '.' && temp[j][1] == '/')
+          tempFilename = temp[j].substr(2, temp[j].size()-1);
+        if (tempFilename == files[i]) {
+          sliceIndex[j] = i;
+          found = true;
+        }
         ++j;
       }
+    }
+    if (sliceIndex.size() == 0) { //ie. sn is not a serie present in files
+      sn++;
+      continue;
     }
 
     if (args_info.verbose_flag) {
