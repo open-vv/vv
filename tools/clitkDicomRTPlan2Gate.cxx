@@ -140,8 +140,8 @@ int main(int argc, char * argv[])
   gdcm::Attribute<0x300a,0x330> numberOfLateralSpreadingDevices;
   gdcm::Attribute<0x300a,0x340> numberOfRangeModulators;
   
-  gdcm::Tag tSnoutSQ(0x300a,0x30c);
-  gdcm::Attribute<0x300a,0x30f> snoutID;
+  //gdcm::Tag tSnoutSQ(0x300a,0x30c);
+  //gdcm::Attribute<0x300a,0x30f> snoutID;
   
   gdcm::Tag tControlPointSQ(0x300a,0x3a8);
   gdcm::Attribute<0x300a,0x15> energyUnit;
@@ -195,6 +195,7 @@ int main(int argc, char * argv[])
     numberOfLateralSpreadingDevices.SetFromDataSet(IonBeamData);
     numberOfRangeModulators.SetFromDataSet(IonBeamData);
     
+    /*
     const gdcm::DataElement &SnoutSQ = IonBeamData.GetDataElement(tSnoutSQ);
     gdcm::SmartPointer<gdcm::SequenceOfItems> sqsn = SnoutSQ.GetValueAsSQ();
     for( unsigned int snidx = 1; snidx <= sqsn->GetNumberOfItems(); ++snidx )
@@ -204,6 +205,7 @@ int main(int argc, char * argv[])
       
       snoutID.SetFromDataSet(SnoutData);
     }
+    */
     
     const gdcm::DataElement &ControlPointSQ = IonBeamData.GetDataElement(tControlPointSQ);
     gdcm::SmartPointer<gdcm::SequenceOfItems> sqcp = ControlPointSQ.GetValueAsSQ();
