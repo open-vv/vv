@@ -60,7 +60,7 @@ int main(int argc, char * argv[])
   //Get GDCMSeriesFileNames order to sort filenames
   typedef itk::GDCMSeriesFileNames NamesGeneratorType;
   NamesGeneratorType::Pointer nameGenerator = NamesGeneratorType::New();
-  nameGenerator->SetUseSeriesDetails(true);
+  nameGenerator->SetUseSeriesDetails(false);
   std::string folderName=".";
   const size_t last_slash_idx = input_files[0].rfind('/');
   if (std::string::npos != last_slash_idx)
