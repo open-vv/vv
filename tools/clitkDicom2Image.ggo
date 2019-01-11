@@ -1,6 +1,6 @@
 # file clitkDicom2Image.ggo
 package "clitk"
-version "Try to convert a DICOM into an image (.hdr, .vox...)"
+version "Try to convert a DICOM into an image (.hdr, .vox...) identifying all available series"
 
 option "config"	  	    -	"Config file"		 string  	no
 option "verbose"	      v "Verbose"		 	 flag off
@@ -8,5 +8,4 @@ option "tolerance"	    t "Tolerance for slice position"	 double default="0" no
 option "output"         o "Output image filename"		string 	yes
 option "std_input"      - "Take the like of input file from stdin, to support huge lists of filenames" flag off
 option "focal_origin"   - "Output files with FOCAL-like origin, instead of the origin present in the dicom files" flag off
-option "extract_series" s "Identify different series in the file list and create the MHDs accordinly" flag off
 option "patientSystem"  p "Open the image with patient coordinate system" flag off

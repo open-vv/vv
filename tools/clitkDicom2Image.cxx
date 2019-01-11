@@ -93,11 +93,9 @@ int main(int argc, char * argv[])
     hreader.Read();
     gdcm::DataSet& ds = hreader.GetFile().GetDataSet();
 
-    if (args_info.extract_series_flag) {
-      gdcm::Attribute<0x20,0x000e> series_UID_att;
-      series_UID_att.SetFromDataSet(ds);
-      series_UID = series_UID_att.GetValue();
-    }
+    gdcm::Attribute<0x20,0x000e> series_UID_att;
+    series_UID_att.SetFromDataSet(ds);
+    series_UID = series_UID_att.GetValue().c_str();
 
     series_UIDs.insert(series_UID);
     theorigin[series_UID] = gdcm::ImageHelper::GetOriginValue(hreader.GetFile());
@@ -132,9 +130,7 @@ int main(int argc, char * argv[])
   header->SetMaxSizeLoadEntry(16384); // required ?
   header->Load();
 
-  if (args_info.extract_series_flag) {
-    series_UID = header->GetEntryValue(0x20,0x000e).c_str();
-  }
+  series_UID = header->GetEntryValue(0x20,0x000e).c_str();
 
   series_UIDs.insert(series_UID);
   theorigin[series_UID].resize(3);
