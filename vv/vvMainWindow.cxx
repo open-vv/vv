@@ -25,6 +25,7 @@ It is distributed under dual licence
 #include <QUrl>
 #include <QSettings>
 #include <QShortcut>
+#include <QFileSystemWatcher>
 
 // VV include
 #include "vvMainWindow.h"
@@ -982,6 +983,12 @@ void vvMainWindow::LoadImages(std::vector<std::string> files, vvImageReader::Loa
 
         linkPanel->addImage(imageManager->GetFileName(), id.toStdString());
 
+        //Create a watcher to see if the image file is modified. In such a case, reload it automatically
+        QFileSystemWatcher* watcher = new QFileSystemWatcher;
+        watcher->addPath(files[i].c_str());
+        connect(watcher, SIGNAL(fileChanged(const QString&)), this, SLOT(SlotFileChanged(const QString&)));
+
+
         connect(mSlicerManagers.back(), SIGNAL(currentImageChanged(std::string)),
           this,SLOT(CurrentImageChanged(std::string)));
         connect(mSlicerManagers.back(), SIGNAL(currentPickedImageChanged(std::string)),
@@ -1438,6 +1445,29 @@ QString vvMainWindow::GetVectorIntAsString(std::vector<int> vectorInt)
     result += QString::number(vectorInt[i]);
   }
   return result;
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void vvMainWindow::SlotFileChanged(const QString& pathname)
+{
+  std::vector<QTreeWidgetItem*> items = GetItemFromPathname(pathname);
+  for (unsigned int i=0; i< items.size(); ++i)
+    ReloadImage(items[i], 0);
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+std::vector<QTreeWidgetItem*> vvMainWindow::GetItemFromPathname(const QString& pathname)
+{
+  std::vector<QTreeWidgetItem*> items;
+  for (int i = 0; i < DataTree->topLevelItemCount(); ++i) {
+    QString tempItemPathname(DataTree->topLevelItem(i)->data(COLUMN_IMAGE_NAME,Qt::UserRole).toString());
+    tempItemPathname = tempItemPathname.left(tempItemPathname.length() - 1);
+    if (tempItemPathname == pathname)
+      items.push_back(DataTree->topLevelItem(i));
+  }
+  return items;
 }
 //------------------------------------------------------------------------------
 

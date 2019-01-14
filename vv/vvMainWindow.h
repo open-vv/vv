@@ -192,6 +192,7 @@ public slots:
   void UpdateRenderWindows();
   void UpdateMemoryUsage();
   void show();
+  void SlotFileChanged(const QString& pathname);
   
 protected:
   
@@ -230,6 +231,7 @@ private:
   QString GetSizeInBytes(unsigned long size);
   QString GetVectorDoubleAsString(std::vector<double> vectorDouble);
   QString GetVectorIntAsString(std::vector<int> vectorInt);
+  std::vector<QTreeWidgetItem*> GetItemFromPathname(const QString& pathname);
   int GetSlicerIndexFromItem(QTreeWidgetItem* item); //this actually returns the SlicerManager index TODO: rename it to GetSlicerManagerIndexFromItem
   QTreeWidgetItem* GetItemFromSlicerManager(vvSlicerManager* sm);
 #if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 1) || VTK_MAJOR_VERSION >= 9
