@@ -242,7 +242,7 @@ void clitk::Image2DicomRTStructFilter<PixelType>::Update()
   writer->InitializeRTStructSet(m_DicomFolder,
                                 reader->GetRTStructSetProperties()->GetStructureSetLabel(),
                                 reader->GetRTStructSetProperties()->GetStructureSetName(),
-                                roiNames, roiAlgorithms, roiTypes);  
+                                roiTypes, roiAlgorithms, roiTypes);
   writer->Write();
   reader->Delete();
   roiNames->Delete();
