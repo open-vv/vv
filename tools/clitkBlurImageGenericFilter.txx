@@ -30,6 +30,7 @@
 // itk include
 #include "itkDiscreteGaussianImageFilter.h"
 #include <clitkCommon.h>
+#include <typeinfo>
 
 namespace clitk
 {
@@ -110,21 +111,42 @@ BlurImageGenericFilter<args_info_type>::UpdateWithInputImageType()
   typename InputImageType::Pointer input = this->template GetInput<InputImageType>(0);
 
   // Main filter
-  typedef typename InputImageType::PixelType PixelType;
+  typedef typename InputImageType::PixelType InputPixelType;
   typedef itk::Image<float, InputImageType::ImageDimension> OutputImageType;
+  typedef itk::Image<double, InputImageType::ImageDimension> DoubleOutputImageType;
 
   // Filter
-  typedef itk::DiscreteGaussianImageFilter<InputImageType, OutputImageType> DiscreteGaussianImageFilterType;
-  typename DiscreteGaussianImageFilterType::Pointer gaussianFilter=DiscreteGaussianImageFilterType::New();
-  gaussianFilter->SetInput(input);
-  gaussianFilter->SetVariance(varianceArray);
-  gaussianFilter->SetUseImageSpacing(true);
-  gaussianFilter->Update();
+  if(typeid(InputPixelType) != typeid(double)) {
+      if(mArgsInfo.verbose_flag) {
+          std::cout<<"OutputPixelType is set to float"<<std::endl;
+      }
+      typedef itk::DiscreteGaussianImageFilter<InputImageType, OutputImageType> DiscreteGaussianImageFilterType;
+      typename DiscreteGaussianImageFilterType::Pointer gaussianFilter=DiscreteGaussianImageFilterType::New();
+      gaussianFilter->SetInput(input);
+      gaussianFilter->SetVariance(varianceArray);
+      gaussianFilter->SetUseImageSpacing(true);
+      gaussianFilter->Update();
 
-  //std::cout<<"variance value="<<gaussianFilter->GetVariance()<<std::endl;
+      //std::cout<<"variance value="<<gaussianFilter->GetVariance()<<std::endl;
 
-  // Write/Save results
-  this->template SetNextOutput<OutputImageType>(gaussianFilter->GetOutput());
+      // Write/Save results
+      this->template SetNextOutput<OutputImageType>(gaussianFilter->GetOutput());
+  } else {
+      if(mArgsInfo.verbose_flag) {
+          std::cout<<"OutputPixelType is set to double"<<std::endl;
+      }
+      typedef itk::DiscreteGaussianImageFilter<InputImageType, DoubleOutputImageType> DiscreteGaussianImageFilterType;
+      typename DiscreteGaussianImageFilterType::Pointer gaussianFilter=DiscreteGaussianImageFilterType::New();
+      gaussianFilter->SetInput(input);
+      gaussianFilter->SetVariance(varianceArray);
+      gaussianFilter->SetUseImageSpacing(true);
+      gaussianFilter->Update();
+
+      //std::cout<<"variance value="<<gaussianFilter->GetVariance()<<std::endl;
+
+      // Write/Save results
+      this->template SetNextOutput<DoubleOutputImageType>(gaussianFilter->GetOutput());
+  }
 }
 //--------------------------------------------------------------------
 
