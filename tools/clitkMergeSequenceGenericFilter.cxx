@@ -34,16 +34,15 @@ namespace clitk {
     //Get the image Dimension and PixelType
     int Dimension, Components;
     std::string PixelType;
-    
+
     clitk::ReadImageDimensionAndPixelType(m_InputNames[0], Dimension, PixelType, Components);
 
     if(Dimension==2) UpdateWithDim<2>(PixelType, Components);
     else if(Dimension==3) UpdateWithDim<3>(PixelType, Components);
-    else 
-      {
-	std::cout<<"Error, Only for 2 and 3 Dimensions!!!"<<std::endl ;
-	return;
-      }
+    else {
+      std::cout<<"Error, Only for 2 and 3 Dimensions!!!"<<std::endl ;
+      return;
+    }
   }
 } //end namespace
 

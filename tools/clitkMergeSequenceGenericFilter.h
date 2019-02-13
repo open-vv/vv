@@ -28,16 +28,16 @@
 
 namespace clitk
 {
-  
+
   class ITK_EXPORT MergeSequenceGenericFilter : public itk::LightObject
-  
+
   {
   public:
     typedef MergeSequenceGenericFilter     Self;
     typedef itk::LightObject     Superclass;
     typedef itk::SmartPointer<Self>            Pointer;
     typedef itk::SmartPointer<const Self>      ConstPointer;
-   
+
     /** Method for creation through the object factory. */
     itkNewMacro(Self);  
 
@@ -64,7 +64,7 @@ namespace clitk
     double  m_Spacing;
     std::string m_OutputName;
     bool m_Verbose;
-  
+
 };
 
 

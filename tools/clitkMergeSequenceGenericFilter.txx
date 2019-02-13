@@ -72,14 +72,14 @@ namespace clitk
     //Define the input and output image type
     typedef itk::Image<PixelType, Dimension> InputImageType;
     typedef itk::Image<PixelType, Dimension+1> OutputImageType;
-    
+
     //Read the input image series
     typedef itk::ImageSeriesReader<OutputImageType> ImageReaderType;
     typename  ImageReaderType::Pointer reader= ImageReaderType::New();
     reader->SetFileNames(m_InputNames);
     reader->Update();
     typename OutputImageType::Pointer image =reader->GetOutput();
- 
+
     //Set the spacing
     typename OutputImageType::SpacingType spacing=image->GetSpacing();
     spacing[Dimension]=m_Spacing;
