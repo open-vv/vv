@@ -28,43 +28,33 @@ namespace clitk
 
     if (m_Verbose) std::cout << "Image was detected to be "<<Dimension<<"D and "<<Components<<" component(s) of "<<  PixelType<<"..."<<std::endl;
 
-    if (Components==1)
-      {
-	if(PixelType == "short"){  
-	  if (m_Verbose) std::cout << "Launching filter in "<< Dimension <<"D and signed short..." << std::endl;
-	  UpdateWithDimAndPixelType<Dimension, signed short>(); 
-	}
-	//    else if(PixelType == "unsigned_short"){  
-	//       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_short..." << std::endl;
-	//       UpdateWithDimAndPixelType<Dimension, unsigned short>(); 
-	//     }
-	
-	else if (PixelType == "unsigned_char"){ 
-	  if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_char..." << std::endl;
-	  UpdateWithDimAndPixelType<Dimension, unsigned char>();
-	}
-	
-	//     else if (PixelType == "char"){ 
-	//       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and signed_char..." << std::endl;
-	//       UpdateWithDimAndPixelType<Dimension, signed char>();
-	//     }
-	else {
-	  if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and float..." << std::endl;
-	  UpdateWithDimAndPixelType<Dimension, float>();
-	}
+    if (Components==1) {
+      if(PixelType == "short") {
+        if (m_Verbose) std::cout << "Launching filter in "<< Dimension <<"D and signed short..." << std::endl;
+        UpdateWithDimAndPixelType<Dimension, signed short>();
+      } else if(PixelType == "unsigned_short") {
+         if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_short..." << std::endl;
+         UpdateWithDimAndPixelType<Dimension, unsigned short>();
+      } else if (PixelType == "unsigned_char") {
+        if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_char..." << std::endl;
+        UpdateWithDimAndPixelType<Dimension, unsigned char>();
+      } else if (PixelType == "char"){
+        if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and signed_char..." << std::endl;
+        UpdateWithDimAndPixelType<Dimension, signed char>();
+      } else if(PixelType == "double"){
+        if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and double..." << std::endl;
+        UpdateWithDimAndPixelType<Dimension, double>();
+      } else {
+        if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and float..." << std::endl;
+        UpdateWithDimAndPixelType<Dimension, float>();
       }
-
-    else if (Components==3)
-      {
-	if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and 3D float (DVF)" << std::endl;
-	UpdateWithDimAndPixelType<Dimension, itk::Vector<float, 3> >();
-      }
-
-    else std::cerr<<"Number of components is "<<Components<<", not supported!"<<std::endl;
-
+    } else if (Components==3) {
+      if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and 3D float (DVF)" << std::endl;
+      UpdateWithDimAndPixelType<Dimension, itk::Vector<float, 3> >();
+    } else std::cerr<<"Number of components is "<<Components<<", not supported!"<<std::endl;
   }
-  
-  
+
+
   template<unsigned int Dimension, class PixelType >
   void MergeSequenceGenericFilter::UpdateWithDimAndPixelType()
   {
