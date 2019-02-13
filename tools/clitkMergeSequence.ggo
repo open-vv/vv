@@ -3,10 +3,11 @@
 #Date : Tue 15 June 16.35 
 
 package "clitkMergeSequence"
-version "Read a series of nD images (unnamed inputs) and merge them to a (n+1)D image"
+version "1.0"
+purpose "Read a series of nD images (unnamed inputs) and merge them to a (n+1)D image.
+The spacing of the (n+1)th dimension is given by the option spacing."
 
 option "config"   - "Config file"                   string  no
 option "spacing"  s "Spacing for the new dimension" double  no  default="1"
 option "output"   o "Output filename"               string  yes
 option "verbose"  v "Verbose"                       flag    off
-
