@@ -23,7 +23,7 @@
  * @author Jef Vandemeulebroucke <jefvdmb@gmail.com>
  * @date   December 2  10:14:53 2008
  * 
- * @brief  Read in one VF (ex mhd, vf) invert it using a splat with linear kernels to the target. 
+ * @brief  Read a series of nD images (unnamed inputs) and merge them to a (n+1)D image.
  * 
  */
 
