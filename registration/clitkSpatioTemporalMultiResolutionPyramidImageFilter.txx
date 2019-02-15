@@ -26,8 +26,6 @@
 #include "itkShrinkImageFilter.h"
 #include "itkIdentityTransform.h"
 
-#include "vnl/vnl_math.h"
-
 namespace clitk
 {
 
@@ -218,7 +216,7 @@ SpatioTemporalMultiResolutionPyramidImageFilter<TInputImage, TOutputImage>
 	  //  schedule[level-1] );
 	  if( level > 0 )
 	    {
-	      m_Schedule[level][dim] = vnl_math_min( m_Schedule[level][dim], m_Schedule[level-1][dim] );
+	      m_Schedule[level][dim] = std::min( m_Schedule[level][dim], m_Schedule[level-1][dim] );
 	    }
 	  
 	  if( m_Schedule[level][dim] < 1 )
@@ -331,7 +329,7 @@ SpatioTemporalMultiResolutionPyramidImageFilter<TInputImage, TOutputImage>
     for( idim = 0; idim < ImageDimension; idim++ )
       {
       factors[idim] = m_Schedule[ilevel][idim];
-      variance[idim] = vnl_math_sqr( 0.5 *
+      variance[idim] = std::sqr( 0.5 *
                                      static_cast<float>( factors[idim] ) );
       }
 
@@ -605,7 +603,7 @@ SpatioTemporalMultiResolutionPyramidImageFilter<TInputImage, TOutputImage>
   for( idim = 0; idim < TInputImage::ImageDimension; idim++ )
     {
     oper->SetDirection(idim);
-    oper->SetVariance( vnl_math_sqr( 0.5 * static_cast<float>(
+    oper->SetVariance( std::sqr( 0.5 * static_cast<float>(
                                        m_Schedule[refLevel][idim] ) ) );
     oper->SetMaximumError( m_MaximumError );
     oper->CreateDirectional();

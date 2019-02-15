@@ -289,7 +289,7 @@ CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
 
       typename MovingImageType::IndexType mappedIndex;
       for( unsigned int j = 0; j < MovingImageType::ImageDimension; j++ ) {
-        mappedIndex[j] = static_cast<long>( vnl_math_rnd( tempIndex[j] ) );
+        mappedIndex[j] = static_cast<long>( std::round( tempIndex[j] ) );
       }
 
       const GradientPixelType gradient =
@@ -409,7 +409,7 @@ CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
 
       typename MovingImageType::IndexType mappedIndex;
       for( unsigned int j = 0; j < MovingImageType::ImageDimension; j++ ) {
-        mappedIndex[j] = static_cast<long>( vnl_math_rnd( tempIndex[j] ) );
+        mappedIndex[j] = static_cast<long>( std::round( tempIndex[j] ) );
       }
 
       const GradientPixelType gradient =
