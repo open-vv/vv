@@ -40,8 +40,6 @@
 #include "itkPoint.h"
 #include "itkIndex.h"
 
-#include "itkMultiThreader.h"
-
 namespace itk
 {
 

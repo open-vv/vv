@@ -46,8 +46,6 @@
 #include "itkBSplineDeformableTransform.h"
 #include "itkArray2D.h"
 
-#include "itkMultiThreader.h"
-
 namespace itk
 {
 
