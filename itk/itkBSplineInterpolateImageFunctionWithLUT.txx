@@ -187,7 +187,7 @@ namespace itk
     for(int l=0; l<TImageType::ImageDimension; l++) 
       {
 	// Compute t1 = distance to floor 
-	TCoefficientType t1 = x[l]- vcl_floor(x[l]);
+	TCoefficientType t1 = x[l]- std::floor(x[l]);
     
 	// Compute index in precomputed weights table
 	TCoefficientType t2 = mSamplingFactors[l]*t1;
@@ -237,13 +237,13 @@ namespace itk
     long indx;
     for (unsigned int l=0; l<d; l++)  {
       if (mSplineOrders[l] & 1) {  // Use this index calculation for odd splineOrder (like cubic)
-	indx = (long)vcl_floor(x[l]) - mSplineOrders[l] / 2 ; //this->m_SplineOrder / 2;
+	indx = (long)std::floor(x[l]) - mSplineOrders[l] / 2 ; //this->m_SplineOrder / 2;
 	evaluateIndex[l] = indx;
       }
       else { // Use this index calculation for even splineOrder
 	if (mSplineOrders[l] == 0) evaluateIndex[l] = Math::Round<typename ContinuousIndexType::ValueType>(x[l]);
 	else {
-	  indx = (long)vcl_floor((x[l]+ 0.5)) - mSplineOrders[l] / 2; //this->m_SplineOrder / 2;
+	  indx = (long)std::floor((x[l]+ 0.5)) - mSplineOrders[l] / 2; //this->m_SplineOrder / 2;
 	  evaluateIndex[l] = indx;
 	}
       }

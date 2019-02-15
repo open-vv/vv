@@ -98,7 +98,7 @@ namespace clitk
 	      {
 		// The following  block is equivalent to the following line without
 		// having to call floor. (Only for positive inputs, we already now that is in the image)
-		// baseIndex[dim] = (long) vcl_floor(contIndex[dim] );
+		// baseIndex[dim] = (long) std::floor(contIndex[dim] );
 	
 		baseIndex[dim] = (long) contIndex[dim];
 		distance[dim] = contIndex[dim] - double( baseIndex[dim] );

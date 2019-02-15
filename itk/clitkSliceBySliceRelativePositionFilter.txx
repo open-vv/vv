@@ -43,7 +43,7 @@ SliceBySliceRelativePositionFilter():
   SetObjectCCLSelectionDirection(1);
   ObjectCCLSelectionIgnoreSingleCCLFlagOff();
   VerboseSlicesFlagOff();
-  this->SetK1(vcl_acos(-1.0)/2);
+  this->SetK1(std::acos(-1.0)/2);
 }
 //--------------------------------------------------------------------
 
