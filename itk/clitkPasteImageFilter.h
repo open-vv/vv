@@ -18,7 +18,11 @@ namespace clitk
     public itk::PasteImageFilter< TInputImage, TSourceImage, TOutputImage >
   {
   public:
+#if ITK_VERSION_MAJOR <= 4
     virtual void VerifyInputInformation() ITK_OVERRIDE { }
+#else
+    virtual void VerifyInputInformation() const ITK_OVERRIDE { }
+#endif
 
     /** Standard class typedefs. */
     typedef PasteImageFilter                                Self;

@@ -99,8 +99,12 @@ namespace clitk {
     itkStaticConstMacro(OutputImageDimension, unsigned int, TOutputImage::ImageDimension);
 
     // I dont want to verify inputs information
+#if ITK_VERSION_MAJOR <= 4
     virtual void VerifyInputInformation() ITK_OVERRIDE { }
-    
+#else
+    virtual void VerifyInputInformation() const ITK_OVERRIDE { }
+#endif
+
   protected:
     BooleanOperatorLabelImageFilter();
     virtual ~BooleanOperatorLabelImageFilter() {}

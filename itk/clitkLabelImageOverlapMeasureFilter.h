@@ -93,7 +93,11 @@ namespace clitk {
     itkBooleanMacro(LongFlag);
 
     // I dont want to verify inputs information
-    virtual void VerifyInputInformation() { }
+#if ITK_VERSION_MAJOR <= 4
+    virtual void VerifyInputInformation() ITK_OVERRIDE { }
+#else
+    virtual void VerifyInputInformation() const ITK_OVERRIDE { }
+#endif
 
    protected:
     LabelImageOverlapMeasureFilter();
