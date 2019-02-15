@@ -47,7 +47,9 @@ public:
   //Typedefs
   typedef typename OutputImageType::PixelType        PixelType;
   typedef itk::Image<double, ImageDimension > WeightsImageType;
-  typedef itk::Image<itk::SimpleFastMutexLock, ImageDimension > MutexImageType;
+#if ITK_VERSION_MAJOR <= 4
+  typedef itk::Image<itk::SimpleFastMutexLock, ImageDimension> MutexImageType;
+#endif
 
   //===================================================================================
   //Set methods
@@ -55,11 +57,18 @@ public:
     m_Weights = input;
     this->Modified();
   }
+#if ITK_VERSION_MAJOR <= 4
   void SetMutexImage(const typename MutexImageType::Pointer input) {
     m_MutexImage=input;
     this->Modified();
     m_ThreadSafe=true;
   }
+#else
+  void SetMutexImage() {
+    this->Modified();
+    m_ThreadSafe=true;
+  }
+#endif
 
   //Get methods
   typename  WeightsImageType::Pointer GetWeights() {
@@ -79,7 +88,11 @@ protected:
 
   //member data
   typename  WeightsImageType::Pointer m_Weights;
+#if ITK_VERSION_MAJOR <= 4
   typename MutexImageType::Pointer m_MutexImage;
+#else
+  std::mutex m_Mutex;
+#endif
   bool m_ThreadSafe;
 
 };
@@ -215,14 +228,22 @@ void HelperClass1<InputImageType, OutputImageType>::ThreadedGenerateData(const O
 
           else {
             //Entering critilal section: shared memory
+#if ITK_VERSION_MAJOR <= 4
             m_MutexImage->GetPixel(neighIndex).Lock();
+#else
+            m_Mutex.lock();
+#endif
 
             //Set the pixel and weight at neighIndex
             outputPtr->SetPixel(neighIndex, outputPtr->GetPixel(neighIndex) - (displacement*overlap));
             m_Weights->SetPixel(neighIndex, m_Weights->GetPixel(neighIndex) + overlap);
 
             //Unlock
+#if ITK_VERSION_MAJOR <= 4
             m_MutexImage->GetPixel(neighIndex).Unlock();
+#else
+            m_Mutex.unlock();
+#endif
 
           }
           //Add to total overlap
@@ -451,11 +472,15 @@ template <class InputImageType, class OutputImageType> void InvertVFFilter<Input
   //Threadsafe?
   if(m_ThreadSafe) {
     //Allocate the mutex image
+#if ITK_VERSION_MAJOR <= 4
     typename MutexImageType::Pointer mutex=InvertVFFilter::MutexImageType::New();
     mutex->SetRegions(region);
     mutex->Allocate();
     mutex->SetSpacing(inputPtr->GetSpacing());
     helper1->SetMutexImage(mutex);
+#else
+    helper1->SetMutexImage();
+#endif
     if (m_Verbose) std::cout <<"Inverting using a thread-safe algorithm" <<std::endl;
   } else  if(m_Verbose)std::cout <<"Inverting using a thread-unsafe algorithm" <<std::endl;
 

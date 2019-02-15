@@ -27,7 +27,11 @@
 #include "itkImageRegionIterator.h"
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkNumericTraits.h"
+#if ITK_VERSION_MAJOR <= 4
 #include "itkSimpleFastMutexLock.h"
+#else
+#include <mutex>
+#endif
 #include "itkImageMaskSpatialObject.h"
 
 namespace clitk
