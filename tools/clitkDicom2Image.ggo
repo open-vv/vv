@@ -10,3 +10,4 @@ option "std_input"      - "Take the like of input file from stdin, to support hu
 option "focal_origin"   - "Output files with FOCAL-like origin, instead of the origin present in the dicom files" flag off
 option "patientSystem"  p "Open the image with patient coordinate system" flag off
 option "instanceNumber" n "Sort the images regarding instance number in dicom tag" flag off
+option "reverse"        r "Reverse the slice order" flag off

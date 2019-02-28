@@ -247,6 +247,11 @@ int main(int argc, char * argv[])
     }
 
     //===========================================
+    // Reverse the slice order (for MR from HEH)
+    if (args_info.reverse_flag)
+      std::reverse(sorted_files.begin(), sorted_files.end());
+
+    //===========================================
     // Read write serie
     vvImageReader::Pointer reader = vvImageReader::New();
     reader->SetInputFilenames(sorted_files);
