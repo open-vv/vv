@@ -74,6 +74,7 @@ int main(int argc, char * argv[])
   std::map< std::string, std::vector<double> > theorigin;
   std::map< std::string, std::vector<double> > theorientation;
   std::map< std::string, std::vector<double> > sliceLocations;
+  std::map< std::string, std::vector<double> > instanceNumber;
   std::map< std::string, std::vector<std::string> > seriesFiles;
 #if GDCM_MAJOR_VERSION >= 2
   if (args_info.verbose_flag)
@@ -115,6 +116,10 @@ int main(int argc, char * argv[])
       sliceLocations[series_UID].push_back(theorigin[series_UID][2]);
     seriesFiles[series_UID].push_back(input_files[i]);
 
+    gdcm::Attribute<0x20,0x0013> instanceNumber_att;
+    instanceNumber_att.SetFromDataSet(ds);
+    instanceNumber[series_UID].push_back(instanceNumber_att.GetValue());
+
     gdcm::Attribute<0x28, 0x100> pixel_size;
     pixel_size.SetFromDataSet(ds);
     /* if (pixel_size.GetValue() != 16)
@@ -154,6 +159,7 @@ int main(int argc, char * argv[])
   while ( sn != series_UIDs.end() ) {
     std::vector<double> locs = sliceLocations[*sn];
     std::vector<double> origin = theorigin[*sn];
+    std::vector<double> instanceNumberSerie = instanceNumber[*sn];
     std::vector<std::string> files = seriesFiles[*sn];
     std::vector<int> sliceIndex(files.size());
     //clitk::GetSortedIndex(locs, sliceIndex);
@@ -223,8 +229,22 @@ int main(int argc, char * argv[])
     // Create ordered vector of filenames
     std::vector<std::string> sorted_files;
     sorted_files.resize(sliceIndex.size());
-    for(unsigned int i=0; i<sliceIndex.size(); i++)
-      sorted_files[i] = files[ sliceIndex[i] ];
+    if (!args_info.instanceNumber_flag) {
+      for(unsigned int i=0; i<sliceIndex.size(); i++)
+        sorted_files[i] = files[ sliceIndex[i] ];
+    } else {
+      std::vector<double>::iterator maxInstanceNumber = std::max_element(instanceNumberSerie.begin(), instanceNumberSerie.end());
+      std::vector<std::string> instanceNumberTemp(*maxInstanceNumber, "");
+      for(unsigned int i=0; i<instanceNumberSerie.size(); i++)
+        instanceNumberTemp[instanceNumberSerie[i]-1] = files[i];
+      unsigned int fillFiles(0);
+      for(unsigned int i=0; i<instanceNumberTemp.size(); i++) {
+          if (instanceNumberTemp[i] != "") {
+            sorted_files[fillFiles] = instanceNumberTemp[i];
+            ++fillFiles;
+          }
+       }
+    }
 
     //===========================================
     // Read write serie
