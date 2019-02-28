@@ -71,7 +71,11 @@ namespace clitk {
     itkStaticConstMacro(ImageDimension, unsigned int, ImageType::ImageDimension);
 
     // I dont want to verify inputs information
+#if ITK_VERSION_MAJOR <= 4
     virtual void VerifyInputInformation() ITK_OVERRIDE { }
+#else
+    virtual void VerifyInputInformation() const ITK_OVERRIDE { }
+#endif
 
   protected:
     CropLikeImageFilter();

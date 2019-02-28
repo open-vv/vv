@@ -168,7 +168,7 @@ CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
 
       //check in which bin the fixed value belongs, get the index
       const double fixedImageBinTerm =        (fixedValue - m_FixedImageMin) / m_FixedImageBinSize;
-      const unsigned int fixedImageBinIndex = static_cast<unsigned int>( vcl_floor(fixedImageBinTerm ) );
+      const unsigned int fixedImageBinIndex = static_cast<unsigned int>( std::floor(fixedImageBinTerm ) );
       //adapt the measures per bin
       this->m_mMSVPB[fixedImageBinIndex]+=movingSquaredValue;
       this->m_mSMVPB[fixedImageBinIndex]+=movingValue;
@@ -289,7 +289,7 @@ CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
 
       typename MovingImageType::IndexType mappedIndex;
       for( unsigned int j = 0; j < MovingImageType::ImageDimension; j++ ) {
-        mappedIndex[j] = static_cast<long>( vnl_math_rnd( tempIndex[j] ) );
+        mappedIndex[j] = static_cast<long>( std::round( tempIndex[j] ) );
       }
 
       const GradientPixelType gradient =
@@ -409,7 +409,7 @@ CorrelationRatioImageToImageMetric<TFixedImage,TMovingImage>
 
       typename MovingImageType::IndexType mappedIndex;
       for( unsigned int j = 0; j < MovingImageType::ImageDimension; j++ ) {
-        mappedIndex[j] = static_cast<long>( vnl_math_rnd( tempIndex[j] ) );
+        mappedIndex[j] = static_cast<long>( std::round( tempIndex[j] ) );
       }
 
       const GradientPixelType gradient =

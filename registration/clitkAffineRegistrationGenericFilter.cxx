@@ -20,6 +20,45 @@
 #define CLITKAFFINEREGISTRATIONGENERICFILTER_CXX
 
 #include "clitkAffineRegistrationGenericFilter.h"
+// clitk include
+#include "clitkIO.h"
+#include "clitkCommon.h"
+#include "clitkImageCommon.h"
+#include "clitkAffineRegistration_ggo.h"
+#include "clitkImageArithm_ggo.h"
+#include "clitkCorrelationRatioImageToImageMetric.h"
+#include "clitkTransformUtilities.h"
+#include "clitkGenericMetric.h"
+#include "clitkGenericOptimizer.h"
+#include "clitkGenericInterpolator.h"
+#include "clitkGenericAffineTransform.h"
+#include "clitkImageToImageGenericFilter.h"
+
+
+//itk include
+#include <itkMultiResolutionImageRegistrationMethod.h>
+#include <itkMultiResolutionPyramidImageFilter.h>
+#include <itkImageToImageMetric.h>
+#include <itkEuler2DTransform.h>
+#include <itkCenteredEuler3DTransform.h>
+#include <itkImage.h>
+#include <itkResampleImageFilter.h>
+#include <itkCastImageFilter.h>
+#include <itkNormalizeImageFilter.h>
+#include <itkDiscreteGaussianImageFilter.h>
+#include <itkImageMaskSpatialObject.h>
+#include <itkCommand.h>
+#include <itkCheckerBoardImageFilter.h>
+#include <itkSubtractImageFilter.h>
+#include <itkLightObject.h>
+#include <itkImageMomentsCalculator.h>
+#include <itkThresholdImageFilter.h>
+
+// other includes
+#include <time.h>
+#include <iostream>
+#include <iomanip>
+
 
 namespace clitk
 {

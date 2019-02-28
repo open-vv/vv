@@ -68,14 +68,14 @@ namespace clitk
 	    const float scaleFactor = static_cast<float>( m_Schedule[ level ][ dim ] );
 	    
 	    size[ dim ] = static_cast<typename SizeType::SizeValueType>(
-		vcl_floor(static_cast<float>( inputSize[ dim ] ) / scaleFactor ) );
+		std::floor(static_cast<float>( inputSize[ dim ] ) / scaleFactor ) );
 	    if( size[ dim ] < 1 )
 	      {
 		size[ dim ] = 1;
 	      }
 	    
 	    start[ dim ] = static_cast<typename IndexType::IndexValueType>(
-		  vcl_ceil(static_cast<float>( inputStart[ dim ] ) / scaleFactor ) ); 
+		  std::ceil(static_cast<float>( inputStart[ dim ] ) / scaleFactor ) );
 	  }
 	m_RegionPyramid[ level ].SetSize( size );
 	m_RegionPyramid[ level ].SetIndex( start );

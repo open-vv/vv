@@ -27,8 +27,6 @@
 #include "itkShrinkImageFilter.h"
 #include "itkIdentityTransform.h"
 
-#include "vnl/vnl_math.h"
-
 namespace clitk
 {
 
@@ -147,7 +145,7 @@ RecursiveSpatioTemporalMultiResolutionPyramidImageFilter<TInputImage, TOutputIma
         factors[idim] = this->GetSchedule()[ilevel][idim] /
           this->GetSchedule()[ilevel+1][idim];
         }
-      variance[idim] = vnl_math_sqr( 0.5 * 
+      variance[idim] = std::sqr( 0.5 *
                                      static_cast<float>( factors[idim] ) );
       if( factors[idim] != 1 ) 
         { 
@@ -314,7 +312,7 @@ RecursiveSpatioTemporalMultiResolutionPyramidImageFilter<TInputImage, TOutputIma
       if( factors[idim] > 1 )
         {
         oper->SetDirection( idim );
-        oper->SetVariance( vnl_math_sqr( 0.5 * 
+        oper->SetVariance( std::sqr( 0.5 *
                                          static_cast<float>( factors[idim] ) ) );
         oper->CreateDirectional();
         radius[idim] = oper->GetRadius()[idim];
@@ -352,7 +350,7 @@ RecursiveSpatioTemporalMultiResolutionPyramidImageFilter<TInputImage, TOutputIma
       if( factors[idim] > 1 )
         {
         oper->SetDirection( idim );
-        oper->SetVariance( vnl_math_sqr( 0.5 * 
+        oper->SetVariance( std::sqr( 0.5 *
                                          static_cast<float>( factors[idim] ) ) );
         oper->CreateDirectional();
         radius[idim] = oper->GetRadius()[idim];
@@ -367,14 +365,14 @@ RecursiveSpatioTemporalMultiResolutionPyramidImageFilter<TInputImage, TOutputIma
       requestedIndex[idim] += radius[idim];
       
       // take into account shrink component
-      requestedSize[idim] = static_cast<SizeValueType>( vcl_floor(
+      requestedSize[idim] = static_cast<SizeValueType>( std::floor(
                                                           static_cast<double>(requestedSize[idim]) / 
                                                           static_cast<double>(factors[idim]) ) );
       if( requestedSize[idim] < 1 )
         {
         requestedSize[idim] = 1;
         }
-      requestedIndex[idim] = static_cast<IndexValueType>( vcl_ceil(
+      requestedIndex[idim] = static_cast<IndexValueType>( std::ceil(
                                                             static_cast<double>(requestedIndex[idim]) /
                                                             static_cast<double>(factors[idim]) ) );
 
@@ -450,7 +448,7 @@ RecursiveSpatioTemporalMultiResolutionPyramidImageFilter<TInputImage, TOutputIma
   for( idim = 0; idim < TInputImage::ImageDimension; idim++ )
     {
     oper->SetDirection(idim);
-    oper->SetVariance( vnl_math_sqr( 0.5 * static_cast<float>(
+    oper->SetVariance( std::sqr( 0.5 * static_cast<float>(
                                        this->GetSchedule()[refLevel][idim] ) ) );
     oper->SetMaximumError( this->GetMaximumError() );
     oper->CreateDirectional();

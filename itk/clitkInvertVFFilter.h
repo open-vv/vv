@@ -51,7 +51,9 @@ namespace clitk
     //Some other typedefs
     typedef double CoordRepType;
     typedef itk::Image<double, ImageDimension> WeightsImageType;
+#if ITK_VERSION_MAJOR <= 4
     typedef itk::Image<itk::SimpleFastMutexLock, ImageDimension> MutexImageType;
+#endif
 
     /** Point type */
     typedef itk::Point<CoordRepType,itkGetStaticConstMacro(ImageDimension)> PointType;

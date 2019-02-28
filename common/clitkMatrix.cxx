@@ -35,7 +35,7 @@ Get4x4MatrixDoubleAsString(vtkMatrix4x4 *matrix,
   for (unsigned int j = 0; j < 4; j++){
     double absmax = 0.;
     for (unsigned int i = 0; i < 4; i++)
-      absmax = std::max(absmax, vnl_math_abs(matrix->GetElement(i, j)));
+      absmax = std::max(absmax, std::abs(matrix->GetElement(i, j)));
     unsigned ndigits = (unsigned)std::max(0.,std::log10(absmax))+1;
     width[j] = precision+ndigits+3;
   }

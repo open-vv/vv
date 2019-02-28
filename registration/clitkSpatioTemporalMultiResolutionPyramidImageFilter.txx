@@ -26,8 +26,6 @@
 #include "itkShrinkImageFilter.h"
 #include "itkIdentityTransform.h"
 
-#include "vnl/vnl_math.h"
-
 namespace clitk
 {
 
@@ -218,7 +216,7 @@ SpatioTemporalMultiResolutionPyramidImageFilter<TInputImage, TOutputImage>
 	  //  schedule[level-1] );
 	  if( level > 0 )
 	    {
-	      m_Schedule[level][dim] = vnl_math_min( m_Schedule[level][dim], m_Schedule[level-1][dim] );
+	      m_Schedule[level][dim] = std::min( m_Schedule[level][dim], m_Schedule[level-1][dim] );
 	    }
 	  
 	  if( m_Schedule[level][dim] < 1 )
@@ -331,7 +329,7 @@ SpatioTemporalMultiResolutionPyramidImageFilter<TInputImage, TOutputImage>
     for( idim = 0; idim < ImageDimension; idim++ )
       {
       factors[idim] = m_Schedule[ilevel][idim];
-      variance[idim] = vnl_math_sqr( 0.5 *
+      variance[idim] = std::sqr( 0.5 *
                                      static_cast<float>( factors[idim] ) );
       }
 
@@ -433,11 +431,11 @@ SpatioTemporalMultiResolutionPyramidImageFilter<TInputImage, TOutputImage>
       outputSpacing[idim] = inputSpacing[idim] * shrinkFactor;
 
       outputSize[idim] = static_cast<SizeValueType>(
-        vcl_floor(static_cast<double>(inputSize[idim]) / shrinkFactor ) );
+        std::floor(static_cast<double>(inputSize[idim]) / shrinkFactor ) );
       if( outputSize[idim] < 1 ) { outputSize[idim] = 1; }
 
       outputStartIndex[idim] = static_cast<IndexValueType>(
-        vcl_ceil(static_cast<double>(inputStartIndex[idim]) / shrinkFactor ) );
+        std::ceil(static_cast<double>(inputStartIndex[idim]) / shrinkFactor ) );
       }
     //Now compute the new shifted origin for the updated levels;
     const typename OutputImageType::PointType::VectorType outputOriginOffset
@@ -528,11 +526,11 @@ SpatioTemporalMultiResolutionPyramidImageFilter<TInputImage, TOutputImage>
         double factor = static_cast<double>( m_Schedule[ilevel][idim] );
 
         outputSize[idim] = static_cast<SizeValueType>(
-          vcl_floor(static_cast<double>(baseSize[idim]) / factor ) );
+          std::floor(static_cast<double>(baseSize[idim]) / factor ) );
         if( outputSize[idim] < 1 ) { outputSize[idim] = 1; }
 
         outputIndex[idim] = static_cast<IndexValueType>(
-          vcl_ceil(static_cast<double>(baseIndex[idim]) / factor ) );
+          std::ceil(static_cast<double>(baseIndex[idim]) / factor ) );
 
         }
 
@@ -605,7 +603,7 @@ SpatioTemporalMultiResolutionPyramidImageFilter<TInputImage, TOutputImage>
   for( idim = 0; idim < TInputImage::ImageDimension; idim++ )
     {
     oper->SetDirection(idim);
-    oper->SetVariance( vnl_math_sqr( 0.5 * static_cast<float>(
+    oper->SetVariance( std::sqr( 0.5 * static_cast<float>(
                                        m_Schedule[refLevel][idim] ) ) );
     oper->SetMaximumError( m_MaximumError );
     oper->CreateDirectional();

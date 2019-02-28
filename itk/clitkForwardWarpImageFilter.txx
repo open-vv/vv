@@ -53,7 +53,9 @@ public:
   //Typedefs
   typedef typename OutputImageType::PixelType        OutputPixelType;
   typedef itk::Image<double, ImageDimension > WeightsImageType;
-  typedef itk::Image<itk::SimpleFastMutexLock, ImageDimension > MutexImageType;
+#if ITK_VERSION_MAJOR <= 4
+    typedef itk::Image<itk::SimpleFastMutexLock, ImageDimension> MutexImageType;
+#endif
   //===================================================================================
   //Set methods
   void SetWeights(const typename WeightsImageType::Pointer input) {
@@ -64,11 +66,18 @@ public:
     m_DeformationField=input;
     this->Modified();
   }
+#if ITK_VERSION_MAJOR <= 4
   void SetMutexImage(const typename MutexImageType::Pointer input) {
     m_MutexImage=input;
     this->Modified();
     m_ThreadSafe=true;
   }
+#else
+  void SetMutexImage() {
+    this->Modified();
+    m_ThreadSafe=true;
+  }
+#endif
 
   //Get methods
   typename WeightsImageType::Pointer GetWeights() {
@@ -89,7 +98,11 @@ protected:
   //member data
   typename  itk::Image< double, ImageDimension>::Pointer m_Weights;
   typename DeformationFieldType::Pointer m_DeformationField;
+#if ITK_VERSION_MAJOR <= 4
   typename MutexImageType::Pointer m_MutexImage;
+#else
+  std::mutex m_Mutex;
+#endif
   bool m_ThreadSafe;
 
 };
@@ -184,7 +197,7 @@ void HelperClass1<InputImageType, OutputImageType, DeformationFieldType>::Thread
       for(dim = 0; dim < ImageDimension; dim++) {
         // The following  block is equivalent to the following line without
         // having to call floor. For positive inputs!!!
-        // baseIndex[dim] = (long) vcl_floor(contIndex[dim] );
+        // baseIndex[dim] = (long) std::floor(contIndex[dim] );
         baseIndex[dim] = (long) contIndex[dim];
         distance[dim] = contIndex[dim] - double( baseIndex[dim] );
       }
@@ -224,14 +237,22 @@ void HelperClass1<InputImageType, OutputImageType, DeformationFieldType>::Thread
 
           } else {
             //Entering critilal section: shared memory
+#if ITK_VERSION_MAJOR <= 4
             m_MutexImage->GetPixel(neighIndex).Lock();
+#else
+            m_Mutex.lock();
+#endif
 
             //Set the pixel and weight at neighIndex
             outputPtr->SetPixel(neighIndex, outputPtr->GetPixel(neighIndex) + overlap * static_cast<OutputPixelType>(inputIt.Get()));
             m_Weights->SetPixel(neighIndex, m_Weights->GetPixel(neighIndex) + overlap);
 
             //Unlock
+#if ITK_VERSION_MAJOR <= 4
             m_MutexImage->GetPixel(neighIndex).Unlock();
+#else
+            m_Mutex.unlock();
+#endif
 
           }
           //Add to total overlap
@@ -459,11 +480,15 @@ void ForwardWarpImageFilter<InputImageType, OutputImageType, DeformationFieldTyp
   //Threadsafe?
   if(m_ThreadSafe) {
     //Allocate the mutex image
+#if ITK_VERSION_MAJOR <= 4
     typename MutexImageType::Pointer mutex=ForwardWarpImageFilter::MutexImageType::New();
     mutex->SetRegions(region);
     mutex->Allocate();
     mutex->SetSpacing(inputPtr->GetSpacing());
     helper1->SetMutexImage(mutex);
+#else
+    helper1->SetMutexImage();
+#endif
     if (m_Verbose) std::cout <<"Forwarp warping using a thread-safe algorithm" <<std::endl;
   } else  if(m_Verbose)std::cout <<"Forwarp warping using a thread-unsafe algorithm" <<std::endl;
 

@@ -181,7 +181,7 @@ namespace itk
       {
         m_Alpha1 = 0;
         m_Alpha2 = 0;
-        m_K1 = vcl_acos(-1.0)/2;
+        m_K1 = std::acos(-1.0)/2;
         // m_K2 = 3.1417/2;
         m_Radius = 2; // DS
         m_Fast = true; // DS

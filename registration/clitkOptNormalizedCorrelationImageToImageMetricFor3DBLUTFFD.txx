@@ -310,7 +310,7 @@ NormalizedCorrelationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   }
 
 
-  const RealType denom = -1.0 * vcl_sqrt(sff * smm );
+  const RealType denom = -1.0 * std::sqrt(sff * smm );
   MeasureType measure;
   if( this->m_NumberOfPixelsCounted > 0 && denom != 0.0) {
     measure = sfm / denom;
@@ -400,7 +400,7 @@ NormalizedCorrelationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
   }
 
 
-  m_Denom = -1.0 * vcl_sqrt(m_SFF * m_SMM );
+  m_Denom = -1.0 * std::sqrt(m_SFF * m_SMM );
   MeasureType measure;
   if( this->m_NumberOfPixelsCounted > 0 && m_Denom != 0.0) {
     measure = m_SFM / m_Denom;

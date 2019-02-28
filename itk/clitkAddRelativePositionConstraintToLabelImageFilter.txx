@@ -61,7 +61,7 @@ AddRelativePositionConstraintToLabelImageFilter():
   FuzzyMapOnlyFlagOff();
   FastFlagOff();
   SetRadius(2.0);
-  SetK1(vcl_acos(-1.0)/2);
+  SetK1(std::acos(-1.0)/2);
 }
 //--------------------------------------------------------------------
 

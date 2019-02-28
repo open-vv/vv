@@ -768,9 +768,9 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
       // check for non-zero bin contribution
       if( jointPDFValue > 1e-16 &&  movingImagePDFValue > 1e-16 ) {
 
-        double pRatio = vcl_log(jointPDFValue / movingImagePDFValue );
+        double pRatio = std::log(jointPDFValue / movingImagePDFValue );
         if( fixedImagePDFValue > 1e-16) {
-          sum += jointPDFValue * ( pRatio - vcl_log(fixedImagePDFValue ) );
+          sum += jointPDFValue * ( pRatio - std::log(fixedImagePDFValue ) );
         }
 
       }  // end if-block to check non-zero bin contribution
@@ -1093,10 +1093,10 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
       // check for non-zero bin contribution
       if( jointPDFValue > 1e-16 &&  movingImagePDFValue > 1e-16 ) {
 
-        double pRatio = vcl_log(jointPDFValue / movingImagePDFValue );
+        double pRatio = std::log(jointPDFValue / movingImagePDFValue );
 
         if( fixedImagePDFValue > 1e-16) {
-          sum += jointPDFValue * ( pRatio - vcl_log(fixedImagePDFValue ) );
+          sum += jointPDFValue * ( pRatio - std::log(fixedImagePDFValue ) );
         }
 
         if( this->m_UseExplicitPDFDerivatives ) {
