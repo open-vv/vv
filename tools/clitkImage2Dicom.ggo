@@ -1,0 +1,12 @@
+#File clitkImage2Dicom.ggo
+package "clitkImage2Dicom"
+version "1.0"
+purpose "Convert the 3D mhd input image (int image) into a 3D dicom (outputDcm) based on the dictionary of the dicoms in inputDcm. The number of slice between the input and the inputDcm could be different"
+
+option "config"     - "Config file"             string  no
+option "verbose"    v "Verbose"                 flag    off
+
+option "input"      i "Input image filename"    string  no
+option "inputDcm"   d "Input dicom filename"    string  no
+option "outputDcm"  o "Output dicom filename"   string  no
+
