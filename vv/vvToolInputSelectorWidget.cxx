@@ -90,7 +90,7 @@ void vvToolInputSelectorWidget::accept()
   if (mNumberOfAcceptedInputs == GetNumberOfInput()) {
     setEnabled(false);
     emit accepted();
-  } else {
+  } else if (mNumberOfAcceptedInputs < GetNumberOfInput()) {
     mListOfSimpleInputWidget[mNumberOfAcceptedInputs]->setEnabled(true);
   }
 }
