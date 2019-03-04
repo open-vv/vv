@@ -66,7 +66,7 @@ void vvToolSimpleInputSelectorWidget::EnableAllowSkip(bool b)
 {
   mAllowSkip = b;
   if (mAllowSkip) {
-    mInputSelectionButtonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Discard);
+    mInputSelectionButtonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Ignore);
     connect(mInputSelectionButtonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(skip(QAbstractButton*)));
   } else
     mInputSelectionButtonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
@@ -128,7 +128,7 @@ void vvToolSimpleInputSelectorWidget::reject()
 //------------------------------------------------------------------------------
 void vvToolSimpleInputSelectorWidget::skip(QAbstractButton* b)
 {
-  if (b->text() == "Discard") emit sigskip();
+  if (b->text() == "Ignore") emit sigskip();
 }
 //------------------------------------------------------------------------------
 
