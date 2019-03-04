@@ -23,7 +23,7 @@
 #include <vector>
 #include <QDropEvent>
 #include "vtkVersion.h"
-#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 1) || VTK_MAJOR_VERSION >= 9
+#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 2) || VTK_MAJOR_VERSION >= 9
 #include "ui_vvMainWindow.h"
 #else
 #include "ui_vvMainWindowVTK7.h"
@@ -234,7 +234,7 @@ private:
   std::vector<QTreeWidgetItem*> GetItemFromPathname(const QString& pathname);
   int GetSlicerIndexFromItem(QTreeWidgetItem* item); //this actually returns the SlicerManager index TODO: rename it to GetSlicerManagerIndexFromItem
   QTreeWidgetItem* GetItemFromSlicerManager(vvSlicerManager* sm);
-#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 1) || VTK_MAJOR_VERSION >= 9
+#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 2) || VTK_MAJOR_VERSION >= 9
   void SaveScreenshot(QVTKOpenGLNativeWidget *widget);
 #else
   void SaveScreenshot(QVTKWidget *widget);

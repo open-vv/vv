@@ -28,7 +28,7 @@
 #include "vvToolBase.h"
 #include "vvToolWidgetBase.h"
 #include <vtkVersion.h>
-#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 1) || VTK_MAJOR_VERSION >= 9
+#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 2) || VTK_MAJOR_VERSION >= 9
 #include "ui_vvToolHistogram.h"
 #else
 #include "ui_vvToolHistogramVTK7.h"
@@ -66,7 +66,7 @@ class vvToolHistogram:
 
   void displayHistogram();
 
-#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 1) || VTK_MAJOR_VERSION >= 9
+#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 2) || VTK_MAJOR_VERSION >= 9
   QVTKOpenGLNativeWidget* GetHistogramWidget();
 #else
   QVTKWidget* GetHistogramWidget();

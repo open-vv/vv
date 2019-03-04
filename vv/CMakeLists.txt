@@ -239,7 +239,7 @@ endif(CLITK_USE_PACS_CONNECTION)
   #Special case for Main Window with QVTKWidget according VTK version
   foreach(tool ${vv_TOOLS_VTK7} ${vv_COMMON_WITH_UI_VTK7})
       set(vv_SRCS ${vv_SRCS} ${tool}.cxx)
-      if(VTK_VERSION VERSION_GREATER "8.0.0")
+      if(VTK_VERSION VERSION_GREATER "8.2.0")
         if(vv_QT_VERSION VERSION_GREATER "4")
           QT5_WRAP_CPP(vv_SRCS ${tool}.h)
           QT5_WRAP_UI(vv_UI_CXX qt_ui/${tool}.ui)
