@@ -87,7 +87,7 @@ void ImageArithmGenericFilter<args_info_type>::SetArgsInfo(const args_info_type 
     exit(-1);
   }
   if ((!mArgsInfo.input2_given) && (!mArgsInfo.scalar_given)) {
-    if (mArgsInfo.operation_arg < 5) {
+    if (mArgsInfo.operation_arg < 7 || mArgsInfo.operation_arg == 10 || mArgsInfo.operation_arg == 11 || mArgsInfo.operation_arg == 13) {
       std::cerr << "Such operation need the --scalar option." << std::endl;
       exit(-1);
     }
@@ -336,16 +336,17 @@ void clitk::ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it, Ite
     break;
   case 5: // Absolute value
     while (!it.IsAtEnd()) {
-      if (it.Get() <= 0) ito.Set(PixelTypeDownCast<double, PixelType>(-it.Get()));
+      double value = (double)it.Get() - mScalar;
+      if (value <= 0) ito.Set(PixelTypeDownCast<double, PixelType>(-value));
       // <= zero to avoid warning for unsigned types
-      else ito.Set(PixelTypeDownCast<double, PixelType>(it.Get()));
+      else ito.Set(value);
       ++it;
       ++ito;
     }
     break;
   case 6: // Squared value
     while (!it.IsAtEnd()) {
-      ito.Set(PixelTypeDownCast<double, PixelType>((double)it.Get()*(double)it.Get()));
+      ito.Set(PixelTypeDownCast<double, PixelType>(((double)it.Get()-mScalar)*((double)it.Get()-mScalar)));
       ++it;
       ++ito;
     }
