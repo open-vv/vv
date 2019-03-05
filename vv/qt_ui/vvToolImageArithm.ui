@@ -114,6 +114,20 @@
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QRadioButton" name="radioButtonDifference">
+          <property name="text">
+           <string>Difference A-B</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioButtonRelativeDiff">
+          <property name="text">
+           <string>Relative difference (A-B)/A</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </item>
@@ -207,14 +221,14 @@
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="radioButtonLogV">
+         <widget class="QRadioButton" name="radioButtonLogAlone">
           <property name="text">
            <string>Log A(x)    (don't use v)</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="radioButtonExpV">
+         <widget class="QRadioButton" name="radioButtonExpAlone">
           <property name="text">
            <string>Exp A(x)    (don't use v)</string>
           </property>
@@ -224,6 +238,27 @@
          <widget class="QRadioButton" name="radioButtonSqrtV">
           <property name="text">
            <string>Sqrt A(x)    (don't use v)</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioButtonDivideV">
+          <property name="text">
+           <string>Division A(x)/v</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioButtonNormalize">
+          <property name="text">
+           <string>A(x)/max(A(x))    (don't use v)</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioButtonLogV">
+          <property name="text">
+           <string>-Log (A(x)/v)</string>
           </property>
          </widget>
         </item>

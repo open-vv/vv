@@ -103,6 +103,8 @@ void vvToolImageArithm::GetArgsInfoFromGUI()
     if (radioButtonMin->isChecked()) mArgsInfo.operation_arg = 4;
     if (radioButtonAbsDiff->isChecked()) mArgsInfo.operation_arg = 5;
     if (radioButtonSquaredDiff->isChecked()) mArgsInfo.operation_arg = 6;
+    if (radioButtonDifference->isChecked()) mArgsInfo.operation_arg = 7;
+    if (radioButtonRelativeDiff->isChecked()) mArgsInfo.operation_arg = 8;
   } else {
     mArgsInfo.input2_given = false;
     mArgsInfo.scalar_given = true;
@@ -113,9 +115,12 @@ void vvToolImageArithm::GetArgsInfoFromGUI()
     if (radioButtonMinV->isChecked()) mArgsInfo.operation_arg = 4;
     if (radioButtonAbsDiffV->isChecked()) mArgsInfo.operation_arg = 5;
     if (radioButtonSquaredDiffV->isChecked()) mArgsInfo.operation_arg = 6;
-    if (radioButtonLogV->isChecked()) mArgsInfo.operation_arg = 7;
-    if (radioButtonExpV->isChecked()) mArgsInfo.operation_arg = 8;
+    if (radioButtonLogAlone->isChecked()) mArgsInfo.operation_arg = 7;
+    if (radioButtonExpAlone->isChecked()) mArgsInfo.operation_arg = 8;
     if (radioButtonSqrtV->isChecked()) mArgsInfo.operation_arg = 9;
+    if (radioButtonDivideV->isChecked()) mArgsInfo.operation_arg = 11;
+    if (radioButtonNormalize->isChecked()) mArgsInfo.operation_arg = 12;
+    if (radioButtonLogV->isChecked()) mArgsInfo.operation_arg = 13;
     mArgsInfo.scalar_given = true;
     mArgsInfo.scalar_arg = mValueSpinBox->value();
   }
