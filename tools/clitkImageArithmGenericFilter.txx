@@ -378,7 +378,7 @@ void clitk::ImageArithmGenericFilter<args_info_type>::ComputeImage(Iter1 it, Ite
       ++ito;
     }
     break;
-  case 10: // exp
+  case 10: // EPID
     while (!it.IsAtEnd()) {
       ito.Set(PixelTypeDownCast<double, PixelType>((0x10000 - (double)it.Get())/mScalar));
       ++it;
