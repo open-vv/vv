@@ -719,7 +719,7 @@ mSlicers[slicer]->GetRegisterExtent(extentImageReslice);
 #endif
   {
     mSlicers[slicer]->UpdateCursorPosition();
-    mSlicers[slicer]->SetCursorColor(10,212,255);
+    mSlicers[slicer]->SetCursorColor(1,0,0);
     mSelectedSlicer = slicer;
 
     switch (mSlicers[slicer]->GetSliceOrientation()) {
@@ -750,9 +750,9 @@ mSlicers[slicer]->GetRegisterExtent(extentImageReslice);
         if (current) { //do not display corner annotation if image is the one picked
           mSlicers[i]->SetCurrentPosition(-VTK_DOUBLE_MAX,-VTK_DOUBLE_MAX,
                                           -VTK_DOUBLE_MAX, mSlicers[slicer]->GetMaxCurrentTSlice());
-          mSlicers[i]->SetCursorColor(255,10,212);
+          mSlicers[i]->SetCursorColor(0,0.96,0.17);
         } else {
-          mSlicers[i]->SetCursorColor(150,10,282);
+          mSlicers[i]->SetCursorColor(0.41,0.96,1);
         }
         switch (mSlicers[i]->GetSliceOrientation()) {
         case vtkImageViewer2::SLICE_ORIENTATION_XY:

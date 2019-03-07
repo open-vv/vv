@@ -135,7 +135,7 @@ vvSlicer::vvSlicer()
 
   pdmA = vtkSmartPointer<vtkActor2D>::New();
   pdmA->SetMapper(pdm);
-  pdmA->GetProperty()->SetColor(255,10,212);
+  pdmA->GetProperty()->SetColor(1,0,0);
   pdmA->SetVisibility(0);
   pdmA->SetPickable(0);
 
@@ -269,7 +269,7 @@ void vvSlicer::ToggleContourSuperposition()
 
 
 //------------------------------------------------------------------------------
-void vvSlicer::SetCursorColor(int r,int g, int b)
+void vvSlicer::SetCursorColor(double r, double g, double b)
 { 
   pdmA->GetProperty()->SetColor(r,g,b);
 }

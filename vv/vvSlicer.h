@@ -164,7 +164,7 @@ public:
   void SetCursorVisibility(bool s);
 
   bool GetCursorVisibility();
-  void SetCursorColor(int r,int g, int b);
+  void SetCursorColor(double r,double g, double b);
 
   void SetCornerAnnotationVisibility(bool s);
   bool GetCornerAnnotationVisibility();
