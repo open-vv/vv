@@ -40,6 +40,8 @@ namespace clitk {
     typedef typename ImageType::Pointer ImagePointer;
     typedef typename clitk::DicomRT_StructureSet::Pointer DicomRTStructPointer;
 
+    itkSetMacro(UsePixel, bool);
+    itkSetMacro(ImageMHD, std::string);
     itkSetMacro(InputFilename, std::string);
     itkSetMacro(StructureSetFilename, std::string);
     itkSetMacro(DicomFolder, std::string);
@@ -49,6 +51,8 @@ namespace clitk {
     void Update();
 
   protected:
+    bool m_UsePixel;
+    std::string m_ImageMHD;
     std::string m_StructureSetFilename;
     std::string m_DicomFolder;
     std::string m_OutputFilename;

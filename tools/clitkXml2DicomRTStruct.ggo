@@ -10,5 +10,7 @@ option "verbose"   v "Verbose"                                                  
 
 option "input"     i "Input xml file with struct to be converted into DicomRTStruct"  string  yes
 option "rtstruct"  r "Input rt struct"                                                string  yes
-option "dicom"     d "Input folder where the initial dicom ct is"                     string  yes
+option "dicom"     d "Input folder where the initial dicom used for the input is"     string  yes
 option "output"    o "Output DicomRT filename"                                        string  yes
+option "pixel"     p "Use pixel coordinates instead of mm coordinates (Usefull with transformation matrix)"  flag    off
+option "image"     j "If pixel is set, path to the mhd image converted from dicom"    string  no

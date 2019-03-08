@@ -31,6 +31,15 @@ int main(int argc, char * argv[]) {
   typedef float PixelType;
   clitk::Xml2DicomRTStructFilter<PixelType> filter;
   filter.SetVerboseFlag(args_info.verbose_flag);
+  filter.SetUsePixel(args_info.pixel_flag);
+  if (args_info.pixel_flag) {
+    if (args_info.image_given)
+      filter.SetImageMHD(args_info.image_arg);
+    else {
+      std::cout << "Set MHD image (option -j) when pixel is set" << std::endl;
+      return -1;
+    }
+  }
   filter.SetInputFilename(args_info.input_arg);
   filter.SetDicomFolder(args_info.dicom_arg);
   filter.SetStructureSetFilename(args_info.rtstruct_arg);
