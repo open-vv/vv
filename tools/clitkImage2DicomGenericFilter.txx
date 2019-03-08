@@ -374,7 +374,10 @@ Image2DicomGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   // Generate the file names
   OutputNamesGeneratorType::Pointer outputNames = OutputNamesGeneratorType::New();
   std::string seriesFormat(m_ArgsInfo.outputDcm_arg);
-  seriesFormat = seriesFormat + "/" + "IM%d.dcm";
+  seriesFormat = seriesFormat + "/";
+  if (m_ArgsInfo.nameDicom_given)
+    seriesFormat = seriesFormat + m_ArgsInfo.nameDicom_arg + "_";
+  seriesFormat = seriesFormat + "IM%d.dcm";
   outputNames->SetSeriesFormat(seriesFormat.c_str());
   outputNames->SetStartIndex(1);
   outputNames->SetEndIndex(outputSize[2]);

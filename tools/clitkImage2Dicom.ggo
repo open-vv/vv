@@ -8,5 +8,6 @@ option "verbose"    v "Verbose"                 flag    off
 
 option "input"      i "Input image filename"    string  no
 option "inputDcm"   d "Input dicom filename"    string  no
-option "outputDcm"  o "Output dicom filename"   string  no
+option "outputDcm"  o "Output dicom folder"     string  no
+option "nameDicom"  n "Output dicom filename"   string  no
 
