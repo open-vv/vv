@@ -199,7 +199,7 @@ void clitk::Image2DicomRTStructFilter<PixelType>::Update()
 #else
     writer->SetInputData(i, meshes[i-numMasks+m]);
 #endif
-    roiNames->InsertValue(i, m_ROINames[i-numMasks+m]);
+    roiNames->InsertValue(i, m_ROIType);
     roiAlgorithms->InsertValue(i, "CLITK_CREATED");
     roiTypes->InsertValue(i, m_ROIType);
   }
@@ -242,7 +242,7 @@ void clitk::Image2DicomRTStructFilter<PixelType>::Update()
   writer->InitializeRTStructSet(m_DicomFolder,
                                 reader->GetRTStructSetProperties()->GetStructureSetLabel(),
                                 reader->GetRTStructSetProperties()->GetStructureSetName(),
-                                roiTypes, roiAlgorithms, roiTypes);
+                                roiNames, roiAlgorithms, roiTypes);
   writer->Write();
   reader->Delete();
   roiNames->Delete();
