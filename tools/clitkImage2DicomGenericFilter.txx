@@ -216,14 +216,22 @@ Image2DicomGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   // to keep the same study UID. But we need new series and frame of
   // reference UID's.
 #if ITK_VERSION_MAJOR >= 4
-  gdcm::UIDGenerator suid;
-  std::string seriesUID = suid.Generate();
   gdcm::UIDGenerator fuid;
   std::string frameOfReferenceUID = fuid.Generate();
 #else
-  std::string seriesUID = gdcm::Util::CreateUniqueUID( gdcmIO->GetUIDPrefix());
   std::string frameOfReferenceUID = gdcm::Util::CreateUniqueUID( gdcmIO->GetUIDPrefix());
 #endif
+  std::string seriesUID;
+  if (m_ArgsInfo.newUID_flag) {
+#if ITK_VERSION_MAJOR >= 4
+    gdcm::UIDGenerator suid;
+    seriesUID = suid.Generate();
+#else
+    seriesUID = gdcm::Util::CreateUniqueUID( gdcmIO->GetUIDPrefix());
+#endif
+  } else {
+    itk::ExposeMetaData<std::string>(*inputDict, "0020|000e", seriesUID);
+  }
   std::string studyUID;
   std::string sopClassUID;
   itk::ExposeMetaData<std::string>(*inputDict, "0020|000d", studyUID);
