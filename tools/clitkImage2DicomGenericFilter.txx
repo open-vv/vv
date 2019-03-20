@@ -84,8 +84,17 @@ void Image2DicomGenericFilter<args_info_type>::Update()
 
 
   // Call UpdateWithDim
-  if(Dimension==2) UpdateWithDim<2>(PixelType);
-  else if(Dimension==3) UpdateWithDim<3>(PixelType);
+  if(Dimension==2) {
+    if (m_ArgsInfo.volume_flag)
+      UpdateWithDim<2,2>(PixelType);
+    else
+      UpdateWithDim<2,1>(PixelType);
+  } else if(Dimension==3) {
+    if (m_ArgsInfo.volume_flag)
+      UpdateWithDim<3,3>(PixelType);
+    else
+      UpdateWithDim<3,2>(PixelType);
+  }
   // else if (Dimension==4)UpdateWithDim<4>(PixelType);
   else {
     std::cout<<"Error, Only for 2 or 3  Dimensions!!!"<<std::endl ;
@@ -97,37 +106,37 @@ void Image2DicomGenericFilter<args_info_type>::Update()
 // Update with the number of dimensions
 //-------------------------------------------------------------------
 template<class args_info_type>
-template<unsigned int Dimension>
+template<unsigned int inputDimension, unsigned int outputDimension>
 void
 Image2DicomGenericFilter<args_info_type>::UpdateWithDim(std::string PixelType)
 {
-  if (m_Verbose) std::cout << "Image was detected to be "<<Dimension<<"D and "<< PixelType<<"..."<<std::endl;
+  if (m_Verbose) std::cout << "Image was detected to be "<<inputDimension<<"D and "<< PixelType<<"..."<<std::endl;
 
   if(PixelType == "short") {
-    if (m_Verbose) std::cout << "Launching filter in "<< Dimension <<"D and signed short..." << std::endl;
-    UpdateWithDimAndPixelType<Dimension, signed short>();
+    if (m_Verbose) std::cout << "Launching filter in "<< inputDimension <<"D and signed short..." << std::endl;
+    UpdateWithDimAndPixelType<inputDimension, outputDimension, signed short>();
   }
   else if(PixelType == "unsigned_short"){
-    if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_short..." << std::endl;
-    UpdateWithDimAndPixelType<Dimension, unsigned short>();
+    if (m_Verbose) std::cout  << "Launching filter in "<< inputDimension <<"D and unsigned_short..." << std::endl;
+    UpdateWithDimAndPixelType<inputDimension, outputDimension, unsigned short>();
   }
 
   else if (PixelType == "unsigned_char") {
-    if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and unsigned_char..." << std::endl;
-    UpdateWithDimAndPixelType<Dimension, unsigned char>();
+    if (m_Verbose) std::cout  << "Launching filter in "<< inputDimension <<"D and unsigned_char..." << std::endl;
+    UpdateWithDimAndPixelType<inputDimension, outputDimension, unsigned char>();
   }
 
   //     else if (PixelType == "char"){
-  //       if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and signed_char..." << std::endl;
-  //       UpdateWithDimAndPixelType<Dimension, signed char>();
+  //       if (m_Verbose) std::cout  << "Launching filter in "<< inputDimension <<"D and signed_char..." << std::endl;
+  //       UpdateWithDimAndPixelType<inputDimension, outputDimension, signed char>();
   //     }
   else if (PixelType == "double") {
-    if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and double..." << std::endl;
-    UpdateWithDimAndPixelType<Dimension, double>();
+    if (m_Verbose) std::cout  << "Launching filter in "<< inputDimension <<"D and double..." << std::endl;
+    UpdateWithDimAndPixelType<inputDimension, outputDimension, double>();
   }
   else {
-    if (m_Verbose) std::cout  << "Launching filter in "<< Dimension <<"D and float..." << std::endl;
-    UpdateWithDimAndPixelType<Dimension, float>();
+    if (m_Verbose) std::cout  << "Launching filter in "<< inputDimension <<"D and float..." << std::endl;
+    UpdateWithDimAndPixelType<inputDimension, outputDimension, float>();
   }
 }
 
@@ -139,14 +148,14 @@ Image2DicomGenericFilter<args_info_type>::UpdateWithDim(std::string PixelType)
 // series.
 //-------------------------------------------------------------------
 template<class args_info_type>
-template <unsigned int Dimension, class  PixelType>
+template <unsigned int inputDimension, unsigned int outputDimension, class  PixelType>
 void
 Image2DicomGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
 {
   // Validate input parameters
 
-  const unsigned int InputDimension = Dimension;
-  const unsigned int OutputDimension = Dimension-1;
+  const unsigned int InputDimension = inputDimension;
+  const unsigned int OutputDimension = outputDimension;
 
   typedef itk::Image< PixelType, InputDimension > InputImageType;
   typedef itk::Image< PixelType, OutputDimension > OutputImageType;
@@ -237,7 +246,12 @@ Image2DicomGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   itk::ExposeMetaData<std::string>(*inputDict, "0020|000d", studyUID);
   itk::ExposeMetaData<std::string>(*inputDict, "0008|0016", sopClassUID);
   gdcmIO->KeepOriginalUIDOn();
-  for (unsigned int f = 0; f < outputSize[2]; f++)
+  unsigned int numberOfKeysGiven=m_ArgsInfo.key_given;
+  unsigned int fLimit = outputSize[2];
+  if (m_ArgsInfo.volume_flag)
+    fLimit = 1;
+
+  for (unsigned int f = 0; f < fLimit; f++)
   {
     // Create a new dictionary for this slice
     typename ReaderType::DictionaryRawPointer dict = new typename ReaderType::DictionaryType;
@@ -348,6 +362,15 @@ Image2DicomGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
     itk::EncapsulateMetaData<std::string>(*dict,"0018|0050", value.str());
     // Spacing Between Slices
     itk::EncapsulateMetaData<std::string>(*dict,"0018|0088", value.str());
+
+    //Add ggo key
+    for (unsigned int i = 0; i < numberOfKeysGiven; i++) {
+      std::string entryId(m_ArgsInfo.key_arg[i]  );
+      std::string value( m_ArgsInfo.tag_arg[i] );
+
+      itk::EncapsulateMetaData<std::string>(*dict, entryId, value);
+    }
+
     // Save the dictionary
     outputArray.push_back(dict);
   }
@@ -388,7 +411,11 @@ Image2DicomGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
   seriesFormat = seriesFormat + "IM%d.dcm";
   outputNames->SetSeriesFormat(seriesFormat.c_str());
   outputNames->SetStartIndex(1);
-  outputNames->SetEndIndex(outputSize[2]);
+  if (m_ArgsInfo.volume_flag) {
+    outputNames->SetEndIndex(1);
+  } else {
+    outputNames->SetEndIndex(outputSize[2]);
+  }
 
   typename SeriesWriterType::Pointer seriesWriter = SeriesWriterType::New();
 #if ( ( ITK_VERSION_MAJOR == 4 ) && ( ITK_VERSION_MINOR < 6 ) )

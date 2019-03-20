@@ -11,4 +11,7 @@ option "inputDcm"   d "Input dicom filename"    string  no
 option "outputDcm"  o "Output dicom folder"     string  no
 option "nameDicom"  n "Output dicom filename"   string  no
 option "newUID"     u "Write output with new UID" flag  off
+option "volume"     - "Save a dicom volume"       flag  off
+option "key"        k "Keys of tags to modify"  string  no multiple
+option "tag"        t "Tags values"             string  no multiple
 

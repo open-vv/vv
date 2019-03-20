@@ -129,8 +129,8 @@ namespace clitk
     //----------------------------------------  
     // Templated members
     //----------------------------------------  
-    template <unsigned int Dimension>  void UpdateWithDim(std::string PixelType);
-    template <unsigned int Dimension, class PixelType>  void UpdateWithDimAndPixelType();
+    template <unsigned int inputDimension, unsigned int outputDimension>  void UpdateWithDim(std::string PixelType);
+    template <unsigned int inputDimension, unsigned int outputDimension, class PixelType>  void UpdateWithDimAndPixelType();
     
     
      //----------------------------------------  
