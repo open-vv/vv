@@ -457,19 +457,19 @@ p, li { white-space: pre-wrap; }
       <item row="5" column="1">
        <widget class="QDoubleSpinBox" name="overlayWindowSpinBox">
         <property name="decimals">
-         <number>4</number>
+         <number>9</number>
         </property>
         <property name="minimum">
-         <double>-999999.000000000000000</double>
+         <double>-999999.000000000</double>
         </property>
         <property name="maximum">
-         <double>999999.000000000000000</double>
+         <double>999999.000000000</double>
         </property>
         <property name="singleStep">
-         <double>10.000000000000000</double>
+         <double>10.000000000</double>
         </property>
         <property name="value">
-         <double>100.000000000000000</double>
+         <double>100.000000000</double>
         </property>
        </widget>
       </item>
@@ -483,19 +483,19 @@ p, li { white-space: pre-wrap; }
       <item row="5" column="3">
        <widget class="QDoubleSpinBox" name="overlayLevelSpinBox">
         <property name="decimals">
-         <number>4</number>
+         <number>9</number>
         </property>
         <property name="minimum">
-         <double>-999999.000000000000000</double>
+         <double>-999999.000000000</double>
         </property>
         <property name="maximum">
-         <double>999999.000000000000000</double>
+         <double>999999.000000000</double>
         </property>
         <property name="singleStep">
-         <double>10.000000000000000</double>
+         <double>10.000000000</double>
         </property>
         <property name="value">
-         <double>1000.000000000000000</double>
+         <double>100.000000000</double>
         </property>
        </widget>
       </item>
@@ -676,19 +676,19 @@ p, li { white-space: pre-wrap; }
       <item row="7" column="1" colspan="2">
        <widget class="QDoubleSpinBox" name="fusionWindowSpinBox">
         <property name="decimals">
-         <number>4</number>
+         <number>9</number>
         </property>
         <property name="minimum">
-         <double>-999999.000000000000000</double>
+         <double>-999999.000000000</double>
         </property>
         <property name="maximum">
-         <double>999999.000000000000000</double>
+         <double>999999.000000000</double>
         </property>
         <property name="singleStep">
-         <double>10.000000000000000</double>
+         <double>10.000000000</double>
         </property>
         <property name="value">
-         <double>100.000000000000000</double>
+         <double>100.000000000</double>
         </property>
        </widget>
       </item>
@@ -702,19 +702,19 @@ p, li { white-space: pre-wrap; }
       <item row="7" column="4" colspan="2">
        <widget class="QDoubleSpinBox" name="fusionLevelSpinBox">
         <property name="decimals">
-         <number>4</number>
+         <number>9</number>
         </property>
         <property name="minimum">
-         <double>-999999.000000000000000</double>
+         <double>-999999.000000000</double>
         </property>
         <property name="maximum">
-         <double>999999.000000000000000</double>
+         <double>999999.000000000</double>
         </property>
         <property name="singleStep">
-         <double>10.000000000000000</double>
+         <double>10.000000000</double>
         </property>
         <property name="value">
-         <double>1000.000000000000000</double>
+         <double>100.000000000</double>
         </property>
        </widget>
       </item>
