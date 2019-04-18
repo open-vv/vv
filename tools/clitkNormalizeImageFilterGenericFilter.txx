@@ -103,6 +103,7 @@ namespace clitk
             mask->SetRegions(input->GetLargestPossibleRegion());
             mask->SetOrigin(input->GetOrigin());
             mask->SetSpacing(input->GetSpacing());
+            mask->SetDirection(input->GetDirection());
             mask->Allocate();
             mask->FillBuffer(1);
         }
@@ -112,6 +113,7 @@ namespace clitk
         outputImage->SetRegions(input->GetLargestPossibleRegion());
         outputImage->SetOrigin(input->GetOrigin());
         outputImage->SetSpacing(input->GetSpacing());
+        outputImage->SetDirection(input->GetDirection());
         outputImage->Allocate();
         outputImage->FillBuffer(0.0);
         // Set output iterator
