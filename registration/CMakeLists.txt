@@ -8,6 +8,10 @@ if(CLITK_BUILD_REGISTRATION)
                 ${clitkAffineRegistration_GGO_C}
                 clitkLBFGSBOptimizer.cxx
                 clitkGenericAffineTransform.cxx)
+    set_target_properties(clitkAffineRegistrationLib PROPERTIES
+                          CXX_STANDARD 11
+                          CXX_STANDARD_REQUIRED ON
+                          CXX_EXTENSIONS OFF)
 
 #=========================================================
 
@@ -25,6 +29,10 @@ if(CLITK_BUILD_REGISTRATION)
     add_executable(clitkBLUTDIR  clitkBLUTDIR.cxx clitkBLUTDIRGenericFilter.cxx ${clitkBLUTDIR_GGO_C} clitkLBFGSBOptimizer.cxx )
     target_link_libraries(clitkBLUTDIR clitkCommon)
     set(REGISTRATION_INSTALL ${REGISTRATION_INSTALL} clitkBLUTDIR)
+    set_target_properties(clitkBLUTDIR PROPERTIES
+                          CXX_STANDARD 11
+                          CXX_STANDARD_REQUIRED ON
+                          CXX_EXTENSIONS OFF)
 
 
     ############################## registration-related tools to process points, bsplines, vf and image pyramids
