@@ -72,6 +72,13 @@ endif()
 #=========================================================
 
 target_link_libraries(clitkCommon ${VTK_LIBRARIES} ${ITK_LIBRARIES})
+# I have some linking problems on linux - I do not know why
+if(UNIX AND NOT APPLE)
+    if(vv_QT_VERSION VERSION_GREATER "4")
+        find_package(Qt5X11Extras REQUIRED)
+        target_link_libraries(clitkCommon Qt5::X11Extras)
+    endif()
+endif()
 
 add_library(clitkDicomRTStruct STATIC
   clitkDicomRT_Contour.cxx
