@@ -182,11 +182,11 @@ void clitk::DicomRTStruct2ImageFilter::Update()
 {
   if (!mROI) {
     std::cerr << "Error. No ROI set, please use SetROI." << std::endl;
-    exit(0);
+    exit(EXIT_FAILURE);
   }
   if (!ImageInfoIsSet()) {
     std::cerr << "Error. Please provide image info (spacing/origin) with SetImageFilename" << std::endl;
-    exit(0);
+    exit(EXIT_FAILURE);
   }
 
   // Get Mesh

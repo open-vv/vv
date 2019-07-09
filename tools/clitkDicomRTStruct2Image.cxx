@@ -151,5 +151,5 @@ int main(int argc, char * argv[]) {
   //}
 
   // This is the end my friend 
-  return 0;
+  return EXIT_SUCCESS;
 }

@@ -534,5 +534,60 @@ int clitk::DicomRT_StructureSet::AddBinaryImageAsNewROI(vvImage * im, std::strin
   return max;
 }
 //--------------------------------------------------------------------
-
-
+void clitk::DicomRT_StructureSet::Anon(const std::string & filename, const std::string & outputfilename, const std::string newPID)
+{
+    bool isDRTStruct = this->IsDicomRTStruct(filename);
+    if(isDRTStruct == false) {
+        std::cerr << "Your file is not a proper RTStruct" << std::endl;
+        return;
+    }
+#if GDCM_MAJOR_VERSION >= 2
+    gdcm::DataSet & ds = mFile->GetDataSet();
+    //Patient name = 0010,0010
+    gdcm::Attribute<0x0010,0x0010> patientNameA;
+    patientNameA.SetFromDataSet(ds);
+    std::string patientName = patientNameA.GetValue();
+    std::cout<<"Patient name="<< patientName <<std::endl;
+    std::string delimiter = "^";
+    std::string newPatientName;
+    newPatientName = patientName.substr(0,1) + patientName.substr(patientName.find(delimiter)+1,1);
+    std::cout<<"New patient name="<< newPatientName <<std::endl;
+    patientNameA.SetValue(newPatientName);
+    ds.Replace(patientNameA.GetAsDataElement());
+    //Patient birthdate = 0010,0030
+    gdcm::Attribute<0x0010,0x0030> patientBirthdateA;
+    patientBirthdateA.SetFromDataSet(ds);
+    std::string patientBirthdate = patientBirthdateA.GetValue();
+    std::cout<<"Patient birthday="<< patientBirthdate <<std::endl;
+    std::string newPatientBirthdate;
+    newPatientBirthdate = patientBirthdate.substr(0, patientBirthdate.length()-2);
+    std::cout<<"New patient birthday="<< newPatientBirthdate <<std::endl;
+    patientBirthdateA.SetValue(newPatientBirthdate);
+    ds.Replace(patientBirthdateA.GetAsDataElement());
+    //Patient id = 0010,0020
+    gdcm::Attribute<0x0010,0x0020> patientIDA;
+    patientIDA.SetFromDataSet(ds);
+    std::string patientID = patientIDA.GetValue();
+    std::cout<<"Patient ID="<< patientID <<std::endl;
+    std::cout<<"New patient id="<< newPID <<std::endl;
+    patientIDA.SetValue(newPID);
+    ds.Replace(patientIDA.GetAsDataElement());
+    //Patient address = 0010,1040
+    gdcm::Attribute<0x0010,0x1040> patientAddressA;
+    patientAddressA.SetFromDataSet(ds);
+    std::string patientAddress = patientAddressA.GetValue();
+    std::cout<<"Patient address="<< patientAddress <<std::endl;
+    std::cout<<"New patient address="<< "" <<std::endl;
+    patientAddressA.SetValue("");
+    ds.Replace(patientAddressA.GetAsDataElement());
+    // Write dicom
+    gdcm::Writer writer;
+    //writer.CheckFileMetaInformationOff();
+    writer.SetFileName(outputfilename.c_str());
+    writer.SetFile(*mFile);
+    writer.Write();
+#else
+    FATAL("Sorry not compatible with GDCM1, use GDCM2");
+#endif
+}
+//--------------------------------------------------------------------
