@@ -72,11 +72,22 @@ endif()
 #=========================================================
 
 target_link_libraries(clitkCommon ${VTK_LIBRARIES} ${ITK_LIBRARIES})
-# I have some linking problems on linux - I do not know why
+# I have some linking problems on linux if VTK 7.1.1 (at least) is built statically - It asks for Qt5::X11Extras - I do not know why
+# workaround - link clitkCommon with Qt5::X11Extras - Qt5::X11Extras is not necessary if VTK is built dynamically
 if(UNIX AND NOT APPLE)
-    if(vv_QT_VERSION VERSION_GREATER "4")
-        find_package(Qt5X11Extras REQUIRED)
-        target_link_libraries(clitkCommon Qt5::X11Extras)
+    if(vv_QT_VERSION VERSION_EQUAL "5") #5
+        if(VTK_VERSION VERSION_EQUAL "7.1.1") #7.1.1
+            #message(${VTK_DIR})
+            list(GET VTK_LIBRARIES 0 FIRST_VTK_ELEMENT)
+            #message(${FIRST_VTK_ELEMENT})
+            file(GLOB FIRST_VTK_LIB ${VTK_DIR}/../../*${FIRST_VTK_ELEMENT}*.a)
+            #message(${FIRST_VTK_LIB})
+            if(EXISTS ${FIRST_VTK_LIB})
+                message("VTK is built statically")
+                find_package(Qt5X11Extras REQUIRED)
+                target_link_libraries(clitkCommon Qt5::X11Extras)
+            endif()
+        endif()
     endif()
 endif()
 
