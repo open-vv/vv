@@ -62,7 +62,11 @@ int main(int argc, char * argv[])
   NamesGeneratorType::Pointer nameGenerator = NamesGeneratorType::New();
   nameGenerator->SetUseSeriesDetails(false);
   std::string folderName=".";
+#ifdef _WIN32
+  const size_t last_slash_idx = input_files[0].rfind('\\');
+#else
   const size_t last_slash_idx = input_files[0].rfind('/');
+#endif
   if (std::string::npos != last_slash_idx)
     folderName = input_files[0].substr(0, last_slash_idx);
   nameGenerator->SetInputDirectory(folderName);
@@ -161,6 +165,16 @@ int main(int argc, char * argv[])
     std::vector<double> origin = theorigin[*sn];
     std::vector<double> instanceNumberSerie = instanceNumber[*sn];
     std::vector<std::string> files = seriesFiles[*sn];
+    //Let's process the filenames -- it is mandatory for the line "if (tempFilename == files[i])"
+    for(unsigned int i=0; i<files.size(); i++) {
+#ifdef _WIN32
+        const size_t last_slash_idx_fn = files[i].rfind('\\');
+#else
+        const size_t last_slash_idx_fn = files[i].rfind('/');
+#endif
+        if (std::string::npos != last_slash_idx_fn)
+          files[i] = files[i].substr(last_slash_idx_fn+1);
+    }
     std::vector<int> sliceIndex(files.size());
     //clitk::GetSortedIndex(locs, sliceIndex);
     //Look for files into GDCMSeriesFileNames, because it sorts files correctly and take the order
@@ -169,7 +183,7 @@ int main(int argc, char * argv[])
       int j(0);
       bool found(false);
       while (!found && j<temp.size()) {
-        const size_t last_slash_idx2 = temp[j].rfind('/');
+        const size_t last_slash_idx2 = temp[j].rfind('/'); // BP: unused variable...
         std::string tempFilename(temp[j]);
         if (temp[j][0] == '.' && temp[j][1] == '/')
           tempFilename = temp[j].substr(2, temp[j].size()-1);
@@ -289,7 +303,11 @@ int main(int argc, char * argv[])
       std::ostringstream name;
       std::vector<std::string> directory = clitk::SplitFilename(args_info.output_arg);
       if (directory.size() == 2)
+#ifdef _WIN32
+        name << directory[0] << "\\" << *sn << "_" << directory[1];
+#else
         name << directory[0] << "/" << *sn << "_" << directory[1];
+#endif
       else
         name << *sn << "_" << args_info.output_arg;
       outfile = name.str();
