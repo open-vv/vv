@@ -91,7 +91,7 @@ int main(int argc, char * argv[])
 #endif
   for(unsigned int i=0; i<args_info.inputs_num; i++) {
     if (args_info.verbose_flag)
-        std::cout << "Reading <" << input_files[i] << std::endl;
+        std::cout << "Reading < " << input_files[i] << std::endl;
 #if GDCM_MAJOR_VERSION >= 2
     gdcm::Reader hreader;
     hreader.SetFileName(input_files[i].c_str());
@@ -168,12 +168,12 @@ int main(int argc, char * argv[])
     //Let's process the filenames -- it is mandatory for the line "if (tempFilename == files[i])"
     for(unsigned int i=0; i<files.size(); i++) {
 #ifdef _WIN32
-        const size_t last_slash_idx_fn = files[i].rfind('\\');
+        const size_t first_slash_idx_fn = files[i].find('\\');
 #else
-        const size_t last_slash_idx_fn = files[i].rfind('/');
+        const size_t first_slash_idx_fn = files[i].find('/');
 #endif
-        if (std::string::npos != last_slash_idx_fn)
-          files[i] = files[i].substr(last_slash_idx_fn+1);
+        if (std::string::npos != first_slash_idx_fn && first_slash_idx_fn == 1 && files[i][0] == '.')
+          files[i] = files[i].substr(first_slash_idx_fn+1);
     }
     std::vector<int> sliceIndex(files.size());
     //clitk::GetSortedIndex(locs, sliceIndex);
@@ -183,10 +183,18 @@ int main(int argc, char * argv[])
       int j(0);
       bool found(false);
       while (!found && j<temp.size()) {
-        const size_t last_slash_idx2 = temp[j].rfind('/'); // BP: unused variable...
         std::string tempFilename(temp[j]);
-        if (temp[j][0] == '.' && temp[j][1] == '/')
-          tempFilename = temp[j].substr(2, temp[j].size()-1);
+#ifdef _WIN32
+        // There is a bug on Windows, the last \ is a /...
+        // Let's substitute it
+        const size_t last_slash_idx_win = tempFilename.rfind('/');
+        tempFilename[last_slash_idx_win] = '\\';
+        const size_t first_slash_idx = tempFilename.find('\\');
+#else
+        const size_t first_slash_idx = tempFilename.find('/');
+#endif
+        if (std::string::npos != first_slash_idx && first_slash_idx == 1 && tempFilename[0] == '.')
+          tempFilename = tempFilename.substr(first_slash_idx+1);
         if (tempFilename == files[i]) {
           sliceIndex[j] = i;
           found = true;
