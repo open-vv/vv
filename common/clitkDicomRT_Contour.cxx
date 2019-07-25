@@ -168,7 +168,7 @@ bool clitk::DicomRT_Contour::Read(gdcm::Item * item)
 #endif
     mData->SetPoint(i, p);
     if (mZ == -1) mZ = p[2];
-    if (p[2] != mZ) {
+    if (std::fabs(p[2] - mZ) > mTolerance) {
       DD(i);
       DD(p[2]);
       DD(mZ);
@@ -219,7 +219,7 @@ bool clitk::DicomRT_Contour::Read(gdcm::SQItem * item)
 #endif
     mData->SetPoint(i, p);
     if (mZ == -1) mZ = p[2];
-    if (p[2] != mZ) {
+    if (std::fabs(p[2] - mZ) > mTolerance) {
       DD(i);
       DD(p[2]);
       DD(mZ);
@@ -259,8 +259,17 @@ void clitk::DicomRT_Contour::SetTransformMatrix(vtkMatrix4x4* matrix)
   mTransformMatrix = matrix;
 }
 //--------------------------------------------------------------------
-
-
+//--------------------------------------------------------------------
+double clitk::DicomRT_Contour::GetTolerance()
+{
+  return mTolerance;
+}
+//--------------------------------------------------------------------
+void clitk::DicomRT_Contour::SetTolerance(double tol)
+{
+  mTolerance = tol;
+}
+//--------------------------------------------------------------------
 //--------------------------------------------------------------------
 void clitk::DicomRT_Contour::ComputeMeshFromDataPoints()
 {

@@ -60,7 +60,7 @@ public:
   typedef ROIMapContainer::const_iterator ROIConstIteratorType;
 
   void Print(std::ostream & os = std::cout) const;
-  void Read(const std::string & filename);
+  void Read(const std::string & filename, double tol);
   void SetTransformMatrix(vtkMatrix4x4* matrix);
   bool IsDicomRTStruct(const std::string & filename);
   void Write(const std::string & filename);

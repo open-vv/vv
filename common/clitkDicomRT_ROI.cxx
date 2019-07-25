@@ -149,7 +149,7 @@ double clitk::DicomRT_ROI::GetForegroundValueLabelImage() const
 
 //--------------------------------------------------------------------
 #if GDCM_MAJOR_VERSION >= 2
-bool clitk::DicomRT_ROI::Read(gdcm::Item * itemInfo, gdcm::Item * itemContour)
+bool clitk::DicomRT_ROI::Read(gdcm::Item * itemInfo, gdcm::Item * itemContour, double tol)
 {
   //FATAL("Error : compile vv with itk4 + external gdcm");
   // Keep dicom item
@@ -212,6 +212,7 @@ bool clitk::DicomRT_ROI::Read(gdcm::Item * itemInfo, gdcm::Item * itemContour)
     {
       gdcm::Item & j = sqi2->GetItem(i+1); // Item start at #1
       DicomRT_Contour::Pointer c = DicomRT_Contour::New();
+      c->SetTolerance(tol);
       c->SetTransformMatrix(mTransformMatrix);
       bool b = c->Read(&j);
       if (b) {
@@ -222,7 +223,7 @@ bool clitk::DicomRT_ROI::Read(gdcm::Item * itemInfo, gdcm::Item * itemContour)
   return true;
 }
 #else
-void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::SQItem * item)
+void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::SQItem * item, double tol)
 {
   // ROI number [Referenced ROI Number]
   mNumber = atoi(item->GetEntryValue(0x3006,0x0084).c_str());
@@ -239,6 +240,7 @@ void clitk::DicomRT_ROI::Read(std::map<int, std::string> & rois, gdcm::SQItem * 
     int i=0;
     for(gdcm::SQItem* j=contours->GetFirstSQItem(); j!=0; j=contours->GetNextSQItem()) {
       DicomRT_Contour::Pointer c = DicomRT_Contour::New();
+      c->SetTolerance(tol);
       c->SetTransformMatrix(mTransformMatrix);
       bool b = c->Read(j);
       if (b) {
@@ -506,7 +508,7 @@ void clitk::DicomRT_ROI::ComputeContoursFromImage()
 
 //--------------------------------------------------------------------
 #if CLITK_USE_SYSTEM_GDCM == 1
-void clitk::DicomRT_ROI::Read(vtkSmartPointer<vtkGDCMPolyDataReader> & reader, int roiindex)
+void clitk::DicomRT_ROI::Read(vtkSmartPointer<vtkGDCMPolyDataReader> & reader, int roiindex, double tol)
 {
   vtkRTStructSetProperties * p = reader->GetRTStructSetProperties();
   
@@ -529,6 +531,7 @@ void clitk::DicomRT_ROI::Read(vtkSmartPointer<vtkGDCMPolyDataReader> & reader, i
   // Get the contour
   mMesh =  reader->GetOutput(roiindex);  
   DicomRT_Contour::Pointer c = DicomRT_Contour::New();
+  c->SetTolerance(tol);
   c->SetTransformMatrix(mTransformMatrix);
   c->SetMesh(mMesh); // FIXME no GetZ, not GetPoints  
   mMeshIsUpToDate = true;

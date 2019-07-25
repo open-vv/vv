@@ -63,7 +63,7 @@ class vvToolROIManager:
   void SelectedImageHasChanged(vvSlicerManager *);
   void Open();
   void OpenBinaryImage(QStringList & filenames);
-  void OpenDicomImage(std::string filaneme);
+  void OpenDicomImage(std::string filaneme, double tol=0);
   void SelectedItemChangedInTree();
   void VisibleROIToggled(bool b);
   void VisibleContourROIToggled(bool b);

@@ -392,7 +392,7 @@ void vvToolROIManager::OpenBinaryImage(QStringList & filename)
 
 
 //------------------------------------------------------------------------------
-void vvToolROIManager::OpenDicomImage(std::string filename)
+void vvToolROIManager::OpenDicomImage(std::string filename, double tol)
 {
   // GUI selector of roi
   vvMeshReader reader;
@@ -412,7 +412,7 @@ void vvToolROIManager::OpenDicomImage(std::string filename)
     vtkSmartPointer<vtkMatrix4x4> transformMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
     transformMatrix = mCurrentImage->GetTransform()[0]->GetMatrix();
     s->SetTransformMatrix(transformMatrix);
-    s->Read(filename);
+    s->Read(filename, tol);
 
     // Loop on selected struct
     std::vector<int> list = selector.getSelectedItems();

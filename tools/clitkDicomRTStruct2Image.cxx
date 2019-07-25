@@ -31,7 +31,7 @@ int main(int argc, char * argv[]) {
 
   // Read and display information
   clitk::DicomRT_StructureSet::Pointer s = clitk::DicomRT_StructureSet::New();
-  s->Read(args_info.input_arg);
+  s->Read(args_info.input_arg, args_info.tolerance_arg);
   if (args_info.verboseFile_flag) {
     s->Print(std::cout);
   }
