@@ -142,6 +142,18 @@ void clitk::SplitImageGenericFilter::UpdateWithInputImageType()
         output = png.Do(this->m_Window, this->m_Level, informationFilter->GetOutput());
         this->template SetNextOutput<typename PngConversion<OutputImageType>::OutputPngImageType>(output);
       }
+      else if(this->m_mha){
+          SetOutputFilename(base_filename+"_"+ss.str()+".mha");
+          SetNextOutput<OutputImageType>(informationFilter->GetOutput());
+      }
+      else if(this->m_nii){
+          SetOutputFilename(base_filename+"_"+ss.str()+".nii");
+          SetNextOutput<OutputImageType>(informationFilter->GetOutput());
+      }
+      else if(this->m_niigz){
+          SetOutputFilename(base_filename+"_"+ss.str()+".nii.gz");
+          SetNextOutput<OutputImageType>(informationFilter->GetOutput());
+      }
       else {
         SetOutputFilename(base_filename+"_"+ss.str()+".mhd");
         SetNextOutput<OutputImageType>(informationFilter->GetOutput());
@@ -155,6 +167,18 @@ void clitk::SplitImageGenericFilter::UpdateWithInputImageType()
         typename PngConversion<OutputImageType>::OutputPngImagePointer output;
         output = png.Do(this->m_Window, this->m_Level, filter->GetOutput());
         this->template SetNextOutput<typename PngConversion<OutputImageType>::OutputPngImageType>(output);
+      }
+      else if(this->m_mha){
+          SetOutputFilename(base_filename+"_"+ss.str()+".mha");
+          SetNextOutput<OutputImageType>(filter->GetOutput());
+      }
+      else if(this->m_nii){
+          SetOutputFilename(base_filename+"_"+ss.str()+".nii");
+          SetNextOutput<OutputImageType>(filter->GetOutput());
+      }
+      else if(this->m_niigz){
+          SetOutputFilename(base_filename+"_"+ss.str()+".nii.gz");
+          SetNextOutput<OutputImageType>(filter->GetOutput());
       }
       else {
         SetOutputFilename(base_filename+"_"+ss.str()+".mhd");
