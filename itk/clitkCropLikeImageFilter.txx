@@ -103,12 +103,17 @@ GenerateOutputInformation() {
   typename ImageType::IndexType likeStart;
   typename ImageType::PointType likeOrigin;  
   typename ImageType::SpacingType likeSpacing;  
+  typename ImageType::DirectionType likeDirection;
+  typename ImageType::DirectionType like_invDirection;
   if (m_LikeImage) {   
     likeSize = m_LikeImage->GetLargestPossibleRegion().GetSize();
     likeStart = m_LikeImage->GetLargestPossibleRegion().GetIndex();
     likeOrigin = m_LikeImage->GetOrigin();
     likeSpacing = m_LikeImage->GetSpacing();
-    output->CopyInformation(m_LikeImage);
+    likeDirection = m_LikeImage->GetDirection();
+    //I don't know really why I need the inverse...
+    like_invDirection = likeDirection.GetInverse();
+    //output->CopyInformation(m_LikeImage);
   }
   else {
     // Only load the header (allows to use 'like' with any image type)
@@ -119,8 +124,12 @@ GenerateOutputInformation() {
         likeStart[i] = 0;//header->GetIORegion().GetIndex()[i];
         likeOrigin[i] = header->GetOrigin(i);
         likeSpacing[i] = header->GetSpacing(i);
+        for(unsigned int j=0; j<ImageType::ImageDimension; j++)
+            likeDirection[i][j] = header->GetDirection(i)[j];
+       }
+      //I don't know really why I need the inverse...
+      like_invDirection = likeDirection.GetInverse();
       }
-    }
     else {
       clitkExceptionMacro("You should provide SetCropLikeFilename or SetCropLike to CropLikeImageFilter");
     }
@@ -152,6 +161,7 @@ GenerateOutputInformation() {
   output->SetBufferedRegion(m_OutputRegion);
   output->SetSpacing(likeSpacing);  
   output->SetOrigin(likeOrigin);
+  output->SetDirection(like_invDirection);
   output->Allocate(); // Needed ?
 
   // get startpoint source/dest
