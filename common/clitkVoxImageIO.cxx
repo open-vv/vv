@@ -33,7 +33,11 @@
 #include "clitkCommon.h"
 
 // itk include (for itkReadRawBytesAfterSwappingMacro)
+#if ( ITK_VERSION_MAJOR < 5 )
 #include "itkRawImageIO.h"
+#else
+#include <itkByteSwapper.h>
+#endif
 
 //--------------------------------------------------------------------
 // Read Image Information
@@ -162,6 +166,7 @@ void clitk::VoxImageIO::Read(void * buffer)
   itkDebugMacro(<< "Reading Done");
 
   {
+#if ( ITK_VERSION_MAJOR < 5 )
     using namespace itk;
     // Swap bytes if necessary
     if itkReadRawBytesAfterSwappingMacro( unsigned short, USHORT )
@@ -172,6 +177,33 @@ void clitk::VoxImageIO::Read(void * buffer)
               else if itkReadRawBytesAfterSwappingMacro( int, INT )
                 else if itkReadRawBytesAfterSwappingMacro( float, FLOAT )
                   else if itkReadRawBytesAfterSwappingMacro( double, DOUBLE );
+#else
+  #define itkReadRawBytesAfterSwappingMacro(StrongType, WeakType)   \
+    ( this->GetComponentType() == WeakType )                        \
+      {                                                             \
+      using InternalByteSwapperType = itk::ByteSwapper<StrongType>; \
+      if ( m_ByteOrder == LittleEndian )                            \
+        {                                                           \
+        InternalByteSwapperType::SwapRangeFromSystemToLittleEndian( \
+          (StrongType *)buffer, this->GetImageSizeInComponents() ); \
+        }                                                           \
+      else if ( m_ByteOrder == BigEndian )                          \
+        {                                                           \
+        InternalByteSwapperType::SwapRangeFromSystemToBigEndian(    \
+          (StrongType *)buffer, this->GetImageSizeInComponents() ); \
+        }                                                           \
+      }
+
+    // Swap bytes if necessary
+    if itkReadRawBytesAfterSwappingMacro( unsigned short, USHORT )
+      else if itkReadRawBytesAfterSwappingMacro( short, SHORT )
+        else if itkReadRawBytesAfterSwappingMacro( char, CHAR )
+          else if itkReadRawBytesAfterSwappingMacro( unsigned char, UCHAR )
+            else if itkReadRawBytesAfterSwappingMacro( unsigned int, UINT )
+              else if itkReadRawBytesAfterSwappingMacro( int, INT )
+                else if itkReadRawBytesAfterSwappingMacro( float, FLOAT )
+                  else if itkReadRawBytesAfterSwappingMacro( double, DOUBLE );
+#endif
   }
 }
 
@@ -243,8 +275,9 @@ void clitk::VoxImageIO::Write(const void * buffer)
   // (warning BigEndian / LittleEndian)
   const unsigned long numberOfBytes      = this->GetImageSizeInBytes();
   const unsigned long numberOfComponents = this->GetImageSizeInComponents();
-  // Swap bytes if necessary
+#if ( ITK_VERSION_MAJOR < 5 )
   using namespace itk;
+  // Swap bytes if necessary
   if itkWriteRawBytesAfterSwappingMacro( unsigned short, USHORT )
     else if itkWriteRawBytesAfterSwappingMacro( short, SHORT )
       else if itkWriteRawBytesAfterSwappingMacro( char, CHAR )
@@ -252,7 +285,49 @@ void clitk::VoxImageIO::Write(const void * buffer)
           else if itkWriteRawBytesAfterSwappingMacro( unsigned int, UINT )
             else if itkWriteRawBytesAfterSwappingMacro( int, INT )
               else if itkWriteRawBytesAfterSwappingMacro( float, FLOAT )
-                else if itkWriteRawBytesAfterSwappingMacro( double, DOUBLE ) ;
+                else if itkWriteRawBytesAfterSwappingMacro( double, DOUBLE );
+#else
+#define itkWriteRawBytesAfterSwappingMacro(StrongType, WeakType)        \
+  ( this->GetComponentType() == WeakType )                              \
+    {                                                                   \
+    using InternalByteSwapperType = itk::ByteSwapper<StrongType>;       \
+    const SizeValueType numberOfPixels = numberOfBytes/(sizeof(StrongType)); \
+    if ( m_ByteOrder == LittleEndian )                                  \
+      {                                                                 \
+      StrongType *tempBuffer = new StrongType[numberOfPixels];          \
+      memcpy((char *)tempBuffer, buffer, numberOfBytes);          \
+      InternalByteSwapperType::SwapRangeFromSystemToLittleEndian(       \
+        (StrongType *)tempBuffer, numberOfComponents);                  \
+      file.write((char *)tempBuffer, numberOfBytes);                            \
+      delete[] tempBuffer;                                              \
+      }                                                                 \
+    else if ( m_ByteOrder == BigEndian )                                \
+      {                                                                 \
+      StrongType *tempBuffer = new StrongType[numberOfPixels];          \
+      memcpy((char *)tempBuffer, buffer, numberOfBytes);          \
+      InternalByteSwapperType::SwapRangeFromSystemToBigEndian(          \
+        (StrongType *)tempBuffer, numberOfComponents);                  \
+      file.write((char *)tempBuffer, numberOfBytes);                            \
+      delete[] tempBuffer;                                              \
+      }                                                                 \
+    else                                                                \
+      {                                                                 \
+      file.write(static_cast< const char * >( buffer ), numberOfBytes); \
+      }                                                                 \
+    }
+
+    // Swap bytes if necessary
+    if itkWriteRawBytesAfterSwappingMacro(unsigned short, USHORT)
+    else if itkWriteRawBytesAfterSwappingMacro(short, SHORT)
+    else if itkWriteRawBytesAfterSwappingMacro(char, CHAR)
+    else if itkWriteRawBytesAfterSwappingMacro(unsigned char, UCHAR)
+    else if itkWriteRawBytesAfterSwappingMacro(unsigned int, UINT)
+    else if itkWriteRawBytesAfterSwappingMacro(int, INT)
+    else if itkWriteRawBytesAfterSwappingMacro(long, LONG)
+    else if itkWriteRawBytesAfterSwappingMacro(unsigned long, ULONG)
+    else if itkWriteRawBytesAfterSwappingMacro(float, FLOAT)
+    else if itkWriteRawBytesAfterSwappingMacro(double, DOUBLE)
+#endif
   //-------------------------------------------
 
   file.close();

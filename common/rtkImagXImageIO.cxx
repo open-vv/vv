@@ -163,6 +163,7 @@ void rtk::ImagXImageIO::Read(void * buffer)
 
   // Adapted from itkRawImageIO
     {
+#if ( ITK_VERSION_MAJOR < 5 )
     using namespace itk;
     // Swap bytes if necessary
     if itkReadRawBytesAfterSwappingMacro( unsigned short, USHORT )
@@ -171,10 +172,35 @@ void rtk::ImagXImageIO::Read(void * buffer)
     else if itkReadRawBytesAfterSwappingMacro( unsigned char, UCHAR )
     else if itkReadRawBytesAfterSwappingMacro( unsigned int, UINT )
     else if itkReadRawBytesAfterSwappingMacro( int, INT )
-    else if itkReadRawBytesAfterSwappingMacro( unsigned int, ULONG )
-    else if itkReadRawBytesAfterSwappingMacro( int, LONG )
     else if itkReadRawBytesAfterSwappingMacro( float, FLOAT )
     else if itkReadRawBytesAfterSwappingMacro( double, DOUBLE );
+#else
+  #define itkReadRawBytesAfterSwappingMacro(StrongType, WeakType)   \
+    ( this->GetComponentType() == WeakType )                        \
+      {                                                             \
+      using InternalByteSwapperType = itk::ByteSwapper<StrongType>; \
+      if ( m_ByteOrder == LittleEndian )                            \
+        {                                                           \
+        InternalByteSwapperType::SwapRangeFromSystemToLittleEndian( \
+          (StrongType *)buffer, this->GetImageSizeInComponents() ); \
+        }                                                           \
+      else if ( m_ByteOrder == BigEndian )                          \
+        {                                                           \
+        InternalByteSwapperType::SwapRangeFromSystemToBigEndian(    \
+          (StrongType *)buffer, this->GetImageSizeInComponents() ); \
+        }                                                           \
+      }
+
+    // Swap bytes if necessary
+    if itkReadRawBytesAfterSwappingMacro( unsigned short, USHORT )
+    else if itkReadRawBytesAfterSwappingMacro( short, SHORT )
+    else if itkReadRawBytesAfterSwappingMacro( char, CHAR )
+    else if itkReadRawBytesAfterSwappingMacro( unsigned char, UCHAR )
+    else if itkReadRawBytesAfterSwappingMacro( unsigned int, UINT )
+    else if itkReadRawBytesAfterSwappingMacro( int, INT )
+    else if itkReadRawBytesAfterSwappingMacro( float, FLOAT )
+    else if itkReadRawBytesAfterSwappingMacro( double, DOUBLE );
+#endif
     }
 }
 
