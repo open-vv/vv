@@ -27,7 +27,11 @@
  *
  ===================================================*/
 
+#if ( ITK_VERSION_MAJOR < 5 )
 #include "itkVectorResampleImageFilter.h"
+#else
+#include "itkResampleImageFilter.h"
+#endif
 #include "clitkConvertBLUTCoeffsToVFFilter.h"
 
 namespace clitk
@@ -128,8 +132,13 @@ WarpImageGenericFilter::UpdateWithDimAndPixelType()
     genericInterpolator->SetArgsInfo(m_ArgsInfo);
 
     // Resample to match the extent of the input
+#if ( ITK_VERSION_MAJOR < 5 )
     typename itk::VectorResampleImageFilter<DeformationFieldType, DeformationFieldType >::Pointer
     resampler =itk::VectorResampleImageFilter<DeformationFieldType, DeformationFieldType >::New();
+#else
+    typename itk::ResampleImageFilter<DeformationFieldType, DeformationFieldType >::Pointer
+    resampler =itk::ResampleImageFilter<DeformationFieldType, DeformationFieldType >::New();
+#endif
     resampler->SetInput(deformationField);
     resampler->SetOutputSpacing(deformationField->GetSpacing());
     resampler->SetOutputDirection(deformationField->GetDirection());
@@ -160,8 +169,13 @@ WarpImageGenericFilter::UpdateWithDimAndPixelType()
       newSize[i]=input->GetLargestPossibleRegion().GetSize()[i];
 
     // Resample to match the extent of the input
+#if ( ITK_VERSION_MAJOR < 5 )
     typename itk::VectorResampleImageFilter<DeformationFieldType, DeformationFieldType >::Pointer
     resampler =itk::VectorResampleImageFilter<DeformationFieldType, DeformationFieldType >::New();
+#else
+    typename itk::ResampleImageFilter<DeformationFieldType, DeformationFieldType >::Pointer
+    resampler =itk::ResampleImageFilter<DeformationFieldType, DeformationFieldType >::New();
+#endif
     resampler->SetInput(deformationField);
     resampler->SetOutputSpacing(input->GetSpacing());
     resampler->SetOutputDirection(deformationField->GetDirection());
@@ -213,8 +227,13 @@ WarpImageGenericFilter::UpdateWithDimAndPixelType()
     backwardWarpFilter->SetOutputOrigin( input->GetOrigin() );
     backwardWarpFilter->SetOutputSize( deformationField->GetLargestPossibleRegion().GetSize() );
     backwardWarpFilter->SetOutputDirection( input->GetDirection() );
+#if ( ITK_VERSION_MAJOR < 5 )
     typename itk::VectorResampleImageFilter<DeformationFieldType, DeformationFieldType >::Pointer
     resampler =itk::VectorResampleImageFilter<DeformationFieldType, DeformationFieldType >::New();
+#else
+    typename itk::ResampleImageFilter<DeformationFieldType, DeformationFieldType >::Pointer
+    resampler =itk::ResampleImageFilter<DeformationFieldType, DeformationFieldType >::New();
+#endif
     backwardWarpFilter->SetInterpolator(genericInterpolator->GetInterpolatorPointer());
     warpFilter=backwardWarpFilter;
   }

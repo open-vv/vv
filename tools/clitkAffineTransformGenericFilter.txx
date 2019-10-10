@@ -711,7 +711,11 @@ namespace clitk
     }
 
     //Filter
+#if ( ITK_VERSION_MAJOR < 5 )
     typedef  itk::VectorResampleImageFilter< InputImageType,OutputImageType, double >  ResampleFilterType;
+#else
+    typedef  itk::ResampleImageFilter< InputImageType,OutputImageType, double >  ResampleFilterType;
+#endif
     typename ResampleFilterType::Pointer resampler = ResampleFilterType::New();
 
     // Matrix

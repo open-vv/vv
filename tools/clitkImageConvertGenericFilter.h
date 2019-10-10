@@ -32,7 +32,9 @@
 
 // itk include
 #include "itkCastImageFilter.h"
+#if ( ITK_VERSION_MAJOR < 5 )
 #include "itkVectorCastImageFilter.h"
+#endif
 
 
 namespace clitk {
@@ -208,7 +210,11 @@ namespace clitk {
 
         // Cast
         typedef itk::Image<itk::Vector<OutputPixelType, InputImageType::PixelType::Dimension>, InputImageType::ImageDimension> OutputImageType;
+#if ( ITK_VERSION_MAJOR < 5 )
         typedef itk::VectorCastImageFilter<InputImageType, OutputImageType> FilterType;
+#else
+        typedef itk::CastImageFilter<InputImageType, OutputImageType> FilterType;
+#endif
         typename FilterType::Pointer cast_filter = FilterType::New();
         cast_filter->SetInput(input);
         cast_filter->Update();

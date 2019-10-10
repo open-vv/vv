@@ -18,7 +18,11 @@
 #ifndef clitkInvertVFGenericFilter_txx
 #define clitkInvertVFGenericFilter_txx
 
+#if ( ITK_VERSION_MAJOR < 5 )
 #include "itkVectorResampleImageFilter.h"
+#else
+#include "itkResampleImageFilter.h"
+#endif
 #include "clitkConvertBLUTCoeffsToVFFilter.h"
 
 /* =================================================
@@ -140,7 +144,11 @@ InvertVFGenericFilter<args_info_type>::UpdateWithDimAndPixelType()
         spacing[i] = header->GetSpacing(i);
       }
 
+#if ( ITK_VERSION_MAJOR < 5 )
       typedef itk::VectorResampleImageFilter<InputImageType, OutputImageType> ResampleFilterType;
+#else
+      typedef itk::ResampleImageFilter<InputImageType, OutputImageType> ResampleFilterType;
+#endif
       typename ResampleFilterType::Pointer resampler = ResampleFilterType::New();
       resampler->SetInput(input);
       resampler->SetOutputOrigin(input->GetOrigin());

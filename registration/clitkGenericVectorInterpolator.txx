@@ -48,17 +48,25 @@ namespace clitk
       {
       case 0: 
 
+#if ( ITK_VERSION_MAJOR < 5 )
 	interpolator= itk::VectorNearestNeighborInterpolateImageFunction< ImageType,TCoordRep >::New();
+#else
+	interpolator= itk::NearestNeighborInterpolateImageFunction< ImageType,TCoordRep >::New();
+#endif
 	if (m_Verbose) std::cout<<"Using nearestneighbor interpolation..."<<std::endl;
 	break;
  
       case 1:
 
+#if ( ITK_VERSION_MAJOR < 5 )
 	interpolator = itk::VectorLinearInterpolateImageFunction< ImageType,TCoordRep >::New();
+#else
+	interpolator = itk::LinearInterpolateImageFunction< ImageType,TCoordRep >::New();
+#endif
 	if (m_Verbose) std::cout<<"Using linear interpolation..."<<std::endl;
 	break;  
       
-      case 2:
+/*      case 2:
 	{
 	  typename clitk::VectorBSplineInterpolateImageFunction< ImageType,TCoordRep >::Pointer m =clitk::VectorBSplineInterpolateImageFunction< ImageType,TCoordRep >::New();
 	  m->SetSplineOrder(m_ArgsInfo.interpVFOrder_arg);
@@ -76,7 +84,7 @@ namespace clitk
 	  if (m_Verbose) std::cout<<"Using BLUT interpolation..."<<std::endl;
 	  break;
 	} 
-
+*/
       }//end of switch
     
     

@@ -20,8 +20,13 @@
 #include "clitkImageCommon.h"
 
 //itk include
+#if ( ITK_VERSION_MAJOR < 5 )
 #include "itkVectorNearestNeighborInterpolateImageFunction.h"
 #include "itkVectorLinearInterpolateImageFunction.h"
+#else
+#include "itkNearestNeighborInterpolateImageFunction.h"
+#include "itkLinearInterpolateImageFunction.h"
+#endif
 #include "clitkVectorBSplineInterpolateImageFunction.h"
 #include "clitkVectorBSplineInterpolateImageFunctionWithLUT.h"
 
@@ -56,7 +61,11 @@ namespace clitk
     typedef itk::SmartPointer<Self>            Pointer;
     typedef itk::SmartPointer<const Self>      ConstPointer;
 
+#if ( ITK_VERSION_MAJOR < 5 )
     typedef itk::VectorInterpolateImageFunction<ImageType, TCoordRep> InterpolatorType;
+#else
+    typedef itk::InterpolateImageFunction<ImageType, TCoordRep> InterpolatorType;
+#endif
     typedef typename InterpolatorType::Pointer InterpolatorPointer;   
      
     /** Method for creation through the object factory. */

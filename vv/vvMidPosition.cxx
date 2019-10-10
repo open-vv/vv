@@ -18,7 +18,11 @@
 #include <QApplication>
 
 #include <itkWarpImageFilter.h>
+#if ( ITK_VERSION_MAJOR < 5 )
 #include <itkVectorResampleImageFilter.h>
+#else
+#include <itkResampleImageFilter.h>
+#endif
 
 #include "vvMidPosition.h"
 #include "clitkCommon.h"
@@ -95,8 +99,13 @@ vvImage::Pointer WarpRefImage(OutputVFType::Pointer vf,vvImage::Pointer image,in
 
   //We resample the VF because itk's warp filter doesn't like it when the vf and the image have
   //different spacings
+#if ( ITK_VERSION_MAJOR < 5 )
   typename itk::VectorResampleImageFilter<OutputVFType, OutputVFType >::Pointer
   resampler =itk::VectorResampleImageFilter<OutputVFType, OutputVFType >::New();
+#else
+  typename itk::ResampleImageFilter<OutputVFType, OutputVFType >::Pointer
+  resampler =itk::ResampleImageFilter<OutputVFType, OutputVFType >::New();
+#endif
   resampler->SetInput(vf);
   resampler->SetOutputSpacing(input->GetSpacing());
   resampler->SetOutputOrigin(vf->GetOrigin());

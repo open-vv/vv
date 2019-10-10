@@ -40,7 +40,9 @@
 #include "itkLightObject.h"
 #include "itkAffineTransform.h"
 #include "itkResampleImageFilter.h"
+#if ( ITK_VERSION_MAJOR < 5 )
 #include "itkVectorResampleImageFilter.h"
+#endif
 
 
 namespace clitk 

@@ -39,10 +39,16 @@
 #include "itkImageSeriesReader.h"
 #include "itkImageFileWriter.h"
 #include "itkRecursiveGaussianImageFilter.h"
+#if ( ITK_VERSION_MAJOR < 5 )
 #include "itkVectorResampleImageFilter.h"
-#include "itkAffineTransform.h"
 #include "itkVectorNearestNeighborInterpolateImageFunction.h"
 #include "itkVectorLinearInterpolateImageFunction.h"
+#else
+#include "itkResampleImageFilter.h"
+#include "itkNearestNeighborInterpolateImageFunction.h"
+#include "itkLinearInterpolateImageFunction.h"
+#endif
+#include "itkAffineTransform.h"
 #include "itkBSplineInterpolateImageFunction.h"
 #include "itkBSplineInterpolateImageFunctionWithLUT.h"
 #include "itkCommand.h"

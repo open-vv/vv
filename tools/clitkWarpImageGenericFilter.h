@@ -39,7 +39,11 @@
 //itk include
 #include "itkLightObject.h"
 #include "itkWarpImageFilter.h"
+#if ( ITK_VERSION_MAJOR < 5 )
 #include "itkVectorResampleImageFilter.h"
+#else
+#include "itkResampleImageFilter.h"
+#endif
 
 namespace clitk 
 {

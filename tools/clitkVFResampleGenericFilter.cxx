@@ -111,7 +111,11 @@ clitk::VFResampleGenericFilter::ComputeImage(typename ImageType::Pointer inputIm
   typedef typename ImageType::PointType PointType;
 
   // Create Image Filter
+#if ( ITK_VERSION_MAJOR < 5 )
   typedef itk::VectorResampleImageFilter<ImageType,ImageType> FilterType;
+#else
+  typedef itk::ResampleImageFilter<ImageType,ImageType> FilterType;
+#endif
   typename FilterType::Pointer filter = FilterType::New();
 
   // Instance of the transform object to be passed to the resample
@@ -137,12 +141,20 @@ clitk::VFResampleGenericFilter::ComputeImage(typename ImageType::Pointer inputIm
 
   // Select interpolator
   if (mInterpolatorName == "nn") {
+#if ( ITK_VERSION_MAJOR < 5 )
     typedef itk::VectorNearestNeighborInterpolateImageFunction<ImageType, double> InterpolatorType;
+#else
+    typedef itk::NearestNeighborInterpolateImageFunction<ImageType, double> InterpolatorType;
+#endif
     typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
     filter->SetInterpolator(interpolator);
   } else {
     if (mInterpolatorName == "linear") {
+#if ( ITK_VERSION_MAJOR < 5 )
       typedef itk::VectorLinearInterpolateImageFunction<ImageType, double> InterpolatorType;
+#else
+      typedef itk::LinearInterpolateImageFunction<ImageType, double> InterpolatorType;
+#endif
       typename InterpolatorType::Pointer interpolator =  InterpolatorType::New();
       filter->SetInterpolator(interpolator);
     } else {
