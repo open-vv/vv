@@ -70,7 +70,7 @@ void vvImage::Reset()
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
-void vvImage::AddVtkImage(vtkImageData* input)
+void vvImage::AddVtkImage(vtkImageData* input, vtkSmartPointer<vtkTransform> transform)
 {
   // RP: 20/12/2011
   // Note that we're simply adding a new image to the vector.
@@ -90,6 +90,7 @@ void vvImage::AddVtkImage(vtkImageData* input)
     mImageDimension = 1;
   
   mVtkImages.push_back(input);
+  mTransform.push_back(transform);
 }
 
 //--------------------------------------------------------------------

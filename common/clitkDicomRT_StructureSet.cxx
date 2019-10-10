@@ -317,7 +317,7 @@ void clitk::DicomRT_StructureSet::Write(const std::string & filename)
 
 
 //--------------------------------------------------------------------
-void clitk::DicomRT_StructureSet::Read(const std::string & filename)
+void clitk::DicomRT_StructureSet::Read(const std::string & filename, double tol)
 {
 
 //Try to avoid to use extern GDCM library
@@ -448,7 +448,7 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename)
     // Create the roi
     mROIs[nb] = DicomRT_ROI::New();
     mROIs[nb]->SetTransformMatrix(mTransformMatrix);
-    mROIs[nb]->Read(mMapOfROIInfo[nb], mMapOfROIContours[nb]);
+    mROIs[nb]->Read(mMapOfROIInfo[nb], mMapOfROIContours[nb], tol);
   }
     
   return;

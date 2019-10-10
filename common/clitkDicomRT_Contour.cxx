@@ -82,11 +82,7 @@ void clitk::DicomRT_Contour::UpdateDicomItem()
     double * p = mData->GetPoint(i);
     points[i*3] = p[0];
     points[i*3+1] = p[1];
-#if VTK_MAJOR_VERSION <= 5
-    points[i*3+1] = p[2];
-#else
     points[i*3+1] = p[2]-0.5;
-#endif
   }
 
   // Get attribute
@@ -96,7 +92,7 @@ void clitk::DicomRT_Contour::UpdateDicomItem()
   at.SetFromDataElement( contourdata );
 
   // Set attribute
-  at.SetValues(&points[0], points.size(), false);
+  at.SetValues(&points[0], points.size());
   DD(at.GetValues()[0]);
   
   DD("replace");
@@ -161,14 +157,10 @@ bool clitk::DicomRT_Contour::Read(gdcm::Item * item)
     double p[3];
     p[0] = points[i*3];
     p[1] = points[i*3+1];
-#if VTK_MAJOR_VERSION <= 5
-    p[2] = points[i*3+2];
-#else
     p[2] = points[i*3+2]+0.5;
-#endif
     mData->SetPoint(i, p);
     if (mZ == -1) mZ = p[2];
-    if (p[2] != mZ) {
+    if (std::fabs(p[2] - mZ) > mTolerance) {
       DD(i);
       DD(p[2]);
       DD(mZ);
@@ -212,14 +204,10 @@ bool clitk::DicomRT_Contour::Read(gdcm::SQItem * item)
     double p[3];
     p[0] = points[i*3];
     p[1] = points[i*3+1];
-#if VTK_MAJOR_VERSION <= 5
-    p[2] = points[i*3+2];
-#else
     p[2] = points[i*3+2]+0.5;
-#endif
     mData->SetPoint(i, p);
     if (mZ == -1) mZ = p[2];
-    if (p[2] != mZ) {
+    if (std::fabs(p[2] - mZ) > mTolerance) {
       DD(i);
       DD(p[2]);
       DD(mZ);
@@ -259,8 +247,17 @@ void clitk::DicomRT_Contour::SetTransformMatrix(vtkMatrix4x4* matrix)
   mTransformMatrix = matrix;
 }
 //--------------------------------------------------------------------
-
-
+//--------------------------------------------------------------------
+double clitk::DicomRT_Contour::GetTolerance()
+{
+  return mTolerance;
+}
+//--------------------------------------------------------------------
+void clitk::DicomRT_Contour::SetTolerance(double tol)
+{
+  mTolerance = tol;
+}
+//--------------------------------------------------------------------
 //--------------------------------------------------------------------
 void clitk::DicomRT_Contour::ComputeMeshFromDataPoints()
 {
@@ -271,10 +268,10 @@ void clitk::DicomRT_Contour::ComputeMeshFromDataPoints()
   mMesh->SetPoints(mPoints);
   vtkIdType ids[2];
   for (unsigned int idx=0 ; idx<mNbOfPoints ; idx++) {
-    double pointIn[4];
-    for (unsigned int j=0 ; j<3; ++j)
-      pointIn[j] = mData->GetPoint(idx)[j];
-    pointIn[3] = 1.0;
+    //double pointIn[4];
+    //for (unsigned int j=0 ; j<3; ++j)
+    //  pointIn[j] = mData->GetPoint(idx)[j];
+    //pointIn[3] = 1.0;
     /*double pointOut[4];
     mTransformMatrix->MultiplyPoint(pointIn, pointOut);
     std::cout << pointOut[0] << " " << pointOut[1] << " " << pointOut[2] << " " << pointOut[3] << std::endl;

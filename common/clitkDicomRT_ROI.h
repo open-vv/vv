@@ -80,14 +80,14 @@ public:
 
   // Read from DICOM RT STRUCT
 #if GDCM_MAJOR_VERSION >= 2
-  bool Read(gdcm::Item * itemInfo, gdcm::Item * itemContour);
+  bool Read(gdcm::Item * itemInfo, gdcm::Item * itemContour, double tol);
   void UpdateDicomItem();
 #else
-  void Read(std::map<int, std::string> & rois, gdcm::SQItem * item);
+  void Read(std::map<int, std::string> & rois, gdcm::SQItem * item, double tol);
 #endif
 
 #if CLITK_USE_SYSTEM_GDCM == 1
-  void Read(vtkSmartPointer<vtkGDCMPolyDataReader> & reader, int roiindex);
+  void Read(vtkSmartPointer<vtkGDCMPolyDataReader> & reader, int roiindex, double tol);
 #endif
 
 protected:
