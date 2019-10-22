@@ -3399,18 +3399,18 @@ void vvMainWindow::SaveScreenshot(QVTKOpenGLNativeWidget *widget)
 void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 #endif
 { 
-  QString Extensions = "Images( *.png);;";
-  Extensions += "Images( *.jpg);;";
-  Extensions += "Images( *.bmp);;";
-  Extensions += "Images( *.tif);;";
-  Extensions += "Images( *.ppm)";
+  QString Extensions = "*.png;;";
+  Extensions += "*.jpg;;";
+  Extensions += "*.bmp;;";
+  Extensions += "*.tif;;";
+  Extensions += "*.ppm";
 #if defined(VTK_USE_FFMPEG_ENCODER) || defined(VTK_USE_VIDEO_FOR_WINDOWS)
-  Extensions += ";;Video( *.avi)";
+  Extensions += ";;*.avi Video";
 #endif
 #ifdef VTK_USE_MPEG2_ENCODER
-  Extensions += ";;Video( *.mpg)";
+  Extensions += ";;*.mpg Video";
 #endif
-  Extensions += ";;Video( *.gif)";
+  Extensions += ";;*.gif Video";
 
   int smIndex=GetSlicerIndexFromItem(DataTree->selectedItems()[0]);
   QString fileName = QFileDialog::getSaveFileName(this,
