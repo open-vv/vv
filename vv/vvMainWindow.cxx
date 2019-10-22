@@ -3426,7 +3426,7 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 #else
     w2i->SetMagnification(1);
 #endif
-    w2i->SetInputBufferTypeToRGBA(); //also record the alpha (transparency) channel
+    //w2i->SetInputBufferTypeToRGBA(); //also record the alpha (transparency) channel
     w2i->Update();
     vtkImageData *image = w2i->GetOutput();
 
