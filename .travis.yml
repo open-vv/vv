@@ -75,10 +75,10 @@ notifications:
   on_success: never
   on_failure: never
 
-addons:
-  sonarcloud:
-    organization: "open-vv-github"
-    token: $SONAR_TOKEN
+#addons:
+#  sonarcloud:
+#    organization: "open-vv-github"
+#    token: $SONAR_TOKEN
 
 branches:
 only:
@@ -115,7 +115,7 @@ cache:
    - $HOME/vtk-build
    - $HOME/itk
    - $HOME/itk-build
-   - '$HOME/.sonar/cache'
+#   - '$HOME/.sonar/cache'
  - timeout: 10000
 
 before_script:
