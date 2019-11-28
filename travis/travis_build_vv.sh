@@ -25,5 +25,5 @@ cmake $cmake_arg_str ..
 $MAKE
 cd ..
 #build-wrapper-linux-x86-64 --out-dir bw-output make clean all
-sonar-scanner
+#sonar-scanner
 cd $cwd
