@@ -988,7 +988,7 @@ void vvSlicer::SetSliceOrientation(int orientation)
     copyExtent(ext, extent);
 #endif
 
-  if (extent[5]-extent[4] <= 2)
+  if (extent[5]-extent[4] < 1)
     orientation = vtkImageViewer2::SLICE_ORIENTATION_XY;
 
   if (orientation < vtkImageViewer2::SLICE_ORIENTATION_YZ ||
