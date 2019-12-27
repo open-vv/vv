@@ -23,6 +23,31 @@
 #include "clitkIO.h"
 
 //--------------------------------------------------------------------
+std::string outputFileName(clitk::DicomRT_ROI::Pointer roi, const args_info_clitkDicomRTStruct2Image& args_info)
+{
+  std::string name = roi->GetName();
+  int num = roi->GetROINumber();
+  name.erase(remove_if(name.begin(), name.end(), isspace), name.end());
+  std::string n;
+  n = std::string(args_info.output_arg).append(clitk::toString(num)).append("_").append(name);
+  if (args_info.mha_flag) {
+    n=n.append(".mha");
+  }
+  else if (args_info.nii_flag) {
+    n=n.append(".nii");
+  }
+  else if (args_info.niigz_flag) {
+    n=n.append(".nii.gz");
+  }
+  else {
+    n=n.append(".mhd");
+  }
+  if (args_info.verbose_flag) {
+    std::cout << num << " " << roi->GetName() << " num=" << num << " : " << n << std::endl;
+  }
+  return n;
+}
+//--------------------------------------------------------------------
 int main(int argc, char * argv[]) {
 
   // Init command line
@@ -35,23 +60,29 @@ int main(int argc, char * argv[]) {
   if (args_info.verboseFile_flag) {
     s->Print(std::cout);
   }
-  
-  // New filter to convert to binary image
-  clitk::DicomRTStruct2ImageFilter filter;
-  filter.SetCropMaskEnabled(args_info.crop_flag);
-  filter.SetImageFilename(args_info.image_arg);  // Used to get spacing + origin
-  if (args_info.vtk_flag) {
-    filter.SetWriteMesh(true);
-  }
-  if (args_info.roiName_given) {
-    filter.SetROI(s->GetROIFromROIName(args_info.roiName_arg)); 
-    filter.SetOutputImageFilename(args_info.output_arg);
-    filter.Update();  
-  }
-  else if (args_info.roi_given && args_info.roi_arg != -1) {
-    filter.SetROI(s->GetROIFromROINumber(args_info.roi_arg)); 
-    filter.SetOutputImageFilename(args_info.output_arg);
-    filter.Update();  
+  if (args_info.roiName_given || (args_info.roi_given && args_info.roi_arg != -1)) {
+    clitk::DicomRT_ROI::Pointer roi;
+    if (args_info.roiName_given) {
+      roi = s->GetROIFromROIName(args_info.roiName_arg);
+    }
+    else if (args_info.roi_given && args_info.roi_arg != -1) {
+        roi = s->GetROIFromROINumber(args_info.roi_arg);
+    }
+    if (roi) {
+      // New filter to convert to binary image
+      clitk::DicomRTStruct2ImageFilter filter;
+      filter.SetCropMaskEnabled(args_info.crop_flag);
+      filter.SetImageFilename(args_info.image_arg);  // Used to get spacing + origin
+      if (args_info.vtk_flag) {
+        filter.SetWriteMesh(true);
+      }
+      filter.SetROI(roi);
+      filter.SetOutputImageFilename(outputFileName(roi, args_info));
+      filter.Update();
+      } else {
+        std::cerr<<"No ROI with this name/id"<<std::endl;
+          return EXIT_FAILURE;
+      }
   }
   else {
     clitk::DicomRT_StructureSet::ROIMapContainer* rois;
@@ -65,43 +96,18 @@ int main(int argc, char * argv[]) {
       for(iter = rois->begin(); iter != rois->end(); iter++) {
         clitk::DicomRT_ROI::Pointer roi = iter->second;
         clitk::DicomRTStruct2ImageFilter filter;
-        std::string name = roi->GetName();
-        int num = roi->GetROINumber();
-        filter.SetROI(roi); 
         filter.SetCropMaskEnabled(args_info.crop_flag);
         filter.SetImageFilename(args_info.image_arg);  // Used to get spacing + origin
         if (args_info.vtk_flag) {
           filter.SetWriteMesh(true);
         }
-        name.erase(remove_if(name.begin(), name.end(), isspace), name.end());
-        std::string n;
-        if (args_info.mha_flag) {
-          n = std::string(args_info.output_arg).append
-            (clitk::toString(num)).append
-            ("_").append
-            (name).append
-            (".mha");
-        }
-        else if (args_info.nii_flag) {
-          n = std::string(args_info.output_arg).append
-            (clitk::toString(num)).append
-            ("_").append
-            (name).append
-            (".nii");
-        }
-        else {
-          n = std::string(args_info.output_arg).append
-            (clitk::toString(num)).append
-            ("_").append
-            (name).append
-            (".mhd");
-        }
-        if (args_info.verbose_flag) {
-          std::cout << num << " " << roi->GetName() << " num=" << num << " : " << n << std::endl;
-        }
-        filter.SetOutputImageFilename(n);
-        filter.Update();  
+        filter.SetROI(roi);
+        filter.SetOutputImageFilename(outputFileName(roi, args_info));
+        filter.Update();
       }
+    } else {
+        std::cerr<<"No ROIs with this substring of ROI name"<<std::endl;
+        return EXIT_FAILURE;
     }
   }
 //   else {

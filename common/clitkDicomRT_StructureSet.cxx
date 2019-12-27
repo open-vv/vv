@@ -397,7 +397,10 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename, double tol)
   //const gdcm::DataElement &ssroisq = ds.GetDataElement( tssroisq );
   mROIInfoSequenceOfItems = ssroisq.GetValueAsSQ();
   gdcm::SmartPointer<gdcm::SequenceOfItems> & roi_seq = mROIInfoSequenceOfItems;
-  assert(roi_seq); // TODO error message
+  //assert(roi_seq); // TODO error message
+  if (roi_seq == NULL) {
+      FATAL("The Structure Set ROI Sequence tag does not contain any value");
+  }
   for(unsigned int ridx = 0; ridx < roi_seq->GetNumberOfItems(); ++ridx)
     {
     gdcm::Item & item = roi_seq->GetItem( ridx + 1); // Item starts at 1
@@ -429,7 +432,10 @@ void clitk::DicomRT_StructureSet::Read(const std::string & filename, double tol)
   //const gdcm::DataElement &roicsq = ds.GetDataElement( troicsq );
   gdcm::SmartPointer<gdcm::SequenceOfItems> roi_contour_seq = roicsq.GetValueAsSQ();
   mROIContoursSequenceOfItems = roi_contour_seq;
-  assert(roi_contour_seq); // TODO error message
+  //assert(roi_contour_seq); // TODO error message
+  if (roi_contour_seq == NULL) {
+      FATAL("The ROI Contour Sequence tag does not contain any value");
+  }
   for(unsigned int ridx = 0; ridx < roi_contour_seq->GetNumberOfItems(); ++ridx) {
     gdcm::Item & item = roi_contour_seq->GetItem( ridx + 1); // Item starts at 1
     // ROI number [Referenced ROI Number]

@@ -559,8 +559,8 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 template < class TFixedImage, class TMovingImage  >
 inline bool
 MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
-::GetValueThreadProcessSample( unsigned int threadID,
-                               unsigned long fixedImageSample,
+::GetValueThreadProcessSample( itk::ThreadIdType threadID,
+                               itk::SizeValueType fixedImageSample,
                                const MovingImagePointType & itkNotUsed(mappedPoint),
                                double movingImageValue) const
 {
@@ -822,8 +822,8 @@ MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 template < class TFixedImage, class TMovingImage  >
 inline bool
 MattesMutualInformationImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
-::GetValueAndDerivativeThreadProcessSample( unsigned int threadID,
-    unsigned long fixedImageSample,
+::GetValueAndDerivativeThreadProcessSample( itk::ThreadIdType threadID,
+    itk::SizeValueType fixedImageSample,
     const MovingImagePointType & itkNotUsed(mappedPoint),
     double movingImageValue,
     const ImageDerivativesType &

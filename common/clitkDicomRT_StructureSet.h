@@ -64,6 +64,9 @@ public:
   void SetTransformMatrix(vtkMatrix4x4* matrix);
   bool IsDicomRTStruct(const std::string & filename);
   void Write(const std::string & filename);
+  void Anon(const std::string & filename,
+            const std::string & outputfilename,
+            const std::string newPID);
 
   clitk::DicomRT_ROI * GetROIFromROINumber(int n);
   clitk::DicomRT_ROI* GetROIFromROIName(const std::string& name);

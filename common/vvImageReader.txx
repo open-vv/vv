@@ -316,4 +316,3 @@ void vvImageReader::UpdateWithDimAndInputVectorPixelType()
 //----------------------------------------------------------------------------
 
 #endif /* end #define vvImageReader_TXX */
-

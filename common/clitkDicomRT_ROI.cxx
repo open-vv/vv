@@ -186,7 +186,10 @@ bool clitk::DicomRT_ROI::Read(gdcm::Item * itemInfo, gdcm::Item * itemContour, d
   // ROI Color [ROI Display Color]
   gdcm::Attribute<0x3006,0x002a> color = {};
   color.SetFromDataSet( nestedds );
-  assert( color.GetNumberOfValues() == 3 );
+  //assert( color.GetNumberOfValues() == 3 );
+  if (color.GetNumberOfValues() != 3) {
+      FATAL("The RGB triplet color representation for ROI is not a triplet");
+  }
   mColor[0] = color.GetValue(0);
   mColor[1] = color.GetValue(1);
   mColor[2] = color.GetValue(2);

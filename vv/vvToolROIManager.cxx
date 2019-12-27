@@ -330,7 +330,7 @@ void vvToolROIManager::SelectedImageHasChanged(vvSlicerManager * m)
 void vvToolROIManager::Open()
 {
   // Open images
-  QString Extensions = "Images or Dicom-Struct files ( *.mha *.mhd *.hdr *.his *.dcm RS*)";
+  QString Extensions = "Images or Dicom-Struct files (*.nii *.nii.gz *.mha *.mhd *.hdr *.his *.dcm RS*)";
   Extensions += ";;All Files (*)";
   QStringList filename =
     QFileDialog::getOpenFileNames(this,tr("Open binary image or DICOM RT Struct"),
@@ -428,7 +428,7 @@ void vvToolROIManager::OpenDicomImage(std::string filename, double tol)
 
       // Get image
       vvImage::Pointer binaryImage = vvImage::New();
-      binaryImage->AddVtkImage(filter.GetOutput());
+      binaryImage->AddVtkImage(filter.GetOutput(), mCurrentImage->GetTransform()[0]);
 
       // Add to gui
       AddImage(binaryImage, s->GetROIFromROINumber(list[i])->GetName(), "", 0, true); // "" = no filename

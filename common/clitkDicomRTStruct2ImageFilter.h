@@ -72,17 +72,17 @@ namespace clitk {
 
 //--------------------------------------------------------------------
 
-template <int Dimension> 
-typename itk::Image<unsigned char,Dimension>::ConstPointer clitk::DicomRTStruct2ImageFilter::GetITKOutput()
-{
-  assert(mBinaryImage);
-  typedef itk::Image<unsigned char,Dimension> ConnectorImageType;
-  typedef itk::VTKImageToImageFilter <ConnectorImageType> ConnectorType;
-  typename ConnectorType::Pointer connector = ConnectorType::New();
-  connector->SetInput(mBinaryImage);
-  connector->Update();
-  return connector->GetOutput();
-}
+//template <int Dimension>
+//typename itk::Image<unsigned char,Dimension>::ConstPointer clitk::DicomRTStruct2ImageFilter::GetITKOutput()
+//{
+//  assert(mBinaryImage);
+//  typedef itk::Image<unsigned char,Dimension> ConnectorImageType;
+//  typedef itk::VTKImageToImageFilter <ConnectorImageType> ConnectorType;
+//  typename ConnectorType::Pointer connector = ConnectorType::New();
+//  connector->SetInput(mBinaryImage);
+//  connector->Update();
+//  return connector->GetOutput();
+//}
 //--------------------------------------------------------------------
 #endif // CLITKDICOMRT_TRUCT2IMAGEFILTER_H
 

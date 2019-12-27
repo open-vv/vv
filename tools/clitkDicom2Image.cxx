@@ -300,7 +300,7 @@ int main(int argc, char * argv[])
       modifier->SetOutputOrigin(origin[0], origin[1], locs[sliceIndex[0]]);
       modifier->Update();
       vvImage::Pointer focal_image = vvImage::New();
-      focal_image->AddVtkImage(modifier->GetOutput());
+      focal_image->AddVtkImage(modifier->GetOutput(), image->GetTransform()[0]);
       image = focal_image;
     }
 

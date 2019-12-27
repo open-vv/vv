@@ -128,14 +128,14 @@ private:
   MeasureType ComputeSums( const ParametersType & parameters ) const;
 
 
-  inline bool GetValueThreadProcessSample( unsigned int threadID,
-      unsigned long fixedImageSample,
+  inline bool GetValueThreadProcessSample( itk::ThreadIdType threadID,
+      itk::SizeValueType fixedImageSample,
       const MovingImagePointType & mappedPoint,
       double movingImageValue ) const ITK_OVERRIDE;
 
 
-  inline bool GetValueAndDerivativeThreadProcessSample( unsigned int threadID,
-      unsigned long fixedImageSample,
+  inline bool GetValueAndDerivativeThreadProcessSample( itk::ThreadIdType threadID,
+      itk::SizeValueType fixedImageSample,
       const MovingImagePointType & mappedPoint,
       double movingImageValue,
       const ImageDerivativesType &
