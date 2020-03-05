@@ -204,6 +204,7 @@ bool clitk::DicomRT_ROI::Read(gdcm::Item * itemInfo, gdcm::Item * itemContour)
   gdcm::SmartPointer<gdcm::SequenceOfItems> & sqi2 = mContoursSequenceOfItems;
   if( !sqi2 || !sqi2->GetNumberOfItems() )
     {
+    return false;
     }
   unsigned int nitems = sqi2->GetNumberOfItems();
 
