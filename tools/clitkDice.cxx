@@ -37,7 +37,7 @@ int main(int argc, char * argv[]) {
 
   try {
     filter->Update();
-  } catch(std::runtime_error e) {
+  } catch(clitk::ExceptionObject e) {
     std::cout << e.what() << std::endl;
     return EXIT_FAILURE;
   }

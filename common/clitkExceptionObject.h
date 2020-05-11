@@ -50,7 +50,7 @@ namespace clitk {
   {                                                                     \
     std::ostringstream message;                                       \
     message << x;                                                       \
-    ::clitk::ExceptionObject e_(__FILE__, __LINE__, message.str().c_str()); \
+    clitk::ExceptionObject e_(__FILE__, __LINE__, message.str().c_str()); \
     throw e_; /* Explicit naming to work around Intel compiler bug.  */ \
   }
   //--------------------------------------------------------------------

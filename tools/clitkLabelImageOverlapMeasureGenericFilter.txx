@@ -24,7 +24,7 @@ LabelImageOverlapMeasureGenericFilter():
 {
   // Default values
   cmdline_parser_clitkDice_init(&mArgsInfo);
-  //InitializeImageType<2>();
+  InitializeImageType<2>();
   InitializeImageType<3>();
 }
 //--------------------------------------------------------------------
@@ -37,6 +37,7 @@ void clitk::LabelImageOverlapMeasureGenericFilter<ArgsInfoType>::
 InitializeImageType()
 {
   ADD_IMAGE_TYPE(Dim, uchar);
+  ADD_IMAGE_TYPE(Dim, ushort);
 }
 //--------------------------------------------------------------------
 
