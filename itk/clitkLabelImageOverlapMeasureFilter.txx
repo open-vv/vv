@@ -24,8 +24,7 @@ LabelImageOverlapMeasureFilter():
   itk::ImageToImageFilter<ImageType, ImageType>()
 {
   this->SetNumberOfRequiredInputs(2);
-  SetLabel1(1);
-  SetLabel2(1);
+  SetLabelFlag(false);
   m_BackgroundValue = 0;
   SetVerboseFlag(false);
   SetLongFlag(false);
@@ -112,27 +111,45 @@ GenerateData()
   diceFilter->Update();
 
   // Display information
+  const int prec = 5;
   if (!GetLongFlag()) {
     if (GetVerboseFlag()) {
-      std::cout << "Dice : ";
+      std::cout << "Dice" << std::endl;
     }
-    std::cout << diceFilter->GetDiceCoefficient() << std::endl;
+    if (GetLabelFlag()) {
+        std::cout << std::fixed << setprecision(prec) << diceFilter->GetDiceCoefficient(m_Label) << std::endl;
+    } else {
+        std::cout << std::fixed << setprecision(prec) << diceFilter->GetDiceCoefficient() << std::endl;
+    }
   }
-  else { // long options
+  else { // long option
+    const int width = 10;
     if (GetVerboseFlag()) {
-      std::cout << "Dice     Jaccard   Source Target Inter  Union   SrComp TarComp" << std::endl;
+      std::cout << "Dice"
+                << std::setw(13) << "Jaccard"
+                << std::setw(11) << "Inter/#T"
+                << std::setw(6) <<  "FNeg"
+                << std::setw(10) << "FPos"
+                << std::setw(22) << "2(#S-#T)/(#S+#T)"
+                << std::endl;
     }
-    typename FilterType::MapType m = diceFilter->GetLabelSetMeasures();
-    int width = 6;
-    std::cout << std::setw(width) << diceFilter->GetDiceCoefficient() << " "
-              << std::setw(width) << diceFilter->GetJaccardCoefficient() << " "
-              << std::setw(width) << m[m_Label1].m_Source << " "
-              << std::setw(width) << m[m_Label2].m_Target << " "
-              << std::setw(width) << m[m_Label1].m_Intersection << " "
-              << std::setw(width) << m[m_Label1].m_Union << " "
-              << std::setw(width) << m[m_Label1].m_SourceComplement << " "
-              << std::setw(width) << m[m_Label2].m_TargetComplement << " "
-              << std::endl;
+    if (GetLabelFlag()) {
+        std::cout << std::fixed << setprecision(prec) << diceFilter->GetDiceCoefficient(m_Label)
+                  << std::setw(width) << setprecision(prec) << diceFilter->GetJaccardCoefficient(m_Label)
+                  << std::setw(width) << setprecision(prec) << diceFilter->GetTargetOverlap(m_Label)
+                  << std::setw(width) << setprecision(prec) << diceFilter->GetFalseNegativeError(m_Label)
+                  << std::setw(width) << setprecision(prec) << diceFilter->GetFalsePositiveError(m_Label)
+                  << std::setw(width) << setprecision(prec) << diceFilter->GetVolumeSimilarity(m_Label)
+                  << std::endl;
+    } else {
+        std::cout << std::fixed << setprecision(prec) << diceFilter->GetDiceCoefficient()
+                  << std::setw(width) << setprecision(prec) << diceFilter->GetJaccardCoefficient()
+                  << std::setw(width) << setprecision(prec) << diceFilter->GetTotalOverlap()
+                  << std::setw(width) << setprecision(prec) << diceFilter->GetFalseNegativeError()
+                  << std::setw(width) << setprecision(prec) << diceFilter->GetFalsePositiveError()
+                  << std::setw(width) << setprecision(prec) << diceFilter->GetVolumeSimilarity()
+                  << std::endl;
+    }
   }
 
 }
