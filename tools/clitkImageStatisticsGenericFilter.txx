@@ -193,7 +193,30 @@ namespace clitk
       numberOfLabels=m_ArgsInfo.label_given;
     else
       numberOfLabels=1;
-
+    // Let's do some checks
+    if (m_ArgsInfo.label_given && !m_ArgsInfo.mask_given) {
+        std::cerr << "If a/some specific label(s) is/are given, a mask image needs to be provided" << std::endl;
+        exit(-1);
+    }
+    if (m_ArgsInfo.label_given && m_ArgsInfo.mask_given) {
+        //Let's check if the labels exist in the mask image
+        for (unsigned int k=0; k< numberOfLabels; k++) {
+          label=m_ArgsInfo.label_arg[k];
+          unsigned int label_counter = 0;
+          itk::ImageRegionConstIterator<LabelImageType> it(labelImage,labelImage->GetLargestPossibleRegion());
+          it.GoToBegin();
+          while( !it.IsAtEnd() ) {
+            if(label == it.Get()) {
+                ++label_counter;
+            }
+            ++it;
+          }
+          if (label_counter == 0) {
+              std::cerr << "The label number " << (int) label << " does not exist in the mask image" << std::endl;
+              exit(-1);
+          }
+        }
+    }
     unsigned int firstComponent = 0, lastComponent = 0;
     if (m_ArgsInfo.channel_arg == -1) {
       firstComponent = 0;
@@ -214,9 +237,11 @@ namespace clitk
         label=m_ArgsInfo.label_arg[k];
 
         std::cout<<std::endl;
-        if (m_Verbose) std::cout<<"-------------"<<std::endl;
-        if (m_Verbose) std::cout<<"| Label: "<< (int) label<<"  |"<<std::endl;
-        if (m_Verbose) std::cout<<"-------------"<<std::endl;
+        if (m_ArgsInfo.mask_given) {
+            if (m_Verbose) std::cout<<"-------------"<<std::endl;
+            if (m_Verbose) std::cout<<"| Label: "<< (int) label<<"  |"<<std::endl;
+            if (m_Verbose) std::cout<<"-------------"<<std::endl;
+        }
 
         // Histograms
         if (m_ArgsInfo.histogram_given) {
