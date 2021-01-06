@@ -19,7 +19,10 @@ VV is distributed under two open source licenses:  [BSD](http://www.opensource.o
 
 This work is still in progress, we welcome any advice or opinions that can make this software more useful.
 
-![attachment:popi.gif](vv_popi.gif "attachment:popi.gif")![attachment:vv1.1Overlay.png](vv_vv1.1Overlay.png")
+![attachment:popi.gif](vv_popi.gif "attachment:popi.gif")
+
+![attachment:vv1.1Overlay.png](vv_vv1.1Overlay.png "attachment:vv1.1Overlay.png")
+
 ----------
 
 Contents
