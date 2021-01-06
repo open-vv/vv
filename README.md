@@ -125,7 +125,7 @@ In order to compile VV you need the following third party software:
 -   The  [Gengetopt](http://www.gnu.org/software/gengetopt/gengetopt.html)  dependency is now optional, source code has been included in the vv source repository.
     
 
-A  [separate page](https://www.creatis.insa-lyon.fr/rio/vv-static)  details specific instructions to compile it statically, i.e. without links to  [dynamic libraries](http://en.wikipedia.org/wiki/Dynamic-link_library). The following instructions are linux/gcc oriented but it is easy to translate them to other OS/compilers.
+A  [separate page](https://github.com/open-vv/vv/blob/master/vv_static.md)  details specific instructions to compile it statically, i.e. without links to  [dynamic libraries](http://en.wikipedia.org/wiki/Dynamic-link_library). The following instructions are linux/gcc oriented but it is easy to translate them to other OS/compilers.
 
 ### 3.1. CMake
 
