@@ -1,4 +1,4 @@
-![entete.png](https://www.creatis.insa-lyon.fr/rio/vv?action=AttachFile&do=get&target=entete.png "entete.png")
+![entete.png](vv_entete.png "entete.png")
 
 _David Sarrut, Pierre Seroul, Joël Schaerer, Simon Rit, Jef Vandemeulebroucke, Thomas Baudier, Bharath Navalpakkam, Gauthier Bouilhol, Romulo Pinho, Vivien Delmon and Maxime Pech_,  **[vv[at]creatis.insa-lyon.fr](mailto:vv@creatis.insa-lyon.fr)** ([Mailing List Subscription](http://www.creatis.insa-lyon.fr/mailman/listinfo/vv))
 
@@ -19,17 +19,17 @@ VV is distributed under two open source licenses:  [BSD](http://www.opensource.o
 
 This work is still in progress, we welcome any advice or opinions that can make this software more useful.
 
-![attachment:popi.gif](https://www.creatis.insa-lyon.fr/rio/vv?action=AttachFile&do=get&target=popi.gif "attachment:popi.gif")![attachment:vv1.1Overlay.png](https://www.creatis.insa-lyon.fr/rio/vv?action=AttachFile&do=get&target=vv1.1Overlay.png "attachment:vv1.1Overlay.png")
+![attachment:popi.gif](vv_popi.gif "attachment:popi.gif")![attachment:vv1.1Overlay.png](vv_vv1.1Overlay.png")
 ----------
 
 Contents
 
-1.  [VV ?](#1.VV?)
-2.  [Download VV](#2.Download_VV)
-3.  [Compiling VV ... where to begin?](#3.Compiling_VV_..._where_to_begin.3F)
-4.  [Feature overview](#4.Feature_overview)
-5.  [FAQ](#5.FAQ)
-6.  [Developers](#6.Developers)
+1.  [VV ?](#1-vv-)
+2.  [Download VV](#2-download-vv)
+3.  [Compiling VV ... where to begin?](#3-compiling-vv--where-to-begin)
+4.  [Feature overview](#4-feature-overview)
+5.  [FAQ](#5-faq)
+6.  [Developers](#6-developers)
 
 ## 2. Download VV
 
@@ -288,7 +288,7 @@ Note the explicit distinction between 3D and 2D+t images. VV allows the reinterp
 
 VV also contains a minimal Dicom Browser to open images series (which works sometimes).
 
-![attachment:helpscreenshot.png](https://www.creatis.insa-lyon.fr/rio/vv?action=AttachFile&do=get&target=helpscreenshot.png "attachment:helpscreenshot.png")
+![attachment:helpscreenshot.png](vv_helpscreenshot.png "attachment:helpscreenshot.png")
 
 A 'play mode' is also available for temporal images in order to navigate into images during motion.
 
