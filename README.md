@@ -426,7 +426,7 @@ But a problem of pointer slowness can be detected. In a such case, we recommend 
 
 -   I want to use clitk tools, how it works?
 
-You can build clitk tools to use main functionality of vv with command line. A help for all tools is available[here](https://www.creatis.insa-lyon.fr/rio/vv-clitk).
+You can build clitk tools to use main functionality of vv with command line. A help for all tools is available [here](https://github.com/open-vv/vv/blob/master/clitk_tools.md).
 
 -   I have this error during compilation: VCL_STATIC_CONST_INIT_FLOAT_DECL?
 
