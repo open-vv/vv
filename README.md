@@ -295,6 +295,69 @@ VV also contains a minimal Dicom Browser to open images series (which works some
 
 A 'play mode' is also available for temporal images in order to navigate into images during motion.
 
+You can call vv with command line in a prompt:
+
+<table>
+<thead>
+<tr>
+<th colspan="2"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> --help </td>
+<td> Print command line help and exit. </td>
+</tr>
+<tr>
+<td> --window number </td>
+<td> Gray scale window width for set of images appearing before in the cmd line (may appear more than once). </td>
+</tr>
+<tr>
+<td> --level number </td>
+<td> Gray scale window level for set of images appearing before in the cmd line (may appear more than once). </td>
+</tr>
+<tr>
+<td> --linkall </td>
+<td> Link pan, zoom and spatial position of crosshair in images. </td>
+</tr>
+<tr>
+<td> --log </td>
+<td> Log output messages in vv-log directory. </td>
+</tr>
+<tr>
+<td> --state file </td>
+<td> Read display parameters from file. </td>
+</tr>
+<tr>
+<td> --sequence file </td>
+<td> Read all file(s) until next option in a single temporal sequence. </td>
+</tr>
+<tr>
+<td colspan="2"> These last options must follow a file name since they overlay something on an image: </td>
+</tr>
+<tr>
+<td> --vf file </td>
+<td> Overlay the vector field in file. </td>
+</tr>
+<tr>
+<td> --overlay [--sequence] file(s) </td>
+<td> Overlay the image in file with complementary colors. </td>
+</tr>
+<tr>
+<td> --fusion [--sequence] file(s) </td>
+<td> Overlay the image in file with alpha blending and colormap. </td>
+</tr>
+<tr>
+<td> --contour file </td>
+<td> Overlay DICOM RT-STRUCT contours. </td>
+</tr>
+<tr>
+<td> --landmarks [--sequence] file(s) </td>
+<td> Overlay the landmarks in file(s) (.txt or .pts). </td>
+</tr>
+</tbody>
+</table>
+
 ### 4.2. Registration evaluation
 
 Five different tools for the qualitative and quantitative evaluation of registration are available. These tools work for 2D, 3D and 4D images.
