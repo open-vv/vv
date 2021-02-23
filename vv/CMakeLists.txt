@@ -390,6 +390,8 @@ target_link_libraries(vvLib ${vvExternalLibs})
 
 if(WIN32)
   add_executable(vv WIN32 vv.cxx vvIcon.rc)
+elseif(APPLE)
+  add_executable(vv MACOSX_BUNDLE vv.cxx)
 else(WIN32)
   add_executable(vv vv.cxx)
 endif(WIN32)
