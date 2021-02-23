@@ -218,6 +218,7 @@ void vvSlicerManagerCommand::Execute(vtkObject *caller,
           }
           this->SM->UpdateViews(1,VisibleInWindow);
           this->SM->UpdateLinked(VisibleInWindow);
+          this->SM->UpdateSlice(VisibleInWindow);
           return;
         }
         if (KeyPress == "F5") {
