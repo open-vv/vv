@@ -42,6 +42,9 @@
 #include "vvReadState.h"
 #include "vvToolsList.h"
 #include "vvConfiguration.h"
+#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 2) || VTK_MAJOR_VERSION >= 9
+#include <QVTKOpenGLWidget.h>
+#endif
 
 #include <vtkFileOutputWindow.h>
 #include <vtkSmartPointer.h>
@@ -115,6 +118,9 @@ int main( int argc, char** argv )
 {
 #endif
 
+#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 2) || VTK_MAJOR_VERSION >= 9
+  QSurfaceFormat::setDefaultFormat(QVTKOpenGLWidget::defaultFormat());
+#endif
   CLITK_INIT;
 
   QApplication app( argc, argv );

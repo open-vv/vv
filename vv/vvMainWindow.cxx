@@ -372,11 +372,13 @@ vvMainWindow::vvMainWindow():vvMainWindowBase()
   SOViewWidget->hide();
   SEViewWidget->hide();
 
+#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION < 2) || VTK_MAJOR_VERSION < 8
 #ifdef Q_OS_OSX
   disableGLHiDPI(NOViewWidget->winId());
   disableGLHiDPI(NEViewWidget->winId());
   disableGLHiDPI(SOViewWidget->winId());
   disableGLHiDPI(SEViewWidget->winId());
+#endif
 #endif
 
   //Recently opened files
