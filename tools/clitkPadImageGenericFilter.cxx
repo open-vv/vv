@@ -152,10 +152,13 @@ namespace clitk
     if (mArgsInfo.verbose_flag)
       std::cout << "Calculating padding." << std::endl;
     
-    SpacingType spacing = input->GetSpacing(), like_spacing = like_image->GetSpacing(); 
-    if (spacing != like_spacing) {
-      std::cerr << "Like-image must have same spacing as input: " << spacing << " " << like_spacing << std::endl;
-      return PAD_ERR_NOT_SAME_SPACING;
+    SpacingType spacing = input->GetSpacing(), like_spacing = like_image->GetSpacing();
+    for (unsigned int i = 0; i < dim; i++) {
+        double diff_spacing = std::fabs((double) spacing[i] - (double) like_spacing[i]);
+        if (diff_spacing > 1e-6) {
+          std::cerr << "Like-image must have same spacing as input: " << spacing << " " << like_spacing << std::endl;
+          return PAD_ERR_NOT_SAME_SPACING;
+        }
     }
     
     SizeType size = input->GetLargestPossibleRegion().GetSize(), like_size = like_image->GetLargestPossibleRegion().GetSize();

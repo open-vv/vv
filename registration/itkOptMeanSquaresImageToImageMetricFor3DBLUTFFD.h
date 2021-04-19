@@ -127,13 +127,13 @@ private:
   //purposely not implemented
   void operator=(const Self &);
 
-  inline bool GetValueThreadProcessSample( unsigned int threadID,
-      unsigned long fixedImageSample,
+  inline bool GetValueThreadProcessSample( itk::ThreadIdType threadID,
+      itk::SizeValueType fixedImageSample,
       const MovingImagePointType & mappedPoint,
       double movingImageValue ) const ITK_OVERRIDE;
 
-  inline bool GetValueAndDerivativeThreadProcessSample( unsigned int threadID,
-      unsigned long fixedImageSample,
+  inline bool GetValueAndDerivativeThreadProcessSample( itk::ThreadIdType threadID,
+      itk::SizeValueType fixedImageSample,
       const MovingImagePointType & mappedPoint,
       double movingImageValue,
       const ImageDerivativesType &

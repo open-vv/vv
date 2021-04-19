@@ -39,6 +39,23 @@ GetForwardAffineMatrix<3>(itk::Array<double> transformParameters)
 
 //--------------------------------------------------------------------
 template < >
+itk::Matrix<double, 5, 5>
+GetForwardAffineMatrix<4>(itk::Array<double> transformParameters)
+{
+  itk::Matrix<double, 5, 5> matrix;
+  matrix.SetIdentity();
+  itk::Matrix<double, 4, 4> tmp = GetForwardAffineMatrix3D(transformParameters);
+  for (unsigned int i = 0; i < 3; ++i)
+    for (unsigned int j = 0; j < 3; ++j)
+      matrix[i][j] = tmp[i][j];
+  for (unsigned int i = 0; i < 3; ++i)
+    matrix[i][4] = tmp[i][3];
+  //
+  return matrix;
+}
+
+//--------------------------------------------------------------------
+template < >
 itk::Matrix<double, 3, 3>
 GetBackwardAffineMatrix<2>(itk::Array<double> transformParameters)
 {
