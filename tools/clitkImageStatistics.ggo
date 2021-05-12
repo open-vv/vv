@@ -17,5 +17,6 @@ option "dvhistogram"  - "Compute dose volume histogram"                         
 option "bins"         - "Number of histogram bins"                                            int     no  default="100"
 option "lower"        - "Lower histogram bound"                                               double  no  default="-1000"
 option "upper"        - "Upper histogram bound"                                               double  no  default="1000"
+option "lowerBin"     - "Display lower bin intervals instead of upper bin intervals"          flag    off
 
 option "allow_resize" r "Resize mask if different from input"                                 flag    off

@@ -442,7 +442,12 @@ namespace clitk
               double percentCumulativeVolume =(cumulativeVolume*100)/(statisticsFilter->GetCount(label)) ;
               double ccCumulativeVolume = (totalVolumeCC -((popCumulativeVolume + (dvhistogram->GetFrequency(i)))*spacing_cc));
               double percentDiffVolume = dvhistogram->GetFrequency(i)*100/(statisticsFilter->GetCount(label));
-              std::cout<<dvhistogram->GetBinMax(0,i)<<"\t  "<<dvhistogram->GetFrequency(i)<<"\t  "<<percentDiffVolume<<"\t "<<((dvhistogram->GetFrequency(i))*spacing_cc)<<"\t "<<"\t "<<cumulativeVolume<<"\t  "<<percentCumulativeVolume<<"\t  "<<ccCumulativeVolume<<"\t "<<std::endl;
+              if(m_ArgsInfo.lowerBin_flag) {
+                  std::cout<<dvhistogram->GetBinMin(0,i);
+              } else {
+                  std::cout<<dvhistogram->GetBinMax(0,i);
+              }
+              std::cout<<"\t  "<<dvhistogram->GetFrequency(i)<<"\t  "<<percentDiffVolume<<"\t "<<((dvhistogram->GetFrequency(i))*spacing_cc)<<"\t "<<"\t "<<cumulativeVolume<<"\t  "<<percentCumulativeVolume<<"\t  "<<ccCumulativeVolume<<"\t "<<std::endl;
             }
 
             // Add to the file
@@ -470,7 +475,12 @@ namespace clitk
                double percentCumulativeVolume =(cumulativeVolume*100)/(statisticsFilter->GetCount(label));
                double ccCumulativeVolume = (totalVolumeCC -((popCumulativeVolume + (dvhistogram->GetFrequency(i)))*spacing_cc));
                double percentDiffVolume = ((dvhistogram->GetFrequency(i))*100)/(statisticsFilter->GetCount(label));
-               dvhistogramFile<<dvhistogram->GetBinMax(0,i)<<"\t  "<<dvhistogram->GetFrequency(i)<<"\t  "<<percentDiffVolume<<"\t "<<((dvhistogram->GetFrequency(i))*spacing_cc)<<"\t "<<cumulativeVolume<<"\t "<<percentCumulativeVolume<<"\t  "<<ccCumulativeVolume<<std::endl;
+               if(m_ArgsInfo.lowerBin_flag) {
+                   dvhistogramFile<<dvhistogram->GetBinMin(0,i);
+               } else {
+                   dvhistogramFile<<dvhistogram->GetBinMax(0,i);
+               }
+               dvhistogramFile<<"\t  "<<dvhistogram->GetFrequency(i)<<"\t  "<<percentDiffVolume<<"\t "<<((dvhistogram->GetFrequency(i))*spacing_cc)<<"\t "<<cumulativeVolume<<"\t "<<percentCumulativeVolume<<"\t  "<<ccCumulativeVolume<<std::endl;
            }
         }
       }
