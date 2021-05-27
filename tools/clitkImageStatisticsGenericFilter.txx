@@ -444,6 +444,8 @@ namespace clitk
               double percentDiffVolume = dvhistogram->GetFrequency(i)*100/(statisticsFilter->GetCount(label));
               if(m_ArgsInfo.lowerBin_flag) {
                   std::cout<<dvhistogram->GetBinMin(0,i);
+              } else if(m_ArgsInfo.centreBin_flag) {
+                  std::cout<<(dvhistogram->GetBinMin(0,i)+dvhistogram->GetBinMax(0,i))/2.0;
               } else {
                   std::cout<<dvhistogram->GetBinMax(0,i);
               }
@@ -477,6 +479,8 @@ namespace clitk
                double percentDiffVolume = ((dvhistogram->GetFrequency(i))*100)/(statisticsFilter->GetCount(label));
                if(m_ArgsInfo.lowerBin_flag) {
                    dvhistogramFile<<dvhistogram->GetBinMin(0,i);
+               } else if(m_ArgsInfo.centreBin_flag) {
+                   dvhistogramFile<<(dvhistogram->GetBinMin(0,i)+dvhistogram->GetBinMax(0,i))/2.0;
                } else {
                    dvhistogramFile<<dvhistogram->GetBinMax(0,i);
                }
