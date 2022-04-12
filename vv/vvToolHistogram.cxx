@@ -440,7 +440,7 @@ void vvToolHistogram::SaveAs()
         mTextFileName = fileName.toStdString();
         if (fileQFormat.isEmpty())
             mTextFileName += ".txt";
-        ofstream fileOpen(mTextFileName.c_str(), std::ofstream::trunc);
+        std::ofstream fileOpen(mTextFileName.c_str(), std::ofstream::trunc);
   
         if(!fileOpen) {
             cerr << "Error during saving" << endl;
