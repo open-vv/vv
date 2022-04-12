@@ -45,6 +45,12 @@
 #include <vector>
 #include <itksys/SystemTools.hxx>
 
+#include "gdcmUIDGenerator.h"
+#include <gdcmImageHelper.h>
+#include <gdcmAttribute.h>
+#include <gdcmReader.h>
+#include <gdcmWriter.h>
+
 namespace clitk 
 {
   template<class args_info_type>

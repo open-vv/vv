@@ -167,6 +167,7 @@ if(CLITK_BUILD_TOOLS)
 
   WRAP_GGO(clitkAffineTransform_GGO_C clitkAffineTransform.ggo)
   add_library(clitkAffineTransformLib clitkAffineTransform.cxx ${clitkAffineTransform_GGO_C})
+  target_link_libraries(clitkAffineTransformLib clitkCommon)
   add_executable(clitkAffineTransform clitkAffineTransform.cxx ${clitkAffineTransform_GGO_C})
   target_link_libraries(clitkAffineTransform clitkCommon )
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkAffineTransform)

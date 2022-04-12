@@ -29,12 +29,7 @@
 
 // clitk
 #include "clitkResampleImageWithOptionsFilter.h"
-#if GDCM_MAJOR_VERSION >= 2
 #include "gdcmUIDGenerator.h"
-#else
-#include "gdcmFile.h"
-#include "gdcmUtil.h"
-#endif
 
 
 namespace clitk
