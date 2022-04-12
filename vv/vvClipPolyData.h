@@ -7,7 +7,7 @@ class vvClipPolyData : public vtkClipPolyData
 {
 public:
   vtkTypeMacro(vvClipPolyData,vtkClipPolyData);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vvClipPolyData *New();
 
@@ -15,7 +15,7 @@ protected:
   vvClipPolyData();
   ~vvClipPolyData();
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vvClipPolyData(const vvClipPolyData&);  // Not implemented.

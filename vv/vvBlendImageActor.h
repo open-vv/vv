@@ -35,11 +35,11 @@ class vvBlendImageActor : public VTK_IMAGE_ACTOR
 public:
   static vvBlendImageActor *New();
   vtkTypeMacro(vvBlendImageActor, VTK_IMAGE_ACTOR);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  virtual void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Implement base class method.
-  void Render(vtkRenderer *ren);  
+  void Render(vtkRenderer *ren) VTK_OVERRIDE;
 
 protected:
   vvBlendImageActor();
