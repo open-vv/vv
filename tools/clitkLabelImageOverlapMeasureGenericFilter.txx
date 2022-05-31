@@ -26,6 +26,7 @@ LabelImageOverlapMeasureGenericFilter():
   cmdline_parser_clitkDice_init(&mArgsInfo);
   InitializeImageType<2>();
   InitializeImageType<3>();
+  InitializeImageType<4>();
 }
 //--------------------------------------------------------------------
 
