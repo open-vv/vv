@@ -403,11 +403,25 @@ if(CLITK_BUILD_TOOLS)
   target_link_libraries(clitkMaskOfIntegratedIntensity clitkCommon )
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMaskOfIntegratedIntensity)
 
-
   WRAP_GGO(clitkBlurImage_GGO_C clitkBlurImage.ggo)
   add_executable(clitkBlurImage clitkBlurImage.cxx ${clitkBlurImage_GGO_C})
   target_link_libraries(clitkBlurImage clitkCommon )
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkBlurImage)
+
+  WRAP_GGO(clitkTextureFeatures_GGO_C clitkTextureFeatures.ggo)
+  add_executable(clitkTextureFeatures clitkTextureFeatures.cxx ${clitkTextureFeatures_GGO_C})
+  target_link_libraries(clitkTextureFeatures clitkCommon)
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkTextureFeatures)
+  set_target_properties(clitkTextureFeatures PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF
+    )
+
+  WRAP_GGO(clitkMoreTextureFeatures_GGO_C clitkMoreTextureFeatures.ggo)
+  add_executable(clitkMoreTextureFeatures clitkMoreTextureFeatures.cxx ${clitkMoreTextureFeatures_GGO_C})
+  target_link_libraries(clitkMoreTextureFeatures clitkCommon)
+  set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkMoreTextureFeatures)
 
   #=========================================================
   option(CLITK_USE_ROOT "Build experimental tools using root" OFF)
