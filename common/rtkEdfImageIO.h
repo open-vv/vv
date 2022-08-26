@@ -100,7 +100,7 @@ protected:
   // table key-value structure
   struct table {
     const char *key;
-    int value;
+    itk::ImageIOBase::IOByteOrderEnum value;
     };
 
   struct table3 {
