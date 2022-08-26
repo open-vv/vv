@@ -86,15 +86,15 @@ public:
 protected:
   VectorBSplineDecompositionImageFilter();
   virtual ~VectorBSplineDecompositionImageFilter() {};
-  void PrintSelf(std::ostream& os, itk::Indent indent) const;
+  void PrintSelf(std::ostream& os, itk::Indent indent) const ITK_OVERRIDE;
 
-  void GenerateData( );
+  void GenerateData( ) ITK_OVERRIDE;
 
   /** This filter requires all of the input image. */
-  void GenerateInputRequestedRegion();
+  void GenerateInputRequestedRegion() ITK_OVERRIDE;
 
   /** This filter must produce all of its output at once. */
-  void EnlargeOutputRequestedRegion( itk::DataObject *output ); 
+  void EnlargeOutputRequestedRegion( itk::DataObject *output ) ITK_OVERRIDE; 
 
   /** These are needed by the smoothing spline routine. */
   //JV
