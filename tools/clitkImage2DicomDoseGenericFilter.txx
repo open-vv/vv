@@ -34,16 +34,11 @@
 #include "itkMinimumMaximumImageCalculator.h"
 #include "itkImageRegionIterator.h"
 #include "itkImageRegionConstIterator.h"
-#if GDCM_MAJOR_VERSION >= 2
 #include "gdcmUIDGenerator.h"
 #include <gdcmImageHelper.h>
 #include <gdcmAttribute.h>
 #include <gdcmReader.h>
 #include <gdcmWriter.h>
-#else
-#include "gdcmFile.h"
-#include "gdcmUtil.h"
-#endif
 
 //#include "gdcmBase.h"
 //#include "gdcmDocEntry.h"

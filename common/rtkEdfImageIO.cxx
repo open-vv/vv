@@ -162,23 +162,22 @@ void rtk::EdfImageIO::ReadImageInformation()
       }
     }
 
-  static const struct table edf_byteorder_table[] =
-    {
-          { "LowByteFirst",  LittleEndian }, /* little endian */
-          { "HighByteFirst", BigEndian },    /* big endian */
-          { NULL, -1 }
-    };
+  static const struct table edf_byteorder_table[] = {
+          { "LowByteFirst", static_cast<int>(IOByteOrderEnum::LittleEndian) }, /* little endian */
+          { "HighByteFirst", static_cast<int>(IOByteOrderEnum::BigEndian) },   /* big endian */
+          { nullptr, -1 }
+  };
 
-  int byteorder = LittleEndian;
+  int byteorder = static_cast<int>(IOByteOrderEnum::LittleEndian);
   if ( (p = edf_findInHeader(header, "ByteOrder") ) ) {
     k = lookup_table_nth(edf_byteorder_table, p);
     if (k >= 0) {
 
       byteorder = edf_byteorder_table[k].value;
-      if(byteorder==LittleEndian)
-        this->SetByteOrder(LittleEndian);
+      if(byteorder==static_cast<int>(IOByteOrderEnum::LittleEndian))
+        this->SetByteOrder(IOByteOrderEnum::LittleEndian);
       else
-        this->SetByteOrder(BigEndian);
+        this->SetByteOrder(IOByteOrderEnum::BigEndian);
       }
     } else
     itkWarningMacro(<<"ByteOrder not specified in the header! Not swapping bytes (figure may not be correct).");

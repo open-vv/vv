@@ -17,12 +17,7 @@ It is distributed under dual licence
 ===========================================================================**/
 
 #include "vvBlendImageActor.h"
-#ifdef VTK_OPENGL2
-  #include <vtk_glew.h>
-#else
-  #include <vtkgl.h>
-  #include <vtkOpenGLExtensionManager.h>
-#endif
+#include <vtk_glew.h>
 #include <vtkOpenGLRenderWindow.h>
 #include <vtkOpenGLRenderer.h>
 #include <vtkOpenGL.h>

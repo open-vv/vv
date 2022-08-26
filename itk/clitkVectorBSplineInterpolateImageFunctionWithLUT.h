@@ -80,7 +80,7 @@ namespace clitk {
     void SetSplineOrders(const  SizeType & SplineOrders);
 
     /** Set the input image.  This must be set by the user. */
-    virtual void SetInputImage(const TImageType * inputData);
+    virtual void SetInputImage(const TImageType * inputData) ITK_OVERRIDE;
     //void SetOutputSpacing(const SpacingType & s);
     //void SetInputImageIsCoefficient(bool inputIsCoef) { mInputIsCoef = inputIsCoef; }
 
