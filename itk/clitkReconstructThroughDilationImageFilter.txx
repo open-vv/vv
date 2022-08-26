@@ -116,8 +116,8 @@ namespace clitk
     // Dilate while change
     //---------------------------------
     typename itk::NumericTraits<InputPixelType>::AccumulateType difference=1;
-    typename InternalImageType::Pointer labelImage=inputStatisticsImageFilter->GetOutput();
-    typename InternalImageType::Pointer oldLabelImage=inputStatisticsImageFilter->GetOutput();
+    typename InternalImageType::Pointer labelImage=setBackgroundFilter->GetOutput();
+    typename InternalImageType::Pointer oldLabelImage=setBackgroundFilter->GetOutput();
 
     // element
     KernelType structuringElement;

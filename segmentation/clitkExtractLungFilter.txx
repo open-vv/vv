@@ -465,7 +465,6 @@ GenerateOutputInformation()
     statisticsImageFilter->SetInput(working_mask);
     statisticsImageFilter->Update();
     unsigned int initialNumberOfLabels = statisticsImageFilter->GetMaximum();
-    working_mask = statisticsImageFilter->GetOutput();	    
     PrintMemory(GetVerboseMemoryFlag(), "After count label");
 
     // If already 2 labels, but a too big differences, remove the

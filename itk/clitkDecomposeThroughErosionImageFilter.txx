@@ -183,7 +183,7 @@ namespace clitk
 	statisticsImageFilter->Update();
 	max= statisticsImageFilter->GetMaximum();
 	if(m_Verbose) std::cout<<"Counted "<<max<<" label (s) larger then "<<m_MinimumObjectSize<<" voxels..."<<std::endl;
-	output=statisticsImageFilter->GetOutput();
+	output=relabelFilter->GetOutput();
 	
 	// Next iteration
 	iteration++;
