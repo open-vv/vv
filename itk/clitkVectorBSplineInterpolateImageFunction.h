@@ -135,7 +135,7 @@ public:
 
 
   /** Set the input image.  This must be set by the user. */
-  virtual void SetInputImage(const TImageType * inputData);
+  virtual void SetInputImage(const TImageType * inputData) ITK_OVERRIDE;
 
 
   /** The UseImageDirection flag determines whether image derivatives are
@@ -155,7 +155,7 @@ protected:
   VectorBSplineInterpolateImageFunction();
   virtual ~VectorBSplineInterpolateImageFunction() {};
   void operator=( const Self& ); //purposely not implemented
-  void PrintSelf(std::ostream& os, itk::Indent indent) const;
+  void PrintSelf(std::ostream& os, itk::Indent indent) const ITK_OVERRIDE;
 
   // These are needed by the smoothing spline routine.
   std::vector<CoefficientDataType>    m_Scratch;        // temp storage for processing of Coefficients

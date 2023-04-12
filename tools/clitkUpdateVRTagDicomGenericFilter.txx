@@ -30,7 +30,6 @@
 #include <sstream>
 // clitk
 #include "clitkResampleImageWithOptionsFilter.h"
-#if GDCM_MAJOR_VERSION >= 2
 #include "gdcmUIDGenerator.h"
 #include <gdcmImageHelper.h>
 #include <gdcmAttribute.h>
@@ -41,10 +40,6 @@
 #include <gdcmDict.h>
 #include <gdcmDicts.h>
 #include <gdcmGlobal.h>
-#else
-#include "gdcmFile.h"
-#include "gdcmUtil.h"
-#endif
 
 #include "itkImageRegionIterator.h"
 #include "itkMetaImageIO.h"

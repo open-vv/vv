@@ -40,7 +40,7 @@ if(CLITK_BUILD_VV)
        set(vv_QT_VERSION "5" CACHE INTERNAL "Expected Qt version")
     endif()
  endif()
-
+  set(vv_QT_VERSION "5" CACHE INTERNAL "Expected Qt version")
   add_subdirectory(${CLITK_SOURCE_DIR}/vv ${PROJECT_BINARY_DIR}/vv)
 endif(CLITK_BUILD_VV)
 

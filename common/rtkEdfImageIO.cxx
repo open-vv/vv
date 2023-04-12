@@ -166,10 +166,10 @@ void rtk::EdfImageIO::ReadImageInformation()
     {
           { "LowByteFirst",  LittleEndian }, /* little endian */
           { "HighByteFirst", BigEndian },    /* big endian */
-          { NULL, -1 }
+          { NULL, OrderNotApplicable }
     };
 
-  int byteorder = LittleEndian;
+  auto byteorder = LittleEndian;
   if ( (p = edf_findInHeader(header, "ByteOrder") ) ) {
     k = lookup_table_nth(edf_byteorder_table, p);
     if (k >= 0) {

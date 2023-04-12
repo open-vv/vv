@@ -167,7 +167,7 @@ void HistogramImageGenericFilter::SaveAs()
 {
   // Output
   std::string textFileName = GetOutputFilename();
-  ofstream fileOpen(textFileName.c_str(), std::ofstream::trunc);
+  std::ofstream fileOpen(textFileName.c_str(), std::ofstream::trunc);
 
   if(!fileOpen) {
       cerr << "Error during saving" << endl;

@@ -2,30 +2,39 @@
 # Add Libraries used in vv and clitk to avoid recompilation
 WRAP_GGO(clitkCropImage_GGO_C clitkCropImage.ggo)
 add_library(clitkCropImageLib clitkCropImageGenericFilter.cxx ${clitkCropImage_GGO_C})
+target_link_libraries(clitkCropImageLib clitkCommon)
 
 WRAP_GGO(clitkImageConvert_GGO_C clitkImageConvert.ggo)
 add_library(clitkImageConvertLib clitkImageConvertGenericFilter.cxx ${clitkImageConvert_GGO_C})
+target_link_libraries(clitkImageConvertLib clitkCommon)
 
 WRAP_GGO(clitkBinarizeImage_GGO_C clitkBinarizeImage.ggo)
 add_library(clitkBinarizeImageLib clitkBinarizeImageGenericFilter.cxx ${clitkBinarizeImage_GGO_C})
+target_link_libraries(clitkBinarizeImageLib clitkCommon)
 
 WRAP_GGO(clitkProfileImage_GGO_C clitkProfileImage.ggo)
 add_library(clitkProfileImageLib clitkProfileImageGenericFilter.cxx ${clitkProfileImage_GGO_C})
+target_link_libraries(clitkProfileImageLib clitkCommon)
 
 WRAP_GGO(clitkHistogramImage_GGO_C clitkHistogramImage.ggo)
 add_library(clitkHistogramImageLib clitkHistogramImageGenericFilter.cxx ${clitkHistogramImage_GGO_C})
+target_link_libraries(clitkHistogramImageLib clitkCommon)
 
 WRAP_GGO(clitkImageArithm_GGO_C clitkImageArithm.ggo)
 add_library(clitkImageArithmImageLib clitkImageArithmGenericFilter.cxx ${clitkImageArithm_GGO_C})
+target_link_libraries(clitkImageArithmImageLib clitkCommon)
 
 WRAP_GGO(clitkVectorArithm_GGO_C clitkVectorArithm.ggo)
 add_library(clitkVectorArithmLib clitkVectorArithmGenericFilter.cxx ${clitkVectorArithm_GGO_C})
+target_link_libraries(clitkVectorArithmLib clitkCommon)
 
 WRAP_GGO(clitkMIP_GGO_C clitkMIP.ggo)
 add_library(clitkMIPLib clitkMIPGenericFilter.cxx ${clitkMIP_GGO_C})
+target_link_libraries(clitkMIPLib clitkCommon)
 
 WRAP_GGO(clitkMedianImageFilter_GGO_C clitkMedianImageFilter.ggo)
 add_library(clitkMedianImageFilterLib clitkMedianImageGenericFilter.cxx ${clitkMedianImageFilter_GGO_C})
+target_link_libraries(clitkMedianImageFilterLib clitkCommon)
 
 #=========================================================
 if(CLITK_BUILD_TOOLS)
@@ -158,6 +167,7 @@ if(CLITK_BUILD_TOOLS)
 
   WRAP_GGO(clitkAffineTransform_GGO_C clitkAffineTransform.ggo)
   add_library(clitkAffineTransformLib clitkAffineTransform.cxx ${clitkAffineTransform_GGO_C})
+  target_link_libraries(clitkAffineTransformLib clitkCommon)
   add_executable(clitkAffineTransform clitkAffineTransform.cxx ${clitkAffineTransform_GGO_C})
   target_link_libraries(clitkAffineTransform clitkCommon )
   set(TOOLS_INSTALL ${TOOLS_INSTALL} clitkAffineTransform)

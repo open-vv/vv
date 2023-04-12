@@ -199,7 +199,7 @@ ProfileImageGenericFilter::UpdateWithInputImageType()
 //--------------------------------------------------------------------
 void ProfileImageGenericFilter::WriteOutput(std::string outputFilename)
 {
-  ofstream fileOpen(outputFilename.c_str(), std::ofstream::trunc);
+  std::ofstream fileOpen(outputFilename.c_str(), std::ofstream::trunc);
 
   if(!fileOpen) {
       cerr << "Error during saving" << endl;

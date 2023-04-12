@@ -1498,7 +1498,7 @@ void vvSlicerManager::SetColorMap(int colormap)
       fusLUT->SetSaturationRange(0,0);
     }
 
-    fusLUT->ForceBuild();
+    fusLUT->vtkLookupTable::ForceBuild();
     double v[4];
     // set color table transparency
     //double alpha_range=(double)mFusionThresOpacity/10;

@@ -143,7 +143,7 @@ namespace clitk
     //itkGetMacro( OutputSpacing, OutputSpacingType );
     //itkGetConstMacro( OutputSpacing, OutputSpacingType );
 
-    void SetParameters(const ParametersType & parameters);
+    void SetParameters(const ParametersType & parameters) ITK_OVERRIDE;
   
     void SetFixedParameters(const ParametersType & parameters);
 
