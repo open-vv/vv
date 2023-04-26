@@ -132,18 +132,31 @@ void vvSurfaceViewerDialog::LoadSurface()
   if (!mRenderer) {
     mRenderer = vtkRenderer::New();
     mRenderer->AddActor(mActor);
+#if VTK_MAJOR_VERSION >= 9
+    renderWidget->renderWindow()->AddRenderer(mRenderer);
+#else
     renderWidget->GetRenderWindow()->AddRenderer(mRenderer);
+#endif
   }
 
   mRenderer->ResetCamera();
+#if VTK_MAJOR_VERSION >= 9
+  renderWidget->renderWindow()->Render();
+#else
   renderWidget->GetRenderWindow()->Render();
+#endif
 
   vvManagerCallback *smc = vvManagerCallback::New();
   smc->IV = this;
-
+#if VTK_MAJOR_VERSION >= 9
+  if (renderWidget->renderWindow()->GetInteractor())
+    renderWidget->renderWindow()->GetInteractor()->
+    GetInteractorStyle()->AddObserver(vtkCommand::KeyPressEvent, smc);
+#else
   if (renderWidget->GetRenderWindow()->GetInteractor())
     renderWidget->GetRenderWindow()->GetInteractor()->
     GetInteractorStyle()->AddObserver(vtkCommand::KeyPressEvent, smc);
+#endif
   //readHeader->Delete();
 }
 
@@ -158,7 +171,11 @@ void vvSurfaceViewerDialog::NextTime()
   mMapper->SetInputConnection(mReaders[mCurrentTime]->GetOutputPort());
 #endif
   mMapper->Modified();
+#if VTK_MAJOR_VERSION >= 9
+  renderWidget->renderWindow()->Render();
+#else
   renderWidget->GetRenderWindow()->Render();
+#endif
 }
 
 void vvSurfaceViewerDialog::PreviousTime()
@@ -172,7 +189,11 @@ void vvSurfaceViewerDialog::PreviousTime()
   mMapper->SetInputConnection(mReaders[mCurrentTime]->GetOutputPort());
 #endif
   mMapper->Modified();
+#if VTK_MAJOR_VERSION >= 9
+  renderWidget->renderWindow()->Render();
+#else
   renderWidget->GetRenderWindow()->Render();
+#endif
 }
 
 #endif /* end #define _vvSurfaceViewerDialog_CXX */

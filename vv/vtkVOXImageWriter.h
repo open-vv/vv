@@ -19,13 +19,18 @@
 #define __vtkVOXImageWriter_h
 #include "vtkImageWriter.h"
 #include <string>
+#include <vtkVersion.h>
 
 
 class vtkVOXImageWriter : public vtkImageWriter
 {
 public:
     vtkTypeMacro(vtkVOXImageWriter,vtkImageWriter);
+#if VTK_MAJOR_VERSION >= 8
+    void PrintSelf(ostream& os, vtkIndent indent) override;
+#else
     void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+#endif
 
     // Description:
     static vtkVOXImageWriter *New();
@@ -36,7 +41,11 @@ public:
 
     // This is called by the superclass.
     // This is the method you should override.
+#if VTK_MAJOR_VERSION >= 8
+    virtual void Write() override;
+#else
     virtual void Write() VTK_OVERRIDE;
+#endif
 
 protected:
     vtkVOXImageWriter();
