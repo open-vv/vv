@@ -20,11 +20,11 @@
 #define VVTOOLROIMANAGER_H
 
 #include <QtGlobal>
-#if QT_VERSION >= 0x050000
-#include <QtUiPlugin/QDesignerExportWidget>
-#else
-#include <QtDesigner/QDesignerExportWidget>
-#endif
+//#if QT_VERSION >= 0x050000
+//#include <QtUiPlugin/QDesignerExportWidget>
+//#else
+//#include <QtDesigner/QDesignerExportWidget>
+//#endif
 #include <QSharedPointer>
 
 #include "vvToolBase.h"
@@ -63,7 +63,7 @@ class vvToolROIManager:
   void SelectedImageHasChanged(vvSlicerManager *);
   void Open();
   void OpenBinaryImage(QStringList & filenames);
-  void OpenDicomImage(std::string filaneme);
+  void OpenDicomImage(std::string filaneme, double tol=0);
   void SelectedItemChangedInTree();
   void VisibleROIToggled(bool b);
   void VisibleContourROIToggled(bool b);

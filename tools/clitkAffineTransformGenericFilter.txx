@@ -53,11 +53,13 @@ namespace clitk
     ReadImageDimensionAndPixelType(m_InputFileName, Dimension, PixelType, Components);
 
     // Call UpdateWithDim
-    if(Dimension==2) UpdateWithDim<2>(PixelType, Components);
-    else 
-      if(Dimension==3) UpdateWithDim<3>(PixelType, Components);
-      else if (Dimension==4)UpdateWithDim<4>(PixelType, Components);
-      else {
+    if (Dimension==2)
+        UpdateWithDim<2>(PixelType, Components);
+    else if (Dimension==3)
+        UpdateWithDim<3>(PixelType, Components);
+    else if (Dimension==4)
+        UpdateWithDim<4>(PixelType, Components);
+    else {
         std::cout<<"Error, Only for 2, 3 or 4  Dimensions!!!"<<std::endl ;
         return;
       }
@@ -397,63 +399,47 @@ namespace clitk
 
     // Matrix
     typename itk::Matrix<double, Dimension+1, Dimension+1> matrix;
-    if (m_ArgsInfo.rotate_given || m_ArgsInfo.translate_given)
-      {
-        if (m_ArgsInfo.matrix_given)
-          {
+    if (m_ArgsInfo.rotate_given || m_ArgsInfo.translate_given) {
+        if (m_ArgsInfo.matrix_given) {
             std::cerr << "You must use either rotate/translate or matrix options" << std::endl;
             return;
-          }
+        }
         itk::Array<double> transformParameters(2 * Dimension);
         transformParameters.Fill(0.0);
-        if (m_ArgsInfo.rotate_given)
-          {
+        if (m_ArgsInfo.rotate_given) {
             if (Dimension == 2)
-              transformParameters[0] = m_ArgsInfo.rotate_arg[0];
+                transformParameters[0] = m_ArgsInfo.rotate_arg[0];
             else
-              for (unsigned int i = 0; i < 3; i++)
-                transformParameters[i] = m_ArgsInfo.rotate_arg[i];
-          }
-        if (m_ArgsInfo.translate_given)
-          {
+                for (unsigned int i = 0; i < 3; i++)
+                    transformParameters[i] = m_ArgsInfo.rotate_arg[i];
+        }
+        if (m_ArgsInfo.translate_given) {
             int pos = 3;
             if (Dimension == 2)
               pos = 1;
             for (unsigned int i = 0; i < Dimension && i < 3; i++)
               transformParameters[pos++] = m_ArgsInfo.translate_arg[i];
-          }
-        if (Dimension == 4)
-          {
-            matrix.SetIdentity();
-            itk::Matrix<double, 4, 4> tmp = GetForwardAffineMatrix3D(transformParameters);
-            for (unsigned int i = 0; i < 3; ++i)
-              for (unsigned int j = 0; j < 3; ++j)
-                matrix[i][j] = tmp[i][j];
-            for (unsigned int i = 0; i < 3; ++i)
-              matrix[i][4] = tmp[i][3];
-          }
-        else
-          matrix = GetForwardAffineMatrix<Dimension>(transformParameters);
-      }
-    else
-      {
-        if (m_ArgsInfo.matrix_given)
-          {
+        }
+        matrix = GetForwardAffineMatrix<Dimension>(transformParameters);
+    }
+    else {
+        if (m_ArgsInfo.matrix_given) {
             matrix= clitk::ReadMatrix<Dimension>(m_ArgsInfo.matrix_arg);
-            if (m_Verbose) std::cout << "Reading the matrix..." << std::endl;
-          }
+            if (m_Verbose)
+                std::cout << "Reading the matrix..." << std::endl;
+        }
         else {
           if (m_ArgsInfo.elastix_given) {
             std::string filename(m_ArgsInfo.elastix_arg);
             matrix = createMatrixFromElastixFile<Dimension>(filename, m_Verbose);
           }
-          else 
-            matrix.SetIdentity();
+          else
+              matrix.SetIdentity();
         }
-      }
+    }
     if (m_Verbose)
-      std::cout << "Using the following matrix:" << std::endl
-                << matrix << std::endl;
+        std::cout << "Using the following matrix:" << std::endl
+                  << matrix << std::endl;
     typename itk::Matrix<double, Dimension, Dimension> rotationMatrix = clitk::GetRotationalPartMatrix(matrix);
     typename itk::Vector<double, Dimension> translationPart = clitk::GetTranslationPartMatrix(matrix);
 
@@ -720,54 +706,38 @@ namespace clitk
 
     // Matrix
     typename itk::Matrix<double, Dimension+1, Dimension+1> matrix;
-    if (m_ArgsInfo.rotate_given || m_ArgsInfo.translate_given)
-      {
-        if (m_ArgsInfo.matrix_given)
-          {
+    if (m_ArgsInfo.rotate_given || m_ArgsInfo.translate_given) {
+        if (m_ArgsInfo.matrix_given) {
             std::cerr << "You must use either rotate/translate or matrix options" << std::endl;
             return;
-          }
+        }
         itk::Array<double> transformParameters(2 * Dimension);
         transformParameters.Fill(0.0);
-        if (m_ArgsInfo.rotate_given)
-          {
+        if (m_ArgsInfo.rotate_given) {
             if (Dimension == 2)
               transformParameters[0] = m_ArgsInfo.rotate_arg[0];
             else
               for (unsigned int i = 0; i < 3; i++)
                 transformParameters[i] = m_ArgsInfo.rotate_arg[i];
-          }
-        if (m_ArgsInfo.translate_given)
-          {
+        }
+        if (m_ArgsInfo.translate_given) {
             int pos = 3;
             if (Dimension == 2)
               pos = 1;
             for (unsigned int i = 0; i < Dimension && i < 3; i++)
               transformParameters[pos++] = m_ArgsInfo.translate_arg[i];
-          }
-        if (Dimension == 4)
-          {
-            matrix.SetIdentity();
-            itk::Matrix<double, 4, 4> tmp = GetForwardAffineMatrix3D(transformParameters);
-            for (unsigned int i = 0; i < 3; ++i)
-              for (unsigned int j = 0; j < 3; ++j)
-                matrix[i][j] = tmp[i][j];
-            for (unsigned int i = 0; i < 3; ++i)
-              matrix[i][4] = tmp[i][3];
-          }
-        else
-          matrix = GetForwardAffineMatrix<Dimension>(transformParameters);
-      }
-    else
-      {
-        if (m_ArgsInfo.matrix_given)
-          {
+        }
+        matrix = GetForwardAffineMatrix<Dimension>(transformParameters);
+    }
+    else {
+        if (m_ArgsInfo.matrix_given) {
             matrix= clitk::ReadMatrix<Dimension>(m_ArgsInfo.matrix_arg);
-            if (m_Verbose) std::cout << "Reading the matrix..." << std::endl;
-          }
+            if (m_Verbose)
+                std::cout << "Reading the matrix..." << std::endl;
+        }
         else
-          matrix.SetIdentity();
-      }
+            matrix.SetIdentity();
+    }
     if (m_Verbose)
       std::cout << "Using the following matrix:" << std::endl
                 << matrix << std::endl;
