@@ -99,7 +99,7 @@ MoreTextureFeaturesGenericFilter<args_info_type>::UpdateWithInputImageType()
     const unsigned int Dimension = InputImageType::ImageDimension;
     typedef itk::Image<double, Dimension> OutputImageType;
     typename InputImageType::Pointer input = this->template GetInput<InputImageType>(0);
-    typename OutputImageType::Pointer maskImage = NULL;
+    typename OutputImageType::Pointer maskImage = ITK_NULLPTR;
     if (mArgsInfo.mask_given) {
         maskImage = this->template GetInput<OutputImageType>(1);
     } else {

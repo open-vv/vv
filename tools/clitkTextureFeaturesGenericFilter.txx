@@ -91,7 +91,7 @@ TextureFeaturesGenericFilter<args_info_type>::UpdateWithInputImageType()
   // Reading inputs
   typedef itk::Image<double, InputImageType::ImageDimension> OutputImageType;
   typename InputImageType::Pointer input = this->template GetInput<InputImageType>(0);
-  typename OutputImageType::Pointer maskImage = NULL;
+  typename OutputImageType::Pointer maskImage = ITK_NULLPTR;
   if (m_ArgsInfo.mask_given) {
       maskImage = this->template GetInput<OutputImageType>(1);
   } else {
@@ -276,6 +276,7 @@ TextureFeaturesGenericFilter<args_info_type>::UpdateWithInputImageType()
   typename ScalarImageToTextureFeaturesFilterType::FeatureValueVector::Iterator itM = tfMean->Begin();
   typename ScalarImageToTextureFeaturesFilterType::FeatureValueVector::Iterator itStd = tfStd->Begin();
   while(it != tfN->End()) {
+#if (ITK_VERSION_MAJOR == 5 && ITK_VERSION_MINOR < 1) || ITK_VERSION_MAJOR < 5
       if(it->Value() == ScalarImageToTextureFeaturesFilterType::TextureFeaturesFilterType::TextureFeatureName::Energy) {
           std::cout << "Energy" << ": ";
       } else if (it->Value() == ScalarImageToTextureFeaturesFilterType::TextureFeaturesFilterType::TextureFeatureName::Entropy) {
@@ -295,6 +296,27 @@ TextureFeaturesGenericFilter<args_info_type>::UpdateWithInputImageType()
       } else if (it->Value() == ScalarImageToTextureFeaturesFilterType::TextureFeaturesFilterType::TextureFeatureName::InvalidFeatureName) {
           std::cout << "InvalidFeatureName" << ": ";
       }
+#else
+      if(it->Value() == static_cast<uint8_t>(itk::Statistics::HistogramToTextureFeaturesFilterEnums::TextureFeature::Energy)) {
+          std::cout << "Energy" << ": ";
+      } else if (it->Value() == static_cast<uint8_t>(itk::Statistics::HistogramToTextureFeaturesFilterEnums::TextureFeature::Entropy)) {
+          std::cout << "Entropy" << ": ";
+      } else if (it->Value() == static_cast<uint8_t>(itk::Statistics::HistogramToTextureFeaturesFilterEnums::TextureFeature::Correlation)) {
+          std::cout << "Correlation" << ": ";
+      } else if (it->Value() == static_cast<uint8_t>(itk::Statistics::HistogramToTextureFeaturesFilterEnums::TextureFeature::InverseDifferenceMoment)) {
+          std::cout << "InverseDifferenceMoment" << ": ";
+      } else if (it->Value() == static_cast<uint8_t>(itk::Statistics::HistogramToTextureFeaturesFilterEnums::TextureFeature::Inertia)) {
+          std::cout << "Inertia" << ": ";
+      } else if (it->Value() == static_cast<uint8_t>(itk::Statistics::HistogramToTextureFeaturesFilterEnums::TextureFeature::ClusterShade)) {
+          std::cout << "ClusterShade" << ": ";
+      } else if (it->Value() == static_cast<uint8_t>(itk::Statistics::HistogramToTextureFeaturesFilterEnums::TextureFeature::ClusterProminence)) {
+          std::cout << "ClusterProminence" << ": ";
+      } else if (it->Value() == static_cast<uint8_t>(itk::Statistics::HistogramToTextureFeaturesFilterEnums::TextureFeature::HaralickCorrelation)) {
+          std::cout << "HaralickCorrelation" << ": ";
+      } else if (it->Value() == static_cast<uint8_t>(itk::Statistics::HistogramToTextureFeaturesFilterEnums::TextureFeature::InvalidFeatureName)) {
+          std::cout << "InvalidFeatureName" << ": ";
+      }
+#endif
       std::cout << "mean = " << itM->Value() << " - ";
       std::cout << "std = "  << itStd->Value() << std::endl;
       it++;
