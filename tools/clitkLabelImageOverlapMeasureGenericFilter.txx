@@ -64,8 +64,10 @@ template<class FilterType>
 void clitk::LabelImageOverlapMeasureGenericFilter<ArgsInfoType>::
 SetOptionsFromArgsInfoToFilter(FilterType * f)
 {
-  f->SetLabel1(mArgsInfo.label1_arg);
-  f->SetLabel2(mArgsInfo.label2_arg);
+  if(mArgsInfo.label_given) {
+      f->SetLabelFlag(true);
+      f->SetLabel(mArgsInfo.label_arg);
+  }
   f->SetVerboseFlag(mArgsInfo.verbose_flag);
   f->SetLongFlag(mArgsInfo.long_flag);
 }
