@@ -102,7 +102,7 @@ namespace clitk {
 #if ITK_VERSION_MAJOR <= 4
     virtual void VerifyInputInformation() ITK_OVERRIDE { }
 #else
-    virtual void VerifyInputInformation() const ITK_OVERRIDE { }
+    virtual void VerifyInputInformation() ITKv5_CONST override { }
 #endif
 
   protected:

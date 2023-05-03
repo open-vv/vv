@@ -94,8 +94,13 @@ vvToolHistogram::vvToolHistogram(vvMainWindowBase * parent, Qt::WindowFlags f)
   chart->SetRenderEmpty(true);
   mView->GetScene()->AddItem(chart);
   mView->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
+#if VTK_MAJOR_VERSION >= 9
+  this->HistogramWidget->renderWindow()->GetRenderers()->RemoveAllItems();
+  this->HistogramWidget->renderWindow()->AddRenderer(mView->GetRenderer());
+#else
   this->HistogramWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
   this->HistogramWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
+#endif
   HistogramWidget->show();
 
 #ifdef Q_OS_OSX
@@ -201,8 +206,13 @@ void vvToolHistogram::displayHistogram()
     chart->GetAxis(vtkAxis::LEFT)->SetTitle("#Voxels");
     chart->GetAxis(vtkAxis::BOTTOM)->SetTitle("Intensity");
 
+#if VTK_MAJOR_VERSION >= 9
+    this->HistogramWidget->renderWindow()->GetRenderers()->RemoveAllItems();
+    this->HistogramWidget->renderWindow()->AddRenderer(mView->GetRenderer());
+#else
     this->HistogramWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
     this->HistogramWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
+#endif
     HistogramWidget->show();
 
     QApplication::restoreOverrideCursor();
@@ -300,10 +310,17 @@ void vvToolHistogram::InputIsSelected(vvSlicerManager * m)
   // Connect signals & slots
   vvToolHistogramCommand *smc = vvToolHistogramCommand::New();
   smc->mHist = this;
+#if VTK_MAJOR_VERSION >= 9
+  HistogramWidget->renderWindow()->GetInteractor()->GetInteractorStyle()->AddObserver(vtkCommand::LeftButtonPressEvent, smc);
+  HistogramWidget->renderWindow()->GetInteractor()->GetInteractorStyle()->AddObserver(vtkCommand::MouseMoveEvent, smc);
+  HistogramWidget->renderWindow()->GetInteractor()->GetInteractorStyle()->AddObserver(vtkCommand::MouseWheelForwardEvent, smc);
+  HistogramWidget->renderWindow()->GetInteractor()->GetInteractorStyle()->AddObserver(vtkCommand::MouseWheelBackwardEvent, smc);
+#else
   HistogramWidget->GetRenderWindow()->GetInteractor()->GetInteractorStyle()->AddObserver(vtkCommand::LeftButtonPressEvent, smc);
   HistogramWidget->GetRenderWindow()->GetInteractor()->GetInteractorStyle()->AddObserver(vtkCommand::MouseMoveEvent, smc);
   HistogramWidget->GetRenderWindow()->GetInteractor()->GetInteractorStyle()->AddObserver(vtkCommand::MouseWheelForwardEvent, smc);
   HistogramWidget->GetRenderWindow()->GetInteractor()->GetInteractorStyle()->AddObserver(vtkCommand::MouseWheelBackwardEvent, smc);
+#endif
   smc->Delete();
 
 }
