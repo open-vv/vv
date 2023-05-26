@@ -38,16 +38,20 @@ public:
   vtkTypeMacro(vvBlendImageActor, VTK_IMAGE_ACTOR);
 #if VTK_MAJOR_VERSION >= 8
   virtual void PrintSelf(ostream& os, vtkIndent indent) override;
-#else
+#elif VTK_MAJOR_VERSION >= 7
   virtual void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+#else
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 #endif
 
   // Description:
   // Implement base class method.
 #if VTK_MAJOR_VERSION >= 8
   void Render(vtkRenderer *ren) override;
-#else
+#elif VTK_MAJOR_VERSION >= 7
   void Render(vtkRenderer *ren) VTK_OVERRIDE;
+#else
+  void Render(vtkRenderer *ren);
 #endif
 
 protected:

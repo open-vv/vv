@@ -28,8 +28,10 @@ public:
     vtkTypeMacro(vtkVOXImageWriter,vtkImageWriter);
 #if VTK_MAJOR_VERSION >= 8
     void PrintSelf(ostream& os, vtkIndent indent) override;
-#else
+#elif VTK_MAJOR_VERSION >= 7
     void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+#else
+    void PrintSelf(ostream& os, vtkIndent indent);
 #endif
 
     // Description:
@@ -43,8 +45,10 @@ public:
     // This is the method you should override.
 #if VTK_MAJOR_VERSION >= 8
     virtual void Write() override;
-#else
+#elif VTK_MAJOR_VERSION >= 7
     virtual void Write() VTK_OVERRIDE;
+#else
+    virtual void Write();
 #endif
 
 protected:

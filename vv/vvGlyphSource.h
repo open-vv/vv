@@ -28,8 +28,10 @@ public:
     vtkTypeMacro(vvGlyphSource,vtkGlyphSource2D);
 #if VTK_MAJOR_VERSION >= 8
     void PrintSelf(ostream& os, vtkIndent indent) override;
-#else
+#elif VTK_MAJOR_VERSION >= 7
     void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+#else
+    void PrintSelf(ostream& os, vtkIndent indent);
 #endif
 
     void SetGlyphTypeToSpecificArrow() {
@@ -43,8 +45,10 @@ protected:
                              vtkCellArray *polys, vtkUnsignedCharArray *colors);
 #if VTK_MAJOR_VERSION >= 8
     int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-#else
+#elif VTK_MAJOR_VERSION >= 7
     int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+#else
+    int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 #endif
 
 private:
