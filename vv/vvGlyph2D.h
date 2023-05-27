@@ -25,8 +25,10 @@ public:
     vtkTypeMacro(vvGlyph2D,vtkGlyph3D);
 #if VTK_MAJOR_VERSION >= 8
     void PrintSelf(ostream& os, vtkIndent indent) override;
-#else
+#elif VTK_MAJOR_VERSION >= 7
     void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+#else
+    void PrintSelf(ostream& os, vtkIndent indent);
 #endif
 
     // Description
@@ -49,8 +51,10 @@ protected:
     ~vvGlyph2D() {};
 #if VTK_MAJOR_VERSION >= 8
     virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-#else
+#elif VTK_MAJOR_VERSION >= 7
     virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+#else
+    virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 #endif
 
 private:
