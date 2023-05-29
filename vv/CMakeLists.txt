@@ -9,11 +9,14 @@ endif(COMMAND cmake_policy)
 #=========================================================
 OPTION(CLITK_USE_PACS_CONNECTION "USE PACS CONNECTION"       OFF)
 #=========================================================
-
+# Look for OpenGL version
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
+  add_definitions(-DVTK_OPENGL)
 # Look for OpenGL2 version
-if (VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+#elseif(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+else()
   add_definitions(-DVTK_OPENGL2)
-endif ()
+endif()
 
 #List of vv tools to compile
 set(vv_TOOLS
