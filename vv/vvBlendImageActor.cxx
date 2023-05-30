@@ -3,7 +3,7 @@ Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
 
 Authors belong to:
 - University of LYON              http://www.universite-lyon.fr/
-- L�on B�rard cancer center       http://www.centreleonberard.fr
+- Léon Bérard cancer center       http://www.centreleonberard.fr
 - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
 
 This software is distributed WITHOUT ANY WARRANTY; without even
@@ -17,10 +17,10 @@ It is distributed under dual licence
 ===========================================================================**/
 
 #include "vvBlendImageActor.h"
-#ifdef VTK_OPENGL
+#if VTK_OPENGL == 1
   #include <vtkgl.h>
   #include <vtkOpenGLExtensionManager.h>
-#elif VTK_OPENGL2
+#elif VTK_OPENGL > 1
   #include <vtk_glew.h> //VTK_OPENGL2
 #else
   #error "You need to compile VTK with OpenGL!"
@@ -45,7 +45,7 @@ void vvBlendImageActor::Render(vtkRenderer *ren)
 {
   //Change blending to maximum per component instead of weighted sum
   vtkOpenGLRenderWindow *renwin = dynamic_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
-#ifdef VTK_OPENGL
+#if VTK_OPENGL == 1
   vtkOpenGLExtensionManager *extensions = renwin->GetExtensionManager();
   if (extensions->ExtensionSupported("GL_EXT_blend_minmax")) {
     extensions->LoadExtension("GL_EXT_blend_minmax");
@@ -60,7 +60,7 @@ void vvBlendImageActor::Render(vtkRenderer *ren)
     vtkgl::BlendEquationEXT( vtkgl::FUNC_ADD );
   }
 #else
-  //VTK_OPENGL2
+  //VTK_OPENGL>1
   const char *extensions = renwin->ReportCapabilities();
 
   //Call normal render
