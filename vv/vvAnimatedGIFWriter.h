@@ -16,8 +16,10 @@ public:
   vtkTypeMacro(vvAnimatedGIFWriter,vtkGenericMovieWriter);
 #if VTK_MAJOR_VERSION >= 8
   void PrintSelf(ostream& os, vtkIndent indent) override;
-#else
+#elif VTK_MAJOR_VERSION >= 7
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+#else
+  void PrintSelf(ostream& os, vtkIndent indent);
 #endif
 
   // Description:
@@ -27,10 +29,14 @@ public:
   void Start() override;
   void Write() override;
   void End() override;
-#else
+#elif VTK_MAJOR_VERSION >= 7
   void Start() VTK_OVERRIDE;
   void Write() VTK_OVERRIDE;
   void End() VTK_OVERRIDE;
+#else
+  void Start();
+  void Write();
+  void End();
 #endif
 
   // Description:

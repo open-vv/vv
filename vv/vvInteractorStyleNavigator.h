@@ -33,8 +33,10 @@ public:
     vtkTypeMacro(vvInteractorStyleNavigator, vtkInteractorStyle);
 #if VTK_MAJOR_VERSION >= 8
     void PrintSelf(ostream& os, vtkIndent indent) override;
-#else
+#elif VTK_MAJOR_VERSION >= 7
     void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+#else
+    void PrintSelf(ostream& os, vtkIndent indent);
 #endif
 
     // Description:
@@ -57,7 +59,7 @@ public:
     virtual void OnLeave() override;
     virtual void OnMouseWheelForward() override;
     virtual void OnMouseWheelBackward() override;
-#else
+#elif VTK_MAJOR_VERSION >= 7
     virtual void OnMouseMove() VTK_OVERRIDE;
     virtual void OnLeftButtonDown() VTK_OVERRIDE;
     virtual void OnLeftButtonUp() VTK_OVERRIDE;
@@ -69,14 +71,28 @@ public:
     virtual void OnLeave() VTK_OVERRIDE;
     virtual void OnMouseWheelForward() VTK_OVERRIDE;
     virtual void OnMouseWheelBackward() VTK_OVERRIDE;
+#else
+    virtual void OnMouseMove();
+    virtual void OnLeftButtonDown();
+    virtual void OnLeftButtonUp();
+    virtual void OnRightButtonDown();
+    virtual void OnRightButtonUp();
+    virtual void OnMiddleButtonDown();
+    virtual void OnMiddleButtonUp();
+    virtual void OnEnter();
+    virtual void OnLeave();
+    virtual void OnMouseWheelForward();
+    virtual void OnMouseWheelBackward();
 #endif
 
     // Description:
     // Override the "fly-to" (f keypress) for images.
 #if VTK_MAJOR_VERSION >= 8
     virtual void OnChar() override;
-#else
+#elif VTK_MAJOR_VERSION >= 7
     virtual void OnChar() VTK_OVERRIDE;
+#else
+    virtual void OnChar();
 #endif
 
     // These methods for the different interactions in different modes
@@ -94,9 +110,12 @@ public:
 #if VTK_MAJOR_VERSION >= 8
     virtual void Dolly() override;
     virtual void Pan() override;
-#else
-    virtual void Dolly()VTK_OVERRIDE;
+#elif VTK_MAJOR_VERSION >= 7
+    virtual void Dolly() VTK_OVERRIDE;
     virtual void Pan() VTK_OVERRIDE;
+#else
+    virtual void Dolly();
+    virtual void Pan();
 #endif
 
     // We need to reimplement this because otherwise it returns the top renderer,
