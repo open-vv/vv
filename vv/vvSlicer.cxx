@@ -78,9 +78,9 @@
 #include <vtkImageAccumulate.h>
 #include <vtkImageReslice.h>
 #if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
-#  include <vtkOpenGLImageSliceMapper.h>
-#  include <vtkImageMapper3D.h>
-#  include <vtkImageSliceMapper.h>
+  #include <vtkOpenGLImageSliceMapper.h>
+  #include <vtkImageMapper3D.h>
+  #include <vtkImageSliceMapper.h>
 #endif
 
 vtkStandardNewMacro(vvSlicer);

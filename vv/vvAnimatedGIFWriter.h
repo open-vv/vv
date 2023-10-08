@@ -5,6 +5,7 @@
 
 #include <vtkGenericMovieWriter.h>
 #include <vtkSmartPointer.h>
+#include <vtkVersion.h>
 
 class vtkImageAppend;
 
@@ -13,14 +14,30 @@ class vvAnimatedGIFWriter : public vtkGenericMovieWriter //test this if link err
 public:
   static vvAnimatedGIFWriter *New();
   vtkTypeMacro(vvAnimatedGIFWriter,vtkGenericMovieWriter);
+#if VTK_MAJOR_VERSION >= 8
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+#elif VTK_MAJOR_VERSION >= 7
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+#else
+  void PrintSelf(ostream& os, vtkIndent indent);
+#endif
 
   // Description:
   // These methods start writing an Movie file, write a frame to the file
   // and then end the writing process.
+#if VTK_MAJOR_VERSION >= 8
+  void Start() override;
+  void Write() override;
+  void End() override;
+#elif VTK_MAJOR_VERSION >= 7
   void Start() VTK_OVERRIDE;
   void Write() VTK_OVERRIDE;
   void End() VTK_OVERRIDE;
+#else
+  void Start();
+  void Write();
+  void End();
+#endif
 
   // Description:
   // Set/Get the frame rate, in frame/s.
