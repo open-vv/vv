@@ -20,12 +20,14 @@
 #ifndef CLITKDICOMRTSTRUCT2IMAGEFILTER_H
 #define CLITKDICOMRTSTRUCT2IMAGEFILTER_H
 
+/* --- LIBS --- */
 #include "clitkDicomRT_ROI.h"
 #include "clitkImageCommon.h"
 #include <vtkImageData.h>
 #include <vtkMatrix4x4.h>
 #include <itkImage.h>
 #include <itkVTKImageToImageFilter.h>
+
 
 namespace clitk {
 
@@ -37,7 +39,6 @@ namespace clitk {
     ~DicomRTStruct2ImageFilter();
 
     void SetROI(clitk::DicomRT_ROI * roi);
-    ///This is used to create a mask with the same characteristics as an input image
     void SetImage(vvImage::Pointer image);
     void SetImageFilename(std::string s);
     void SetOutputOrigin(const double* origin);
@@ -45,11 +46,18 @@ namespace clitk {
     void SetOutputSize(const unsigned long* size);
     void SetOutputImageFilename(std::string s);
     void SetWriteMesh(bool b);
-    void Update();    
+    void Update();
     vtkImageData * GetOutput();
     template <int Dimension> typename itk::Image<unsigned char,Dimension>::ConstPointer GetITKOutput();
     void SetCropMaskEnabled(bool b);
     void SetWriteOutputFlag(bool b);
+    // extension
+    void SetInputData(vtkSmartPointer<vtkPolyData>& data);
+    void SetVerbose(bool b);
+    void SetMode(bool b);
+
+  private:
+      void visualize(vtkSmartPointer<vtkPolyData> polyData);
 
   protected:
     bool ImageInfoIsSet() const;
@@ -64,25 +72,11 @@ namespace clitk {
     vtkSmartPointer<vtkMatrix4x4> mTransformMatrix;
     clitk::DicomRT_ROI * mROI;
     vtkSmartPointer<vtkImageData> mBinaryImage;
+    //extension
+    vtkSmartPointer<vtkPolyData>  jsonMesh;
+    bool verbose;
+    bool mode;
   };
-  //--------------------------------------------------------------------
-
 } // end namespace clitk
-
-
-//--------------------------------------------------------------------
-
-//template <int Dimension>
-//typename itk::Image<unsigned char,Dimension>::ConstPointer clitk::DicomRTStruct2ImageFilter::GetITKOutput()
-//{
-//  assert(mBinaryImage);
-//  typedef itk::Image<unsigned char,Dimension> ConnectorImageType;
-//  typedef itk::VTKImageToImageFilter <ConnectorImageType> ConnectorType;
-//  typename ConnectorType::Pointer connector = ConnectorType::New();
-//  connector->SetInput(mBinaryImage);
-//  connector->Update();
-//  return connector->GetOutput();
-//}
-//--------------------------------------------------------------------
 #endif // CLITKDICOMRT_TRUCT2IMAGEFILTER_H
-
+//--------------------------------------------------------------------

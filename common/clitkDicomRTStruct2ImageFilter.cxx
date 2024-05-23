@@ -1,6 +1,7 @@
 /*=========================================================================
   Program:         vv http://www.creatis.insa-lyon.fr/rio/vv
   Main authors :   XX XX XX
+  Extended by  :   Petros K. Iosifidis (ipetroskon@cgfl.fr)
 
   Authors belongs to:
   - University of LYON           http://www.universite-lyon.fr/
@@ -35,14 +36,27 @@
 #include <vtkXMLPolyDataWriter.h>
 #include <vtkTransformPolyDataFilter.h>
 
+//visualization imports
+#include <vtkActor.h>
+#include <vtkNamedColors.h>
+#include <vtkImageViewer.h>
+#include <vtkImageActor.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 
 //--------------------------------------------------------------------
 clitk::DicomRTStruct2ImageFilter::DicomRTStruct2ImageFilter()
 {
   mROI = NULL;
+  jsonMesh = NULL;
   mWriteOutput = false;
   mWriteMesh = false;
   mCropMask = true;
+  verbose = false;
+  mode = false;
 }
 //--------------------------------------------------------------------
 
@@ -104,7 +118,8 @@ void clitk::DicomRTStruct2ImageFilter::SetOutputImageFilename(std::string s)
 //--------------------------------------------------------------------
 
 
-//--------------------------------------------------------------------
+//-------------------------------------------------------------------- 
+//what is the difference between this and SetImageFilename? dep?
 void clitk::DicomRTStruct2ImageFilter::SetImage(vvImage::Pointer image)
 {
   if (image->GetNumberOfDimensions() != 3) {
@@ -200,17 +215,24 @@ void clitk::DicomRTStruct2ImageFilter::SetOutputSize(const unsigned long* size)
 //--------------------------------------------------------------------
 void clitk::DicomRTStruct2ImageFilter::Update()
 {
-  if (!mROI) {
-    std::cerr << "Error. No ROI set, please use SetROI." << std::endl;
-    exit(EXIT_FAILURE);
-  }
   if (!ImageInfoIsSet()) {
     std::cerr << "Error. Please provide image info (spacing/origin) with SetImageFilename" << std::endl;
     exit(EXIT_FAILURE);
   }
 
-  // Get Mesh
-  vtkPolyData * mesh = mROI->GetMesh();
+  vtkSmartPointer<vtkPolyData> mesh = vtkSmartPointer<vtkPolyData>::New();
+  if (mode == false) { //RTStruct 
+      if (!mROI) {
+          std::cerr << "Error. No ROI set, please use SetROI." << std::endl;
+          exit(EXIT_FAILURE);
+      }
+      // Get Mesh
+      mesh = mROI->GetMesh();
+  }
+  else { //JSON
+      mesh = jsonMesh;
+  }
+  
   if (mWriteMesh) {
     vtkSmartPointer<vtkXMLPolyDataWriter> meshWriter = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
     std::string vtkName = mOutputFilename;
@@ -226,59 +248,37 @@ void clitk::DicomRTStruct2ImageFilter::Update()
 
   // Get bounds
   double *bounds=mesh->GetBounds();
-  /*
-  //Change mOrigin, mSize and mSpacing with respect to the directions
-  // Spacing is influenced by input direction
-  std::vector<double> tempSpacing;
-  tempSpacing.resize(3);
-  for(int i=0; i<3; i++) {
-    tempSpacing[i] = 0.0;
-    for(int j=0; j<3; j++) {
-      tempSpacing[i] += mDirection[i][j] * mSpacing[j];
-    }
+  std::vector<double> origin; origin.resize(3);
+  std::vector<double> extend; extend.resize(3);
+    
+  // sets origin & extend with respects to crop flag
+  if (mCropMask == false) { //original 
+      for (int i = 0; i < 3; i++) {
+          origin[i] = mOrigin[i];
+          extend[i] = mSize[i] - 1;
+      }
   }
-  for(int i=0; i<3; i++)
-    mSpacing[i] = tempSpacing[i];
+  else { //croped
+      // Compute origin
+      origin[0] = floor((bounds[0] - mOrigin[0]) / mSpacing[0] - 2) * mSpacing[0] + mOrigin[0];
+      origin[1] = floor((bounds[2] - mOrigin[1]) / mSpacing[1] - 2) * mSpacing[1] + mOrigin[1];
+      origin[2] = floor((bounds[4] - mOrigin[2]) / mSpacing[2] - 2) * mSpacing[2] + mOrigin[2];
+      // Compute extend
+      extend[0] = ceil((bounds[1] - origin[0]) / mSpacing[0] + 4);
+      extend[1] = ceil((bounds[3] - origin[1]) / mSpacing[1] + 4);
+      extend[2] = ceil((bounds[5] - origin[2]) / mSpacing[2] + 4);
+  }
+  
+  if (verbose) {
+      //  good old C printf
+      printf("MESH bounds: %5.5f\t%5.5f\t%5.5f\n", bounds[0], bounds[1], bounds[2]);
+      printf("OUTPUT origin: %5.5f\t%5.5f\t%5.5f\n", origin[0], origin[1], origin[2]);
+      printf("OUTPUT extend: %5.5f\t%5.5f\t%5.5f\n", extend[0], extend[1], extend[2]);
+      std::cout << "\n--Geometry transformation matrix--" << std::endl;
+      mTransformMatrix->Print(std::cout);
+      visualize(mesh);
+  }
 
-  // Size is influenced by affine transform matrix and input direction
-  // Size is converted to double, transformed and converted back to size type.
-  std::vector<double> tempSize;
-  tempSize.resize(3);
-  for(int i=0; i<3; i++) {
-    tempSize[i] = 0.0;
-    for(int j=0; j<3; j++) {
-      tempSize[i] += mDirection[i][j] * mSize[j];
-    }
-  }
-  for(int i=0; i<3; i++) {
-    if (tempSize[i] < 0.0) {
-      tempSize[i] *= -1;
-      mOrigin[i] += mSpacing[i]*(tempSize[i] -1);
-      mSpacing[i] *= -1;
-    }
-    mSize[i] = lrint(tempSize[i]);
-  }
-  */
-  // Compute origin
-  std::vector<double> origin;
-  origin.resize(3);
-  origin[0] = floor((bounds[0]-mOrigin[0])/mSpacing[0]-2)*mSpacing[0]+mOrigin[0];
-  origin[1] = floor((bounds[2]-mOrigin[1])/mSpacing[1]-2)*mSpacing[1]+mOrigin[1];
-  origin[2] = floor((bounds[4]-mOrigin[2])/mSpacing[2]-2)*mSpacing[2]+mOrigin[2];
-
-  // Compute extend
-  std::vector<double> extend;
-  extend.resize(3);
-  extend[0] = ceil((bounds[1]-origin[0])/mSpacing[0]+4);
-  extend[1] = ceil((bounds[3]-origin[1])/mSpacing[1]+4);
-  extend[2] = ceil((bounds[5]-origin[2])/mSpacing[2]+4);
-  // If no crop, set initial image size/origin
-  if (!mCropMask) {
-    for(int i=0; i<3; i++) {
-      origin[i] = mOrigin[i];
-      extend[i] = mSize[i]-1;
-    }
-  }
   //Apply the transform to the mesh
   vtkSmartPointer<vtkTransform> outputLabelmapGeometryTransform = vtkSmartPointer<vtkTransform>::New();
   outputLabelmapGeometryTransform->SetMatrix(mTransformMatrix);
@@ -351,7 +351,6 @@ void clitk::DicomRTStruct2ImageFilter::Update()
     //typedef itk::VTKImageToImageFilter<ImageType> ConnectorType;
     //ConnectorType::Pointer connector = ConnectorType::New();
     //connector->SetInput(GetOutput());
-    //connector->Update();
     //clitk::writeImage<ImageType>(connector->GetOutput(), mOutputFilename);
     vvImageWriter::Pointer writer = vvImageWriter::New();
     writer->SetInput(vvBinaryImage);
@@ -362,7 +361,6 @@ void clitk::DicomRTStruct2ImageFilter::Update()
   }
 }
 //--------------------------------------------------------------------
-
 
 
 //--------------------------------------------------------------------
@@ -376,3 +374,56 @@ vtkImageData * clitk::DicomRTStruct2ImageFilter::GetOutput()
 }
 //--------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------
+void clitk::DicomRTStruct2ImageFilter::SetVerbose(bool b)
+{
+    verbose = b;
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void clitk::DicomRTStruct2ImageFilter::SetInputData(vtkSmartPointer<vtkPolyData>& data)
+{
+    //init & grab
+    jsonMesh = vtkSmartPointer<vtkPolyData>::New();
+    jsonMesh->DeepCopy(data);
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void clitk::DicomRTStruct2ImageFilter::visualize(vtkSmartPointer<vtkPolyData> polyData)
+{
+    //vars , not copy paste, surely c': 
+    vtkNew<vtkNamedColors> colors;
+    vtkNew<vtkPolyDataMapper> mapper;
+    vtkNew<vtkRenderer> renderer;
+    vtkNew<vtkRenderWindow> renderWindow;
+    vtkNew<vtkActor> actor;
+    vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
+
+    // Create a mapper and actor
+    mapper->SetInputData(polyData);
+    actor->SetMapper(mapper);
+    actor->GetProperty()->SetColor(colors->GetColor3d("White").GetData());
+
+    // Visualize
+    renderWindow->SetWindowName("visual feedback");
+    //renderWindow->SetSize(255, 255);
+    renderWindow->AddRenderer(renderer);
+    renderWindowInteractor->SetRenderWindow(renderWindow);
+    renderer->AddActor(actor);
+    renderer->SetBackground(colors->GetColor3d("Gray").GetData());
+    renderWindow->Render();
+    renderWindowInteractor->Start();
+}
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+void clitk::DicomRTStruct2ImageFilter::SetMode(bool b){
+    mode = b;
+}
+//--------------------------------------------------------------------
