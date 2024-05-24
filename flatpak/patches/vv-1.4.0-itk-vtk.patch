@@ -1,0 +1,1261 @@
+diff -crB -x '*.git*' vv/cmake/build_opt.cmake vv-patch/cmake/build_opt.cmake
+*** vv/cmake/build_opt.cmake	2024-05-23 16:04:58.691908000 +0200
+--- vv-patch/cmake/build_opt.cmake	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 31,47 ****
+  option(CLITK_BUILD_VV "Build vv the 4D visualizer (requires VTK and QT)" ON)
+  
+  if(CLITK_BUILD_VV)
+!  if(VTK_VERSION VERSION_LESS 6.0.0)
+!     set(vv_QT_VERSION "4" CACHE INTERNAL "Expected Qt version")
+   else()
+!     if(VTK_QT_VERSION VERSION_LESS 5)
+!        set(vv_QT_VERSION "4" CACHE INTERNAL "Expected Qt version")
+!     else()
+!        set(vv_QT_VERSION "5" CACHE INTERNAL "Expected Qt version")
+!     endif()
+   endif()
+!   set(vv_QT_VERSION "5" CACHE INTERNAL "Expected Qt version")
+!   add_subdirectory(${CLITK_SOURCE_DIR}/vv ${PROJECT_BINARY_DIR}/vv)
+  endif(CLITK_BUILD_VV)
+  
+  #=========================================================
+--- 31,56 ----
+  option(CLITK_BUILD_VV "Build vv the 4D visualizer (requires VTK and QT)" ON)
+  
+  if(CLITK_BUILD_VV)
+!  #if(VTK_VERSION VERSION_LESS 6.0.0)
+!  #   set(vv_QT_VERSION "4" CACHE INTERNAL "Expected Qt version")
+!  #else()
+!  #   if(VTK_QT_VERSION VERSION_LESS 5)
+!  #      set(vv_QT_VERSION "4" CACHE INTERNAL "Expected Qt version")
+!  #   else()
+!  #      set(vv_QT_VERSION "5" CACHE INTERNAL "Expected Qt version")
+!  #   endif()
+!  #endif()
+!  # set(vv_QT_VERSION "5" CACHE INTERNAL "Expected Qt version")
+!  #find_package(Qt4)
+!  #find_package(Qt5 COMPONENTS Core)
+!  if(VTK_QT_VERSION VERSION_LESS 5)
+!    set(vv_QT_VERSION "4" CACHE INTERNAL "Expected Qt version")
+!  elseif(VTK_QT_VERSION VERSION_LESS 6)
+!    set(vv_QT_VERSION "5" CACHE INTERNAL "Expected Qt version")
+   else()
+!    message(FATAL_ERROR "VTK needs to be compiled with Qt4 or Qt5 is needed if you want to build vv.")
+   endif()
+!  add_subdirectory(${CLITK_SOURCE_DIR}/vv ${PROJECT_BINARY_DIR}/vv)
+  endif(CLITK_BUILD_VV)
+  
+  #=========================================================
+diff -crB -x '*.git*' vv/common/clitkIO.cxx vv-patch/common/clitkIO.cxx
+*** vv/common/clitkIO.cxx	2024-05-23 16:04:58.741907000 +0200
+--- vv-patch/common/clitkIO.cxx	2024-05-22 13:14:11.000000000 +0200
+***************
+*** 55,60 ****
+--- 55,61 ----
+  #include <itkNiftiImageIOFactory.h>
+  #include <itkNrrdImageIOFactory.h>
+  #include <itkImageIOFactory.h>
++ #include <itkImageIOBase.h>
+  
+  //--------------------------------------------------------------------
+  // Register factories
+diff -crB -x '*.git*' vv/common/rtkEdfImageIO.cxx vv-patch/common/rtkEdfImageIO.cxx
+*** vv/common/rtkEdfImageIO.cxx	2024-05-23 16:04:58.782916000 +0200
+--- vv-patch/common/rtkEdfImageIO.cxx	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 169,175 ****
+            { NULL, OrderNotApplicable }
+      };
+  
+!   auto byteorder = LittleEndian;
+    if ( (p = edf_findInHeader(header, "ByteOrder") ) ) {
+      k = lookup_table_nth(edf_byteorder_table, p);
+      if (k >= 0) {
+--- 169,179 ----
+            { NULL, OrderNotApplicable }
+      };
+  
+! #if (ITK_VERSION_MAJOR == 5 && ITK_VERSION_MINOR < 1) || ITK_VERSION_MAJOR < 5
+!   itk::ImageIOBase::ByteOrder byteorder = LittleEndian;
+! #else
+!   itk::ImageIOBase::IOByteOrderEnum byteorder = LittleEndian;
+! #endif
+    if ( (p = edf_findInHeader(header, "ByteOrder") ) ) {
+      k = lookup_table_nth(edf_byteorder_table, p);
+      if (k >= 0) {
+diff -crB -x '*.git*' vv/common/rtkEdfImageIO.h vv-patch/common/rtkEdfImageIO.h
+*** vv/common/rtkEdfImageIO.h	2024-05-23 16:04:58.783913000 +0200
+--- vv-patch/common/rtkEdfImageIO.h	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 100,106 ****
+--- 100,110 ----
+    // table key-value structure
+    struct table {
+      const char *key;
++ #if (ITK_VERSION_MAJOR == 5 && ITK_VERSION_MINOR < 1) || ITK_VERSION_MAJOR < 5
++     itk::ImageIOBase::ByteOrder value;
++ #else
+      itk::ImageIOBase::IOByteOrderEnum value;
++ #endif
+      };
+  
+    struct table3 {
+diff -crB -x '*.git*' vv/common/vvImage.txx vv-patch/common/vvImage.txx
+*** vv/common/vvImage.txx	2024-05-23 16:04:58.807984000 +0200
+--- vv-patch/common/vvImage.txx	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 17,22 ****
+--- 17,23 ----
+  ===========================================================================*/
+  #include <itkImageToVTKImageFilter.h>
+  #include <itkPixelTraits.h>
++ #include <vtkVersion.h>
+  
+  //--------------------------------------------------------------------
+  template<class TItkImageType>
+diff -crB -x '*.git*' vv/itk/clitkAddRelativePositionConstraintToLabelImageFilter.h vv-patch/itk/clitkAddRelativePositionConstraintToLabelImageFilter.h
+*** vv/itk/clitkAddRelativePositionConstraintToLabelImageFilter.h	2024-05-23 16:04:58.820916000 +0200
+--- vv-patch/itk/clitkAddRelativePositionConstraintToLabelImageFilter.h	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 152,158 ****
+  #if ITK_VERSION_MAJOR <= 4
+      virtual void VerifyInputInformation() ITK_OVERRIDE { }
+  #else
+!     virtual void VerifyInputInformation() const ITK_OVERRIDE { }
+  #endif
+      
+      // For debug
+--- 152,158 ----
+  #if ITK_VERSION_MAJOR <= 4
+      virtual void VerifyInputInformation() ITK_OVERRIDE { }
+  #else
+!     virtual void VerifyInputInformation() ITKv5_CONST override { }
+  #endif
+      
+      // For debug
+diff -crB -x '*.git*' vv/itk/clitkBooleanOperatorLabelImageFilter.h vv-patch/itk/clitkBooleanOperatorLabelImageFilter.h
+*** vv/itk/clitkBooleanOperatorLabelImageFilter.h	2024-05-23 16:04:58.828940000 +0200
+--- vv-patch/itk/clitkBooleanOperatorLabelImageFilter.h	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 102,108 ****
+  #if ITK_VERSION_MAJOR <= 4
+      virtual void VerifyInputInformation() ITK_OVERRIDE { }
+  #else
+!     virtual void VerifyInputInformation() const ITK_OVERRIDE { }
+  #endif
+  
+    protected:
+--- 102,108 ----
+  #if ITK_VERSION_MAJOR <= 4
+      virtual void VerifyInputInformation() ITK_OVERRIDE { }
+  #else
+!     virtual void VerifyInputInformation() ITKv5_CONST override { }
+  #endif
+  
+    protected:
+diff -crB -x '*.git*' vv/itk/clitkCropLikeImageFilter.h vv-patch/itk/clitkCropLikeImageFilter.h
+*** vv/itk/clitkCropLikeImageFilter.h	2024-05-23 16:04:58.841915000 +0200
+--- vv-patch/itk/clitkCropLikeImageFilter.h	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 74,80 ****
+  #if ITK_VERSION_MAJOR <= 4
+      virtual void VerifyInputInformation() ITK_OVERRIDE { }
+  #else
+!     virtual void VerifyInputInformation() const ITK_OVERRIDE { }
+  #endif
+  
+    protected:
+--- 74,80 ----
+  #if ITK_VERSION_MAJOR <= 4
+      virtual void VerifyInputInformation() ITK_OVERRIDE { }
+  #else
+!     virtual void VerifyInputInformation() ITKv5_CONST override { }
+  #endif
+  
+    protected:
+diff -crB -x '*.git*' vv/itk/clitkLabelImageOverlapMeasureFilter.h vv-patch/itk/clitkLabelImageOverlapMeasureFilter.h
+*** vv/itk/clitkLabelImageOverlapMeasureFilter.h	2024-05-23 16:04:58.881911000 +0200
+--- vv-patch/itk/clitkLabelImageOverlapMeasureFilter.h	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 96,102 ****
+  #if ITK_VERSION_MAJOR <= 4
+      virtual void VerifyInputInformation() ITK_OVERRIDE { }
+  #else
+!     virtual void VerifyInputInformation() const ITK_OVERRIDE { }
+  #endif
+  
+     protected:
+--- 96,102 ----
+  #if ITK_VERSION_MAJOR <= 4
+      virtual void VerifyInputInformation() ITK_OVERRIDE { }
+  #else
+!     virtual void VerifyInputInformation() ITKv5_CONST override { }
+  #endif
+  
+     protected:
+diff -crB -x '*.git*' vv/itk/clitkPasteImageFilter.h vv-patch/itk/clitkPasteImageFilter.h
+*** vv/itk/clitkPasteImageFilter.h	2024-05-23 16:04:58.890905000 +0200
+--- vv-patch/itk/clitkPasteImageFilter.h	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 21,27 ****
+  #if ITK_VERSION_MAJOR <= 4
+      virtual void VerifyInputInformation() ITK_OVERRIDE { }
+  #else
+!     virtual void VerifyInputInformation() const ITK_OVERRIDE { }
+  #endif
+  
+      /** Standard class typedefs. */
+--- 21,27 ----
+  #if ITK_VERSION_MAJOR <= 4
+      virtual void VerifyInputInformation() ITK_OVERRIDE { }
+  #else
+!     virtual void VerifyInputInformation() ITKv5_CONST override { }
+  #endif
+  
+      /** Standard class typedefs. */
+diff -crB -x '*.git*' vv/vv/CMakeLists.txt vv-patch/vv/CMakeLists.txt
+*** vv/vv/CMakeLists.txt	2024-05-23 16:05:00.175854000 +0200
+--- vv-patch/vv/CMakeLists.txt	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 10,19 ****
+  OPTION(CLITK_USE_PACS_CONNECTION "USE PACS CONNECTION"       OFF)
+  #=========================================================
+  
+! # Look for OpenGL2 version
+! if (VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+!   add_definitions(-DVTK_OPENGL2)
+! endif ()
+  
+  #List of vv tools to compile
+  set(vv_TOOLS
+--- 10,45 ----
+  OPTION(CLITK_USE_PACS_CONNECTION "USE PACS CONNECTION"       OFF)
+  #=========================================================
+  
+! # Look for VTK OpenGL version
+! if(VTK_MAJOR_VERSION VERSION_LESS "6")
+!   if(CMAKE_VERSION VERSION_LESS "3.12.0")
+!     add_definitions(-DVTK_OPENGL=1)
+!   else()
+!     add_compile_definitions(VTK_OPENGL=1)
+!   endif()
+! elseif(VTK_MAJOR_VERSION VERSION_EQUAL "6")
+!   # Look for OpenGL version
+!   if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
+!     if(CMAKE_VERSION VERSION_LESS "3.12.0")
+!       add_definitions(-DVTK_OPENGL=1)
+!     else()
+!       add_compile_definitions(VTK_OPENGL=1)
+!     endif()
+!   # Look for OpenGL2 version
+!   else()
+!     if(CMAKE_VERSION VERSION_LESS "3.12.0")
+!       add_definitions(-DVTK_OPENGL=2)
+!     else()
+!       add_compile_definitions(VTK_OPENGL=2)
+!     endif()
+!   endif()
+! else()
+!   if(CMAKE_VERSION VERSION_LESS "3.12.0")
+!     add_definitions(-DVTK_OPENGL=2)
+!   else()
+!     add_compile_definitions(VTK_OPENGL=2)
+!   endif()
+! endif()
+  
+  #List of vv tools to compile
+  set(vv_TOOLS
+diff -crB -x '*.git*' vv/vv/vtkVOXImageWriter.h vv-patch/vv/vtkVOXImageWriter.h
+*** vv/vv/vtkVOXImageWriter.h	2024-05-23 16:05:00.358833000 +0200
+--- vv-patch/vv/vtkVOXImageWriter.h	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 19,31 ****
+--- 19,38 ----
+  #define __vtkVOXImageWriter_h
+  #include "vtkImageWriter.h"
+  #include <string>
++ #include <vtkVersion.h>
+  
+  
+  class vtkVOXImageWriter : public vtkImageWriter
+  {
+  public:
+      vtkTypeMacro(vtkVOXImageWriter,vtkImageWriter);
++ #if VTK_MAJOR_VERSION >= 8
++     void PrintSelf(ostream& os, vtkIndent indent) override;
++ #elif VTK_MAJOR_VERSION >= 7
+      void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
++ #else
++     void PrintSelf(ostream& os, vtkIndent indent);
++ #endif
+  
+      // Description:
+      static vtkVOXImageWriter *New();
+***************
+*** 36,42 ****
+--- 43,55 ----
+  
+      // This is called by the superclass.
+      // This is the method you should override.
++ #if VTK_MAJOR_VERSION >= 8
++     virtual void Write() override;
++ #elif VTK_MAJOR_VERSION >= 7
+      virtual void Write() VTK_OVERRIDE;
++ #else
++     virtual void Write();
++ #endif
+  
+  protected:
+      vtkVOXImageWriter();
+diff -crB -x '*.git*' vv/vv/vvAnimatedGIFWriter.h vv-patch/vv/vvAnimatedGIFWriter.h
+*** vv/vv/vvAnimatedGIFWriter.h	2024-05-23 16:05:00.361829000 +0200
+--- vv-patch/vv/vvAnimatedGIFWriter.h	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 5,10 ****
+--- 5,11 ----
+  
+  #include <vtkGenericMovieWriter.h>
+  #include <vtkSmartPointer.h>
++ #include <vtkVersion.h>
+  
+  class vtkImageAppend;
+  
+***************
+*** 13,26 ****
+--- 14,43 ----
+  public:
+    static vvAnimatedGIFWriter *New();
+    vtkTypeMacro(vvAnimatedGIFWriter,vtkGenericMovieWriter);
++ #if VTK_MAJOR_VERSION >= 8
++   void PrintSelf(ostream& os, vtkIndent indent) override;
++ #elif VTK_MAJOR_VERSION >= 7
+    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
++ #else
++   void PrintSelf(ostream& os, vtkIndent indent);
++ #endif
+  
+    // Description:
+    // These methods start writing an Movie file, write a frame to the file
+    // and then end the writing process.
++ #if VTK_MAJOR_VERSION >= 8
++   void Start() override;
++   void Write() override;
++   void End() override;
++ #elif VTK_MAJOR_VERSION >= 7
+    void Start() VTK_OVERRIDE;
+    void Write() VTK_OVERRIDE;
+    void End() VTK_OVERRIDE;
++ #else
++   void Start();
++   void Write();
++   void End();
++ #endif
+  
+    // Description:
+    // Set/Get the frame rate, in frame/s.
+diff -crB -x '*.git*' vv/vv/vvBlendImageActor.cxx vv-patch/vv/vvBlendImageActor.cxx
+*** vv/vv/vvBlendImageActor.cxx	2024-05-23 16:05:00.364837000 +0200
+--- vv-patch/vv/vvBlendImageActor.cxx	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 3,9 ****
+  
+  Authors belong to:
+  - University of LYON              http://www.universite-lyon.fr/
+! - Léon Bérard cancer center       http://www.centreleonberard.fr
+  - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
+  
+  This software is distributed WITHOUT ANY WARRANTY; without even
+--- 3,9 ----
+  
+  Authors belong to:
+  - University of LYON              http://www.universite-lyon.fr/
+! - LÃ©on BÃ©rard cancer center       http://www.centreleonberard.fr
+  - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
+  
+  This software is distributed WITHOUT ANY WARRANTY; without even
+***************
+*** 17,23 ****
+  ===========================================================================**/
+  
+  #include "vvBlendImageActor.h"
+! #include <vtk_glew.h>
+  #include <vtkOpenGLRenderWindow.h>
+  #include <vtkOpenGLRenderer.h>
+  #include <vtkOpenGL.h>
+--- 17,30 ----
+  ===========================================================================**/
+  
+  #include "vvBlendImageActor.h"
+! #if VTK_OPENGL == 1
+!   #include <vtkgl.h>
+!   #include <vtkOpenGLExtensionManager.h>
+! #elif VTK_OPENGL > 1
+!   #include <vtk_glew.h> //VTK_OPENGL2
+! #else
+!   #error "You need to compile VTK with OpenGL!"
+! #endif
+  #include <vtkOpenGLRenderWindow.h>
+  #include <vtkOpenGLRenderer.h>
+  #include <vtkOpenGL.h>
+***************
+*** 38,50 ****
+  {
+    //Change blending to maximum per component instead of weighted sum
+    vtkOpenGLRenderWindow *renwin = dynamic_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
+! #ifdef VTK_OPENGL2
+!   const char *extensions = renwin->ReportCapabilities();
+! 
+!   //Call normal render
+!   VTK_IMAGE_ACTOR::Render(ren);
+! 
+! #else
+    vtkOpenGLExtensionManager *extensions = renwin->GetExtensionManager();
+    if (extensions->ExtensionSupported("GL_EXT_blend_minmax")) {
+      extensions->LoadExtension("GL_EXT_blend_minmax");
+--- 45,51 ----
+  {
+    //Change blending to maximum per component instead of weighted sum
+    vtkOpenGLRenderWindow *renwin = dynamic_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
+! #if VTK_OPENGL == 1
+    vtkOpenGLExtensionManager *extensions = renwin->GetExtensionManager();
+    if (extensions->ExtensionSupported("GL_EXT_blend_minmax")) {
+      extensions->LoadExtension("GL_EXT_blend_minmax");
+***************
+*** 58,63 ****
+--- 59,70 ----
+    if (vtkgl::BlendEquationEXT!=0) {
+      vtkgl::BlendEquationEXT( vtkgl::FUNC_ADD );
+    }
++ #else
++   //VTK_OPENGL>1
++   const char *extensions = renwin->ReportCapabilities();
++ 
++   //Call normal render
++   VTK_IMAGE_ACTOR::Render(ren);
+  #endif
+  }
+  
+diff -crB -x '*.git*' vv/vv/vvBlendImageActor.h vv-patch/vv/vvBlendImageActor.h
+*** vv/vv/vvBlendImageActor.h	2024-05-23 16:05:00.365852000 +0200
+--- vv-patch/vv/vvBlendImageActor.h	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 3,9 ****
+  
+    Authors belong to: 
+    - University of LYON              http://www.universite-lyon.fr/
+!   - Léon Bérard cancer center       http://www.centreleonberard.fr
+    - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
+  
+    This software is distributed WITHOUT ANY WARRANTY; without even
+--- 3,9 ----
+  
+    Authors belong to: 
+    - University of LYON              http://www.universite-lyon.fr/
+!   - LÃ©on BÃ©rard cancer center       http://www.centreleonberard.fr
+    - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
+  
+    This software is distributed WITHOUT ANY WARRANTY; without even
+***************
+*** 21,26 ****
+--- 21,27 ----
+  
+  #include <vtkActor.h>
+  #include <vtkSmartPointer.h>
++ #include <vtkVersion.h>
+  
+  #if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
+  #define VTK_IMAGE_ACTOR vtkImageActor
+***************
+*** 35,45 ****
+--- 36,58 ----
+  public:
+    static vvBlendImageActor *New();
+    vtkTypeMacro(vvBlendImageActor, VTK_IMAGE_ACTOR);
++ #if VTK_MAJOR_VERSION >= 8
++   virtual void PrintSelf(ostream& os, vtkIndent indent) override;
++ #elif VTK_MAJOR_VERSION >= 7
+    virtual void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
++ #else
++   virtual void PrintSelf(ostream& os, vtkIndent indent);
++ #endif
+  
+    // Description:
+    // Implement base class method.
++ #if VTK_MAJOR_VERSION >= 8
++   void Render(vtkRenderer *ren) override;
++ #elif VTK_MAJOR_VERSION >= 7
+    void Render(vtkRenderer *ren) VTK_OVERRIDE;
++ #else
++   void Render(vtkRenderer *ren);
++ #endif
+  
+  protected:
+    vvBlendImageActor();
+diff -crB -x '*.git*' vv/vv/vvClipPolyData.h vv-patch/vv/vvClipPolyData.h
+*** vv/vv/vvClipPolyData.h	2024-05-23 16:05:00.381816000 +0200
+--- vv-patch/vv/vvClipPolyData.h	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 7,13 ****
+--- 7,19 ----
+  {
+  public:
+    vtkTypeMacro(vvClipPolyData,vtkClipPolyData);
++ #if VTK_MAJOR_VERSION >= 8
++   void PrintSelf(ostream& os, vtkIndent indent) override;
++ #elif VTK_MAJOR_VERSION >= 7
+    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
++ #else
++   void PrintSelf(ostream& os, vtkIndent indent);
++ #endif
+  
+    static vvClipPolyData *New();
+  
+***************
+*** 15,21 ****
+--- 21,33 ----
+    vvClipPolyData();
+    ~vvClipPolyData();
+  
++ #if VTK_MAJOR_VERSION >= 8
++   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
++ #elif VTK_MAJOR_VERSION >= 7
+    int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
++ #else
++   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
++ #endif
+  
+  private:
+    vvClipPolyData(const vvClipPolyData&);  // Not implemented.
+diff -crB -x '*.git*' vv/vv/vv.cxx vv-patch/vv/vv.cxx
+*** vv/vv/vv.cxx	2024-05-23 16:05:00.359829000 +0200
+--- vv-patch/vv/vv.cxx	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 42,50 ****
+  #include "vvReadState.h"
+  #include "vvToolsList.h"
+  #include "vvConfiguration.h"
+! #if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 2) || VTK_MAJOR_VERSION >= 9
+  #include <QVTKOpenGLWidget.h>
+  #endif
+  
+  #include <vtkFileOutputWindow.h>
+  #include <vtkSmartPointer.h>
+--- 42,53 ----
+  #include "vvReadState.h"
+  #include "vvToolsList.h"
+  #include "vvConfiguration.h"
+! #if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 2) || (VTK_MAJOR_VERSION == 9 && VTK_MINOR_VERSION < 2)
+  #include <QVTKOpenGLWidget.h>
+  #endif
++ #if (VTK_MAJOR_VERSION == 9 && VTK_MINOR_VERSION >= 2)
++ #include <QVTKOpenGLStereoWidget.h>
++ #endif
+  
+  #include <vtkFileOutputWindow.h>
+  #include <vtkSmartPointer.h>
+***************
+*** 118,126 ****
+  {
+  #endif
+  
+! #if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 2) || VTK_MAJOR_VERSION >= 9
+    QSurfaceFormat::setDefaultFormat(QVTKOpenGLWidget::defaultFormat());
+  #endif
+    CLITK_INIT;
+  
+    QApplication app( argc, argv );
+--- 121,132 ----
+  {
+  #endif
+  
+! #if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 2) || (VTK_MAJOR_VERSION == 9 && VTK_MINOR_VERSION < 2)
+    QSurfaceFormat::setDefaultFormat(QVTKOpenGLWidget::defaultFormat());
+  #endif
++ #if (VTK_MAJOR_VERSION == 9 && VTK_MINOR_VERSION >= 2)
++   QSurfaceFormat::setDefaultFormat(QVTKOpenGLStereoWidget::defaultFormat());
++ #endif
+    CLITK_INIT;
+  
+    QApplication app( argc, argv );
+diff -crB -x '*.git*' vv/vv/vvGlyph2D.h vv-patch/vv/vvGlyph2D.h
+*** vv/vv/vvGlyph2D.h	2024-05-23 16:05:00.394850000 +0200
+--- vv-patch/vv/vvGlyph2D.h	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 23,29 ****
+--- 23,35 ----
+  {
+  public:
+      vtkTypeMacro(vvGlyph2D,vtkGlyph3D);
++ #if VTK_MAJOR_VERSION >= 8
++     void PrintSelf(ostream& os, vtkIndent indent) override;
++ #elif VTK_MAJOR_VERSION >= 7
+      void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
++ #else
++     void PrintSelf(ostream& os, vtkIndent indent);
++ #endif
+  
+      // Description
+      // Construct object with scaling on, scaling mode is by scalar value,
+***************
+*** 44,50 ****
+--- 50,62 ----
+      vvGlyph2D();
+      ~vvGlyph2D() {};
+  
++ #if VTK_MAJOR_VERSION >= 8
++     virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
++ #elif VTK_MAJOR_VERSION >= 7
+      virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
++ #else
++     virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
++ #endif
+  
+  private:
+      vvGlyph2D(const vvGlyph2D&);  // Not implemented.
+diff -crB -x '*.git*' vv/vv/vvGlyphSource.h vv-patch/vv/vvGlyphSource.h
+*** vv/vv/vvGlyphSource.h	2024-05-23 16:05:00.397833000 +0200
+--- vv-patch/vv/vvGlyphSource.h	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 26,32 ****
+--- 26,38 ----
+  public:
+      static vvGlyphSource *New();
+      vtkTypeMacro(vvGlyphSource,vtkGlyphSource2D);
++ #if VTK_MAJOR_VERSION >= 8
++     void PrintSelf(ostream& os, vtkIndent indent) override;
++ #elif VTK_MAJOR_VERSION >= 7
+      void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
++ #else
++     void PrintSelf(ostream& os, vtkIndent indent);
++ #endif
+  
+      void SetGlyphTypeToSpecificArrow() {
+          this->SetGlyphType(VTK_SPECIFICARROW_GLYPH);
+***************
+*** 38,44 ****
+--- 44,56 ----
+      void CreateSpecificArrow(vtkPoints *pts, vtkCellArray *lines,
+                               vtkCellArray *polys, vtkUnsignedCharArray *colors);
+  
++ #if VTK_MAJOR_VERSION >= 8
++     int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
++ #elif VTK_MAJOR_VERSION >= 7
+      int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
++ #else
++     int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
++ #endif
+  
+  private:
+  
+diff -crB -x '*.git*' vv/vv/vvInteractorStyleNavigator.h vv-patch/vv/vvInteractorStyleNavigator.h
+*** vv/vv/vvInteractorStyleNavigator.h	2024-05-23 16:05:00.421822000 +0200
+--- vv-patch/vv/vvInteractorStyleNavigator.h	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 18,23 ****
+--- 18,24 ----
+  #ifndef __vvInteractorStyleNavigator_h
+  #define __vvInteractorStyleNavigator_h
+  #include "vtkInteractorStyle.h"
++ #include <vtkVersion.h>
+  
+  // Motion flags
+  
+***************
+*** 30,36 ****
+--- 31,43 ----
+  public:
+      static vvInteractorStyleNavigator *New();
+      vtkTypeMacro(vvInteractorStyleNavigator, vtkInteractorStyle);
++ #if VTK_MAJOR_VERSION >= 8
++     void PrintSelf(ostream& os, vtkIndent indent) override;
++ #elif VTK_MAJOR_VERSION >= 7
+      void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
++ #else
++     void PrintSelf(ostream& os, vtkIndent indent);
++ #endif
+  
+      // Description:
+      // Some useful information for handling window level
+***************
+*** 40,45 ****
+--- 47,65 ----
+      // Description:
+      // Event bindings controlling the effects of pressing mouse buttons
+      // or moving the mouse.
++ #if VTK_MAJOR_VERSION >= 8
++     virtual void OnMouseMove() override;
++     virtual void OnLeftButtonDown() override;
++     virtual void OnLeftButtonUp() override;
++     virtual void OnRightButtonDown() override;
++     virtual void OnRightButtonUp() override;
++     virtual void OnMiddleButtonDown() override;
++     virtual void OnMiddleButtonUp() override;
++     virtual void OnEnter() override;
++     virtual void OnLeave() override;
++     virtual void OnMouseWheelForward() override;
++     virtual void OnMouseWheelBackward() override;
++ #elif VTK_MAJOR_VERSION >= 7
+      virtual void OnMouseMove() VTK_OVERRIDE;
+      virtual void OnLeftButtonDown() VTK_OVERRIDE;
+      virtual void OnLeftButtonUp() VTK_OVERRIDE;
+***************
+*** 51,60 ****
+--- 71,99 ----
+      virtual void OnLeave() VTK_OVERRIDE;
+      virtual void OnMouseWheelForward() VTK_OVERRIDE;
+      virtual void OnMouseWheelBackward() VTK_OVERRIDE;
++ #else
++     virtual void OnMouseMove();
++     virtual void OnLeftButtonDown();
++     virtual void OnLeftButtonUp();
++     virtual void OnRightButtonDown();
++     virtual void OnRightButtonUp();
++     virtual void OnMiddleButtonDown();
++     virtual void OnMiddleButtonUp();
++     virtual void OnEnter();
++     virtual void OnLeave();
++     virtual void OnMouseWheelForward();
++     virtual void OnMouseWheelBackward();
++ #endif
+  
+      // Description:
+      // Override the "fly-to" (f keypress) for images.
++ #if VTK_MAJOR_VERSION >= 8
++     virtual void OnChar() override;
++ #elif VTK_MAJOR_VERSION >= 7
+      virtual void OnChar() VTK_OVERRIDE;
++ #else
++     virtual void OnChar();
++ #endif
+  
+      // These methods for the different interactions in different modes
+      // are overridden in subclasses to perform the correct motion. Since
+***************
+*** 68,75 ****
+      virtual void EndWindowLevel();
+      virtual void StartPick();
+      virtual void EndPick();
+!     virtual void Dolly()VTK_OVERRIDE;
+      virtual void Pan() VTK_OVERRIDE;
+  
+      // We need to reimplement this because otherwise it returns the top renderer,
+      // not the active one
+--- 107,122 ----
+      virtual void EndWindowLevel();
+      virtual void StartPick();
+      virtual void EndPick();
+! #if VTK_MAJOR_VERSION >= 8
+!     virtual void Dolly() override;
+!     virtual void Pan() override;
+! #elif VTK_MAJOR_VERSION >= 7
+!     virtual void Dolly() VTK_OVERRIDE;
+      virtual void Pan() VTK_OVERRIDE;
++ #else
++     virtual void Dolly();
++     virtual void Pan();
++ #endif
+  
+      // We need to reimplement this because otherwise it returns the top renderer,
+      // not the active one
+diff -crB -x '*.git*' vv/vv/vvLandmarksGlyph.h vv-patch/vv/vvLandmarksGlyph.h
+*** vv/vv/vvLandmarksGlyph.h	2024-05-23 16:05:00.428845000 +0200
+--- vv-patch/vv/vvLandmarksGlyph.h	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 24,30 ****
+--- 24,36 ----
+  {
+  public:
+      vtkTypeMacro(vvLandmarksGlyph,vtkTextSource);
++ #if VTK_MAJOR_VERSION >= 8
++     void PrintSelf(ostream& os, vtkIndent indent) override;
++ #elif VTK_MAJOR_VERSION >= 7
+      void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
++ #else
++     void PrintSelf(ostream& os, vtkIndent indent);
++ #endif
+  
+      // Description:
+      // Construct object with no string set and backing enabled.
+***************
+*** 39,45 ****
+--- 45,57 ----
+      void AddCrossGlyph(vtkPoints* newPts,vtkCellArray* newLines);
+      void ChangeOrientation(double v[3], int orientation);
+  
++ #if VTK_MAJOR_VERSION >= 8
++     int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
++ #elif VTK_MAJOR_VERSION >= 7
+      int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
++ #else
++     int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
++ #endif
+  
+  private:
+      vvLandmarksGlyph(const vvLandmarksGlyph&);  // Not implemented.
+diff -crB -x '*.git*' vv/vv/vvMainWindow.cxx vv-patch/vv/vvMainWindow.cxx
+*** vv/vv/vvMainWindow.cxx	2024-05-23 16:05:00.435828000 +0200
+--- vv-patch/vv/vvMainWindow.cxx	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 1571,1580 ****
+--- 1571,1587 ----
+  { 
+    if (mSlicerManagers.size()) {
+      mSlicerManagers.back()->GenerateDefaultLookupTable();
++ #if VTK_MAJOR_VERSION >= 9
++     mSlicerManagers.back()->SetSlicerWindow(0,NOViewWidget->renderWindow());
++     mSlicerManagers.back()->SetSlicerWindow(1,NEViewWidget->renderWindow());
++     mSlicerManagers.back()->SetSlicerWindow(2,SOViewWidget->renderWindow());
++     mSlicerManagers.back()->SetSlicerWindow(3,SEViewWidget->renderWindow());
++ #else
+      mSlicerManagers.back()->SetSlicerWindow(0,NOViewWidget->GetRenderWindow());
+      mSlicerManagers.back()->SetSlicerWindow(1,NEViewWidget->GetRenderWindow());
+      mSlicerManagers.back()->SetSlicerWindow(2,SOViewWidget->GetRenderWindow());
+      mSlicerManagers.back()->SetSlicerWindow(3,SEViewWidget->GetRenderWindow());
++ #endif
+  #if VTK_MAJOR_VERSION <= 5
+      mSlicerManagers.back()->Render(); // SR: displayed #slice is wrong without this / TB: With VTK6 and multiple images, all slicers are updated, not only the first
+  #endif
+***************
+*** 3347,3353 ****
+--- 3354,3364 ----
+    vvSlicer * slicer = SM->GetSlicer(0);
+    int orientation = slicer->GetOrientation();
+    int nbSlices = image->GetSize()[orientation];
++ #if VTK_MAJOR_VERSION >= 9
++   vtkSmartPointer<vtkRenderWindow>  renderWindow = widget->renderWindow();
++ #else
+    vtkSmartPointer<vtkRenderWindow>  renderWindow = widget->GetRenderWindow();
++ #endif
+  
+    // Select filename base
+    QString filename = QFileDialog::getSaveFileName(this,
+***************
+*** 3422,3428 ****
+--- 3433,3443 ----
+  
+    if (!fileName.isEmpty()) {
+      vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
++ #if VTK_MAJOR_VERSION >= 9
++     w2i->SetInput(widget->renderWindow());
++ #else
+      w2i->SetInput(widget->GetRenderWindow());
++ #endif
+  #if (VTK_MAJOR_VERSION >= 8 && VTK_MINOR_VERSION >= 2) || VTK_MAJOR_VERSION >= 9
+      w2i->SetScale(1);
+  #else
+***************
+*** 3532,3538 ****
+--- 3547,3557 ----
+        for(int i=0; i<=nSlice; i++) {
+          mSlicerManagers[smIndex]->SetNextTSlice(0);
+          vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
++ #if VTK_MAJOR_VERSION >= 9
++         w2i->SetInput(widget->renderWindow());
++ #else
+          w2i->SetInput(widget->GetRenderWindow());
++ #endif
+          w2i->Update();
+  #if VTK_MAJOR_VERSION <= 5
+          vidwriter->SetInput(w2i->GetOutput());
+***************
+*** 3649,3658 ****
+--- 3668,3684 ----
+          mSlicerManagers[i]->GetSlicer(j)->DisplayLandmarks();
+        }
+    }
++ #if VTK_MAJOR_VERSION >= 9
++   if (NOViewWidget->renderWindow()) NOViewWidget->renderWindow()->Render();
++   if (NEViewWidget->renderWindow()) NEViewWidget->renderWindow()->Render();
++   if (SOViewWidget->renderWindow()) SOViewWidget->renderWindow()->Render();
++   if (SEViewWidget->renderWindow()) SEViewWidget->renderWindow()->Render();
++ #else
+    if (NOViewWidget->GetRenderWindow()) NOViewWidget->GetRenderWindow()->Render();
+    if (NEViewWidget->GetRenderWindow()) NEViewWidget->GetRenderWindow()->Render();
+    if (SOViewWidget->GetRenderWindow()) SOViewWidget->GetRenderWindow()->Render();
+    if (SEViewWidget->GetRenderWindow()) SEViewWidget->GetRenderWindow()->Render();
++ #endif
+  }
+  //------------------------------------------------------------------------------
+  
+diff -crB -x '*.git*' vv/vv/vvSegmentationDialog.cxx vv-patch/vv/vvSegmentationDialog.cxx
+*** vv/vv/vvSegmentationDialog.cxx	2024-05-23 16:05:00.482809000 +0200
+--- vv-patch/vv/vvSegmentationDialog.cxx	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 183,189 ****
+--- 183,193 ----
+  
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    mManager->SetImage(image);
++ #if VTK_MAJOR_VERSION >= 9
++   mManager->SetSlicerWindow(0,viewWidget->renderWindow());
++ #else
+    mManager->SetSlicerWindow(0,viewWidget->GetRenderWindow());
++ #endif
+    vvInteractorStyleNavigator* style = vvInteractorStyleNavigator::New();
+    mManager->SetInteractorStyleNavigator(0,style);
+    style->Delete();
+diff -crB -x '*.git*' vv/vv/vvSlicer.cxx vv-patch/vv/vvSlicer.cxx
+*** vv/vv/vvSlicer.cxx	2024-05-23 16:05:00.484812000 +0200
+--- vv-patch/vv/vvSlicer.cxx	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 78,86 ****
+  #include <vtkImageAccumulate.h>
+  #include <vtkImageReslice.h>
+  #if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
+! #  include <vtkOpenGLImageSliceMapper.h>
+! #  include <vtkImageMapper3D.h>
+! #  include <vtkImageSliceMapper.h>
+  #endif
+  
+  vtkStandardNewMacro(vvSlicer);
+--- 78,86 ----
+  #include <vtkImageAccumulate.h>
+  #include <vtkImageReslice.h>
+  #if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
+!   #include <vtkOpenGLImageSliceMapper.h>
+!   #include <vtkImageMapper3D.h>
+!   #include <vtkImageSliceMapper.h>
+  #endif
+  
+  vtkStandardNewMacro(vvSlicer);
+diff -crB -x '*.git*' vv/vv/vvSlicer.h vv-patch/vv/vvSlicer.h
+*** vv/vv/vvSlicer.h	2024-05-23 16:05:00.485815000 +0200
+--- vv-patch/vv/vvSlicer.h	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 67,73 ****
+--- 67,79 ----
+  public:
+    static vvSlicer *New();
+    vtkTypeMacro(vvSlicer,vtkImageViewer2);
++ #if VTK_MAJOR_VERSION >= 8
++   void PrintSelf(ostream& os, vtkIndent indent) override;
++ #elif VTK_MAJOR_VERSION >= 7
+    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
++ #else
++   void PrintSelf(ostream& os, vtkIndent indent);
++ #endif
+  
+    void SetImage(vvImage::Pointer inputImages);
+    vvImage::Pointer GetImage() {
+***************
+*** 108,121 ****
+--- 114,139 ----
+  
+    void SetFusionSequenceTSlice(int t);
+  
++ #if VTK_MAJOR_VERSION >= 8
++   void SetSliceOrientation(int orientation) override;
++ #elif VTK_MAJOR_VERSION >= 7
+    void SetSliceOrientation(int orientation) VTK_OVERRIDE;
++ #else
++   void SetSliceOrientation(int orientation);
++ #endif
+    void AdjustResliceToSliceOrientation(vtkImageReslice *reslice);
+    int GetTSlice();
+    int GetFusionTSlice();
+    int GetOverlayTSlice();
+    int GetMaxCurrentTSlice();
+    ///Reimplemented from vtkImageViewer2 to add polydata support
++ #if VTK_MAJOR_VERSION >= 8
++   void SetSlice(int s) override;
++ #elif VTK_MAJOR_VERSION >= 7
+    void SetSlice(int s) VTK_OVERRIDE;
++ #else
++   void SetSlice(int s);
++ #endif
+    int GetTMax();
+  
+    void SetOpacity(double s);
+***************
+*** 124,130 ****
+--- 142,154 ----
+    void FlipHorizontalView();
+    void FlipVerticalView();
+    double GetScalarComponentAsDouble(vtkImageData *image, double X, double Y, double Z, int &ix, int &iy, int &iz, int component=0);
++ #if VTK_MAJOR_VERSION >= 8
++   void Render() override;
++ #elif VTK_MAJOR_VERSION >= 7
+    void Render() VTK_OVERRIDE;
++ #else
++   void Render();
++ #endif
+    ///Sets the camera to fit the image in the window
+    void ResetCamera();
+  
+***************
+*** 183,190 ****
+--- 207,222 ----
+    void ToggleContourSuperposition();
+    void SetInterpolationImageReslice(int interpolation);
+  
++ #if VTK_MAJOR_VERSION >= 8
++   virtual void SetColorWindow(double s) override;
++   virtual void SetColorLevel(double s) override;
++ #elif VTK_MAJOR_VERSION >= 7
+    virtual void SetColorWindow(double s) VTK_OVERRIDE;
+    virtual void SetColorLevel(double s) VTK_OVERRIDE;
++ #else
++   virtual void SetColorWindow(double s);
++   virtual void SetColorLevel(double s);
++ #endif
+  
+    double GetOverlayColorWindow();
+    double GetOverlayColorLevel();
+***************
+*** 301,308 ****
+--- 333,348 ----
+    bool showFusionLegend;
+  
+  private:
++ #if VTK_MAJOR_VERSION >= 8
++   void UpdateOrientation() override;
++   void UpdateDisplayExtent() override;
++ #elif VTK_MAJOR_VERSION >= 7
+    void UpdateOrientation() VTK_OVERRIDE;
+    void UpdateDisplayExtent() VTK_OVERRIDE;
++ #else
++   void UpdateOrientation();
++   void UpdateDisplayExtent();
++ #endif
+    void ConvertImageToImageDisplayExtent(vtkInformation *sourceImage, const int sourceExtent[6],
+                                          vtkImageData *targetImage, int targetExtent[6]);
+    void ConvertImageToImageDisplayExtent(vtkImageData *sourceImage, const int sourceExtent[6],
+diff -crB -x '*.git*' vv/vv/vvSurfaceViewerDialog.cxx vv-patch/vv/vvSurfaceViewerDialog.cxx
+*** vv/vv/vvSurfaceViewerDialog.cxx	2024-05-23 16:05:00.495832000 +0200
+--- vv-patch/vv/vvSurfaceViewerDialog.cxx	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 132,149 ****
+    if (!mRenderer) {
+      mRenderer = vtkRenderer::New();
+      mRenderer->AddActor(mActor);
+      renderWidget->GetRenderWindow()->AddRenderer(mRenderer);
+    }
+  
+    mRenderer->ResetCamera();
+    renderWidget->GetRenderWindow()->Render();
+  
+    vvManagerCallback *smc = vvManagerCallback::New();
+    smc->IV = this;
+! 
+    if (renderWidget->GetRenderWindow()->GetInteractor())
+      renderWidget->GetRenderWindow()->GetInteractor()->
+      GetInteractorStyle()->AddObserver(vtkCommand::KeyPressEvent, smc);
+    //readHeader->Delete();
+  }
+  
+--- 132,162 ----
+    if (!mRenderer) {
+      mRenderer = vtkRenderer::New();
+      mRenderer->AddActor(mActor);
++ #if VTK_MAJOR_VERSION >= 9
++     renderWidget->renderWindow()->AddRenderer(mRenderer);
++ #else
+      renderWidget->GetRenderWindow()->AddRenderer(mRenderer);
++ #endif
+    }
+  
+    mRenderer->ResetCamera();
++ #if VTK_MAJOR_VERSION >= 9
++   renderWidget->renderWindow()->Render();
++ #else
+    renderWidget->GetRenderWindow()->Render();
++ #endif
+  
+    vvManagerCallback *smc = vvManagerCallback::New();
+    smc->IV = this;
+! #if VTK_MAJOR_VERSION >= 9
+!   if (renderWidget->renderWindow()->GetInteractor())
+!     renderWidget->renderWindow()->GetInteractor()->
+!     GetInteractorStyle()->AddObserver(vtkCommand::KeyPressEvent, smc);
+! #else
+    if (renderWidget->GetRenderWindow()->GetInteractor())
+      renderWidget->GetRenderWindow()->GetInteractor()->
+      GetInteractorStyle()->AddObserver(vtkCommand::KeyPressEvent, smc);
++ #endif
+    //readHeader->Delete();
+  }
+  
+***************
+*** 158,164 ****
+--- 171,181 ----
+    mMapper->SetInputConnection(mReaders[mCurrentTime]->GetOutputPort());
+  #endif
+    mMapper->Modified();
++ #if VTK_MAJOR_VERSION >= 9
++   renderWidget->renderWindow()->Render();
++ #else
+    renderWidget->GetRenderWindow()->Render();
++ #endif
+  }
+  
+  void vvSurfaceViewerDialog::PreviousTime()
+***************
+*** 172,178 ****
+--- 189,199 ----
+    mMapper->SetInputConnection(mReaders[mCurrentTime]->GetOutputPort());
+  #endif
+    mMapper->Modified();
++ #if VTK_MAJOR_VERSION >= 9
++   renderWidget->renderWindow()->Render();
++ #else
+    renderWidget->GetRenderWindow()->Render();
++ #endif
+  }
+  
+  #endif /* end #define _vvSurfaceViewerDialog_CXX */
+diff -crB -x '*.git*' vv/vv/vvToolHistogramCommand.cxx vv-patch/vv/vvToolHistogramCommand.cxx
+*** vv/vv/vvToolHistogramCommand.cxx	2024-05-23 16:05:00.523818000 +0200
+--- vv-patch/vv/vvToolHistogramCommand.cxx	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 64,70 ****
+--- 64,74 ----
+    }
+    if (event == vtkCommand::MouseMoveEvent) {
+      if (mFollowMouse) {
++ #if VTK_MAJOR_VERSION >= 9
++       vtkSmartPointer<vtkRenderWindowInteractor> interactor = mHist->GetHistogramWidget()->renderWindow()->GetInteractor();
++ #else
+        vtkSmartPointer<vtkRenderWindowInteractor> interactor = mHist->GetHistogramWidget()->GetRenderWindow()->GetInteractor();
++ #endif
+        if (interactor->GetEventPosition()[0] != interactor->GetLastEventPosition()[0])
+          mHist->translateWindow(interactor->GetEventPosition()[0] - interactor->GetLastEventPosition()[0]);
+      }
+diff -crB -x '*.git*' vv/vv/vvToolHistogram.cxx vv-patch/vv/vvToolHistogram.cxx
+*** vv/vv/vvToolHistogram.cxx	2024-05-23 16:05:00.520832000 +0200
+--- vv-patch/vv/vvToolHistogram.cxx	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 94,101 ****
+--- 94,106 ----
+    chart->SetRenderEmpty(true);
+    mView->GetScene()->AddItem(chart);
+    mView->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
++ #if VTK_MAJOR_VERSION >= 9
++   this->HistogramWidget->renderWindow()->GetRenderers()->RemoveAllItems();
++   this->HistogramWidget->renderWindow()->AddRenderer(mView->GetRenderer());
++ #else
+    this->HistogramWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
+    this->HistogramWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
++ #endif
+    HistogramWidget->show();
+  
+  #ifdef Q_OS_OSX
+***************
+*** 201,208 ****
+--- 206,218 ----
+      chart->GetAxis(vtkAxis::LEFT)->SetTitle("#Voxels");
+      chart->GetAxis(vtkAxis::BOTTOM)->SetTitle("Intensity");
+  
++ #if VTK_MAJOR_VERSION >= 9
++     this->HistogramWidget->renderWindow()->GetRenderers()->RemoveAllItems();
++     this->HistogramWidget->renderWindow()->AddRenderer(mView->GetRenderer());
++ #else
+      this->HistogramWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
+      this->HistogramWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
++ #endif
+      HistogramWidget->show();
+  
+      QApplication::restoreOverrideCursor();
+***************
+*** 300,309 ****
+--- 310,326 ----
+    // Connect signals & slots
+    vvToolHistogramCommand *smc = vvToolHistogramCommand::New();
+    smc->mHist = this;
++ #if VTK_MAJOR_VERSION >= 9
++   HistogramWidget->renderWindow()->GetInteractor()->GetInteractorStyle()->AddObserver(vtkCommand::LeftButtonPressEvent, smc);
++   HistogramWidget->renderWindow()->GetInteractor()->GetInteractorStyle()->AddObserver(vtkCommand::MouseMoveEvent, smc);
++   HistogramWidget->renderWindow()->GetInteractor()->GetInteractorStyle()->AddObserver(vtkCommand::MouseWheelForwardEvent, smc);
++   HistogramWidget->renderWindow()->GetInteractor()->GetInteractorStyle()->AddObserver(vtkCommand::MouseWheelBackwardEvent, smc);
++ #else
+    HistogramWidget->GetRenderWindow()->GetInteractor()->GetInteractorStyle()->AddObserver(vtkCommand::LeftButtonPressEvent, smc);
+    HistogramWidget->GetRenderWindow()->GetInteractor()->GetInteractorStyle()->AddObserver(vtkCommand::MouseMoveEvent, smc);
+    HistogramWidget->GetRenderWindow()->GetInteractor()->GetInteractorStyle()->AddObserver(vtkCommand::MouseWheelForwardEvent, smc);
+    HistogramWidget->GetRenderWindow()->GetInteractor()->GetInteractorStyle()->AddObserver(vtkCommand::MouseWheelBackwardEvent, smc);
++ #endif
+    smc->Delete();
+  
+  }
+diff -crB -x '*.git*' vv/vv/vvToolProfile.cxx vv-patch/vv/vvToolProfile.cxx
+*** vv/vv/vvToolProfile.cxx	2024-05-23 16:05:00.573803000 +0200
+--- vv-patch/vv/vvToolProfile.cxx	2024-05-22 14:15:49.000000000 +0200
+***************
+*** 106,113 ****
+--- 106,118 ----
+    chart->SetAutoSize(false);
+    chart->SetRenderEmpty(true);
+    mView->GetScene()->AddItem(chart);
++ #if VTK_MAJOR_VERSION >= 9
++   this->ProfileWidget->renderWindow()->GetRenderers()->RemoveAllItems();
++   this->ProfileWidget->renderWindow()->AddRenderer(mView->GetRenderer());
++ #else
+    this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
+    this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
++ #endif
+    ProfileWidget->show();
+  
+  #ifdef Q_OS_OSX
+***************
+*** 145,152 ****
+--- 150,162 ----
+        chart->SetRenderEmpty(true);
+        mView->GetScene()->ClearItems();
+        mView->GetScene()->AddItem(chart);
++ #if VTK_MAJOR_VERSION >= 9
++       this->ProfileWidget->renderWindow()->GetRenderers()->RemoveAllItems();
++       this->ProfileWidget->renderWindow()->AddRenderer(mView->GetRenderer());
++ #else
+        this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
+        this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
++ #endif
+        ProfileWidget->show();
+        mCurrentSlicerManager->GetLandmarks()->RemoveLandmarkWithLabel("P1", mPoint1[3]);
+      }
+***************
+*** 205,212 ****
+--- 215,227 ----
+        chart->SetRenderEmpty(true);
+        mView->GetScene()->ClearItems();
+        mView->GetScene()->AddItem(chart);
++ #if VTK_MAJOR_VERSION >= 9
++       this->ProfileWidget->renderWindow()->GetRenderers()->RemoveAllItems();
++       this->ProfileWidget->renderWindow()->AddRenderer(mView->GetRenderer());
++ #else
+        this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
+        this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
++ #endif
+        ProfileWidget->show();
+        mCurrentSlicerManager->GetLandmarks()->RemoveLandmarkWithLabel("P2", mPoint2[3]);
+      }
+***************
+*** 321,328 ****
+--- 336,348 ----
+      chart->GetAxis(vtkAxis::LEFT)->SetTitle("Intensity");
+      chart->GetAxis(vtkAxis::BOTTOM)->SetTitle("Distance (mm)");
+      
++ #if VTK_MAJOR_VERSION >= 9
++     this->ProfileWidget->renderWindow()->GetRenderers()->RemoveAllItems();
++     this->ProfileWidget->renderWindow()->AddRenderer(mView->GetRenderer());
++ #else
+      this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
+      this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
++ #endif
+      ProfileWidget->show();
+      
+      QApplication::restoreOverrideCursor();
+***************
+*** 343,350 ****
+--- 363,375 ----
+    chart->SetRenderEmpty(true);
+    mView->GetScene()->ClearItems();
+    mView->GetScene()->AddItem(chart);
++ #if VTK_MAJOR_VERSION >= 9
++   this->ProfileWidget->renderWindow()->GetRenderers()->RemoveAllItems();
++   this->ProfileWidget->renderWindow()->AddRenderer(mView->GetRenderer());
++ #else
+    this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
+    this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
++ #endif
+    ProfileWidget->show();
+    
+    QString position = "";

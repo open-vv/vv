@@ -1,0 +1,143 @@
+app-id: io.github.open_vv.vv_4d_slicer
+runtime: org.kde.Platform
+runtime-version: 5.15-23.08
+sdk: org.kde.Sdk
+command: vv
+finish-args:
+  - --filesystem=host:rw
+  - --share=ipc
+  - --share=network
+  - --socket=x11
+  - --device=dri
+  - --device=all
+cleanup:
+  - /include
+  - /lib/pkgconfig
+  - /lib/cmake
+  - /lib/*.a
+  - /share/cmake
+  - /share/doc
+
+add-extensions:
+  org.freedesktop.Platform.GL:
+    directory: lib/GL
+    version: '1.4'
+    versions: 23.08;1.4
+    subdirectories: true
+    no-autodownload: false
+    autodelete: false
+    add-ld-path: lib
+    merge-dirs: vulkan/icd.d;glvnd/egl_vendor.d
+    download-if: active-gl-driver
+    enable-if: active-gl-driver
+
+modules:
+  - name: OpenCL-Headers
+    buildsystem: cmake-ninja
+    sources:
+      - type: git
+        url: https://github.com/KhronosGroup/OpenCL-Headers.git
+        tag: v2022.01.04
+
+  - name: OpenCL-CLHPP
+    buildsystem: cmake-ninja
+    config-opts:
+      - -D OPENCL_INCLUDE_DIR=/app/include
+      - -D OPENCL_LIB_DIR=/app/lib
+      - -D BUILD_EXAMPLES=OFF
+      - -D BUILD_TESTS=OFF
+      - -D BUILD_DOCS=OFF
+    sources:
+      - type: git
+        url: https://github.com/KhronosGroup/OpenCL-CLHPP.git
+        tag: v2.0.11
+  - shared-modules/glew/glew.json
+  - shared-modules/glu/glu-9.json
+  - name: freeglut
+    buildsystem: cmake
+    build-options:
+    # https://github.com/flathub/org.openscad.OpenSCAD/blob/ce6220f8674bcd738d09244feb753204cd9a5904/org.openscad.OpenSCAD.json
+      - cflags: -fcommon
+    config-opts:
+      - -D FREEGLUT_BUILD_STATIC_LIBS=OFF
+    sources:
+      - type: archive
+        url: https://sourceforge.net/projects/freeglut/files/freeglut/3.2.2/freeglut-3.2.2.tar.gz
+        sha256: c5944a082df0bba96b5756dddb1f75d0cd72ce27b5395c6c1dde85c2ff297a50
+
+  - name: vtk
+    buildsystem: cmake-ninja
+    build-options:
+      build-args:
+        - --share=network
+    builddir: true
+    sources:
+      - type: git
+        url: https://github.com/Kitware/VTK.git
+        tag: v8.1.2
+      - type: patch
+        path: patches/vtk-v8.1.2-qt15-gcc13.patch
+        use-git-am: false
+    config-opts:
+      - -W no-dev
+      - -D CMAKE_INSTALL_PREFIX=/app
+      - -D VTK_BUILD_SHARED_LIBS=ON
+      - -D CMAKE_BUILD_TYPE:STRING=Release
+      - -D CMAKE_CXX_FLAGS='-fPIC'
+      - -D CMAKE_C_FLAGS='-fPIC'
+      - -D Module_vtkGUISupportQt=ON
+      - -D Module_vtkGUISupportQtOpenGL=ON
+      - -D Module_vtkRenderingQt=ON
+      - -D Module_vtkViewsQt=ON
+      - -D VTK_RENDERING_BACKEND:STRING=OpenGL2
+      - -D VTK_QT_VERSION=5
+      - -D BUILD_TESTING=OFF
+      - -D VTK_Group_Rendering:BOOL=ON
+
+  - name: itk
+    buildsystem: cmake-ninja
+    build-options:
+      build-args:
+        - --share=network
+    builddir: true
+    sources:
+      - type: git
+        url: https://github.com/InsightSoftwareConsortium/ITK.git
+        tag: v5.2.1
+      - type: patch
+        path: patches/itk-v5.2.1-gcc133.patch
+        use-git-am: false
+    config-opts:
+      - -W no-dev
+      - -D CMAKE_INSTALL_PREFIX=/app
+      - -D BUILD_SHARED_LIBS=ON
+      - -D Module_ITKVtkGlue=ON
+      - -D CMAKE_BUILD_TYPE:STRING=Release
+      - -D CMAKE_CXX_FLAGS='-fPIC'
+      - -D CMAKE_C_FLAGS='-fPIC'
+      - -D BUILD_EXAMPLES=OFF
+      - -D BUILD_TESTING=OFF
+      - -D VTK_DIR="/app/bin"
+
+  - name: vv
+    buildsystem: cmake-ninja
+    build-options:
+      build-args:
+        - --share=network
+    builddir: true
+    sources:
+      - type: git
+        url: https://github.com/open-vv/vv.git
+      - type: patch
+        path: patches/vv-1.4.0-itk-vtk.patch
+        use-git-am: false
+    config-opts:
+      - -W no-dev
+      - -D CMAKE_INSTALL_PREFIX=/app
+      - -D BUILD_SHARED_LIBS=OFF
+      - -D CMAKE_BUILD_TYPE:STRING=Release
+      - -D CMAKE_CXX_FLAGS='-fPIC'
+      - -D CMAKE_C_FLAGS='-fPIC'
+    post-install:
+      - echo "Post-install of VV..."
+      - mkdir -p /app/lib/GL
