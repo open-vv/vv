@@ -5,7 +5,7 @@
 
   Authors belongs to:
   - University of LYON           http://www.universite-lyon.fr/
-  - Léon Bérard cancer center    http://www.centreleonberard.fr
+  - LÃ©on BÃ©rard cancer center    http://www.centreleonberard.fr
   - CREATIS CNRS laboratory      http://www.creatis.insa-lyon.fr
 
   This software is distributed WITHOUT ANY WARRANTY; without even
@@ -90,7 +90,7 @@ int main(int argc, char* argv[]) {
         typename ImageType::PointType physPoint;
         
         // JSON iterators & mesh grabber
-        for (auto it = data.begin(); it != data.end(); ++it) { // each tissue 
+        for (QJsonObject::const_iterator it = data.begin(); it != data.end(); ++it) { // each tissue 
             slice = it.value().toObject().length();               // grab total spatial slices
             regions.push_back(it.key().toStdString());         // save tissue name
             json_data = vtkSmartPointer<vtkPolyData>::New();   // create tissue specific storage
@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
             // So the kill switch needs to be implemented on the F_OUT of LV in case MYO is on ops 
             // This is the case for any multi contour that's using sublevels. 
             //*/
-            for (auto& pk : it.value().toObject()) {          // for each spatial slice
+            for (const QJsonValue pk : it.value().toObject()) {          // for each spatial slice
                 //initializers 
                 mMesh = vtkSmartPointer<vtkPolyData>::New();
                 mMesh->Allocate();
@@ -110,11 +110,11 @@ int main(int argc, char* argv[]) {
                 mMesh->SetPoints(mPoints);
 
                 idx = 0;
-                for (const QJsonValue& xypair : pk.toArray()) {   // for each x,y pair 
+                for (const QJsonValue xypair : pk.toArray()) {   // for each x,y pair 
                     // updade index
-                    index[0] = xypair[0].toDouble();
-                    index[1] = xypair[1].toDouble();
-                    index[2] = float(slice);
+                    index[0] = xypair[0].toDouble()-0.5;
+                    index[1] = xypair[1].toDouble()-0.5;
+                    index[2] = float(slice)-0.5;
 
                     // transform point 
                     imagej->TransformIndexToPhysicalPoint(index, physPoint);
