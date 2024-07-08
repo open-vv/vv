@@ -114,7 +114,7 @@ int main(int argc, char* argv[]) {
                     // updade index
                     index[0] = xypair[0].toDouble()-0.5;
                     index[1] = xypair[1].toDouble()-0.5;
-                    index[2] = float(slice)-0.5;
+                    index[2] = float(slice);
 
                     // transform point 
                     imagej->TransformIndexToPhysicalPoint(index, physPoint);
