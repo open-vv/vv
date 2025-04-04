@@ -1571,10 +1571,17 @@ void vvMainWindow::InitSlicers()
 { 
   if (mSlicerManagers.size()) {
     mSlicerManagers.back()->GenerateDefaultLookupTable();
+#if VTK_MAJOR_VERSION >= 9
+    mSlicerManagers.back()->SetSlicerWindow(0,NOViewWidget->renderWindow());
+    mSlicerManagers.back()->SetSlicerWindow(1,NEViewWidget->renderWindow());
+    mSlicerManagers.back()->SetSlicerWindow(2,SOViewWidget->renderWindow());
+    mSlicerManagers.back()->SetSlicerWindow(3,SEViewWidget->renderWindow());
+#else
     mSlicerManagers.back()->SetSlicerWindow(0,NOViewWidget->GetRenderWindow());
     mSlicerManagers.back()->SetSlicerWindow(1,NEViewWidget->GetRenderWindow());
     mSlicerManagers.back()->SetSlicerWindow(2,SOViewWidget->GetRenderWindow());
     mSlicerManagers.back()->SetSlicerWindow(3,SEViewWidget->GetRenderWindow());
+#endif
 #if VTK_MAJOR_VERSION <= 5
     mSlicerManagers.back()->Render(); // SR: displayed #slice is wrong without this / TB: With VTK6 and multiple images, all slicers are updated, not only the first
 #endif
@@ -3347,7 +3354,11 @@ void vvMainWindow::SaveScreenshotAllSlices()
   vvSlicer * slicer = SM->GetSlicer(0);
   int orientation = slicer->GetOrientation();
   int nbSlices = image->GetSize()[orientation];
+#if VTK_MAJOR_VERSION >= 9
+  vtkSmartPointer<vtkRenderWindow>  renderWindow = widget->renderWindow();
+#else
   vtkSmartPointer<vtkRenderWindow>  renderWindow = widget->GetRenderWindow();
+#endif
 
   // Select filename base
   QString filename = QFileDialog::getSaveFileName(this,
@@ -3422,7 +3433,11 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
 
   if (!fileName.isEmpty()) {
     vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
+#if VTK_MAJOR_VERSION >= 9
+    w2i->SetInput(widget->renderWindow());
+#else
     w2i->SetInput(widget->GetRenderWindow());
+#endif
 #if (VTK_MAJOR_VERSION >= 8 && VTK_MINOR_VERSION >= 2) || VTK_MAJOR_VERSION >= 9
     w2i->SetScale(1);
 #else
@@ -3532,7 +3547,11 @@ void vvMainWindow::SaveScreenshot(QVTKWidget *widget)
       for(int i=0; i<=nSlice; i++) {
         mSlicerManagers[smIndex]->SetNextTSlice(0);
         vtkSmartPointer<vtkWindowToImageFilter> w2i = vtkSmartPointer<vtkWindowToImageFilter>::New();
+#if VTK_MAJOR_VERSION >= 9
+        w2i->SetInput(widget->renderWindow());
+#else
         w2i->SetInput(widget->GetRenderWindow());
+#endif
         w2i->Update();
 #if VTK_MAJOR_VERSION <= 5
         vidwriter->SetInput(w2i->GetOutput());
@@ -3649,10 +3668,17 @@ void vvMainWindow::UpdateRenderWindows()
         mSlicerManagers[i]->GetSlicer(j)->DisplayLandmarks();
       }
   }
+#if VTK_MAJOR_VERSION >= 9
+  if (NOViewWidget->renderWindow()) NOViewWidget->renderWindow()->Render();
+  if (NEViewWidget->renderWindow()) NEViewWidget->renderWindow()->Render();
+  if (SOViewWidget->renderWindow()) SOViewWidget->renderWindow()->Render();
+  if (SEViewWidget->renderWindow()) SEViewWidget->renderWindow()->Render();
+#else
   if (NOViewWidget->GetRenderWindow()) NOViewWidget->GetRenderWindow()->Render();
   if (NEViewWidget->GetRenderWindow()) NEViewWidget->GetRenderWindow()->Render();
   if (SOViewWidget->GetRenderWindow()) SOViewWidget->GetRenderWindow()->Render();
   if (SEViewWidget->GetRenderWindow()) SEViewWidget->GetRenderWindow()->Render();
+#endif
 }
 //------------------------------------------------------------------------------
 

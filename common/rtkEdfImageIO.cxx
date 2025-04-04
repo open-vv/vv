@@ -169,7 +169,11 @@ void rtk::EdfImageIO::ReadImageInformation()
           { NULL, OrderNotApplicable }
     };
 
-  auto byteorder = LittleEndian;
+#if (ITK_VERSION_MAJOR == 5 && ITK_VERSION_MINOR < 1) || ITK_VERSION_MAJOR < 5
+  itk::ImageIOBase::ByteOrder byteorder = LittleEndian;
+#else
+  itk::ImageIOBase::IOByteOrderEnum byteorder = LittleEndian;
+#endif
   if ( (p = edf_findInHeader(header, "ByteOrder") ) ) {
     k = lookup_table_nth(edf_byteorder_table, p);
     if (k >= 0) {

@@ -106,8 +106,13 @@ vvToolProfile::vvToolProfile(vvMainWindowBase * parent, Qt::WindowFlags f)
   chart->SetAutoSize(false);
   chart->SetRenderEmpty(true);
   mView->GetScene()->AddItem(chart);
+#if VTK_MAJOR_VERSION >= 9
+  this->ProfileWidget->renderWindow()->GetRenderers()->RemoveAllItems();
+  this->ProfileWidget->renderWindow()->AddRenderer(mView->GetRenderer());
+#else
   this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
   this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
+#endif
   ProfileWidget->show();
 
 #ifdef Q_OS_OSX
@@ -145,8 +150,13 @@ void vvToolProfile::selectPoint1()
       chart->SetRenderEmpty(true);
       mView->GetScene()->ClearItems();
       mView->GetScene()->AddItem(chart);
+#if VTK_MAJOR_VERSION >= 9
+      this->ProfileWidget->renderWindow()->GetRenderers()->RemoveAllItems();
+      this->ProfileWidget->renderWindow()->AddRenderer(mView->GetRenderer());
+#else
       this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
       this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
+#endif
       ProfileWidget->show();
       mCurrentSlicerManager->GetLandmarks()->RemoveLandmarkWithLabel("P1", mPoint1[3]);
     }
@@ -205,8 +215,13 @@ void vvToolProfile::selectPoint2()
       chart->SetRenderEmpty(true);
       mView->GetScene()->ClearItems();
       mView->GetScene()->AddItem(chart);
+#if VTK_MAJOR_VERSION >= 9
+      this->ProfileWidget->renderWindow()->GetRenderers()->RemoveAllItems();
+      this->ProfileWidget->renderWindow()->AddRenderer(mView->GetRenderer());
+#else
       this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
       this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
+#endif
       ProfileWidget->show();
       mCurrentSlicerManager->GetLandmarks()->RemoveLandmarkWithLabel("P2", mPoint2[3]);
     }
@@ -320,9 +335,13 @@ void vvToolProfile::computeProfile()
     line->SetWidth(1.0);
     chart->GetAxis(vtkAxis::LEFT)->SetTitle("Intensity");
     chart->GetAxis(vtkAxis::BOTTOM)->SetTitle("Distance (mm)");
-    
+#if VTK_MAJOR_VERSION >= 9
+    this->ProfileWidget->renderWindow()->GetRenderers()->RemoveAllItems();
+    this->ProfileWidget->renderWindow()->AddRenderer(mView->GetRenderer());
+#else
     this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
     this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
+#endif
     ProfileWidget->show();
     
     QApplication::restoreOverrideCursor();
@@ -343,8 +362,13 @@ void vvToolProfile::cancelPoints()
   chart->SetRenderEmpty(true);
   mView->GetScene()->ClearItems();
   mView->GetScene()->AddItem(chart);
+#if VTK_MAJOR_VERSION >= 9
+  this->ProfileWidget->renderWindow()->GetRenderers()->RemoveAllItems();
+  this->ProfileWidget->renderWindow()->AddRenderer(mView->GetRenderer());
+#else
   this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
   this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
+#endif
   ProfileWidget->show();
   
   QString position = "";

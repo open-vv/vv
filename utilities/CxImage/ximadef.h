@@ -3,6 +3,12 @@
 
 #include "ximacfg.h"
 
+#ifdef _MSC_VER 
+//not #if defined(_WIN32) || defined(_WIN64) because we have strncasecmp in mingw
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#endif
+
 #if defined(_AFXDLL)||defined(_USRDLL)
  #define DLL_EXP __declspec(dllexport)
 #elif defined(_MSC_VER)&&(_MSC_VER<1200)

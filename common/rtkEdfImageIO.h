@@ -100,7 +100,11 @@ protected:
   // table key-value structure
   struct table {
     const char *key;
+#if (ITK_VERSION_MAJOR == 5 && ITK_VERSION_MINOR < 1) || ITK_VERSION_MAJOR < 5
+    itk::ImageIOBase::ByteOrder value;
+#else
     itk::ImageIOBase::IOByteOrderEnum value;
+#endif
     };
 
   struct table3 {

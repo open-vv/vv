@@ -9,13 +9,16 @@ option "verboseFile"  - "Verbose file content"                                  
 option "input"        i "Input Dicom file"                                                      string  yes
 option "image"        j "Used to read image info (spacing, origin)"                             string  yes
 option "output"       o "Output image base filename (roi number and extension will be append)"  string  yes
+option "tolerance"    t "Tolerance for slice position"                                          double  no  default="0"
 
-defgroup "ROIoption" groupdesc="an option of this group is required" 
-groupoption "roi"           r "ROI to binarize (if -1 = all roi)"                                                             int     no default="-1" group="ROIoption"
-groupoption "roiName"       n "ROI name to binarize (be wary of spaces in ROI names; if blank, use given 'roi' value)"        string  no default=""   group="ROIoption"
-groupoption "roiNameSubstr" s "Substring of ROI name to binarize (reuturns all matches; if blank, use given 'roiName' value)" string  no default=""   group="ROIoption"
-
+text "\nOutput options - the default output format is mhd"
 option "crop"         c "Crop binary mask"                                                      flag off
 option "mha"          - "Write the RTStruct as a mha image to avoid special character problems" flag off
 option "vtk"          - "Write the vtk Mesh as a vtk file"                                      flag off
+option "nii"          - "Write the RTStruct as a nii image"                                     flag off
+option "niigz"        - "Write the RTStruct as a gzipped nii image"                             flag off
 
+defgroup "ROI option" groupdesc="an option of this group is required"
+groupoption "roi"           r "ROI number to binarize (if -1 = all roi)"                                                      int     no default="-1" group="ROI option"
+groupoption "roiName"       n "ROI name to binarize (be wary of spaces in ROI names; if blank, use given 'roi' value)"        string  no default=""   group="ROI option"
+groupoption "roiNameSubstr" s "Substring of ROI name to binarize (returns all matches; if blank, use given 'roiName' value)"  string  no default=""   group="ROI option"

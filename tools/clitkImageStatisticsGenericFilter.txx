@@ -193,7 +193,30 @@ namespace clitk
       numberOfLabels=m_ArgsInfo.label_given;
     else
       numberOfLabels=1;
-
+    // Let's do some checks
+    if (m_ArgsInfo.label_given && !m_ArgsInfo.mask_given) {
+        std::cerr << "If a/some specific label(s) is/are given, a mask image needs to be provided" << std::endl;
+        exit(-1);
+    }
+    if (m_ArgsInfo.label_given && m_ArgsInfo.mask_given) {
+        //Let's check if the labels exist in the mask image
+        for (unsigned int k=0; k< numberOfLabels; k++) {
+          label=m_ArgsInfo.label_arg[k];
+          unsigned int label_counter = 0;
+          itk::ImageRegionConstIterator<LabelImageType> it(labelImage,labelImage->GetLargestPossibleRegion());
+          it.GoToBegin();
+          while( !it.IsAtEnd() ) {
+            if(label == it.Get()) {
+                ++label_counter;
+            }
+            ++it;
+          }
+          if (label_counter == 0) {
+              std::cerr << "The label number " << (int) label << " does not exist in the mask image" << std::endl;
+              exit(-1);
+          }
+        }
+    }
     unsigned int firstComponent = 0, lastComponent = 0;
     if (m_ArgsInfo.channel_arg == -1) {
       firstComponent = 0;
@@ -214,9 +237,11 @@ namespace clitk
         label=m_ArgsInfo.label_arg[k];
 
         std::cout<<std::endl;
-        if (m_Verbose) std::cout<<"-------------"<<std::endl;
-        if (m_Verbose) std::cout<<"| Label: "<< (int) label<<"  |"<<std::endl;
-        if (m_Verbose) std::cout<<"-------------"<<std::endl;
+        if (m_ArgsInfo.mask_given) {
+            if (m_Verbose) std::cout<<"-------------"<<std::endl;
+            if (m_Verbose) std::cout<<"| Label: "<< (int) label<<"  |"<<std::endl;
+            if (m_Verbose) std::cout<<"-------------"<<std::endl;
+        }
 
         // Histograms
         if (m_ArgsInfo.histogram_given) {
@@ -248,13 +273,48 @@ namespace clitk
 
         // Output
         if (m_Verbose) std::cout<<"N° of pixels: ";
-        std::cout<<statisticsFilter->GetCount(label)<<std::endl;
+        unsigned int nbPixels = statisticsFilter->GetCount(label);
+        std::cout<<nbPixels<<std::endl;
         if (m_Verbose) std::cout<<"Mean: ";
-        std::cout<<statisticsFilter->GetMean(label)<<std::endl;
-        if (m_Verbose) std::cout<<"SD: ";
+        double mean = statisticsFilter->GetMean(label);
+        std::cout<<mean<<std::endl;
+        if (m_Verbose) std::cout<<"SD_N-1: ";
         std::cout<<statisticsFilter->GetSigma(label)<<std::endl;
-        if (m_Verbose) std::cout<<"Variance: ";
+        if (m_Verbose) std::cout<<"Variance_N-1: ";
         std::cout<<statisticsFilter->GetVariance(label)<<std::endl;
+        //
+        double sigma = 0.0;
+        double skewness = 0.0;
+        double kurtosis = 0.0;
+        itk::ImageRegionIterator<InputImageAdaptorType> ItI(input_adaptor, input_adaptor->GetLargestPossibleRegion());
+        itk::ImageRegionIterator<LabelImageType> ItM(labelImage, labelImage->GetLargestPossibleRegion());
+        for ( ItI.GoToBegin(), ItM.GoToBegin(); !ItI.IsAtEnd(); ++ItI, ++ItM ) {
+            if ( ItM.Get() == label ) {
+              PixelType value = ItI.Get();
+              sigma+=(value-mean)*(value-mean)/nbPixels;
+              double diff = value - mean;
+              skewness += ( diff * diff * diff ) /nbPixels;
+              kurtosis += ( diff * diff * diff * diff ) /nbPixels;
+            }
+        }
+        sigma=std::sqrt(sigma);
+        if(sigma == 0) {
+            skewness=0;
+            kurtosis=3;
+        } else {
+            skewness/=(sigma*sigma*sigma);
+            kurtosis/=(sigma*sigma*sigma*sigma);
+        }
+        //Show results
+        if (m_Verbose) std::cout<<"SD_N: ";
+        std::cout<<sigma<<std::endl;
+        if (m_Verbose) std::cout<<"Variance_N: ";
+        std::cout<<sigma*sigma<<std::endl;
+        if (m_Verbose) std::cout<<"Skewness: ";
+        std::cout<<skewness<<std::endl;
+        if (m_Verbose) std::cout<<"Kurtosis: ";
+        std::cout<<kurtosis<<std::endl;
+        //
         if (m_Verbose) std::cout<<"Min: ";
         std::cout<<statisticsFilter->GetMinimum(label)<<std::endl;
         if (m_Verbose && m_Localize) {
@@ -288,14 +348,67 @@ namespace clitk
           if (m_Verbose) std::cout<<"Histogram: "<<std::endl;
             std::cout<<"# MinBin\tMidBin\tMaxBin\tFrequency"<<std::endl;
           for( int i =0; i <m_ArgsInfo.bins_arg; i++)
-            std::cout<<histogram->GetBinMin(0,i)<<"\t"<<histogram->GetMeasurement(i,0)<<"\t"<<histogram->GetBinMax(0,i)<<"\t"<<histogram->GetFrequency(i)<<std::endl;
+            std::cout<<histogram->GetBinMin(0,i)<<"\t"<<histogram->GetMeasurement(i,0)<<"\t"<<histogram->GetBinMax(0,i)<<"\t"<<double (histogram->GetFrequency(i))/ double (histogram->GetTotalFrequency())<<std::endl;
 
           // Add to the file
           std::ofstream histogramFile(m_ArgsInfo.histogram_arg);
           histogramFile<<"#Histogram: "<<std::endl;
           histogramFile<<"#MinBin\tMidBin\tMaxBin\tFrequency"<<std::endl;
           for( int i =0; i <m_ArgsInfo.bins_arg; i++)
-            histogramFile<<histogram->GetBinMin(0,i)<<"\t"<<histogram->GetMeasurement(i,0)<<"\t"<<histogram->GetBinMax(0,i)<<"\t"<<histogram->GetFrequency(i)<<std::endl;
+            histogramFile<<histogram->GetBinMin(0,i)<<"\t"<<histogram->GetMeasurement(i,0)<<"\t"<<histogram->GetBinMax(0,i)<<"\t"<<double (histogram->GetFrequency(i))/ double (histogram->GetTotalFrequency())<<std::endl;
+
+          //mean + sigma + kurtosis + skewness - calculated from the histogram
+          double mean = 0.0;
+          double sigma = 0.0;
+          double skewness = 0.0;
+          double kurtosis = 0.0;
+          double totalFreq = histogram->GetTotalFrequency();
+
+          for( int i =0; i <m_ArgsInfo.bins_arg; i++) {
+            double binVal = histogram->GetMeasurement(i,0);
+            unsigned int freqVal = histogram->GetFrequency(i);
+            mean+=binVal*freqVal/totalFreq;
+          }
+          for( int i =0; i <m_ArgsInfo.bins_arg; i++) {
+            double binVal = histogram->GetMeasurement(i,0);
+            unsigned int freqVal = histogram->GetFrequency(i);
+            sigma+=(binVal-mean)*(binVal-mean)*freqVal/totalFreq;
+            skewness+=(binVal-mean)*
+                    (binVal-mean)*
+                    (binVal-mean)*
+                    freqVal/totalFreq;
+            kurtosis+=(binVal-mean)*
+                    (binVal-mean)*
+                    (binVal-mean)*
+                    (binVal-mean)*
+                    freqVal/totalFreq;
+          }
+          sigma=std::sqrt(sigma);
+          if(sigma == 0) {
+              skewness=0;
+              kurtosis=3;
+          } else {
+              skewness/=(sigma*sigma*sigma);
+              kurtosis/=(sigma*sigma*sigma*sigma);
+          }
+
+          std::cout<<"Histogram statistics"<<std::endl;
+          if (m_Verbose) {
+              std::cout<<"HMean: ";
+          }
+          std::cout<<mean<<std::endl;
+          if (m_Verbose) {
+              std::cout<<"HSTD: ";
+          }
+          std::cout<<sigma<<std::endl;
+          if (m_Verbose) {
+              std::cout<<"HSkewness: ";
+          }
+          std::cout<<skewness<<std::endl;
+          if (m_Verbose) {
+              std::cout<<"HKurtosis: ";
+          }
+          std::cout<<kurtosis<<std::endl;
         }
 
         // DVH
@@ -329,7 +442,14 @@ namespace clitk
               double percentCumulativeVolume =(cumulativeVolume*100)/(statisticsFilter->GetCount(label)) ;
               double ccCumulativeVolume = (totalVolumeCC -((popCumulativeVolume + (dvhistogram->GetFrequency(i)))*spacing_cc));
               double percentDiffVolume = dvhistogram->GetFrequency(i)*100/(statisticsFilter->GetCount(label));
-              std::cout<<dvhistogram->GetBinMax(0,i)<<"\t  "<<dvhistogram->GetFrequency(i)<<"\t  "<<percentDiffVolume<<"\t "<<((dvhistogram->GetFrequency(i))*spacing_cc)<<"\t "<<"\t "<<cumulativeVolume<<"\t  "<<percentCumulativeVolume<<"\t  "<<ccCumulativeVolume<<"\t "<<std::endl;
+              if(m_ArgsInfo.lowerBin_flag) {
+                  std::cout<<dvhistogram->GetBinMin(0,i);
+              } else if(m_ArgsInfo.centreBin_flag) {
+                  std::cout<<(dvhistogram->GetBinMin(0,i)+dvhistogram->GetBinMax(0,i))/2.0;
+              } else {
+                  std::cout<<dvhistogram->GetBinMax(0,i);
+              }
+              std::cout<<"\t  "<<dvhistogram->GetFrequency(i)<<"\t  "<<percentDiffVolume<<"\t "<<((dvhistogram->GetFrequency(i))*spacing_cc)<<"\t "<<"\t "<<cumulativeVolume<<"\t  "<<percentCumulativeVolume<<"\t  "<<ccCumulativeVolume<<"\t "<<std::endl;
             }
 
             // Add to the file
@@ -357,7 +477,14 @@ namespace clitk
                double percentCumulativeVolume =(cumulativeVolume*100)/(statisticsFilter->GetCount(label));
                double ccCumulativeVolume = (totalVolumeCC -((popCumulativeVolume + (dvhistogram->GetFrequency(i)))*spacing_cc));
                double percentDiffVolume = ((dvhistogram->GetFrequency(i))*100)/(statisticsFilter->GetCount(label));
-               dvhistogramFile<<dvhistogram->GetBinMax(0,i)<<"\t  "<<dvhistogram->GetFrequency(i)<<"\t  "<<percentDiffVolume<<"\t "<<((dvhistogram->GetFrequency(i))*spacing_cc)<<"\t "<<cumulativeVolume<<"\t "<<percentCumulativeVolume<<"\t  "<<ccCumulativeVolume<<std::endl;
+               if(m_ArgsInfo.lowerBin_flag) {
+                   dvhistogramFile<<dvhistogram->GetBinMin(0,i);
+               } else if(m_ArgsInfo.centreBin_flag) {
+                   dvhistogramFile<<(dvhistogram->GetBinMin(0,i)+dvhistogram->GetBinMax(0,i))/2.0;
+               } else {
+                   dvhistogramFile<<dvhistogram->GetBinMax(0,i);
+               }
+               dvhistogramFile<<"\t  "<<dvhistogram->GetFrequency(i)<<"\t  "<<percentDiffVolume<<"\t "<<((dvhistogram->GetFrequency(i))*spacing_cc)<<"\t "<<cumulativeVolume<<"\t "<<percentCumulativeVolume<<"\t  "<<ccCumulativeVolume<<std::endl;
            }
         }
       }

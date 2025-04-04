@@ -135,7 +135,7 @@ TPixelDown PixelTypeDownCast(const TPixelUp & x)
 
 //--------------------------------------------------------------------
 template<class Type>
-struct vectorComparisonLowerThan: public std::binary_function<int, int, bool> {
+struct vectorComparisonLowerThan {
   vectorComparisonLowerThan(const std::vector<Type> & v):vect(v) {};
   bool operator()(int x, int y) {
     return (vect[x] < vect[y]);
@@ -146,7 +146,7 @@ struct vectorComparisonLowerThan: public std::binary_function<int, int, bool> {
 
 //--------------------------------------------------------------------
 template<class Type>
-struct vectorComparisonGreaterThan: public std::binary_function<int, int, bool> {
+struct vectorComparisonGreaterThan {
   vectorComparisonGreaterThan(const std::vector<Type> & v):vect(v) {};
   bool operator()(int x, int y) {
     return (vect[x] > vect[y]);

@@ -50,6 +50,7 @@ if(CLITK_BUILD_SEGMENTATION)
     WRAP_GGO(clitkRegionGrowing_GGO_C clitkRegionGrowing.ggo)
     add_executable(clitkRegionGrowing clitkRegionGrowing.cxx ${clitkRegionGrowing_GGO_C} ${clitkRelativePosition_GGO_C})
     target_link_libraries(clitkRegionGrowing clitkCommon)
+    set(SEGMENTATION_INSTALL ${SEGMENTATION_INSTALL} clitkRegionGrowing)
 
     install(TARGETS ${SEGMENTATION_INSTALL} DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 

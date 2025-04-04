@@ -1,0 +1,18 @@
+#File clitkTextureFeatures.ggo
+package "clitkTextureFeatures"
+version "1.0"
+purpose ""
+
+option "config"	  	-	"Config file"			  string  	optional
+option "verbose"   	v   	"Verbose"			  flag		off
+
+option "imagetypes" 	-   	"Display allowed image types"	  flag		off
+
+option "input"		i	"Input image filename"                                                                                string        required
+option "mask"		m	"Mask image filename"                                                                                 string        optional
+option "nbin"		n	"Number of grey levels / discrete values - default 256"                                               int           optional
+option "minr"		p	"Min of the intensity range over which the features will be calculated - default min of the image"    double        optional
+option "maxr"		q	"Max of the intensity range over which the features will be calculated - default max of the image"    double        optional
+option "diag"   	d   	"Compute without diagonal directions"                                                                 flag          off
+option "offset"         o   	"Offset direction - x direction for example, i.e. 1,0,0 - to compute in a direction only"             int multiple  optional
+option "output"         -       "Rescaled image filename"                                                                             string        optional

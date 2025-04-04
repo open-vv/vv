@@ -78,11 +78,11 @@ namespace clitk {
     itkGetConstMacro(BackgroundValue, PixelType);
     //itkSetMacro(BackgroundValue, PixelType);
 
-    itkGetConstMacro(Label1, PixelType);
-    itkSetMacro(Label1, PixelType);
-
-    itkGetConstMacro(Label2, PixelType);
-    itkSetMacro(Label2, PixelType);
+    itkSetMacro(LabelFlag, bool);
+    itkGetConstMacro(LabelFlag, bool);
+    itkBooleanMacro(LabelFlag);
+    itkSetMacro(Label, PixelType);
+    itkGetConstMacro(Label, PixelType);
 
     itkSetMacro(VerboseFlag, bool);
     itkGetConstMacro(VerboseFlag, bool);
@@ -96,7 +96,7 @@ namespace clitk {
 #if ITK_VERSION_MAJOR <= 4
     virtual void VerifyInputInformation() ITK_OVERRIDE { }
 #else
-    virtual void VerifyInputInformation() const ITK_OVERRIDE { }
+    virtual void VerifyInputInformation() ITKv5_CONST override { }
 #endif
 
    protected:
@@ -104,8 +104,8 @@ namespace clitk {
     virtual ~LabelImageOverlapMeasureFilter() {}
 
     PixelType m_BackgroundValue;
-    PixelType m_Label1;
-    PixelType m_Label2;
+    bool m_LabelFlag;
+    PixelType m_Label;
     ImagePointer m_Input1;
     ImagePointer m_Input2;
     bool m_VerboseFlag;

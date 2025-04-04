@@ -42,8 +42,11 @@
 #include "vvReadState.h"
 #include "vvToolsList.h"
 #include "vvConfiguration.h"
-#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 2) || VTK_MAJOR_VERSION >= 9
+#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 2) || (VTK_MAJOR_VERSION == 9 && VTK_MINOR_VERSION < 2)
 #include <QVTKOpenGLWidget.h>
+#endif
+#if (VTK_MAJOR_VERSION == 9 && VTK_MINOR_VERSION >= 2)
+#include <QVTKOpenGLStereoWidget.h>
 #endif
 
 #include <vtkFileOutputWindow.h>
@@ -118,8 +121,11 @@ int main( int argc, char** argv )
 {
 #endif
 
-#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 2) || VTK_MAJOR_VERSION >= 9
+#if (VTK_MAJOR_VERSION == 8 && VTK_MINOR_VERSION >= 2) || (VTK_MAJOR_VERSION == 9 && VTK_MINOR_VERSION < 2)
   QSurfaceFormat::setDefaultFormat(QVTKOpenGLWidget::defaultFormat());
+#endif
+#if (VTK_MAJOR_VERSION == 9 && VTK_MINOR_VERSION >= 2)
+  QSurfaceFormat::setDefaultFormat(QVTKOpenGLStereoWidget::defaultFormat());
 #endif
   CLITK_INIT;
 

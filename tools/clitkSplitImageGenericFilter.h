@@ -60,6 +60,9 @@ namespace clitk {
     void SetVerbose (const bool v) { m_Verbose = v; }
     void SetPng (const bool v) { m_Png = v; }
     void SetWindowLevel(const double w, const double l){ m_Window = w; m_Level = l;}
+    void SetMha (const bool v) { m_mha = v; }
+    void SetNii (const bool v) { m_nii = v; }
+    void SetNiigz (const bool v) { m_niigz = v; }
 
    //--------------------------------------------------------------------
     // Main function called each time the filter is updated
@@ -89,6 +92,9 @@ namespace clitk {
     bool m_Verbose;
     bool m_Png;
     double m_Window, m_Level;
+    bool m_mha;
+    bool m_nii;
+    bool m_niigz;
 
   }; // end class SplitImageGenericFilter
 //--------------------------------------------------------------------

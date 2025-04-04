@@ -76,7 +76,7 @@ namespace clitk {
   //--------------------------------------------------------------------
   // when everything goes wrong
 #define WHEREAMI "[ " << __FILE__  << " ] line " << __LINE__
-#define FATAL(a) { std::cerr << "ERROR in " << WHEREAMI << ": " << a; exit(0); }
+#define FATAL(a) { std::cerr << "ERROR in " << WHEREAMI << ": " << a << std::endl; exit(0); }
 
   //--------------------------------------------------------------------
   // GGO with modified struct name

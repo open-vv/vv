@@ -62,7 +62,11 @@ int main(int argc, char * argv[])
   NamesGeneratorType::Pointer nameGenerator = NamesGeneratorType::New();
   nameGenerator->SetUseSeriesDetails(false);
   std::string folderName=".";
+#ifdef _WIN32
+  const size_t last_slash_idx = input_files[0].rfind('\\');
+#else
   const size_t last_slash_idx = input_files[0].rfind('/');
+#endif
   if (std::string::npos != last_slash_idx)
     folderName = input_files[0].substr(0, last_slash_idx);
   nameGenerator->SetInputDirectory(folderName);
@@ -87,7 +91,7 @@ int main(int argc, char * argv[])
 #endif
   for(unsigned int i=0; i<args_info.inputs_num; i++) {
     if (args_info.verbose_flag)
-        std::cout << "Reading <" << input_files[i] << std::endl;
+        std::cout << "Reading < " << input_files[i] << std::endl;
 #if GDCM_MAJOR_VERSION >= 2
     gdcm::Reader hreader;
     hreader.SetFileName(input_files[i].c_str());
@@ -161,6 +165,16 @@ int main(int argc, char * argv[])
     std::vector<double> origin = theorigin[*sn];
     std::vector<double> instanceNumberSerie = instanceNumber[*sn];
     std::vector<std::string> files = seriesFiles[*sn];
+    //Let's process the filenames -- it is mandatory for the line "if (tempFilename == files[i])"
+    for(unsigned int i=0; i<files.size(); i++) {
+#ifdef _WIN32
+        const size_t first_slash_idx_fn = files[i].find('\\');
+#else
+        const size_t first_slash_idx_fn = files[i].find('/');
+#endif
+        if (std::string::npos != first_slash_idx_fn && first_slash_idx_fn == 1 && files[i][0] == '.')
+          files[i] = files[i].substr(first_slash_idx_fn+1);
+    }
     std::vector<int> sliceIndex(files.size());
     //clitk::GetSortedIndex(locs, sliceIndex);
     //Look for files into GDCMSeriesFileNames, because it sorts files correctly and take the order
@@ -169,10 +183,18 @@ int main(int argc, char * argv[])
       int j(0);
       bool found(false);
       while (!found && j<temp.size()) {
-        const size_t last_slash_idx2 = temp[j].rfind('/');
         std::string tempFilename(temp[j]);
-        if (temp[j][0] == '.' && temp[j][1] == '/')
-          tempFilename = temp[j].substr(2, temp[j].size()-1);
+#ifdef _WIN32
+        // There is a bug on Windows, the last \ is a /...
+        // Let's substitute it
+        const size_t last_slash_idx_win = tempFilename.rfind('/');
+        tempFilename[last_slash_idx_win] = '\\';
+        const size_t first_slash_idx = tempFilename.find('\\');
+#else
+        const size_t first_slash_idx = tempFilename.find('/');
+#endif
+        if (std::string::npos != first_slash_idx && first_slash_idx == 1 && tempFilename[0] == '.')
+          tempFilename = tempFilename.substr(first_slash_idx+1);
         if (tempFilename == files[i]) {
           sliceIndex[j] = i;
           found = true;
@@ -278,7 +300,7 @@ int main(int argc, char * argv[])
       modifier->SetOutputOrigin(origin[0], origin[1], locs[sliceIndex[0]]);
       modifier->Update();
       vvImage::Pointer focal_image = vvImage::New();
-      focal_image->AddVtkImage(modifier->GetOutput());
+      focal_image->AddVtkImage(modifier->GetOutput(), image->GetTransform()[0]);
       image = focal_image;
     }
 
@@ -289,7 +311,11 @@ int main(int argc, char * argv[])
       std::ostringstream name;
       std::vector<std::string> directory = clitk::SplitFilename(args_info.output_arg);
       if (directory.size() == 2)
+#ifdef _WIN32
+        name << directory[0] << "\\" << *sn << "_" << directory[1];
+#else
         name << directory[0] << "/" << *sn << "_" << directory[1];
+#endif
       else
         name << *sn << "_" << args_info.output_arg;
       outfile = name.str();
