@@ -167,12 +167,12 @@ make install
 
 The Visualization Toolkit (VTK) is an open-source, freely available software system for 3D computer graphics, image processing and visualization.
 
-VV is tested with VTK. You can download the source code  [here](http://www.vtk.org/VTK/resources/software.html)  or via git. We recommend you to use version 7.1.0:
+VV is tested with VTK. You can download the source code  [here](http://www.vtk.org/VTK/resources/software.html)  or via git. We recommend you to use version 9.0.1:
 
 ```bash
 git clone https://github.com/Kitware/VTK.git vtk
 cd vtk
-git checkout v7.1.0
+git checkout v9.0.1
 cd ..
 ```
 
@@ -224,12 +224,12 @@ Qt5Network_DIR="/usr/local/Qt-5.../lib/cmake/Qt5Network"
 
 ### 3.4. ITK
 
-To compile ITK from git: We recommend you to use version 4.13.0:
+To compile ITK from git: We recommend you to use version 5.2.1:
 
 ```bash
 git clone https://github.com/InsightSoftwareConsortium/ITK.git itk
 cd itk
-git checkout v4.13.0
+git checkout v5.2.1
 cd ..
 ```
 
