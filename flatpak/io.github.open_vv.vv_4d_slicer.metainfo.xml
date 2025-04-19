@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.open_vv.vv_4d_slicer</id>
+  
+  <name>VV 4D Slicer</name>
+  <summary>VV is an open-source and cross platform image viewer, designed for fast and simple visualization of spatio-temporal images: 2D, 2D+t, 3D and 3D+t (or 4D) images.</summary>
+  
+  <metadata_license>FSFAP</metadata_license>
+  <project_license>BSD-3-Clause-Attribution</project_license>
+  
+  <description>
+    <p>
+      VV is an open-source and cross platform image viewer, designed for fast and simple visualization of spatio-temporal images: 2D, 2D+t, 3D and 3D+t (or 4D) images. VV runs (at least!) on Linux, Windows and Mac OS in 32 and 64 bits.
+    </p>
+    <p>
+      VV is more specifically designed for qualitative evaluation of image registration and deformation field visualization. It contains several tools for superimposing images using complementary colors or transparency, visualizing vector fields and defining landmarks. With a modern graphic card, navigation is fast and smooth.
+    </p>
+    <p>
+      VV is distributed under two open source licenses: BSD and CeCILL-B license from the CNRS, without restrictions and without warranty. Feel free to use it as you like! We would like to encourage you to share your experience by sending an email to vv[at]creatis.insa-lyon.fr briefly describing your use of vv. When using it for publications, please make reference to the article:
+    </p>
+    <p>
+      Seroul, P. and Sarrut, D. VV : Viewer for the evaluation of 4D image registration. 2008. presented at the MICCAI workshop Systems and Architectures for Computer Assisted Interventions. pdf bibtex
+    </p>
+  </description>
+
+  <releases>
+    <release version="1.4.0+" date="2022-10-26">
+      <description>
+        <p>
+          It's based on VTK 8.1.2, ITK 5.2.1 with patches
+      </description>
+      <url>https://github.com/open-vv/vv</url>
+    </release>
+  </releases>
+  
+  <launchable type="desktop-id">io.github.open_vv.vv_4d_slicer.desktop</launchable>
+</component>
