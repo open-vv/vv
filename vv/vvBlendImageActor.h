@@ -3,7 +3,7 @@
 
   Authors belong to: 
   - University of LYON              http://www.universite-lyon.fr/
-  - Léon Bérard cancer center       http://www.centreleonberard.fr
+  - LÃ©on BÃ©rard cancer center       http://www.centreleonberard.fr
   - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
 
   This software is distributed WITHOUT ANY WARRANTY; without even
@@ -21,6 +21,7 @@
 
 #include <vtkActor.h>
 #include <vtkSmartPointer.h>
+#include <vtkVersion.h>
 
 #if VTK_MAJOR_VERSION >= 6 || (VTK_MAJOR_VERSION >= 5 && VTK_MINOR_VERSION >= 10)
 #define VTK_IMAGE_ACTOR vtkImageActor
@@ -35,11 +36,23 @@ class vvBlendImageActor : public VTK_IMAGE_ACTOR
 public:
   static vvBlendImageActor *New();
   vtkTypeMacro(vvBlendImageActor, VTK_IMAGE_ACTOR);
+#if VTK_MAJOR_VERSION >= 8
+  virtual void PrintSelf(ostream& os, vtkIndent indent) override;
+#elif VTK_MAJOR_VERSION >= 7
   virtual void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+#else
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
+#endif
 
   // Description:
   // Implement base class method.
+#if VTK_MAJOR_VERSION >= 8
+  void Render(vtkRenderer *ren) override;
+#elif VTK_MAJOR_VERSION >= 7
   void Render(vtkRenderer *ren) VTK_OVERRIDE;
+#else
+  void Render(vtkRenderer *ren);
+#endif
 
 protected:
   vvBlendImageActor();

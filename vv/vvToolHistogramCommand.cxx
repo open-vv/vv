@@ -64,7 +64,11 @@ void vvToolHistogramCommand::Execute(vtkObject *caller,
   }
   if (event == vtkCommand::MouseMoveEvent) {
     if (mFollowMouse) {
+#if VTK_MAJOR_VERSION >= 9
+      vtkSmartPointer<vtkRenderWindowInteractor> interactor = mHist->GetHistogramWidget()->renderWindow()->GetInteractor();
+#else
       vtkSmartPointer<vtkRenderWindowInteractor> interactor = mHist->GetHistogramWidget()->GetRenderWindow()->GetInteractor();
+#endif
       if (interactor->GetEventPosition()[0] != interactor->GetLastEventPosition()[0])
         mHist->translateWindow(interactor->GetEventPosition()[0] - interactor->GetLastEventPosition()[0]);
     }

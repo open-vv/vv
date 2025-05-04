@@ -24,7 +24,13 @@ class vvLandmarksGlyph : public vtkTextSource
 {
 public:
     vtkTypeMacro(vvLandmarksGlyph,vtkTextSource);
+#if VTK_MAJOR_VERSION >= 8
+    void PrintSelf(ostream& os, vtkIndent indent) override;
+#elif VTK_MAJOR_VERSION >= 7
     void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+#else
+    void PrintSelf(ostream& os, vtkIndent indent);
+#endif
 
     // Description:
     // Construct object with no string set and backing enabled.
@@ -39,7 +45,13 @@ protected:
     void AddCrossGlyph(vtkPoints* newPts,vtkCellArray* newLines);
     void ChangeOrientation(double v[3], int orientation);
 
+#if VTK_MAJOR_VERSION >= 8
+    int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+#elif VTK_MAJOR_VERSION >= 7
     int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+#else
+    int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+#endif
 
 private:
     vvLandmarksGlyph(const vvLandmarksGlyph&);  // Not implemented.

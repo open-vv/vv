@@ -67,7 +67,13 @@ Q_OBJECT
 public:
   static vvSlicer *New();
   vtkTypeMacro(vvSlicer,vtkImageViewer2);
+#if VTK_MAJOR_VERSION >= 8
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+#elif VTK_MAJOR_VERSION >= 7
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+#else
+  void PrintSelf(ostream& os, vtkIndent indent);
+#endif
 
   void SetImage(vvImage::Pointer inputImages);
   vvImage::Pointer GetImage() {
@@ -108,14 +114,26 @@ public:
 
   void SetFusionSequenceTSlice(int t);
 
+#if VTK_MAJOR_VERSION >= 8
+  void SetSliceOrientation(int orientation) override;
+#elif VTK_MAJOR_VERSION >= 7
   void SetSliceOrientation(int orientation) VTK_OVERRIDE;
+#else
+  void SetSliceOrientation(int orientation);
+#endif
   void AdjustResliceToSliceOrientation(vtkImageReslice *reslice);
   int GetTSlice();
   int GetFusionTSlice();
   int GetOverlayTSlice();
   int GetMaxCurrentTSlice();
   ///Reimplemented from vtkImageViewer2 to add polydata support
+#if VTK_MAJOR_VERSION >= 8
+  void SetSlice(int s) override;
+#elif VTK_MAJOR_VERSION >= 7
   void SetSlice(int s) VTK_OVERRIDE;
+#else
+  void SetSlice(int s);
+#endif
   int GetTMax();
 
   void SetOpacity(double s);
@@ -124,7 +142,13 @@ public:
   void FlipHorizontalView();
   void FlipVerticalView();
   double GetScalarComponentAsDouble(vtkImageData *image, double X, double Y, double Z, int &ix, int &iy, int &iz, int component=0);
+#if VTK_MAJOR_VERSION >= 8
+  void Render() override;
+#elif VTK_MAJOR_VERSION >= 7
   void Render() VTK_OVERRIDE;
+#else
+  void Render();
+#endif
   ///Sets the camera to fit the image in the window
   void ResetCamera();
 
@@ -183,8 +207,16 @@ public:
   void ToggleContourSuperposition();
   void SetInterpolationImageReslice(int interpolation);
 
+#if VTK_MAJOR_VERSION >= 8
+  virtual void SetColorWindow(double s) override;
+  virtual void SetColorLevel(double s) override;
+#elif VTK_MAJOR_VERSION >= 7
   virtual void SetColorWindow(double s) VTK_OVERRIDE;
   virtual void SetColorLevel(double s) VTK_OVERRIDE;
+#else
+  virtual void SetColorWindow(double s);
+  virtual void SetColorLevel(double s);
+#endif
 
   double GetOverlayColorWindow();
   double GetOverlayColorLevel();
@@ -301,8 +333,16 @@ protected:
   bool showFusionLegend;
 
 private:
+#if VTK_MAJOR_VERSION >= 8
+  void UpdateOrientation() override;
+  void UpdateDisplayExtent() override;
+#elif VTK_MAJOR_VERSION >= 7
   void UpdateOrientation() VTK_OVERRIDE;
   void UpdateDisplayExtent() VTK_OVERRIDE;
+#else
+  void UpdateOrientation();
+  void UpdateDisplayExtent();
+#endif
   void ConvertImageToImageDisplayExtent(vtkInformation *sourceImage, const int sourceExtent[6],
                                         vtkImageData *targetImage, int targetExtent[6]);
   void ConvertImageToImageDisplayExtent(vtkImageData *sourceImage, const int sourceExtent[6],
