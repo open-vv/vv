@@ -79,7 +79,16 @@ namespace clitk {
 
   protected:  
     template<unsigned int Dim> void InitializeImageType();
-    bool mIsOperationUseASecondImage;
+    bool mIsOperationUseASecondImage;//if yes then - need to define more variables
+    std::string mFirstImageFileName;
+    int mFirstImageDimension;
+    std::string mFirstImagePixelType;
+    int mFirstImageComponents;
+    std::string mSecondImageFileName;
+    int mSecondImageDimension;
+    std::string mSecondImagePixelType;
+    int mSecondImageComponents;
+
     double mScalar;
     double mDefaultPixelValue;
     int mTypeOfOperation;  

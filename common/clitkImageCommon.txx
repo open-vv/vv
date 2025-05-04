@@ -308,6 +308,28 @@ void ComputeWeightsOfEachClasses(const typename InputImageType::Pointer & input,
 }
 //--------------------------------------------------------------------
 
+//--------------------------------------------------------------------
+template<class ImageType1, class ImageType2>
+bool HaveSameOrigin(typename ImageType1::ConstPointer A,
+                    typename ImageType2::ConstPointer B)
+{
+  if (A->GetImageDimension() != B->GetImageDimension()) return false;
+  for(unsigned int i=0; i<A->GetImageDimension(); i++) {
+    if (A->GetOrigin()[i] != B->GetOrigin()[i]) return false;
+  }
+  return true;
+}
+template<class ImageType1, class ImageType2>
+bool HaveSameOrigin(typename ImageType1::Pointer A,
+                    typename ImageType2::Pointer B)
+{
+  if (A->GetImageDimension() != B->GetImageDimension()) return false;
+  for(unsigned int i=0; i<A->GetImageDimension(); i++) {
+    if (A->GetOrigin()[i] != B->GetOrigin()[i]) return false;
+  }
+  return true;
+}
+//--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
 template<class ImageType1, class ImageType2>

@@ -77,6 +77,40 @@ void ImageArithmGenericFilter<args_info_type>::SetArgsInfo(const args_info_type 
   if (mArgsInfo.input2_given) {
     mIsOperationUseASecondImage = true;
     this->AddInputFilename(mArgsInfo.input2_arg);
+    mFirstImageFileName = mArgsInfo.input1_arg;
+    mFirstImageDimension = 0;
+    mFirstImagePixelType = "";
+    mFirstImageComponents = 0;
+    clitk::ReadImageDimensionAndPixelType(mFirstImageFileName,
+                                          mFirstImageDimension,
+                                          mFirstImagePixelType,
+                                          mFirstImageComponents);
+    mSecondImageFileName = mArgsInfo.input2_arg;
+    mSecondImageDimension = 0;
+    mSecondImagePixelType = "";
+    mSecondImageComponents = 0;
+    clitk::ReadImageDimensionAndPixelType(mSecondImageFileName,
+                                          mSecondImageDimension,
+                                          mSecondImagePixelType,
+                                          mSecondImageComponents);
+    if(mSecondImageDimension != mFirstImageDimension) {
+        std::cerr << "ERROR : input and input2 must have the same dimensions" << std::endl;
+        std::cerr << "input is "<< mFirstImageDimension <<"D" << std::endl;
+        std::cerr << "input2 is "<< mSecondImageDimension <<"D" << std::endl;
+        exit(-1);
+    }
+    if(mSecondImageComponents != mFirstImageComponents) {
+        std::cerr << "ERROR : input and input2 must have the same number of components" << std::endl;
+        std::cerr << "input is "<< mFirstImageComponents << std::endl;
+        std::cerr << "input2 is "<< mSecondImageComponents << std::endl;
+        exit(-1);
+    }
+    //if(mSecondImagePixelType.compare(mFirstImagePixelType) != 0) {
+    //    std::cerr << "ERROR : input and input2 must have the same pixel type" << std::endl;
+    //    std::cerr << "input is "<< mFirstImagePixelType << std::endl;
+    //    std::cerr << "input2 is "<< mSecondImagePixelType << std::endl;
+    //    exit(-1);
+    //}
   }
 
   if (mArgsInfo.output_given) this->SetOutputFilename(mArgsInfo.output_arg);
@@ -133,6 +167,10 @@ void ImageArithmGenericFilter<args_info_type>::UpdateWithInputImageType()
       }
       if(!clitk::HaveSameSpacing<ImageType, ImageType>(input1, input2)) {
         itkWarningMacro(<< "The images (input and input2) do not have the same spacing. "
+                        << "Using first input's information.");
+      }
+      if(!clitk::HaveSameOrigin<ImageType, ImageType>(input1, input2)) {
+        itkWarningMacro(<< "The images (input and input2) do not have the same origin. "
                         << "Using first input's information.");
       }
   }

@@ -200,10 +200,10 @@ void vvImageReader::UpdateWithDimAndInputPixelType()
       }
     }
 
-/*    if (VImageDimension == 4)
-      mType == VECTORPIXELIMAGEWITHTIME;
+    if (VImageDimension == 4)
+      mType = VECTORPIXELIMAGEWITHTIME;
     else
-      mType == VECTORPIXELIMAGE;*/
+      mType = VECTORPIXELIMAGE;
 
     try {
       mImage = vvImageFromITK<VImageDimension,InputPixelType>(output, mType == VECTORPIXELIMAGEWITHTIME);
@@ -316,4 +316,3 @@ void vvImageReader::UpdateWithDimAndInputVectorPixelType()
 //----------------------------------------------------------------------------
 
 #endif /* end #define vvImageReader_TXX */
-

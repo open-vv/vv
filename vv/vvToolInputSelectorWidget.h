@@ -20,11 +20,11 @@
 
 // qt
 #include <QObject>
-#if QT_VERSION >= 0x050000
-#include <QtUiPlugin/QDesignerExportWidget>
-#else
-#include <QtDesigner/QDesignerExportWidget>
-#endif
+//#if QT_VERSION >= 0x050000
+//#include <QtUiPlugin/QDesignerExportWidget>
+//#else
+//#include <QtDesigner/QDesignerExportWidget>
+//#endif
 #include <QDialog>
 
 // vv

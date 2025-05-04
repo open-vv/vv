@@ -48,11 +48,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vvImage.h>
 
 #include <QtGlobal>
-#if QT_VERSION >= 0x050000
-#include <QtUiPlugin/QDesignerExportWidget>
-#else
-#include <QtDesigner/QDesignerExportWidget>
-#endif
+//#if QT_VERSION >= 0x050000
+//#include <QtUiPlugin/QDesignerExportWidget>
+//#else
+//#include <QtDesigner/QDesignerExportWidget>
+//#endif
 #include "vvToolBase.h"
 #include "QWidget"
 #include "vvToolWidgetBase.h"

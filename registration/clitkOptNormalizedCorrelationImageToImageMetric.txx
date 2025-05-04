@@ -211,8 +211,8 @@ template < class TFixedImage, class TMovingImage  >
 inline bool
 NormalizedCorrelationImageToImageMetric<TFixedImage,TMovingImage>
 ::GetValueThreadProcessSample(
-  unsigned int threadID,
-  unsigned long fixedImageSample,
+  itk::ThreadIdType threadID,
+  itk::SizeValueType fixedImageSample,
   const MovingImagePointType & itkNotUsed(mappedPoint),
   double movingImageValue) const
 {
@@ -416,8 +416,8 @@ template < class TFixedImage, class TMovingImage  >
 inline bool
 NormalizedCorrelationImageToImageMetric<TFixedImage,TMovingImage>
 ::GetValueAndDerivativeThreadProcessSample(
-  unsigned int threadID,
-  unsigned long fixedImageSample,
+  itk::ThreadIdType threadID,
+  itk::SizeValueType fixedImageSample,
   const MovingImagePointType & itkNotUsed(mappedPoint),
   double movingImageValue,
   const ImageDerivativesType &

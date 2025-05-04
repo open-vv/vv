@@ -56,6 +56,8 @@ public:
   vtkPoints * GetPoints() {return mData;}
   double GetZ() const {return mZ;}
   void SetTransformMatrix(vtkMatrix4x4* matrix);
+  double GetTolerance();
+  void SetTolerance(double tol);
   
   
 protected:
@@ -70,6 +72,7 @@ protected:
   bool mMeshIsUpToDate;
   ///Z location of the contour
   double mZ;
+  double mTolerance;
   
 #if GDCM_MAJOR_VERSION >= 2
   gdcm::Item * mItem;

@@ -136,8 +136,8 @@ MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 template < class TFixedImage, class TMovingImage  >
 inline bool
 MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
-::GetValueThreadProcessSample( unsigned int threadID,
-                               unsigned long fixedImageSample,
+::GetValueThreadProcessSample( itk::ThreadIdType threadID,
+                               itk::SizeValueType fixedImageSample,
                                const MovingImagePointType & itkNotUsed(mappedPoint),
                                double movingImageValue) const
 {
@@ -202,8 +202,8 @@ MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
 template < class TFixedImage, class TMovingImage  >
 inline bool
 MeanSquaresImageToImageMetricFor3DBLUTFFD<TFixedImage,TMovingImage>
-::GetValueAndDerivativeThreadProcessSample( unsigned int threadID,
-    unsigned long fixedImageSample,
+::GetValueAndDerivativeThreadProcessSample( itk::ThreadIdType threadID,
+    itk::SizeValueType fixedImageSample,
     const MovingImagePointType & itkNotUsed(mappedPoint),
     double movingImageValue,
     const ImageDerivativesType &

@@ -47,7 +47,7 @@ public :
   void Init();
   void Reset();
   template<class TItkImageType> void AddItkImage(TItkImageType *input);
-  void AddVtkImage(vtkImageData* input);
+  void AddVtkImage(vtkImageData* input, vtkSmartPointer<vtkTransform> transform);
   const std::vector<vtkImageData*>& GetVTKImages();
   vtkImageData* GetFirstVTKImageData();
   int GetNumberOfDimensions() const;

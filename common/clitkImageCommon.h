@@ -90,6 +90,14 @@ void ComputeWeightsOfEachClasses(const typename InputImageType::Pointer & input,
 
 //--------------------------------------------------------------------
 template<class ImageType1, class ImageType2>
+bool HaveSameOrigin(typename ImageType1::ConstPointer A,
+                     typename ImageType2::ConstPointer B);
+
+template<class ImageType1, class ImageType2>
+bool HaveSameOrigin(typename ImageType1::Pointer A,
+                     typename ImageType2::Pointer B);
+//--------------------------------------------------------------------
+template<class ImageType1, class ImageType2>
 bool HaveSameSpacing(typename ImageType1::ConstPointer A,
                      typename ImageType2::ConstPointer B);
 
