@@ -18,6 +18,7 @@
 #ifndef __vvInteractorStyleNavigator_h
 #define __vvInteractorStyleNavigator_h
 #include "vtkInteractorStyle.h"
+#include <vtkVersion.h>
 
 // Motion flags
 
@@ -30,7 +31,13 @@ class vvInteractorStyleNavigator : public vtkInteractorStyle
 public:
     static vvInteractorStyleNavigator *New();
     vtkTypeMacro(vvInteractorStyleNavigator, vtkInteractorStyle);
+#if VTK_MAJOR_VERSION >= 8
+    void PrintSelf(ostream& os, vtkIndent indent) override;
+#elif VTK_MAJOR_VERSION >= 7
     void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+#else
+    void PrintSelf(ostream& os, vtkIndent indent);
+#endif
 
     // Description:
     // Some useful information for handling window level
@@ -40,6 +47,19 @@ public:
     // Description:
     // Event bindings controlling the effects of pressing mouse buttons
     // or moving the mouse.
+#if VTK_MAJOR_VERSION >= 8
+    virtual void OnMouseMove() override;
+    virtual void OnLeftButtonDown() override;
+    virtual void OnLeftButtonUp() override;
+    virtual void OnRightButtonDown() override;
+    virtual void OnRightButtonUp() override;
+    virtual void OnMiddleButtonDown() override;
+    virtual void OnMiddleButtonUp() override;
+    virtual void OnEnter() override;
+    virtual void OnLeave() override;
+    virtual void OnMouseWheelForward() override;
+    virtual void OnMouseWheelBackward() override;
+#elif VTK_MAJOR_VERSION >= 7
     virtual void OnMouseMove() VTK_OVERRIDE;
     virtual void OnLeftButtonDown() VTK_OVERRIDE;
     virtual void OnLeftButtonUp() VTK_OVERRIDE;
@@ -51,10 +71,29 @@ public:
     virtual void OnLeave() VTK_OVERRIDE;
     virtual void OnMouseWheelForward() VTK_OVERRIDE;
     virtual void OnMouseWheelBackward() VTK_OVERRIDE;
+#else
+    virtual void OnMouseMove();
+    virtual void OnLeftButtonDown();
+    virtual void OnLeftButtonUp();
+    virtual void OnRightButtonDown();
+    virtual void OnRightButtonUp();
+    virtual void OnMiddleButtonDown();
+    virtual void OnMiddleButtonUp();
+    virtual void OnEnter();
+    virtual void OnLeave();
+    virtual void OnMouseWheelForward();
+    virtual void OnMouseWheelBackward();
+#endif
 
     // Description:
     // Override the "fly-to" (f keypress) for images.
+#if VTK_MAJOR_VERSION >= 8
+    virtual void OnChar() override;
+#elif VTK_MAJOR_VERSION >= 7
     virtual void OnChar() VTK_OVERRIDE;
+#else
+    virtual void OnChar();
+#endif
 
     // These methods for the different interactions in different modes
     // are overridden in subclasses to perform the correct motion. Since
@@ -68,8 +107,16 @@ public:
     virtual void EndWindowLevel();
     virtual void StartPick();
     virtual void EndPick();
-    virtual void Dolly()VTK_OVERRIDE;
+#if VTK_MAJOR_VERSION >= 8
+    virtual void Dolly() override;
+    virtual void Pan() override;
+#elif VTK_MAJOR_VERSION >= 7
+    virtual void Dolly() VTK_OVERRIDE;
     virtual void Pan() VTK_OVERRIDE;
+#else
+    virtual void Dolly();
+    virtual void Pan();
+#endif
 
     // We need to reimplement this because otherwise it returns the top renderer,
     // not the active one

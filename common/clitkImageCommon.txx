@@ -308,6 +308,28 @@ void ComputeWeightsOfEachClasses(const typename InputImageType::Pointer & input,
 }
 //--------------------------------------------------------------------
 
+//--------------------------------------------------------------------
+template<class ImageType1, class ImageType2>
+bool HaveSameOrigin(typename ImageType1::ConstPointer A,
+                    typename ImageType2::ConstPointer B)
+{
+  if (A->GetImageDimension() != B->GetImageDimension()) return false;
+  for(unsigned int i=0; i<A->GetImageDimension(); i++) {
+    if (A->GetOrigin()[i] != B->GetOrigin()[i]) return false;
+  }
+  return true;
+}
+template<class ImageType1, class ImageType2>
+bool HaveSameOrigin(typename ImageType1::Pointer A,
+                    typename ImageType2::Pointer B)
+{
+  if (A->GetImageDimension() != B->GetImageDimension()) return false;
+  for(unsigned int i=0; i<A->GetImageDimension(); i++) {
+    if (A->GetOrigin()[i] != B->GetOrigin()[i]) return false;
+  }
+  return true;
+}
+//--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
 template<class ImageType1, class ImageType2>
@@ -378,6 +400,36 @@ bool HaveSameSizeAndSpacing(typename ImageType1::Pointer A,
 {
   return ( HaveSameSize<ImageType1, ImageType2>(A, B) &&
            HaveSameSpacing<ImageType1, ImageType2>(A, B) );
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+template<class ImageType1, class ImageType2>
+bool HaveSameDirection(typename ImageType1::ConstPointer A,
+                       typename ImageType2::ConstPointer B)
+{
+    if (A->GetImageDimension() != B->GetImageDimension()) return false;
+    for(unsigned int i=0; i<A->GetImageDimension(); i++) {
+      for(unsigned int j=0; j<A->GetImageDimension(); j++) {
+        if (A->GetDirection()[i][j] != B->GetDirection()[i][j]) return false;
+      }
+    }
+    return true;
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+template<class ImageType1, class ImageType2>
+bool HaveSameDirection(typename ImageType1::Pointer A,
+                       typename ImageType2::Pointer B)
+{
+    if (A->GetImageDimension() != B->GetImageDimension()) return false;
+    for(unsigned int i=0; i<A->GetImageDimension(); i++) {
+      for(unsigned int j=0; j<A->GetImageDimension(); j++) {
+        if (A->GetDirection()[i][j] != B->GetDirection()[i][j]) return false;
+      }
+    }
+    return true;
 }
 //--------------------------------------------------------------------
 

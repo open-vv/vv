@@ -333,8 +333,8 @@ private:
 
   virtual inline void GetValueThreadPreProcess( unsigned int threadID,
       bool withinSampleThread ) const ITK_OVERRIDE;
-  virtual inline bool GetValueThreadProcessSample( unsigned int threadID,
-      unsigned long fixedImageSample,
+  virtual inline bool GetValueThreadProcessSample( itk::ThreadIdType threadID,
+      itk::SizeValueType fixedImageSample,
       const MovingImagePointType & mappedPoint,
       double movingImageValue ) const ITK_OVERRIDE;
   virtual inline void GetValueThreadPostProcess( unsigned int threadID,
@@ -343,8 +343,8 @@ private:
   virtual inline void GetValueAndDerivativeThreadPreProcess(
     unsigned int threadID,
     bool withinSampleThread ) const ITK_OVERRIDE;
-  virtual inline bool GetValueAndDerivativeThreadProcessSample( unsigned int threadID,
-      unsigned long fixedImageSample,
+  virtual inline bool GetValueAndDerivativeThreadProcessSample( itk::ThreadIdType threadID,
+      itk::SizeValueType fixedImageSample,
       const MovingImagePointType & mappedPoint,
       double movingImageValue,
       const ImageDerivativesType &

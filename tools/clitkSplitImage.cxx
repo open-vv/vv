@@ -39,7 +39,7 @@ int main(int argc, char * argv[])
   itk::ImageIOBase::Pointer header = clitk::readImageHeader(args_info.input_arg);
   if (header.IsNull()) {
     std::cerr << "Unable to read image file " << args_info.input_arg << std::endl;
-    std::exit(1);
+    std::exit(EXIT_FAILURE);
   }
   unsigned int dim = header->GetNumberOfDimensions();
 
@@ -55,9 +55,12 @@ int main(int argc, char * argv[])
   filter.SetSplitDimension(args_info.dimension_arg);
   filter.SetPng(args_info.png_flag);
   filter.SetWindowLevel(args_info.window_arg, args_info.level_arg);
+  filter.SetMha(args_info.mha_flag);
+  filter.SetNii(args_info.nii_flag);
+  filter.SetNiigz(args_info.niigz_flag);
   filter.SetVerbose(args_info.verbose_flag);
   filter.Update();
 
   // this is the end my friend
-  return 0;
+  return EXIT_SUCCESS;
 } // end main

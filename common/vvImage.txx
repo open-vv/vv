@@ -17,6 +17,7 @@
 ===========================================================================*/
 #include <itkImageToVTKImageFilter.h>
 #include <itkPixelTraits.h>
+#include <vtkVersion.h>
 
 //--------------------------------------------------------------------
 template<class TItkImageType>
