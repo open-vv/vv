@@ -365,12 +365,12 @@ namespace itk
 	
     typename TabulationImageType::IndexType start;
 	
-    for(register int i=0;i<ImageDimension;i++)
+    for(int i=0;i<ImageDimension;i++)
       start[i]=0;
 	
     typename TabulationImageType::SizeType size = this->GetInput()->GetLargestPossibleRegion().GetSize();
 	
-    for(register int i=0;i<ImageDimension;i++)
+    for(int i=0;i<ImageDimension;i++)
       size[i]*=2;
 	
     typename TabulationImageType::RegionType region;
@@ -390,7 +390,7 @@ namespace itk
       m_AngleTabulation->GetRequestedRegion().GetIndex();
 	
     typename TabulationImageType::SizeType center = this->GetInput()->GetLargestPossibleRegion().GetSize();
-    for(register int i=0;i<ImageDimension;i++)
+    for(int i=0;i<ImageDimension;i++)
       center[i]-=1;
 		
     VectorType vecttemp;

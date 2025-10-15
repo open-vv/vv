@@ -67,7 +67,7 @@ Q_OBJECT
 public:
   static vvSlicer *New();
   vtkTypeMacro(vvSlicer,vtkImageViewer2);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void SetImage(vvImage::Pointer inputImages);
   vvImage::Pointer GetImage() {
@@ -108,14 +108,14 @@ public:
 
   void SetFusionSequenceTSlice(int t);
 
-  void SetSliceOrientation(int orientation) VTK_OVERRIDE;
+  void SetSliceOrientation(int orientation) override;
   void AdjustResliceToSliceOrientation(vtkImageReslice *reslice);
   int GetTSlice();
   int GetFusionTSlice();
   int GetOverlayTSlice();
   int GetMaxCurrentTSlice();
   ///Reimplemented from vtkImageViewer2 to add polydata support
-  void SetSlice(int s) VTK_OVERRIDE;
+  void SetSlice(int s) override;
   int GetTMax();
 
   void SetOpacity(double s);
@@ -124,7 +124,7 @@ public:
   void FlipHorizontalView();
   void FlipVerticalView();
   double GetScalarComponentAsDouble(vtkImageData *image, double X, double Y, double Z, int &ix, int &iy, int &iz, int component=0);
-  void Render() VTK_OVERRIDE;
+  void Render() override;
   ///Sets the camera to fit the image in the window
   void ResetCamera();
 
@@ -183,8 +183,8 @@ public:
   void ToggleContourSuperposition();
   void SetInterpolationImageReslice(int interpolation);
 
-  virtual void SetColorWindow(double s) VTK_OVERRIDE;
-  virtual void SetColorLevel(double s) VTK_OVERRIDE;
+  virtual void SetColorWindow(double s) override;
+  virtual void SetColorLevel(double s) override;
 
   double GetOverlayColorWindow();
   double GetOverlayColorLevel();
@@ -301,8 +301,8 @@ protected:
   bool showFusionLegend;
 
 private:
-  void UpdateOrientation() VTK_OVERRIDE;
-  void UpdateDisplayExtent() VTK_OVERRIDE;
+  void UpdateOrientation() override;
+  void UpdateDisplayExtent() override;
   void ConvertImageToImageDisplayExtent(vtkInformation *sourceImage, const int sourceExtent[6],
                                         vtkImageData *targetImage, int targetExtent[6]);
   void ConvertImageToImageDisplayExtent(vtkImageData *sourceImage, const int sourceExtent[6],

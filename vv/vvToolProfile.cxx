@@ -106,8 +106,8 @@ vvToolProfile::vvToolProfile(vvMainWindowBase * parent, Qt::WindowFlags f)
   chart->SetAutoSize(false);
   chart->SetRenderEmpty(true);
   mView->GetScene()->AddItem(chart);
-  this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
-  this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
+  this->ProfileWidget->renderWindow()->GetRenderers()->RemoveAllItems();
+  this->ProfileWidget->renderWindow()->AddRenderer(mView->GetRenderer());
   ProfileWidget->show();
 
 #ifdef Q_OS_OSX
@@ -145,8 +145,8 @@ void vvToolProfile::selectPoint1()
       chart->SetRenderEmpty(true);
       mView->GetScene()->ClearItems();
       mView->GetScene()->AddItem(chart);
-      this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
-      this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
+      this->ProfileWidget->renderWindow()->GetRenderers()->RemoveAllItems();
+      this->ProfileWidget->renderWindow()->AddRenderer(mView->GetRenderer());
       ProfileWidget->show();
       mCurrentSlicerManager->GetLandmarks()->RemoveLandmarkWithLabel("P1", mPoint1[3]);
     }
@@ -205,8 +205,8 @@ void vvToolProfile::selectPoint2()
       chart->SetRenderEmpty(true);
       mView->GetScene()->ClearItems();
       mView->GetScene()->AddItem(chart);
-      this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
-      this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
+      this->ProfileWidget->renderWindow()->GetRenderers()->RemoveAllItems();
+      this->ProfileWidget->renderWindow()->AddRenderer(mView->GetRenderer());
       ProfileWidget->show();
       mCurrentSlicerManager->GetLandmarks()->RemoveLandmarkWithLabel("P2", mPoint2[3]);
     }
@@ -321,8 +321,8 @@ void vvToolProfile::computeProfile()
     chart->GetAxis(vtkAxis::LEFT)->SetTitle("Intensity");
     chart->GetAxis(vtkAxis::BOTTOM)->SetTitle("Distance (mm)");
     
-    this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
-    this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
+    this->ProfileWidget->renderWindow()->GetRenderers()->RemoveAllItems();
+    this->ProfileWidget->renderWindow()->AddRenderer(mView->GetRenderer());
     ProfileWidget->show();
     
     QApplication::restoreOverrideCursor();
@@ -343,8 +343,8 @@ void vvToolProfile::cancelPoints()
   chart->SetRenderEmpty(true);
   mView->GetScene()->ClearItems();
   mView->GetScene()->AddItem(chart);
-  this->ProfileWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
-  this->ProfileWidget->GetRenderWindow()->AddRenderer(mView->GetRenderer());
+  this->ProfileWidget->renderWindow()->GetRenderers()->RemoveAllItems();
+  this->ProfileWidget->renderWindow()->AddRenderer(mView->GetRenderer());
   ProfileWidget->show();
   
   QString position = "";

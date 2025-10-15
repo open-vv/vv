@@ -13,14 +13,14 @@ class vvAnimatedGIFWriter : public vtkGenericMovieWriter //test this if link err
 public:
   static vvAnimatedGIFWriter *New();
   vtkTypeMacro(vvAnimatedGIFWriter,vtkGenericMovieWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Description:
   // These methods start writing an Movie file, write a frame to the file
   // and then end the writing process.
-  void Start() VTK_OVERRIDE;
-  void Write() VTK_OVERRIDE;
-  void End() VTK_OVERRIDE;
+  void Start() override;
+  void Write() override;
+  void End() override;
 
   // Description:
   // Set/Get the frame rate, in frame/s.

@@ -23,7 +23,7 @@ class vvGlyph2D : public vtkGlyph3D
 {
 public:
     vtkTypeMacro(vvGlyph2D,vtkGlyph3D);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     // Description
     // Construct object with scaling on, scaling mode is by scalar value,
@@ -44,7 +44,7 @@ protected:
     vvGlyph2D();
     ~vvGlyph2D() {};
 
-    virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+    virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
     vvGlyph2D(const vvGlyph2D&);  // Not implemented.
