@@ -26,7 +26,7 @@ class vvGlyphSource: public vtkGlyphSource2D
 public:
     static vvGlyphSource *New();
     vtkTypeMacro(vvGlyphSource,vtkGlyphSource2D);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     void SetGlyphTypeToSpecificArrow() {
         this->SetGlyphType(VTK_SPECIFICARROW_GLYPH);
@@ -38,7 +38,7 @@ protected:
     void CreateSpecificArrow(vtkPoints *pts, vtkCellArray *lines,
                              vtkCellArray *polys, vtkUnsignedCharArray *colors);
 
-    int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+    int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
 

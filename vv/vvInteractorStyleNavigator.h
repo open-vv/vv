@@ -30,7 +30,7 @@ class vvInteractorStyleNavigator : public vtkInteractorStyle
 public:
     static vvInteractorStyleNavigator *New();
     vtkTypeMacro(vvInteractorStyleNavigator, vtkInteractorStyle);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     // Description:
     // Some useful information for handling window level
@@ -40,21 +40,21 @@ public:
     // Description:
     // Event bindings controlling the effects of pressing mouse buttons
     // or moving the mouse.
-    virtual void OnMouseMove() VTK_OVERRIDE;
-    virtual void OnLeftButtonDown() VTK_OVERRIDE;
-    virtual void OnLeftButtonUp() VTK_OVERRIDE;
-    virtual void OnRightButtonDown() VTK_OVERRIDE;
-    virtual void OnRightButtonUp() VTK_OVERRIDE;
-    virtual void OnMiddleButtonDown() VTK_OVERRIDE;
-    virtual void OnMiddleButtonUp() VTK_OVERRIDE;
-    virtual void OnEnter() VTK_OVERRIDE;
-    virtual void OnLeave() VTK_OVERRIDE;
-    virtual void OnMouseWheelForward() VTK_OVERRIDE;
-    virtual void OnMouseWheelBackward() VTK_OVERRIDE;
+    virtual void OnMouseMove() override;
+    virtual void OnLeftButtonDown() override;
+    virtual void OnLeftButtonUp() override;
+    virtual void OnRightButtonDown() override;
+    virtual void OnRightButtonUp() override;
+    virtual void OnMiddleButtonDown() override;
+    virtual void OnMiddleButtonUp() override;
+    virtual void OnEnter() override;
+    virtual void OnLeave() override;
+    virtual void OnMouseWheelForward() override;
+    virtual void OnMouseWheelBackward() override;
 
     // Description:
     // Override the "fly-to" (f keypress) for images.
-    virtual void OnChar() VTK_OVERRIDE;
+    virtual void OnChar() override;
 
     // These methods for the different interactions in different modes
     // are overridden in subclasses to perform the correct motion. Since
@@ -68,8 +68,8 @@ public:
     virtual void EndWindowLevel();
     virtual void StartPick();
     virtual void EndPick();
-    virtual void Dolly()VTK_OVERRIDE;
-    virtual void Pan() VTK_OVERRIDE;
+    virtual void Dolly()override;
+    virtual void Pan() override;
 
     // We need to reimplement this because otherwise it returns the top renderer,
     // not the active one

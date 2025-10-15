@@ -25,7 +25,7 @@ class vtkVOXImageWriter : public vtkImageWriter
 {
 public:
     vtkTypeMacro(vtkVOXImageWriter,vtkImageWriter);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     // Description:
     static vtkVOXImageWriter *New();
@@ -36,7 +36,7 @@ public:
 
     // This is called by the superclass.
     // This is the method you should override.
-    virtual void Write() VTK_OVERRIDE;
+    virtual void Write() override;
 
 protected:
     vtkVOXImageWriter();

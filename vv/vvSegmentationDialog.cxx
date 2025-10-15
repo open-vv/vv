@@ -183,7 +183,7 @@ void vvSegmentationDialog::SetImage(vvImage::Pointer image)
 
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   mManager->SetImage(image);
-  mManager->SetSlicerWindow(0,viewWidget->GetRenderWindow());
+  mManager->SetSlicerWindow(0,viewWidget->renderWindow());
   vvInteractorStyleNavigator* style = vvInteractorStyleNavigator::New();
   mManager->SetInteractorStyleNavigator(0,style);
   style->Delete();
