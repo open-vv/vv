@@ -23,28 +23,12 @@
 #include <itk_zlib.h>
 
 //--------------------------------------------------------------------
-/* Find value_ptr as pointer to the parameter of the given key in the header.
- * Returns NULL on success.
- */
-char*
-rtk::NexusHdf5ImageIO::edf_findInHeader( char* header, const char* key )
-{
-  char *value_ptr = strstr( header, key );
-
-  if (!value_ptr) return NULL;
-  /* an edf line is "key     = value ;" */
-  value_ptr = 1 + strchr( value_ptr + strlen(key), '=' );
-  while (isspace(*value_ptr) ) value_ptr++;
-  return value_ptr;
-}
-
-//--------------------------------------------------------------------
 // Read Image Information
 void rtk::NexusHdf5ImageIO::ReadImageInformation()
 {
   try {
     // Open the existing file
-    H5File file(filename, H5F_ACC_RDONLY);
+    H5::H5File file(m_FileName, H5F_ACC_RDONLY);
     
     // List of all entries
     hsize_t n_objs = file.getNumObjs();
@@ -61,38 +45,38 @@ void rtk::NexusHdf5ImageIO::ReadImageInformation()
     // Take the first one
     std::string entry = groups[0];
     m_Entry = entry;
-    Group entry_group = file.openGroup("/" + entry);
-    Attribute attr = entry_group.openAttribute("definition");
-    DataType dtype = attr.getDataType();
+    H5::Group entry_group = file.openGroup("/" + entry);
+    H5::Attribute attr = entry_group.openAttribute("definition");
+    H5::DataType dtype = attr.getDataType();
     std::string entry_type;
     attr.read(dtype, entry_type);
     float spacing_x = 0.0;
     float spacing_y = 0.0;
     
     // Fetch spacing information
-    if entry_type == "NXtomo" {
+    if (entry_type == "NXtomo") {
         // Get projection spacing
-        DataSet spacing_x_ds = file.openDataSet(
+        H5::DataSet spacing_x_ds = file.openDataSet(
             "/" + entry + "/instrument/detector/x_pixel_size"
         );
-        spacing_x_ds.read(&spacing_x, PredType::NATIVE_FLOAT);
+        spacing_x_ds.read(&spacing_x, H5::PredType::NATIVE_FLOAT);
         SetSpacing(0, spacing_x);
 
-        DataSet spacing_y_ds = file.openDataSet(
+        H5::DataSet spacing_y_ds = file.openDataSet(
             "/" + entry + "/instrument/detector/y_pixel_size"
         );
-        spacing_y_ds.read(&spacing_y, PredType::NATIVE_FLOAT);
+        spacing_y_ds.read(&spacing_y, H5::PredType::NATIVE_FLOAT);
         SetSpacing(1, spacing_y);
         
         // Spacing on the rotation angle axis is irrelevant
         SetSpacing(2, 1.0); //
 
-    } else if entry_type == "NXentry" {
-        DataSet voxel_size_ds = file.openDataSet(
+    } else if (entry_type == "NXentry") {
+        H5::DataSet voxel_size_ds = file.openDataSet(
             "/" + entry + "/reconstruction/configuration/processing_options/reconstruction/voxel_size_cm"
         );
         float voxel_size_mm = 0.0;
-        voxel_size_ds.read(&voxel_size_mm, PredType::NATIVE_FLOAT);
+        voxel_size_ds.read(&voxel_size_mm, H5::PredType::NATIVE_FLOAT);
         voxel_size_mm *= 10.0; // convert cm 
         SetSpacing(0, voxel_size_mm);
         SetSpacing(1, voxel_size_mm);
@@ -102,25 +86,25 @@ void rtk::NexusHdf5ImageIO::ReadImageInformation()
                                  <<"is an invalid entry type: "
                                  << "Valid types are NXtomo and NXentry"
                                  <<" \"");
-        return 1;
     }
 
     // Get datatype and dataspace
+    H5::DataSet dataset;
     if (entry_type == "NXtomo") {
-        m_PathToData = "/" + entry + "/instrument/detector/data"
-        DataSet dataset = file.openDataSet(
+        m_PathToData = "/" + entry + "/instrument/detector/data";
+        dataset = file.openDataSet(
             m_PathToData
         );
 
     } else if (entry_type == "NXentry") {
-        m_PathToData = "/" + entry + "/reconstruction/results/data"
-        DataSet dataset = file.openDataSet(
+        m_PathToData = "/" + entry + "/reconstruction/results/data";
+        dataset = file.openDataSet(
             m_PathToData
         );
     }
 
     // Get dimensions
-    DataSpace dataspace = dataset.getSpace();
+    H5::DataSpace dataspace = dataset.getSpace();
     int rank = dataspace.getSimpleExtentNdims();
     hsize_t dims[3];
     dataspace.getSimpleExtentDims(dims, nullptr);
@@ -136,8 +120,8 @@ void rtk::NexusHdf5ImageIO::ReadImageInformation()
     SetOrigin(2, 0.);
 
     // Get the datatype
-    DataType dtype = dataset.getDataType();
-    H5T_class_t type_class = dtype.getClass();
+    H5::DataType dtype2 = dataset.getDataType();
+    H5T_class_t type_class = dtype2.getClass();
 
     switch(type_class) {
       case H5T_NO_CLASS:
@@ -182,15 +166,12 @@ void rtk::NexusHdf5ImageIO::ReadImageInformation()
     dataset.close();
     file.close();
 
-    } catch (FileIException &error) {
-      itkExceptionMacro("Cannot open HDF5 file: " << filename);
-      return 1;
-    } catch (DataSetIException &error) {
-      itkExceptionMacro("Dataset error: " << error.getCDetailMsg() << filename);
-      return 1;
-    } catch (DataSpaceIException &error) {
-      itkExceptionError("Dataspace error: " << error.getCDetailMsg());
-        return 1;
+    } catch (H5::FileIException &error) {
+      itkExceptionMacro("Cannot open HDF5 file: " + m_FileName);
+    } catch (H5::DataSetIException &error) {
+      itkExceptionMacro("Dataset error: " + std::string(error.getCDetailMsg()) + m_FileName);
+    } catch (H5::DataSpaceIException &error) {
+      itkExceptionMacro("Dataspace error: " + std::string(error.getCDetailMsg()));
     }   
 } ////
 
@@ -198,9 +179,9 @@ void rtk::NexusHdf5ImageIO::ReadImageInformation()
 // Read Image Information
 bool rtk::NexusHdf5ImageIO::CanReadFile(const char* FileNameToRead)
 {
-  std::string                  filename(FileNameToRead);
-  const std::string::size_type it = filename.find_last_of( "." );
-  std::string                  fileExt( filename, it+1, filename.length() );
+  m_FileName = FileNameToRead;
+  const std::string::size_type it = m_FileName.find_last_of( "." );
+  std::string                  fileExt( m_FileName, it+1, m_FileName.length() );
 
   if (
     fileExt != std::string("h5") &&
@@ -209,11 +190,11 @@ bool rtk::NexusHdf5ImageIO::CanReadFile(const char* FileNameToRead)
     ) return false;
   
   // Try opening with HDF5 to verify
-  hid_t file_id = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
-  if (file_id < 0)
+  try {
+    H5::H5File file(m_FileName, H5F_ACC_RDONLY);
+  } catch (H5::FileIException &error) {
     return false;
-
-  H5Fclose(file_id);
+  } 
   return true;
 } ////
 
@@ -222,51 +203,35 @@ bool rtk::NexusHdf5ImageIO::CanReadFile(const char* FileNameToRead)
 void rtk::NexusHdf5ImageIO::Read(void * buffer)
 {
   try {
-    DataSet dataset = file.openDataSet(
+    // Open the existing file
+    H5::H5File file(m_FileName, H5F_ACC_RDONLY);
+
+    H5::DataSet dataset = file.openDataSet(
       m_PathToData
     );
   
-    DataSpace dataspace = dataset.getSpace();
+    H5::DataSpace dataspace = dataset.getSpace();
     int rank = dataspace.getSimpleExtentNdims();
     hsize_t dims[3];
     dataspace.getSimpleExtentDims(dims, nullptr);
     
     // Get the datatype
-    DataType readType = dataset.getDataType();
-    H5T_class_t type_class = dtype.getClass();
+    H5::DataType readType = dataset.getDataType();
+    H5T_class_t type_class = readType.getClass();
     dataset.read(buffer, type_class);
 
     dataspace.close();
     dataset.close();
     file.close();
   
-  } catch (FileIException &error) {
-    itkExceptionMacro("Cannot open HDF5 file: " << filename);
-    return 1;
-  } catch (DataSetIException &error) {
-    itkExceptionMacro("Dataset error: " << error.getCDetailMsg() << filename);
-    return 1;
-  } catch (DataSpaceIException &error) {
-    itkExceptionError("Dataspace error: " << error.getCDetailMsg());
-      return 1;
+  } catch (H5::FileIException &error) {
+    itkExceptionMacro("Cannot open HDF5 file: " + m_FileName);
+  } catch (H5::DataSetIException &error) {
+    itkExceptionMacro("Dataset error: " + std::string(error.getCDetailMsg()) + m_FileName);
+  } catch (H5::DataSpaceIException &error) {
+    itkExceptionMacro("Dataspace error: " + std::string(error.getCDetailMsg()));
   }
-
-const std::string filename = this->GetFileName();
-  hid_t file_id = H5Fopen(m_FileName.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
-  if (file_id < 0)
-    itkExceptionMacro("Cannot open HDF5 file for reading");
-
-  hid_t dataset_id = H5Dopen(file_id, "image", H5P_DEFAULT);
-  if (dataset_id < 0)
-    itkExceptionMacro("Cannot open dataset 'image'");
-
-  herr_t status = H5Dread(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, buffer);
-  if (status < 0)
-    itkExceptionMacro("Error reading HDF5 dataset");
-
-  H5Dclose(dataset_id);
-  H5Fclose(file_id);}
-
+}
 //--------------------------------------------------------------------
 // Write Image Information
 void rtk::NexusHdf5ImageIO::WriteImageInformation( bool itkNotUsed(keepOfStream) )

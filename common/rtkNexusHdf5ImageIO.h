@@ -76,10 +76,7 @@ public:
 protected:
   std::string m_Entry;
   std::string m_PathToData;
-  std::string m_BinaryFileName;
-  int         m_BinaryFileSkip;
-
-  static char* edf_findInHeader( char* header, const char* key );
+  std::string m_FileName;
 
   /* List of EDF supported datatypes
    */
