@@ -23,7 +23,7 @@
 #include <fstream>
 #include <string.h>
 
-#include <hdf5.h>
+//#include <hdf5.h>
 #include <H5Cpp.h>
 
 #include "clitkCommon.h"
