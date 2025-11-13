@@ -35,6 +35,7 @@
 #include "rtkEdfImageIOFactory.h"
 #include "rtkImagXImageIOFactory.h"
 #include "rtkXRadImageIOFactory.h"
+#include "rtkNexusHdf5ImageIOFactory.h"
 #include "clitkEsrfHstImageIOFactory.h"
 #include "clitkGateAsciiImageIOFactory.h"
 #include "clitkConfiguration.h"
@@ -90,6 +91,7 @@ void clitk::RegisterClitkFactories()
   rtk::EdfImageIOFactory::RegisterOneFactory();
   rtk::ImagXImageIOFactory::RegisterOneFactory();
   rtk::XRadImageIOFactory::RegisterOneFactory();
+  rtk::NexusHdf5ImageIOFactory::RegisterOneFactory();
   clitk::EsrfHstImageIOFactory::RegisterOneFactory();
   itk::BMPImageIOFactory::RegisterOneFactory();
   itk::GDCMImageIOFactory::RegisterOneFactory();

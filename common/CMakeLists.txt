@@ -18,6 +18,8 @@ set(clitkCommon_SRC
   clitkXdrImageIOReader.cxx
   clitkXdrImageIOWriter.cxx
   clitkXdrImageIOFactory.cxx
+  rtkNexusHdf5ImageIO.cxx
+  rtkNexusHdf5ImageIOFactory.cxx
   clitkEsrfHstImageIO.cxx
   clitkEsrfHstImageIOFactory.cxx
   clitkEsrfHstXMLFileReader.cxx
