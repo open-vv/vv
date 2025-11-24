@@ -1,0 +1,52 @@
+diff -crB -x '*.git*' VTK/CMake/VTKGenerateExportHeader.cmake VTK-patch/CMake/VTKGenerateExportHeader.cmake
+*** VTK/CMake/VTKGenerateExportHeader.cmake	2024-05-23 14:53:49.359235000 +0200
+--- VTK-patch/CMake/VTKGenerateExportHeader.cmake	2024-05-22 21:17:24.191408000 +0200
+***************
+*** 174,181 ****
+      execute_process(COMMAND ${CMAKE_C_COMPILER} --version
+        OUTPUT_VARIABLE _gcc_version_info
+        ERROR_VARIABLE _gcc_version_info)
+!     string(REGEX MATCH "[3-9]\\.[0-9]\\.[0-9]*"
+        _gcc_version "${_gcc_version_info}")
+      # gcc on mac just reports: "gcc (GCC) 3.3 20030304 ..." without the
+      # patch level, handle this here:
+      if(NOT _gcc_version)
+--- 174,185 ----
+      execute_process(COMMAND ${CMAKE_C_COMPILER} --version
+        OUTPUT_VARIABLE _gcc_version_info
+        ERROR_VARIABLE _gcc_version_info)
+!     string(REGEX MATCH "[1-9][0-9]\\.[0-9]\\.[0-9]*"
+        _gcc_version "${_gcc_version_info}")
++     if(NOT _gcc_version)
++      string(REGEX MATCH "[3-9]\\.[0-9]\\.[0-9]*"
++        _gcc_version "${_gcc_version_info}")
++     endif()
+      # gcc on mac just reports: "gcc (GCC) 3.3 20030304 ..." without the
+      # patch level, handle this here:
+      if(NOT _gcc_version)
+diff -crB -x '*.git*' VTK/Rendering/Qt/vtkQtLabelRenderStrategy.cxx VTK-patch/Rendering/Qt/vtkQtLabelRenderStrategy.cxx
+*** VTK/Rendering/Qt/vtkQtLabelRenderStrategy.cxx	2024-05-23 14:54:07.016275000 +0200
+--- VTK-patch/Rendering/Qt/vtkQtLabelRenderStrategy.cxx	2024-05-22 19:04:14.000000000 +0200
+***************
+*** 40,45 ****
+--- 40,46 ----
+  #include <QImage>
+  #include <QMap>
+  #include <QPainter>
++ #include <QPainterPath>
+  #include <QPair>
+  #include <QPixmap>
+  #include <QTextDocument>
+diff -crB -x '*.git*' VTK/Rendering/Qt/vtkQtStringToImage.cxx VTK-patch/Rendering/Qt/vtkQtStringToImage.cxx
+*** VTK/Rendering/Qt/vtkQtStringToImage.cxx	2024-05-23 14:54:07.019265000 +0200
+--- VTK-patch/Rendering/Qt/vtkQtStringToImage.cxx	2024-05-22 19:04:40.000000000 +0200
+***************
+*** 31,36 ****
+--- 31,37 ----
+  #include <QFontMetrics>
+  #include <QImage>
+  #include <QPainter>
++ #include <QPainterPath>
+  #include <QPixmap>
+  #include <QTextDocument>
+  #include <QTextStream>

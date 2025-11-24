@@ -1,0 +1,45 @@
+Only in itk-patch: itk.patch
+diff -crB -x '*.git*' itk/Modules/Core/GPUFiniteDifference/include/itkGPUFiniteDifferenceFilterEnum.h itk-patch/Modules/Core/GPUFiniteDifference/include/itkGPUFiniteDifferenceFilterEnum.h
+*** itk/Modules/Core/GPUFiniteDifference/include/itkGPUFiniteDifferenceFilterEnum.h	2024-05-23 15:43:14.197001000 +0200
+--- itk-patch/Modules/Core/GPUFiniteDifference/include/itkGPUFiniteDifferenceFilterEnum.h	2024-05-24 09:26:50.648500000 +0200
+***************
+*** 20,25 ****
+--- 20,26 ----
+  
+  #include <iostream>
+  #include "ITKGPUFiniteDifferenceExport.h"
++ #include "itkIntTypes.h"
+  
+  namespace itk
+  {
+diff -crB -x '*.git*' itk/Modules/Filtering/MathematicalMorphology/include/itkMathematicalMorphologyEnums.h itk-patch/Modules/Filtering/MathematicalMorphology/include/itkMathematicalMorphologyEnums.h
+*** itk/Modules/Filtering/MathematicalMorphology/include/itkMathematicalMorphologyEnums.h	2024-05-23 15:43:19.203739000 +0200
+--- itk-patch/Modules/Filtering/MathematicalMorphology/include/itkMathematicalMorphologyEnums.h	2024-05-23 09:22:51.582247000 +0200
+***************
+*** 19,24 ****
+--- 19,25 ----
+  #define itkMathematicalMorphologyEnums_h
+  
+  #include <iostream>
++ #include <cstdint>
+  #include "ITKMathematicalMorphologyExport.h"
+  
+  
+***************
+*** 38,44 ****
+     * \brief Algorithm or implementation used in the dilation/erosion operations.
+     * \ingroup ITKMathematicalMorphology
+     */
+!   enum class Algorithm : uint8_t
+    {
+      BASIC = 0,
+      HISTO = 1,
+--- 39,45 ----
+     * \brief Algorithm or implementation used in the dilation/erosion operations.
+     * \ingroup ITKMathematicalMorphology
+     */
+!   enum class Algorithm : std::uint8_t
+    {
+      BASIC = 0,
+      HISTO = 1,
+Only in itk-patch/Modules/Remote: SimpleITKFilters
