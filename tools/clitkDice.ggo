@@ -13,5 +13,4 @@ section "Input"
 option "input1"         i	"Input mask 1"          string  	yes
 option "input2"		j	"Input mask 2"	        string  	yes
 
-option "label1"		-	"Label in input1"	int          no      default="1"
-option "label2"		-	"Label in input2"	int          no      default="1"
+option "label"		-	"Label"                 int             no
