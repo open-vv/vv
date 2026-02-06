@@ -54,7 +54,7 @@ namespace clitk {
     itkNewMacro(Self);
 
     /** Run-time type information (and related methods). */
-    itkTypeMacro(AddRelativePositionConstraintToLabelImageFilter, ImageToImageFilter);
+    itkTypeMacro(MorphoMathFilter, ImageToImageFilter);
     FILTERBASE_INIT;
 
     /** Some convenient typedefs. */

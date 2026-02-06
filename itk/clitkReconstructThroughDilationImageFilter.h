@@ -87,7 +87,7 @@ namespace clitk
     void SetRadius(const int r) { for(uint i=0; i<InputImageDimension; i++) m_Radius[i] = r; SetRadius(m_Radius); }
     SizeType GetRadius(void){return m_Radius;}
     itkSetMacro( ErosionPaddingValue, OutputPixelType);
-    itkGetConstMacro( ErosionPaddingValue, OutputPixelType)
+    itkGetConstMacro( ErosionPaddingValue, OutputPixelType);
     itkSetMacro( MaximumNumberOfLabels, unsigned int);
     itkGetConstMacro( MaximumNumberOfLabels, unsigned int);
     itkSetMacro( BackgroundValue, InternalPixelType);

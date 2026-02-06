@@ -1,0 +1,5 @@
+.DS_Store
+CMakeSettings.json
+.vs
+_build*
+_install*

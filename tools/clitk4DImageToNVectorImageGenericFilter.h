@@ -56,7 +56,7 @@ namespace clitk
     itkNewMacro(Self);  
 
     // Run-time type information (and related methods)
-    itkTypeMacro( 4DImageToNVectorImageGenericFilter, LightObject );
+    itkTypeMacro( FourDImageToNVectorImageGenericFilter, LightObject );
 
 
     //----------------------------------------

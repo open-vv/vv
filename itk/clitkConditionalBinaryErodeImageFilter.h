@@ -66,7 +66,7 @@ namespace clitk
     itkNewMacro(Self);  
 
     // Run-time type information (and related methods)
-    itkTypeMacro(BinaryErodeImageFilter, BinaryMorphologyImageFilterr );
+    itkTypeMacro(ConditionalBinaryErodeImageFilter, BinaryMorphologyImageFilterr );
 
     /** Dimension of the domain space. */
     itkStaticConstMacro(InputImageDimension, unsigned int, Superclass::InputImageDimension);

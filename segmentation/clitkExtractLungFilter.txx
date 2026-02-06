@@ -618,10 +618,11 @@ SearchForTracheaSeed(int skip)
 
 bool is_orientation_superior(itk::SpatialOrientation::ValidCoordinateOrientationFlags orientation)
 {
+  const uint32_t value = static_cast<uint32_t>(orientation);
   itk::SpatialOrientation::CoordinateTerms sup = itk::SpatialOrientation::ITK_COORDINATE_Superior;
-  bool primary = (orientation & 0x0000ff) == sup;
-  bool secondary = ((orientation & 0x00ff00) >> 8) == sup;
-  bool tertiary = ((orientation & 0xff0000) >> 16) == sup;
+  bool primary = (value & 0x0000ff) == static_cast<uint32_t> (sup);
+  bool secondary = ((value & 0x00ff00) >> 8) == static_cast<uint32_t>(sup);
+  bool tertiary = ((value & 0xff0000) >> 16) == static_cast<uint32_t>(sup);
   return primary || secondary || tertiary;
 }
 

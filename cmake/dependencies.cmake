@@ -43,7 +43,8 @@ include("${ITK_USE_FILE}")
 
 #=========================================================
 # Find VTK (required)
-find_package(VTK 9.5 REQUIRED COMPONENTS
+if(CLITK_BUILD_VV)
+  set(VTK_REQUIRED_COMPONENTS
   ChartsCore
   CommonCore
   CommonDataModel
@@ -67,6 +68,7 @@ find_package(VTK 9.5 REQUIRED COMPONENTS
   InteractionStyle
   IOCore
   IOGeometry
+  IOExport
   IOImage
   IOLegacy
   IOMovie
@@ -77,8 +79,45 @@ find_package(VTK 9.5 REQUIRED COMPONENTS
   RenderingCore
   RenderingLOD
   RenderingOpenGL2
-  ViewsContext2D
-)
+  ViewsContext2D)
+else(CLITK_BUILD_VV)
+  set(VTK_REQUIRED_COMPONENTS
+  ChartsCore
+  CommonCore
+  CommonDataModel
+  CommonExecutionModel
+  CommonMath
+  CommonMisc
+  CommonTransforms
+  FiltersCore
+  FiltersGeneral
+  FiltersHybrid
+  FiltersModeling
+  FiltersSources
+  ImagingColor
+  ImagingCore
+  ImagingMath
+  ImagingMorphological
+  ImagingStatistics
+  ImagingStencil
+  InteractionImage
+  InteractionStyle
+  IOCore
+  IOGeometry
+  IOExport
+  IOImage
+  IOLegacy
+  IOMovie
+  IOXML
+  RenderingAnnotation
+  RenderingContext2D
+  RenderingContextOpenGL2
+  RenderingCore
+  RenderingLOD
+  RenderingOpenGL2
+  ViewsContext2D)
+endif(CLITK_BUILD_VV)
+find_package(VTK 9.5 REQUIRED COMPONENTS ${VTK_REQUIRED_COMPONENTS})
 #========================================================
 
 #=========================================================

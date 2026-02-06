@@ -113,7 +113,7 @@ set(vv_SRCS
 
 # =========================================================
 # Qt related commands
-find_package(Qt6 REQUIRED COMPONENTS Widgets Network)
+find_package(Qt6 REQUIRED COMPONENTS Widgets OpenGL OpenGLWidgets Network)
 
 qt_wrap_cpp(vv_SRCS
   vvMainWindowBase.h
@@ -261,7 +261,7 @@ if(APPLE)
 endif()
 #=========================================================
 #Create binary and libs for tests
-set(vvExternalLibs clitkSegmentationGgoLib ${toolLibs} ${foundationLibraries} ${vvCxImage} Qt6::Widgets Qt6::Network ${APPLE_FRAMEWORKS})
+set(vvExternalLibs clitkSegmentationGgoLib ${toolLibs} ${foundationLibraries} ${vvCxImage} Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Network VTK::GUISupportQt ${APPLE_FRAMEWORKS})
 
 #-----------------------------------------------------------------------------
 # For retina displays, see
@@ -277,7 +277,9 @@ if(WIN32)
   add_executable(vv WIN32 vv.cxx vvIcon.rc)
 elseif(APPLE)
   add_executable(vv MACOSX_BUNDLE vv.cxx)
-  set_target_properties(vv PROPERTIES INSTALL_RPATH "@rpath:@rpath/../lib")
+  set_target_properties(vv PROPERTIES
+                        MACOSX_BUNDLE_GUI_IDENTIFIER "fr.insa-lyon.creatis.vv"
+                        INSTALL_RPATH "@rpath:@rpath/../lib")
 else()
   add_executable(vv vv.cxx)
   set_target_properties(vv PROPERTIES INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib")
@@ -293,16 +295,16 @@ target_link_libraries(vv vvLib)
 # Install options (also used by CPack)
 install(TARGETS vv DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
-get_target_property(QT_INSTALL_PREFIX Qt6::Core LOCATION)
-configure_file("${CMAKE_SOURCE_DIR}/cmake/deploy.cmake.in"
-  "${CMAKE_BINARY_DIR}/cmake/deploy.cmake"
-  @ONLY
-)
-file(GENERATE
-  OUTPUT "${CMAKE_BINARY_DIR}/cmake/deploy-$<CONFIG>.cmake"
-  INPUT "${CMAKE_BINARY_DIR}/cmake/deploy.cmake"
-)
-install(SCRIPT "${CMAKE_BINARY_DIR}/cmake/deploy-$<CONFIG>.cmake")
+#get_target_property(QT_INSTALL_PREFIX Qt6::Core LOCATION)
+#configure_file("${CMAKE_SOURCE_DIR}/cmake/deploy.cmake.in"
+#  "${CMAKE_BINARY_DIR}/cmake/deploy.cmake"
+#  @ONLY
+#)
+#file(GENERATE
+#  OUTPUT "${CMAKE_BINARY_DIR}/cmake/deploy-$<CONFIG>.cmake"
+#  INPUT "${CMAKE_BINARY_DIR}/cmake/deploy.cmake"
+#)
+#install(SCRIPT "${CMAKE_BINARY_DIR}/cmake/deploy-$<CONFIG>.cmake")
 
 #=========================================================
 
