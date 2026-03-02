@@ -65,6 +65,7 @@ public:
   // Main function
   void Update();
   void Update(LoadedImageType type);
+  void Update(std::string inputPixelType, LoadedImageType type);
   void Update(int dim, std::string InputPixelType, LoadedImageType type);
 
 protected:

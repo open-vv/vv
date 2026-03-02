@@ -11,3 +11,4 @@ option "focal_origin"   - "Output files with FOCAL-like origin, instead of the o
 option "patientSystem"  p "Open the image with patient coordinate system" flag off
 option "instanceNumber" n "Sort the images regarding instance number in dicom tag" flag off
 option "reverse"        r "Reverse the slice order" flag off
+option "setDouble"      d "Read input (and save output) as double pixel type" flag off

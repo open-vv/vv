@@ -81,6 +81,27 @@ void vvImageReader::Update(LoadedImageType type)
 
 
 //------------------------------------------------------------------------------
+void vvImageReader::Update(std::string inputPixelType, LoadedImageType type)
+{
+  itk::ImageIOBase::Pointer reader = itk::ImageIOFactory::CreateImageIO(mInputFilenames[0].c_str(), itk::ImageIOFactory::ReadMode);
+  if (!reader) {
+    mLastError="Unable to read file.";
+  } else {
+    reader->SetFileName(mInputFilenames[0]);
+    gdcm::ImageHelper::SetForcePixelSpacing(true);
+    reader->ReadImageInformation();
+    if (mInputFilenames.size() > 1)
+      Update(reader->GetNumberOfDimensions()+1,inputPixelType, type);
+    else if (reader->GetNumberOfComponents() > 1 && type != VECTORFIELD && type != VECTORFIELDWITHTIME)
+      Update(reader->GetNumberOfDimensions()+1,inputPixelType,VECTORPIXELIMAGE);
+    else
+      Update(reader->GetNumberOfDimensions(),inputPixelType, type);
+  }
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 void vvImageReader::Update(int dim,std::string inputPixelType, LoadedImageType type)
 {
   //CALL_FOR_ALL_DIMS(dim,UpdateWithDim,inputPixelType);
