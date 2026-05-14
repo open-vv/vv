@@ -19,6 +19,7 @@
 
 #include "clitkDicomRT_Contour.h"
 #include <vtkCellArray.h>
+#include <cmath>
 
 #if GDCM_MAJOR_VERSION >= 2
 #include "gdcmAttribute.h"
@@ -82,11 +83,7 @@ void clitk::DicomRT_Contour::UpdateDicomItem()
     double * p = mData->GetPoint(i);
     points[i*3] = p[0];
     points[i*3+1] = p[1];
-#if VTK_MAJOR_VERSION <= 5
-    points[i*3+1] = p[2];
-#else
-    points[i*3+1] = p[2]-0.5;
-#endif
+    points[i*3+2] = p[2];
   }
 
   // Get attribute
@@ -157,24 +154,23 @@ bool clitk::DicomRT_Contour::Read(gdcm::Item * item)
   mData = vtkSmartPointer<vtkPoints>::New();
   mData->SetDataTypeToDouble();
   mData->SetNumberOfPoints(mNbOfPoints);
+  bool mZInitialized = false;
   for(unsigned int i=0; i<mNbOfPoints; i++) {
     double p[3];
     p[0] = points[i*3];
     p[1] = points[i*3+1];
-#if VTK_MAJOR_VERSION <= 5
     p[2] = points[i*3+2];
-#else
-    p[2] = points[i*3+2]+0.5;
-#endif
-    mData->SetPoint(i, p);
-    if (mZ == -1) mZ = p[2];
-    if (p[2] != mZ) {
-      DD(i);
-      DD(p[2]);
-      DD(mZ);
-      std::cout << "ERROR ! contour not in the same slice" << std::endl;
-      assert(p[2] == mZ);
+    if (!mZInitialized) {
+      mZ = p[2];
+      mZInitialized = true;
     }
+    else if (std::abs(p[2] - mZ) > 1e-3) {
+      std::cerr << "Warning: contour point " << i << " has Z=" << p[2]
+                << ", differs from contour plane Z=" << mZ
+                << " by " << (p[2]-mZ) << " mm. Snapping to plane." << std::endl;
+      p[2] = mZ;
+    }
+    mData->SetPoint(i, p);
   }
 
   return true;
@@ -208,24 +204,23 @@ bool clitk::DicomRT_Contour::Read(gdcm::SQItem * item)
   mData = vtkSmartPointer<vtkPoints>::New();
   mData->SetDataTypeToDouble();
   mData->SetNumberOfPoints(mNbOfPoints);
+  bool mZInitialized = false;
   for(unsigned int i=0; i<mNbOfPoints; i++) {
     double p[3];
     p[0] = points[i*3];
     p[1] = points[i*3+1];
-#if VTK_MAJOR_VERSION <= 5
     p[2] = points[i*3+2];
-#else
-    p[2] = points[i*3+2]+0.5;
-#endif
-    mData->SetPoint(i, p);
-    if (mZ == -1) mZ = p[2];
-    if (p[2] != mZ) {
-      DD(i);
-      DD(p[2]);
-      DD(mZ);
-      std::cout << "ERROR ! contour not in the same slice" << std::endl;
-      assert(p[2] == mZ);
+    if (!mZInitialized) {
+      mZ = p[2];
+      mZInitialized = true;
     }
+    else if (std::abs(p[2] - mZ) > 1e-3) {
+      std::cerr << "Warning: contour point " << i << " has Z=" << p[2]
+                << ", differs from contour plane Z=" << mZ
+                << " by " << (p[2]-mZ) << " mm. Snapping to plane." << std::endl;
+      p[2] = mZ;
+    }
+    mData->SetPoint(i, p);
   }
 
   return true;

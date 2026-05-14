@@ -66,6 +66,7 @@ public:
   
   void SetImage(vvImage::Pointer im);
   DicomRT_Contour* GetContour(int n);
+  const std::vector<DicomRT_Contour::Pointer> & GetListOfContours() const { return mListOfContours; }
 
   void SetTransformMatrix(vtkMatrix4x4* matrix);
 
