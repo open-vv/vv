@@ -19,19 +19,26 @@
 
 #include <iterator>
 #include <algorithm>
+#include <map>
+#include <cmath>
 
 // clitk
 #include "clitkDicomRTStruct2ImageFilter.h"
+#include "clitkDicomRT_Contour.h"
+#include "clitkDicomRT_ROI.h"
 #include "clitkImageCommon.h"
 
 // vtk
 #include <vtkVersion.h>
+#include <vtkAppendPolyData.h>
 #include <vtkPolyDataToImageStencil.h>
 #include <vtkSmartPointer.h>
 #include <vtkImageStencil.h>
 #include <vtkLinearExtrusionFilter.h>
 #include <vtkMetaImageWriter.h>
 #include <vtkXMLPolyDataWriter.h>
+#include <vtkTransform.h>
+#include <vtkTransformPolyDataFilter.h>
 
 
 //--------------------------------------------------------------------
@@ -279,51 +286,83 @@ void clitk::DicomRTStruct2ImageFilter::Update()
   memset(mBinaryImage->GetScalarPointer(), 0,
          mBinaryImage->GetDimensions()[0]*mBinaryImage->GetDimensions()[1]*mBinaryImage->GetDimensions()[2]*sizeof(unsigned char));
 
-  // Extrude
-  vtkSmartPointer<vtkLinearExtrusionFilter> extrude=vtkSmartPointer<vtkLinearExtrusionFilter>::New();
-#if VTK_MAJOR_VERSION <= 5
-  extrude->SetInput(mesh);
-#else
-  extrude->SetInputData(mesh);
-#endif
-  ///We extrude in the -slice_spacing direction to respect the FOCAL convention (NEEDED !)
-  extrude->SetVector(0, 0, -mSpacing[2]);
+  // Per-slice rasterisation.
+  //
+  // Each Z slice's closed contours are rasterised independently so that
+  // sub-voxel / degenerate contours on one slice cannot corrupt the parity
+  // count for neighbouring slices (the original implementation appended
+  // every contour into one polydata, extruded it globally, and ran the
+  // stencil with tolerance 0 -- which dropped entire slices when a tiny
+  // sub-pixel contour was present, e.g. LUNG1-002 slice 88 of NSCLC-Radiomics).
+  //
+  // For each slice we extrude the contours symmetrically around their Z
+  // (-spacing/2, +spacing/2), so the destination voxel centre sits exactly
+  // in the middle of the slab.  The even-odd rule inside vtkPolyDataToImageStencil
+  // still produces holes for nested contours on the same slice.
+  const std::vector<clitk::DicomRT_Contour::Pointer> & contours = mROI->GetListOfContours();
 
-  // Binarization
-  vtkSmartPointer<vtkPolyDataToImageStencil> sts=vtkSmartPointer<vtkPolyDataToImageStencil>::New();
-  //The following line is extremely important
-  //http://www.nabble.com/Bug-in-vtkPolyDataToImageStencil--td23368312.html#a23370933
-  sts->SetTolerance(0);
-  sts->SetInformationInput(mBinaryImage);
-#if VTK_MAJOR_VERSION <= 5
-  sts->SetInput(extrude->GetOutput());
-#else
-  sts->SetInputConnection(extrude->GetOutputPort(0));
-#endif
-  //sts->SetInput(mesh);
+  // Group contour indices by destination mask slice index in Z.
+  std::map<int, std::vector<size_t> > sliceGroups;
+  for (size_t ci = 0; ci < contours.size(); ++ci) {
+    double cz = contours[ci]->GetZ();
+    int sliceIdx = static_cast<int>(lrint((cz - origin[2]) / mSpacing[2]));
+    if (sliceIdx < 0 || sliceIdx > static_cast<int>(extend[2])) continue;
+    sliceGroups[sliceIdx].push_back(ci);
+  }
 
-  vtkSmartPointer<vtkImageStencil> stencil=vtkSmartPointer<vtkImageStencil>::New();
-#if VTK_MAJOR_VERSION <= 5
-  stencil->SetStencil(sts->GetOutput());
-#else
-  stencil->SetStencilConnection(sts->GetOutputPort(0));
-#endif
-#if VTK_MAJOR_VERSION <= 5
-  stencil->SetInput(mBinaryImage);
-#else
-  stencil->SetInputData(mBinaryImage);
-#endif
-  stencil->ReverseStencilOn();
-  stencil->Update();
+  for (std::map<int, std::vector<size_t> >::const_iterator git = sliceGroups.begin();
+       git != sliceGroups.end(); ++git) {
+    int sliceIdx = git->first;
+    const std::vector<size_t> & idxs = git->second;
+    if (idxs.empty()) continue;
 
-  /*
-  vtkSmartPointer<vtkMetaImageWriter> w = vtkSmartPointer<vtkMetaImageWriter>::New();
-  w->SetInput(stencil->GetOutput());
-  w->SetFileName("binary2.mhd");
-  w->Write();
-  */
+    // Combine all contour polylines for this slice.
+    vtkSmartPointer<vtkAppendPolyData> append = vtkSmartPointer<vtkAppendPolyData>::New();
+    for (size_t k = 0; k < idxs.size(); ++k) {
+#if VTK_MAJOR_VERSION <= 5
+      append->AddInput(contours[idxs[k]]->GetMesh());
+#else
+      append->AddInputData(contours[idxs[k]]->GetMesh());
+#endif
+    }
+    append->Update();
 
-  mBinaryImage->ShallowCopy(stencil->GetOutput());
+    // Centre the future extruded slab on the destination voxel centre.
+    // Shift = (voxelCenterZ - sourceZ) - mSpacing[2]/2, then extrude by +mSpacing[2].
+    double voxelCenterZ = origin[2] + sliceIdx * mSpacing[2];
+    double sourceZ = contours[idxs[0]]->GetZ();
+    double shiftZ = (voxelCenterZ - sourceZ) - mSpacing[2] / 2.0;
+
+    vtkSmartPointer<vtkTransform> tf = vtkSmartPointer<vtkTransform>::New();
+    tf->Translate(0.0, 0.0, shiftZ);
+    vtkSmartPointer<vtkTransformPolyDataFilter> tfFilter = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+    tfFilter->SetTransform(tf);
+    tfFilter->SetInputConnection(append->GetOutputPort(0));
+
+    vtkSmartPointer<vtkLinearExtrusionFilter> extrude = vtkSmartPointer<vtkLinearExtrusionFilter>::New();
+    extrude->SetInputConnection(tfFilter->GetOutputPort(0));
+    extrude->SetVector(0.0, 0.0, mSpacing[2]);
+
+    vtkSmartPointer<vtkPolyDataToImageStencil> sts = vtkSmartPointer<vtkPolyDataToImageStencil>::New();
+    // Keep VTK's default tolerance (~1e-3) so boundary voxels are decided
+    // deterministically.  The old SetTolerance(0) was the trigger for the
+    // missing-slice bug when combined with degenerate sub-voxel input.
+    sts->SetInformationInput(mBinaryImage);
+    sts->SetInputConnection(extrude->GetOutputPort(0));
+
+    vtkSmartPointer<vtkImageStencil> stencil = vtkSmartPointer<vtkImageStencil>::New();
+    stencil->SetStencilConnection(sts->GetOutputPort(0));
+#if VTK_MAJOR_VERSION <= 5
+    stencil->SetInput(mBinaryImage);
+#else
+    stencil->SetInputData(mBinaryImage);
+#endif
+    stencil->ReverseStencilOn();
+    stencil->Update();
+
+    // Accumulate into mBinaryImage so the next slice's pass sees previous fills.
+    mBinaryImage->ShallowCopy(stencil->GetOutput());
+  }
 
   if (mWriteOutput) {
     typedef itk::Image<unsigned char, 3> ImageType;
